@@ -92,7 +92,7 @@ function carry(pose) {
 
 const slungGun = c => GUN.slung(c, { lineW: LINE, simple: true });
 
-function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, sx = 1, filter = null, hold = true }) {
+function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, filter = null, hold = true }) {
   let after = null;
   if (armed() && hold) {
     if (view === "side") { pose = carry(pose); hooks = { ...hooks, hand: gun }; }
@@ -102,7 +102,7 @@ function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = fa
   c.save();
   c.translate(x, y);
   if (rot) c.rotate(rot * D);
-  c.scale(K * sx * (flip ? -1 : 1), K);
+  c.scale(K * (flip ? -1 : 1), K);
   c.translate(view === "side" ? -SIDE_AX : -AX, -FOOT_Y);
   if (filter) c.filter = filter;
   render(c, ROOTS[view], { pose, hooks, lineW: LINE, simple: true });
@@ -227,20 +227,14 @@ move("movement", "Idle", "-", 3, c => {
   bot(c, { x: 180, y: FLOOR, pose: STAND });
 });
 
-move("movement", "Turn", "opposite arrow", 4.8, (c, t) => {
+move("movement", "Turn", "opposite arrow", 3.2, (c, t) => {
   backdrop(c);
-  const seq = [["R", 0.9], ["F", 0.3], ["L", 0.9], ["F", 0.3]];
-  const T = 0.3;
+  const seq = [["R", 1.2], ["F", 0.4], ["L", 1.2], ["F", 0.4]];
   let u = t, i = 0;
-  while (u > seq[i][1] + T) { u -= seq[i][1] + T; i = (i + 1) % seq.length; }
-  let view = seq[i][0], sx = 1;
-  if (u > seq[i][1]) {
-    const k = (u - seq[i][1]) / T;
-    sx = Math.max(0.12, Math.abs(Math.cos(k * Math.PI)));
-    if (k > 0.5) view = seq[(i + 1) % seq.length][0];
-  }
+  while (u > seq[i][1]) { u -= seq[i][1]; i = (i + 1) % seq.length; }
+  const view = seq[i][0];
   shadow(c, 180, FLOOR, 30);
-  bot(c, { view: view === "F" ? "front" : "side", flip: view === "L", sx, x: 180, y: FLOOR, pose: STAND });
+  bot(c, { view: view === "F" ? "front" : "side", flip: view === "L", x: 180, y: FLOOR, pose: STAND });
 });
 
 move("movement", "Walk", "Left / Right", 3.3, (c, t) => {
@@ -392,14 +386,11 @@ move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   backdrop(c);
   barrel(c, 214, FLOOR, 40, 62);
   box(c, 96, FLOOR, 44, 44);
-  const turnIn = span(t, 0.5, 0.8), turnOut = span(t, 3.0, 3.3);
-  const k = turnIn - turnOut;
-  const showFront = (turnIn > 0.5 && turnOut < 0.5);
-  const sx = Math.max(0.12, Math.abs(Math.cos(k * Math.PI)));
+  const showFront = t > 0.65 && t < 3.15;
   const dark = span(t, 0.8, 1.1) * (1 - span(t, 2.7, 3.0));
   const filter = `brightness(${1 - dark * 0.68}) saturate(${1 - dark * 0.7})`;
   shadow(c, 180, FLOOR, 30);
-  bot(c, { view: showFront ? "front" : "side", x: 180, y: FLOOR, pose: STAND, sx: turnIn > 0 && turnOut < 1 && (turnIn < 1 || turnOut > 0) ? sx : 1, filter });
+  bot(c, { view: showFront ? "front" : "side", x: 180, y: FLOOR, pose: STAND, filter });
   if (dark > 0.9) label(c, "HIDDEN");
 });
 
