@@ -1,6 +1,6 @@
 const { buildSide, buildFront, buildBack, render, locate, SIDE_AX, AX, FOOT_Y, PALETTE: P } = window.XBOT;
 const side = buildSide({ farLimbs: true, lod: true });
-const front = buildFront({ lod: true });
+const front = buildFront({ lod: true, rightArmFirst: true });
 const back = buildBack({ lod: true });
 const climber = buildBack({ lod: true, thumbsBehind: true, forearmsUnder: true });
 const ROOTS = { side, front, back, climber };
@@ -90,14 +90,7 @@ function carry(pose) {
   return { ...pose, arm: CARRY.arm - b, fore: CARRY.fore, armFar: CARRY_FAR.armFar - b, foreFar: CARRY_FAR.foreFar };
 }
 
-function slungGun(c) {
-  c.save();
-  c.translate(330, 236);
-  c.rotate(-0.95);
-  c.translate(-40, -100);
-  gun(c);
-  c.restore();
-}
+const slungGun = c => GUN.slung(c, { lineW: LINE, simple: true });
 
 function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, sx = 1, filter = null, hold = true }) {
   let after = null;

@@ -1,26 +1,27 @@
 (() => {
 const PALETTE = window.XBOT.PALETTE;
 
+const BARREL = { x: 100, length: 196 };
 const PARTS = [
   { name: "grip", x: -14, y: -14, w: 26, h: 56, mat: "m", tone: 1 },
-  { name: "stock", x: -176, y: -64, w: 30, h: 50, mat: "m", tone: 0 },
-  { name: "handle", x: -70, y: -96, w: 120, h: 18, mat: "m", tone: 1 },
-  { name: "handlePost", x: -70, y: -82, w: 16, h: 16, mat: "m", tone: 1 },
-  { name: "handlePostFront", x: 34, y: -82, w: 16, h: 16, mat: "m", tone: 1 },
-  { name: "receiver", x: -150, y: -70, w: 290, h: 60, mat: "m", tone: 2 },
-  { name: "stripe", x: -40, y: -70, w: 16, h: 60, mat: "a", tone: 1 },
-  { name: "feed", x: 40, y: -12, w: 64, h: 40, mat: "m", tone: 0 },
-  { name: "barrelBack", x: 140, y: -62, w: 190, h: 44, mat: "m", tone: 0 },
-  { name: "barrelTop", x: 140, y: -62, w: 194, h: 12, mat: "c", tone: 1 },
-  { name: "barrelMid", x: 140, y: -46, w: 198, h: 12, mat: "c", tone: 2 },
-  { name: "barrelLow", x: 140, y: -30, w: 194, h: 12, mat: "c", tone: 1 },
-  { name: "ringRear", x: 160, y: -70, w: 18, h: 60, mat: "m", tone: 0 },
-  { name: "ringFront", x: 300, y: -68, w: 16, h: 56, mat: "m", tone: 0 }
+  { name: "stock", x: -122, y: -64, w: 26, h: 50, mat: "m", tone: 0 },
+  { name: "handle", x: -50, y: -96, w: 96, h: 18, mat: "m", tone: 1 },
+  { name: "handlePost", x: -50, y: -82, w: 16, h: 16, mat: "m", tone: 1 },
+  { name: "handlePostFront", x: 30, y: -82, w: 16, h: 16, mat: "m", tone: 1 },
+  { name: "receiver", x: -100, y: -70, w: 200, h: 60, mat: "m", tone: 2 },
+  { name: "stripe", x: -24, y: -70, w: 16, h: 60, mat: "a", tone: 1 },
+  { name: "feed", x: 24, y: -12, w: 56, h: 40, mat: "m", tone: 0 },
+  { name: "barrelBack", x: BARREL.x, y: -62, w: BARREL.length - 6, h: 44, mat: "m", tone: 0 },
+  { name: "barrelTop", x: BARREL.x, y: -62, w: BARREL.length, h: 12, mat: "c", tone: 1 },
+  { name: "barrelMid", x: BARREL.x, y: -46, w: BARREL.length, h: 12, mat: "c", tone: 2 },
+  { name: "barrelLow", x: BARREL.x, y: -30, w: BARREL.length, h: 12, mat: "c", tone: 1 },
+  { name: "ringRear", x: BARREL.x + 18, y: -70, w: 18, h: 60, mat: "m", tone: 0 },
+  { name: "ringFront", x: BARREL.x + BARREL.length - 34, y: -68, w: 16, h: 56, mat: "m", tone: 0 }
 ];
 
 const MAT = { m: ["m0", "m1", "m2", "m3"], c: ["c0", "c1", "c2", "c3"], a: ["a0", "a1", "a2", "a3"] };
-const MUZZLE = [338, -40];
-const SUPPORT = [170, -2];
+const MUZZLE = [BARREL.x + BARREL.length + 2, -40];
+const SUPPORT = [BARREL.x + 40, -2];
 
 function part(ctx, p, pal, lineW, simple) {
   const tones = MAT[p.mat].map(k => pal[k]);
@@ -46,27 +47,6 @@ function draw(ctx, { pal = PALETTE, lineW = 2, simple = false } = {}) {
   for (const p of PARTS) part(ctx, p, pal, lineW, simple);
 }
 
-function drawMuzzle(ctx, { pal = PALETTE, lineW = 2 } = {}) {
-  const t = ctx.getTransform();
-  const lw = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
-  const disc = (x, y, r, fill) => {
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = fill;
-    ctx.fill();
-    ctx.strokeStyle = pal.mLine;
-    ctx.lineWidth = lw;
-    ctx.stroke();
-  };
-  disc(0, 0, 30, pal.m0);
-  for (let i = 0; i < 6; i++) {
-    const a = i * Math.PI / 3;
-    disc(Math.cos(a) * 18, Math.sin(a) * 18, 8, pal.c1);
-    disc(Math.cos(a) * 18, Math.sin(a) * 18, 3.5, pal.mLine);
-  }
-  disc(0, 0, 6, pal.m2);
-}
-
 function toHook(pt) {
   return [-pt[1], pt[0]];
 }
@@ -75,6 +55,15 @@ function hook(ctx, opts) {
   ctx.save();
   ctx.transform(0, 1, -1, 0, 0, 0);
   draw(ctx, opts);
+  ctx.restore();
+}
+
+function slung(ctx, opts) {
+  ctx.save();
+  ctx.translate(330, 236);
+  ctx.rotate(-0.95);
+  ctx.translate(-40, -60);
+  hook(ctx, opts);
   ctx.restore();
 }
 
@@ -92,5 +81,5 @@ function holdPoses(side, front) {
   };
 }
 
-window.GUN = { holdPoses, PARTS, MUZZLE, SUPPORT, draw, drawMuzzle, hook, toHook, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT) };
+window.GUN = { holdPoses, slung, PARTS, MUZZLE, SUPPORT, draw, hook, toHook, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT) };
 })();

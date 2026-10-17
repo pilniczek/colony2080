@@ -13,13 +13,13 @@
   header label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
   h2 { font-size: 13px; font-weight: 600; margin: 4px 16px 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
   main { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; padding: 12px 16px; }
-  main.game { grid-template-columns: repeat(auto-fill, 144px); }
+  main.game { display: flex; flex-wrap: wrap; align-items: flex-start; }
   figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
   figure.wide { grid-column: span 2; }
   figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
   figure canvas { width: 100%; display: block; }
   figure img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
-  main.game canvas { width: 128px; }
+
   @media (max-width: 560px) { figure.wide { grid-column: auto; } }
 </style>
 </head>
@@ -30,14 +30,15 @@
 </header>
 <main>
   <figure class="wide"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200"></canvas></figure>
-  <figure><figcaption>Muzzle, six barrels</figcaption><canvas id="muzzle" data-w="200" data-h="200"></canvas></figure>
-  <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="900" data-h="780"></canvas></figure>
   <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Slung, back (ladder pose)</figcaption><canvas id="slungBack" data-w="640" data-h="780"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2)</h2>
 <main class="game">
-  <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="900" data-h="780"></canvas></figure>
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
 </main>
 <h2>References</h2>
 <main>
@@ -52,13 +53,16 @@
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
 <script>
-const { buildSide, buildFront, render, SIDE_AX, AX, FOOT_Y } = window.XBOT;
+const { buildSide, buildFront, buildBack, render } = window.XBOT;
 const roots = {
   side: buildSide({ farLimbs: true }),
-  front: buildFront(),
+  front: buildFront({ rightArmFirst: true }),
+  back: buildBack({ thumbsBehind: true, forearmsUnder: true }),
   gSide: buildSide({ farLimbs: true, lod: true }),
-  gFront: buildFront({ lod: true })
+  gFront: buildFront({ lod: true, rightArmFirst: true }),
+  gBack: buildBack({ thumbsBehind: true, forearmsUnder: true, lod: true })
 };
+const CLIMB = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
 const hold = GUN.holdPoses(roots.side, roots.front);
 const sidePose = { ...hold.CARRY, ...hold.CARRY_FAR };
 const frontPose = { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R };
@@ -68,13 +72,23 @@ function robot(ctx, root, pose, hookName, simple, lineW) {
   render(ctx, root, { pose, lineW, simple, hooks: { [hookName]: c => GUN.hook(c, { lineW, simple }) } });
 }
 
+function climber(ctx, root, simple, lineW) {
+  ctx.fillStyle = "#4a5c5f";
+  ctx.fillRect(170, 0, 20, 780);
+  ctx.fillRect(450, 0, 20, 780);
+  for (let y = 60; y < 780; y += 110) ctx.fillRect(170, y, 300, 14);
+  render(ctx, root, { pose: CLIMB, lineW, simple });
+  GUN.slung(ctx, { lineW, simple });
+}
+
 const VIEWS = {
-  side: (ctx, lw) => { ctx.translate(210, 120); GUN.draw(ctx, { lineW: lw }); },
-  muzzle: (ctx, lw) => { ctx.translate(100, 100); ctx.scale(2.6, 2.6); GUN.drawMuzzle(ctx, { lineW: lw }); },
-  heldSide: (ctx, lw) => { ctx.translate(-60, 0); robot(ctx, roots.side, sidePose, "hand", false, lw); },
+  side: (ctx, lw) => { ctx.translate(250, 130); GUN.draw(ctx, { lineW: lw }); },
+  heldSide: (ctx, lw) => { ctx.translate(-80, 0); robot(ctx, roots.side, sidePose, "hand", false, lw); },
   heldFront: (ctx, lw) => robot(ctx, roots.front, frontPose, "handL", false, lw),
-  gSide: (ctx, lw) => { ctx.translate(-60, 0); robot(ctx, roots.gSide, sidePose, "hand", true, lw * 0.5); },
-  gFront: (ctx, lw) => robot(ctx, roots.gFront, frontPose, "handL", true, lw * 0.5)
+  gSide: (ctx, lw) => { ctx.translate(-80, 0); robot(ctx, roots.gSide, sidePose, "hand", true, lw * 0.5); },
+  slungBack: (ctx, lw) => climber(ctx, roots.back, false, lw),
+  gFront: (ctx, lw) => robot(ctx, roots.gFront, frontPose, "handL", true, lw * 0.5),
+  gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw * 0.5)
 };
 
 function draw() {
@@ -83,6 +97,7 @@ function draw() {
     const c = document.getElementById(id);
     const w = +c.dataset.w, h = +c.dataset.h;
     c.style.aspectRatio = `${w} / ${h}`;
+    if (c.closest(".game")) c.style.width = `${w * 0.2}px`;
     c.width = Math.round(c.clientWidth * dpr);
     c.height = Math.round(c.clientWidth * h / w * dpr);
     const ctx = c.getContext("2d");

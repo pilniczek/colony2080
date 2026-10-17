@@ -231,11 +231,11 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   frontHand(fore, flipHand ? p => mirrorPts(M(p), hc) : M, thumbFront);
 }
 
-function buildFront({ lod: low = false } = {}) {
-  return withLod(low, () => frontTree());
+function buildFront({ lod: low = false, rightArmFirst = false } = {}) {
+  return withLod(low, () => frontTree({ rightArmFirst }));
 }
 
-function frontTree() {
+function frontTree({ rightArmFirst }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [AX, 344]);
   P(bodyGroup(s), { pts: [[248, 316], [392, 316], [398, 352], [374, 392], [320, 404], [266, 392], [242, 352]], r: 18 });
@@ -276,8 +276,9 @@ function frontTree() {
   F(b, [[196, 222], [226, 226], [226, 230], [196, 226]], "a0");
   headFront(s, false);
   const arms = bodyGroup(s);
-  frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" });
-  frontArm(arms, true, { arm: "armR", fore: "foreR", hand: "handR" });
+  const left = () => frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" });
+  const right = () => frontArm(arms, true, { arm: "armR", fore: "foreR", hand: "handR" });
+  if (rightArmFirst) { right(); left(); } else { left(); right(); }
   return root;
 }
 
