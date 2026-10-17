@@ -198,7 +198,7 @@ function frontHand(parent, M, thumbFront) {
   };
   if (!thumbFront) thumb();
   P(parent, { pts: M([[44, 400], [134, 398], [136, 434], [44, 436]]), mat: "metal", r: 2 });
-  if (lod) P(parent, { pts: M([[44, 422], [130, 422], [130, 472], [112, 480], [60, 480], [44, 472]]), r: 6 });
+  if (lod) for (let i = 0; i < 4; i++) P(parent, { pts: M([[46 + i * 21, 422], [65 + i * 21, 422], [65 + i * 21, 478], [46 + i * 21, 478]]), shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = 46 + i * 21;
     P(parent, { pts: M([[x, 422], [x + 19, 422], [x + 19, 437], [x, 437]]), r: 2 });
@@ -334,7 +334,7 @@ function sideLeg(parent, names, extra) {
 function sideHand(parent) {
   P(parent, { pts: [[352, 410], [376, 406], [384, 428], [376, 448], [360, 444], [350, 428]], r: 4 });
   P(parent, { pts: [[278, 398], [364, 396], [366, 434], [278, 436]], mat: "metal", r: 2 });
-  if (lod) P(parent, { pts: [[278, 422], [364, 422], [364, 472], [346, 480], [294, 480], [278, 472]], r: 6 });
+  if (lod) for (let i = 0; i < 4; i++) P(parent, { pts: [[280 + i * 21, 422], [299 + i * 21, 422], [299 + i * 21, 478], [280 + i * 21, 478]], shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = 280 + i * 21;
     P(parent, { pts: [[x, 422], [x + 19, 422], [x + 19, 437], [x, 437]], r: 2 });
@@ -418,8 +418,10 @@ function drawPart(ctx, node, pal, lineW, simple) {
   const rect = (fill, x, y, rw, rh) => { ctx.fillStyle = fill; ctx.fillRect(x, y, rw, rh); };
   const ell = (fill, cx, cy, rx, ry) => { ctx.fillStyle = fill; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); };
   if (simple) {
-    if (shade === "box") poly(c0, [[x1 - w * 0.24, y0 - 2], [x1 + 2, y0 - 2], [x1 + 2, y1 + 2], [x1 - w * 0.3, y1 + 2]]);
-    else if (shade === "dome") { rect(c0, x0 - 2, y0 - 2, w + 4, h + 4); ell(c1, x0 + w * 0.44, y0 + h * 0.44, w * 0.5, h * 0.5); ell(c2, x0 + w * 0.36, y0 + h * 0.34, w * 0.26, h * 0.24); }
+    if (shade === "box") {
+      poly(c2, [[x0 - 2, y0 - 2], [x0 + w * 0.36, y0 - 2], [x0 + w * 0.26, y1 + 2], [x0 - 2, y1 + 2]]);
+      poly(c0, [[x1 - w * 0.2, y0 - 2], [x1 + 2, y0 - 2], [x1 + 2, y1 + 2], [x1 - w * 0.28, y1 + 2]]);
+    } else if (shade === "dome") { rect(c0, x0 - 2, y0 - 2, w + 4, h + 4); ell(c1, x0 + w * 0.44, y0 + h * 0.44, w * 0.5, h * 0.5); ell(c2, x0 + w * 0.36, y0 + h * 0.34, w * 0.3, h * 0.28); }
     else if (shade === "cyl") { rect(c2, x0 - 2, y0 - 2, w * 0.3 + 2, h + 4); rect(c0, x1 - w * 0.25, y0 - 2, w * 0.25 + 2, h + 4); }
     else if (shade === "hcyl") { rect(c2, x0 - 2, y0 - 2, w + 4, h * 0.32 + 2); rect(c0, x0 - 2, y1 - h * 0.28, w + 4, h * 0.28 + 2); }
   } else if (shade === "box") {

@@ -49,13 +49,23 @@ function walkPose(p, amp = 24, flexAmp = 30) {
   return { ...legs(0, [h, kn, -(h + kn) * 0.6], [-h, kf, -(-h + kf) * 0.6]), arm: 16 * Math.sin(p), armFar: -16 * Math.sin(p), fore: -6, foreFar: -6 };
 }
 
+const RUN_LEG = [
+  [0, { hip: -32, knee: 12 }],
+  [0.25, { hip: -4, knee: 30 }],
+  [0.5, { hip: 30, knee: 22 }],
+  [0.65, { hip: 22, knee: 96 }],
+  [0.8, { hip: -56, knee: 100 }],
+  [0.92, { hip: -46, knee: 32 }],
+  [1, { hip: -32, knee: 12 }]
+];
+
 function runPose(p) {
+  const u = ph => ((ph / (2 * Math.PI)) % 1 + 1) % 1;
   const leg = ph => {
-    const hip = -14 - 42 * Math.sin(ph);
-    const knee = 14 + 92 * Math.pow(Math.max(0, Math.cos(ph)), 1.3);
+    const { hip, knee } = keyed(RUN_LEG, u(ph));
     return [hip, knee, -(hip + knee) * 0.45 + 8];
   };
-  return { ...legs(12, leg(p), leg(p + Math.PI)), arm: 34 * Math.sin(p), armFar: -34 * Math.sin(p), fore: -78, foreFar: -78 };
+  return { ...legs(12, leg(p), leg(p + Math.PI)), arm: -34 * Math.cos(p), armFar: 34 * Math.cos(p), fore: -78, foreFar: -78 };
 }
 
 function footMax(pose) {
@@ -363,7 +373,7 @@ move("interaction", "Use", "Enter at target", 2.6, (c, t) => {
   bot(c, { x: 140, y: FLOOR + lift(pose), pose });
 });
 
-move("fight", "Hide", "Shift, front view + tint", 4, (c, t) => {
+move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   backdrop(c);
   barrel(c, 214, FLOOR, 40, 62);
   box(c, 96, FLOOR, 44, 44);
@@ -407,7 +417,7 @@ function punchPose(t, base, jab, cross, period) {
   const u = t % period / period;
   const near = num([[0, 0], [0.12, 1], [0.32, 0], [1, 0]], u);
   const far = num([[0, 0], [0.5, 0], [0.62, 1], [0.82, 0], [1, 0]], u);
-  return { ...base, ...mix(GUARD, jab, near), ...(cross ? { armFar: mix(GUARD, cross, far).armFar, foreFar: mix(GUARD, cross, far).foreFar } : {}), body: base.body + 6 * Math.max(near, far) };
+  return { ...base, ...mix(GUARD, jab, near), ...(cross ? { armFar: mix(GUARD, cross, far).armFar, foreFar: mix(GUARD, cross, far).foreFar } : {}) };
 }
 
 move("fight", "Punch", "Ctrl, weapon 2 (fists)", 1.2, (c, t) => {
@@ -451,8 +461,9 @@ function climbPose(hl) {
   const hr = 1 - hl;
   const legUp = r => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
   const [thighL, shinL] = legUp(hr), [thighR, shinR] = legUp(hl);
+  const reach = h => ({ rot: 0, sy: 0.35 + 0.65 * h });
   return {
-    armL: 160 + 18 * hl, foreL: 34 * hr, armR: -(160 + 18 * hr), foreR: -34 * hl,
+    armL: 172, foreL: reach(hl), armR: -172, foreR: reach(hr),
     thighL, shinL, thighR, shinR
   };
 }
@@ -466,9 +477,9 @@ move("movement", "Ladder", "Up / Down at ladder, back view", 4, (c, t) => {
   const climb = 120 * clamp((t - 0.5) / 3.0);
   for (let y = FLOOR - 16; y > 0; y -= 22) c.fillRect(lx - 38, y, 76, 3);
   const hl = 0.5 + 0.5 * Math.sin(climb / 44 * Math.PI * 2);
-  const pose = t < 0.5 ? mix({}, climbPose(hl), ease(t / 0.5)) : climbPose(hl);
+  const pose = climbPose(hl);
   c.save();
-  c.globalAlpha = 1 - span(t, 3.6, 4);
+  c.globalAlpha = span(t, 0, 0.3) * (1 - span(t, 3.6, 4));
   bot(c, { view: "back", x: lx, y: FLOOR - climb, pose });
   c.restore();
 });
