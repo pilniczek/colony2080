@@ -411,8 +411,10 @@ function bands(g, colors, stops) {
   return g;
 }
 
-function simpleFill(ctx, node, c0, c1, c2) {
-  const key = c0 + c1 + c2;
+const CLEAR = "rgba(0,0,0,0)";
+
+function baseFill(ctx, node, simple, c0, c1, c2, c3) {
+  const key = (simple ? "s" : "f") + c0 + c1 + c2 + c3;
   if (node.fillKey === key) return node.fill;
   const { spec: { shade = "box" }, box: [x0, y0, x1, y1] } = node;
   const w = x1 - x0, h = y1 - y0;
@@ -420,30 +422,31 @@ function simpleFill(ctx, node, c0, c1, c2) {
   if (shade === "box") {
     const a = 0.09 * w / h, c = w / (1 + a * a);
     fill = bands(ctx.createLinearGradient(x0, y0, x0 + c, y0 + c * a), [c2, c1, c0], [0.355, 0.805]);
-  } else if (shade === "cyl") fill = bands(ctx.createLinearGradient(x0, 0, x1, 0), [c2, c1, c0], [0.3, 0.75]);
-  else if (shade === "hcyl") fill = bands(ctx.createLinearGradient(0, y0, 0, y1), [c2, c1, c0], [0.32, 0.72]);
-  else if (shade === "dome") fill = bands(ctx.createRadialGradient(0.36, 0.34, 0.29, 0.44, 0.44, 0.5), [c2, c1, c0], [0, 1]);
+  } else if (shade === "cyl") {
+    const g = ctx.createLinearGradient(x0, 0, x1, 0);
+    fill = simple ? bands(g, [c2, c1, c0], [0.3, 0.75]) : bands(g, [c2, c3, c2, c1, c0], [0.12, 0.2, 0.3, 0.75]);
+  } else if (shade === "hcyl") {
+    const g = ctx.createLinearGradient(0, y0, 0, y1);
+    fill = simple ? bands(g, [c2, c1, c0], [0.32, 0.72]) : bands(g, [c2, c3, c2, c1, c0], [0.14, 0.22, 0.32, 0.72]);
+  } else if (shade === "dome") fill = bands(ctx.createRadialGradient(0.36, 0.34, 0.29, 0.44, 0.44, 0.5), [c2, c1, c0], [0, 1]);
   node.fill = fill;
   node.fillKey = key;
   return fill;
 }
 
+function bottomBand(ctx, node, c0) {
+  if (node.bandKey === c0) return node.band;
+  const [x0, y0, x1, y1] = node.box;
+  const w = x1 - x0, h = y1 - y0;
+  const b = 0.04 * h / w, c = h / (1 + b * b);
+  node.band = bands(ctx.createLinearGradient(x0, y0, x0 - c * b, y0 + c), [CLEAR, c0], [0.88]);
+  node.bandKey = c0;
+  return node.band;
+}
+
 function lineWidth(ctx, lineW) {
   const t = ctx.getTransform();
   return lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
-}
-
-function drawSimplePart(ctx, node, c0, c1, c2) {
-  const fill = simpleFill(ctx, node, c0, c1, c2);
-  ctx.fillStyle = fill;
-  if (node.spec.shade !== "dome") return ctx.fill(node.path);
-  const [x0, y0, x1, y1] = node.box;
-  node.unitPath ||= unitPath(node);
-  ctx.save();
-  ctx.translate(x0, y0);
-  ctx.scale(x1 - x0, y1 - y0);
-  ctx.fill(node.unitPath);
-  ctx.restore();
 }
 
 function unitPath(node) {
@@ -453,55 +456,74 @@ function unitPath(node) {
   return p;
 }
 
+function fillUnit(ctx, node) {
+  const [x0, y0, x1, y1] = node.box;
+  node.unitPath ||= unitPath(node);
+  ctx.save();
+  ctx.translate(x0, y0);
+  ctx.scale(x1 - x0, y1 - y0);
+  ctx.fill(node.unitPath);
+  ctx.restore();
+}
+
+function highlight(node) {
+  const [x0, y0, x1, y1] = node.box;
+  const w = x1 - x0, h = y1 - y0;
+  const { shade = "box" } = node.spec;
+  if (shade === "box" && w > 24 && h > 24) return { pts: [[x0 + w * 0.1, y0 + h * 0.08], [x0 + w * 0.22, y0 + h * 0.08], [x0 + w * 0.15, y0 + h * 0.4], [x0 + w * 0.06, y0 + h * 0.4]] };
+  if (shade === "dome") return { ellipse: [x0 + w * 0.3, y0 + h * 0.26, w * 0.09, h * 0.06] };
+  return null;
+}
+
+let probe = null;
+
+function insidePath(path, pts) {
+  probe ||= document.createElement("canvas").getContext("2d");
+  return pts.every(([x, y]) => probe.isPointInPath(path, x, y));
+}
+
+function highlightSamples({ pts, ellipse }) {
+  if (pts) return pts.flatMap((p, i) => { const q = pts[(i + 1) % pts.length]; return [p, [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]]; });
+  const [cx, cy, rx, ry] = ellipse;
+  return Array.from({ length: 8 }, (_, i) => [cx + rx * Math.cos(i * Math.PI / 4), cy + ry * Math.sin(i * Math.PI / 4)]);
+}
+
+function drawHighlight(ctx, node, c3) {
+  if (node.hl === undefined) {
+    node.hl = highlight(node);
+    if (node.hl) node.hl.inside = insidePath(node.path, highlightSamples(node.hl));
+  }
+  const hl = node.hl;
+  if (!hl) return;
+  if (!hl.inside) { ctx.save(); ctx.clip(node.path); }
+  ctx.fillStyle = c3;
+  ctx.beginPath();
+  if (hl.pts) hl.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  else ctx.ellipse(...hl.ellipse, 0, 0, Math.PI * 2);
+  ctx.fill();
+  if (!hl.inside) ctx.restore();
+}
+
 function drawPart(ctx, node, pal, lineW, simple) {
-  const { spec, path, box } = node;
+  const { spec, path } = node;
   const { mat = "armor", shade = "box", line = true } = spec;
   const [c0, c1, c2, c3, cl] = MAT[mat].map(k => pal[k]);
-  if (simple) drawSimplePart(ctx, node, c0, c1, c2);
-  else drawShadedPart(ctx, path, box, shade, c0, c1, c2, c3);
+  ctx.fillStyle = baseFill(ctx, node, simple, c0, c1, c2, c3);
+  if (shade === "dome") fillUnit(ctx, node);
+  else ctx.fill(path);
+  if (!simple) {
+    if (shade === "box") {
+      ctx.fillStyle = bottomBand(ctx, node, c0);
+      ctx.fill(path);
+    }
+    drawHighlight(ctx, node, c3);
+  }
   if (line && lineW) {
     ctx.strokeStyle = cl;
     ctx.lineJoin = "round";
     ctx.lineWidth = lineWidth(ctx, lineW);
     ctx.stroke(path);
   }
-}
-
-function drawShadedPart(ctx, path, box, shade, c0, c1, c2, c3) {
-  const [x0, y0, x1, y1] = box;
-  const w = x1 - x0, h = y1 - y0;
-  ctx.save();
-  ctx.clip(path);
-  ctx.fillStyle = c1;
-  ctx.fill(path);
-  const poly = (fill, pts) => {
-    ctx.fillStyle = fill;
-    ctx.beginPath();
-    pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-    ctx.fill();
-  };
-  const rect = (fill, x, y, rw, rh) => { ctx.fillStyle = fill; ctx.fillRect(x, y, rw, rh); };
-  const ell = (fill, cx, cy, rx, ry) => { ctx.fillStyle = fill; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); };
-  if (shade === "box") {
-    poly(c2, [[x0 - 2, y0 - 2], [x0 + w * 0.36, y0 - 2], [x0 + w * 0.26, y1 + 2], [x0 - 2, y1 + 2]]);
-    poly(c0, [[x1 - w * 0.2, y0 - 2], [x1 + 2, y0 - 2], [x1 + 2, y1 + 2], [x1 - w * 0.28, y1 + 2]]);
-    poly(c0, [[x0 - 2, y1 - h * 0.12], [x1 + 2, y1 - h * 0.08], [x1 + 2, y1 + 2], [x0 - 2, y1 + 2]]);
-    if (w > 24 && h > 24) poly(c3, [[x0 + w * 0.1, y0 + h * 0.08], [x0 + w * 0.22, y0 + h * 0.08], [x0 + w * 0.15, y0 + h * 0.4], [x0 + w * 0.06, y0 + h * 0.4]]);
-  } else if (shade === "dome") {
-    rect(c0, x0 - 2, y0 - 2, w + 4, h + 4);
-    ell(c1, x0 + w * 0.44, y0 + h * 0.44, w * 0.5, h * 0.5);
-    ell(c2, x0 + w * 0.36, y0 + h * 0.34, w * 0.3, h * 0.28);
-    ell(c3, x0 + w * 0.3, y0 + h * 0.26, w * 0.09, h * 0.06);
-  } else if (shade === "cyl") {
-    rect(c2, x0 - 2, y0 - 2, w * 0.3 + 2, h + 4);
-    rect(c3, x0 + w * 0.12, y0 - 2, w * 0.08, h + 4);
-    rect(c0, x1 - w * 0.25, y0 - 2, w * 0.25 + 2, h + 4);
-  } else if (shade === "hcyl") {
-    rect(c2, x0 - 2, y0 - 2, w + 4, h * 0.32 + 2);
-    rect(c3, x0 - 2, y0 + h * 0.14, w + 4, h * 0.08);
-    rect(c0, x0 - 2, y1 - h * 0.28, w + 4, h * 0.28 + 2);
-  }
-  ctx.restore();
 }
 
 function drawTrefoil(ctx, r, pal, lineW, outer = 0.84) {
