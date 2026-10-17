@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Pre-code. Brainstorming phase for a browser clone of Colony 28 (1996/97 Czech DOS cinematic side-scroller). No build, lint or test setup exists yet. No commits yet.
+Pre-code. Brainstorming phase for a browser clone of Colony 28 (1996/97 Czech DOS cinematic side-scroller). No build, lint or test setup exists yet.
 
 - `docs/requirements.md` - decision log and open questions. Source of truth for what is decided. Design spec goes to `docs/superpowers/specs/` (not created yet).
 - `docs/research/README.md` - research summary (mechanics, level 1 task graph, data formats, open gaps). Read before answering questions about the original game.
@@ -31,7 +31,6 @@ Throwaway prototypes. They read `config/` through generated `spikes/shared/confi
 - `spikes/robot-design/index.html` - design sheet rendering `xbot.js`, with palette editor, level guides and original reference frames.
 - `spikes/crowbar-scene/index.html` - vector cutscene (crowbar opens train door, agreed version) using `xbot.js`, with a two-handed grip. Tracks, clip window (`clip.start` trims the unused walk) and pry swing (`pullArmDeg` / `pullForeDeg`) come from `config/cutscenes/crowbar-door.json`; scrubber, speed, palette editor, side-by-side view of original `METROPAC.ANM` frames from `docs/research/gamedata/png/METROPAC/`.
 - `spikes/crowbar-scene/previews/pry.gif` - GIF of the clip, regenerate with `docs/research/tools/robot/seq.mjs` (frames, needs `playwright-core`) and `gif.py`.
-- `spikes/trace/index.html` - tracing tool: original frame as canvas background, vector overlay, difference and heatmap modes, mismatch score. Models in `spikes/trace/models/`.
 
 ## Research tools
 

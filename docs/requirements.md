@@ -77,7 +77,6 @@ flowchart LR
 | `spikes/robot-design/` | Hero design sheet (front, side, back), palette, level guides, reference frames |
 | `spikes/shared/xbot.js` | Shared robot model and renderer |
 | `spikes/crowbar-scene/` | Cutscene keyframe format, camera shots, two-handed lever prop handling, synced arms; `previews/pry.gif` |
-| `spikes/trace/` | Tracing tool (dropped as design method, kept for reference) |
 
 ## Open
 
