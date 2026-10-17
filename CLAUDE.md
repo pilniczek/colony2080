@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Pre-code. Brainstorming phase for a browser clone of Colony 28 (1996/97 Czech DOS cinematic side-scroller). No build, lint or test setup exists yet.
 
-- `docs/requirements.md` - decision log and open questions. Source of truth for what is decided. Design spec: `docs/superpowers/specs/2026-10-17-colony2080-design.md` (phases, movement set).
+- `docs/requirements.md` - decision log and open questions. Source of truth for what is decided. Design spec: `docs/superpowers/specs/2026-10-17-colony2080-design.md` (phases, movement set). Next implementation plan: `docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md` (phase 1b, not started).
+- `WORK-REPORT.md` - local session handoff (gitignored): open follow-ups and abandoned approaches.
 - `docs/research/README.md` - research summary (mechanics, level 1 task graph, data formats, open gaps). Read before answering questions about the original game.
 - `config/` - draft JSON configs (`"status": "draft"`). Each cites its research or decision `source`.
 - `spikes/` - throwaway prototypes.

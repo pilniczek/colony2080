@@ -50,6 +50,7 @@ flowchart LR
 | Cutscene format | Shots with camera keyframes plus keyframe tracks (pose angles, prop values) with easing. First clip (agreed): crowbar opens train door, 3.95 s, 2 shots: side view draws the crowbar from a hip "pocket" and raises it, back view pries the door open. No walk section | user (clip), Claude's call (format) |
 | Held props | Held with both hands. Prop renders inside the grip (behind the fist, sticking out both sides). Side view: far hand solved onto the shaft next to the near hand. Back view: both arms follow one shared pry pull (same angle change for both, so biceps move in sync, large swing); the crowbar runs from the hidden left hand through the right fist to the door seam. Right forearm and hand drawn behind shoulder and torso, using the front-view right hand | user (two hands, sync, layering), Claude's call (method) |
 | Design status | Hero robot design and the crowbar animation are agreed (2026-10-17). Reference: `spikes/robot-design/`, `spikes/crowbar-scene/`, preview `spikes/crowbar-scene/previews/pry.gif` | user |
+| Phase 1b plan | Written: `docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md` (13 tasks, TDD, pixel check of the robot and gun port against the spikes) | Claude's call (plan), user review pending |
 | Spec and gun status | Design spec (`docs/superpowers/specs/2026-10-17-colony2080-design.md`) and gun look (`spikes/gun-design/`) approved (2026-10-17) | user |
 | Prototype viewing | No local server: pages open via `file://` or the VS Code Live Preview extension. Shared scripts are classic scripts, not ES modules | user |
 | Saves | As in the original: manual save and load at any time, 5 slots | user |
@@ -97,3 +98,12 @@ flowchart LR
 - Robot part polygons still live in code (`spikes/shared/xbot.js`); only parameters are in `config/robots/xbot.json`.
 - Intro cutscene and dying-rebel scene in mission 1 scope or not (cutscenes postponed).
 - Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Original stays default and keys are configurable; revisit after trying the sandbox.
+- Phase 1b plan (`docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md`) awaits user review and an execution method (subagent-driven or native).
+- Running the sandbox with the Vite dev server (`npm run dev`) is the plan's assumption; spikes keep opening from `file://`.
+- Hide: hold Shift to stay hidden (plan's assumption) or toggle as the original may do.
+- Lift: moves while the hero holds Up or Down on it (plan's assumption); check against the original when level 1 is built.
+- Ladder: Left / Right do nothing while climbing (plan's assumption).
+- Weapon slot 3 (level bonus weapon) is ignored until phase 3.
+- Hero tuning values in `config/hero/movement.json` are first guesses until tuned in the sandbox.
+- Collision source for levels (decoded map data or hand-authored) is decided in phase 4.
+- Invasion year in the story (2013, 2018 or 2028 across sources).
