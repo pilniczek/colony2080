@@ -1,6 +1,6 @@
 const { buildSide, buildFront, buildBack, render, locate, SIDE_AX, AX, FOOT_Y, PALETTE: P } = window.XBOT;
 const side = buildSide({ farLimbs: true, propBehindArm: true, lod: true });
-const front = buildFront({ lod: true, rightArmFirst: true });
+const front = buildFront({ lod: true, rightArmFirst: true, propBehindArm: true });
 const back = buildBack({ lod: true });
 const climber = buildBack({ lod: true, thumbsBehind: true, forearmsUnder: true });
 const ROOTS = { side, front, back, climber };

@@ -209,7 +209,7 @@ function frontHand(parent, M, thumbFront) {
   if (thumbFront) thumb();
 }
 
-function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = null, flipHand = false, foreUnder = false) {
+function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = null, flipHand = false, foreUnder = false, propBehindArm = false) {
   const M = p => mirror ? mirrorPts(p) : p;
   const sh = mirror ? [2 * AX - 100, 150] : [100, 150];
   const el = mirror ? [2 * AX - 90, 306] : [90, 306];
@@ -221,21 +221,22 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   P(arm, { pts: M(pauldron), r: 20, shade: "dome" });
   const fore = under || G(foreParent ? G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirror ? 2 * AX - 89 : 89;
+  if (names.hand && propBehindArm) hook(G(fore, `translate(${fc} 440)`), names.hand);
   const fa = G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
   P(fa, { pts: M(forearm), r: 1 });
   F(fa, M([[30, 354], [150, 352], [150, 356], [30, 358]]), "a0");
   F(fa, M([[30, 374], [150, 372], [150, 376], [30, 378]]), "a0");
   const hand = G(fore, `translate(${mirror ? 2 * AX - 89 : 89} 440)`);
-  if (names.hand) hook(hand, names.hand);
+  if (names.hand && !propBehindArm) hook(hand, names.hand);
   const hc = mirror ? 2 * AX - 89 : 89;
   frontHand(fore, flipHand ? p => mirrorPts(M(p), hc) : M, thumbFront);
 }
 
-function buildFront({ lod: low = false, rightArmFirst = false } = {}) {
-  return withLod(low, () => frontTree({ rightArmFirst }));
+function buildFront({ lod: low = false, rightArmFirst = false, propBehindArm = false } = {}) {
+  return withLod(low, () => frontTree({ rightArmFirst, propBehindArm }));
 }
 
-function frontTree({ rightArmFirst }) {
+function frontTree({ rightArmFirst, propBehindArm }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [AX, 344]);
   P(bodyGroup(s), { pts: [[248, 316], [392, 316], [398, 352], [374, 392], [320, 404], [266, 392], [242, 352]], r: 18 });
@@ -276,7 +277,7 @@ function frontTree({ rightArmFirst }) {
   F(b, [[196, 222], [226, 226], [226, 230], [196, 226]], "a0");
   headFront(s, false);
   const arms = bodyGroup(s);
-  const left = () => frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" });
+  const left = () => frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" }, false, null, false, false, propBehindArm);
   const right = () => frontArm(arms, true, { arm: "armR", fore: "foreR", hand: "handR" });
   if (rightArmFirst) { right(); left(); } else { left(); right(); }
   return root;

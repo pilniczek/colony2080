@@ -56,10 +56,10 @@
 const { buildSide, buildFront, buildBack, render } = window.XBOT;
 const roots = {
   side: buildSide({ farLimbs: true, propBehindArm: true }),
-  front: buildFront({ rightArmFirst: true }),
+  front: buildFront({ rightArmFirst: true, propBehindArm: true }),
   back: buildBack({ thumbsBehind: true, forearmsUnder: true }),
   gSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true }),
-  gFront: buildFront({ lod: true, rightArmFirst: true }),
+  gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true }),
   gBack: buildBack({ thumbsBehind: true, forearmsUnder: true, lod: true })
 };
 const CLIMB = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
