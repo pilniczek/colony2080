@@ -49,7 +49,7 @@
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script>
-const { buildSide, buildBack, render: renderBot, locate, AX, SIDE_AX, FOOT_Y } = window.XBOT;
+const { buildSide, buildBack, render: renderBot, locate, solve, AX, SIDE_AX, FOOT_Y } = window.XBOT;
 const CFG = window.C28_CONFIG.cutscenes.crowbarDoor;
 const W = CFG.stage.width, H = CFG.stage.height, FLOOR = CFG.stage.floorY, SEAM = CFG.stage.doorSeamX;
 
@@ -220,30 +220,7 @@ function placeRobot(root, x, y, ax, pose, hooks) {
 const BAR_TILT = RB.barTilt;
 const FAR_GRIP = RB.farGripOffset;
 
-function solve(root, hookName, pose, keys, ranges, target) {
-  const hit = q => {
-    const m = locate(root, hookName, { ...pose, [keys[0]]: q[0], [keys[1]]: q[1] });
-    const pt = m.transformPoint(new DOMPoint(0, 0));
-    return Math.hypot(pt.x - target.x, pt.y - target.y);
-  };
-  let best = [Infinity, 0, 0];
-  for (let a = ranges[0][0]; a <= ranges[0][1]; a += 4) {
-    for (let b = ranges[1][0]; b <= ranges[1][1]; b += 4) {
-      const d = hit([a, b]);
-      if (d < best[0]) best = [d, a, b];
-    }
-  }
-  for (const [span, step] of [[4, 1], [1, 0.25]]) {
-    const [, a0, b0] = best;
-    for (let a = a0 - span; a <= a0 + span; a += step) {
-      for (let b = b0 - span; b <= b0 + span; b += step) {
-        const d = hit([a, b]);
-        if (d < best[0]) best = [d, a, b];
-      }
-    }
-  }
-  return best;
-}
+let farSeed = null;
 
 function drawProfile(t) {
   const x = sample("walkX", t);
@@ -264,9 +241,9 @@ function drawProfile(t) {
   if (blend > 0) {
     const near = locate(sideRoot, "hand", pose);
     const target = near.rotate(BAR_TILT * 180 / Math.PI).transformPoint(new DOMPoint(FAR_GRIP, 0));
-    const [, a, f] = solve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 40], [-120, 10]], target);
-    pose.armFar += (a - pose.armFar) * blend;
-    pose.foreFar += (f - pose.foreFar) * blend;
+    farSeed = solve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 40], [-120, 10]], target, farSeed);
+    pose.armFar += (farSeed.armFar - pose.armFar) * blend;
+    pose.foreFar += (farSeed.foreFar - pose.foreFar) * blend;
   }
   const hooks = {
     hand: shown ? c => {

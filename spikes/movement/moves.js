@@ -1,4 +1,4 @@
-const { buildSide, buildFront, buildBack, render, locate, SIDE_AX, AX, FOOT_Y, PALETTE: P } = window.XBOT;
+const { buildSide, buildFront, buildBack, render, locate, shade, SIDE_AX, AX, FOOT_Y, PALETTE: P } = window.XBOT;
 const side = buildSide({ farLimbs: true, propBehindArm: true, lod: true });
 const front = buildFront({ lod: true, rightArmFirst: true, propBehindArm: true });
 const back = buildBack({ lod: true });
@@ -90,9 +90,9 @@ function carry(pose) {
   return { ...pose, arm: CARRY.arm - b, fore: CARRY.fore, armFar: CARRY_FAR.armFar - b, foreFar: CARRY_FAR.foreFar };
 }
 
-const slungGun = c => GUN.slung(c, { lineW: LINE, simple: true });
+const slungGun = (c, pal) => GUN.slung(c, { pal, lineW: LINE, simple: true });
 
-function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, filter = null, hold = true }) {
+function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, tint = null, hold = true }) {
   let after = null;
   if (armed() && hold) {
     if (view === "side") { pose = carry(pose); hooks = { ...hooks, hand: gun }; }
@@ -104,9 +104,9 @@ function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = fa
   if (rot) c.rotate(rot * D);
   c.scale(K * (flip ? -1 : 1), K);
   c.translate(view === "side" ? -SIDE_AX : -AX, -FOOT_Y);
-  if (filter) c.filter = filter;
-  render(c, ROOTS[view], { pose, hooks, lineW: LINE, simple: true });
-  if (after) after(c);
+  const pal = tint ? shade(P, tint) : P;
+  render(c, ROOTS[view], { pal, pose, hooks, lineW: LINE, simple: true });
+  if (after) after(c, pal);
   c.restore();
 }
 
@@ -200,7 +200,7 @@ function label(c, text, x = 8, y = 16) {
   c.fillText(text, x, y);
 }
 
-const gun = c => GUN.hook(c, { lineW: LINE, simple: true });
+const gun = (c, pal) => GUN.hook(c, { pal, lineW: LINE, simple: true });
 const MUZZLE = GUN.muzzleInHook;
 
 function droppedGun(c, x) {
@@ -389,9 +389,8 @@ move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   box(c, 96, FLOOR, 44, 44);
   const showFront = t > 0.65 && t < 3.15;
   const dark = span(t, 0.8, 1.1) * (1 - span(t, 2.7, 3.0));
-  const filter = `brightness(${1 - dark * 0.68}) saturate(${1 - dark * 0.7})`;
   shadow(c, 180, FLOOR, 30);
-  bot(c, { view: showFront ? "front" : "side", x: 180, y: FLOOR, pose: STAND, filter });
+  bot(c, { view: showFront ? "front" : "side", x: 180, y: FLOOR, pose: STAND, tint: { brightness: 1 - dark * 0.68, saturate: 1 - dark * 0.7 } });
   if (dark > 0.9) label(c, "HIDDEN");
 });
 
@@ -532,7 +531,7 @@ move("fight", "Hit reaction", "taking damage", 2, (c, t) => {
   const x = 170 - 14 * easeOut(span(t, hitT, hitT + 0.2)) * (1 - span(t, hitT + 0.6, 2));
   shadow(c, x, FLOOR, 30);
   const flash = 1 - span(t, hitT, hitT + 0.25);
-  bot(c, { x, y: FLOOR + lift(pose), pose, filter: t > hitT && flash > 0 ? `brightness(${1 + flash * 0.6}) saturate(${1 + flash})` : null });
+  bot(c, { x, y: FLOOR + lift(pose), pose, tint: t > hitT && flash > 0 ? { brightness: 1 + flash * 0.6, saturate: 1 + flash } : null });
   if (t < hitT) {
     c.strokeStyle = "#ff6a3a"; c.lineWidth = 2;
     const bx = 360 - (360 - 190) * t / hitT;
@@ -569,8 +568,13 @@ const cells = MOVES.filter(m => m.category === CATEGORY).map(m => {
   cap.append(b, s);
   fig.append(canvas, cap);
   grid.append(fig);
-  return { m, canvas, ctx: canvas.getContext("2d"), b, s };
+  return { m, canvas, ctx: canvas.getContext("2d"), b, s, visible: true };
 });
+
+const watcher = new IntersectionObserver(entries => {
+  for (const e of entries) cells.find(cell => cell.canvas === e.target).visible = e.isIntersecting;
+});
+for (const { canvas } of cells) watcher.observe(canvas);
 
 const pick = v => typeof v === "string" ? v : v[WEAPON];
 function setWeapon(w) {
@@ -585,7 +589,8 @@ setWeapon(WEAPON);
 function frame(now) {
   const dpr = devicePixelRatio || 1;
   LINE = dpr;
-  for (const { m, canvas, ctx } of cells) {
+  for (const { m, canvas, ctx, visible } of cells) {
+    if (!visible) continue;
     const w = Math.round(canvas.clientWidth * dpr);
     if (canvas.width !== w) { canvas.width = w; canvas.height = Math.round(w * H / W); }
     const s = canvas.width / W;

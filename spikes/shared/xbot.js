@@ -373,7 +373,7 @@ function sideTree({ farLimbs, badge, propBehindArm }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [SIDE_AX, 344]);
   if (farLimbs) {
-    const far = { filter: "brightness(0.55)" };
+    const far = { dim: 0.55 };
     sideArm(G(s, "translate(-20 0)"), { arm: "armFar", fore: "foreFar", hand: "handFar" }, far);
     sideLeg(G(s, "translate(-24 0)"), { hip: "hipFar", knee: "kneeFar", ankle: "ankleFar", heel: "heelFar", toe: "toeFar" }, far);
   }
@@ -404,10 +404,70 @@ function sideTree({ farLimbs, badge, propBehindArm }) {
   return root;
 }
 
+function bands(g, colors, stops) {
+  g.addColorStop(0, colors[0]);
+  stops.forEach((s, i) => { g.addColorStop(s, colors[i]); g.addColorStop(s, colors[i + 1]); });
+  g.addColorStop(1, colors[colors.length - 1]);
+  return g;
+}
+
+function simpleFill(ctx, node, c0, c1, c2) {
+  const key = c0 + c1 + c2;
+  if (node.fillKey === key) return node.fill;
+  const { spec: { shade = "box" }, box: [x0, y0, x1, y1] } = node;
+  const w = x1 - x0, h = y1 - y0;
+  let fill = c1;
+  if (shade === "box") {
+    const a = 0.09 * w / h, c = w / (1 + a * a);
+    fill = bands(ctx.createLinearGradient(x0, y0, x0 + c, y0 + c * a), [c2, c1, c0], [0.355, 0.805]);
+  } else if (shade === "cyl") fill = bands(ctx.createLinearGradient(x0, 0, x1, 0), [c2, c1, c0], [0.3, 0.75]);
+  else if (shade === "hcyl") fill = bands(ctx.createLinearGradient(0, y0, 0, y1), [c2, c1, c0], [0.32, 0.72]);
+  else if (shade === "dome") fill = bands(ctx.createRadialGradient(0.36, 0.34, 0.29, 0.44, 0.44, 0.5), [c2, c1, c0], [0, 1]);
+  node.fill = fill;
+  node.fillKey = key;
+  return fill;
+}
+
+function lineWidth(ctx, lineW) {
+  const t = ctx.getTransform();
+  return lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+}
+
+function drawSimplePart(ctx, node, c0, c1, c2) {
+  const fill = simpleFill(ctx, node, c0, c1, c2);
+  ctx.fillStyle = fill;
+  if (node.spec.shade !== "dome") return ctx.fill(node.path);
+  const [x0, y0, x1, y1] = node.box;
+  node.unitPath ||= unitPath(node);
+  ctx.save();
+  ctx.translate(x0, y0);
+  ctx.scale(x1 - x0, y1 - y0);
+  ctx.fill(node.unitPath);
+  ctx.restore();
+}
+
+function unitPath(node) {
+  const [x0, y0, x1, y1] = node.box;
+  const p = new Path2D();
+  p.addPath(node.path, new DOMMatrix().scale(1 / (x1 - x0), 1 / (y1 - y0)).translate(-x0, -y0));
+  return p;
+}
+
 function drawPart(ctx, node, pal, lineW, simple) {
   const { spec, path, box } = node;
   const { mat = "armor", shade = "box", line = true } = spec;
   const [c0, c1, c2, c3, cl] = MAT[mat].map(k => pal[k]);
+  if (simple) drawSimplePart(ctx, node, c0, c1, c2);
+  else drawShadedPart(ctx, path, box, shade, c0, c1, c2, c3);
+  if (line && lineW) {
+    ctx.strokeStyle = cl;
+    ctx.lineJoin = "round";
+    ctx.lineWidth = lineWidth(ctx, lineW);
+    ctx.stroke(path);
+  }
+}
+
+function drawShadedPart(ctx, path, box, shade, c0, c1, c2, c3) {
   const [x0, y0, x1, y1] = box;
   const w = x1 - x0, h = y1 - y0;
   ctx.save();
@@ -422,14 +482,7 @@ function drawPart(ctx, node, pal, lineW, simple) {
   };
   const rect = (fill, x, y, rw, rh) => { ctx.fillStyle = fill; ctx.fillRect(x, y, rw, rh); };
   const ell = (fill, cx, cy, rx, ry) => { ctx.fillStyle = fill; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); };
-  if (simple) {
-    if (shade === "box") {
-      poly(c2, [[x0 - 2, y0 - 2], [x0 + w * 0.36, y0 - 2], [x0 + w * 0.26, y1 + 2], [x0 - 2, y1 + 2]]);
-      poly(c0, [[x1 - w * 0.2, y0 - 2], [x1 + 2, y0 - 2], [x1 + 2, y1 + 2], [x1 - w * 0.28, y1 + 2]]);
-    } else if (shade === "dome") { rect(c0, x0 - 2, y0 - 2, w + 4, h + 4); ell(c1, x0 + w * 0.44, y0 + h * 0.44, w * 0.5, h * 0.5); ell(c2, x0 + w * 0.36, y0 + h * 0.34, w * 0.3, h * 0.28); }
-    else if (shade === "cyl") { rect(c2, x0 - 2, y0 - 2, w * 0.3 + 2, h + 4); rect(c0, x1 - w * 0.25, y0 - 2, w * 0.25 + 2, h + 4); }
-    else if (shade === "hcyl") { rect(c2, x0 - 2, y0 - 2, w + 4, h * 0.32 + 2); rect(c0, x0 - 2, y1 - h * 0.28, w + 4, h * 0.28 + 2); }
-  } else if (shade === "box") {
+  if (shade === "box") {
     poly(c2, [[x0 - 2, y0 - 2], [x0 + w * 0.36, y0 - 2], [x0 + w * 0.26, y1 + 2], [x0 - 2, y1 + 2]]);
     poly(c0, [[x1 - w * 0.2, y0 - 2], [x1 + 2, y0 - 2], [x1 + 2, y1 + 2], [x1 - w * 0.28, y1 + 2]]);
     poly(c0, [[x0 - 2, y1 - h * 0.12], [x1 + 2, y1 - h * 0.08], [x1 + 2, y1 + 2], [x0 - 2, y1 + 2]]);
@@ -449,21 +502,14 @@ function drawPart(ctx, node, pal, lineW, simple) {
     rect(c0, x0 - 2, y1 - h * 0.28, w + 4, h * 0.28 + 2);
   }
   ctx.restore();
-  if (line && lineW) {
-    ctx.strokeStyle = cl;
-    ctx.lineJoin = "round";
-    ctx.lineWidth = lineW / Math.sqrt(Math.abs(ctx.getTransform().a * ctx.getTransform().d - ctx.getTransform().b * ctx.getTransform().c));
-    ctx.stroke(path);
-  }
 }
 
 function drawTrefoil(ctx, r, pal, lineW, outer = 0.84) {
   ctx.fillStyle = pal.badge;
   ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
   if (lineW) {
-    const t = ctx.getTransform();
     ctx.strokeStyle = pal.aLine;
-    ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+    ctx.lineWidth = lineWidth(ctx, lineW);
     ctx.stroke();
   }
   ctx.fillStyle = pal.trefoil;
@@ -477,6 +523,25 @@ function drawTrefoil(ctx, r, pal, lineW, outer = 0.84) {
   }
 }
 
+function shadeColor(hex, brightness, saturate) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  const s = saturate, k = brightness;
+  const out = [
+    (0.213 + 0.787 * s) * r + (0.715 - 0.715 * s) * g + (0.072 - 0.072 * s) * b,
+    (0.213 - 0.213 * s) * r + (0.715 + 0.285 * s) * g + (0.072 - 0.072 * s) * b,
+    (0.213 - 0.213 * s) * r + (0.715 - 0.715 * s) * g + (0.072 + 0.928 * s) * b
+  ].map(v => Math.round(Math.min(255, Math.max(0, v * k))));
+  return "#" + ((1 << 24) | (out[0] << 16) | (out[1] << 8) | out[2]).toString(16).slice(1);
+}
+
+function shade(pal, { brightness = 1, saturate = 1 } = {}) {
+  if (brightness === 1 && saturate === 1) return pal;
+  const out = {};
+  for (const k in pal) out[k] = shadeColor(pal[k], brightness, saturate);
+  return out;
+}
+
 function joint(v) {
   if (!v) return null;
   if (typeof v === "number") return { dx: 0, dy: 0, rot: v, sx: 1, sy: 1 };
@@ -487,7 +552,7 @@ function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 2.2, 
   if (node.k === "g") {
     ctx.save();
     if (node.m) ctx.transform(node.m.a, node.m.b, node.m.c, node.m.d, node.m.e, node.m.f);
-    if (node.filter) ctx.filter = node.filter;
+    if (node.dim) pal = shade(pal, { brightness: node.dim });
     const j = node.name != null ? joint(pose[node.name]) : null;
     if (j) {
       ctx.translate(j.dx + node.pivot[0], j.dy + node.pivot[1]);
@@ -511,7 +576,7 @@ function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 2.2, 
   } else if (node.k === "trefoil") {
     drawTrefoil(ctx, node.r, pal, lineW, node.outer);
   } else if (node.k === "hook" && hooks[node.name]) {
-    hooks[node.name](ctx);
+    hooks[node.name](ctx, pal);
   }
 }
 
@@ -528,27 +593,39 @@ function locate(node, name, pose = {}, m = new DOMMatrix()) {
   return null;
 }
 
-function solve(root, hook, pose, keys, ranges, target) {
+const SEEDED_PASSES = [[12, 3], [3, 1], [1, 0.25]];
+const FULL_PASSES = [[4, 1], [1, 0.25]];
+const SEED_TOLERANCE = 0.5;
+
+function solve(root, hook, pose, keys, ranges, target, seed = null) {
   const hit = (a, b) => {
     const pt = locate(root, hook, { ...pose, [keys[0]]: a, [keys[1]]: b }).transformPoint(new DOMPoint(0, 0));
     return Math.hypot(pt.x - target.x, pt.y - target.y);
   };
-  let best = [Infinity, 0, 0];
-  for (let a = ranges[0][0]; a <= ranges[0][1]; a += 4) for (let b = ranges[1][0]; b <= ranges[1][1]; b += 4) {
-    const d = hit(a, b);
-    if (d < best[0]) best = [d, a, b];
-  }
-  for (const [range, step] of [[4, 1], [1, 0.25]]) {
-    const [, a0, b0] = best;
-    for (let a = a0 - range; a <= a0 + range; a += step) for (let b = b0 - range; b <= b0 + range; b += step) {
+  const refine = (best, passes) => {
+    for (const [range, step] of passes) {
+      const [, a0, b0] = best;
+      for (let a = a0 - range; a <= a0 + range; a += step) for (let b = b0 - range; b <= b0 + range; b += step) {
+        const d = hit(a, b);
+        if (d < best[0]) best = [d, a, b];
+      }
+    }
+    return best;
+  };
+  const full = () => {
+    let best = [Infinity, 0, 0];
+    for (let a = ranges[0][0]; a <= ranges[0][1]; a += 4) for (let b = ranges[1][0]; b <= ranges[1][1]; b += 4) {
       const d = hit(a, b);
       if (d < best[0]) best = [d, a, b];
     }
-  }
+    return refine(best, FULL_PASSES);
+  };
+  let best = seed ? refine([hit(seed[keys[0]], seed[keys[1]]), seed[keys[0]], seed[keys[1]]], SEEDED_PASSES) : null;
+  if (!best || best[0] > SEED_TOLERANCE) best = full();
   return { [keys[0]]: best[1], [keys[1]]: best[2] };
 }
 
 const LEVELS = Object.entries(CFG.levels);
 
-window.XBOT = { locate, solve, PALETTE, AX, SIDE_AX, FOOT_Y, mirrorPts, buildFront, buildBack, buildSide, render, LEVELS };
+window.XBOT = { locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, mirrorPts, buildFront, buildBack, buildSide, render, LEVELS };
 })();
