@@ -1,5 +1,5 @@
 const { buildSide, buildFront, buildBack, render, locate, SIDE_AX, AX, FOOT_Y, PALETTE: P } = window.XBOT;
-const side = buildSide({ farLimbs: true, lod: true });
+const side = buildSide({ farLimbs: true, propBehindArm: true, lod: true });
 const front = buildFront({ lod: true, rightArmFirst: true });
 const back = buildBack({ lod: true });
 const climber = buildBack({ lod: true, thumbsBehind: true, forearmsUnder: true });
@@ -429,8 +429,7 @@ move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", 1.2, (c, t) => {
   const x = 150;
   if (armed()) {
     box(c, 300, FLOOR, 40, 70, "#3c4a4c", "#1a2224");
-    const kick = Math.floor(t * 12) % 2 ? 3 : 0;
-    const pose = { ...stance, body: 2 - kick };
+    const pose = stance;
     const y = FLOOR + lift(pose);
     shadow(c, x, FLOOR, 30);
     bot(c, { x, y, pose });
@@ -457,7 +456,7 @@ move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", 1.0, (c
   const x = 140;
   if (armed()) {
     box(c, 300, FLOOR, 40, 40, "#3c4a4c", "#1a2224");
-    const pose = { ...duck, body: 16 - (Math.floor(t * 12) % 2 ? 3 : 0) };
+    const pose = duck;
     const y = FLOOR + lift(pose);
     shadow(c, x, FLOOR, 30);
     bot(c, { x, y, pose });

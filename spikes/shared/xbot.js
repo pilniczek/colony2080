@@ -354,20 +354,21 @@ function sideArm(parent, names, extra) {
   P(bulbs, { pts: [[276, 196], [346, 196], [364, 220], [360, 257], [340, 279], [308, 286], [280, 278], [264, 254], [264, 217]], r: 18, shade: "dome" });
   P(bulbs, { pts: [[248, 106], [292, 96], [336, 102], [362, 126], [370, 164], [358, 196], [330, 212], [292, 216], [256, 206], [234, 182], [230, 146], [236, 122]], r: 22, shade: "dome" });
   const lower = G(arm, "translate(0 -22) rotate(-18 311 306)", names.fore, [311, 306]);
+  if (names.hand && extra?.propBehindArm) hook(G(lower, "translate(322 446)"), names.hand);
   const fa = G(lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
   P(fa, { pts: [[262, 308], [358, 304], [366, 320], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
   F(fa, [[264, 352], [366, 350], [366, 354], [264, 356]], "a0");
   F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
   const hand = G(lower, "translate(322 446)");
-  if (names.hand) hook(hand, names.hand);
+  if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
   sideHand(lower);
 }
 
-function buildSide({ farLimbs = false, badge = false, lod: low = false } = {}) {
-  return withLod(low, () => sideTree({ farLimbs, badge }));
+function buildSide({ farLimbs = false, badge = false, propBehindArm = false, lod: low = false } = {}) {
+  return withLod(low, () => sideTree({ farLimbs, badge, propBehindArm }));
 }
 
-function sideTree({ farLimbs, badge }) {
+function sideTree({ farLimbs, badge, propBehindArm }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [SIDE_AX, 344]);
   if (farLimbs) {
@@ -398,7 +399,7 @@ function sideTree({ farLimbs, badge }) {
   F(head, [[368, 56], [388, 56], [388, 63], [368, 63]], "visor", 1);
   P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });
   P(head, { pts: [[308, 4], [318, 4], [320, 70], [306, 70]], r: 4, shade: "cyl" });
-  sideArm(s, { arm: "arm", fore: "fore", hand: "hand" });
+  sideArm(s, { arm: "arm", fore: "fore", hand: "hand" }, propBehindArm ? { propBehindArm } : undefined);
   return root;
 }
 

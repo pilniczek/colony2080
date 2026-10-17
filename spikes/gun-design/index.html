@@ -55,10 +55,10 @@
 <script>
 const { buildSide, buildFront, buildBack, render } = window.XBOT;
 const roots = {
-  side: buildSide({ farLimbs: true }),
+  side: buildSide({ farLimbs: true, propBehindArm: true }),
   front: buildFront({ rightArmFirst: true }),
   back: buildBack({ thumbsBehind: true, forearmsUnder: true }),
-  gSide: buildSide({ farLimbs: true, lod: true }),
+  gSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true }),
   gFront: buildFront({ lod: true, rightArmFirst: true }),
   gBack: buildBack({ thumbsBehind: true, forearmsUnder: true, lod: true })
 };

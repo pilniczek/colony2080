@@ -1,16 +1,16 @@
 (() => {
 const PALETTE = window.XBOT.PALETTE;
 
-const BARREL = { x: 100, length: 196 };
+const BARREL = { x: 70, length: 196 };
 const PARTS = [
   { name: "grip", x: -14, y: -14, w: 26, h: 56, mat: "m", tone: 1 },
-  { name: "stock", x: -122, y: -64, w: 26, h: 50, mat: "m", tone: 0 },
-  { name: "handle", x: -50, y: -96, w: 96, h: 18, mat: "m", tone: 1 },
-  { name: "handlePost", x: -50, y: -82, w: 16, h: 16, mat: "m", tone: 1 },
-  { name: "handlePostFront", x: 30, y: -82, w: 16, h: 16, mat: "m", tone: 1 },
-  { name: "receiver", x: -100, y: -70, w: 200, h: 60, mat: "m", tone: 2 },
-  { name: "stripe", x: -24, y: -70, w: 16, h: 60, mat: "a", tone: 1 },
-  { name: "feed", x: 24, y: -12, w: 56, h: 40, mat: "m", tone: 0 },
+  { name: "stock", x: -82, y: -64, w: 22, h: 50, mat: "m", tone: 0 },
+  { name: "handle", x: -36, y: -96, w: 72, h: 18, mat: "m", tone: 1 },
+  { name: "handlePost", x: -36, y: -82, w: 14, h: 16, mat: "m", tone: 1 },
+  { name: "handlePostFront", x: 22, y: -82, w: 14, h: 16, mat: "m", tone: 1 },
+  { name: "receiver", x: -60, y: -70, w: 130, h: 60, mat: "m", tone: 2 },
+  { name: "stripe", x: -14, y: -70, w: 14, h: 60, mat: "a", tone: 1 },
+  { name: "feed", x: 14, y: -12, w: 48, h: 40, mat: "m", tone: 0 },
   { name: "barrelBack", x: BARREL.x, y: -62, w: BARREL.length - 6, h: 44, mat: "m", tone: 0 },
   { name: "barrelTop", x: BARREL.x, y: -62, w: BARREL.length, h: 12, mat: "c", tone: 1 },
   { name: "barrelMid", x: BARREL.x, y: -46, w: BARREL.length, h: 12, mat: "c", tone: 2 },
@@ -67,7 +67,7 @@ function slung(ctx, opts) {
   ctx.restore();
 }
 
-const CARRY = { arm: -28, fore: -44 };
+const CARRY = { arm: 0, fore: -72 };
 const FRONT_CARRY = { armL: -24, foreL: -66 };
 
 function holdPoses(side, front) {
