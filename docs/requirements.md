@@ -53,6 +53,11 @@ flowchart LR
 | Prototype viewing | No local server: pages open via `file://` or the VS Code Live Preview extension. Shared scripts are classic scripts, not ES modules | user |
 | Saves | As in the original: manual save and load at any time, 5 slots | user |
 | Hero weapon | Model has fists. The gun is a held prop (like the crowbar) attached to the hand hook, not a forearm replacement | user |
+| Movement set | Full set in the engine (walk, run, jumps, fall, duck, kneel, use, hide, shoot, punch, ladder, lift, hit, death); mission 1 uses what level 1 needs. List: design spec | user |
+| Melee | Punches only, no kick. Fists are a selectable weapon (slot 2) | user |
+| Hide look | Front view with dark tint | user |
+| Inventory key | `I` instead of Tab | user |
+| Phase order | Movement overview page first (non-interactive, one looping cell per move). Engine, movement sandbox and cutscenes later | user |
 
 ## Config drafts
 
@@ -77,9 +82,10 @@ flowchart LR
 | `spikes/robot-design/` | Hero design sheet (front, side, back), palette, level guides, reference frames |
 | `spikes/shared/xbot.js` | Shared robot model and renderer |
 | `spikes/crowbar-scene/` | Cutscene keyframe format, camera shots, two-handed lever prop handling, synced arms; `previews/pry.gif` |
+| `spikes/movement/` | Movement overview: every move looping in its own cell, placeholder gun prop |
 
 ## Open
 
 - Robot part polygons still live in code (`spikes/shared/xbot.js`); only parameters are in `config/robots/xbot.json`.
-- Intro cutscene and dying-rebel scene in mission 1 scope or not.
-- Movement set: jump, run, ladders, melee (not seen in level 1 footage).
+- Intro cutscene and dying-rebel scene in mission 1 scope or not (cutscenes postponed).
+- Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Keep, or switch to new defaults with original as preset.

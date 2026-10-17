@@ -276,9 +276,12 @@ function sideLeg(parent, names, extra) {
   const sh = G(knee, legTf("shin", 296, 0.88));
   P(sh, { pts: [[256, 500], [340, 500], [354, 690], [240, 690]], r: 1 });
   P(sh, { pts: [[298, 540], [312, 540], [316, 660], [298, 660]], mat: "metal", shade: "none", r: 1 });
-  const ft = G(knee, legTf("foot", 300, 0.88));
+  const ankle = G(knee, null, names.ankle, [300, 700]);
+  const ft = G(ankle, legTf("foot", 300, 0.88));
   P(ft, { pts: [[204, 688], [384, 688], [402, 712], [398, 744], [202, 744]], mat: "metal", r: 1 });
   P(ft, { pts: [[300, 688], [384, 688], [396, 706], [300, 706]], r: 1 });
+  if (names.heel) hook(G(ankle, "translate(220 744)"), names.heel);
+  if (names.toe) hook(G(ankle, "translate(380 744)"), names.toe);
   const kn = G(knee, legTf("knee", 300, 0.88));
   E(kn, 300, 486, 30, 30, "m1");
   E(kn, 294, 480, 12, 12, "m3");
@@ -319,7 +322,7 @@ function buildSide({ farLimbs = false, badge = false } = {}) {
   if (farLimbs) {
     const far = { filter: "brightness(0.55)" };
     sideArm(G(s, "translate(-20 0)"), { arm: "armFar", fore: "foreFar", hand: "handFar" }, far);
-    sideLeg(G(s, "translate(-24 0)"), { hip: "hipFar", knee: "kneeFar" }, far);
+    sideLeg(G(s, "translate(-24 0)"), { hip: "hipFar", knee: "kneeFar", ankle: "ankleFar", heel: "heelFar", toe: "toeFar" }, far);
   }
   const lowerTorso = G(s, SIDE_TORSO_TF);
   P(lowerTorso, { pts: [[222, 316], [398, 316], [398, 372], [222, 372]], mat: "chrome", shade: "hcyl", r: 2 });
@@ -327,7 +330,7 @@ function buildSide({ farLimbs = false, badge = false } = {}) {
   for (let i = 0; i < 4; i++) P(lowerTorso, { pts: [[300, 244 + i * 18], [380, 244 + i * 18], [380, 254 + i * 18], [300, 254 + i * 18]], mat: "chrome", shade: "hcyl", r: 4 });
   P(lowerTorso, { pts: [[350, 318], [392, 318], [400, 344], [390, 380], [366, 404], [352, 400]], r: 2 });
   P(lowerTorso, { pts: [[216, 316], [264, 316], [268, 352], [256, 392], [234, 404], [214, 394], [206, 352]], r: 6 });
-  sideLeg(s, { hip: "hipNear", knee: "kneeNear" });
+  sideLeg(s, { hip: "hipNear", knee: "kneeNear", ankle: "ankleNear", heel: "heelNear", toe: "toeNear" });
   const upperTorso = G(s, SIDE_TORSO_TF);
   P(upperTorso, { pts: [[194, 112], [406, 112], [388, 330], [212, 330]], mat: "metal", r: 2 });
   const sideChestPlate = [[352, 104], [400, 104], [412, 118], [412, 212], [402, 240], [386, 248], [368, 236], [352, 220]];

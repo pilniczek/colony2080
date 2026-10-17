@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Pre-code. Brainstorming phase for a browser clone of Colony 28 (1996/97 Czech DOS cinematic side-scroller). No build, lint or test setup exists yet.
 
-- `docs/requirements.md` - decision log and open questions. Source of truth for what is decided. Design spec goes to `docs/superpowers/specs/` (not created yet).
+- `docs/requirements.md` - decision log and open questions. Source of truth for what is decided. Design spec: `docs/superpowers/specs/2026-10-17-colony2080-design.md` (phases, movement set).
 - `docs/research/README.md` - research summary (mechanics, level 1 task graph, data formats, open gaps). Read before answering questions about the original game.
 - `config/` - draft JSON configs (`"status": "draft"`). Each cites its research or decision `source`.
 - `spikes/` - throwaway prototypes.
@@ -21,7 +21,7 @@ Decided in `docs/requirements.md`:
 - Cutscenes (item use, story) are in-engine animated vector scenes, not video files.
 - Level logic is a task dependency web: each task has `requires` / `consumes` / `gives` over `item:*`, `flag:*`, `weapon:*` tokens (see `config/levels/mesto/tasks.json`).
 
-Build order: platform engine and cutscene framework, then the Colony 28 clone, then mission 1 (`mesto`).
+Build order: movement overview page, engine core and movement sandbox, cutscene framework, Colony 28 clone systems, then mission 1 (`mesto`).
 
 ## Spikes
 
@@ -30,6 +30,7 @@ Throwaway prototypes. They read `config/` through generated `spikes/shared/confi
 - `spikes/shared/xbot.js` - hero robot model (front, side, back) as a Canvas 2D part tree with named rig joints (`hip*`, `knee*`, `arm*`, `fore*`, `body`) and hand/back hooks. Hand hooks render before the hand parts, so a held prop sits inside the grip. `locate(root, hook, pose)` returns a hook's matrix for aiming arms; `buildBack({ leftArmBehind })` draws the left arm behind the torso. Classic script exposing `window.XBOT`, not an ES module, so pages work from `file://`.
 - `spikes/robot-design/index.html` - design sheet rendering `xbot.js`, with palette editor, level guides and original reference frames.
 - `spikes/crowbar-scene/index.html` - vector cutscene (crowbar opens train door, agreed version) using `xbot.js`, with a two-handed grip. Tracks, clip window (`clip.start` trims the unused walk) and pry swing (`pullArmDeg` / `pullForeDeg`) come from `config/cutscenes/crowbar-door.json`; scrubber, speed, palette editor, side-by-side view of original `METROPAC.ANM` frames from `docs/research/gamedata/png/METROPAC/`.
+- `spikes/movement/index.html` - movement overview: one non-interactive cell per move, each looping forever, keyframed on `xbot.js` (side rig has `ankle*` joints and `heel*` / `toe*` foot hooks used to plant feet).
 - `spikes/crowbar-scene/previews/pry.gif` - GIF of the clip, regenerate with `docs/research/tools/robot/seq.mjs` (frames, needs `playwright-core`) and `gif.py`.
 
 ## Research tools

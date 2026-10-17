@@ -11,7 +11,7 @@
     "hide": ["ShiftLeft", "ShiftRight"],
     "pickUp": ["ArrowDown", "Enter"],
     "useItem": ["Enter"],
-    "inventory": ["Tab"],
+    "inventory": ["KeyI"],
     "map": ["KeyM"],
     "menu": ["Escape"],
     "weapon1": ["Digit1"],

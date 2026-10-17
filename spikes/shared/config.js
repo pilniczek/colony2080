@@ -73,8 +73,10 @@ window.C28_CONFIG = {
      "body",
      "hipNear",
      "kneeNear",
+     "ankleNear",
      "hipFar",
      "kneeFar",
+     "ankleFar",
      "arm",
      "fore",
      "armFar",
@@ -93,7 +95,11 @@ window.C28_CONFIG = {
     "side": [
      "hand",
      "handFar",
-     "back"
+     "back",
+     "heelNear",
+     "toeNear",
+     "heelFar",
+     "toeFar"
     ]
    }
   }
