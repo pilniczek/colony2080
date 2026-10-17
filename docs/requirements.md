@@ -50,7 +50,7 @@ flowchart LR
 | Cutscene format | Shots with camera keyframes plus keyframe tracks (pose angles, prop values) with easing. First clip (agreed): crowbar opens train door, 3.95 s, 2 shots: side view draws the crowbar from a hip "pocket" and raises it, back view pries the door open. No walk section | user (clip), Claude's call (format) |
 | Held props | Held with both hands. Prop renders inside the grip (behind the fist, sticking out both sides). Side view: far hand solved onto the shaft next to the near hand. Back view: both arms follow one shared pry pull (same angle change for both, so biceps move in sync, large swing); the crowbar runs from the hidden left hand through the right fist to the door seam. Right forearm and hand drawn behind shoulder and torso, using the front-view right hand | user (two hands, sync, layering), Claude's call (method) |
 | Design status | Hero robot design and the crowbar animation are agreed (2026-10-17). Reference: `spikes/robot-design/`, `spikes/crowbar-scene/`, preview `spikes/crowbar-scene/previews/pry.gif` | user |
-| Phase 1b plan | Written: `docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md` (13 tasks, TDD, pixel check of the robot and gun port against the spikes) | Claude's call (plan), user review pending |
+| Phase 1b plan | `docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md` (13 tasks, TDD, pixel check of the robot and gun port against the spikes). Reviewed with the user; executed subagent-driven. No scrolling camera in 1b | user (review, execution), Claude's call (plan) |
 | Spec and gun status | Design spec (`docs/superpowers/specs/2026-10-17-colony2080-design.md`) and gun look (`spikes/gun-design/`) approved (2026-10-17) | user |
 | Prototype viewing | No local server: pages open via `file://` or the VS Code Live Preview extension. Shared scripts are classic scripts, not ES modules | user |
 | Saves | As in the original: manual save and load at any time, 5 slots | user |
@@ -61,8 +61,9 @@ flowchart LR
 | Movement set | Full set in the engine (walk, run, jumps, fall, duck, kneel, use, hide, shoot, punch, ladder, lift, hit, death); mission 1 uses what level 1 needs. List: design spec | user |
 | Melee | Punches only, no kick. Fists are a selectable weapon (slot 2) | user |
 | Hide look | Front view with dark tint | user |
-| Hide input | Hold Shift to stay hidden, release to step out | user |
-| Lift input | One Up or Down press starts a ride to the next stop; the lift stops there on its own | user |
+| Hide input | Hold Shift to stay hidden, release to step out. Works anywhere except on a moving lift | user |
+| Lift input | One Up or Down press starts a ride to the next stop; the lift stops there on its own. On the lift Up and Down only call the lift (no jump, no duck) | user |
+| Sandbox hits | Sandbox has a projectile emitter firing periodically at chest height to try hit, duck and hide | user |
 | Dev server | Sandbox and game run on the Vite dev server (`npm run dev`); spikes keep opening from `file://` | user |
 | Story year | Story set in 2080, alien invasion 5 years earlier (2075). Departs from the original's 2013 / 2018 / 2028 | user |
 | Idle and turn | Idle is fully still. Turn switches views without squash | user |
@@ -102,7 +103,6 @@ flowchart LR
 - Robot part polygons still live in code (`spikes/shared/xbot.js`); only parameters are in `config/robots/xbot.json`.
 - Intro cutscene and dying-rebel scene in mission 1 scope or not (cutscenes postponed).
 - Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Original stays default and keys are configurable; revisit after trying the sandbox.
-- Phase 1b plan (`docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md`) awaits user review and an execution method (subagent-driven or native).
 - Ladder: Left / Right do nothing while climbing (plan's assumption).
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
 - Hero tuning values in `config/hero/movement.json` are first guesses until tuned in the sandbox.

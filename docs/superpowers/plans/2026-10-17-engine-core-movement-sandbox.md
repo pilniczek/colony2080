@@ -22,6 +22,8 @@
 - Robot look at rest pose must match `spikes/robot-design/` pixel for pixel (full and game LOD), and the gun must match `spikes/gun-design/`.
 - No code comments of any kind (user rule); the only exception is a workaround for an environment bug, stating the limitation only.
 - The spikes stay frozen; this plan does not edit `spikes/`.
+- No scrolling camera in 1b: the sandbox is one fixed screen fitted to the device. Scrolling comes with level 1 (phase 4).
+- Execution: subagent-driven (user).
 
 ## Review Focus
 
@@ -79,7 +81,7 @@ src/sandbox/ui/*.tsx                 debug panels
 
 - [ ] **Step 1:** Install `vite typescript vitest eslint typescript-eslint @vitejs/plugin-react react react-dom zustand @types/react @types/react-dom playwright` (latest) as devDependencies or dependencies (React, ReactDOM, Zustand as dependencies).
 - [ ] **Step 2:** `tsconfig.json`: `strict`, `noUncheckedIndexedAccess`, `module: ESNext`, `moduleResolution: bundler`, `jsx: react-jsx`, `resolveJsonModule`, `lib: [ES2022, DOM]`.
-- [ ] **Step 3:** `vite.config.ts`: React plugin, multi-page `build.rollupOptions.input` with `sandbox.html` and `tools/visual/compare.html`, `server.open: "/sandbox.html"`, alias `@config`.
+- [ ] **Step 3:** `vite.config.ts`: React plugin, `build.rollupOptions.input` with `sandbox.html` only (`tools/visual/compare.html` is served by the dev server and never built, because Vite cannot bundle the spikes' classic scripts), `server.open: "/sandbox.html"`, alias `@config`.
 - [ ] **Step 4:** `eslint.config.js`: typescript-eslint recommended; for `src/engine/**` add `no-restricted-imports` patterns `react`, `react-dom`, `zustand`, `**/game/**`, `**/sandbox/**`.
 - [ ] **Step 5:** Write `src/engine/smoke.test.ts` importing `config/controls.json` and asserting `controls.keyboard.inventory` equals `["KeyI"]`.
 - [ ] **Step 6:** `sandbox.html` with a full-viewport `<canvas id="game">` and `<div id="ui">`; `src/sandbox/main.tsx` renders an empty React root into `#ui`.
@@ -133,7 +135,7 @@ src/sandbox/ui/*.tsx                 debug panels
 **Interfaces:**
 - Consumes: Task 3 builder, `drawRig`, `Palette`; `config/robots/xbot.json` (`palette`, `frame`, `proportions`, `levels`, `joints`, `hooks`, `gameLod`).
 - Produces: `ROBOT = { AX: number; SIDE_AX: number; FOOT_Y: number; palette: Palette }`; `buildFront(opts?: { lod?: boolean; rightArmFirst?: boolean; propBehindArm?: boolean }): GroupNode`; `buildSide(opts?: { farLimbs?: boolean; badge?: boolean; propBehindArm?: boolean; lod?: boolean }): GroupNode`; `buildBack(opts?: { leftArmBehind?: boolean; rightForeBehind?: boolean; thumbsBehind?: boolean; forearmsUnder?: boolean; lod?: boolean }): GroupNode`. Shapes, joint names, hook names and option behaviour copied from `spikes/shared/xbot.js` at commit `ae7d64a`.
-- Produces: `window.__visual: { name: string; diff: number }[]` on the compare page; `scripts/visual-check.mjs` exits 1 when any `diff` is above 0.
+- Produces: `window.__visual: { name: string; diff: number; matrixDelta: number }[]` on the compare page (`matrixDelta` = largest difference between matching group matrices of the spike and port trees, so float noise from `DOMMatrix` versus `Mat2D` can be told apart from a shape bug); `scripts/visual-check.mjs` exits 1 when any `diff` is above 0.
 
 - [ ] **Step 1: Failing test** `xbot.test.ts`: every joint name in `config.joints.side` is a named group in `buildSide({ farLimbs: true })`; same for front and back; every hook in `config.hooks.<view>` is found by `locate` with an empty pose (side built with `farLimbs: true`); `buildSide({ lod: true })` has fewer part nodes than `buildSide()`.
 - [ ] **Step 2:** Run `npm test -- xbot`. Expected: FAIL.
@@ -227,17 +229,18 @@ src/sandbox/ui/*.tsx                 debug panels
   "spawn": [7.5, 14],
   "lift": { "x": 17, "width": 3, "top": 4, "bottom": 14 },
   "props": [
-    { "kind": "crate", "x": 5, "width": 1, "height": 1, "hide": true },
-    { "kind": "barrel", "x": 24, "width": 1, "height": 1.3, "hide": true },
+    { "kind": "crate", "x": 5, "width": 1, "height": 1 },
+    { "kind": "barrel", "x": 24, "width": 1, "height": 1.3 },
     { "kind": "item", "x": 9.5 },
     { "kind": "panel", "x": 21.5, "y": 12 },
     { "kind": "bag", "x": 13.5 },
     { "kind": "target", "x": 15.5 }
-  ]
+  ],
+  "emitter": { "x": 38.5, "y": 12.6, "dir": -1, "periodMs": 2000, "speed": 8, "radius": 0.15 }
 }
 ```
 
-  Features: ladder col 3 up to the left platform (y 4), right platform reached by lift, walk off the left platform edge (x 11, 10 cells) = fall death, low ledge (cols 12-15, y 11, 3 cells) = safe fall, step at col 26, 3-cell gap (cols 28-30, clearable by running jump), 4-cell gap (cols 34-37, not clearable), both gaps open to the bottom (pit death).
+  Features: ladder col 3 up to the left platform (y 4), right platform reached by lift, walk off the left platform edge (x 11, 10 cells) = fall death, low ledge (cols 12-15, y 11, 3 cells) = safe fall, step at col 26, 3-cell gap (cols 28-30, clearable by running jump), 4-cell gap (cols 34-37, not clearable), both gaps open to the bottom (pit death). The `H` cell in row 4 is the ladder top: walkable from above, climbable from below. The emitter on the right wall fires one projectile left at chest height every 2 s (standing hero is hit, ducked or hidden hero is not), to try hit, duck and hide (user).
 
 - [ ] **Step 1: Failing test** `config.test.ts`: `loadMovement(movement.json)` returns `gravity` 30; `loadMovement` throws naming `gravity` when it is `"x"`; `loadClips(clips.json)` has a clip for every `clipFor(state, weapon)` result over all states and both weapons; every clip's keys are sorted by time and within `[0, duration]`; `loadClips` throws on a clip with `duration: 0`.
 - [ ] **Step 2:** Run `npm test -- config`. Expected: FAIL.
@@ -267,14 +270,15 @@ src/sandbox/ui/*.tsx                 debug panels
 ### Task 8: Tile world, collision and lift
 
 **Files:**
-- Create: `src/engine/world/tiles.ts`, `src/engine/world/collide.ts`, `src/engine/world/world.test.ts`, `src/game/level/sandboxLevel.ts`
+- Create: `src/engine/world/tiles.ts`, `src/engine/world/collide.ts`, `src/engine/world/projectiles.ts`, `src/engine/world/world.test.ts`, `src/game/level/sandboxLevel.ts`
 
 **Interfaces:**
-- Produces (`tiles.ts`): `class TileGrid { constructor(rows: string[]); width: number; height: number; at(col: number, row: number): string; solid(col, row): boolean; ladderAt(x: number, y: number): boolean }` (outside the grid: solid on the sides and top, empty below).
+- Produces (`tiles.ts`): `class TileGrid { constructor(rows: string[]); width: number; height: number; at(col: number, row: number): string; solid(col, row): boolean; ladderAt(x: number, y: number): boolean; ladderTop(col, row): boolean }` (outside the grid: solid on the sides and top, empty below; a ladder cell with no ladder cell above it is a one-way floor, like a platform).
 - Produces (`collide.ts`): `interface Box { x: number; y: number; w: number; h: number }` (x center, y feet); `interface Platform { x: number; y: number; w: number; vy: number }` (top surface); `interface MoveResult { x: number; y: number; hitX: boolean; hitY: boolean; onGround: boolean; platform: Platform | null }`; `moveBox(box: Box, dx: number, dy: number, grid: TileGrid, platforms: Platform[]): MoveResult` (axis-separated, substeps no longer than 0.25 cells so dt spikes never tunnel; platforms are one-way from above).
-- Produces (`sandboxLevel.ts`): `interface Prop { kind: string; x: number; y?: number; width?: number; height?: number; hide?: boolean; taken?: boolean; on?: boolean }`; `interface Lift extends Platform { top: number; bottom: number; target: number | null }`; `interface SandboxWorld { grid: TileGrid; lift: Lift; props: Prop[]; spawn: [number, number] }`; `loadSandbox(json: unknown): SandboxWorld`; `callLift(lift: Lift, dir: -1 | 1): void` (sets `target` to `top` for -1 or `bottom` for 1; ignored while `target` is set); `updateLift(lift: Lift, speed: number, dt: number): void` (moves toward `target` at `speed`, stops exactly on it, then clears `target` and sets `vy` 0).
+- Produces (`sandboxLevel.ts`): `interface Prop { kind: string; x: number; y?: number; width?: number; height?: number; taken?: boolean; on?: boolean }`; `interface Lift extends Platform { top: number; bottom: number; target: number | null }`; `interface Emitter { x: number; y: number; dir: -1 | 1; periodMs: number; speed: number; radius: number; on: boolean; clock: number }`; `interface SandboxWorld { grid: TileGrid; lift: Lift; props: Prop[]; spawn: [number, number]; emitter: Emitter; projectiles: Projectile[] }`; `updateEmitter(world, dt): void` (spawns one projectile per period while `on`; `on` starts false); `loadSandbox(json: unknown): SandboxWorld`; `callLift(lift: Lift, dir: -1 | 1): void` (sets `target` to `top` for -1 or `bottom` for 1; ignored while `target` is set); `updateLift(lift: Lift, speed: number, dt: number): void` (moves toward `target` at `speed`, stops exactly on it, then clears `target` and sets `vy` 0).
+- Produces (`projectiles.ts`): `interface Projectile { x: number; y: number; vx: number; r: number }`; `stepProjectiles(list: Projectile[], grid: TileGrid, dt: number): Projectile[]` (moves each, drops ones inside a solid cell or outside the grid).
 
-- [ ] **Step 1: Failing tests** with the sandbox grid: a box (w 0.7, h 1.9) at `(7.5, 13)` moved `dy` 2 stops at `y` 14 with `onGround`; moved right from `(25, 14)` by 1 hits the step at col 26 (`hitX`); `(27.9, 14)` moved right 0.5 with `dy` 0.1 is no longer on ground (gap); `moveBox` with `dy` 40 from `(7.5, 1)` still stops on the floor (no tunnel); a box standing on the lift moves up with it while `updateLift` runs after `callLift(lift, -1)`; the lift stops at `top` 4 and clears `target`; a second `callLift` during the ride does not change `target`; `ladderAt(3.5, 10)` is true and `ladderAt(5.5, 10)` false; falling below row 16 is reported by `y > grid.height`.
+- [ ] **Step 1: Failing tests** with the sandbox grid: a box (w 0.7, h 1.9) at `(7.5, 13)` moved `dy` 2 stops at `y` 14 with `onGround`; moved right from `(25, 14)` by 1 hits the step at col 26 (`hitX`); `(27.9, 14)` moved right 0.5 with `dy` 0.1 is no longer on ground (gap); `moveBox` with `dy` 40 from `(7.5, 1)` still stops on the floor (no tunnel); a box standing on the lift moves up with it while `updateLift` runs after `callLift(lift, -1)`; the lift stops at `top` 4 and clears `target`; a second `callLift` during the ride does not change `target`; `ladderAt(3.5, 10)` is true and `ladderAt(5.5, 10)` false; a box dropped onto `(3.5, 2)` stops on the ladder top at `y` 4; a projectile from the emitter is gone after it reaches the left wall; with `on` false `updateEmitter` spawns nothing; falling below row 16 is reported by `y > grid.height`.
 - [ ] **Step 2:** Run `npm test -- world`. Expected: FAIL.
 - [ ] **Step 3:** Implement the three modules.
 - [ ] **Step 4:** Run `npm test -- world`. Expected: PASS.
@@ -291,7 +295,7 @@ src/sandbox/ui/*.tsx                 debug panels
 - Consumes: Task 6 types and configs, Task 7 `InputFrame`, Task 8 `moveBox`, `SandboxWorld`, `callLift`, `updateLift`.
 - Produces: `interface Hero { x: number; y: number; vx: number; vy: number; facing: 1 | -1; state: HeroState; time: number; weapon: Weapon; energy: number; fallFrom: number; onGround: boolean; hidden: boolean; climb: number }`; `type HeroEvent = { kind: "pickup" | "use" | "shot" | "punch" | "died"; x: number; y: number }`; `createHero(spawn: [number, number], weapon: Weapon): Hero`; `updateHero(h: Hero, input: InputFrame, world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, dt: number, consume: (action: string) => boolean): HeroEvent[]`.
 - Transitions owned here (action names from `config/controls.json`):
-  - `idle`: `dir` equal to `facing` goes to `walk`, or `run` with `runModifier` held; `dir` opposite to `facing` goes to `turn`; `up` pressed at a ladder goes to `ladder`, otherwise `standJump`; `down` at a ladder top goes to `ladder`.
+  - `idle`: `dir` equal to `facing` goes to `walk`, or `run` with `runModifier` held; `dir` opposite to `facing` goes to `turn`; `up` pressed at a ladder goes to `ladder`, otherwise `standJump`; `down` at a ladder top goes to `ladder`. On the lift `up` and `down` only call the lift (no jump, no duck; user).
   - `turn`: committed for its clip duration, flips `facing` at the clip's view switch, then `idle`.
   - `walk` / `run`: speed = clip `travel / duration` in `facing`; `dir` 0 goes to `idle`; opposite `dir` goes to `turn`; toggling `runModifier` swaps walk and run; `up` pressed in `run` goes to `runJump`.
   - `standJump` / `runJump`: committed; launch velocity `sqrt(2 * gravity * height)`, `runJump` horizontal speed `jump.runSpeed`; back to `land` on ground.
@@ -299,10 +303,10 @@ src/sandbox/ui/*.tsx                 debug panels
   - On landing from `fall` or a jump: drop above `fallDeathCells` goes to `fallDeath`, otherwise `land` (committed, then `idle`).
   - `y` above `grid.height + 2` (pit) goes to `fallDeath` and emits `died`.
   - `ladder`: x snaps to the ladder column center, no gravity, `up`/`down` move at `ladderSpeed`, `climb` accumulates distance for the clip phase; leaving the ladder top onto solid ground or reaching the floor goes to `idle`.
-  - On the lift with no ladder: an `up`/`down` press calls `callLift`, and the lift rides to the stop on its own (`updateLift` at `liftSpeed` every frame); the hero rides via `moveBox` platform carry. Press once and ride to the stop is the user's call.
+  - On the lift in `idle`: an `up`/`down` press calls `callLift`, and the lift rides to the stop on its own (`updateLift` at `liftSpeed` every frame); the hero rides via `moveBox` platform carry. Press once and ride to the stop is the user's call.
   - `fallDeath` and `death`: no input; after `respawnMs` the hero respawns at `spawn` with full energy.
 
-- [ ] **Step 1: Failing tests** (helpers run `updateHero` at 1/60 for a number of frames with a scripted `InputFrame`): holding Right for 1 s from spawn moves `x` by about `2.0 / 1.1` cells (within 0.05) in `walk`; with `runModifier` about `2.6 / 0.66`; pressing Left while facing right enters `turn` and ends `idle` facing -1 after 0.24 s; standing jump peaks at 1.0 cells (within 0.05); a running jump from x 27.6 lands beyond col 31 (gap 3 cleared); a running jump at the 4-cell gap ends in `fallDeath`; walking off the left platform edge ends in `fallDeath`, off the low ledge in `land`; `up` at x 3.5 on the floor enters `ladder` and holding `up` reaches the platform at y 4 and returns to `idle`; standing on the lift, one `up` press and 5 s of no input raise hero `y` to 4; after `fallDeath` and 2 s the hero is back at spawn.
+- [ ] **Step 1: Failing tests** (helpers run `updateHero` at 1/60 for a number of frames with a scripted `InputFrame`): holding Right for 1 s from spawn moves `x` by about `2.0 / 1.1` cells (within 0.05) in `walk`; with `runModifier` about `2.6 / 0.66`; pressing Left while facing right enters `turn` and ends `idle` facing -1 after 0.24 s; standing jump peaks at 1.0 cells (within 0.05); a running jump from x 27.6 lands beyond col 31 (gap 3 cleared); a running jump at the 4-cell gap ends in `fallDeath`; walking off the left platform edge ends in `fallDeath`, off the low ledge in `land`; `up` at x 3.5 on the floor enters `ladder` and holding `up` reaches the platform at y 4 and returns to `idle`; standing on the lift, one `up` press and 5 s of no input raise hero `y` to 4 and the hero stays in `idle` (no jump); after `fallDeath` and 2 s the hero is back at spawn.
 - [ ] **Step 2:** Run `npm test -- locomotion`. Expected: FAIL.
 - [ ] **Step 3:** Implement `createHero` and `updateHero` with a transition table keyed by state.
 - [ ] **Step 4:** Run `npm test -- locomotion`. Expected: PASS.
@@ -321,13 +325,14 @@ src/sandbox/ui/*.tsx                 debug panels
 - Transitions added:
   - `down` held in `idle`: `kneel` when overlapping an untaken `item` prop (emits `pickup` at 0.8 s and marks it `taken`), otherwise `duck`; releasing `down` leaves `duck`.
   - `useItem` pressed overlapping a `panel` prop: `use` (emits `use`, toggles `panel.on`).
-  - `hide` held in `idle`: `hide`, sets `hidden` after the clip's front switch; releasing `hide` turns back (reverse of the clip) to `idle`. Hold to hide is the user's call.
+  - `hide` held in `idle`: `hide`, sets `hidden` after the clip's front switch; releasing `hide` turns back (reverse of the clip) to `idle`. Hold to hide, anywhere except on a moving lift (`lift.target` set), is the user's call.
+  - Projectiles: one overlapping the hero box (duck height while ducking) calls `damage` and is removed; while `hidden` it flies through.
   - `shoot` pressed (`consume`, so presses within `inputBufferMs` before an action can start still count): with fists `attack` (punch, committed until `cancelAt`, emits `punch` at the jab peak); with gun `attack` while held (emits `shot` at `fireRate`, legs and body still); in `duck` the same as `duckAttack`.
   - `weapon1` / `weapon2` pressed in `idle`: `weaponSwitch`, sets `weapon` at the clip's gun switch time; `weapon3` is ignored in phase 1.
   - `damage(h: Hero, cfg: MovementConfig): HeroEvent[]` exported: lowers `energy` by `energy.hit`, enters `hit` (committed) or `death` at 0; ignored while `hidden`.
 - Produces: `damage(h, cfg)`.
 
-- [ ] **Step 1: Failing tests:** `down` at the item kneels and emits one `pickup`, a second `down` there ducks; `useItem` at the panel emits `use` and flips `on`; holding `hide` sets `hidden` after the switch and releasing clears it; `damage` while hidden keeps energy at 100; four `damage` calls end in `death` and emit `died`; `shoot` with gun held 1 s emits 12 `shot` events and the hero `x` does not change; a `shoot` press 100 ms before `land` ends starts `attack` right after landing (input buffer); punching ignores `dir` until `cancelAt`; `weapon1` from fists ends with `weapon` gun after the clip.
+- [ ] **Step 1: Failing tests:** `down` at the item kneels and emits one `pickup`, a second `down` there ducks; `useItem` at the panel emits `use` and flips `on`; holding `hide` sets `hidden` after the switch and releasing clears it; `hide` on a moving lift does nothing; a projectile at y 12.6 hits a standing hero (energy 75), passes over a ducked hero and through a hidden one; `damage` while hidden keeps energy at 100; four `damage` calls end in `death` and emit `died`; `shoot` with gun held 1 s emits 12 `shot` events and the hero `x` does not change; a `shoot` press 100 ms before `land` ends starts `attack` right after landing (input buffer); punching ignores `dir` until `cancelAt`; `weapon1` from fists ends with `weapon` gun after the clip.
 - [ ] **Step 2:** Run `npm test -- actions`. Expected: FAIL.
 - [ ] **Step 3:** Implement the transitions in `hero.ts`.
 - [ ] **Step 4:** Run `npm test -- actions locomotion`. Expected: PASS.
@@ -361,14 +366,14 @@ src/sandbox/ui/*.tsx                 debug panels
 **Interfaces:**
 - Consumes: Tasks 3 to 11.
 - Produces (`view.ts`): `interface ViewTransform { scale: number; offsetX: number; offsetY: number }`; `fitView(canvasW: number, canvasH: number, worldW: number, worldH: number): ViewTransform` (letterboxed, whole world visible, centered); `resizeCanvas(canvas: HTMLCanvasElement, dpr: number): void`.
-- Produces (`scene.ts`): `drawScene(ctx, world: SandboxWorld, hero: Hero, look: HeroLook, rigs, cfg: MovementConfig, view: ViewTransform, alpha: number): void` (tiles as flat slabs in the spike backdrop colours, ladder, lift, props, hero with `drawRig` and `simple: true`, tint as `brightness/saturate` filter like the spike hide cell, gun hooks via Task 5). Hero render scale = `heroHeightCells * cellPx / (FOOT_Y - levels.head)` model units.
-- `main.tsx`: boots `FixedLoop`, `Input` attached to `window`, sandbox world, hero (weapon gun), render at device pixel ratio, re-fit on `resize` and when `devicePixelRatio` changes (`matchMedia` listener).
+- Produces (`scene.ts`): `drawScene(ctx, world: SandboxWorld, hero: Hero, look: HeroLook, rigs, cfg: MovementConfig, view: ViewTransform, alpha: number): void` (tiles as flat slabs in the spike backdrop colours, ladder, lift, props, emitter, projectiles, hero with `drawRig` and `simple: true`, tint as `brightness/saturate` filter like the spike hide cell, gun hooks via Task 5). Hero render scale = `heroHeightCells * cellPx / (FOOT_Y - levels.head)` model units.
+- `main.tsx`: each fixed step runs `updateEmitter`, `stepProjectiles`, `updateLift` and `updateHero`; boots `FixedLoop`, `Input` attached to `window`, sandbox world, hero (weapon gun), render at device pixel ratio, re-fit on `resize` and when `devicePixelRatio` changes (`matchMedia` listener).
 
 - [ ] **Step 1: Failing test** `view.test.ts`: `fitView(1920, 1080, 960, 384)` gives scale 2 and offsetY 156; `fitView(800, 800, 960, 384)` gives scale 800/960 and offsetX 0.
 - [ ] **Step 2:** Run `npm test -- view`. Expected: FAIL.
 - [ ] **Step 3:** Implement `view.ts`, `scene.ts`, `main.tsx`.
 - [ ] **Step 4:** Run `npm test -- view`. Expected: PASS.
-- [ ] **Step 5:** Run `npm run dev`; in the browser walk, run, both jumps, climb the ladder, ride the lift, fall off both ledges, jump both gaps, hide by the crate, kneel at the item, use the panel, punch the bag, switch to the gun and shoot; resize the window and toggle browser zoom. Expected: every move plays with the agreed look, no console errors, whole screen visible after resize.
+- [ ] **Step 5:** Run `npm run dev`; in the browser walk, run, both jumps, climb the ladder, ride the lift, fall off both ledges, jump both gaps, hide, kneel at the item, use the panel, punch the bag, switch to the gun and shoot; resize the window and toggle browser zoom. Expected: every move plays with the agreed look, no console errors, whole screen visible after resize.
 - [ ] **Step 6:** Commit.
 
 ---
@@ -383,11 +388,11 @@ src/sandbox/ui/*.tsx                 debug panels
 - Consumes: Task 7 `FixedLoop`, `Input` record and play; Task 9 and 10 hero; Task 12 scene.
 - Produces (`store.ts`): `useSandbox` Zustand store with `{ state: HeroState; time: number; vx: number; vy: number; energy: number; weapon: Weapon; fps: number; inputLog: string[]; overlays: { hitbox: boolean; tiles: boolean; joints: boolean; info: boolean }; paused: boolean; timeScale: number; movement: MovementConfig; clips: ClipSet; recording: boolean; record: InputRecord | null }` and actions `toggleOverlay(name)`, `setPaused(v)`, `setTimeScale(v)`, `setMovementValue(path: string, value: number)` (rejects non-finite values and negatives for speeds, gravity and durations, keeps the old value), `setClipValue(clip: string, field: "duration" | "travel", value: number)`, `resetTuning()`, `exportTuning(): { movement: string; clips: string }` (pretty JSON matching the files in `config/hero/`).
 - Produces (`overlays.ts`): `drawOverlays(ctx, world, hero, look, rigs, view, flags)` (hero box, solid and ladder tiles, rig joint pivots via `locate`-style traversal, text block with state, clip time, velocity).
-- UI: right-side panel over the canvas; buttons Pause, Step (one fixed step), speed 0.25 / 0.5 / 1; overlay checkboxes; tuning fields for every number in `movement.json` plus `duration` and `travel` per clip, Reset, Copy JSON; Record, Stop, Replay (respawns the hero and plays the record); Fists / Gun switch; Hit and Kill buttons calling `damage`. Engine pushes to the store once per rendered frame; React never runs inside the fixed step.
+- UI: right-side panel over the canvas; buttons Pause, Step (one fixed step), speed 0.25 / 0.5 / 1; overlay checkboxes; tuning fields for every number in `movement.json` plus `duration` and `travel` per clip, Reset, Copy JSON; Record, Stop, Replay (respawns the hero and plays the record); Fists / Gun switch; Hit and Kill buttons calling `damage`; Emitter on / off checkbox. Engine pushes to the store once per rendered frame; React never runs inside the fixed step.
 
 - [ ] **Step 1: Failing tests** `store.test.ts`: `setMovementValue("gravity", 20)` sets 20; `setMovementValue("gravity", -1)` and `NaN` keep 30; `exportTuning().movement` parses back with `loadMovement` and equals the edited config; `resetTuning` restores the file values; a replay test runs the hero for 120 frames from spawn with a recorded input and then again from spawn with `play(record)` and gets the same final `x`, `y` and `state`.
 - [ ] **Step 2:** Run `npm test -- store`. Expected: FAIL.
 - [ ] **Step 3:** Implement the store, overlays and panels; wire them in `main.tsx`.
 - [ ] **Step 4:** Run `npm test && npm run lint && npm run typecheck && npm run test:visual`. Expected: all pass.
-- [ ] **Step 5:** Run `npm run dev`; check Pause, Step, slow motion, each overlay, editing gravity changes the jump at once, Copy JSON output pasted into `config/hero/movement.json` keeps `npm test` green, Record then Replay repeats the same run, Hit four times kills the hero. Expected: all behave as listed, no console errors.
+- [ ] **Step 5:** Run `npm run dev`; check Pause, Step, slow motion, each overlay, editing gravity changes the jump at once, Copy JSON output pasted into `config/hero/movement.json` keeps `npm test` green, Record then Replay repeats the same run, Hit four times kills the hero, Emitter on hits a standing hero and misses a ducked or hidden one. Expected: all behave as listed, no console errors.
 - [ ] **Step 6:** Update `docs/superpowers/specs/2026-10-17-colony2080-design.md` 1b section status to "built, awaiting feel sign-off" and the `CLAUDE.md` architecture notes with the `src/engine` / `src/game` / `src/sandbox` split. Commit.
