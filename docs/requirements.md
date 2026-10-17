@@ -61,6 +61,10 @@ flowchart LR
 | Movement set | Full set in the engine (walk, run, jumps, fall, duck, kneel, use, hide, shoot, punch, ladder, lift, hit, death); mission 1 uses what level 1 needs. List: design spec | user |
 | Melee | Punches only, no kick. Fists are a selectable weapon (slot 2) | user |
 | Hide look | Front view with dark tint | user |
+| Hide input | Hold Shift to stay hidden, release to step out | user |
+| Lift input | One Up or Down press starts a ride to the next stop; the lift stops there on its own | user |
+| Dev server | Sandbox and game run on the Vite dev server (`npm run dev`); spikes keep opening from `file://` | user |
+| Story year | Story set in 2080, alien invasion 5 years earlier (2075). Departs from the original's 2013 / 2018 / 2028 | user |
 | Idle and turn | Idle is fully still. Turn switches views without squash | user |
 | Death | Drop the gun, fall on the back, body flat on the floor | user |
 | Inventory key | `I` instead of Tab | user |
@@ -99,11 +103,7 @@ flowchart LR
 - Intro cutscene and dying-rebel scene in mission 1 scope or not (cutscenes postponed).
 - Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Original stays default and keys are configurable; revisit after trying the sandbox.
 - Phase 1b plan (`docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md`) awaits user review and an execution method (subagent-driven or native).
-- Running the sandbox with the Vite dev server (`npm run dev`) is the plan's assumption; spikes keep opening from `file://`.
-- Hide: hold Shift to stay hidden (plan's assumption) or toggle as the original may do.
-- Lift: moves while the hero holds Up or Down on it (plan's assumption); check against the original when level 1 is built.
 - Ladder: Left / Right do nothing while climbing (plan's assumption).
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
 - Hero tuning values in `config/hero/movement.json` are first guesses until tuned in the sandbox.
 - Collision source for levels (decoded map data or hand-authored) is decided in phase 4.
-- Invasion year in the story (2013, 2018 or 2028 across sources).
