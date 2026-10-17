@@ -1,0 +1,41 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/06-cz-walkthroughs.md",
+  "items": {
+    "crowbar": { "cs": "Páčidlo" },
+    "wires": { "cs": "Dráty" },
+    "tapHandle": { "cs": "Kohout uzávěru" },
+    "card": { "cs": "Karta" },
+    "holoPlan": { "cs": "Holog. plán" },
+    "shipPlan": { "cs": "Nákres" },
+    "shipPart": { "cs": "Součástka" },
+    "decoder": { "cs": "Dekodér" },
+    "controller": { "cs": "Ovladač" },
+    "craneKey": { "cs": "Klíč" }
+  },
+  "tasks": [
+    { "id": "talkRebel", "marker": 1, "requires": [], "gives": ["flag:rebelTalked"] },
+    { "id": "takeCrowbar", "marker": 2, "requires": [], "gives": ["item:crowbar"] },
+    { "id": "pullWires", "marker": 3, "requires": [], "gives": ["item:wires"] },
+    { "id": "wireSwitchboard", "marker": 4, "requires": ["item:wires"], "consumes": ["item:wires"], "gives": ["flag:metroPowered"] },
+    { "id": "openTrainDoor", "marker": 5, "requires": ["item:crowbar", "flag:metroPowered"], "gives": ["flag:metroOpen"] },
+    { "id": "takeEBlaster", "marker": 8, "requires": ["flag:metroOpen"], "gives": ["weapon:eBlaster"] },
+    { "id": "takeTapHandle", "marker": 6, "requires": ["flag:metroOpen"], "gives": ["item:tapHandle"] },
+    { "id": "searchCorpse", "marker": 7, "requires": ["flag:metroOpen"], "gives": ["item:card", "item:holoPlan"] },
+    { "id": "tradeHoloPlan", "marker": 9, "requires": ["item:holoPlan"], "consumes": ["item:holoPlan"], "gives": ["item:shipPlan"] },
+    { "id": "getShipPart", "marker": 10, "requires": ["item:shipPlan"], "gives": ["item:shipPart"] },
+    { "id": "tradeShipPart", "marker": 9, "requires": ["item:shipPart"], "consumes": ["item:shipPart"], "gives": ["item:decoder"] },
+    { "id": "unlockPlasma", "marker": 11, "requires": ["item:decoder"], "consumes": ["item:decoder"], "gives": ["flag:plasmaOff"] },
+    { "id": "takeController", "marker": 12, "requires": ["flag:plasmaOff"], "gives": ["item:controller"] },
+    { "id": "repairLift", "marker": 13, "requires": ["item:controller"], "consumes": ["item:controller"], "gives": ["flag:upperFloorsOpen"] },
+    { "id": "openDoor", "marker": 17, "requires": ["flag:upperFloorsOpen", "item:card"], "gives": ["flag:doorOpen"] },
+    { "id": "acidGuard", "marker": 14, "requires": ["flag:upperFloorsOpen", "item:tapHandle"], "consumes": ["item:tapHandle"], "gives": ["flag:acidGuardDead"] },
+    { "id": "shootGuard", "marker": 15, "requires": ["flag:doorOpen", "flag:acidGuardDead"], "gives": ["item:craneKey"] },
+    { "id": "repairCrane", "marker": 16, "requires": ["item:craneKey"], "consumes": ["item:craneKey"], "gives": ["flag:levelComplete"] }
+  ],
+  "unconfirmed": [
+    "openDoor vs acidGuard ordering",
+    "shipPlan as hard requirement for getShipPart",
+    "which items are consumed on use"
+  ]
+}

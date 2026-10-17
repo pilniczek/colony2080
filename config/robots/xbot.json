@@ -1,0 +1,33 @@
+{
+  "status": "draft",
+  "source": "docs/requirements.md",
+  "note": "Tunable look and proportions of the hero robot. Part shapes (polygons) are drawn in spikes/shared/xbot.js; this file holds the agreed parameters.",
+  "palette": {
+    "a0": "#8c3c0c", "a1": "#e2701a", "a2": "#f5973a", "a3": "#ffd2a0", "aLine": "#3a1806",
+    "m0": "#142427", "m1": "#25393d", "m2": "#3c5458", "m3": "#6f878b", "mLine": "#070d0e",
+    "c0": "#5d686c", "c1": "#a3adb1", "c2": "#d4dbdd", "c3": "#ffffff",
+    "badge": "#e8c21a", "trefoil": "#141414", "visor": "#e0281e", "screen": "#3fa34a", "hole": "#1a1210"
+  },
+  "frame": { "width": 640, "height": 780, "axis": 320, "sideAxis": 300, "footY": 744 },
+  "proportions": {
+    "legShift": 26,
+    "legCenterX": 211,
+    "bodyScaleX": 0.8,
+    "forearmShift": 10,
+    "forearmScaleX": 0.86,
+    "badgeRadius": 26,
+    "sideTorsoScaleX": 0.8,
+    "sideShoulder": { "cx": 306, "cy": 96, "scaleX": 0.75, "scaleY": 0.92 }
+  },
+  "levels": { "head": 2, "shoulder": 104, "hip": 344, "knee": 522, "foot": 744 },
+  "joints": {
+    "front": ["body", "armL", "foreL", "armR", "foreR"],
+    "back": ["body", "armL", "foreL", "armR", "foreR"],
+    "side": ["body", "hipNear", "kneeNear", "hipFar", "kneeFar", "arm", "fore", "armFar", "foreFar"]
+  },
+  "hooks": {
+    "front": ["handL", "handR"],
+    "back": ["handL", "handR"],
+    "side": ["hand", "handFar", "back"]
+  }
+}

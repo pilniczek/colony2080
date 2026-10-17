@@ -1,0 +1,1322 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/10-level1-enemies.md",
+  "coordinates": "cell = [x, y] on the 160x80 map grid (24 px cells). Ground enemies: the cell they stand in (floor plank is the row below). Flyers: typical hover cell. World x = engine x + 6. Engine y = top row of the 7-row floor band.",
+  "enemies": [
+    {
+      "id": "e03",
+      "type": "chromeDroid",
+      "cell": [
+        30,
+        58
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 11-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Walked in from the left to the hidden player at x 44, killed there (A 4:02). Ammo 324 to 300.",
+      "nearMarker": 1,
+      "floor": 53,
+      "area": "long street (floor 53)",
+      "patrol": [
+        11,
+        131
+      ],
+      "firstSighting": "A 3:57",
+      "engine": {
+        "slot": 3,
+        "type": 1,
+        "x": 24,
+        "y": 53,
+        "patrol": [
+          5,
+          125
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e04",
+      "type": "chromeDroid",
+      "cell": [
+        44,
+        58
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 28-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Walked in from the left past the hidden player to x 58, turned back, killed at x 54-55 (A 3:52). Ammo 350 to 324.",
+      "nearMarker": 1,
+      "floor": 53,
+      "area": "long street (floor 53)",
+      "patrol": [
+        28,
+        131
+      ],
+      "firstSighting": "A 3:46",
+      "engine": {
+        "slot": 4,
+        "type": 1,
+        "x": 38,
+        "y": 53,
+        "patrol": [
+          22,
+          125
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e05",
+      "type": "flyer",
+      "cell": [
+        87,
+        56
+      ],
+      "confidence": "high",
+      "behaviour": "Flyer: patrols cells 11-131 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Flyer that follows the player into the colonnade from the left (x about 115). Could swap identity with e07.",
+      "nearMarker": null,
+      "floor": 53,
+      "area": "long street (floor 53)",
+      "patrol": [
+        11,
+        131
+      ],
+      "firstSighting": "A 6:31",
+      "engine": {
+        "slot": 5,
+        "type": 2,
+        "x": 81,
+        "y": 53,
+        "patrol": [
+          5,
+          125
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e06",
+      "type": "chromeDroid",
+      "cell": [
+        102,
+        58
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 81-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Walks left to the fuel tank at x 99-100, killed (A 6:20).",
+      "nearMarker": 3,
+      "floor": 53,
+      "area": "long street (floor 53)",
+      "patrol": [
+        81,
+        131
+      ],
+      "firstSighting": "A 6:17",
+      "engine": {
+        "slot": 6,
+        "type": 1,
+        "x": 96,
+        "y": 53,
+        "patrol": [
+          75,
+          125
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e07",
+      "type": "flyer",
+      "cell": [
+        113,
+        56
+      ],
+      "confidence": "high",
+      "behaviour": "Flyer: patrols cells 81-131 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Flies in from the right at x 107-108 above the fuel tank pipes, fires, shot down (A 6:24). Could swap identity with e05.",
+      "nearMarker": 3,
+      "floor": 53,
+      "area": "long street (floor 53)",
+      "patrol": [
+        81,
+        131
+      ],
+      "firstSighting": "A 6:22",
+      "engine": {
+        "slot": 7,
+        "type": 2,
+        "x": 107,
+        "y": 53,
+        "patrol": [
+          75,
+          125
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e08",
+      "type": "chromeDroid",
+      "cell": [
+        127,
+        58
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 81-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Walks left through the colonnade (x 116-123) with a flyer, killed (A 6:37).",
+      "nearMarker": 3,
+      "floor": 53,
+      "area": "long street (floor 53)",
+      "patrol": [
+        81,
+        131
+      ],
+      "firstSighting": "A 6:31",
+      "engine": {
+        "slot": 8,
+        "type": 1,
+        "x": 121,
+        "y": 53,
+        "patrol": [
+          75,
+          125
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e09",
+      "type": "chromeDroid",
+      "cell": [
+        67,
+        69
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 58-76 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Metro platform, walks right toward the lift at x 74-75, killed (A 6:58).",
+      "nearMarker": 4,
+      "floor": 64,
+      "area": "metro platform (floor 64)",
+      "patrol": [
+        58,
+        76
+      ],
+      "firstSighting": "A 6:56",
+      "engine": {
+        "slot": 9,
+        "type": 1,
+        "x": 61,
+        "y": 64,
+        "patrol": [
+          52,
+          70
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e10",
+      "type": "chromeDroid",
+      "cell": [
+        62,
+        69
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 58-76 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Metro platform, walks in front of the train at x 68-69, killed (A 7:03).",
+      "nearMarker": 4,
+      "floor": 64,
+      "area": "metro platform (floor 64)",
+      "patrol": [
+        58,
+        76
+      ],
+      "firstSighting": "A 7:00",
+      "engine": {
+        "slot": 10,
+        "type": 1,
+        "x": 56,
+        "y": 64,
+        "patrol": [
+          52,
+          70
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e11",
+      "type": "chromeDroid",
+      "cell": [
+        14,
+        58
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 8-23 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Comes from the left right after the rebel cutscene (A 4:06-4:14), likely the robot shown shooting the rebel. Walks right from x 19-20 to the hidden player, killed at x 21 (A 4:23) for 16 rounds.",
+      "nearMarker": 1,
+      "floor": 53,
+      "area": "long street (floor 53)",
+      "patrol": [
+        8,
+        23
+      ],
+      "firstSighting": "A 4:15",
+      "engine": {
+        "slot": 11,
+        "type": 1,
+        "x": 8,
+        "y": 53,
+        "patrol": [
+          2,
+          17
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e13",
+      "type": "chromeDroid",
+      "cell": [
+        28,
+        50
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 26-32 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Seen from the lift while riding up, then walks left from x 28-29 to the lift, killed at x 28-30 (A 5:09).",
+      "nearMarker": 2,
+      "floor": 45,
+      "area": "floor 45",
+      "patrol": [
+        26,
+        32
+      ],
+      "firstSighting": "A 5:05",
+      "engine": {
+        "slot": 13,
+        "type": 1,
+        "x": 22,
+        "y": 45,
+        "patrol": [
+          20,
+          26
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e14",
+      "type": "flyer",
+      "cell": [
+        26,
+        41
+      ],
+      "confidence": "high",
+      "behaviour": "Flyer: patrols cells 24-33 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Flies at x 29-32 about 3 rows above the floor next to the crowbar spot, fires, shot down (A 5:24).",
+      "nearMarker": 2,
+      "floor": 38,
+      "area": "floor 38",
+      "patrol": [
+        24,
+        33
+      ],
+      "firstSighting": "A 5:22",
+      "engine": {
+        "slot": 14,
+        "type": 2,
+        "x": 20,
+        "y": 38,
+        "patrol": [
+          18,
+          27
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e15",
+      "type": "chromeDroid",
+      "cell": [
+        33,
+        74
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 28-46 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Metro tunnel, walks left from x 32-33 firing, killed at x 30-31 (A 7:46). Also B 10:00.",
+      "nearMarker": 8,
+      "floor": 69,
+      "area": "metro tunnel (floor 69)",
+      "patrol": [
+        28,
+        46
+      ],
+      "firstSighting": "A 7:41",
+      "engine": {
+        "slot": 15,
+        "type": 1,
+        "x": 27,
+        "y": 69,
+        "patrol": [
+          22,
+          40
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e17",
+      "type": "chromeDroid",
+      "cell": [
+        46,
+        50
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 36-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Walks left from x 46-47 past the graffiti wall to the hidden player at x 39-41, killed (A 5:18).",
+      "nearMarker": null,
+      "floor": 45,
+      "area": "floor 45",
+      "patrol": [
+        36,
+        67
+      ],
+      "firstSighting": "A 5:14",
+      "engine": {
+        "slot": 17,
+        "type": 1,
+        "x": 40,
+        "y": 45,
+        "patrol": [
+          30,
+          61
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e18",
+      "type": "flyer",
+      "cell": [
+        54,
+        48
+      ],
+      "confidence": "high",
+      "behaviour": "Flyer: patrols cells 36-67 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Flies at x 49-52 under the girder bridge, shot down while the player hides (A 5:43).",
+      "nearMarker": null,
+      "floor": 45,
+      "area": "floor 45",
+      "patrol": [
+        36,
+        67
+      ],
+      "firstSighting": "A 5:40",
+      "engine": {
+        "slot": 18,
+        "type": 2,
+        "x": 48,
+        "y": 45,
+        "patrol": [
+          30,
+          61
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e19",
+      "type": "chromeDroid",
+      "cell": [
+        56,
+        50
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 36-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Walks up to the hidden player at x 56-57, killed at x 59-60 (A 5:49).",
+      "nearMarker": null,
+      "floor": 45,
+      "area": "floor 45",
+      "patrol": [
+        36,
+        67
+      ],
+      "firstSighting": "A 5:45",
+      "engine": {
+        "slot": 19,
+        "type": 1,
+        "x": 50,
+        "y": 45,
+        "patrol": [
+          30,
+          61
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e20",
+      "type": "flyer",
+      "cell": [
+        38,
+        34
+      ],
+      "confidence": "high",
+      "behaviour": "Flyer: patrols cells 29-53 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Flies left to the hidden player at x 50-54 near the street lift, shot down (A 9:15).",
+      "nearMarker": 9,
+      "floor": 31,
+      "area": "bar street (floor 31)",
+      "patrol": [
+        29,
+        53
+      ],
+      "firstSighting": "A 9:12",
+      "engine": {
+        "slot": 20,
+        "type": 2,
+        "x": 32,
+        "y": 31,
+        "patrol": [
+          23,
+          47
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e21",
+      "type": "chromeDroid",
+      "cell": [
+        35,
+        36
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 29-53 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Walks to the hidden player under the BAR sign at x 45-46, killed (A 9:22). In B it was killed with the E-blaster at x 53 (B 13:04).",
+      "nearMarker": 9,
+      "floor": 31,
+      "area": "bar street (floor 31)",
+      "patrol": [
+        29,
+        53
+      ],
+      "firstSighting": "A 9:18",
+      "engine": {
+        "slot": 21,
+        "type": 1,
+        "x": 29,
+        "y": 31,
+        "patrol": [
+          23,
+          47
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e22",
+      "type": "flyer",
+      "cell": [
+        78,
+        34
+      ],
+      "confidence": "high",
+      "behaviour": "Flyer: patrols cells 70-130 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Flies in from the right at x 82-84 and its shot kills the player at 10% energy (A 10:09, KONEC HRY). In B a flyer is shot down with the E-blaster near x 97-101 (B 14:24), either this one or e24.",
+      "nearMarker": 13,
+      "floor": 31,
+      "area": "bar street (floor 31)",
+      "patrol": [
+        70,
+        130
+      ],
+      "firstSighting": "A 10:08",
+      "engine": {
+        "slot": 22,
+        "type": 2,
+        "x": 72,
+        "y": 31,
+        "patrol": [
+          64,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e23",
+      "type": "chromeDroid",
+      "cell": [
+        89,
+        36
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 70-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Stands at x 84-85 by the gantry building east of the bar.",
+      "nearMarker": null,
+      "floor": 31,
+      "area": "bar street (floor 31)",
+      "patrol": [
+        70,
+        130
+      ],
+      "firstSighting": "B 14:22",
+      "engine": {
+        "slot": 23,
+        "type": 1,
+        "x": 83,
+        "y": 31,
+        "patrol": [
+          64,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e24",
+      "type": "flyer",
+      "cell": [
+        104,
+        34
+      ],
+      "confidence": "high",
+      "behaviour": "Flyer: patrols cells 70-130 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Flies at x 110-111, shot down with the E-blaster (B 14:38).",
+      "nearMarker": 11,
+      "floor": 31,
+      "area": "bar street (floor 31)",
+      "patrol": [
+        70,
+        130
+      ],
+      "firstSighting": "B 14:34",
+      "engine": {
+        "slot": 24,
+        "type": 2,
+        "x": 98,
+        "y": 31,
+        "patrol": [
+          64,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e25",
+      "type": "chromeDroid",
+      "cell": [
+        121,
+        36
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 70-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Walks left at x 115-116 by the fence, killed (B 14:44).",
+      "nearMarker": null,
+      "floor": 31,
+      "area": "bar street (floor 31)",
+      "patrol": [
+        70,
+        130
+      ],
+      "firstSighting": "B 14:42",
+      "engine": {
+        "slot": 25,
+        "type": 1,
+        "x": 115,
+        "y": 31,
+        "patrol": [
+          64,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e26",
+      "type": "flyer",
+      "cell": [
+        135,
+        34
+      ],
+      "confidence": "high",
+      "behaviour": "Flyer: patrols cells 133-140 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Flies at x 134-136 near the lift down, shot down with the E-blaster (B 14:55).",
+      "nearMarker": null,
+      "floor": 31,
+      "area": "bar street (floor 31)",
+      "patrol": [
+        133,
+        140
+      ],
+      "firstSighting": "B 14:53",
+      "engine": {
+        "slot": 26,
+        "type": 2,
+        "x": 129,
+        "y": 31,
+        "patrol": [
+          127,
+          134
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e27",
+      "type": "chromeDroid",
+      "cell": [
+        128,
+        43
+      ],
+      "confidence": "high",
+      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: One of two droids waiting at x 127-130 when the player rides the lift down from floor 31. They kill him (B 15:18).",
+      "nearMarker": 11,
+      "floor": 38,
+      "area": "floor 38",
+      "patrol": [
+        104,
+        130
+      ],
+      "firstSighting": "B 15:18",
+      "engine": {
+        "slot": 27,
+        "type": 1,
+        "x": 122,
+        "y": 38,
+        "patrol": [
+          98,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e28",
+      "type": "chromeDroid",
+      "cell": [
+        111,
+        43
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Probably the second droid in the B 15:18 lift ambush (e28 or e29).",
+      "nearMarker": 11,
+      "floor": 38,
+      "area": "floor 38",
+      "patrol": [
+        104,
+        130
+      ],
+      "firstSighting": "B 15:18",
+      "engine": {
+        "slot": 28,
+        "type": 1,
+        "x": 105,
+        "y": 38,
+        "patrol": [
+          98,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e29",
+      "type": "chromeDroid",
+      "cell": [
+        107,
+        43
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits. Video: Possibly the second droid in the B 15:18 lift ambush (e28 or e29).",
+      "nearMarker": 11,
+      "floor": 38,
+      "area": "floor 38",
+      "patrol": [
+        104,
+        130
+      ],
+      "firstSighting": "B 15:18",
+      "engine": {
+        "slot": 29,
+        "type": 1,
+        "x": 101,
+        "y": 38,
+        "patrol": [
+          98,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e30",
+      "type": "chromeDroid",
+      "cell": [
+        87,
+        43
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 86-102 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 11,
+      "floor": 38,
+      "area": "floor 38",
+      "patrol": [
+        86,
+        102
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 30,
+        "type": 1,
+        "x": 81,
+        "y": 38,
+        "patrol": [
+          80,
+          96
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e31",
+      "type": "chromeDroid",
+      "cell": [
+        99,
+        43
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 86-102 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 11,
+      "floor": 38,
+      "area": "floor 38",
+      "patrol": [
+        86,
+        102
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 31,
+        "type": 1,
+        "x": 93,
+        "y": 38,
+        "patrol": [
+          80,
+          96
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e32",
+      "type": "flyer",
+      "cell": [
+        103,
+        48
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 84-113 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 12,
+      "floor": 45,
+      "area": "floor 45",
+      "patrol": [
+        84,
+        113
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 32,
+        "type": 2,
+        "x": 97,
+        "y": 45,
+        "patrol": [
+          78,
+          107
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e33",
+      "type": "chromeDroid",
+      "cell": [
+        59,
+        29
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 57-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 13,
+      "floor": 24,
+      "area": "floor 24",
+      "patrol": [
+        57,
+        67
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 33,
+        "type": 1,
+        "x": 53,
+        "y": 24,
+        "patrol": [
+          51,
+          61
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e34",
+      "type": "flyer",
+      "cell": [
+        42,
+        27
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 35-54 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 17,
+      "floor": 24,
+      "area": "floor 24",
+      "patrol": [
+        35,
+        54
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 34,
+        "type": 2,
+        "x": 36,
+        "y": 24,
+        "patrol": [
+          29,
+          48
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e35",
+      "type": "chromeDroid",
+      "cell": [
+        48,
+        29
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 35-54 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 17,
+      "floor": 24,
+      "area": "floor 24",
+      "patrol": [
+        35,
+        54
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 35,
+        "type": 1,
+        "x": 42,
+        "y": 24,
+        "patrol": [
+          29,
+          48
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e36",
+      "type": "flyer",
+      "cell": [
+        52,
+        27
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 35-54 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 17,
+      "floor": 24,
+      "area": "floor 24",
+      "patrol": [
+        35,
+        54
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 36,
+        "type": 2,
+        "x": 46,
+        "y": 24,
+        "patrol": [
+          29,
+          48
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e37",
+      "type": "chromeDroid",
+      "cell": [
+        42,
+        22
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 35-47 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 17,
+      "floor": 17,
+      "area": "floor 17",
+      "patrol": [
+        35,
+        47
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 37,
+        "type": 1,
+        "x": 36,
+        "y": 17,
+        "patrol": [
+          29,
+          41
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e38",
+      "type": "flyer",
+      "cell": [
+        45,
+        20
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 35-47 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 17,
+      "floor": 17,
+      "area": "floor 17",
+      "patrol": [
+        35,
+        47
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 38,
+        "type": 2,
+        "x": 39,
+        "y": 17,
+        "patrol": [
+          29,
+          41
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e39",
+      "type": "chromeDroid",
+      "cell": [
+        57,
+        22
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 56-84 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 17,
+      "floor": 17,
+      "area": "floor 17",
+      "patrol": [
+        56,
+        84
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 39,
+        "type": 1,
+        "x": 51,
+        "y": 17,
+        "patrol": [
+          50,
+          78
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e40",
+      "type": "flyer",
+      "cell": [
+        72,
+        20
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 56-84 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 17,
+      "floor": 17,
+      "area": "floor 17",
+      "patrol": [
+        56,
+        84
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 40,
+        "type": 2,
+        "x": 66,
+        "y": 17,
+        "patrol": [
+          50,
+          78
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e41",
+      "type": "chromeDroid",
+      "cell": [
+        75,
+        22
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 56-84 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 17,
+      "floor": 17,
+      "area": "floor 17",
+      "patrol": [
+        56,
+        84
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 41,
+        "type": 1,
+        "x": 69,
+        "y": 17,
+        "patrol": [
+          50,
+          78
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e42",
+      "type": "flyer",
+      "cell": [
+        81,
+        27
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 75-84 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": null,
+      "floor": 24,
+      "area": "floor 24",
+      "patrol": [
+        75,
+        84
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 42,
+        "type": 2,
+        "x": 75,
+        "y": 24,
+        "patrol": [
+          69,
+          78
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e43",
+      "type": "chromeDroid",
+      "cell": [
+        64,
+        15
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": null,
+      "floor": 10,
+      "area": "top floor 10 (crane level)",
+      "patrol": [
+        54,
+        121
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 43,
+        "type": 1,
+        "x": 58,
+        "y": 10,
+        "patrol": [
+          48,
+          115
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e44",
+      "type": "flyer",
+      "cell": [
+        66,
+        13
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": null,
+      "floor": 10,
+      "area": "top floor 10 (crane level)",
+      "patrol": [
+        54,
+        121
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 44,
+        "type": 2,
+        "x": 60,
+        "y": 10,
+        "patrol": [
+          48,
+          115
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e45",
+      "type": "chromeDroid",
+      "cell": [
+        78,
+        15
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": null,
+      "floor": 10,
+      "area": "top floor 10 (crane level)",
+      "patrol": [
+        54,
+        121
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 45,
+        "type": 1,
+        "x": 72,
+        "y": 10,
+        "patrol": [
+          48,
+          115
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e46",
+      "type": "flyer",
+      "cell": [
+        95,
+        13
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": null,
+      "floor": 10,
+      "area": "top floor 10 (crane level)",
+      "patrol": [
+        54,
+        121
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 46,
+        "type": 2,
+        "x": 89,
+        "y": 10,
+        "patrol": [
+          48,
+          115
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e47",
+      "type": "chromeDroid",
+      "cell": [
+        103,
+        15
+      ],
+      "confidence": "medium",
+      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 14,
+      "floor": 10,
+      "area": "top floor 10 (crane level)",
+      "patrol": [
+        54,
+        121
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 47,
+        "type": 1,
+        "x": 97,
+        "y": 10,
+        "patrol": [
+          48,
+          115
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e48",
+      "type": "flyer",
+      "cell": [
+        112,
+        13
+      ],
+      "confidence": "medium",
+      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.",
+      "nearMarker": 14,
+      "floor": 10,
+      "area": "top floor 10 (crane level)",
+      "patrol": [
+        54,
+        121
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 48,
+        "type": 2,
+        "x": 106,
+        "y": 10,
+        "patrol": [
+          48,
+          115
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "g15",
+      "type": "guardShootable",
+      "cell": [
+        26,
+        15
+      ],
+      "confidence": "medium",
+      "behaviour": "Second guard (marker 15). Separate shootable-object table: 80 hit points, 4 per hit (about 20 hits), only hurt from the same floor and only by weapon id 3 (seg 7 0x0098). Blocks the player while alive. The crane key lies behind him. Static analysis confirmed his x shares the enemy table's frame (map column = engine x 20 + 6). Not drawn from the table. Never seen in footage.",
+      "nearMarker": 15,
+      "floor": 10,
+      "area": "top floor 10 (crane level)",
+      "patrol": null,
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39B9",
+        "x": 20,
+        "y": 10,
+        "hp": 80
+      }
+    },
+    {
+      "id": "acid14",
+      "type": "guardAcid",
+      "cell": [
+        110,
+        29
+      ],
+      "confidence": "medium",
+      "behaviour": "Guard robot that normal weapons cannot kill (marker 14). Drawn as map tiles at x 109-111, y 28-30, not as a sprite. Using the tap handle on the acid tank one floor up (x 113-117, y 18-23) pours acid on it; map variant M16 swaps it for wreckage. Never seen in footage.",
+      "nearMarker": 14,
+      "floor": 24,
+      "area": "floor 24",
+      "patrol": null,
+      "firstSighting": null,
+      "engine": {
+        "source": "M11 vs M16 tile diff"
+      }
+    }
+  ]
+}

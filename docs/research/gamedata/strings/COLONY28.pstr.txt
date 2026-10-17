@@ -1,0 +1,92 @@
+000002f0 P Wî╚Äě║
+00000358 P ëFďëVÍő~ŮőFÓ
+000003ee P ├[@őěÄFě┤J═
+00000408 P P┤I═!X
+00000519 P insu
+0000051e P ficient memory for initialization$memory manager does not support DPMI or VCPI$must be run on a 386 pr
+00000585 P cessor$unrecognized hardware, run DPMIINST$unrecognized environment parameters$unable to initialize page tables
+000005f5 P bad A20 off parameter$bad A20 on par
+0000061a P meter$bad switch parameter$insufficient extended memory$cannot create FRET$cannot create linear a
+0000067c P dress space$cannot create system linear space$cannot copy kernel to high memory$undefined error$unab
+000006e1 P e to copy DOSX$unable to copy IDT$unable to create int chain table$unable to create PM stack$unable to initi
+000007ad P  $unrecognized error$internal error$out of memory$out of s
+000007e8 P lectors$out of internal tables$invalid dynamic link$couldn't open file$invalid exe format$wrong versi
+00000850 P cannot initialize$DLL initialization
+000008fc P needs at least 286$can't find $unexp
+00000921 P cted DOS error$file not found: $path not found: $access denied: $not enough memory to load $invalid e
+000009e0 P îěÄ└╗F
+00000a94 P ÔţŔŽ
+00000ab7 P Ŕů [ü
+00000ad0 P Ŕl ├P║
+00000af5 P ŔG ├P║
+00000d70 P FGAŰ˛
+00000dd7 P FGŰ´F
+00000dfc P FGŰ˘Ă
+00000e12 P GFŰˇ
+00000ea2 P COLONY28
+00000eb1 P KERNEL
+00000ebc P COLONY28.EXE
+00000f02 P klev1.exe -level1
+00000f18 P COMSPEC
+00000f82 P klev1.exe -level3
+00000f98 P COMSPEC
+00001002 P klev1.exe -level4
+00001018 P COMSPEC
+00001082 P klev1.exe -level5
+00001098 P COMSPEC
+00001102 P klev1.exe -level2
+00001118 P COMSPEC
+00001182 P klev1.exe -level6
+00001198 P COMSPEC
+00001202 P klev1.exe -level7
+00001218 P COMSPEC
+00001282 P klev1.exe -level8
+00001298 P COMSPEC
+00001302 P klev1.exe -level9
+00001318 P COMSPEC
+00001382 P klev1.exe -titulky
+00001399 P COMSPEC
+00001403 P klev1.exe -dun
+00001416 P COMSPEC
+00001480 P xuvod.exe -5thdim
+00001496 P COMSPEC
+00001500 P xintro.exe -5thdim
+00001517 P COMSPEC
+0000158c P jungle
+00001593 P data\run.dat
+000015a0 P level3
+000015a7 P jeskyne
+000015af P level4
+000015b6 P mesto
+000015bc P level1
+000015c3 P vesnice
+000015cb P level2
+000015d2 P vezeni
+000015d9 P level5
+000015e0 P sklad
+000015e6 P level6
+000015ed P raketa
+000015f4 P level7
+000015fb P finis
+00001601 P level8
+0000160c P level9
+00001613 P titulky
+0000161f P load
+00001624 P loadmision
+0000162f P koneclevelu
+0000163b P konechry
+00001644 P intro
+00001ec5 P ĎÓÇ&
+00001fe7 P JJ&ő
+00002009 P tDI<
+000021b0 P Gő¸ő┌ÔŽŔ
+00002246 P ŐšČźÔŘ
+00002a6e P YÔýî
+00002b4a P YÔŰ╦
+00002bb8 P   ÄěĂ
+00002bcd P   ÄěĂ
+00002c13 P ş&ëE$ş&ë
+00002d13 P └uŕ├Portion
+00002d20 P Copyright (c) 1983,92 Borland║3Ď
+00003092 P ő╚őF
+00003133 P CJuŮ

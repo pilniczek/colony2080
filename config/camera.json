@@ -1,0 +1,16 @@
+{
+  "status": "draft",
+  "source": "docs/requirements.md",
+  "viewLimit": {
+    "enabled": false,
+    "maxWidthCells": 24,
+    "maxHeightCells": 14
+  },
+  "fogOfWar": {
+    "enabled": false,
+    "visibleRadiusCells": 8,
+    "falloffCells": 3,
+    "color": "#000000",
+    "opacity": 0.85
+  }
+}

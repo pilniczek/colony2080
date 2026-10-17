@@ -1,0 +1,498 @@
+000002f0 P Wî╚Äě║
+00000358 P ëFďëVÍő~ŮőFÓ
+000003ee P ├[@őěÄFě┤J═
+00000408 P P┤I═!X
+00000519 P insu
+0000051e P ficient memory for initialization$memory manager does not support DPMI or VCPI$must be run on a 386 pr
+00000585 P cessor$unrecognized hardware, run DPMIINST$unrecognized environment parameters$unable to initialize page tables
+000005f5 P bad A20 off parameter$bad A20 on par
+0000061a P meter$bad switch parameter$insufficient extended memory$cannot create FRET$cannot create linear a
+0000067c P dress space$cannot create system linear space$cannot copy kernel to high memory$undefined error$unab
+000006e1 P e to copy DOSX$unable to copy IDT$unable to create int chain table$unable to create PM stack$unable to initi
+000007ad P  $unrecognized error$internal error$out of memory$out of s
+000007e8 P lectors$out of internal tables$invalid dynamic link$couldn't open file$invalid exe format$wrong versi
+00000850 P cannot initialize$DLL initialization
+000008fc P needs at least 286$can't find $unexp
+00000921 P cted DOS error$file not found: $path not found: $access denied: $not enough memory to load $invalid e
+000009e0 P îěÄ└╗F
+00000a94 P ÔţŔŽ
+00000ab7 P Ŕů [ü
+00000ad0 P Ŕl ├P║
+00000af5 P ŔG ├P║
+00000d70 P FGAŰ˛
+00000dd7 P FGŰ´F
+00000dfc P FGŰ˘Ă
+00000e12 P GFŰˇ
+00000ec2 P XINTRO
+00000ed3 P KERNEL
+00000eda P KERNEL
+00000ee9 P XINTRO.EXE
+00000f21 P jKÜ 
+00000f54 P Konfiguracni soubor nenalezen - Spustte >!SETUP.EXE<
+00000f89 P zvuky\logo.s3m
+00000f98 P Zvuky\pad.snd
+00000fa6 P Zvuky\vrata.snd
+00000fb6 P Zvuky\krok3.snd
+00000fc6 P Zvuky\klavesa.snd
+00000fd8 P Zvuky\zrak.snd
+00000fe7 P Zvuky\ikona.snd
+00000ff7 P Zvuky\sektor.snd
+00001008 P Zvuky\napis.snd
+00001018 P Zvuky\mriz.snd
+00001027 P Zvuky\elekt.snd
+00001037 P Zvuky\1994.snd
+00001046 P Zvuky\rok.snd
+00001054 P Zvuky\poslech.snd
+00001066 P Zvuky\svih.snd
+00001075 P Zvuky\let.snd
+00001083 P Zvuky\raketa.snd
+00001094 P Zvuky\vybuch1.snd
+000010a6 P Zvuky\laser.snd
+000010b6 P Zvuky\strelba.snd
+000010c8 P Zvuky\1v.snd
+000010d5 P Zvuky\2v.snd
+000010e2 P Zvuky\3v.snd
+000010ef P Zvuky\4v.snd
+000010fc P Zvuky\5v.snd
+00001109 P grafika\logo.anm
+0000111a P grafika\logoe.anm
+0000112c P grafika\intro1.anm
+0000113f P grafika\intro1e.anm
+00001153 P grafika\intro2.anm
+00001166 P grafika\intro3.anm
+00001179 P zvuky\ccity.s3m
+00001189 P grafika\intro4.anm
+0000119c P grafika\strazce.anm
+000011b0 P grafika\utek1.anm
+000011c2 P grafika\behchod1.anm
+000011d7 P grafika\behchod2.anm
+000011ec P grafika\tunel1.anm
+000011ff P grafika\tunel2.anm
+00001212 P grafika\utekrak.anm
+00001226 P grafika\raketa2.anm
+0000123a P grafika\zakladna.anm
+0000124f P grafika\zakladne.anm
+00001264 P grafika\predel.anm
+00001277 P grafika\injekce.anm
+0000128b P grafika\svetlo.anm
+0000129e P zvuky\shock.s3m
+000012ae P grafika\ruka.anm
+000012bf P grafika\konecna.anm
+000012d3 P koneclevelu
+000012df P data\run.dat
+0000175c P Ů┐vŃ
+000024da P Đš ÁÔŢÜ  
+0000256e P şë├ů
+000025a8 P ë˙0ńëÎ
+000025c5 P ÷ěë┴ˇĄ■╦uŠ
+000025d6 P uďY[
+00002623 P ÷ěë┴Čˇ¬■╦uŃ
+0000264b P HëFŘ
+00002652 P ;FŘw^ë
+00002a7d P Č¬Ĺ0ÝˇĄÄ
+00002ae3 P ţ.Źż˘■
+00002bba P 2t&őż■■ő¸Đš
+00002bcb P 0ńPj?őż■■ő¸
+00002cf6 P  íý.;ćđ■
+00002dcb P Č¬Ĺ0Ýˇ
+00002fc7 P Č¬Ĺ0Ýˇ
+00003081 P kolonie.ini
+0000324f P Chyba zvuku: 
+0000326e P Č¬Ĺ0Ýˇ
+000032bc P Č¬Ĺ0Ýˇ
+00003314 P ëFŘëV■őFŘőV■
+0000352a P 1└úZÔ
+00003534 P Unknown module format
+0000354a P Too many channels in module
+00003605 P ^ÔuM v
+0000383f P  v°j ŐF˙PÜ
+000038a7 P Ű3Ű1őĂŰ0
+000038ce P ő■âăˇ
+0000398f P Ř PÜ 
+000039c3 P Ř PÜ 
+000039f7 P Ř PÜ 
+00003c5c P úŐńőăĐÓ
+00003e42 P Ű<făF­ 
+00003fb7 P t>ő┌ĐŃő
+00003ff7 P făFŘ    
+00004037 P ëF˘3╔ő┘ĐŃőF˘#ç
+00004497 P ░ ő╩ˇź
+00004519 P Řˇź_╔╩
+000045b6 P éńufâ~
+000045ce P ëF÷ë
+0000465d P úÇńë
+00004670 P ░ńâ>îń u,â>Äń u%â>Éń u
+000046b7 P â>Äń
+000046c9 P â>Éń t
+00004896 P └úáń╔╦Uëň1└ú×ń1└úáń1└úóń1└úĄń1└úŽń1└úĘń1└ú¬ń1└úČń
+0000499f P ëF÷ëV°─~
+000049b0 P ëFŘëV■ v
+00004a74 P ëFŘâ
+00004ac5 P ëF˙â>ś
+00004b60 P Ş  PW
+00004b92 P ëF°ëV˙─~
+00006132 P ║ńâ>.ň
+00006142 P fí┬ńfúżń
+0000619c P ║ńfí┬ń
+000061c8 P ║ńâ>.ň
+00006246 P ňrŰ─6Ăń&â<
+000062d7 P tű░6ŠC2└
+000062ee P tű2└ŠCń@
+0000630c P tű░6ŠC2└
+00006323 P tű2└ŠCń@
+000063d5 P fúĂń┐╩
+0000653e P tűŔż˙űâ>
+000065cf P f¸ˇfú┬
+0000691f P ° ëFţ
+00006c72 P őVţJ¸ŕf
+0000703d P fíDňf&
+0000707f P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+00007a7b P fúRňfă
+00007a9b P fúNň─6Nň&őD*új
+00007b33 P pňípň;
+00007b3a P lňrÍîě
+00007bc5 P fúbňfů
+00007c3d P úpňŰ█
+00007cc2 P FŐÔ&Ő
+00007cc8 P ŐđF┴
+00007d20 P V─6Nň
+00007ea1 P úpňÚm■
+00007eb0 P hňâ>hň
+00007f8a P âňHúfň
+000082b1 P íhňúrň
+00008407 P íjňH
+000084b6 P │Ç÷ˇŐ─2ńĐ
+0000856c P fíZňf&
+00008713 P S& 7fV
+0000872d P S& 7fP
+00008886 P ţ.őö
+000088d4 P sÓű.Ç╝
+000089ad P Cä└t0f┴
+000089fb P f3Ďf3└
+00008aa7 P ő┬ŰI
+00008aea P főFŘf&
+000090d8 P &ŹEŘ─~
+000090df P î┬ëF˙ë
+000091ab P śő°Őů═
+000091cd P śő°łĽ═˙╔
+000091ec P ░ Š Ş  Äěń`<Óse<┼tq<Ătt0ńđđđďđ
+0000928b P ┐ŕ1Ş  PWÜ
+000092ab P  6jű 6hűÜ
+00009503 P Ő>tűő╩
+00009569 P vű■└╦Ŕ
+00009575 P wű■└╦ő
+0000959e P ĎÓÇ&
+000095b7 P ╦á~űótű╦
+000096c0 P JJ&ő
+000096e2 P tDI<
+0000991f P ŐšČźÔŘ
+000099b7 P Řôźôź]
+0000a335 P őĂÚR
+0000a41d P đ ëF­
+0000a467 P đ ëF­
+0000a7a2 P ;┴wÂf 
+0000a98b P őFŔ&ëG5
+0000ab82 P fí┤Ŕf&
+0000abc4 P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+0000b038 P fú┬Ŕfă
+0000b05d P fúżŔ─6żŔ&őD*úÔ
+0000b150 P ŔŔíŔŔ;
+0000b157 P ńŔrÍîě
+0000b1ca P fú┌Ŕfů
+0000b1f2 P ŘŔářŔ8
+0000b248 P úŔŔŰŇ
+0000b2b5 P fú╩Ŕ─
+0000b2cc P Fä└t
+0000b357 P V─6żŔ
+0000b505 P úŔŔÚ8■
+0000b514 P ÓŔâ>ÓŔ
+0000b56f P Ě█fíĂŔf3Ďf¸űfőě
+0000b5d7 P óřŔ3└
+0000b786 P ů└t/V
+0000b975 P ÓŔů╔t\ëN˙─6żŔő
+0000b99d P fëFŘ─
+0000b9af P Fä└t
+0000ba2c P ŘŔu4÷E
+0000bb0d P íÔŔH
+0000bb51 P Úí˘Ŕ
+0000bc57 P fíĎŔf&
+0000bce7 P &Ç7ÇCÔ¨
+0000bd12 P ćÓŐŘ
+0000be07 P őN°üß
+0000be21 P Ű"ćÚ
+0000be35 P ćűeë]
+0000c0ec P őĂÚ▀
+0000c575 P f 6~ýőF
+0000c67b P főćN fëF˛
+0000c801 P &őG5&ëG1
+0000c9c6 P fíxýf&
+0000ca08 P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+0000cc91 P fúćýfă
+0000ccb0 P &őD.ëF÷f&ő
+0000cce4 P Fä└t
+0000cd55 P  FŘő
+0000cd97 P &őD.ëF÷&őD
+0000cdb0 P f&őDafë
+0000cddc P Fä└t
+0000ce19 P  FŘő
+0000ce38 P fúéý─6éý&őD,úČ
+0000ce57 P ú«ý&ŐD5ó┼ý
+0000cedb P ▓ýí▓ý;
+0000cf22 P úÜýúĄýőF
+0000cf2b P úťýîěÄ
+0000cfa3 P fúľýfů
+0000cfcb P ─ýá┼ý8
+0000d028 P ┤ýí▓ý;
+0000d02f P «ýr╬Ŕ%
+0000d0a7 P fëFŘ─
+0000d0b9 P Fä└t
+0000d0fd P FŰÂ+
+0000d143 P V─6éý&
+0000d22f P főěfů█tv
+0000d2fa P Çt"ŐE
+0000d328 P ┤ýí▓ý;
+0000d33e P Žýâ>Žý
+0000d454 P Žýů╔tcëN˙─6éýő
+0000d489 P fëFŘ─
+0000d497 P Fä└t
+0000d4df P ╬ýHúĄý
+0000d51c P Ő╚Çß
+0000d719 P V─6éý&
+0000d740 P  ├ŔĎřů└
+0000d983 P V─6éý&
+0000d99d P fÖf¸ű
+0000db70 P fíĺýf&
+0000dc28 P fíÄýf&
+0000e53d P UltraSound (GF1 hardware mixing)
+0000e769 P Ô¬fâ
+0000ea4d P ┤˛tuú┤
+0000eb35 P f9çß˛t
+0000eb61 P 3ĎŐŚŢ˛äĎ
+0000eb88 P fëĆÚ˛Çž▄˛■ÇĆ
+0000ebb2 P f9çß˛t
+0000ebcf P fëĆÚ
+0000ec4e P f9çß˛t
+0000ec8f P fëçß˛Ç
+0000ee2a P 8çŢ˛tK
+0000ef30 P fëĆÚ˛Çž▄˛■ÇĆ
+0000ef61 P fëĆÚ
+0000f158 P ÇĆ▄˛ä
+0000f182 P ÇĆ▄˛ä
+0000f27b P F4Çţ
+0000f287 P CIu╠
+0000f2c6 P F4Çţ
+0000f2cd P IuŔŰD
+0000f307 P 4ÇţG
+0000f312 P CIu═
+0000f38c P őűf┴
+0000f3c4 P CIu╩
+0000f40c P IuŠŰF
+0000f453 P CIu╦
+0000f48e P ů└uLf&â
+0000f4a3 P ů└u7őF
+0000f649 P fk└df
+0000f6de P ţBfő
+0000f6ee P ţBfő┴
+0000f811 P ţBfő
+0000f821 P ţBfő┴
+0000fa2b P fâŃÓf+ěx
+0000fa3a P fë^Řî├ë^˙ëv°
+0000fa7e P Á>Ď˛őv°ő^˙Ä├f&ő
+0000fa8f P feë]
+0000fa94 P feëE
+0000fb17 P ů└u f&ő
+0000fc9c P fů└t
+0000fce0 P főěfâŃÓf
+0000fcfe P fů└t
+0000fdcc P Audio Spectrum series Sound Devi
+0000fe85 P 3Îý< tRŐÓ4Ó
+0001013e P S 6î÷Ü
+00010175 P ˇ║ëâ
+000103c4 P Sound System (Crystal/Analog COD
+00010457 P ţBýŐě2└ţý:├t
+00010585 P ░HţB
+000105ac P ░IţB
+00010677 P Ë­PÜ  
+0001076f P Blaster series Sound Device v2.1
+000107ab P Blaster 1.0 or clone (DSP v1.xx)
+000108af P â┬ŘýŐě3└
+000109af P <It@<Dtj<HtvŰÔ
+000109d1 P GÔ´Ú├
+00010a5b P ŐF■łFŘ
+00010acf P t&â>r
+00010b51 P ńíó.¸│■Ď
+00010b63 P spâ>r
+00010c20 P S 6G¸Ü
+00010d87 P űů└u
+00010e5c P q˝h  h
+00010ef3 P  ţ│HŔĺ¨ů└u!Ő
+00010f85 P ¨ů└u!Ű
+00010fdb P q˝PÜ  
+00010ff7 P á.¸Ší
+0001122b P 3█ăçŹ¸
+00011301 P fů└t6f
+0001138b P fëçz¸Ç
+000114c3 P ëç~¸ÇĆ
+000115d7 P ëçŹ¸3└
+0001162e P ÇĆx¸Ç
+0001168b P  6h¸íh¸ő
+0001172c P @uHf
+000121a8 P Đ&Ź˙Đ&Ć˙
+00012279 P j˙úč˙ë
+00012338 P Ph  hl
+000123d8 P ?fGÔ
+000123f8 P fśf¸ţf┴°
+00012426 P GCIu╚
+000124b8 P Ő­Iuß
+000124c3 P ő6ę˙Ű╗
+000124d8 P ëF■ FŘŰĺ
+0001251c P Ő­IuŃ
+00012527 P ő6ę˙ŰĂ
+0001258d P őđIuß
+00012598 P ő6ę˙ŰŞ
+000125ab P ëF■ FŘŰĆ
+00012601 P ő6ę˙Ű└
+0001292f P HÄ.w˙ő6u
+00012945 P f&ëG
+00012be4 P Sf& 7Ü
+00012d43 P ëF˘őF˘3Ď¸6
+00012dd1 P łFŘ&őG
+00012e15 P f3Ďf
+0001302f P h˙őFŔ¸
+000136fc P ¸ěëE
+00013d39 P Ő╦gő
+00013ee7 P Ő╦gő
+0001407d P óÜ˙Űuó
+0001408f P óÖ˙Űcâ
+00014150 P f3█dŐ>Ö˙f3╔dŐ.Ü˙
+0001421a P A Óő
+0001456e P YÔýî
+0001464a P YÔŰ╦
+000146b8 P   ÄěĂ
+000146cd P   ÄěĂ
+00014713 P ş&ëE$ş&ë
+00014813 P └uŕ├Portion
+00014820 P Copyright (c) 1983,92 BorlandEUő
+0001489e P uŰőň]M╦EU
+00014a11 P ;Ůwˇt<
+00014b50 P ŰB5┬h!
+00014b61 P Ű1Ö¸¤ű
+00014b72 P Ű Čy¤Đ
+00014cab P ĐŰĐ┌
+00014cb7 P ĐÔĐËĐđÔ°
+00014d13 P ├VWŘ╣
+00014d45 P ÇŰ­UőýV
+00014e9a P tCÇ¨
+00014edc P ÚV °Ű¤
+00014fd4 P ăőűő┌őŇ+ÝÇ┴
+00014fed P ─ĐÝĐ┌Đ█Đ▀đ
+00015059 P ]├UVWçţő
+000150e3 P Ëŕő˙G#đ
+0001518f P Đ┌ĐěC
+0001520b P +└źźĹźĺ
+00015276 P }J$°đÔĐ
+00015281 P ăŐˇő▀Đ´ĐěĐ
+0001529d P Đ´ĐěĐ┌Đ┘Đ█
+000152e1 P ŰĽWîěî├
+000152ef P +└ĐÔĐđ
+000152fc P Ëŕt`ü
+000153c8 P îěî├Ä└
+000153d7 P şô+└ĐŃĐđźĐ
+00015411 P u!âű
+0001544f P t&őT
+00015514 P ŔÚ■r
+0001552b P ŔŐ÷Ú
+00015568 P ĐŕĐ┘Đ█Đěđ^■■N u­
+0001558b P sgĐ┌Đ┘
+00015601 P Đ┌ FŘ
+00015618 P źôźĹ
+000156b9 P ŔDř^
+000156c9 P Ŕý˘Ű
+000156d9 P ŐN■Ŕ
+000156f7 P OĐŠĐđĐËĐĐĐĎ
+00015722 P źôźĹ
+00015895 P Ŕhűr
+000158ae P ŔOűr
+000159f3 P ĐŃĐđĐĎ¸÷ô¸÷ĐŰĐěđŮ
+00015a25 P ĐŮĐ┘Đ█ĐěđŮ F■
+00015a56 P Řźôź
+00015ad8 P CĐŕĐěĐ┘
+00015b8c P rŇ F
+00015bb4 P Wő~÷źôźĹ
+00015cdc P ¸█âŃÇt─Ű╔
+00015cf2 P ¸█ÇšŘt«Ű│
+00015dad P ĐŕĐ┘Đ█ĐěĐ▀Ű˝
+00015dd2 P ő▀ő¤ő¸
+00015e95 P ŔSÝő
+00015e9d P ~~Wő>Ŕ
+0001606f P řŔęŰŔ╔ Ŕń 
+00016134 P FVůČ
+0001620d P _^őň]├VWŔ╣Úâ
+0001621e P ő■ŔŠÚŰ"
+00016481 P ­W vŘ vŘŔ
+000164b6 P VVŔĽ˝V v■ v■
+000164ea P VWWŔŤ´VW
+00016531 P Äăőý
+0001657b P łFŘŐ^■Ç
+00016651 P WVVŔ0ţYł
+0001673f P WVWŔBÝXĐ°s-ă
+0001674c P ůdăD
+00016756 P 3ˇăD
+0001675c P ÁŰ+ő
+00016797 P ŔNűVWVŔ░ţVWV
+00016811 P ŘĐÚˇą
+000168b0 P !q!â!Ľ!ě!Ţ!Ŕ!űŘRP
+00016a7a P ─ŐŠźYX├Uőý
+00016ac6 P Őšő┘ő╬ő˛+ĎŰ­ŰgŰn
+00016ada P ĐŕĐŮĐ┘Đ█đ▄■└|˛
+00016b46 P Ŕ┴ř░ÖŰ­L
+00016e5f P âĂTü
+00017193 P Ť┘ňU
+000171ae P ŤŢěŤ┘Ŕ
+000171c1 P l,Ť┘ńŰ
+000171cf P l,Ť┘ńÚ
+00017202 P ŘđđÇ
+00017299 P ŰLtJ{HŤŢěŤ.█.b,Ű5ŤŮ┘Ť.█.X,Ű*
+00017326 P p,Ť┘ńŰ
+000173a6 P t,Ť┘ńÚ
+000173c7 P Ť┘­Ť┘ŔŤŮ┴Ű`
+000173e3 P Ť┘n˙Ť┘ŘÇfűˇŤ┘n˙
+00017437 P Ť┘ŔŤŮ˝
+00017455 P   Äěő
+00017467 P ╬úëv
+0001747d P ŤFŐ─
+00017484 P đŔđŔđŔ4
+0001749f P ÉŤŰĂ
+0001755d P ├Ťě┘ŰýŤěĐŰšŤ
+00017706 P tK=█/tF
+00017783 P ŤŢěŤ┘ţ├Ť.█.y0Ť┘╔Ť┘°ŤŢ┘
+0001779b P └t"2╔ŐýŐŠÇ
+00017a8b P _ZYX&őw
+00017b46 P Ş_63ĎŔ
+00017c39 P PŔ]■X
+00017c82 P Şs7├N
+00017c9f P PŔ¸řX
+00017e57 P ő╚őF
+00017e96 P ╦ő­ő˙¸ßPRőĂ¸Ńőěő
+00017f6a P ĐŕĐěÔ˙
+00017f83 P ĐÓĐĎÔ˙
+000182b9 P ĐŃĐĎ■╚Ôˇ2└
+00018530 P »DUsage:  EFFECTS
+00018542 P <module> <effect #1> <effect #2>
+00018705 P Sound System v0.40a configuratio
+000187d5 P arrows to select, Enter to confi
+000188d8 P Sound Card I/O Port Address (in 
+000189b5 P MIDAS uninitialization failure: 
+0001df79 P HOLOGg PLaN
+0001df85 P KOHOUT
+0001df8c P MRTVe TfLO
+0001df97 P KLic
+0001df9c P SOUcaSTKA
+0001dfa6 P KANYSTR
+0001dfae P DRaT
+0001dfb3 P BEDNA
+0001dfb9 P OVLADAc
+0001dfc1 P PacIDLO
+0001dfc9 P DEKODeR
+0001dfd1 P NAPNUTy DRaT
+0001dfde P NaKRES

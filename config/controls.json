@@ -1,0 +1,21 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/07-manual-magazines.md",
+  "keyboard": {
+    "moveLeft": ["ArrowLeft"],
+    "moveRight": ["ArrowRight"],
+    "up": ["ArrowUp"],
+    "down": ["ArrowDown"],
+    "runModifier": ["AltLeft", "AltRight"],
+    "shoot": ["ControlLeft", "ControlRight"],
+    "hide": ["ShiftLeft", "ShiftRight"],
+    "pickUp": ["ArrowDown", "Enter"],
+    "useItem": ["Enter"],
+    "inventory": ["Tab"],
+    "map": ["KeyM"],
+    "menu": ["Escape"],
+    "weapon1": ["Digit1"],
+    "weapon2": ["Digit2"],
+    "weapon3": ["Digit3"]
+  }
+}

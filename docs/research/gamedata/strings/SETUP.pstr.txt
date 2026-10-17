@@ -1,0 +1,649 @@
+000002f0 P Wî╚Äě║
+00000358 P ëFďëVÍő~ŮőFÓ
+000003ee P ├[@őěÄFě┤J═
+00000408 P P┤I═!X
+00000519 P insu
+0000051e P ficient memory for initialization$memory manager does not support DPMI or VCPI$must be run on a 386 pr
+00000585 P cessor$unrecognized hardware, run DPMIINST$unrecognized environment parameters$unable to initialize page tables
+000005f5 P bad A20 off parameter$bad A20 on par
+0000061a P meter$bad switch parameter$insufficient extended memory$cannot create FRET$cannot create linear a
+0000067c P dress space$cannot create system linear space$cannot copy kernel to high memory$undefined error$unab
+000006e1 P e to copy DOSX$unable to copy IDT$unable to create int chain table$unable to create PM stack$unable to initi
+000007ad P  $unrecognized error$internal error$out of memory$out of s
+000007e8 P lectors$out of internal tables$invalid dynamic link$couldn't open file$invalid exe format$wrong versi
+00000850 P cannot initialize$DLL initialization
+000008fc P needs at least 286$can't find $unexp
+00000921 P cted DOS error$file not found: $path not found: $access denied: $not enough memory to load $invalid e
+000009e0 P îěÄ└╗F
+00000a94 P ÔţŔŽ
+00000ab7 P Ŕů [ü
+00000ad0 P Ŕl ├P║
+00000af5 P ŔG ├P║
+00000d70 P FGAŰ˛
+00000dd7 P FGŰ´F
+00000dfc P FGŰ˘Ă
+00000e12 P GFŰˇ
+00000eca P SETUP
+00000eda P KERNEL
+00000ee1 P KERNEL
+00000ef0 P SETUP.EXE
+00000f02 P Nastavení zvuku
+00000f12 P Zařízení pro hraní hudby a efektů během hry
+00000f3e P Gravis UltraSound
+00000f51 P Pro Audio Spectrum
+00000f64 P Pro Audio Spectrum plus
+00000f7c P Pro Audio Spectrum 16
+00000f92 P Windows Sound system
+00000fa7 P Sound Blaster 1.0 (DSP v1.xx)
+00000fc5 P A karty kompatibilní se Sound Blastrem
+00000fec P Sound Blaster 1.5 (DSP v2.00)
+0000100a P Sound Blaster 2.0 (DSP v2.01)
+00001028 P Sound Blaster Pro (DSP v3.xx)
+00001046 P Sound Blaster 16  (DSP v4.00+)
+00001065 P Sound Blaster AWE 32 (DSP v4.x)
+00001085 P Během hry nebude hrát hudba
+000010bb P Výstup
+000010c2 P Testování nastavených zvukových výstupů
+000010ea P 8-bit mono
+000010f5 P 8-bit stereo
+00001102 P 16-bit mono
+0000110e P 16-bit stereo
+0000111c P Frekvence mixování
+0000116d P Test nastavení zvuků
+00001182 P Test hudby
+0000118d P Test efektů
+00001199 P Test zvukových efektů
+000011af P Uložení nastavení
+000011c1 P Uloží nastavení pro správné spuštění hry
+000014af P  Nastavení:
+00001524 P  Frekvence mixování : 
+0000153b P 8-bit mono
+00001546 P 8-bit stereo
+00001553 P 16-bit mono
+0000155f P 16-bit stereo
+0000177e P 8-bit mono
+00001789 P 8-bit stereo
+00001796 P 16-bit mono
+000017a2 P 16-bit stereo
+00001911 P  Nastavení karty: 
+0000195c P  Adresa portu : 
+000019e9 P Chyba v nastavení...
+000019ff P Adresa portu může nabývat pouze 
+00001a39 P , 250,260, 280.- Přerušení (IRQ) může být pouze:
+00001a6a P 2, 5, 7, 10.= DMA kanálůje volný
+00001a8b P h pouze šest, jsou to: 0, 1, 3, 5, 6, 7. P Hlasitost vý- stupu je zde možné přednastavit a může nab
+00001b31 P 1ĎRPÜ
+00001bf8 P 1ĎRPÜ
+00001c2e P 1ĎRPÜ
+000020f8 P ŰnŹż■ř
+00002618 P Vaše nastavení bylo uloženo...
+000026fc P  ćŘŘ
+00002a55 P ł]Ç>Źż
+00002a7f P ł]"VŹż
+00002ad3 P ł]pöŹż
+00002afd P ł]DČŹż
+00002c19 P  ~Esc~ Návrat  ~Alt-K~ Konec
+00002cb7 P Probíhá testování efektů...
+00002cd3 P \data\zvuk.snd
+00002ce2 P data\test.SND
+00002df7 P Probíhá testování hudby...
+00002e12 P \DATA\zvuk.s3m
+00002e21 P data\test.SND
+00002fb6 P Chyba zvuku: 
+00002fd5 P Č¬Ĺ0Ýˇ
+00003023 P Č¬Ĺ0Ýˇ
+0000307b P ëFŘëV■őFŘőV■
+0000329b P Unknown module format
+000032b1 P Too many channels in module
+0000336c P ─@uM v
+0000359f P  v°j ŐF˙PÜ
+00003607 P Ű3Ű1őĂŰ0
+0000362e P ő■âăˇ
+000036ef P Ř PÜ 
+00003723 P Ř PÜ 
+00003757 P Ř PÜ 
+000039bc P úţBőăĐÓ
+00003ba2 P Ű<făF­ 
+00003d17 P t>ő┌ĐŃő
+00003d57 P făFŘ    
+00003d97 P ëF˘3╔ő┘ĐŃőF˘#ç
+000041f7 P ░ ő╩ˇź
+00004279 P Řˇź_╔╩
+00004316 P ŠBufâ~
+0000432e P ëF÷ë
+000043bd P úńBë
+00004429 P â>˘B t
+000046ff P ëF÷ëV°─~
+00004710 P ëFŘëV■ v
+000047d4 P ëFŘâ
+00004825 P ëF˙â>Ř
+000048c0 P Ş  PW
+000048f2 P ëF°ëV˙─~
+00004993 P C1└úŔBúŕBâ>■
+000049c0 P CŰkí■BHëF÷
+00004b54 P S& 7fV
+00004b6e P S& 7fP
+00004cc7 P ţ.őö
+00004d15 P sÓű.Ç╝
+00004dee P Cä└t0f┴
+00004e3c P f3Ďf3└
+00006142 P fí&Cfú"C
+00006243 P ü■nC
+000062d7 P tű░6ŠC2└
+000062ee P tű2└ŠCń@
+0000630c P tű░6ŠC2└
+00006323 P tű2└ŠCń@
+000063d5 P fú*C┐.
+0000650e P Ě└fĐŔfúvCfúzCfő
+0000653e P tűŔż˙űâ>
+000065cf P f¸ˇfú&
+0000691f P ° ëFţ
+00006c72 P őVţJ¸ŕf
+0000703d P fíĘCf&
+0000707f P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+00007a7b P fúÂCfă
+00007a9b P fú▓C─6▓C&őD*ú╬
+00007b33 P ďCíďC;
+00007b3a P đCrÍîě
+00007bc5 P fúĂCfů
+00007bed P ÔCáŃC8
+00007c3d P úďCŰ█
+00007cc2 P FŐÔ&Ő
+00007cc8 P ŐđF┴
+00007ea1 P úďCÚm■
+00007eb0 P ╠Câ>╠C
+00007f7c P óŃC3└
+00007f8a P šCHú╩C
+000082b1 P í╠CúÍC
+00008407 P í╬CH
+000084b6 P │Ç÷ˇŐ─2ńĐ
+0000856c P fíżCf&
+00008826 P ő┬ŰI
+00008869 P főFŘf&
+00008e57 P &ŹEŘ─~
+00008e5e P î┬ëF˙ë
+00008f57 P Č¬Ĺ0Ýˇ
+00008fbf P Č¬Ĺ0Ýˇ
+00009001 P Wj2Ü  
+00009021 P Wj2Ü  
+00009041 P Wj(Ü  
+0000910b P łF÷ŐF
+00009132 P łFűŐ
+0000916f P ŐF˙0ńPŐFű
+0000922f P N]tBŐF
+000093e7 P łć÷■Ő
+00009411 P łć˙■áQ]0ńő
+00009464 P Őć˙■0ńPŐćű■0ńP
+000095dc P :Fűw
+00009654 P ëF■á
+00009689 P ëF■á
+000097af P ëF■Ü
+00009852 P Pá\[0ńHő°
+000098fc P Ç~■Muu
+00009984 P j ŔĂř
+00009aeb P á\[óX]ŔJřŰB
+00009b7e P Klávesnice
+00009d9e P \DATA\
+0000ad35 P őĂÚR
+0000ae1d P đ ëF­
+0000ae67 P đ ëF­
+0000b1a2 P ;┴wÂf 
+0000b38b P őFŔ&ëG5
+0000b5c4 P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+0000ba38 P fú&Gfă
+0000ba5d P fú"G─6"G&őD*úF
+0000bb50 P LGíLG;
+0000bb57 P HGrÍîě
+0000bbca P fú>Gfů
+0000bbf2 P `GáaG8
+0000bc48 P úLGŰŇ
+0000bcb5 P fú.G─
+0000bccc P Fä└t
+0000bf05 P úLGÚ8■
+0000bf14 P DGâ>DG
+0000bf6f P Ě█fí*Gf3Ďf¸űfőě
+0000bfd7 P óaG3└
+0000bfe5 P eGHúBG
+0000c186 P ů└t/V
+0000c375 P DGů╔t\ëN˙─6"Gő
+0000c39d P fëFŘ─
+0000c3af P Fä└t
+0000c42c P `Gu4÷E
+0000c50d P íFGH
+0000c657 P fí6Gf&
+0000c6e7 P &Ç7ÇCÔ¨
+0000c712 P ćÓŐŘ
+0000c807 P őN°üß
+0000c821 P Ű"ćÚ
+0000c835 P ćűeë]
+0000caec P őĂÚ▀
+0000cb34 P Î(f 6Ô
+0000cf75 P f 6ÔJőF
+0000d07b P főćN fëF˛
+0000d201 P &őG5&ëG1
+0000d3c6 P fí▄Jf&
+0000d408 P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+0000d691 P fúŕJfă
+0000d6b0 P &őD.ëF÷f&ő
+0000d6e4 P Fä└t
+0000d755 P  FŘő
+0000d797 P &őD.ëF÷&őD
+0000d7b0 P f&őDafë
+0000d7dc P Fä└t
+0000d819 P  FŘő
+0000d9a3 P fú˙Jfů
+0000d9cb P (Ká)K8
+0000daa7 P fëFŘ─
+0000dab9 P Fä└t
+0000dafd P FŰÂ+
+0000db43 P V─6ŠJ&
+0000dc2f P főěfů█tv
+0000dcfa P Çt"ŐE
+0000de55 P Ků╔tcëN˙─6
+0000de89 P fëFŘ─
+0000de97 P Fä└t
+0000df1c P Ő╚Çß
+0000e119 P V─6ŠJ&
+0000e140 P  ├ŔĎřů└
+0000e383 P V─6ŠJ&
+0000e39d P fÖf¸ű
+0000e570 P fí÷Jf&
+0000e628 P fí˛Jf&
+0000e6ce P ëFś1└
+0000e6df P  FľŰ˛
+0000e6ff P ő~ÜłC
+0000e779 P Č¬Ĺ0Ýˇ
+0000e7cd P Disketa je chráněna proti zápisu!
+0000e7ef P Odstraňte ochranu a stlačte libovolnou klávesu...
+0000e832 P Č¬Ĺ0Ýˇ
+0000e9a8 P Řôźôź]
+0000e9e9 P ŘşPşőěşő
+0000ea15 P WUőý─~
+0000ea1c P Řźő├źő┴źő┬źXźőĂźXźîě
+0000f33d P UltraSound (GF1 hardware mixing)
+0000f569 P Ô¬fâ
+0000f8a5 P ÇĄ@Q▀
+0000f935 P f9çEQt
+0000f94e P Qf¸¨%■ ëçCQëF■ÇĆ
+0000f961 P 3ĎŐŚAQäĎ
+0000f988 P fëĆMQÇž@Q■ÇĆ
+0000f9b2 P f9çEQt
+0000f9cf P fëĆM
+0000fa4e P f9çEQt
+0000fa8f P fëçEQÇ
+0000fc2a P 8çAQtK
+0000fd30 P fëĆMQÇž@Q■ÇĆ
+0000fd61 P fëĆM
+0000fdb6 P Q░ŐţBÝűf3╔ő╚üß
+0000fde1 P Q░ŐţBÝűf3÷ő­üŠ
+0000ff58 P ÇĆ@Qä
+0000ff82 P ÇĆ@Qä
+0001007b P F4Çţ
+00010087 P CIu╠
+000100c6 P F4Çţ
+000100cd P IuŔŰD
+00010107 P 4ÇţG
+00010112 P CIu═
+0001018c P őűf┴
+000101c4 P CIu╩
+0001020c P IuŠŰF
+00010253 P CIu╦
+0001028e P ů└uLf&â
+000102a3 P ů└u7őF
+00010449 P fk└df
+0001045f P Q░äţBÝf3█őěüŃ 
+00010483 P Q░ŐţBÝf3╔ő╚üß 
+000104de P ţBfő
+000104ee P ţBfő┴
+00010611 P ţBfő
+00010621 P ţBfő┴
+0001082b P fâŃÓf+ěx
+0001083a P fë^Řî├ë^˙ëv°
+0001087e P Á>6Qőv°ő^˙Ä├f&ő
+0001088f P feë]
+00010894 P feëE
+00010917 P ů└u f&ő
+00010a9c P fů└t
+00010ae0 P főěfâŃÓf
+00010afe P fů└t
+00010bcc P Audio Spectrum series Sound Devi
+00010c85 P 3Îý< tRŐÓ4Ó
+00010f3e P S 6­TÜ
+00010f75 P ˇ║ëâ
+00011044 P ÖNPÜ  
+000111c4 P Sound System (Crystal/Analog COD
+00011257 P ţBýŐě2└ţý:├t
+00011337 P S 6sUÜ
+00011385 P ░HţB
+000113ac P ░IţB
+00011417 P ţBýókU
+00011423 P ţBýólU$
+00011451 P ţBákUţ
+0001145a P ţBálUţJ
+00011477 P 7OPÜ  
+0001156f P Blaster series Sound Device v2.1
+000115ab P Blaster 1.0 or clone (DSP v1.xx)
+000116af P â┬ŘýŐě3└
+000117af P <It@<Dtj<HtvŰÔ
+000117d1 P GÔ´Ú├
+000117db P h  híU
+0001185b P ŐF■łFŘ
+000118cf P t&â>Í
+00011924 P hóťU
+00011932 P ÉUáďO<
+00011951 P ńíóĺU│■Ď
+00011963 P spâ>Í
+00011a20 P S 6źUÜ
+00011b87 P űů└u
+00011c5c P ŇOh  h
+00011cf3 P  ţ│HŔĺ¨ů└u!Ő
+00011d85 P ¨ů└u!Ű
+00011ddb P ŇOPÜ  
+00011df7 P áĺUŠí
+0001202b P 3█ăç˝U
+0001207f P óĎU3└╔
+0001208f P óËU3└╔
+00012101 P fů└t6f
+0001218b P fëçŮUÇ
+000122c3 P ëçÔUÇĆ
+000123d7 P ëç˝U3└
+0001242e P ÇĆ▄UÇ
+0001248b P  6╠Uí╠Uő
+0001252c P @uHf
+0001268d P Č¬Ĺ0Ýˇ
+0001276d P Č¬Ĺ0Ýˇ
+00012892 P  ~Esc~ Konec  ~F1~ Napoveda
+00012941 P Opravdu chcete skončit?
+00012a34 P uŻÇ~ř
+00012c56 P n>Volby spusteni: [jmeno programu] /C - zabra
+00013aa8 P Đ&˝XĐ&ˇX
+00013c38 P Ph  hđ
+00013cd8 P ?fGÔ
+00013cf8 P fśf¸ţf┴°
+00013d26 P GCIu╚
+00013db8 P Ő­Iuß
+00013dd8 P ëF■ FŘŰĺ
+00013e1c P Ő­IuŃ
+00013e8d P őđIuß
+00013eab P ëF■ FŘŰĆ
+00013fc1 P óěX3└╔
+0001422f P HÄ.█Xő6┘
+00014245 P f&ëG
+000144e4 P Sf& 7Ü
+00014643 P ëF˘őF˘3Ď¸6
+000146d1 P łFŘ&őG
+00014715 P f3Ďf
+0001492f P ╠XőFŔ¸
+00014ffc P ¸ěëE
+00015639 P Ő╦gő
+000157e7 P Ő╦gő
+0001597d P ó■XŰuó
+0001598f P óřXŰcâ
+00015a50 P f3█dŐ>řXf3╔dŐ.■X
+00015b1a P A Óő
+00015c9b P Yë.ßX]3└├ĐßŔ&
+00015cea P Yë>ßX3└├ů╔t@ő
+00015d67 P Č¬Ĺ0ÝˇĄÄ
+00015e91 P ŐćřŘ&
+00015edd P Őć■Ř0ń
+00015f24 P ─ż÷Ř&ë
+00015f90 P 0ńő°┴š
+00015fa2 P 0ńő°┴š
+00015fb9 P 0ńő°┴š
+00015fcf P 0ńő°┴š
+00015fde P 0ńÖ¸¨Ő
+00015fe8 P 0ńő°┴š
+00015ffa P 0ńő°┴š
+0001600c P 0ńő°┴š
+00016021 P 0ńő°┴š
+00016033 P 0ńő°┴š
+0001604a P 0ńő°┴š
+00016060 P 0ńő°┴š
+0001607a P 0ńő°┴š
+0001608c P 0ńő°┴š
+0001609e P 0ńő°┴š
+000160b3 P 0ńő°┴š
+000160c9 P 0ńő°┴š
+000160e4 P 0ńő°┴š
+000160f6 P 0ńő°┴š
+0001610c P 0ńő°┴š
+00016127 P 0ńő°┴š
+00016139 P 0ńő°┴š
+00016155 P 0ńő°┴š
+00016164 P 0ńHŐđ
+0001616c P 0ńő°┴š
+0001617e P 0ńő°┴š
+00016190 P 0ńő°┴š
+000161a9 P 0ńő°┴š
+000161c5 P ZPATKY
+000161cc P NEZAPISUJ
+000161da P DALSI
+000161e0 P NOVY
+0001620d P ■ćŘŘ
+00016223 P PŐćŘŘ
+0001628a P PŐćŘŘ
+00016454 P  u#ŐćŘŘ0
+0001646b P WŐć■Ř0
+000164c2 P PŐćŘŘ
+00016517 P PŐćŘ
+000165f0 P Źż°ű
+00016669 P 0ńőđŐćŘ
+000166bd P PŐćŘ
+00016721 P 0ńő╚ŐćŘ
+00016738 P 0ńÖ¸¨ő
+0001676e P 0ńőđŐćŘ
+000167c2 P PŐćŘ
+0001685f P PŐćŘ
+0001689b P ŐćŘŘ0ń
+000168fd P PŐćŘ
+0001693d P 0ń@ŐđŐćŘ
+00016973 P PŐćŘ
+000169cb P PŐćŘ
+00016a7d P 0ń;┬~MÇż
+00016a9e P WŐćŘŘ0
+00016b3e P WŐćŘŘ0
+00016c56 P ŐćŘŘ0ń
+00016cc2 P 0ń;┬}tŐć
+00016cf6 P 0ń@:ć°Řw
+00016d05 P ■ćűŘ
+00016d93 P 0ńőđŐć
+00016e01 P WŐćŘŘ0
+00016e70 P WŐćŘŘ0
+00016f19 P ŐćŘŘ0ń
+00016f45 P PŐćŘŘ
+00016f9e P PŐćŘŘ
+00017019 P PŐćŘ
+00017087 P PŐćŘŘ
+000170e0 P PŐćŘŘ
+00017168 P PŐćŘ
+00017195 P 0ńőđŐć
+00017597 P ĎÓÇ&
+000176b9 P JJ&ő
+000176db P tDI<
+00017918 P ŐšČźÔŘ
+00017e13 P Č¬Ĺ0Ýˇ
+00017e7a P Č¬Ĺ0Ýˇ
+00017f66 P 0ń+┬@ĐÓHłF˛░
+00017fc7 P 0ń+┬@őđŐF¸0ń
+00018092 P 0ń+┬@ĐÓHłF˘░
+000180bd P 0ń+┬@őđŐF¸0ń
+000180d7 P PŐF÷0
+0001810f P ŐF÷:F
+0001826a P 0ńőđőF
+0001828e P 0ńĐÓőđ
+00018326 P 0ńĐÓőđ
+00018337 P 0ńőđőF
+0001860d P á*_0ńő
+00018862 P _łć]­Őć[­0ńHłć[­ŐćY­0ńHłćY­ŐćZ­0ń@@łćZ­ŐćY­0ń@łćY­á*_0
+000189b8 P  ÄÔţ
+000189dc P WićÔţá
+00018a70 P  ćÔţ
+00018b46 P  ćÔţ
+00018c24 P  ćÔţ
+00018dc5 P _łć]­Őć[­0ń@łć[­ŐćY­0ń@łćY­ŐćZ­0ń@@łćZ­ŐćY­0ń@łćY­á*_0
+00018efa P  ćBţ
+00018f1e P WićBţá
+00018fd7 P  ćBţ
+000190b5 P  ćBţ
+00019197 P  ćBţ
+0001933c P _łć]­ŐćZ­0ń@@łćZ­ŐćY­0ń@łćY­ŐćZ­0ń@łćZ­Őć\­0ń@łć\­á*_0
+00019498 P Wkć░ţ2
+000194b5 P Wj2Ü  
+000194fd P Wj2Ü  
+000198b6 P _łć]­ŐćZ­0ń@@łćZ­ŐćY­0ń@łćY­ŐćZ­0ńHłćZ­Őć\­0ńHłć\­á*_0
+00019a30 P Wkć░ţ2
+00019a4d P Wj2Ü  
+00019a75 P Wj2Ü  
+0001a26e P YÔýŞ
+0001a368 P YÔŰ╦
+0001a3d6 P   ÄěĂ
+0001a3eb P   ÄěĂ
+0001a431 P ş&ëE$ş&ë
+0001a531 P └uŕ├Portion
+0001a53e P Copyright (c) 1983,92 BorlandEUő
+0001a72f P ;Ůwˇt<
+0001a86e P ŰB5┬h!
+0001a87f P Ű1Ö¸¤ű
+0001a890 P Ű Čy¤Đ
+0001a9c9 P ĐŰĐ┌
+0001a9d5 P ĐÔĐËĐđÔ°
+0001aa31 P ├VWŘ╣
+0001aa63 P ÇŰ­UőýV
+0001abb8 P tCÇ¨
+0001abfa P ÚV °Ű¤
+0001acf2 P ăőűő┌őŇ+ÝÇ┴
+0001ad0b P ─ĐÝĐ┌Đ█Đ▀đ
+0001ad77 P ]├UVWçţő
+0001ae01 P Ëŕő˙G#đ
+0001aead P Đ┌ĐěC
+0001af29 P +└źźĹźĺ
+0001af94 P }J$°đÔĐ
+0001af9f P ăŐˇő▀Đ´ĐěĐ
+0001afbb P Đ´ĐěĐ┌Đ┘Đ█
+0001afff P ŰĽWîěî├
+0001b00d P +└ĐÔĐđ
+0001b01a P Ëŕt`ü
+0001b0e6 P îěî├Ä└
+0001b0f5 P şô+└ĐŃĐđźĐ
+0001b12f P u!âű
+0001b16d P t&őT
+0001b232 P ŔÚ■r
+0001b249 P ŔŐ÷Ú
+0001b286 P ĐŕĐ┘Đ█Đěđ^■■N u­
+0001b2a9 P sgĐ┌Đ┘
+0001b31f P Đ┌ FŘ
+0001b336 P źôźĹ
+0001b3d7 P ŔDř^
+0001b3e7 P Ŕý˘Ű
+0001b3f7 P ŐN■Ŕ
+0001b415 P OĐŠĐđĐËĐĐĐĎ
+0001b440 P źôźĹ
+0001b5b3 P Ŕhűr
+0001b5cc P ŔOűr
+0001b711 P ĐŃĐđĐĎ¸÷ô¸÷ĐŰĐěđŮ
+0001b743 P ĐŮĐ┘Đ█ĐěđŮ F■
+0001b774 P Řźôź
+0001b7f6 P CĐŕĐěĐ┘
+0001b8aa P rŇ F
+0001b8d2 P Wő~÷źôźĹ
+0001b9fa P ¸█âŃÇt─Ű╔
+0001ba10 P ¸█ÇšŘt«Ű│
+0001bacb P ĐŕĐ┘Đ█ĐěĐ▀Ű˝
+0001baf0 P ő▀ő¤ő¸
+0001bbb3 P ŔSÝő
+0001bbbb P ~~Wő>Ŕ
+0001bd8d P řŔęŰŔ╔ Ŕń 
+0001be52 P FVůČ
+0001bf2b P _^őň]├VWŔ╣Úâ
+0001bf3c P ő■ŔŠÚŰ"
+0001c19f P ­W vŘ vŘŔ
+0001c1d4 P VVŔĽ˝V v■ v■
+0001c208 P VWWŔŤ´VW
+0001c24f P Äăőý
+0001c299 P łFŘŐ^■Ç
+0001c36f P WVVŔ0ţYł
+0001c45d P WVWŔBÝXĐ°s-ă
+0001c46a P ůdăD
+0001c474 P 3ˇăD
+0001c47a P ÁŰ+ő
+0001c4b5 P ŔNűVWVŔ░ţVWV
+0001c52f P ŘĐÚˇą
+0001c5da P "űŘRPS
+0001c798 P ─ŐŠźYX├Uőý
+0001c7e4 P Őšő┘ő╬ő˛+ĎŰ­ŰgŰn
+0001c7f8 P ĐŕĐŮĐ┘Đ█đ▄■└|˛
+0001c864 P Ŕ┴ř░ÖŰ­j
+0001c88b P H(O(Y(V
+0001caa2 P ŞH,P. ŽĄ&
+0001cb7d P âĂTü
+0001ceb1 P Ť┘ňU
+0001cecc P ŤŢěŤ┘Ŕ
+0001cedf P Ő,Ť┘ńŰ
+0001ceed P Ő,Ť┘ńÚ
+0001cf20 P ŘđđÇ
+0001cfb7 P ŰLtJ{HŤŢěŤ.█.Ç,Ű5ŤŮ┘Ť.█.v,Ű*
+0001d047 P Ä,Ť┘ńŰ
+0001d0c7 P ĺ,Ť┘ńÚ
+0001d0e8 P Ť┘­Ť┘ŔŤŮ┴Ű`
+0001d104 P Ť┘n˙Ť┘ŘÇfűˇŤ┘n˙
+0001d158 P Ť┘ŔŤŮ˝
+0001d176 P   Äěő
+0001d188 P ╬úëv
+0001d19e P ŤFŐ─
+0001d1a5 P đŔđŔđŔ4
+0001d1c0 P ÉŤŰĂ
+0001d1fe P ő­śľ. öŰ/
+0001d27e P ├Ťě┘ŰýŤěĐŰšŤ
+0001d2c9 P Çń▀ÇŘYŰ#
+0001d39e P ┘6ÍaŤ
+0001d3aa P ěay,űĘ
+0001d3f7 P ěaĘ=t$
+0001d489 P tK=█/tF
+0001d4e7 P [├Ť┘ňŤŢ
+0001d504 P ŤŢěŤ┘ţ├Ť.█.Ü0Ť┘╔Ť┘°ŤŢ┘
+0001d51c P └t"2╔ŐýŐŠÇ
+0001d80c P _ZYX&őw
+0001d8c7 P ŞÓ63ĎŔ
+0001da1c P 8├N3└├UőýőF
+0001da4b P PŔ╠řX
+0001da94 P Şů8├N
+0001dab1 P PŔfřX
+0001db42 P QWŔďŘ_Y
+0001dcf9 P ő╚őF
+0001de0e P CJuŮ
+0001de23 P ŘˇĄÄ
+0001de4c P ╦ő­ő˙¸ßPRőĂ¸Ńőěő
+0001df2a P ĐŕĐěÔ˙
+0001df4d P ĐÓĐĎÔ˙
+0001e2a2 P NGItL
+0001e2b6 P s%÷Ă­u6SĐÓ
+0001e319 P ĐÓĐĎ
+0001e36f P Qő╚░ ˇ¬Y
+0001e630 P Usage:  EFFECTS <module> <effect #1> <effect #2> <looping effect #3>
+0001e7fe P    KOLONY 28 - NASTAVENI KONFIGU
+0001e8d5 P - pohyb    ENTER - potvrzeni vol
+0001e9ae P I/O Adresa zvukove karty -      
+0001e9d6 P I/O adresu zvukove karty  (hexad
+0001ea21 P DMA kanal zvukove karty -       
+0001eab3 P MIDAS uninitialization failure: 
+0001ef30 P KOLONY.INI
+0001f030 P KOLONY.SND
+0001f130 P TEST.SND
+0001f230 P Gravis UltraSound
+0001f330 P Pro Audio Spectrum
+0001f430 P Pro Audio Spectrum plus
+0001f530 P Pro Audio Spectrum 16
+0001f630 P Windows Sound system
+0001f730 P Sound Blaster 1.0 (DSP v1.xx)
+0001f830 P Sound Blaster 1.5 (DSP v2.00)
+0001f930 P Sound Blaster 2.0 (DSP v2.01)
+0001fa30 P Sound Blaster Pro (DSP v3.xx)
+0001fb30 P Sound Blaster 16 (DSP v4.00+)
+0001fc30 P Sound Blaster AWE 32 (DSP v4.x)
+0001fee0 P Konec
+0001ff04 P Žádná
+0001ff28 P Zvuky
+0001ff4c P Test
+0001ffb8 P Výstup
+0002006c P Frek
+0002018e P LATIN2.VFT

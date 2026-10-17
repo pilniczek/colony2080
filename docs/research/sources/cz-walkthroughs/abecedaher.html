@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kontrolujeme váš prehliadač…</title>
+<style>
+  :root{--bg:#1e262d;--fg:#e7f0f8;--muted:#97a1ab;--accent:#00ffa0;--btnfg:#10231d}
+  html,body{height:100%;margin:0}
+  body{display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--fg);
+       font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .box{max-width:32rem;margin:1.5rem;padding:1rem;text-align:center}
+  .shield{position:relative;width:54px;height:54px;margin:0 auto 1.5rem}
+  .shield svg{position:absolute;inset:0;margin:auto;color:var(--accent)}
+  .shield .r{position:absolute;inset:0;border:2px solid var(--accent);border-radius:50%;opacity:0;
+             animation:pls 1.8s ease-out infinite}
+  .shield .r2{animation-delay:.9s}
+  @keyframes pls{0%{transform:scale(.5);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+  h1{font-size:1.4rem;font-weight:500;margin:0 0 .5rem}
+  p{margin:.25rem 0;color:var(--muted)}
+  .en{margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid rgba(127,127,127,.22);
+      color:var(--muted);font-size:.95rem}
+  .en strong{color:var(--fg);font-weight:600}
+  .by{margin-top:1.7rem;font-size:.8rem;color:var(--muted);letter-spacing:.02em}
+  .by a,.by span{color:var(--accent);font-weight:600;text-decoration:none}
+  .by a:hover{text-decoration:underline}
+  .alert{color:var(--accent);margin:0 auto 1rem;display:block}
+  .retry{margin-top:1.5rem;display:inline-flex;align-items:center;gap:10px;background:var(--accent);
+         color:var(--btnfg);border:none;border-radius:9px;padding:10px 20px;cursor:pointer;font-family:inherit}
+  .retry svg{flex:none}
+  .rt{display:flex;flex-direction:column;line-height:1.12;text-align:left}
+  .bl{font-size:.9rem;font-weight:600}
+  .be{font-size:.72rem;opacity:.72;font-weight:500}
+</style>
+</head>
+<body>
+<div class="box" id="work">
+  <div class="shield" aria-hidden="true">
+    <span class="r"></span><span class="r r2"></span>
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+  </div>
+  <h1>Kontrolujeme váš prehliadač…</h1>
+  <p id="s" aria-live="polite">Pred pokračovaním overujeme vaše pripojenie. Bude to trvať len chvíľu.</p>
+  <div class="en"><strong>Checking your browser…</strong><br><span id="sen">We're verifying your connection before you continue. This will only take a moment.</span></div>
+  <noscript><p>Na pokračovanie je potrebný JavaScript. JavaScript is required to continue.</p></noscript>
+  <div class="by">Protected by <a href="https://websupport.sk" target="_blank" rel="noopener">Websupport</a></div>
+</div>
+<div class="box" id="term" style="display:none">
+  <svg class="alert" viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+  <h1>Overenie zlyhalo</h1>
+  <p>Nepodarilo sa overiť váš prehliadač. Skúste to znova.</p>
+  <div class="en"><strong>Verification failed</strong><br>We couldn't verify your browser. Please try again.</div>
+  <button id="retry" type="button" class="retry">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+    <span class="rt"><span class="bl">Skúsiť znova</span><span class="be">Try again</span></span>
+  </button>
+  <div class="by">Protected by <a href="https://websupport.sk" target="_blank" rel="noopener">Websupport</a></div>
+</div>
+<script>
+(function(){
+  var T="1926f3f602d26f23cb042fdfc7770c29a0cab726531210d2f85ac9db8c9b4951", TS="1792177712", D=18, V="/ws-verify";
+  var MV="Overujeme…", MF="Overenie zlyhalo. Skúšame znova…";
+  var MV_EN="Verifying…", MF_EN="Verification failed. Retrying…";
+  var ATTEMPT_KEY="ws_clr_try", CAP=3;
+  var found=false, nonce=0, sEl=document.getElementById("s");
+  function setMsg(m,e){ if(sEl) sEl.textContent=m; var en=document.getElementById("sen"); if(en && e) en.textContent=e; }
+  function tries(){ try{ return parseInt(sessionStorage.getItem(ATTEMPT_KEY)||"0",10)||0; }catch(e){ return 0; } }
+  function clearTries(){ try{ sessionStorage.removeItem(ATTEMPT_KEY); }catch(e){} }
+  function showTerminal(){ var w=document.getElementById("work"),t=document.getElementById("term"); if(w)w.style.display="none"; if(t)t.style.display="block"; }
+  function fail(reason){
+    if(reason==="insufficient work"||reason==="bad request"){ showTerminal(); return; }
+    var n=tries()+1; try{ sessionStorage.setItem(ATTEMPT_KEY,n); }catch(e){}
+    if(n>=CAP){ showTerminal(); return; }
+    setMsg(MF, MF_EN); setTimeout(function(){ location.reload(); }, 1500+Math.floor(Math.random()*1500));
+  }
+
+  function lzb(b){var n=0;for(var i=0;i<b.length;i++){var x=b[i];if(x===0){n+=8;}else{var m=128;while((x&m)===0){n++;m>>=1;}break;}}return n;}
+
+  function verify(j){
+    setMsg(MV, MV_EN);
+    var x=new XMLHttpRequest();
+    x.open("GET", V+"?ts="+encodeURIComponent(TS)+"&nonce="+j+"&token="+encodeURIComponent(T), true);
+    x.onreadystatechange=function(){
+      if(x.readyState!==4) return;
+      var res=null; try{ res=JSON.parse(x.responseText); }catch(e){}
+      if(res && res.ok===true){ clearTries(); location.reload(); return; }
+      fail((res && res.error) || "network");
+    };
+    x.onerror=function(){ fail("network"); };
+    x.send();
+  }
+  function done(j){ if(found) return; found=true; verify(j); }
+
+  function runSubtle(enc){
+    if(found) return;
+    var batch=[], B=1500;
+    for(var i=0;i<B;i++){ batch.push((function(j){
+      return crypto.subtle.digest("SHA-256", enc.encode(T+":"+j)).then(function(buf){
+        if(!found && lzb(new Uint8Array(buf))>=D) done(j);
+      });
+    })(nonce++)); }
+    Promise.all(batch).then(function(){ if(!found) setTimeout(function(){runSubtle(enc);},0); });
+  }
+
+  var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  function rotr(x,n){return (x>>>n)|(x<<(32-n));}
+  function sha(strv){
+    var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+    var bytes=[],i; for(i=0;i<strv.length;i++) bytes.push(strv.charCodeAt(i)&0xff);
+    var bl=bytes.length*8; bytes.push(0x80);
+    while(bytes.length%64!==56) bytes.push(0);
+    bytes.push(0,0,0,0,(bl>>>24)&0xff,(bl>>>16)&0xff,(bl>>>8)&0xff,bl&0xff);
+    var w=new Array(64);
+    for(var off=0;off<bytes.length;off+=64){
+      for(i=0;i<16;i++) w[i]=(bytes[off+i*4]<<24)|(bytes[off+i*4+1]<<16)|(bytes[off+i*4+2]<<8)|(bytes[off+i*4+3]);
+      for(i=16;i<64;i++){
+        var s0=rotr(w[i-15],7)^rotr(w[i-15],18)^(w[i-15]>>>3);
+        var s1=rotr(w[i-2],17)^rotr(w[i-2],19)^(w[i-2]>>>10);
+        w[i]=(w[i-16]+s0+w[i-7]+s1)|0;
+      }
+      var a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+      for(i=0;i<64;i++){
+        var S1=rotr(e,6)^rotr(e,11)^rotr(e,25), ch=(e&f)^((~e)&g);
+        var t1=(h+S1+ch+K[i]+w[i])|0;
+        var S0=rotr(a,2)^rotr(a,13)^rotr(a,22), mj=(a&b)^(a&c)^(b&c), t2=(S0+mj)|0;
+        h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;
+      }
+      H[0]=(H[0]+a)|0;H[1]=(H[1]+b)|0;H[2]=(H[2]+c)|0;H[3]=(H[3]+d)|0;
+      H[4]=(H[4]+e)|0;H[5]=(H[5]+f)|0;H[6]=(H[6]+g)|0;H[7]=(H[7]+h)|0;
+    }
+    var out=new Array(32);
+    for(i=0;i<8;i++){out[i*4]=(H[i]>>>24)&0xff;out[i*4+1]=(H[i]>>>16)&0xff;out[i*4+2]=(H[i]>>>8)&0xff;out[i*4+3]=H[i]&0xff;}
+    return out;
+  }
+  function runSync(){
+    if(found) return;
+    var end=nonce+4000;
+    for(; nonce<end; nonce++){ if(lzb(sha(T+":"+nonce))>=D){ done(nonce); return; } }
+    setTimeout(runSync,0);
+  }
+
+  var rb=document.getElementById("retry");
+  if(rb) rb.addEventListener("click", function(){ clearTries(); location.reload(); });
+  if(tries()>=CAP){ showTerminal(); return; }
+
+  try{
+    if(window.crypto && crypto.subtle && window.TextEncoder){ runSubtle(new TextEncoder()); }
+    else { runSync(); }
+  }catch(e){ runSync(); }
+})();
+</script>
+</body>
+</html>
+

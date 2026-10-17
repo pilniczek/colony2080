@@ -1,0 +1,2502 @@
+000002f0 P Wî╚Äě║
+00000358 P ëFďëVÍő~ŮőFÓ
+000003ee P ├[@őěÄFě┤J═
+00000408 P P┤I═!X
+00000519 P insu
+0000051e P ficient memory for initialization$memory manager does not support DPMI or VCPI$must be run on a 386 pr
+00000585 P cessor$unrecognized hardware, run DPMIINST$unrecognized environment parameters$unable to initialize page tables
+000005f5 P bad A20 off parameter$bad A20 on par
+0000061a P meter$bad switch parameter$insufficient extended memory$cannot create FRET$cannot create linear a
+0000067c P dress space$cannot create system linear space$cannot copy kernel to high memory$undefined error$unab
+000006e1 P e to copy DOSX$unable to copy IDT$unable to create int chain table$unable to create PM stack$unable to initi
+000007ad P  $unrecognized error$internal error$out of memory$out of s
+000007e8 P lectors$out of internal tables$invalid dynamic link$couldn't open file$invalid exe format$wrong versi
+00000850 P cannot initialize$DLL initialization
+000008fc P needs at least 286$can't find $unexp
+00000921 P cted DOS error$file not found: $path not found: $access denied: $not enough memory to load $invalid e
+000009e0 P îěÄ└╗F
+00000a94 P ÔţŔŽ
+00000ab7 P Ŕů [ü
+00000ad0 P Ŕl ├P║
+00000af5 P ŔG ├P║
+00000d70 P FGAŰ˛
+00000dd7 P FGŰ´F
+00000dfc P FGŰ˘Ă
+00000e12 P GFŰˇ
+00000ef2 P KLEV1
+00000f02 P KERNEL
+00000f09 P KERNEL
+00000f18 P KLEV1.EXE
+00001021 P jKÜ 
+000010b2 P grafika\lev1.gra
+000010c3 P grafika\lev2.gra
+000010d4 P grafika\lev3.gra
+000010e5 P grafika\lev4.gra
+000010f6 P grafika\lev5.gra
+00001107 P grafika\lev6.gra
+00001118 P grafika\lev7.gra
+00001129 P grafika\lev8.gra
+0000113a P grafika\lev9.gra
+000013c7 P b▀─>▄Ůî└úäŮ─>ÓŮî└úćŮ─>
+000013ef P d▀î└úîŮ─>ńŮî└úÄŮ─>ŔŮî└úÉŮ─>ýŮî└úĺŮ─>­Ůî└úöŮ─>˘Ůî└úľŮ─>°Ůî└úśŮ─
+00001625 P u-Źż
+000017cd P grafika\mapa1.gra
+000017df P grafika\mapa2.gra
+000017f1 P grafika\mapa3.gra
+00001803 P grafika\mapa4.gra
+00001815 P grafika\mapa5.gra
+00001827 P grafika\mapa6.gra
+00001839 P grafika\mapa7.gra
+0000184b P grafika\mapa8.gra
+0000185f P grafika\lev1.gra
+00001870 P grafika\lev2.gra
+00001881 P grafika\lev3.gra
+00001892 P grafika\lev4.gra
+000018a3 P grafika\lev5.gra
+000018b4 P grafika\lev6.gra
+000018c5 P grafika\lev7.gra
+000018d6 P grafika\lev8.gra
+000018e7 P grafika\lev9.gra
+000019a7 P u-Źż
+000019db P u-Źż˙
+00001a0f P u-Źż˙■
+00001b7b P u őF
+00001ba2 P u őF˙
+00001bc9 P u őF˙┴
+00001bf0 P u őF˙┴Ó
+00001d62 P u!őF
+00001d8a P u!őF˙
+00001db2 P u!őF˙┴
+00001dda P u!őF˙┴Ó
+00001f3a P u"őF
+00001f63 P u"őF˙
+00001f8c P u"őF˙H
+00001fb5 P u"őF˙H┴
+00001fde P u"őF˙H┴Ó
+00002118 P u"őF
+00002141 P u"őF˙
+0000216a P u"őF˙@
+000021bc P u"őF˙@┴Ó
+000022f6 P u"őF
+0000231f P u"őF˙
+00002348 P u"őF˙H
+00002371 P u"őF˙H┴
+0000239a P u"őF˙H┴Ó
+000024d4 P u"őF
+000024fd P u"őF˙
+00002526 P u"őF˙@
+00002578 P u"őF˙@┴Ó
+000026a3 P u!őF
+000026cb P u!őF˙
+000026f3 P u!őF˙┴
+0000271b P u!őF˙┴Ó
+0000286a P u!őF
+00002892 P u!őF˙
+000028ba P u!őF˙H
+000028e2 P u!őF˙H┴
+0000290a P u!őF˙H┴Ó
+00002a31 P u!őF
+00002a59 P u!őF˙
+00002a81 P u!őF˙@
+00002ad1 P u!őF˙@┴Ó
+00002fe7 P u-Źż
+0000301b P u-Źż˙
+0000304f P u-Źż˙■
+00003124 P Zvuky\invend.snd
+00003135 P grafika\nabeh.gra
+00003147 P grafika\nabeh2.gra
+0000315a P grafika\nabehe.gra
+0000316d P grafika\nabeh2e.gra
+00003181 P grafika\i2.gra
+00003190 P grafika\i2e.gra
+000031ca P lm    EXTRA X
+000031e4 P sTiTYb
+000031eb P SHIELDb
+000031f3 P kkkkkl
+00003203 P mpqv
+00003208 P mpqvw
+0000320e P ENERGI
+0000321d P ENERGY
+0000322e P grafika\prpac.gra
+00003240 P grafika\prklic.gra
+00003253 P grafika\prekan.gra
+00003266 P grafika\pretyc.gra
+00003279 P grafika\prklav.gra
+0000328c P grafika\pregran.gra
+000032a0 P grafika\prmag.gra
+000032b2 P grafika\prbomba.gra
+000032c6 P grafika\provl.gra
+000032d8 P grafika\prvys.gra
+000032ea P grafika\prsti.gra
+000032fc P grafika\prklic41.gra
+00003311 P grafika\prplat.gra
+00003324 P grafika\prdisk.gra
+00003337 P grafika\prremen.gra
+0000334b P grafika\prdrat2.gra
+0000335f P grafika\prsouc.gra
+00003372 P grafika\prprojek.gra
+00003387 P grafika\prklic42.gra
+0000339c P grafika\prruka.gra
+000033af P grafika\prnad.gra
+000033c1 P grafika\prklic1.gra
+000033d5 P grafika\prrozb.gra
+000033e8 P grafika\prklic43.gra
+000033fd P grafika\prkod.gra
+0000340f P grafika\prklica.gra
+00003423 P grafika\pridkart.gra
+00003438 P grafika\prklic2.gra
+0000344c P grafika\prdrat.gra
+0000345f P grafika\prdyna.gra
+00003472 P grafika\prklic44.gra
+00003487 P grafika\przved.gra
+0000349a P grafika\prklicb.gra
+000034ae P grafika\prpist.gra
+000034c1 P grafika\prnav.gra
+000034d3 P grafika\prhad.gra
+000034e5 P grafika\prsroub.gra
+000034f9 P grafika\prtyc2.gra
+0000350c P grafika\prholo.gra
+0000351f P grafika\prpoj.gra
+00003531 P grafika\prsvet.gra
+00003544 P grafika\prplan.gra
+00003557 P grafika\prkart.gra
+0000356a P grafika\prdekod.gra
+0000357e P grafika\prkoh.gra
+00003590 P grafika\nic.gra
+000035a0 P grafika\uzavreni.gra
+000035b5 P grafika\uzavren2.gra
+000035ca P grafika\lev1.gra
+000035db P grafika\lev2.gra
+000035ec P grafika\lev3.gra
+000035fd P grafika\lev4.gra
+0000360e P grafika\lev5.gra
+0000361f P grafika\lev6.gra
+00003630 P grafika\lev7.gra
+00003641 P grafika\lev8.gra
+00003652 P grafika\lev9.gra
+0000385f P ŐF˙óTQ
+0000387b P 1└ëF°ă
+00003895 P ëżŔřîćŕ
+000038c9 P ëć­■őFŘëF°á
+00003903 P ëć­■őFŘëF°â
+00003d1c P u"őF
+00003d4c P u"őF˘
+00003ef8 P u!Źż
+00003f20 P u!Źżý
+00003f48 P u!ŹżýŘ
+000040b1 P u!Źż
+000040d9 P u!Źżý
+00004101 P u!ŹżýŘ
+00004242 P u!Źż
+0000426a P u!Źżý
+00004292 P u!ŹżýŘ
+000043ab P u!Źż
+000043d3 P u!Źżý
+000043fb P u!ŹżýŘ
+0000453c P u!Źż
+00004564 P u!Źżý
+0000458c P u!ŹżýŘ
+000046cd P u!ŹżýŘ
+000047be P u!ŹżýŘ
+00004b92 P áTQ0ńHóTQŰŮ
+00004bd0 P áTQ0ń@óTQŰŮ
+00004bf1 P ŐF°óTQ
+00004c01 P ŐF˙óTQ
+00004d8b P u-Źż
+00004dbf P u-Źżý
+00004df3 P u-ŹżýŘ
+00004f24 P ÖRPáTQ0ń
+00004f3e P grafika\xb32.gra
+00004f4f P grafika\xb32b.gra
+00004f61 P grafika\xb32c.gra
+00004f73 P grafika\xb31.gra
+00004f84 P grafika\xb31b.gra
+00004f96 P grafika\xb31c.gra
+00005473 P data\hudba.dat
+00005482 P hudba.dat
+0000552d P data\run.dat
+0000553a P level1
+00005541 P -level1
+00005549 P level2
+00005550 P -level2
+00005558 P level3
+0000555f P -level3
+00005567 P level4
+0000556e P -level4
+00005576 P level5
+0000557d P -level5
+00005585 P level6
+0000558c P -level6
+00005594 P level7
+0000559b P -level7
+000055a3 P level8
+000055aa P -level8
+000055b2 P level9
+000055b9 P -level9
+000055c5 P -dun
+000055ca P Konfiguracni soubor nenalezen - Spustte >!SETUP.EXE<
+000055ff P loadmision
+0000560a P titulky
+00005612 P -titulky
+0000561b P HRU SPUSTITE PRIKAZEM >!START.EXE<
+0000563e P zvuky\NIC.s3m
+0000564c P zvuky\titulky.s3m
+0000565e P zvuky\naklad.s3m
+0000566f P zvuky\intr2.s3m
+0000567f P zvuky\intr3.s3m
+0000568f P zvuky\intr4.s3m
+0000569f P zvuky\intr5.s3m
+000056af P zvuky\intr6.s3m
+000056bf P zvuky\intr7.s3m
+000056cf P zvuky\intr8.s3m
+000056df P zvuky\intr9.s3m
+000056ef P zvuky\titulky2.s3m
+00005702 P zvuky\dun.s3m
+00005710 P Zvuky\el.snd
+0000571d P Zvuky\dvere.snd
+0000572d P Zvuky\zazeh.snd
+0000573d P Zvuky\prulet2.snd
+0000574f P Zvuky\plam.snd
+0000575e P Zvuky\system.snd
+0000576f P Zvuky\prelet.snd
+00005780 P Zvuky\uder.snd
+0000578f P Zvuky\mriz2.snd
+0000579f P Zvuky\vrata2.snd
+000057b0 P grafika\odnak.anm
+000057c2 P grafika\naklad.anm
+000057d5 P grafika\rakod1.anm
+000057e8 P grafika\sestrel.anm
+000057fc P grafika\robblik.anm
+00005810 P grafika\upad.anm
+00005821 P grafika\ruce.anm
+00005832 P grafika\monitor.anm
+00005846 P grafika\prilet1.anm
+0000585a P grafika\prilet2.anm
+0000586e P koneclevelu
+0000587a P data\rychlost.dat
+0000588c P grafika\deska2.gra
+0000589f P grafika\deska3.gra
+000058b2 P grafika\deskar.gra
+000058c5 P grafika\deska4.gra
+000058d8 P grafika\deska5.gra
+000058eb P grafika\deska6.gra
+000058fe P grafika\deska7.gra
+00005911 P grafika\lev1.gra
+00005922 P grafika\lev2.gra
+00005933 P grafika\lev3.gra
+00005944 P grafika\lev4.gra
+00005955 P grafika\lev5.gra
+00005966 P grafika\lev6.gra
+00005977 P grafika\lev7.gra
+00005988 P grafika\lev8.gra
+00005999 P grafika\lev9.gra
+000059aa P Zvuky\pad2.snd
+000059b9 P Zvuky\vodopad.snd
+000059cb P Zvuky\vlak.snd
+000059da P Zvuky\gate.snd
+000059e9 P Zvuky\brok.snd
+000059f8 P Zvuky\smich.snd
+00005a08 P Zvuky\hydra.snd
+00005a18 P Zvuky\motor3.snd
+00005a29 P Zvuky\buch.snd
+00005a38 P Zvuky\napis.snd
+00005a48 P Zvuky\ohen.snd
+00005a57 P Zvuky\prijezd.snd
+00005a69 P zvuky\mesto.s3m
+00005a79 P zvuky\vesnice.s3m
+00005a8b P zvuky\prales.s3m
+00005a9c P zvuky\jeepie.s3m
+00005aad P zvuky\vezeni.s3m
+00005abe P zvuky\sklad.s3m
+00005ace P zvuky\raketa.s3m
+00005adf P zvuky\finis.s3m
+00005aef P zvuky\sklad2.s3m
+00005b00 P grafika\xb31.gra
+00005b11 P grafika\xb31b.gra
+00005b23 P grafika\xb31c.gra
+00005b35 P grafika\xb32.gra
+00005b46 P grafika\xb32b.gra
+00005b58 P grafika\xb32c.gra
+00006533 P t9Ç>x▄
+00006b66 P Đš Áf▀Ü  
+00006dda P u-Źż
+00006fee P Đš Áf▀Ü  
+0000712b P u-Źż
+0000766a P t9Ç>x▄
+00009e1a P şë├ů
+00009e54 P ë˙0ńëÎ
+00009e71 P ÷ěë┴ˇĄ■╦uŠ
+00009e82 P uďY[
+00009ecf P ÷ěë┴Čˇ¬■╦uŃ
+00009ef7 P HëFŘ
+00009efe P ;FŘw^ë
+0000a329 P Č¬Ĺ0ÝˇĄÄ
+0000a481 P 0ńPj?őż■■ő¸Đ
+0000a67e P Č¬Ĺ0ÝˇĄÄ
+0000a7cc P 0ńPj?őż■■ő¸Đ
+0000a95a P Č¬Ĺ0ÝˇĄÄ
+0000aa92 P 0ńPj?őż■■ő¸Đ
+0000ac0a P Č¬Ĺ0ÝˇĄÄ
+0000ad2f P      NaMfT
+0000ad3a P MARTIN MATfJKA
+0000ad49 P KAREL MATfJKA
+0000ad57 P      SCeNar
+0000ad63 P ROMAN SLAVicEK
+0000ad83 P Č¬Ĺ0ÝˇĄÄ
+0000b178 P     PROGRAM
+0000b184 P KAREL MATfJKA
+0000b192 P    LUMiR SRCH
+0000b1a0 P   JAN STRaNiK
+0000b1ae P   ONDrEJ NOVaK
+0000b1bd P     GRAFIKA
+0000b1d8 P MARTIN MATfJKA
+0000b1e7 P   PETR KLABiK
+0000b204 P JINDrICH ROHLiK
+0000b214 P  DESIGN LEVELu
+0000b223 P  NaVRH POSTAV 
+0000b232 P  DANIEL FALTA
+0000b240 P     DIALOGY
+0000b24c P HLAS VYPRAVfcE
+0000b25b P  PETR TrEBICKy
+0000b26a P    PRODUKCE
+0000b287 P Č¬Ĺ0ÝˇĄÄ
+0000b9d3 P Č¬Ĺ0ÝˇĄÄ
+0000bd62 P Č¬Ĺ0ÝˇĄÄ
+0000be4e P 0ńPj?őż■■ő¸Đ
+0000bef2 P Öëćţ■ëľ­■1└
+0000bf07 P ;ćţ■w.
+0000bf44 P Öëćţ■ëľ­■1└
+0000bf59 P ;ćţ■w.
+0000bf96 P Öëćţ■ëľ­■1└
+0000bfab P ;ćţ■w.
+0000bfe8 P Öëćţ■ëľ­■1└
+0000bffd P ;ćţ■w.
+0000c03a P Öëćţ■ëľ­■1└
+0000c04f P ;ćţ■w.
+0000c08c P Öëćţ■ëľ­■1└
+0000c0a1 P ;ćţ■w.
+0000c197 P Č¬Ĺ0ÝˇĄÄ█ăćŘ■ řă
+0000c24b P ˛/~UőF
+0000c252 P ÖRPí˛/Öő
+0000c27b P î└ëćn■ăćh■
+0000c2f9 P Chyba zvuku: 
+0000c318 P Č¬Ĺ0Ýˇ
+0000c366 P Č¬Ĺ0Ýˇ
+0000c3be P ëFŘëV■őFŘőV■
+0000c5ad P ─>ŕŃ& ]VëF
+0000c5d4 P 1└úńŃ
+0000c5de P Unknown module format
+0000c5f4 P Too many channels in module
+0000c6af P ŔŃuM v
+0000c8e9 P  v°j ŐF˙PÜ
+0000c951 P Ű3Ű1őĂŰ0
+0000c978 P ő■âăˇ
+0000ca39 P Ř PÜ 
+0000ca6d P Ř PÜ 
+0000caa1 P Ř PÜ 
+0000ceec P Ű<făF­ 
+0000d061 P t>ő┌ĐŃő
+0000d0a1 P făFŘ    
+0000d0e1 P ëF˘3╔ő┘ĐŃőF˘#ç
+0000d541 P ░ ő╩ˇź
+0000d5c3 P Řˇź_╔╩
+0000d64d P Š1└ú8Šú:Š1└ë
+0000d678 P ëF÷ë
+0000d9d5 P Š1└ú<Šú>Š1└ú
+0000da49 P ëF÷ëV°─~
+0000da5a P ëFŘëV■ v
+0000db1e P ëFŘâ
+0000db6f P ëF˙â>"
+0000dc0a P Ş  PW
+0000dc3c P ëF°ëV˙─~
+0000ed13 P Č¬Ĺ0Ýˇ
+0000ed51 P î└ëFŘî
+0000ef48 P Č¬Ĺ0Ýˇ
+0000efa1 P data\Sg
+0000efa9 P .pal
+0000efae P grafika\menu.gra
+0000efbf P grafika\menu2.gra
+0000efd1 P .gra
+0000efea P ˇĄÄ█j
+0000f1a5 P WhÇ╗1└
+0000f1dd P őć■˙Ä└
+0000f1fa P FGIu÷
+0000f2fa P POZICE A
+0000f303 P POZICE B
+0000f30c P POZICE C
+0000f315 P POZICE D
+0000f31e P POZICE E
+0000f327 P SLOT A
+0000f32e P SLOT B
+0000f335 P SLOT C
+0000f33c P SLOT D
+0000f343 P SLOT E
+0000f34a P data\Sg
+0000f352 P .dat
+0000f357 P .jme
+0000f35c P .pal
+0000f361 P .gra
+0000f366 P grafika\menu.gra
+0000f377 P grafika\menu2.gra
+0000f4f6 P őF■@ëF■
+0000f504 P őF■HëF■
+0000f692 P WhÇ╗1└
+0000f8b4 P ŐâŘ¸łćř■
+0000fa8a P POZICE A
+0000fa93 P POZICE B
+0000fa9c P POZICE C
+0000faa5 P POZICE D
+0000faae P POZICE E
+0000fab7 P SLOT A
+0000fabe P SLOT B
+0000fac5 P SLOT C
+0000facc P SLOT D
+0000fad3 P SLOT E
+0000fada P data\Sg
+0000fae2 P .dat
+0000fae7 P .jme
+0000faec P NENALEZENO
+0000faf7 P zvuky\mesto.s3m
+0000fb07 P zvuky\vesnice.s3m
+0000fb19 P zvuky\prales.s3m
+0000fb2a P zvuky\jeepie.s3m
+0000fb3b P zvuky\vezeni.s3m
+0000fb4c P zvuky\sklad.s3m
+0000fb5c P zvuky\raketa.s3m
+0000fb6d P zvuky\finis.s3m
+0000fb7d P zvuky\sklad2.s3m
+0000fb8e P grafika\lev1.gra
+0000fb9f P grafika\lev2.gra
+0000fbb0 P grafika\lev3.gra
+0000fbc1 P grafika\lev4.gra
+0000fbd2 P grafika\lev5.gra
+0000fbe3 P grafika\lev6.gra
+0000fbf4 P grafika\lev7.gra
+0000fc05 P grafika\lev8.gra
+0000fc16 P grafika\lev9.gra
+0000fc27 P grafika\deska2.gra
+0000fc3a P grafika\deska3.gra
+0000fc4d P grafika\deskar.gra
+0000fc60 P grafika\deska4.gra
+0000fc73 P grafika\deska5.gra
+0000fc86 P grafika\deska6.gra
+0000fc99 P grafika\deska7.gra
+0000fcac P grafika\xb31.gra
+0000fcbd P grafika\xb31b.gra
+0000fccf P grafika\xb31c.gra
+0000fce1 P grafika\xb32.gra
+0000fcf2 P grafika\xb32b.gra
+0000fd04 P grafika\xb32c.gra
+0000fe83 P őF■@ëF■
+0000fe91 P őF■HëF■
+0001021c P u-Źż
+00010268 P u-Źżv
+000102b4 P u-Źżv÷
+00010426 P u-Źż
+0001049c P u-Źżv÷
+00010512 P u-Źżv
+000107a8 P grafika\menu.gra
+000107b9 P grafika\menu2.gra
+00010801 P    RYCHLOST HRY  
+00010889 P      GAME SPEED  
+000108d9 P data\hudba.dat
+000108e8 P zvuky\mesto.s3m
+000108f8 P zvuky\vesnice.s3m
+0001090a P zvuky\prales.s3m
+0001091b P zvuky\jeepie.s3m
+0001092c P zvuky\vezeni.s3m
+0001093d P zvuky\sklad.s3m
+0001094d P zvuky\raketa.s3m
+0001095e P zvuky\finis.s3m
+0001096e P zvuky\sklad2.s3m
+0001097f P data\rychlost.dat
+0001113f P grafika\lev1.gra
+00011150 P grafika\lev2.gra
+00011161 P grafika\lev3.gra
+00011172 P grafika\lev4.gra
+00011183 P grafika\lev5.gra
+00011194 P grafika\lev6.gra
+000111a5 P grafika\lev7.gra
+000111b6 P grafika\lev8.gra
+000111c7 P grafika\lev9.gra
+000111d8 P grafika\xb31.gra
+000111e9 P grafika\xb31b.gra
+000111fb P grafika\xb31c.gra
+0001120d P grafika\xb32.gra
+0001121e P grafika\xb32b.gra
+00011230 P grafika\xb32c.gra
+00011242 P      UKONcIT HRUb
+00011270 P data\run.dat
+0001127d P konechry
+00011376 P u-Źż
+000113aa P u-Źżx
+000113de P u-Źżxř
+000118c2 P u-Źż
+000118f6 P u-Źżx
+0001192a P u-Źżxř
+00011cc8 P 1└ëF°ëF˙
+00011d34 P 1└ëF°ëF˙
+00011f5c P î└1ĎëFŘëV■
+000121cf P u# v■ vŘ
+0001282b P RSPŔD˘ v■ vŘ 60█
+00012a99 P î└1ĎëFŘëV■
+00012b18 P Č¬Ĺ0Ýˇ
+00012c91 P Č¬Ĺ0Ýˇ
+00012e13 P Č¬Ĺ0Ýˇ
+00013015 P Č¬Ĺ0Ýˇ
+0001316f P Č¬Ĺ0Ýˇ
+00013339 P Č¬Ĺ0ÝˇĄÄ
+00013427 P t;őć˙■
+00013492 P t>őć˙■
+000134c2 P ÖRP 6J▀ 6H▀Ŕ˛ŠŰ
+00013500 P t>őć˙■
+0001356e P tAőć˙■
+000135df P tAőć˙■
+00013612 P ÖRP 6J▀ 6H▀ŔóňŰ
+0001364b P t.őć˙■
+0001366b P ÖRP 6J▀ 6H▀ŔIňŰ
+000137bc P Č¬Ĺ0Ýˇ
+0001395b P Č¬Ĺ0Ýˇ
+00013d2d P D█+┬Öë
+00013db3 P v0ń1ĎëFŔëVŕőF▄őV
+00013e25 P v0ń1ĎëFŔëVŕőF▄őV
+00013e97 P v0ń1ĎëFŔëVŕőF▄őV
+00013f09 P v0ń1ĎëFŔëVŕőF▄őV
+00013f70 P v0ńHÖëFŔëVŕ═7FŔ═
+00013ffe P v0ńHÖëFŔëVŕ═7FŔ═
+0001408c P v0ńHÖëFŔëVŕ═7FŔ═
+0001411a P v0ńHÖëFŔëVŕ═7FŔ═
+000141a8 P v0ńHÖëFŔëVŕ═7FŔ═
+00014236 P v0ńHÖëFŔëVŕ═7FŔ═
+000142c4 P v0ńHÖëFŔëVŕ═7FŔ═
+00014352 P v0ńHÖëFŔëVŕ═7FŔ═
+000143e0 P v0ńHÖëFŔëVŕ═7FŔ═
+00014552 P uCÇż
+00014574 P u!ŐćÍŘ<
+000145bc P u#ŐćÍŘ
+00014774 P u$ŐćÍŘ</
+000147d2 P u+ÇżÎŘ
+00014931 P u3Çż
+0001497f P <Zvi
+00014988 P u ŐćÍŘ
+000149f6 P u3ÇżÎ
+00014aee P NEMUzEs JiT DaLg NA DRUHe STRANf MOSTU JE HLiDKA
+00014b9f P f▄úD█Ă
+00014bc4 P f▄úD█Ă
+00014bf0 P f▄úD█Ă
+00014c15 P f▄úD█Ă
+00014d12 P ;F÷tf
+00014d2b P %█tNőF
+00014d43 P %█t6őF
+00014dcf P f▄úD█Ă
+00014e2b P f▄úD█Ă
+00014e72 P őů╣9őĽ╗9ëF÷ë
+00014f32 P ;F÷tf
+00014f4b P %█tNőF
+00014f63 P %█t6őF
+00014fef P f▄úD█Ă
+0001504b P f▄úD█Ă
+0001507a P őů╗=őĽŻ=ëF˙ëV
+0001508c P őůĚ=őĽ╣=ëF÷ëV
+000151d9 P f▄úD█Ă
+00015235 P f▄úD█Ă
+00015265 P ;ůŰRtF
+00015361 P f▄úD█Ă
+00015383 P ;ů[QtF
+00015418 P |t;┴vp
+0001547f P f▄úD█Ă
+0001562d P grafika\sebskr2.anm
+00015641 P grafika\paleta.gra
+00015654 P VE SKriNI JSI NALEZL KLic A sROUBOVaK
+0001567a P VE SKriNI JSI NALEZL OVLADAc VyTAHU
+0001569e P Zvuky\hydra.snd
+000156ae P Zvuky\motor3.snd
+000156bf P Zvuky\klavesa1.snd
+000156d2 P Zvuky\klavesa2.snd
+000156e5 P Zvuky\klavesa3.snd
+000156f8 P Zvuky\klavesa4.snd
+0001570b P Zvuky\prijezd.snd
+0001571d P Zvuky\uder.snd
+0001572c P Zvuky\mriz2.snd
+0001573c P Zvuky\vrata2.snd
+0001574d P grafika\comp01.anm
+00015760 P SPOJIL JSI SE S REBELYgMUSis OTEVriT MUNIcNi SKLADg
+00015794 P grafika\comp02.anm
+000157a7 P Mas PrINeST DISKETUg
+000157bc P DISKETA
+000157c4 P DISK S VIREM
+000157d1 P grafika\diskuse.anm
+000157e5 P NA DISKETU JSI NAHRaL VIR
+000157ff P grafika\ksklad1.anm
+00015813 P POUzIL JSI KLic Ag
+00015826 P NYNi MUSis PrILOzIT RUKU K cIDLUg
+00015848 P grafika\ksklad2.anm
+0001585c P POUzIL JSI KLic Bg
+0001586f P NYNi MUSis PrILOzIT cIDLU RUKUg
+0001588f P grafika\pouzruku.anm
+000158a4 P K cIDLU JSI PrILOzIL USTrELENOU RUKUgPOciTAc Tf POzaDAL O HESLO
+000158e4 P OTEVrEL SE MUNIcNi SKLADg
+000158fe P POKUSIL JSI SE K cIDLU PrILOzIT VLASTNi RUKUgggNIC SE NESTALOg
+0001593d P DO IDENTIFIKAcNiHO PriSTROJE MUSis VLOzIT DVA BEZPEcNOSTNi KLicE
+0001597e P DO POciTAcE MUSis VLOzIT DISKETU
+0001599f P MUSis ZADAT HESLO PRO OTEVrENi SKLADUg
+000159c6 P grafika\oprvyt2.anm
+000159da P PrIVOLAL JSI VyTAH
+000159ed P MUSis PrIVOLAT VyTAHg
+00015a03 P grafika\otplech2.anm
+00015a1c P mapy\m64.map
+00015a29 P ODsROUBOVAL JSI KRYT sACHTYg
+00015a46 P Zvuky\buch.snd
+00015a55 P Zvuky\napis.snd
+00015a65 P Zvuky\gate.snd
+00015a74 P Zvuky\ohen.snd
+00015a83 P grafika\granvyb.anm
+00015a9b P mapy\m63.map
+00015aa8 P ZNIcIL JSI DfLO
+00015ab8 P PrES sACHTU VIDis SPODNi PATROgSTOJi TAM DfLOg
+00015ae7 P m61.map
+00015aef P KRYT sACHTY JE PEVNf PrIsROUBOVaN K PODLAZEg
+00015b20 P grafika\sebdisk.anm
+00015b34 P Z POciTAcE JSI VYTaHL DISKETU
+00015b52 P GRANaT
+00015b59 P GRENADE
+00015b61 P grafika\sebgra.anm
+00015b74 P grafika\granat.anm
+00015b87 P uSPfsNf JSI ODSTRANIL PAST A ZiSKAL JSI GRANaTg
+00015bb7 P YOU SUCCESFULLY REMOVED THE TRAPgYOU FOUND A GRENADEg
+00015bed P TATO VfC SE ZDE NEDa POUziT
+00015c09 P IT IS IMPOSSIBLE TO USE THIS THING HEREg
+00015c32 P grafika\napln.anm
+00015c44 P DO NaDRzE AUTOMOBILU JSI NALIL PALIVOg
+00015c6b P YOU FILLED THE CAR CISTERN WITH FUELg
+00015c91 P grafika\dvere.anm
+00015ca3 P grafika\deska2.gra
+00015cb6 P ZA DVErMI JSI OBJEVIL PLAMENOMETg
+00015cd8 P THERE WAS A FLAMETHROWER BEHIND THE DOORg
+00015d02 P DVErE JSOU ZAMcENeg NEMuzEs JiT DOVNITr
+00015d2a P THE DOOR IS LOCKEDgTHERE IS NO WAY TO GET IN
+00015d57 P zvuky\intr4.s3m
+00015d67 P zvuky\jeepie.s3m
+00015d78 P grafika\lev4.gra
+00015d89 P grafika\deska3.gra
+00015d9c P grafika\deskar.gra
+00015daf P grafika\deska4.gra
+00015dc2 P grafika\deska5.gra
+00015dd5 P grafika\deska6.gra
+00015de8 P grafika\deska7.gra
+00015dfb P grafika\xb31.gra
+00015e0c P grafika\xb31b.gra
+00015e1e P grafika\xb31c.gra
+00015e30 P grafika\xb32.gra
+00015e41 P grafika\xb32b.gra
+00015e53 P grafika\xb32c.gra
+00015e69 P mapy\m33.map
+00015e76 P grafika\hodgra.anm
+00015e89 P grafika\skala1.anm
+00015e9c P grafika\skala2.anm
+00015eaf P PO EXPLOZI SE ZAVALILA caST PrEKazKYg
+00015ed5 P IT IS POSSIBLE TO GO ON AFTER EXPLOSIONg
+00015efe P MOHUTNy KaMEN
+00015f0c P BULKY BOULDER
+00015f1a P Zvuky\teleport.snd
+00015f2d P grafika\teleport.anm
+00015f42 P grafika\vysilac.anm
+00015f56 P VYSiLAcKOU JSI ODVOLAL STRazEg MUzEs PROJiT PrES MOSTg
+00015f8d P TUTO VfC ZDE NEMuzEs POUziTg
+00015fae P mapy\m24.map
+00015fbb P grafika\delostr.anm
+00015fcf P DfLEM JSI ROZSTrELIL PrEKazKU
+00015fed P uTOcNy KANoN NA HLiDaNi HRANICE MfSTA
+00016013 P KE ZDI JSI ULOzIL DYNAMIT
+0001602d P zvuky\intr3.s3m
+0001603d P zvuky\prales.s3m
+0001604e P grafika\lev3.gra
+0001605f P m21.map
+0001606b P CiLOVy TELEPORT JE POsKOZEN
+00016087 P TELEPORT NEFUNGUJEg Ma ROZBITy NAVIGAcNi OBVOD
+000160b8 P 2 ELEKTRaRNA JE VYrAZENa Z PROVOZU#TELEPORT Ma ROZ
+000160ff P mapy\m22.map
+0001610c P grafika\rozpoj.anm
+0001611f P ZNIcIL JSI POJISTKYg VYrADIL JSI Z PROVOZU ELEKTRICKy TRANSFORMaTOR
+00016163 P mapy\m23.map
+00016170 P grafika\oprpoj.anm
+00016183 P DO ROZVADfcE JSI VLOzIL POJISTKU A SPUSTIL JSI ELEKTRaRNUg
+000161be P grafika\sebpoj.anm
+000161d1 P Z ELEKTRICKe SKriNf JSI VYTaHL POJISTKU
+000161f9 P ELEKTRICKa SKrin JE ZAMcENa
+00016215 P grafika\oprtel.anm
+00016228 P OPRAVIL JSI ROZBITy TELEPORT
+00016245 P grafika\vemnav.anm
+00016258 P Z ROZBITeHO TELEPORTU JSI VYTaHL NEPORUsENy NAVIGAcNi OBVOD
+0001671d P t9Ç>x▄
+00016aa4 P t9Ç>x▄
+000173ac P tNÇ>
+000173b3 P tGâ>đ
+00017b29 P t9Ç>x▄
+000182b0 P u9â>Ł
+00018464 P t.â>ß
+000185f5 P u-Źż
+0001866b P u-Źż|ř
+000186e1 P u-Źż|
+00018e3a P t9Ç>x▄
+00019366 P uBÜ  
+000193ea P Ç>ÍY
+000193f4 P Ç>TQ
+000193fe P â>ßY
+000194f2 P u-Źż
+00019568 P u-Źż|ř
+000195de P u-Źż|
+00019d19 P t9Ç>x▄
+0001a01c P t9Ç>x▄
+0001a31f P t9Ç>x▄
+0001ad5d P őđŞt@
+0001add5 P őđŞt@
+0001ae08 P uOÇ>
+0001ae25 P őđŞt@
+0001ae61 P uOÇ>
+0001ae7e P őđŞt@
+0001aeba P uNÇ>
+0001aed7 P őđŞt@
+0001af12 P uLÇ>
+0001af2f P őđŞt@
+0001affc P őđŞt@
+0001b097 P grafika\potopeni.anm
+0001b0ac P grafika\paleta.gra
+0001b0bf P m71.map
+0001b0c7 P grafika\vybuch.anm
+0001b0da P Zvuky\hydra.snd
+0001b0ea P Zvuky\lava.snd
+0001b0f9 P Zvuky\buch.snd
+0001b108 P Zvuky\napis.snd
+0001b118 P Zvuky\gate.snd
+0001b127 P Zvuky\ohen.snd
+0001b136 P Zvuky\prijezd.snd
+0001b148 P Zvuky\uder.snd
+0001b157 P Zvuky\mriz2.snd
+0001b167 P Zvuky\vrata2.snd
+0001b178 P grafika\lava.anm
+0001b189 P grafika\zabvozik.anm
+0001b19e P zvuky\intr9.s3m
+0001b1ae P zvuky\sklad2.s3m
+0001b1bf P grafika\lev9.gra
+0001b1d0 P grafika\deska2.gra
+0001b1e3 P grafika\deska3.gra
+0001b1f6 P grafika\deskar.gra
+0001b209 P grafika\deska4.gra
+0001b21c P grafika\deska5.gra
+0001b22f P grafika\deska6.gra
+0001b242 P grafika\deska7.gra
+0001b255 P grafika\xb31.gra
+0001b266 P grafika\xb31b.gra
+0001b278 P grafika\xb31c.gra
+0001b28a P grafika\xb32.gra
+0001b29b P grafika\xb32b.gra
+0001b2ad P grafika\xb32c.gra
+0001b2c3 P Zvuky\rob_mes.snd
+0001b2d5 P Zvuky\v2.snd
+0001b2e2 P Zvuky\v1.snd
+0001b2ef P Zvuky\klavesa4.snd
+0001b302 P Zvuky\konec.snd
+0001b312 P grafika\elzab.anm
+0001b324 P m61.map
+0001b330 P grafika\delozab.anm
+0001b34c P Zvuky\hek.snd
+0001b35a P grafika\otoc.anm
+0001b36b P grafika\postrel.anm
+0001b37f P grafika\postrel2.anm
+0001b394 P grafika\postrel3.anm
+0001b3a9 P grafika\padves.anm
+0001b3c0 P Zvuky\zedbum.snd
+0001b3d1 P Zvuky\prelet.snd
+0001b3e2 P Zvuky\dvirka.snd
+0001b3f3 P grafika\zabij.anm
+0001b409 P grafika\strilna.anm
+0001b421 P grafika\propast.anm
+0001b435 P grafika\OSTNY.anm
+0001b447 P zvuky\intr5.s3m
+0001b457 P zvuky\vezeni.s3m
+0001b468 P grafika\lev5.gra
+0001b479 P zvuky\intr6.s3m
+0001b489 P zvuky\sklad.s3m
+0001b499 P grafika\lev6.gra
+0001b4aa P Zvuky\vet.snd
+0001b4b8 P Zvuky\plechy.snd
+0001b4c9 P grafika\zabvet.anm
+0001b8c3 P t9Ç>x▄
+0001bc60 P u-Źż
+0001bcd6 P u-Źż■■
+0001bd4c P u-Źż■
+0001c1c8 P t9Ç>x▄
+0001c87a P t9Ç>x▄
+0001cdf7 P t9Ç>x▄
+0001cf8a P uŔáéT0ń@óéT
+0001d675 P ĹI;┬}I
+0001d680 P ĹIëFŘŞ
+0001dfc9 P t9Ç>x▄
+0001e295 P t9Ç>x▄
+0001e41a P Ä└ő~°őF˙Ä
+0001e44a P uśí2
+0001e4de P Ä└ő~°őF˙Ä
+0001e51d P kolonie.ini
+00022c9a P BDEAKTIVOVaNY OCHRANNe sTiTYg ENERGIE DOPLNfNA ZE ZaLOzNiCH ZDROJu
+00022cde P DEFENSIVE SHIELDS DEACTIVATEDgENERGY REPLENISHED FROM SPARE RESOURCESg
+00022f1c P Ä└żF[őN÷Ş
+00022f6a P grafika\t
+00022f74 P n.anm
+00022f7a P d.anm
+00023073 P î└ëFŘî
+00023099 P -level1
+000230a1 P loadmision
+0002318b P ŮŃő>ŮŃ
+000231c0 P ŮŃk>ŮŃ
+0002324c P ŮŃk>ŮŃ
+0002329d P ŮŃő>ŮŃ
+000232fc P ŮŃk>ŮŃ
+00023303 P 1└ëůŻ9ëů┐9k>
+00023340 P uŞ1└úŮ
+0002334b P ŮŃi>ŮŃ
+000233c8 P ŮŃk>ŮŃ
+0002340a P ŮŃk>ŮŃ
+0002345f P ŮŃk>ŮŃ
+000234c4 P ŮŃk>ŮŃ
+00023591 P ŮŃk>ŮŃ
+000235df P -level1
+000235e7 P loadmision
+000235f6 P m41.map
+00023602 P zLUTy KLic
+0002360d P ORANzOVy KLic
+0002361b P MODRy KLic
+00023626 P VSTUPNi KARTA
+00023634 P mapy\
+00024437 P -level1
+0002443f P loadmision
+0002444e P m51.map
+00024456 P mapy\
+0002445c P SKLaDKA
+00024464 P HRUDNi PLaT
+00024470 P KLic
+00024475 P uTRzEK
+0002447c P MECHg ZVEDaK
+000251fc P ŮŃk>ŮŃ
+000253db P -level1
+000253e3 P loadmision
+000253f2 P m81.map
+000253fa P ELEKTROMAGNET
+00025408 P DRaT
+0002540d P NaDOBA
+00025414 P VSTUPNi KARTA
+00025422 P PiST
+0002542b P SVfTLICE
+00025434 P KLic
+00025439 P mapy\
+000260f6 P -level1
+000260fe P loadmision
+0002610d P m61.map
+00026115 P mapy\
+0002611b P GRANaT
+00026122 P DISKETA
+0002612a P RUKA
+0002612f P KLic A
+00026136 P KLic B
+0002613d P sROUBOVaK
+00026147 P OVLADAc
+0002707f P -level1
+00027087 P loadmision
+00027096 P m91.map
+0002709e P mapy\
+000270a4 P BOMBA
+00027552 P ĺD═;>T
+00027630 P -level1
+00027638 P loadmision
+00027647 P m21.map
+0002764f P mapy\
+00027655 P TORZO
+0002765b P VYSiLAcKA
+00027665 P BEDNA
+0002766b P ROZBUsKA
+00027674 P DYNAMIT
+0002767c P NAVg OBVOD
+00027687 P POJISTKA
+00027690 P HOLOGg PLaN
+00027ada P CJ═;>T
+000285e0 P -level1
+000285e8 P loadmision
+000285f7 P m71.map
+000285ff P mapy\
+00028605 P KLic
+0002860a P rEMEN
+00028610 P VSTUPNi KARTA
+0002861e P ID KARTA
+00028627 P DRaT
+0002862c P HADIcKA
+00028a73 P ˇY═;>T
+000292d4 P m11.map
+000292dc P PacIDLO
+000292e4 P OVLADAc
+000292ec P SOUcaSTKA
+000292f6 P KLic
+000292fb P DRaT
+00029300 P MRTVe TfLO
+0002930b P HOLOGg PLaN
+00029317 P NaKRES
+0002931e P DEKODeR
+00029326 P KOHOUT
+0002932d P E-BLASTER
+00029337 P mapy\
+0002988a P đf═;>T
+0002a5f8 P ŮŃk>ŮŃ
+0002ad37 P PiST
+0002ad3c P grafika\sebpist.anm
+0002ad50 P grafika\paleta2.gra
+0002ad64 P PO PrESTrELCE ZuSTALA NA ZEMI LEzET TYc A HYDRAULICKy PiSTg
+0002ada0 P KANYSTR
+0002ada8 P grafika\kanistr.anm
+0002adbc P NALEZL JSI KANYSTR S PALIVEM
+0002add9 P YOU FOUND CANISTER FILLED WITH FUEL
+0002adfd P ID KARTA
+0002ae06 P grafika\sebkart5.anm
+0002ae1b P grafika\paleta.gra
+0002ae2e P ZE ZEMf JSI SEBRAL IDENTIFIKAcNi KARTU
+0002ae55 P DRaT
+0002ae5a P grafika\sebdrat2.anm
+0002ae6f P U DVEri JSI NAsEL DRaTg
+0002ae87 P NaDOBA
+0002ae8e P grafika\sebnad.anm
+0002aea1 P ZE ZEMf SI SEBRAL NaDOBUg
+0002aebb P SVfTLICE
+0002aec4 P grafika\sebsvet.anm
+0002aed8 P NAsEL JSI SVfTLICIg
+0002aeec P HRUDNi PLaT
+0002aef8 P grafika\sebplat.anm
+0002af0c P ZE ZEMf JSI SEBRAL HRUDNi PLaTg
+0002af2c P ELEKTROMAGNET
+0002af3a P grafika\sebmag.anm
+0002af4d P NAsEL JSI ELEKTROMAGNETg
+0002af66 P VSTUPNi KARTA
+0002af74 P grafika\sebkart7.anm
+0002af89 P NAsEL JSI VSTUPNi KARTU
+0002afa1 P KLic
+0002afa6 P grafika\sebkvez.anm
+0002afba P NAsEL JSI MALy KLicg
+0002afcf P KLic A
+0002afd6 P grafika\sebBkl.anm
+0002afe9 P NAsEL JSI DRUHy BEZPEcNOSTNi KLicg
+0002b00c P RUKA
+0002b011 P grafika\sebruku.anm
+0002b025 P MRTVeMU MIMOZEMstANOVI JSI USTrELIL RUKUg
+0002b04f P MECHg ZVEDaK
+0002b05c P grafika\sebzved.anm
+0002b070 P NAsEL JSI MECHANICKy ZVEDaKg
+0002b08d P uTRzEK
+0002b094 P grafika\sebkod.anm
+0002b0a7 P NAsEL JSI uTRzEK PAPiRU S ciSLEMg
+0002b0c9 P grafika\sebkart6.anm
+0002b0de P NAsEL JSI KLic K REAKTORUg
+0002b0f9 P GRANaT
+0002b100 P grafika\sebgran2.anm
+0002b115 P NAsEL JSI GRANaTg
+0002b127 P DYNAMIT
+0002b12f P grafika\sebdyna.anm
+0002b143 P U DOMU JSI NAsEL DYNAMIT
+0002b15c P YOU FOUND DYNAMITE AT THE BUILDING
+0002b17f P ROZBUsKA
+0002b188 P grafika\sebrozb.anm
+0002b19c P SEBRAL JSI ROZBUsKU
+0002b1b0 P VYSiLAcKA
+0002b1ba P grafika\sebvys.anm
+0002b1cd P NAsEL JSI VYSiLAcKU
+0002b1e1 P grafika\sebkjun.anm
+0002b1f5 P NA DNf NaDRzE JSI OBJEVIL KLicg
+0002b215 P grafika\sebk44.anm
+0002b228 P NALEZL JSI VSTUPNi KARTU
+0002b241 P zLUTy KLic
+0002b24c P grafika\sebk41.anm
+0002b25f P NALEZL JSI zLUTy KLic
+0002b275 P ORANzOVy KLic
+0002b283 P grafika\sebk42.anm
+0002b296 P NALEZL JSI ORANzOVy KLic
+0002b2af P MODRy KLic
+0002b2ba P grafika\sebk43.anm
+0002b2cd P NALEZL JSI MODRy KLic
+0002b2e7 P grafika\sebtyc.anm
+0002b2fa P NALEZL JSI TYc
+0002b309 P BEDNA
+0002b30f P grafika\bedna.anm
+0002b321 P sTiPAcKY
+0002b32a P NIPPERS
+0002b332 P UVNITr BEDNY JSI NAsEL sTiPAcKY
+0002b352 P YOU FOUND NIPPERS INSIDE THE BOX
+0002b373 P SKLaDKA
+0002b37b P grafika\skladka.anm
+0002b38f P KLaVESNICE
+0002b39a P PO PROHLEDaNi SKLaDKY JSI NAsEL KLaVESNICI
+0002b3c5 P grafika\sebproj.anm
+0002b3d9 P PROJEKTIL
+0002b3e3 P UVNITr BEDNY JSI NAsEL PROJEKTIL DO DfLA
+0002b40c P TORZO
+0002b412 P grafika\klic.anm
+0002b423 P MALy KLic
+0002b42d P U TLEJiCiCH ZBYTKu JSI NAsEL MALy KLic
+0002b454 P V TRaVf JSI NAsEL MALy KLicg
+0002b471 P YOU FOUND A SMALL KEY IN THE GRASSg
+0002b495 P grafika\sebkl1.anm
+0002b4a8 P NAsEL JSI MALy KLic
+0002b4bc P YOU FOUND A SMALL KEYg
+0002b4d3 P PacIDLO
+0002b4db P grafika\sebpacid.anm
+0002b4f0 P NAsEL JSI PacIDLOg
+0002b503 P YOU FOUND A PRY BARg
+0002b518 P OVLADAc
+0002b520 P grafika\sebovl.anm
+0002b533 P U SKLaDKY JSI NAsEL OVLADAc VyTAHUg
+0002b557 P YOU FOUND ELEVATOR CONTROL BOX HIDDEN INSIDE DUMPg
+0002b58a P SOUcaSTKA
+0002b594 P grafika\sebsou.anm
+0002b5a7 P ZE ZEMf JSI SEBRAL SOUcaSTKU Z RAKETY
+0002b5cd P YOU PICKED UP A COMPONENT FROM THE GROUND
+0002b5f7 P MRTVe TfLO
+0002b602 P grafika\sebplan.anm
+0002b616 P ACCESS CARD
+0002b622 P U MRTVeHO JSI NAsEL VSTUPNi KARTU A HOLOGRAFICKy PLaN KOSMICKe LODIg
+0002b667 P THERE WERE ACCESS CARD AND HOLOMAP LYING AT THE DEAD MANg
+0002b6a1 P E-BLASTER
+0002b6ab P grafika\eblast.anm
+0002b6be P grafika\deska3.gra
+0002b6d1 P NAsEL JSI E-BLASTERg
+0002b6e6 P YOU FOUND AN E-BLASTERgYEAHg
+0002b71e P ë~°îF˙í
+0002b76d P t4íR█
+0002c953 P uhÜ 
+0002d7aa P 1ĎëF
+0002dd65 P 1ĎëF
+0002e707 P 1└úˇjú§j
+0002e905 P ŐF 0ńk
+0002f1d7 P %█tRí%
+0002f261 P ăůŃj
+0002f363 P %█tRí%
+0002f4f5 P |'âŻßj v 
+0002f752 P %█tjâ>
+0002f895 P ŐF óůT
+0002f970 P ŐF óůT
+0002fbd7 P ŐF óůT
+0002fd38 P ŐF óůT
+0002fde9 P %█vHŐF
+0002feee P u,ŐF 0ń
+0002ff21 P u*ŐF 0ń
+0002ff52 P u+ŐF 0
+0002ff84 P u*ŐF 0
+0002ffb5 P u,ŐF 
+0002ffe8 P u,ŐF 
+0003001b P u+ŐF 0ńk
+0003004d P u,ŐF 0ńk
+00030080 P u+ŐF
+000300b2 P u,ŐF
+00030344 P u,ŐF 0ń
+00030377 P u*ŐF 0ń
+000303a8 P u+ŐF 0
+000303da P u*ŐF 0
+0003040b P u,ŐF 
+0003043e P u,ŐF 
+00030471 P u+ŐF 0ńk
+000304a3 P u,ŐF 0ńk
+000304d6 P u+ŐF
+00030508 P u,ŐF
+00030730 P ŐF 0ńk°
+000309a3 P u9í2█ő
+00030d28 P u<í2█ő
+00030e52 P j?hś:
+00030efd P ŐF 0ńk°
+00031171 P u9í2█ő
+00031275 P ĎŃř Úp
+000314e1 P u<í2█ő
+000315e8 P ĎŃř ŐF
+0003160c P j?hś:
+00031779 P éT3ŐF 
+0003198f P éT3ŐF 
+00031acd P ăůŃj
+00031c84 P ăůŃj
+00031c9d P ÷Ńk>÷Ń
+00031cbe P Őů|N0ńP 6ŮŮ 6▄ŮÜ  
+00033ebf P ë~˙îFŘí
+00034248 P tPâ>
+00034349 P tPâ>
+00034a61 P j?hÇ>
+00034c68 P u9í2█ő
+00034ee1 P j+h`mÜ  
+00034fa8 P j+h`mÜ  
+00035157 P j?hÇ>
+0003535e P u9í2█ő
+00035455 P ĎŃř ─~
+00035519 P <čuV
+0003578c P ŔrŢáéT0ń@óéTÇ>é
+000357af P áéT0ńk
+0003587c P ŔKßáéT0ń@óéTÇ>é
+0003589f P áéT0ńk
+000359be P ë~˙îFŘ&
+00035c35 P ő╚ő┌áé
+00035cda P j?hÇ>
+00036293 P ÓŃáÓŃP─>ŠŃ& ],
+000362b5 P grafika\mestoko.anm
+000362c9 P grafika\skala3.anm
+000362dc P grafika\paleta.gra
+000362fc P ÓŃő>ÓŃ
+000363c1 P ÓŃő>ÓŃ
+0003642e P ÓŃő>ÓŃ
+00036470 P Zvuky\hydra.snd
+00036480 P Zvuky\dvere.snd
+00036490 P Zvuky\hejty.snd
+000364a0 P Zvuky\kurva1.snd
+000364b1 P Zvuky\kurva2.snd
+000364c2 P Zvuky\ohen.snd
+000364d1 P Zvuky\prijezd.snd
+000364e3 P Zvuky\posila.snd
+000364f4 P Zvuky\mriz2.snd
+00036504 P Zvuky\vrata2.snd
+00036515 P grafika\rozbuska.anm
+0003652a P grafika\stenabum.anm
+0003653f P HEJ TY!
+00036547 P grafika\otocreb1.anm
+0003655c P grafika\otocreb2.anm
+00036571 P TAK POSLOUCHEJ TY ZKURVENa PLECHOVKO,TEd VELMI POMALU VSTANEs
+000365af P grafika\leh.anm
+000365bf P A VYSVfTLis NaM,ODKUD Mas TENHLE HOLOGRAFICKy PLaNg
+000365f3 P grafika\lidiend.anm
+00036607 P grafika\paleta.gra
+0003661a P POSiLa Mf Vas PriTEL Z MfSTA,
+00036638 P KTERy MI PrED SMRTi PROZRADIL KDE NAJDU PLaN I VaSg
+0003666c P grafika\rozhov1.anm
+00036680 P Zvuky\hard1.snd
+00036690 P Zvuky\hard2.snd
+000366a0 P Zvuky\hard3.snd
+000366b0 P Zvuky\pis.snd
+000366be P Zvuky\5minut.snd
+000366cf P NO TO ZaLEzi NA TOM JAK ZEMrELgMas PfT MINUT NA VYSVfTLENig
+0003670b P PODiVEJTE, Ja ViM JAK TO ASI VYPADa, ALE NfJAKEJ KUS TOHO JEJICH HARDWARU 
+00036756 P VE Mf SELHAL A Ja SI VZPOMfL NA TO KDO JSEM A CO MI PROVEDLIg
+00036794 P KONEC KONCu, TO SI MuzETE SNADNO OVfrITg
+000367bd P grafika\rozhov2.anm
+000367d1 P TO SI PIs,zE SI TO OVfriME!
+000367ed P grafika\vchod.anm
+000367ff P Zvuky\misto.snd
+0003680f P Zvuky\ok1.snd
+0003681d P Zvuky\ok2.snd
+0003682b P Zvuky\ok3.snd
+00036839 P Zvuky\ok4.snd
+00036847 P OK,PROsEL JSIgTEN HOLOGRAM CO JSI PrINESL JE PLaN JEJICH ORBITaLNi ZaKLADNY
+00036893 P ODTUD riDi VsECHNY SVe JEDNOTKY NA ZEMI
+000368bb P grafika\hologr.anm
+000368ce P ZAVEZEME Tf TAK BLiZKO K JEJICH DROMU JAK JEN TO BUDE MOzNEg
+0003690b P TAM DO TEBE UMiSTiME NaLOzg
+00036927 P MUSis NfJAK PRONIKNOUT NA JEJICH LOd A ODPaLIT Ji U REAKTORUg
+00036965 P grafika\rebauto.anm
+00036979 P grafika\auto.anm
+0003698a P JSME NA MiSTfgVis CO Mas DfLATgTAK HODNf sTfSTigNaM VsEM!
+000369c4 P grafika\rebel.anm
+00036b78 P t9Ç>x▄
+00036bed P ÓŃő>ÓŃ
+00036c5d P ÓŃő>ÓŃ
+00036cf7 P ÓŃő>ÓŃ
+00036d5b P ÓŃő>ÓŃ
+00036dda P ÓŃő>ÓŃ
+00036e4e P ÓŃő>ÓŃ
+00036ea7 P ÓŃő>ÓŃ
+00036f2d P ÓŃő>ÓŃ
+000370fc P t9Ç>x▄
+000371fc P ÓŃő>ÓŃ
+00037291 P ÓŃő>ÓŃ
+0003748c P t9Ç>x▄
+00037548 P ÓŃő>ÓŃ
+0003760b P ÓŃő>ÓŃ
+00037688 P ÓŃő>ÓŃ
+000376cc P ÓŃő>ÓŃ
+00037761 P ÓŃő>ÓŃ
+000377d3 P ÓŃő>ÓŃ
+0003781a P grafika\navijak.anm
+0003782e P grafika\sutr.anm
+0003784c P ÓŃő>ÓŃ
+000378e8 P ÓŃő>ÓŃ
+0003792a P Zvuky\hydra.snd
+0003793a P Zvuky\zazeh.snd
+0003794a P Zvuky\odlet.snd
+0003795a P Zvuky\gate.snd
+00037969 P Zvuky\prelet.snd
+0003797a P Zvuky\vrata2.snd
+0003798b P Zvuky\dvirka.snd
+0003799c P Zvuky\uder.snd
+000379ab P Zvuky\mriz2.snd
+000379bb P grafika\vstup.anm
+000379cd P grafika\odlet3.anm
+000379e0 P grafika\souteska.anm
+000379f5 P grafika\rakpri.anm
+00037a08 P grafika\paleta2.gra
+00037ba9 P t9Ç>x▄
+00037c1e P ÓŃő>ÓŃ
+00037c8e P ÓŃő>ÓŃ
+00037cfe P ÓŃő>ÓŃ
+00037d4d P ÓŃő>ÓŃ
+00037dba P ÓŃő>ÓŃ
+00037e01 P grafika\deska4.gra
+00037e14 P NAsEL JSI TOASTERg
+00037e27 P grafika\deska5.gra
+00037e3a P NAsEL JSI MGX 800g
+00037e4d P grafika\deskar.gra
+00037e60 P NAsEL JSI RAKETOMETg
+00037e75 P grafika\deska6.gra
+00037e88 P NAsEL JSI FLAMESTREAMg
+00037e9f P grafika\deska7.gra
+00037eb2 P NAsEL JSI LASEROVe DfLOg
+00037ee3 P 1└ëF÷ëF°1└ëF˛ëF˘
+00037f15 P 1└ëF÷ëF°1└ëF˛ëF˘
+00037f2c P 1└ëF÷ëF°1└ëF˛ëF˘
+000380d1 P uBŹżŕ
+00038117 P uBŹżŕř
+000382ff P uAÇ~■
+000384db P 1└ëF÷ëF°1└ëF˛ëF˘
+00038584 P |I=Ů vD
+000386dc P 1└ëF÷ëF°1└ëF˛ëF˘
+000386f3 P 1└ëF÷ëF°1└ëF˛ëF˘
+0003870a P 1└ëF÷ëF°1└ëF˛ëF˘
+00038721 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038738 P 1└ëF÷ëF°1└ëF˛ëF˘
+0003874f P 1└ëF÷ëF°1└ëF˛ëF˘
+00038766 P 1└ëF÷ëF°1└ëF˛ëF˘
+0003877d P 1└ëF÷ëF°1└ëF˛ëF˘
+00038826 P |I=Ů vD
+000389b4 P 1└ëF÷ëF°1└ëF˛ëF˘
+000389cb P 1└ëF÷ëF°1└ëF˛ëF˘
+000389e2 P 1└ëF÷ëF°1└ëF˛ëF˘
+000389f9 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038a10 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038a27 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038c63 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038c7a P 1└ëF÷ëF°1└ëF˛ëF˘
+00038ce2 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038cf9 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038d10 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038db9 P |n=Ů vi
+00038f36 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038f4d P 1└ëF÷ëF°1└ëF˛ëF˘
+00038f64 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038f7b P 1└ëF÷ëF°1└ëF˛ëF˘
+00038f92 P 1└ëF÷ëF°1└ëF˛ëF˘
+00038fdf P 1└ëF÷ëF°1└ëF˛ëF˘
+000392d8 P 1└ëF÷ëF°1└ëF˛ëF˘
+00039381 P |l=Ů vg
+000394f6 P mapy\m75.map
+00039503 P ZNIcIL JSI ELEKTRICKy ROZVADfc
+00039522 P m42.map
+0003952e P mapy\m43.map
+0003953b P grafika\barelbum.anm
+00039550 P grafika\paleta.gra
+00039563 P ZNIcIL JSI BAREL S VyBUsNINOUg
+0003958a P mapy\m62.map
+00039597 P Zvuky\mimoz.snd
+000395a7 P Zvuky\dvere.snd
+000395b7 P Zvuky\hejty.snd
+000395c7 P Zvuky\delej.snd
+000395d7 P Zvuky\plam.snd
+000395e6 P Zvuky\system.snd
+000395f7 P Zvuky\smich.snd
+00039607 P Zvuky\uder.snd
+00039616 P Zvuky\mriz2.snd
+00039626 P Zvuky\vrata2.snd
+00039637 P grafika\mimoz01.anm
+0003964b P grafika\zabijmim.anm
+00039660 P ZABIL JSI MIMOZEMstANA
+00039677 P grafika\sebsouc.anm
+0003968b P ROZSTrELIL JSI KRYT U TRYSEK A VYTRHL JSI SOUcaSTKUdKTERa JE NA NaKRESUg
+000396d4 P YOU SHOOT OFF THE COVER AND TORE OUT THE COMPONENTg
+00039708 P ROZSTrELIL JSI KRYT U TRYSEK A VYTRHL JSI NfJAKOU SOUcaSTKUg
+00039745 P YOU SHOOT OFF THE JET COVER AND TORE OUT SOME COMPONENTg
+0003977e P grafika\delo.anm
+0003978f P m32.map
+00039797 P mapy\
+0003979d P grafika\krapnik1.anm
+000397b2 P SESTrELIL JSI KRaPNiK
+00039ad2 P éT3áéT
+00039b39 P éT3áéT
+00039bac P éT3áéT
+00039c1f P éT3áéT
+00039c92 P éT3áéT
+00039cf9 P éT3áéT
+00039d6c P éT3áéT
+00039ddf P éT3áéT
+0003a13b P t9Ç>x▄
+0003a6c6 P éT3áéT
+0003a72d P éT3áéT
+0003a927 P éT3áéT
+0003a98e P éT3áéT
+0003ac56 P ;ů×Itd
+0003b147 P tYk~
+0003b1d9 P ë~ţîF­─
+0003b1ea P ─~ţ&ëE
+0003b295 P Ç>çT
+0003b2aa P ë~÷îF°á
+0003b3af P ë~÷îF°á
+0003b4a5 P ;ů×ItZ
+0003b53e P ë~˘îF÷á
+0003b69a P ăůŃj
+0003b6ef P D█+┬Öë
+0003b788 P v0ń1ĎëFŔëVŕőFýőV
+0003b7cf P â~ědrD
+0003b854 P ËRP 6ŠŮ 6ńŮŔ@■ŰB vţ
+0003b8e0 P v0ń1ĎëFŔëVŕőFýőV
+0003b927 P â~ědrD
+0003b9ac P ËRP 6ŕŮ 6ŔŮŔŔŘŰB vţ
+0003b9f0 P ËRP 6ŕŮ 6ŔŮŔĄŘőF­őV
+0003df10 P Zvuky\signal.snd
+0003df21 P Zvuky\vrata.snd
+0003df31 P Zvuky\krok3.snd
+0003df41 P Zvuky\ikona.snd
+0003df51 P Zvuky\p1_cann.snd
+0003df63 P Zvuky\laser3.snd
+0003df74 P Zvuky\uder.snd
+0003df83 P Zvuky\sirena3.snd
+0003df95 P Zvuky\vybuch6.snd
+0003dfa7 P Zvuky\vybuch2.snd
+0003dfb9 P Zvuky\nic.snd
+0003dfc7 P Zvuky\hydra.snd
+0003dfd7 P Zvuky\dvere.snd
+0003dfe7 P Zvuky\propast.snd
+0003dff9 P Zvuky\gate.snd
+0003e008 P Zvuky\plam.snd
+0003e017 P Zvuky\invend.snd
+0003e028 P Zvuky\smich.snd
+0003e038 P Zvuky\strelba.snd
+0003e04a P Zvuky\hrom.snd
+0003e059 P Zvuky\vytah1.snd
+0003e06a P Zvuky\vytah2.snd
+0003e07b P Zvuky\dvere2.snd
+0003e08c P Zvuky\zkrat.snd
+0003e09c P Zvuky\mriz2.snd
+0003e0ac P Zvuky\vrata2.snd
+0003e0bd P Zvuky\odlet.snd
+0003e0cd P Zvuky\laser2.snd
+0003e0de P Zvuky\vrata1.snd
+0003e0ef P Zvuky\slow.snd
+0003e5b6 P t@Ç>x▄
+0003e71b P Zvuky\hydra.snd
+0003e72b P Zvuky\vypadni.snd
+0003e73d P Zvuky\cotuch.snd
+0003e74e P Zvuky\toted.snd
+0003e75e P Zvuky\kdes.snd
+0003e76d P Zvuky\plechy.snd
+0003e77e P Zvuky\fajn.snd
+0003e78d P Zvuky\uder.snd
+0003e79c P Zvuky\mriz2.snd
+0003e7ac P Zvuky\vrata2.snd
+0003e7bd P VYPADNI!
+0003e7c6 P grafika\Otevrid.anm
+0003e7da P grafika\paleta.gra
+0003e7ed P V BARU JSI NAsEL cLOVfKA,ALE NEPOMuzE TI,NEMa K TOBf DuVfRUg
+0003e82a P THERE IS A MAN IN THE BAR,BUT HE DOES NOT TRUST IN YOU
+0003e861 P Zvuky\dead1.snd
+0003e871 P Zvuky\dead2.snd
+0003e881 P Zvuky\dead3.snd
+0003e891 P Zvuky\dead4.snd
+0003e8a1 P NECHaPU PROc JSI MI POMOHL, ALE POSLOUCHEJ Mfggg
+0003e8d2 P MUSis NAJiT VCHOD DO METRA,
+0003e8ee P TAM NAJDEs cLOVfKA,KTERy TI Da HOLOPLaNggg
+0003e919 P ZANES JEJ ZA MfSTO NAsi SPOJCEggg
+0003e93b P grafika\RebMrt.anm
+0003e94e P MUSis NAJiT REBELA S HOLOGRAFICKyM PLaNEM RAKETY VETrELCu
+0003e988 P YOU HAVE TO FIND THE BEBEL WHO POSSES THE HOLOMAP OF ALIEN SPACESHIP
+0003e9cd P Z RAKETY BY SE TI MOHLO NfCO HODIT,ALE NEVis JAK SE DOSTAT DOVNITr
+0003ea10 P THERE COULD BE SOMETHING USEFUL INSIDE THE ROCKETg
+0003ea43 P Zvuky\tohle.snd
+0003ea53 P TY? CO TU CHCEs!?
+0003ea65 P grafika\otevrid.anm
+0003ea79 P TOHLE BY Tf MOHLO ZAJiMATg
+0003ea94 P KDE JSI TO VZAL?
+0003eaa5 P TO TEd NENi DuLEzITy,ALE POTrEBUJI SE DOSTAT VEN Z MfSTA,ABYCH TO MOHL DORUcIT
+0003eaf4 P grafika\ukazholo.anm
+0003eb09 P FAJN ALE NfCO ZA NfCOgPrINES MI TUHLE SOUcaSTKUg
+0003eb3a P grafika\dejsou1.anm
+0003eb4e P cLOVfK V BARU TI DAL SCHEMA SOUcaSTKY A POzaDAL Tf,ABY JSI MU JI NAsEL
+0003eb95 P THE MAN IN BAR GAVE YOU A DESIGN OF SOME COMPONENTgYOU MUST FIND ITg
+0003ebda P VYMfNIL S TEBOU SOUcaSTKU ZA DEKODeR
+0003ebff P HE EXCHANGED THE COMPONENT FOR DECODER WITH YOUg
+0003ec30 P TATO VfC MU JE K NIcEMU
+0003ec48 P THIS THING IS USELESS FOR HIMg
+0003ec6b P mapy\m15.map
+0003ec78 P Zvuky\deco.snd
+0003ec87 P Zvuky\hejty.snd
+0003ec97 P Zvuky\delej.snd
+0003eca7 P Zvuky\plam.snd
+0003ecb6 P Zvuky\system.snd
+0003ecc7 P Zvuky\smich.snd
+0003ecd7 P grafika\dekod1.anm
+0003ecea P DEKODeREM JSI ODSTRANIL PriSTUPOVe HESLO A VYPNUL JSI PLAZMOVy OHEn
+0003ed2e P YOU REMOVE ACCESS PASSWORD AND THEN YOU TURNED OFF THE PLASMA BEAM 
+0003ed72 P DO OVLaDACiHO PANELU MUSis ZADAT HESLO
+0003ed99 P YO HAVE TO ENTER THE PASSWORD IN CONTROL BOXg
+0003edc7 P V BARU JSI NIKOHO NENAsEL
+0003ede1 P YOU FOUND NOBODY IN THE BARg
+0003edfe P grafika\vytahop.anm
+0003ee12 P OPRAVIL JSI VyTAHg
+0003ee25 P YOU MENDED THE ELEVATORg
+0003ee3e P OVLaDACi PANEL VyTAHU JE POsKOZENg
+0003ee61 P CONTROL BOX IS DAMAGEDg
+0003ee7d P mapy\m14.map
+0003ee8a P grafika\otdver1.anm
+0003ee9e P OTEVrEL JSI DVErE POMOCi VSTUPNi KARTYg
+0003eec6 P YOU USED THE ACCESS CARD TO OPEN THE DOORg
+0003eef1 P DVErE JSOU ZAMcENe
+0003ef04 P THE DOOR IS LOCKEDg
+0003ef1c P mapy\m16.map
+0003ef29 P grafika\kyselina.anm
+0003ef3e P KYSELINOU JSI POLIL STRazCE,KTERy TI BRaNIL V CESTfg
+0003ef73 P YOU NEUTRALIZED THE GUARD WITH ACIDgTHE WAY IS CLEARg
+0003efa9 P TATO VfC DO ZDirKY NEPASUJEg
+0003efc6 P THIS THING DOES NOT FIT IN THE HOLEg
+0003efeb P zvuky\intr2.s3m
+0003effb P zvuky\vesnice.s3m
+0003f00d P grafika\lev2.gra
+0003f01e P grafika\deska2.gra
+0003f031 P grafika\deska3.gra
+0003f044 P grafika\deskar.gra
+0003f057 P grafika\xb31.gra
+0003f068 P grafika\xb31b.gra
+0003f07a P grafika\xb31c.gra
+0003f08c P grafika\xb32.gra
+0003f09d P grafika\xb32b.gra
+0003f0af P grafika\xb32c.gra
+0003f0c1 P OVLaDACi PANEL JEraBU JE ZAMcENg
+0003f0e2 P CONTROL BOX OF THE CRANE IS LOCKEDg
+0003f106 P NEMuzEs JiT DO TUNELU METRAg NENi TAM SVfTLOg
+0003f134 P YOU CANNOT GO INTO THE SUBWAY TUNNELgTHERE IS NO LIGHTg
+0003f16c P grafika\metrotam.anm
+0003f181 P grafika\vytdrat.anm
+0003f195 P Z ELEKTRICKeHO ROZVADfcE JSI VYTRHL DRaTg
+0003f1bf P YOU TORE A WIRE OUT FROM THE ELECTIC DISTRIBUTORg
+0003f1f5 P grafika\otockoh.anm
+0003f20d P mapy\m13.map
+0003f21a P KOHOUTEM JSI UZAVrEL PROUDiCi VODUg
+0003f23e P YOU TURNED THE CLOSER AND STOPPED FLOWING WATTERg
+0003f270 P grafika\sebkoh.anm
+0003f283 P ODsROUBOVAL JSI KOHOUT
+0003f29a P YOU SCREWED OFF THE CLOSERg
+0003f2b6 P grafika\metroven.anm
+0003f2cb P grafika\metropac.anm
+0003f2e0 P mapy\m12.map
+0003f2ed P PacIDLEM JSI OTEVrEL DVErE METRA
+0003f30e P YOU OPEN SUBWAY DOOR WIHT PRY BARg
+0003f331 P POKUSIL JSI SE OTEVriT DVErE,ALE NEPODArILO SE TI TOg
+0003f367 P YOU TRIED TO OPEN THE DOOR BUT YOU ARE NOT SUCCESSFULLg
+0003f39f P grafika\dratvloz.anm
+0003f3b4 P POUzITiM DRaTU JSI OPRAVIL ROZVADfc ELEKTrINYg
+0003f3e3 P YOU USED THE WIRE TO MEND THE DISTRIBUTORg
+0003f40e P PROZKOUMAL JSI ROZVADfc ELEKTrINYgJE ROZBITyg
+0003f43c P YOU EXAMINED THE ELECTRIC DISTRIBUTORgIT IS BROKEN
+0003f46f P grafika\polbomb.anm
+0003f483 P SPUSTIL JSI cASOVANOU BOMBUgMUSis SE CO NEJRYCHLEJI DOSTAT VEN
+0003f4c2 P zvuky\intr7.s3m
+0003f4d2 P zvuky\raketa.s3m
+0003f4e3 P grafika\lev7.gra
+0003f4f4 P JEsTf MUSis ZNIcIT SKLAD S ROBOTYg
+0003f517 P grafika\XTYC.anm
+0003f528 P TYci JSI PrEPNUL MECHANICKOU POJISTKU
+0003f54e P grafika\vkart1.anm
+0003f561 P POUzIL JSI zLUTy KLic
+0003f577 P grafika\vkart2.anm
+0003f58a P POUzIL JSI ORANzOVy KLic
+0003f5a3 P grafika\vkart3.anm
+0003f5b6 P POUzIL JSI MODRy KLic
+0003f5cc P OTEVrEL JSI DVErE
+0003f5de P NEMas U SEBE NIC ciM BY JSI OTEVrEL DVErEg
+0003f7fd P t9Ç>x▄
+0003fb6b P t9Ç>x▄
+0003ffe0 P t9Ç>x▄
+000407e2 P t9Ç>x▄
+00040dc4 P t+â>˛Z
+00041113 P u-Źż
+00041189 P u-Źżzř
+00041c0b P t$Ç>ü
+00041f00 P u-Źż
+000426b9 P t6â>ß
+00042703 P ëFŘî█őFŘÄ
+00045a02 P zvuky\dun.s3m
+00045a10 P grafika\paleta2.gra
+00045a24 P zvuky\finis.s3m
+00045a89 P ÔŃő>ÔŃ
+00045aa4 P ÔŃő>ÔŃ
+00045b01 P ÔŃő>ÔŃ
+00045b10 P uÝ 6ţŮ 6ýŮ
+00045b29 P ÔŃő>ÔŃ
+00045b3d P Ű5ÖRP
+00045b77 P Ű5ÖRP
+00045bb6 P Ű5ÖRP
+00045bd7 P ÔŃŐFŃ0
+00045be9 P v"íÔŃ
+00045c1f P dxÖRP
+00045c4c P uç─>L
+00045ca9 P ÔŃő>ÔŃ
+00045cbd P Ű5ÖRP
+00045cf7 P Ű5ÖRP
+00045d62 P ÔŃŐFŃ0
+00045d74 P v"íÔŃ
+00045daa P dxÖRP
+00045dd7 P uç─>L
+00045e41 P ÔŃő>ÔŃ
+00045e55 P Ű5ÖRP
+00045e8f P Ű5ÖRP
+00045efa P ÔŃŐFŃ0
+00045f0c P v"íÔŃ
+00045f42 P dxÖRP
+00045f6f P uç─>L
+000460a6 P ÔŃő>ÔŃ
+0004610f P grafika\otdver3.anm
+00046123 P grafika\paleta2.gra
+00046137 P grafika\dunzac.anm
+0004614a P grafika\dunpred.gra
+0004615e P Uz Mf TO NEBAViggg
+00046171 P grafika\rozdun.anm
+00046184 P DO POciTAcE U DVEri JSI ZKUSIL ZADAT HESLOgNIC SE NESTALOg
+000461bf P grafika\ctlac1.gra
+000461d2 P V TREZORU JSI NAsEL PRVNi BEZPEcNOSTNi KLic K REAKTORUg
+0004620a P grafika\kart1dun.anm
+0004621f P POUzIL JSI BEZPEcNOSTNi KLicg
+0004623d P grafika\spodek.gra
+00046250 P grafika\lev1.gra
+00046261 P grafika\granbumd.anm
+00046276 P grafika\pogran.gra
+00046289 P GRANaTEM JSI ZNIcIL DfLOg
+000462a3 P grafika\kart2dun.anm
+000462b8 P grafika\skrin.gra
+000462ca P VE SKriNI JSI NAsEL DRUHy BEZPEcNOSTNi KLicg
+000462f7 P NAsEL JSI MALy KLicg
+0004630c P grafika\klicdun.anm
+00046320 P NAsEL JSI GRANaTg
+00046332 P grafika\grandun.anm
+00046346 P grafika\svardun.anm
+0004635a P NAsEL JSI SVarEcKUg
+00046376 P grafika\
+0004637f P .gra
+00046384 P grafika\delodun.anm
+00046398 P grafika\lev8.gra
+000463bb P ÔŃő>ÔŃ
+00046428 P ÔŃő>ÔŃ
+0004646c P ÔŃő>ÔŃ
+00046532 P ÔŃő>ÔŃ
+00046896 P └t őć­Ř@
+000468c7 P őć­Ř@ëć­Ř
+000468de P őć­Ř@ëć­Ř
+000468f5 P őć­Ř@ëć­Ř
+0004690c P őć­Ř@ëć­Ř
+00046923 P őć­Ř@ëć­Ř
+00046961 P őF˙@ëF˙
+0004697d P őF˙HëF˙
+000469a0 P őF˙HëF˙
+000469bc P őF˙@ëF˙
+00046b55 P ÔŃő>ÔŃ
+00046c0f P uVÇż
+00046c78 P uVÇż
+00046c86 P uHÜ 
+00046ce1 P uOâż
+00046d7f P ÔŃő>ÔŃ
+00046dfa P ÔŃő>ÔŃ
+00046ebf P ÔŃő>ÔŃ
+00046f82 P ÔŃő>ÔŃ
+00047061 P ÔŃő>ÔŃ
+00047136 P ÔŃő>ÔŃ
+000472b8 P u)Źż
+00047395 P u4Źż
+00047410 P ÔŃő>ÔŃ
+000474c4 P őFŘëF■őF°ëF˙
+000474ed P ÔŃő>ÔŃ
+000475bc P grafika\sebskr1.anm
+000475d0 P grafika\paleta2.gra
+000475e4 P ZMAGNETIZOVAL JSI KoDOVy SYSTeMgZE SKrinKY JSI VYTaHL VSTUPNi KARTUg
+00047629 P PRO OTEVrENi SKriNfK POTrEBUJEs ZNaT PriSLUsNy KoDg
+0004765d P grafika\otdver3.anm
+00047671 P DVErMI JSI PROsEL DO MALe MiSTNOSTIg
+00047696 P MUSis POUziT VSTUPNi KARTUg
+000476b2 P VYsEL JSI VEN Z MiSTNOSTIg
+000476d1 P grafika\pouzpist.anm
+000476e6 P OPRAVIL JSI MECHANISMUS U DVErig
+00047707 P grafika\otdver4.anm
+0004771b P DVErMI JSI PROsEL DO DLOUHe CHODBY
+0004773e P VYsEL JSI VEN
+0004774c P MECHANISMUS U DVEri Ma ROZBITOU HYDRAULIKUg
+00047778 P grafika\sachtaza.anm
+0004778d P ZAVrEL JSI PrETLAKOVOU KOMORU
+000477ab P grafika\sachtaot.anm
+000477c4 P mapy\m81.map
+000477d1 P mapy\m82.map
+000477de P OTEVrEL JSI PrETLAKOVOU KOMORU
+000477fd P U SPiNAcE JSOU POTRHANe DRaTY
+0004781b P Zvuky\hydra.snd
+0004782b P Zvuky\vet.snd
+00047839 P Zvuky\drceni.snd
+0004784a P Zvuky\napis.snd
+0004785a P Zvuky\plechy.snd
+0004786b P Zvuky\ohen.snd
+0004787a P Zvuky\prijezd.snd
+0004788c P Zvuky\uder.snd
+0004789b P Zvuky\mriz2.snd
+000478ab P Zvuky\vrata2.snd
+000478bc P grafika\pouztyc.anm
+000478d0 P TYci JSI ZASTAVIL VfTRaKg
+000478ea P HOrLAVINA
+000478f4 P grafika\nabernad.anm
+00047909 P DO NaDOBY JSI NABRAL HOrLAVOU KAPALINUg
+00047931 P grafika\pouznad.anm
+00047945 P NA ZEM JSI POSTAVIL NaDOBU S HOrLAVINOUg
+0004796e P mapy\m83.map
+0004797b P KLic
+00047980 P Zvuky\motor3.snd
+00047991 P Zvuky\buch.snd
+000479a0 P Zvuky\gate.snd
+000479af P Zvuky\el.snd
+000479bc P grafika\svetlice.anm
+000479d1 P grafika\hori1.anm
+000479e3 P grafika\hori2.anm
+000479f5 P grafika\schov1.anm
+00047a08 P grafika\schov2.anm
+00047a1b P CESTA VEN JE VOLNa
+00047a2e P V NaDRzI JE HOrLAVINAg
+00047a45 P POKUSIL JSI SE DOSTAT DO sACHTY ZA VfTRaKEMdALE JE TO PriLIs NEBEZPEcNeg
+00047a8e P VfTRaKEM JSI PROLEZL NA DRUHOU STRANUg
+00047ab9 P U DVEri JE ZDirKA NA KLicg
+00047ad8 P NEMas DOSTATEK SiLY NA OTEVrENi DVErig
+00047aff P mapy\m54.map
+00047b0c P grafika\rozdvere.anm
+00047b21 P grafika\paleta.gra
+00047b34 P MECHANISMUS U DVEri SE ZASEKLg
+00047b53 P DO OVLaDACiHO PANELU MUSis ZADAT NfJAKe HESLOg
+00047b82 P Zvuky\vetbum.snd
+00047b93 P grafika\vytahop.anm
+00047ba7 P grafika\vrtstop.anm
+00047bbb P V POSLEDNi VfTRACi sACHTf SE ZASTAVIL VfTRaKg
+00047bed P mapy\m55.map
+00047bfa P grafika\zvedvrat.anm
+00047c0f P MECHANICKyM ZVEDaKEM SE TI PODArILO DVErE OTEVriTg
+00047c46 P mapy\m56.map
+00047c53 P grafika\vezdver.anm
+00047c67 P DO POciTAcE JSI ZADAL IDENTIFIKAcNi ciSLO Z HRUDNiHO PLaTUg
+00047ca3 P POciTAc U DVEri Tf POzaDAL O ZADaNi TVeHO IDENTIFIKAcNiHO ciSLAg
+00047ce4 P m51.map
+00047cf0 P mapy\m52.map
+00047cfd P grafika\otplech1.anm
+00047d12 P POD KRYTEM JSI OBJEVIL OVLaDACi PANEL
+00047d38 P mapy\m53.map
+00047d45 P Zvuky\klavesa2.snd
+00047d58 P grafika\srot.anm
+00047d69 P sROTOVAcEM JSI SI UVOLNIL CESTU VENg
+00047d8e P MECHANISMUS NEFUNGUJEg
+00047da5 P THE MECHANISM IS NOT WORKINGg
+00047dcf P m71.map
+00047ddb P mapy\m72.map
+00047de8 P grafika\cerpadlo.anm
+00047dfd P PrEcERPAL JSI VODU DO HORNi NaDRzEg
+00047e25 P mapy\m73.map
+00047e32 P PrEcERPAL JSI VODU DO DOLNi NaDRzEg
+00047e56 P grafika\pruchod.anm
+00047e6a P KLicEM JSI OTEVrEL DVErE A PROsEL JSI DOMEM NA DRUHOU STRANUg
+00047ea8 P DVErE  JSOU ZAMcENeg
+00047ebd P PROsEL JSI DOMEM NA DRUHOU STRANUg
+00047ee0 P Z MECHANISMU JSI VYTaHL rEMEN
+00047efe P DO MECHANISMU JSI OPfT rEMEN VLOzIL
+00047f22 P mapy\m74.map
+00047f2f P grafika\otdver2.anm
+00047f43 P OTEVrEL JSI VRATAg
+00047f56 P VRATA JSOU ZAMcENag
+00047f6a P grafika\sebdrat3.anm
+00047f7f P Z LAMPY JSI VYTRHL DRaTg
+00047f9c P DRaTY V LAMPf JSOU POD PROUDEM
+00047fbb P grafika\oprtran.anm
+00047fcf P DO MOTORU TRANSPORTeRU JSI VLOzIL rEMENg
+00047ff8 P DO MOTORU TRANSPORTeRU JSI VLOzIL DRaT
+0004801f P DO MOTORU TRANSPORTeRU JSI VLOzIL HADIcKU PRO PriVOD PALIVAg
+0004805c P MOTOR TRANSPORTeRU JE NEFUNKcNig
+0004807d P Zvuky\prob.snd
+0004808c P Zvuky\zedbum.snd
+0004809d P Zvuky\prelet.snd
+000480ae P Zvuky\dvirka.snd
+000480bf P grafika\trans.anm
+000480d1 P mapy\m76.map
+000480de P TRANSPORTeREM JSI ROZRAZIL STfNUg
+00048100 P grafika\kapota.anm
+00048113 P Z MOTORU AUTA JSI VYTaHL HADicKU PRO PriVOD PALIVAg
+00048147 P mapy\m77.map
+00048154 P grafika\otplech3.anm
+00048169 P grafika\schovej.anm
+0004817d P VLEZL JSI POD PODLAHUgZA CHViLI PrIsEL ROBOT A ZADAL HESLO DO DVEri
+000481c5 P mapy\m78.map
+000481d2 P POciTAc TI UKaZAL ZPRaVU SE ZMfNfMyM HESLEM DO HANGaRUg
+0004820a P DO POciTAcE MUSis VLOzIT ID KARTUg
+0004822d P MUSis ZADAT HESLO
+0004823f P zvuky\intr8.s3m
+0004824f P zvuky\finis.s3m
+0004825f P grafika\lev8.gra
+00048270 P grafika\deska2.gra
+00048283 P grafika\deska3.gra
+00048296 P grafika\xb31.gra
+000482a7 P grafika\xb31b.gra
+000482b9 P grafika\xb31c.gra
+000482cb P grafika\xb32.gra
+000482dc P grafika\xb32b.gra
+000482ee P grafika\xb32c.gra
+00049381 P t9Ç>x▄
+00049ac7 P t9Ç>x▄
+00049ed5 P t3â>˛Z
+0004a477 P t9Ç>x▄
+0004ad36 P t9Ç>x▄
+0004c137 P t9Ç>x▄
+0004c988 P u-Źż
+0004cbe3 P Zvuky\hydra.snd
+0004cbf3 P Zvuky\motor3.snd
+0004cc04 P Zvuky\buch.snd
+0004cc13 P Zvuky\delej.snd
+0004cc23 P Zvuky\gate.snd
+0004cc32 P Zvuky\ohen.snd
+0004cc41 P Zvuky\napis.snd
+0004cc51 P Zvuky\uder.snd
+0004cc60 P Zvuky\mriz2.snd
+0004cc70 P Zvuky\vrata2.snd
+0004cc81 P grafika\proskoc.anm
+0004cc95 P grafika\plaz2.anm
+0004cca7 P grafika\skokplaz.anm
+0004ccbc P grafika\paleta.gra
+0004ce5c P t9Ç>x▄
+0004ced1 P ÔŃő>ÔŃ
+0004cf41 P ÔŃő>ÔŃ
+0004cfdd P ÔŃő>ÔŃ
+0004d04a P ÔŃő>ÔŃ
+0004d091 P Zvuky\hydra.snd
+0004d0a1 P Zvuky\motor3.snd
+0004d0b2 P Zvuky\buch.snd
+0004d0c1 P Zvuky\delej.snd
+0004d0d1 P Zvuky\gate.snd
+0004d0e0 P Zvuky\ohen.snd
+0004d0ef P Zvuky\napis.snd
+0004d0ff P Zvuky\uder.snd
+0004d10e P Zvuky\mriz2.snd
+0004d11e P Zvuky\vrata2.snd
+0004d12f P grafika\cum.anm
+0004d13f P grafika\souboj.anm
+0004d152 P grafika\paleta.gra
+0004d2f2 P t9Ç>x▄
+0004d367 P ÔŃő>ÔŃ
+0004d3ab P ÔŃő>ÔŃ
+0004d439 P ÔŃő>ÔŃ
+0004d480 P Zvuky\hydra.snd
+0004d490 P Zvuky\drceni.snd
+0004d4a1 P Zvuky\buch.snd
+0004d4b0 P Zvuky\delej.snd
+0004d4c0 P Zvuky\gate.snd
+0004d4cf P Zvuky\ohen.snd
+0004d4de P Zvuky\napis.snd
+0004d4ee P Zvuky\uder.snd
+0004d4fd P Zvuky\mriz2.snd
+0004d50d P Zvuky\vrata2.snd
+0004d51e P grafika\casint1.anm
+0004d532 P grafika\casint2.anm
+0004d546 P grafika\paleta.gra
+0004d6e6 P t9Ç>x▄
+0004d75b P ÔŃő>ÔŃ
+0004d815 P ÔŃő>ÔŃ
+0004d8ae P ÔŃő>ÔŃ
+0004d8f5 P zvuky\outro.s3m
+0004d905 P Zvuky\hydra.snd
+0004d915 P Zvuky\rob_mes.snd
+0004d927 P Zvuky\buch.snd
+0004d936 P Zvuky\v2.snd
+0004d943 P Zvuky\v1.snd
+0004d950 P Zvuky\klavesa4.snd
+0004d963 P Zvuky\konec.snd
+0004d973 P Zvuky\uder.snd
+0004d982 P Zvuky\mriz2.snd
+0004d992 P Zvuky\vrata2.snd
+0004d9a3 P grafika\silopol.anm
+0004d9b7 P grafika\final01.anm
+0004d9cb P grafika\final02.anm
+0004d9df P grafika\final3.anm
+0004d9f2 P grafika\final4.anm
+0004da05 P grafika\final5.anm
+0004da18 P grafika\final6.anm
+0004da2b P grafika\final7.anm
+0004da3e P grafika\sachta.anm
+0004da51 P grafika\rakvyb3.anm
+0004da65 P grafika\rakvyb4.anm
+0004da79 P zvuky\titulky2.s3m
+0004da8c P grafika\end2.anm
+0004da9d P grafika\end1.anm
+0004daae P grafika\konectit.anm
+0004dac3 P grafika\paleta.gra
+0004dad6 P data\run.dat
+0004dae3 P koneclevelu
+0004dcad P t9Ç>x▄
+0004dd38 P ÔŃő>ÔŃ
+0004ddb3 P ÔŃő>ÔŃ
+0004de4f P ÔŃő>ÔŃ
+0004dee0 P ÔŃő>ÔŃ
+0004df5b P ÔŃő>ÔŃ
+0004dfb5 P ÔŃő>ÔŃ
+0004e03b P ÔŃő>ÔŃ
+0004e0ab P ÔŃő>ÔŃ
+0004e168 P ÔŃő>ÔŃ
+0004e1cd P ÔŃő>ÔŃ
+0004e21c P ÔŃő>ÔŃ
+0004e341 P ÔŃő>ÔŃ
+0004e3ad P ÔŃő>ÔŃ
+0004e405 P ÔŃő>ÔŃ
+0004e481 P ŹżÇ■
+0004e9bd P grafika\xzacatek.gra
+0004e9d2 P grafika\xnahoru.gra
+0004e9e6 P grafika\xdolu.gra
+0004e9f8 P grafika\xvpravo.gra
+0004ea0c P grafika\xvlevo.gra
+0004ea1f P NIC SE NESTALO
+0004ea2e P AKTIVOVAL JSI OBVOD
+0004ea42 P grafika\xkonec.gra
+0004eaf4 P Ŕ4ÖRP
+0004ef0b P đ4ÖRP
+0004efa0 P ˘łF˝ŐFˇłF˘ŐF˛łFˇŐF˝łF˛ŐF¸łF˝ŐF÷łF¸ŐF§łF÷ŐF˝łF§ŐF˙łF˝ŐF¨łF˙ŐF°łF¨ŐF˝łF°
+0004f03a P Ŕ4+FŘ
+0004f18d P ˛łF˝ŐFˇłF˛ŐF˘łFˇŐF˝łF˘ŐF§łF˝ŐF÷łF§ŐF¸łF÷ŐF˝łF¸ŐF°łF˝ŐF¨łF°ŐF˙łF¨ŐF˝łF˙
+0004f209 P Ŕ4ÖRP
+0004f35c P őF■Đ
+0004f421 P &ëDf
+0004f48f P       KONEC  HRY
+0004f4a0 P       GAME  OVER
+0004f4b1 P zvuky\GameOver.s3m
+0004f4c4 P data\run.dat
+0004f4d1 P koneclevelu
+0004f8bc P ˇąÄ█╔
+0004f8e4 P ˇąÄ█╔
+0004f8f7 P ÔŃő>ÔŃ
+0004f948 P Zvuky\hydra.snd
+0004f958 P Zvuky\dvere.snd
+0004f968 P Zvuky\propast.snd
+0004f97a P Zvuky\gate.snd
+0004f989 P Zvuky\plam.snd
+0004f998 P Zvuky\invend.snd
+0004f9a9 P Zvuky\smich.snd
+0004f9b9 P Zvuky\uder.snd
+0004f9c8 P Zvuky\mriz2.snd
+0004f9d8 P Zvuky\vrata2.snd
+0004f9f6 P ÔŃő>ÔŃ
+0004fbc9 P t9Ç>x▄
+0005055a P Zvuky\rad1.snd
+00050569 P Zvuky\rad2.snd
+00050578 P Zvuky\rad3.snd
+00050587 P Zvuky\rad4.snd
+00050596 P Zvuky\rad5.snd
+000505a5 P Zvuky\rad6.snd
+000505b4 P Zvuky\rad7.snd
+000505c3 P Zvuky\uder.snd
+000505d2 P Zvuky\mriz2.snd
+000505e2 P Zvuky\vrata2.snd
+000505f3 P RaD Tf VIDIMg
+00050601 P TROCHU JSME OD POSLEDNf VYLEPsILI Nas PLaN, TAKzE DOBrE POSLOUCHEJg
+00050645 P BUDE SE TI LiBITg
+00050657 P PRaVf TEd NAsE JEDNOTKY PROVaDfJi KLAMNy uTOK
+00050685 P grafika\letadlo4.anm
+0005069a P NA JEDEN ZE STRATEGICKyCH DOLu, MY Tf  TEd  UMiSTiME DO KAPSLE
+000506d9 P A VYHODiME NfKDE NAD RAKETOVOU ZaKLADNOUg
+00050703 P grafika\letadlo5.anm
+00050718 P POKUD SE NaM PODAri JE DLOUHO ZDRzOVAT, MfL BYS TO MiT SNAzsi,
+00050757 P grafika\odlet.anm
+00050769 P ALE PAMATUJ SI, zE  PrI TyHLE KRYCi AKCI ZArVE SPOUSTA DOBREJCH KLUKu,
+000507b0 P TAK SE TAM MOC NEFLaKEJ Aggg HODNf sTfSTig
+000507db P grafika\odlet2.anm
+000507ee P grafika\letadlo.anm
+00050802 P grafika\padak.anm
+00050814 P grafika\paleta.gra
+000509c9 P t9Ç>x▄
+00050ace P ÔŃő>ÔŃ
+00050b7a P ÔŃő>ÔŃ
+00050bee P ÔŃő>ÔŃ
+00050c84 P ÔŃő>ÔŃ
+00050cd8 P ÔŃő>ÔŃ
+00050d2c P ÔŃő>ÔŃ
+00050d8e P ÔŃő>ÔŃ
+00050dd5 P zvuky\most.s3m
+00050de4 P grafika\allr.anm
+00050df5 P grafika\t1i.anm
+00050e05 P grafika\t2i.anm
+00050e15 P grafika\t3i.anm
+00050e25 P grafika\t4i.anm
+00050e35 P grafika\t1r.anm
+00050e45 P grafika\t2r.anm
+00050e55 P grafika\t3r.anm
+00050e65 P grafika\t4r.anm
+00050e77 P 42Z VODOPaDU NAD TEBOU SE VYSUNULY DVA KAMENNe BLOK
+00050eac P TWO STONE BLOCKS APPEARED FROM WATERFALLG
+00050ed6 P mapy\m34.map
+00050ee3 P NIC SE NESTALO
+00050ef2 P NOTHING HAPPENED
+00050f03 P zvuky\prales.s3m
+000515e0 P u!Źż
+000516c4 P u!Źż
+00054f86 P 1└ëFŕëF
+00054fb6 P 1└úďŃ
+00054fc2 P 1└úďŃ
+0005515b P 1ĎRP
+000551e4 P 1ĎRP 6
+000553fa P ë~ÔîFńk
+00055404 P őůŻ9őĽ┐9─~Ô&
+000555c5 P ë~ÓîFÔk
+00055711 P ăůŃj
+00055737 P 1└ëFŕë
+00055750 P ăFŕű ăFý  
+00055768 P 1└úďŃ
+00055774 P 1└úďŃ
+00055910 P 1ĎRP 6
+00055999 P 1ĎRP
+00055bea P ë~ÓîFÔk
+00055d36 P ăůŃj
+00055e91 P 1└úďŃ
+00055e9d P 1└úďŃ
+0005613e P 1ĎRP
+000561ee P 1ĎRP 6
+00056475 P ë~ÔîFńk
+0005647f P őůŻ9őĽ┐9─~Ô&
+00056663 P ë~ÓîFÔk
+0005673a P uWk~Ř
+00056931 P ăůŃj
+00056a92 P ë~ÓîFÔk
+00056b93 P ăFŕű ăFý  
+00056bab P 1└úďŃ
+00056bb7 P 1└úďŃ
+00056e5b P 1ĎRP 6
+00056f0b P 1ĎRP
+000571cd P ë~ÓîFÔk
+000572a4 P uZk~Ř
+000574a4 P ăůŃj
+00057605 P ë~ÓîFÔk
+000577a4 P ë~ěîF┌í
+000579b3 P ë~ěîF┌í
+00057b26 P ë~ÔîFń&
+00057db6 P ë~ÔîFń&
+00058210 P |H=Ů vC
+000582f6 P 1└ëF­íD█ÖRPő
+000588d4 P ë~ýîFţ&
+00059183 P  !ÖRP
+00059283 P  ?ÖRP
+000599b4 P 1└ëF­í
+0005a1b6 P ;ůéLt8
+0005a249 P |0;ůćLr*
+0005a297 P |*;ůéLr$
+0005a2bd P ;ůéLvH
+0005a2df P |T;ůŐLrN
+0005a351 P |0;ůćLr*
+0005a39f P |*;ůéLr$
+0005a3c5 P ;ůéLvH
+0005a3e7 P |T;ůŐLrN
+0005a459 P |0;ůćLr*
+0005a4a7 P |*;ůéLr$
+0005a4cd P ;ůéLvH
+0005a4ef P |T;ůŐLrN
+0005a561 P |*;ůćLr$
+0005a5c9 P ;ůéLvB
+0005a5eb P |N;ůŐLrH
+0005ce6c P grafika\vytnah.anm
+0005ce7f P grafika\vytdol.anm
+0005d5a9 P ufâ>
+0005d651 P f▄úD█â
+0005d66c P f▄úD█Ŕ
+0005d691 P u|Ç>x▄
+0005d698 P uuíD
+0005d6aa P íD█@úD█
+0005d6b8 P íD█@úD█
+0005d6c6 P íD█@úD█
+0005d6d4 P íD█@úD█
+0005d6e2 P íD█@úD█
+0005d6f0 P íD█@úD█
+0005d6fe P íD█@úD█
+0005d735 P áUQ0ń@óUQ
+0005d8ae P tOíH
+0005d9ed P ĎŃ■ â>
+0005dceb P f▄úD█í
+0005dd8f P f▄úD█í
+0005dda1 P F█úF█í
+0005e368 P f▄úD█í
+0005e415 P f▄úD█í
+0005e864 P f▄úD█í
+0005e876 P F█úF█â
+0005e8e1 P uFÇ>
+0005e90f P f▄úD█í
+0005e921 P F█úF█Ú
+0005ea3a P f▄úD█í
+0005ea59 P f▄úR█â
+0005ea7b P f▄úD█í
+0005ea8d P F█úF█í
+0005ea97 P f▄úR█Ü
+0005ebc9 P ë~°îF˙í
+0005ec18 P t.íR█
+0005ec5b P %█uI&Ç
+0005ecd7 P ëżŠ■îćŔ
+0005ee2b P 1└ëF÷ëF°1└ëF˛ëF˘
+0005f266 P 1└ëF÷ëF°1└ëF˛ëF˘
+0005f6a1 P 1└ëF÷ëF°1└ëF˛ëF˘
+0005face P grafika\sachta2.anm
+0005fae2 P grafika\paleta2.gra
+0005fb7f P ĘĐ"Ç>x
+0005fb97 P áŻSÇ>.
+0005fba8 P áŻYÇ>x
+0005fe14 P áČ[Ŕ┤í
+0005fe31 P D█+┬Öë
+0005ff20 P v0ń1ĎëFŔëVŕőF▄őV
+0005ff79 P â~ědr>
+00060031 P v0ń1ĎëFŔëVŕőF▄őV
+0006008a P â~ědrD
+0006019f P v0ń1ĎëFŔëVŕőF▄őV
+000601f8 P â~ědr>
+000602b0 P v0ń1ĎëFŔëVŕőF▄őV
+00060309 P â~ědr>
+000603ad P v0ńHÖëFŔëVŕ═7FŔ═
+0006042d P â~ědrD
+00060536 P v0ńHÖëFŔëVŕ═7FŔ═
+000605b6 P â~ědrD
+000606bf P v0ńHÖëFŔëVŕ═7FŔ═
+0006073f P â~ědr>
+000607ec P v0ńHÖëFŔëVŕ═7FŔ═
+0006086c P â~ědrD
+00060975 P v0ńHÖëFŔëVŕ═7FŔ═
+000609f5 P â~ědrD
+00060b05 P v0ńHÖëFŔëVŕ═7FŔ═
+00060b85 P â~ědrD
+00060c8e P v0ńHÖëFŔëVŕ═7FŔ═
+00060d0e P â~ědrD
+00060e17 P v0ńHÖëFŔëVŕ═7FŔ═
+00060e97 P â~ědrD
+00060fa0 P v0ńHÖëFŔëVŕ═7FŔ═
+00061118 P u3Çż
+00061166 P <Zvi
+0006116f P u ŐćÍŘ
+000611dd P u3ÇżÎ
+000612b1 P ő~­Őů
+000612c6 P őF­őV
+000612e6 P ő~­Őů
+00061316 P u;ŐćÍŘ<
+000613f7 P u/ŐćÍ
+00061424 P <TvZ
+00061482 P ŐćÎŘóB█ŐćÍŘóC█
+0006149f P u(ŐćÍŘ<
+000614c5 P <hvA
+0006150a P ŐćÎŘóB█ŐćÍŘóC█
+00061524 P u$ŐćÍŘ<
+00061583 P ŐćÎŘóB█ŐćÍŘóC█
+000615b9 P <fvo
+000615df P <gvI
+0006162c P ŐćÎŘóB█ŐćÍŘóC█
+00061667 P ŐćÎŘóB█ŐćÍŘóC█
+0006167a P ugÇżÎŘ
+000616d5 P ŐćÎŘóB█ŐćÍŘóC█
+00061743 P ŐćÎŘóB█ŐćÍŘóC█
+0006175d P u(ŐćÍŘ<
+000617b9 P ŐćÎŘóB█ŐćÍŘóC█
+0006180c P ŐćÎŘóB█ŐćÍŘóC█
+000618c0 P ÖëćĎŘëľďŘ1└
+000618d5 P ;ćĎŘw,
+00061910 P ÖëćĎŘëľďŘ1└
+00061925 P ;ćĎŘw,
+00061960 P ÖëćĎŘëľďŘ1└
+00061975 P ;ćĎŘw,
+000619b0 P ÖëćĎŘëľďŘ1└
+000619c5 P ;ćĎŘw,
+00061a00 P ÖëćĎŘëľďŘ1└
+00061a15 P ;ćĎŘw,
+00061a50 P ÖëćĎŘëľďŘ1└
+00061a65 P ;ćĎŘw,
+00061aa0 P ÖëćĎŘëľďŘ1└
+00061ab5 P ;ćĎŘw,
+00061c3e P grafika\vybuch.anm
+00061c51 P grafika\paleta.gra
+00061e41 P grafika\stihnes.anm
+00061e55 P HERMETICKY JSI UZAVrEL ZBYLy TRAKT BUDOVYg
+00062074 P ĹI;┬}I
+0006207f P ĹIëF˙Ş
+00062270 P -level1
+00062278 P loadmision
+00062287 P m31.map
+0006228f P mapy\
+00062295 P KANYSTR
+0006229d P BEDNA
+000622a3 P NAPNUTy DRaT
+000622b0 P KLic
+0006247d P âď═;>T
+00064eee P DŠfíáŠ
+00064f32 P DŠâ>ŞŠ
+00064f42 P fíLŠfúHŠ
+00064f9c P DŠfíLŠ
+00064fc8 P DŠâ>ŞŠ
+00065043 P ü■öŠ
+000650d7 P tű░6ŠC2└
+000650ee P tű2└ŠCń@
+0006510c P tű░6ŠC2└
+00065123 P tű2└ŠCń@
+000651d5 P fúPŠ┐T
+0006530e P Ě└fĐŔfúťŠfúáŠfő
+0006533e P tűŔż˙űâ>
+000653cf P f¸ˇfúL
+0006571f P ° ëFţ
+00065a72 P őVţJ¸ŕf
+00065e3d P fí╬Šf&
+00065e7f P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+0006687b P fú▄Šfă
+0006689b P fúěŠ─6ěŠ&őD*ú˘
+00066933 P ˙Ší˙Š;
+0006693a P ÷ŠrÍîě
+000669c5 P fúýŠfů
+00066a3d P ú˙ŠŰ█
+00066ac2 P FŐÔ&Ő
+00066ac8 P ŐđF┴
+00066b20 P V─6ěŠ
+00066ca1 P ú˙ŠÚm■
+00066cb0 P ˛Šâ>˛Š
+000670b1 P í˛ŠúŘŠ
+00067207 P í˘ŠH
+00067271 P š&ëD
+000672b6 P │Ç÷ˇŐ─2ńĐ
+0006736c P fíńŠf&
+00067513 P S& 7fV
+0006752d P S& 7fP
+00067686 P ţ.őö
+000676d4 P sÓű.Ç╝
+000679cc P Cä└t0f┴
+00067a1a P f3Ďf3└
+00067ac6 P ő┬ŰI
+00067b09 P főFŘf&
+000680f7 P &ŹEŘ─~
+000680fe P î┬ëF˙ë
+00068356 P Ä└╣Ç>ˇ
+000683e0 P ÉÉJu▄
+0006846e P ÉÉJu█
+000684bb P ÉÉJu▄
+000684fd P ÉÉJuń
+00068535 P ÉÉJuŰ
+00068572 P ÉÉJuŠ
+000685af P ÉÉJuŠ
+000685eb P śő°ŐůW
+0006860d P śő°łĽWŘ╔
+0006862c P ░ Š Ş  Äěń`<Óse<┼tq<Ătt0ńđđđďđ
+0006879b P řó■Ř3└ó¨
+00068943 P Ő>■Řő╩
+000689de P ĎÓÇ&
+000689fa P řó■Ř╦ő▄6
+00068b00 P JJ&ő
+00068b22 P tDI<
+00068d5f P ŐšČźÔŘ
+00069635 P őĂÚR
+0006971d P đ ëF­
+00069767 P đ ëF­
+00069aa2 P ;┴wÂf 
+00069c8b P őFŔ&ëG5
+00069e82 P fí>ŕf&
+00069ec4 P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+0006a338 P fúLŕfă
+0006a35d P fúHŕ─6Hŕ&őD*úl
+0006a450 P rŕírŕ;
+0006a457 P nŕrÍîě
+0006a4ca P fúdŕfů
+0006a4f2 P ćŕáçŕ8
+0006a548 P úrŕŰŇ
+0006a5b5 P fúTŕ─
+0006a5cc P Fä└t
+0006a657 P V─6Hŕ
+0006a805 P úrŕÚ8■
+0006a814 P jŕâ>jŕ
+0006a86f P Ě█fíPŕf3Ďf¸űfőě
+0006a8d7 P óçŕ3└
+0006a8e5 P őŕHúhŕ
+0006aa86 P ů└t/V
+0006ac75 P jŕů╔t\ëN˙─6Hŕő
+0006ac9d P fëFŘ─
+0006acaf P Fä└t
+0006ad2c P ćŕu4÷E
+0006ae0d P ílŕH
+0006af57 P fí\ŕf&
+0006afe7 P &Ç7ÇCÔ¨
+0006b012 P ćÓŐŘ
+0006b107 P őN°üß
+0006b121 P Ű"ćÚ
+0006b135 P ćűeë]
+0006b3ec P őĂÚ▀
+0006b51a P ţPÜ 
+0006b5a0 P ţPÜ 
+0006b68a P ţPÜ 
+0006b6bb P ţf 6ţÝfj
+0006b8d1 P ţPÜ 
+0006b8f2 P ţPÜ 
+0006b97b P főćN fëF˛
+0006bb01 P &őG5&ëG1
+0006bd08 P 1JaxŹí┤┼ďÓŰ˘˙ř ř˙˘ŰÓď┼┤í
+0006bfb0 P &őD.ëF÷f&ő
+0006bfe4 P Fä└t
+0006c055 P  FŘő
+0006c097 P &őD.ëF÷&őD
+0006c0b0 P f&őDafë
+0006c0dc P Fä└t
+0006c119 P  FŘő
+0006c13f P ţ&őD,ú6ţ&őD*
+0006c157 P ú8ţ&ŐD5óOţ
+0006c1db P <ţí<ţ;
+0006c222 P ú$ţú.ţőF
+0006c22b P ú&ţîěÄ
+0006c2a3 P fú ţfů
+0006c2cb P NţáOţ8
+0006c328 P >ţí<ţ;
+0006c32f P 8ţr╬Ŕ%
+0006c3a7 P fëFŘ─
+0006c3b9 P Fä└t
+0006c3fd P FŰÂ+
+0006c52f P főěfů█tv
+0006c5fa P Çt"ŐE
+0006c628 P >ţí<ţ;
+0006c63e P 0ţâ>0ţ
+0006c789 P fëFŘ─
+0006c797 P Fä└t
+0006c7df P XţHú.ţ
+0006c81c P Ő╚Çß
+0006ca40 P  ├ŔĎřů└
+0006cbc2 P â>HŘ
+0006cc9d P fÖf¸ű
+0006d02a P Řôźôź]
+0006d93d P UltraSound (GF1 hardware mixing)
+0006db69 P Ô¬fâ
+0006dc14 P °őűf┴Ű
+0006de4d P >˘tuú>
+0006dea5 P ÇĄf˘▀
+0006df35 P f9çk˘t
+0006df61 P 3ĎŐŚg˘äĎ
+0006df88 P fëĆs˘Çžf˘■ÇĆ
+0006dfb2 P f9çk˘t
+0006dfcf P fëĆs
+0006e04e P f9çk˘t
+0006e066 P 6˘f¸¨$■ëçi˘ÇĆf
+0006e08f P fëçk˘Ç
+0006e127 P â>JŘ
+0006e216 P â>JŘ
+0006e22a P 8çg˘tK
+0006e330 P fëĆs˘Çžf˘■ÇĆ
+0006e361 P fëĆs
+0006e558 P ÇĆf˘ä
+0006e582 P ÇĆf˘ä
+0006e67b P F4Çţ
+0006e687 P CIu╠
+0006e6c6 P F4Çţ
+0006e6cd P IuŔŰD
+0006e707 P 4ÇţG
+0006e712 P CIu═
+0006e78c P őűf┴
+0006e7c4 P CIu╩
+0006e80c P IuŠŰF
+0006e853 P CIu╦
+0006e88e P ů└uLf&â
+0006e8a3 P ů└u7őF
+0006ea49 P fk└df
+0006eade P ţBfő
+0006eaee P ţBfő┴
+0006ec11 P ţBfő
+0006ec21 P ţBfő┴
+0006ee2b P fâŃÓf+ěx
+0006ee3a P fë^Řî├ë^˙ëv°
+0006ee8f P feë]
+0006ee94 P feëE
+0006ef17 P ů└u f&ő
+0006f09c P fů└t
+0006f0e0 P főěfâŃÓf
+0006f0fe P fů└t
+0006f1cc P Audio Spectrum series Sound Devi
+0006f285 P 3Îý< tRŐÓ4Ó
+0006f575 P ˇ║ëâ
+0006f7c4 P Sound System (Crystal/Analog COD
+0006f857 P ţBýŐě2└ţý:├t
+0006f937 P S 6Ö°Ü
+0006f985 P ░HţB
+0006f9ac P ░IţB
+0006fa17 P ţBýóĹ°
+0006fa23 P ţBýóĺ°$
+0006fa51 P ţBáĹ°ţ
+0006fa5a P ţBáĺ°ţJ
+0006fb6f P Blaster series Sound Device v2.1
+0006fbab P Blaster 1.0 or clone (DSP v1.xx)
+0006fcaf P â┬ŘýŐě3└
+0006fdaf P <It@<Dtj<HtvŰÔ
+0006fdd1 P GÔ´Ú├
+0006fddb P h  hă°
+0006fe5b P ŐF■łFŘ
+0006fecf P t&â>Ř
+0006ff51 P ńíóŞ°│■Ď
+0006ff63 P spâ>Ř
+00070020 P S 6Đ°Ü
+00070187 P űů└u
+0007025c P ű˛h  h
+000702f3 P  ţ│HŔĺ¨ů└u!Ő
+00070385 P ¨ů└u!Ű
+000703db P ű˛PÜ  
+000703f7 P áŞ°Ší
+00070701 P fů└t6f
+00070b2c P @uHf
+00071679 P ˘űú)Řë
+00071738 P Ph  h÷
+0007178f P ţűf3 ╣
+000717d8 P ?fGÔ
+000717f8 P fśf¸ţf┴°
+00071826 P GCIu╚
+000718b8 P Ő­Iuß
+000718c3 P ő63ŘŰ╗
+000718d8 P ëF■ FŘŰĺ
+0007191c P Ő­IuŃ
+00071927 P ő63ŘŰĂ
+0007198d P őđIuß
+00071998 P ő63ŘŰŞ
+000719ab P ëF■ FŘŰĆ
+00071a01 P ő63ŘŰ└
+00071d45 P f&ëG
+00071fe4 P Sf& 7Ü
+00072143 P ëF˘őF˘3Ď¸6
+000721d1 P łFŘ&őG
+00072215 P f3Ďf
+0007242f P ˛űőFŔ¸
+00072afc P ¸ěëE
+00073139 P Ő╦gő
+000732e7 P Ő╦gő
+0007347d P ó$ŘŰuó
+0007348f P ó#ŘŰcâ
+00073550 P f3█dŐ>#Řf3╔dŐ.$Ř
+000735e3 P Řő╩í9Ř+
+0007361a P A Óő
+000737bb P Řő╩í9Ř+
+00073803 P Řő╩í9Ř+
+0007396e P YÔýî
+00073a4a P YÔŰ╦
+00073ab8 P   ÄěĂ
+00073acd P   ÄěĂ
+00073b13 P ş&ëE$ş&ë
+00073c13 P └uŕ├Portion
+00073c20 P Copyright (c) 1983,92 BorlandEUő
+00073c9e P uŰőň]M╦EU
+00073e11 P ;Ůwˇt<
+00073f50 P ŰB5┬h!
+00073f61 P Ű1Ö¸¤ű
+00073f72 P Ű Čy¤Đ
+000740ab P ĐŰĐ┌
+000740b7 P ĐÔĐËĐđÔ°
+00074113 P ├VWŘ╣
+00074145 P ÇŰ­UőýV
+0007429a P tCÇ¨
+000742dc P ÚV °Ű¤
+000743d4 P ăőűő┌őŇ+ÝÇ┴
+000743ed P ─ĐÝĐ┌Đ█Đ▀đ
+00074459 P ]├UVWçţő
+000744e3 P Ëŕő˙G#đ
+0007458f P Đ┌ĐěC
+0007460b P +└źźĹźĺ
+00074676 P }J$°đÔĐ
+00074681 P ăŐˇő▀Đ´ĐěĐ
+0007469d P Đ´ĐěĐ┌Đ┘Đ█
+000746e1 P ŰĽWîěî├
+000746ef P +└ĐÔĐđ
+000746fc P Ëŕt`ü
+000747c8 P îěî├Ä└
+000747d7 P şô+└ĐŃĐđźĐ
+00074811 P u!âű
+0007484f P t&őT
+00074914 P ŔÚ■r
+0007492b P ŔŐ÷Ú
+00074968 P ĐŕĐ┘Đ█Đěđ^■■N u­
+0007498b P sgĐ┌Đ┘
+00074a01 P Đ┌ FŘ
+00074a18 P źôźĹ
+00074ab9 P ŔDř^
+00074ac9 P Ŕý˘Ű
+00074ad9 P ŐN■Ŕ
+00074af7 P OĐŠĐđĐËĐĐĐĎ
+00074b22 P źôźĹ
+00074c95 P Ŕhűr
+00074cae P ŔOűr
+00074df3 P ĐŃĐđĐĎ¸÷ô¸÷ĐŰĐěđŮ
+00074e25 P ĐŮĐ┘Đ█ĐěđŮ F■
+00074e56 P Řźôź
+00074ed8 P CĐŕĐěĐ┘
+00074f8c P rŇ F
+00074fb4 P Wő~÷źôźĹ
+000750dc P ¸█âŃÇt─Ű╔
+000750f2 P ¸█ÇšŘt«Ű│
+000751ad P ĐŕĐ┘Đ█ĐěĐ▀Ű˝
+000751d2 P ő▀ő¤ő¸
+00075295 P ŔSÝő
+0007529d P ~~Wő>Ŕ
+0007546f P řŔęŰŔ╔ Ŕń 
+00075534 P FVůČ
+0007560d P _^őň]├VWŔ╣Úâ
+0007561e P ő■ŔŠÚŰ"
+00075881 P ­W vŘ vŘŔ
+000758b6 P VVŔĽ˝V v■ v■
+000758ea P VWWŔŤ´VW
+00075931 P Äăőý
+0007597b P łFŘŐ^■Ç
+00075a51 P WVVŔ0ţYł
+00075b3f P WVWŔBÝXĐ°s-ă
+00075b4c P ůdăD
+00075b56 P 3ˇăD
+00075b5c P ÁŰ+ő
+00075b97 P ŔNűVWVŔ░ţVWV
+00075c11 P ŘĐÚˇą
+00075cb0 P !q!â!Ľ!ě!Ţ!Ŕ!űŘRP
+00075e7a P ─ŐŠźYX├Uőý
+00075ec6 P Őšő┘ő╬ő˛+ĎŰ­ŰgŰn
+00075eda P ĐŕĐŮĐ┘Đ█đ▄■└|˛
+00075f46 P Ŕ┴ř░ÖŰ­L
+0007625f P âĂTü
+00076593 P Ť┘ňU
+000765ae P ŤŢěŤ┘Ŕ
+000765c1 P l,Ť┘ńŰ
+000765cf P l,Ť┘ńÚ
+00076602 P ŘđđÇ
+00076699 P ŰLtJ{HŤŢěŤ.█.b,Ű5ŤŮ┘Ť.█.X,Ű*
+00076726 P p,Ť┘ńŰ
+000767a6 P t,Ť┘ńÚ
+000767c7 P Ť┘­Ť┘ŔŤŮ┴Ű`
+000767e3 P Ť┘n˙Ť┘ŘÇfűˇŤ┘n˙
+00076837 P Ť┘ŔŤŮ˝
+00076855 P   Äěő
+00076867 P ╬úëv
+0007687d P ŤFŐ─
+00076884 P đŔđŔđŔ4
+0007689f P ÉŤŰĂ
+0007695d P ├Ťě┘ŰýŤěĐŰšŤ
+00076b06 P tK=█/tF
+00076b83 P ŤŢěŤ┘ţ├Ť.█.y0Ť┘╔Ť┘°ŤŢ┘
+00076b9b P └t"2╔ŐýŐŠÇ
+00076e8b P _ZYX&őw
+00076f46 P Ş_63ĎŔ
+00077099 P ŞŐ7├N
+000770ca P PŔ╠řX
+00077130 P PŔfřX
+000772e8 P ő╚őF
+00077389 P CJuŮ
+000773af P ╦ő­ő˙¸ßPRőĂ¸Ńőěő
+00077483 P ĐŕĐěÔ˙
+0007749c P ĐÓĐĎÔ˙
+000777a8 P źÔ¨Ä┌
+000777c6 P źÔ¸Ä┌
+000777e2 P źÔ¨Ä┌
+00077932 P ĐŃĐĎ■╚Ôˇ2└
+000779f8 P NGItL
+00077a0c P s%÷Ă­u6SĐÓ
+00077a6f P ĐÓĐĎ
+00077ac5 P Qő╚░ ˇ¬Y
+00077d30 P »DUsage:  EFFECTS
+00077d42 P <module> <effect #1> <effect #2>
+00077f05 P Sound System v0.40a configuratio
+00077fd5 P arrows to select, Enter to confi
+000780d8 P Sound Card I/O Port Address (in 
+000781b5 P MIDAS uninitialization failure: 
+0007dbd3 P HOLOGg PLaN
+0007dbdf P KOHOUT
+0007dbe6 P MRTVe TfLO
+0007dbf1 P KLic
+0007dbf6 P SOUcaSTKA
+0007dc00 P KANYSTR
+0007dc08 P DRaT
+0007dc0d P BEDNA
+0007dc13 P OVLADAc
+0007dc1b P PacIDLO
+0007dc23 P DEKODeR
+0007dc2b P NAPNUTy DRaT
+0007dc38 P NaKRES

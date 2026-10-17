@@ -1,0 +1,1367 @@
+00000358 ëFďëVÍő~ŮőFÓ
+00000519 insu
+0000051e ficient memory for initialization$memory manager does not support DPMI or VCPI$must be run on a 386 pr
+00000585 cessor$unrecognized hardware, run DPMIINST$unrecognized environment parameters$unable to initialize page tables
+000005f5 bad A20 off parameter$bad A20 on par
+0000061a meter$bad switch parameter$insufficient extended memory$cannot create FRET$cannot create linear a
+0000067c dress space$cannot create system linear space$cannot copy kernel to high memory$undefined error$unab
+000006e1 e to copy DOSX$unable to copy IDT$unable to create int chain table$unable to create PM stack$unable to initi
+000007ad  $unrecognized error$internal error$out of memory$out of s
+000007e8 lectors$out of internal tables$invalid dynamic link$couldn't open file$invalid exe format$wrong versi
+00000850 cannot initialize$DLL initialization
+00000921 cted DOS error$file not found: $path not found: $access denied: $not enough memory to load $invalid e
+00000a94 ÔţŔŽ
+00000e12 GFŰˇ
+00000f02 KERNEL
+00000f09 KERNEL
+00000f18 KLEV1.EXE
+000010b2 grafika\lev1.gra
+000010c3 grafika\lev2.gra
+000010d4 grafika\lev3.gra
+000010e5 grafika\lev4.gra
+000010f6 grafika\lev5.gra
+00001107 grafika\lev6.gra
+00001118 grafika\lev7.gra
+00001129 grafika\lev8.gra
+0000113a grafika\lev9.gra
+00001625 u-Źż
+000017cd grafika\mapa1.gra
+000017df grafika\mapa2.gra
+000017f1 grafika\mapa3.gra
+00001803 grafika\mapa4.gra
+00001815 grafika\mapa5.gra
+00001827 grafika\mapa6.gra
+00001839 grafika\mapa7.gra
+0000184b grafika\mapa8.gra
+0000185f grafika\lev1.gra
+00001870 grafika\lev2.gra
+00001881 grafika\lev3.gra
+00001892 grafika\lev4.gra
+000018a3 grafika\lev5.gra
+000018b4 grafika\lev6.gra
+000018c5 grafika\lev7.gra
+000018d6 grafika\lev8.gra
+000018e7 grafika\lev9.gra
+000019a7 u-Źż
+00001b7b u őF
+00001d62 u!őF
+000026a3 u!őF
+0000286a u!őF
+00002a31 u!őF
+00002fe7 u-Źż
+00003124 Zvuky\invend.snd
+00003135 grafika\nabeh.gra
+00003147 grafika\nabeh2.gra
+0000315a grafika\nabehe.gra
+0000316d grafika\nabeh2e.gra
+00003181 grafika\i2.gra
+00003190 grafika\i2e.gra
+000031ca lm    EXTRA X
+000031e4 sTiTYb
+000031eb SHIELDb
+000031f3 kkkkkl
+00003203 mpqv
+00003208 mpqvw
+0000320e ENERGI
+0000321d ENERGY
+0000322e grafika\prpac.gra
+00003240 grafika\prklic.gra
+00003253 grafika\prekan.gra
+00003266 grafika\pretyc.gra
+00003279 grafika\prklav.gra
+0000328c grafika\pregran.gra
+000032a0 grafika\prmag.gra
+000032b2 grafika\prbomba.gra
+000032c6 grafika\provl.gra
+000032d8 grafika\prvys.gra
+000032ea grafika\prsti.gra
+000032fc grafika\prklic41.gra
+00003311 grafika\prplat.gra
+00003324 grafika\prdisk.gra
+00003337 grafika\prremen.gra
+0000334b grafika\prdrat2.gra
+0000335f grafika\prsouc.gra
+00003372 grafika\prprojek.gra
+00003387 grafika\prklic42.gra
+0000339c grafika\prruka.gra
+000033af grafika\prnad.gra
+000033c1 grafika\prklic1.gra
+000033d5 grafika\prrozb.gra
+000033e8 grafika\prklic43.gra
+000033fd grafika\prkod.gra
+0000340f grafika\prklica.gra
+00003423 grafika\pridkart.gra
+00003438 grafika\prklic2.gra
+0000344c grafika\prdrat.gra
+0000345f grafika\prdyna.gra
+00003472 grafika\prklic44.gra
+00003487 grafika\przved.gra
+0000349a grafika\prklicb.gra
+000034ae grafika\prpist.gra
+000034c1 grafika\prnav.gra
+000034d3 grafika\prhad.gra
+000034e5 grafika\prsroub.gra
+000034f9 grafika\prtyc2.gra
+0000350c grafika\prholo.gra
+0000351f grafika\prpoj.gra
+00003531 grafika\prsvet.gra
+00003544 grafika\prplan.gra
+00003557 grafika\prkart.gra
+0000356a grafika\prdekod.gra
+0000357e grafika\prkoh.gra
+00003590 grafika\nic.gra
+000035a0 grafika\uzavreni.gra
+000035b5 grafika\uzavren2.gra
+000035ca grafika\lev1.gra
+000035db grafika\lev2.gra
+000035ec grafika\lev3.gra
+000035fd grafika\lev4.gra
+0000360e grafika\lev5.gra
+0000361f grafika\lev6.gra
+00003630 grafika\lev7.gra
+00003641 grafika\lev8.gra
+00003652 grafika\lev9.gra
+00003895 ëżŔřîćŕ
+00003ef8 u!Źż
+00003f20 u!Źżý
+00003f48 u!ŹżýŘ
+000040b1 u!Źż
+000040d9 u!Źżý
+00004101 u!ŹżýŘ
+00004242 u!Źż
+0000426a u!Źżý
+00004292 u!ŹżýŘ
+000043ab u!Źż
+000043d3 u!Źżý
+000043fb u!ŹżýŘ
+0000453c u!Źż
+00004564 u!Źżý
+0000458c u!ŹżýŘ
+000046cd u!ŹżýŘ
+000047be u!ŹżýŘ
+00004b92 áTQ0ńHóTQŰŮ
+00004d8b u-Źż
+00004dbf u-Źżý
+00004df3 u-ŹżýŘ
+00004f24 ÖRPáTQ0ń
+00005473 data\hudba.dat
+00005482 hudba.dat
+0000552d data\run.dat
+00005541 -level1
+00005550 -level2
+0000555f -level3
+0000556e -level4
+0000557d -level5
+0000558c -level6
+0000559b -level7
+000055aa -level8
+000055b9 -level9
+000055c5 -dun
+000055ca Konfiguracni soubor nenalezen - Spustte >!SETUP.EXE<
+000055ff loadmision
+0000560a titulky
+00005612 -titulky
+0000561b HRU SPUSTITE PRIKAZEM >!START.EXE<
+0000564c zvuky\titulky.s3m
+0000565e zvuky\naklad.s3m
+00005710 Zvuky\el.snd
+0000571d Zvuky\dvere.snd
+0000572d Zvuky\zazeh.snd
+0000573d Zvuky\prulet2.snd
+0000574f Zvuky\plam.snd
+0000575e Zvuky\system.snd
+0000576f Zvuky\prelet.snd
+00005780 Zvuky\uder.snd
+0000578f Zvuky\mriz2.snd
+0000579f Zvuky\vrata2.snd
+000057b0 grafika\odnak.anm
+000057c2 grafika\naklad.anm
+000057d5 grafika\rakod1.anm
+000057e8 grafika\sestrel.anm
+000057fc grafika\robblik.anm
+00005810 grafika\upad.anm
+00005821 grafika\ruce.anm
+00005832 grafika\monitor.anm
+00005846 grafika\prilet1.anm
+0000585a grafika\prilet2.anm
+0000586e koneclevelu
+0000587a data\rychlost.dat
+0000588c grafika\deska2.gra
+0000589f grafika\deska3.gra
+000058b2 grafika\deskar.gra
+000058c5 grafika\deska4.gra
+000058d8 grafika\deska5.gra
+000058eb grafika\deska6.gra
+000058fe grafika\deska7.gra
+00005911 grafika\lev1.gra
+00005922 grafika\lev2.gra
+00005933 grafika\lev3.gra
+00005944 grafika\lev4.gra
+00005955 grafika\lev5.gra
+00005966 grafika\lev6.gra
+00005977 grafika\lev7.gra
+00005988 grafika\lev8.gra
+00005999 grafika\lev9.gra
+000059aa Zvuky\pad2.snd
+000059b9 Zvuky\vodopad.snd
+000059cb Zvuky\vlak.snd
+000059da Zvuky\gate.snd
+000059e9 Zvuky\brok.snd
+000059f8 Zvuky\smich.snd
+00005a08 Zvuky\hydra.snd
+00005a18 Zvuky\motor3.snd
+00005a29 Zvuky\buch.snd
+00005a38 Zvuky\napis.snd
+00005a48 Zvuky\ohen.snd
+00005a57 Zvuky\prijezd.snd
+00005a69 zvuky\mesto.s3m
+00005a79 zvuky\vesnice.s3m
+00005a8b zvuky\prales.s3m
+00005a9c zvuky\jeepie.s3m
+00005aad zvuky\vezeni.s3m
+00005abe zvuky\sklad.s3m
+00005ace zvuky\raketa.s3m
+00005adf zvuky\finis.s3m
+00006dda u-Źż
+0000712b u-Źż
+00009ef7 HëFŘ
+0000ad2f      NaMfT
+0000ad3a MARTIN MATfJKA
+0000ad49 KAREL MATfJKA
+0000ad57      SCeNar
+0000ad63 ROMAN SLAVicEK
+0000b178     PROGRAM
+0000b184 KAREL MATfJKA
+0000b192    LUMiR SRCH
+0000b1a0   JAN STRaNiK
+0000b1ae   ONDrEJ NOVaK
+0000b1bd     GRAFIKA
+0000b1d8 MARTIN MATfJKA
+0000b1e7   PETR KLABiK
+0000b204 JINDrICH ROHLiK
+0000b214  DESIGN LEVELu
+0000b223  NaVRH POSTAV 
+0000b232  DANIEL FALTA
+0000b240     DIALOGY
+0000b24c HLAS VYPRAVfcE
+0000b25b  PETR TrEBICKy
+0000b26a    PRODUKCE
+0000c2f9 Chyba zvuku: 
+0000c5de Unknown module format
+0000c5f4 Too many channels in module
+0000db1e ëFŘâ
+0000efa1 data\Sg
+0000efa9 .pal
+0000efae grafika\menu.gra
+0000efbf grafika\menu2.gra
+0000efd1 .gra
+0000f2fa POZICE A
+0000f303 POZICE B
+0000f30c POZICE C
+0000f315 POZICE D
+0000f31e POZICE E
+0000f327 SLOT A
+0000f32e SLOT B
+0000f335 SLOT C
+0000f33c SLOT D
+0000f343 SLOT E
+0000f34a data\Sg
+0000f352 .dat
+0000f357 .jme
+0000f35c .pal
+0000f361 .gra
+0000f366 grafika\menu.gra
+0000f377 grafika\menu2.gra
+0000fa8a POZICE A
+0000fa93 POZICE B
+0000fa9c POZICE C
+0000faa5 POZICE D
+0000faae POZICE E
+0000fab7 SLOT A
+0000fabe SLOT B
+0000fac5 SLOT C
+0000facc SLOT D
+0000fad3 SLOT E
+0000fada data\Sg
+0000fae2 .dat
+0000fae7 .jme
+0000faec NENALEZENO
+0000faf7 zvuky\mesto.s3m
+0000fb07 zvuky\vesnice.s3m
+0000fb19 zvuky\prales.s3m
+0000fb2a zvuky\jeepie.s3m
+0000fb3b zvuky\vezeni.s3m
+0000fb4c zvuky\sklad.s3m
+0000fb5c zvuky\raketa.s3m
+0000fb6d zvuky\finis.s3m
+0000fb8e grafika\lev1.gra
+0000fb9f grafika\lev2.gra
+0000fbb0 grafika\lev3.gra
+0000fbc1 grafika\lev4.gra
+0000fbd2 grafika\lev5.gra
+0000fbe3 grafika\lev6.gra
+0000fbf4 grafika\lev7.gra
+0000fc05 grafika\lev8.gra
+0000fc16 grafika\lev9.gra
+0000fc27 grafika\deska2.gra
+0000fc3a grafika\deska3.gra
+0000fc4d grafika\deskar.gra
+0000fc60 grafika\deska4.gra
+0000fc73 grafika\deska5.gra
+0000fc86 grafika\deska6.gra
+0000fc99 grafika\deska7.gra
+0001021c u-Źż
+00010268 u-Źżv
+00010426 u-Źż
+00010512 u-Źżv
+000107a8 grafika\menu.gra
+000107b9 grafika\menu2.gra
+00010801    RYCHLOST HRY  
+00010889      GAME SPEED  
+000108d9 data\hudba.dat
+000108e8 zvuky\mesto.s3m
+000108f8 zvuky\vesnice.s3m
+0001090a zvuky\prales.s3m
+0001091b zvuky\jeepie.s3m
+0001092c zvuky\vezeni.s3m
+0001093d zvuky\sklad.s3m
+0001094d zvuky\raketa.s3m
+0001095e zvuky\finis.s3m
+0001097f data\rychlost.dat
+0001113f grafika\lev1.gra
+00011150 grafika\lev2.gra
+00011161 grafika\lev3.gra
+00011172 grafika\lev4.gra
+00011183 grafika\lev5.gra
+00011194 grafika\lev6.gra
+000111a5 grafika\lev7.gra
+000111b6 grafika\lev8.gra
+000111c7 grafika\lev9.gra
+00011242      UKONcIT HRUb
+00011270 data\run.dat
+0001127d konechry
+00011376 u-Źż
+000113aa u-Źżx
+000113de u-Źżxř
+000118c2 u-Źż
+000118f6 u-Źżx
+0001192a u-Źżxř
+00014552 uCÇż
+00014574 u!ŐćÍŘ<
+00014988 u ŐćÍŘ
+00014aee NEMUzEs JiT DaLg NA DRUHe STRANf MOSTU JE HLiDKA
+0001562d grafika\sebskr2.anm
+00015641 grafika\paleta.gra
+00015654 VE SKriNI JSI NALEZL KLic A sROUBOVaK
+0001567a VE SKriNI JSI NALEZL OVLADAc VyTAHU
+0001569e Zvuky\hydra.snd
+000156ae Zvuky\motor3.snd
+000156bf Zvuky\klavesa1.snd
+000156d2 Zvuky\klavesa2.snd
+000156e5 Zvuky\klavesa3.snd
+000156f8 Zvuky\klavesa4.snd
+0001570b Zvuky\prijezd.snd
+0001571d Zvuky\uder.snd
+0001572c Zvuky\mriz2.snd
+0001573c Zvuky\vrata2.snd
+00015760 SPOJIL JSI SE S REBELYgMUSis OTEVriT MUNIcNi SKLADg
+000157a7 Mas PrINeST DISKETUg
+000157bc DISKETA
+000157c4 DISK S VIREM
+000157d1 grafika\diskuse.anm
+000157e5 NA DISKETU JSI NAHRaL VIR
+000157ff grafika\ksklad1.anm
+00015813 POUzIL JSI KLic Ag
+00015826 NYNi MUSis PrILOzIT RUKU K cIDLUg
+00015848 grafika\ksklad2.anm
+0001585c POUzIL JSI KLic Bg
+0001586f NYNi MUSis PrILOzIT cIDLU RUKUg
+0001588f grafika\pouzruku.anm
+000158a4 K cIDLU JSI PrILOzIL USTrELENOU RUKUgPOciTAc Tf POzaDAL O HESLO
+000158e4 OTEVrEL SE MUNIcNi SKLADg
+000158fe POKUSIL JSI SE K cIDLU PrILOzIT VLASTNi RUKUgggNIC SE NESTALOg
+0001593d DO IDENTIFIKAcNiHO PriSTROJE MUSis VLOzIT DVA BEZPEcNOSTNi KLicE
+0001597e DO POciTAcE MUSis VLOzIT DISKETU
+0001599f MUSis ZADAT HESLO PRO OTEVrENi SKLADUg
+000159c6 grafika\oprvyt2.anm
+000159da PrIVOLAL JSI VyTAH
+000159ed MUSis PrIVOLAT VyTAHg
+00015a03 grafika\otplech2.anm
+00015a29 ODsROUBOVAL JSI KRYT sACHTYg
+00015a46 Zvuky\buch.snd
+00015a55 Zvuky\napis.snd
+00015a65 Zvuky\gate.snd
+00015a74 Zvuky\ohen.snd
+00015a83 grafika\granvyb.anm
+00015aa8 ZNIcIL JSI DfLO
+00015ab8 PrES sACHTU VIDis SPODNi PATROgSTOJi TAM DfLOg
+00015aef KRYT sACHTY JE PEVNf PrIsROUBOVaN K PODLAZEg
+00015b20 grafika\sebdisk.anm
+00015b34 Z POciTAcE JSI VYTaHL DISKETU
+00015b52 GRANaT
+00015b59 GRENADE
+00015b61 grafika\sebgra.anm
+00015b74 grafika\granat.anm
+00015b87 uSPfsNf JSI ODSTRANIL PAST A ZiSKAL JSI GRANaTg
+00015bb7 YOU SUCCESFULLY REMOVED THE TRAPgYOU FOUND A GRENADEg
+00015bed TATO VfC SE ZDE NEDa POUziT
+00015c09 IT IS IMPOSSIBLE TO USE THIS THING HEREg
+00015c32 grafika\napln.anm
+00015c44 DO NaDRzE AUTOMOBILU JSI NALIL PALIVOg
+00015c6b YOU FILLED THE CAR CISTERN WITH FUELg
+00015c91 grafika\dvere.anm
+00015ca3 grafika\deska2.gra
+00015cb6 ZA DVErMI JSI OBJEVIL PLAMENOMETg
+00015cd8 THERE WAS A FLAMETHROWER BEHIND THE DOORg
+00015d02 DVErE JSOU ZAMcENeg NEMuzEs JiT DOVNITr
+00015d2a THE DOOR IS LOCKEDgTHERE IS NO WAY TO GET IN
+00015d67 zvuky\jeepie.s3m
+00015d78 grafika\lev4.gra
+00015d89 grafika\deska3.gra
+00015d9c grafika\deskar.gra
+00015daf grafika\deska4.gra
+00015dc2 grafika\deska5.gra
+00015dd5 grafika\deska6.gra
+00015de8 grafika\deska7.gra
+00015e76 grafika\hodgra.anm
+00015e89 grafika\skala1.anm
+00015e9c grafika\skala2.anm
+00015eaf PO EXPLOZI SE ZAVALILA caST PrEKazKYg
+00015ed5 IT IS POSSIBLE TO GO ON AFTER EXPLOSIONg
+00015efe MOHUTNy KaMEN
+00015f0c BULKY BOULDER
+00015f1a Zvuky\teleport.snd
+00015f2d grafika\teleport.anm
+00015f42 grafika\vysilac.anm
+00015f56 VYSiLAcKOU JSI ODVOLAL STRazEg MUzEs PROJiT PrES MOSTg
+00015f8d TUTO VfC ZDE NEMuzEs POUziTg
+00015fbb grafika\delostr.anm
+00015fcf DfLEM JSI ROZSTrELIL PrEKazKU
+00015fed uTOcNy KANoN NA HLiDaNi HRANICE MfSTA
+00016013 KE ZDI JSI ULOzIL DYNAMIT
+0001603d zvuky\prales.s3m
+0001604e grafika\lev3.gra
+0001606b CiLOVy TELEPORT JE POsKOZEN
+00016087 TELEPORT NEFUNGUJEg Ma ROZBITy NAVIGAcNi OBVOD
+000160b8 2 ELEKTRaRNA JE VYrAZENa Z PROVOZU#TELEPORT Ma ROZ
+0001610c grafika\rozpoj.anm
+0001611f ZNIcIL JSI POJISTKYg VYrADIL JSI Z PROVOZU ELEKTRICKy TRANSFORMaTOR
+00016170 grafika\oprpoj.anm
+00016183 DO ROZVADfcE JSI VLOzIL POJISTKU A SPUSTIL JSI ELEKTRaRNUg
+000161be grafika\sebpoj.anm
+000161d1 Z ELEKTRICKe SKriNf JSI VYTaHL POJISTKU
+000161f9 ELEKTRICKa SKrin JE ZAMcENa
+00016215 grafika\oprtel.anm
+00016228 OPRAVIL JSI ROZBITy TELEPORT
+00016245 grafika\vemnav.anm
+00016258 Z ROZBITeHO TELEPORTU JSI VYTaHL NEPORUsENy NAVIGAcNi OBVOD
+000185f5 u-Źż
+000194f2 u-Źż
+0001b097 grafika\potopeni.anm
+0001b0ac grafika\paleta.gra
+0001b0c7 grafika\vybuch.anm
+0001b0da Zvuky\hydra.snd
+0001b0ea Zvuky\lava.snd
+0001b0f9 Zvuky\buch.snd
+0001b108 Zvuky\napis.snd
+0001b118 Zvuky\gate.snd
+0001b127 Zvuky\ohen.snd
+0001b136 Zvuky\prijezd.snd
+0001b148 Zvuky\uder.snd
+0001b157 Zvuky\mriz2.snd
+0001b167 Zvuky\vrata2.snd
+0001b178 grafika\lava.anm
+0001b189 grafika\zabvozik.anm
+0001b1bf grafika\lev9.gra
+0001b1d0 grafika\deska2.gra
+0001b1e3 grafika\deska3.gra
+0001b1f6 grafika\deskar.gra
+0001b209 grafika\deska4.gra
+0001b21c grafika\deska5.gra
+0001b22f grafika\deska6.gra
+0001b242 grafika\deska7.gra
+0001b2c3 Zvuky\rob_mes.snd
+0001b2ef Zvuky\klavesa4.snd
+0001b302 Zvuky\konec.snd
+0001b312 grafika\elzab.anm
+0001b330 grafika\delozab.anm
+0001b34c Zvuky\hek.snd
+0001b35a grafika\otoc.anm
+0001b36b grafika\postrel.anm
+0001b37f grafika\postrel2.anm
+0001b394 grafika\postrel3.anm
+0001b3a9 grafika\padves.anm
+0001b3c0 Zvuky\zedbum.snd
+0001b3d1 Zvuky\prelet.snd
+0001b3e2 Zvuky\dvirka.snd
+0001b3f3 grafika\zabij.anm
+0001b409 grafika\strilna.anm
+0001b421 grafika\propast.anm
+0001b435 grafika\OSTNY.anm
+0001b457 zvuky\vezeni.s3m
+0001b468 grafika\lev5.gra
+0001b489 zvuky\sklad.s3m
+0001b499 grafika\lev6.gra
+0001b4aa Zvuky\vet.snd
+0001b4b8 Zvuky\plechy.snd
+0001b4c9 grafika\zabvet.anm
+0001bc60 u-Źż
+0001d680 ĹIëFŘŞ
+0001e51d kolonie.ini
+00022c9a BDEAKTIVOVaNY OCHRANNe sTiTYg ENERGIE DOPLNfNA ZE ZaLOzNiCH ZDROJu
+00022cde DEFENSIVE SHIELDS DEACTIVATEDgENERGY REPLENISHED FROM SPARE RESOURCESg
+00022f6a grafika\t
+00022f74 n.anm
+00022f7a d.anm
+00023099 -level1
+000230a1 loadmision
+000235df -level1
+000235e7 loadmision
+00023602 zLUTy KLic
+0002360d ORANzOVy KLic
+0002361b MODRy KLic
+00023626 VSTUPNi KARTA
+00024437 -level1
+0002443f loadmision
+0002445c SKLaDKA
+00024464 HRUDNi PLaT
+00024470 KLic
+00024475 uTRzEK
+0002447c MECHg ZVEDaK
+000253db -level1
+000253e3 loadmision
+000253fa ELEKTROMAGNET
+00025408 DRaT
+0002540d NaDOBA
+00025414 VSTUPNi KARTA
+00025422 PiST
+0002542b SVfTLICE
+00025434 KLic
+000260f6 -level1
+000260fe loadmision
+0002611b GRANaT
+00026122 DISKETA
+0002612a RUKA
+0002612f KLic A
+00026136 KLic B
+0002613d sROUBOVaK
+00026147 OVLADAc
+0002707f -level1
+00027087 loadmision
+000270a4 BOMBA
+00027630 -level1
+00027638 loadmision
+00027655 TORZO
+0002765b VYSiLAcKA
+00027665 BEDNA
+0002766b ROZBUsKA
+00027674 DYNAMIT
+0002767c NAVg OBVOD
+00027687 POJISTKA
+00027690 HOLOGg PLaN
+000285e0 -level1
+000285e8 loadmision
+00028605 KLic
+0002860a rEMEN
+00028610 VSTUPNi KARTA
+0002861e ID KARTA
+00028627 DRaT
+0002862c HADIcKA
+000292dc PacIDLO
+000292e4 OVLADAc
+000292ec SOUcaSTKA
+000292f6 KLic
+000292fb DRaT
+00029300 MRTVe TfLO
+0002930b HOLOGg PLaN
+00029317 NaKRES
+0002931e DEKODeR
+00029326 KOHOUT
+0002932d E-BLASTER
+0002ad37 PiST
+0002ad3c grafika\sebpist.anm
+0002ad50 grafika\paleta2.gra
+0002ad64 PO PrESTrELCE ZuSTALA NA ZEMI LEzET TYc A HYDRAULICKy PiSTg
+0002ada0 KANYSTR
+0002ada8 grafika\kanistr.anm
+0002adbc NALEZL JSI KANYSTR S PALIVEM
+0002add9 YOU FOUND CANISTER FILLED WITH FUEL
+0002adfd ID KARTA
+0002ae06 grafika\sebkart5.anm
+0002ae1b grafika\paleta.gra
+0002ae2e ZE ZEMf JSI SEBRAL IDENTIFIKAcNi KARTU
+0002ae55 DRaT
+0002ae5a grafika\sebdrat2.anm
+0002ae6f U DVEri JSI NAsEL DRaTg
+0002ae87 NaDOBA
+0002ae8e grafika\sebnad.anm
+0002aea1 ZE ZEMf SI SEBRAL NaDOBUg
+0002aebb SVfTLICE
+0002aec4 grafika\sebsvet.anm
+0002aed8 NAsEL JSI SVfTLICIg
+0002aeec HRUDNi PLaT
+0002aef8 grafika\sebplat.anm
+0002af0c ZE ZEMf JSI SEBRAL HRUDNi PLaTg
+0002af2c ELEKTROMAGNET
+0002af3a grafika\sebmag.anm
+0002af4d NAsEL JSI ELEKTROMAGNETg
+0002af66 VSTUPNi KARTA
+0002af74 grafika\sebkart7.anm
+0002af89 NAsEL JSI VSTUPNi KARTU
+0002afa1 KLic
+0002afa6 grafika\sebkvez.anm
+0002afba NAsEL JSI MALy KLicg
+0002afcf KLic A
+0002afd6 grafika\sebBkl.anm
+0002afe9 NAsEL JSI DRUHy BEZPEcNOSTNi KLicg
+0002b00c RUKA
+0002b011 grafika\sebruku.anm
+0002b025 MRTVeMU MIMOZEMstANOVI JSI USTrELIL RUKUg
+0002b04f MECHg ZVEDaK
+0002b05c grafika\sebzved.anm
+0002b070 NAsEL JSI MECHANICKy ZVEDaKg
+0002b08d uTRzEK
+0002b094 grafika\sebkod.anm
+0002b0a7 NAsEL JSI uTRzEK PAPiRU S ciSLEMg
+0002b0c9 grafika\sebkart6.anm
+0002b0de NAsEL JSI KLic K REAKTORUg
+0002b0f9 GRANaT
+0002b100 grafika\sebgran2.anm
+0002b115 NAsEL JSI GRANaTg
+0002b127 DYNAMIT
+0002b12f grafika\sebdyna.anm
+0002b143 U DOMU JSI NAsEL DYNAMIT
+0002b15c YOU FOUND DYNAMITE AT THE BUILDING
+0002b17f ROZBUsKA
+0002b188 grafika\sebrozb.anm
+0002b19c SEBRAL JSI ROZBUsKU
+0002b1b0 VYSiLAcKA
+0002b1ba grafika\sebvys.anm
+0002b1cd NAsEL JSI VYSiLAcKU
+0002b1e1 grafika\sebkjun.anm
+0002b1f5 NA DNf NaDRzE JSI OBJEVIL KLicg
+0002b228 NALEZL JSI VSTUPNi KARTU
+0002b241 zLUTy KLic
+0002b25f NALEZL JSI zLUTy KLic
+0002b275 ORANzOVy KLic
+0002b296 NALEZL JSI ORANzOVy KLic
+0002b2af MODRy KLic
+0002b2cd NALEZL JSI MODRy KLic
+0002b2e7 grafika\sebtyc.anm
+0002b2fa NALEZL JSI TYc
+0002b309 BEDNA
+0002b30f grafika\bedna.anm
+0002b321 sTiPAcKY
+0002b32a NIPPERS
+0002b332 UVNITr BEDNY JSI NAsEL sTiPAcKY
+0002b352 YOU FOUND NIPPERS INSIDE THE BOX
+0002b373 SKLaDKA
+0002b37b grafika\skladka.anm
+0002b38f KLaVESNICE
+0002b39a PO PROHLEDaNi SKLaDKY JSI NAsEL KLaVESNICI
+0002b3c5 grafika\sebproj.anm
+0002b3d9 PROJEKTIL
+0002b3e3 UVNITr BEDNY JSI NAsEL PROJEKTIL DO DfLA
+0002b40c TORZO
+0002b412 grafika\klic.anm
+0002b423 MALy KLic
+0002b42d U TLEJiCiCH ZBYTKu JSI NAsEL MALy KLic
+0002b454 V TRaVf JSI NAsEL MALy KLicg
+0002b471 YOU FOUND A SMALL KEY IN THE GRASSg
+0002b495 grafika\sebkl1.anm
+0002b4a8 NAsEL JSI MALy KLic
+0002b4bc YOU FOUND A SMALL KEYg
+0002b4d3 PacIDLO
+0002b4db grafika\sebpacid.anm
+0002b4f0 NAsEL JSI PacIDLOg
+0002b503 YOU FOUND A PRY BARg
+0002b518 OVLADAc
+0002b520 grafika\sebovl.anm
+0002b533 U SKLaDKY JSI NAsEL OVLADAc VyTAHUg
+0002b557 YOU FOUND ELEVATOR CONTROL BOX HIDDEN INSIDE DUMPg
+0002b58a SOUcaSTKA
+0002b594 grafika\sebsou.anm
+0002b5a7 ZE ZEMf JSI SEBRAL SOUcaSTKU Z RAKETY
+0002b5cd YOU PICKED UP A COMPONENT FROM THE GROUND
+0002b5f7 MRTVe TfLO
+0002b602 grafika\sebplan.anm
+0002b616 ACCESS CARD
+0002b622 U MRTVeHO JSI NAsEL VSTUPNi KARTU A HOLOGRAFICKy PLaN KOSMICKe LODIg
+0002b667 THERE WERE ACCESS CARD AND HOLOMAP LYING AT THE DEAD MANg
+0002b6a1 E-BLASTER
+0002b6ab grafika\eblast.anm
+0002b6be grafika\deska3.gra
+0002b6d1 NAsEL JSI E-BLASTERg
+0002b6e6 YOU FOUND AN E-BLASTERgYEAHg
+0002f261 ăůŃj
+000300b2 u,ŐF
+00030508 u,ŐF
+00030e52 j?hś:
+0003160c j?hś:
+00031acd ăůŃj
+00031c84 ăůŃj
+000362b5 grafika\mestoko.anm
+000362c9 grafika\skala3.anm
+000362dc grafika\paleta.gra
+00036470 Zvuky\hydra.snd
+00036480 Zvuky\dvere.snd
+00036490 Zvuky\hejty.snd
+000364a0 Zvuky\kurva1.snd
+000364b1 Zvuky\kurva2.snd
+000364c2 Zvuky\ohen.snd
+000364d1 Zvuky\prijezd.snd
+000364e3 Zvuky\posila.snd
+000364f4 Zvuky\mriz2.snd
+00036504 Zvuky\vrata2.snd
+00036515 grafika\rozbuska.anm
+0003652a grafika\stenabum.anm
+0003653f HEJ TY!
+00036547 grafika\otocreb1.anm
+0003655c grafika\otocreb2.anm
+00036571 TAK POSLOUCHEJ TY ZKURVENa PLECHOVKO,TEd VELMI POMALU VSTANEs
+000365af grafika\leh.anm
+000365bf A VYSVfTLis NaM,ODKUD Mas TENHLE HOLOGRAFICKy PLaNg
+000365f3 grafika\lidiend.anm
+00036607 grafika\paleta.gra
+0003661a POSiLa Mf Vas PriTEL Z MfSTA,
+00036638 KTERy MI PrED SMRTi PROZRADIL KDE NAJDU PLaN I VaSg
+0003666c grafika\rozhov1.anm
+00036680 Zvuky\hard1.snd
+00036690 Zvuky\hard2.snd
+000366a0 Zvuky\hard3.snd
+000366b0 Zvuky\pis.snd
+000366be Zvuky\5minut.snd
+000366cf NO TO ZaLEzi NA TOM JAK ZEMrELgMas PfT MINUT NA VYSVfTLENig
+0003670b PODiVEJTE, Ja ViM JAK TO ASI VYPADa, ALE NfJAKEJ KUS TOHO JEJICH HARDWARU 
+00036756 VE Mf SELHAL A Ja SI VZPOMfL NA TO KDO JSEM A CO MI PROVEDLIg
+00036794 KONEC KONCu, TO SI MuzETE SNADNO OVfrITg
+000367bd grafika\rozhov2.anm
+000367d1 TO SI PIs,zE SI TO OVfriME!
+000367ed grafika\vchod.anm
+000367ff Zvuky\misto.snd
+00036847 OK,PROsEL JSIgTEN HOLOGRAM CO JSI PrINESL JE PLaN JEJICH ORBITaLNi ZaKLADNY
+00036893 ODTUD riDi VsECHNY SVe JEDNOTKY NA ZEMI
+000368bb grafika\hologr.anm
+000368ce ZAVEZEME Tf TAK BLiZKO K JEJICH DROMU JAK JEN TO BUDE MOzNEg
+0003690b TAM DO TEBE UMiSTiME NaLOzg
+00036927 MUSis NfJAK PRONIKNOUT NA JEJICH LOd A ODPaLIT Ji U REAKTORUg
+00036965 grafika\rebauto.anm
+00036979 grafika\auto.anm
+0003698a JSME NA MiSTfgVis CO Mas DfLATgTAK HODNf sTfSTigNaM VsEM!
+000369c4 grafika\rebel.anm
+0003781a grafika\navijak.anm
+0003782e grafika\sutr.anm
+0003792a Zvuky\hydra.snd
+0003793a Zvuky\zazeh.snd
+0003794a Zvuky\odlet.snd
+0003795a Zvuky\gate.snd
+00037969 Zvuky\prelet.snd
+0003797a Zvuky\vrata2.snd
+0003798b Zvuky\dvirka.snd
+0003799c Zvuky\uder.snd
+000379ab Zvuky\mriz2.snd
+000379bb grafika\vstup.anm
+000379cd grafika\odlet3.anm
+000379e0 grafika\souteska.anm
+000379f5 grafika\rakpri.anm
+00037a08 grafika\paleta2.gra
+00037e01 grafika\deska4.gra
+00037e14 NAsEL JSI TOASTERg
+00037e27 grafika\deska5.gra
+00037e4d grafika\deskar.gra
+00037e60 NAsEL JSI RAKETOMETg
+00037e75 grafika\deska6.gra
+00037e88 NAsEL JSI FLAMESTREAMg
+00037e9f grafika\deska7.gra
+00037eb2 NAsEL JSI LASEROVe DfLOg
+000380d1 uBŹżŕ
+00038117 uBŹżŕř
+00039503 ZNIcIL JSI ELEKTRICKy ROZVADfc
+0003953b grafika\barelbum.anm
+00039550 grafika\paleta.gra
+00039563 ZNIcIL JSI BAREL S VyBUsNINOUg
+00039597 Zvuky\mimoz.snd
+000395a7 Zvuky\dvere.snd
+000395b7 Zvuky\hejty.snd
+000395c7 Zvuky\delej.snd
+000395d7 Zvuky\plam.snd
+000395e6 Zvuky\system.snd
+000395f7 Zvuky\smich.snd
+00039607 Zvuky\uder.snd
+00039616 Zvuky\mriz2.snd
+00039626 Zvuky\vrata2.snd
+0003964b grafika\zabijmim.anm
+00039660 ZABIL JSI MIMOZEMstANA
+00039677 grafika\sebsouc.anm
+0003968b ROZSTrELIL JSI KRYT U TRYSEK A VYTRHL JSI SOUcaSTKUdKTERa JE NA NaKRESUg
+000396d4 YOU SHOOT OFF THE COVER AND TORE OUT THE COMPONENTg
+00039708 ROZSTrELIL JSI KRYT U TRYSEK A VYTRHL JSI NfJAKOU SOUcaSTKUg
+00039745 YOU SHOOT OFF THE JET COVER AND TORE OUT SOME COMPONENTg
+0003977e grafika\delo.anm
+0003979d grafika\krapnik1.anm
+000397b2 SESTrELIL JSI KRaPNiK
+0003b69a ăůŃj
+0003b788 v0ń1ĎëFŔëVŕőFýőV
+0003b8e0 v0ń1ĎëFŔëVŕőFýőV
+0003df10 Zvuky\signal.snd
+0003df21 Zvuky\vrata.snd
+0003df31 Zvuky\krok3.snd
+0003df41 Zvuky\ikona.snd
+0003df63 Zvuky\laser3.snd
+0003df74 Zvuky\uder.snd
+0003df83 Zvuky\sirena3.snd
+0003df95 Zvuky\vybuch6.snd
+0003dfa7 Zvuky\vybuch2.snd
+0003dfb9 Zvuky\nic.snd
+0003dfc7 Zvuky\hydra.snd
+0003dfd7 Zvuky\dvere.snd
+0003dfe7 Zvuky\propast.snd
+0003dff9 Zvuky\gate.snd
+0003e008 Zvuky\plam.snd
+0003e017 Zvuky\invend.snd
+0003e028 Zvuky\smich.snd
+0003e038 Zvuky\strelba.snd
+0003e04a Zvuky\hrom.snd
+0003e059 Zvuky\vytah1.snd
+0003e06a Zvuky\vytah2.snd
+0003e07b Zvuky\dvere2.snd
+0003e08c Zvuky\zkrat.snd
+0003e09c Zvuky\mriz2.snd
+0003e0ac Zvuky\vrata2.snd
+0003e0bd Zvuky\odlet.snd
+0003e0cd Zvuky\laser2.snd
+0003e0de Zvuky\vrata1.snd
+0003e0ef Zvuky\slow.snd
+0003e71b Zvuky\hydra.snd
+0003e72b Zvuky\vypadni.snd
+0003e73d Zvuky\cotuch.snd
+0003e74e Zvuky\toted.snd
+0003e75e Zvuky\kdes.snd
+0003e76d Zvuky\plechy.snd
+0003e77e Zvuky\fajn.snd
+0003e78d Zvuky\uder.snd
+0003e79c Zvuky\mriz2.snd
+0003e7ac Zvuky\vrata2.snd
+0003e7bd VYPADNI!
+0003e7c6 grafika\Otevrid.anm
+0003e7da grafika\paleta.gra
+0003e7ed V BARU JSI NAsEL cLOVfKA,ALE NEPOMuzE TI,NEMa K TOBf DuVfRUg
+0003e82a THERE IS A MAN IN THE BAR,BUT HE DOES NOT TRUST IN YOU
+0003e861 Zvuky\dead1.snd
+0003e871 Zvuky\dead2.snd
+0003e881 Zvuky\dead3.snd
+0003e891 Zvuky\dead4.snd
+0003e8a1 NECHaPU PROc JSI MI POMOHL, ALE POSLOUCHEJ Mfggg
+0003e8d2 MUSis NAJiT VCHOD DO METRA,
+0003e8ee TAM NAJDEs cLOVfKA,KTERy TI Da HOLOPLaNggg
+0003e919 ZANES JEJ ZA MfSTO NAsi SPOJCEggg
+0003e93b grafika\RebMrt.anm
+0003e94e MUSis NAJiT REBELA S HOLOGRAFICKyM PLaNEM RAKETY VETrELCu
+0003e988 YOU HAVE TO FIND THE BEBEL WHO POSSES THE HOLOMAP OF ALIEN SPACESHIP
+0003e9cd Z RAKETY BY SE TI MOHLO NfCO HODIT,ALE NEVis JAK SE DOSTAT DOVNITr
+0003ea10 THERE COULD BE SOMETHING USEFUL INSIDE THE ROCKETg
+0003ea43 Zvuky\tohle.snd
+0003ea53 TY? CO TU CHCEs!?
+0003ea65 grafika\otevrid.anm
+0003ea79 TOHLE BY Tf MOHLO ZAJiMATg
+0003ea94 KDE JSI TO VZAL?
+0003eaa5 TO TEd NENi DuLEzITy,ALE POTrEBUJI SE DOSTAT VEN Z MfSTA,ABYCH TO MOHL DORUcIT
+0003eaf4 grafika\ukazholo.anm
+0003eb09 FAJN ALE NfCO ZA NfCOgPrINES MI TUHLE SOUcaSTKUg
+0003eb3a grafika\dejsou1.anm
+0003eb4e cLOVfK V BARU TI DAL SCHEMA SOUcaSTKY A POzaDAL Tf,ABY JSI MU JI NAsEL
+0003eb95 THE MAN IN BAR GAVE YOU A DESIGN OF SOME COMPONENTgYOU MUST FIND ITg
+0003ebda VYMfNIL S TEBOU SOUcaSTKU ZA DEKODeR
+0003ebff HE EXCHANGED THE COMPONENT FOR DECODER WITH YOUg
+0003ec30 TATO VfC MU JE K NIcEMU
+0003ec48 THIS THING IS USELESS FOR HIMg
+0003ec78 Zvuky\deco.snd
+0003ec87 Zvuky\hejty.snd
+0003ec97 Zvuky\delej.snd
+0003eca7 Zvuky\plam.snd
+0003ecb6 Zvuky\system.snd
+0003ecc7 Zvuky\smich.snd
+0003ecd7 grafika\dekod1.anm
+0003ecea DEKODeREM JSI ODSTRANIL PriSTUPOVe HESLO A VYPNUL JSI PLAZMOVy OHEn
+0003ed2e YOU REMOVE ACCESS PASSWORD AND THEN YOU TURNED OFF THE PLASMA BEAM 
+0003ed72 DO OVLaDACiHO PANELU MUSis ZADAT HESLO
+0003ed99 YO HAVE TO ENTER THE PASSWORD IN CONTROL BOXg
+0003edc7 V BARU JSI NIKOHO NENAsEL
+0003ede1 YOU FOUND NOBODY IN THE BARg
+0003edfe grafika\vytahop.anm
+0003ee12 OPRAVIL JSI VyTAHg
+0003ee25 YOU MENDED THE ELEVATORg
+0003ee3e OVLaDACi PANEL VyTAHU JE POsKOZENg
+0003ee61 CONTROL BOX IS DAMAGEDg
+0003ee8a grafika\otdver1.anm
+0003ee9e OTEVrEL JSI DVErE POMOCi VSTUPNi KARTYg
+0003eec6 YOU USED THE ACCESS CARD TO OPEN THE DOORg
+0003eef1 DVErE JSOU ZAMcENe
+0003ef04 THE DOOR IS LOCKEDg
+0003ef29 grafika\kyselina.anm
+0003ef3e KYSELINOU JSI POLIL STRazCE,KTERy TI BRaNIL V CESTfg
+0003ef73 YOU NEUTRALIZED THE GUARD WITH ACIDgTHE WAY IS CLEARg
+0003efa9 TATO VfC DO ZDirKY NEPASUJEg
+0003efc6 THIS THING DOES NOT FIT IN THE HOLEg
+0003effb zvuky\vesnice.s3m
+0003f00d grafika\lev2.gra
+0003f01e grafika\deska2.gra
+0003f031 grafika\deska3.gra
+0003f044 grafika\deskar.gra
+0003f0c1 OVLaDACi PANEL JEraBU JE ZAMcENg
+0003f0e2 CONTROL BOX OF THE CRANE IS LOCKEDg
+0003f106 NEMuzEs JiT DO TUNELU METRAg NENi TAM SVfTLOg
+0003f134 YOU CANNOT GO INTO THE SUBWAY TUNNELgTHERE IS NO LIGHTg
+0003f16c grafika\metrotam.anm
+0003f181 grafika\vytdrat.anm
+0003f195 Z ELEKTRICKeHO ROZVADfcE JSI VYTRHL DRaTg
+0003f1bf YOU TORE A WIRE OUT FROM THE ELECTIC DISTRIBUTORg
+0003f1f5 grafika\otockoh.anm
+0003f21a KOHOUTEM JSI UZAVrEL PROUDiCi VODUg
+0003f23e YOU TURNED THE CLOSER AND STOPPED FLOWING WATTERg
+0003f270 grafika\sebkoh.anm
+0003f283 ODsROUBOVAL JSI KOHOUT
+0003f29a YOU SCREWED OFF THE CLOSERg
+0003f2b6 grafika\metroven.anm
+0003f2cb grafika\metropac.anm
+0003f2ed PacIDLEM JSI OTEVrEL DVErE METRA
+0003f30e YOU OPEN SUBWAY DOOR WIHT PRY BARg
+0003f331 POKUSIL JSI SE OTEVriT DVErE,ALE NEPODArILO SE TI TOg
+0003f367 YOU TRIED TO OPEN THE DOOR BUT YOU ARE NOT SUCCESSFULLg
+0003f39f grafika\dratvloz.anm
+0003f3b4 POUzITiM DRaTU JSI OPRAVIL ROZVADfc ELEKTrINYg
+0003f3e3 YOU USED THE WIRE TO MEND THE DISTRIBUTORg
+0003f40e PROZKOUMAL JSI ROZVADfc ELEKTrINYgJE ROZBITyg
+0003f43c YOU EXAMINED THE ELECTRIC DISTRIBUTORgIT IS BROKEN
+0003f46f grafika\polbomb.anm
+0003f483 SPUSTIL JSI cASOVANOU BOMBUgMUSis SE CO NEJRYCHLEJI DOSTAT VEN
+0003f4d2 zvuky\raketa.s3m
+0003f4e3 grafika\lev7.gra
+0003f4f4 JEsTf MUSis ZNIcIT SKLAD S ROBOTYg
+0003f517 grafika\XTYC.anm
+0003f528 TYci JSI PrEPNUL MECHANICKOU POJISTKU
+0003f54e grafika\vkart1.anm
+0003f561 POUzIL JSI zLUTy KLic
+0003f577 grafika\vkart2.anm
+0003f58a POUzIL JSI ORANzOVy KLic
+0003f5a3 grafika\vkart3.anm
+0003f5b6 POUzIL JSI MODRy KLic
+0003f5cc OTEVrEL JSI DVErE
+0003f5de NEMas U SEBE NIC ciM BY JSI OTEVrEL DVErEg
+00041113 u-Źż
+00041189 u-Źżzř
+00041f00 u-Źż
+00042703 ëFŘî█őFŘÄ
+00045a10 grafika\paleta2.gra
+00045a24 zvuky\finis.s3m
+00045c1f dxÖRP
+00045daa dxÖRP
+00045f42 dxÖRP
+0004610f grafika\otdver3.anm
+00046123 grafika\paleta2.gra
+00046137 grafika\dunzac.anm
+0004614a grafika\dunpred.gra
+0004615e Uz Mf TO NEBAViggg
+00046171 grafika\rozdun.anm
+00046184 DO POciTAcE U DVEri JSI ZKUSIL ZADAT HESLOgNIC SE NESTALOg
+000461bf grafika\ctlac1.gra
+000461d2 V TREZORU JSI NAsEL PRVNi BEZPEcNOSTNi KLic K REAKTORUg
+0004620a grafika\kart1dun.anm
+0004621f POUzIL JSI BEZPEcNOSTNi KLicg
+0004623d grafika\spodek.gra
+00046250 grafika\lev1.gra
+00046261 grafika\granbumd.anm
+00046276 grafika\pogran.gra
+00046289 GRANaTEM JSI ZNIcIL DfLOg
+000462a3 grafika\kart2dun.anm
+000462b8 grafika\skrin.gra
+000462ca VE SKriNI JSI NAsEL DRUHy BEZPEcNOSTNi KLicg
+000462f7 NAsEL JSI MALy KLicg
+0004630c grafika\klicdun.anm
+00046320 NAsEL JSI GRANaTg
+00046332 grafika\grandun.anm
+00046346 grafika\svardun.anm
+0004635a NAsEL JSI SVarEcKUg
+00046376 grafika\
+0004637f .gra
+00046384 grafika\delodun.anm
+00046398 grafika\lev8.gra
+00046c0f uVÇż
+00046c78 uVÇż
+00046ce1 uOâż
+000472b8 u)Źż
+000475bc grafika\sebskr1.anm
+000475d0 grafika\paleta2.gra
+000475e4 ZMAGNETIZOVAL JSI KoDOVy SYSTeMgZE SKrinKY JSI VYTaHL VSTUPNi KARTUg
+00047629 PRO OTEVrENi SKriNfK POTrEBUJEs ZNaT PriSLUsNy KoDg
+0004765d grafika\otdver3.anm
+00047671 DVErMI JSI PROsEL DO MALe MiSTNOSTIg
+00047696 MUSis POUziT VSTUPNi KARTUg
+000476b2 VYsEL JSI VEN Z MiSTNOSTIg
+000476d1 grafika\pouzpist.anm
+000476e6 OPRAVIL JSI MECHANISMUS U DVErig
+00047707 grafika\otdver4.anm
+0004771b DVErMI JSI PROsEL DO DLOUHe CHODBY
+0004773e VYsEL JSI VEN
+0004774c MECHANISMUS U DVEri Ma ROZBITOU HYDRAULIKUg
+00047778 grafika\sachtaza.anm
+0004778d ZAVrEL JSI PrETLAKOVOU KOMORU
+000477ab grafika\sachtaot.anm
+000477de OTEVrEL JSI PrETLAKOVOU KOMORU
+000477fd U SPiNAcE JSOU POTRHANe DRaTY
+0004781b Zvuky\hydra.snd
+0004782b Zvuky\vet.snd
+00047839 Zvuky\drceni.snd
+0004784a Zvuky\napis.snd
+0004785a Zvuky\plechy.snd
+0004786b Zvuky\ohen.snd
+0004787a Zvuky\prijezd.snd
+0004788c Zvuky\uder.snd
+0004789b Zvuky\mriz2.snd
+000478ab Zvuky\vrata2.snd
+000478bc grafika\pouztyc.anm
+000478d0 TYci JSI ZASTAVIL VfTRaKg
+000478ea HOrLAVINA
+000478f4 grafika\nabernad.anm
+00047909 DO NaDOBY JSI NABRAL HOrLAVOU KAPALINUg
+00047931 grafika\pouznad.anm
+00047945 NA ZEM JSI POSTAVIL NaDOBU S HOrLAVINOUg
+0004797b KLic
+00047980 Zvuky\motor3.snd
+00047991 Zvuky\buch.snd
+000479a0 Zvuky\gate.snd
+000479af Zvuky\el.snd
+000479bc grafika\svetlice.anm
+000479d1 grafika\hori1.anm
+000479e3 grafika\hori2.anm
+000479f5 grafika\schov1.anm
+00047a08 grafika\schov2.anm
+00047a1b CESTA VEN JE VOLNa
+00047a2e V NaDRzI JE HOrLAVINAg
+00047a45 POKUSIL JSI SE DOSTAT DO sACHTY ZA VfTRaKEMdALE JE TO PriLIs NEBEZPEcNeg
+00047a8e VfTRaKEM JSI PROLEZL NA DRUHOU STRANUg
+00047ab9 U DVEri JE ZDirKA NA KLicg
+00047ad8 NEMas DOSTATEK SiLY NA OTEVrENi DVErig
+00047b0c grafika\rozdvere.anm
+00047b21 grafika\paleta.gra
+00047b34 MECHANISMUS U DVEri SE ZASEKLg
+00047b53 DO OVLaDACiHO PANELU MUSis ZADAT NfJAKe HESLOg
+00047b82 Zvuky\vetbum.snd
+00047b93 grafika\vytahop.anm
+00047ba7 grafika\vrtstop.anm
+00047bbb V POSLEDNi VfTRACi sACHTf SE ZASTAVIL VfTRaKg
+00047bfa grafika\zvedvrat.anm
+00047c0f MECHANICKyM ZVEDaKEM SE TI PODArILO DVErE OTEVriTg
+00047c53 grafika\vezdver.anm
+00047c67 DO POciTAcE JSI ZADAL IDENTIFIKAcNi ciSLO Z HRUDNiHO PLaTUg
+00047ca3 POciTAc U DVEri Tf POzaDAL O ZADaNi TVeHO IDENTIFIKAcNiHO ciSLAg
+00047cfd grafika\otplech1.anm
+00047d12 POD KRYTEM JSI OBJEVIL OVLaDACi PANEL
+00047d45 Zvuky\klavesa2.snd
+00047d58 grafika\srot.anm
+00047d69 sROTOVAcEM JSI SI UVOLNIL CESTU VENg
+00047d8e MECHANISMUS NEFUNGUJEg
+00047da5 THE MECHANISM IS NOT WORKINGg
+00047de8 grafika\cerpadlo.anm
+00047dfd PrEcERPAL JSI VODU DO HORNi NaDRzEg
+00047e32 PrEcERPAL JSI VODU DO DOLNi NaDRzEg
+00047e56 grafika\pruchod.anm
+00047e6a KLicEM JSI OTEVrEL DVErE A PROsEL JSI DOMEM NA DRUHOU STRANUg
+00047ea8 DVErE  JSOU ZAMcENeg
+00047ebd PROsEL JSI DOMEM NA DRUHOU STRANUg
+00047ee0 Z MECHANISMU JSI VYTaHL rEMEN
+00047efe DO MECHANISMU JSI OPfT rEMEN VLOzIL
+00047f2f grafika\otdver2.anm
+00047f43 OTEVrEL JSI VRATAg
+00047f56 VRATA JSOU ZAMcENag
+00047f6a grafika\sebdrat3.anm
+00047f7f Z LAMPY JSI VYTRHL DRaTg
+00047f9c DRaTY V LAMPf JSOU POD PROUDEM
+00047fbb grafika\oprtran.anm
+00047fcf DO MOTORU TRANSPORTeRU JSI VLOzIL rEMENg
+00047ff8 DO MOTORU TRANSPORTeRU JSI VLOzIL DRaT
+0004801f DO MOTORU TRANSPORTeRU JSI VLOzIL HADIcKU PRO PriVOD PALIVAg
+0004805c MOTOR TRANSPORTeRU JE NEFUNKcNig
+0004807d Zvuky\prob.snd
+0004808c Zvuky\zedbum.snd
+0004809d Zvuky\prelet.snd
+000480ae Zvuky\dvirka.snd
+000480bf grafika\trans.anm
+000480de TRANSPORTeREM JSI ROZRAZIL STfNUg
+00048100 grafika\kapota.anm
+00048113 Z MOTORU AUTA JSI VYTaHL HADicKU PRO PriVOD PALIVAg
+00048154 grafika\otplech3.anm
+00048169 grafika\schovej.anm
+0004817d VLEZL JSI POD PODLAHUgZA CHViLI PrIsEL ROBOT A ZADAL HESLO DO DVEri
+000481d2 POciTAc TI UKaZAL ZPRaVU SE ZMfNfMyM HESLEM DO HANGaRUg
+0004820a DO POciTAcE MUSis VLOzIT ID KARTUg
+0004822d MUSis ZADAT HESLO
+0004824f zvuky\finis.s3m
+0004825f grafika\lev8.gra
+00048270 grafika\deska2.gra
+00048283 grafika\deska3.gra
+0004c988 u-Źż
+0004cbe3 Zvuky\hydra.snd
+0004cbf3 Zvuky\motor3.snd
+0004cc04 Zvuky\buch.snd
+0004cc13 Zvuky\delej.snd
+0004cc23 Zvuky\gate.snd
+0004cc32 Zvuky\ohen.snd
+0004cc41 Zvuky\napis.snd
+0004cc51 Zvuky\uder.snd
+0004cc60 Zvuky\mriz2.snd
+0004cc70 Zvuky\vrata2.snd
+0004cc81 grafika\proskoc.anm
+0004cc95 grafika\plaz2.anm
+0004cca7 grafika\skokplaz.anm
+0004ccbc grafika\paleta.gra
+0004d091 Zvuky\hydra.snd
+0004d0a1 Zvuky\motor3.snd
+0004d0b2 Zvuky\buch.snd
+0004d0c1 Zvuky\delej.snd
+0004d0d1 Zvuky\gate.snd
+0004d0e0 Zvuky\ohen.snd
+0004d0ef Zvuky\napis.snd
+0004d0ff Zvuky\uder.snd
+0004d10e Zvuky\mriz2.snd
+0004d11e Zvuky\vrata2.snd
+0004d12f grafika\cum.anm
+0004d13f grafika\souboj.anm
+0004d152 grafika\paleta.gra
+0004d480 Zvuky\hydra.snd
+0004d490 Zvuky\drceni.snd
+0004d4a1 Zvuky\buch.snd
+0004d4b0 Zvuky\delej.snd
+0004d4c0 Zvuky\gate.snd
+0004d4cf Zvuky\ohen.snd
+0004d4de Zvuky\napis.snd
+0004d4ee Zvuky\uder.snd
+0004d4fd Zvuky\mriz2.snd
+0004d50d Zvuky\vrata2.snd
+0004d51e grafika\casint1.anm
+0004d532 grafika\casint2.anm
+0004d546 grafika\paleta.gra
+0004d8f5 zvuky\outro.s3m
+0004d905 Zvuky\hydra.snd
+0004d915 Zvuky\rob_mes.snd
+0004d927 Zvuky\buch.snd
+0004d950 Zvuky\klavesa4.snd
+0004d963 Zvuky\konec.snd
+0004d973 Zvuky\uder.snd
+0004d982 Zvuky\mriz2.snd
+0004d992 Zvuky\vrata2.snd
+0004d9a3 grafika\silopol.anm
+0004d9df grafika\final3.anm
+0004d9f2 grafika\final4.anm
+0004da05 grafika\final5.anm
+0004da18 grafika\final6.anm
+0004da2b grafika\final7.anm
+0004da3e grafika\sachta.anm
+0004da51 grafika\rakvyb3.anm
+0004da65 grafika\rakvyb4.anm
+0004da8c grafika\end2.anm
+0004da9d grafika\end1.anm
+0004daae grafika\konectit.anm
+0004dac3 grafika\paleta.gra
+0004dad6 data\run.dat
+0004dae3 koneclevelu
+0004e9bd grafika\xzacatek.gra
+0004e9d2 grafika\xnahoru.gra
+0004e9e6 grafika\xdolu.gra
+0004e9f8 grafika\xvpravo.gra
+0004ea0c grafika\xvlevo.gra
+0004ea1f NIC SE NESTALO
+0004ea2e AKTIVOVAL JSI OBVOD
+0004ea42 grafika\xkonec.gra
+0004f48f       KONEC  HRY
+0004f4a0       GAME  OVER
+0004f4b1 zvuky\GameOver.s3m
+0004f4c4 data\run.dat
+0004f4d1 koneclevelu
+0004f948 Zvuky\hydra.snd
+0004f958 Zvuky\dvere.snd
+0004f968 Zvuky\propast.snd
+0004f97a Zvuky\gate.snd
+0004f989 Zvuky\plam.snd
+0004f998 Zvuky\invend.snd
+0004f9a9 Zvuky\smich.snd
+0004f9b9 Zvuky\uder.snd
+0004f9c8 Zvuky\mriz2.snd
+0004f9d8 Zvuky\vrata2.snd
+0005055a Zvuky\rad1.snd
+00050569 Zvuky\rad2.snd
+00050578 Zvuky\rad3.snd
+00050587 Zvuky\rad4.snd
+00050596 Zvuky\rad5.snd
+000505a5 Zvuky\rad6.snd
+000505b4 Zvuky\rad7.snd
+000505c3 Zvuky\uder.snd
+000505d2 Zvuky\mriz2.snd
+000505e2 Zvuky\vrata2.snd
+000505f3 RaD Tf VIDIMg
+00050601 TROCHU JSME OD POSLEDNf VYLEPsILI Nas PLaN, TAKzE DOBrE POSLOUCHEJg
+00050645 BUDE SE TI LiBITg
+00050657 PRaVf TEd NAsE JEDNOTKY PROVaDfJi KLAMNy uTOK
+00050685 grafika\letadlo4.anm
+0005069a NA JEDEN ZE STRATEGICKyCH DOLu, MY Tf  TEd  UMiSTiME DO KAPSLE
+000506d9 A VYHODiME NfKDE NAD RAKETOVOU ZaKLADNOUg
+00050703 grafika\letadlo5.anm
+00050718 POKUD SE NaM PODAri JE DLOUHO ZDRzOVAT, MfL BYS TO MiT SNAzsi,
+00050757 grafika\odlet.anm
+00050769 ALE PAMATUJ SI, zE  PrI TyHLE KRYCi AKCI ZArVE SPOUSTA DOBREJCH KLUKu,
+000507b0 TAK SE TAM MOC NEFLaKEJ Aggg HODNf sTfSTig
+000507db grafika\odlet2.anm
+000507ee grafika\letadlo.anm
+00050802 grafika\padak.anm
+00050814 grafika\paleta.gra
+00050dd5 zvuky\most.s3m
+00050de4 grafika\allr.anm
+00050df5 grafika\t1i.anm
+00050e05 grafika\t2i.anm
+00050e15 grafika\t3i.anm
+00050e25 grafika\t4i.anm
+00050e35 grafika\t1r.anm
+00050e45 grafika\t2r.anm
+00050e55 grafika\t3r.anm
+00050e65 grafika\t4r.anm
+00050e77 42Z VODOPaDU NAD TEBOU SE VYSUNULY DVA KAMENNe BLOK
+00050eac TWO STONE BLOCKS APPEARED FROM WATERFALLG
+00050ee3 NIC SE NESTALO
+00050ef2 NOTHING HAPPENED
+00050f03 zvuky\prales.s3m
+000515e0 u!Źż
+000516c4 u!Źż
+000553fa ë~ÔîFńk
+000555c5 ë~ÓîFÔk
+00055711 ăůŃj
+00055bea ë~ÓîFÔk
+00055d36 ăůŃj
+00056475 ë~ÔîFńk
+00056663 ë~ÓîFÔk
+00056931 ăůŃj
+00056a92 ë~ÓîFÔk
+000571cd ë~ÓîFÔk
+000574a4 ăůŃj
+00057605 ë~ÓîFÔk
+00059183  !ÖRP
+00059283  ?ÖRP
+0005ce6c grafika\vytnah.anm
+0005ce7f grafika\vytdol.anm
+0005d698 uuíD
+0005d8ae tOíH
+0005ecd7 ëżŠ■îćŔ
+0005face grafika\sachta2.anm
+0005fae2 grafika\paleta2.gra
+0006116f u ŐćÍŘ
+00061482 ŐćÎŘóB█ŐćÍŘóC█
+0006149f u(ŐćÍŘ<
+0006150a ŐćÎŘóB█ŐćÍŘóC█
+00061583 ŐćÎŘóB█ŐćÍŘóC█
+0006162c ŐćÎŘóB█ŐćÍŘóC█
+00061667 ŐćÎŘóB█ŐćÍŘóC█
+0006167a ugÇżÎŘ
+000616d5 ŐćÎŘóB█ŐćÍŘóC█
+00061743 ŐćÎŘóB█ŐćÍŘóC█
+0006175d u(ŐćÍŘ<
+000617b9 ŐćÎŘóB█ŐćÍŘóC█
+0006180c ŐćÎŘóB█ŐćÍŘóC█
+00061c3e grafika\vybuch.anm
+00061c51 grafika\paleta.gra
+00061e41 grafika\stihnes.anm
+00061e55 HERMETICKY JSI UZAVrEL ZBYLy TRAKT BUDOVYg
+00062270 -level1
+00062278 loadmision
+00062295 KANYSTR
+0006229d BEDNA
+000622a3 NAPNUTy DRaT
+000622b0 KLic
+00064eee DŠfíáŠ
+00064f42 fíLŠfúHŠ
+00064f9c DŠfíLŠ
+0006530e Ě└fĐŔfúťŠfúáŠfő
+00065a72 őVţJ¸ŕf
+000669c5 fúýŠfů
+00067686 ţ.őö
+000684fd ÉÉJuń
+00068535 ÉÉJuŰ
+00068572 ÉÉJuŠ
+000685af ÉÉJuŠ
+00068d5f ŐšČźÔŘ
+00069635 őĂÚR
+0006a338 fúLŕfă
+0006a457 nŕrÍîě
+0006a4ca fúdŕfů
+0006a548 úrŕŰŇ
+0006a8e5 őŕHúhŕ
+0006ae0d ílŕH
+0006b012 ćÓŐŘ
+0006c0b0 f&őDafë
+0006c222 ú$ţú.ţőF
+0006c2a3 fú ţfů
+0006c52f főěfů█tv
+0006c7df XţHú.ţ
+0006d93d UltraSound (GF1 hardware mixing)
+0006dfcf fëĆs
+0006e361 fëĆs
+0006e6cd IuŔŰD
+0006e80c IuŠŰF
+0006eade ţBfő
+0006ec11 ţBfő
+0006ee2b fâŃÓf+ěx
+0006ee94 feëE
+0006f0e0 főěfâŃÓf
+0006f1cc Audio Spectrum series Sound Devi
+0006f7c4 Sound System (Crystal/Analog COD
+0006fa5a ţBáĺ°ţJ
+0006fb6f Blaster series Sound Device v2.1
+0006fbab Blaster 1.0 or clone (DSP v1.xx)
+000717d8 ?fGÔ
+0007198d őđIuß
+0007396e YÔýî
+000740b7 ĐÔĐËĐđÔ°
+00074145 ÇŰ­UőýV
+000746e1 ŰĽWîěî├
+00074811 u!âű
+00074a18 źôźĹ
+00074af7 OĐŠĐđĐËĐĐĐĎ
+00074b22 źôźĹ
+00074c95 Ŕhűr
+00074cae ŔOűr
+00074e56 Řźôź
+00074ed8 CĐŕĐěĐ┘
+00075295 ŔSÝő
+00075534 FVůČ
+000758ea VWWŔŤ´VW
+00075931 Äăőý
+00075a51 WVVŔ0ţYł
+00075b3f WVWŔBÝXĐ°s-ă
+00075b4c ůdăD
+00075b97 ŔNűVWVŔ░ţVWV
+00075c11 ŘĐÚˇą
+00075cb0 !q!â!Ľ!ě!Ţ!Ŕ!űŘRP
+0007625f âĂTü
+00076602 ŘđđÇ
+00076884 đŔđŔđŔ4
+0007689f ÉŤŰĂ
+00077130 PŔfřX
+00077389 CJuŮ
+000779f8 NGItL
+00077a6f ĐÓĐĎ
+00077d30 »DUsage:  EFFECTS
+00077f05 Sound System v0.40a configuratio
+00077fd5 arrows to select, Enter to confi
+000780d8 Sound Card I/O Port Address (in 
+000781b5 MIDAS uninitialization failure: 
+0007dbd3 HOLOGg PLaN
+0007dbdf KOHOUT
+0007dbe6 MRTVe TfLO
+0007dbf1 KLic
+0007dbf6 SOUcaSTKA
+0007dc00 KANYSTR
+0007dc08 DRaT
+0007dc0d BEDNA
+0007dc13 OVLADAc
+0007dc1b PacIDLO
+0007dc23 DEKODeR
+0007dc2b NAPNUTy DRaT
+0007dc38 NaKRES

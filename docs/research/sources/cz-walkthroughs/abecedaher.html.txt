@@ -1,0 +1,14 @@
+
+Kontrolujeme váš prehliadač…
+  Kontrolujeme váš prehliadač…
+  Pred pokračovaním overujeme vaše pripojenie. Bude to trvať len chvíľu.
+  Checking your browser…
+We're verifying your connection before you continue. This will only take a moment.
+  Na pokračovanie je potrebný JavaScript. JavaScript is required to continue.
+  Protected by Websupport
+  Overenie zlyhalo
+  Nepodarilo sa overiť váš prehliadač. Skúste to znova.
+  Verification failed
+We couldn't verify your browser. Please try again.
+    Skúsiť znovaTry again
+  Protected by Websupport

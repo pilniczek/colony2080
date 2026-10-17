@@ -1,0 +1,17 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/09-gamedata.md",
+  "id": "mesto",
+  "order": 1,
+  "name": { "cs": "Město", "en": "City" },
+  "map": {
+    "source": "MAPY/M11.MAP",
+    "widthTiles": 160,
+    "heightTiles": 80,
+    "tileSize": 24,
+    "tileset": "LEV1.GRA",
+    "floorHeightTiles": 7
+  },
+  "originalPlayfield": { "width": 290, "height": 169 },
+  "next": "vesnice"
+}

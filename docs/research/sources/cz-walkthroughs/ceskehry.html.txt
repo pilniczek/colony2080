@@ -1,0 +1,91 @@
+
+    Colony 28 – návod, cheaty, tip, ovládání
+    ČESKÉ HRY
+    Herní karty
+    Historie
+        Colony 28 – cheaty, tip, ovládáníNapsal: DoMaSPublikováno: 21.11.2004
+Aktualizováno: 12.1.2005
+        Pro přesun do vybraného levelu s plnou zásobou indikátoru energie a s dostatkem indikátoru štítu (sloupec 5-ti žlutých kontrolek vpravo) spouštějte hru s parametrem:
+          mesto, vesnice, jungle, jeskyne, vezeni, sklad, cas, raketa, finis, dun, titulky (v následujícím návodu je uveden u každého levelu).
+        Např. pro přesun do úrovně jeskyně: colony28.exe jeskyne
+        Zkratka ve 4. levelu Jeskyně
+ Po dopadnutí na jezdící těžební vozíky (10) skákejte stále
+        doleva (musíte podskočit konec levé stěny "tunelu"), dokud nebudete stát na pevné zemi. Poté skočte co nejdále doleva a dopadnete v
+        blízkosti konce levelu, který je zcela vpravo.
+        Ovládání
+        Pohyb ................................. šipkama
+        Běh ..................................... ALT a pravá nebo levá šipka
+        Střelba ............................... CTRL
+        Volba zbraně ..................... 1, 2, 3
+        Skrývání ............................. SHIFT
+        Sbírání předmětů ............. šipka dolů nebo ENTER
+        Inventář .............................. TAB
+        Používání předmětů ........ ENTER
+        Hlavní menu ..................... ESC
+        Automaping ...................... M
+        Colony 28 – návodNapsal: Score 44 (8/97)
+Upravil: DoMaS – barevné obrázkyPublikováno: 21.11.2004
+Aktualizováno: 12.1.2005
+        Nejprve vám uštědřím několik všeobecných rad. Předně si osvojte základní taktiku boje s nepřítelem, tj. schovejte se do stínu, nechte jej přejít a TĚSNĚ za ním ze stínu vystupte
+        a za pochodu to do něj naperte. Nezapomeňte od třetího levelu přepínat v inventáři mezi druhy munice do kulometu. A konečně ukládejte. Od čtvrtého levelu vás totiž hra NECHÁ
+        udělat nenapravitelný krok.
+        Level 1. Město ( mesto )
+          Vydejte se doprava k umírajícímu rebelovi (1) a promluvte si s ním (ENTER). Dozvíte se, koho máte hledat a kde. Dojděte si pro páčidlo (2) a z elektrického rozvodu (3)
+          vytrhněte dráty. Sjeďte výtahem ke vchodu do metra a tyto dráty vložte do druhého rozvaděče (4), páčidlem si pak otevřete dveře od soupravy (5). Projdete soupravou do metra.
+          Ze země zvedněte E-Blaster (8). Utáhněte uzávěr vody (6) a kohout uzávěru seberte. Prohledejte mrtvolu (7), získáte kartu a holoplán. Prostřílejte se k baru (9). Muži v baru
+          ukažte holoplán a vemte si od něj plánek lodi. Musíte mu přinést určitou součástku, která se nachází v lodi (10). Získáte ji tak, že rozstřelíte kryt na plášti a součástka z
+          něj vypadne. Součástku přineste muži v baru, dá vám za ni dekodér. S dekodérem se odeberte k plasmě (11) a tam jej použijte na kódový zámek hned vedle. Seberte ovladač (12) a
+          vydejte se s ním k poškozenému výtahu (l3), tam jej použijte u zrnící obrazovky. U dveří (l7) použijte kartu. U cisterny s kyselinou (14) použijte kohout a zalijte jí robota
+          strážce. Dalšího robota strážce (I5) jednoduše musíte rozstřílet, za ním je klíček k ovládání jeřábu (16). Až jej zprovozníte, přejděte na druhou stranu.
+        Level 2. Předměstí ( vesnice )
+          Prohledejte tlející zbytky (1) a vyberte z nich malý klíček. U elektrického rozvodu (2) rozbijte pojistky. Doběhněte si pro speciální zbraň familiérně přezdívané TOASTER (4).
+          Rozstřílejte s ní strážce (5) a za ním seberte ze země vysílačku. Seberte rozbušku (7) a projektil (8). Z druhé rozvodné skříně vyjměte pojistky (9). Seberte dynamit (10). Z
+          rozbitého teleportu (11) vyjměte potřebnou součástku a zamontujte ji do cílového tele- portu (6). Do rozvodu (2) vložte pojistky a vstupte do teleportu (3). Na začátku můstku,
+          tam kde jste našli TOASTER (4), odvolejte pomocí vysílačky stráže. Do děla (l2) vložte projektil a rozstřelte zeď. Projděte teleportem (13). U zdi (14) položte na zem dynamit
+          a rozbušku. Poté odpalte nálož.
+        Level 3. Džungle ( jungle )
+          POZOR! V tomto levelu se objevují nášlapné miny. Seberte kanystr (8). Rozstřelte rozvodnou skříň (1), která vyřadí z provozu dělo (2). Zvedněte klíček (3) a otevřete si s ním
+          dveře (9), za nimi se nachází plamenomet. Šetřete s ním, tato populární roztomilá zbraň vám vydrží do dalšího levelu. Z bedny (10) vyndejte štípačky a odstraňte jimi past (4).
+          Nalezený granát použijte na skálu (5), která zavalí bodáky, takže je budete moci s rozběhem přeskočit.
+          Po vyřešení hlavolamu (6) se vám vysunou schůdky nad vodopádem. Cílem je, aby všechny kameny byly zamáčknuté. Doplňte palivo do jeepu (8) a pomocí navijáku uvolněte padlý
+          strom a přejděte do dalšího levelu.
+        Level 4. Jeskyně ( jeskyne )
+          Zatáhněte za pravé tři páky (1). Otevřou se dveře vlevo. Seberte tyč (2) a uvolněte pojistku mechanismu výtahu (3). Nad krystalem (4) je krápník, který musíte sestřelit,
+          abyste se přes krystal dostali. U kamenných kvádrů (6) se přepněte do módu beze zbraně a kvádry rozbijte (CTRL). Za nimi leží oranžový klíč-karta (7). U propasti (8) přeskočte
+          na prostřední plošinku , a rozstřelte nádrž s výbušninou. Seberte modrý klíč (9). Dojděte k jezdícím těžebním vozíkům (10) a skočte do nich, až budete projíždět pod plošinkami
+          vyskočte nahoru. Seberte žlutý klíč (11). Všechny tři sebrané klíče použijte do slotů (5), otevřou se vám dveře (l2). Na miste (13) opravdu pozor. Musíte skočit přesně tak,
+          jak naznačuje šipka, jinak spadnete do jámy a končíte. Bohužel, hra vám to neřekne. Ke dveřím (15) najděte klíče (14).
+        Level 5. Útěk z vězení ( vezeni )
+          Ze skládky (1) po levé straně vyndejte klávesnici, odklopte kryt (2) a pomocí kláves- nice se nalogujte do vězeňské sítě. Tím uvedete do chodu transportér na druhé straně
+          chodby, který probourá vrata. Nezapomeňte na místě "nehody" sebrat kus hrudního plátu ze strážního robota. Zvedněte klíč (3). Použijte hrudní plát na zámek u dveří
+          (4), tím přepíšete ID do zámku. Seberte speciální zbraň tohoto levelu MGX 800. Vyzvedněte si mechanický zvedák (6) a útržek s číslem (7). Pokuste se klíčkem otevřít vrata (8),
+          a až to nepůjde, pomozte si mechanickým zvedákem. Na ovládání větracích šachet (9) použijte útržek, tím zastavíte vrtuli v poslední šachtě a můžete do ní bez obav skočit.
+        Level 6. Sklad ( sklad )
+          Ze všeho nejdříve si dojděte pro raketomet (1) a hned za ním seberte granát (2). Ze skříňky vyndejte klíč B a šroubovák. Po bednách vylezte do šachty nad strážním robotem u
+          mimozemšťana (4), odšroubujte mříž a vhoďte do ní granát. Dojděte k mimozemšťanovi (4) a zastřelte ho. Zvedněte klíč A. Ze druhé skříňky si vezměte ovladač (5). Ten použijte u
+          ovládání výtahu (6)
+          Vyjeďte k poškozenému elektrickému obvodu (7) a dejte ho dohromady. Cílem je, aby žlutá linka spojovala levou
+          a pravou šipku. Za druhým strážním robotem je počítač (9), nalogujte se do něj. Do ovladače výtahu (8) vložte oba klíče. Dojděte k mrtvému mimozemšťanovi (4) a ustřelte mu
+          ruku. Přiložte ji k ovladači (8) a znovu se nalogujte do počítače (9). Ze stolu u mimozemšťana (4) seberte disketu. Nechte si na ni z počítače (9) nahrát vir a zaveďte jej do
+          ovladače (8). Poté, co budete mít. bombu, odpalte ji u uskladněných robotů (10)
+          ( cas )
+          a utíkejte směrem k letadlu (11).
+        Level 7. Raketová základna ( raketa )
+          Dojděte si pro speciální zbraň flamestream (1). Projděte oběma bazénky a přečerpejte pomocí páky (2) vodu ze spodního do horního. Ze dna dolního bazénku seberte klíč (4). Pak
+          opět přečerpejte vodu z horního bazénku do dolního (2) a z mechanizmu vyjměte řemen (3). Klíčem si otevřete průchod (5) do další části levelu. Seberte vstupní kartu (15) a za
+          strážcem ID kartu (6). Z auta (7) vyjměte hadičky pro přívod paliva. Vraťte se a vstupní kartou si otevřete dveře (8). Kulometem rozstřílejte rozvodnou skříňku (9). Z lampy
+          (l0) vytrhněte dráty. Řemen, hadičku i dráty vložte do obrněnce (11), nastupte do něj a probourejte zeď. Vlezte si pod poklop (l2). Do počítače (l3) po pravé straně vložte ID
+          kartu. Jděte do hangáru (l4).
+        Level 8. Kosmická loď vetřelců ( finis )
+          Seberte laser (1), nádobu (2), drát u dveří (3) a elektromagnet (4). Z bazénku (5) naberte do nádoby hořlavinu. Elektromagnetem zničte obvod u skříňky (6) a vyndejte z ní
+          kartu. Pomocí drátu sepněte spínač (7) zavírání přetlakové komory, teprve pak můžete projít. Použijte vstupní kartu na dveře (3) a rozstřílejte strážního robota. Zbude po něm
+          píst, ten použijte na opravu dveří (8). Seberte tyč (9) a světlici (10). Tyčí zastavte větrák (11) a prolezte šachtou. Kdekoliv na místě (12) položte na zem nádobu s
+          hořlavinou a pomocí světlice ji zapalte. Zvedněte klíč. Tento klíč použijte na dveře vpravo od místa, kde jste našli laser (1).
+          Nyní ještě musíte namačkat správný kód. Pokud jste si všimli, tak po celém levelu bylo rozmístěno pět pětic
+          symbolů, když použijete ty, které se na dané pozici nikdy neopakují, získáte klíč. Pro jistotu vám jej nakreslím.
+        Level 9. Před reaktorem ( dun )
+          Dojděte si pro svářečku (1), granát (2) a klíč (3). Na kódový zámek (6) se pokuste dvakrát něco namačkat a pak ho rozbijte. Použijte klíč ke skříňce (7) a vyndejte z ní kartu.
+          Z místa čtyři hoďte granát a svářečkou se dostaňte do skříňky (5), odkud vytáhnete další kartu. Kartu B použijte na místě označeném (8) a kartu A na (9). Dveřmi (10) vstupte k
+          reaktoru. A to je vše, přátelé.
+          ( titulky )
+  DoMaS

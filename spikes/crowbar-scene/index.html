@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crowbar Scene Spike</title>
+<style>
+  :root { --bg: #0b1112; --panel: #141c1e; --text: #c9d1d0; --muted: #7d8a89; --accent: #e8892a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+  body { display: grid; grid-template-rows: 1fr auto; }
+  #stage { display: flex; gap: 8px; padding: 8px; min-height: 0; }
+  #stage > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  #stage canvas, #stage img { width: 100%; height: 100%; object-fit: contain; background: #000; min-height: 0; }
+  #ref { display: none; image-rendering: pixelated; }
+  body.with-ref #ref { display: block; }
+  body:not(.with-ref) #refWrap { display: none; }
+  .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  #bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 8px 12px; background: var(--panel); }
+  #bar button { background: #22302f; color: var(--text); border: 1px solid #2f3f3e; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+  #bar button:hover { border-color: var(--accent); }
+  #scrub { flex: 1; min-width: 160px; accent-color: var(--accent); }
+  #time { font-variant-numeric: tabular-nums; min-width: 92px; }
+  #palette { display: none; flex-wrap: wrap; gap: 6px 14px; padding: 8px 12px; background: var(--panel); border-top: 1px solid #22302f; }
+  body.with-palette #palette { display: flex; }
+  #palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
+  #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div><span class="label">Clone (vector)</span><canvas id="c"></canvas></div>
+  <div id="refWrap"><span class="label">Original METROPAC.ANM (time-normalised)</span><img id="ref" alt="original frame"></div>
+</div>
+<div>
+  <div id="bar">
+    <button id="play">Pause</button>
+    <button id="restart">Restart</button>
+    <input id="scrub" type="range" min="0" max="1000" value="0">
+    <span id="time"></span>
+    <label>Speed <select id="speed"><option>0.25</option><option>0.5</option><option selected>1</option></select></label>
+    <label><input id="loop" type="checkbox" checked> Loop</label>
+    <button id="refToggle">Show original</button>
+    <button id="palToggle">Palette</button>
+    <button id="copyPal">Copy palette JSON</button>
+  </div>
+  <div id="palette"></div>
+</div>
+<script src="../shared/config.js"></script>
+<script src="../shared/xbot.js"></script>
+<script>
+const { buildSide, buildBack, render: renderBot, locate, AX, SIDE_AX, FOOT_Y } = window.XBOT;
+const CFG = window.C28_CONFIG.cutscenes.crowbarDoor;
+const W = CFG.stage.width, H = CFG.stage.height, FLOOR = CFG.stage.floorY, SEAM = CFG.stage.doorSeamX;
+
+const palette = { ...CFG.palette };
+
+const CLIP_START = CFG.clip.start;
+const CLIP_END = CFG.clip.end;
+const DURATION = CLIP_END - CLIP_START;
+
+const tracks = CFG.tracks;
+
+const ease = {
+  linear: t => t,
+  in: t => t * t,
+  out: t => 1 - (1 - t) * (1 - t),
+  inOut: t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+};
+
+function sample(name, t) {
+  const keys = tracks[name];
+  if (typeof keys[0][1] === "string") {
+    let v = keys[0][1];
+    for (const k of keys) if (t >= k[0]) v = k[1];
+    return v;
+  }
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 1; i < keys.length; i++) {
+    const [t1, v1, e] = keys[i];
+    const [t0, v0] = keys[i - 1];
+    if (t < t1) {
+      if (t1 === t0) return v1;
+      const k = (ease[e] || ease.linear)((t - t0) / (t1 - t0));
+      return v0 + (v1 - v0) * k;
+    }
+  }
+  return keys[keys.length - 1][1];
+}
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+function poly(pts, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function rect(x, y, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, w, h);
+}
+
+function disc(x, y, r, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+
+
+
+
+function drawWorld(t) {
+  rect(-2000, -1000, 6000, 3000, palette.tunnel);
+  rect(-2000, 120, 6000, 600, palette.wall);
+  rect(-2000, -1000, 6000, 1120, palette.ceiling);
+  ctx.globalAlpha = 0.07;
+  for (let x = 100; x < 1800; x += 420) poly([[x - 18, 118], [x + 18, 118], [x + 130, 720], [x - 130, 720]], palette.lampCone);
+  ctx.globalAlpha = 1;
+  for (let x = 100; x < 1800; x += 420) rect(x - 22, 104, 44, 12, palette.lamp);
+
+  const gap = sample("gap", t);
+  const glow = sample("glow", t);
+  poly([[180, 250], [1620, 250], [1650, 280], [1650, 705], [150, 705], [150, 280]], palette.wagon);
+  rect(150, 640, 1500, 65, palette.wagonShade);
+  rect(150, 560, 1500, 24, palette.stripe);
+  poly([[180, 250], [1620, 250], [1650, 280], [150, 280]], palette.wagonShade);
+  for (const x of [260, 470, 1110, 1320]) {
+    rect(x, 340, 150, 150, palette.window);
+    ctx.globalAlpha = 0.6;
+    poly([[x + 20, 340], [x + 70, 340], [x + 10, 490], [x - 0, 490]], palette.windowGlint);
+    ctx.globalAlpha = 1;
+  }
+
+  rect(805, 322, 190, 383, palette.interior);
+  if (glow > 0) {
+    ctx.globalAlpha = 0.55 * glow;
+    poly([[830, 330], [970, 330], [990, 705], [810, 705]], palette.interiorLight);
+    ctx.globalAlpha = 0.9 * glow;
+    rect(895, 330, 8, 375, palette.interior);
+    rect(840, 520, 120, 10, palette.interior);
+    ctx.globalAlpha = 1;
+  }
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(805, 322, 190, 383);
+  ctx.clip();
+  const half = gap / 2;
+  drawDoorHalf(805 - half, true);
+  drawDoorHalf(SEAM + half, false);
+  ctx.restore();
+  rect(795, 312, 210, 12, palette.doorFrame);
+  rect(795, 312, 10, 393, palette.doorFrame);
+  rect(995, 312, 10, 393, palette.doorFrame);
+
+  rect(-2000, 705, 6000, 900, palette.platform);
+  rect(-2000, 712, 6000, 12, palette.safety);
+  for (let x = -2000; x < 4000; x += 160) rect(x, 724, 4, 900, palette.platformLine);
+  rect(-2000, 800, 6000, 3, palette.platformLine);
+}
+
+function drawDoorHalf(x, left) {
+  rect(x, 322, 95, 383, palette.door);
+  rect(left ? x : x + 75, 322, 20, 383, palette.doorShade);
+  rect(x + 20, 360, 55, 120, palette.window);
+  ctx.globalAlpha = 0.6;
+  poly([[x + 30, 360], [x + 50, 360], [x + 28, 480], [x + 20, 480]], palette.windowGlint);
+  ctx.globalAlpha = 1;
+}
+
+function drawForeground() {
+  rect(1460, -1000, 90, 2600, palette.pillar);
+  rect(-400, -1000, 140, 2600, palette.pillar);
+}
+
+function floorShadow(x, w) {
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = palette.shadow;
+  ctx.beginPath();
+  ctx.ellipse(x, FLOOR + 4, w, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+const RB = CFG.robot;
+const K = RB.scale;
+const sideRoot = buildSide({ farLimbs: true });
+const backRoot = buildBack({ leftArmBehind: true, rightForeBehind: true });
+let camM = new DOMMatrix();
+let lineScale = 1;
+
+function drawCrowbar(len, w, butt = w * 0.2) {
+  ctx.fillStyle = palette.crowbarShade;
+  ctx.fillRect(-butt, -w / 2, len + butt - w * 0.2, w);
+  ctx.fillStyle = palette.crowbar;
+  ctx.fillRect(-butt, -w / 2, len + butt - w * 0.2, w * 0.55);
+  ctx.save();
+  ctx.translate(len - w * 0.2, 0);
+  ctx.rotate(-0.9);
+  ctx.fillStyle = palette.crowbarShade;
+  ctx.fillRect(0, -w / 2, w * 2.4, w);
+  ctx.restore();
+}
+
+function placeRobot(root, x, y, ax, pose, hooks) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(K, K);
+  ctx.translate(-ax, -FOOT_Y);
+  renderBot(ctx, root, { pose, hooks, lineW: 1.6 * lineScale });
+  ctx.restore();
+}
+
+const BAR_TILT = RB.barTilt;
+const FAR_GRIP = RB.farGripOffset;
+
+function solve(root, hookName, pose, keys, ranges, target) {
+  const hit = q => {
+    const m = locate(root, hookName, { ...pose, [keys[0]]: q[0], [keys[1]]: q[1] });
+    const pt = m.transformPoint(new DOMPoint(0, 0));
+    return Math.hypot(pt.x - target.x, pt.y - target.y);
+  };
+  let best = [Infinity, 0, 0];
+  for (let a = ranges[0][0]; a <= ranges[0][1]; a += 4) {
+    for (let b = ranges[1][0]; b <= ranges[1][1]; b += 4) {
+      const d = hit([a, b]);
+      if (d < best[0]) best = [d, a, b];
+    }
+  }
+  for (const [span, step] of [[4, 1], [1, 0.25]]) {
+    const [, a0, b0] = best;
+    for (let a = a0 - span; a <= a0 + span; a += step) {
+      for (let b = b0 - span; b <= b0 + span; b += step) {
+        const d = hit([a, b]);
+        if (d < best[0]) best = [d, a, b];
+      }
+    }
+  }
+  return best;
+}
+
+function drawProfile(t) {
+  const x = sample("walkX", t);
+  const walking = t < 1.6;
+  const p = (x - 120) / 80 * Math.PI;
+  const swing = (ph, amp) => walking ? amp * Math.sin(ph) : 0;
+  const flex = ph => walking ? 4 + 30 * Math.pow(Math.max(0, Math.cos(ph)), 1.5) : 4;
+  const bob = walking ? -5 * Math.abs(Math.cos(p)) : 0;
+  const shown = sample("barShown", t) >= 0.5;
+  const pose = {
+    hipNear: swing(p, -24), kneeNear: flex(p),
+    hipFar: swing(p + Math.PI, -24), kneeFar: flex(p + Math.PI),
+    arm: walking ? 16 * Math.sin(p) : sample("armB", t),
+    fore: walking ? 0 : sample("foreB", t),
+    armFar: swing(p, -16), foreFar: 0
+  };
+  const blend = sample("farGrip", t);
+  if (blend > 0) {
+    const near = locate(sideRoot, "hand", pose);
+    const target = near.rotate(BAR_TILT * 180 / Math.PI).transformPoint(new DOMPoint(FAR_GRIP, 0));
+    const [, a, f] = solve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 40], [-120, 10]], target);
+    pose.armFar += (a - pose.armFar) * blend;
+    pose.foreFar += (f - pose.foreFar) * blend;
+  }
+  const hooks = {
+    hand: shown ? c => {
+      const k = sample("barLen", t);
+      c.save();
+      c.rotate(BAR_TILT);
+      drawCrowbar(270 * k, 16, 60 * k);
+      c.restore();
+    } : null
+  };
+  floorShadow(x, 70);
+  placeRobot(sideRoot, x, FLOOR + bob, SIDE_AX, pose, hooks);
+}
+
+const BACK_X = RB.backShotX;
+const BAR_REACH = RB.barReach;
+const PULL_ARM = RB.pullArmDeg;
+const PULL_FORE = RB.pullForeDeg;
+
+function toWorld(pt) {
+  return { x: BACK_X + K * (pt.x - AX), y: FLOOR + K * (pt.y - FOOT_Y) };
+}
+
+function toRobot(pt) {
+  return new DOMPoint(AX + (pt.x - BACK_X) / K, FOOT_Y + (pt.y - FLOOR) / K);
+}
+
+function drawBack(t) {
+  const pry = sample("pry", t);
+  const pull = { arm: PULL_ARM * pry, fore: PULL_FORE * pry };
+  const pose = {
+    body: -2 * pry,
+    armL: -12 + pull.arm, foreL: -70 + pull.fore,
+    armR: -20 + pull.arm, foreR: -64 + pull.fore
+  };
+  const hand = name => toWorld(locate(backRoot, name, pose).transformPoint(new DOMPoint(0, 0)));
+  const end = hand("handL");
+  const fist = hand("handR");
+  const len = Math.hypot(fist.x - end.x, fist.y - end.y);
+  const dir = { x: (fist.x - end.x) / len, y: (fist.y - end.y) / len };
+  ctx.save();
+  ctx.translate(end.x, end.y);
+  ctx.rotate(Math.atan2(dir.y, dir.x));
+  drawCrowbar(len + BAR_REACH, 7.5);
+  ctx.restore();
+  floorShadow(BACK_X, 90);
+  placeRobot(backRoot, BACK_X, FLOOR, AX, pose, {});
+}
+
+function render(t) {
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+  const dpr = window.devicePixelRatio || 1;
+  if (canvas.width !== Math.round(cw * dpr) || canvas.height !== Math.round(ch * dpr)) {
+    canvas.width = Math.round(cw * dpr);
+    canvas.height = Math.round(ch * dpr);
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const s = Math.min(canvas.width / W, canvas.height / H);
+  const ox = (canvas.width - W * s) / 2, oy = (canvas.height - H * s) / 2;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(ox, oy, W * s, H * s);
+  ctx.clip();
+  const z = sample("camZ", t);
+  const sh = sample("shake", t);
+  const cx = sample("camX", t) + Math.sin(t * 90) * sh * 0.4;
+  const cy = sample("camY", t) + Math.cos(t * 77) * sh * 0.4;
+  ctx.setTransform(s * z, 0, 0, s * z, ox + (W / 2 - cx * z) * s, oy + (H / 2 - cy * z) * s);
+  camM = ctx.getTransform();
+  lineScale = Math.max(1, s * z * 0.9);
+  drawWorld(t);
+  const shot = sample("shot", t);
+  if (shot === "C") drawBack(t); else drawProfile(t);
+  if (shot === "A") drawForeground();
+  ctx.restore();
+}
+
+const ui = {
+  play: document.getElementById("play"),
+  restart: document.getElementById("restart"),
+  scrub: document.getElementById("scrub"),
+  time: document.getElementById("time"),
+  speed: document.getElementById("speed"),
+  loop: document.getElementById("loop"),
+  ref: document.getElementById("ref"),
+  refToggle: document.getElementById("refToggle"),
+  palToggle: document.getElementById("palToggle"),
+  copyPal: document.getElementById("copyPal"),
+  palette: document.getElementById("palette")
+};
+
+const REF_FRAMES = 62;
+const refPath = i => `../../docs/research/gamedata/png/METROPAC/f${String(i).padStart(3, "0")}.png`;
+let t = 0, playing = true, last = performance.now(), refFrame = -1;
+
+function syncRef() {
+  if (!document.body.classList.contains("with-ref")) return;
+  const i = Math.min(REF_FRAMES - 1, 1 + Math.floor((t + CLIP_START) / CLIP_END * (REF_FRAMES - 1)));
+  if (i !== refFrame) { refFrame = i; ui.ref.src = refPath(i); }
+}
+
+function frame(now) {
+  const dt = (now - last) / 1000;
+  last = now;
+  if (playing) {
+    t += dt * parseFloat(ui.speed.value);
+    if (t >= DURATION) {
+      if (ui.loop.checked) t = 0; else { t = DURATION; setPlaying(false); }
+    }
+  }
+  render(t + CLIP_START);
+  syncRef();
+  ui.scrub.value = Math.round(t / DURATION * 1000);
+  ui.time.textContent = `${t.toFixed(2)}s / ${DURATION.toFixed(1)}s`;
+  requestAnimationFrame(frame);
+}
+
+function setPlaying(v) {
+  playing = v;
+  ui.play.textContent = v ? "Pause" : "Play";
+}
+
+ui.play.onclick = () => { if (t >= DURATION) t = 0; setPlaying(!playing); };
+ui.restart.onclick = () => { t = 0; setPlaying(true); };
+ui.scrub.oninput = () => { t = ui.scrub.value / 1000 * DURATION; setPlaying(false); };
+ui.refToggle.onclick = () => {
+  const on = document.body.classList.toggle("with-ref");
+  ui.refToggle.textContent = on ? "Hide original" : "Show original";
+  refFrame = -1;
+};
+ui.palToggle.onclick = () => document.body.classList.toggle("with-palette");
+ui.copyPal.onclick = () => navigator.clipboard.writeText(JSON.stringify(palette, null, 2)).then(() => {
+  ui.copyPal.textContent = "Copied";
+  setTimeout(() => ui.copyPal.textContent = "Copy palette JSON", 1200);
+});
+
+for (const key of Object.keys(palette)) {
+  const label = document.createElement("label");
+  const input = document.createElement("input");
+  input.type = "color";
+  input.value = palette[key];
+  input.oninput = () => { palette[key] = input.value; };
+  label.append(input, key);
+  ui.palette.append(label);
+}
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
