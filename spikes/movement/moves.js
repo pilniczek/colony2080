@@ -110,7 +110,7 @@ function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = fa
   c.restore();
 }
 
-const FLAT_BACK = { ...legs(0, [-6, 8, 0], [2, 10, 0]), arm: 20, armFar: 30, fore: -30, foreFar: -30 };
+const FLAT_BACK = { ...legs(0, [0, 2, 0], [0, 2, 0]), arm: 0, armFar: 0, fore: 0, foreFar: 0 };
 const bottoms = new Map();
 function bottom(pose, rot, hold = false) {
   const key = JSON.stringify([pose, rot, hold && WEAPON]);
@@ -327,8 +327,8 @@ move("movement", "Fall death", "fall too high", 3.6, (c, t) => {
     const impact = { ...legs(4, [-80, 140, -60], [-70, 146, -80]), arm: 30, armFar: 40, fore: -10, foreFar: -10 };
     pose = keyed([[landT, fallPose], [landT + 0.1, impact], [landT + 0.35, impact], [landT + 0.75, FLAT_BACK]], t);
     const k = easeIn(span(t, landT + 0.35, landT + 0.75));
-    rot = -88 * k;
-    y = (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, -88)) * k;
+    rot = -90 * k;
+    y = (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, -90)) * k;
   }
   const alpha = 1 - span(t, 3.2, 3.6);
   c.save();
@@ -427,7 +427,7 @@ move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", 1.2, (c, t) => {
     fire(c, t, pose, x, y, 300);
     return;
   }
-  const pose = punchPose(t, stance, { arm: -88, fore: 12 }, { armFar: -84, foreFar: 6 }, 1.2);
+  const pose = punchPose(t, stance, { arm: -90, fore: 12 }, { armFar: -84, foreFar: 6 }, 1.2);
   const y = FLOOR + lift(pose);
   const hit = Math.max(num([[0, 0], [0.12, 1], [0.3, 0], [1, 0]], t / 1.2), num([[0, 0], [0.5, 0], [0.62, 1], [0.8, 0], [1, 0]], t / 1.2));
   c.save();
@@ -552,7 +552,7 @@ move("fight", "Death", "energy runs out", 3.6, (c, t) => {
   shadow(c, x, FLOOR, 30);
   const held = t < 1.0;
   if (!held && armed()) droppedGun(c, x + 24 - 20 * span(t, 1.0, 1.3));
-  bot(c, { x, y: (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, -88, false)) * k, pose, rot: -88 * k, hold: held });
+  bot(c, { x, y: (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, -90, false)) * k, pose, rot: -90 * k, hold: held });
   for (const h of hits) if (t > h && t < h + 0.25) spark(c, x + 12, FLOOR - 110 + (h * 40), 12, span(t, h, h + 0.25));
   c.restore();
   if (t > 1.7) label(c, "DEAD");
