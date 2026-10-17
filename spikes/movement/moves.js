@@ -1,36 +1,8 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Movement Overview</title>
-<style>
-  :root { --bg: #0b1112; --panel: #141c1e; --text: #c9d1d0; --muted: #7d8a89; }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
-  header { padding: 10px 16px; background: var(--panel); display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; }
-  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
-  header p { margin: 0; color: var(--muted); }
-  main { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; padding: 12px 16px; }
-  figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-  figcaption { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; }
-  figcaption b { text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
-  figcaption span { color: var(--muted); text-align: right; }
-  figure canvas { width: 100%; aspect-ratio: 360 / 250; display: block; border-radius: 4px; }
-</style>
-</head>
-<body>
-<header>
-  <h1>X-BOT movement overview</h1>
-  <p>Every move loops forever. Side view facing right unless noted.</p>
-</header>
-<main id="grid"></main>
-<script src="../shared/config.js"></script>
-<script src="../shared/xbot.js"></script>
-<script>
-const { buildSide, buildFront, render, locate, SIDE_AX, AX, FOOT_Y, PALETTE: P } = window.XBOT;
-const side = buildSide({ farLimbs: true });
-const front = buildFront();
+const { buildSide, buildFront, buildBack, render, locate, SIDE_AX, AX, FOOT_Y, PALETTE: P } = window.XBOT;
+const side = buildSide({ farLimbs: true, lod: true });
+const front = buildFront({ lod: true });
+const back = buildBack({ lod: true });
+const ROOTS = { side, front, back };
 const W = 360, H = 250, FLOOR = 228, K = 0.2;
 const D = Math.PI / 180;
 let LINE = 1;
@@ -105,7 +77,7 @@ function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = fa
   c.scale(K * sx * (flip ? -1 : 1), K);
   c.translate(view === "side" ? -SIDE_AX : -AX, -FOOT_Y);
   if (filter) c.filter = filter;
-  render(c, view === "side" ? side : front, { pose, hooks, lineW: LINE });
+  render(c, ROOTS[view], { pose, hooks, lineW: LINE, simple: true });
   c.restore();
 }
 
@@ -222,9 +194,10 @@ function item(c, x, y) {
 }
 
 const MOVES = [];
-const move = (name, keys, period, draw) => MOVES.push({ name, keys, period, draw });
+const CATEGORY = document.body.dataset.category;
+const move = (category, name, keys, period, draw) => MOVES.push({ category, name, keys, period, draw });
 
-move("Idle", "-", 3, (c, t) => {
+move("movement", "Idle", "-", 3, (c, t) => {
   backdrop(c);
   const b = Math.sin(t / 3 * Math.PI * 2);
   const pose = { ...STAND, body: b * 1.2, hipNear: -b * 1.2, hipFar: -b * 1.2, arm: 2 + b * 2, armFar: -2 + b * 2, fore: -4 - b * 3, foreFar: -4 - b * 3 };
@@ -232,7 +205,7 @@ move("Idle", "-", 3, (c, t) => {
   bot(c, { x: 180, y: FLOOR + lift(pose), pose });
 });
 
-move("Turn", "opposite arrow", 4.8, (c, t) => {
+move("movement", "Turn", "opposite arrow", 4.8, (c, t) => {
   backdrop(c);
   const seq = [["R", 0.9], ["F", 0.3], ["L", 0.9], ["F", 0.3]];
   const T = 0.3;
@@ -248,7 +221,7 @@ move("Turn", "opposite arrow", 4.8, (c, t) => {
   bot(c, { view: view === "F" ? "front" : "side", flip: view === "L", sx, x: 180, y: FLOOR, pose: STAND });
 });
 
-move("Walk", "Left / Right", 3.3, (c, t) => {
+move("movement", "Walk", "Left / Right", 3.3, (c, t) => {
   backdrop(c);
   const p = t / 1.1 * Math.PI * 2;
   const x = -60 + t * (W + 120) / 3.3;
@@ -257,7 +230,7 @@ move("Walk", "Left / Right", 3.3, (c, t) => {
   bot(c, { x, y: FLOOR + lift(pose), pose });
 });
 
-move("Run", "Alt + Left / Right", 1.98, (c, t) => {
+move("movement", "Run", "Alt + Left / Right", 1.98, (c, t) => {
   backdrop(c);
   const p = t / 0.66 * Math.PI * 2;
   const x = -60 + t * (W + 120) / 1.98;
@@ -266,7 +239,7 @@ move("Run", "Alt + Left / Right", 1.98, (c, t) => {
   bot(c, { x, y: FLOOR + lift(pose) - 5 * Math.max(0, Math.sin(2 * p)), pose });
 });
 
-move("Standing jump", "Up", 2.4, (c, t) => {
+move("movement", "Standing jump", "Up", 2.4, (c, t) => {
   backdrop(c);
   const keys = [
     [0, { ...STAND }],
@@ -285,7 +258,7 @@ move("Standing jump", "Up", 2.4, (c, t) => {
   bot(c, { x: 180, y: FLOOR + lift(pose) * (1 - air) - h, pose });
 });
 
-move("Running jump", "Alt + direction + Up", 1.7, (c, t) => {
+move("movement", "Running jump", "Alt + direction + Up", 1.7, (c, t) => {
   const gap = [170, 236];
   backdrop(c, [gap]);
   const x = -60 + t * (W + 120) / 1.7;
@@ -300,7 +273,7 @@ move("Running jump", "Alt + direction + Up", 1.7, (c, t) => {
   bot(c, { x, y: FLOOR + lift(pose) * (1 - k) - h, pose });
 });
 
-move("Fall and land", "walk off edge", 3.2, (c, t) => {
+move("movement", "Fall and land", "walk off edge", 3.2, (c, t) => {
   const top = FLOOR - 86;
   backdrop(c);
   slab(c, 0, 150, top);
@@ -325,7 +298,7 @@ move("Fall and land", "walk off edge", 3.2, (c, t) => {
   bot(c, { x, y, pose });
 });
 
-move("Fall death", "fall too high", 3.6, (c, t) => {
+move("movement", "Fall death", "fall too high", 3.6, (c, t) => {
   backdrop(c);
   const landT = 0.55;
   const x = 170;
@@ -351,7 +324,7 @@ move("Fall death", "fall too high", 3.6, (c, t) => {
   if (t > landT + 0.8) label(c, "DEAD", 8, 16);
 });
 
-move("Duck", "hold Down", 2.4, (c, t) => {
+move("movement", "Duck", "hold Down", 2.4, (c, t) => {
   backdrop(c);
   const duck = { ...legs(16, [-70, 124, -54], [-52, 128, -76]), ...GUARD };
   const pose = keyed([[0, STAND], [0.25, duck], [1.6, duck], [1.9, STAND]], t);
@@ -364,7 +337,7 @@ const KNEEL_HAND = (() => {
   const y = FLOOR + lift(KNEEL);
   return handAt(KNEEL, 150, y);
 })();
-move("Kneel, pick up", "Down on item", 2.8, (c, t) => {
+move("interaction", "Kneel, pick up", "Down on item", 2.8, (c, t) => {
   backdrop(c);
   const pose = keyed([[0, STAND], [0.45, KNEEL], [1.15, KNEEL], [1.6, STAND]], t);
   const grabbed = t > 0.8 && t < 2.2;
@@ -376,7 +349,7 @@ move("Kneel, pick up", "Down on item", 2.8, (c, t) => {
 
 const REACH = { ...STAND, arm: -74, fore: -8 };
 const PANEL = handAt(REACH, 140, FLOOR);
-move("Use", "Enter at target", 2.6, (c, t) => {
+move("interaction", "Use", "Enter at target", 2.6, (c, t) => {
   backdrop(c);
   c.fillStyle = "#26363a";
   c.fillRect(PANEL[0] - 4, PANEL[1] - 26, 34, 52);
@@ -390,7 +363,7 @@ move("Use", "Enter at target", 2.6, (c, t) => {
   bot(c, { x: 140, y: FLOOR + lift(pose), pose });
 });
 
-move("Hide", "Shift, front view + tint", 4, (c, t) => {
+move("fight", "Hide", "Shift, front view + tint", 4, (c, t) => {
   backdrop(c);
   barrel(c, 214, FLOOR, 40, 62);
   box(c, 96, FLOOR, 44, 44);
@@ -405,7 +378,7 @@ move("Hide", "Shift, front view + tint", 4, (c, t) => {
   if (dark > 0.9) label(c, "HIDDEN");
 });
 
-move("Shoot", "Ctrl, weapon 1 (gun)", 2.4, (c, t) => {
+move("fight", "Shoot", "Ctrl, weapon 1 (gun)", 2.4, (c, t) => {
   backdrop(c);
   box(c, 300, FLOOR, 40, 70, "#3c4a4c", "#1a2224");
   const firing = t > 0.35 && t < 1.55;
@@ -437,7 +410,7 @@ function punchPose(t, base, jab, cross, period) {
   return { ...base, ...mix(GUARD, jab, near), ...(cross ? { armFar: mix(GUARD, cross, far).armFar, foreFar: mix(GUARD, cross, far).foreFar } : {}), body: base.body + 6 * Math.max(near, far) };
 }
 
-move("Punch", "Ctrl, weapon 2 (fists)", 1.2, (c, t) => {
+move("fight", "Punch", "Ctrl, weapon 2 (fists)", 1.2, (c, t) => {
   backdrop(c);
   const stance = legs(2, [-14, 10], [16, 6]);
   const pose = punchPose(t, stance, { arm: -88, fore: 12 }, { armFar: -84, foreFar: 6 }, 1.2);
@@ -454,7 +427,7 @@ move("Punch", "Ctrl, weapon 2 (fists)", 1.2, (c, t) => {
   bot(c, { x, y, pose });
 });
 
-move("Duck punch", "Down + Ctrl, fists", 1.0, (c, t) => {
+move("fight", "Duck punch", "Down + Ctrl, fists", 1.0, (c, t) => {
   backdrop(c);
   const duck = legs(16, [-70, 124, -54], [-52, 128, -76]);
   const pose = punchPose(t, duck, { arm: -70, fore: 10 }, null, 1.0);
@@ -462,7 +435,7 @@ move("Duck punch", "Down + Ctrl, fists", 1.0, (c, t) => {
   bot(c, { x: 160, y: FLOOR + lift(pose), pose });
 });
 
-move("Weapon switch", "1 / 2", 3.4, (c, t) => {
+move("fight", "Weapon switch", "1 / 2", 3.4, (c, t) => {
   backdrop(c);
   const rest = { ...STAND, arm: 4, fore: -6 };
   const hip = { ...STAND, arm: 26, fore: -4 };
@@ -474,28 +447,33 @@ move("Weapon switch", "1 / 2", 3.4, (c, t) => {
   label(c, held ? "1  GUN" : "2  FISTS");
 });
 
-move("Ladder", "Up / Down at ladder", 4, (c, t) => {
-  backdrop(c);
-  const lx = 210;
-  c.fillStyle = "#4a5c5f";
-  c.fillRect(lx, 0, 4, FLOOR);
-  c.fillRect(lx + 30, 0, 4, FLOOR);
-  for (let y = FLOOR - 14; y > 0; y -= 22) c.fillRect(lx, y, 34, 3);
-  const p = t / 1.0 * Math.PI * 2;
-  const s = Math.sin(p);
-  const pose = {
-    ...legs(4, [-44 - 30 * s, 70 + 40 * s, -20], [-44 + 30 * s, 70 - 40 * s, -20]),
-    arm: -140 + 22 * s, fore: -40 - 10 * s, armFar: -140 - 22 * s, foreFar: -40 + 10 * s
+function climbPose(hl) {
+  const hr = 1 - hl;
+  const legUp = r => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
+  const [thighL, shinL] = legUp(hr), [thighR, shinR] = legUp(hl);
+  return {
+    armL: 160 + 18 * hl, foreL: 34 * hr, armR: -(160 + 18 * hr), foreR: -34 * hl,
+    thighL, shinL, thighR, shinR
   };
-  const climb = clamp((t - 0.4) / 3.2);
-  const y = FLOOR + lift(legs(4, [-44, 70, -20], [-44, 70, -20])) - climb * 150;
+}
+
+move("movement", "Ladder", "Up / Down at ladder, back view", 4, (c, t) => {
+  backdrop(c);
+  const lx = 180;
+  c.fillStyle = "#4a5c5f";
+  c.fillRect(lx - 38, 0, 5, FLOOR);
+  c.fillRect(lx + 33, 0, 5, FLOOR);
+  const climb = 120 * clamp((t - 0.5) / 3.0);
+  for (let y = FLOOR - 16; y > 0; y -= 22) c.fillRect(lx - 38, y, 76, 3);
+  const hl = 0.5 + 0.5 * Math.sin(climb / 44 * Math.PI * 2);
+  const pose = t < 0.5 ? mix({}, climbPose(hl), ease(t / 0.5)) : climbPose(hl);
   c.save();
   c.globalAlpha = 1 - span(t, 3.6, 4);
-  bot(c, { x: lx - 22, y, pose: t < 0.4 ? mix(STAND, pose, t / 0.4) : pose });
+  bot(c, { view: "back", x: lx, y: FLOOR - climb, pose });
   c.restore();
 });
 
-move("Lift ride", "stand on platform", 5, (c, t) => {
+move("movement", "Lift ride", "stand on platform", 5, (c, t) => {
   backdrop(c);
   const shaftL = 110, shaftR = 250;
   c.fillStyle = "#3a2a22";
@@ -514,7 +492,7 @@ move("Lift ride", "stand on platform", 5, (c, t) => {
   bot(c, { x: 180, y: py, pose: STAND });
 });
 
-move("Hit reaction", "taking damage", 2, (c, t) => {
+move("fight", "Hit reaction", "taking damage", 2, (c, t) => {
   backdrop(c);
   const hitT = 0.6;
   const recoil = { ...legs(-14, [-18, 14], [22, 20]), arm: 40, armFar: 50, fore: -50, foreFar: -60 };
@@ -530,7 +508,7 @@ move("Hit reaction", "taking damage", 2, (c, t) => {
   } else if (t < hitT + 0.3) spark(c, x + 14, FLOOR - 120, 14, span(t, hitT, hitT + 0.3));
 });
 
-move("Death", "energy runs out", 3.6, (c, t) => {
+move("fight", "Death", "energy runs out", 3.6, (c, t) => {
   backdrop(c);
   const hits = [0.3, 0.55, 0.8];
   const stagger = { ...legs(-16, [-20, 20], [26, 24]), arm: 50, armFar: 60, fore: -60, foreFar: -50 };
@@ -548,7 +526,7 @@ move("Death", "energy runs out", 3.6, (c, t) => {
 });
 
 const grid = document.getElementById("grid");
-const cells = MOVES.map(m => {
+const cells = MOVES.filter(m => m.category === CATEGORY).map(m => {
   const fig = document.createElement("figure");
   const canvas = document.createElement("canvas");
   const cap = document.createElement("figcaption");
@@ -578,6 +556,3 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-</script>
-</body>
-</html>

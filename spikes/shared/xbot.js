@@ -48,6 +48,20 @@ function mirrorPts(pts, ax = AX) {
   return pts.map(([x, y]) => [2 * ax - x, y]).reverse();
 }
 
+let lod = null;
+
+function tiny(pts) {
+  if (!lod) return false;
+  const [x0, y0, x1, y1] = bbox(pts);
+  const w = x1 - x0, h = y1 - y0;
+  return Math.min(w, h) < lod.minThickness || w * h < lod.minArea;
+}
+
+function withLod(on, build) {
+  lod = on ? CFG.gameLod : null;
+  try { return build(); } finally { lod = null; }
+}
+
 function G(parent, tf, name, pivot, extra = {}) {
   const n = { k: "g", m: tf ? parseTf(tf) : null, name, pivot, kids: [], ...extra };
   parent.kids.push(n);
@@ -56,14 +70,17 @@ function G(parent, tf, name, pivot, extra = {}) {
 
 function P(parent, spec) {
   const { pts, r = 4 } = spec;
+  if (tiny(pts)) return;
   parent.kids.push({ k: "part", spec, path: new Path2D(roundedPath(pts, r)), box: bbox(pts) });
 }
 
 function F(parent, pts, fill, r = 0) {
+  if (fill !== "visor" && tiny(pts)) return;
   parent.kids.push({ k: "flat", path: new Path2D(roundedPath(pts, r)), fill });
 }
 
 function E(parent, cx, cy, rx, ry, fill, opacity = 1) {
+  if (tiny([[cx - rx, cy - ry], [cx + rx, cy + ry]])) return;
   parent.kids.push({ k: "ellipse", cx, cy, rx, ry, fill, opacity });
 }
 
@@ -130,6 +147,28 @@ function legFlat(parent, pts, fill, kind = "foot") {
   F(l, pts, fill);
   F(r, mirrorPts(pts), fill);
 }
+function legOne(parent, kind, right) {
+  return right
+    ? G(parent, `translate(${-LEG_SHIFT} 0) ${legTf(kind, 2 * AX - LEG_CX)}`)
+    : G(parent, `translate(${LEG_SHIFT} 0) ${legTf(kind, LEG_CX)}`);
+}
+
+function backLeg(s, right) {
+  const M = p => right ? mirrorPts(p) : p;
+  const sfx = right ? "R" : "L";
+  const thigh = G(G(s, null, "leg" + sfx, [AX, 344]), null, "thigh" + sfx, [AX, 344]);
+  P(legOne(thigh, "thigh", right), { ...leg.piston, pts: M(leg.piston.pts) });
+  F(legOne(thigh, "thigh", right), M(leg.pistonRing), "m1");
+  P(legOne(thigh, "thigh", right), { ...leg.thigh, pts: M(leg.thigh.pts) });
+  const lower = G(s, null, "shin" + sfx, [AX, 522]);
+  P(legOne(lower, "shin", right), { pts: M([[162, 500], [264, 500], [280, 690], [148, 690]]), r: 1 });
+  for (let i = 0; i < 4; i++) F(legOne(lower, "shin", right), M([[176, 560 + i * 26], [252, 560 + i * 26], [254, 566 + i * 26], [174, 566 + i * 26]]), "a0");
+  P(legOne(lower, "knee", right), { pts: M([[178, 456], [244, 456], [246, 512], [176, 512]]), mat: "metal", shade: "cyl", r: 1 });
+  P(legOne(lower, "foot", right), { pts: M([[146, 688], [282, 688], [290, 714], [286, 744], [142, 744], [136, 714]]), mat: "metal", r: 1 });
+  if (right) hook(G(lower, `translate(${2 * AX - 211} 744)`), "footR");
+  else hook(G(lower, "translate(211 744)"), "footL");
+}
+
 function bodyGroup(parent) {
   return G(parent, `translate(${AX} 0) scale(${BODY_SX} 1) translate(${-AX} 0)`);
 }
@@ -159,6 +198,7 @@ function frontHand(parent, M, thumbFront) {
   };
   if (!thumbFront) thumb();
   P(parent, { pts: M([[44, 400], [134, 398], [136, 434], [44, 436]]), mat: "metal", r: 2 });
+  if (lod) P(parent, { pts: M([[44, 422], [130, 422], [130, 472], [112, 480], [60, 480], [44, 472]]), r: 6 });
   for (let i = 0; i < 4; i++) {
     const x = 46 + i * 21;
     P(parent, { pts: M([[x, 422], [x + 19, 422], [x + 19, 437], [x, 437]]), r: 2 });
@@ -189,7 +229,11 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   frontHand(fore, flipHand ? p => mirrorPts(M(p), hc) : M, thumbFront);
 }
 
-function buildFront() {
+function buildFront({ lod: low = false } = {}) {
+  return withLod(low, () => frontTree());
+}
+
+function frontTree() {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [AX, 344]);
   P(bodyGroup(s), { pts: [[248, 316], [392, 316], [398, 352], [374, 392], [320, 404], [266, 392], [242, 352]], r: 18 });
@@ -235,19 +279,18 @@ function buildFront() {
   return root;
 }
 
-function buildBack({ leftArmBehind = false, rightForeBehind = false } = {}) {
+function buildBack({ leftArmBehind = false, rightForeBehind = false, lod: low = false } = {}) {
+  return withLod(low, () => backTree({ leftArmBehind, rightForeBehind }));
+}
+
+function backTree({ leftArmBehind, rightForeBehind }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [AX, FOOT_Y]);
   if (leftArmBehind) frontArm(bodyGroup(s), false, { arm: "armL", fore: "foreL", hand: "handL" }, true);
   const behindRight = rightForeBehind ? bodyGroup(s) : null;
   P(bodyGroup(s), { pts: [[198, 318], [442, 318], [442, 372], [198, 372]], mat: "chrome", shade: "hcyl", r: 6 });
-  legPair(s, leg.piston, "thigh");
-  legFlat(s, leg.pistonRing, "m1", "thigh");
-  legPair(s, leg.thigh, "thigh");
-  legPair(s, { pts: [[162, 500], [264, 500], [280, 690], [148, 690]], r: 1 }, "shin");
-  for (let i = 0; i < 4; i++) legFlat(s, [[176, 560 + i * 26], [252, 560 + i * 26], [254, 566 + i * 26], [174, 566 + i * 26]], "a0", "shin");
-  legPair(s, { pts: [[178, 456], [244, 456], [246, 512], [176, 512]], mat: "metal", shade: "cyl", r: 1 }, "knee");
-  legPair(s, { pts: [[146, 688], [282, 688], [290, 714], [286, 744], [142, 744], [136, 714]], mat: "metal", r: 1 });
+  backLeg(s, false);
+  backLeg(s, true);
   const b = bodyGroup(s);
   P(b, { pts: [[248, 316], [392, 316], [398, 352], [374, 392], [320, 404], [266, 392], [242, 352]], r: 18 });
   P(b, { pts: [[172, 196], [468, 196], [446, 300], [436, 322], [204, 322], [194, 300]], mat: "metal", r: 10 });
@@ -291,6 +334,7 @@ function sideLeg(parent, names, extra) {
 function sideHand(parent) {
   P(parent, { pts: [[352, 410], [376, 406], [384, 428], [376, 448], [360, 444], [350, 428]], r: 4 });
   P(parent, { pts: [[278, 398], [364, 396], [366, 434], [278, 436]], mat: "metal", r: 2 });
+  if (lod) P(parent, { pts: [[278, 422], [364, 422], [364, 472], [346, 480], [294, 480], [278, 472]], r: 6 });
   for (let i = 0; i < 4; i++) {
     const x = 280 + i * 21;
     P(parent, { pts: [[x, 422], [x + 19, 422], [x + 19, 437], [x, 437]], r: 2 });
@@ -316,7 +360,11 @@ function sideArm(parent, names, extra) {
   sideHand(lower);
 }
 
-function buildSide({ farLimbs = false, badge = false } = {}) {
+function buildSide({ farLimbs = false, badge = false, lod: low = false } = {}) {
+  return withLod(low, () => sideTree({ farLimbs, badge }));
+}
+
+function sideTree({ farLimbs, badge }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [SIDE_AX, 344]);
   if (farLimbs) {
@@ -351,7 +399,7 @@ function buildSide({ farLimbs = false, badge = false } = {}) {
   return root;
 }
 
-function drawPart(ctx, node, pal, lineW) {
+function drawPart(ctx, node, pal, lineW, simple) {
   const { spec, path, box } = node;
   const { mat = "armor", shade = "box", line = true } = spec;
   const [c0, c1, c2, c3, cl] = MAT[mat].map(k => pal[k]);
@@ -369,7 +417,12 @@ function drawPart(ctx, node, pal, lineW) {
   };
   const rect = (fill, x, y, rw, rh) => { ctx.fillStyle = fill; ctx.fillRect(x, y, rw, rh); };
   const ell = (fill, cx, cy, rx, ry) => { ctx.fillStyle = fill; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); };
-  if (shade === "box") {
+  if (simple) {
+    if (shade === "box") poly(c0, [[x1 - w * 0.24, y0 - 2], [x1 + 2, y0 - 2], [x1 + 2, y1 + 2], [x1 - w * 0.3, y1 + 2]]);
+    else if (shade === "dome") { rect(c0, x0 - 2, y0 - 2, w + 4, h + 4); ell(c1, x0 + w * 0.44, y0 + h * 0.44, w * 0.5, h * 0.5); ell(c2, x0 + w * 0.36, y0 + h * 0.34, w * 0.26, h * 0.24); }
+    else if (shade === "cyl") { rect(c2, x0 - 2, y0 - 2, w * 0.3 + 2, h + 4); rect(c0, x1 - w * 0.25, y0 - 2, w * 0.25 + 2, h + 4); }
+    else if (shade === "hcyl") { rect(c2, x0 - 2, y0 - 2, w + 4, h * 0.32 + 2); rect(c0, x0 - 2, y1 - h * 0.28, w + 4, h * 0.28 + 2); }
+  } else if (shade === "box") {
     poly(c2, [[x0 - 2, y0 - 2], [x0 + w * 0.36, y0 - 2], [x0 + w * 0.26, y1 + 2], [x0 - 2, y1 + 2]]);
     poly(c0, [[x1 - w * 0.2, y0 - 2], [x1 + 2, y0 - 2], [x1 + 2, y1 + 2], [x1 - w * 0.28, y1 + 2]]);
     poly(c0, [[x0 - 2, y1 - h * 0.12], [x1 + 2, y1 - h * 0.08], [x1 + 2, y1 + 2], [x0 - 2, y1 + 2]]);
@@ -417,21 +470,28 @@ function drawTrefoil(ctx, r, pal, lineW, outer = 0.84) {
   }
 }
 
-function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 2.2 } = {}) {
+function joint(v) {
+  if (!v) return null;
+  if (typeof v === "number") return { dx: 0, dy: 0, rot: v, sx: 1, sy: 1 };
+  return { dx: 0, dy: 0, rot: 0, sx: 1, sy: 1, ...v };
+}
+
+function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 2.2, simple = false } = {}) {
   if (node.k === "g") {
     ctx.save();
     if (node.m) ctx.transform(node.m.a, node.m.b, node.m.c, node.m.d, node.m.e, node.m.f);
     if (node.filter) ctx.filter = node.filter;
-    const ang = node.name != null ? pose[node.name] : null;
-    if (ang) {
-      ctx.translate(node.pivot[0], node.pivot[1]);
-      ctx.rotate(ang * Math.PI / 180);
+    const j = node.name != null ? joint(pose[node.name]) : null;
+    if (j) {
+      ctx.translate(j.dx + node.pivot[0], j.dy + node.pivot[1]);
+      ctx.rotate(j.rot * Math.PI / 180);
+      ctx.scale(j.sx, j.sy);
       ctx.translate(-node.pivot[0], -node.pivot[1]);
     }
-    for (const kid of node.kids) render(ctx, kid, { pal, pose, hooks, lineW });
+    for (const kid of node.kids) render(ctx, kid, { pal, pose, hooks, lineW, simple });
     ctx.restore();
   } else if (node.k === "part") {
-    drawPart(ctx, node, pal, lineW);
+    drawPart(ctx, node, pal, lineW, simple);
   } else if (node.k === "flat") {
     ctx.fillStyle = pal[node.fill] || node.fill;
     ctx.fill(node.path);
@@ -452,8 +512,8 @@ function locate(node, name, pose = {}, m = new DOMMatrix()) {
   if (node.k === "hook") return node.name === name ? m : null;
   if (node.k !== "g") return null;
   let mm = node.m ? m.multiply(node.m) : m;
-  const ang = node.name != null ? pose[node.name] : null;
-  if (ang) mm = mm.translate(node.pivot[0], node.pivot[1]).rotate(ang).translate(-node.pivot[0], -node.pivot[1]);
+  const j = node.name != null ? joint(pose[node.name]) : null;
+  if (j) mm = mm.translate(j.dx + node.pivot[0], j.dy + node.pivot[1]).rotate(j.rot).scale(j.sx, j.sy).translate(-node.pivot[0], -node.pivot[1]);
   for (const kid of node.kids) {
     const r = locate(kid, name, pose, mm);
     if (r) return r;

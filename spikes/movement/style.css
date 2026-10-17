@@ -1,0 +1,15 @@
+:root { --bg: #0b1112; --panel: #141c1e; --text: #c9d1d0; --muted: #7d8a89; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+header { padding: 10px 16px; background: var(--panel); display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; }
+header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+header p { margin: 0; color: var(--muted); }
+main { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; padding: 12px 16px; }
+figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+figcaption { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; }
+figcaption b { text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+figcaption span { color: var(--muted); text-align: right; }
+figure canvas { width: 100%; aspect-ratio: 360 / 250; display: block; border-radius: 4px; }
+nav { display: flex; gap: 10px; }
+nav a { color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--text); }

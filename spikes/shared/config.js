@@ -47,6 +47,10 @@ window.C28_CONFIG = {
      "scaleY": 0.92
     }
    },
+   "gameLod": {
+    "minThickness": 8,
+    "minArea": 400
+   },
    "levels": {
     "head": 2,
     "shoulder": 104,
@@ -67,7 +71,13 @@ window.C28_CONFIG = {
      "armL",
      "foreL",
      "armR",
-     "foreR"
+     "foreR",
+     "legL",
+     "thighL",
+     "shinL",
+     "legR",
+     "thighR",
+     "shinR"
     ],
     "side": [
      "body",
@@ -90,7 +100,9 @@ window.C28_CONFIG = {
     ],
     "back": [
      "handL",
-     "handR"
+     "handR",
+     "footL",
+     "footR"
     ],
     "side": [
      "hand",
