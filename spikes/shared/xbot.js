@@ -209,15 +209,17 @@ function frontHand(parent, M, thumbFront) {
   if (thumbFront) thumb();
 }
 
-function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = null, flipHand = false) {
+function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = null, flipHand = false, foreUnder = false) {
   const M = p => mirror ? mirrorPts(p) : p;
   const sh = mirror ? [2 * AX - 100, 150] : [100, 150];
   const el = mirror ? [2 * AX - 90, 306] : [90, 306];
   const arm = G(parent, null, names.arm, sh);
+  const foreTf = `translate(${mirror ? -FORE_SHIFT : FORE_SHIFT} -22)`;
+  const under = foreUnder ? G(arm, foreTf, names.fore, el) : null;
   P(G(arm, `translate(${mirror ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
   P(arm, { pts: M(bicep), r: 18, shade: "dome" });
   P(arm, { pts: M(pauldron), r: 20, shade: "dome" });
-  const fore = G(foreParent ? G(foreParent, null, names.arm, sh) : arm, `translate(${mirror ? -FORE_SHIFT : FORE_SHIFT} -22)`, names.fore, el);
+  const fore = under || G(foreParent ? G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirror ? 2 * AX - 89 : 89;
   const fa = G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
   P(fa, { pts: M(forearm), r: 1 });
@@ -279,14 +281,14 @@ function frontTree() {
   return root;
 }
 
-function buildBack({ leftArmBehind = false, rightForeBehind = false, lod: low = false } = {}) {
-  return withLod(low, () => backTree({ leftArmBehind, rightForeBehind }));
+function buildBack({ leftArmBehind = false, rightForeBehind = false, thumbsBehind = false, forearmsUnder = false, lod: low = false } = {}) {
+  return withLod(low, () => backTree({ leftArmBehind, rightForeBehind, thumbsBehind, forearmsUnder }));
 }
 
-function backTree({ leftArmBehind, rightForeBehind }) {
+function backTree({ leftArmBehind, rightForeBehind, thumbsBehind, forearmsUnder }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [AX, FOOT_Y]);
-  if (leftArmBehind) frontArm(bodyGroup(s), false, { arm: "armL", fore: "foreL", hand: "handL" }, true);
+  if (leftArmBehind) frontArm(bodyGroup(s), false, { arm: "armL", fore: "foreL", hand: "handL" }, !thumbsBehind);
   const behindRight = rightForeBehind ? bodyGroup(s) : null;
   P(bodyGroup(s), { pts: [[198, 318], [442, 318], [442, 372], [198, 372]], mat: "chrome", shade: "hcyl", r: 6 });
   backLeg(s, false);
@@ -305,8 +307,8 @@ function backTree({ leftArmBehind, rightForeBehind }) {
   for (const [x, y, h] of [[250, 160, 40], [268, 170, 60], [384, 150, 50], [404, 200, 34]]) F(b, [[x, y], [x + 4, y], [x + 3, y + h], [x + 1, y + h]], "a0");
   headFront(s, true);
   const arms = bodyGroup(s);
-  if (!leftArmBehind) frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" }, true);
-  frontArm(arms, true, { arm: "armR", fore: "foreR", hand: "handR" }, !rightForeBehind, behindRight, rightForeBehind);
+  if (!leftArmBehind) frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" }, !thumbsBehind, null, false, forearmsUnder);
+  frontArm(arms, true, { arm: "armR", fore: "foreR", hand: "handR" }, !rightForeBehind && !thumbsBehind, behindRight, rightForeBehind, forearmsUnder);
   return root;
 }
 
@@ -523,7 +525,27 @@ function locate(node, name, pose = {}, m = new DOMMatrix()) {
   return null;
 }
 
+function solve(root, hook, pose, keys, ranges, target) {
+  const hit = (a, b) => {
+    const pt = locate(root, hook, { ...pose, [keys[0]]: a, [keys[1]]: b }).transformPoint(new DOMPoint(0, 0));
+    return Math.hypot(pt.x - target.x, pt.y - target.y);
+  };
+  let best = [Infinity, 0, 0];
+  for (let a = ranges[0][0]; a <= ranges[0][1]; a += 4) for (let b = ranges[1][0]; b <= ranges[1][1]; b += 4) {
+    const d = hit(a, b);
+    if (d < best[0]) best = [d, a, b];
+  }
+  for (const [range, step] of [[4, 1], [1, 0.25]]) {
+    const [, a0, b0] = best;
+    for (let a = a0 - range; a <= a0 + range; a += step) for (let b = b0 - range; b <= b0 + range; b += step) {
+      const d = hit(a, b);
+      if (d < best[0]) best = [d, a, b];
+    }
+  }
+  return { [keys[0]]: best[1], [keys[1]]: best[2] };
+}
+
 const LEVELS = Object.entries(CFG.levels);
 
-window.XBOT = { locate, PALETTE, AX, SIDE_AX, FOOT_Y, mirrorPts, buildFront, buildBack, buildSide, render, LEVELS };
+window.XBOT = { locate, solve, PALETTE, AX, SIDE_AX, FOOT_Y, mirrorPts, buildFront, buildBack, buildSide, render, LEVELS };
 })();

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gun Design Sheet</title>
+<style>
+  :root { --bg: #0b1112; --panel: #141c1e; --text: #c9d1d0; --muted: #7d8a89; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+  header { padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: var(--panel); }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  header label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  h2 { font-size: 13px; font-weight: 600; margin: 4px 16px 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  main { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; padding: 12px 16px; }
+  main.game { grid-template-columns: repeat(auto-fill, 144px); }
+  figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  figure.wide { grid-column: span 2; }
+  figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  figure canvas { width: 100%; display: block; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
+  main.game canvas { width: 128px; }
+  @media (max-width: 560px) { figure.wide { grid-column: auto; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Gun design sheet</h1>
+  <label><input id="lines" type="checkbox" checked> Outlines</label>
+</header>
+<main>
+  <figure class="wide"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200"></canvas></figure>
+  <figure><figcaption>Muzzle, six barrels</figcaption><canvas id="muzzle" data-w="200" data-h="200"></canvas></figure>
+  <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
+</main>
+<h2>In-game, simplified (game size, scale 0.2)</h2>
+<main class="game">
+  <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
+</main>
+<h2>References</h2>
+<main>
+  <figure><figcaption>ZABIJMIM f12, muzzle</figcaption><img src="../../docs/research/robot/cutscenes/ZABIJMIM_f012_gun.png" alt="gun muzzle"></figure>
+  <figure><figcaption>ZABIJMIM f18, side</figcaption><img src="../../docs/research/robot/cutscenes/ZABIJMIM_f018_gun.png" alt="gun side"></figure>
+  <figure><figcaption>ZABIJMIM f24, firing</figcaption><img src="../../docs/research/robot/cutscenes/ZABIJMIM_f024_gun.png" alt="gun firing"></figure>
+  <figure><figcaption>Minigun lowered</figcaption><img src="../../docs/research/robot/video/98GhruztJP0_01-11_front-full-minigun-down.png" alt="minigun lowered"></figure>
+  <figure><figcaption>Side shot in game</figcaption><img src="../../docs/research/robot/video/5r7Yie502C0_04-48_side-shoot-muzzle-flash.png" alt="side shot"></figure>
+  <figure><figcaption>Sprite carry, walk</figcaption><img src="../../docs/research/robot/sprites/A_state-walk_220s_x6.png" alt="sprite walk"></figure>
+</main>
+<script src="../shared/config.js"></script>
+<script src="../shared/xbot.js"></script>
+<script src="../shared/gun.js"></script>
+<script>
+const { buildSide, buildFront, render, SIDE_AX, AX, FOOT_Y } = window.XBOT;
+const roots = {
+  side: buildSide({ farLimbs: true }),
+  front: buildFront(),
+  gSide: buildSide({ farLimbs: true, lod: true }),
+  gFront: buildFront({ lod: true })
+};
+const hold = GUN.holdPoses(roots.side, roots.front);
+const sidePose = { ...hold.CARRY, ...hold.CARRY_FAR };
+const frontPose = { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R };
+const opts = { lines: true };
+
+function robot(ctx, root, pose, hookName, simple, lineW) {
+  render(ctx, root, { pose, lineW, simple, hooks: { [hookName]: c => GUN.hook(c, { lineW, simple }) } });
+}
+
+const VIEWS = {
+  side: (ctx, lw) => { ctx.translate(210, 120); GUN.draw(ctx, { lineW: lw }); },
+  muzzle: (ctx, lw) => { ctx.translate(100, 100); ctx.scale(2.6, 2.6); GUN.drawMuzzle(ctx, { lineW: lw }); },
+  heldSide: (ctx, lw) => { ctx.translate(-60, 0); robot(ctx, roots.side, sidePose, "hand", false, lw); },
+  heldFront: (ctx, lw) => robot(ctx, roots.front, frontPose, "handL", false, lw),
+  gSide: (ctx, lw) => { ctx.translate(-60, 0); robot(ctx, roots.gSide, sidePose, "hand", true, lw * 0.5); },
+  gFront: (ctx, lw) => robot(ctx, roots.gFront, frontPose, "handL", true, lw * 0.5)
+};
+
+function draw() {
+  const dpr = devicePixelRatio || 1;
+  for (const [id, view] of Object.entries(VIEWS)) {
+    const c = document.getElementById(id);
+    const w = +c.dataset.w, h = +c.dataset.h;
+    c.style.aspectRatio = `${w} / ${h}`;
+    c.width = Math.round(c.clientWidth * dpr);
+    c.height = Math.round(c.clientWidth * h / w * dpr);
+    const ctx = c.getContext("2d");
+    const s = c.width / w;
+    ctx.setTransform(s, 0, 0, s, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    view(ctx, opts.lines ? 2 * dpr : 0);
+  }
+}
+
+document.getElementById("lines").onchange = e => { opts.lines = e.target.checked; draw(); };
+addEventListener("resize", draw);
+draw();
+</script>
+</body>
+</html>

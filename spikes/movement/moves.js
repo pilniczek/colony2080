@@ -2,7 +2,11 @@ const { buildSide, buildFront, buildBack, render, locate, SIDE_AX, AX, FOOT_Y, P
 const side = buildSide({ farLimbs: true, lod: true });
 const front = buildFront({ lod: true });
 const back = buildBack({ lod: true });
-const ROOTS = { side, front, back };
+const climber = buildBack({ lod: true, thumbsBehind: true, forearmsUnder: true });
+const ROOTS = { side, front, back, climber };
+let WEAPON = "fists";
+try { WEAPON = localStorage.getItem("xbotWeapon") || "fists"; } catch {}
+const armed = () => WEAPON === "gun";
 const W = 360, H = 250, FLOOR = 228, K = 0.2;
 const D = Math.PI / 180;
 let LINE = 1;
@@ -40,7 +44,6 @@ function legs(body, near, far) {
 
 const STAND = legs(0, [0, 2], [0, 2]);
 const GUARD = { arm: -38, fore: -92, armFar: -30, foreFar: -96 };
-const AIM = { arm: -84, fore: 16, armFar: -66, foreFar: -34 };
 const CROUCH = { ...legs(18, [-62, 112, -50], [-48, 120, -72]), arm: -10, fore: -40, armFar: -4, foreFar: -40 };
 
 function walkPose(p, amp = 24, flexAmp = 30) {
@@ -80,7 +83,29 @@ function handAt(pose, x, y, local = [0, 0], hook = "hand") {
   return [x + (pt.x - SIDE_AX) * K, y + (pt.y - FOOT_Y) * K];
 }
 
-function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, sx = 1, filter = null }) {
+const { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R } = GUN.holdPoses(side, front);
+
+function carry(pose) {
+  const b = pose.body || 0;
+  return { ...pose, arm: CARRY.arm - b, fore: CARRY.fore, armFar: CARRY_FAR.armFar - b, foreFar: CARRY_FAR.foreFar };
+}
+
+function slungGun(c) {
+  c.save();
+  c.translate(330, 236);
+  c.rotate(-0.95);
+  c.translate(-40, -100);
+  gun(c);
+  c.restore();
+}
+
+function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, sx = 1, filter = null, hold = true }) {
+  let after = null;
+  if (armed() && hold) {
+    if (view === "side") { pose = carry(pose); hooks = { ...hooks, hand: gun }; }
+    else if (view === "front") { pose = { ...pose, ...FRONT_CARRY, ...FRONT_CARRY_R }; hooks = { ...hooks, handL: gun }; }
+    else after = slungGun;
+  }
   c.save();
   c.translate(x, y);
   if (rot) c.rotate(rot * D);
@@ -88,19 +113,19 @@ function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = fa
   c.translate(view === "side" ? -SIDE_AX : -AX, -FOOT_Y);
   if (filter) c.filter = filter;
   render(c, ROOTS[view], { pose, hooks, lineW: LINE, simple: true });
+  if (after) after(c);
   c.restore();
 }
 
-const FLAT_FRONT = { ...legs(0, [0, 6, 30], [6, 10, 30]), arm: -20, armFar: -10, fore: -20, foreFar: -20 };
 const FLAT_BACK = { ...legs(0, [-6, 8, 0], [2, 10, 0]), arm: 20, armFar: 30, fore: -30, foreFar: -30 };
 const bottoms = new Map();
-function bottom(pose, rot) {
-  const key = JSON.stringify([pose, rot]);
+function bottom(pose, rot, hold = false) {
+  const key = JSON.stringify([pose, rot, hold && WEAPON]);
   if (!bottoms.has(key)) {
     const n = 400, cv = document.createElement("canvas");
     cv.width = cv.height = n;
     const c = cv.getContext("2d", { willReadFrequently: true });
-    bot(c, { x: n / 2, y: n / 2, pose, rot });
+    bot(c, { x: n / 2, y: n / 2, pose, rot, hold });
     const d = c.getImageData(0, 0, n, n).data;
     let maxY = n / 2;
     for (let i = 3; i < d.length; i += 4) if (d[i] > 40) maxY = Math.max(maxY, Math.floor(i / 4 / n));
@@ -181,20 +206,16 @@ function label(c, text, x = 8, y = 16) {
   c.fillText(text, x, y);
 }
 
-function gun(c) {
-  const line = P.mLine;
-  c.lineWidth = 3;
-  c.strokeStyle = line;
-  const r = (fill, x, y, w, h) => { c.fillStyle = fill; c.fillRect(x, y, w, h); c.strokeRect(x, y, w, h); };
-  r(P.m1, -12, -20, 26, 44);
-  r(P.m2, 10, -52, 56, 176);
-  c.fillStyle = P.m3; c.fillRect(16, -48, 9, 168);
-  c.fillStyle = P.a1; c.fillRect(12, 32, 52, 12);
-  r(P.m0, -10, 40, 24, 46);
-  for (let i = 0; i < 3; i++) r(i === 1 ? P.c2 : P.c1, 18 + i * 13, 124, 10, 82);
-  r(P.m0, 12, 200, 50, 12);
+const gun = c => GUN.hook(c, { lineW: LINE, simple: true });
+const MUZZLE = GUN.muzzleInHook;
+
+function droppedGun(c, x) {
+  c.save();
+  c.translate(x, FLOOR - 9);
+  c.scale(K, K);
+  GUN.draw(c, { lineW: LINE, simple: true });
+  c.restore();
 }
-const MUZZLE = [37, 214];
 
 function item(c, x, y) {
   c.fillStyle = "#3fa34a";
@@ -207,12 +228,10 @@ const MOVES = [];
 const CATEGORY = document.body.dataset.category;
 const move = (category, name, keys, period, draw) => MOVES.push({ category, name, keys, period, draw });
 
-move("movement", "Idle", "-", 3, (c, t) => {
+move("movement", "Idle", "-", 3, c => {
   backdrop(c);
-  const b = Math.sin(t / 3 * Math.PI * 2);
-  const pose = { ...STAND, body: b * 1.2, hipNear: -b * 1.2, hipFar: -b * 1.2, arm: 2 + b * 2, armFar: -2 + b * 2, fore: -4 - b * 3, foreFar: -4 - b * 3 };
   shadow(c, 180, FLOOR, 30);
-  bot(c, { x: 180, y: FLOOR + lift(pose), pose });
+  bot(c, { x: 180, y: FLOOR, pose: STAND });
 });
 
 move("movement", "Turn", "opposite arrow", 4.8, (c, t) => {
@@ -318,17 +337,19 @@ move("movement", "Fall death", "fall too high", 3.6, (c, t) => {
     pose = fallPose;
     y = -40 + (FLOOR + 40) * easeIn(t / landT);
   } else {
-    const impact = { ...legs(30, [-80, 140, -60], [-70, 146, -80]), arm: 30, armFar: 40, fore: -10, foreFar: -10 };
-    pose = keyed([[landT, fallPose], [landT + 0.1, impact], [landT + 0.35, impact], [landT + 0.75, FLAT_FRONT]], t);
+    const impact = { ...legs(4, [-80, 140, -60], [-70, 146, -80]), arm: 30, armFar: 40, fore: -10, foreFar: -10 };
+    pose = keyed([[landT, fallPose], [landT + 0.1, impact], [landT + 0.35, impact], [landT + 0.75, FLAT_BACK]], t);
     const k = easeIn(span(t, landT + 0.35, landT + 0.75));
-    rot = 88 * k;
-    y = (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_FRONT, 88)) * k;
+    rot = -88 * k;
+    y = (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, -88)) * k;
   }
   const alpha = 1 - span(t, 3.2, 3.6);
   c.save();
   c.globalAlpha = alpha;
   shadow(c, x, FLOOR, 30 * clamp(t / landT));
-  bot(c, { x, y, pose, rot });
+  const held = t < landT;
+  if (!held && armed()) droppedGun(c, x + 20 + 14 * span(t, landT, landT + 0.25));
+  bot(c, { x, y, pose, rot, hold: held });
   if (t > landT && t < landT + 0.4) spark(c, x + 10, FLOOR - 6, 22, span(t, landT, landT + 0.4));
   c.restore();
   if (t > landT + 0.8) label(c, "DEAD", 8, 16);
@@ -368,9 +389,10 @@ move("interaction", "Use", "Enter at target", 2.6, (c, t) => {
   const on = t > 0.7 && t < 2.3;
   c.fillStyle = on ? "#3fa34a" : "#e0281e";
   c.fillRect(PANEL[0] + 16, PANEL[1] - 20, 8, 8);
-  const pose = keyed([[0, STAND], [0.55, REACH], [1.1, REACH], [1.6, STAND]], t);
+  const reach = armed() ? { ...STAND, arm: 6, fore: -4, armFar: -76, foreFar: -6 } : REACH;
+  const pose = keyed([[0, armed() ? { ...STAND, arm: 6, fore: -4 } : STAND], [0.55, reach], [1.1, reach], [1.6, armed() ? { ...STAND, arm: 6, fore: -4 } : STAND]], t);
   shadow(c, 140, FLOOR, 30);
-  bot(c, { x: 140, y: FLOOR + lift(pose), pose });
+  bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
 });
 
 move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
@@ -388,30 +410,18 @@ move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   if (dark > 0.9) label(c, "HIDDEN");
 });
 
-move("fight", "Shoot", "Ctrl, weapon 1 (gun)", 2.4, (c, t) => {
-  backdrop(c);
-  box(c, 300, FLOOR, 40, 70, "#3c4a4c", "#1a2224");
-  const firing = t > 0.35 && t < 1.55;
+function fire(c, t, pose, x, y, targetX) {
   const shot = Math.floor(t * 12);
-  const kick = firing ? (shot % 2 ? 3 : 0) : 0;
-  const aim = { ...STAND, ...legs(0, [-10, 6], [12, 4]), ...AIM, arm: AIM.arm + kick, fore: AIM.fore - kick };
-  const rest = { ...STAND, arm: -10, fore: -40 };
-  const pose = keyed([[0, rest], [0.3, aim], [1.6, aim], [1.95, rest]], t);
-  const x = 110, y = FLOOR + lift(pose);
-  shadow(c, x, FLOOR, 30);
-  bot(c, { x, y, pose, hooks: { hand: gun } });
-  if (firing) {
-    const [mx, my] = handAt(pose, x, y, MUZZLE);
-    if (shot % 2 === 0) spark(c, mx + 4, my, 9, 0.2);
-    c.strokeStyle = "#ffd76a";
-    c.lineWidth = 2;
-    for (let i = 0; i < 3; i++) {
-      const bx = mx + ((t * 12 - shot) + i) * 60;
-      if (bx < 300) { c.beginPath(); c.moveTo(bx, my); c.lineTo(bx + 14, my); c.stroke(); }
-    }
-    if (shot % 3 === 0) spark(c, 302, my, 8, 0.3);
+  const [mx, my] = handAt(carry(pose), x, y, MUZZLE);
+  if (shot % 2 === 0) spark(c, mx + 4, my, 8, 0.2);
+  c.strokeStyle = "#ffd76a";
+  c.lineWidth = 2;
+  for (let i = 0; i < 3; i++) {
+    const bx = mx + ((t * 12 - shot) + i) * 60;
+    if (bx < targetX) { c.beginPath(); c.moveTo(bx, my); c.lineTo(bx + 14, my); c.stroke(); }
   }
-});
+  if (shot % 3 === 0) spark(c, targetX + 2, my, 7, 0.3);
+}
 
 function punchPose(t, base, jab, cross, period) {
   const u = t % period / period;
@@ -420,11 +430,22 @@ function punchPose(t, base, jab, cross, period) {
   return { ...base, ...mix(GUARD, jab, near), ...(cross ? { armFar: mix(GUARD, cross, far).armFar, foreFar: mix(GUARD, cross, far).foreFar } : {}) };
 }
 
-move("fight", "Punch", "Ctrl, weapon 2 (fists)", 1.2, (c, t) => {
+move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", 1.2, (c, t) => {
   backdrop(c);
   const stance = legs(2, [-14, 10], [16, 6]);
+  const x = 150;
+  if (armed()) {
+    box(c, 300, FLOOR, 40, 70, "#3c4a4c", "#1a2224");
+    const kick = Math.floor(t * 12) % 2 ? 3 : 0;
+    const pose = { ...stance, body: 2 - kick };
+    const y = FLOOR + lift(pose);
+    shadow(c, x, FLOOR, 30);
+    bot(c, { x, y, pose });
+    fire(c, t, pose, x, y, 300);
+    return;
+  }
   const pose = punchPose(t, stance, { arm: -88, fore: 12 }, { armFar: -84, foreFar: 6 }, 1.2);
-  const x = 150, y = FLOOR + lift(pose);
+  const y = FLOOR + lift(pose);
   const hit = Math.max(num([[0, 0], [0.12, 1], [0.3, 0], [1, 0]], t / 1.2), num([[0, 0], [0.5, 0], [0.62, 1], [0.8, 0], [1, 0]], t / 1.2));
   c.save();
   c.translate(258, 40);
@@ -437,50 +458,66 @@ move("fight", "Punch", "Ctrl, weapon 2 (fists)", 1.2, (c, t) => {
   bot(c, { x, y, pose });
 });
 
-move("fight", "Duck punch", "Down + Ctrl, fists", 1.0, (c, t) => {
+move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", 1.0, (c, t) => {
   backdrop(c);
   const duck = legs(16, [-70, 124, -54], [-52, 128, -76]);
+  const x = 140;
+  if (armed()) {
+    box(c, 300, FLOOR, 40, 40, "#3c4a4c", "#1a2224");
+    const pose = { ...duck, body: 16 - (Math.floor(t * 12) % 2 ? 3 : 0) };
+    const y = FLOOR + lift(pose);
+    shadow(c, x, FLOOR, 30);
+    bot(c, { x, y, pose });
+    fire(c, t, pose, x, y, 300);
+    return;
+  }
   const pose = punchPose(t, duck, { arm: -70, fore: 10 }, null, 1.0);
-  shadow(c, 160, FLOOR, 30);
-  bot(c, { x: 160, y: FLOOR + lift(pose), pose });
+  shadow(c, x, FLOOR, 30);
+  bot(c, { x, y: FLOOR + lift(pose), pose });
 });
 
 move("fight", "Weapon switch", "1 / 2", 3.4, (c, t) => {
   backdrop(c);
   const rest = { ...STAND, arm: 4, fore: -6 };
   const hip = { ...STAND, arm: 26, fore: -4 };
-  const aim = { ...STAND, ...AIM };
+  const aim = carry(STAND);
   const pose = keyed([[0, rest], [0.35, hip], [0.5, hip], [0.95, aim], [1.6, aim], [2.05, hip], [2.2, hip], [2.55, rest], [3.4, rest]], t);
   const held = t > 0.45 && t < 2.15;
   shadow(c, 160, FLOOR, 30);
-  bot(c, { x: 160, y: FLOOR + lift(pose), pose, hooks: held ? { hand: gun } : {} });
+  bot(c, { x: 160, y: FLOOR + lift(pose), pose, hold: false, hooks: held ? { hand: gun } : {} });
   label(c, held ? "1  GUN" : "2  FISTS");
 });
+
+const CLIMB_REACH = Array.from({ length: 11 }, (_, i) =>
+  XBOT.solve(climber, "handL", {}, ["armL", "foreL"], [[90, 200], [0, 160]], new DOMPoint(190, 110 - 150 * i / 10)));
+
+function climbArm(h) {
+  const f = h * 10, i = Math.min(9, Math.floor(f)), k = f - i;
+  const a = CLIMB_REACH[i], b = CLIMB_REACH[i + 1];
+  return { arm: a.armL + (b.armL - a.armL) * k, fore: a.foreL + (b.foreL - a.foreL) * k };
+}
 
 function climbPose(hl) {
   const hr = 1 - hl;
   const legUp = r => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
   const [thighL, shinL] = legUp(hr), [thighR, shinR] = legUp(hl);
-  const reach = h => ({ rot: 0, sy: 0.35 + 0.65 * h });
-  return {
-    armL: 172, foreL: reach(hl), armR: -172, foreR: reach(hr),
-    thighL, shinL, thighR, shinR
-  };
+  const l = climbArm(hl), r = climbArm(hr);
+  return { armL: l.arm, foreL: l.fore, armR: -r.arm, foreR: -r.fore, thighL, shinL, thighR, shinR };
 }
 
 move("movement", "Ladder", "Up / Down at ladder, back view", 4, (c, t) => {
   backdrop(c);
   const lx = 180;
   c.fillStyle = "#4a5c5f";
-  c.fillRect(lx - 38, 0, 5, FLOOR);
-  c.fillRect(lx + 33, 0, 5, FLOOR);
+  c.fillRect(lx - 28, 0, 5, FLOOR);
+  c.fillRect(lx + 23, 0, 5, FLOOR);
   const climb = 120 * clamp((t - 0.5) / 3.0);
-  for (let y = FLOOR - 16; y > 0; y -= 22) c.fillRect(lx - 38, y, 76, 3);
+  for (let y = FLOOR - 16; y > 0; y -= 22) c.fillRect(lx - 28, y, 56, 3);
   const hl = 0.5 + 0.5 * Math.sin(climb / 44 * Math.PI * 2);
   const pose = climbPose(hl);
   c.save();
   c.globalAlpha = span(t, 0, 0.3) * (1 - span(t, 3.6, 4));
-  bot(c, { view: "back", x: lx, y: FLOOR - climb, pose });
+  bot(c, { view: "climber", x: lx, y: FLOOR - climb, pose });
   c.restore();
 });
 
@@ -530,7 +567,9 @@ move("fight", "Death", "energy runs out", 3.6, (c, t) => {
   c.save();
   c.globalAlpha = 1 - span(t, 3.2, 3.6);
   shadow(c, x, FLOOR, 30);
-  bot(c, { x, y: (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, -88)) * k, pose, rot: -88 * k });
+  const held = t < 1.0;
+  if (!held && armed()) droppedGun(c, x + 24 - 20 * span(t, 1.0, 1.3));
+  bot(c, { x, y: (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, -88, false)) * k, pose, rot: -88 * k, hold: held });
   for (const h of hits) if (t > h && t < h + 0.25) spark(c, x + 12, FLOOR - 110 + (h * 40), 12, span(t, h, h + 0.25));
   c.restore();
   if (t > 1.7) label(c, "DEAD");
@@ -543,13 +582,21 @@ const cells = MOVES.filter(m => m.category === CATEGORY).map(m => {
   const cap = document.createElement("figcaption");
   const b = document.createElement("b");
   const s = document.createElement("span");
-  b.textContent = m.name;
-  s.textContent = m.keys;
   cap.append(b, s);
   fig.append(canvas, cap);
   grid.append(fig);
-  return { m, canvas, ctx: canvas.getContext("2d") };
+  return { m, canvas, ctx: canvas.getContext("2d"), b, s };
 });
+
+const pick = v => typeof v === "string" ? v : v[WEAPON];
+function setWeapon(w) {
+  WEAPON = w;
+  try { localStorage.setItem("xbotWeapon", w); } catch {}
+  for (const btn of document.querySelectorAll("[data-weapon]")) btn.setAttribute("aria-pressed", String(btn.dataset.weapon === w));
+  for (const { m, b, s } of cells) { b.textContent = pick(m.name); s.textContent = pick(m.keys); }
+}
+for (const btn of document.querySelectorAll("[data-weapon]")) btn.onclick = () => setWeapon(btn.dataset.weapon);
+setWeapon(WEAPON);
 
 function frame(now) {
   const dpr = devicePixelRatio || 1;

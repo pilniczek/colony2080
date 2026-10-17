@@ -16,6 +16,9 @@
   figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
   figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
   figure canvas { width: 100%; aspect-ratio: 640 / 780; display: block; }
+  main.game { grid-template-columns: repeat(auto-fill, 144px); }
+  main.game canvas { width: 128px; }
+  h2 { font-size: 13px; font-weight: 600; margin: 4px 16px 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
   figure img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
   #refs { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
   #palette { display: none; flex-wrap: wrap; gap: 6px 14px; padding: 8px 16px; background: var(--panel); }
@@ -39,6 +42,13 @@
   <figure><figcaption>Side, facing left (robot's left side)</figcaption><canvas id="sideLeft"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="back"></canvas></figure>
 </main>
+<h2>In-game, simplified (game size, scale 0.2)</h2>
+<main class="game">
+  <figure><figcaption>Front</figcaption><canvas id="gFront"></canvas></figure>
+  <figure><figcaption>Side, facing right</figcaption><canvas id="gSide"></canvas></figure>
+  <figure><figcaption>Side, facing left</figcaption><canvas id="gSideLeft"></canvas></figure>
+  <figure><figcaption>Back</figcaption><canvas id="gBack"></canvas></figure>
+</main>
 <section id="refs">
   <figure><figcaption>Box cover</figcaption><img src="../../docs/research/robot/hires/archive_msdos_00cover.jpg" alt="box cover"></figure>
   <figure><figcaption>Front, VSTUP</figcaption><img src="../../docs/research/robot/cutscenes/VSTUP_f100_front.png" alt="front"></figure>
@@ -54,7 +64,10 @@ const { PALETTE, LEVELS, buildFront, buildSide, buildBack, render } = window.XBO
 
 const pal = { ...PALETTE };
 const views = { front: buildFront(), side: buildSide(), sideLeft: buildSide({ badge: true }), back: buildBack() };
-const mirrored = new Set(["sideLeft"]);
+const gameViews = { gFront: buildFront({ lod: true }), gSide: buildSide({ lod: true }), gSideLeft: buildSide({ badge: true, lod: true }), gBack: buildBack({ lod: true }) };
+const simple = new Set(Object.keys(gameViews));
+Object.assign(views, gameViews);
+const mirrored = new Set(["sideLeft", "gSideLeft"]);
 const opts = { lines: true, guides: true };
 
 function draw() {
@@ -70,7 +83,7 @@ function draw() {
     ctx.clearRect(0, 0, 640, 780);
     ctx.save();
     if (mirrored.has(id)) { ctx.translate(640, 0); ctx.scale(-1, 1); }
-    render(ctx, root, { pal, lineW: opts.lines ? 2.2 * dpr : 0 });
+    render(ctx, root, { pal, lineW: opts.lines ? (simple.has(id) ? 1 : 2.2) * dpr : 0, simple: simple.has(id) });
     ctx.restore();
     if (opts.guides) {
       ctx.setLineDash([6, 6]);
