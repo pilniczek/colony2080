@@ -1,7 +1,12 @@
 import { apply, identity, multiply, rotate, scale, translate, type Mat2D } from "../math/mat2d";
 import type { GroupNode, Pt, RigNode } from "./tree";
 
-export type JointValue = number | { rot?: number; dx?: number; dy?: number; sx?: number; sy?: number };
+export interface Tint {
+  brightness?: number;
+  saturate?: number;
+}
+
+export type JointValue = number | { rot?: number; dx?: number; dy?: number; sx?: number; sy?: number; tint?: Tint };
 export type Pose = Record<string, JointValue>;
 
 export interface Joint {
@@ -10,6 +15,7 @@ export interface Joint {
   rot: number;
   sx: number;
   sy: number;
+  tint?: Tint;
   pivot: Pt;
 }
 

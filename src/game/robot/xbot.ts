@@ -8,6 +8,7 @@ type Mirror = (pts: Pt[]) => Pt[];
 const AX = config.frame.axis;
 const SIDE_AX = config.frame.sideAxis;
 const FOOT_Y = config.frame.footY;
+const FINGER_LW = 0.4;
 
 export const ROBOT: { AX: number; SIDE_AX: number; FOOT_Y: number; palette: Palette } = {
   AX,
@@ -134,10 +135,9 @@ const frontHand = (k: Kit, parent: GroupNode, M: Mirror, thumbFront: boolean): v
       k.P(parent, { pts: M([[46 + i * 21, 422], [65 + i * 21, 422], [65 + i * 21, 478], [46 + i * 21, 478]]), shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = 46 + i * 21;
-    k.P(parent, { pts: M([[x, 422], [x + 19, 422], [x + 19, 437], [x, 437]]), r: 2 });
-    k.P(parent, { pts: M([[x + 1, 437], [x + 18, 437], [x + 18, 456], [x + 1, 456]]), shade: "cyl", r: 2 });
-    k.F(parent, M([[x + 1, 456], [x + 18, 456], [x + 18, 459], [x + 1, 459]]), "m0");
-    k.P(parent, { pts: M([[x + 2, 459], [x + 17, 459], [x + 17, 472], [x + 10, 478], [x + 2, 472]]), shade: "cyl", r: 3 });
+    k.P(parent, { pts: M([[x, 422], [x + 20, 422], [x + 20, 437], [x, 437]]), r: 2, lw: FINGER_LW });
+    k.P(parent, { pts: M([[x + 0.5, 437], [x + 19.5, 437], [x + 19.5, 456], [x + 0.5, 456]]), shade: "cyl", r: 2, lw: FINGER_LW });
+    k.P(parent, { pts: M([[x + 1, 456], [x + 19, 456], [x + 19, 472], [x + 10, 478], [x + 1, 472]]), shade: "cyl", r: 3, lw: FINGER_LW });
   }
   if (thumbFront) thumb();
 };
@@ -226,7 +226,6 @@ const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean): Grou
   k.F(b, [[317, 110], [323, 110], [323, 150], [317, 150]], "m0");
   k.P(b, { pts: [[300, 160], [340, 160], [344, 182], [330, 196], [310, 196], [296, 182]], r: 12, shade: "dome" });
   k.trefoil(b, 418, 150, BADGE_R, 1 / BODY_SX);
-  k.F(b, [[196, 222], [226, 226], [226, 230], [196, 226]], "a0");
   headFront(k, s, false);
   const arms = bodyGroup(k, s);
   const left = (): void => frontArm(k, arms, false, { arm: "armL", fore: "foreL", hand: "handL" }, { propBehindArm });
@@ -272,7 +271,6 @@ const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, thum
   for (const side of [false, true]) {
     const M: Mirror = (p) => (side ? mirror(p) : p);
     k.F(b, M([[220, 150], [268, 146], [268, 152], [220, 156]]), "a0");
-    k.F(b, M([[210, 240], [262, 250], [262, 256], [210, 246]]), "a0");
     for (const [x, y] of [[236, 196], [278, 230]] as Pt[]) k.E(b, side ? 2 * AX - x : x, y, 4, 4, "a0");
   }
   for (const [x, y, h] of [[250, 160, 40], [268, 170, 60], [384, 150, 50], [404, 200, 34]] as [number, number, number][])
@@ -329,10 +327,9 @@ const sideHand = (k: Kit, parent: GroupNode): void => {
       k.P(parent, { pts: [[280 + i * 21, 422], [299 + i * 21, 422], [299 + i * 21, 478], [280 + i * 21, 478]], shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = 280 + i * 21;
-    k.P(parent, { pts: [[x, 422], [x + 19, 422], [x + 19, 437], [x, 437]], r: 2 });
-    k.P(parent, { pts: [[x + 1, 437], [x + 18, 437], [x + 18, 456], [x + 1, 456]], shade: "cyl", r: 2 });
-    k.F(parent, [[x + 1, 456], [x + 18, 456], [x + 18, 459], [x + 1, 459]], "m0");
-    k.P(parent, { pts: [[x + 2, 459], [x + 17, 459], [x + 17, 472], [x + 10, 478], [x + 2, 472]], shade: "cyl", r: 3 });
+    k.P(parent, { pts: [[x, 422], [x + 20, 422], [x + 20, 437], [x, 437]], r: 2, lw: FINGER_LW });
+    k.P(parent, { pts: [[x + 0.5, 437], [x + 19.5, 437], [x + 19.5, 456], [x + 0.5, 456]], shade: "cyl", r: 2, lw: FINGER_LW });
+    k.P(parent, { pts: [[x + 1, 456], [x + 19, 456], [x + 19, 472], [x + 10, 478], [x + 1, 472]], shade: "cyl", r: 3, lw: FINGER_LW });
   }
 };
 
@@ -369,14 +366,14 @@ const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: bool
   k.P(lowerTorso, { pts: [[350, 318], [392, 318], [400, 344], [390, 380], [366, 404], [352, 400]], r: 2 });
   k.P(lowerTorso, { pts: [[216, 316], [264, 316], [268, 352], [256, 392], [234, 404], [214, 394], [206, 352]], r: 6 });
   sideLeg(k, s, { hip: "hipNear", knee: "kneeNear", ankle: "ankleNear", heel: "heelNear", toe: "toeNear" });
-  const upperTorso = k.G(s, SIDE_TORSO_TF);
+  const upperTorso = k.G(s, SIDE_TORSO_TF, "chest", [SIDE_AX, 344]);
   k.P(upperTorso, { pts: [[194, 112], [406, 112], [388, 330], [212, 330]], mat: "metal", r: 2 });
   const sideChestPlate: Pt[] = [[352, 104], [400, 104], [412, 118], [412, 212], [402, 240], [386, 248], [368, 236], [352, 220]];
   k.P(upperTorso, { pts: mirror(sideChestPlate, SIDE_AX), r: 12 });
   k.hook(upperTorso, "back");
   k.P(upperTorso, { pts: sideChestPlate, r: 12 });
   if (badge) k.trefoil(upperTorso, 400, 160, BADGE_R, 0.5 / SIDE_TORSO_SX, 0.68);
-  const head = k.G(s, "translate(-28 0)");
+  const head = k.G(s, "translate(-28 0)", "head", [320, 156]);
   k.P(head, { pts: [[300, 100], [336, 100], [340, 160], [304, 160]], mat: "metal", shade: "none", r: 4 });
   k.P(head, { pts: [[312, 96], [336, 96], [338, 120], [310, 120]], mat: "metal", shade: "cyl", r: 2 });
   k.P(head, { pts: [[282, 102], [280, 34], [292, 22], [374, 22], [388, 34], [388, 104]], r: 3 });

@@ -1,4 +1,4 @@
-import { drawGun, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
+import { barrelFor, drawGun, FRONT_BARREL, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
@@ -30,10 +30,11 @@ interface SpikeGunOptions {
   pal?: Palette;
   lineW?: number;
   simple?: boolean;
+  barrel?: number;
 }
 
 interface SpikeGun {
-  holdPoses(side: SpikeNode, front: SpikeNode): { CARRY: Pose; CARRY_FAR: Pose; FRONT_CARRY: Pose; FRONT_CARRY_R: Pose };
+  holdPoses(side: SpikeNode, front: SpikeNode): { CARRY: Pose; CARRY_FAR: Pose; FRONT_CARRY: Pose; FRONT_CARRY_R: Pose; FRONT_BARREL: number };
   draw(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
   hook(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
   slung(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
@@ -89,6 +90,8 @@ const carries: [View, Options, Carry][] = [
 ];
 
 const CLIMB: Pose = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
+const HIT_TINT = { brightness: 1.6, saturate: 2 };
+const HIT: Pose = { head: { rot: -16, tint: HIT_TINT }, chest: { tint: HIT_TINT } };
 const GUN_ALONE_SHIFT: [number, number] = [250, 130];
 
 const W = 640;
@@ -102,14 +105,14 @@ const KEYS = ["a", "b", "c", "d", "e", "f"] as const;
 const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
 
 const specFields = (spec: PartSpec | undefined) => {
-  const { pts, r = DEFAULT_PART_R, mat, shade, line } = spec ?? { pts: [] };
-  return [pts, r, mat, shade, line];
+  const { pts, r = DEFAULT_PART_R, mat, shade, line, lw } = spec ?? { pts: [] };
+  return [pts, r, mat, shade, line, lw];
 };
 
 const nodeMismatch = (s: SpikeNode, p: RigNode): boolean => {
   if (s.k !== p.k) return true;
   if (p.k === "g") return (s.name ?? null) !== (p.name ?? null) || !same(s.pivot, p.pivot) || (s.dim || 0) !== (p.dim || 0) || !s.m !== !p.m || (s.kids ?? []).length !== p.kids.length;
-  if (p.k === "part") return !same(specFields(s.spec), specFields(p.spec));
+  if (p.k === "part") return !same(specFields(s.spec), specFields(p.spec)) || s.r !== p.r;
   if (p.k === "flat") return s.fill !== p.fill;
   if (p.k === "ellipse") return !same([s.cx, s.cy, s.rx, s.ry, s.fill, s.opacity], [p.cx, p.cy, p.rx, p.ry, p.fill, p.opacity]);
   if (p.k === "trefoil") return s.r !== p.r || s.outer !== p.outer;
@@ -184,8 +187,9 @@ interface Scene {
 const gunScene = (carry: Carry, simple: boolean): Scene => {
   const spikeHold = window.GUN.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
   const portHold = holdPoses(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }));
-  const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => window.GUN.hook(ctx, { pal, lineW: LINE_W, simple });
-  const portGun: HookDraw = (ctx, pal) => gunHook(ctx, pal, { lineW: LINE_W, simple });
+  const barrel = carry === "front" ? FRONT_BARREL : undefined;
+  const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => window.GUN.hook(ctx, { pal, lineW: LINE_W, simple, barrel });
+  const portGun: HookDraw = (ctx, pal) => gunHook(ctx, pal, { lineW: LINE_W, simple, barrel });
   if (carry === "side")
     return {
       spikePose: { ...spikeHold.CARRY, ...spikeHold.CARRY_FAR },
@@ -251,6 +255,20 @@ const runGunAlone = (simple: boolean, out: HTMLElement): VisualResult => {
   return report(`gun alone ${JSON.stringify({ lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
 };
 
+const runFrontBarrel = (out: HTMLElement): VisualResult => {
+  const spike = window.GUN.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true })).FRONT_BARREL;
+  const front = buildFront({ rightArmFirst: true, propBehindArm: true });
+  const hold = holdPoses(buildSide({ farLimbs: true, propBehindArm: true }), front);
+  const measured = barrelFor(front, { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R }, "handL");
+  const mismatches = Number(measured !== spike) + Number(FRONT_BARREL !== spike);
+  const name = `front barrel spike ${spike} barrelFor ${measured} FRONT_BARREL ${FRONT_BARREL}`;
+  const box = document.createElement("div");
+  box.className = "case";
+  box.append(`${name} mismatches ${mismatches}`);
+  out.append(box);
+  return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
+};
+
 const out = document.getElementById("out");
 if (!out) throw new Error("missing #out");
 const lods = [false, true];
@@ -261,6 +279,7 @@ const gunCases = [
     lods.map((lod) => (o: HTMLElement) => runCase(`gun ${carry} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o, gunScene(carry, lod))),
   ),
 ];
-const cases = [...robotCases, ...gunCases];
+const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
+const cases = [...robotCases, ...hitCases, ...gunCases, runFrontBarrel];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

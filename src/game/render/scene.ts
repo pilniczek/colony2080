@@ -7,7 +7,7 @@ import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import type { HeroLook, Rigs } from "../hero/look";
 import type { Prop, SandboxWorld } from "../level/sandboxLevel";
-import { drawGun, gunHook, gunSlung } from "../robot/gun";
+import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
 
 const SPIKE_K = 0.2;
@@ -282,9 +282,10 @@ export function toRigSpace(ctx: CanvasRenderingContext2D, hero: Hero, look: Hero
 function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(ROBOT.palette, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : ROBOT.palette;
-  const gun: HookDraw = (c, pal) => gunHook(c, pal, { lineW, simple: true });
+  const front = look.view === "front";
+  const gun: HookDraw = (c, pal) => gunHook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
   const hooks: Record<string, HookDraw> = {};
-  if (look.gun === "hand") hooks[look.view === "front" ? "handL" : "hand"] = gun;
+  if (look.gun === "hand") hooks[front ? "handL" : "hand"] = gun;
   if (look.gun === "dropped") droppedGun(f, hero, scale, palette);
   ctx.save();
   toRigSpace(ctx, hero, look, cell, scale);

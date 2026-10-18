@@ -59,15 +59,32 @@ describe("solve", () => {
   it("reaches a target from a seed", () => expect(reach({ arm: 40, fore: -80 })).toBeLessThan(0.5));
 });
 
+const LOD = { minThickness: 8, minArea: 400, minRadius: 8 };
+
+const partRadius = (lod: typeof LOD | null, r: number): number => {
+  const b = createBuilder(lod);
+  const root = b.root();
+  b.P(root, { pts: [[0, 0], [40, 0], [40, 40], [0, 40]], r });
+  const [part] = root.kids;
+  if (part?.k !== "part") throw new Error("part dropped");
+  return part.r;
+};
+
+describe("part radius", () => {
+  it("flattens corners below minRadius under LOD", () => expect(partRadius(LOD, 7)).toBe(0));
+  it("keeps corners at or above minRadius under LOD", () => expect(partRadius(LOD, 9)).toBe(9));
+  it("keeps every radius without LOD", () => expect(partRadius(null, 2)).toBe(2));
+});
+
 describe("tiny", () => {
   it("drops thin or small shapes under LOD", () => {
-    const b = createBuilder({ minThickness: 8, minArea: 400 });
+    const b = createBuilder(LOD);
     expect(b.tiny([[0, 0], [7, 100]])).toBe(true);
     expect(b.tiny([[0, 0], [30, 30]])).toBe(false);
   });
   it("never drops without LOD", () => expect(createBuilder(null).tiny([[0, 0], [1, 1]])).toBe(false));
   it("keeps visor flats under LOD", () => {
-    const b = createBuilder({ minThickness: 8, minArea: 400 });
+    const b = createBuilder(LOD);
     const root = b.root();
     b.F(root, [[0, 0], [2, 0], [2, 2]], "visor");
     b.F(root, [[0, 0], [2, 0], [2, 2]], "a0");

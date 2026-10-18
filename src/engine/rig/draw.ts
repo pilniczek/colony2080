@@ -1,5 +1,5 @@
-import { joint, type Pose } from "./pose";
-import { roundedPath, type FlatNode, type Highlight, type Material, type PartNode, type Pt, type RigNode } from "./tree";
+import { joint, type Pose, type Tint } from "./pose";
+import { clipHalf, clipPoly, flatten, roundedPath, type FlatNode, type Material, type PartNode, type Pt, type RigNode } from "./tree";
 
 export type Palette = Record<string, string>;
 export type HookDraw = (ctx: CanvasRenderingContext2D, palette: Palette) => void;
@@ -25,8 +25,6 @@ const MAT: Record<Material, [string, string, string, string, string]> = {
   chrome: ["c0", "c1", "c2", "c3", "mLine"],
 };
 
-const CLEAR = "rgba(0,0,0,0)";
-
 const bands = (g: CanvasGradient, colors: string[], stops: number[]): CanvasGradient => {
   g.addColorStop(0, colors[0] as string);
   stops.forEach((s, i) => {
@@ -38,7 +36,7 @@ const bands = (g: CanvasGradient, colors: string[], stops: number[]): CanvasGrad
 };
 
 const partPath = (node: PartNode | FlatNode): Path2D => {
-  if (!node.path) node.path = new Path2D(roundedPath(node.k === "part" ? node.spec.pts : node.pts, node.k === "part" ? (node.spec.r ?? 4) : node.r));
+  if (!node.path) node.path = new Path2D(roundedPath(node.k === "part" ? node.spec.pts : node.pts, node.r));
   return node.path;
 };
 
@@ -66,15 +64,19 @@ const baseFill = (ctx: CanvasRenderingContext2D, node: PartNode, simple: boolean
   return fill;
 };
 
-const bottomBand = (ctx: CanvasRenderingContext2D, node: PartNode, c0: string): CanvasGradient => {
-  if (node.bandKey === c0 && node.band) return node.band;
+const polyPath = (pts: Pt[]): Path2D | null => (pts.length > 2 ? new Path2D("M" + pts.map((p) => p.join(",")).join("L") + "Z") : null);
+
+const bottomBand = (node: PartNode): Path2D | null => {
+  if (node.band !== undefined) return node.band;
   const [x0, y0, x1, y1] = node.box;
   const w = x1 - x0;
   const h = y1 - y0;
   const b = (0.04 * h) / w;
   const c = h / (1 + b * b);
-  node.band = bands(ctx.createLinearGradient(x0, y0, x0 - c * b, y0 + c), [CLEAR, c0], [0.88]);
-  node.bandKey = c0;
+  const dx = -c * b;
+  const dy = c;
+  const cut = 0.88 * (dx * dx + dy * dy);
+  node.band = polyPath(clipHalf(flatten(node.spec.pts, node.r), (p) => (p[0] - x0) * dx + (p[1] - y0) * dy - cut));
   return node.band;
 };
 
@@ -100,80 +102,55 @@ const fillUnit = (ctx: CanvasRenderingContext2D, node: PartNode): void => {
   ctx.restore();
 };
 
-const highlight = (node: PartNode): Highlight | null => {
+const highlight = (node: PartNode): Path2D | null => {
   const [x0, y0, x1, y1] = node.box;
   const w = x1 - x0;
   const h = y1 - y0;
   const shade = node.spec.shade ?? "box";
+  let shape: Pt[] | null = null;
   if (shade === "box" && w > 24 && h > 24)
-    return {
-      pts: [
-        [x0 + w * 0.1, y0 + h * 0.08],
-        [x0 + w * 0.22, y0 + h * 0.08],
-        [x0 + w * 0.15, y0 + h * 0.4],
-        [x0 + w * 0.06, y0 + h * 0.4],
-      ],
-    };
-  if (shade === "dome") return { ellipse: [x0 + w * 0.3, y0 + h * 0.26, w * 0.09, h * 0.06] };
-  return null;
-};
-
-let probe: CanvasRenderingContext2D | null = null;
-
-const insidePath = (path: Path2D, pts: Pt[]): boolean => {
-  probe ||= document.createElement("canvas").getContext("2d");
-  const p = probe;
-  return !!p && pts.every(([x, y]) => p.isPointInPath(path, x, y));
-};
-
-const highlightSamples = ({ pts, ellipse }: Highlight): Pt[] => {
-  if (pts)
-    return pts.flatMap((p, i): Pt[] => {
-      const q = pts[(i + 1) % pts.length] as Pt;
-      return [p, [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]];
-    });
-  const [cx, cy, rx, ry] = ellipse ?? [0, 0, 0, 0];
-  return Array.from({ length: 8 }, (_, i): Pt => [cx + rx * Math.cos((i * Math.PI) / 4), cy + ry * Math.sin((i * Math.PI) / 4)]);
+    shape = [
+      [x0 + w * 0.1, y0 + h * 0.08],
+      [x0 + w * 0.22, y0 + h * 0.08],
+      [x0 + w * 0.15, y0 + h * 0.4],
+      [x0 + w * 0.06, y0 + h * 0.4],
+    ];
+  if (shade === "dome") {
+    const cx = x0 + w * 0.3;
+    const cy = y0 + h * 0.26;
+    const rx = w * 0.09;
+    const ry = h * 0.06;
+    shape = Array.from({ length: 24 }, (_, i): Pt => [cx + rx * Math.cos((i * Math.PI) / 12), cy + ry * Math.sin((i * Math.PI) / 12)]);
+  }
+  return shape && polyPath(clipPoly(flatten(node.spec.pts, node.r), shape));
 };
 
 const drawHighlight = (ctx: CanvasRenderingContext2D, node: PartNode, c3: string): void => {
-  const path = partPath(node);
-  if (node.hl === undefined) {
-    node.hl = highlight(node);
-    if (node.hl) node.hl.inside = insidePath(path, highlightSamples(node.hl));
-  }
-  const hl = node.hl;
-  if (!hl) return;
-  if (!hl.inside) {
-    ctx.save();
-    ctx.clip(path);
-  }
+  if (node.hl === undefined) node.hl = highlight(node);
+  if (!node.hl) return;
   ctx.fillStyle = c3;
-  ctx.beginPath();
-  if (hl.pts) hl.pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
-  else if (hl.ellipse) ctx.ellipse(...hl.ellipse, 0, 0, Math.PI * 2);
-  ctx.fill();
-  if (!hl.inside) ctx.restore();
+  ctx.fill(node.hl);
 };
 
 const drawPart = (ctx: CanvasRenderingContext2D, node: PartNode, pal: Palette, lineW: number, simple: boolean): void => {
-  const { mat = "armor", shade = "box", line = true } = node.spec;
+  const { mat = "armor", shade = "box", line = true, lw = 1 } = node.spec;
   const [c0, c1, c2, c3, cl] = MAT[mat].map((k) => pal[k] as string) as [string, string, string, string, string];
   const path = partPath(node);
   ctx.fillStyle = baseFill(ctx, node, simple, c0, c1, c2, c3);
   if (shade === "dome") fillUnit(ctx, node);
   else ctx.fill(path);
   if (!simple) {
-    if (shade === "box") {
-      ctx.fillStyle = bottomBand(ctx, node, c0);
-      ctx.fill(path);
+    const band = shade === "box" && bottomBand(node);
+    if (band) {
+      ctx.fillStyle = c0;
+      ctx.fill(band);
     }
     drawHighlight(ctx, node, c3);
   }
   if (line && lineW) {
     ctx.strokeStyle = cl;
     ctx.lineJoin = "round";
-    ctx.lineWidth = lineWidth(ctx, lineW);
+    ctx.lineWidth = lineWidth(ctx, lineW * lw);
     ctx.stroke(path);
   }
 };
@@ -217,10 +194,19 @@ const shadeColor = (hex: string, brightness: number, saturate: number): string =
   return "#" + ((1 << 24) | (out[0] << 16) | (out[1] << 8) | out[2]).toString(16).slice(1);
 };
 
-export const shade = (palette: Palette, { brightness = 1, saturate = 1 }: { brightness?: number; saturate?: number } = {}): Palette => {
+const shaded = new WeakMap<Palette, Map<string, { sig: string; out: Palette }>>();
+
+export const shade = (palette: Palette, { brightness = 1, saturate = 1 }: Tint = {}): Palette => {
   if (brightness === 1 && saturate === 1) return palette;
+  let memo = shaded.get(palette);
+  if (!memo) shaded.set(palette, (memo = new Map()));
+  const key = brightness + "," + saturate;
+  const sig = Object.values(palette).join();
+  const hit = memo.get(key);
+  if (hit && hit.sig === sig) return hit.out;
   const out: Palette = {};
   for (const k in palette) out[k] = shadeColor(palette[k] as string, brightness, saturate);
+  memo.set(key, { sig, out });
   return out;
 };
 
@@ -228,8 +214,9 @@ const drawNode = (ctx: CanvasRenderingContext2D, node: RigNode, pal: Palette, st
   if (node.k === "g") {
     ctx.save();
     if (node.m) ctx.transform(node.m.a, node.m.b, node.m.c, node.m.d, node.m.e, node.m.f);
-    const p = node.dim ? shade(pal, { brightness: node.dim }) : pal;
+    const dimmed = node.dim ? shade(pal, { brightness: node.dim }) : pal;
     const j = joint(node, st.pose);
+    const p = j?.tint ? shade(dimmed, j.tint) : dimmed;
     if (j) {
       ctx.translate(j.dx + j.pivot[0], j.dy + j.pivot[1]);
       ctx.rotate((j.rot * Math.PI) / 180);
