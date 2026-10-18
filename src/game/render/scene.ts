@@ -264,7 +264,7 @@ function projectiles(f: Frame, alpha: number): void {
 function tracer(f: Frame, p: Projectile, x: number, y: number): void {
   const { ctx, unit, cell } = f;
   const dir = Math.sign(p.vx);
-  const length = Math.max(TRACER.length * unit, Math.abs(p.vx) * FIXED_STEP * cell);
+  const length = TRACER.length * unit;
   const origin = (p.originX ?? p.x) * cell;
   if ((x - origin) * dir <= 0) return;
   const tail = dir > 0 ? Math.max(x - length, origin) : Math.min(x + length, origin);
