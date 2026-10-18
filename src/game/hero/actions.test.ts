@@ -71,6 +71,35 @@ describe("hide", () => {
     expect(g.hero).toMatchObject({ state: "idle", hidden: false });
   });
 
+  it("hides at once from walk or run with the arrow still held and walks on after release", () => {
+    for (const running of [false, true]) {
+      const g = game({ x: 10.5, y: 14 });
+      g.hero.running = running;
+      run(g, 0.3, ["moveRight"]);
+      tick(g, ["moveRight", "hide"]);
+      expect(g.hero).toMatchObject({ state: "hide", hidden: true });
+      const x = g.hero.x;
+      run(g, 0.5, ["moveRight", "hide"]);
+      expect(g.hero).toMatchObject({ state: "hide", x });
+      tick(g, ["moveRight"]);
+      tick(g, ["moveRight"]);
+      expect(g.hero.state).toBe(running ? "run" : "walk");
+    }
+  });
+
+  it("hides at once while shooting and stops the fire", () => {
+    for (const held of [["shoot"], ["shoot", "moveRight"]]) {
+      const g = game({ x: 10.5, y: 14, weapon: "gun" });
+      tick(g, held, ["shoot"]);
+      run(g, 0.3, held);
+      tick(g, [...held, "hide"]);
+      expect(g.hero).toMatchObject({ state: "hide", hidden: true, fireTime: null });
+      const fired = g.events.filter((e) => e.kind === "shot").length;
+      run(g, 0.5, [...held, "hide"]);
+      expect(g.events.filter((e) => e.kind === "shot")).toHaveLength(fired);
+    }
+  });
+
   it("does nothing on a moving lift", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);

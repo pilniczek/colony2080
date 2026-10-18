@@ -261,17 +261,22 @@ function weaponSlot(s: Step): Weapon | null {
   return gun ? "gun" : fists ? "fists" : null;
 }
 
-function stance(s: Step, slot: Weapon | null): boolean {
+function takeCover(s: Step): boolean {
   const { h, input, world } = s;
+  if (!input.held.has("hide") || (h.onLift && world.lift.target !== null)) return false;
+  enter(h, "hide");
+  h.hidden = true;
+  h.fireTime = null;
+  return true;
+}
+
+function stance(s: Step, slot: Weapon | null): boolean {
+  const { h, input } = s;
   if (slot && slot !== h.weapon) {
     switchWeapon(s, slot);
     return true;
   }
-  if (input.held.has("hide") && !(h.onLift && world.lift.target !== null)) {
-    enter(h, "hide");
-    h.hidden = true;
-    return true;
-  }
+  if (takeCover(s)) return true;
   if (h.onLift || !input.held.has("down")) return false;
   s.consume("down");
   enter(h, touching(s, "item") ? "kneel" : "duck");
@@ -306,6 +311,7 @@ function liftCall(s: Step): -1 | 1 | null {
 
 function moving(s: Step): void {
   const { h, world } = s;
+  if (takeCover(s)) return;
   if (h.state === "walk" && h.onLift) {
     const dir = liftCall(s);
     if (dir !== null) {
@@ -356,6 +362,7 @@ function leaveAttack(s: Step): void {
 
 function attack(s: Step): void {
   const { h, input } = s;
+  if (takeCover(s)) return;
   if (h.weapon === "gun") {
     const ducked = h.state === "duckAttack";
     if (ducked && input.dir !== 0) h.facing = input.dir;

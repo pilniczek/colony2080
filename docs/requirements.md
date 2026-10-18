@@ -66,7 +66,7 @@ flowchart LR
 | Movement set | Full set in the engine (walk, run, jumps, fall, duck, kneel, use, hide, shoot, punch, ladder, lift, hit, death); mission 1 uses what level 1 needs. List: design spec | user |
 | Melee | Punches only, no kick. Fists are a selectable weapon (slot 2) | user |
 | Hide look | Front view with dark tint | user |
-| Hide input | Hold Shift to stay hidden, release to step out. Works anywhere except on a moving lift | user |
+| Hide input | Hold Shift to stay hidden, release to step out. Works anywhere except on a moving lift. Hide wins over walk, run and shooting: the hero hides on the frame Shift is held even with an arrow down, and walks on after release if the arrow is still held | user |
 | Run input | Alt toggles run mode: one press runs, the next walks; the mode stays until pressed again. Holding Alt + arrow + Up was unreliable (key chords, browser shortcuts) | user |
 | Jump while shooting | Up while shooting the gun jumps (duck jump when ducked) and the fire keeps its cadence. Shoot in the air fires the gun, and landing with Shoot held goes straight back to shooting. Gun only for now | user (jump and shoot), Claude's call (gun only, landing) |
 | Move while shooting | Shoot plus an arrow with the gun walks (or runs in run mode) that way and keeps firing, Shoot alone stands and fires, switching keeps the fire cadence. Duck shooting turns in place. Landing while firing picks walk or stand by the arrow held | user (walk and turn while shooting), Claude's call (run, duck turn, landing) |
