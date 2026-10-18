@@ -31,6 +31,21 @@ let pal = PALETTE;
 let lineW = 1;
 let simple = false;
 
+function rng(seed) {
+  let s = (seed * 2654435761) >>> 0 || 1;
+  return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+}
+
+function path(ctx, pts) {
+  ctx.beginPath();
+  pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+  ctx.closePath();
+}
+
+function color(c) {
+  return pal[c] || c;
+}
+
 function lw(ctx, k = 1) {
   const t = ctx.getTransform();
   return lineW * k / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
@@ -82,9 +97,7 @@ function poly(ctx, pts, mat, tone = 2, { dir = [0, 1], line = true } = {}) {
   ctx.fillStyle = MAT[mat]
     ? bands(ctx, mat, tone, dir[0] ? x0 : 0, dir[1] ? y0 : 0, dir[0] ? x1 : 0, dir[1] ? y1 : 0)
     : pal[mat] || mat;
-  ctx.beginPath();
-  pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
-  ctx.closePath();
+  path(ctx, pts);
   ctx.fill();
   if (line) stroke(ctx, MAT[mat] ? mat : "mLine");
 }
@@ -233,7 +246,7 @@ function draw(ctx, asset, { state, t = 0, palette = PALETTE, lines = 1, lod = fa
 
 window.ENV = {
   TILE, PALETTE, MAT, ASSETS, define, draw,
-  P: { box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw },
+  P: { rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw },
   get pal() { return pal; },
   get simple() { return simple; }
 };

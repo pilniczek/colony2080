@@ -1,22 +1,10 @@
 (() => {
 const { define, P } = window.ENV;
-const { flat, box, cylV, cylH, disc, rivets, mesh, truss, glow, text, stroke, tones } = P;
+const { rng, path, color, flat, box, cylV, cylH, disc, rivets, mesh, truss, glow, text, stroke, tones } = P;
 const { PI, sin, cos, round, min, max } = Math;
 const TRAIN = window.C28_CONFIG.cutscenes.crowbarDoor.palette;
 
-const color = c => window.ENV.pal[c] || c;
 const simple = () => window.ENV.simple;
-
-function rng(seed) {
-  let s = (seed * 2654435761) >>> 0 || 1;
-  return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
-}
-
-function path(ctx, pts) {
-  ctx.beginPath();
-  pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
-  ctx.closePath();
-}
 
 function shape(ctx, pts, fill, line = null) {
   ctx.fillStyle = color(fill);
@@ -414,7 +402,7 @@ define({
 const TAGS = (() => {
   const r = rng(23);
   return ["neon", "a1", "neon", "c3", "a2", "neon", "y2", "c3", "a1"].map((c, i) => {
-    const x0 = 34 + r() * 80, y0 = -14 - r() * 18, pts = [];
+    const x0 = 30 + r() * 90, y0 = -10 - r() * 30, pts = [];
     for (let k = 0, n = 4 + round(r() * 5); k < n; k++) pts.push([x0 + k * (3 + r() * 4), y0 - (k % 2 ? 4 + r() * 10 : r() * 3)]);
     return [c, c === "c3" ? 1 : 1.6 + r() * 1.8, pts];
   });
@@ -441,7 +429,7 @@ define({
     shape(ctx, [[0, 0], ...top, [54, -72], ...right], "k2", "kLine");
     flat(ctx, 54, -72, 112, 4, "k3", "kLine");
     flat(ctx, 0, -4, 164, 4, "k1");
-    for (const [cx, cy, rx, ry, sd] of [[30, -24, 10, 6, 1], [140, -50, 12, 8, 2], [96, -58, 14, 5, 3]]) shape(ctx, blob(cx, cy, rx, ry, sd), "k1");
+    for (const [cx, cy, rx, ry, sd] of [[30, -24, 10, 6, 1], [140, -50, 12, 8, 2], [96, -58, 14, 5, 3]]) shape(ctx, blob(cx, cy, rx, ry, sd), "#5a504066");
     shape(ctx, blob(16, -10, 4, 4, 4, 8), "hole");
     rebar(ctx, top, 8);
     rebar(ctx, right, 9);
@@ -619,9 +607,8 @@ define({
     shape(ctx, torn, "hole", "kLine");
     if (!simple()) for (let i = 0; i < 5; i++) line(ctx, [[cx + 3 + i * 3.5, cy + ch - 2], [cx + 4 + i * 3.5, cy + 3]], "m1", 0.6);
     if (state === 1) {
-      box(ctx, 14, -6, 12, 6, "chrome", 1);
-      flat(ctx, 17, -9, 6, 3, "y1", "yLine");
-      disc(ctx, 26, -3, 1.6, "a1");
+      if (!simple()) glow(ctx, cx + cw / 2, cy + ch / 2, 14, "a1", 0.45);
+      for (const [px, py] of torn.filter((_, i) => i % 3 === 0)) disc(ctx, px, py, 0.9, "a2");
     }
   }
 });
@@ -671,12 +658,7 @@ define({
       ctx.globalAlpha = 1;
     }
     flat(ctx, 16.6, -50, 0.8, 41, TRAIN.interior);
-    if (!simple()) {
-      splat(ctx, 44, -51, 3, 3);
-      splat(ctx, 100, -51, 4, 2);
-      splat(ctx, 62, -29, 5, 2);
-      splat(ctx, 116, -33, 6, 1);
-    }
+    for (const [x, y, seed, drips] of [[44, -51, 3, 3], [100, -51, 4, 2], [62, -29, 5, 2], [116, -33, 6, 1]]) splat(ctx, x, y, seed, simple() ? 1 : drips);
     slab(ctx, 126, -62, 14, 62, "concrete", 1);
   }
 });

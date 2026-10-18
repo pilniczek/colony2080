@@ -1,9 +1,8 @@
 (() => {
 const { define, P } = window.ENV;
-const { flat, box, poly, cylV, disc, rivets, glow, stroke } = P;
+const { rng, path, color, flat, box, poly, cylV, disc, rivets, glow, stroke } = P;
 const { PI, sin, cos, atan2, hypot } = Math;
 
-const color = c => window.ENV.pal[c] || c;
 const simple = () => window.ENV.simple;
 
 const CLOTH = {
@@ -28,17 +27,6 @@ function hidingHero(ctx, x) {
   ctx.translate(-window.XBOT.AX, -window.XBOT.FOOT_Y);
   window.XBOT.render(ctx, hider, { pal: window.XBOT.shade(window.XBOT.PALETTE, HIDE_TINT), lineW: 1, simple: true });
   ctx.restore();
-}
-
-function rng(seed) {
-  let s = (seed * 2654435761) >>> 0 || 1;
-  return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
-}
-
-function path(ctx, pts) {
-  ctx.beginPath();
-  pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
-  ctx.closePath();
 }
 
 function cel(ctx, pts, [c0, c1, c2, c3], { line = "#0a0806", lit = 0.3, dark = 0.3 } = {}) {
