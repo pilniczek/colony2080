@@ -83,7 +83,7 @@ function handAt(pose, x, y, local = [0, 0], hook = "hand") {
   return [x + (pt.x - SIDE_AX) * K, y + (pt.y - FOOT_Y) * K];
 }
 
-const { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R } = GUN.holdPoses(side, front);
+const { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R, FRONT_BARREL } = GUN.holdPoses(side, front);
 
 function carry(pose) {
   const b = pose.body || 0;
@@ -96,7 +96,7 @@ function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = fa
   let after = null;
   if (armed() && hold) {
     if (view === "side") { pose = carry(pose); hooks = { ...hooks, hand: gun }; }
-    else if (view === "front") { pose = { ...pose, ...FRONT_CARRY, ...FRONT_CARRY_R }; hooks = { ...hooks, handL: gun }; }
+    else if (view === "front") { pose = { ...pose, ...FRONT_CARRY, ...FRONT_CARRY_R }; hooks = { ...hooks, handL: frontGun }; }
     else after = slungGun;
   }
   c.save();
@@ -201,6 +201,7 @@ function label(c, text, x = 8, y = 16) {
 }
 
 const gun = (c, pal) => GUN.hook(c, { pal, lineW: LINE, simple: true });
+const frontGun = (c, pal) => GUN.hook(c, { pal, lineW: LINE, simple: true, barrel: FRONT_BARREL });
 const MUZZLE = GUN.muzzleInHook;
 
 function droppedGun(c, x) {

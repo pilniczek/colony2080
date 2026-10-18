@@ -2,7 +2,7 @@
 const PALETTE = window.XBOT.PALETTE;
 
 const BARREL = { x: 70, length: 196 };
-const PARTS = [
+const buildParts = length => [
   { name: "grip", x: -14, y: -14, w: 26, h: 56, mat: "m", tone: 1 },
   { name: "stock", x: -82, y: -64, w: 22, h: 50, mat: "m", tone: 0 },
   { name: "handle", x: -36, y: -96, w: 72, h: 18, mat: "m", tone: 1 },
@@ -11,13 +11,16 @@ const PARTS = [
   { name: "receiver", x: -60, y: -70, w: 130, h: 60, mat: "m", tone: 2 },
   { name: "stripe", x: -14, y: -70, w: 14, h: 60, mat: "a", tone: 1 },
   { name: "feed", x: 14, y: -12, w: 48, h: 40, mat: "m", tone: 0 },
-  { name: "barrelBack", x: BARREL.x, y: -62, w: BARREL.length - 6, h: 44, mat: "m", tone: 0 },
-  { name: "barrelTop", x: BARREL.x, y: -62, w: BARREL.length, h: 12, mat: "c", tone: 1 },
-  { name: "barrelMid", x: BARREL.x, y: -46, w: BARREL.length, h: 12, mat: "c", tone: 2 },
-  { name: "barrelLow", x: BARREL.x, y: -30, w: BARREL.length, h: 12, mat: "c", tone: 1 },
+  { name: "barrelBack", x: BARREL.x, y: -62, w: length - 6, h: 44, mat: "m", tone: 0 },
+  { name: "barrelTop", x: BARREL.x, y: -62, w: length, h: 12, mat: "c", tone: 1 },
+  { name: "barrelMid", x: BARREL.x, y: -46, w: length, h: 12, mat: "c", tone: 2 },
+  { name: "barrelLow", x: BARREL.x, y: -30, w: length, h: 12, mat: "c", tone: 1 },
   { name: "ringRear", x: BARREL.x + 18, y: -70, w: 18, h: 60, mat: "m", tone: 0 },
-  { name: "ringFront", x: BARREL.x + BARREL.length - 34, y: -68, w: 16, h: 56, mat: "m", tone: 0 }
+  { name: "ringFront", x: BARREL.x + length - 34, y: -68, w: 16, h: 56, mat: "m", tone: 0 }
 ];
+const partSets = new Map();
+const partsFor = length => partSets.get(length) || partSets.set(length, buildParts(length)).get(length);
+const PARTS = partsFor(BARREL.length);
 
 const MAT = { m: ["m0", "m1", "m2", "m3"], c: ["c0", "c1", "c2", "c3"], a: ["a0", "a1", "a2", "a3"] };
 const MUZZLE = [BARREL.x + BARREL.length + 2, -40];
@@ -51,8 +54,8 @@ function part(ctx, p, pal, lineW, simple) {
   }
 }
 
-function draw(ctx, { pal = PALETTE, lineW = 2, simple = false } = {}) {
-  for (const p of PARTS) part(ctx, p, pal, lineW, simple);
+function draw(ctx, { pal = PALETTE, lineW = 2, simple = false, barrel = BARREL.length } = {}) {
+  for (const p of partsFor(barrel)) part(ctx, p, pal, lineW, simple);
 }
 
 function toHook(pt) {
@@ -78,15 +81,35 @@ function slung(ctx, opts) {
 const CARRY = { arm: 0, fore: -72 };
 const FRONT_CARRY = { armL: -24, foreL: -66 };
 
+const BAND = PARTS.find(p => p.name === "barrelBack");
+const SCAN = { x: -600, w: 1600 };
+
+function silhouetteEdge(root, hookName, pose) {
+  const { locate, render } = window.XBOT;
+  const canvas = document.createElement("canvas");
+  canvas.width = SCAN.w;
+  canvas.height = BAND.h;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const toGun = locate(root, hookName, pose).multiply(new DOMMatrix([0, 1, -1, 0, 0, 0])).inverse();
+  ctx.setTransform(new DOMMatrix().translate(-SCAN.x, -BAND.y).multiply(toGun));
+  render(ctx, root, { pose, lineW: 0 });
+  const { data } = ctx.getImageData(0, 0, SCAN.w, BAND.h);
+  let edge = -Infinity;
+  for (let i = 3; i < data.length; i += 4) if (data[i]) edge = Math.max(edge, (i >> 2) % SCAN.w);
+  return edge + SCAN.x;
+}
+
+function barrelFor(root, hookName, pose) {
+  const clear = silhouetteEdge(root, hookName, pose) + BAND.h;
+  return Math.max(BARREL.length, Math.ceil(BARREL.length + clear - MUZZLE[0]));
+}
+
 function holdPoses(side, front) {
   const { locate, solve } = window.XBOT;
   const grip = toHook(SUPPORT);
-  return {
-    CARRY,
-    CARRY_FAR: solve(side, "handFar", CARRY, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(side, "hand", CARRY).transformPoint(new DOMPoint(...grip))),
-    FRONT_CARRY,
-    FRONT_CARRY_R: solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], locate(front, "handL", FRONT_CARRY).transformPoint(new DOMPoint(...grip)))
-  };
+  const CARRY_FAR = solve(side, "handFar", CARRY, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(side, "hand", CARRY).transformPoint(new DOMPoint(...grip)));
+  const FRONT_CARRY_R = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], locate(front, "handL", FRONT_CARRY).transformPoint(new DOMPoint(...grip)));
+  return { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R, FRONT_BARREL: barrelFor(front, "handL", { ...FRONT_CARRY, ...FRONT_CARRY_R }) };
 }
 
 window.GUN = { holdPoses, slung, PARTS, MUZZLE, SUPPORT, draw, hook, toHook, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT) };
