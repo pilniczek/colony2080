@@ -129,11 +129,11 @@ const loop = new FixedLoop({
   render(alpha) {
     const { movement: cfg, clips, overlays } = tuning();
     const shown = { ...hero, x: lerp(prev.x, hero.x, alpha), y: lerp(prev.y, hero.y, alpha) };
-    const look = heroLook(hero, clips, rigs, hold);
+    const look = heroLook(hero, clips, rigs, hold, cfg);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, heroLook(world.enemy.body, clips, enemyRigs, hold), enemyRigs);
+    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, heroLook(world.enemy.body, clips, enemyRigs, hold, cfg), enemyRigs);
     drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays);
     push();
   },

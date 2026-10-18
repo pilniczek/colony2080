@@ -1,5 +1,5 @@
 import xbot from "@config/robots/xbot.json";
-import { ease, easeIn, keyed, mix, num, span } from "../../engine/anim/keyed";
+import { clamp, ease, easeIn, keyed, mix, num, span } from "../../engine/anim/keyed";
 import { apply, multiply, type Mat2D } from "../../engine/math/mat2d";
 import { jointMatrix, locate, solve, type Pose, type Tint } from "../../engine/rig/pose";
 import type { GroupNode, Pt, RigNode } from "../../engine/rig/tree";
@@ -27,6 +27,8 @@ export interface HeroLook {
   tint: number;
   lift: number;
   hit: HitLook | null;
+  gunSlide: number;
+  dust: number | null;
 }
 
 export interface Rigs {
@@ -43,8 +45,12 @@ const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
 const REACH_STEPS = 10;
 const ALPHA_VISIBLE = 40 / 255;
 const GAITS: Record<GaitName, Gait> = { walk: WALK, run: RUN };
-const LAND = { stand: 0.08, fall: 0.1, gait: 0.06 };
-const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 22, damping: 7, star: [14, -100] as Pt };
+const LAND = 0.06;
+const DROP = { letGo: 0.3, slide: 0.3, dust: 0.4 };
+export const RUNG = 22;
+const CLIMB = { hands: [152.5, 130.5], feet: [RUNG, 0], reachTop: 110, reachSpan: 150 } as const;
+const HIT_HEIGHT = 100;
+const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 22, damping: 7, star: [14, -HIT_HEIGHT] as Pt };
 
 export const heroScale = (cfg: MovementConfig): number =>
   (cfg.heroHeightCells * cfg.cellPx) / (ROBOT.FOOT_Y - xbot.levels.head);
@@ -91,20 +97,6 @@ const lowest = (node: RigNode, pose: Pose, m: Mat2D): number => {
   return -Infinity;
 };
 
-const lyingBottoms = new WeakMap<GroupNode, Map<string, number>>();
-
-const bottom = (side: GroupNode, pose: Pose, rot: number): number => {
-  const cache = lyingBottoms.get(side) ?? new Map<string, number>();
-  lyingBottoms.set(side, cache);
-  const key = JSON.stringify([pose, rot]);
-  let value = cache.get(key);
-  if (value === undefined) {
-    value = lowest(side, pose, rotationAbout(rot));
-    cache.set(key, value);
-  }
-  return value;
-};
-
 const rotationAbout = (deg: number): Mat2D => {
   const r = (deg * Math.PI) / 180;
   const c = Math.cos(r);
@@ -113,21 +105,39 @@ const rotationAbout = (deg: number): Mat2D => {
   return { a: c, b: s, c: -s, d: c, e: -(c * x - s * y), f: -(s * x + c * y) };
 };
 
-const reaches = new WeakMap<GroupNode, Angles[]>();
+const settle = (side: GroupNode, pose: Pose, rot: number): number => -lowest(side, pose, rotationAbout(rot));
 
-const climbReach = (climber: GroupNode): Angles[] => {
-  let table = reaches.get(climber);
-  if (!table) {
-    table = Array.from({ length: REACH_STEPS + 1 }, (_, i) =>
-      solve(climber, "handL", {}, ["armL", "foreL"], [[90, 200], [0, 160]], [190, 110 - (150 * i) / REACH_STEPS]),
-    );
-    reaches.set(climber, table);
-  }
-  return table;
+interface Climber {
+  reach: Angles[];
+  stepUp: number;
+}
+
+const climbers = new WeakMap<GroupNode, Climber>();
+
+const legUp = (r: number): [Pose[string], Pose[string]] => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
+
+const footY = (climber: GroupNode, pose: Pose): number => {
+  const mat = locate(climber, "footL", pose);
+  return mat ? apply(mat, [0, 0])[1] : 0;
 };
 
-const climbArm = (table: Angles[], h: number): { arm: number; fore: number } => {
-  const f = h * REACH_STEPS;
+const climberOf = (climber: GroupNode): Climber => {
+  let c = climbers.get(climber);
+  if (!c) {
+    const [thighL, shinL] = legUp(1);
+    c = {
+      reach: Array.from({ length: REACH_STEPS + 1 }, (_, i) =>
+        solve(climber, "handL", {}, ["armL", "foreL"], [[90, 200], [0, 160]], [190, CLIMB.reachTop - (CLIMB.reachSpan * i) / REACH_STEPS]),
+      ),
+      stepUp: (footY(climber, {}) - footY(climber, { thighL, shinL })) * SPIKE_K,
+    };
+    climbers.set(climber, c);
+  }
+  return c;
+};
+
+const climbArm = (table: Angles[], rel: number): { arm: number; fore: number } => {
+  const f = clamp((CLIMB.reachTop - ROBOT.FOOT_Y + rel / SPIKE_K) / CLIMB.reachSpan) * REACH_STEPS;
   const i = Math.min(REACH_STEPS - 1, Math.floor(f));
   const k = f - i;
   const a = table[i]!;
@@ -135,13 +145,19 @@ const climbArm = (table: Angles[], h: number): { arm: number; fore: number } => 
   return { arm: a.armL! + (b.armL! - a.armL!) * k, fore: a.foreL! + (b.foreL! - a.foreL!) * k };
 };
 
-const climbPose = (table: Angles[], hl: number): Pose => {
-  const hr = 1 - hl;
-  const legUp = (r: number): [Pose[string], Pose[string]] => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
-  const [thighL, shinL] = legUp(hr);
-  const [thighR, shinR] = legUp(hl);
-  const l = climbArm(table, hl);
-  const r = climbArm(table, hr);
+const rungHeight = (climb: number, phase: number): number => {
+  const c = climb / (2 * RUNG) + phase / 2;
+  const n = Math.floor(c);
+  const k = c - n;
+  return 2 * RUNG * (n + (k < 0.5 ? 0 : ease(2 * k - 1)));
+};
+
+const climbPose = (c: Climber, climb: number): Pose => {
+  const rel = (phase: number, top: number): number => rungHeight(climb, phase) + top - climb;
+  const l = climbArm(c.reach, rel(0, CLIMB.hands[0]));
+  const r = climbArm(c.reach, rel(1, CLIMB.hands[1]));
+  const [thighR, shinR] = legUp(rel(0, CLIMB.feet[0]) / c.stepUp);
+  const [thighL, shinL] = legUp(rel(1, CLIMB.feet[1]) / c.stepUp);
   return { armL: l.arm, foreL: l.fore, armR: -r.arm, foreR: -r.fore, thighL, shinL, thighR, shinR };
 };
 
@@ -157,22 +173,28 @@ const withCarryKey = (pose: Angles, hold: Hold, inHand: boolean): Angles => {
   return pose.carry !== undefined && inHand ? mix(rest, carry(rest, hold), pose.carry) : rest;
 };
 
+const letGo = (pose: Angles, hold: Hold, t: number, drop: number, inHand: boolean): Angles => {
+  const rest = joints(pose);
+  return mix(rest, carry(rest, hold), inHand ? 1 : 1 - ease(span(t, drop, drop + DROP.letGo)));
+};
+
 const clipTime = (clip: Clip, time: number): number =>
   clip.loop ? ((time % clip.duration) + clip.duration) % clip.duration : time;
 
-const ladderLook = (h: Hero, clip: Clip, rigs: Rigs): HeroLook => {
-  const hl = 0.5 + 0.5 * Math.sin((h.climb / (clip.travel ?? 1)) * Math.PI * 2);
-  return {
-    view: "back",
-    flip: false,
-    pose: climbPose(climbReach(rigs.climber), hl),
-    gun: h.weapon === "gun" ? "slung" : "none",
-    rot: 0,
-    tint: 0,
-    lift: 0,
-    hit: null,
-  };
-};
+export const spikeUnit = (cfg: MovementConfig): number => heroScale(cfg) / SPIKE_K;
+
+const ladderLook = (h: Hero, rigs: Rigs, cfg: MovementConfig): HeroLook => ({
+  view: "back",
+  flip: false,
+  pose: climbPose(climberOf(rigs.climber), (h.climb * cfg.cellPx) / spikeUnit(cfg)),
+  gun: h.weapon === "gun" ? "slung" : "none",
+  rot: 0,
+  tint: 0,
+  lift: 0,
+  hit: null,
+  gunSlide: 0,
+  dust: null,
+});
 
 const armed = (view: View, pose: Angles, hold: Hold): { pose: Angles; gun: GunLook } => {
   if (view === "side") return { pose: carry(pose, hold), gun: "hand" };
@@ -180,13 +202,13 @@ const armed = (view: View, pose: Angles, hold: Hold): { pose: Angles; gun: GunLo
   return { pose, gun: "slung" };
 };
 
-const grounding = (h: Hero, clip: Clip, pose: Angles, rot: number, side: GroupNode): number => {
-  const air = clip.air ? num(clip.air, clipTime(clip, h.time), (k) => k) : h.onGround ? 0 : 1;
-  const standing = air < 1 ? lift(side, pose) * (1 - air) : 0;
-  const lieRot = clip.rot?.[clip.rot.length - 1]?.[1] ?? 0;
-  if (!lieRot) return standing;
-  const k = rot / lieRot;
-  return standing * (1 - k) - bottom(side, joints(clip.pose[clip.pose.length - 1]![1]), lieRot) * k;
+const grounding = (h: Hero, clip: Clip, pose: Angles, rot: number, side: GroupNode, t: number): number => {
+  if (clip.rot) {
+    const settled = settle(side, pose, rot);
+    return h.onGround ? settled : Math.min(0, settled);
+  }
+  if (clip.base && clip.blend !== undefined) return lift(side, pose) * (1 - span(t, 0, clip.blend));
+  return h.onGround ? lift(side, pose) : 0;
 };
 
 const gaitLook = (h: Hero, clip: Clip, clips: ClipSet, rigs: Rigs): { pose: Angles; lift: number } | null => {
@@ -201,6 +223,9 @@ const gaitLook = (h: Hero, clip: Clip, clips: ClipSet, rigs: Rigs): { pose: Angl
   const pose = mix(gaitPose(g, phase), keyed(clip.pose, h.time), k);
   return { pose, lift: Math.min((gaitBob(g, phase) / SPIKE_K) * (1 - k), lift(rigs.side, pose)) };
 };
+
+const fromBase = (clip: Clip, t: number): Angles | null =>
+  clip.base && clip.blend !== undefined ? mix(clip.base, keyed(clip.pose, t), span(t, 0, clip.blend)) : null;
 
 const hitLook = (h: Hero, view: View): { hit: HitLook; pose: Pose } | null => {
   const age = h.hitAge;
@@ -218,18 +243,39 @@ const withHit = (h: Hero, look: HeroLook): HeroLook => {
   return hit ? { ...look, pose: { ...look.pose, ...hit.pose }, hit: hit.hit } : look;
 };
 
-const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => {
+const eventAt = (clip: Clip, name: string): number | null => clip.events?.find(([, e]) => e === name)?.[0] ?? null;
+
+const dustAt = (h: Hero, clip: Clip, t: number): number | null => {
+  const at = eventAt(clip, "dust");
+  return at !== null && h.onGround && t > at && t < at + DROP.dust ? span(t, at, at + DROP.dust) : null;
+};
+
+const dropAt = (clip: Clip): number | undefined => clip.gun?.find(([, g]) => g === "dropped")?.[0];
+
+const gunHeld = (h: Hero, clip: Clip, raw: Angles, view: View, hold: Hold, t: number): { pose: Angles; gun: GunLook } => {
+  const track: GunLook | null = h.weapon !== "gun" ? "none" : clip.gun ? step(clip.gun, t) : null;
+  if (!track) return armed(view, joints(raw), hold);
+  const gun = track === "dropped" && !h.onGround ? "hand" : track;
+  const drop = dropAt(clip);
+  if (drop === undefined || gun === "none") return { pose: withCarryKey(raw, hold, gun === "hand"), gun };
+  return { pose: letGo(raw, hold, t, drop, gun === "hand"), gun };
+};
+
+const gunSlide = (clip: Clip, t: number): number => {
+  const drop = dropAt(clip);
+  return drop === undefined ? 0 : span(t, drop, drop + DROP.slide);
+};
+
+const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: MovementConfig): HeroLook => {
   const name = clipFor(h.state, h.weapon);
   const clip = clips[name];
   if (!clip) throw new Error(`clip ${name} is missing`);
-  if (h.state === "ladder") return ladderLook(h, clip, rigs);
+  if (h.state === "ladder") return ladderLook(h, rigs, cfg);
   const t = clipTime(clip, h.time);
   const view = clip.view ? step(clip.view, t) : "side";
   const moving = gaitLook(h, clip, clips, rigs);
-  const raw = moving?.pose ?? keyed(clip.pose, t);
-  const track: GunLook | null = h.weapon !== "gun" ? "none" : clip.gun ? step(clip.gun, t) : null;
-  const gun = track === "dropped" && !h.onGround ? "none" : track;
-  const held = gun ? { pose: withCarryKey(raw, hold, gun === "hand"), gun } : armed(view, joints(raw), hold);
+  const raw = moving?.pose ?? fromBase(clip, t) ?? keyed(clip.pose, t);
+  const held = gunHeld(h, clip, raw, view, hold, t);
   const rot = clip.rot ? num(clip.rot, t, easeIn) : 0;
   return {
     view,
@@ -238,23 +284,23 @@ const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => 
     gun: held.gun,
     rot,
     tint: clip.tint ? num(clip.tint, t, (k) => k) : 0,
-    lift: moving?.lift ?? grounding(h, clip, held.pose, rot, rigs.side),
+    lift: moving?.lift ?? grounding(h, clip, held.pose, rot, rigs.side, t),
     hit: null,
+    gunSlide: gunSlide(clip, t),
+    dust: dustAt(h, clip, t),
   };
 };
 
-const landed = (h: Hero, look: HeroLook, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => {
+const landed = (h: Hero, look: HeroLook, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: MovementConfig): HeroLook => {
   const gait = h.state === "walk" || h.state === "run";
   const landing = h.landing;
-  const window = gait ? LAND.gait : landing?.from === "fall" ? LAND.fall : LAND.stand;
-  if (!landing || landing.age >= window || look.view !== "side" || (!gait && h.state !== "idle")) return look;
-  const from = baseLook({ ...h, state: landing.from, time: landing.time, onGround: false, landing: null }, clips, rigs, hold);
-  const progress = span(landing.age, 0, window);
-  const k = 1 - (gait ? progress : ease(progress));
+  if (!landing || landing.age >= LAND || look.view !== "side" || (!gait && h.state !== "idle")) return look;
+  const from = baseLook({ ...h, state: landing.from, time: landing.time, onGround: false, landing: null }, clips, rigs, hold, cfg);
+  const k = 1 - span(landing.age, 0, LAND);
   const pose = mix(look.pose as Angles, from.pose as Angles, k);
   const ground = lift(rigs.side, pose);
-  return { ...look, pose, lift: gait ? Math.min(look.lift * (1 - k), ground) : ground };
+  return { ...look, pose, lift: gait ? Math.min(look.lift * (1 - k), ground) : ground * (1 - k) };
 };
 
-export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook =>
-  withHit(h, landed(h, baseLook(h, clips, rigs, hold), clips, rigs, hold));
+export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: MovementConfig): HeroLook =>
+  withHit(h, landed(h, baseLook(h, clips, rigs, hold, cfg), clips, rigs, hold, cfg));

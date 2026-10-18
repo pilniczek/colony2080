@@ -132,10 +132,21 @@ function touching(s: Step, kind: string): Prop | undefined {
   });
 }
 
-function enterLadder(h: Hero): void {
+function ladderBottom(s: Step): number {
+  const { h, world } = s;
+  const col = Math.floor(h.x);
+  let row = Math.floor(h.y - EPS);
+  if (world.grid.at(col, row) !== "H") row++;
+  while (world.grid.at(col, row) === "H") row++;
+  return row;
+}
+
+function enterLadder(s: Step): void {
+  const { h } = s;
   enter(h, "ladder");
   h.fireTime = null;
   h.x = Math.floor(h.x) + 0.5;
+  h.climb = ladderBottom(s) - h.y;
   h.vx = 0;
   h.vy = 0;
   h.onGround = false;
@@ -169,8 +180,10 @@ const deathOf = (h: Hero): Death => (isAirborne(h.state) ? "jumpDeath" : "death"
 
 function die(h: Hero, state: Death, events: HeroEvent[]): void {
   enter(h, state);
-  if (state !== "jumpDeath") h.vx = 0;
-  h.vy = 0;
+  if (state !== "jumpDeath") {
+    h.vx = 0;
+    h.vy = 0;
+  }
   h.hidden = false;
   h.fireTime = null;
   events.push({ kind: "died", x: h.x, y: h.y });
@@ -291,7 +304,7 @@ function standUp(s: Step, from: Jump): boolean {
     return false;
   }
   if (!s.consume("up")) return false;
-  if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) enterLadder(h);
+  if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) enterLadder(s);
   else jump(s, from);
   return true;
 }
@@ -300,7 +313,7 @@ function idle(s: Step): void {
   const { h, input } = s;
   const slot = weaponSlot(s);
   if (standUp(s, "standJump")) return;
-  if (!h.onLift && input.held.has("down") && atLadderTop(s)) return enterLadder(h);
+  if (!h.onLift && input.held.has("down") && atLadderTop(s)) return enterLadder(s);
   if (act(s) || stance(s, slot)) return;
   if (input.dir !== 0) gait(s);
 }
@@ -320,7 +333,7 @@ function moving(s: Step): void {
     }
   }
   if (s.consume("up")) {
-    if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(h);
+    if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(s);
     return jump(s, h.state === "run" ? "runJump" : "walkJump");
   }
   if (h.weapon === "gun") {
@@ -397,7 +410,7 @@ function ladder(s: Step): void {
   const dir = (input.held.has("down") ? 1 : 0) - (input.held.has("up") ? 1 : 0);
   if (dir === 0) return;
   const r = moveBox(boxOf(h, cfg), 0, dir * cfg.ladderSpeed * dt, world.grid, [world.lift], { ignoreOneWay: true });
-  h.climb += Math.abs(r.y - h.y);
+  h.climb -= r.y - h.y;
   h.y = r.y;
   if (dir > 0 && r.hitY) return leaveLadder(h);
   if (dir < 0 && !world.grid.ladderAt(h.x, h.y - EPS)) {

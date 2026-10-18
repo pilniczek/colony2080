@@ -361,9 +361,11 @@ describe("ladder", () => {
     expect(g.hero.state).toBe("idle");
     tick(g, ["down"]);
     expect(g.hero.state).toBe("ladder");
+    expect(g.hero.climb).toBeCloseTo(14 - g.hero.y, 6);
     runUntil(g, (h) => h.state !== "ladder", ["down"]);
     expect(g.hero.state).toBe("idle");
     expect(g.hero.y).toBeCloseTo(14, 6);
+    expect(g.hero.climb).toBeCloseTo(0, 6);
   });
 });
 

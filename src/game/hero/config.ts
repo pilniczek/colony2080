@@ -14,12 +14,12 @@ export interface Clip {
   travel?: number;
   gait?: GaitName;
   blend?: number;
+  base?: Record<string, number>;
   cancelAt?: number;
   pose: Keys;
   view?: [number, View][];
   rot?: [number, number][];
   tint?: [number, number][];
-  air?: [number, number][];
   gun?: [number, GunTrack][];
   events?: [number, string][];
 }
@@ -135,11 +135,11 @@ function loadClip(v: unknown, path: string): Clip {
     travel: opt("travel", finite),
     gait,
     blend: opt("blend", positive),
+    base: opt("base", joints),
     cancelAt: opt("cancelAt", finite),
     view: opt("view", viewTrack),
     rot: opt("rot", numTrack),
     tint: opt("tint", numTrack),
-    air: opt("air", numTrack),
     gun: opt("gun", gunTrack),
     events: opt("events", eventTrack),
   };
@@ -156,6 +156,7 @@ const weaponClips: Partial<Record<HeroState, Record<Weapon, string>>> = {
   attack: { fists: "punch", gun: "shoot" },
   duckAttack: { fists: "duckPunch", gun: "duckShoot" },
   use: { fists: "use", gun: "useGun" },
+  kneel: { fists: "kneel", gun: "kneelGun" },
 };
 
 export const clipFor = (state: HeroState, weapon: Weapon): string => weaponClips[state]?.[weapon] ?? state;

@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "spikes/movement/moves.js; walk and run poses come from the gait engine (src/game/hero/gait.ts) and travel is the spec speed x cycle in cells; jumpDeath follows JUMP_DEATH (lands 0.36 s after the hit)",
+  "source": "spikes/movement/moves.js; walk and run poses come from the gait engine (src/game/hero/gait.ts) and travel is the spec speed x cycle in cells; every jump blends from its base or gait into LEAP in JUMP.in; kneel arms are the spike XBOT.solve reach (KNEEL and KNEEL_ARMED); deaths fold into FLAT_BACK in COLLAPSE; jumpDeath follows JUMP_DEATH (lands 0.36 s after the hit); a dust event starts landingDust",
   "clips": {
     "idle": {
       "duration": 3,
@@ -22,26 +22,22 @@
       "gait": "run"
     },
     "standJump": {
-      "duration": 0.52,
+      "duration": 0.55,
       "loop": false,
+      "blend": 0.08,
+      "base": {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4},
       "pose": [
-        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
-        [0.08, {"body": 6, "hipNear": -68, "kneeNear": 66, "ankleNear": 14, "hipFar": 4, "kneeFar": 58, "ankleFar": 18, "arm": -150, "armFar": -140, "fore": -10, "foreFar": -14}],
-        [0.28, {"body": 6, "hipNear": -68, "kneeNear": 66, "ankleNear": 14, "hipFar": 4, "kneeFar": 58, "ankleFar": 18, "arm": -110, "armFar": -100, "fore": -30, "foreFar": -30}],
-        [0.52, {"body": 6, "hipNear": -68, "kneeNear": 66, "ankleNear": 14, "hipFar": 4, "kneeFar": 58, "ankleFar": 18, "arm": -60, "armFar": -50, "fore": -30, "foreFar": -30}]
-      ],
-      "air": [[0, 0], [0.06, 1]]
+        [0, {"body": 6, "hipNear": -58, "kneeNear": 66, "ankleNear": 14, "hipFar": -6, "kneeFar": 58, "ankleFar": 18, "arm": -40, "armFar": 30, "fore": -40, "foreFar": -50}]
+      ]
     },
     "duckJump": {
-      "duration": 0.52,
+      "duration": 0.55,
       "loop": false,
+      "blend": 0.08,
+      "base": {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -44, "foreFar": -96},
       "pose": [
-        [0, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}],
-        [0.08, {"body": 6, "hipNear": -68, "kneeNear": 66, "ankleNear": 14, "hipFar": 4, "kneeFar": 58, "ankleFar": 18, "arm": -150, "armFar": -140, "fore": -10, "foreFar": -14}],
-        [0.28, {"body": 6, "hipNear": -68, "kneeNear": 66, "ankleNear": 14, "hipFar": 4, "kneeFar": 58, "ankleFar": 18, "arm": -110, "armFar": -100, "fore": -30, "foreFar": -30}],
-        [0.52, {"body": 6, "hipNear": -68, "kneeNear": 66, "ankleNear": 14, "hipFar": 4, "kneeFar": 58, "ankleFar": 18, "arm": -60, "armFar": -50, "fore": -30, "foreFar": -30}]
-      ],
-      "air": [[0, 0], [0.06, 1]]
+        [0, {"body": 6, "hipNear": -58, "kneeNear": 66, "ankleNear": 14, "hipFar": -6, "kneeFar": 58, "ankleFar": 18, "arm": -40, "armFar": 30, "fore": -40, "foreFar": -50}]
+      ]
     },
     "walkJump": {
       "duration": 0.55,
@@ -49,16 +45,16 @@
       "gait": "walk",
       "blend": 0.08,
       "pose": [
-        [0, {"body": 6, "hipNear": -68, "kneeNear": 66, "ankleNear": 14, "hipFar": 4, "kneeFar": 58, "ankleFar": 18, "arm": -40, "armFar": 30, "fore": -40, "foreFar": -50}]
+        [0, {"body": 6, "hipNear": -58, "kneeNear": 66, "ankleNear": 14, "hipFar": -6, "kneeFar": 58, "ankleFar": 18, "arm": -40, "armFar": 30, "fore": -40, "foreFar": -50}]
       ]
     },
     "runJump": {
-      "duration": 0.44,
+      "duration": 0.55,
       "loop": false,
       "gait": "run",
-      "blend": 0.06,
+      "blend": 0.08,
       "pose": [
-        [0, {"body": 10, "hipNear": -80, "kneeNear": 76, "ankleNear": 14, "hipFar": 4, "kneeFar": 72, "ankleFar": 18, "arm": -60, "armFar": 40, "fore": -50, "foreFar": -60}]
+        [0, {"body": 6, "hipNear": -58, "kneeNear": 66, "ankleNear": 14, "hipFar": -6, "kneeFar": 58, "ankleFar": 18, "arm": -40, "armFar": 30, "fore": -40, "foreFar": -50}]
       ]
     },
     "fall": {
@@ -72,20 +68,21 @@
       "duration": 4.45,
       "loop": false,
       "pose": [
-        [0, {"body": 4, "hipNear": -34, "kneeNear": 40, "ankleNear": 0, "hipFar": 6, "kneeFar": 30, "ankleFar": 10, "arm": -120, "armFar": -90, "fore": -30, "foreFar": -30}],
+        [0, {"body": 4, "hipNear": -34, "kneeNear": 40, "ankleNear": 0, "hipFar": 6, "kneeFar": 30, "ankleFar": 10, "arm": -70, "armFar": -40, "fore": -30, "foreFar": -30}],
         [0.1, {"body": 4, "hipNear": -84, "kneeNear": 140, "ankleNear": -60, "hipFar": -74, "kneeFar": 146, "ankleFar": -80, "arm": 30, "armFar": 40, "fore": -10, "foreFar": -10}],
         [0.35, {"body": 4, "hipNear": -84, "kneeNear": 140, "ankleNear": -60, "hipFar": -74, "kneeFar": 146, "ankleFar": -80, "arm": 30, "armFar": 40, "fore": -10, "foreFar": -10}],
-        [0.75, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": 90, "hipFar": 0, "kneeFar": 2, "ankleFar": 90, "arm": 0, "armFar": 0, "fore": 0, "foreFar": 0}]
+        [0.75, {"body": 0, "hipNear": -6.5, "kneeNear": 2, "ankleNear": 0, "hipFar": -6.5, "kneeFar": 2, "ankleFar": 0, "arm": 0, "armFar": 0, "fore": 0, "foreFar": 0}]
       ],
       "rot": [[0, 0], [0.35, 0], [0.75, -89]],
-      "gun": [[0, "dropped"]]
+      "gun": [[0, "dropped"]],
+      "events": [[0, "dust"]]
     },
     "duck": {
       "duration": 0.25,
       "loop": false,
       "pose": [
         [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
-        [0.25, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}]
+        [0.25, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -44, "foreFar": -96}]
       ]
     },
     "kneel": {
@@ -93,10 +90,22 @@
       "loop": false,
       "pose": [
         [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
-        [0.45, {"body": 34, "hipNear": -118, "kneeNear": 92, "ankleNear": -8, "hipFar": -28, "kneeFar": 108, "ankleFar": -6, "arm": -46, "fore": 16, "armFar": -20, "foreFar": -40}],
-        [1.15, {"body": 34, "hipNear": -118, "kneeNear": 92, "ankleNear": -8, "hipFar": -28, "kneeFar": 108, "ankleFar": -6, "arm": -46, "fore": 16, "armFar": -20, "foreFar": -40}],
+        [0.45, {"body": 60, "hipNear": -150, "kneeNear": 110, "ankleNear": -20, "hipFar": -45, "kneeFar": 130, "ankleFar": -10, "arm": -51.5, "fore": -14, "armFar": -20, "foreFar": -40}],
+        [1.15, {"body": 60, "hipNear": -150, "kneeNear": 110, "ankleNear": -20, "hipFar": -45, "kneeFar": 130, "ankleFar": -10, "arm": -51.5, "fore": -14, "armFar": -20, "foreFar": -40}],
         [1.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}]
       ],
+      "events": [[0.8, "pickup"]]
+    },
+    "kneelGun": {
+      "duration": 1.6,
+      "loop": false,
+      "pose": [
+        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 0, "fore": -72, "armFar": -62.25, "foreFar": 14.5}],
+        [0.45, {"body": 60, "hipNear": -150, "kneeNear": 110, "ankleNear": -20, "hipFar": -45, "kneeFar": 130, "ankleFar": -10, "arm": -60, "fore": -72, "armFar": -68, "foreFar": 13}],
+        [1.15, {"body": 60, "hipNear": -150, "kneeNear": 110, "ankleNear": -20, "hipFar": -45, "kneeFar": 130, "ankleFar": -10, "arm": -60, "fore": -72, "armFar": -68, "foreFar": 13}],
+        [1.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 0, "fore": -72, "armFar": -62.25, "foreFar": 14.5}]
+      ],
+      "gun": [[0, "hand"]],
       "events": [[0.8, "pickup"]]
     },
     "use": {
@@ -113,10 +122,10 @@
       "duration": 1.6,
       "loop": false,
       "pose": [
-        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 6, "fore": -4}],
-        [0.55, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 6, "fore": -4, "armFar": -76, "foreFar": -6}],
-        [1.1, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 6, "fore": -4, "armFar": -76, "foreFar": -6}],
-        [1.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 6, "fore": -4}]
+        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 4, "fore": -6}],
+        [0.55, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 4, "fore": -6, "armFar": -74, "foreFar": -8}],
+        [1.1, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 4, "fore": -6, "armFar": -74, "foreFar": -8}],
+        [1.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 4, "fore": -6}]
       ],
       "gun": [[0, "hand"]]
     },
@@ -145,15 +154,19 @@
       "events": [[0.144, "punch"], [0.744, "punch"]]
     },
     "duckPunch": {
-      "duration": 1,
+      "duration": 1.2,
       "loop": true,
+      "cancelAt": 0.35,
       "pose": [
-        [0, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}],
-        [0.12, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -70, "fore": 10, "armFar": 0, "foreFar": 0}],
-        [0.32, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}],
-        [1, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}]
+        [0, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -44, "foreFar": -96}],
+        [0.144, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -102, "fore": 12, "armFar": -44, "foreFar": -96}],
+        [0.384, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -44, "foreFar": -96}],
+        [0.6, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -44, "foreFar": -96}],
+        [0.744, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -98, "foreFar": 6}],
+        [0.984, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -44, "foreFar": -96}],
+        [1.2, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -44, "foreFar": -96}]
       ],
-      "events": [[0.12, "punch"]]
+      "events": [[0.144, "punch"], [0.744, "punch"]]
     },
     "shoot": {
       "duration": 1.2,
@@ -163,17 +176,17 @@
       ]
     },
     "duckShoot": {
-      "duration": 1,
+      "duration": 1.2,
       "loop": true,
       "pose": [
-        [0, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76}]
+        [0, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76}]
       ]
     },
     "weaponSwitch": {
       "duration": 1.35,
       "loop": false,
       "pose": [
-        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 4, "fore": -6, "carry": 0}],
+        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "carry": 0}],
         [0.35, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 0}],
         [0.5, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 0}],
         [0.95, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 1}],
@@ -185,32 +198,32 @@
       "duration": 5,
       "loop": false,
       "pose": [
-        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "carry": 1}],
-        [0.3, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "carry": 1}],
-        [0.45, {"body": -16, "hipNear": -4, "kneeNear": 20, "ankleNear": 0, "hipFar": 42, "kneeFar": 24, "ankleFar": -35, "arm": 50, "armFar": 60, "fore": -60, "foreFar": -50, "carry": 1}],
-        [0.9, {"body": -16, "hipNear": -4, "kneeNear": 20, "ankleNear": 0, "hipFar": 42, "kneeFar": 24, "ankleFar": -35, "arm": 50, "armFar": 60, "fore": -60, "foreFar": -50, "carry": 1}],
-        [1.15, {"body": -24, "hipNear": -36, "kneeNear": 120, "ankleNear": -50, "hipFar": -16, "kneeFar": 126, "ankleFar": -70, "arm": 60, "armFar": 70, "fore": -40, "foreFar": -40, "carry": 1}],
-        [1.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": 90, "hipFar": 0, "kneeFar": 2, "ankleFar": 90, "arm": 0, "armFar": 0, "fore": 0, "foreFar": 0, "carry": 0}]
+        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
+        [0.3, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
+        [0.45, {"body": -16, "hipNear": -4, "kneeNear": 20, "ankleNear": 0, "hipFar": 42, "kneeFar": 24, "ankleFar": -35, "arm": 50, "armFar": 60, "fore": -60, "foreFar": -50}],
+        [0.9, {"body": -16, "hipNear": -4, "kneeNear": 20, "ankleNear": 0, "hipFar": 42, "kneeFar": 24, "ankleFar": -35, "arm": 50, "armFar": 60, "fore": -60, "foreFar": -50}],
+        [1.15, {"body": -24, "hipNear": -36, "kneeNear": 120, "ankleNear": -50, "hipFar": -16, "kneeFar": 126, "ankleFar": -70, "arm": 60, "armFar": 70, "fore": -40, "foreFar": -40}],
+        [1.55, {"body": 0, "hipNear": -6.5, "kneeNear": 2, "ankleNear": 0, "hipFar": -6.5, "kneeFar": 2, "ankleFar": 0, "arm": 0, "armFar": 0, "fore": 0, "foreFar": 0}]
       ],
-      "rot": [[0, 0], [1.15, 0], [1.6, -89]],
+      "rot": [[0, 0], [1.15, 0], [1.55, -89]],
       "gun": [[0, "hand"], [1, "dropped"]]
     },
     "jumpDeath": {
       "duration": 5,
       "loop": false,
       "pose": [
-        [0, {"body": 10, "hipNear": -80, "kneeNear": 76, "ankleNear": 14, "hipFar": 4, "kneeFar": 72, "ankleFar": 18, "arm": -60, "armFar": 40, "fore": -50, "foreFar": -60}],
+        [0, {"body": 6, "hipNear": -58, "kneeNear": 66, "ankleNear": 14, "hipFar": -6, "kneeFar": 58, "ankleFar": 18, "arm": -40, "armFar": 30, "fore": -40, "foreFar": -50}],
         [0.144, {"body": 0, "hipNear": -30, "kneeNear": 40, "ankleNear": 20, "hipFar": 10, "kneeFar": 30, "ankleFar": 20, "arm": -150, "armFar": -130, "fore": -10, "foreFar": -20}],
         [0.36, {"body": 0, "hipNear": -30, "kneeNear": 40, "ankleNear": 20, "hipFar": 10, "kneeFar": 30, "ankleFar": 20, "arm": -150, "armFar": -130, "fore": -10, "foreFar": -20}],
-        [0.56, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": 90, "hipFar": 0, "kneeFar": 2, "ankleFar": 90, "arm": 0, "armFar": 0, "fore": 0, "foreFar": 0}]
+        [0.76, {"body": 0, "hipNear": -6.5, "kneeNear": 2, "ankleNear": 0, "hipFar": -6.5, "kneeFar": 2, "ankleFar": 0, "arm": 0, "armFar": 0, "fore": 0, "foreFar": 0}]
       ],
       "rot": [[0, 0], [0.36, -89]],
-      "gun": [[0, "none"], [0.36, "dropped"]]
+      "gun": [[0, "hand"], [0.36, "dropped"]],
+      "events": [[0.36, "dust"]]
     },
     "ladder": {
       "duration": 0.44,
       "loop": true,
-      "travel": 0.88,
       "pose": [
         [0, {}]
       ],

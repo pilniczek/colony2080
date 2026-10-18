@@ -33,7 +33,7 @@ export function muzzleInRig(look: HeroLook, rigs: Rigs): Pt | null {
 
 export function heroMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
   const { rigs, hold } = sim();
-  const look = heroLook(h, clips, rigs, hold);
+  const look = heroLook(h, clips, rigs, hold, cfg);
   const local = muzzleInRig(look, rigs);
   if (!local) return [h.x, h.y - cfg.box.height / 2];
   const scale = heroScale(cfg);

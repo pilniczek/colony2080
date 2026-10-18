@@ -7,7 +7,7 @@ import type { Projectile } from "../../engine/world/projectiles";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
-import { heroScale, type HeroLook, type HitLook, type Rigs } from "../hero/look";
+import { heroScale, RUNG, spikeUnit, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Enemy } from "../level/enemy";
 import { ceilingAbove, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
@@ -21,6 +21,8 @@ const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
 const TRACER = { length: 14, width: 2 };
 const BAG = { rope: 12, w: 32, h: 92 };
+const DUST = { back: 30, up: 6, radius: 18 };
+const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
 const SHOT_FLASH_MS = 1000 / 12;
 const EMITTER_FLASH = { ahead: 34 };
 const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
@@ -131,7 +133,7 @@ function ladders(f: Frame): void {
       const [top, bottom] = [row * cell, end * cell];
       ctx.fillRect(cx - 28 * unit, top, 5 * unit, bottom - top);
       ctx.fillRect(cx + 23 * unit, top, 5 * unit, bottom - top);
-      for (let y = bottom - 16 * unit; y > top; y -= 22 * unit) ctx.fillRect(cx - 28 * unit, y, 56 * unit, 3 * unit);
+      for (let y = bottom - RUNG * unit; y > top; y -= RUNG * unit) ctx.fillRect(cx - 28 * unit, y, 56 * unit, 3 * unit);
     }
   }
 }
@@ -175,7 +177,7 @@ function box(f: Frame, p: Prop, w: number, h: number, fill: string, line: string
 
 const crate = (f: Frame, p: Prop): void => box(f, p, (p.width ?? 1) * f.cell, (p.height ?? 1) * f.cell, COLORS.crate, COLORS.crateLine);
 
-const target = (f: Frame, p: Prop): void => box(f, p, 40 * f.unit, 70 * f.unit, COLORS.target, COLORS.targetLine);
+const target = (f: Frame, p: Prop): void => box(f, p, (p.width ?? 1) * f.cell, (p.height ?? 1) * f.cell, COLORS.target, COLORS.targetLine);
 
 function barrel(f: Frame, p: Prop): void {
   const { ctx, cell, unit } = f;
@@ -273,24 +275,14 @@ function impacts(f: Frame): void {
   for (const s of world.sparks) star(ctx, [s.x * cell, s.y * cell], IMPACT.radius * unit, IMPACT.k + (1 - IMPACT.k) * (s.age / SPARK_LIFE));
 }
 
-function groundBelow(f: Frame, x: number, y: number): number | null {
-  const { grid, lift: l } = f.world;
-  let ground: number | null = null;
-  for (let row = Math.ceil(y - 1e-3); row < grid.height && ground === null; row++) if (grid.solid(Math.floor(x), row)) ground = row;
-  const overLift = x >= l.x && x <= l.x + l.w && l.y >= y - 1e-3;
-  return overLift && (ground === null || l.y < ground) ? l.y : ground;
-}
+export const castsShadow = (hero: Hero, look: HeroLook): boolean => hero.onGround && look.view !== "back";
 
 function shadow(f: Frame, hero: Hero, look: HeroLook): void {
-  if (look.view === "back") return;
-  const ground = groundBelow(f, hero.x, hero.y);
-  if (ground === null) return;
+  if (!castsShadow(hero, look)) return;
   const { ctx, cell, unit } = f;
-  const height = Math.max(0, ground - hero.y) * cell;
-  const k = Math.max(0, 1 - height / (60 * unit));
-  ctx.fillStyle = `rgba(0,0,0,${0.35 * k})`;
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.beginPath();
-  ctx.ellipse(hero.x * cell, ground * cell, 30 * unit * Math.max(0.4, k), 3.5 * unit, 0, 0, Math.PI * 2);
+  ctx.ellipse(hero.x * cell, hero.y * cell, 30 * unit, 3.5 * unit, 0, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -387,10 +379,11 @@ function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: 
   if (age !== null) blast(f, enemy.body, age);
 }
 
-function droppedGun(f: Frame, hero: Hero, scale: number, palette: Palette): void {
+function droppedGun(f: Frame, hero: Hero, look: HeroLook, scale: number, palette: Palette): void {
   const { ctx, cell, unit, lineW } = f;
+  const ahead = DROPPED_GUN.ahead - DROPPED_GUN.slide * look.gunSlide;
   ctx.save();
-  ctx.translate(hero.x * cell + hero.facing * 24 * unit, hero.y * cell - 9 * unit);
+  ctx.translate(hero.x * cell + hero.facing * ahead * unit, hero.y * cell - DROPPED_GUN.up * unit);
   ctx.scale(scale * hero.facing, scale);
   drawGun(ctx, { palette, lineW, simple: true });
   ctx.restore();
@@ -419,6 +412,11 @@ function star(ctx: CanvasRenderingContext2D, [x, y]: Pt, radius: number, k: numb
   ctx.restore();
 }
 
+function landingDust(f: Frame, hero: Hero, k: number): void {
+  const { ctx, cell, unit } = f;
+  star(ctx, [hero.x * cell - hero.facing * DUST.back * unit, hero.y * cell - DUST.up * unit], DUST.radius * unit, k);
+}
+
 const hitStar = (ctx: CanvasRenderingContext2D, hit: HitLook): void => star(ctx, hit.star, STAR.radius, hit.spark);
 
 const firing = (hero: Hero, fireRate: number): boolean =>
@@ -439,7 +437,7 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   const gun: HookDraw = (c, pal) => gunHook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
   const hooks: Record<string, HookDraw> = {};
   if (look.gun === "hand") hooks[front ? "handL" : "hand"] = gun;
-  if (look.gun === "dropped") droppedGun(f, hero, scale, palette);
+  if (look.gun === "dropped") droppedGun(f, hero, look, scale, palette);
   ctx.save();
   toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
@@ -447,6 +445,7 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   if (flash) muzzleFlash(ctx, look, rigs);
   if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();
+  if (look.dust !== null) landingDust(f, hero, look.dust);
 }
 
 export function drawScene(
@@ -462,7 +461,7 @@ export function drawScene(
   enemyRigs: Rigs,
 ): void {
   const scale = heroScale(cfg);
-  const unit = scale / SPIKE_K;
+  const unit = spikeUnit(cfg);
   const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale };
   ctx.save();
   ctx.setTransform(view.scale, 0, 0, view.scale, view.offsetX, view.offsetY);

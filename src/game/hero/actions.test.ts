@@ -162,9 +162,11 @@ describe("dead body", () => {
     run(g, 0.3, ["moveRight", RUNNING]);
     tick(g, ["moveRight", RUNNING], ["up"]);
     run(g, 0.1, ["moveRight", RUNNING]);
-    const vx = g.hero.vx;
+    const [vx, vy] = [g.hero.vx, g.hero.vy];
+    expect(vy).toBeLessThan(0);
     lethal(g);
     expect(g.hero.state).toBe("jumpDeath");
+    expect(g.hero.vy).toBe(vy);
     tick(g);
     expect(g.hero.vx).toBe(vx);
     runUntil(g, (h) => h.onGround);

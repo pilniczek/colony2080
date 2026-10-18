@@ -47,7 +47,7 @@ describe("loadClips", () => {
 
   it("keeps every track sorted and inside the clip", () => {
     for (const [name, clip] of Object.entries(clips)) {
-      const tracks: [number, unknown][][] = [clip.pose, clip.view ?? [], clip.rot ?? [], clip.tint ?? [], clip.air ?? [], clip.gun ?? [], clip.events ?? []];
+      const tracks: [number, unknown][][] = [clip.pose, clip.view ?? [], clip.rot ?? [], clip.tint ?? [], clip.gun ?? [], clip.events ?? []];
       for (const track of tracks) {
         const times = track.map(([t]) => t);
         expect(times, name).toEqual([...times].sort((a, b) => a - b));
@@ -75,6 +75,7 @@ describe("loadClips", () => {
     expect(clipFor("duckAttack", "fists")).toBe("duckPunch");
     expect(clipFor("duckAttack", "gun")).toBe("duckShoot");
     expect(clipFor("use", "gun")).toBe("useGun");
+    expect(clipFor("kneel", "gun")).toBe("kneelGun");
     expect(clipFor("walk", "gun")).toBe("walk");
   });
 
@@ -88,9 +89,13 @@ describe("loadClips", () => {
     }
   });
 
-  it("blends the moving jumps from their gait", () => {
+  it("blends every jump into one leap pose, the moving jumps from their gait", () => {
     expect(clips.walkJump).toMatchObject({ gait: "walk", blend: 0.08 });
-    expect(clips.runJump).toMatchObject({ gait: "run", blend: 0.06 });
+    expect(clips.runJump).toMatchObject({ gait: "run", blend: 0.08 });
+    expect(clips.standJump).toMatchObject({ blend: 0.08, base: clips.idle!.pose[0]![1] });
+    expect(clips.duckJump).toMatchObject({ blend: 0.08, base: clips.duck!.pose[clips.duck!.pose.length - 1]![1] });
+    const leaps = ["standJump", "duckJump", "walkJump", "runJump"].map((name) => clips[name]!.pose);
+    for (const leap of leaps) expect(leap).toEqual(leaps[0]);
     expect(clipFor("walkJump", "fists")).toBe("walkJump");
     expect(clipFor("duckJump", "gun")).toBe("duckJump");
   });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cfg, clips, game, run, tick, type Game } from "./hero/testWorld";
+import { spikeUnit } from "./hero/look";
 import { heroMuzzle, SPARK_LIFE } from "./shots";
 
 const armed = (x: number, facing: 1 | -1 = 1): Game => {
@@ -16,6 +17,16 @@ const fire = (g: Game, seconds: number): void => {
 };
 
 describe("hero muzzle", () => {
+  it("shoots under the top of the target, 14 spike px below it", () => {
+    const g = armed(10.5);
+    tick(g, ["shoot"], ["shoot"]);
+    const target = g.world.props.find((p) => p.kind === "target")!;
+    const top = 14 - target.height!;
+    const below = ((heroMuzzle(g.hero, clips, cfg)[1] - top) * cfg.cellPx) / spikeUnit(cfg);
+    expect(below).toBeGreaterThan(12);
+    expect(below).toBeLessThan(16);
+  });
+
   it("sits ahead of the hero at gun height and mirrors with facing", () => {
     const right = armed(10.5);
     tick(right, ["shoot"], ["shoot"]);
