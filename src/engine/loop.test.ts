@@ -68,4 +68,21 @@ describe("FixedLoop", () => {
     pending!(200);
     expect(updates).toHaveLength(before);
   });
+
+  it("restarting before a pending frame fires leaves a single tick chain", () => {
+    const { loop, updates } = make();
+    const pending: FrameRequestCallback[] = [];
+    const raf = (cb: FrameRequestCallback) => pending.push(cb);
+    loop.start(raf);
+    const stale = pending[0]!;
+    loop.stop();
+    loop.start(raf);
+    const fresh = pending[1]!;
+    stale(0);
+    expect(pending).toHaveLength(2);
+    fresh(0);
+    expect(pending).toHaveLength(3);
+    pending[2]!(1000 / 60);
+    expect(updates).toHaveLength(1);
+  });
 });

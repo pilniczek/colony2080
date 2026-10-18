@@ -44,7 +44,7 @@ export class Input {
     }
   }
 
-  keyDown(code: string, time: number = this.now()): boolean {
+  keyDown(code: string, time: number = this.clock()): boolean {
     const bound = this.actionsByCode.has(code);
     if (bound && !this.playback) this.applyDown(code, time);
     return bound;
@@ -59,11 +59,12 @@ export class Input {
   releaseAll(): void {
     if (this.playback) return;
     for (const code of [...this.heldCodes]) this.applyUp(code);
+    this.pressedAt.clear();
   }
 
   frame(): InputFrame {
     if (this.playback) this.feedPlayback();
-    const time = this.now();
+    const time = this.clock();
     for (const [action, at] of this.pressedAt) {
       if (time - at > this.bufferMs) this.pressedAt.delete(action);
     }
@@ -81,7 +82,7 @@ export class Input {
     const at = this.pressedAt.get(action);
     if (at === undefined) return false;
     this.pressedAt.delete(action);
-    return this.now() - at <= this.bufferMs;
+    return this.clock() - at <= this.bufferMs;
   }
 
   startRecording(): void {
@@ -143,7 +144,7 @@ export class Input {
 
   private feedPlayback(): void {
     const record = this.playback!;
-    const time = this.now();
+    const time = this.clock();
     for (let entry = record[this.playbackCursor]; entry && entry.frame <= this.frameIndex; entry = record[this.playbackCursor]) {
       this.playbackCursor++;
       if (entry.type === "down") this.applyDown(entry.code, time, true);
@@ -172,6 +173,10 @@ export class Input {
         if (!this.isActionHeld(action)) this.dirOrder = this.dirOrder.filter((a) => a !== action);
       }
     }
+  }
+
+  private clock(): number {
+    return this.recording || this.playback ? (this.frameIndex * 1000) / 60 : this.now();
   }
 
   private isActionHeld(action: string): boolean {

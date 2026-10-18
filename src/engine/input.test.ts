@@ -128,6 +128,34 @@ describe("Input", () => {
     expect(pb.dir).toBe(b.dir);
   });
 
+  it("replays buffered presses on a frame clock despite wall-clock jumps", () => {
+    const { input, clock } = make(150);
+    input.startRecording();
+    const seen: { pressed: string[]; consumed: boolean[] }[] = [];
+    const run = (jump: number, script: (frame: number) => void) => {
+      seen.length = 0;
+      for (let f = 0; f < 8; f++) {
+        script(f);
+        const frame = input.frame();
+        const consumed = f === 4 ? [input.consume("shoot")] : f === 2 ? [input.consume("shoot")] : [];
+        seen.push({ pressed: [...frame.pressed], consumed });
+        clock.t += jump;
+      }
+    };
+    run(1, (f) => {
+      if (f === 1) input.keyDown("ControlLeft");
+      if (f === 2) input.keyUp("ControlLeft");
+      if (f === 3) input.keyDown("ControlLeft");
+    });
+    const recorded = structuredClone(seen);
+    const record = input.stopRecording();
+
+    clock.t = 0;
+    input.play(record);
+    run(1000, () => {});
+    expect(seen).toEqual(recorded);
+  });
+
   describe("attach", () => {
     it("releases everything on blur", () => {
       const { input } = make();
@@ -136,7 +164,9 @@ describe("Input", () => {
       target.dispatch("keydown", key("ArrowLeft"));
       expect(input.frame().held.has("moveLeft")).toBe(true);
       target.dispatch("blur");
-      expect(input.frame().held.size).toBe(0);
+      const frame = input.frame();
+      expect(frame.held.size).toBe(0);
+      expect(frame.pressed.size).toBe(0);
     });
 
     it("releases everything when the tab is hidden", () => {

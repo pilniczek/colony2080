@@ -11,6 +11,7 @@ export class FixedLoop {
   timeScale = 1;
   paused = false;
   private accumulator = 0;
+  private generation = 0;
   private running = false;
   private lastTime: number | null = null;
 
@@ -39,8 +40,9 @@ export class FixedLoop {
     if (this.running) return;
     this.running = true;
     this.lastTime = null;
+    const generation = ++this.generation;
     const tick: FrameRequestCallback = (time) => {
-      if (!this.running) return;
+      if (!this.running || generation !== this.generation) return;
       if (this.lastTime !== null) this.advance((time - this.lastTime) / 1000);
       this.lastTime = time;
       raf(tick);
