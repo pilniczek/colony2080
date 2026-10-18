@@ -292,6 +292,59 @@ describe("attack", () => {
     expect(kinds(g, "shot")).toHaveLength(kinds(plain, "shot").length);
   });
 
+  it("jumps on Up while shooting and keeps the fire cadence in the air and after landing", () => {
+    const plain = game({ x: 10.5, y: 14, weapon: "gun" });
+    tick(plain, ["shoot"], ["shoot"]);
+    run(plain, 1.5, ["shoot"]);
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.2, ["shoot"]);
+    tick(g, ["shoot"], ["up"]);
+    expect(g.hero.state).toBe("standJump");
+    const seen = new Set<string>();
+    for (let i = 0; i < 1.5 * 60 - 13; i++) {
+      tick(g, ["shoot"]);
+      seen.add(g.hero.state);
+    }
+    expect(seen.has("standJump")).toBe(true);
+    expect(g.hero.state).toBe("attack");
+    expect(kinds(g, "shot")).toHaveLength(kinds(plain, "shot").length);
+  });
+
+  it("starts firing in the air on a shoot press and stops on release", () => {
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    tick(g, [], ["up"]);
+    tick(g, ["shoot"], ["shoot"]);
+    expect(g.hero.state).toBe("standJump");
+    expect(kinds(g, "shot")).toHaveLength(1);
+    expect(g.world.projectiles.filter((p) => p.tag === "hero")).toHaveLength(1);
+    run(g, 0.2, ["shoot"]);
+    const fired = kinds(g, "shot").length;
+    expect(fired).toBeGreaterThan(1);
+    run(g, 2);
+    expect(kinds(g, "shot")).toHaveLength(fired);
+    expect(g.hero.state).toBe("idle");
+  });
+
+  it("shoots during a running jump and lands into shooting", () => {
+    const g = game({ x: 7.5, y: 14, state: "run", weapon: "gun" });
+    tick(g, ["moveRight", RUNNING], ["up"]);
+    tick(g, ["moveRight", "shoot"], ["shoot"]);
+    expect(g.hero.state).toBe("runJump");
+    expect(g.hero.vx).toBeCloseTo(cfg.jump.runSpeed, 9);
+    runUntil(g, (h) => h.onGround, ["moveRight", "shoot"]);
+    expect(g.hero.state).toBe("attack");
+    expect(kinds(g, "shot").length).toBeGreaterThan(3);
+  });
+
+  it("duck jumps on Up while duck shooting", () => {
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    run(g, 0.5, ["down"]);
+    tick(g, ["down", "shoot"], ["shoot"]);
+    tick(g, ["down", "shoot"], ["up"]);
+    expect(g.hero.state).toBe("duckJump");
+  });
+
   it("turns while duck shooting the gun", () => {
     const g = game({ x: 10.5, y: 14, weapon: "gun" });
     run(g, 0.5, ["down"]);

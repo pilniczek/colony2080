@@ -388,7 +388,7 @@ function star(ctx: CanvasRenderingContext2D, [x, y]: Pt, radius: number, k: numb
 const hitStar = (ctx: CanvasRenderingContext2D, hit: HitLook): void => star(ctx, hit.star, STAR.radius, hit.spark);
 
 const firing = (hero: Hero, fireRate: number): boolean =>
-  hero.weapon === "gun" && (hero.state === "attack" || hero.state === "duckAttack") && Math.floor(hero.time * fireRate) % 2 === 0;
+  hero.weapon === "gun" && hero.fireTime !== null && Math.floor(hero.fireTime * fireRate) % 2 === 0;
 
 function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs): void {
   const muzzle = muzzleInRig(look, rigs);

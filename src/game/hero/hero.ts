@@ -26,6 +26,7 @@ export interface Hero {
   landing: Landing | null;
   hitAge: number | null;
   running: boolean;
+  fireTime: number | null;
 }
 
 export interface Landing {
@@ -78,6 +79,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     landing: null,
     hitAge: null,
     running: false,
+    fireTime: null,
   };
 }
 
@@ -132,6 +134,7 @@ function touching(s: Step, kind: string): Prop | undefined {
 
 function enterLadder(h: Hero): void {
   enter(h, "ladder");
+  h.fireTime = null;
   h.x = Math.floor(h.x) + 0.5;
   h.vx = 0;
   h.vy = 0;
@@ -169,6 +172,7 @@ function die(h: Hero, state: Death, events: HeroEvent[]): void {
   if (state !== "jumpDeath") h.vx = 0;
   h.vy = 0;
   h.hidden = false;
+  h.fireTime = null;
   events.push({ kind: "died", x: h.x, y: h.y });
 }
 
@@ -204,9 +208,28 @@ function emit(s: Step, kind: HeroEvent["kind"]): void {
   s.events.push({ kind, x: s.h.x, y: s.h.y });
 }
 
+function pullTrigger(s: Step): void {
+  s.h.fireTime = 0;
+  emit(s, "shot");
+}
+
+function gunFire(s: Step): void {
+  const { h, input, cfg, dt } = s;
+  if (h.weapon !== "gun" || !input.held.has("shoot")) {
+    h.fireTime = null;
+    return;
+  }
+  if (h.fireTime === null) {
+    s.consume("shoot");
+    return pullTrigger(s);
+  }
+  const shots = (t: number): number => Math.floor(t * cfg.fireRate + SHOT_EPS);
+  if (shots(h.fireTime) > shots(h.fireTime - dt)) emit(s, "shot");
+}
+
 function startAttack(s: Step, state: "attack" | "duckAttack"): void {
   enter(s.h, state);
-  if (s.h.weapon === "gun") emit(s, "shot");
+  if (s.h.weapon === "gun") pullTrigger(s);
 }
 
 function act(s: Step): boolean {
@@ -253,17 +276,24 @@ function stance(s: Step, slot: Weapon | null): boolean {
   return true;
 }
 
-function idle(s: Step): void {
-  const { h, input, world } = s;
-  const slot = weaponSlot(s);
+function standUp(s: Step, from: Jump): boolean {
+  const { h, world } = s;
   if (h.onLift) {
     const dir = liftCall(s);
     if (dir !== null) callLift(world.lift, dir);
-  } else if (s.consume("up")) {
-    return world.grid.ladderAt(h.x, h.y - LADDER_REACH) ? enterLadder(h) : jump(s, "standJump");
-  } else if (input.held.has("down") && atLadderTop(s)) {
-    return enterLadder(h);
+    return false;
   }
+  if (!s.consume("up")) return false;
+  if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) enterLadder(h);
+  else jump(s, from);
+  return true;
+}
+
+function idle(s: Step): void {
+  const { h, input } = s;
+  const slot = weaponSlot(s);
+  if (standUp(s, "standJump")) return;
+  if (!h.onLift && input.held.has("down") && atLadderTop(s)) return enterLadder(h);
   if (act(s) || stance(s, slot)) return;
   if (input.dir !== 0) gait(s);
 }
@@ -291,6 +321,7 @@ function moving(s: Step): void {
 
 function airborne(s: Step): void {
   const { h, input } = s;
+  gunFire(s);
   if (input.dir === 0 || input.dir === h.facing) return;
   h.facing = input.dir;
   h.vx = -h.vx;
@@ -318,12 +349,12 @@ function leaveAttack(s: Step): void {
 }
 
 function attack(s: Step): void {
-  const { h, input, cfg } = s;
+  const { h, input } = s;
   if (h.weapon === "gun") {
     if (input.dir !== 0) h.facing = input.dir;
-    const shots = (t: number): number => Math.floor(t * cfg.fireRate + SHOT_EPS);
-    if (shots(h.time) > shots(s.prev)) emit(s, "shot");
-    if (!input.held.has("shoot")) leaveAttack(s);
+    if (standUp(s, h.state === "duckAttack" ? "duckJump" : "standJump")) return;
+    gunFire(s);
+    if (h.fireTime === null) leaveAttack(s);
     return;
   }
   const clip = clipOf(s);
@@ -444,6 +475,7 @@ function settle(s: Step, startY: number): void {
   if (!isAirborne(h.state)) return;
   if (h.y - h.fallFrom > cfg.fallDeathCells) return die(h, "fallDeath", s.events);
   const landing = { from: h.state, time: h.time, age: 0 };
+  if (h.fireTime !== null) return enter(h, s.input.held.has("down") ? "duckAttack" : "attack");
   enter(h, s.input.dir === 0 ? "idle" : h.running ? "run" : "walk");
   h.landing = landing;
   resumeGait(s, landing);
@@ -508,6 +540,7 @@ export function updateHero(
   h.time += dt * h.rate;
   if (h.hitAge !== null) h.hitAge += dt;
   if (h.landing) h.landing.age += dt;
+  if (h.fireTime !== null) h.fireTime += dt;
   if (consume("runToggle")) h.running = !h.running;
   clipEvents(s);
   transitions[h.state]?.(s);

@@ -68,6 +68,7 @@ flowchart LR
 | Hide look | Front view with dark tint | user |
 | Hide input | Hold Shift to stay hidden, release to step out. Works anywhere except on a moving lift | user |
 | Run input | Alt toggles run mode: one press runs, the next walks; the mode stays until pressed again. Holding Alt + arrow + Up was unreliable (key chords, browser shortcuts) | user |
+| Jump while shooting | Up while shooting the gun jumps (duck jump when ducked) and the fire keeps its cadence. Shoot in the air fires the gun, and landing with Shoot held goes straight back to shooting. Gun only for now | user (jump and shoot), Claude's call (gun only, landing) |
 | Turn while shooting | Left or Right while shooting the gun (standing or ducked) turns the hero, the fire does not stop | user |
 | Lift input | One Up or Down press starts a ride to the next stop; the lift stops there on its own. On the lift Up and Down only call the lift (no jump, no duck) | user |
 | Sandbox hits | Sandbox has a projectile emitter firing periodically at chest height to try hit, duck and hide | user |
