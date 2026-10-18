@@ -104,6 +104,28 @@ describe("hero look", () => {
     expect(heroLook(hero({ state: "hide", time: 0.45 }), clips, rigs, hold).tint).toBeCloseTo(0.5, 6);
   });
 
+  it("standing jump lift fades over the launch instead of snapping", () => {
+    const launch = clips.standJump!.events![0]![0];
+    const at = (time: number) => heroLook(hero({ state: "standJump", time, onGround: time < launch }), clips, rigs, hold).lift * cellsPerUnit;
+    expect(Math.abs(at(launch) - at(launch - 1 / 60))).toBeLessThan(0.04);
+    expect(Math.abs(at(launch + 1 / 60) - at(launch))).toBeLessThan(0.04);
+    expect(at(launch + 0.1)).toBe(0);
+  });
+
+  it("running jump eases its lift out from take-off", () => {
+    const at = (time: number) => heroLook(hero({ state: "runJump", time, onGround: time === 0 }), clips, rigs, hold).lift * cellsPerUnit;
+    expect(Math.abs(at(0))).toBeLessThan(0.2);
+    for (let f = 0; f < 3; f++) expect(Math.abs(at((f + 1) / 60) - at(f / 60)), `frame ${f}`).toBeLessThan(0.1);
+    expect(at(0.1)).toBe(0);
+  });
+
+  it("weapon switch starts at rest and reaches the hip before the draw", () => {
+    const start = heroLook(hero({ state: "weaponSwitch", time: 0 }), clips, rigs, hold).pose;
+    expect(start).toMatchObject({ arm: 4, fore: -6 });
+    const drawAt = clips.weaponSwitch!.gun!.find(([, g]) => g === "hand")![0];
+    expect(heroLook(hero({ state: "weaponSwitch", time: drawAt - 0.01 }), clips, rigs, hold).pose).toMatchObject({ arm: 26, fore: -4 });
+  });
+
   it("is zero in the air and the same for the same input", () => {
     const h = hero({ state: "fall", time: 0.1, onGround: false });
     expect(heroLook(h, clips, rigs, hold).lift).toBe(0);

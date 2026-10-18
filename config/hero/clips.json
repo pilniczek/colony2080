@@ -65,6 +65,7 @@
         [0.78, {"body": 6, "hipNear": -68, "kneeNear": 96, "ankleNear": -10, "hipFar": -60, "kneeFar": 100, "ankleFar": -16, "arm": -110, "armFar": -100, "fore": -30, "foreFar": -30}],
         [1.02, {"body": 2, "hipNear": -16, "kneeNear": 16, "ankleNear": 10, "hipFar": -12, "kneeFar": 18, "ankleFar": 10, "arm": -60, "armFar": -50, "fore": -30, "foreFar": -30}]
       ],
+      "air": [[0.48, 0], [0.54, 1]],
       "events": [[0.5, "launch"]]
     },
     "runJump": {
@@ -73,6 +74,7 @@
       "pose": [
         [0, {"body": 10, "hipNear": -82, "kneeNear": 24, "ankleNear": 10, "hipFar": 24, "kneeFar": 78, "ankleFar": 20, "arm": -60, "armFar": 40, "fore": -50, "foreFar": -60}]
       ],
+      "air": [[0, 0.6], [0.04, 1]],
       "events": [[0, "launch"]]
     },
     "fall": {
@@ -192,15 +194,16 @@
       ]
     },
     "weaponSwitch": {
-      "duration": 1,
+      "duration": 1.35,
       "loop": false,
       "pose": [
-        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 0}],
-        [0.15, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 0}],
-        [0.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 1}],
-        [1, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 1}]
+        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 4, "fore": -6, "carry": 0}],
+        [0.35, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 0}],
+        [0.5, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 0}],
+        [0.95, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 1}],
+        [1.35, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 1}]
       ],
-      "gun": [[0, "none"], [0.15, "hand"]]
+      "gun": [[0, "none"], [0.5, "hand"]]
     },
     "hit": {
       "duration": 0.6,

@@ -1,5 +1,7 @@
 const EPSILON = 1e-9;
 
+export const FIXED_STEP = 1 / 60;
+
 export interface FixedLoopOptions {
   step: number;
   maxSteps: number;

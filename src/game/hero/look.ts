@@ -164,7 +164,8 @@ const armed = (view: View, pose: Angles, hold: Hold): { pose: Angles; gun: GunLo
 };
 
 const grounding = (h: Hero, clip: Clip, pose: Angles, rot: number, side: GroupNode): number => {
-  const standing = h.onGround ? lift(side, pose) : 0;
+  const air = clip.air ? num(clip.air, clipTime(clip, h.time), (k) => k) : h.onGround ? 0 : 1;
+  const standing = air < 1 ? lift(side, pose) * (1 - air) : 0;
   const lieRot = clip.rot?.[clip.rot.length - 1]?.[1] ?? 0;
   if (!lieRot) return standing;
   const k = rot / lieRot;

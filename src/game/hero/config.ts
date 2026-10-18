@@ -16,6 +16,7 @@ export interface Clip {
   view?: [number, View][];
   rot?: [number, number][];
   tint?: [number, number][];
+  air?: [number, number][];
   gun?: [number, GunTrack][];
   events?: [number, string][];
 }
@@ -126,6 +127,7 @@ function loadClip(v: unknown, path: string): Clip {
     view: opt("view", viewTrack),
     rot: opt("rot", numTrack),
     tint: opt("tint", numTrack),
+    air: opt("air", numTrack),
     gun: opt("gun", gunTrack),
     events: opt("events", eventTrack),
   };

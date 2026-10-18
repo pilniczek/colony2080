@@ -40,7 +40,7 @@ describe("loadClips", () => {
 
   it("keeps every track sorted and inside the clip", () => {
     for (const [name, clip] of Object.entries(clips)) {
-      const tracks: [number, unknown][][] = [clip.pose, clip.view ?? [], clip.rot ?? [], clip.tint ?? [], clip.gun ?? [], clip.events ?? []];
+      const tracks: [number, unknown][][] = [clip.pose, clip.view ?? [], clip.rot ?? [], clip.tint ?? [], clip.air ?? [], clip.gun ?? [], clip.events ?? []];
       for (const track of tracks) {
         const times = track.map(([t]) => t);
         expect(times, name).toEqual([...times].sort((a, b) => a - b));
