@@ -1,4 +1,6 @@
-import { drawRig, type Palette } from "../../src/engine/rig/draw";
+import { drawGun, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
+import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
+import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
 import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
 
@@ -22,11 +24,26 @@ interface SpikeNode {
 
 type Options = Record<string, boolean>;
 
+type SpikeHook = (ctx: CanvasRenderingContext2D, pal: Palette) => void;
+
+interface SpikeGunOptions {
+  pal?: Palette;
+  lineW?: number;
+  simple?: boolean;
+}
+
+interface SpikeGun {
+  holdPoses(side: SpikeNode, front: SpikeNode): { CARRY: Pose; CARRY_FAR: Pose; FRONT_CARRY: Pose; FRONT_CARRY_R: Pose };
+  draw(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
+  hook(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
+  slung(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
+}
+
 interface Spike {
   buildFront(opts: Options): SpikeNode;
   buildSide(opts: Options): SpikeNode;
   buildBack(opts: Options): SpikeNode;
-  render(ctx: CanvasRenderingContext2D, node: SpikeNode, opts: { pal: Palette; lineW: number; simple: boolean }): void;
+  render(ctx: CanvasRenderingContext2D, node: SpikeNode, opts: { pal: Palette; lineW: number; simple: boolean; pose?: Pose; hooks?: Record<string, SpikeHook> }): void;
 }
 
 interface VisualResult {
@@ -41,6 +58,8 @@ interface VisualResult {
 declare global {
   interface Window {
     XBOT: Spike;
+    GUN: SpikeGun;
+    __visualCount?: number;
     __visual?: VisualResult[];
   }
 }
@@ -57,7 +76,20 @@ const views: [View, Options][] = [
   ["back", {}],
   ["back", { leftArmBehind: true, rightForeBehind: true }],
   ["back", { thumbsBehind: true, forearmsUnder: true }],
+  ["front", { rightArmFirst: true, propBehindArm: true }],
+  ["side", { farLimbs: true, badge: true, propBehindArm: true }],
 ];
+
+type Carry = "side" | "front" | "slung";
+
+const carries: [View, Options, Carry][] = [
+  ["side", { farLimbs: true, propBehindArm: true }, "side"],
+  ["front", { rightArmFirst: true, propBehindArm: true }, "front"],
+  ["back", { thumbsBehind: true, forearmsUnder: true }, "slung"],
+];
+
+const CLIMB: Pose = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
+const GUN_ALONE_SHIFT: [number, number] = [250, 130];
 
 const W = 640;
 const H = 780;
@@ -134,13 +166,58 @@ const pixelDiff = (a: CanvasRenderingContext2D, b: CanvasRenderingContext2D): nu
   return n;
 };
 
-const drawPort = (tree: GroupNode, simple: boolean): CanvasRenderingContext2D => {
+const drawPort = (tree: GroupNode, simple: boolean, pose?: Pose, hooks?: Record<string, HookDraw>): CanvasRenderingContext2D => {
   const ctx = canvas();
-  drawRig(ctx, tree, { palette: ROBOT.palette, lineW: LINE_W, simple });
+  drawRig(ctx, tree, { palette: ROBOT.palette, lineW: LINE_W, simple, pose, hooks });
   return ctx;
 };
 
-const runCase = (view: View, opts: Options, out: HTMLElement): VisualResult => {
+interface Scene {
+  spikePose?: Pose;
+  portPose?: Pose;
+  spikeHooks?: Record<string, SpikeHook>;
+  portHooks?: Record<string, HookDraw>;
+  spikeAfter?: (ctx: CanvasRenderingContext2D) => void;
+  portAfter?: (ctx: CanvasRenderingContext2D) => void;
+}
+
+const gunScene = (carry: Carry, simple: boolean): Scene => {
+  const spikeHold = window.GUN.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
+  const portHold = holdPoses(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }));
+  const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => window.GUN.hook(ctx, { pal, lineW: LINE_W, simple });
+  const portGun: HookDraw = (ctx, pal) => gunHook(ctx, pal, { lineW: LINE_W, simple });
+  if (carry === "side")
+    return {
+      spikePose: { ...spikeHold.CARRY, ...spikeHold.CARRY_FAR },
+      portPose: { ...portHold.CARRY, ...portHold.CARRY_FAR },
+      spikeHooks: { hand: spikeGun },
+      portHooks: { hand: portGun },
+    };
+  if (carry === "front")
+    return {
+      spikePose: { ...spikeHold.FRONT_CARRY, ...spikeHold.FRONT_CARRY_R },
+      portPose: { ...portHold.FRONT_CARRY, ...portHold.FRONT_CARRY_R },
+      spikeHooks: { handL: spikeGun },
+      portHooks: { handL: portGun },
+    };
+  return {
+    spikePose: CLIMB,
+    portPose: CLIMB,
+    spikeAfter: (ctx) => window.GUN.slung(ctx, { pal: ROBOT.palette, lineW: LINE_W, simple }),
+    portAfter: (ctx) => gunSlung(ctx, ROBOT.palette, { lineW: LINE_W, simple }),
+  };
+};
+
+const report = (name: string, r: { mismatches: number; copiedDiff: number; diff: number; matrixDelta: number }, spike: HTMLCanvasElement, own: HTMLCanvasElement, out: HTMLElement): VisualResult => {
+  const result = { name, ...r, pass: r.mismatches === 0 && r.copiedDiff === 0 && r.diff <= MAX_OWN_DIFF && r.matrixDelta <= MAX_MATRIX_DELTA };
+  const box = document.createElement("div");
+  box.className = "case";
+  box.append(spike, own, document.createElement("br"), `${name} mismatches ${r.mismatches} copiedDiff ${r.copiedDiff} diff ${r.diff} matrixDelta ${r.matrixDelta}`);
+  out.append(box);
+  return result;
+};
+
+const runCase = (label: string, view: View, opts: Options, out: HTMLElement, scene: Scene = {}): VisualResult => {
   const spikeBuild = { front: window.XBOT.buildFront, side: window.XBOT.buildSide, back: window.XBOT.buildBack }[view];
   const spikeTree = spikeBuild(opts);
   const portTree = port[view](opts);
@@ -148,24 +225,42 @@ const runCase = (view: View, opts: Options, out: HTMLElement): VisualResult => {
   copySpikeMatrices(spikeTree, copiedTree);
   const simple = !!opts.lod;
   const spike = canvas();
-  window.XBOT.render(spike, spikeTree, { pal: ROBOT.palette, lineW: LINE_W, simple });
-  const own = drawPort(portTree, simple);
-  const copied = drawPort(copiedTree, simple);
+  window.XBOT.render(spike, spikeTree, { pal: ROBOT.palette, lineW: LINE_W, simple, pose: scene.spikePose, hooks: scene.spikeHooks });
+  scene.spikeAfter?.(spike);
+  const own = drawPort(portTree, simple, scene.portPose, scene.portHooks);
+  scene.portAfter?.(own);
+  const copied = drawPort(copiedTree, simple, scene.portPose, scene.portHooks);
+  scene.portAfter?.(copied);
   const r = {
-    name: `${view} ${JSON.stringify(opts)}`,
     mismatches: mismatches(spikeTree, portTree),
     copiedDiff: pixelDiff(spike, copied),
     diff: pixelDiff(spike, own),
     matrixDelta: matrixDelta(spikeTree, portTree),
   };
-  const result = { ...r, pass: r.mismatches === 0 && r.copiedDiff === 0 && r.diff <= MAX_OWN_DIFF && r.matrixDelta <= MAX_MATRIX_DELTA };
-  const box = document.createElement("div");
-  box.className = "case";
-  box.append(spike.canvas, own.canvas, document.createElement("br"), `${result.name} mismatches ${result.mismatches} copiedDiff ${result.copiedDiff} diff ${result.diff} matrixDelta ${result.matrixDelta}`);
-  out.append(box);
-  return result;
+  return report(label, r, spike.canvas, own.canvas, out);
+};
+
+const runGunAlone = (simple: boolean, out: HTMLElement): VisualResult => {
+  const spike = canvas();
+  const own = canvas();
+  spike.translate(...GUN_ALONE_SHIFT);
+  own.translate(...GUN_ALONE_SHIFT);
+  window.GUN.draw(spike, { pal: ROBOT.palette, lineW: LINE_W, simple });
+  drawGun(own, { palette: ROBOT.palette, lineW: LINE_W, simple });
+  const diff = pixelDiff(spike, own);
+  return report(`gun alone ${JSON.stringify({ lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
 };
 
 const out = document.getElementById("out");
 if (!out) throw new Error("missing #out");
-window.__visual = views.flatMap(([view, opts]) => [false, true].map((lod) => runCase(view, { ...opts, lod }, out)));
+const lods = [false, true];
+const robotCases = views.flatMap(([view, opts]) => lods.map((lod) => (o: HTMLElement) => runCase(`${view} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o)));
+const gunCases = [
+  ...lods.map((lod) => (o: HTMLElement) => runGunAlone(lod, o)),
+  ...carries.flatMap(([view, opts, carry]) =>
+    lods.map((lod) => (o: HTMLElement) => runCase(`gun ${carry} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o, gunScene(carry, lod))),
+  ),
+];
+const cases = [...robotCases, ...gunCases];
+window.__visualCount = cases.length;
+window.__visual = cases.map((run) => run(out));
