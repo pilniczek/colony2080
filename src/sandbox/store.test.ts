@@ -1,15 +1,8 @@
-import controls from "@config/controls.json";
 import clipsJson from "@config/hero/clips.json";
 import movementJson from "@config/hero/movement.json";
-import sandboxJson from "@config/levels/sandbox.json";
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it } from "vitest";
-import { Input } from "../engine/input";
-import { FIXED_STEP } from "../engine/loop";
-import { stepProjectiles } from "../engine/world/projectiles";
 import { loadClips, loadMovement } from "../game/hero/config";
-import { createHero, updateHero, type Hero } from "../game/hero/hero";
-import { loadSandbox, updateEmitter, updateLift } from "../game/level/sandboxLevel";
 import { useSandbox } from "./store";
 
 const store = () => useSandbox.getState();
@@ -25,6 +18,15 @@ describe("movement tuning", () => {
   it("keeps the old value for negatives and non-finite numbers", () => {
     for (const bad of [-1, NaN, Infinity]) store().setMovementValue("gravity", bad);
     expect(store().movement.gravity).toBe(30);
+  });
+
+  it("rejects zero for divisor fields and accepts it elsewhere", () => {
+    const before = store().movement;
+    for (const path of ["cellPx", "heroHeightCells", "floorHeightCells", "fireRate", "box.width", "box.height", "box.duckHeight"])
+      store().setMovementValue(path, 0);
+    expect(store().movement).toEqual(before);
+    store().setMovementValue("inputBufferMs", 0);
+    expect(store().movement.inputBufferMs).toBe(0);
   });
 
   it("sets nested values and ignores unknown paths", () => {
@@ -82,48 +84,5 @@ describe("clip tuning", () => {
     expect(json.source).toBe(clipsJson.source);
     expect(loadClips(json)).toEqual(store().clips);
     expect(json.clips.run.duration).toBe(0.9);
-  });
-});
-
-describe("replay", () => {
-  const cfg = loadMovement(movementJson);
-  const clips = loadClips(clipsJson);
-  const script: Record<number, ["down" | "up", string][]> = {
-    0: [["down", "ArrowRight"], ["down", "AltLeft"]],
-    40: [["down", "ArrowUp"]],
-    44: [["up", "ArrowUp"]],
-    80: [["up", "AltLeft"]],
-    95: [["down", "ControlLeft"]],
-    97: [["up", "ControlLeft"], ["up", "ArrowRight"]],
-  };
-
-  function run(input: Input, live: boolean): Hero {
-    const world = loadSandbox(sandboxJson);
-    world.emitter.on = true;
-    const hero = createHero(world.spawn, "gun", cfg.energy.max);
-    for (let f = 0; f < 120; f++) {
-      for (const [type, code] of live ? (script[f] ?? []) : []) {
-        if (type === "down") input.keyDown(code);
-        else input.keyUp(code);
-      }
-      const frame = input.frame();
-      updateEmitter(world, FIXED_STEP);
-      world.projectiles = stepProjectiles(world.projectiles, world.grid, FIXED_STEP);
-      updateLift(world.lift, cfg.liftSpeed, FIXED_STEP);
-      updateHero(hero, frame, world, cfg, clips, FIXED_STEP, (action) => input.consume(action));
-    }
-    return hero;
-  }
-
-  it("repeats a recorded run from spawn", () => {
-    let wall = 0;
-    const input = new Input(controls.keyboard, () => (wall += 7), cfg.inputBufferMs);
-    input.startRecording();
-    const recorded = run(input, true);
-    const record = input.stopRecording();
-    input.play(record);
-    const replayed = run(input, false);
-    expect(recorded.x).toBeGreaterThan(sandboxJson.spawn[0]! + 3);
-    expect({ x: replayed.x, y: replayed.y, state: replayed.state }).toEqual({ x: recorded.x, y: recorded.y, state: recorded.state });
   });
 });

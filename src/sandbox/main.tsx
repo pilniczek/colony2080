@@ -4,14 +4,14 @@ import { createRoot } from "react-dom/client";
 import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { fitView, resizeCanvas, type ViewTransform } from "../engine/render/view";
-import { stepProjectiles } from "../engine/world/projectiles";
 import type { Weapon } from "../game/hero/config";
-import { createHero, damage, updateHero } from "../game/hero/hero";
+import { createHero, damage, kill } from "../game/hero/hero";
 import { createRigs, heroLook } from "../game/hero/look";
-import { loadSandbox, updateEmitter, updateLift } from "../game/level/sandboxLevel";
+import { loadSandbox } from "../game/level/sandboxLevel";
 import { drawOverlays } from "../game/render/overlays";
 import { drawScene } from "../game/render/scene";
 import { holdPoses } from "../game/robot/gun";
+import { stepWorld } from "../game/stepWorld";
 import { useSandbox } from "./store";
 import { Panel, type SandboxCommands } from "./ui/Panel";
 
@@ -110,10 +110,7 @@ const loop = new FixedLoop({
     input.bufferMs = cfg.inputBufferMs;
     const frame = input.frame();
     logInput(frame.held);
-    updateEmitter(world, dt);
-    world.projectiles = stepProjectiles(world.projectiles, world.grid, dt);
-    updateLift(world.lift, cfg.liftSpeed, dt);
-    updateHero(hero, frame, world, cfg, clips, dt, (action) => input.consume(action));
+    stepWorld(world, hero, frame, cfg, clips, dt, (action) => input.consume(action));
     if (recording) recordedSteps++;
     if (playing && ++playedSteps >= recordedSteps) endPlayback();
   },
@@ -161,11 +158,7 @@ const commands: SandboxCommands = {
   },
   setWeapon: (weapon) => press(weapon === "gun" ? "weapon1" : "weapon2"),
   hit: () => void damage(hero, tuning().movement),
-  kill() {
-    const cfg = tuning().movement;
-    hero.energy = Math.min(hero.energy, cfg.energy.hit);
-    damage(hero, cfg);
-  },
+  kill: () => void kill(hero),
   setEmitter(on) {
     world.emitter.on = on;
     useSandbox.setState({ emitterOn: on });

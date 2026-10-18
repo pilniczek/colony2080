@@ -68,6 +68,8 @@ function clipsText(clips: ClipSet): string {
   return [`{`, `  "status": ${inline(clipsJson.status)},`, `  "source": ${inline(clipsJson.source)},`, `  "clips": {`, ...body, `  }`, `}`].join("\n") + "\n";
 }
 
+const POSITIVE_PATHS = new Set(["cellPx", "heroHeightCells", "floorHeightCells", "fireRate", "box.width", "box.height", "box.duckHeight"]);
+
 const fileTuning = () => ({ movement: loadMovement(movementJson), clips: loadClips(clipsJson) });
 
 export const useSandbox = create<SandboxState>()((set, get) => ({
@@ -91,7 +93,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   setPaused: (paused) => set({ paused }),
   setTimeScale: (timeScale) => set({ timeScale }),
   setMovementValue: (path, value) => {
-    if (!Number.isFinite(value) || value < 0) return;
+    if (!Number.isFinite(value) || value < 0 || (value === 0 && POSITIVE_PATHS.has(path))) return;
     const next = withNumber(get().movement as unknown as Tree, path.split("."), value);
     if (next) set({ movement: next as unknown as MovementConfig });
   },
