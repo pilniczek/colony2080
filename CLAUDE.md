@@ -19,7 +19,7 @@ Phase 1b: engine core and movement sandbox in progress, for a browser clone of C
 - `npm test` - Vitest (node environment) over `src/**/*.test.ts`.
 - `npm run lint` - ESLint; `src/engine/**` may not import React, Zustand, `game/` or `sandbox/`.
 - `npm run typecheck` - `tsc --noEmit`.
-- `npm run test:visual` - placeholder until the visual comparison tool exists.
+- `npm run test:visual` - Playwright runs `tools/visual/compare.html`: spike vs port robot trees and renders. The own-matrix render may differ by a few edge pixels because Chromium stores scale/translate DOMMatrix values as float32.
 
 ## Planned stack and architecture
 

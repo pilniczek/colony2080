@@ -22,9 +22,9 @@ try {
   page.on("pageerror", (e) => console.error("page error:", e.message));
   await page.goto(`http://127.0.0.1:${port}/tools/visual/compare.html`);
   const results = await page.waitForFunction(() => window.__visual, null, { timeout: 60000 }).then((h) => h.jsonValue());
-  for (const { name, diff, matrixDelta } of results) {
-    if (diff > 0) failed = true;
-    console.log(`${name}: diff ${diff} matrixDelta ${matrixDelta}`);
+  for (const { name, mismatches, copiedDiff, diff, matrixDelta, pass } of results) {
+    if (!pass) failed = true;
+    console.log(`${pass ? "ok  " : "FAIL"} ${name}: mismatches ${mismatches} copiedDiff ${copiedDiff} diff ${diff} matrixDelta ${matrixDelta}`);
   }
 } finally {
   await browser.close();
