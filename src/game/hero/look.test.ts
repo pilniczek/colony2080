@@ -97,11 +97,6 @@ describe("hero look", () => {
     expect(heroLook(hero({ state: "weaponSwitch", time: 0.05 }), clips, rigs, hold).gun).toBe("none");
   });
 
-  it("hide is front view and fully tinted from the press frame", () => {
-    expect(heroLook(hero({ state: "hide", time: 0 }), clips, rigs, hold)).toMatchObject({ view: "front", tint: 1 });
-    expect(heroLook(hero({ state: "hide", time: 0.45 }), clips, rigs, hold).tint).toBe(1);
-  });
-
   for (const state of ["standJump", "walkJump", "duckJump", "runJump"] as const) {
     it(`${state} eases its lift out from take-off`, () => {
       const at = (time: number) => heroLook(hero({ state, time, onGround: false }), clips, rigs, hold).lift * cellsPerUnit;
@@ -145,6 +140,7 @@ describe("hero look", () => {
         return angle(look.pose, "body") + angle(look.pose, "arm") + angle(look.pose, "fore");
       });
       const mean = world.reduce((a, b) => a + b, 0) / world.length;
+      expect(Math.abs(mean + 72)).toBeLessThan(0.5);
       for (const w of world) expect(Math.abs(w - mean)).toBeLessThan(0.5);
     });
   }
@@ -168,7 +164,41 @@ describe("hero look", () => {
     const g = game();
     tick(g, ["hide"]);
     expect(heroLook(g.hero, clips, rigs, hold)).toMatchObject({ view: "front", tint: 1 });
+    for (let i = 0; i < 27; i++) tick(g, ["hide"]);
+    expect(heroLook(g.hero, clips, rigs, hold)).toMatchObject({ view: "front", tint: 1 });
   });
+
+  const maxStep = (a: Record<string, unknown>, b: Record<string, unknown>): number =>
+    Math.max(0, ...Object.keys(b).filter((k) => typeof a[k] === "number" && typeof b[k] === "number").map((k) => Math.abs((b[k] as number) - (a[k] as number))));
+
+  for (const [state, held, window, slope] of [
+    ["standJump", [], 0.08, 1.5],
+    ["walkJump", ["moveRight"], 0.06, 1],
+    ["runJump", ["moveRight", "runModifier"], 0.06, 1],
+  ] as const) {
+    it(`${state} lands without a pose snap`, () => {
+      const g = game();
+      for (let i = 0; i < 20; i++) tick(g, [...held]);
+      tick(g, [...held], ["up"]);
+      expect(g.hero.state).toBe(state);
+      const looks: Record<string, unknown>[] = [];
+      const targets: Record<string, unknown>[] = [];
+      let landed = -1;
+      for (let i = 0; i < 90 && (landed < 0 || i < landed + 12); i++) {
+        tick(g, [...held]);
+        if (landed < 0 && g.hero.state !== state) landed = i;
+        looks.push(heroLook(g.hero, clips, rigs, hold).pose);
+        targets.push(heroLook({ ...g.hero, landing: null }, clips, rigs, hold).pose);
+      }
+      expect(landed).toBeGreaterThan(0);
+      expect(g.hero.state).toBe(state === "standJump" ? "idle" : state === "walkJump" ? "walk" : "run");
+      const gap = maxStep(looks[landed]!, targets[landed]!);
+      const rate = Math.max(...targets.slice(landed, -1).map((t, i) => maxStep(t, targets[landed + i + 1]!)));
+      const bound = rate + (gap * slope) / (window * 60) + 1;
+      expect(gap).toBeGreaterThan(30);
+      for (let i = landed - 2; i < looks.length - 1; i++) expect(maxStep(looks[i]!, looks[i + 1]!), `frame ${i - landed}`).toBeLessThan(bound);
+    });
+  }
 
   it("standing jump uses the leap legs", () => {
     expectPose(heroLook(hero({ state: "standJump", time: 0.1, onGround: false }), clips, rigs, hold).pose, LEAP);

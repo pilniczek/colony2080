@@ -22,7 +22,14 @@ export interface Hero {
   hidden: boolean;
   climb: number;
   gaitTime: number;
+  landing: Landing | null;
   hitAge: number | null;
+}
+
+export interface Landing {
+  from: HeroState;
+  time: number;
+  age: number;
 }
 
 export type HeroEvent = { kind: "pickup" | "use" | "shot" | "punch" | "died"; x: number; y: number };
@@ -64,6 +71,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     hidden: false,
     climb: 0,
     gaitTime: 0,
+    landing: null,
     hitAge: null,
   };
 }
@@ -425,8 +433,20 @@ function settle(s: Step, startY: number): void {
   }
   if (!isAirborne(h.state)) return;
   if (h.y - h.fallFrom > cfg.fallDeathCells) return die(h, "fallDeath", s.events);
+  const landing = { from: h.state, time: h.time, age: 0 };
   enter(h, "idle");
+  h.landing = landing;
   idle(s);
+  resumeGait(s, landing);
+}
+
+function resumeGait(s: Step, landing: Landing): void {
+  const { h, clips } = s;
+  const gait = clips[clipFor(landing.from, h.weapon)]?.gait;
+  const from = gait && clips[gait];
+  if (!from || (h.state !== "walk" && h.state !== "run")) return;
+  const u = (h.gaitTime + landing.time) / from.duration;
+  h.time = (u - Math.floor(u)) * clipOf(s).duration;
 }
 
 function slide(s: Step): number {
@@ -475,6 +495,7 @@ export function updateHero(
   const s: Step = { h, input, world, cfg, clips, dt, consume, prev: h.time, events: [] };
   h.time += dt * h.rate;
   if (h.hitAge !== null) h.hitAge += dt;
+  if (h.landing) h.landing.age += dt;
   clipEvents(s);
   transitions[h.state]?.(s);
   if (isDead(h.state)) fallDead(s);

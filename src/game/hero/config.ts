@@ -126,12 +126,13 @@ function loadClip(v: unknown, path: string): Clip {
   const opt = <T>(key: string, read: (v: unknown, path: string, duration: number) => T): T | undefined =>
     o[key] === undefined ? undefined : read(o[key], `${path}.${key}`, duration);
   const gait = o.gait === undefined ? undefined : oneOf(["walk", "run"] as const)(o.gait, `${path}.gait`);
-  const pose = gait && o.pose === undefined ? [] : poseTrack(o.pose, `${path}.pose`, duration);
+  const keyless = gait !== undefined && o.blend === undefined && o.pose === undefined;
+  const pose = keyless ? [] : poseTrack(o.pose, `${path}.pose`, duration);
   const clip: Clip = { duration, loop: o.loop as boolean, pose };
   const fields = {
     travel: opt("travel", finite),
     gait,
-    blend: opt("blend", finite),
+    blend: opt("blend", positive),
     cancelAt: opt("cancelAt", finite),
     view: opt("view", viewTrack),
     rot: opt("rot", numTrack),

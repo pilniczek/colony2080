@@ -1,4 +1,4 @@
-import { easeIn, keyed, mix, num, span } from "../../engine/anim/keyed";
+import { ease, easeIn, keyed, mix, num, span } from "../../engine/anim/keyed";
 import { apply, multiply, type Mat2D } from "../../engine/math/mat2d";
 import { jointMatrix, locate, solve, type Pose, type Tint } from "../../engine/rig/pose";
 import type { GroupNode, Pt, RigNode } from "../../engine/rig/tree";
@@ -42,6 +42,7 @@ const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
 const REACH_STEPS = 10;
 const ALPHA_VISIBLE = 40 / 255;
 const GAITS: Record<GaitName, Gait> = { walk: WALK, run: RUN };
+const LAND = { stand: 0.08, gait: 0.06 };
 const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 22, damping: 7, star: [14, -100] as Pt };
 
 export const createRigs = (lod: boolean): Rigs => ({
@@ -213,11 +214,11 @@ const withHit = (h: Hero, look: HeroLook): HeroLook => {
   return hit ? { ...look, pose: { ...look.pose, ...hit.pose }, hit: hit.hit } : look;
 };
 
-export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => {
+const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => {
   const name = clipFor(h.state, h.weapon);
   const clip = clips[name];
   if (!clip) throw new Error(`clip ${name} is missing`);
-  if (h.state === "ladder") return withHit(h, ladderLook(h, clip, rigs));
+  if (h.state === "ladder") return ladderLook(h, clip, rigs);
   const t = clipTime(clip, h.time);
   const view = clip.view ? step(clip.view, t) : "side";
   const moving = gaitLook(h, clip, clips, rigs);
@@ -226,7 +227,7 @@ export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroL
   const gun = track === "dropped" && !h.onGround ? "none" : track;
   const held = gun ? { pose: withCarryKey(raw, hold, gun === "hand"), gun } : armed(view, joints(raw), hold);
   const rot = clip.rot ? num(clip.rot, t, easeIn) : 0;
-  return withHit(h, {
+  return {
     view,
     flip: view === "side" && h.facing < 0,
     pose: held.pose,
@@ -235,5 +236,21 @@ export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroL
     tint: clip.tint ? num(clip.tint, t, (k) => k) : 0,
     lift: moving?.lift ?? grounding(h, clip, held.pose, rot, rigs.side),
     hit: null,
-  });
+  };
 };
+
+const landed = (h: Hero, look: HeroLook, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => {
+  const gait = h.state === "walk" || h.state === "run";
+  const window = gait ? LAND.gait : LAND.stand;
+  const landing = h.landing;
+  if (!landing || landing.age >= window || look.view !== "side" || (!gait && h.state !== "idle")) return look;
+  const from = baseLook({ ...h, state: landing.from, time: landing.time, onGround: false, landing: null }, clips, rigs, hold);
+  const progress = span(landing.age, 0, window);
+  const k = 1 - (gait ? progress : ease(progress));
+  const pose = mix(look.pose as Angles, from.pose as Angles, k);
+  const ground = lift(rigs.side, pose);
+  return { ...look, pose, lift: gait ? Math.min(look.lift * (1 - k), ground) : ground };
+};
+
+export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook =>
+  withHit(h, landed(h, baseLook(h, clips, rigs, hold), clips, rigs, hold));

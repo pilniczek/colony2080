@@ -87,6 +87,27 @@ const landsNextTick = (h: Hero): boolean => {
 };
 
 describe("jumps", () => {
+  for (const [jump, gait, held] of [["walkJump", "walk", ["moveRight"]], ["runJump", "run", ["moveRight", "runModifier"]]] as const) {
+    it(`${jump} lands back into ${gait} at take-off phase plus air time`, () => {
+      const g = game();
+      run(g, 0.4, [...held]);
+      tick(g, [...held], ["up"]);
+      expect(g.hero.state).toBe(jump);
+      const takeOff = g.hero.gaitTime;
+      let air = 0;
+      while (g.hero.state === jump) {
+        air = g.hero.time;
+        tick(g, [...held]);
+      }
+      air += dt;
+      expect(g.hero.state).toBe(gait);
+      expect(g.hero.landing).toMatchObject({ from: jump, age: 0 });
+      expect(g.hero.landing!.time).toBeCloseTo(air, 9);
+      const duration = clips[gait]!.duration;
+      expect(g.hero.time).toBeCloseTo((takeOff + air) % duration, 9);
+    });
+  }
+
   it("leaves the floor on the press frame and the standing jump peaks at 1.0 cells", () => {
     const g = game();
     tick(g, [], ["up"]);

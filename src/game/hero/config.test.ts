@@ -99,6 +99,11 @@ describe("loadClips", () => {
     expect(() => loadClips(withClip("walk", { gait: "hop" }))).toThrow(/walk\.gait/);
   });
 
+  it("needs a positive blend with pose keys", () => {
+    expect(() => loadClips(withClip("walkJump", { blend: 0 }))).toThrow(/walkJump\.blend/);
+    expect(() => loadClips(withClip("walkJump", { pose: undefined }))).toThrow(/walkJump\.pose/);
+  });
+
   it("needs pose keys without a gait", () => {
     expect(() => loadClips(withClip("idle", { pose: undefined }))).toThrow(/idle\.pose/);
   });
