@@ -23,18 +23,26 @@ const MAT = { m: ["m0", "m1", "m2", "m3"], c: ["c0", "c1", "c2", "c3"], a: ["a0"
 const MUZZLE = [BARREL.x + BARREL.length + 2, -40];
 const SUPPORT = [BARREL.x + 40, -2];
 
+const fills = new WeakMap();
+
+function bandFill(ctx, p, tones, simple) {
+  const key = tones.join() + simple;
+  const hit = fills.get(p);
+  if (hit && hit.key === key) return hit.fill;
+  const top = tones[Math.min(3, p.tone + 1)], mid = tones[p.tone], low = tones[Math.max(0, p.tone - 1)];
+  const stops = simple
+    ? [[0, top], [0.28, top], [0.28, mid], [0.74, mid], [0.74, low], [1, low]]
+    : [[0, top], [0.1, top], [0.1, tones[3]], [0.1 + Math.max(1 / p.h, 0.08), tones[3]], [0.1 + Math.max(1 / p.h, 0.08), top], [0.28, top], [0.28, mid], [0.74, mid], [0.74, low], [1, low]];
+  const fill = ctx.createLinearGradient(0, p.y, 0, p.y + p.h);
+  for (const [at, color] of stops) fill.addColorStop(at, color);
+  fills.set(p, { key, fill });
+  return fill;
+}
+
 function part(ctx, p, pal, lineW, simple) {
   const tones = MAT[p.mat].map(k => pal[k]);
-  ctx.fillStyle = tones[p.tone];
+  ctx.fillStyle = bandFill(ctx, p, tones, simple);
   ctx.fillRect(p.x, p.y, p.w, p.h);
-  ctx.fillStyle = tones[Math.min(3, p.tone + 1)];
-  ctx.fillRect(p.x, p.y, p.w, p.h * 0.28);
-  if (!simple) {
-    ctx.fillStyle = tones[3];
-    ctx.fillRect(p.x, p.y + p.h * 0.1, p.w, Math.max(1, p.h * 0.08));
-  }
-  ctx.fillStyle = tones[Math.max(0, p.tone - 1)];
-  ctx.fillRect(p.x, p.y + p.h * 0.74, p.w, p.h * 0.26);
   if (lineW) {
     const t = ctx.getTransform();
     ctx.strokeStyle = pal.mLine;

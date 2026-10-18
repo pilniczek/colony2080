@@ -49,7 +49,8 @@ window.C28_CONFIG = {
    },
    "gameLod": {
     "minThickness": 8,
-    "minArea": 400
+    "minArea": 400,
+    "minRadius": 8
    },
    "levels": {
     "head": 2,

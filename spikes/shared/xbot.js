@@ -39,6 +39,52 @@ function roundedPath(pts, r) {
   return d + "Z";
 }
 
+function flatten(pts, r, steps = 6) {
+  if (!r) return pts;
+  const n = pts.length, out = [];
+  for (let i = 0; i < n; i++) {
+    const p = pts[i], a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+    const la = Math.hypot(a[0] - p[0], a[1] - p[1]), lb = Math.hypot(b[0] - p[0], b[1] - p[1]);
+    const rr = Math.min(r, la / 2, lb / 2);
+    const s = [p[0] + (a[0] - p[0]) / la * rr, p[1] + (a[1] - p[1]) / la * rr];
+    const e = [p[0] + (b[0] - p[0]) / lb * rr, p[1] + (b[1] - p[1]) / lb * rr];
+    for (let k = 0; k <= steps; k++) {
+      const t = k / steps, u = 1 - t;
+      out.push([u * u * s[0] + 2 * u * t * p[0] + t * t * e[0], u * u * s[1] + 2 * u * t * p[1] + t * t * e[1]]);
+    }
+  }
+  return out;
+}
+
+function clipHalf(poly, side) {
+  const out = [];
+  for (let i = 0; i < poly.length; i++) {
+    const p = poly[i], q = poly[(i + 1) % poly.length];
+    const dp = side(p), dq = side(q);
+    if (dp >= 0) out.push(p);
+    if (dp * dq < 0) {
+      const t = dp / (dp - dq);
+      out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]);
+    }
+  }
+  return out;
+}
+
+function clipPoly(poly, convex) {
+  const n = convex.length;
+  const area = convex.reduce((s, p, i) => { const q = convex[(i + 1) % n]; return s + p[0] * q[1] - q[0] * p[1]; }, 0);
+  const sgn = Math.sign(area);
+  for (let i = 0; i < n && poly.length; i++) {
+    const a = convex[i], b = convex[(i + 1) % n];
+    poly = clipHalf(poly, p => sgn * ((b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])));
+  }
+  return poly;
+}
+
+function polyPath(pts) {
+  return pts.length > 2 ? new Path2D("M" + pts.map(p => p.join(",")).join("L") + "Z") : null;
+}
+
 function bbox(pts) {
   const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
@@ -69,9 +115,10 @@ function G(parent, tf, name, pivot, extra = {}) {
 }
 
 function P(parent, spec) {
-  const { pts, r = 4 } = spec;
+  const { pts } = spec;
   if (tiny(pts)) return;
-  parent.kids.push({ k: "part", spec, path: new Path2D(roundedPath(pts, r)), box: bbox(pts) });
+  const r = lod && (spec.r ?? 4) < lod.minRadius ? 0 : spec.r ?? 4;
+  parent.kids.push({ k: "part", spec, path: new Path2D(roundedPath(pts, r)), box: bbox(pts), r });
 }
 
 function F(parent, pts, fill, r = 0) {
@@ -411,8 +458,6 @@ function bands(g, colors, stops) {
   return g;
 }
 
-const CLEAR = "rgba(0,0,0,0)";
-
 function baseFill(ctx, node, simple, c0, c1, c2, c3) {
   const key = (simple ? "s" : "f") + c0 + c1 + c2 + c3;
   if (node.fillKey === key) return node.fill;
@@ -434,13 +479,13 @@ function baseFill(ctx, node, simple, c0, c1, c2, c3) {
   return fill;
 }
 
-function bottomBand(ctx, node, c0) {
-  if (node.bandKey === c0) return node.band;
+function bottomBand(node) {
+  if (node.band !== undefined) return node.band;
   const [x0, y0, x1, y1] = node.box;
   const w = x1 - x0, h = y1 - y0;
   const b = 0.04 * h / w, c = h / (1 + b * b);
-  node.band = bands(ctx.createLinearGradient(x0, y0, x0 - c * b, y0 + c), [CLEAR, c0], [0.88]);
-  node.bandKey = c0;
+  const dx = -c * b, dy = c, cut = 0.88 * (dx * dx + dy * dy);
+  node.band = polyPath(clipHalf(flatten(node.spec.pts, node.r), p => (p[0] - x0) * dx + (p[1] - y0) * dy - cut));
   return node.band;
 }
 
@@ -470,38 +515,20 @@ function highlight(node) {
   const [x0, y0, x1, y1] = node.box;
   const w = x1 - x0, h = y1 - y0;
   const { shade = "box" } = node.spec;
-  if (shade === "box" && w > 24 && h > 24) return { pts: [[x0 + w * 0.1, y0 + h * 0.08], [x0 + w * 0.22, y0 + h * 0.08], [x0 + w * 0.15, y0 + h * 0.4], [x0 + w * 0.06, y0 + h * 0.4]] };
-  if (shade === "dome") return { ellipse: [x0 + w * 0.3, y0 + h * 0.26, w * 0.09, h * 0.06] };
-  return null;
-}
-
-let probe = null;
-
-function insidePath(path, pts) {
-  probe ||= document.createElement("canvas").getContext("2d");
-  return pts.every(([x, y]) => probe.isPointInPath(path, x, y));
-}
-
-function highlightSamples({ pts, ellipse }) {
-  if (pts) return pts.flatMap((p, i) => { const q = pts[(i + 1) % pts.length]; return [p, [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]]; });
-  const [cx, cy, rx, ry] = ellipse;
-  return Array.from({ length: 8 }, (_, i) => [cx + rx * Math.cos(i * Math.PI / 4), cy + ry * Math.sin(i * Math.PI / 4)]);
+  let shape = null;
+  if (shade === "box" && w > 24 && h > 24) shape = [[x0 + w * 0.1, y0 + h * 0.08], [x0 + w * 0.22, y0 + h * 0.08], [x0 + w * 0.15, y0 + h * 0.4], [x0 + w * 0.06, y0 + h * 0.4]];
+  if (shade === "dome") {
+    const cx = x0 + w * 0.3, cy = y0 + h * 0.26, rx = w * 0.09, ry = h * 0.06;
+    shape = Array.from({ length: 24 }, (_, i) => [cx + rx * Math.cos(i * Math.PI / 12), cy + ry * Math.sin(i * Math.PI / 12)]);
+  }
+  return shape && polyPath(clipPoly(flatten(node.spec.pts, node.r), shape));
 }
 
 function drawHighlight(ctx, node, c3) {
-  if (node.hl === undefined) {
-    node.hl = highlight(node);
-    if (node.hl) node.hl.inside = insidePath(node.path, highlightSamples(node.hl));
-  }
-  const hl = node.hl;
-  if (!hl) return;
-  if (!hl.inside) { ctx.save(); ctx.clip(node.path); }
+  if (node.hl === undefined) node.hl = highlight(node);
+  if (!node.hl) return;
   ctx.fillStyle = c3;
-  ctx.beginPath();
-  if (hl.pts) hl.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-  else ctx.ellipse(...hl.ellipse, 0, 0, Math.PI * 2);
-  ctx.fill();
-  if (!hl.inside) ctx.restore();
+  ctx.fill(node.hl);
 }
 
 function drawPart(ctx, node, pal, lineW, simple) {
@@ -512,9 +539,10 @@ function drawPart(ctx, node, pal, lineW, simple) {
   if (shade === "dome") fillUnit(ctx, node);
   else ctx.fill(path);
   if (!simple) {
-    if (shade === "box") {
-      ctx.fillStyle = bottomBand(ctx, node, c0);
-      ctx.fill(path);
+    const band = shade === "box" && bottomBand(node);
+    if (band) {
+      ctx.fillStyle = c0;
+      ctx.fill(band);
     }
     drawHighlight(ctx, node, c3);
   }
@@ -557,10 +585,18 @@ function shadeColor(hex, brightness, saturate) {
   return "#" + ((1 << 24) | (out[0] << 16) | (out[1] << 8) | out[2]).toString(16).slice(1);
 }
 
+const shaded = new WeakMap();
+
 function shade(pal, { brightness = 1, saturate = 1 } = {}) {
   if (brightness === 1 && saturate === 1) return pal;
+  if (!shaded.has(pal)) shaded.set(pal, new Map());
+  const memo = shaded.get(pal), key = brightness + "," + saturate;
+  const sig = Object.values(pal).join();
+  const hit = memo.get(key);
+  if (hit && hit.sig === sig) return hit.out;
   const out = {};
   for (const k in pal) out[k] = shadeColor(pal[k], brightness, saturate);
+  memo.set(key, { sig, out });
   return out;
 }
 
