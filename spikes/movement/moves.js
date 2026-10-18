@@ -304,12 +304,8 @@ move("movement", "Idle", "-", 3, c => {
 
 move("movement", "Turn", "opposite arrow", 3.2, (c, t) => {
   backdrop(c);
-  const seq = [["R", 1.2], ["F", 0.4], ["L", 1.2], ["F", 0.4]];
-  let u = t, i = 0;
-  while (u > seq[i][1]) { u -= seq[i][1]; i = (i + 1) % seq.length; }
-  const view = seq[i][0];
   shadow(c, 180, FLOOR, 30);
-  bot(c, { view: view === "F" ? "front" : "side", flip: view === "L", x: 180, y: FLOOR, pose: STAND });
+  bot(c, { flip: t >= 1.6, x: 180, y: FLOOR, pose: STAND });
 });
 
 move("movement", "Walk", "Left / Right", (W + 120) / WALK.speed, (c, t) => {
@@ -334,31 +330,27 @@ function verticalJump(c, t, prep, t0) {
   backdrop(c);
   const keys = [
     ...prep,
-    [t0, { ...legs(-2, [4, 4, 26], [8, 6, 28]), arm: -150, armFar: -140, fore: -10, foreFar: -14 }],
+    [t0, prep[prep.length - 1][1]],
+    [t0 + 0.08, { ...legs(-2, [4, 4, 26], [8, 6, 28]), arm: -150, armFar: -140, fore: -10, foreFar: -14 }],
     [t0 + 0.28, { ...legs(6, [-62, 96, -10], [-54, 100, -16]), arm: -110, armFar: -100, fore: -30, foreFar: -30 }],
     [t0 + 0.52, { ...legs(2, [-14, 16, 10], [-10, 18, 10]), arm: -60, armFar: -50, fore: -30, foreFar: -30 }],
     [t0 + 0.64, { ...legs(14, [-46, 82], [-40, 86]), arm: 20, armFar: 16, fore: -40, foreFar: -40 }],
     [t0 + 1.1, { ...STAND }]
   ];
   const pose = keyed(keys, t);
-  const air = span(t, t0 - 0.02, t0 + 0.04) * (1 - span(t, t0 + 0.5, t0 + 0.56));
+  const air = span(t, t0, t0 + 0.06) * (1 - span(t, t0 + 0.5, t0 + 0.56));
   const u = (t - t0) / 0.54;
   const h = u > 0 && u < 1 ? 4 * 52 * u * (1 - u) : 0;
   shadow(c, 180, FLOOR, 30 - h * 0.12, 0.35 - h * 0.002);
   bot(c, { x: 180, y: FLOOR + lift(pose) * (1 - air) - h, pose });
 }
 
-move("movement", "Standing jump", "Up", 2.4, (c, t) => verticalJump(c, t, [
-  [0, { ...STAND }],
-  [0.35, { ...legs(14, [-46, 82], [-40, 86]), arm: 34, armFar: 30, fore: -20, foreFar: -20 }]
-], 0.5));
+move("movement", "Standing jump", "Up", 2.4, (c, t) => verticalJump(c, t, [[0, { ...STAND }]], 0.5));
 
 move("movement", "Duck jump", "hold Down, then Up", 2.8, (c, t) => verticalJump(c, t, [
   [0, { ...STAND }],
-  [0.25, DUCK],
-  [0.75, DUCK],
-  [0.95, { ...DUCK, arm: 34, armFar: 30, fore: -20, foreFar: -20 }]
-], 1.1));
+  [0.25, DUCK]
+], 0.85));
 
 move("movement", "Walking jump", "direction + Up", (W + 120) / WALK.speed, (c, t) => {
   const gap = [134, 192];
@@ -367,7 +359,7 @@ move("movement", "Walking jump", "direction + Up", (W + 120) / WALK.speed, (c, t
   const x = -60 + WALK.speed * t;
   const leap = { ...legs(6, [-62, 66, 14], [10, 58, 18]), arm: -40, armFar: 30, fore: -40, foreFar: -50 };
   const j0 = 1.7, j1 = 2.25;
-  const k = span(t, j0 - 0.12, j0) * (1 - span(t, j1, j1 + 0.15));
+  const k = span(t, j0, j0 + 0.08) * (1 - span(t, j1, j1 + 0.15));
   const pose = mix(walkPose(p), leap, k);
   const u = clamp((t - j0) / (j1 - j0));
   const h = t > j0 && t < j1 ? 4 * 36 * u * (1 - u) : 0;
@@ -382,7 +374,7 @@ function runningJumpAt(t) {
   const p = t / RUN.cycle * TAU;
   const x = -60 + RUN.speed * t;
   const leap = { ...legs(10, [-70, 76, 14], [14, 72, 18]), arm: -60, armFar: 40, fore: -50, foreFar: -60 };
-  const k = span(t, j0 - 0.06, j0 + 0.04) * (1 - span(t, j1 - 0.04, j1 + 0.06));
+  const k = span(t, j0, j0 + 0.06) * (1 - span(t, j1 - 0.04, j1 + 0.06));
   const pose = mix(runPose(p), leap, k);
   const u = clamp((t - j0) / (j1 - j0));
   const h = t > j0 && t < j1 ? 4 * 34 * u * (1 - u) : 0;

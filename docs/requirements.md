@@ -67,7 +67,8 @@ flowchart LR
 | Sandbox hits | Sandbox has a projectile emitter firing periodically at chest height to try hit, duck and hide | user |
 | Dev server | Sandbox and game run on the Vite dev server (`npm run dev`); spikes keep opening from `file://` | user |
 | Story year | Story set in 2080, alien invasion 5 years earlier (2075). Departs from the original's 2013 / 2018 / 2028 | user |
-| Idle and turn | Idle is fully still. Turn switches views without squash | user |
+| Idle and turn | Idle is fully still. Turn flips between side views at once (no front view, no squash) | user |
+| Input response | Arcade style: every move acts on the press, no wind-up (jumps leave the floor at once, no crouch first). Less natural, more playable | user |
 | Death | Drop the gun, fall on the back, body flat on the floor | user |
 | Inventory key | `I` instead of Tab | user |
 | Phase order | Movement overview page first (non-interactive, one looping cell per move). Engine, movement sandbox and cutscenes later | user |
