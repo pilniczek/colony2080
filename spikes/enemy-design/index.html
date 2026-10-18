@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enemy Design Sheet</title>
+<style>
+  :root { --bg: #0b1112; --panel: #141c1e; --text: #c9d1d0; --muted: #7d8a89; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+  header { padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: var(--panel); }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  header button { background: #22302f; color: var(--text); border: 1px solid #2f3f3e; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+  header label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  header output { min-width: 32px; color: var(--text); font-variant-numeric: tabular-nums; }
+  main { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 12px 16px; }
+  figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  figure canvas { width: 100%; display: block; }
+  main.game { display: flex; flex-wrap: wrap; }
+  h2 { font-size: 13px; font-weight: 600; margin: 4px 16px 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
+  #palette { display: none; flex-wrap: wrap; gap: 6px 14px; padding: 8px 16px; background: var(--panel); }
+  body.with-palette #palette { display: flex; }
+  #palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
+  #palette label.edited { color: var(--text); font-weight: 600; }
+  #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Enemy design sheet</h1>
+  <label>Brightness <input id="brightness" type="range" min="0.4" max="1.6" step="0.01"><output id="brightnessOut"></output></label>
+  <label>Saturation <input id="saturate" type="range" min="0" max="1" step="0.01"><output id="saturateOut"></output></label>
+  <button id="palToggle">Palette</button>
+  <button id="resetPal">Reset overrides</button>
+  <button id="copy">Copy enemy JSON</button>
+  <label><input id="lines" type="checkbox" checked> Outlines</label>
+  <label><input id="hero" type="checkbox" checked> Hero beside</label>
+</header>
+<div id="palette"></div>
+<main>
+  <figure><figcaption>Enemy, front</figcaption><canvas id="front" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Enemy, side, carry</figcaption><canvas id="side" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Enemy, back</figcaption><canvas id="back" data-w="640" data-h="780"></canvas></figure>
+  <figure class="heroOnly"><figcaption>Hero, side, carry</figcaption><canvas id="heroSide" data-w="640" data-h="780"></canvas></figure>
+</main>
+<h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
+<main class="game">
+  <figure><figcaption>Face-off, side</figcaption><canvas id="gDuel" data-w="1200" data-h="780"></canvas></figure>
+  <figure><figcaption>Enemy, front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Enemy, back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
+</main>
+<h2>References</h2>
+<main>
+  <figure><figcaption>Chrome enemy near, t0231</figcaption><img src="../../docs/research/video/frames-best/L1_t0231_hide_dark_sprite_behind_barrel_chrome_enemy_near.png" alt="chrome enemy near"></figure>
+  <figure><figcaption>Chrome enemy explodes, t0232</figcaption><img src="../../docs/research/video/frames-best/L1_t0232_chrome_enemy_explodes.png" alt="chrome enemy explodes"></figure>
+  <figure><figcaption>Enemy by wall hole, t0261</figcaption><img src="../../docs/research/video/frames-best/L1_t0261_hide_pose_enemy_adjacent_wall_hole_scene.png" alt="enemy by wall hole"></figure>
+</main>
+<script src="../shared/config.js"></script>
+<script src="../shared/xbot.js"></script>
+<script src="../shared/gun.js"></script>
+<script>
+const { PALETTE, shade, buildFront, buildSide, buildBack, render } = window.XBOT;
+
+const SKY = ["#1b2629", "#0f1517"];
+const tint = { brightness: 1.1, saturate: 0 };
+const overrides = {};
+const opts = { lines: true, hero: true };
+
+const roots = {
+  front: buildFront({ rightArmFirst: true, propBehindArm: true, enemy: true }),
+  side: buildSide({ farLimbs: true, propBehindArm: true, enemy: true }),
+  back: buildBack({ enemy: true }),
+  gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true, enemy: true }),
+  gSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true, enemy: true }),
+  heroSide: buildSide({ farLimbs: true, propBehindArm: true }),
+  gHeroSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true }),
+  gBack: buildBack({ lod: true, enemy: true })
+};
+const hold = GUN.holdPoses(roots.side, roots.front);
+const gHold = GUN.holdPoses(roots.gSide, roots.gFront);
+const POSES = {
+  side: { ...hold.CARRY, ...hold.CARRY_FAR },
+  front: { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R },
+  gSide: { ...gHold.CARRY, ...gHold.CARRY_FAR },
+  gFront: { ...gHold.FRONT_CARRY, ...gHold.FRONT_CARRY_R }
+};
+const SIDE_SHIFT = -150;
+
+const enemyPalette = () => ({ ...shade(PALETTE, tint), visor: PALETTE.visor, ...overrides });
+
+function robot(ctx, { root, pose, hook, barrel, pal, simple, lineW }) {
+  render(ctx, root, { pal, pose, lineW, simple, hooks: { [hook]: c => GUN.hook(c, { pal, lineW, simple, barrel }) } });
+}
+
+function backdrop(ctx, w, h) {
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, SKY[0]);
+  g.addColorStop(1, SKY[1]);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function facingLeft(ctx, w, fn) {
+  ctx.save();
+  ctx.translate(w, 0);
+  ctx.scale(-1, 1);
+  fn();
+  ctx.restore();
+}
+
+const VIEWS = {
+  front: (ctx, lw, pal) => robot(ctx, { root: roots.front, pose: POSES.front, hook: "handL", barrel: hold.FRONT_BARREL, pal, lineW: lw * 1.4 }),
+  side: (ctx, lw, pal) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.side, pose: POSES.side, hook: "hand", pal, lineW: lw * 1.4 }); },
+  back: (ctx, lw, pal) => { render(ctx, roots.back, { pal, lineW: lw * 1.4 }); GUN.slung(ctx, { pal, lineW: lw * 1.4 }); },
+  heroSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.heroSide, pose: POSES.side, hook: "hand", pal: PALETTE, lineW: lw * 1.4 }); },
+  gDuel: (ctx, lw, pal, w, h) => {
+    backdrop(ctx, w, h);
+    ctx.translate(SIDE_SHIFT, 0);
+    if (opts.hero) robot(ctx, { root: roots.gHeroSide, pose: POSES.gSide, hook: "hand", pal: PALETTE, simple: true, lineW: lw });
+    facingLeft(ctx, w - 2 * SIDE_SHIFT, () => robot(ctx, { root: roots.gSide, pose: POSES.gSide, hook: "hand", pal, simple: true, lineW: lw }));
+  },
+  gFront: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); robot(ctx, { root: roots.gFront, pose: POSES.gFront, hook: "handL", barrel: gHold.FRONT_BARREL, pal, simple: true, lineW: lw }); },
+  gBack: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); render(ctx, roots.gBack, { pal, lineW: lw, simple: true }); GUN.slung(ctx, { pal, lineW: lw, simple: true }); }
+};
+
+function draw() {
+  const dpr = devicePixelRatio || 1;
+  const pal = enemyPalette();
+  for (const fig of document.querySelectorAll(".heroOnly")) fig.hidden = !opts.hero;
+  for (const [id, view] of Object.entries(VIEWS)) {
+    const c = document.getElementById(id);
+    if (c.closest("[hidden]")) continue;
+    const w = +c.dataset.w, h = +c.dataset.h;
+    c.style.aspectRatio = `${w} / ${h}`;
+    if (c.closest(".game")) c.style.width = `${w * 0.2}px`;
+    c.width = Math.round(c.clientWidth * dpr);
+    c.height = Math.round(c.clientWidth * h / w * dpr);
+    const ctx = c.getContext("2d");
+    const s = c.width / w;
+    ctx.setTransform(s, 0, 0, s, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    view(ctx, opts.lines ? dpr : 0, pal, w, h);
+  }
+  syncPalette(pal);
+}
+
+const palEl = document.getElementById("palette");
+const inputs = {};
+for (const k of Object.keys(PALETTE)) {
+  const label = document.createElement("label");
+  const input = document.createElement("input");
+  input.type = "color";
+  input.oninput = () => { overrides[k] = input.value; draw(); };
+  label.append(input, k);
+  palEl.append(label);
+  inputs[k] = input;
+}
+
+function syncPalette(pal) {
+  for (const [k, input] of Object.entries(inputs)) {
+    input.value = pal[k];
+    input.parentElement.classList.toggle("edited", k in overrides);
+  }
+}
+
+for (const key of ["brightness", "saturate"]) {
+  const input = document.getElementById(key);
+  const out = document.getElementById(key + "Out");
+  input.value = tint[key];
+  out.value = tint[key].toFixed(2);
+  input.oninput = () => { tint[key] = +input.value; out.value = tint[key].toFixed(2); draw(); };
+}
+
+document.getElementById("palToggle").onclick = () => document.body.classList.toggle("with-palette");
+document.getElementById("resetPal").onclick = () => { for (const k in overrides) delete overrides[k]; draw(); };
+document.getElementById("copy").onclick = () => navigator.clipboard.writeText(JSON.stringify({ tint, overrides, palette: enemyPalette() }, null, 2));
+document.getElementById("lines").onchange = e => { opts.lines = e.target.checked; draw(); };
+document.getElementById("hero").onchange = e => { opts.hero = e.target.checked; draw(); };
+addEventListener("resize", draw);
+draw();
+</script>
+</body>
+</html>
