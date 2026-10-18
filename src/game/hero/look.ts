@@ -1,13 +1,21 @@
-import { easeIn, keyed, mix, num } from "../../engine/anim/keyed";
+import { easeIn, keyed, mix, num, span } from "../../engine/anim/keyed";
 import { apply, multiply, type Mat2D } from "../../engine/math/mat2d";
-import { jointMatrix, locate, solve, type Pose } from "../../engine/rig/pose";
+import { jointMatrix, locate, solve, type Pose, type Tint } from "../../engine/rig/pose";
 import type { GroupNode, Pt, RigNode } from "../../engine/rig/tree";
 import type { holdPoses } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
-import { clipFor, type Clip, type ClipSet, type View } from "./config";
+import { clipFor, type Clip, type ClipSet, type GaitName, type View } from "./config";
+import { gaitBob, gaitPose, RUN, SPIKE_K, TAU, WALK, type Gait } from "./gait";
 import type { Hero } from "./hero";
 
 export type GunLook = "hand" | "slung" | "dropped" | "none";
+
+export interface HitLook {
+  star: Pt;
+  spark: number;
+  flash: number;
+  headSnap: number;
+}
 
 export interface HeroLook {
   view: View;
@@ -17,6 +25,7 @@ export interface HeroLook {
   rot: number;
   tint: number;
   lift: number;
+  hit: HitLook | null;
 }
 
 export interface Rigs {
@@ -32,6 +41,8 @@ type Angles = Record<string, number>;
 const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
 const REACH_STEPS = 10;
 const ALPHA_VISIBLE = 40 / 255;
+const GAITS: Record<GaitName, Gait> = { walk: WALK, run: RUN };
+const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 22, damping: 7, star: [14, -100] as Pt };
 
 export const createRigs = (lod: boolean): Rigs => ({
   side: buildSide({ lod, farLimbs: true, propBehindArm: true }),
@@ -154,6 +165,7 @@ const ladderLook = (h: Hero, clip: Clip, rigs: Rigs): HeroLook => {
     rot: 0,
     tint: 0,
     lift: 0,
+    hit: null,
   };
 };
 
@@ -172,24 +184,56 @@ const grounding = (h: Hero, clip: Clip, pose: Angles, rot: number, side: GroupNo
   return standing * (1 - k) - bottom(side, joints(clip.pose[clip.pose.length - 1]![1]), lieRot) * k;
 };
 
+const gaitLook = (h: Hero, clip: Clip, clips: ClipSet, rigs: Rigs): { pose: Angles; lift: number } | null => {
+  if (!clip.gait) return null;
+  const g = GAITS[clip.gait];
+  if (clip.blend === undefined) {
+    const phase = (TAU * clipTime(clip, h.time)) / clip.duration;
+    return { pose: gaitPose(g, phase), lift: gaitBob(g, phase) / SPIKE_K };
+  }
+  const phase = (TAU * (h.gaitTime + h.time)) / (clips[clip.gait]?.duration ?? g.cycle);
+  const k = span(h.time, 0, clip.blend);
+  const pose = mix(gaitPose(g, phase), keyed(clip.pose, h.time), k);
+  return { pose, lift: Math.min((gaitBob(g, phase) / SPIKE_K) * (1 - k), lift(rigs.side, pose)) };
+};
+
+const hitLook = (h: Hero, view: View): { hit: HitLook; pose: Pose } | null => {
+  const age = h.hitAge;
+  if (age === null || age < 0 || age > HIT.window) return null;
+  const flash = 1 - span(age, 0, HIT.flash);
+  const headSnap = HIT.snap * Math.sin(HIT.rate * age) * Math.exp(-HIT.damping * age);
+  const tint: { tint?: Tint } = flash > 0 ? { tint: { brightness: 1 + flash * HIT.glow, saturate: 1 + flash } } : {};
+  const anchor = view === "side" ? ROBOT.SIDE_AX : ROBOT.AX;
+  const star: Pt = [anchor + HIT.star[0] / SPIKE_K, ROBOT.FOOT_Y + HIT.star[1] / SPIKE_K];
+  return { hit: { star, spark: span(age, 0, HIT.spark), flash, headSnap }, pose: { head: { rot: headSnap, ...tint }, chest: tint } };
+};
+
+const withHit = (h: Hero, look: HeroLook): HeroLook => {
+  const hit = hitLook(h, look.view);
+  return hit ? { ...look, pose: { ...look.pose, ...hit.pose }, hit: hit.hit } : look;
+};
+
 export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => {
   const name = clipFor(h.state, h.weapon);
   const clip = clips[name];
   if (!clip) throw new Error(`clip ${name} is missing`);
-  if (h.state === "ladder") return ladderLook(h, clip, rigs);
+  if (h.state === "ladder") return withHit(h, ladderLook(h, clip, rigs));
   const t = clipTime(clip, h.time);
   const view = clip.view ? step(clip.view, t) : "side";
-  const raw = keyed(clip.pose, t);
-  const gun: GunLook | null = h.weapon !== "gun" ? "none" : clip.gun ? step(clip.gun, t) : null;
+  const moving = gaitLook(h, clip, clips, rigs);
+  const raw = moving?.pose ?? keyed(clip.pose, t);
+  const track: GunLook | null = h.weapon !== "gun" ? "none" : clip.gun ? step(clip.gun, t) : null;
+  const gun = track === "dropped" && !h.onGround ? "none" : track;
   const held = gun ? { pose: withCarryKey(raw, hold, gun === "hand"), gun } : armed(view, joints(raw), hold);
   const rot = clip.rot ? num(clip.rot, t, easeIn) : 0;
-  return {
+  return withHit(h, {
     view,
     flip: view === "side" && h.facing < 0,
     pose: held.pose,
     gun: held.gun,
     rot,
     tint: clip.tint ? num(clip.tint, t, (k) => k) : 0,
-    lift: grounding(h, clip, held.pose, rot, rigs.side),
-  };
+    lift: moving?.lift ?? grounding(h, clip, held.pose, rot, rigs.side),
+    hit: null,
+  });
 };

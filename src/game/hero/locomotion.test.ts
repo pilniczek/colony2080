@@ -1,7 +1,10 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import type { Hero } from "./hero";
-import { cfg, dt, game, run, runUntil, tick, type Game } from "./testWorld";
+import { cfg, clips, dt, game, run, runUntil, tick, type Game } from "./testWorld";
+
+const walkSpeed = clips.walk!.travel! / clips.walk!.duration;
+const runSpeed = clips.run!.travel! / clips.run!.duration;
 
 const dropLevel = {
   ...sandbox,
@@ -23,14 +26,14 @@ describe("walk and run", () => {
     const g = game();
     run(g, 1, ["moveRight"]);
     expect(g.hero.state).toBe("walk");
-    expect(Math.abs(g.hero.x - 7.5 - 2.0 / 1.1)).toBeLessThan(0.05);
+    expect(Math.abs(g.hero.x - 7.5 - walkSpeed)).toBeLessThan(0.05);
   });
 
   it("runs the run clip travel per duration with the run modifier", () => {
     const g = game();
     run(g, 1, ["moveRight", "runModifier"]);
     expect(g.hero.state).toBe("run");
-    expect(Math.abs(g.hero.x - 7.5 - 2.6 / 0.66)).toBeLessThan(0.05);
+    expect(Math.abs(g.hero.x - 7.5 - runSpeed)).toBeLessThan(0.05);
   });
 
   it("swaps walk and run when the run modifier toggles", () => {
@@ -62,7 +65,7 @@ describe("turn", () => {
     tick(g, ["moveLeft"]);
     expect(g.hero).toMatchObject({ state: "walk", facing: -1 });
     expect(g.hero.time).toBeCloseTo(time + 1 / 60, 9);
-    expect(g.hero.vx).toBeCloseTo(-2 / 1.1, 9);
+    expect(g.hero.vx).toBeCloseTo(-walkSpeed, 9);
   });
 });
 
@@ -114,7 +117,7 @@ describe("jumps", () => {
     tick(g, ["moveRight"], ["up"]);
     expect(g.hero.state).toBe("walkJump");
     expect(g.hero.vy).toBeLessThan(0);
-    expect(g.hero.vx).toBeCloseTo(2 / 1.1, 9);
+    expect(g.hero.vx).toBeCloseTo(walkSpeed, 9);
     const { peak } = peakAndAir(g, () => ["moveRight"]);
     expect(Math.abs(peak - cfg.jump.walkHeight)).toBeLessThan(0.05);
   });
@@ -209,11 +212,11 @@ describe("falls", () => {
   it("keeps walk speed while falling off the left platform", () => {
     const g = game({ x: 10, y: 4 });
     runUntil(g, (h) => h.state === "fall", ["moveRight"]);
-    expect(g.hero.vx).toBeCloseTo(2 / 1.1, 9);
+    expect(g.hero.vx).toBeCloseTo(walkSpeed, 9);
     for (let i = 0; i < 20; i++) {
       tick(g);
       expect(g.hero.state).toBe("fall");
-      expect(g.hero.vx).toBeCloseTo(2 / 1.1, 9);
+      expect(g.hero.vx).toBeCloseTo(walkSpeed, 9);
     }
     runUntil(g, (h) => h.onGround);
     expect(g.hero).toMatchObject({ state: "idle", y: 11 });
@@ -225,7 +228,7 @@ describe("falls", () => {
     expect(g.hero.state).toBe("fall");
     runUntil(g, (h) => h.onGround);
     expect(g.hero.state).toBe("fallDeath");
-    expect(g.hero.y).toBeCloseTo(13, 6);
+    expect(g.hero.y).toBeCloseTo(14, 6);
     expect(g.events.map((e) => e.kind)).toEqual(["died"]);
   });
 

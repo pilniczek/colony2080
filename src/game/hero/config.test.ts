@@ -1,11 +1,12 @@
 import clipsJson from "@config/hero/clips.json";
 import movementJson from "@config/hero/movement.json";
+import xbot from "@config/robots/xbot.json";
 import { describe, expect, it } from "vitest";
 import { clipFor, loadClips, loadMovement, type HeroState, type Weapon } from "./config";
 
 const states: HeroState[] = [
   "idle", "walk", "run", "standJump", "walkJump", "runJump", "duckJump", "fall", "fallDeath", "duck",
-  "duckAttack", "kneel", "use", "hide", "attack", "weaponSwitch", "ladder", "death",
+  "duckAttack", "kneel", "use", "hide", "attack", "weaponSwitch", "ladder", "death", "jumpDeath",
 ];
 const weapons: Weapon[] = ["fists", "gun"];
 
@@ -21,6 +22,7 @@ describe("loadMovement", () => {
     expect(cfg.jump.runSpeed).toBe(6.5);
     expect(cfg.jump.walkHeight).toBe(0.47);
     expect(cfg.energy.hit).toBe(25);
+    expect(cfg.deathSlide).toBe(0.45);
   });
 
   it("names a non-numeric field", () => {
@@ -74,6 +76,31 @@ describe("loadClips", () => {
     expect(clipFor("duckAttack", "gun")).toBe("duckShoot");
     expect(clipFor("use", "gun")).toBe("useGun");
     expect(clipFor("walk", "gun")).toBe("walk");
+  });
+
+  it("drives walk and run from the gait engine at the spec speeds", () => {
+    const cellsPerPx = movementJson.heroHeightCells / ((xbot.frame.footY - xbot.levels.head) * 0.2);
+    for (const [name, pxPerSecond] of [["walk", 110], ["run", 300]] as const) {
+      const clip = clips[name]!;
+      expect(clip.gait).toBe(name);
+      expect(clip.pose).toEqual([]);
+      expect(clip.travel! / clip.duration).toBeCloseTo(pxPerSecond * cellsPerPx, 2);
+    }
+  });
+
+  it("blends the moving jumps from their gait", () => {
+    expect(clips.walkJump).toMatchObject({ gait: "walk", blend: 0.08 });
+    expect(clips.runJump).toMatchObject({ gait: "run", blend: 0.06 });
+    expect(clipFor("walkJump", "fists")).toBe("walkJump");
+    expect(clipFor("duckJump", "gun")).toBe("duckJump");
+  });
+
+  it("rejects an unknown gait", () => {
+    expect(() => loadClips(withClip("walk", { gait: "hop" }))).toThrow(/walk\.gait/);
+  });
+
+  it("needs pose keys without a gait", () => {
+    expect(() => loadClips(withClip("idle", { pose: undefined }))).toThrow(/idle\.pose/);
   });
 
   it("rejects a zero duration", () => {

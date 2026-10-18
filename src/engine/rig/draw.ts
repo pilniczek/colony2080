@@ -194,6 +194,8 @@ const shadeColor = (hex: string, brightness: number, saturate: number): string =
   return "#" + ((1 << 24) | (out[0] << 16) | (out[1] << 8) | out[2]).toString(16).slice(1);
 };
 
+const SHADE_MEMO = 32;
+
 const shaded = new WeakMap<Palette, Map<string, { sig: string; out: Palette }>>();
 
 export const shade = (palette: Palette, { brightness = 1, saturate = 1 }: Tint = {}): Palette => {
@@ -206,6 +208,7 @@ export const shade = (palette: Palette, { brightness = 1, saturate = 1 }: Tint =
   if (hit && hit.sig === sig) return hit.out;
   const out: Palette = {};
   for (const k in palette) out[k] = shadeColor(palette[k] as string, brightness, saturate);
+  if (memo.size >= SHADE_MEMO) memo.clear();
   memo.set(key, { sig, out });
   return out;
 };

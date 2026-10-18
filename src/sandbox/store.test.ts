@@ -69,7 +69,7 @@ describe("clip tuning", () => {
     store().setClipValue("walk", "travel", -1);
     store().setClipValue("walk", "duration", NaN);
     store().setClipValue("nope", "duration", 1);
-    expect(store().clips.walk).toMatchObject({ duration: 1.1, travel: 2 });
+    expect(store().clips.walk).toMatchObject({ duration: 1.1, travel: 1.549 });
     expect(store().clips).not.toHaveProperty("nope");
   });
 

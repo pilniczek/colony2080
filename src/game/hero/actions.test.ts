@@ -124,8 +124,29 @@ describe("dead body", () => {
     expect(g.hero.onGround).toBe(false);
     lethal(g);
     run(g, 1);
-    expect(g.hero).toMatchObject({ state: "death", y: 14, onGround: true });
+    expect(g.hero).toMatchObject({ state: "jumpDeath", y: 14, onGround: true, vx: 0 });
     expect(kinds(g, "died")).toHaveLength(1);
+  });
+
+  it("keeps flying when killed in a running jump, then slides to rest", () => {
+    const g = game({ x: 3, y: 14 });
+    run(g, 0.3, ["moveRight", "runModifier"]);
+    tick(g, ["moveRight", "runModifier"], ["up"]);
+    run(g, 0.1, ["moveRight", "runModifier"]);
+    const vx = g.hero.vx;
+    lethal(g);
+    expect(g.hero.state).toBe("jumpDeath");
+    tick(g);
+    expect(g.hero.vx).toBe(vx);
+    runUntil(g, (h) => h.onGround);
+    const landX = g.hero.x;
+    run(g, cfg.deathSlide * 0.5);
+    expect(g.hero.vx).toBeGreaterThan(0);
+    expect(g.hero.vx).toBeLessThan(vx);
+    run(g, cfg.deathSlide);
+    expect(g.hero.vx).toBe(0);
+    expect(g.hero.x - landX).toBeGreaterThan(0.3);
+    expect(g.hero.x - landX).toBeLessThan((vx * cfg.deathSlide) / 2 + 0.01);
   });
 
   it("rides a moving lift", () => {

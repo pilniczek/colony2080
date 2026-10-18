@@ -2,15 +2,18 @@ import type { Keys } from "../../engine/anim/keyed";
 
 export type HeroState =
   | "idle" | "walk" | "run" | "standJump" | "walkJump" | "runJump" | "duckJump" | "fall" | "fallDeath" | "duck"
-  | "duckAttack" | "kneel" | "use" | "hide" | "attack" | "weaponSwitch" | "ladder" | "death";
+  | "duckAttack" | "kneel" | "use" | "hide" | "attack" | "weaponSwitch" | "ladder" | "death" | "jumpDeath";
 export type Weapon = "fists" | "gun";
 export type View = "side" | "front" | "back";
 export type GunTrack = "hand" | "none" | "dropped";
+export type GaitName = "walk" | "run";
 
 export interface Clip {
   duration: number;
   loop: boolean;
   travel?: number;
+  gait?: GaitName;
+  blend?: number;
   cancelAt?: number;
   pose: Keys;
   view?: [number, View][];
@@ -39,6 +42,7 @@ export interface MovementConfig {
   fireRate: number;
   energy: { max: number; hit: number };
   respawnMs: number;
+  deathSlide: number;
 }
 
 type Obj = Record<string, unknown>;
@@ -86,6 +90,7 @@ export function loadMovement(json: unknown): MovementConfig {
     fireRate: n("fireRate"),
     energy: group("energy", ["max", "hit"]),
     respawnMs: n("respawnMs"),
+    deathSlide: n("deathSlide"),
   };
 }
 
@@ -120,9 +125,13 @@ function loadClip(v: unknown, path: string): Clip {
   if (typeof o.loop !== "boolean") fail(`${path}.loop`, "must be a boolean");
   const opt = <T>(key: string, read: (v: unknown, path: string, duration: number) => T): T | undefined =>
     o[key] === undefined ? undefined : read(o[key], `${path}.${key}`, duration);
-  const clip: Clip = { duration, loop: o.loop as boolean, pose: poseTrack(o.pose, `${path}.pose`, duration) };
+  const gait = o.gait === undefined ? undefined : oneOf(["walk", "run"] as const)(o.gait, `${path}.gait`);
+  const pose = gait && o.pose === undefined ? [] : poseTrack(o.pose, `${path}.pose`, duration);
+  const clip: Clip = { duration, loop: o.loop as boolean, pose };
   const fields = {
     travel: opt("travel", finite),
+    gait,
+    blend: opt("blend", finite),
     cancelAt: opt("cancelAt", finite),
     view: opt("view", viewTrack),
     rot: opt("rot", numTrack),
@@ -146,6 +155,4 @@ const weaponClips: Partial<Record<HeroState, Record<Weapon, string>>> = {
   use: { fists: "use", gun: "useGun" },
 };
 
-const sharedClips: Partial<Record<HeroState, string>> = { walkJump: "standJump", duckJump: "standJump" };
-
-export const clipFor = (state: HeroState, weapon: Weapon): string => weaponClips[state]?.[weapon] ?? sharedClips[state] ?? state;
+export const clipFor = (state: HeroState, weapon: Weapon): string => weaponClips[state]?.[weapon] ?? state;

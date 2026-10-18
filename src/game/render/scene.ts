@@ -5,14 +5,15 @@ import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/dr
 import type { GroupNode } from "../../engine/rig/tree";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
-import type { HeroLook, Rigs } from "../hero/look";
+import { SPIKE_K } from "../hero/gait";
+import type { HeroLook, HitLook, Rigs } from "../hero/look";
 import type { Prop, SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
 
-const SPIKE_K = 0.2;
 const DEG = Math.PI / 180;
 const PILLAR_EVERY = 3;
+const STAR = { radius: 14 / SPIKE_K, points: 10, inner: 0.35, outer: 0.6 };
 
 const COLORS = {
   skyTop: "#1b2629",
@@ -41,6 +42,7 @@ const COLORS = {
   ladder: "#4a5c5f",
   shot: "#ff6a3a",
   emitterOff: "#3a2a22",
+  spark: "#ffd76a",
 };
 
 interface Frame {
@@ -279,6 +281,21 @@ export function toRigSpace(ctx: CanvasRenderingContext2D, hero: Hero, look: Hero
   ctx.translate(look.view === "side" ? -ROBOT.SIDE_AX : -ROBOT.AX, -ROBOT.FOOT_Y);
 }
 
+function hitStar(ctx: CanvasRenderingContext2D, { star: [x, y], spark }: HitLook): void {
+  if (spark >= 1) return;
+  ctx.save();
+  ctx.globalAlpha *= 1 - spark;
+  ctx.fillStyle = COLORS.spark;
+  ctx.beginPath();
+  for (let i = 0; i < STAR.points; i++) {
+    const a = (i * 2 * Math.PI) / STAR.points;
+    const r = STAR.radius * (i % 2 ? STAR.inner : STAR.outer + spark);
+    ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+  }
+  ctx.fill();
+  ctx.restore();
+}
+
 function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(ROBOT.palette, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : ROBOT.palette;
@@ -291,6 +308,7 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
   if (look.gun === "slung") gunSlung(ctx, palette, { lineW, simple: true });
+  if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();
 }
 

@@ -21,6 +21,7 @@ export interface Hero {
   onLift: boolean;
   hidden: boolean;
   climb: number;
+  gaitTime: number;
   hitAge: number | null;
 }
 
@@ -62,6 +63,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     onLift: false,
     hidden: false,
     climb: 0,
+    gaitTime: 0,
     hitAge: null,
   };
 }
@@ -92,7 +94,7 @@ type Jump = "standJump" | "walkJump" | "runJump" | "duckJump";
 const isAirborne = (state: HeroState): boolean =>
   state === "fall" || state === "standJump" || state === "walkJump" || state === "runJump" || state === "duckJump";
 
-const isDead = (state: HeroState): boolean => state === "death" || state === "fallDeath";
+const isDead = (state: HeroState): boolean => state === "death" || state === "fallDeath" || state === "jumpDeath";
 
 const isDucked = (state: HeroState): boolean => state === "duck" || state === "duckAttack";
 
@@ -134,6 +136,7 @@ function launch(s: Step, state: Jump): { height: number; speed: number } {
 function jump(s: Step, state: Jump): void {
   const { h, cfg } = s;
   const { height, speed } = launch(s, state);
+  h.gaitTime = h.state === "walk" || h.state === "run" ? h.time : 0;
   enter(h, state);
   h.fallFrom = h.y;
   h.vx = h.facing * speed;
@@ -142,9 +145,13 @@ function jump(s: Step, state: Jump): void {
   h.onLift = false;
 }
 
-function die(h: Hero, state: "fallDeath" | "death", events: HeroEvent[]): void {
+type Death = "fallDeath" | "death" | "jumpDeath";
+
+const deathOf = (h: Hero): Death => (isAirborne(h.state) ? "jumpDeath" : "death");
+
+function die(h: Hero, state: Death, events: HeroEvent[]): void {
   enter(h, state);
-  h.vx = 0;
+  if (state !== "jumpDeath") h.vx = 0;
   h.vy = 0;
   h.hidden = false;
   events.push({ kind: "died", x: h.x, y: h.y });
@@ -154,7 +161,7 @@ export function kill(h: Hero): HeroEvent[] {
   const events: HeroEvent[] = [];
   if (isDead(h.state)) return events;
   h.energy = 0;
-  die(h, "death", events);
+  die(h, deathOf(h), events);
   return events;
 }
 
@@ -163,7 +170,7 @@ export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   if (h.hidden || isDead(h.state)) return events;
   h.energy = Math.max(0, h.energy - cfg.energy.hit);
   h.hitAge = 0;
-  if (h.energy === 0) die(h, "death", events);
+  if (h.energy === 0) die(h, deathOf(h), events);
   return events;
 }
 
@@ -367,6 +374,7 @@ const transitions: Partial<Record<HeroState, Handler>> = {
   weaponSwitch,
   fallDeath: respawn,
   death: respawn,
+  jumpDeath: respawn,
 };
 
 function pickup(s: Step): void {
@@ -421,9 +429,17 @@ function settle(s: Step, startY: number): void {
   idle(s);
 }
 
+function slide(s: Step): number {
+  const { h, cfg, dt } = s;
+  if (h.state !== "jumpDeath") return 0;
+  if (!h.onGround) return h.vx;
+  const speed = Math.max(0, Math.abs(h.vx) - (cfg.jump.runSpeed / cfg.deathSlide) * dt);
+  return speed && Math.sign(h.vx) * speed;
+}
+
 function fallDead(s: Step): void {
   const { h, world } = s;
-  h.vx = 0;
+  h.vx = slide(s);
   physics(s);
   const pit = world.grid.height + PIT_MARGIN;
   if (h.y <= pit) return;
