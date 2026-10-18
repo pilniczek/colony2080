@@ -58,6 +58,16 @@ describe("hero look", () => {
     expect(look.lift * cellsPerUnit).toBeLessThan(-0.05);
   });
 
+  it("death carries the gun until it drops", () => {
+    const carried = heroLook(hero({ state: "death", weapon: "gun", time: 0.6 }), clips, rigs, hold);
+    expect(carried.gun).toBe("hand");
+    expect(angle(carried.pose, "body") + angle(carried.pose, "arm") + angle(carried.pose, "fore") - 18).toBeCloseTo(-90, 6);
+    expect(carried.pose.carry).toBeUndefined();
+    const dropped = heroLook(hero({ state: "death", weapon: "gun", time: 1.05 }), clips, rigs, hold);
+    expect(dropped.gun).toBe("dropped");
+    expect(dropped.pose).toEqual(heroLook(hero({ state: "death", time: 1.05 }), clips, rigs, hold).pose);
+  });
+
   it("death with fists never shows a gun", () => {
     expect(heroLook(hero({ state: "death", time: 0.2 }), clips, rigs, hold).gun).toBe("none");
     expect(heroLook(hero({ state: "death", time: 4 }), clips, rigs, hold).gun).toBe("none");
@@ -66,6 +76,13 @@ describe("hero look", () => {
   it("turn shows the front view early in the clip", () => {
     expect(heroLook(hero({ state: "turn", time: 0.05 }), clips, rigs, hold).view).toBe("front");
     expect(heroLook(hero({ state: "turn", time: 0.2, facing: -1 }), clips, rigs, hold)).toMatchObject({ view: "side", flip: true });
+  });
+
+  it("front view is never mirrored", () => {
+    for (const facing of [1, -1] as const) {
+      const look = heroLook(hero({ state: "turn", time: 0.05, facing }), clips, rigs, hold);
+      expect(look).toMatchObject({ view: "front", flip: false });
+    }
   });
 
   it("front view with the gun uses the front carry", () => {

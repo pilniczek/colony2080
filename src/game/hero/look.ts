@@ -134,10 +134,11 @@ const carry = (pose: Angles, hold: Hold): Angles => {
   return { ...pose, arm: hold.CARRY.arm - b, fore: hold.CARRY.fore, armFar: hold.CARRY_FAR.armFar - b, foreFar: hold.CARRY_FAR.foreFar };
 };
 
-const withCarryKey = (pose: Angles, hold: Hold): Angles => {
-  if (pose.carry === undefined) return pose;
-  const { carry: k, ...rest } = pose;
-  return mix(rest, carry(rest, hold), k);
+const joints = (pose: Angles): Angles => Object.fromEntries(Object.entries(pose).filter(([k]) => k !== "carry"));
+
+const withCarryKey = (pose: Angles, hold: Hold, inHand: boolean): Angles => {
+  const rest = joints(pose);
+  return pose.carry !== undefined && inHand ? mix(rest, carry(rest, hold), pose.carry) : rest;
 };
 
 const clipTime = (clip: Clip, time: number): number =>
@@ -147,7 +148,7 @@ const ladderLook = (h: Hero, clip: Clip, rigs: Rigs): HeroLook => {
   const hl = 0.5 + 0.5 * Math.sin((h.climb / (clip.travel ?? 1)) * Math.PI * 2);
   return {
     view: "back",
-    flip: h.facing < 0,
+    flip: false,
     pose: climbPose(climbReach(rigs.climber), hl),
     gun: h.weapon === "gun" ? "slung" : "none",
     rot: 0,
@@ -167,7 +168,7 @@ const grounding = (h: Hero, clip: Clip, pose: Angles, rot: number, side: GroupNo
   const lieRot = clip.rot?.[clip.rot.length - 1]?.[1] ?? 0;
   if (!lieRot) return standing;
   const k = rot / lieRot;
-  return standing * (1 - k) - bottom(side, clip.pose[clip.pose.length - 1]![1], lieRot) * k;
+  return standing * (1 - k) - bottom(side, joints(clip.pose[clip.pose.length - 1]![1]), lieRot) * k;
 };
 
 export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => {
@@ -177,13 +178,13 @@ export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroL
   if (h.state === "ladder") return ladderLook(h, clip, rigs);
   const t = clipTime(clip, h.time);
   const view = clip.view ? step(clip.view, t) : "side";
-  const sampled = withCarryKey(keyed(clip.pose, t), hold);
-  const held =
-    h.weapon !== "gun" ? { pose: sampled, gun: "none" as const } : clip.gun ? { pose: sampled, gun: step(clip.gun, t) } : armed(view, sampled, hold);
+  const raw = keyed(clip.pose, t);
+  const gun: GunLook | null = h.weapon !== "gun" ? "none" : clip.gun ? step(clip.gun, t) : null;
+  const held = gun ? { pose: withCarryKey(raw, hold, gun === "hand"), gun } : armed(view, joints(raw), hold);
   const rot = clip.rot ? num(clip.rot, t, easeIn) : 0;
   return {
     view,
-    flip: h.facing < 0,
+    flip: view === "side" && h.facing < 0,
     pose: held.pose,
     gun: held.gun,
     rot,

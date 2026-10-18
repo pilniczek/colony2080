@@ -215,12 +215,12 @@
       "duration": 5,
       "loop": false,
       "pose": [
-        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
-        [0.3, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
-        [0.45, {"body": -16, "hipNear": -4, "kneeNear": 20, "ankleNear": 0, "hipFar": 42, "kneeFar": 24, "ankleFar": -35, "arm": 50, "armFar": 60, "fore": -60, "foreFar": -50}],
-        [0.9, {"body": -16, "hipNear": -4, "kneeNear": 20, "ankleNear": 0, "hipFar": 42, "kneeFar": 24, "ankleFar": -35, "arm": 50, "armFar": 60, "fore": -60, "foreFar": -50}],
-        [1.15, {"body": -24, "hipNear": -36, "kneeNear": 120, "ankleNear": -50, "hipFar": -16, "kneeFar": 126, "ankleFar": -70, "arm": 60, "armFar": 70, "fore": -40, "foreFar": -40}],
-        [1.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": 90, "hipFar": 0, "kneeFar": 2, "ankleFar": 90, "arm": 0, "armFar": 0, "fore": 0, "foreFar": 0}]
+        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "carry": 1}],
+        [0.3, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "carry": 1}],
+        [0.45, {"body": -16, "hipNear": -4, "kneeNear": 20, "ankleNear": 0, "hipFar": 42, "kneeFar": 24, "ankleFar": -35, "arm": 50, "armFar": 60, "fore": -60, "foreFar": -50, "carry": 1}],
+        [0.9, {"body": -16, "hipNear": -4, "kneeNear": 20, "ankleNear": 0, "hipFar": 42, "kneeFar": 24, "ankleFar": -35, "arm": 50, "armFar": 60, "fore": -60, "foreFar": -50, "carry": 1}],
+        [1.15, {"body": -24, "hipNear": -36, "kneeNear": 120, "ankleNear": -50, "hipFar": -16, "kneeFar": 126, "ankleFar": -70, "arm": 60, "armFar": 70, "fore": -40, "foreFar": -40, "carry": 1}],
+        [1.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": 90, "hipFar": 0, "kneeFar": 2, "ankleFar": 90, "arm": 0, "armFar": 0, "fore": 0, "foreFar": 0, "carry": 0}]
       ],
       "rot": [[0, 0], [1.15, 0], [1.6, -89]],
       "gun": [[0, "hand"], [1, "dropped"]]
