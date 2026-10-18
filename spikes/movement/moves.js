@@ -46,32 +46,39 @@ const STAND = legs(0, [0, 2], [0, 2]);
 const GUARD = { arm: -38, fore: -92, armFar: -30, foreFar: -96 };
 const CROUCH = { ...legs(18, [-62, 112, -50], [-48, 120, -72]), arm: -10, fore: -40, armFar: -4, foreFar: -40 };
 
-function walkPose(p, amp = 24, flexAmp = 30) {
-  const flex = ph => 4 + flexAmp * Math.pow(Math.max(0, Math.cos(ph)), 1.5);
-  const h = -amp * Math.sin(p), kn = flex(p), kf = flex(p + Math.PI);
-  return { ...legs(0, [h, kn, -(h + kn) * 0.6], [-h, kf, -(-h + kf) * 0.6]), arm: 16 * Math.sin(p), armFar: -16 * Math.sin(p), fore: -6, foreFar: -6 };
-}
-
-const RUN = { cycle: 0.66, speed: 300, stance: 0.34, reach: 0.36, toeOff: 44, drop: 4, bob: 2.4, lean: 12, leanPulse: 1.5, sway: 3, arm: 34 };
-const LEG = { hipY: 344, farX: -24, thigh: 178, shin: 178, ankleY: 700, heel: 80 };
-const RUN_SWING = [
-  [0.5, { hip: 24, knee: 78, foot: 80 }],
-  [0.62, { hip: -6, knee: 112, foot: 94 }],
-  [0.76, { hip: -48, knee: 98, foot: 38 }],
-  [0.9, { hip: -36, knee: 42, foot: -4 }]
-];
 const TAU = Math.PI * 2;
+const LEG = { hipY: 344, farX: -24, thigh: 178, shin: 178, ankleY: 700, heel: 80 };
+const RUN = {
+  cycle: 0.66, speed: 300, stance: 0.34, reach: 0.36, heelStrike: -6, flat: [0.15, 0.55], toeOff: 44,
+  drop: 4, bob: 2.4, lean: 12, leanPulse: 1.5, sway: 3, arm: 34, armPhase: 0.8, fore: -78,
+  swing: [
+    [0.5, { hip: 24, knee: 78, foot: 80 }],
+    [0.62, { hip: -6, knee: 112, foot: 94 }],
+    [0.76, { hip: -48, knee: 98, foot: 38 }],
+    [0.9, { hip: -36, knee: 42, foot: -4 }]
+  ]
+};
+const WALK = {
+  cycle: 1.1, speed: 110, stance: 0.6, reach: 0.5, heelStrike: -14, flat: [0.18, 0.6], toeOff: 30,
+  drop: 3, bob: -2.6, lean: 0, leanPulse: 0, sway: 0, arm: 16, armPhase: 0.97, fore: -6,
+  swing: [
+    [0.7, { hip: 0, knee: 58, foot: 22 }],
+    [0.82, { hip: -24, knee: 46, foot: -6 }]
+  ],
+  landing: { lead: 0.1, rise: 20 }
+};
+
 const cycle = p => ((p / TAU) % 1 + 1) % 1;
 const stepPhase = u => (u * 2) % 1;
-const RUN_LOW = 2 * RUN.stance * RUN.reach;
+const lowPhase = g => (2 * g.stance * g.reach) % 1;
+const gaitBob = (g, p) => g.drop + g.bob * Math.cos(TAU * (stepPhase(cycle(p)) - lowPhase(g)));
+const gaitLean = (g, u) => g.lean + g.leanPulse * Math.cos(TAU * (stepPhase(u) - g.stance * 2));
 
-const runBob = p => RUN.drop + RUN.bob * Math.cos(TAU * (stepPhase(cycle(p)) - RUN_LOW));
-const runLean = u => RUN.lean + RUN.leanPulse * Math.cos(TAU * (stepPhase(u) - RUN.stance * 2));
-
-function stanceFoot(s) {
-  if (s < 0.15) return -6 * (1 - s / 0.15) ** 2;
-  if (s < 0.55) return 0;
-  return RUN.toeOff * ((s - 0.55) / 0.45) ** 2;
+function stanceFoot(g, s) {
+  const [flat0, flat1] = g.flat;
+  if (s < flat0) return g.heelStrike * (1 - s / flat0) ** 2;
+  if (s < flat1) return 0;
+  return g.toeOff * ((s - flat1) / (1 - flat1)) ** 2;
 }
 
 function legIK(dx, dy) {
@@ -82,37 +89,37 @@ function legIK(dx, dy) {
   return { hip: hip / D, knee: knee / D };
 }
 
-function stanceLeg(s, bob, body, hipX) {
-  const foot = stanceFoot(s), r = foot * D, b = body * D;
-  const ground = FOOT_Y - bob / K, h = FOOT_Y - LEG.ankleY;
-  const sweep = RUN.speed * RUN.stance * RUN.cycle / K;
-  const flat = sweep * (RUN.reach - s);
+function stanceLeg(g, u, hipX, rise = 0) {
+  const s = u / g.stance, foot = stanceFoot(g, s), r = foot * D, b = gaitLean(g, u) * D;
+  const ground = FOOT_Y - gaitBob(g, u * TAU) / K - rise, h = FOOT_Y - LEG.ankleY;
+  const sweep = g.speed * g.stance * g.cycle / K;
+  const flat = sweep * (g.reach - s);
   const lever = foot < 0 ? LEG.heel : -LEG.heel;
   const ox = lever * Math.cos(r) + h * Math.sin(r), oy = lever * Math.sin(r) - h * Math.cos(r);
   return { ...legIK(hipX * (1 - Math.cos(b)) + flat - lever + ox, ground + oy - LEG.hipY - hipX * Math.sin(b)), foot };
 }
 
-const runStance = (u, hipX) => stanceLeg(u / RUN.stance, runBob(u * TAU), runLean(u), hipX);
-
 const swingCache = new Map();
-function swingKeys(hipX) {
-  if (!swingCache.has(hipX)) {
+function swingKeys(g, hipX) {
+  const id = JSON.stringify([g, hipX]);
+  if (!swingCache.has(id)) {
     const e = 1e-4, rate = (u0, u1) => {
-      const [p, q] = [runStance(u0, hipX), runStance(u1, hipX)];
+      const [p, q] = [stanceLeg(g, u0, hipX), stanceLeg(g, u1, hipX)];
       return Object.fromEntries(Object.keys(p).map(n => [n, (q[n] - p[n]) / (u1 - u0)]));
     };
-    const keys = [[RUN.stance, runStance(RUN.stance, hipX), rate(RUN.stance - e, RUN.stance)], ...RUN_SWING.map(([t, v]) => [t, v]), [1, runStance(0, hipX), rate(0, e)]];
+    const approach = g.landing ? [[1 - g.landing.lead, stanceLeg(g, -g.landing.lead, hipX, g.landing.rise)]] : [];
+    const keys = [[g.stance, stanceLeg(g, g.stance, hipX), rate(g.stance - e, g.stance)], ...g.swing.map(([t, v]) => [t, v]), ...approach, [1, stanceLeg(g, 0, hipX), rate(0, e)]];
     for (let i = 1; i < keys.length - 1; i++) {
       const [[t0, v0], [t2, v2]] = [keys[i - 1], keys[i + 1]];
       keys[i][2] = Object.fromEntries(Object.keys(v0).map(n => [n, (v2[n] - v0[n]) / (t2 - t0)]));
     }
-    swingCache.set(hipX, keys);
+    swingCache.set(id, keys);
   }
-  return swingCache.get(hipX);
+  return swingCache.get(id);
 }
 
-function swingLeg(u, hipX) {
-  const keys = swingKeys(hipX);
+function swingLeg(g, u, hipX) {
+  const keys = swingKeys(g, hipX);
   let i = 0;
   while (u > keys[i + 1][0]) i++;
   const [t0, p0, m0] = keys[i], [t1, p1, m1] = keys[i + 1];
@@ -122,16 +129,21 @@ function swingLeg(u, hipX) {
   return out;
 }
 
-function runPose(p) {
+function gaitPose(g, p) {
   const u = cycle(p), w = stepPhase(u);
   const leg = (v, hipX) => {
-    const { hip, knee, foot } = v < RUN.stance ? runStance(v, hipX) : swingLeg(v, hipX);
+    const { hip, knee, foot } = v < g.stance ? stanceLeg(g, v, hipX) : swingLeg(g, v, hipX);
     return [hip, knee, foot - hip - knee];
   };
-  const swing = RUN.arm * Math.cos(TAU * (u - 0.8));
-  const sway = RUN.sway * Math.cos(TAU * (w - RUN_LOW - 0.08));
-  return { ...legs(runLean(u), leg(u, 0), leg((u + 0.5) % 1, LEG.farX)), arm: swing, armFar: -swing, fore: -78, foreFar: -78, sway };
+  const swing = g.arm * Math.cos(TAU * (u - g.armPhase));
+  const sway = g.sway * Math.cos(TAU * (w - lowPhase(g) - 0.08));
+  return { ...legs(gaitLean(g, u), leg(u, 0), leg((u + 0.5) % 1, LEG.farX)), arm: swing, armFar: -swing, fore: g.fore, foreFar: g.fore, sway };
 }
+
+const walkPose = p => gaitPose(WALK, p);
+const walkBob = p => gaitBob(WALK, p);
+const runPose = p => gaitPose(RUN, p);
+const runBob = p => gaitBob(RUN, p);
 
 function footMax(pose) {
   let m = -Infinity;
@@ -302,13 +314,12 @@ move("movement", "Turn", "opposite arrow", 3.2, (c, t) => {
   bot(c, { view: view === "F" ? "front" : "side", flip: view === "L", x: 180, y: FLOOR, pose: STAND });
 });
 
-move("movement", "Walk", "Left / Right", 3.3, (c, t) => {
+move("movement", "Walk", "Left / Right", (W + 120) / WALK.speed, (c, t) => {
   backdrop(c);
-  const p = t / 1.1 * Math.PI * 2;
-  const x = -60 + t * (W + 120) / 3.3;
-  const pose = walkPose(p);
+  const p = t / WALK.cycle * TAU;
+  const x = -60 + WALK.speed * t;
   shadow(c, x, FLOOR, 30);
-  bot(c, { x, y: FLOOR + lift(pose), pose });
+  bot(c, { x, y: FLOOR + walkBob(p), pose: walkPose(p) });
 });
 
 move("movement", "Run", "Alt + Left / Right", (W + 120) / RUN.speed, (c, t) => {
@@ -351,19 +362,19 @@ move("movement", "Duck jump", "hold Down, then Up", 2.8, (c, t) => verticalJump(
   [0.95, { ...DUCK, arm: 34, armFar: 30, fore: -20, foreFar: -20 }]
 ], 1.1));
 
-move("movement", "Walking jump", "direction + Up", 3, (c, t) => {
-  const gap = [152, 200];
+move("movement", "Walking jump", "direction + Up", (W + 120) / WALK.speed, (c, t) => {
+  const gap = [134, 192];
   backdrop(c, [gap]);
-  const p = t / 1.1 * TAU;
-  const x = -60 + t * (W + 120) / 3;
-  const leap = { ...legs(6, [-56, 30, 10], [26, 64, 20]), arm: -40, armFar: 30, fore: -40, foreFar: -50 };
-  const j0 = 1.2, j1 = 1.75;
+  const p = t / WALK.cycle * TAU;
+  const x = -60 + WALK.speed * t;
+  const leap = { ...legs(6, [-62, 66, 14], [10, 58, 18]), arm: -40, armFar: 30, fore: -40, foreFar: -50 };
+  const j0 = 1.7, j1 = 2.25;
   const k = span(t, j0 - 0.12, j0) * (1 - span(t, j1, j1 + 0.15));
   const pose = mix(walkPose(p), leap, k);
   const u = clamp((t - j0) / (j1 - j0));
   const h = t > j0 && t < j1 ? 4 * 36 * u * (1 - u) : 0;
   if (h === 0) shadow(c, x, FLOOR, 30);
-  bot(c, { x, y: FLOOR + lift(pose) - h, pose });
+  bot(c, { x, y: FLOOR + Math.min(walkBob(p) * (1 - k), lift(pose)) - h, pose });
 });
 
 move("movement", "Running jump", "Alt + direction + Up", 1.7, (c, t) => {
@@ -371,7 +382,7 @@ move("movement", "Running jump", "Alt + direction + Up", 1.7, (c, t) => {
   backdrop(c, [gap]);
   const p = t / RUN.cycle * TAU;
   const x = -60 + RUN.speed * t;
-  const leap = { ...legs(10, [-72, 24, 10], [34, 78, 20]), arm: -60, armFar: 40, fore: -50, foreFar: -60 };
+  const leap = { ...legs(10, [-70, 76, 14], [14, 72, 18]), arm: -60, armFar: 40, fore: -50, foreFar: -60 };
   const j0 = 0.48, j1 = 0.92;
   const k = span(t, j0 - 0.06, j0 + 0.04) * (1 - span(t, j1 - 0.04, j1 + 0.06));
   const pose = mix(runPose(p), leap, k);
@@ -385,18 +396,20 @@ move("movement", "Fall and land", "walk off edge", 3.2, (c, t) => {
   const top = FLOOR - 86;
   backdrop(c);
   slab(c, 0, 150, top);
-  const walkEnd = 0.9, landT = 1.32;
-  const xEdge = 20 + walkEnd * 130;
+  const walkEnd = 1.06, landT = 1.48;
+  const xEdge = 20 + walkEnd * WALK.speed;
   let x, y, pose;
   if (t < walkEnd) {
-    x = 20 + t * 130;
-    pose = walkPose(t / 1.1 * Math.PI * 2);
-    y = top + lift(pose);
+    x = 20 + t * WALK.speed;
+    const p = t / WALK.cycle * TAU;
+    pose = walkPose(p);
+    y = top + walkBob(p);
   } else if (t < landT) {
     const u = (t - walkEnd) / (landT - walkEnd);
     x = xEdge + u * 40;
-    pose = mix(walkPose(walkEnd / 1.1 * Math.PI * 2), { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 }, ease(clamp(u * 2)));
-    y = top + (FLOOR - top) * easeIn(u);
+    pose = mix(walkPose(walkEnd / WALK.cycle * TAU), { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 }, ease(clamp(u * 2)));
+    const start = top + walkBob(walkEnd / WALK.cycle * TAU);
+    y = start + (FLOOR - start) * easeIn(u);
   } else {
     x = xEdge + 40;
     pose = keyed([[landT, { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 }], [landT + 0.12, CROUCH], [landT + 0.5, CROUCH], [landT + 1.0, STAND]], t);
