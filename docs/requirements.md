@@ -71,6 +71,7 @@ flowchart LR
 | Sandbox hits | Sandbox has a projectile emitter firing periodically at chest height to try hit, duck and hide | user |
 | Dev server | Sandbox and game run on the Vite dev server (`npm run dev`); spikes keep opening from `file://` | user |
 | Story year | Story set in 2080, alien invasion 5 years earlier (2075). Departs from the original's 2013 / 2018 / 2028 | user |
+| Spike vs sandbox | Spikes own the look (shapes, poses, gait, timing of pose changes). The sandbox owns physics (gravity, speeds, jump heights, air time) through `config/hero/movement.json`. Spike motion numbers stay in the spikes as reference; small drift between them is accepted | user |
 | Idle and turn | Idle is fully still. Turn flips between side views at once (no front view, no squash) | user |
 | Input response | Arcade style: every move acts on the press, no wind-up (jumps leave the floor at once, no crouch before takeoff or after landing). Less natural, more playable | user |
 | Death | Drop the gun, fall on the back, body flat on the floor | user |
