@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; jump.walkHeight is a first guess from the spec walking jump (36 px high, 1 robot height = 1.9 cells = about 147 spike px), its speed is walk pace; its 0.55 s air time needs a lower gravity or a higher hop, a tuning call; deathSlide is the slide to rest after a mid-air death (spikes/movement/moves.js JUMP_DEATH.slide), the body stops from jump.runSpeed in that time",
+  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; jump.walkHeight is a first guess from the spec walking jump (36 px high, 1 robot height = 1.9 cells = about 147 spike px), its speed is walk pace; its 0.55 s air time needs a lower gravity or a higher hop, a tuning call; deathSlide is the slide to rest after a mid-air death (spikes/movement/moves.js JUMP_DEATH.slide), the body stops from jump.runSpeed in that time; shot.speed is the spike tracer pace (60 spike px per shot at 12 shots/s, 1 cell = about 77 spike px)",
   "cellPx": 24,
   "heroHeightCells": 1.9,
   "floorHeightCells": 7,
@@ -13,6 +13,7 @@
   "liftSpeed": 2.5,
   "inputBufferMs": 150,
   "fireRate": 12,
+  "shot": { "speed": 9.3, "radius": 0.05 },
   "energy": { "max": 100, "hit": 25 },
   "respawnMs": 2000,
   "deathSlide": 0.45

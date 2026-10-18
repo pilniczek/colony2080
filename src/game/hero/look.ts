@@ -1,10 +1,11 @@
+import xbot from "@config/robots/xbot.json";
 import { ease, easeIn, keyed, mix, num, span } from "../../engine/anim/keyed";
 import { apply, multiply, type Mat2D } from "../../engine/math/mat2d";
 import { jointMatrix, locate, solve, type Pose, type Tint } from "../../engine/rig/pose";
 import type { GroupNode, Pt, RigNode } from "../../engine/rig/tree";
 import type { holdPoses } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
-import { clipFor, type Clip, type ClipSet, type GaitName, type View } from "./config";
+import { clipFor, type Clip, type ClipSet, type GaitName, type MovementConfig, type View } from "./config";
 import { gaitBob, gaitPose, RUN, SPIKE_K, TAU, WALK, type Gait } from "./gait";
 import type { Hero } from "./hero";
 
@@ -44,6 +45,9 @@ const ALPHA_VISIBLE = 40 / 255;
 const GAITS: Record<GaitName, Gait> = { walk: WALK, run: RUN };
 const LAND = { stand: 0.08, fall: 0.1, gait: 0.06 };
 const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 22, damping: 7, star: [14, -100] as Pt };
+
+export const heroScale = (cfg: MovementConfig): number =>
+  (cfg.heroHeightCells * cfg.cellPx) / (ROBOT.FOOT_Y - xbot.levels.head);
 
 export const createRigs = (lod: boolean): Rigs => ({
   side: buildSide({ lod, farLimbs: true, propBehindArm: true }),

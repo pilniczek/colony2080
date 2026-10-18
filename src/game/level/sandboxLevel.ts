@@ -29,6 +29,12 @@ export interface Emitter {
   clock: number;
 }
 
+export interface Spark {
+  x: number;
+  y: number;
+  age: number;
+}
+
 export interface SandboxWorld {
   grid: TileGrid;
   lift: Lift;
@@ -36,6 +42,7 @@ export interface SandboxWorld {
   spawn: [number, number];
   emitter: Emitter;
   projectiles: Projectile[];
+  sparks: Spark[];
 }
 
 interface SandboxJson {
@@ -63,7 +70,15 @@ export function loadSandbox(json: unknown): SandboxWorld {
     spawn: [data.spawn[0], data.spawn[1]],
     emitter: { ...data.emitter, on: false, clock: 0 },
     projectiles: [],
+    sparks: [],
   };
+}
+
+export function ceilingAbove(world: SandboxWorld, p: Prop): number {
+  const col = Math.floor(p.x);
+  let row = Math.floor(p.y ?? world.spawn[1]) - 1;
+  while (row > 0 && !world.grid.solid(col, row)) row--;
+  return row + 1;
 }
 
 export function callLift(lift: Lift, dir: -1 | 1): void {

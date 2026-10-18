@@ -1,19 +1,22 @@
-import xbot from "@config/robots/xbot.json";
 import { FIXED_STEP } from "../../engine/loop";
 import type { ViewTransform } from "../../engine/render/view";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
-import type { GroupNode } from "../../engine/rig/tree";
+import type { GroupNode, Pt } from "../../engine/rig/tree";
 import type { MovementConfig } from "../hero/config";
-import type { Hero } from "../hero/hero";
+import { HERO_SHOT, type Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
-import type { HeroLook, HitLook, Rigs } from "../hero/look";
-import type { Prop, SandboxWorld } from "../level/sandboxLevel";
+import { heroScale, type HeroLook, type HitLook, type Rigs } from "../hero/look";
+import { ceilingAbove, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
+import { BAG, muzzleInRig, SPARK_LIFE, TARGET_WIDTH } from "../shots";
 
 const DEG = Math.PI / 180;
 const PILLAR_EVERY = 3;
 const STAR = { radius: 14 / SPIKE_K, points: 10, inner: 0.35, outer: 0.6 };
+const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
+const IMPACT = { radius: 7, k: 0.3 };
+const TRACER = { length: 14, width: 2 };
 
 const COLORS = {
   skyTop: "#1b2629",
@@ -51,10 +54,8 @@ interface Frame {
   cell: number;
   unit: number;
   lineW: number;
+  heroHeight: number;
 }
-
-export const heroScale = (cfg: MovementConfig): number =>
-  (cfg.heroHeightCells * cfg.cellPx) / (ROBOT.FOOT_Y - xbot.levels.head);
 
 const floorOf = (f: Frame, p: Prop): number => (p.y ?? f.world.spawn[1]) * f.cell;
 
@@ -148,7 +149,7 @@ function box(f: Frame, p: Prop, w: number, h: number, fill: string, line: string
 
 const crate = (f: Frame, p: Prop): void => box(f, p, (p.width ?? 1) * f.cell, (p.height ?? 1) * f.cell, COLORS.crate, COLORS.crateLine);
 
-const target = (f: Frame, p: Prop): void => box(f, p, 40 * f.unit, 70 * f.unit, COLORS.target, COLORS.targetLine);
+const target = (f: Frame, p: Prop): void => box(f, p, TARGET_WIDTH * f.unit, f.heroHeight, COLORS.target, COLORS.targetLine);
 
 function barrel(f: Frame, p: Prop): void {
   const { ctx, cell, unit } = f;
@@ -188,20 +189,14 @@ function panel(f: Frame, p: Prop): void {
   ctx.fillRect(x + 3 * unit, y - 20 * unit, 8 * unit, 8 * unit);
 }
 
-function ceilingAbove(f: Frame, col: number, y: number): number {
-  let row = Math.floor(y) - 1;
-  while (row > 0 && !f.world.grid.solid(col, row)) row--;
-  return row + 1;
-}
-
 function bag(f: Frame, p: Prop): void {
   const { ctx, cell, unit } = f;
   const x = p.x * cell;
-  const top = ceilingAbove(f, Math.floor(p.x), p.y ?? f.world.spawn[1]) * cell;
+  const top = ceilingAbove(f.world, p) * cell;
   ctx.fillStyle = COLORS.slabTop;
-  ctx.fillRect(x - unit, top, 2 * unit, 12 * unit);
+  ctx.fillRect(x - unit, top, 2 * unit, BAG.rope * unit);
   ctx.fillStyle = COLORS.barrel;
-  ctx.fillRect(x - 16 * unit, top + 12 * unit, 32 * unit, 92 * unit);
+  ctx.fillRect(x - (BAG.w / 2) * unit, top + BAG.rope * unit, BAG.w * unit, BAG.h * unit);
   ctx.fillStyle = COLORS.barrelBand;
   ctx.fillRect(x - 16 * unit, top + 32 * unit, 32 * unit, 4 * unit);
   ctx.fillRect(x - 16 * unit, top + 80 * unit, 32 * unit, 4 * unit);
@@ -224,12 +219,16 @@ function emitter(f: Frame): void {
 
 function projectiles(f: Frame, alpha: number): void {
   const { ctx, world, cell, unit } = f;
-  ctx.strokeStyle = COLORS.shot;
   ctx.fillStyle = COLORS.shot;
-  ctx.lineWidth = 2 * unit;
   for (const p of world.projectiles) {
     const x = (p.x - p.vx * (1 - alpha) * FIXED_STEP) * cell;
     const y = p.y * cell;
+    if (p.tag === HERO_SHOT) {
+      tracer(f, x, y, Math.sign(p.vx));
+      continue;
+    }
+    ctx.strokeStyle = COLORS.shot;
+    ctx.lineWidth = 2 * unit;
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(x - Math.sign(p.vx) * 16 * unit, y);
@@ -238,6 +237,21 @@ function projectiles(f: Frame, alpha: number): void {
     ctx.arc(x, y, p.r * cell, 0, Math.PI * 2);
     ctx.fill();
   }
+}
+
+function tracer(f: Frame, x: number, y: number, dir: number): void {
+  const { ctx, unit } = f;
+  ctx.strokeStyle = COLORS.spark;
+  ctx.lineWidth = TRACER.width * unit;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x - dir * TRACER.length * unit, y);
+  ctx.stroke();
+}
+
+function impacts(f: Frame): void {
+  const { ctx, world, cell, unit } = f;
+  for (const s of world.sparks) star(ctx, [s.x * cell, s.y * cell], IMPACT.radius * unit, IMPACT.k + (1 - IMPACT.k) * (s.age / SPARK_LIFE));
 }
 
 function groundBelow(f: Frame, x: number, y: number): number | null {
@@ -281,22 +295,32 @@ export function toRigSpace(ctx: CanvasRenderingContext2D, hero: Hero, look: Hero
   ctx.translate(look.view === "side" ? -ROBOT.SIDE_AX : -ROBOT.AX, -ROBOT.FOOT_Y);
 }
 
-function hitStar(ctx: CanvasRenderingContext2D, { star: [x, y], spark }: HitLook): void {
-  if (spark >= 1) return;
+function star(ctx: CanvasRenderingContext2D, [x, y]: Pt, radius: number, k: number): void {
+  if (k >= 1) return;
   ctx.save();
-  ctx.globalAlpha *= 1 - spark;
+  ctx.globalAlpha *= 1 - k;
   ctx.fillStyle = COLORS.spark;
   ctx.beginPath();
   for (let i = 0; i < STAR.points; i++) {
     const a = (i * 2 * Math.PI) / STAR.points;
-    const r = STAR.radius * (i % 2 ? STAR.inner : STAR.outer + spark);
+    const r = radius * (i % 2 ? STAR.inner : STAR.outer + k);
     ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
   }
   ctx.fill();
   ctx.restore();
 }
 
-function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number): void {
+const hitStar = (ctx: CanvasRenderingContext2D, hit: HitLook): void => star(ctx, hit.star, STAR.radius, hit.spark);
+
+const firing = (hero: Hero, fireRate: number): boolean =>
+  hero.weapon === "gun" && (hero.state === "attack" || hero.state === "duckAttack") && Math.floor(hero.time * fireRate) % 2 === 0;
+
+function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs): void {
+  const muzzle = muzzleInRig(look, rigs);
+  if (muzzle) star(ctx, [muzzle[0] + FLASH.ahead, muzzle[1]], FLASH.radius, FLASH.k);
+}
+
+function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number, fireRate: number): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(ROBOT.palette, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : ROBOT.palette;
   const front = look.view === "front";
@@ -308,6 +332,7 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
   if (look.gun === "slung") gunSlung(ctx, palette, { lineW, simple: true });
+  if (firing(hero, fireRate)) muzzleFlash(ctx, look, rigs);
   if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();
 }
@@ -324,7 +349,7 @@ export function drawScene(
 ): void {
   const scale = heroScale(cfg);
   const unit = scale / SPIKE_K;
-  const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale };
+  const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale, heroHeight: cfg.heroHeightCells * cfg.cellPx };
   ctx.save();
   ctx.setTransform(view.scale, 0, 0, view.scale, view.offsetX, view.offsetY);
   ctx.beginPath();
@@ -337,7 +362,8 @@ export function drawScene(
   for (const p of world.props) PROPS[p.kind]?.(f, p);
   emitter(f);
   shadow(f, hero, look);
-  heroFigure(f, hero, look, rigs, scale);
+  heroFigure(f, hero, look, rigs, scale, cfg.fireRate);
   projectiles(f, alpha);
+  impacts(f);
   ctx.restore();
 }

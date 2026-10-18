@@ -5,9 +5,9 @@ import { jointMatrix } from "../../engine/rig/pose";
 import type { Pt, RigNode } from "../../engine/rig/tree";
 import { clipFor, type MovementConfig } from "../hero/config";
 import { isDucked, type Hero } from "../hero/hero";
-import type { HeroLook, Rigs } from "../hero/look";
+import { heroScale, type HeroLook, type Rigs } from "../hero/look";
 import type { SandboxWorld } from "../level/sandboxLevel";
-import { heroScale, rigFor, toRigSpace } from "./scene";
+import { rigFor, toRigSpace } from "./scene";
 
 export interface OverlayFlags {
   hitbox: boolean;

@@ -53,6 +53,7 @@ const EPS = 1e-3;
 const SHOT_EPS = 1e-6;
 const LADDER_REACH = 0.5;
 const PIT_MARGIN = 2;
+export const HERO_SHOT = "hero";
 
 export function createHero(spawn: [number, number], weapon: Weapon, energy: number): Hero {
   return {
@@ -485,7 +486,7 @@ function projectileHits(s: Step): void {
   const { h, world, cfg } = s;
   const box = { ...boxOf(h, cfg), h: isDucked(h.state) ? cfg.box.duckHeight : cfg.box.height };
   world.projectiles = world.projectiles.filter((p) => {
-    if (h.hidden || isDead(h.state) || !overlaps(p, box)) return true;
+    if (p.tag === HERO_SHOT || h.hidden || isDead(h.state) || !overlaps(p, box)) return true;
     s.events.push(...damage(h, cfg));
     return false;
   });
