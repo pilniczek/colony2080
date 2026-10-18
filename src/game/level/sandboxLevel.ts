@@ -28,6 +28,7 @@ export interface Emitter {
   radius: number;
   on: boolean;
   clock: number;
+  fired: boolean;
 }
 
 export interface Spark {
@@ -71,7 +72,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     },
     props: data.props.map((prop) => ({ ...prop })),
     spawn: [data.spawn[0], data.spawn[1]],
-    emitter: { ...data.emitter, on: false, clock: 0 },
+    emitter: { ...data.emitter, on: false, clock: 0, fired: false },
     projectiles: [],
     sparks: [],
     enemy: createEnemy(data.enemy, data.spawn[1]),
@@ -112,11 +113,13 @@ export function updateEmitter(world: SandboxWorld, dt: number): void {
   const { emitter } = world;
   if (!emitter.on) {
     emitter.clock = 0;
+    emitter.fired = false;
     return;
   }
   emitter.clock += dt * 1000;
   while (emitter.clock >= emitter.periodMs) {
     emitter.clock -= emitter.periodMs;
+    emitter.fired = true;
     world.projectiles.push({ x: emitter.x, y: emitter.y, vx: emitter.dir * emitter.speed, r: emitter.radius });
   }
 }

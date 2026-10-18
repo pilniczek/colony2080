@@ -20,6 +20,8 @@ const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
 const TRACER = { length: 14, width: 2 };
 const BAG = { rope: 12, w: 32, h: 92 };
+const BOLT = { tail: 40, width: 4, glow: 2 };
+const EMITTER_FLASH = { ms: 90, ahead: 32, radius: 12 };
 const ENEMY_TINT = { brightness: 1.1, saturate: 0 };
 const BLAST = { grow: 0.25, fade: 0.4, hold: 0.35, hideBody: 0.45 };
 const FIREBALLS: [number, number, number, number][] = [
@@ -237,11 +239,11 @@ function emitter(f: Frame): void {
   ctx.fillRect(e.dir < 0 ? x - 30 * unit : x + 14 * unit, y - 4 * unit, 16 * unit, 8 * unit);
   ctx.fillStyle = e.on ? COLORS.off : COLORS.emitterOff;
   ctx.fillRect(x - 4 * unit, y - 10 * unit, 8 * unit, 8 * unit);
+  if (e.on && e.fired && e.clock < EMITTER_FLASH.ms) star(ctx, [x + e.dir * EMITTER_FLASH.ahead * unit, y], EMITTER_FLASH.radius * unit, e.clock / EMITTER_FLASH.ms);
 }
 
 function projectiles(f: Frame, alpha: number): void {
-  const { ctx, world, cell, unit } = f;
-  ctx.fillStyle = COLORS.shot;
+  const { world, cell } = f;
   for (const p of world.projectiles) {
     const x = (p.x - p.vx * (1 - alpha) * FIXED_STEP) * cell;
     const y = p.y * cell;
@@ -249,16 +251,23 @@ function projectiles(f: Frame, alpha: number): void {
       tracer(f, p, x, y);
       continue;
     }
-    ctx.strokeStyle = COLORS.shot;
-    ctx.lineWidth = 2 * unit;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x - Math.sign(p.vx) * 16 * unit, y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(x, y, p.r * cell, 0, Math.PI * 2);
-    ctx.fill();
+    bolt(f, p, x, y);
   }
+}
+
+function bolt(f: Frame, p: Projectile, x: number, y: number): void {
+  const { ctx, cell, unit } = f;
+  const tail = x - Math.sign(p.vx) * BOLT.tail * unit;
+  const g = ctx.createLinearGradient(x, y, tail, y);
+  g.addColorStop(0, COLORS.shot);
+  g.addColorStop(1, COLORS.blastOut);
+  ctx.strokeStyle = g;
+  ctx.lineWidth = BOLT.width * unit;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(tail, y);
+  ctx.stroke();
+  fireball(f, x, y, p.r * cell * BOLT.glow, 1);
 }
 
 function tracer(f: Frame, p: Projectile, x: number, y: number): void {

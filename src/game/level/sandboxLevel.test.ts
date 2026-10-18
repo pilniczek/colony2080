@@ -59,7 +59,9 @@ describe("emitter", () => {
     world.emitter.on = true;
     for (let i = 0; i < 119; i++) updateEmitter(world, dt);
     expect(world.projectiles).toHaveLength(0);
+    expect(world.emitter.fired).toBe(false);
     for (let i = 0; i < 2; i++) updateEmitter(world, dt);
+    expect(world.emitter.fired).toBe(true);
     expect(world.projectiles).toHaveLength(1);
     expect(world.projectiles[0]).toMatchObject({ x: 38.5, y: 12.6, vx: -sandbox.emitter.speed, r: 0.15 });
     world.emitter.on = false;
