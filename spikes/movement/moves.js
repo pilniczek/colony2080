@@ -44,7 +44,6 @@ function legs(body, near, far) {
 
 const STAND = legs(0, [0, 2], [0, 2]);
 const GUARD = { arm: -38, fore: -92, armFar: -30, foreFar: -96 };
-const CROUCH = { ...legs(18, [-62, 112, -50], [-48, 120, -72]), arm: -10, fore: -40, armFar: -4, foreFar: -40 };
 
 const TAU = Math.PI * 2;
 const LEG = { hipY: 344, farX: -24, thigh: 178, shin: 178, ankleY: 700, heel: 80 };
@@ -334,8 +333,7 @@ function verticalJump(c, t, prep, t0) {
     [t0 + 0.08, { ...legs(-2, [4, 4, 26], [8, 6, 28]), arm: -150, armFar: -140, fore: -10, foreFar: -14 }],
     [t0 + 0.28, { ...legs(6, [-62, 96, -10], [-54, 100, -16]), arm: -110, armFar: -100, fore: -30, foreFar: -30 }],
     [t0 + 0.52, { ...legs(2, [-14, 16, 10], [-10, 18, 10]), arm: -60, armFar: -50, fore: -30, foreFar: -30 }],
-    [t0 + 0.64, { ...legs(14, [-46, 82], [-40, 86]), arm: 20, armFar: 16, fore: -40, foreFar: -40 }],
-    [t0 + 1.1, { ...STAND }]
+    [t0 + 0.62, { ...STAND }]
   ];
   const pose = keyed(keys, t);
   const air = span(t, t0, t0 + 0.06) * (1 - span(t, t0 + 0.5, t0 + 0.56));
@@ -359,7 +357,7 @@ move("movement", "Walking jump", "direction + Up", (W + 120) / WALK.speed, (c, t
   const x = -60 + WALK.speed * t;
   const leap = { ...legs(6, [-62, 66, 14], [10, 58, 18]), arm: -40, armFar: 30, fore: -40, foreFar: -50 };
   const j0 = 1.7, j1 = 2.25;
-  const k = span(t, j0, j0 + 0.08) * (1 - span(t, j1, j1 + 0.15));
+  const k = span(t, j0, j0 + 0.08) * (1 - span(t, j1, j1 + 0.06));
   const pose = mix(walkPose(p), leap, k);
   const u = clamp((t - j0) / (j1 - j0));
   const h = t > j0 && t < j1 ? 4 * 36 * u * (1 - u) : 0;
@@ -374,7 +372,7 @@ function runningJumpAt(t) {
   const p = t / RUN.cycle * TAU;
   const x = -60 + RUN.speed * t;
   const leap = { ...legs(10, [-70, 76, 14], [14, 72, 18]), arm: -60, armFar: 40, fore: -50, foreFar: -60 };
-  const k = span(t, j0, j0 + 0.06) * (1 - span(t, j1 - 0.04, j1 + 0.06));
+  const k = span(t, j0, j0 + 0.06) * (1 - span(t, j1, j1 + 0.06));
   const pose = mix(runPose(p), leap, k);
   const u = clamp((t - j0) / (j1 - j0));
   const h = t > j0 && t < j1 ? 4 * 34 * u * (1 - u) : 0;
@@ -429,7 +427,7 @@ move("movement", "Fall and land", "walk off edge", 3.2, (c, t) => {
     y = start + (FLOOR - start) * easeIn(u);
   } else {
     x = xEdge + 40;
-    pose = keyed([[landT, { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 }], [landT + 0.12, CROUCH], [landT + 0.5, CROUCH], [landT + 1.0, STAND]], t);
+    pose = keyed([[landT, { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 }], [landT + 0.1, STAND]], t);
     y = FLOOR + lift(pose);
   }
   shadow(c, x, t < walkEnd ? top : FLOOR, 30);
