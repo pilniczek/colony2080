@@ -66,6 +66,7 @@ flowchart LR
 | Movement set | Full set in the engine (walk, run, jumps, fall, duck, kneel, use, hide, shoot, punch, ladder, lift, hit, death); mission 1 uses what level 1 needs. List: design spec | user |
 | Melee | Punches only, no kick. Fists are a selectable weapon (slot 2) | user |
 | Hide look | Front view with dark tint | user |
+| Energy and shields | Energy runs 0-100 and starts full. One enemy hit takes 10. Shields (0-5) are a reserve: when energy reaches 0 with a shield left, one shield is spent and energy refills to 100; with none left the hero dies. A new game starts with 0 shields. Rounded from the original (`docs/research/reports/10-level1-enemies.md`): start 98, one enemy burst 9, a shield refills from below 10 to 90, death below 10. The original rounding makes shields cancel most droid damage; we drop that (2026-10-18) | user (rounding), research |
 | Duck vs bullets | Ducking does not dodge bullets: the hero takes hits ducked or standing. The original shows no crouch-to-dodge (`docs/research/reports/08-video-level1.md`) | user |
 | Hide input | Hold Shift to stay hidden, release to step out. Works anywhere except on a moving lift. Hide wins over walk, run and shooting: the hero hides on the frame Shift is held even with an arrow down, and walks on after release if the arrow is still held | user |
 | Run input | Alt toggles run mode: one press runs, the next walks; the mode stays until pressed again. Holding Alt + arrow + Up was unreliable (key chords, browser shortcuts) | user |
@@ -130,7 +131,7 @@ flowchart LR
 - Ladder: Left / Right do nothing while climbing (plan's assumption).
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
 - Environment sheet: the 13 `machines` objects have no vector assets yet (`spikes/shared/env-machines.js` is empty); props, structures and buildings have all 13 each.
-- Sandbox HUD shows live life and weapon only. Ammo (350), reserve (full) and shields (5) are fixed until phase 3 adds them.
+- Sandbox HUD shows live life, shields and weapon only. Ammo (350) and reserve (full) are fixed until phase 3 adds them. Shields start at `energy.shields` in `config/hero/movement.json`.
 - TODO: E-Blaster (mission 1 bonus weapon, subway pickup) needs its own design sheet spike first, like `spikes/gun-design/`. Then add it to HUD slot 3 in `spikes/hud-design/`; until then the slot stays empty.
 - Hero tuning values in `config/hero/movement.json` are first guesses until tuned in the sandbox.
 - Collision source for levels (decoded map data or hand-authored) is decided in phase 4.

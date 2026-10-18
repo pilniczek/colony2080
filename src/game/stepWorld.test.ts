@@ -31,7 +31,7 @@ const script: Record<number, ["down" | "up", string][]> = {
 function fromSpawn(input: Input, live: boolean): Hero {
   const world = loadSandbox(sandboxJson);
   world.emitter.on = true;
-  const hero = createHero(world.spawn, "gun", cfg.energy.max);
+  const hero = createHero(world.spawn, "gun", 4 * cfg.energy.hit);
   for (let f = 0; f < STEPS; f++) {
     for (const [type, code] of live ? (script[f] ?? []) : []) {
       if (type === "down") input.keyDown(code);

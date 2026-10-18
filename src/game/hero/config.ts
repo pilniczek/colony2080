@@ -41,7 +41,7 @@ export interface MovementConfig {
   inputBufferMs: number;
   fireRate: number;
   shot: { speed: number; radius: number };
-  energy: { max: number; hit: number };
+  energy: { max: number; hit: number; shields: number };
   respawnMs: number;
   deathSlide: number;
 }
@@ -90,7 +90,7 @@ export function loadMovement(json: unknown): MovementConfig {
     inputBufferMs: n("inputBufferMs"),
     fireRate: n("fireRate"),
     shot: group("shot", ["speed", "radius"]),
-    energy: group("energy", ["max", "hit"]),
+    energy: group("energy", ["max", "hit", "shields"]),
     respawnMs: n("respawnMs"),
     deathSlide: n("deathSlide"),
   };

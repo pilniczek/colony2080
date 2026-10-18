@@ -21,7 +21,7 @@ describe("loadMovement", () => {
     expect(cfg.gravity).toBe(30);
     expect(cfg.jump.runSpeed).toBe(6.5);
     expect(cfg.jump.walkHeight).toBe(0.47);
-    expect(cfg.energy.hit).toBe(25);
+    expect(cfg.energy).toEqual({ max: 100, hit: 10, shields: 0 });
     expect(cfg.deathSlide).toBe(0.45);
   });
 

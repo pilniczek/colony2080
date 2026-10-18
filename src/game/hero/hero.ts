@@ -16,6 +16,7 @@ export interface Hero {
   rate: 1 | -1;
   weapon: Weapon;
   energy: number;
+  shields: number;
   fallFrom: number;
   onGround: boolean;
   onLift: boolean;
@@ -57,7 +58,7 @@ const LADDER_REACH = 0.5;
 const PIT_MARGIN = 2;
 export const HERO_SHOT = "hero";
 
-export function createHero(spawn: [number, number], weapon: Weapon, energy: number): Hero {
+export function createHero(spawn: [number, number], weapon: Weapon, energy: number, shields = 0): Hero {
   return {
     x: spawn[0],
     y: spawn[1],
@@ -69,6 +70,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     rate: 1,
     weapon,
     energy,
+    shields,
     fallFrom: spawn[1],
     onGround: true,
     onLift: false,
@@ -202,7 +204,11 @@ export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   if (h.hidden || isDead(h.state)) return events;
   h.energy = Math.max(0, h.energy - cfg.energy.hit);
   h.hitAge = 0;
-  if (h.energy === 0) die(h, deathOf(h), events);
+  if (h.energy > 0) return events;
+  if (h.shields > 0) {
+    h.shields -= 1;
+    h.energy = cfg.energy.max;
+  } else die(h, deathOf(h), events);
   return events;
 }
 
@@ -426,7 +432,7 @@ function leaveLadder(h: Hero): void {
 
 function respawn(s: Step): void {
   const { h, world, cfg } = s;
-  if (h.time * 1000 >= cfg.respawnMs) Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max));
+  if (h.time * 1000 >= cfg.respawnMs) Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max, cfg.energy.shields));
 }
 
 const transitions: Partial<Record<HeroState, Handler>> = {

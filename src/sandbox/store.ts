@@ -15,6 +15,7 @@ export interface SandboxState {
   vx: number;
   vy: number;
   energy: number;
+  shields: number;
   weapon: Weapon;
   running: boolean;
   fps: number;
@@ -83,6 +84,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   vx: 0,
   vy: 0,
   energy: 0,
+  shields: 0,
   weapon: "gun",
   running: false,
   fps: 0,

@@ -90,7 +90,7 @@ function info(ctx: CanvasRenderingContext2D, hero: Hero, look: HeroLook, dpr: nu
   const lines = [
     `state ${hero.state}  clip ${clipFor(hero.state, hero.weapon)}  t ${hero.time.toFixed(2)}`,
     `x ${hero.x.toFixed(2)}  y ${hero.y.toFixed(2)}  vx ${hero.vx.toFixed(2)}  vy ${hero.vy.toFixed(2)}`,
-    `view ${look.view}  ground ${hero.onGround}  lift ${hero.onLift}  hidden ${hero.hidden}  energy ${hero.energy}`,
+    `view ${look.view}  ground ${hero.onGround}  lift ${hero.onLift}  hidden ${hero.hidden}  energy ${hero.energy}  shields ${hero.shields}`,
   ];
   ctx.save();
   ctx.setTransform(dpr, 0, 0, dpr, x, y);

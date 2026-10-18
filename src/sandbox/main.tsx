@@ -34,7 +34,7 @@ if (!ctx) throw new Error("no 2d context");
 const tuning = () => useSandbox.getState();
 const world = loadSandbox(sandboxJson);
 world.emitter.on = true;
-const hero = createHero(world.spawn, "gun", tuning().movement.energy.max);
+const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields);
 const rigs = createRigs(true);
 const enemyRigs = createRigs(true, true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -88,7 +88,7 @@ const respawn = (): void => {
   Object.assign(world, loadSandbox(sandboxJson));
   world.emitter.on = run.emitterOn;
   world.emitter.periodMs = tuning().emitterPeriod * 1000;
-  Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max));
+  Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max, tuning().movement.energy.shields));
   prev = { x: hero.x, y: hero.y };
 };
 
@@ -115,6 +115,7 @@ const push = (): void => {
     vx: hero.vx,
     vy: hero.vy,
     energy: hero.energy,
+    shields: hero.shields,
     weapon: hero.weapon,
     running: hero.running,
     emitterOn: world.emitter.on,

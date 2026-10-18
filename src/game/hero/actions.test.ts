@@ -115,7 +115,7 @@ describe("projectiles", () => {
     const g = game();
     fire(g, 9);
     run(g, 0.5);
-    expect(g.hero.energy).toBe(75);
+    expect(g.hero.energy).toBe(90);
     expect(g.hero.hitAge).not.toBeNull();
     expect([...g.seen]).toEqual(["idle"]);
     expect(g.world.projectiles).toHaveLength(0);
@@ -127,7 +127,7 @@ describe("projectiles", () => {
     expect(g.hero.state).toBe("duck");
     fire(g, 9);
     run(g, 0.5, ["down"]);
-    expect(g.hero.energy).toBe(75);
+    expect(g.hero.energy).toBe(90);
     expect(g.world.projectiles).toHaveLength(0);
   });
 
@@ -236,10 +236,18 @@ describe("damage", () => {
     expect(g.hero.energy).toBe(100);
   });
 
-  it("keeps the state and starts hitAge, then death with died after four hits, then respawns", () => {
+  it("spends a shield to refill energy instead of dying", () => {
+    const g = game();
+    g.hero.shields = 2;
+    g.hero.energy = cfg.energy.hit;
+    expect(damage(g.hero, cfg)).toEqual([]);
+    expect(g.hero).toMatchObject({ state: "idle", energy: cfg.energy.max, shields: 1 });
+  });
+
+  it("keeps the state and starts hitAge, then death with died after ten hits, then respawns", () => {
     const g = game();
     run(g, 0.5);
-    const events = [damage(g.hero, cfg), damage(g.hero, cfg), damage(g.hero, cfg)].flat();
+    const events = Array.from({ length: 9 }, () => damage(g.hero, cfg)).flat();
     expect(g.hero.state).toBe("idle");
     expect(g.hero.hitAge).toBe(0);
     expect(events).toEqual([]);
@@ -258,7 +266,7 @@ describe("damage", () => {
     runUntil(g, (h) => h.y > 8);
     damage(g.hero, cfg);
     expect(g.hero.state).toBe("fall");
-    expect(g.hero.energy).toBe(75);
+    expect(g.hero.energy).toBe(90);
     runUntil(g, (h) => h.onGround);
     expect(g.hero.state).toBe("fallDeath");
   });
@@ -292,7 +300,7 @@ describe("damage", () => {
       const g = start();
       const { state, time } = g.hero;
       damage(g.hero, cfg);
-      expect(g.hero).toMatchObject({ state, time, hitAge: 0, energy: 75 });
+      expect(g.hero).toMatchObject({ state, time, hitAge: 0, energy: 90 });
       for (let i = 0; i < 30; i++) {
         tick(plain, held);
         tick(g, held);
