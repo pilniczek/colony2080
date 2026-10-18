@@ -44,6 +44,11 @@ function legs(body, near, far) {
 
 const STAND = legs(0, [0, 2], [0, 2]);
 const GUARD = { arm: -38, fore: -92, armFar: -30, foreFar: -96 };
+const PUNCH_STANCE = legs(2, [-14, 10], [16, 6]);
+const levelArms = (arms, body) => ({ ...arms, arm: arms.arm + PUNCH_STANCE.body - body, armFar: arms.armFar + PUNCH_STANCE.body - body });
+const GUN_REST = { arm: 4, fore: -6 };
+const HIT_HEIGHT = 100;
+const COLLAPSE = 0.4;
 
 const TAU = Math.PI * 2;
 const LEG = { hipY: 344, farX: -24, thigh: 178, shin: 178, ankleY: 700, heel: 80 };
@@ -182,8 +187,16 @@ function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = fa
   c.restore();
 }
 
+function dropGun(c, x, t, t0) {
+  if (armed() && t >= t0) droppedGun(c, x + 24 - 20 * span(t, t0, t0 + 0.3));
+}
+
+function landingDust(c, x, t, t0) {
+  if (t > t0 && t < t0 + 0.4) spark(c, x - 30, FLOOR - 6, 18, span(t, t0, t0 + 0.4));
+}
+
 const LIE = -89;
-const FLAT_BACK = { ...legs(0, [0, 2, 90], [0, 2, 90]), arm: 0, armFar: 0, fore: 0, foreFar: 0 };
+const FLAT_BACK = { ...legs(0, [-6.5, 2, 0], [-6.5, 2, 0]), arm: 0, armFar: 0, fore: 0, foreFar: 0 };
 const bottoms = new Map();
 function bottom(pose, rot, hold = false) {
   const key = JSON.stringify([pose, rot, hold && WEAPON]);
@@ -323,25 +336,25 @@ move("movement", "Run", "Alt + Left / Right", (W + 120) / RUN.speed, (c, t) => {
   bot(c, { x, y: FLOOR + runBob(p), pose: runPose(p) });
 });
 
-const LEAP = legs(6, [-62, 66, 14], [10, 58, 18]);
-const DUCK = { ...legs(16, [-70, 124, -54], [-52, 128, -76]), ...GUARD };
+const JUMP = { air: 0.55, height: 52, in: 0.08, out: 0.06 };
+const LEAP = { ...legs(6, [-62, 66, 14], [10, 58, 18]), arm: -40, armFar: 30, fore: -40, foreFar: -50 };
+const DUCK_LEGS = legs(16, [-70, 124, -54], [-52, 128, -76]);
+const DUCK = { ...DUCK_LEGS, ...levelArms(GUARD, DUCK_LEGS.body) };
+const FALL = { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 };
+
+const jumpBlend = (t, j0) => span(t, j0, j0 + JUMP.in) * (1 - span(t, j0 + JUMP.air, j0 + JUMP.air + JUMP.out));
+function jumpHeight(t, j0) {
+  const u = (t - j0) / JUMP.air;
+  return u > 0 && u < 1 ? 4 * JUMP.height * u * (1 - u) : 0;
+}
 
 function verticalJump(c, t, prep, t0) {
   backdrop(c);
-  const keys = [
-    ...prep,
-    [t0, prep[prep.length - 1][1]],
-    [t0 + 0.08, { ...LEAP, arm: -150, armFar: -140, fore: -10, foreFar: -14 }],
-    [t0 + 0.28, { ...LEAP, arm: -110, armFar: -100, fore: -30, foreFar: -30 }],
-    [t0 + 0.52, { ...LEAP, arm: -60, armFar: -50, fore: -30, foreFar: -30 }],
-    [t0 + 0.62, { ...STAND }]
-  ];
-  const pose = keyed(keys, t);
-  const air = span(t, t0, t0 + 0.06) * (1 - span(t, t0 + 0.5, t0 + 0.56));
-  const u = (t - t0) / 0.54;
-  const h = u > 0 && u < 1 ? 4 * 52 * u * (1 - u) : 0;
-  shadow(c, 180, FLOOR, 30 - h * 0.12, 0.35 - h * 0.002);
-  bot(c, { x: 180, y: FLOOR + lift(pose) * (1 - air) - h, pose });
+  const k = jumpBlend(t, t0), h = jumpHeight(t, t0);
+  const base = t < t0 + JUMP.air / 2 ? keyed(prep, t) : STAND;
+  const pose = mix(base, LEAP, k);
+  if (h === 0) shadow(c, 180, FLOOR, 30);
+  bot(c, { x: 180, y: FLOOR + lift(pose) * (1 - k) - h, pose });
 }
 
 move("movement", "Standing jump", "Up", 2.4, (c, t) => verticalJump(c, t, [[0, { ...STAND }]], 0.5));
@@ -351,22 +364,22 @@ move("movement", "Duck jump", "hold Down, then Up", 2.8, (c, t) => verticalJump(
   [0.25, DUCK]
 ], 0.85));
 
-move("movement", "Walking jump", "direction + Up", (W + 120) / WALK.speed, (c, t) => {
-  const gap = [134, 192];
-  backdrop(c, [gap]);
+function walkingJumpAt(t, j0) {
   const p = t / WALK.cycle * TAU;
+  const k = jumpBlend(t, j0), h = jumpHeight(t, j0);
+  const pose = mix(walkPose(p), LEAP, k);
+  return { y: FLOOR + Math.min(walkBob(p) * (1 - k), lift(pose)) - h, pose, airborne: h > 0 };
+}
+
+move("movement", "Walking jump", "direction + Up", (W + 120) / WALK.speed, (c, t) => {
+  backdrop(c, [[134, 192]]);
   const x = -60 + WALK.speed * t;
-  const leap = { ...LEAP, arm: -40, armFar: 30, fore: -40, foreFar: -50 };
-  const j0 = 1.7, j1 = 2.25;
-  const k = span(t, j0, j0 + 0.08) * (1 - span(t, j1, j1 + 0.06));
-  const pose = mix(walkPose(p), leap, k);
-  const u = clamp((t - j0) / (j1 - j0));
-  const h = t > j0 && t < j1 ? 4 * 36 * u * (1 - u) : 0;
-  if (h === 0) shadow(c, x, FLOOR, 30);
-  bot(c, { x, y: FLOOR + Math.min(walkBob(p) * (1 - k), lift(pose)) - h, pose });
+  const { y, pose, airborne } = walkingJumpAt(t, 1.7);
+  if (!airborne) shadow(c, x, FLOOR, 30);
+  bot(c, { x, y, pose });
 });
 
-const ZIGZAG = { x0: 40, j0: 1.27, j1: 1.82 };
+const ZIGZAG = { x0: 40, j0: 1.27, j1: 1.27 + JUMP.air };
 ZIGZAG.turns = [1, 2].map(i => ZIGZAG.j0 + (ZIGZAG.j1 - ZIGZAG.j0) * i / 3);
 ZIGZAG.dir = t => (t >= ZIGZAG.turns[0] && t < ZIGZAG.turns[1]) ? -1 : 1;
 ZIGZAG.x = t => {
@@ -376,30 +389,20 @@ ZIGZAG.x = t => {
 };
 
 move("movement", "Jump, turn twice", "direction + Up, then opposite, then back", ZIGZAG.j1 + (W + 60 - ZIGZAG.x(ZIGZAG.j1)) / WALK.speed, (c, t) => {
-  const { j0, j1 } = ZIGZAG;
   backdrop(c);
-  const p = t / WALK.cycle * TAU;
   const x = ZIGZAG.x(t);
-  const leap = { ...LEAP, arm: -40, armFar: 30, fore: -40, foreFar: -50 };
-  const k = span(t, j0, j0 + 0.08) * (1 - span(t, j1, j1 + 0.06));
-  const pose = mix(walkPose(p), leap, k);
-  const u = clamp((t - j0) / (j1 - j0));
-  const h = t > j0 && t < j1 ? 4 * 36 * u * (1 - u) : 0;
-  if (h === 0) shadow(c, x, FLOOR, 30);
-  bot(c, { x, y: FLOOR + Math.min(walkBob(p) * (1 - k), lift(pose)) - h, pose, flip: ZIGZAG.dir(t) < 0 });
+  const { y, pose, airborne } = walkingJumpAt(t, ZIGZAG.j0);
+  if (!airborne) shadow(c, x, FLOOR, 30);
+  bot(c, { x, y, pose, flip: ZIGZAG.dir(t) < 0 });
 });
 
-const RUN_JUMP = { period: 1.7, j0: 0.48, j1: 0.92 };
+const RUN_JUMP = { period: 1.7, j0: 0.48, j1: 0.48 + JUMP.air };
 
 function runningJumpAt(t) {
-  const { j0, j1 } = RUN_JUMP;
   const p = t / RUN.cycle * TAU;
   const x = -60 + RUN.speed * t;
-  const leap = { ...legs(10, [-70, 76, 14], [14, 72, 18]), arm: -60, armFar: 40, fore: -50, foreFar: -60 };
-  const k = span(t, j0, j0 + 0.06) * (1 - span(t, j1, j1 + 0.06));
-  const pose = mix(runPose(p), leap, k);
-  const u = clamp((t - j0) / (j1 - j0));
-  const h = t > j0 && t < j1 ? 4 * 34 * u * (1 - u) : 0;
+  const k = jumpBlend(t, RUN_JUMP.j0), h = jumpHeight(t, RUN_JUMP.j0);
+  const pose = mix(runPose(p), LEAP, k);
   return { x, y: FLOOR + Math.min(runBob(p) * (1 - k), lift(pose)) - h, pose, airborne: h > 0 };
 }
 
@@ -446,15 +449,16 @@ move("movement", "Fall and land", "walk off edge", 3.2, (c, t) => {
   } else if (t < landT) {
     const u = (t - walkEnd) / (landT - walkEnd);
     x = xEdge + u * 40;
-    pose = mix(walkPose(walkEnd / WALK.cycle * TAU), { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 }, ease(clamp(u * 2)));
+    pose = mix(walkPose(walkEnd / WALK.cycle * TAU), FALL, ease(clamp(u * 2)));
     const start = top + walkBob(walkEnd / WALK.cycle * TAU);
     y = start + (FLOOR - start) * easeIn(u);
   } else {
     x = xEdge + 40;
-    pose = keyed([[landT, { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 }], [landT + 0.1, STAND]], t);
+    pose = keyed([[landT, FALL], [landT + 0.1, STAND]], t);
     y = FLOOR + lift(pose);
   }
-  shadow(c, x, t < walkEnd ? top : FLOOR, 30);
+  if (t < walkEnd) shadow(c, x, top, 30);
+  else if (t >= landT) shadow(c, x, FLOOR, 30);
   bot(c, { x, y, pose });
 });
 
@@ -462,26 +466,25 @@ move("movement", "Fall death", "fall too high", 5, (c, t) => {
   backdrop(c);
   const landT = 0.55;
   const x = 170;
-  const fallPose = { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -120, armFar: -90, fore: -30, foreFar: -30 };
   let y, pose, rot = 0;
   if (t < landT) {
-    pose = fallPose;
+    pose = FALL;
     y = -40 + (FLOOR + 40) * easeIn(t / landT);
   } else {
     const impact = { ...legs(4, [-80, 140, -60], [-70, 146, -80]), arm: 30, armFar: 40, fore: -10, foreFar: -10 };
-    pose = keyed([[landT, fallPose], [landT + 0.1, impact], [landT + 0.35, impact], [landT + 0.75, FLAT_BACK]], t);
-    const k = easeIn(span(t, landT + 0.35, landT + 0.75));
+    const fold = landT + 0.35;
+    pose = keyed([[landT, FALL], [landT + 0.1, impact], [fold, impact], [fold + COLLAPSE, FLAT_BACK]], t);
+    const k = easeIn(span(t, fold, fold + COLLAPSE));
     rot = LIE * k;
     y = (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, LIE)) * k;
   }
   const alpha = 1 - span(t, 4.5, 5);
   c.save();
   c.globalAlpha = alpha;
-  shadow(c, x, FLOOR, 30 * clamp(t / landT));
-  const held = t < landT;
-  if (!held && armed()) droppedGun(c, x + 20 + 14 * span(t, landT, landT + 0.25));
-  bot(c, { x, y, pose, rot, hold: held });
-  if (t > landT && t < landT + 0.4) spark(c, x + 10, FLOOR - 6, 22, span(t, landT, landT + 0.4));
+  if (t >= landT) shadow(c, x, FLOOR, 30);
+  dropGun(c, x, t, landT);
+  bot(c, { x, y, pose, rot, hold: t < landT });
+  landingDust(c, x, t, landT);
   c.restore();
   if (t > landT + 0.8) label(c, "DEAD", 8, 16);
 });
@@ -519,8 +522,9 @@ move("interaction", "Use", "Enter at target", 2.6, (c, t) => {
   const on = t > 0.7 && t < 2.3;
   c.fillStyle = on ? "#3fa34a" : "#e0281e";
   c.fillRect(PANEL[0] + 16, PANEL[1] - 20, 8, 8);
-  const reach = armed() ? { ...STAND, arm: 6, fore: -4, armFar: -76, foreFar: -6 } : REACH;
-  const pose = keyed([[0, armed() ? { ...STAND, arm: 6, fore: -4 } : STAND], [0.55, reach], [1.1, reach], [1.6, armed() ? { ...STAND, arm: 6, fore: -4 } : STAND]], t);
+  const rest = armed() ? { ...STAND, ...GUN_REST } : STAND;
+  const reach = armed() ? { ...rest, armFar: REACH.arm, foreFar: REACH.fore } : REACH;
+  const pose = keyed([[0, rest], [0.55, reach], [1.1, reach], [1.6, rest]], t);
   shadow(c, 140, FLOOR, 30);
   bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
 });
@@ -561,18 +565,20 @@ function bag(c, swing) {
   c.restore();
 }
 
-function punchPose(t, base, jab, cross, period) {
-  const u = t % period / period;
-  const near = num([[0, 0], [0.12, 1], [0.32, 0], [1, 0]], u);
-  const far = num([[0, 0], [0.5, 0], [0.62, 1], [0.82, 0], [1, 0]], u);
-  return { ...base, ...mix(GUARD, jab, near), ...(cross ? { armFar: mix(GUARD, cross, far).armFar, foreFar: mix(GUARD, cross, far).foreFar } : {}) };
+const PUNCH_PERIOD = 1.2;
+
+function punchPose(t, base) {
+  const u = t % PUNCH_PERIOD / PUNCH_PERIOD;
+  const near = mix(GUARD, JAB, num([[0, 0], [0.12, 1], [0.32, 0], [1, 0]], u));
+  const far = mix(GUARD, CROSS, num([[0, 0], [0.5, 0], [0.62, 1], [0.82, 0], [1, 0]], u));
+  return { ...base, ...levelArms({ arm: near.arm, fore: near.fore, armFar: far.armFar, foreFar: far.foreFar }, base.body) };
 }
 
-const PUNCH_X = 150, PUNCH_HIT_Y = FLOOR - 92;
+const PUNCH_X = 150;
 
 function punchOrShoot(c, t, look = {}) {
   backdrop(c);
-  const stance = legs(2, [-14, 10], [16, 6]);
+  const stance = PUNCH_STANCE;
   const x = PUNCH_X;
   if (armed()) {
     box(c, 300, FLOOR, 40, 70, "#3c4a4c", "#1a2224");
@@ -583,24 +589,24 @@ function punchOrShoot(c, t, look = {}) {
     fire(c, t, pose, x, y, 300);
     return;
   }
-  const pose = punchPose(t, stance, JAB, CROSS, 1.2);
+  const pose = punchPose(t, stance);
   const y = FLOOR + lift(pose);
-  bag(c, punchImpact(t / 1.2));
+  bag(c, punchImpact(t / PUNCH_PERIOD));
   shadow(c, x, FLOOR, 30);
   bot(c, { x, y, pose: { ...pose, ...look.pose } });
 }
 
-move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", 1.2, punchOrShoot);
+move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", PUNCH_PERIOD, punchOrShoot);
 
-move("fight", { fists: "Hit while punching", gun: "Hit while shooting" }, "taking damage during Ctrl", 1.2, (c, t) => {
+move("fight", { fists: "Hit while punching", gun: "Hit while shooting" }, "taking damage during Ctrl", PUNCH_PERIOD, (c, t) => {
   punchOrShoot(c, t, hitLook(t, 0.9));
-  const impact = [PUNCH_X + 14, PUNCH_HIT_Y];
+  const impact = [PUNCH_X + 14, FLOOR - HIT_HEIGHT];
   hitFx(c, t, 0.9, impact, impact);
 });
 
-move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", 1.0, (c, t) => {
+move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", PUNCH_PERIOD, (c, t) => {
   backdrop(c);
-  const duck = legs(16, [-70, 124, -54], [-52, 128, -76]);
+  const duck = DUCK_LEGS;
   const x = 140;
   if (armed()) {
     box(c, 300, FLOOR, 40, 40, "#3c4a4c", "#1a2224");
@@ -611,14 +617,14 @@ move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", 1.0, (c
     fire(c, t, pose, x, y, 300);
     return;
   }
-  const pose = punchPose(t, duck, { arm: -70, fore: 10 }, null, 1.0);
+  const pose = punchPose(t, duck);
   shadow(c, x, FLOOR, 30);
   bot(c, { x, y: FLOOR + lift(pose), pose });
 });
 
 move("fight", "Weapon switch", "1 / 2", 3.4, (c, t) => {
   backdrop(c);
-  const rest = { ...STAND, arm: 4, fore: -6 };
+  const rest = { ...STAND, ...GUN_REST };
   const hip = { ...STAND, arm: 26, fore: -4 };
   const aim = carry(STAND);
   const pose = keyed([[0, rest], [0.35, hip], [0.5, hip], [0.95, aim], [1.6, aim], [2.05, hip], [2.2, hip], [2.55, rest], [3.4, rest]], t);
@@ -686,14 +692,14 @@ move("fight", "Hit reaction", "taking damage", 2, (c, t) => {
   shadow(c, x, FLOOR, 30);
   const look = hitLook(t, 0.6);
   bot(c, { x, y: FLOOR + lift(STAND), pose: { ...STAND, ...look.pose } });
-  const impact = [x + 14, FLOOR - 120];
+  const impact = [x + 14, FLOOR - HIT_HEIGHT];
   hitFx(c, t, 0.6, impact, impact);
 });
 
 move("fight", "Hit in running jump", "taking damage mid-air", RUN_JUMP.period, (c, t) => {
   const hitT = (RUN_JUMP.j0 + RUN_JUMP.j1) / 2, at = runningJumpAt(hitT);
   const { x, y } = runningJump(c, t, hitLook(t, hitT));
-  hitFx(c, t, hitT, [at.x + 14, at.y - 100], [x + 14, y - 100]);
+  hitFx(c, t, hitT, [at.x + 14, at.y - HIT_HEIGHT], [x + 14, y - HIT_HEIGHT]);
 });
 
 const JUMP_DEATH = { hitT: 0.62, landT: 0.98, slide: 0.45 };
@@ -715,7 +721,7 @@ move("fight", "Death in running jump", "energy runs out mid-air", 5, (c, t) => {
   } else {
     const landX = at.x + RUN.speed * 0.8 * (landT - hitT);
     x = landX + RUN.speed * 0.8 * slide / 2 * easeOut(span(t, landT, landT + slide));
-    pose = keyed([[landT, limp], [landT + 0.2, FLAT_BACK]], t);
+    pose = keyed([[landT, limp], [landT + COLLAPSE, FLAT_BACK]], t);
     rot = LIE;
     y = lieY;
   }
@@ -723,11 +729,10 @@ move("fight", "Death in running jump", "energy runs out mid-air", 5, (c, t) => {
   c.save();
   c.globalAlpha = 1 - span(t, 4.5, 5);
   if (t < RUN_JUMP.j0 || t >= landT) shadow(c, x, FLOOR, 30);
-  const held = t < hitT;
-  if (!held && armed() && t >= landT) droppedGun(c, x + 30 - 20 * span(t, landT, landT + 0.3));
-  bot(c, { x, y, pose: { ...pose, ...hitLook(t, hitT).pose }, rot, hold: held });
-  if (t > landT && t < landT + 0.4) spark(c, x - 30, FLOOR - 6, 18, span(t, landT, landT + 0.4));
-  hitFx(c, t, hitT, [at.x + 14, at.y - 100], [at.x + 14, at.y - 100]);
+  dropGun(c, x, t, landT);
+  bot(c, { x, y, pose: { ...pose, ...hitLook(t, hitT).pose }, rot, hold: t < hitT });
+  landingDust(c, x, t, landT);
+  hitFx(c, t, hitT, [at.x + 14, at.y - HIT_HEIGHT], [at.x + 14, at.y - HIT_HEIGHT]);
   c.restore();
   if (t > landT + 0.6) label(c, "DEAD");
 });
@@ -741,7 +746,7 @@ move("fight", "Jump into pit", "running jump falls short", 3.5, (c, t) => {
     const u = (t - j0) / (j1 - j0);
     const flail = { ...legs(-10, [-40, 60, 10], [20, 50, 20]), arm: -160 + 30 * Math.sin(t * 18), armFar: -120 - 30 * Math.sin(t * 18), fore: -20, foreFar: -30 };
     x = -60 + RUN.speed * t;
-    y = FLOOR - 4 * 34 * u * (1 - u);
+    y = FLOOR - 4 * JUMP.height * u * (1 - u);
     pose = mix(pose, flail, ease(span(t, j1, j1 + 0.15)));
   }
   if (!airborne && t < j1) shadow(c, x, FLOOR, 30);
@@ -754,16 +759,16 @@ move("fight", "Death", "energy runs out", 5, (c, t) => {
   const hits = [0.3, 0.55, 0.8];
   const stagger = { ...legs(-16, [-20, 20], [26, 24]), arm: 50, armFar: 60, fore: -60, foreFar: -50 };
   const buckle = { ...legs(-24, [-60, 120, -50], [-40, 126, -70]), arm: 60, armFar: 70, fore: -40, foreFar: -40 };
-  const pose = keyed([[0, STAND], [0.3, STAND], [0.45, stagger], [0.9, stagger], [1.15, buckle], [1.6, FLAT_BACK]], t);
-  const k = easeIn(span(t, 1.15, 1.6));
+  const fold = 1.15;
+  const pose = keyed([[0, STAND], [0.3, STAND], [0.45, stagger], [0.9, stagger], [fold, buckle], [fold + COLLAPSE, FLAT_BACK]], t);
+  const k = easeIn(span(t, fold, fold + COLLAPSE));
   const x = 190 - 16 * span(t, 0.3, 1.0);
   c.save();
   c.globalAlpha = 1 - span(t, 4.5, 5);
   shadow(c, x, FLOOR, 30);
-  const held = t < 1.0;
-  if (!held && armed()) droppedGun(c, x + 24 - 20 * span(t, 1.0, 1.3));
-  bot(c, { x, y: (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, LIE, false)) * k, pose, rot: LIE * k, hold: held });
-  for (const h of hits) if (t > h && t < h + 0.25) spark(c, x + 12, FLOOR - 110 + (h * 40), 12, span(t, h, h + 0.25));
+  dropGun(c, x, t, 1.0);
+  bot(c, { x, y: (FLOOR + lift(pose)) * (1 - k) + (FLOOR - bottom(FLAT_BACK, LIE)) * k, pose, rot: LIE * k, hold: t < 1.0 });
+  for (const h of hits) hitFx(c, t, h, [x + 14, FLOOR - HIT_HEIGHT], [x + 14, FLOOR - HIT_HEIGHT]);
   c.restore();
   if (t > 1.7) label(c, "DEAD");
 });

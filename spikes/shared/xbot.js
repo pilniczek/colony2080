@@ -97,6 +97,10 @@ function mirrorPts(pts, ax = AX) {
 
 let lod = null;
 
+function bulk(limb) {
+  return lod?.sideBulk?.[limb] ?? 1;
+}
+
 function tiny(pts) {
   if (!lod) return false;
   const [x0, y0, x1, y1] = bbox(pts);
@@ -225,9 +229,10 @@ function headFront(s, back) {
   P(s, { pts: [[306, 96], [334, 96], [336, 120], [304, 120]], mat: "metal", shade: "cyl", r: 2 });
   both(s, { pts: [[246, 4], [256, 4], [258, 70], [244, 70]], r: 4, shade: "cyl" });
   both(s, { pts: [[240, 56], [266, 52], [268, 98], [242, 100]], r: 2 });
-  if (back) P(s, { pts: [[313, 12], [327, 12], [330, 30], [310, 30]], r: 2 });
+  const crest = () => P(s, { pts: [[313, 12], [327, 12], [330, 24], [326, 34], [314, 34], [310, 24]], r: 2 });
+  if (back) crest();
   P(s, { pts: [[264, 102], [262, 34], [276, 22], [364, 22], [378, 34], [376, 102]], r: 3 });
-  if (!back) P(s, { pts: [[313, 12], [327, 12], [330, 30], [326, 46], [314, 46], [310, 30]], r: 2 });
+  if (!back) crest();
   if (back) {
     F(s, [[274, 70], [366, 70], [366, 74], [274, 74]], "a0");
     F(s, [[318, 58], [322, 58], [322, 100], [318, 100]], "a0");
@@ -245,13 +250,13 @@ function frontHand(parent, M, thumbFront) {
     F(parent, M([[116, 430], [136, 428], [136, 431], [116, 433]]), "a0");
   };
   if (!thumbFront) thumb();
-  P(parent, { pts: M([[44, 400], [134, 398], [136, 434], [44, 436]]), mat: "metal", r: 2 });
+  P(parent, { pts: M([[46, 400], [129, 398], [129, 434], [46, 436]]), mat: "metal", r: 2 });
   if (lod) for (let i = 0; i < 4; i++) P(parent, { pts: M([[46 + i * 21, 422], [65 + i * 21, 422], [65 + i * 21, 478], [46 + i * 21, 478]]), shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = 46 + i * 21;
-    P(parent, { pts: M([[x, 422], [x + 20, 422], [x + 20, 437], [x, 437]]), r: 2, lw: FINGER_LW });
-    P(parent, { pts: M([[x + 0.5, 437], [x + 19.5, 437], [x + 19.5, 456], [x + 0.5, 456]]), shade: "cyl", r: 2, lw: FINGER_LW });
-    P(parent, { pts: M([[x + 1, 456], [x + 19, 456], [x + 19, 472], [x + 10, 478], [x + 1, 472]]), shade: "cyl", r: 3, lw: FINGER_LW });
+    P(parent, { pts: M([[x, 428], [x + 10, 422], [x + 20, 428], [x + 20, 444], [x, 444]]), shade: "cyl", r: 3, lw: FINGER_LW });
+    P(parent, { pts: M([[x, 444], [x + 20, 444], [x + 20, 463], [x, 463]]), shade: "cyl", r: 2, lw: FINGER_LW });
+    P(parent, { pts: M([[x, 463], [x + 20, 463], [x + 20, 478], [x, 478]]), r: 2, lw: FINGER_LW });
   }
   if (thumbFront) thumb();
 }
@@ -360,12 +365,13 @@ function backTree({ leftArmBehind, rightForeBehind, thumbsBehind, forearmsUnder 
 }
 
 function sideLeg(parent, names, extra) {
+  const sx = 0.88 * bulk("legs");
   const hip = G(parent, null, names.hip, [300, 344], extra);
-  const th = G(hip, legTf("thigh", 296, 0.88));
+  const th = G(hip, legTf("thigh", 296, sx));
   P(th, { pts: [[278, 342], [314, 342], [314, 440], [278, 440]], mat: "chrome", shade: "cyl", r: 1 });
   P(th, { pts: [[246, 338], [278, 338], [278, 432], [314, 432], [314, 338], [342, 338], [346, 452], [334, 468], [258, 468], [246, 452]], r: 1 });
   const knee = G(hip, null, names.knee, [300, 522]);
-  const sh = G(knee, legTf("shin", 296, 0.88));
+  const sh = G(knee, legTf("shin", 296, sx));
   P(sh, { pts: [[256, 500], [340, 500], [354, 690], [240, 690]], r: 1 });
   P(sh, { pts: [[298, 540], [312, 540], [316, 660], [298, 660]], mat: "metal", shade: "none", r: 1 });
   const ankle = G(knee, null, names.ankle, [300, 700]);
@@ -374,39 +380,39 @@ function sideLeg(parent, names, extra) {
   P(ft, { pts: [[300, 688], [384, 688], [396, 706], [300, 706]], r: 1 });
   if (names.heel) hook(G(ankle, "translate(220 744)"), names.heel);
   if (names.toe) hook(G(ankle, "translate(380 744)"), names.toe);
-  const kn = G(knee, legTf("knee", 300, 0.88));
+  const kn = G(knee, legTf("knee", 300, sx));
   E(kn, 300, 486, 30, 30, "m1");
   E(kn, 294, 480, 12, 12, "m3");
   P(kn, { pts: [[300, 448], [340, 452], [362, 478], [362, 510], [344, 534], [318, 532], [310, 500]], mat: "chrome", r: 1 });
 }
 
 function sideHand(parent) {
-  P(parent, { pts: [[352, 410], [376, 406], [384, 428], [376, 448], [360, 444], [350, 428]], r: 4 });
-  P(parent, { pts: [[278, 398], [364, 396], [366, 434], [278, 436]], mat: "metal", r: 2 });
-  if (lod) for (let i = 0; i < 4; i++) P(parent, { pts: [[280 + i * 21, 422], [299 + i * 21, 422], [299 + i * 21, 478], [280 + i * 21, 478]], shade: "cyl", r: 4 });
+  P(parent, { pts: [[342, 410], [366, 406], [374, 428], [366, 448], [350, 444], [340, 428]], r: 4 });
+  P(parent, { pts: [[270, 398], [353, 396], [353, 434], [270, 436]], mat: "metal", r: 2 });
+  if (lod) for (let i = 0; i < 4; i++) P(parent, { pts: [[270 + i * 21, 422], [289 + i * 21, 422], [289 + i * 21, 478], [270 + i * 21, 478]], shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
-    const x = 280 + i * 21;
-    P(parent, { pts: [[x, 422], [x + 20, 422], [x + 20, 437], [x, 437]], r: 2, lw: FINGER_LW });
-    P(parent, { pts: [[x + 0.5, 437], [x + 19.5, 437], [x + 19.5, 456], [x + 0.5, 456]], shade: "cyl", r: 2, lw: FINGER_LW });
-    P(parent, { pts: [[x + 1, 456], [x + 19, 456], [x + 19, 472], [x + 10, 478], [x + 1, 472]], shade: "cyl", r: 3, lw: FINGER_LW });
+    const x = 270 + i * 21;
+    P(parent, { pts: [[x, 428], [x + 10, 422], [x + 20, 428], [x + 20, 444], [x, 444]], shade: "cyl", r: 3, lw: FINGER_LW });
+    P(parent, { pts: [[x, 444], [x + 20, 444], [x + 20, 463], [x, 463]], shade: "cyl", r: 2, lw: FINGER_LW });
+    P(parent, { pts: [[x, 463], [x + 20, 463], [x + 20, 478], [x, 478]], r: 2, lw: FINGER_LW });
   }
 }
 
 function sideArm(parent, names, extra) {
   const arm = G(parent, "translate(2 -4)", names.arm, [300, 150], extra);
   P(arm, { pts: [[288, 274], [334, 274], [334, 294], [288, 294]], mat: "metal", shade: "cyl", r: 1 });
-  const bulbs = G(arm, SIDE_SHOULDER_TF);
-  P(bulbs, { pts: [[276, 196], [346, 196], [364, 220], [360, 257], [340, 279], [308, 286], [280, 278], [264, 254], [264, 217]], r: 18, shade: "dome" });
-  P(bulbs, { pts: [[248, 106], [292, 96], [336, 102], [362, 126], [370, 164], [358, 196], [330, 212], [292, 216], [256, 206], [234, 182], [230, 146], [236, 122]], r: 22, shade: "dome" });
-  const lower = G(arm, "translate(0 -22) rotate(-18 311 306)", names.fore, [311, 306]);
-  if (names.hand && extra?.propBehindArm) hook(G(lower, "translate(322 446)"), names.hand);
+  const lower = G(arm, "translate(0 -22) rotate(-18 311 288)", names.fore, [311, 288]);
+  if (names.hand && extra?.propBehindArm) hook(G(lower, "translate(312 446)"), names.hand);
   const fa = G(lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
-  P(fa, { pts: [[262, 308], [358, 304], [366, 320], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
+  P(fa, { pts: [[262, 290], [358, 286], [366, 302], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
   F(fa, [[264, 352], [366, 350], [366, 354], [264, 356]], "a0");
   F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
-  const hand = G(lower, "translate(322 446)");
+  const hand = G(lower, "translate(312 446)");
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
   sideHand(lower);
+  const bulbs = G(arm, `translate(${SS.cx} 0) scale(${bulk("arms")} 1) translate(${-SS.cx} 0) ${SIDE_SHOULDER_TF}`);
+  P(bulbs, { pts: [[276, 196], [346, 196], [364, 220], [360, 257], [340, 279], [308, 286], [280, 278], [264, 254], [264, 217]], r: 18, shade: "dome" });
+  P(bulbs, { pts: [[248, 106], [292, 96], [336, 102], [362, 126], [370, 164], [358, 196], [330, 212], [292, 216], [256, 206], [234, 182], [230, 146], [236, 122]], r: 22, shade: "dome" });
 }
 
 function buildSide({ farLimbs = false, badge = false, propBehindArm = false, lod: low = false } = {}) {
@@ -439,7 +445,7 @@ function sideTree({ farLimbs, badge, propBehindArm }) {
   P(head, { pts: [[300, 100], [336, 100], [340, 160], [304, 160]], mat: "metal", shade: "none", r: 4 });
   P(head, { pts: [[312, 96], [336, 96], [338, 120], [310, 120]], mat: "metal", shade: "cyl", r: 2 });
   P(head, { pts: [[282, 102], [280, 34], [292, 22], [374, 22], [388, 34], [388, 104]], r: 3 });
-  P(head, { pts: [[300, 24], [304, 12], [382, 12], [388, 24]], r: 2 });
+  P(head, { pts: [[300, 24], [304, 12], [382, 12], [388, 24], [388, 34], [376, 24]], r: 2 });
   P(head, { pts: [[356, 48], [388, 48], [388, 104], [372, 104], [372, 80], [356, 80]], mat: "metal", shade: "none", r: 2 });
   F(head, [[368, 56], [388, 56], [388, 63], [368, 63]], "visor", 1);
   P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });
@@ -603,7 +609,7 @@ function joint(v) {
   return { dx: 0, dy: 0, rot: 0, sx: 1, sy: 1, ...v };
 }
 
-function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 2.2, simple = false } = {}) {
+function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 1.4, simple = false } = {}) {
   if (node.k === "g") {
     ctx.save();
     if (node.m) ctx.transform(node.m.a, node.m.b, node.m.c, node.m.d, node.m.e, node.m.f);

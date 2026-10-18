@@ -19,7 +19,7 @@
     "sideTorsoScaleX": 0.8,
     "sideShoulder": { "cx": 306, "cy": 96, "scaleX": 0.75, "scaleY": 0.92 }
   },
-  "gameLod": { "minThickness": 8, "minArea": 400, "minRadius": 8 },
+  "gameLod": { "minThickness": 8, "minArea": 400, "minRadius": 8, "sideBulk": { "legs": 1.45, "arms": 1.3 } },
   "levels": { "head": 2, "shoulder": 104, "hip": 344, "knee": 522, "foot": 744 },
   "joints": {
     "front": ["body", "armL", "foreL", "armR", "foreR"],
