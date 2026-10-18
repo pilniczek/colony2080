@@ -9,7 +9,7 @@
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:visual": "node -e \"console.log('visual tests not set up yet')\""
+    "test:visual": "node scripts/visual-check.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",

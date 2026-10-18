@@ -14,5 +14,5 @@
     "types": ["node"],
     "paths": { "@config/*": ["./config/*"] }
   },
-  "include": ["src", "*.ts"]
+  "include": ["src", "tools", "*.ts"]
 }
