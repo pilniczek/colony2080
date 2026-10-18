@@ -13,7 +13,7 @@ const CLOTH = {
   hair: ["#120c08", "#2a1a10", "#46301e", "#5e4630"],
   boot: ["#110e0c", "#262019", "#3e352a", "#5a4e3e"]
 };
-const ROCK = ["k1", "k2", "k3", "c1"];
+const ROCK = ["k0", "k2", "c1", "c2"];
 const LIGHT = [-0.6, -0.8];
 
 const HIDE_TINT = { brightness: 0.45, saturate: 0.25 };
@@ -119,25 +119,33 @@ function scuff(ctx, x, w) {
   for (const [dx, s] of [[0.15, 1], [0.55, 0.8], [0.8, 1.2]]) flat(ctx, x + w * dx, -1.4 * s, s, s * 0.8, "k2");
 }
 
+function arc(cx, cy, rx, ry, a0, a1, n = 8) {
+  return Array.from({ length: n + 1 }, (_, i) => {
+    const a = a0 + (a1 - a0) * i / n;
+    return [cx + cos(a) * rx, cy + sin(a) * ry];
+  });
+}
+
 function lyingHuman(ctx, x, { flip = false, suit = CLOTH.jacket, breathe = 0, arm = 0, pocket = null } = {}) {
   ctx.save();
   ctx.translate(x, 0);
-  if (flip) { ctx.translate(40, 0); ctx.scale(-1, 1); }
+  if (flip) { ctx.translate(42, 0); ctx.scale(-1, 1); }
   const b = breathe;
-  cel(ctx, [[0, 0], [0.5, -4.5], [5, -4.8], [5.5, 0]], CLOTH.boot);
-  cel(ctx, [[4.5, 0], [4.5, -5.2], [12, -5.8], [20, -6.6], [21, 0]], CLOTH.denim);
-  if (!simple()) flat(ctx, 12, -4.6, 7, 0.5, CLOTH.denim[0]);
-  cel(ctx, [[19, 0], [19, -7.4], [23, -9.2 - b], [32, -9.6 - b], [35, -7.6], [35.5, 0]], suit);
+  cel(ctx, [[0, 0], [0.4, -3.6], [2.4, -5.2], [5.2, -4.6], [5.6, 0]], CLOTH.boot);
+  cel(ctx, [[4.6, 0], [4.8, -4.4], [11, -6.6], [15, -6], [20.5, -6.4], [21.5, 0]], CLOTH.denim);
+  if (!simple()) flat(ctx, 13, -4.4, 6.5, 0.5, CLOTH.denim[0]);
+  cel(ctx, [[19.5, 0], [19.5, -6.6], ...arc(28, -6.4, 8.4, 3.4 + b, PI, PI * 1.85), [36, -5.6], [36, 0]], suit);
   if (pocket) pocket(ctx);
   ctx.save();
-  ctx.translate(23, -8.4 - b);
-  ctx.rotate(-arm);
-  cel(ctx, [[0, -1.5], [11, -1.9], [11.5, 1.2], [0, 1.4]], suit);
-  cel(ctx, [[10.5, -1.6], [13.6, -1.6], [14, 1], [10.8, 1.2]], CLOTH.skin);
+  ctx.translate(33.5, -7.6 - b);
+  ctx.rotate(arm);
+  cel(ctx, [[0, -1.4], [-7.5, -2.2], [-8.6, -0.4], [-7.6, 1.2], [0, 1.4]], suit);
+  cel(ctx, [[-7.4, -1.8], [-11.4, -1.2], ...arc(-11.4, -0.2, 1.2, 1.1, PI * 1.5, PI * 0.5, 4), [-7.6, 1.2]], CLOTH.skin);
   ctx.restore();
-  cel(ctx, [[34.5, -6.6], [36, -7.4], [36.5, -0.6], [34.5, -0.4]], CLOTH.skin);
-  cel(ctx, [[35.5, -3.8], [36.5, -7.6], [40.5, -7.4], [42, -4], [41, -0.4], [36.5, -0.4]], CLOTH.skin);
-  cel(ctx, [[36.5, -7.6], [40.5, -7.4], [42, -4], [42.5, -1.2], [41, -0.8], [40.4, -5], [37.6, -6.2]], CLOTH.hair);
+  cel(ctx, [[35.4, -5.4], [37.2, -5.8], [37.6, -1], [35.4, -0.6]], CLOTH.skin, { lit: 0.2 });
+  cel(ctx, arc(40, -3.7, 3.5, 3.6, 0, PI * 2, 14), CLOTH.skin);
+  cel(ctx, [...arc(40, -3.7, 3.5, 3.6, -PI * 0.42, PI * 0.42, 6), [41.6, -2.4], [42, -4.4], [41.4, -6]], CLOTH.hair, { lit: 0.25 });
+  if (!simple()) poly(ctx, [[37.4, -6.4], [37.6, -7.6], [38.8, -7]], CLOTH.skin[2], 2, { line: false });
   ctx.restore();
 }
 
@@ -175,7 +183,7 @@ define({
     blood(ctx, 14, dying ? 18 : 28, dying ? 1.4 : 2);
     lyingHuman(ctx, 0, {
       breathe: dying ? 0.45 + sin(t * 2.4) * 0.45 : 0,
-      arm: dying ? 0.5 + sin(t * 1.3) * 0.12 + sin(t * 11) * 0.025 : 0
+      arm: dying ? 0.12 + sin(t * 1.3) * 0.08 + sin(t * 11) * 0.02 : 0
     });
   }
 });
@@ -188,7 +196,7 @@ define({
     lyingHuman(ctx, 4, {
       flip: true,
       suit: CLOTH.denim,
-      arm: state ? -0.05 : 0.08,
+      arm: state ? 0.28 : 0,
       pocket: state
         ? c => flat(c, 25, -6.6, 4, 2.6, "hole")
         : c => {
@@ -335,24 +343,33 @@ define({
     ctx.fillStyle = color("hole");
     ctx.fill();
     const list = simple() ? BOULDERS.filter(b => b[2] > 6) : BOULDERS;
-    list.forEach(([x, y, r], i) => rock(ctx, x, y, r, i + 3));
+    list.map((b, i) => [...b, i]).sort((a, b) => a[1] - b[1]).forEach(([x, y, r, i]) => rock(ctx, x, y, r * 1.3, i + 3));
   }
 });
 
 const GIRDERS = [
   [6, -8, 42, -16, 5], [26, -34, 70, -6, 6], [16, -44, 60, -40, 5],
   [48, -58, 94, -22, 7], [62, -72, 114, -52, 6], [84, -92, 104, -28, 6],
-  [94, -90, 120, -74, 5], [36, -76, 58, -72, 4], [54, -88, 68, -93, 3]
+  [94, -90, 120, -74, 5], [36, -76, 58, -72, 4], [54, -88, 68, -93, 3],
+  [70, -40, 118, -12, 6], [30, -20, 56, -30, 4], [100, -70, 116, -6, 5]
 ];
-const CHUNKS = [[18, -6, 6], [52, -12, 7], [76, -28, 6], [100, -48, 7], [88, -10, 8], [110, -20, 6]];
+const MOUND = [[0, 0], [6, -5], [14, -6], [22, -12], [30, -11], [40, -24], [48, -22], [58, -36], [66, -34], [74, -50], [82, -48], [90, -64], [98, -62], [104, -80], [112, -84], [116, -94], [122, -92], [122, 0]];
+
+function chunks(n) {
+  const rnd = rng(17);
+  return Array.from({ length: n }, () => {
+    const x = 6 + rnd() * 112;
+    return [x, -rnd() * x * 0.72 - 3, 3.5 + rnd() * 4.5];
+  });
+}
 
 define({
   id: "fallenGirders",
   box: [-2, -98, 124, 0],
   draw(ctx) {
-    poly(ctx, [[0, 0], [10, -6], [26, -12], [42, -24], [58, -34], [74, -48], [90, -62], [104, -78], [116, -90], [122, -88], [122, 0]], "rust", 0);
+    poly(ctx, MOUND, "rust", 1);
     const debris = ["r0", "r1", "r2", "r3"];
-    (simple() ? CHUNKS.slice(0, 3) : CHUNKS).forEach(([x, y, r], i) => rock(ctx, x, y, r, i + 40, debris));
+    chunks(simple() ? 10 : 26).forEach(([x, y, r], i) => rock(ctx, x, y, r, i + 40, debris));
     for (const g of GIRDERS) beam(ctx, ...g);
   }
 });

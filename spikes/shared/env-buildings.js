@@ -127,12 +127,12 @@ function bricks(ctx, x, y, w, h, seed, bw = 12, bh = 5) {
   ctx.beginPath();
   ctx.rect(x, y, w, h);
   ctx.clip();
-  flat(ctx, x, y, w, h, "b0");
+  flat(ctx, x, y, w, h, "r0");
   for (let j = 0, yy = y + h - bh; yy > y - bh; j++, yy -= bh) {
     for (let xx = x - (j % 2 ? bw / 2 : 0); xx < x + w; xx += bw) {
-      const k = simple() ? 1 : r() < 0.18 ? 2 : r() < 0.15 ? 0 : 1;
-      flat(ctx, xx + 0.5, yy + 0.5, bw - 1, bh - 1, ["b0", "b1", "b2"][k]);
-      if (!simple()) flat(ctx, xx + 0.5, yy + 0.5, bw - 1, 0.8, k === 2 ? "b3" : "b2");
+      const k = simple() ? 1 : r() < 0.15 ? 2 : r() < 0.2 ? 0 : 1;
+      flat(ctx, xx + 0.5, yy + 0.5, bw - 1, bh - 1, ["#3a2414", "#4a3020", "#5c3e26"][k]);
+      if (!simple()) flat(ctx, xx + 0.5, yy + 0.5, bw - 1, 0.7, k === 2 ? "#7a5634" : "#5c3e26");
     }
   }
   ctx.restore();
@@ -147,8 +147,12 @@ function pane(ctx, x, y, w, h, cols, rows, seed, shot = null) {
   const r = rng(seed), cw = w / cols, ch = h / rows;
   for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
     const px = x + i * cw + 0.6, py = y + j * ch + 0.6;
-    flat(ctx, px, py, cw - 1.2, ch - 1.2, r() < 0.3 ? "c0" : "c1");
-    if (!simple()) shape(ctx, [[px, py + ch - 1.2], [px + (cw - 1.2) * 0.5, py], [px + cw - 1.2, py], [px, py + ch - 1.2]], "c2");
+    flat(ctx, px, py, cw - 1.2, ch - 1.2, r() < 0.35 ? "m1" : "c0");
+    if (!simple()) shape(ctx, [[px, py + ch - 1.2], [px + (cw - 1.2) * 0.35, py], [px + (cw - 1.2) * 0.6, py], [px + (cw - 1.2) * 0.2, py + ch - 1.2]], "c1");
+  }
+  flat(ctx, x, y, w, 4, "#00000066");
+  if (!simple()) for (let i = 1; i < cols; i++) for (let j = 1; j < rows; j++) {
+    if (r() < 0.4) line(ctx, [[x + i * cw - 1.5, y + j * ch], [x + i * cw + 1.5, y + j * ch]], "c3", 0.6);
   }
   if (shot) {
     const pts = blob(shot[0], shot[1], shot[2], shot[3], seed + 7, 18);
@@ -298,7 +302,6 @@ define({
     pane(ctx, 25, -70, 41, 41, 4, 4, 1);
     pane(ctx, 73, -70, 41, 41, 4, 4, 2, [92, -56, 15, 13]);
     pane(ctx, 120, -70, 41, 41, 4, 4, 3);
-    if (!simple()) for (const [x, y, l] of [[10, -40, 12], [168, -60, 8], [50, -20, 10]]) line(ctx, [[x, y], [x + 3, y + l * 0.5], [x + 1, y + l]], "k1", 0.6);
     slab(ctx, 190, -24, 40, 24, "concrete", 2);
     flat(ctx, 190, -24, 40, 3, "k3", "kLine");
     for (let x = 200; x < 230; x += 10) flat(ctx, x, -20, 1, 20, "k1");
@@ -366,9 +369,9 @@ define({
   box: [0, -168, 72, 0],
   draw(ctx) {
     bricks(ctx, 0, -168, 58, 168, 7);
-    flat(ctx, 58, -168, 14, 168, "b0", "brick");
-    cylV(ctx, 61, -168, 7, 168, "steel", 2);
-    for (let y = -150; y < 0; y += 36) box(ctx, 59.5, y, 10, 3, "steel", 1);
+    flat(ctx, 58, -168, 14, 168, "r0", "rust");
+    cylV(ctx, 61, -168, 7, 168, "concrete", 2);
+    for (let y = -150; y < 0; y += 36) box(ctx, 59.5, y, 10, 3, "concrete", 1);
   }
 });
 
@@ -377,9 +380,11 @@ const STOREY = 72;
 
 function bracePanel(ctx, x, y, w, h) {
   flat(ctx, x, y, w, h, "k0", "kLine");
-  flat(ctx, x + 3, y + 3, w - 6, h - 6, "b1");
-  shape(ctx, [[x + 3, y + h - 3], [x + w - 3, y + 3], [x + w - 3, y + h - 3]], "b0");
+  flat(ctx, x + 3, y + 3, w - 6, h - 6, "sky1");
+  shape(ctx, [[x + 3, y + h - 3], [x + w - 3, y + 3], [x + w - 3, y + h - 3]], "sky0");
+  flat(ctx, x + 3, y + 3, w - 6, 3, "#00000055");
   beam(ctx, [x + 4, y + 4], [x + w - 4, y + h - 4], 5, "concrete");
+  beam(ctx, [x + 4, y + h * 0.5], [x + w * 0.5, y + h - 4], 3, "concrete");
   shape(ctx, [[x + 3, y + 3], [x + 14, y + 3], [x + 3, y + 14]], "k2", "kLine");
   shape(ctx, [[x + w - 3, y + h - 3], [x + w - 14, y + h - 3], [x + w - 3, y + h - 14]], "k2", "kLine");
   if (!simple()) rivets(ctx, x + 4, y + h - 1.5, w - 8, 6, "k3");
@@ -396,6 +401,7 @@ define({
       if (kind === "panel") {
         flat(ctx, x, -336, w, 336, "k1", "kLine");
         for (let y = -STOREY; y > -336; y -= STOREY) bracePanel(ctx, x + 4, y + 6, w - 8, STOREY - 10);
+        grid(ctx, x + 6, -318, 4, 1, (w - 12) / 4 - 3, 18, 3, 0, "k0", "kLine");
       }
       x += w;
     }
@@ -405,14 +411,14 @@ define({
   }
 });
 
-const TAGS = [
-  ["neon", 4.5, [[40, -18], [46, -36], [52, -20], [58, -38], [64, -22]]],
-  ["a1", 4, [[70, -20], [74, -34], [84, -36], [80, -24], [92, -18], [96, -34]]],
-  ["neon", 3.5, [[100, -36], [104, -18], [112, -30], [118, -16], [124, -36]]],
-  ["c3", 1.6, [[38, -42], [60, -46], [90, -42], [120, -46], [134, -40]]],
-  ["c3", 1.4, [[42, -12], [56, -14], [78, -10], [96, -14], [126, -12]]],
-  ["a2", 2.2, [[128, -18], [132, -32], [138, -20]]]
-];
+const TAGS = (() => {
+  const r = rng(23);
+  return ["neon", "a1", "neon", "c3", "a2", "neon", "y2", "c3", "a1"].map((c, i) => {
+    const x0 = 34 + r() * 80, y0 = -14 - r() * 18, pts = [];
+    for (let k = 0, n = 4 + round(r() * 5); k < n; k++) pts.push([x0 + k * (3 + r() * 4), y0 - (k % 2 ? 4 + r() * 10 : r() * 3)]);
+    return [c, c === "c3" ? 1 : 1.6 + r() * 1.8, pts];
+  });
+})();
 
 function curve(ctx, pts, c, w) {
   ctx.strokeStyle = color(c);
@@ -431,11 +437,14 @@ define({
   box: [0, -74, 168, 0],
   draw(ctx) {
     const top = [[0, -30], [5, -36], [9, -34], [14, -46], [20, -44], [26, -56], [33, -54], [38, -64], [48, -62], [54, -68]];
-    shape(ctx, [[0, 0], ...top, [168, -68], [168, 0]], "k2", "kLine");
-    flat(ctx, 54, -72, 114, 4, "k3", "kLine");
-    flat(ctx, 0, -4, 168, 4, "k1", "kLine");
-    flat(ctx, 160, -68, 8, 64, "k1");
+    const right = [[168, -72], [164, -60], [168, -50], [162, -36], [166, -22], [160, -12], [164, 0]];
+    shape(ctx, [[0, 0], ...top, [54, -72], ...right], "k2", "kLine");
+    flat(ctx, 54, -72, 112, 4, "k3", "kLine");
+    flat(ctx, 0, -4, 164, 4, "k1");
+    for (const [cx, cy, rx, ry, sd] of [[30, -24, 10, 6, 1], [140, -50, 12, 8, 2], [96, -58, 14, 5, 3]]) shape(ctx, blob(cx, cy, rx, ry, sd), "k1");
+    shape(ctx, blob(16, -10, 4, 4, 4, 8), "hole");
     rebar(ctx, top, 8);
+    rebar(ctx, right, 9);
     for (const [c, w, pts] of TAGS) {
       if (simple() && w < 2) continue;
       curve(ctx, pts, "#1a0a06", w + 1.2);
@@ -449,7 +458,7 @@ define({
   id: "gantryBuilding",
   box: [0, -126, 182, 0],
   draw(ctx) {
-    truss(ctx, 0, -120, 182, 20, "steel", 2.5);
+    truss(ctx, 0, -120, 182, 20, "rust", 2.5);
     for (const x of [34, 150]) {
       box(ctx, x, -124, 20, 28, "steel", 2);
       if (!simple()) for (const y of [-121, -99]) rivets(ctx, x, y, 20, 5, "m3");
@@ -490,7 +499,7 @@ function glyph(ctx, ch, x, y, lit) {
   ctx.save();
   ctx.translate(x, y);
   if (lit && !simple()) glow(ctx, 8, 10, 18, "neonGlow", 0.35);
-  for (const [c, w] of lit ? [["#2a0806", 5.6], ["neon", 4.2], ["#ffb89a", 1.3]] : [["mLine", 5.6], ["m2", 4.2], ["m3", 1]]) {
+  for (const [c, w] of lit ? [["#2a0806", 7.4], ["#c22a1a", 6], ["neon", 4], ["#ffb89a", 1.2]] : [["mLine", 7.4], ["m1", 6], ["m2", 4]]) {
     ctx.beginPath();
     GLYPHS[ch](ctx);
     ctx.strokeStyle = color(c);
@@ -504,7 +513,7 @@ function glyph(ctx, ch, x, y, lit) {
 
 define({
   id: "barSign",
-  box: [0, -94, 96, 0],
+  box: [0, -106, 96, 0],
   anim: true,
   draw(ctx, state, t) {
     for (const [a, b] of [[[30, -62], [12, 0]], [[66, -62], [84, 0]], [[34, -62], [26, 0]], [[62, -62], [70, 0]]]) beam(ctx, a, b, 2.4, "rust");
@@ -515,9 +524,8 @@ define({
       beam(ctx, [l1, y1], [r1, y1], 1.4, "rust");
     }
     box(ctx, 24, -64, 48, 4, "rust", 2);
-    box(ctx, 4, -68, 88, 4, "rust", 1);
-    for (const x of [12, 46, 80]) flat(ctx, x, -92, 2, 24, "r1", "rLine");
-    flat(ctx, 4, -93, 88, 2, "r2", "rLine");
+    box(ctx, 2, -68, 92, 4, "rust", 1);
+    for (const [a, b] of [[[3, -68], [3, -94]], [[93, -68], [93, -94]], [[3, -94], [93, -94]], [[60, -94], [64, -104]]]) beam(ctx, a, b, 1.4, "rust");
     const rOn = state === 0 || (t * 1.7 % 1 < 0.35 && t % 2.3 > 0.4);
     glyph(ctx, "B", 6, -90, true);
     glyph(ctx, "A", 38, -90, true);
