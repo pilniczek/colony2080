@@ -130,7 +130,7 @@ flowchart LR
 - Intro cutscene and dying-rebel scene in mission 1 scope or not (cutscenes postponed).
 - Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Original stays default and keys are configurable; revisit after trying the sandbox.
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
-- Environment sheet: the 13 `machines` objects have no vector assets yet (`spikes/shared/env-machines.js` is empty); props, structures and buildings have all 13 each.
+- Environment sheet: all 52 objects drawn, first pass not reviewed. Guessed looks (no original sprite or unclear): code lock, item pickups on the ground (crowbar, E-Blaster, ship part, controller, crane key), hazard plate purpose, staircase treads.
 - Sandbox HUD shows live life, shields and weapon only. Ammo (350) and reserve (full) are fixed until phase 3 adds them. Shields start at `energy.shields` in `config/hero/movement.json`.
 - TODO: E-Blaster (mission 1 bonus weapon, subway pickup) needs its own design sheet spike first, like `spikes/gun-design/`. Then add it to HUD slot 3 in `spikes/hud-design/`; until then the slot stays empty.
 - Hero tuning values in `config/hero/movement.json` are first guesses until tuned in the sandbox.
