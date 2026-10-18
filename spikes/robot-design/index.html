@@ -64,7 +64,7 @@ const { PALETTE, LEVELS, buildFront, buildSide, buildBack, render } = window.XBO
 
 const pal = { ...PALETTE };
 const views = { front: buildFront(), side: buildSide(), sideLeft: buildSide({ badge: true }), back: buildBack() };
-const gameViews = { gFront: buildFront({ lod: true }), gSide: buildSide({ lod: true }), gSideLeft: buildSide({ badge: true, lod: true }), gBack: buildBack({ lod: true }) };
+const gameViews = { gFront: buildFront({ lod: true }), gSide: buildSide({ farLimbs: true, lod: true }), gSideLeft: buildSide({ farLimbs: true, badge: true, lod: true }), gBack: buildBack({ lod: true }) };
 const simple = new Set(Object.keys(gameViews));
 Object.assign(views, gameViews);
 const mirrored = new Set(["sideLeft", "gSideLeft"]);

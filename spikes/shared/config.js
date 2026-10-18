@@ -51,8 +51,8 @@ window.C28_CONFIG = {
     "minThickness": 8,
     "minArea": 400,
     "minRadius": 8,
-    "sideBulk": {
-     "legs": 1.45,
+    "bulk": {
+     "sideLegs": 1.45,
      "arms": 1.3
     }
    },

@@ -82,13 +82,13 @@ function climber(ctx, root, simple, lineW) {
 }
 
 const VIEWS = {
-  side: (ctx, lw) => { ctx.translate(250, 130); GUN.draw(ctx, { lineW: lw }); },
-  heldSide: (ctx, lw) => { ctx.translate(-80, 0); robot(ctx, roots.side, sidePose, "hand", false, lw); },
-  heldFront: (ctx, lw) => robot(ctx, roots.front, frontPose, "handL", false, lw, hold.FRONT_BARREL),
-  gSide: (ctx, lw) => { ctx.translate(-80, 0); robot(ctx, roots.gSide, sidePose, "hand", true, lw * 0.5); },
-  slungBack: (ctx, lw) => climber(ctx, roots.back, false, lw),
-  gFront: (ctx, lw) => robot(ctx, roots.gFront, frontPose, "handL", true, lw * 0.5, hold.FRONT_BARREL),
-  gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw * 0.5)
+  side: (ctx, lw) => { ctx.translate(250, 130); GUN.draw(ctx, { lineW: lw * 1.4 }); },
+  heldSide: (ctx, lw) => { ctx.translate(-80, 0); robot(ctx, roots.side, sidePose, "hand", false, lw * 1.4); },
+  heldFront: (ctx, lw) => robot(ctx, roots.front, frontPose, "handL", false, lw * 1.4, hold.FRONT_BARREL),
+  gSide: (ctx, lw) => { ctx.translate(-80, 0); robot(ctx, roots.gSide, sidePose, "hand", true, lw); },
+  slungBack: (ctx, lw) => climber(ctx, roots.back, false, lw * 1.4),
+  gFront: (ctx, lw) => robot(ctx, roots.gFront, frontPose, "handL", true, lw, hold.FRONT_BARREL),
+  gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw)
 };
 
 function draw() {
@@ -104,7 +104,7 @@ function draw() {
     const s = c.width / w;
     ctx.setTransform(s, 0, 0, s, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    view(ctx, opts.lines ? 2 * dpr : 0);
+    view(ctx, opts.lines ? dpr : 0);
   }
 }
 

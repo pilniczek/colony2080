@@ -98,7 +98,7 @@ function mirrorPts(pts, ax = AX) {
 let lod = null;
 
 function bulk(limb) {
-  return lod?.sideBulk?.[limb] ?? 1;
+  return lod?.bulk?.[limb] ?? 1;
 }
 
 function tiny(pts) {
@@ -269,8 +269,9 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   const foreTf = `translate(${mirror ? -FORE_SHIFT : FORE_SHIFT} -22)`;
   const under = foreUnder ? G(arm, foreTf, names.fore, el) : null;
   P(G(arm, `translate(${mirror ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
-  P(arm, { pts: M(bicep), r: 18, shade: "dome" });
-  P(arm, { pts: M(pauldron), r: 20, shade: "dome" });
+  const domes = G(arm, `translate(${sh[0]} 0) scale(${bulk("arms")} 1) translate(${-sh[0]} 0)`);
+  P(domes, { pts: M(bicep), r: 18, shade: "dome" });
+  P(domes, { pts: M(pauldron), r: 20, shade: "dome" });
   const fore = under || G(foreParent ? G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirror ? 2 * AX - 89 : 89;
   if (names.hand && propBehindArm) hook(G(fore, `translate(${fc} 440)`), names.hand);
@@ -365,7 +366,7 @@ function backTree({ leftArmBehind, rightForeBehind, thumbsBehind, forearmsUnder 
 }
 
 function sideLeg(parent, names, extra) {
-  const sx = 0.88 * bulk("legs");
+  const sx = 0.88 * bulk("sideLegs");
   const hip = G(parent, null, names.hip, [300, 344], extra);
   const th = G(hip, legTf("thigh", 296, sx));
   P(th, { pts: [[278, 342], [314, 342], [314, 440], [278, 440]], mat: "chrome", shade: "cyl", r: 1 });

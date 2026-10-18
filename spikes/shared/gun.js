@@ -54,7 +54,7 @@ function part(ctx, p, pal, lineW, simple) {
   }
 }
 
-function draw(ctx, { pal = PALETTE, lineW = 2, simple = false, barrel = BARREL.length } = {}) {
+function draw(ctx, { pal = PALETTE, lineW = 1.4, simple = false, barrel = BARREL.length } = {}) {
   for (const p of partsFor(barrel)) part(ctx, p, pal, lineW, simple);
 }
 

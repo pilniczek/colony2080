@@ -213,7 +213,7 @@ function placeRobot(root, x, y, ax, pose, hooks) {
   ctx.translate(x, y);
   ctx.scale(K, K);
   ctx.translate(-ax, -FOOT_Y);
-  renderBot(ctx, root, { pose, hooks, lineW: 1.6 * lineScale });
+  renderBot(ctx, root, { pose, hooks, lineW: 1.4 * lineScale });
   ctx.restore();
 }
 
