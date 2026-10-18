@@ -47,7 +47,7 @@ describe("use", () => {
     const g = game({ x: 21.5, y: 14 });
     tick(g, [], ["useItem"]);
     expect(g.hero.state).toBe("use");
-    expect(kinds(g, "use")).toHaveLength(1);
+    expect(kinds(g, "use")).toEqual([{ kind: "use", x: 21.5, y: 14 }]);
     expect(g.world.props.find((p) => p.kind === "panel")?.on).toBe(true);
     runUntil(g, (h) => h.state === "idle");
     expect(g.hero.state).toBe("idle");
@@ -140,6 +140,31 @@ describe("damage", () => {
     expect(g.hero.energy).toBe(cfg.energy.max);
   });
 
+  it("keeps a lethal fall lethal when hit mid-fall", () => {
+    const g = game({ x: 10, y: 4 });
+    runUntil(g, (h) => h.state === "fall", ["moveRight"]);
+    runUntil(g, (h) => h.y > 8);
+    damage(g.hero, cfg);
+    expect(g.hero.state).toBe("fall");
+    expect(g.hero.energy).toBe(75);
+    runUntil(g, (h) => h.onGround);
+    expect(g.hero.state).toBe("fallDeath");
+    expect(g.seen.has("hit")).toBe(false);
+  });
+
+  it("keeps the jump when hit mid-jump", () => {
+    const g = game();
+    tick(g, [], ["up"]);
+    run(g, 0.6);
+    expect(g.hero.onGround).toBe(false);
+    damage(g.hero, cfg);
+    expect(g.hero.state).toBe("standJump");
+    expect(g.hero.energy).toBe(75);
+    runUntil(g, (h) => h.state === "idle");
+    expect(g.seen.has("land")).toBe(true);
+    expect(g.seen.has("hit")).toBe(false);
+  });
+
   it("commits to hit and returns to idle", () => {
     const g = game();
     damage(g.hero, cfg);
@@ -188,6 +213,14 @@ describe("attack", () => {
     expect(g.hero.state).toBe("turn");
   });
 
+  it("punches again each loop while shoot is held", () => {
+    const g = game();
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 1.4, ["shoot"]);
+    expect(g.hero.state).toBe("attack");
+    expect(kinds(g, "punch")).toHaveLength(3);
+  });
+
   it("duck attacks from duck and returns to duck", () => {
     const g = game({ x: 7.5, y: 14, weapon: "gun" });
     run(g, 0.3, ["down"]);
@@ -220,6 +253,15 @@ describe("weapon switch", () => {
     expect(g.hero.weapon).toBe("fists");
     runUntil(g, (h) => h.state === "idle");
     expect(g.hero.weapon).toBe("fists");
+  });
+
+  it("switches once on a simultaneous weapon1 and weapon2 press", () => {
+    const g = game();
+    tick(g, [], ["weapon1", "weapon2", "weapon3"]);
+    expect(g.hero.state).toBe("weaponSwitch");
+    expect(g.buffer.size).toBe(0);
+    runUntil(g, (h) => h.state === "idle");
+    expect(g.hero.weapon).toBe("gun");
   });
 
   it("ignores the slot already selected and weapon3", () => {

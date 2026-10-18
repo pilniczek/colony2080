@@ -140,7 +140,7 @@ export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   if (h.hidden || isDead(h.state)) return events;
   h.energy = Math.max(0, h.energy - cfg.energy.hit);
   if (h.energy === 0) die(h, "death", events);
-  else enter(h, "hit");
+  else if (!isAirborne(h.state)) enter(h, "hit");
   return events;
 }
 
@@ -152,13 +152,13 @@ function gait(s: Step): void {
   if (h.state !== next) enter(h, next);
 }
 
-function shot(s: Step): void {
-  s.events.push({ kind: "shot", x: s.h.x, y: s.h.y });
+function emit(s: Step, kind: HeroEvent["kind"]): void {
+  s.events.push({ kind, x: s.h.x, y: s.h.y });
 }
 
 function startAttack(s: Step, state: "attack" | "duckAttack"): void {
   enter(s.h, state);
-  if (s.h.weapon === "gun") shot(s);
+  if (s.h.weapon === "gun") emit(s, "shot");
 }
 
 function act(s: Step): boolean {
@@ -167,7 +167,7 @@ function act(s: Step): boolean {
   if (panel && s.consume("useItem")) {
     enter(h, "use");
     panel.on = !panel.on;
-    s.events.push({ kind: "use", x: panel.x, y: panel.y ?? h.y });
+    emit(s, "use");
     return true;
   }
   if (!s.consume("shoot")) return false;
@@ -183,9 +183,13 @@ function switchWeapon(s: Step, weapon: Weapon): void {
   h.time = clipOf(s).duration;
 }
 
-function stance(s: Step): boolean {
+function weaponSlot(s: Step): Weapon | null {
+  const [gun, fists] = ["weapon1", "weapon2", "weapon3"].map((slot) => s.consume(slot));
+  return gun ? "gun" : fists ? "fists" : null;
+}
+
+function stance(s: Step, slot: Weapon | null): boolean {
   const { h, input, world } = s;
-  const slot = s.consume("weapon1") ? "gun" : s.consume("weapon2") ? "fists" : null;
   if (slot && slot !== h.weapon) {
     switchWeapon(s, slot);
     return true;
@@ -202,6 +206,7 @@ function stance(s: Step): boolean {
 
 function idle(s: Step): void {
   const { h, input, world } = s;
+  const slot = weaponSlot(s);
   if (h.onLift) {
     if (s.consume("up")) callLift(world.lift, -1);
     else if (s.consume("down")) callLift(world.lift, 1);
@@ -210,7 +215,7 @@ function idle(s: Step): void {
   } else if (input.held.has("down") && atLadderTop(s)) {
     return enterLadder(h);
   }
-  if (act(s) || stance(s)) return;
+  if (act(s) || stance(s, slot)) return;
   if (input.dir !== 0) gait(s);
 }
 
@@ -245,23 +250,15 @@ function leaveAttack(s: Step): void {
   else gait(s);
 }
 
-const jabPeaks = (clip: Clip): number[] => {
-  const rest = clip.pose[0]![1];
-  return clip.pose.filter(([, p]) => Object.keys(p).some((j) => p[j] !== rest[j])).map(([t]) => t);
-};
-
 function attack(s: Step): void {
   const { h, input, cfg } = s;
   if (h.weapon === "gun") {
     const shots = (t: number): number => Math.floor(t * cfg.fireRate + SHOT_EPS);
-    if (shots(h.time) > shots(s.prev)) shot(s);
+    if (shots(h.time) > shots(s.prev)) emit(s, "shot");
     if (!input.held.has("shoot")) leaveAttack(s);
     return;
   }
   const clip = clipOf(s);
-  for (const t of jabPeaks(clip)) {
-    if (crossedLoop(s, t, clip.duration)) s.events.push({ kind: "punch", x: h.x, y: h.y });
-  }
   if (h.time < (clip.cancelAt ?? clip.duration)) return;
   if (!input.held.has("shoot") || input.dir !== 0) leaveAttack(s);
 }
@@ -342,14 +339,16 @@ function pickup(s: Step): void {
   const item = touching(s, "item");
   if (!item) return;
   item.taken = true;
-  s.events.push({ kind: "pickup", x: item.x, y: s.h.y });
+  emit(s, "pickup");
 }
 
 function clipEvents(s: Step): void {
   const { h, cfg } = s;
-  for (const [t, name] of clipOf(s).events ?? []) {
-    if (!crossed(s, t)) continue;
+  const clip = clipOf(s);
+  for (const [t, name] of clip.events ?? []) {
+    if (!(clip.loop ? crossedLoop(s, t, clip.duration) : crossed(s, t))) continue;
     if (name === "pickup") pickup(s);
+    if (name === "punch") emit(s, "punch");
     if (name === "launch") {
       h.vy = -Math.sqrt(2 * cfg.gravity * launchHeight(h.state, cfg));
       h.onGround = false;

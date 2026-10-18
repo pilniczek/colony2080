@@ -163,7 +163,8 @@
         [0.744, {"body": 2, "hipNear": -16, "kneeNear": 10, "ankleNear": 2.8, "hipFar": 14, "kneeFar": 6, "ankleFar": -15.4, "arm": -38, "fore": -92, "armFar": -84, "foreFar": 6}],
         [0.984, {"body": 2, "hipNear": -16, "kneeNear": 10, "ankleNear": 2.8, "hipFar": 14, "kneeFar": 6, "ankleFar": -15.4, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}],
         [1.2, {"body": 2, "hipNear": -16, "kneeNear": 10, "ankleNear": 2.8, "hipFar": 14, "kneeFar": 6, "ankleFar": -15.4, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}]
-      ]
+      ],
+      "events": [[0.144, "punch"], [0.744, "punch"]]
     },
     "duckPunch": {
       "duration": 1,
@@ -173,7 +174,8 @@
         [0.12, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -70, "fore": 10, "armFar": 0, "foreFar": 0}],
         [0.32, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}],
         [1, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -54, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -38, "fore": -92, "armFar": -30, "foreFar": -96}]
-      ]
+      ],
+      "events": [[0.12, "punch"]]
     },
     "shoot": {
       "duration": 1.2,
