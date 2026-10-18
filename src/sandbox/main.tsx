@@ -103,6 +103,7 @@ const push = (): void => {
     vy: hero.vy,
     energy: hero.energy,
     weapon: hero.weapon,
+    running: hero.running,
     emitterOn: world.emitter.on,
     fps: Math.round(fps),
     inputLog,

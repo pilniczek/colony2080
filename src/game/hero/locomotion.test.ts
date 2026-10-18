@@ -1,7 +1,7 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import type { Hero } from "./hero";
-import { cfg, clips, dt, game, run, runUntil, tick, type Game } from "./testWorld";
+import { cfg, clips, dt, game, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
 
 const walkSpeed = clips.walk!.travel! / clips.walk!.duration;
 const runSpeed = clips.run!.travel! / clips.run!.duration;
@@ -31,20 +31,33 @@ describe("walk and run", () => {
 
   it("runs the run clip travel per duration with the run modifier", () => {
     const g = game();
-    run(g, 1, ["moveRight", "runModifier"]);
+    run(g, 1, ["moveRight", RUNNING]);
     expect(g.hero.state).toBe("run");
     expect(Math.abs(g.hero.x - 7.5 - runSpeed)).toBeLessThan(0.05);
   });
 
-  it("swaps walk and run when the run modifier toggles", () => {
+  it("toggles between walk and run on each run press and keeps the mode", () => {
     const g = game();
     run(g, 0.2, ["moveRight"]);
-    tick(g, ["moveRight", "runModifier"]);
+    tick(g, ["moveRight"], ["runToggle"]);
+    expect(g.hero).toMatchObject({ state: "run", running: true });
+    run(g, 0.5, ["moveRight"]);
     expect(g.hero.state).toBe("run");
-    tick(g, ["moveRight"]);
-    expect(g.hero.state).toBe("walk");
     tick(g);
     expect(g.hero.state).toBe("idle");
+    tick(g, ["moveLeft"]);
+    tick(g, ["moveLeft"]);
+    expect(g.hero.state).toBe("run");
+    tick(g, ["moveLeft"], ["runToggle"]);
+    expect(g.hero).toMatchObject({ state: "walk", running: false });
+  });
+
+  it("toggles run mode while standing", () => {
+    const g = game();
+    tick(g, [], ["runToggle"]);
+    expect(g.hero).toMatchObject({ state: "idle", running: true });
+    tick(g, ["moveRight"]);
+    expect(g.hero.state).toBe("run");
   });
 });
 
@@ -87,7 +100,7 @@ const landsNextTick = (h: Hero): boolean => {
 };
 
 describe("jumps", () => {
-  for (const [jump, gait, held] of [["walkJump", "walk", ["moveRight"]], ["runJump", "run", ["moveRight", "runModifier"]]] as const) {
+  for (const [jump, gait, held] of [["walkJump", "walk", ["moveRight"]], ["runJump", "run", ["moveRight", RUNNING]]] as const) {
     it(`${jump} lands back into ${gait} at take-off phase plus air time`, () => {
       const g = game();
       run(g, 0.4, [...held]);
@@ -108,7 +121,7 @@ describe("jumps", () => {
     });
   }
 
-  for (const [jump, held, speed] of [["walkJump", ["moveRight"], walkSpeed], ["runJump", ["moveRight", "runModifier"], cfg.jump.runSpeed]] as const) {
+  for (const [jump, held, speed] of [["walkJump", ["moveRight"], walkSpeed], ["runJump", ["moveRight", RUNNING], cfg.jump.runSpeed]] as const) {
     it(`${jump} with up buffered before touchdown jumps again keeping the gait phase and speed`, () => {
       const takeOff = (): Game => {
         const g = game();
@@ -200,10 +213,10 @@ describe("jumps", () => {
 
   it("flips and reverses speed on an opposite arrow mid-air with arc and air time unchanged", () => {
     const plain = game({ x: 7.5, y: 14, state: "run" });
-    tick(plain, ["moveRight", "runModifier"], ["up"]);
+    tick(plain, ["moveRight", RUNNING], ["up"]);
     const base = peakAndAir(plain);
     const g = game({ x: 7.5, y: 14, state: "run" });
-    tick(g, ["moveRight", "runModifier"], ["up"]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
     expect(g.hero.vx).toBeCloseTo(cfg.jump.runSpeed, 9);
     tick(g, ["moveLeft"]);
     expect(g.hero).toMatchObject({ state: "runJump", facing: -1 });
@@ -215,13 +228,13 @@ describe("jumps", () => {
 
   it("flips once per opposite press for many presses mid-air", () => {
     const g = game({ x: 7.5, y: 14, state: "run" });
-    tick(g, ["moveRight", "runModifier"], ["up"]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
     const keys = ["moveLeft", "moveLeft", "", "moveRight", "moveRight", "", "moveLeft", "moveLeft"];
     for (const key of keys) tick(g, key ? [key] : []);
     expect(g.hero).toMatchObject({ state: "runJump", facing: -1 });
     expect(g.hero.vx).toBeCloseTo(-cfg.jump.runSpeed, 9);
     const plain = game({ x: 7.5, y: 14, state: "run" });
-    tick(plain, ["moveRight", "runModifier"], ["up"]);
+    tick(plain, ["moveRight", RUNNING], ["up"]);
     run(plain, keys.length / 60);
     expect(g.hero.y).toBeCloseTo(plain.hero.y, 9);
     expect(g.hero.vy).toBeCloseTo(plain.hero.vy, 9);
@@ -229,7 +242,7 @@ describe("jumps", () => {
 
   it("clears the 3-cell gap with a running jump from x 27.6", () => {
     const g = game({ x: 27.6, y: 14, state: "run" });
-    tick(g, ["moveRight", "runModifier"], ["up"]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
     expect(g.hero.state).toBe("runJump");
     runUntil(g, (h) => h.onGround);
     expect(g.hero.state).toBe("idle");
@@ -239,7 +252,7 @@ describe("jumps", () => {
 
   it("falls into the pit from a running jump at the 4-cell gap", () => {
     const g = game({ x: 33.6, y: 14, state: "run" });
-    tick(g, ["moveRight", "runModifier"], ["up"]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
     run(g, 2);
     expect(g.hero.state).toBe("fallDeath");
     expect(g.seen.has("idle")).toBe(false);
@@ -250,7 +263,7 @@ describe("jumps", () => {
 describe("falls", () => {
   it("survives a running jump down a 7-cell drop, measured from take-off", () => {
     const g = game({ x: 10.6, y: 7, state: "run" }, dropLevel);
-    tick(g, ["moveRight", "runModifier"], ["up"]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
     expect(g.hero.state).toBe("runJump");
     runUntil(g, (h) => h.onGround);
     expect(g.hero.state).toBe("idle");
@@ -355,7 +368,7 @@ describe("ladder", () => {
 });
 
 describe("ladder from a gait", () => {
-  for (const held of [["moveRight"], ["moveRight", "runModifier"]]) {
+  for (const held of [["moveRight"], ["moveRight", RUNNING]]) {
     it(`grabs the ladder on up while ${held.length > 1 ? "running" : "walking"}`, () => {
       const g = game({ x: 3.15, y: 14, state: held.length > 1 ? "run" : "walk" });
       tick(g, held, ["up"]);
@@ -393,9 +406,9 @@ describe("lift", () => {
   it("still run jumps across the lift", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
-    tick(g, ["moveRight", "runModifier"]);
+    tick(g, ["moveRight", RUNNING]);
     expect(g.hero).toMatchObject({ state: "run", onLift: true });
-    tick(g, ["moveRight", "runModifier"], ["up"]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
     expect(g.hero.state).toBe("runJump");
     expect(g.world.lift.target).toBeNull();
   });

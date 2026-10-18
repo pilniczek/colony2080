@@ -6,7 +6,7 @@
     "moveRight": ["ArrowRight"],
     "up": ["ArrowUp"],
     "down": ["ArrowDown"],
-    "runModifier": ["AltLeft", "AltRight"],
+    "runToggle": ["AltLeft", "AltRight"],
     "shoot": ["ControlLeft", "ControlRight"],
     "hide": ["ShiftLeft", "ShiftRight"],
     "pickUp": ["ArrowDown", "Enter"],

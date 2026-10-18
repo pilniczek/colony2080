@@ -4,7 +4,7 @@ import { holdPoses } from "../robot/gun";
 import { gaitBob, gaitPose, RUN, SPIKE_K, TAU, WALK } from "./gait";
 import { createHero, damage, type Hero } from "./hero";
 import { createRigs, heroLook } from "./look";
-import { cfg, clips, game, tick, type Game } from "./testWorld";
+import { cfg, clips, game, RUNNING, tick, type Game } from "./testWorld";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -182,7 +182,7 @@ describe("hero look", () => {
   for (const [state, start, at, held, end, window, slope] of [
     ["standJump", jumpFrom([]), undefined, [], "idle", 0.08, 1.5],
     ["walkJump", jumpFrom(["moveRight"]), undefined, ["moveRight"], "walk", 0.06, 1],
-    ["runJump", jumpFrom(["moveRight", "runModifier"]), undefined, ["moveRight", "runModifier"], "run", 0.06, 1],
+    ["runJump", jumpFrom(["moveRight", RUNNING]), undefined, ["moveRight", RUNNING], "run", 0.06, 1],
     ["fall", walkOff, { x: 15, y: 11 }, [], "idle", 0.1, 1.5],
   ] as const) {
     it(`${state} lands without a pose snap`, () => {
@@ -236,10 +236,10 @@ describe("hero look", () => {
   for (const [state, gait, g, leap] of [["walkJump", "walk", WALK, LEAP], ["runJump", "run", RUN, LONG_LEAP]] as const) {
     it(`${state} blends from the gait pose at take-off into the leap`, () => {
       const g0 = game();
-      for (let i = 0; i < 23; i++) tick(g0, gait === "run" ? ["moveRight", "runModifier"] : ["moveRight"]);
+      for (let i = 0; i < 23; i++) tick(g0, gait === "run" ? ["moveRight", RUNNING] : ["moveRight"]);
       expect(g0.hero.state).toBe(gait);
       const before = heroLook(g0.hero, clips, rigs, hold);
-      tick(g0, gait === "run" ? ["moveRight", "runModifier"] : ["moveRight"], ["up"]);
+      tick(g0, gait === "run" ? ["moveRight", RUNNING] : ["moveRight"], ["up"]);
       expect(g0.hero.state).toBe(state);
       const after = heroLook(g0.hero, clips, rigs, hold);
       for (const k of LEGS) expect(Math.abs(angle(after.pose, k) - angle(before.pose, k)), k).toBeLessThan(15);
@@ -285,9 +285,9 @@ describe("hero look", () => {
 
   it("death in a running jump goes limp, lies down and drops the gun on landing", () => {
     const g = game();
-    for (let i = 0; i < 20; i++) tick(g, ["moveRight", "runModifier"]);
-    tick(g, ["moveRight", "runModifier"], ["up"]);
-    for (let i = 0; i < 10; i++) tick(g, ["moveRight", "runModifier"]);
+    for (let i = 0; i < 20; i++) tick(g, ["moveRight", RUNNING]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
+    for (let i = 0; i < 10; i++) tick(g, ["moveRight", RUNNING]);
     g.hero.weapon = "gun";
     g.hero.energy = cfg.energy.hit;
     damage(g.hero, cfg);

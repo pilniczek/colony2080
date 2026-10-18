@@ -25,6 +25,7 @@ export interface Hero {
   fallGait: GaitName | null;
   landing: Landing | null;
   hitAge: number | null;
+  running: boolean;
 }
 
 export interface Landing {
@@ -76,6 +77,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     fallGait: null,
     landing: null,
     hitAge: null,
+    running: false,
   };
 }
 
@@ -194,7 +196,7 @@ function gait(s: Step): void {
     h.facing = input.dir;
     if (h.state === "idle") return;
   }
-  const next = input.held.has("runModifier") ? "run" : "walk";
+  const next = h.running ? "run" : "walk";
   if (h.state !== next) enter(h, next);
 }
 
@@ -318,6 +320,7 @@ function leaveAttack(s: Step): void {
 function attack(s: Step): void {
   const { h, input, cfg } = s;
   if (h.weapon === "gun") {
+    if (input.dir !== 0) h.facing = input.dir;
     const shots = (t: number): number => Math.floor(t * cfg.fireRate + SHOT_EPS);
     if (shots(h.time) > shots(s.prev)) emit(s, "shot");
     if (!input.held.has("shoot")) leaveAttack(s);
@@ -441,7 +444,7 @@ function settle(s: Step, startY: number): void {
   if (!isAirborne(h.state)) return;
   if (h.y - h.fallFrom > cfg.fallDeathCells) return die(h, "fallDeath", s.events);
   const landing = { from: h.state, time: h.time, age: 0 };
-  enter(h, s.input.dir === 0 ? "idle" : s.input.held.has("runModifier") ? "run" : "walk");
+  enter(h, s.input.dir === 0 ? "idle" : h.running ? "run" : "walk");
   h.landing = landing;
   resumeGait(s, landing);
   if (h.state === "idle") idle(s);
@@ -505,6 +508,7 @@ export function updateHero(
   h.time += dt * h.rate;
   if (h.hitAge !== null) h.hitAge += dt;
   if (h.landing) h.landing.age += dt;
+  if (consume("runToggle")) h.running = !h.running;
   clipEvents(s);
   transitions[h.state]?.(s);
   if (isDead(h.state)) fallDead(s);

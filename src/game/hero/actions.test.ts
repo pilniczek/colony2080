@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { damage, kill } from "./hero";
-import { cfg, game, run, runUntil, tick, type Game } from "./testWorld";
+import { cfg, game, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
 
 const kinds = (g: Game, kind: string) => g.events.filter((e) => e.kind === kind);
 
@@ -130,9 +130,9 @@ describe("dead body", () => {
 
   it("keeps flying when killed in a running jump, then slides to rest", () => {
     const g = game({ x: 3, y: 14 });
-    run(g, 0.3, ["moveRight", "runModifier"]);
-    tick(g, ["moveRight", "runModifier"], ["up"]);
-    run(g, 0.1, ["moveRight", "runModifier"]);
+    run(g, 0.3, ["moveRight", RUNNING]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
+    run(g, 0.1, ["moveRight", RUNNING]);
     const vx = g.hero.vx;
     lethal(g);
     expect(g.hero.state).toBe("jumpDeath");
@@ -251,7 +251,7 @@ describe("damage", () => {
     ["jump", () => { const g = game(); tick(g, [], ["up"]); run(g, 0.1); return g; }, []],
     ["ladder", () => { const g = game({ x: 3.4, y: 14 }); tick(g, [], ["up"]); run(g, 0.5, ["up"]); return g; }, ["up"]],
     ["use", () => { const g = game({ x: 21.5, y: 14 }); tick(g, [], ["useItem"]); run(g, 0.1); return g; }, []],
-    ["runJump", () => { const g = game({ x: 7.5, y: 14, state: "run" }); tick(g, ["moveRight", "runModifier"], ["up"]); run(g, 0.1); return g; }, []],
+    ["runJump", () => { const g = game({ x: 7.5, y: 14, state: "run" }); tick(g, ["moveRight", RUNNING], ["up"]); run(g, 0.1); return g; }, []],
     ["kneel", () => { const g = game({ x: 9.5, y: 14 }); tick(g, ["down"]); run(g, 0.3); return g; }, []],
   ];
 
@@ -276,6 +276,30 @@ describe("damage", () => {
 });
 
 describe("attack", () => {
+  it("turns while shooting the gun without a break in the fire", () => {
+    const plain = game({ x: 10.5, y: 14, weapon: "gun" });
+    tick(plain, ["shoot"], ["shoot"]);
+    run(plain, 59 / 60, ["shoot"]);
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.3, ["shoot"]);
+    tick(g, ["shoot", "moveLeft"]);
+    expect(g.hero).toMatchObject({ state: "attack", facing: -1, x: 10.5 });
+    run(g, 0.2, ["shoot", "moveLeft"]);
+    tick(g, ["shoot", "moveRight"]);
+    expect(g.hero).toMatchObject({ state: "attack", facing: 1, x: 10.5 });
+    run(g, 59 / 60 - 0.5 - 2 / 60, ["shoot"]);
+    expect(kinds(g, "shot")).toHaveLength(kinds(plain, "shot").length);
+  });
+
+  it("turns while duck shooting the gun", () => {
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    run(g, 0.5, ["down"]);
+    tick(g, ["down", "shoot"], ["shoot"]);
+    tick(g, ["down", "shoot", "moveLeft"]);
+    expect(g.hero).toMatchObject({ state: "duckAttack", facing: -1 });
+  });
+
   it("fires 12 shots in 1 s with the gun held and stands still", () => {
     const g = game({ x: 7.5, y: 14, weapon: "gun" });
     tick(g, ["shoot"], ["shoot"]);

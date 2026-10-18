@@ -67,6 +67,8 @@ flowchart LR
 | Melee | Punches only, no kick. Fists are a selectable weapon (slot 2) | user |
 | Hide look | Front view with dark tint | user |
 | Hide input | Hold Shift to stay hidden, release to step out. Works anywhere except on a moving lift | user |
+| Run input | Alt toggles run mode: one press runs, the next walks; the mode stays until pressed again. Holding Alt + arrow + Up was unreliable (key chords, browser shortcuts) | user |
+| Turn while shooting | Left or Right while shooting the gun (standing or ducked) turns the hero, the fire does not stop | user |
 | Lift input | One Up or Down press starts a ride to the next stop; the lift stops there on its own. On the lift Up and Down only call the lift (no jump, no duck) | user |
 | Sandbox hits | Sandbox has a projectile emitter firing periodically at chest height to try hit, duck and hide | user |
 | Sandbox enemy | One idle enemy stands on the island right of the pit: the player robot in greyscale, holding the gun, facing the player. It does not move or shoot yet. 14 hero bullets destroy it (14 machine-gun hits, `docs/research/reports/10-level1-enemies.md`) in a cluster of orange fireballs, and it leaves a scrap pile (`LEV1.GRA` f22, video A 4:22). It comes back after 5 s. Emitter bullets pass it, and it does not block the hero | user (look, death, respawn), Claude's call (spot, hit count, emitter) |
