@@ -48,15 +48,14 @@ const DEFS = `<defs>
   <linearGradient id="bevelUp" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="${HI}" stop-opacity=".85"/><stop offset=".4" stop-color="${HI}" stop-opacity=".25"/><stop offset=".6" stop-color="${LO}" stop-opacity=".35"/><stop offset="1" stop-color="${LO}" stop-opacity=".95"/></linearGradient>
   <linearGradient id="bevelDown" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="${LO}" stop-opacity=".95"/><stop offset=".4" stop-color="${LO}" stop-opacity=".35"/><stop offset=".6" stop-color="${HI}" stop-opacity=".2"/><stop offset="1" stop-color="${HI}" stop-opacity=".75"/></linearGradient>
   <linearGradient id="rodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3128"/><stop offset=".3" stop-color="#f0e4cc"/><stop offset=".55" stop-color="#8a7a64"/><stop offset="1" stop-color="#1a140f"/></linearGradient>
-  <linearGradient id="pipeG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0e1e1c"/><stop offset=".35" stop-color="#7fb8ae"/><stop offset=".6" stop-color="#3a6a64"/><stop offset="1" stop-color="#0a1412"/></linearGradient>
   <radialGradient id="lampOn" cx=".5" cy=".42" r=".62"><stop offset="0" stop-color="#fff6e4"/><stop offset=".18" stop-color="#ffb08a"/><stop offset=".42" stop-color="#ff3a16"/><stop offset=".78" stop-color="#b80c02"/><stop offset="1" stop-color="#4a0400"/></radialGradient>
   <radialGradient id="lampOff" cx=".5" cy=".4" r=".62"><stop offset="0" stop-color="#6e2a1e"/><stop offset=".5" stop-color="#3c0d07"/><stop offset="1" stop-color="#170403"/></radialGradient>
   <radialGradient id="halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4020" stop-opacity=".7"/><stop offset=".5" stop-color="#ff2a10" stop-opacity=".25"/><stop offset="1" stop-color="#ff2a10" stop-opacity="0"/></radialGradient>
   <radialGradient id="shieldOn" cx=".45" cy=".4" r=".65"><stop offset="0" stop-color="#fffbe0"/><stop offset=".3" stop-color="#ffe060"/><stop offset=".75" stop-color="#d89a10"/><stop offset="1" stop-color="#6a4400"/></radialGradient>
   <radialGradient id="shieldOff" cx=".45" cy=".4" r=".65"><stop offset="0" stop-color="#5a5228"/><stop offset=".6" stop-color="#34301a"/><stop offset="1" stop-color="#1a170c"/></radialGradient>
   <radialGradient id="screwHead" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#e6d8c0"/><stop offset=".45" stop-color="#8a7a64"/><stop offset="1" stop-color="#2e261e"/></radialGradient>
-  <pattern id="grid" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><rect width="3.2" height="3.2" fill="#140c05"/><path d="M0 .2H3.2M.2 0V3.2" stroke="#9a5c0c" stroke-width=".35"/></pattern>
-  <pattern id="circuit" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#14221d"/><path d="M1 1H8V5H12M3 13V8H6V11M10 8H13M1 6H4" fill="none" stroke="#3c6a58" stroke-width=".6"/><circle cx="12" cy="5" r=".8" fill="#5f9680"/><circle cx="6" cy="11" r=".8" fill="#5f9680"/></pattern>
+  <pattern id="grid" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><rect width="3.2" height="3.2" fill="#120b05"/><path d="M0 .1H3.2M.1 0V3.2" stroke="#5a360c" stroke-width=".2"/></pattern>
+  <pattern id="circuit" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#111a17"/><path d="M1 1H8V5H12M3 13V8H6V11M10 8H13M1 6H4" fill="none" stroke="#24403a" stroke-width=".35"/><circle cx="12" cy="5" r=".55" fill="#2f5249"/><circle cx="6" cy="11" r=".55" fill="#2f5249"/></pattern>
   <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".35"/></filter>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
@@ -166,7 +165,6 @@ function leftColumn(s: HudState): string {
   <path d="M9.8 80.5h1.4M9.8 100.5h1.4M9.8 120.5h1.4M9.8 140.5h1.4" stroke="${HI}" stroke-opacity=".5" stroke-width=".3"/>
   <path d="M0 ${y - 2.5}l3.4 2.5L0 ${y + 2.5}z" fill="#ff3018" filter="url(#glow)"/>
   <path d="M0 ${y - 1.9}l2 1.4" stroke="#ffd0b0" stroke-width=".3"/>
-  ${screw(6.6, 34)}${screw(6.6, 186)}
   ${keyBox(0.6, "E")}`;
 }
 
@@ -185,30 +183,12 @@ function rightColumn(W: number, s: HudState): string {
   <rect x="${x + 3.4}" y="110.6" width="11.8" height="51.8" rx="1.4" fill="url(#plate)"/>
   ${bevel(x + 3.4, 110.6, 11.8, 51.8, 1.4, true, 0.4)}
   ${lights}
-  ${screw(x + 9.3, 34)}${screw(x + 9.3, 186)}
   ${keyBox(x + 3.3, "S")}`;
 }
 
-function pipe(x: number, clampSide: number): string {
-  const y0 = 26, h = 166, clamps: string[] = [];
-  for (let y = y0 + 20; y < y0 + h - 8; y += 16)
-    clamps.push(`<rect x="${x + clampSide}" y="${y}" width="1.6" height="1.8" rx=".3" fill="#c09a30"/><rect x="${x + clampSide}" y="${y}" width="1.6" height=".5" fill="#ffe08a" opacity=".7"/>`);
-  return `<rect x="${x}" y="${y0}" width="1.8" height="${h}" fill="url(#pipeG)"/>${clamps.join("")}`;
-}
-
 function sides(W: number): string {
-  return `<rect width="16" height="192" fill="url(#circuit)"/>
-  <rect x="${W - 16}" width="16" height="192" fill="url(#circuit)"/>
-  ${pipe(13.2, -1.4)}${pipe(W - 15.2, 1.8)}
-  <path d="M.4 0V192M${W - 15.6} 26V192" stroke="${HI}" stroke-opacity=".35" stroke-width=".4"/>
-  <path d="M15.6 26V192M${W - 0.4} 0V192" stroke="${LO}" stroke-width=".5"/>`;
-}
-
-function viewWindow(W: number): string {
-  const { left, top: t, right, bottom } = VIEW_BOX;
-  const w = W - left - right, h = HUD_H - t - bottom;
-  return `<rect x="${left}" y="${t}" width="${w}" height="${h}" fill="none" stroke="#000" stroke-opacity=".55" stroke-width="2.4" filter="url(#soft)"/>
-  ${bevel(left - 0.6, t - 0.4, w + 1.2, h + 0.8, 0, false, 0.7)}`;
+  return `<rect width="${VIEW_BOX.left}" height="192" fill="url(#circuit)"/>
+  <rect transform="translate(${W - VIEW_BOX.right} 0)" width="${VIEW_BOX.right}" height="192" fill="url(#circuit)"/>`;
 }
 
 function bottom(W: number): string {
@@ -227,5 +207,5 @@ function frame(W: number): string {
 
 export function hudSvg(W: number, s: HudState, icons: HudIcons): string {
   return `<svg viewBox="0 0 ${W} ${HUD_H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">${DEFS}
-  ${frame(W)}${sides(W)}${viewWindow(W)}${top(W, s, icons)}${leftColumn(s)}${rightColumn(W, s)}${bottom(W)}</svg>`;
+  ${frame(W)}${sides(W)}${top(W, s, icons)}${leftColumn(s)}${rightColumn(W, s)}${bottom(W)}</svg>`;
 }
