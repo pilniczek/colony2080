@@ -88,24 +88,19 @@ describe("hero bullets", () => {
     expect(g.world.sparks).toMatchObject([{ x: 1 }]);
   });
 
-  it("stops at the hanging bag with a spark on its face", () => {
+  it("passes through props the hero walks through", () => {
     const g = armed(11.5);
-    fire(g, 0.5);
-    const bag = g.world.props.find((p) => p.kind === "bag")!;
-    expect(bullets(g).every((b) => b.x < bag.x)).toBe(true);
-    expect(g.world.sparks.length).toBeGreaterThan(0);
-    for (const s of g.world.sparks) expect(s.x).toBeLessThan(bag.x);
-    for (const s of g.world.sparks) expect(s.x).toBeGreaterThan(bag.x - 0.5);
+    fire(g, 3);
+    const passed = (kind: string) => g.world.props.find((p) => p.kind === kind)!.x;
+    expect(bullets(g).some((b) => b.x > passed("barrel"))).toBe(true);
+    expect(g.world.sparks.every((s) => s.x === 39)).toBe(true);
   });
 
-  it("stops at the target with a spark on its face", () => {
-    const g = armed(14.5);
-    fire(g, 1.5);
-    const target = g.world.props.find((p) => p.kind === "target")!;
-    expect(bullets(g).every((b) => b.x < target.x)).toBe(true);
-    expect(g.world.sparks.length).toBeGreaterThan(0);
-    for (const s of g.world.sparks) expect(s.x).toBeLessThan(target.x);
-    for (const s of g.world.sparks) expect(s.x).toBeGreaterThan(target.x - 1);
+  it("passes through props at point blank", () => {
+    const g = armed(15.3);
+    tick(g, ["shoot"], ["shoot"]);
+    expect(bullets(g)).toHaveLength(1);
+    expect(g.world.sparks).toHaveLength(0);
   });
 
   it("lets emitter bullets through to the hero", () => {

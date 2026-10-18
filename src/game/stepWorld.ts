@@ -14,7 +14,7 @@ export function stepWorld(
   consume: (action: string) => boolean,
 ): HeroEvent[] {
   updateEmitter(world, dt);
-  stepShots(world, cfg, dt);
+  stepShots(world, dt);
   updateLift(world.lift, cfg.liftSpeed, dt);
   const events = updateHero(hero, input, world, cfg, clips, dt, consume);
   fireShots(world, hero, events, clips, cfg);

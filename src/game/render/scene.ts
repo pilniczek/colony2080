@@ -9,7 +9,7 @@ import { heroScale, type HeroLook, type HitLook, type Rigs } from "../hero/look"
 import { ceilingAbove, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
-import { BAG, muzzleInRig, SPARK_LIFE, TARGET_WIDTH } from "../shots";
+import { muzzleInRig, SPARK_LIFE } from "../shots";
 
 const DEG = Math.PI / 180;
 const PILLAR_EVERY = 3;
@@ -17,6 +17,7 @@ const STAR = { radius: 14 / SPIKE_K, points: 10, inner: 0.35, outer: 0.6 };
 const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
 const TRACER = { length: 14, width: 2 };
+const BAG = { rope: 12, w: 32, h: 92 };
 
 const COLORS = {
   skyTop: "#1b2629",
@@ -54,7 +55,6 @@ interface Frame {
   cell: number;
   unit: number;
   lineW: number;
-  heroHeight: number;
 }
 
 const floorOf = (f: Frame, p: Prop): number => (p.y ?? f.world.spawn[1]) * f.cell;
@@ -149,7 +149,7 @@ function box(f: Frame, p: Prop, w: number, h: number, fill: string, line: string
 
 const crate = (f: Frame, p: Prop): void => box(f, p, (p.width ?? 1) * f.cell, (p.height ?? 1) * f.cell, COLORS.crate, COLORS.crateLine);
 
-const target = (f: Frame, p: Prop): void => box(f, p, TARGET_WIDTH * f.unit, f.heroHeight, COLORS.target, COLORS.targetLine);
+const target = (f: Frame, p: Prop): void => box(f, p, 40 * f.unit, 70 * f.unit, COLORS.target, COLORS.targetLine);
 
 function barrel(f: Frame, p: Prop): void {
   const { ctx, cell, unit } = f;
@@ -349,7 +349,7 @@ export function drawScene(
 ): void {
   const scale = heroScale(cfg);
   const unit = scale / SPIKE_K;
-  const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale, heroHeight: cfg.heroHeightCells * cfg.cellPx };
+  const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale };
   ctx.save();
   ctx.setTransform(view.scale, 0, 0, view.scale, view.offsetX, view.offsetY);
   ctx.beginPath();
