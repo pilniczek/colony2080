@@ -276,7 +276,7 @@ describe("damage", () => {
 });
 
 describe("attack", () => {
-  it("turns while shooting the gun without a break in the fire", () => {
+  it("walks both ways while shooting the gun without a break in the fire", () => {
     const plain = game({ x: 10.5, y: 14, weapon: "gun" });
     tick(plain, ["shoot"], ["shoot"]);
     run(plain, 59 / 60, ["shoot"]);
@@ -284,12 +284,57 @@ describe("attack", () => {
     tick(g, ["shoot"], ["shoot"]);
     run(g, 0.3, ["shoot"]);
     tick(g, ["shoot", "moveLeft"]);
-    expect(g.hero).toMatchObject({ state: "attack", facing: -1, x: 10.5 });
+    expect(g.hero).toMatchObject({ state: "walk", facing: -1 });
     run(g, 0.2, ["shoot", "moveLeft"]);
+    expect(g.hero.x).toBeLessThan(10.5);
     tick(g, ["shoot", "moveRight"]);
-    expect(g.hero).toMatchObject({ state: "attack", facing: 1, x: 10.5 });
-    run(g, 59 / 60 - 0.5 - 2 / 60, ["shoot"]);
+    expect(g.hero).toMatchObject({ state: "walk", facing: 1 });
+    run(g, 0.2, ["shoot", "moveRight"]);
+    tick(g, ["shoot"]);
+    expect(g.hero.state).toBe("attack");
+    run(g, 59 / 60 - 0.7 - 3 / 60, ["shoot"]);
     expect(kinds(g, "shot")).toHaveLength(kinds(plain, "shot").length);
+  });
+
+  it("starts shooting while walking without stopping", () => {
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    run(g, 0.3, ["moveRight"]);
+    const x = g.hero.x;
+    tick(g, ["moveRight", "shoot"], ["shoot"]);
+    expect(g.hero.state).toBe("walk");
+    expect(kinds(g, "shot")).toHaveLength(1);
+    run(g, 59 / 60, ["moveRight", "shoot"]);
+    expect(g.hero.state).toBe("walk");
+    expect(g.hero.x - x).toBeGreaterThan(0.5);
+    expect(kinds(g, "shot")).toHaveLength(12);
+  });
+
+  it("shoots while running", () => {
+    const g = game({ x: 7.5, y: 14, weapon: "gun" });
+    g.hero.running = true;
+    run(g, 0.3, ["moveRight"]);
+    tick(g, ["moveRight", "shoot"], ["shoot"]);
+    run(g, 0.5, ["moveRight", "shoot"]);
+    expect(g.hero.state).toBe("run");
+    expect(kinds(g, "shot").length).toBeGreaterThan(5);
+  });
+
+  it("stops shooting on release and keeps walking", () => {
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    tick(g, ["moveRight", "shoot"], ["shoot"]);
+    run(g, 0.3, ["moveRight", "shoot"]);
+    const fired = kinds(g, "shot").length;
+    run(g, 0.5, ["moveRight"]);
+    expect(g.hero).toMatchObject({ state: "walk", fireTime: null });
+    expect(kinds(g, "shot")).toHaveLength(fired);
+  });
+
+  it("turns in place while duck shooting", () => {
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    run(g, 0.5, ["down"]);
+    tick(g, ["down", "shoot"], ["shoot"]);
+    tick(g, ["down", "shoot", "moveLeft"]);
+    expect(g.hero).toMatchObject({ state: "duckAttack", facing: -1, x: 10.5 });
   });
 
   it("jumps on Up while shooting and keeps the fire cadence in the air and after landing", () => {
@@ -326,14 +371,15 @@ describe("attack", () => {
     expect(g.hero.state).toBe("idle");
   });
 
-  it("shoots during a running jump and lands into shooting", () => {
+  it("shoots during a running jump and lands running and shooting", () => {
     const g = game({ x: 7.5, y: 14, state: "run", weapon: "gun" });
     tick(g, ["moveRight", RUNNING], ["up"]);
     tick(g, ["moveRight", "shoot"], ["shoot"]);
     expect(g.hero.state).toBe("runJump");
     expect(g.hero.vx).toBeCloseTo(cfg.jump.runSpeed, 9);
     runUntil(g, (h) => h.onGround, ["moveRight", "shoot"]);
-    expect(g.hero.state).toBe("attack");
+    expect(g.hero.state).toBe("run");
+    expect(g.hero.fireTime).not.toBeNull();
     expect(kinds(g, "shot").length).toBeGreaterThan(3);
   });
 
@@ -343,14 +389,6 @@ describe("attack", () => {
     tick(g, ["down", "shoot"], ["shoot"]);
     tick(g, ["down", "shoot"], ["up"]);
     expect(g.hero.state).toBe("duckJump");
-  });
-
-  it("turns while duck shooting the gun", () => {
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
-    run(g, 0.5, ["down"]);
-    tick(g, ["down", "shoot"], ["shoot"]);
-    tick(g, ["down", "shoot", "moveLeft"]);
-    expect(g.hero).toMatchObject({ state: "duckAttack", facing: -1 });
   });
 
   it("fires 12 shots in 1 s with the gun held and stands still", () => {

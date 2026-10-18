@@ -232,15 +232,17 @@ function startAttack(s: Step, state: "attack" | "duckAttack"): void {
   if (s.h.weapon === "gun") pullTrigger(s);
 }
 
-function act(s: Step): boolean {
-  const { h } = s;
+function use(s: Step): boolean {
   const panel = touching(s, "panel");
-  if (panel && s.consume("useItem")) {
-    enter(h, "use");
-    panel.on = !panel.on;
-    emit(s, "use");
-    return true;
-  }
+  if (!panel || !s.consume("useItem")) return false;
+  enter(s.h, "use");
+  panel.on = !panel.on;
+  emit(s, "use");
+  return true;
+}
+
+function act(s: Step): boolean {
+  if (use(s)) return true;
   if (!s.consume("shoot")) return false;
   startAttack(s, "attack");
   return true;
@@ -315,8 +317,12 @@ function moving(s: Step): void {
     if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(h);
     return jump(s, h.state === "run" ? "runJump" : "walkJump");
   }
-  if (act(s)) return;
+  if (h.weapon === "gun") {
+    gunFire(s);
+    if (use(s)) return;
+  } else if (act(s)) return;
   gait(s);
+  if (h.fireTime !== null && h.state === "idle") enter(h, "attack");
 }
 
 function airborne(s: Step): void {
@@ -351,10 +357,11 @@ function leaveAttack(s: Step): void {
 function attack(s: Step): void {
   const { h, input } = s;
   if (h.weapon === "gun") {
-    if (input.dir !== 0) h.facing = input.dir;
-    if (standUp(s, h.state === "duckAttack" ? "duckJump" : "standJump")) return;
+    const ducked = h.state === "duckAttack";
+    if (ducked && input.dir !== 0) h.facing = input.dir;
+    if (standUp(s, ducked ? "duckJump" : "standJump")) return;
     gunFire(s);
-    if (h.fireTime === null) leaveAttack(s);
+    if (h.fireTime === null || (!ducked && input.dir !== 0)) leaveAttack(s);
     return;
   }
   const clip = clipOf(s);
@@ -475,7 +482,8 @@ function settle(s: Step, startY: number): void {
   if (!isAirborne(h.state)) return;
   if (h.y - h.fallFrom > cfg.fallDeathCells) return die(h, "fallDeath", s.events);
   const landing = { from: h.state, time: h.time, age: 0 };
-  if (h.fireTime !== null) return enter(h, s.input.held.has("down") ? "duckAttack" : "attack");
+  if (h.fireTime !== null && s.input.held.has("down")) return enter(h, "duckAttack");
+  if (h.fireTime !== null && s.input.dir === 0) return enter(h, "attack");
   enter(h, s.input.dir === 0 ? "idle" : h.running ? "run" : "walk");
   h.landing = landing;
   resumeGait(s, landing);
