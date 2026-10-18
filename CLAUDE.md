@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Phase 1b: engine core and movement sandbox in progress, for a browser clone of Colony 28 (1996/97 Czech DOS cinematic side-scroller).
+Phase 1b: engine core and movement sandbox built, awaiting feel sign-off, for a browser clone of Colony 28 (1996/97 Czech DOS cinematic side-scroller).
 
-- `docs/requirements.md` - decision log and open questions. Source of truth for what is decided. Design spec: `docs/superpowers/specs/2026-10-17-colony2080-design.md` (phases, movement set). Next implementation plan: `docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md` (phase 1b, not started).
+- `docs/requirements.md` - decision log and open questions. Source of truth for what is decided. Design spec: `docs/superpowers/specs/2026-10-17-colony2080-design.md` (phases, movement set). Phase 1b plan: `docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md` (built).
 - `WORK-REPORT.md` - local session handoff (gitignored): open follow-ups and abandoned approaches.
 - `docs/research/README.md` - research summary (mechanics, level 1 task graph, data formats, open gaps). Read before answering questions about the original game.
 - `config/` - draft JSON configs (`"status": "draft"`). Each cites its research or decision `source`.
@@ -21,7 +21,7 @@ Phase 1b: engine core and movement sandbox in progress, for a browser clone of C
 - `npm run typecheck` - `tsc --noEmit`.
 - `npm run test:visual` - Playwright runs `tools/visual/compare.html`: spike vs port robot trees and renders. The own-matrix render may differ by a few edge pixels because Chromium stores scale/translate DOMMatrix values as float32.
 
-## Planned stack and architecture
+## Stack and architecture
 
 Decided in `docs/requirements.md`:
 
@@ -30,6 +30,12 @@ Decided in `docs/requirements.md`:
 - Art is vector, drawn as code. Not pixel art, not original assets. View scales to device (no fixed 320x200 canvas).
 - Cutscenes (item use, story) are in-engine animated vector scenes, not video files.
 - Level logic is a task dependency web: each task has `requires` / `consumes` / `gives` over `item:*`, `flag:*`, `weapon:*` tokens (see `config/levels/mesto/tasks.json`).
+
+Code layout:
+
+- `src/engine/` - game-agnostic core: fixed-step loop, input (bindings, buffer, record / replay), tiles and collision, projectiles, view fit, rig tree, pose and draw. No React, Zustand, `game/` or `sandbox/` imports.
+- `src/game/` - Colony 28 specifics: hero state machine (`hero/`), clip and movement config loaders, robot and gun models, sandbox level, scene and debug overlay renderers.
+- `src/sandbox/` - `sandbox.html` entry: `main.tsx` runs the loop, `store.ts` (Zustand) holds UI state and live tuning, `ui/` holds the React debug panel (time controls, overlays, record / replay, hero buttons, tuning with JSON export for `config/hero/`). The engine pushes into the store once per rendered frame and reads tuning from it each step.
 
 Build order: movement overview page, engine core and movement sandbox, cutscene framework, Colony 28 clone systems, then mission 1 (`mesto`).
 

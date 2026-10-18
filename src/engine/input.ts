@@ -17,8 +17,17 @@ interface VisibilitySource {
 interface KeyLikeEvent {
   code: string;
   repeat?: boolean;
+  target?: unknown;
   preventDefault(): void;
 }
+
+const NON_TEXT_INPUTS = new Set(["checkbox", "radio", "button", "submit", "reset", "range", "color", "file", "image"]);
+
+const isTextField = (target: unknown): boolean => {
+  const el = target as { tagName?: unknown; type?: unknown } | null | undefined;
+  if (el?.tagName === "TEXTAREA" || el?.tagName === "SELECT") return true;
+  return el?.tagName === "INPUT" && !NON_TEXT_INPUTS.has(String(el.type));
+};
 
 export class Input {
   private readonly actionsByCode = new Map<string, string[]>();
@@ -33,7 +42,7 @@ export class Input {
   constructor(
     bindings: Bindings,
     private readonly now: () => number,
-    private readonly bufferMs: number,
+    public bufferMs: number,
   ) {
     for (const [action, codes] of Object.entries(bindings)) {
       for (const code of codes) {
@@ -112,14 +121,14 @@ export class Input {
   attach(target: Window, doc: VisibilitySource | undefined = globalThis.document): () => void {
     const onKeyDown = (raw: unknown) => {
       const event = raw as KeyLikeEvent;
-      if (!this.actionsByCode.has(event.code)) return;
+      if (!this.actionsByCode.has(event.code) || isTextField(event.target)) return;
       event.preventDefault();
       if (!event.repeat) this.keyDown(event.code);
     };
     const onKeyUp = (raw: unknown) => {
       const event = raw as KeyLikeEvent;
       if (!this.actionsByCode.has(event.code)) return;
-      event.preventDefault();
+      if (!isTextField(event.target)) event.preventDefault();
       this.keyUp(event.code);
     };
     const onBlur = () => this.releaseAll();

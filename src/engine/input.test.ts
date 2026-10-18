@@ -35,8 +35,8 @@ function fakeTarget() {
   };
 }
 
-function key(code: string, repeat = false) {
-  const event = { code, repeat, prevented: false, preventDefault: () => (event.prevented = true) };
+function key(code: string, repeat = false, target: object | null = null) {
+  const event = { code, repeat, target, prevented: false, preventDefault: () => (event.prevented = true) };
   return event;
 }
 
@@ -215,5 +215,28 @@ describe("Input", () => {
       target.dispatch("keydown", key("ControlLeft"));
       expect(input.frame().held.size).toBe(0);
     });
+
+    it("leaves keys typed into text fields to the field", () => {
+      const { input } = make();
+      const target = fakeTarget();
+      input.attach(target as unknown as Window);
+      for (const field of [{ tagName: "INPUT", type: "number" }, { tagName: "TEXTAREA" }, { tagName: "SELECT" }]) {
+        const typed = key("ArrowLeft", false, field);
+        target.dispatch("keydown", typed);
+        expect(typed.prevented).toBe(false);
+        expect(input.frame().held.size).toBe(0);
+      }
+      const toggled = key("ArrowLeft", false, { tagName: "INPUT", type: "checkbox" });
+      target.dispatch("keydown", toggled);
+      expect(input.frame().held.has("moveLeft")).toBe(true);
+    });
+  });
+
+  it("uses a changed bufferMs at once", () => {
+    const { input, clock } = make(150);
+    input.keyDown("ControlLeft");
+    input.bufferMs = 50;
+    clock.t = 100;
+    expect(input.frame().pressed.has("shoot")).toBe(false);
   });
 });

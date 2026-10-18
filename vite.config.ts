@@ -8,6 +8,7 @@ export default defineConfig({
     alias: { "@config": fileURLToPath(new URL("./config", import.meta.url)) },
   },
   server: { open: "/sandbox.html" },
+  optimizeDeps: { entries: ["sandbox.html"] },
   build: {
     rollupOptions: {
       input: { sandbox: fileURLToPath(new URL("./sandbox.html", import.meta.url)) },

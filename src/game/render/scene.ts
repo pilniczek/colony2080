@@ -259,7 +259,7 @@ function shadow(f: Frame, hero: Hero, look: HeroLook): void {
   ctx.fill();
 }
 
-const rigFor = (look: HeroLook, rigs: Rigs): GroupNode =>
+export const rigFor = (look: HeroLook, rigs: Rigs): GroupNode =>
   look.view === "side" ? rigs.side : look.view === "front" ? rigs.front : rigs.climber;
 
 function droppedGun(f: Frame, hero: Hero, scale: number, palette: Palette): void {
@@ -271,6 +271,14 @@ function droppedGun(f: Frame, hero: Hero, scale: number, palette: Palette): void
   ctx.restore();
 }
 
+export function toRigSpace(ctx: CanvasRenderingContext2D, hero: Hero, look: HeroLook, cell: number, scale: number): void {
+  ctx.translate(hero.x * cell, hero.y * cell + look.lift * scale);
+  if (look.flip) ctx.scale(-1, 1);
+  if (look.rot) ctx.rotate(look.rot * DEG);
+  ctx.scale(scale, scale);
+  ctx.translate(look.view === "side" ? -ROBOT.SIDE_AX : -ROBOT.AX, -ROBOT.FOOT_Y);
+}
+
 function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(ROBOT.palette, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : ROBOT.palette;
@@ -279,11 +287,7 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   if (look.gun === "hand") hooks[look.view === "front" ? "handL" : "hand"] = gun;
   if (look.gun === "dropped") droppedGun(f, hero, scale, palette);
   ctx.save();
-  ctx.translate(hero.x * cell, hero.y * cell + look.lift * scale);
-  if (look.flip) ctx.scale(-1, 1);
-  if (look.rot) ctx.rotate(look.rot * DEG);
-  ctx.scale(scale, scale);
-  ctx.translate(look.view === "side" ? -ROBOT.SIDE_AX : -ROBOT.AX, -ROBOT.FOOT_Y);
+  toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
   if (look.gun === "slung") gunSlung(ctx, palette, { lineW, simple: true });
   ctx.restore();
