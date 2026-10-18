@@ -319,23 +319,51 @@ move("movement", "Run", "Alt + Left / Right", (W + 120) / RUN.speed, (c, t) => {
   bot(c, { x, y: FLOOR + runBob(p), pose: runPose(p) });
 });
 
-move("movement", "Standing jump", "Up", 2.4, (c, t) => {
+const DUCK = { ...legs(16, [-70, 124, -54], [-52, 128, -76]), ...GUARD };
+
+function verticalJump(c, t, prep, t0) {
   backdrop(c);
   const keys = [
-    [0, { ...STAND }],
-    [0.35, { ...legs(14, [-46, 82], [-40, 86]), arm: 34, armFar: 30, fore: -20, foreFar: -20 }],
-    [0.5, { ...legs(-2, [4, 4, 26], [8, 6, 28]), arm: -150, armFar: -140, fore: -10, foreFar: -14 }],
-    [0.78, { ...legs(6, [-62, 96, -10], [-54, 100, -16]), arm: -110, armFar: -100, fore: -30, foreFar: -30 }],
-    [1.02, { ...legs(2, [-14, 16, 10], [-10, 18, 10]), arm: -60, armFar: -50, fore: -30, foreFar: -30 }],
-    [1.14, { ...legs(14, [-46, 82], [-40, 86]), arm: 20, armFar: 16, fore: -40, foreFar: -40 }],
-    [1.6, { ...STAND }],
-    [2.4, { ...STAND }]
+    ...prep,
+    [t0, { ...legs(-2, [4, 4, 26], [8, 6, 28]), arm: -150, armFar: -140, fore: -10, foreFar: -14 }],
+    [t0 + 0.28, { ...legs(6, [-62, 96, -10], [-54, 100, -16]), arm: -110, armFar: -100, fore: -30, foreFar: -30 }],
+    [t0 + 0.52, { ...legs(2, [-14, 16, 10], [-10, 18, 10]), arm: -60, armFar: -50, fore: -30, foreFar: -30 }],
+    [t0 + 0.64, { ...legs(14, [-46, 82], [-40, 86]), arm: 20, armFar: 16, fore: -40, foreFar: -40 }],
+    [t0 + 1.1, { ...STAND }]
   ];
   const pose = keyed(keys, t);
-  const air = span(t, 0.48, 0.54) * (1 - span(t, 1.0, 1.06));
-  const h = t > 0.5 && t < 1.04 ? 4 * 52 * ((t - 0.5) / 0.54) * (1 - (t - 0.5) / 0.54) : 0;
+  const air = span(t, t0 - 0.02, t0 + 0.04) * (1 - span(t, t0 + 0.5, t0 + 0.56));
+  const u = (t - t0) / 0.54;
+  const h = u > 0 && u < 1 ? 4 * 52 * u * (1 - u) : 0;
   shadow(c, 180, FLOOR, 30 - h * 0.12, 0.35 - h * 0.002);
   bot(c, { x: 180, y: FLOOR + lift(pose) * (1 - air) - h, pose });
+}
+
+move("movement", "Standing jump", "Up", 2.4, (c, t) => verticalJump(c, t, [
+  [0, { ...STAND }],
+  [0.35, { ...legs(14, [-46, 82], [-40, 86]), arm: 34, armFar: 30, fore: -20, foreFar: -20 }]
+], 0.5));
+
+move("movement", "Duck jump", "hold Down, then Up", 2.8, (c, t) => verticalJump(c, t, [
+  [0, { ...STAND }],
+  [0.25, DUCK],
+  [0.75, DUCK],
+  [0.95, { ...DUCK, arm: 34, armFar: 30, fore: -20, foreFar: -20 }]
+], 1.1));
+
+move("movement", "Walking jump", "direction + Up", 3, (c, t) => {
+  const gap = [152, 200];
+  backdrop(c, [gap]);
+  const p = t / 1.1 * TAU;
+  const x = -60 + t * (W + 120) / 3;
+  const leap = { ...legs(6, [-56, 30, 10], [26, 64, 20]), arm: -40, armFar: 30, fore: -40, foreFar: -50 };
+  const j0 = 1.2, j1 = 1.75;
+  const k = span(t, j0 - 0.12, j0) * (1 - span(t, j1, j1 + 0.15));
+  const pose = mix(walkPose(p), leap, k);
+  const u = clamp((t - j0) / (j1 - j0));
+  const h = t > j0 && t < j1 ? 4 * 36 * u * (1 - u) : 0;
+  if (h === 0) shadow(c, x, FLOOR, 30);
+  bot(c, { x, y: FLOOR + lift(pose) - h, pose });
 });
 
 move("movement", "Running jump", "Alt + direction + Up", 1.7, (c, t) => {
@@ -408,8 +436,7 @@ move("movement", "Fall death", "fall too high", 5, (c, t) => {
 
 move("movement", "Duck", "hold Down", 2.4, (c, t) => {
   backdrop(c);
-  const duck = { ...legs(16, [-70, 124, -54], [-52, 128, -76]), ...GUARD };
-  const pose = keyed([[0, STAND], [0.25, duck], [1.6, duck], [1.9, STAND]], t);
+  const pose = keyed([[0, STAND], [0.25, DUCK], [1.6, DUCK], [1.9, STAND]], t);
   shadow(c, 180, FLOOR, 30);
   bot(c, { x: 180, y: FLOOR + lift(pose), pose });
 });
