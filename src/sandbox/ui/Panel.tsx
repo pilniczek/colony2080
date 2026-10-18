@@ -14,6 +14,7 @@ export interface SandboxCommands {
   setWeapon(weapon: Weapon): void;
   hit(): void;
   kill(): void;
+  setAmmo(ammo: number): void;
   setFog(on: boolean): void;
 }
 

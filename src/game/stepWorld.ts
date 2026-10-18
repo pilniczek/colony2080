@@ -16,7 +16,7 @@ export function stepWorld(
   consume: (action: string) => boolean,
 ): HeroEvent[] {
   if (world.fog) updateFog(world.fog, hero, cfg.box.height, dt);
-  fireEnemy(world, cfg, clips, updateEnemy(world.enemy, world.grid, hero, clips, dt));
+  fireEnemy(world, cfg, clips, updateEnemy(world.enemy, world.grid, world.fog, hero, clips, dt));
   stepShots(world, cfg, dt);
   updateLift(world.lift, cfg.liftSpeed, dt);
   const events = updateHero(hero, input, world, cfg, clips, dt, consume);

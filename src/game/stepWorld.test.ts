@@ -32,7 +32,7 @@ const script: Record<number, ["down" | "up", string][]> = {
 
 function fromSpawn(input: Input, live: boolean): Hero {
   const world = loadSandbox(sandboxJson);
-  const hero = createHero(world.spawn, "gun", 4 * cfg.energy.hit);
+  const hero = createHero(world.spawn, "gun", 4 * cfg.energy.hit, 0, cfg.ammo);
   world.fog = createFog(loadFog(cameraJson), hero, world.grid);
   for (let f = 0; f < STEPS; f++) {
     for (const [type, code] of live ? (script[f] ?? []) : []) {

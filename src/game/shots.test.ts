@@ -78,6 +78,41 @@ describe("hero bullets", () => {
     expect(spawned.size).toBe(12);
   });
 
+  it("spends one ammo per bullet", () => {
+    const g = armed(10.5, -1);
+    expect(g.hero.ammo).toBe(cfg.ammo);
+    fire(g, 59 / 60);
+    expect(g.hero.ammo).toBe(cfg.ammo - 12);
+  });
+
+  it("stops firing on the last round and holsters the gun", () => {
+    const g = armed(10.5, -1);
+    g.hero.ammo = 1;
+    const spawned = new Set<object>();
+    tick(g, ["shoot"], ["shoot"]);
+    for (let i = 0; i < 30; i++) {
+      bullets(g).forEach((b) => spawned.add(b));
+      expect(i === 0 || g.hero.fireTime === null).toBe(true);
+      tick(g, ["shoot"]);
+    }
+    expect(g.hero.ammo).toBe(0);
+    expect(spawned.size).toBe(1);
+    run(g, 2);
+    expect(g.hero).toMatchObject({ weapon: "fists", state: "idle" });
+  });
+
+  it("keeps fists when the gun is picked with no ammo", () => {
+    const g = game({ x: 10.5, y: 14, weapon: "fists" });
+    g.hero.ammo = 0;
+    tick(g, [], ["weapon1"]);
+    run(g, 2);
+    expect(g.hero).toMatchObject({ weapon: "fists", state: "idle" });
+    g.hero.ammo = 5;
+    tick(g, [], ["weapon1"]);
+    run(g, 2);
+    expect(g.hero.weapon).toBe("gun");
+  });
+
   it("fires none with fists", () => {
     const g = game({ x: 10.5, y: 14, weapon: "fists" });
     fire(g, 0.5);

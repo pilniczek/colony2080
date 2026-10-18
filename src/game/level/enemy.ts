@@ -1,4 +1,5 @@
 import type { TileGrid } from "../../engine/world/tiles";
+import { revealedAt, type Fog } from "../fog";
 import type { ClipSet } from "../hero/config";
 import { createHero, type Hero } from "../hero/hero";
 
@@ -67,14 +68,14 @@ export function hitEnemy(e: Enemy): boolean {
   return true;
 }
 
-function sees(e: Enemy, grid: TileGrid, hero: Hero): boolean {
+function sees(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null): boolean {
   const { body } = e;
   const dx = hero.x - body.x;
   if (hero.hidden || hero.energy <= 0 || Math.abs(hero.y - body.y) > SAME_FLOOR) return false;
   if (Math.sign(dx) !== body.facing || Math.abs(dx) > e.sightCells) return false;
   const row = Math.floor(body.y - 1);
   for (let col = Math.floor(Math.min(body.x, hero.x)); col <= Math.floor(Math.max(body.x, hero.x)); col++) {
-    if (grid.solid(col, row)) return false;
+    if (grid.solid(col, row) || (fog && !revealedAt(fog, col, row))) return false;
   }
   return true;
 }
@@ -103,7 +104,7 @@ function shoot(e: Enemy, dt: number): number {
   return Math.floor(body.fireTime / period + 1e-9) - before;
 }
 
-export function updateEnemy(e: Enemy, grid: TileGrid, hero: Hero, clips: ClipSet, dt: number): number {
+export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, dt: number): number {
   e.body.time += dt;
   if (e.body.hitAge !== null) e.body.hitAge += dt;
   if (e.deadAge !== null) {
@@ -113,7 +114,7 @@ export function updateEnemy(e: Enemy, grid: TileGrid, hero: Hero, clips: ClipSet
     e.deadAge = null;
     return 0;
   }
-  if (sees(e, grid, hero)) return shoot(e, dt);
+  if (sees(e, grid, hero, fog)) return shoot(e, dt);
   if (e.body.state !== "walk") Object.assign(e.body, { state: "walk", time: 0, fireTime: null });
   patrol(e, clips, dt);
   return 0;

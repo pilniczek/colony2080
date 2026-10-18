@@ -97,10 +97,10 @@ describe("sandbox enemy", () => {
     const g = game();
     kill(g);
     const x = g.world.enemy.body.x;
-    for (let i = 0; i < 4.9 / dt; i++) updateEnemy(g.world.enemy, g.world.grid, g.hero, clips, dt);
+    for (let i = 0; i < 4.9 / dt; i++) updateEnemy(g.world.enemy, g.world.grid, null, g.hero, clips, dt);
     expect(isDead(g.world.enemy)).toBe(true);
     expect(g.world.enemy.body.x).toBe(x);
-    for (let i = 0; i < 0.2 / dt; i++) updateEnemy(g.world.enemy, g.world.grid, g.hero, clips, dt);
+    for (let i = 0; i < 0.2 / dt; i++) updateEnemy(g.world.enemy, g.world.grid, null, g.hero, clips, dt);
     expect(isDead(g.world.enemy)).toBe(false);
     expect(g.world.enemy.body).toMatchObject({ energy: sandbox.enemy.hits, hitAge: null, state: "walk", facing: sandbox.enemy.facing });
     expect(Math.abs(g.world.enemy.body.x - sandbox.enemy.x)).toBeLessThan(0.2);

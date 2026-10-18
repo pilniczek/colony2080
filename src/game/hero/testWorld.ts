@@ -24,7 +24,7 @@ export function game(
   level: unknown = sandbox,
 ): Game {
   const world = loadSandbox(level);
-  const hero = createHero(world.spawn, "fists", cfg.energy.max);
+  const hero = createHero(world.spawn, "fists", cfg.energy.max, 0, cfg.ammo);
   if (at) Object.assign(hero, at);
   return { world, hero, events: [], seen: new Set([hero.state]), frame: 0, buffer: new Map() };
 }

@@ -37,7 +37,7 @@ if (!ctx) throw new Error("no 2d context");
 const tuning = () => useSandbox.getState();
 const fogConfig = loadFog(cameraJson);
 const world = loadSandbox(sandboxJson);
-const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields);
+const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo);
 const applyFog = (on: boolean): void => {
   world.fog = on ? createFog(fogConfig, hero, world.grid) : null;
 };
@@ -93,7 +93,7 @@ let fps = 0;
 
 const respawn = (): void => {
   Object.assign(world, loadSandbox(sandboxJson));
-  Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max, tuning().movement.energy.shields));
+  Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo));
   applyFog(run.fogOn);
   prev = { x: hero.x, y: hero.y };
 };
@@ -122,6 +122,7 @@ const push = (): void => {
     vy: hero.vy,
     energy: hero.energy,
     shields: hero.shields,
+    ammo: hero.ammo,
     weapon: hero.weapon,
     running: hero.running,
     fps: Math.round(fps),
@@ -194,6 +195,7 @@ const commands: SandboxCommands = {
   setWeapon: (weapon) => press(weapon === "gun" ? "weapon1" : "weapon2"),
   hit: () => void damage(hero, tuning().movement),
   kill: () => void kill(hero),
+  setAmmo: (ammo) => void (hero.ammo = Math.max(0, Math.round(ammo))),
   setFog(on) {
     applyFog(on);
     useSandbox.setState({ fogOn: on });

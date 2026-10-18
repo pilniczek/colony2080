@@ -82,12 +82,11 @@ describe("fog blocks shots", () => {
     expect(g.world.sparks).toHaveLength(0);
   });
 
-  it("stops bullets an enemy fires from the fog", () => {
-    const g = fogged(game({ x: 9.5, y: 4 }), 4);
-    g.hero.facing = -1;
-    Object.assign(g.world.enemy.body, { x: 4.5, facing: 1 });
-    run(g, 2);
-    expect(g.hero.energy).toBe(cfg.energy.max);
+  it("keeps an enemy in the fog from seeing the hero", () => {
+    const g = fogged(game({ x: 9.5, y: 4 }), 2);
+    Object.assign(g.world.enemy.body, { x: 5.5, facing: 1 });
+    run(g, 0.3);
+    expect(g.world.enemy.body.state).toBe("walk");
     expect(g.world.projectiles).toHaveLength(0);
   });
 });
