@@ -1,3 +1,4 @@
+import { span } from "../../engine/anim/keyed";
 import { FIXED_STEP } from "../../engine/loop";
 import type { ViewTransform } from "../../engine/render/view";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
@@ -23,7 +24,7 @@ const BAG = { rope: 12, w: 32, h: 92 };
 const SHOT_FLASH_MS = 1000 / 12;
 const EMITTER_FLASH = { ahead: 34 };
 const ENEMY_TINT = { brightness: 1.1, saturate: 0 };
-const BLAST = { grow: 0.25, fade: 0.4, hold: 0.35, hideBody: 0.45 };
+const BLAST = { grow: 0.25, hideBody: 0.45, center: -84, spin: 3.2, pull: [0.75, 1.1], fade: [0.9, 1.2], ring: [0.95, 1.45], ringRadius: 72, ringWidth: 11, swirl: 0.16, size: 1.6 } as const;
 const FIREBALLS: [number, number, number, number][] = [
   [6, -96, 0, 22],
   [-14, -72, 0.08, 26],
@@ -69,6 +70,7 @@ const COLORS = {
   blastMid: "#ffb030",
   blastEdge: "#e8641a",
   blastOut: "rgba(150,40,10,0)",
+  vortex: "#d8301c",
   scrap: "#5d6668",
   scrapLight: "#a9b3b5",
 };
@@ -311,16 +313,58 @@ function fireball(f: Frame, x: number, y: number, radius: number, alpha: number)
   ctx.restore();
 }
 
+function swirlBall(f: Frame, x: number, y: number, radius: number, angle: number, alpha: number): void {
+  const { ctx } = f;
+  fireball(f, x, y, radius, alpha);
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.strokeStyle = COLORS.blastEdge;
+  ctx.lineWidth = radius * BLAST.swirl;
+  ctx.lineCap = "round";
+  for (const [k, from, sweep] of [[0.62, 0, 1.3], [0.34, Math.PI, 1.1]] as const) {
+    ctx.beginPath();
+    ctx.arc(x, y, radius * k, angle + from, angle + from + Math.PI * sweep);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function vortexRing(f: Frame, x: number, y: number, age: number): void {
+  const { ctx, unit } = f;
+  const u = span(age, BLAST.ring[0], BLAST.ring[1]);
+  if (u <= 0 || u >= 1) return;
+  const angle = BLAST.spin * 1.5 * age;
+  ctx.save();
+  ctx.globalAlpha *= 1 - u;
+  ctx.strokeStyle = COLORS.vortex;
+  ctx.lineWidth = BLAST.ringWidth * (1 - u * 0.8) * unit;
+  ctx.lineCap = "round";
+  const radius = BLAST.ringRadius * (0.7 + 0.5 * u) * unit;
+  for (let i = 0; i < 3; i++) {
+    const from = angle + (i * 2 * Math.PI) / 3;
+    ctx.beginPath();
+    ctx.arc(x, y, radius * (1 - 0.08 * i), from, from + Math.PI * (0.55 - 0.25 * u));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function blast(f: Frame, body: Hero, age: number): void {
   const { cell, unit } = f;
-  for (const [dx, dy, start, r] of FIREBALLS) {
+  const [cx, cy] = [body.x * cell, body.y * cell + BLAST.center * unit];
+  const angle = body.facing * BLAST.spin * age;
+  const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+  const pull = 1 - 0.85 * span(age, BLAST.pull[0], BLAST.pull[1]);
+  const alpha = 1 - span(age, BLAST.fade[0], BLAST.fade[1]);
+  FIREBALLS.forEach(([dx, dy, start, r], i) => {
     const t = age - start;
-    if (t < 0) continue;
-    const grow = Math.min(1, t / BLAST.grow);
-    const alpha = 1 - Math.min(1, Math.max(0, t - BLAST.grow - BLAST.hold) / BLAST.fade);
-    if (alpha <= 0) continue;
-    fireball(f, body.x * cell + body.facing * dx * unit, body.y * cell + dy * unit, r * unit * (0.3 + 0.7 * grow), alpha);
-  }
+    if (t < 0 || alpha <= 0) return;
+    const [ox, oy] = [body.facing * dx * BLAST.size * unit, (dy - BLAST.center) * BLAST.size * unit];
+    const [x, y] = [cx + (ox * cos - oy * sin) * pull, cy + (ox * sin + oy * cos) * pull];
+    const grow = Math.min(1, t / BLAST.grow) * (1 + 0.4 * (1 - pull));
+    swirlBall(f, x, y, r * BLAST.size * unit * (0.3 + 0.7 * grow), angle * 1.6 + i, alpha);
+  });
+  vortexRing(f, cx, cy, age);
 }
 
 function scrap(f: Frame, body: Hero): void {
