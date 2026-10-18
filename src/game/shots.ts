@@ -2,6 +2,7 @@ import { apply } from "../engine/math/mat2d";
 import { locate } from "../engine/rig/pose";
 import type { Pt } from "../engine/rig/tree";
 import { stepProjectiles, type Projectile } from "../engine/world/projectiles";
+import { fogEdge, visible } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
@@ -67,12 +68,27 @@ function enemyFace(world: SandboxWorld, cfg: MovementConfig, from: number, p: Pr
   return p.vx > 0 ? Math.max(from, x - half) : Math.min(from, x + half);
 }
 
-function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile): boolean {
+const sightEdge = (world: SandboxWorld, x: number, p: Projectile): number =>
+  world.fog ? fogEdge(world.fog, x, p.y, Math.sign(p.vx)) : p.vx * Infinity;
+
+const beyond = (p: Projectile, x: number, edge: number): boolean => (x - edge) * Math.sign(p.vx) > 0;
+
+const seen = (world: SandboxWorld, x: number, y: number): boolean => !world.fog || visible(world.fog, x, y);
+
+function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number): boolean {
   const face = enemyFace(world, cfg, from, p);
-  if (face === null) return false;
+  if (face === null || beyond(p, face, edge)) return false;
   hitEnemy(world.enemy);
   world.sparks.push({ x: face, y: p.y, age: 0 });
   return true;
+}
+
+function launch(world: SandboxWorld, cfg: MovementConfig, from: number, bullet: Projectile): void {
+  const edge = sightEdge(world, bullet.x, bullet);
+  if (strike(world, cfg, from, bullet, edge)) return;
+  const face = wallBetween(world, from, bullet);
+  if (face === null) world.projectiles.push(bullet);
+  else if (!beyond(bullet, face, edge)) world.sparks.push({ x: face, y: bullet.y, age: 0 });
 }
 
 export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], clips: ClipSet, cfg: MovementConfig): void {
@@ -80,10 +96,7 @@ export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], cli
     if (e.kind !== "shot") continue;
     const [x, y] = heroMuzzle(h, clips, cfg);
     const bullet = { x, y, vx: h.facing * cfg.shot.speed, r: cfg.shot.radius, tag: HERO_SHOT, originX: x };
-    if (strike(world, cfg, h.x, bullet)) continue;
-    const face = wallBetween(world, h.x, bullet);
-    if (face === null) world.projectiles.push(bullet);
-    else world.sparks.push({ x: face, y, age: 0 });
+    launch(world, cfg, h.x, bullet);
   }
 }
 
@@ -91,10 +104,8 @@ export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipS
   const { body } = world.enemy;
   for (let i = 0; i < count; i++) {
     const [x, y] = heroMuzzle(body, clips, cfg);
-    const bullet = { x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x };
-    const face = wallBetween(world, body.x, bullet);
-    if (face === null) world.projectiles.push(bullet);
-    else world.sparks.push({ x: face, y, age: 0 });
+    if (!seen(world, x, y)) continue;
+    launch(world, cfg, body.x, { x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x });
   }
 }
 
@@ -104,9 +115,10 @@ export function stepShots(world: SandboxWorld, cfg: MovementConfig, dt: number):
   const alive = new Set(stepProjectiles(world.projectiles, world.grid, dt));
   const { width, height } = world.grid;
   world.projectiles = world.projectiles.filter((p) => {
-    if (strike(world, cfg, from.get(p)!, p)) return false;
+    const edge = sightEdge(world, from.get(p)!, p);
+    if (strike(world, cfg, from.get(p)!, p, edge)) return false;
     const inside = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height;
-    if (!alive.has(p) && inside) world.sparks.push({ x: wallFace(p), y: p.y, age: 0 });
-    return alive.has(p);
+    if (!alive.has(p) && inside && !beyond(p, wallFace(p), edge)) world.sparks.push({ x: wallFace(p), y: p.y, age: 0 });
+    return alive.has(p) && !beyond(p, p.x, edge);
   });
 }

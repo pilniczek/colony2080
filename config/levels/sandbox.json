@@ -29,6 +29,5 @@
     { "kind": "bag", "x": 13.5 },
     { "kind": "target", "x": 15.5, "width": 0.51, "height": 1.51 }
   ],
-  "enemy": { "x": 6.5, "y": 4, "facing": 1, "hits": 14, "respawnMs": 5000, "sightCells": 14, "firePeriodMs": 500 },
-  "emitter": { "x": 38.5, "y": 12.6, "dir": -1, "periodMs": 2000 }
+  "enemy": { "x": 6.5, "y": 4, "facing": 1, "hits": 14, "respawnMs": 5000, "sightCells": 14, "firePeriodMs": 500 }
 }

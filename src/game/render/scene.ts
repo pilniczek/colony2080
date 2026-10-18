@@ -24,7 +24,6 @@ const BAG = { rope: 12, w: 32, h: 92 };
 const DUST = { back: 30, up: 6, radius: 18 };
 const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
 const SHOT_FLASH_MS = 1000 / 12;
-const EMITTER_FLASH = { ahead: 34 };
 const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
 const BLAST = { grow: 0.25, hideBody: 0.45, center: -84, spin: 3.2, pull: [0.75, 1.1], fade: [0.9, 1.2], ring: [0.95, 1.45], ringRadius: 72, ringWidth: 11, swirl: 0.16, size: 1.6 } as const;
 const FIREBALLS: [number, number, number, number][] = [
@@ -66,7 +65,6 @@ const COLORS = {
   liftCage: "#6f878b",
   ladder: "#4a5c5f",
   shot: "#ff6a3a",
-  emitterOff: "#3a2a22",
   spark: "#ffd76a",
   blastCore: "#fff3b0",
   blastMid: "#ffb030",
@@ -231,20 +229,6 @@ function bag(f: Frame, p: Prop): void {
 }
 
 const PROPS: Record<string, (f: Frame, p: Prop) => void> = { crate, barrel, item, panel, bag, target };
-
-function emitter(f: Frame): void {
-  const { ctx, world, cell, unit } = f;
-  const e = world.emitter;
-  const x = e.x * cell;
-  const y = e.y * cell;
-  ctx.fillStyle = COLORS.target;
-  ctx.fillRect(x - 14 * unit, y - 14 * unit, 28 * unit, 28 * unit);
-  ctx.fillStyle = COLORS.liftCage;
-  ctx.fillRect(e.dir < 0 ? x - 30 * unit : x + 14 * unit, y - 4 * unit, 16 * unit, 8 * unit);
-  ctx.fillStyle = e.on ? COLORS.off : COLORS.emitterOff;
-  ctx.fillRect(x - 4 * unit, y - 10 * unit, 8 * unit, 8 * unit);
-  if (e.on && e.fired && e.clock < SHOT_FLASH_MS) star(ctx, [x + e.dir * EMITTER_FLASH.ahead * unit, y], FLASH.radius * SPIKE_K * unit, FLASH.k);
-}
 
 function projectiles(f: Frame, alpha: number): void {
   const { world, cell } = f;
@@ -459,6 +443,7 @@ export function drawScene(
   alpha: number,
   enemyLook: HeroLook,
   enemyRigs: Rigs,
+  sight: Path2D | null = null,
 ): void {
   const scale = heroScale(cfg);
   const unit = spikeUnit(cfg);
@@ -473,10 +458,13 @@ export function drawScene(
   lift(f, alpha);
   ladders(f);
   for (const p of world.props) PROPS[p.kind]?.(f, p);
-  emitter(f);
+  ctx.save();
+  if (sight) ctx.clip(sight);
   enemyFigure(f, world.enemy, enemyLook, enemyRigs, scale);
+  ctx.restore();
   shadow(f, hero, look);
   heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
+  if (sight) ctx.clip(sight);
   projectiles(f, alpha);
   impacts(f);
   ctx.restore();

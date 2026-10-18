@@ -2,15 +2,18 @@ import "@fontsource/orbitron/900.css";
 import "@fontsource/share-tech-mono/400.css";
 import controls from "@config/controls.json";
 import sandboxJson from "@config/levels/sandbox.json";
+import cameraJson from "@config/camera.json";
 import { createRoot } from "react-dom/client";
 import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { fitView, resizeCanvas, type ViewTransform } from "../engine/render/view";
+import { createFog, loadFog } from "../game/fog";
 import type { Weapon } from "../game/hero/config";
 import { hudFit, viewRect, type Rect } from "../game/hud/layout";
 import { createHero, damage, kill } from "../game/hero/hero";
 import { createRigs, heroLook } from "../game/hero/look";
 import { loadSandbox } from "../game/level/sandboxLevel";
+import { drawFog, revealedPath } from "../game/render/fog";
 import { drawOverlays } from "../game/render/overlays";
 import { drawScene } from "../game/render/scene";
 import { holdPoses } from "../game/robot/gun";
@@ -32,9 +35,13 @@ const ctx = canvas.getContext("2d");
 if (!ctx) throw new Error("no 2d context");
 
 const tuning = () => useSandbox.getState();
+const fogConfig = loadFog(cameraJson);
 const world = loadSandbox(sandboxJson);
-world.emitter.on = true;
 const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields);
+const applyFog = (on: boolean): void => {
+  world.fog = on ? createFog(fogConfig, hero, world.grid) : null;
+};
+applyFog(tuning().fogOn);
 const rigs = createRigs(true);
 const enemyRigs = createRigs(true, true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -76,7 +83,7 @@ const watchPixelRatio = (): void => {
 
 const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
-let run = { emitterOn: world.emitter.on, weapon: "gun" as Weapon };
+let run = { fogOn: tuning().fogOn, weapon: "gun" as Weapon };
 let recordedSteps = 0;
 let playedSteps = 0;
 let inputLog: string[] = [];
@@ -86,9 +93,8 @@ let fps = 0;
 
 const respawn = (): void => {
   Object.assign(world, loadSandbox(sandboxJson));
-  world.emitter.on = run.emitterOn;
-  world.emitter.periodMs = tuning().emitterPeriod * 1000;
   Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max, tuning().movement.energy.shields));
+  applyFog(run.fogOn);
   prev = { x: hero.x, y: hero.y };
 };
 
@@ -118,7 +124,6 @@ const push = (): void => {
     shields: hero.shields,
     weapon: hero.weapon,
     running: hero.running,
-    emitterOn: world.emitter.on,
     fps: Math.round(fps),
     inputLog,
   });
@@ -148,7 +153,9 @@ const loop = new FixedLoop({
     ctx.beginPath();
     ctx.rect(gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h);
     ctx.clip();
-    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, heroLook(world.enemy.body, clips, enemyRigs, hold, cfg), enemyRigs);
+    const sight = world.fog && revealedPath(world.fog, cfg.cellPx);
+    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, heroLook(world.enemy.body, clips, enemyRigs, hold, cfg), enemyRigs, sight);
+    if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx);
     drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
     ctx.restore();
     push();
@@ -166,7 +173,7 @@ const commands: SandboxCommands = {
   step: () => loop.stepOnce(),
   startRecording() {
     if (tuning().playing) endPlayback();
-    run = { emitterOn: world.emitter.on, weapon: hero.weapon };
+    run = { fogOn: tuning().fogOn, weapon: hero.weapon };
     respawn();
     input.startRecording();
     recordedSteps = 0;
@@ -187,14 +194,9 @@ const commands: SandboxCommands = {
   setWeapon: (weapon) => press(weapon === "gun" ? "weapon1" : "weapon2"),
   hit: () => void damage(hero, tuning().movement),
   kill: () => void kill(hero),
-  setEmitter(on) {
-    world.emitter.on = on;
-    useSandbox.setState({ emitterOn: on });
-  },
-  setEmitterPeriod(seconds) {
-    if (!(seconds > 0)) return;
-    world.emitter.periodMs = seconds * 1000;
-    useSandbox.setState({ emitterPeriod: seconds });
+  setFog(on) {
+    applyFog(on);
+    useSandbox.setState({ fogOn: on });
   },
 };
 

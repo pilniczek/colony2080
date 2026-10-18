@@ -33,7 +33,7 @@ flowchart LR
 | Hero colour | Orange armour (box cover, `SKALA3`, `METROPAC`). Gold in `VSTUP` is sky lighting | Claude's call |
 | Resolution | No 320x200 canvas. View scales to device | user |
 | View size | Bigger view than original. Configurable limit, off at start | user |
-| Fog of war | Configurable, off at start | user |
+| Fog of war | The original had none: its 320x200 screen showed everything in reach, which is intel we do not want, so fog covers the level. The hero uncovers the original playfield around it: 12 cells wide (6 each side, the original kept the hero 6 cells from the left screen edge), 6 rows above the feet and 1 below (playfield 290x169 px = about 12x7 tiles, one floor per screen). Uncovered cells stay uncovered. The sight eases to the hero's height when it stands or climbs and holds during a jump unless it leaves the sight. Fog hides enemies and stops every shot that enters it: the bullet vanishes with no impact spark, and an enemy in fog does not fire. Look: near-black blue-grey at 97% with soft cell edges and faint scanlines. Values in `config/camera.json`; on in the sandbox, panel Environment toggle | user (cover, persistence, shots, hidden enemies), Claude's call (look, follow, rows) |
 | Cutscenes | Cloned as in-engine animated vector scenes, not video files. Start with one short item-use clip to tune the visual | user (format: Claude's call) |
 | Level logic | Tasks form a dependency web (requires / consumes / gives), not a fixed list | user |
 | Config | Parts of the app defined as JSON in `config/` during brainstorming | user |
@@ -75,8 +75,7 @@ flowchart LR
 | Jump while shooting | Up while shooting the gun jumps (duck jump when ducked) and the fire keeps its cadence. Shoot in the air fires the gun, and landing with Shoot held goes straight back to shooting. Gun only for now | user (jump and shoot), Claude's call (gun only, landing) |
 | Move while shooting | Shoot plus an arrow with the gun walks (or runs in run mode) that way and keeps firing, Shoot alone stands and fires, switching keeps the fire cadence. Duck shooting turns in place. Landing while firing picks walk or stand by the arrow held | user (walk and turn while shooting), Claude's call (run, duck turn, landing) |
 | Lift input | One Up or Down press starts a ride to the next stop; the lift stops there on its own. On the lift Up and Down only call the lift (no jump, no duck) | user |
-| Sandbox hits | Sandbox has a projectile emitter firing at chest height to try hit and hide, with bullets like the hero's (`shot` in `config/hero/movement.json`). It starts switched on every 2 s; the panel Environment section switches it and sets the period in seconds | user |
-| Sandbox enemy | One enemy patrols the top left platform from wall to edge and never steps off: the player robot in its enemy variant (see Enemy design) with the gun. It stops and shoots (every 500 ms, bullets like the hero's) when it sees the hero on its floor ahead within 14 cells with no wall between; a hidden or dead hero is not seen. 14 hero bullets destroy it (14 machine-gun hits, `docs/research/reports/10-level1-enemies.md`) in a vortex blast like the original (video A 4:22: fireballs grow into a swirling cloud, collapse into one rotating disc and end as a red spinning ring), and it leaves a scrap pile (`LEV1.GRA` f22, video A 4:22). It comes back after 5 s. Emitter bullets pass it, and it does not block the hero | user (look, death, respawn, platform, patrol, stop and shoot), Claude's call (sight, fire period, hit count) |
+| Sandbox enemy | One enemy patrols the top left platform from wall to edge and never steps off: the player robot in its enemy variant (see Enemy design) with the gun. It stops and shoots (every 500 ms, bullets like the hero's) when it sees the hero on its floor ahead within 14 cells with no wall between; a hidden or dead hero is not seen. 14 hero bullets destroy it (14 machine-gun hits, `docs/research/reports/10-level1-enemies.md`) in a vortex blast like the original (video A 4:22: fireballs grow into a swirling cloud, collapse into one rotating disc and end as a red spinning ring), and it leaves a scrap pile (`LEV1.GRA` f22, video A 4:22). It comes back after 5 s. It does not block the hero | user (look, death, respawn, platform, patrol, stop and shoot), Claude's call (sight, fire period, hit count) |
 | Sandbox shots | Hero gun shots are visible: muzzle flash, tracer and impact spark as in the spike `fire()`. The original fires instant hits with a muzzle flash and a small bolt (`docs/research/reports/08-video-level1.md`). Projectiles collide only with what blocks the hero's movement: walls stop them, props the hero walks through let them pass | user |
 | Dev server | Sandbox and game run on the Vite dev server (`npm run dev`); spikes keep opening from `file://` | user |
 | Story year | Story set in 2080, alien invasion 5 years earlier (2075). Departs from the original's 2013 / 2018 / 2028 | user |
@@ -98,7 +97,7 @@ flowchart LR
 | File | Defines |
 |---|---|
 | `config/controls.json` | Original key bindings |
-| `config/camera.json` | View limit and fog of war, both off |
+| `config/camera.json` | View limit (off) and fog of war (on) |
 | `config/levels/mesto/level.json` | Level 1 map grid and metadata |
 | `config/levels/mesto/tasks.json` | Level 1 items and task dependency web |
 | `config/levels/mesto/enemies.json` | Level 1 enemies: type, cell, floor, patrol range, confidence |

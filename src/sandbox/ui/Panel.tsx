@@ -14,8 +14,7 @@ export interface SandboxCommands {
   setWeapon(weapon: Weapon): void;
   hit(): void;
   kill(): void;
-  setEmitter(on: boolean): void;
-  setEmitterPeriod(seconds: number): void;
+  setFog(on: boolean): void;
 }
 
 export const styles = {

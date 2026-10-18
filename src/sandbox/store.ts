@@ -1,8 +1,9 @@
-import sandboxJson from "@config/levels/sandbox.json";
+import cameraJson from "@config/camera.json";
 import clipsJson from "@config/hero/clips.json";
 import movementJson from "@config/hero/movement.json";
 import { create } from "zustand";
 import type { InputRecord } from "../engine/input";
+import { loadFog } from "../game/fog";
 import { hudFit, type HudFit } from "../game/hud/layout";
 import { loadClips, loadMovement, type ClipSet, type HeroState, type MovementConfig, type Weapon } from "../game/hero/config";
 
@@ -20,8 +21,7 @@ export interface SandboxState {
   running: boolean;
   fps: number;
   inputLog: string[];
-  emitterOn: boolean;
-  emitterPeriod: number;
+  fogOn: boolean;
   overlays: Record<OverlayName, boolean>;
   paused: boolean;
   timeScale: number;
@@ -78,6 +78,8 @@ const POSITIVE_PATHS = new Set(["cellPx", "heroHeightCells", "floorHeightCells",
 
 const fileTuning = () => ({ movement: loadMovement(movementJson), clips: loadClips(clipsJson) });
 
+const fogConfig = loadFog(cameraJson);
+
 export const useSandbox = create<SandboxState>()((set, get) => ({
   state: "idle",
   time: 0,
@@ -89,8 +91,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   running: false,
   fps: 0,
   inputLog: [],
-  emitterOn: true,
-  emitterPeriod: sandboxJson.emitter.periodMs / 1000,
+  fogOn: fogConfig.enabled,
   overlays: { hitbox: false, tiles: false, joints: false, info: false },
   paused: false,
   timeScale: 1,

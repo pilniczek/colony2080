@@ -2,10 +2,12 @@ import controls from "@config/controls.json";
 import clipsJson from "@config/hero/clips.json";
 import movementJson from "@config/hero/movement.json";
 import sandboxJson from "@config/levels/sandbox.json";
+import cameraJson from "@config/camera.json";
 import { describe, expect, it } from "vitest";
 import { Input } from "../engine/input";
 import { FIXED_STEP } from "../engine/loop";
 import { loadClips, loadMovement } from "./hero/config";
+import { createFog, loadFog } from "./fog";
 import { createHero, type Hero } from "./hero/hero";
 import { loadSandbox } from "./level/sandboxLevel";
 import { stepWorld } from "./stepWorld";
@@ -30,8 +32,8 @@ const script: Record<number, ["down" | "up", string][]> = {
 
 function fromSpawn(input: Input, live: boolean): Hero {
   const world = loadSandbox(sandboxJson);
-  world.emitter.on = true;
   const hero = createHero(world.spawn, "gun", 4 * cfg.energy.hit);
+  world.fog = createFog(loadFog(cameraJson), hero, world.grid);
   for (let f = 0; f < STEPS; f++) {
     for (const [type, code] of live ? (script[f] ?? []) : []) {
       if (type === "down") input.keyDown(code);
@@ -53,7 +55,7 @@ describe("record and replay", () => {
     const replayed = fromSpawn(input, false);
     expect(record.length).toBe(Object.values(script).flat().length);
     expect(recorded.x).not.toBe(sandboxJson.spawn[0]);
-    expect(recorded.state).toBe("jumpDeath");
+    expect(recorded.state).toBe("idle");
     expect(replayed).toEqual(recorded);
   });
 });

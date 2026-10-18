@@ -1,7 +1,8 @@
 import type { InputFrame } from "../engine/input";
+import { updateFog } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { updateHero, type Hero, type HeroEvent } from "./hero/hero";
-import { updateEmitter, updateLift, type SandboxWorld } from "./level/sandboxLevel";
+import { updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
 import { fireEnemy, fireShots, stepShots } from "./shots";
 
@@ -14,7 +15,7 @@ export function stepWorld(
   dt: number,
   consume: (action: string) => boolean,
 ): HeroEvent[] {
-  updateEmitter(world, cfg.shot, dt);
+  if (world.fog) updateFog(world.fog, hero, cfg.box.height, dt);
   fireEnemy(world, cfg, clips, updateEnemy(world.enemy, world.grid, hero, clips, dt));
   stepShots(world, cfg, dt);
   updateLift(world.lift, cfg.liftSpeed, dt);

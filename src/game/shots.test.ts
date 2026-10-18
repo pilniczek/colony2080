@@ -122,12 +122,6 @@ describe("hero bullets", () => {
     expect(g.world.sparks).toHaveLength(0);
   });
 
-  it("lets emitter bullets through to the hero", () => {
-    const g = armed(26.5);
-    g.world.emitter.on = true;
-    run(g, 4);
-    expect(g.hero.energy).toBeLessThan(cfg.energy.max);
-  });
 });
 
 describe("sparks", () => {

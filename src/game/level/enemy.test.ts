@@ -116,11 +116,4 @@ describe("sandbox enemy", () => {
     expect(enemy.body.energy).toBeLessThan(sandbox.enemy.hits);
     expect(g.world.sparks.some((s) => Math.abs(s.x - enemy.body.x) < cfg.box.width)).toBe(true);
   });
-
-  it("ignores emitter bullets", () => {
-    const g = game({ x: 10.5, y: 14 });
-    g.world.emitter.on = true;
-    run(g, 4);
-    expect(g.world.enemy.body.energy).toBe(sandbox.enemy.hits);
-  });
 });

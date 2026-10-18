@@ -1,6 +1,7 @@
 import type { Platform } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
+import type { Fog } from "../fog";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
 
 export interface Prop {
@@ -19,16 +20,6 @@ export interface Lift extends Platform {
   target: number | null;
 }
 
-export interface Emitter {
-  x: number;
-  y: number;
-  dir: -1 | 1;
-  periodMs: number;
-  on: boolean;
-  clock: number;
-  fired: boolean;
-}
-
 export interface Spark {
   x: number;
   y: number;
@@ -40,7 +31,7 @@ export interface SandboxWorld {
   lift: Lift;
   props: Prop[];
   spawn: [number, number];
-  emitter: Emitter;
+  fog: Fog | null;
   projectiles: Projectile[];
   sparks: Spark[];
   enemy: Enemy;
@@ -51,7 +42,6 @@ interface SandboxJson {
   spawn: [number, number];
   lift: { x: number; width: number; top: number; bottom: number };
   props: Prop[];
-  emitter: { x: number; y: number; dir: -1 | 1; periodMs: number };
   enemy: EnemyJson;
 }
 
@@ -71,7 +61,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     },
     props: data.props.map((prop) => ({ ...prop })),
     spawn: [data.spawn[0], data.spawn[1]],
-    emitter: { ...data.emitter, on: false, clock: 0, fired: false },
+    fog: null,
     projectiles: [],
     sparks: [],
     enemy: createEnemy(data.enemy, grid),
@@ -106,19 +96,4 @@ export function updateLift(lift: Lift, speed: number, dt: number): void {
   const dir = Math.sign(remaining);
   lift.y += dir * step;
   lift.vy = dir * speed;
-}
-
-export function updateEmitter(world: SandboxWorld, shot: { speed: number; radius: number }, dt: number): void {
-  const { emitter } = world;
-  if (!emitter.on) {
-    emitter.clock = 0;
-    emitter.fired = false;
-    return;
-  }
-  emitter.clock += dt * 1000;
-  while (emitter.clock >= emitter.periodMs) {
-    emitter.clock -= emitter.periodMs;
-    emitter.fired = true;
-    world.projectiles.push({ x: emitter.x, y: emitter.y, vx: emitter.dir * shot.speed, r: shot.radius, originX: emitter.x });
-  }
 }

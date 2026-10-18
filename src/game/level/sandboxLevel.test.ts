@@ -1,9 +1,7 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox } from "../../engine/world/collide";
-import { stepProjectiles } from "../../engine/world/projectiles";
-import { cfg } from "../hero/testWorld";
-import { callLift, loadSandbox, updateEmitter, updateLift } from "./sandboxLevel";
+import { callLift, loadSandbox, updateLift } from "./sandboxLevel";
 
 const dt = 1 / 60;
 
@@ -45,28 +43,5 @@ describe("lift", () => {
     expect(lift.target).toBe(14);
     updateLift(lift, 3, dt);
     expect(lift.vy).toBe(3);
-  });
-});
-
-describe("emitter", () => {
-  it("spawns nothing while off", () => {
-    const world = loadSandbox(sandbox);
-    for (let i = 0; i < 600; i++) updateEmitter(world, cfg.shot, dt);
-    expect(world.projectiles).toHaveLength(0);
-  });
-
-  it("spawns one projectile per period while on and loses it at the wall", () => {
-    const world = loadSandbox(sandbox);
-    world.emitter.on = true;
-    for (let i = 0; i < 119; i++) updateEmitter(world, cfg.shot, dt);
-    expect(world.projectiles).toHaveLength(0);
-    expect(world.emitter.fired).toBe(false);
-    for (let i = 0; i < 2; i++) updateEmitter(world, cfg.shot, dt);
-    expect(world.emitter.fired).toBe(true);
-    expect(world.projectiles).toHaveLength(1);
-    expect(world.projectiles[0]).toMatchObject({ x: 38.5, y: 12.6, vx: -cfg.shot.speed, r: cfg.shot.radius });
-    world.emitter.on = false;
-    for (let i = 0; i < 600; i++) world.projectiles = stepProjectiles(world.projectiles, world.grid, dt);
-    expect(world.projectiles).toHaveLength(0);
   });
 });
