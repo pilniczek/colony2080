@@ -11,6 +11,7 @@ const MAT = {
 const AX = CFG.frame.axis;
 const SIDE_AX = CFG.frame.sideAxis;
 const FOOT_Y = CFG.frame.footY;
+const FINGER_LW = 0.4;
 
 function parseTf(str) {
   const m = new DOMMatrix();
@@ -248,10 +249,9 @@ function frontHand(parent, M, thumbFront) {
   if (lod) for (let i = 0; i < 4; i++) P(parent, { pts: M([[46 + i * 21, 422], [65 + i * 21, 422], [65 + i * 21, 478], [46 + i * 21, 478]]), shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = 46 + i * 21;
-    P(parent, { pts: M([[x, 422], [x + 19, 422], [x + 19, 437], [x, 437]]), r: 2 });
-    P(parent, { pts: M([[x + 1, 437], [x + 18, 437], [x + 18, 456], [x + 1, 456]]), shade: "cyl", r: 2 });
-    F(parent, M([[x + 1, 456], [x + 18, 456], [x + 18, 459], [x + 1, 459]]), "m0");
-    P(parent, { pts: M([[x + 2, 459], [x + 17, 459], [x + 17, 472], [x + 10, 478], [x + 2, 472]]), shade: "cyl", r: 3 });
+    P(parent, { pts: M([[x, 422], [x + 20, 422], [x + 20, 437], [x, 437]]), r: 2, lw: FINGER_LW });
+    P(parent, { pts: M([[x + 0.5, 437], [x + 19.5, 437], [x + 19.5, 456], [x + 0.5, 456]]), shade: "cyl", r: 2, lw: FINGER_LW });
+    P(parent, { pts: M([[x + 1, 456], [x + 19, 456], [x + 19, 472], [x + 10, 478], [x + 1, 472]]), shade: "cyl", r: 3, lw: FINGER_LW });
   }
   if (thumbFront) thumb();
 }
@@ -388,10 +388,9 @@ function sideHand(parent) {
   if (lod) for (let i = 0; i < 4; i++) P(parent, { pts: [[280 + i * 21, 422], [299 + i * 21, 422], [299 + i * 21, 478], [280 + i * 21, 478]], shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = 280 + i * 21;
-    P(parent, { pts: [[x, 422], [x + 19, 422], [x + 19, 437], [x, 437]], r: 2 });
-    P(parent, { pts: [[x + 1, 437], [x + 18, 437], [x + 18, 456], [x + 1, 456]], shade: "cyl", r: 2 });
-    F(parent, [[x + 1, 456], [x + 18, 456], [x + 18, 459], [x + 1, 459]], "m0");
-    P(parent, { pts: [[x + 2, 459], [x + 17, 459], [x + 17, 472], [x + 10, 478], [x + 2, 472]], shade: "cyl", r: 3 });
+    P(parent, { pts: [[x, 422], [x + 20, 422], [x + 20, 437], [x, 437]], r: 2, lw: FINGER_LW });
+    P(parent, { pts: [[x + 0.5, 437], [x + 19.5, 437], [x + 19.5, 456], [x + 0.5, 456]], shade: "cyl", r: 2, lw: FINGER_LW });
+    P(parent, { pts: [[x + 1, 456], [x + 19, 456], [x + 19, 472], [x + 10, 478], [x + 1, 472]], shade: "cyl", r: 3, lw: FINGER_LW });
   }
 }
 
@@ -533,7 +532,7 @@ function drawHighlight(ctx, node, c3) {
 
 function drawPart(ctx, node, pal, lineW, simple) {
   const { spec, path } = node;
-  const { mat = "armor", shade = "box", line = true } = spec;
+  const { mat = "armor", shade = "box", line = true, lw = 1 } = spec;
   const [c0, c1, c2, c3, cl] = MAT[mat].map(k => pal[k]);
   ctx.fillStyle = baseFill(ctx, node, simple, c0, c1, c2, c3);
   if (shade === "dome") fillUnit(ctx, node);
@@ -549,7 +548,7 @@ function drawPart(ctx, node, pal, lineW, simple) {
   if (line && lineW) {
     ctx.strokeStyle = cl;
     ctx.lineJoin = "round";
-    ctx.lineWidth = lineWidth(ctx, lineW);
+    ctx.lineWidth = lineWidth(ctx, lineW * lw);
     ctx.stroke(path);
   }
 }
