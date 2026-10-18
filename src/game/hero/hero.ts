@@ -1,6 +1,8 @@
 import type { InputFrame } from "../../engine/input";
+import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
-import { callLift, type SandboxWorld } from "../level/sandboxLevel";
+import type { Projectile } from "../../engine/world/projectiles";
+import { callLift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { clipFor, type Clip, type ClipSet, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
@@ -11,6 +13,7 @@ export interface Hero {
   facing: 1 | -1;
   state: HeroState;
   time: number;
+  rate: 1 | -1;
   weapon: Weapon;
   energy: number;
   fallFrom: number;
@@ -37,6 +40,7 @@ interface Step {
 type Handler = (s: Step) => void;
 
 const EPS = 1e-3;
+const SHOT_EPS = 1e-6;
 const LADDER_REACH = 0.5;
 const PIT_MARGIN = 2;
 
@@ -49,6 +53,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     facing: 1,
     state: "idle",
     time: 0,
+    rate: 1,
     weapon,
     energy,
     fallFrom: spawn[1],
@@ -69,17 +74,28 @@ function clipOf(s: Step): Clip {
 const enter = (h: Hero, state: HeroState): void => {
   h.state = state;
   h.time = 0;
+  h.rate = 1;
 };
 
-const crossed = (s: Step, t: number): boolean => s.prev <= t && t < s.h.time;
+const crossed = (s: Step, t: number): boolean =>
+  s.h.rate > 0 ? s.prev <= t && t < s.h.time : s.h.time < t && t <= s.prev;
 
-const finished = (s: Step): boolean => s.h.time >= clipOf(s).duration;
+const crossedLoop = (s: Step, t: number, duration: number): boolean =>
+  Math.floor((s.h.time - t) / duration) > Math.floor((s.prev - t) / duration);
+
+const finished = (s: Step): boolean => (s.h.rate > 0 ? s.h.time >= clipOf(s).duration : s.h.time <= 0);
 
 const eventTime = (clip: Clip, name: string): number => clip.events?.find(([, n]) => n === name)?.[0] ?? 0;
+
+const viewSwitch = (clip: Clip): number => clip.view?.find(([t]) => t > 0)?.[0] ?? clip.duration / 2;
 
 const isJump = (state: HeroState): boolean => state === "standJump" || state === "runJump";
 
 const isAirborne = (state: HeroState): boolean => state === "fall" || isJump(state);
+
+const isDead = (state: HeroState): boolean => state === "death" || state === "fallDeath";
+
+const isDucked = (state: HeroState): boolean => state === "duck" || state === "duckAttack";
 
 const boxOf = (h: Hero, cfg: MovementConfig): Box => ({ x: h.x, y: h.y, w: cfg.box.width, h: cfg.box.height });
 
@@ -87,6 +103,15 @@ function atLadderTop(s: Step): boolean {
   const { h, world } = s;
   const row = Math.round(h.y);
   return h.onGround && Math.abs(h.y - row) <= EPS && world.grid.ladderTop(Math.floor(h.x), row);
+}
+
+function touching(s: Step, kind: string): Prop | undefined {
+  const { h, world, cfg } = s;
+  return world.props.find((p) => {
+    const y = p.y ?? world.spawn[1];
+    const reach = (cfg.box.width + (p.width ?? 0)) / 2;
+    return p.kind === kind && !p.taken && Math.abs(p.x - h.x) <= reach && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
+  });
 }
 
 function enterLadder(h: Hero): void {
@@ -103,12 +128,20 @@ function jump(h: Hero, state: "standJump" | "runJump"): void {
   h.fallFrom = h.y;
 }
 
-function die(s: Step, state: "fallDeath" | "death"): void {
-  const { h } = s;
+function die(h: Hero, state: "fallDeath" | "death", events: HeroEvent[]): void {
   enter(h, state);
   h.vx = 0;
   h.vy = 0;
-  s.events.push({ kind: "died", x: h.x, y: h.y });
+  events.push({ kind: "died", x: h.x, y: h.y });
+}
+
+export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
+  const events: HeroEvent[] = [];
+  if (h.hidden || isDead(h.state)) return events;
+  h.energy = Math.max(0, h.energy - cfg.energy.hit);
+  if (h.energy === 0) die(h, "death", events);
+  else enter(h, "hit");
+  return events;
 }
 
 function gait(s: Step): void {
@@ -117,6 +150,54 @@ function gait(s: Step): void {
   if (input.dir !== h.facing) return enter(h, "turn");
   const next = input.held.has("runModifier") ? "run" : "walk";
   if (h.state !== next) enter(h, next);
+}
+
+function shot(s: Step): void {
+  s.events.push({ kind: "shot", x: s.h.x, y: s.h.y });
+}
+
+function startAttack(s: Step, state: "attack" | "duckAttack"): void {
+  enter(s.h, state);
+  if (s.h.weapon === "gun") shot(s);
+}
+
+function act(s: Step): boolean {
+  const { h } = s;
+  const panel = touching(s, "panel");
+  if (panel && s.consume("useItem")) {
+    enter(h, "use");
+    panel.on = !panel.on;
+    s.events.push({ kind: "use", x: panel.x, y: panel.y ?? h.y });
+    return true;
+  }
+  if (!s.consume("shoot")) return false;
+  startAttack(s, "attack");
+  return true;
+}
+
+function switchWeapon(s: Step, weapon: Weapon): void {
+  const { h } = s;
+  enter(h, "weaponSwitch");
+  if (weapon === "gun") return;
+  h.rate = -1;
+  h.time = clipOf(s).duration;
+}
+
+function stance(s: Step): boolean {
+  const { h, input, world } = s;
+  const slot = s.consume("weapon1") ? "gun" : s.consume("weapon2") ? "fists" : null;
+  if (slot && slot !== h.weapon) {
+    switchWeapon(s, slot);
+    return true;
+  }
+  if (input.held.has("hide") && !(h.onLift && world.lift.target !== null)) {
+    enter(h, "hide");
+    return true;
+  }
+  if (h.onLift || !input.held.has("down")) return false;
+  s.consume("down");
+  enter(h, touching(s, "item") ? "kneel" : "duck");
+  return true;
 }
 
 function idle(s: Step): void {
@@ -129,23 +210,77 @@ function idle(s: Step): void {
   } else if (input.held.has("down") && atLadderTop(s)) {
     return enterLadder(h);
   }
+  if (act(s) || stance(s)) return;
   if (input.dir !== 0) gait(s);
 }
 
 function moving(s: Step): void {
   if (s.consume("up") && s.h.state === "run") return jump(s.h, "runJump");
+  if (act(s)) return;
   gait(s);
 }
 
 function turn(s: Step): void {
-  const clip = clipOf(s);
-  const flipAt = clip.view?.find(([t]) => t > 0)?.[0] ?? clip.duration / 2;
-  if (crossed(s, flipAt)) s.h.facing = s.h.facing === 1 ? -1 : 1;
+  if (crossed(s, viewSwitch(clipOf(s)))) s.h.facing = s.h.facing === 1 ? -1 : 1;
   if (finished(s)) enter(s.h, "idle");
 }
 
-function land(s: Step): void {
+function toIdle(s: Step): void {
   if (finished(s)) enter(s.h, "idle");
+}
+
+function crouch(s: Step): void {
+  if (!s.input.held.has("down")) return enter(s.h, "idle");
+  enter(s.h, "duck");
+  s.h.time = clipOf(s).duration;
+}
+
+function duck(s: Step): void {
+  if (!s.input.held.has("down")) return enter(s.h, "idle");
+  if (s.consume("shoot")) startAttack(s, "duckAttack");
+}
+
+function leaveAttack(s: Step): void {
+  if (s.h.state === "duckAttack") crouch(s);
+  else gait(s);
+}
+
+const jabPeaks = (clip: Clip): number[] => {
+  const rest = clip.pose[0]![1];
+  return clip.pose.filter(([, p]) => Object.keys(p).some((j) => p[j] !== rest[j])).map(([t]) => t);
+};
+
+function attack(s: Step): void {
+  const { h, input, cfg } = s;
+  if (h.weapon === "gun") {
+    const shots = (t: number): number => Math.floor(t * cfg.fireRate + SHOT_EPS);
+    if (shots(h.time) > shots(s.prev)) shot(s);
+    if (!input.held.has("shoot")) leaveAttack(s);
+    return;
+  }
+  const clip = clipOf(s);
+  for (const t of jabPeaks(clip)) {
+    if (crossedLoop(s, t, clip.duration)) s.events.push({ kind: "punch", x: h.x, y: h.y });
+  }
+  if (h.time < (clip.cancelAt ?? clip.duration)) return;
+  if (!input.held.has("shoot") || input.dir !== 0) leaveAttack(s);
+}
+
+function hide(s: Step): void {
+  const { h, input } = s;
+  const clip = clipOf(s);
+  if (crossed(s, viewSwitch(clip))) h.hidden = h.rate > 0;
+  if (h.rate < 0) return toIdle(s);
+  if (input.held.has("hide")) return;
+  h.rate = -1;
+  h.time = Math.min(h.time, clip.duration);
+}
+
+function weaponSwitch(s: Step): void {
+  const { h } = s;
+  const drawAt = clipOf(s).gun?.find(([, g]) => g === "hand")?.[0] ?? 0;
+  if (crossed(s, drawAt)) h.weapon = h.rate > 0 ? "gun" : "fists";
+  toIdle(s);
 }
 
 function ladder(s: Step): void {
@@ -184,8 +319,16 @@ const transitions: Partial<Record<HeroState, Handler>> = {
   standJump: none,
   runJump: none,
   fall: none,
-  land,
+  land: toIdle,
   ladder,
+  duck,
+  duckAttack: attack,
+  kneel: toIdle,
+  use: toIdle,
+  hide,
+  attack,
+  weaponSwitch,
+  hit: toIdle,
   fallDeath: respawn,
   death: respawn,
 };
@@ -195,10 +338,18 @@ const selfMoving = new Set<HeroState>(["ladder", "fallDeath", "death"]);
 const launchHeight = (state: HeroState, cfg: MovementConfig): number =>
   state === "runJump" ? cfg.jump.runHeight : cfg.jump.standHeight;
 
+function pickup(s: Step): void {
+  const item = touching(s, "item");
+  if (!item) return;
+  item.taken = true;
+  s.events.push({ kind: "pickup", x: item.x, y: s.h.y });
+}
+
 function clipEvents(s: Step): void {
   const { h, cfg } = s;
   for (const [t, name] of clipOf(s).events ?? []) {
     if (!crossed(s, t)) continue;
+    if (name === "pickup") pickup(s);
     if (name === "launch") {
       h.vy = -Math.sqrt(2 * cfg.gravity * launchHeight(h.state, cfg));
       h.onGround = false;
@@ -231,7 +382,7 @@ function physics(s: Step): void {
 
 function settle(s: Step, startY: number): void {
   const { h, world, cfg } = s;
-  if (h.y > world.grid.height + PIT_MARGIN) return die(s, "fallDeath");
+  if (h.y > world.grid.height + PIT_MARGIN) return die(h, "fallDeath", s.events);
   if (!h.onGround) {
     if (!isAirborne(h.state)) {
       enter(h, "fall");
@@ -241,8 +392,24 @@ function settle(s: Step, startY: number): void {
   }
   const landed = h.state === "fall" || (isJump(h.state) && h.time > eventTime(clipOf(s), "launch"));
   if (!landed) return;
-  if (h.y - h.fallFrom > cfg.fallDeathCells) die(s, "fallDeath");
+  if (h.y - h.fallFrom > cfg.fallDeathCells) die(h, "fallDeath", s.events);
   else enter(h, "land");
+}
+
+function overlaps(p: Projectile, box: Box): boolean {
+  const dx = p.x - clamp(p.x, box.x - box.w / 2, box.x + box.w / 2);
+  const dy = p.y - clamp(p.y, box.y - box.h, box.y);
+  return dx * dx + dy * dy < p.r * p.r;
+}
+
+function projectileHits(s: Step): void {
+  const { h, world, cfg } = s;
+  const box = { ...boxOf(h, cfg), h: isDucked(h.state) ? cfg.box.duckHeight : cfg.box.height };
+  world.projectiles = world.projectiles.filter((p) => {
+    if (h.hidden || isDead(h.state) || !overlaps(p, box)) return true;
+    s.events.push(...damage(h, cfg));
+    return false;
+  });
 }
 
 export function updateHero(
@@ -255,13 +422,15 @@ export function updateHero(
   consume: (action: string) => boolean,
 ): HeroEvent[] {
   const s: Step = { h, input, world, cfg, clips, dt, consume, prev: h.time, events: [] };
-  h.time += dt;
+  h.time += dt * h.rate;
   clipEvents(s);
   transitions[h.state]?.(s);
-  if (selfMoving.has(h.state)) return s.events;
-  const startY = h.y;
-  h.vx = horizontalSpeed(s);
-  physics(s);
-  settle(s, startY);
+  if (!selfMoving.has(h.state)) {
+    const startY = h.y;
+    h.vx = horizontalSpeed(s);
+    physics(s);
+    settle(s, startY);
+  }
+  projectileHits(s);
   return s.events;
 }
