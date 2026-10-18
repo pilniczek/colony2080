@@ -29,6 +29,7 @@ if (!ctx) throw new Error("no 2d context");
 
 const tuning = () => useSandbox.getState();
 const world = loadSandbox(sandboxJson);
+world.emitter.on = true;
 const hero = createHero(world.spawn, "gun", tuning().movement.energy.max);
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -64,7 +65,7 @@ const watchPixelRatio = (): void => {
 
 const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
-let run = { emitterOn: false, weapon: "gun" as Weapon };
+let run = { emitterOn: world.emitter.on, weapon: "gun" as Weapon };
 let recordedSteps = 0;
 let playedSteps = 0;
 let inputLog: string[] = [];

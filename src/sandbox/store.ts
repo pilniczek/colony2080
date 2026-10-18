@@ -83,7 +83,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   running: false,
   fps: 0,
   inputLog: [],
-  emitterOn: false,
+  emitterOn: true,
   overlays: { hitbox: false, tiles: false, joints: false, info: false },
   paused: false,
   timeScale: 1,
