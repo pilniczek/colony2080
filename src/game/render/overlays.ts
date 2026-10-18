@@ -86,14 +86,14 @@ function joints(ctx: CanvasRenderingContext2D, hero: Hero, look: HeroLook, rigs:
   ctx.restore();
 }
 
-function info(ctx: CanvasRenderingContext2D, hero: Hero, look: HeroLook, dpr: number): void {
+function info(ctx: CanvasRenderingContext2D, hero: Hero, look: HeroLook, dpr: number, [x, y]: Pt): void {
   const lines = [
     `state ${hero.state}  clip ${clipFor(hero.state, hero.weapon)}  t ${hero.time.toFixed(2)}`,
     `x ${hero.x.toFixed(2)}  y ${hero.y.toFixed(2)}  vx ${hero.vx.toFixed(2)}  vy ${hero.vy.toFixed(2)}`,
     `view ${look.view}  ground ${hero.onGround}  lift ${hero.onLift}  hidden ${hero.hidden}  energy ${hero.energy}`,
   ];
   ctx.save();
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.setTransform(dpr, 0, 0, dpr, x, y);
   ctx.font = `${TEXT_PX}px monospace`;
   const width = Math.max(...lines.map((l) => ctx.measureText(l).width));
   ctx.fillStyle = COLORS.textBack;
@@ -113,6 +113,7 @@ export function drawOverlays(
   cfg: MovementConfig,
   view: ViewTransform,
   flags: OverlayFlags,
+  textAt: Pt = [0, 0],
 ): void {
   const dpr = ctx.canvas.clientWidth ? ctx.canvas.width / ctx.canvas.clientWidth : 1;
   const px = dpr / view.scale;
@@ -122,5 +123,5 @@ export function drawOverlays(
   if (flags.hitbox) hitbox(ctx, hero, cfg, px);
   if (flags.joints) joints(ctx, hero, look, rigs, cfg, px);
   ctx.restore();
-  if (flags.info) info(ctx, hero, look, dpr);
+  if (flags.info) info(ctx, hero, look, dpr, textAt);
 }

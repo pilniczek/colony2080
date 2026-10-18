@@ -3,6 +3,7 @@ import clipsJson from "@config/hero/clips.json";
 import movementJson from "@config/hero/movement.json";
 import { create } from "zustand";
 import type { InputRecord } from "../engine/input";
+import { hudFit, type HudFit } from "../game/hud/layout";
 import { loadClips, loadMovement, type ClipSet, type HeroState, type MovementConfig, type Weapon } from "../game/hero/config";
 
 export type OverlayName = "hitbox" | "tiles" | "joints" | "info";
@@ -28,6 +29,7 @@ export interface SandboxState {
   recording: boolean;
   playing: boolean;
   record: InputRecord | null;
+  hud: HudFit;
   toggleOverlay(name: OverlayName): void;
   setPaused(v: boolean): void;
   setTimeScale(v: number): void;
@@ -94,6 +96,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   recording: false,
   playing: false,
   record: null,
+  hud: hudFit(1, 1),
   toggleOverlay: (name) => set((s) => ({ overlays: { ...s.overlays, [name]: !s.overlays[name] } })),
   setPaused: (paused) => set({ paused }),
   setTimeScale: (timeScale) => set({ timeScale }),

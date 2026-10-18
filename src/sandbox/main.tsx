@@ -1,3 +1,5 @@
+import "@fontsource/orbitron/900.css";
+import "@fontsource/share-tech-mono/400.css";
 import controls from "@config/controls.json";
 import sandboxJson from "@config/levels/sandbox.json";
 import { createRoot } from "react-dom/client";
@@ -5,6 +7,7 @@ import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { fitView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import type { Weapon } from "../game/hero/config";
+import { hudFit, viewRect, type Rect } from "../game/hud/layout";
 import { createHero, damage, kill } from "../game/hero/hero";
 import { createRigs, heroLook } from "../game/hero/look";
 import { loadSandbox } from "../game/level/sandboxLevel";
@@ -13,6 +16,7 @@ import { drawScene } from "../game/render/scene";
 import { holdPoses } from "../game/robot/gun";
 import { stepWorld } from "../game/stepWorld";
 import { useSandbox } from "./store";
+import { Hud } from "./ui/Hud";
 import { Panel, type SandboxCommands } from "./ui/Panel";
 
 const MAX_STEPS = 5;
@@ -39,6 +43,7 @@ input.attach(window);
 
 let prev = { x: hero.x, y: hero.y };
 let view: ViewTransform = { scale: 1, offsetX: 0, offsetY: 0 };
+let gameWindow: Rect = { x: 0, y: 0, w: 1, h: 1 };
 
 const freeWidth = (dpr: number): number => {
   const panel = ui.querySelector("[data-panel]");
@@ -50,7 +55,12 @@ const fit = (): void => {
   const dpr = devicePixelRatio || 1;
   resizeCanvas(canvas, dpr);
   const { cellPx } = tuning().movement;
-  view = fitView(freeWidth(dpr), canvas.height, world.grid.width * cellPx, world.grid.height * cellPx);
+  const hud = hudFit(freeWidth(dpr) / dpr, canvas.height / dpr);
+  const r = viewRect(hud);
+  gameWindow = { x: r.x * dpr, y: r.y * dpr, w: r.w * dpr, h: r.h * dpr };
+  const fitted = fitView(gameWindow.w, gameWindow.h, world.grid.width * cellPx, world.grid.height * cellPx);
+  view = { ...fitted, offsetX: fitted.offsetX + gameWindow.x, offsetY: fitted.offsetY + gameWindow.y };
+  useSandbox.setState({ hud });
 };
 
 const watchPixelRatio = (): void => {
@@ -133,8 +143,13 @@ const loop = new FixedLoop({
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h);
+    ctx.clip();
     drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, heroLook(world.enemy.body, clips, enemyRigs, hold, cfg), enemyRigs);
-    drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays);
+    drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
+    ctx.restore();
     push();
   },
 });
@@ -199,4 +214,9 @@ new MutationObserver(fit).observe(ui, { childList: true });
 watchPixelRatio();
 loop.start();
 
-createRoot(ui).render(<Panel commands={commands} />);
+createRoot(ui).render(
+  <>
+    <Hud />
+    <Panel commands={commands} />
+  </>,
+);

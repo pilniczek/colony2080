@@ -83,6 +83,12 @@ flowchart LR
 | Death | Drop the gun, fall on the back, body flat on the floor | user |
 | Inventory key | `I` instead of Tab | user |
 | Phase order | Movement overview page first (non-interactive, one looping cell per move). Engine, movement sandbox and cutscenes later | user |
+| HUD frame | Clean vector redraw of the original frame layout, no pixels. Brown-tinted metal with 3D bevels, gradient edges and screws. Top bar: 3 separate plates (weapons, `C2080` badge, inventory) joined by 4 rods per gap; the outer ends have the same gap and rods. Side panels: green circuit pattern (repeating tile) from the top edge down, teal pipe with gold clamps along the game view, indicators centred between frame edge and pipe. Left: thin square-ended glass life tube (fill yellow at top, red at bottom), red level marker, `E` key. Right: reserve glass tube, 5 shield lights, `S` key. Active weapon slot has a red lamp under it (lens, holder, glow); free space around it. Spike `spikes/hud-design/`, sandbox `src/game/hud/` | user |
+| HUD badge | `C2080` instead of the original `C28` | user |
+| HUD weapon icons | Slot 1 is the rotary gun from the gun model, slot 2 the robot's side forearm and fist, pointing right. Slot 3 (bonus weapon) stays empty until the E-Blaster is designed | user |
+| HUD wide screens | The frame takes the screen aspect. Extra width over 16:10 becomes an empty plate between the weapons plate and the badge plate (below 8 units the weapons plate takes it). Screens narrower than 16:10 keep the 320 x 200 layout with black bars top and bottom | user (wide), Claude's call (narrow) |
+| HUD fonts | Orbitron 900 (badge, keys) and Share Tech Mono (counters, item names), bundled with `@fontsource` | Claude's call |
+| Automap | Not in the HUD for now | user |
 
 ## Config drafts
 
@@ -111,6 +117,7 @@ flowchart LR
 | `spikes/gun-design/` | Gun design sheet: side, held side and front, slung back, game size, references |
 | `spikes/enemy-design/` | Enemy design sheet: greyscale tint sliders, palette overrides, full and game size, face-off with the hero, references |
 | `spikes/shared/gun.js` | Shared gun model and hold poses |
+| `spikes/hud-design/` | HUD frame look: controls for aspect, weapon, ammo, life, reserve, shields and item; side by side with original screenshots |
 
 ## Open
 
@@ -119,5 +126,7 @@ flowchart LR
 - Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Original stays default and keys are configurable; revisit after trying the sandbox.
 - Ladder: Left / Right do nothing while climbing (plan's assumption).
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
+- Sandbox HUD shows live life and weapon only. Ammo (350), reserve (full) and shields (5) are fixed until phase 3 adds them.
+- TODO: E-Blaster (mission 1 bonus weapon, subway pickup) needs its own design sheet spike first, like `spikes/gun-design/`. Then add it to HUD slot 3 in `spikes/hud-design/`; until then the slot stays empty.
 - Hero tuning values in `config/hero/movement.json` are first guesses until tuned in the sandbox.
 - Collision source for levels (decoded map data or hand-authored) is decided in phase 4.

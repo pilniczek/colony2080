@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HUD Design Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0b1112; --panel: #141c1e; --text: #c9d1d0; --muted: #7d8a89; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+  header { padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; background: var(--panel); }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  header label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  header input[type=number] { width: 56px; }
+  h2 { font-size: 13px; font-weight: 600; margin: 4px 16px 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  main { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; padding: 12px 16px; }
+  main.full { grid-template-columns: 1fr; }
+  figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  figure svg { width: 100%; height: auto; display: block; background: #000; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
+</style>
+</head>
+<body>
+<header>
+  <h1>HUD design sheet</h1>
+  <label>Aspect <select id="aspect"><option value="320">16:10</option><option value="356">16:9</option><option value="467">21:9</option></select></label>
+  <label>Weapon <select id="weapon"><option value="0">1 gun</option><option value="1">2 fists</option><option value="2">3 bonus</option></select></label>
+  <label><input id="bonus" type="checkbox"> Bonus owned</label>
+  <label>Ammo <input id="ammo" type="number" min="0" max="999" value="109"></label>
+  <label>Bonus ammo <input id="bonusAmmo" type="number" min="0" max="999" value="12"></label>
+  <label>Life <input id="life" type="range" min="0" max="100" value="55"></label>
+  <label>Reserve <input id="reserve" type="range" min="0" max="100" value="100"></label>
+  <label>Shields <input id="shields" type="number" min="0" max="5" value="3"></label>
+  <label>Item <select id="item"><option value="">empty hand</option><option>PACIDLO</option><option>ELEKTROMAGNET</option></select></label>
+</header>
+<main class="full">
+  <figure><figcaption>Vector HUD</figcaption><div id="big"></div></figure>
+</main>
+<h2>Side by side</h2>
+<main>
+  <figure><figcaption>Original, Steam screenshot s3</figcaption><img src="../../docs/research/images/steam-screens/s3.jpg" alt="original HUD"></figure>
+  <figure><figcaption>Vector HUD</figcaption><div id="small"></div></figure>
+</main>
+<h2>References</h2>
+<main>
+  <figure><figcaption>Street start, bonus slot empty</figcaption><img src="../../docs/research/video/frames-best/L1_t0226_street_start_barrel_hud.png" alt="street start"></figure>
+  <figure><figcaption>Top bar, all three weapons</figcaption><img src="../../docs/research/gamedata/png/hud_top_x3.png" alt="top bar"></figure>
+  <figure><figcaption>Steam screenshot s0, 16:9</figcaption><img src="../../docs/research/images/steam-screens/s0.jpg" alt="16:9"></figure>
+  <figure><figcaption>Steam screenshot s6</figcaption><img src="../../docs/research/images/steam-screens/s6.jpg" alt="s6"></figure>
+</main>
+<script src="../shared/config.js"></script>
+<script src="../shared/xbot.js"></script>
+<script src="../shared/gun.js"></script>
+<script>
+(() => {
+const H = 200;
+const AMBER = "#ffb21c";
+const MONO = "Share Tech Mono, monospace";
+const BOLD = "Orbitron, sans-serif";
+const $ = (id) => document.getElementById(id);
+
+const DEFS = `<defs>
+  <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a08f76"/><stop offset=".1" stop-color="#6e604e"/><stop offset=".5" stop-color="#4b4034"/><stop offset=".85" stop-color="#2f2720"/><stop offset="1" stop-color="#1a1511"/></linearGradient>
+  <linearGradient id="metalV" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1c1712"/><stop offset=".3" stop-color="#4a3e32"/><stop offset=".45" stop-color="#5c4e40"/><stop offset=".75" stop-color="#342a21"/><stop offset="1" stop-color="#17120e"/></linearGradient>
+  <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b09f86"/><stop offset=".45" stop-color="#6e5e4c"/><stop offset="1" stop-color="#3a3027"/></linearGradient>
+  <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset=".45" stop-color="#bba98f"/><stop offset=".55" stop-color="#5a4d3f"/><stop offset="1" stop-color="#eadfcb"/></linearGradient>
+  <linearGradient id="amberFill" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a85a00"/><stop offset=".45" stop-color="#ffd650"/><stop offset=".6" stop-color="#ffe9a0"/><stop offset="1" stop-color="#a85a00"/></linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".22" stop-color="#fff" stop-opacity=".45"/><stop offset=".38" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></linearGradient>
+  <linearGradient id="insetTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".75"/><stop offset=".3" stop-color="#000" stop-opacity="0"/><stop offset=".85" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+  <linearGradient id="insetSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".6"/><stop offset=".04" stop-color="#000" stop-opacity="0"/><stop offset=".96" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></linearGradient>
+  <linearGradient id="glare" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0f08"/><stop offset=".6" stop-color="#3b2214"/><stop offset="1" stop-color="#20160f"/></linearGradient>
+  <linearGradient id="flame" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffde70"/><stop offset=".5" stop-color="#ff7a10"/><stop offset="1" stop-color="#ff7a10" stop-opacity="0"/></linearGradient>
+  <radialGradient id="lampOn" cx=".5" cy=".42" r=".62"><stop offset="0" stop-color="#fff6e4"/><stop offset=".18" stop-color="#ffb08a"/><stop offset=".42" stop-color="#ff3a16"/><stop offset=".78" stop-color="#b80c02"/><stop offset="1" stop-color="#4a0400"/></radialGradient>
+  <radialGradient id="lampOff" cx=".5" cy=".4" r=".62"><stop offset="0" stop-color="#6e2a1e"/><stop offset=".5" stop-color="#3c0d07"/><stop offset="1" stop-color="#170403"/></radialGradient>
+  <radialGradient id="halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4020" stop-opacity=".7"/><stop offset=".5" stop-color="#ff2a10" stop-opacity=".25"/><stop offset="1" stop-color="#ff2a10" stop-opacity="0"/></radialGradient>
+  <radialGradient id="shieldOn" cx=".45" cy=".4" r=".65"><stop offset="0" stop-color="#fffbe0"/><stop offset=".3" stop-color="#ffe060"/><stop offset=".75" stop-color="#d89a10"/><stop offset="1" stop-color="#6a4400"/></radialGradient>
+  <radialGradient id="shieldOff" cx=".45" cy=".4" r=".65"><stop offset="0" stop-color="#5a5228"/><stop offset=".6" stop-color="#34301a"/><stop offset="1" stop-color="#1a170c"/></radialGradient>
+  <radialGradient id="screwHead" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#e6d8c0"/><stop offset=".45" stop-color="#8a7a64"/><stop offset="1" stop-color="#2e261e"/></radialGradient>
+  <pattern id="grid" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><rect width="3.2" height="3.2" fill="#140c05"/><path d="M0 .2H3.2M.2 0V3.2" stroke="#9a5c0c" stroke-width=".35"/></pattern>
+  <pattern id="circuit" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#14221d"/><path d="M1 1H8V5H12M3 13V8H6V11M10 8H13M1 6H4" fill="none" stroke="#3c6a58" stroke-width=".6"/><circle cx="12" cy="5" r=".8" fill="#5f9680"/><circle cx="6" cy="11" r=".8" fill="#5f9680"/></pattern>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="lifeFill" gradientUnits="userSpaceOnUse" x1="0" y1="60" x2="0" y2="164"><stop offset="0" stop-color="#fff2a0"/><stop offset=".35" stop-color="#ffd030"/><stop offset=".7" stop-color="#ff8a10"/><stop offset="1" stop-color="#d81c06"/></linearGradient>
+  <linearGradient id="bevelUp" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#d8c8ae" stop-opacity=".85"/><stop offset=".4" stop-color="#d8c8ae" stop-opacity=".25"/><stop offset=".6" stop-color="#0e0b08" stop-opacity=".35"/><stop offset="1" stop-color="#0e0b08" stop-opacity=".95"/></linearGradient>
+  <linearGradient id="bevelDown" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#0e0b08" stop-opacity=".95"/><stop offset=".4" stop-color="#0e0b08" stop-opacity=".35"/><stop offset=".6" stop-color="#d8c8ae" stop-opacity=".2"/><stop offset="1" stop-color="#d8c8ae" stop-opacity=".75"/></linearGradient>
+  <linearGradient id="rodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3128"/><stop offset=".3" stop-color="#f0e4cc"/><stop offset=".55" stop-color="#8a7a64"/><stop offset="1" stop-color="#1a140f"/></linearGradient>
+  <linearGradient id="pipeG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0e1e1c"/><stop offset=".35" stop-color="#7fb8ae"/><stop offset=".6" stop-color="#3a6a64"/><stop offset="1" stop-color="#0a1412"/></linearGradient>
+  <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".35"/></filter>
+  <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
+</defs>`;
+
+const HI = "#d8c8ae", LO = "#0e0b08";
+const screw = (x, y) => `<use href="#screw" x="${x}" y="${y}"/>`;
+const bevel = (x, y, w, h, r, raised = true, lw = .45) =>
+  `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
+const counter = (x, n) => `<text x="${x}" y="15.6" font-family="${MONO}" font-size="7.4" fill="${AMBER}" filter="url(#glow)">N:${String(n).padStart(3, "0")}</text>`;
+
+function lamp(slot, on) {
+  const w = 12, h = 2, x = slot + 2, y = 22.2, padX = 1.6, padY = 1;
+  return `${on ? `<ellipse cx="${x + w / 2}" cy="${y + h / 2}" rx="${w}" ry="4.4" fill="url(#halo)"/>` : ""}
+  <rect x="${x - padX}" y="${y - padY}" width="${w + 2 * padX}" height="${h + 2 * padY}" rx="1.4" fill="url(#plate)"/>
+  ${bevel(x - padX, y - padY, w + 2 * padX, h + 2 * padY, 1.4, true, .3)}
+  <rect x="${x - .5}" y="${y - .4}" width="${w + 1}" height="${h + .8}" rx="1" fill="#0a0605"/>
+  ${bevel(x - .5, y - .4, w + 1, h + .8, 1, false, .2)}
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".8" fill="url(#${on ? "lampOn" : "lampOff"})"${on ? ' filter="url(#glow)"' : ""}/>
+  <path d="${[3, 6, 9].map((d) => `M${x + d} ${y + .2}v${h - .4}`).join("")}" stroke="#000" stroke-opacity="${on ? .14 : .3}" stroke-width=".2"/>
+  <rect x="${x + 1}" y="${y + .25}" width="${w - 2}" height=".5" rx=".25" fill="#fff" opacity="${on ? .55 : .14}" filter="url(#soft)"/>
+  <circle cx="${x + 2}" cy="${y + .55}" r=".28" fill="#fff" opacity="${on ? .9 : .25}"/>`;
+}
+
+const gridPanel = (x, w) => `<rect x="${x - .6}" y="2" width="${w + 1.2}" height="18.6" rx="2" fill="url(#plate)"/>
+  ${bevel(x - .6, 2, w + 1.2, 18.6, 2, true, .4)}
+  <rect x="${x + .4}" y="3" width="${w - .8}" height="16.6" rx="1.4" fill="#0b0806"/>
+  <rect x="${x + 1}" y="3.6" width="${w - 2}" height="15.4" rx="1" fill="url(#grid)"/>
+  <rect x="${x + 1}" y="3.6" width="${w - 2}" height="15.4" rx="1" fill="url(#insetTop)"/>
+  <rect x="${x + 1}" y="3.6" width="${w - 2}" height="15.4" rx="1" fill="url(#insetSide)"/>
+  <rect x="${x + 1}" y="3.6" width="${w - 2}" height="15.4" rx="1" fill="url(#glare)"/>
+  ${bevel(x + .4, 3, w - .8, 16.6, 1.4, false, .35)}`;
+
+const R = 12;
+function icon(w, h, paint) {
+  const c = document.createElement("canvas");
+  c.width = w * R; c.height = h * R;
+  const ctx = c.getContext("2d");
+  ctx.scale(R, R);
+  paint(ctx);
+  return c.toDataURL();
+}
+
+function findNode(node, name) {
+  if (node.name === name) return node;
+  for (const kid of node.kids || []) {
+    const hit = findNode(kid, name);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+const GUN_ICON = { w: 35, h: 14, url: icon(35, 14, (ctx) => {
+  ctx.scale(0.1, 0.1);
+  ctx.translate(84, 98);
+  window.GUN.draw(ctx);
+}) };
+
+const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
+  const fore = findNode(window.XBOT.buildSide(), "fore");
+  ctx.scale(15 / 146, 15 / 146);
+  ctx.translate(-290, 386);
+  ctx.beginPath();
+  ctx.rect(290, -386, 194, 146);
+  ctx.clip();
+  ctx.rotate(-Math.PI / 2);
+  window.XBOT.render(ctx, { ...fore, m: null, name: null });
+}) };
+
+const GUN = `<image href="${GUN_ICON.url}" x="19" y="4.4" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
+const FIST = `<image href="${FIST_ICON.url}" x="96" y="3.8" width="${FIST_ICON.w}" height="${FIST_ICON.h}"/>`;
+const BLASTER = `<g transform="translate(126 7.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
+  <rect y="1" width="34" height="3" rx=".5"/><rect x="8" y="-1.4" width="14" height="2.4" rx=".5" fill="#3f4a46"/>
+  <rect x="5" y="4" width="10" height="2.5"/><rect x="9" y="6.5" width="3" height="4.5" rx=".5"/></g>
+  <path d="M161 9.7q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
+const HAND = `<g transform="translate(0 4.4)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
+  <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
+
+function plate(a, b) {
+  const w = b - a;
+  return `<rect x="${a}" y="0" width="${w}" height="26.4" rx="1.6" fill="url(#metal)"/>
+  <path d="M${a + 1.6} .4H${b - 1.6}" stroke="#e8d8bc" stroke-width=".5"/>
+  ${bevel(a, 0, w, 26.4, 1.6, true, .45)}`;
+}
+
+function rod(a, b, y) {
+  return `<rect x="${a - 1}" y="${y - 1.4}" width="${b - a + 2}" height="2.8" fill="url(#rodG)"/>
+  <rect x="${a - 1.8}" y="${y - 1.9}" width="1.4" height="3.8" rx=".4" fill="url(#plate)" stroke="${LO}" stroke-width=".25"/>
+  <rect x="${b + .4}" y="${y - 1.9}" width="1.4" height="3.8" rx=".4" fill="url(#plate)" stroke="${LO}" stroke-width=".25"/>`;
+}
+
+function topBar(W, s) {
+  const edge = 3.6, inv = W - edge - 62.5, badge = inv - 59.5;
+  const item = s.item
+    ? `<text x="${inv + 29.5}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
+    : `<g transform="translate(${inv + 5} 0)">${HAND}</g>`;
+  const fixedEnd = 320 - edge - 62.5 - 59.5 - 7.6, empty = [fixedEnd + 3.6, badge - 7.6];
+  const wide = empty[1] - empty[0] >= 8;
+  const gaps = [[0, edge], ...(wide ? [[fixedEnd, empty[0]]] : []), [badge - 7.6, badge - 4], [badge + 52.4, inv - 3.5], [W - edge, W]];
+  const plates = gaps.slice(1).map(([a], i) => [gaps[i][1], a]);
+  const gridW = plates[0][1] - 18.4;
+  const emptyScrews = wide ? `${screw(empty[0] + 3, 6)}${screw(empty[1] - 3, 6)}${screw(empty[0] + 3, 19)}${screw(empty[1] - 3, 19)}` : "";
+  return `<rect x="${edge}" width="${W - 2 * edge}" height="26.4" fill="#060504"/>
+  ${gaps.map(([a, b]) => [4.2, 9.6, 15, 20.4].map((y) => rod(a, b, y)).join("")).join("")}
+  ${plates.map(([a, b]) => plate(a, b)).join("")}
+  ${emptyScrews}
+  ${gridPanel(14, gridW)}
+  ${GUN}${counter(59, s.ammo)}
+  ${FIST}
+  ${s.bonus ? BLASTER + counter(168, s.bonusAmmo) : ""}
+  ${lamp(30, s.weapon === 0)}${lamp(98, s.weapon === 1)}${s.bonus ? lamp(145, s.weapon === 2) : ""}
+  <rect x="${badge - .4}" y="1.8" width="48.8" height="21" rx="3.4" fill="#0b0806"/>
+  <rect x="${badge + .6}" y="2.6" width="46.8" height="19.4" rx="3" fill="url(#plate)"/>
+  ${bevel(badge + .6, 2.6, 46.8, 19.4, 3, true, .5)}
+  <rect x="${badge + 3.4}" y="5.4" width="41.2" height="13.8" rx="1.8" fill="#16110d"/>
+  <rect x="${badge + 3.4}" y="5.4" width="41.2" height="13.8" rx="1.8" fill="url(#insetTop)"/>
+  ${bevel(badge + 3.4, 5.4, 41.2, 13.8, 1.8, false, .45)}
+  <text x="${badge + 24}" y="16" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
+  <text x="${badge + 24}" y="15.4" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
+  ${screw(badge + 2.4, 4.4)}${screw(badge + 45.6, 4.4)}${screw(badge + 2.4, 20.2)}${screw(badge + 45.6, 20.2)}
+  ${gridPanel(inv, 59)}${item}
+  ${screw(7, 6)}${screw(7, 19)}`;
+}
+
+function view(W) {
+  const vw = W - 32, hx = 16 + vw * 0.43;
+  return `<rect x="16" y="27" width="${vw}" height="165" fill="url(#sky)"/>
+  <g transform="scale(${vw / 288} 1) translate(-16 0)" transform-origin="16 0">
+    <path d="M32 150V112h22v-26h14v34h18v-50h10v40h30v-22h16v58h40v-36h24v-18h12v54h30v-30h20v42h32V150z" fill="#0d0907"/></g>
+  <rect x="16" y="168" width="${vw}" height="24" fill="#2e271f"/>
+  <path d="M16 168H${W - 16}" stroke="#5a4c3c"/>
+  <path d="M16 176H${W - 16}" stroke="#1d1712" stroke-width=".6" stroke-dasharray="10 4"/>
+  <g transform="translate(${hx} 168)">
+    <rect x="-6" y="-32" width="12" height="18" rx="3" fill="#e0a830"/><rect x="-4" y="-38" width="8" height="7" rx="1.5" fill="#d29a24"/>
+    <rect x="-5" y="-15" width="4" height="15" fill="#c48d1e"/><rect x="1" y="-15" width="4" height="15" fill="#c48d1e"/>
+    <rect x="2" y="-27" width="18" height="2.2" fill="#8d9797"/></g>
+  <text x="${W / 2}" y="80" text-anchor="middle" font-family="${MONO}" font-size="7" fill="#5c4632">GAME VIEW (placeholder)</text>
+  <rect x="16" y="27" width="${vw}" height="165" fill="none" stroke="#000" stroke-opacity=".55" stroke-width="2.4" filter="url(#soft)"/>
+  ${bevel(15.4, 26.6, vw + 1.2, 165.8, 0, false, .7)}`;
+}
+
+function keyBox(x, letter) {
+  return `<rect x="${x - .6}" y="165.9" width="13.2" height="13.2" rx="1.6" fill="#0b0806"/>
+  <rect x="${x}" y="166.5" width="12" height="12" rx="1.2" fill="url(#plate)"/>
+  ${bevel(x, 166.5, 12, 12, 1.2, true, .5)}
+  <text x="${x + 6.3}" y="176.1" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="8.4" fill="${HI}" opacity=".55">${letter}</text>
+  <text x="${x + 6}" y="175.8" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="8.4" fill="#1a140f">${letter}</text>`;
+}
+
+function tube(x, top, w, h, fillH, inner = w - 2.6, paint = "url(#amberFill)") {
+  const r = 0;
+  return `<rect x="${x - .9}" y="${top - .9}" width="${w + 1.8}" height="${h + 1.8}" fill="url(#plate)"/>
+  ${bevel(x - .9, top - .9, w + 1.8, h + 1.8, r, true, .4)}
+  <rect x="${x}" y="${top}" width="${w}" height="${h}" rx="${r}" fill="#050403"/>
+  ${fillH > 0 ? `<rect x="${x + (w - inner) / 2}" y="${top + h - 1.3 - fillH}" width="${inner}" height="${fillH}" fill="${paint}" filter="url(#glow)"/>` : ""}
+  <rect x="${x}" y="${top}" width="${w}" height="${h}" rx="${r}" fill="url(#glass)"/>
+  ${bevel(x, top, w, h, r, false, .4)}`;
+}
+
+function leftColumn(s) {
+  const top = 60, h = 104, fill = (h - 2.6) * s.life / 100, y = top + h - 1.3 - fill;
+  return `${tube(4.6, top, 4, h, fill, 1.2, "url(#lifeFill)")}
+  <path d="M9.8 80h1.4M9.8 100h1.4M9.8 120h1.4M9.8 140h1.4" stroke="${LO}" stroke-width=".6"/>
+  <path d="M9.8 80.5h1.4M9.8 100.5h1.4M9.8 120.5h1.4M9.8 140.5h1.4" stroke="${HI}" stroke-opacity=".5" stroke-width=".3"/>
+  <path d="M0 ${y - 2.5}l3.4 2.5L0 ${y + 2.5}z" fill="#ff3018" filter="url(#glow)"/>
+  <path d="M0 ${y - 1.9}l2 1.4" stroke="#ffd0b0" stroke-width=".3"/>
+  ${screw(6.6, 34)}${screw(6.6, 186)}
+  ${keyBox(.6, "E")}`;
+}
+
+function rightColumn(W, s) {
+  const x = W - 16, top = 56, h = 50, fill = (h - 2.6) * s.reserve / 100;
+  const lights = [0, 1, 2, 3, 4].map((i) => {
+    const on = 4 - i < s.shields, ly = 112.6 + i * 9.8;
+    return `<rect x="${x + 5}" y="${ly - .4}" width="8.6" height="9.2" rx=".9" fill="#0a0806"/>
+    <rect x="${x + 5.4}" y="${ly}" width="7.8" height="8.4" rx=".7" fill="url(#${on ? "shieldOn" : "shieldOff"})"${on ? ' filter="url(#glow)"' : ""}/>
+    <path d="M${x + 6} ${ly + 4.2}h6.6" stroke="#000" stroke-opacity=".18" stroke-width=".3"/>
+    <rect x="${x + 6.2}" y="${ly + .7}" width="3.4" height="1" rx=".5" fill="#fff" opacity="${on ? .75 : .18}" filter="url(#soft)"/>`;
+  }).join("");
+  return `${tube(x + 7.6, top, 3.4, h, fill, 1.2)}
+  <rect x="${x + 3.4}" y="110.6" width="11.8" height="51.8" rx="1.4" fill="url(#plate)"/>
+  ${bevel(x + 3.4, 110.6, 11.8, 51.8, 1.4, true, .4)}
+  ${lights}
+  ${screw(x + 9.3, 34)}${screw(x + 9.3, 186)}
+  ${keyBox(x + 3.3, "S")}`;
+}
+
+function pipe(x, y0, h, clampSide) {
+  const clamps = [];
+  for (let y = y0 + 20; y < y0 + h - 8; y += 16) {
+    clamps.push(`<rect x="${x + clampSide}" y="${y}" width="1.6" height="1.8" rx=".3" fill="#c09a30"/><rect x="${x + clampSide}" y="${y}" width="1.6" height=".5" fill="#ffe08a" opacity=".7"/>`);
+  }
+  return `<rect x="${x}" y="${y0}" width="1.8" height="${h}" fill="url(#pipeG)"/>${clamps.join("")}`;
+}
+
+function sidePlates(W) {
+  return `<rect width="16" height="192" fill="url(#circuit)"/>
+  <rect x="${W - 16}" width="16" height="192" fill="url(#circuit)"/>
+  ${pipe(13.2, 26, 166, -1.4)}${pipe(W - 15.2, 26, 166, 1.8)}
+  <path d="M.4 0V192M${W - 15.6} 26V192" stroke="${HI}" stroke-opacity=".35" stroke-width=".4"/>
+  <path d="M15.6 26V192M${W - .4} 0V192" stroke="${LO}" stroke-width=".5"/>`;
+}
+
+function hud(W, s) {
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${DEFS}
+  <rect width="${W}" height="${H}" fill="url(#metalV)"/>
+  ${sidePlates(W)}
+  ${view(W)}${topBar(W, s)}${leftColumn(s)}${rightColumn(W, s)}
+  <rect y="191.8" width="${W}" height="8.2" fill="url(#metal)"/>
+  <path d="M0 192.2H${W}" stroke="${HI}" stroke-opacity=".6" stroke-width=".4"/>
+  <path d="M0 199.6H${W}" stroke="${LO}" stroke-width=".8"/>
+  <path d="M20 196H${W / 2 - 20}M${W / 2 + 20} 196H${W - 20}" stroke="${LO}" stroke-width=".7"/>
+  <path d="M20 196.6H${W / 2 - 20}M${W / 2 + 20} 196.6H${W - 20}" stroke="${HI}" stroke-opacity=".35" stroke-width=".3"/>
+  ${screw(W / 2 - 14, 196)}${screw(W / 2 + 14, 196)}</svg>`;
+}
+
+function state() {
+  return {
+    weapon: +$("weapon").value,
+    bonus: $("bonus").checked,
+    ammo: +$("ammo").value,
+    bonusAmmo: +$("bonusAmmo").value,
+    life: +$("life").value,
+    reserve: +$("reserve").value,
+    shields: +$("shields").value,
+    item: $("item").value
+  };
+}
+
+function draw() {
+  const s = state();
+  $("big").innerHTML = hud(+$("aspect").value, s);
+  $("small").innerHTML = hud(320, s);
+}
+
+document.querySelectorAll("header input, header select").forEach((el) => el.addEventListener("input", draw));
+draw();
+})();
+</script>
+</body>
+</html>
