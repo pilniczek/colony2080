@@ -56,8 +56,15 @@ describe("hero bullets", () => {
 
   it("fires 12 bullets in 1 s", () => {
     const g = armed(10.5, -1);
-    fire(g, 59 / 60);
-    expect(bullets(g).length + g.world.sparks.length).toBe(12);
+    const spawned = new Set<object>();
+    const count = () => bullets(g).forEach((b) => spawned.add(b));
+    tick(g, ["shoot"], ["shoot"]);
+    count();
+    for (let i = 0; i < 59; i++) {
+      tick(g, ["shoot"]);
+      count();
+    }
+    expect(spawned.size).toBe(12);
   });
 
   it("fires none with fists", () => {

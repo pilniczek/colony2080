@@ -30,5 +30,5 @@
     { "kind": "target", "x": 15.5 }
   ],
   "enemy": { "x": 32.5, "facing": -1, "hits": 14, "respawnMs": 5000 },
-  "emitter": { "x": 38.5, "y": 12.6, "dir": -1, "periodMs": 2000, "speed": 8, "radius": 0.15 }
+  "emitter": { "x": 38.5, "y": 12.6, "dir": -1, "periodMs": 2000, "speed": 20, "radius": 0.15 }
 }

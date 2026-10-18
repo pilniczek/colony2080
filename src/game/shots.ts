@@ -79,7 +79,7 @@ export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], cli
   for (const e of events) {
     if (e.kind !== "shot") continue;
     const [x, y] = heroMuzzle(h, clips, cfg);
-    const bullet = { x, y, vx: h.facing * cfg.shot.speed, r: cfg.shot.radius, tag: HERO_SHOT };
+    const bullet = { x, y, vx: h.facing * cfg.shot.speed, r: cfg.shot.radius, tag: HERO_SHOT, originX: x };
     if (strike(world, cfg, h.x, bullet)) continue;
     const face = wallBetween(world, h.x, bullet);
     if (face === null) world.projectiles.push(bullet);

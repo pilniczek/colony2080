@@ -2,6 +2,7 @@ import { FIXED_STEP } from "../../engine/loop";
 import type { ViewTransform } from "../../engine/render/view";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
+import type { Projectile } from "../../engine/world/projectiles";
 import type { MovementConfig } from "../hero/config";
 import { HERO_SHOT, type Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
@@ -245,7 +246,7 @@ function projectiles(f: Frame, alpha: number): void {
     const x = (p.x - p.vx * (1 - alpha) * FIXED_STEP) * cell;
     const y = p.y * cell;
     if (p.tag === HERO_SHOT) {
-      tracer(f, x, y, Math.sign(p.vx));
+      tracer(f, p, x, y);
       continue;
     }
     ctx.strokeStyle = COLORS.shot;
@@ -260,13 +261,18 @@ function projectiles(f: Frame, alpha: number): void {
   }
 }
 
-function tracer(f: Frame, x: number, y: number, dir: number): void {
-  const { ctx, unit } = f;
+function tracer(f: Frame, p: Projectile, x: number, y: number): void {
+  const { ctx, unit, cell } = f;
+  const dir = Math.sign(p.vx);
+  const length = Math.max(TRACER.length * unit, Math.abs(p.vx) * FIXED_STEP * cell);
+  const origin = (p.originX ?? p.x) * cell;
+  if ((x - origin) * dir <= 0) return;
+  const tail = dir > 0 ? Math.max(x - length, origin) : Math.min(x + length, origin);
   ctx.strokeStyle = COLORS.spark;
   ctx.lineWidth = TRACER.width * unit;
   ctx.beginPath();
   ctx.moveTo(x, y);
-  ctx.lineTo(x - dir * TRACER.length * unit, y);
+  ctx.lineTo(tail, y);
   ctx.stroke();
 }
 

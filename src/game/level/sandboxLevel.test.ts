@@ -61,7 +61,7 @@ describe("emitter", () => {
     expect(world.projectiles).toHaveLength(0);
     for (let i = 0; i < 2; i++) updateEmitter(world, dt);
     expect(world.projectiles).toHaveLength(1);
-    expect(world.projectiles[0]).toMatchObject({ x: 38.5, y: 12.6, vx: -8, r: 0.15 });
+    expect(world.projectiles[0]).toMatchObject({ x: 38.5, y: 12.6, vx: -sandbox.emitter.speed, r: 0.15 });
     world.emitter.on = false;
     for (let i = 0; i < 600; i++) world.projectiles = stepProjectiles(world.projectiles, world.grid, dt);
     expect(world.projectiles).toHaveLength(0);

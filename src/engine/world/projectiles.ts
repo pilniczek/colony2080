@@ -6,6 +6,7 @@ export interface Projectile {
   vx: number;
   r: number;
   tag?: string;
+  originX?: number;
 }
 
 export function stepProjectiles(list: Projectile[], grid: TileGrid, dt: number): Projectile[] {
