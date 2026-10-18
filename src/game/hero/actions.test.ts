@@ -87,7 +87,7 @@ describe("projectiles", () => {
     fire(g, 9);
     run(g, 0.5);
     expect(g.hero.energy).toBe(75);
-    expect(g.hero.hitAt).not.toBeNull();
+    expect(g.hero.hitAge).not.toBeNull();
     expect([...g.seen]).toEqual(["idle"]);
     expect(g.world.projectiles).toHaveLength(0);
   });
@@ -184,12 +184,12 @@ describe("damage", () => {
     expect(g.hero.energy).toBe(100);
   });
 
-  it("keeps the state and records hitAt, then death with died after four hits, then respawns", () => {
+  it("keeps the state and starts hitAge, then death with died after four hits, then respawns", () => {
     const g = game();
     run(g, 0.5);
     const events = [damage(g.hero, cfg), damage(g.hero, cfg), damage(g.hero, cfg)].flat();
     expect(g.hero.state).toBe("idle");
-    expect(g.hero.hitAt).toBeCloseTo(0.5, 9);
+    expect(g.hero.hitAge).toBe(0);
     expect(events).toEqual([]);
     expect(damage(g.hero, cfg).map((e) => e.kind)).toEqual(["died"]);
     expect(g.hero.state).toBe("death");
@@ -197,7 +197,7 @@ describe("damage", () => {
     run(g, cfg.respawnMs / 1000 + 0.1);
     expect(g.hero.state).toBe("idle");
     expect(g.hero.energy).toBe(cfg.energy.max);
-    expect(g.hero.hitAt).toBeNull();
+    expect(g.hero.hitAge).toBeNull();
   });
 
   it("keeps a lethal fall lethal when hit mid-fall", () => {
@@ -211,14 +211,17 @@ describe("damage", () => {
     expect(g.hero.state).toBe("fallDeath");
   });
 
-  it("keeps the hit age across a state change", () => {
-    const g = game();
+  it("ages the hit with every update across state changes and a holster", () => {
+    const g = game({ x: 7.5, y: 14, weapon: "gun" });
     run(g, 0.2, ["moveRight"]);
     damage(g.hero, cfg);
     run(g, 0.1, ["moveRight"]);
     tick(g);
     expect(g.hero.state).toBe("idle");
-    expect(g.hero.time - g.hero.hitAt!).toBeCloseTo(7 / 60, 9);
+    tick(g, [], ["weapon2"]);
+    expect(g.hero.state).toBe("weaponSwitch");
+    run(g, 0.2);
+    expect(g.hero.hitAge).toBeCloseTo(20 / 60, 9);
   });
 
   const committed: [string, () => Game, string[]][] = [
@@ -226,6 +229,8 @@ describe("damage", () => {
     ["gun fire", () => { const g = game({ x: 7.5, y: 14, weapon: "gun" }); tick(g, ["shoot"], ["shoot"]); run(g, 0.1, ["shoot"]); return g; }, ["shoot"]],
     ["jump", () => { const g = game(); tick(g, [], ["up"]); run(g, 0.1); return g; }, []],
     ["ladder", () => { const g = game({ x: 3.4, y: 14 }); tick(g, [], ["up"]); run(g, 0.5, ["up"]); return g; }, ["up"]],
+    ["use", () => { const g = game({ x: 21.5, y: 14 }); tick(g, [], ["useItem"]); run(g, 0.1); return g; }, []],
+    ["runJump", () => { const g = game({ x: 7.5, y: 14, state: "run" }); tick(g, ["moveRight", "runModifier"], ["up"]); run(g, 0.1); return g; }, []],
     ["kneel", () => { const g = game({ x: 9.5, y: 14 }); tick(g, ["down"]); run(g, 0.3); return g; }, []],
   ];
 
@@ -235,7 +240,7 @@ describe("damage", () => {
       const g = start();
       const { state, time } = g.hero;
       damage(g.hero, cfg);
-      expect(g.hero).toMatchObject({ state, time, hitAt: time, energy: 75 });
+      expect(g.hero).toMatchObject({ state, time, hitAge: 0, energy: 75 });
       for (let i = 0; i < 30; i++) {
         tick(plain, held);
         tick(g, held);

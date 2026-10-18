@@ -20,7 +20,6 @@ describe("loadMovement", () => {
     expect(cfg.gravity).toBe(30);
     expect(cfg.jump.runSpeed).toBe(6.5);
     expect(cfg.jump.walkHeight).toBe(0.47);
-    expect(cfg.jump.walkSpeed).toBe(1.43);
     expect(cfg.energy.hit).toBe(25);
   });
 
@@ -29,7 +28,7 @@ describe("loadMovement", () => {
   });
 
   it("names a missing jump field", () => {
-    expect(() => loadMovement({ ...movementJson, jump: { ...movementJson.jump, walkSpeed: undefined } })).toThrow(/jump\.walkSpeed/);
+    expect(() => loadMovement({ ...movementJson, jump: { ...movementJson.jump, walkHeight: undefined } })).toThrow(/jump\.walkHeight/);
   });
 
   it("names a missing nested field", () => {

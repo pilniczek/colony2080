@@ -21,7 +21,7 @@ export interface Hero {
   onLift: boolean;
   hidden: boolean;
   climb: number;
-  hitAt: number | null;
+  hitAge: number | null;
 }
 
 export type HeroEvent = { kind: "pickup" | "use" | "shot" | "punch" | "died"; x: number; y: number };
@@ -62,7 +62,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     onLift: false,
     hidden: false,
     climb: 0,
-    hitAt: null,
+    hitAge: null,
   };
 }
 
@@ -74,7 +74,6 @@ function clipOf(s: Step): Clip {
 }
 
 const enter = (h: Hero, state: HeroState): void => {
-  if (h.hitAt !== null) h.hitAt -= h.time;
   h.state = state;
   h.time = 0;
   h.rate = 1;
@@ -123,15 +122,18 @@ function enterLadder(h: Hero): void {
   h.onLift = false;
 }
 
-function launch(cfg: MovementConfig, state: Jump): { height: number; speed: number } {
+const travelSpeed = (clip: Clip): number => (clip.travel ?? 0) / clip.duration;
+
+function launch(s: Step, state: Jump): { height: number; speed: number } {
+  const { cfg, clips } = s;
   if (state === "runJump") return { height: cfg.jump.runHeight, speed: cfg.jump.runSpeed };
-  if (state === "walkJump") return { height: cfg.jump.walkHeight, speed: cfg.jump.walkSpeed };
+  if (state === "walkJump") return { height: cfg.jump.walkHeight, speed: clips.walk ? travelSpeed(clips.walk) : 0 };
   return { height: cfg.jump.standHeight, speed: 0 };
 }
 
 function jump(s: Step, state: Jump): void {
   const { h, cfg } = s;
-  const { height, speed } = launch(cfg, state);
+  const { height, speed } = launch(s, state);
   enter(h, state);
   h.fallFrom = h.y;
   h.vx = h.facing * speed;
@@ -160,7 +162,7 @@ export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   const events: HeroEvent[] = [];
   if (h.hidden || isDead(h.state)) return events;
   h.energy = Math.max(0, h.energy - cfg.energy.hit);
-  h.hitAt = h.time;
+  h.hitAge = 0;
   if (h.energy === 0) die(h, "death", events);
   return events;
 }
@@ -233,8 +235,8 @@ function idle(s: Step): void {
   const { h, input, world } = s;
   const slot = weaponSlot(s);
   if (h.onLift) {
-    if (s.consume("up")) callLift(world.lift, -1);
-    else if (s.consume("down")) callLift(world.lift, 1);
+    const dir = liftCall(s);
+    if (dir !== null) callLift(world.lift, dir);
   } else if (s.consume("up")) {
     return world.grid.ladderAt(h.x, h.y - LADDER_REACH) ? enterLadder(h) : jump(s, "standJump");
   } else if (input.held.has("down") && atLadderTop(s)) {
@@ -244,8 +246,23 @@ function idle(s: Step): void {
   if (input.dir !== 0) gait(s);
 }
 
+function liftCall(s: Step): -1 | 1 | null {
+  return s.consume("up") ? -1 : s.consume("down") ? 1 : null;
+}
+
 function moving(s: Step): void {
-  if (s.consume("up")) return jump(s, s.h.state === "run" ? "runJump" : "walkJump");
+  const { h, world } = s;
+  if (h.state === "walk" && h.onLift) {
+    const dir = liftCall(s);
+    if (dir !== null) {
+      enter(h, "idle");
+      return callLift(world.lift, dir);
+    }
+  }
+  if (s.consume("up")) {
+    if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(h);
+    return jump(s, h.state === "run" ? "runJump" : "walkJump");
+  }
   if (act(s)) return;
   gait(s);
 }
@@ -372,8 +389,7 @@ function horizontalSpeed(s: Step): number {
   const { h } = s;
   if (isAirborne(h.state)) return h.vx;
   if (h.state !== "walk" && h.state !== "run") return 0;
-  const clip = clipOf(s);
-  return (h.facing * (clip.travel ?? 0)) / clip.duration;
+  return h.facing * travelSpeed(clipOf(s));
 }
 
 function physics(s: Step): void {
@@ -442,6 +458,7 @@ export function updateHero(
 ): HeroEvent[] {
   const s: Step = { h, input, world, cfg, clips, dt, consume, prev: h.time, events: [] };
   h.time += dt * h.rate;
+  if (h.hitAge !== null) h.hitAge += dt;
   clipEvents(s);
   transitions[h.state]?.(s);
   if (isDead(h.state)) fallDead(s);

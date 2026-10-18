@@ -114,7 +114,7 @@ describe("jumps", () => {
     tick(g, ["moveRight"], ["up"]);
     expect(g.hero.state).toBe("walkJump");
     expect(g.hero.vy).toBeLessThan(0);
-    expect(g.hero.vx).toBeCloseTo(cfg.jump.walkSpeed, 9);
+    expect(g.hero.vx).toBeCloseTo(2 / 1.1, 9);
     const { peak } = peakAndAir(g, () => ["moveRight"]);
     expect(Math.abs(peak - cfg.jump.walkHeight)).toBeLessThan(0.05);
   });
@@ -279,6 +279,16 @@ describe("ladder", () => {
   });
 });
 
+describe("ladder from a gait", () => {
+  for (const held of [["moveRight"], ["moveRight", "runModifier"]]) {
+    it(`grabs the ladder on up while ${held.length > 1 ? "running" : "walking"}`, () => {
+      const g = game({ x: 3.15, y: 14, state: held.length > 1 ? "run" : "walk" });
+      tick(g, held, ["up"]);
+      expect(g.hero).toMatchObject({ state: "ladder", x: 3.5 });
+    });
+  }
+});
+
 describe("buffered up", () => {
   it("drops an up tap made in the last frames of a climb", () => {
     const g = game({ x: 3.5, y: 14 });
@@ -294,6 +304,27 @@ describe("buffered up", () => {
 });
 
 describe("lift", () => {
+  it("stops a walk and calls the lift on up without jumping", () => {
+    const g = game({ x: 18.5, y: 14 });
+    tick(g);
+    run(g, 0.1, ["moveRight"]);
+    expect(g.hero).toMatchObject({ state: "walk", onLift: true });
+    tick(g, ["moveRight"], ["up"]);
+    expect(g.hero).toMatchObject({ state: "idle", onGround: true });
+    expect(g.world.lift.target).toBe(4);
+    expect(g.seen.has("walkJump")).toBe(false);
+  });
+
+  it("still run jumps across the lift", () => {
+    const g = game({ x: 18.5, y: 14 });
+    tick(g);
+    tick(g, ["moveRight", "runModifier"]);
+    expect(g.hero).toMatchObject({ state: "run", onLift: true });
+    tick(g, ["moveRight", "runModifier"], ["up"]);
+    expect(g.hero.state).toBe("runJump");
+    expect(g.world.lift.target).toBeNull();
+  });
+
   it("rides to the top on one up press without jumping", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);

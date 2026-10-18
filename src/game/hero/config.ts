@@ -31,7 +31,7 @@ export interface MovementConfig {
   box: { width: number; height: number; duckHeight: number };
   gravity: number;
   maxFallSpeed: number;
-  jump: { standHeight: number; runHeight: number; runSpeed: number; walkHeight: number; walkSpeed: number };
+  jump: { standHeight: number; runHeight: number; runSpeed: number; walkHeight: number };
   fallDeathCells: number;
   ladderSpeed: number;
   liftSpeed: number;
@@ -78,7 +78,7 @@ export function loadMovement(json: unknown): MovementConfig {
     box: group("box", ["width", "height", "duckHeight"]),
     gravity: n("gravity"),
     maxFallSpeed: n("maxFallSpeed"),
-    jump: group("jump", ["standHeight", "runHeight", "runSpeed", "walkHeight", "walkSpeed"]),
+    jump: group("jump", ["standHeight", "runHeight", "runSpeed", "walkHeight"]),
     fallDeathCells: n("fallDeathCells"),
     ladderSpeed: n("ladderSpeed"),
     liftSpeed: n("liftSpeed"),
