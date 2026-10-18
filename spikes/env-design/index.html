@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mesto Environment Sheet</title>
+<style>
+  :root { --bg: #0b1112; --panel: #141c1e; --card: #10181a; --text: #c9d1d0; --muted: #7d8a89; --accent: #e2701a; --cool: #3fd0e0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: var(--panel); }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  header label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  header select { background: #22302f; color: var(--text); border: 1px solid #2f3f3e; border-radius: 4px; padding: 3px 6px; }
+  nav { padding: 10px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 2px 16px; }
+  nav h2 { grid-column: 1 / -1; }
+  nav a { color: var(--text); text-decoration: none; font-size: 12px; }
+  nav a:hover { color: var(--accent); }
+  nav a.missing { color: var(--muted); }
+  h2 { font-size: 13px; font-weight: 600; margin: 12px 0 4px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  section.asset { margin: 12px 16px; padding: 12px; background: var(--card); border-radius: 6px; scroll-margin-top: 56px; }
+  section.asset h3 { margin: 0; font-size: 15px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; padding: 1px 6px; border-radius: 3px; background: #22302f; color: var(--muted); }
+  .tag.on { background: #3a1e0c; color: var(--accent); }
+  .cs { color: var(--muted); font-weight: 400; font-style: italic; }
+  .desc { margin: 4px 0 8px; color: var(--muted); max-width: 80ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 4px; max-width: 100%; }
+  figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  figure canvas { display: block; max-width: 100%; }
+  .ours canvas { background: #1a1410; border-radius: 4px; }
+  .refs canvas { image-rendering: pixelated; border-radius: 4px; }
+  .label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--cool); margin: 10px 0 4px; }
+  .todo { color: var(--muted); padding: 24px; border: 1px dashed #2f3f3e; border-radius: 4px; }
+  body.only-interactive section.static, body.only-static section.interactive { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Mesto environment sheet</h1>
+  <label>Show <select id="filter"><option value="">all</option><option value="only-interactive">interactive</option><option value="only-static">non-interactive</option></select></label>
+  <label><input id="lines" type="checkbox" checked> Outlines</label>
+  <label><input id="lod" type="checkbox"> Game LOD</label>
+  <label><input id="hero" type="checkbox" checked> Hero for scale</label>
+  <label><input id="grid" type="checkbox"> Tile grid</label>
+</header>
+<nav id="toc"></nav>
+<div id="sheet"></div>
+<script src="../shared/config.js"></script>
+<script src="../shared/xbot.js"></script>
+<script src="../shared/env.js"></script>
+<script src="../shared/env-props.js"></script>
+<script src="../shared/env-machines.js"></script>
+<script src="../shared/env-structures.js"></script>
+<script src="../shared/env-buildings.js"></script>
+<script>
+const OBJECTS = window.C28_CONFIG.levels.mesto.objects.objects;
+const { TILE } = ENV;
+const HERO_H = 32;
+const HERO_GAP = 6;
+const MAX_W = 560;
+const MAX_SCALE = 4;
+const REF_H = 150;
+const hero = XBOT.buildSide({ farLimbs: true, lod: true });
+const opts = { lines: true, lod: false, hero: true, grid: false };
+const assets = new Map(ENV.ASSETS.map(a => [a.id, a]));
+const views = [];
+const root = "../../";
+
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) e[k] = v;
+  e.append(...kids.filter(k => k != null));
+  return e;
+}
+
+function drawHero(ctx, x) {
+  const k = HERO_H / (XBOT.FOOT_Y - 2);
+  ctx.save();
+  ctx.translate(x, 0);
+  ctx.scale(k, k);
+  ctx.translate(-XBOT.SIDE_AX, -XBOT.FOOT_Y);
+  XBOT.render(ctx, hero, { lineW: opts.lines ? 1 : 0, simple: true });
+  ctx.restore();
+}
+
+function frame(asset) {
+  const [x0, y0, x1, y1] = asset.box;
+  const heroX = x1 + HERO_GAP + 10;
+  const bx1 = opts.hero ? Math.max(x1, heroX + 12) : x1;
+  const by0 = opts.hero ? Math.min(y0, -HERO_H - 2) : y0;
+  return { x0, y0: by0, x1: bx1, y1, heroX };
+}
+
+function paint(view, t) {
+  const { canvas, asset, state } = view;
+  const f = frame(asset);
+  const w = f.x1 - f.x0, h = f.y1 - f.y0;
+  const s = Math.min(MAX_SCALE, MAX_W / w);
+  const dpr = devicePixelRatio || 1;
+  const cw = Math.round(w * s), ch = Math.round(h * s);
+  if (canvas.width !== cw * dpr || canvas.height !== ch * dpr) {
+    canvas.width = cw * dpr;
+    canvas.height = ch * dpr;
+    canvas.style.width = cw + "px";
+  }
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(s * dpr, 0, 0, s * dpr, -f.x0 * s * dpr, -f.y0 * s * dpr);
+  if (opts.grid) {
+    ctx.strokeStyle = "rgba(63,208,224,0.25)";
+    ctx.lineWidth = 1 / (s * dpr);
+    ctx.beginPath();
+    for (let x = Math.ceil(f.x0 / TILE) * TILE; x <= f.x1; x += TILE) { ctx.moveTo(x, f.y0); ctx.lineTo(x, f.y1); }
+    for (let y = Math.ceil(f.y0 / TILE) * TILE; y <= f.y1; y += TILE) { ctx.moveTo(f.x0, y); ctx.lineTo(f.x1, y); }
+    ctx.stroke();
+  }
+  ENV.draw(ctx, asset, { state, t, lines: opts.lines ? dpr : 0, lod: opts.lod });
+  if (opts.hero) drawHero(ctx, f.heroX);
+}
+
+function refCanvas(ref) {
+  const [x, y, w, h] = ref.crop;
+  const k = Math.min(REF_H / h, MAX_W / w, 4);
+  const c = el("canvas", { width: Math.round(w * k), height: Math.round(h * k) });
+  const img = new Image();
+  img.onload = () => {
+    const ctx = c.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, x, y, w, h, 0, 0, c.width, c.height);
+  };
+  img.onerror = () => c.replaceWith(el("div", { className: "todo", textContent: "missing local file " + ref.path }));
+  img.src = root + ref.path;
+  return c;
+}
+
+function tags(o) {
+  return [
+    el("span", { className: "tag" + (o.interactive ? " on" : ""), textContent: o.interactive ? "interactive" : "static" }),
+    o.marker != null ? el("span", { className: "tag", textContent: "marker " + o.marker }) : null,
+    o.task ? el("span", { className: "tag", textContent: o.task }) : null
+  ];
+}
+
+function build() {
+  const toc = document.getElementById("toc");
+  const sheet = document.getElementById("sheet");
+  for (const group of [true, false]) {
+    toc.append(el("h2", { textContent: group ? "Interactive" : "Non-interactive" }));
+    for (const o of OBJECTS.filter(o => o.interactive === group)) {
+      const asset = assets.get(o.id);
+      toc.append(el("a", { href: "#" + o.id, textContent: o.name, className: asset ? "" : "missing" }));
+      const ours = el("div", { className: "row ours" });
+      if (asset) {
+        const states = o.states.length ? o.states : ["static"];
+        states.forEach((label, state) => {
+          const canvas = el("canvas");
+          views.push({ canvas, asset, state });
+          ours.append(el("figure", {}, el("figcaption", { textContent: label }), canvas));
+        });
+      } else ours.append(el("div", { className: "todo", textContent: "not drawn yet" }));
+      const refs = el("div", { className: "row refs" }, ...o.refs.map(r => el("figure", {}, el("figcaption", { textContent: r.caption }), refCanvas(r))));
+      sheet.append(el("section", { id: o.id, className: "asset " + (o.interactive ? "interactive" : "static") },
+        el("h3", {}, o.name, o.csName ? el("span", { className: "cs", textContent: o.csName }) : null, ...tags(o)),
+        el("p", { className: "desc", textContent: o.description }),
+        el("div", { className: "label", textContent: "Our variant" }), ours,
+        el("div", { className: "label", textContent: "Original" }), refs));
+    }
+  }
+}
+
+function paintAll(t = performance.now() / 1000) {
+  for (const v of views) paint(v, t);
+}
+
+function loop() {
+  const t = performance.now() / 1000;
+  for (const v of views) if (v.asset.anim) paint(v, t);
+  requestAnimationFrame(loop);
+}
+
+for (const id of ["lines", "lod", "hero", "grid"]) document.getElementById(id).onchange = e => { opts[id] = e.target.checked; paintAll(); };
+document.getElementById("filter").onchange = e => { document.body.className = e.target.value; };
+addEventListener("resize", () => paintAll());
+build();
+paintAll();
+loop();
+</script>
+</body>
+</html>

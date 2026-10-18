@@ -1,0 +1,2106 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/08-video-level1.md",
+  "units": "original pixels, 1 tile = 24",
+  "objects": [
+    {
+      "id": "dyingRebel",
+      "name": "Dying rebel",
+      "csName": "umírající rebel",
+      "interactive": true,
+      "marker": 1,
+      "task": "talkRebel",
+      "sheet": "props",
+      "description": "Human in blue trousers lying on the street walkway (about 1.5 x 0.7 tiles), drawn as a sprite (not in the map tiles). Talk with ENTER plays a cutscene; afterwards he stays lying there as a corpse.",
+      "states": [
+        "dying (talk available)",
+        "dead after talk"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0121.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            195,
+            132,
+            109,
+            40
+          ],
+          "caption": "rebel lying on street, right of rubble"
+        },
+        {
+          "path": "docs/research/video/f5r7/0086.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            230,
+            130,
+            74,
+            40
+          ],
+          "caption": "same body seen from the lift area"
+        }
+      ]
+    },
+    {
+      "id": "crowbar",
+      "name": "Crowbar pickup",
+      "csName": "Páčidlo",
+      "interactive": true,
+      "marker": 2,
+      "task": "takeCrowbar",
+      "sheet": "props",
+      "description": "Item spot in front of the chain-link fence on the floor-38 ledge (map cell 25,43). No ground sprite is visible in footage before pickup; the pickup plays a short clip and prints NAŠEL JSI PÁČIDLO.",
+      "states": [
+        "on ground",
+        "taken"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0330_found_crowbar_message.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            420,
+            340,
+            500,
+            170
+          ],
+          "caption": "fence at crowbar spot, message after pickup"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            528,
+            984,
+            216,
+            96
+          ],
+          "caption": "map: fence ledge around cell 25,43"
+        }
+      ]
+    },
+    {
+      "id": "wireBox",
+      "name": "Electrical distribution box (wire source)",
+      "csName": "elektrický rozvod / rozvaděč",
+      "interactive": true,
+      "marker": 3,
+      "task": "pullWires",
+      "sheet": "machines",
+      "description": "Small square dark-green wall panel with a light frame (about 1 x 1 tile) on the concrete wall under the colonnade building marked 05. After the wire is ripped out the panel shows a lightning icon. The same green lightning panel tile reappears beside card door 17.",
+      "states": [
+        "intact (wires inside)",
+        "wires ripped out (lightning icon)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0405_green_wall_panel_wire_cutscene_trigger.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            330,
+            320,
+            150,
+            150
+          ],
+          "caption": "green panel before cutscene"
+        },
+        {
+          "path": "docs/research/video/f5r7/0134.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            105,
+            105,
+            55,
+            45
+          ],
+          "caption": "panel intact"
+        },
+        {
+          "path": "docs/research/video/f5r7/0136.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            35,
+            105,
+            55,
+            45
+          ],
+          "caption": "panel after wire taken, lightning icon"
+        }
+      ]
+    },
+    {
+      "id": "switchboard",
+      "name": "Second switchboard (metro)",
+      "csName": "druhý rozvaděč",
+      "interactive": true,
+      "marker": 4,
+      "task": "wireSwitchboard",
+      "sheet": "machines",
+      "description": "Dark-green wall panel (about 1 x 1 tile, same style as the wire box) on the dark pillar between two metro carriages; the player stands in front of it, so it is partly hidden in every frame. Wiring it powers the metro (tunnel lights) and unlocks the train door.",
+      "states": [
+        "dead (no wire)",
+        "repaired (wired, metro lit)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0436_subway_train_carriage_player_opens_door.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            420,
+            280,
+            160,
+            230
+          ],
+          "caption": "green panel on pillar behind player"
+        },
+        {
+          "path": "docs/research/video/f5r7/0142.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            120,
+            95,
+            90,
+            75
+          ],
+          "caption": "pillar between carriages"
+        }
+      ]
+    },
+    {
+      "id": "trainDoor",
+      "name": "Metro train door",
+      "csName": "dveře od soupravy",
+      "interactive": true,
+      "marker": 5,
+      "task": "openTrainDoor",
+      "sheet": "machines",
+      "description": "Door at the left end of the bloodied subway carriage (map cells 60-61, rows 67-69, about 2 x 3 tiles). Locked until the switchboard is wired; the crowbar pries it open (METROPAC clip), leaving a dark doorway into the train.",
+      "states": [
+        "closed",
+        "prying (crowbar clip)",
+        "open"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0145.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            120,
+            95,
+            150,
+            75
+          ],
+          "caption": "carriage door closed"
+        },
+        {
+          "path": "docs/research/video/f5r7/0148.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            120,
+            95,
+            150,
+            75
+          ],
+          "caption": "door open, dark doorway"
+        },
+        {
+          "path": "docs/research/gamedata/png/METROPAC/f061.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            15,
+            15,
+            290,
+            180
+          ],
+          "caption": "cutscene: door edge pried open"
+        }
+      ]
+    },
+    {
+      "id": "tapValveWheel",
+      "name": "Pipe valve wheel (tap handle source)",
+      "csName": "kohout uzávěru",
+      "interactive": true,
+      "marker": 6,
+      "task": "takeTapHandle",
+      "sheet": "machines",
+      "description": "Small round handwheel with a cross (about 0.5 tile) on the vertical leg of a large L-shaped grey tunnel pipe near the E-blaster spot (map col ~43, row 73). Messages KOHOUTEK JSI URVAL / ODŠROUBOVAL JSI KOHOUT suggest the wheel is unscrewed and carried; which pipe is marker 6 is unclear (see waterPipe).",
+      "states": [
+        "handle on pipe",
+        "handle removed"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0157.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            190,
+            60,
+            114,
+            115
+          ],
+          "caption": "L pipe with handwheel"
+        },
+        {
+          "path": "docs/research/video/f5r7/0158.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            190,
+            60,
+            114,
+            115
+          ],
+          "caption": "same, closer to player"
+        }
+      ]
+    },
+    {
+      "id": "waterPipe",
+      "name": "Leaking water pipe / shut-off",
+      "csName": "uzávěr vody",
+      "interactive": true,
+      "marker": 6,
+      "task": "takeTapHandle",
+      "sheet": "machines",
+      "description": "Rusty vertical pipe coming out of the tunnel ceiling at map cell 20, rows 72-74, pouring a pale yellow-green stream to the floor; a broken ceiling pipe with a rust hole sits beside it. Closing the valve (KOHOUTEM JSI UZAVŘEL PROUDÍCÍ VODU) swaps the stream tiles for a plain pipe in map M13.",
+      "states": [
+        "water flowing",
+        "water shut off"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            408,
+            1680,
+            168,
+            144
+          ],
+          "caption": "map M11: stream flowing"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M13.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            408,
+            1680,
+            168,
+            144
+          ],
+          "caption": "map M13: water off"
+        },
+        {
+          "path": "docs/research/video/f5r7/0160.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            15,
+            40,
+            289,
+            140
+          ],
+          "caption": "tunnel pipe end, closed-water message"
+        }
+      ]
+    },
+    {
+      "id": "corpse",
+      "name": "Corpse with card and holo-plan",
+      "csName": "mrtvola / mrtvé tělo",
+      "interactive": true,
+      "marker": 7,
+      "task": "searchCorpse",
+      "sheet": "props",
+      "description": "Dead human in blue lying beside a boulder rubble pile in the tunnel side room (map cell 16,69), about 2 x 0.5 tiles. Player kneels to search (prompt MRTVÉ TĚLO, kneel clip); body stays after looting.",
+      "states": [
+        "unsearched",
+        "searched"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0500_crouch_search_dead_body_card_holoplan.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            360,
+            330,
+            520,
+            180
+          ],
+          "caption": "player kneeling at body by rubble"
+        },
+        {
+          "path": "docs/research/video/f5r7/0168.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            190,
+            115,
+            114,
+            55
+          ],
+          "caption": "body by rubble"
+        }
+      ]
+    },
+    {
+      "id": "eBlaster",
+      "name": "E-Blaster pickup",
+      "csName": "E-BLASTER",
+      "interactive": true,
+      "marker": 8,
+      "task": "takeEBlaster",
+      "sheet": "props",
+      "description": "Weapon spot on the metro tunnel floor (map cell 40,74). No ground sprite seen; when near, a yellow 'E-BLASTER' label with an icon appears top right of the playfield, then NAŠEL JSI E-BLASTER.",
+      "states": [
+        "on ground (label shown when near)",
+        "taken"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0157.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            15,
+            24,
+            289,
+            150
+          ],
+          "caption": "tunnel with E-BLASTER hint label"
+        }
+      ]
+    },
+    {
+      "id": "barDoor",
+      "name": "Bar building and NPC door",
+      "csName": "bar",
+      "interactive": true,
+      "marker": 9,
+      "task": "tradeHoloPlan",
+      "sheet": "buildings",
+      "description": "Ruined grey concrete building with a jagged broken roof line, two fluted pillars and a recessed blue-grey door with a small red-white sign above it (door about 1 x 3 tiles, building about 6 x 4). Using it opens the NPC face dialogue; used twice (tradeHoloPlan, tradeShipPart).",
+      "states": [
+        "closed",
+        "talking (NPC face cutscene)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0198.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            150,
+            55,
+            154,
+            115
+          ],
+          "caption": "bar facade and door"
+        },
+        {
+          "path": "docs/research/video/f5r7/0195.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            160,
+            60,
+            144,
+            110
+          ],
+          "caption": "door between pillars"
+        },
+        {
+          "path": "docs/research/video/sheets/KkPeKkoohvk_11.png",
+          "imgSize": [
+            1280,
+            720
+          ],
+          "crop": [
+            980,
+            25,
+            280,
+            150
+          ],
+          "caption": "video B: bar building"
+        }
+      ]
+    },
+    {
+      "id": "crashedShip",
+      "name": "Crashed ship with hull cover",
+      "csName": "loď / kryt na plášti",
+      "interactive": true,
+      "marker": 10,
+      "task": "getShipPart",
+      "sheet": "buildings",
+      "description": "Grey-olive wedge-shaped landing craft with a dark cockpit and landing struts, sitting on a hazard-striped landing pad (map cells 11-19, rows 38-41, about 8 x 3 tiles). Shooting the cover by the nozzles drops the ship part (SOUČÁSTKA) to the ground.",
+      "states": [
+        "cover closed",
+        "cover shot open",
+        "part taken"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/sheets/KkPeKkoohvk_10.png",
+          "imgSize": [
+            1280,
+            720
+          ],
+          "crop": [
+            665,
+            60,
+            275,
+            115
+          ],
+          "caption": "video B: ship on pad, player in front"
+        },
+        {
+          "path": "docs/research/video/f5r7/0097.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            150,
+            95,
+            154,
+            75
+          ],
+          "caption": "after shooting cover (message)"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            216,
+            864,
+            288,
+            168
+          ],
+          "caption": "map: ship and pad"
+        }
+      ]
+    },
+    {
+      "id": "shipPart",
+      "name": "Ship part pickup",
+      "csName": "Součástka",
+      "interactive": true,
+      "marker": 10,
+      "task": "getShipPart",
+      "sheet": "props",
+      "description": "Part that falls out of the ship hull; picked from the ground (ZE ZEMĚ JSI SEBRAL SOUČÁSTKU Z RAKETY). No ground sprite identified.",
+      "states": [
+        "inside hull",
+        "on ground",
+        "taken"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0296_lift_scaffold_crate_item_message.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            75,
+            560,
+            40
+          ],
+          "caption": "pickup message"
+        }
+      ]
+    },
+    {
+      "id": "plasmaBarrier",
+      "name": "Plasma fire barrier",
+      "csName": "plazma / plazmový oheň",
+      "interactive": true,
+      "marker": 11,
+      "task": "unlockPlasma",
+      "sheet": "machines",
+      "description": "Column of tall orange-yellow flame tongues, 1 tile wide and 2 tiles tall, standing on the walkway at map cell 103, rows 42-43, between a ruined wall and a grey factory block with ribbed cylinders. Blocks the way to the controller; removed in map M15. Likely animated (flicker) in game, not confirmed.",
+      "states": [
+        "burning (flicker)",
+        "off"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2376,
+            912,
+            264,
+            144
+          ],
+          "caption": "map M11: flames"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M15.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2376,
+            912,
+            264,
+            144
+          ],
+          "caption": "map M15: flames gone"
+        }
+      ]
+    },
+    {
+      "id": "codeLock",
+      "name": "Code lock",
+      "csName": "kódový zámek",
+      "interactive": true,
+      "marker": 11,
+      "task": "unlockPlasma",
+      "sheet": "machines",
+      "description": "Keypad lock right next to the plasma; decoder removes the password. Not identified in map or footage - candidates are the reddish-brown wall box left of the flames (cells 99-100, row 41) or the small panel on the factory block (cell 115, row 42). The X*.GRA keypad close-ups may be its UI.",
+      "states": [
+        "locked",
+        "decoded"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2376,
+            912,
+            432,
+            192
+          ],
+          "caption": "map: plasma surroundings"
+        }
+      ]
+    },
+    {
+      "id": "controller",
+      "name": "Lift controller pickup",
+      "csName": "Ovladač",
+      "interactive": true,
+      "marker": 12,
+      "task": "takeController",
+      "sheet": "props",
+      "description": "Item spot at map cell 112,50 on floor 45, by a small green machine and fence, left of a heap of fallen girders. No item sprite in the map; never reached in footage.",
+      "states": [
+        "on ground",
+        "taken"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2592,
+            1104,
+            288,
+            144
+          ],
+          "caption": "map: controller area and wreckage"
+        }
+      ]
+    },
+    {
+      "id": "damagedLift",
+      "name": "Damaged lift",
+      "csName": "poškozený výtah",
+      "interactive": true,
+      "marker": 13,
+      "task": "repairLift",
+      "sheet": "machines",
+      "description": "Standard lift shaft by a lattice pylon (map col 56, floors 31-38) whose control panel is broken: OVLÁDACÍ PANEL VÝTAHU JE POŠKOZEN; walkthrough calls it a snowy/grainy screen. Using the controller on it opens floors 24, 17 and 10.",
+      "states": [
+        "broken (grainy screen)",
+        "repaired",
+        "moving"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/sheets/KkPeKkoohvk_10.png",
+          "imgSize": [
+            1280,
+            720
+          ],
+          "crop": [
+            975,
+            560,
+            290,
+            155
+          ],
+          "caption": "video B: damaged-panel message at lift"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1296,
+            696,
+            120,
+            216
+          ],
+          "caption": "map: lift column 56"
+        }
+      ]
+    },
+    {
+      "id": "acidTank",
+      "name": "Acid tank",
+      "csName": "cisterna s kyselinou",
+      "interactive": true,
+      "marker": 14,
+      "task": "acidGuard",
+      "sheet": "machines",
+      "description": "Tall corrugated cylindrical silo with a conical grey roof, stencilled ACID, on stubby stone legs (map cells 113-117, rows 18-23, about 4 x 5 tiles) with an outlet pipe toward the floor below. The tap handle fitted to the pipe pours acid on the acid-only guard one floor down; in M16 a handwheel shows on the pipe and the guard tiles are wreckage.",
+      "states": [
+        "idle (no tap)",
+        "tap fitted",
+        "spilling acid",
+        "guard destroyed (wreck below)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2640,
+            384,
+            264,
+            360
+          ],
+          "caption": "map M11: tank and guard floor"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M16.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2640,
+            384,
+            264,
+            360
+          ],
+          "caption": "map M16: tap fitted, guard wreck"
+        }
+      ]
+    },
+    {
+      "id": "craneKey",
+      "name": "Crane key pickup",
+      "csName": "klíček / Klíč",
+      "interactive": true,
+      "marker": 15,
+      "task": "shootGuard",
+      "sheet": "props",
+      "description": "Small key lying behind the shoot-only guard on the top floor (engine item 15,10, map ~cell 21, row 15). Not seen in footage or map tiles.",
+      "states": [
+        "guarded",
+        "on ground",
+        "taken"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            408,
+            264,
+            264,
+            144
+          ],
+          "caption": "map: top floor around guard and key"
+        }
+      ]
+    },
+    {
+      "id": "crane",
+      "name": "Crane beam",
+      "csName": "jeřáb",
+      "interactive": true,
+      "marker": 16,
+      "task": "repairCrane",
+      "sheet": "machines",
+      "description": "Long green riveted I-beam with orange clamp bands (about 7 x 1 tiles, map cells 23-31, row 13) hung from a single chain by a triangular bridle; a winch block and a small control box sit nearby. Repairing it with the key lets the player cross = level end.",
+      "states": [
+        "broken / idle",
+        "repaired",
+        "moving (crossing)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/images/steam-screens/s0.jpg",
+          "imgSize": [
+            1920,
+            1080
+          ],
+          "crop": [
+            95,
+            140,
+            1060,
+            470
+          ],
+          "caption": "Steam shot: hanging beam on chain"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            456,
+            0,
+            312,
+            408
+          ],
+          "caption": "map: chain, beam and stairs"
+        }
+      ]
+    },
+    {
+      "id": "cardDoor",
+      "name": "Card door 17",
+      "csName": "dveře (karta)",
+      "interactive": true,
+      "marker": 17,
+      "task": "openDoor",
+      "sheet": "machines",
+      "description": "Narrow grey metal door section with cyan pipes, 1 tile wide and 3 tall, at map cell 49, rows 20-22, between green lightning-icon card panels (same tile as the wire box). Map M14 replaces these cells (door opened). Never seen in footage.",
+      "states": [
+        "locked",
+        "open"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1104,
+            432,
+            192,
+            144
+          ],
+          "caption": "map M11: door closed"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M14.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1104,
+            432,
+            192,
+            144
+          ],
+          "caption": "map M14: door open"
+        }
+      ]
+    },
+    {
+      "id": "lift",
+      "name": "Lift platform and shaft",
+      "csName": "výtah",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Narrow vertical shaft with a toothed rack rail between two guide rails; the car is a small railed platform with a hazard-striped base (about 2 x 1 tiles plus railing). In the map the shaft shows as a dotted rung column. Player cannot hide while riding.",
+      "states": [
+        "idle at floor",
+        "moving up",
+        "moving down"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0296_lift_scaffold_crate_item_message.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            320,
+            80,
+            260,
+            500
+          ],
+          "caption": "riding lift in brick shaft"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0261_hide_pose_enemy_adjacent_wall_hole_scene.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            570,
+            75,
+            250,
+            450
+          ],
+          "caption": "street lift with railing"
+        },
+        {
+          "path": "docs/research/video/f5r7/0154.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            110,
+            24,
+            100,
+            168
+          ],
+          "caption": "tunnel lift between stacked corridors"
+        }
+      ]
+    },
+    {
+      "id": "liftPanel",
+      "name": "Lift call / control box",
+      "csName": "ovládací panel výtahu",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Small dark box with a yellow-orange triangle or arrow sign (about 1 x 0.5 tiles) on a post or wall beside lifts; a taller post version stands at street lifts. Function inferred (the damaged lift message names a lift control panel).",
+      "states": [
+        "normal",
+        "damaged (lift 13 only)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0183.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            180,
+            110,
+            124,
+            60
+          ],
+          "caption": "low box and tall post at street lift"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0500_crouch_search_dead_body_card_holoplan.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            200,
+            410,
+            120,
+            80
+          ],
+          "caption": "orange panel by tunnel lift"
+        }
+      ]
+    },
+    {
+      "id": "barrel",
+      "name": "Steel barrel",
+      "csName": "barel",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Ribbed grey steel drum, about 1 x 1.2 tiles, at the street start. Seen as hide cover; engine has an explosive-barrel message (ZNIČIL JSI BAREL S VÝBUŠNINOU) but no barrel was shot in level 1 footage. Whether hiding needs a prop is unknown.",
+      "states": [
+        "normal",
+        "player hiding beside",
+        "destroyed (unconfirmed for level 1)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0226_street_start_barrel_hud.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            410,
+            390,
+            110,
+            120
+          ],
+          "caption": "barrel at start"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0231_hide_dark_sprite_behind_barrel_chrome_enemy_near.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            410,
+            350,
+            270,
+            160
+          ],
+          "caption": "player hiding at barrel"
+        }
+      ]
+    },
+    {
+      "id": "crate",
+      "name": "Slatted crate / small machine box",
+      "csName": "bedna",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Low brown box with vertical slats or a window grille (about 1-1.5 x 1 tiles) on streets and lift platforms; sizes vary (merged). Seen as hide cover. Looks like the small mid-ground huts at reduced size, so it may be a background tile rather than a solid prop - unsure.",
+      "states": [
+        "normal",
+        "player hiding beside"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0183.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            115,
+            130,
+            60,
+            40
+          ],
+          "caption": "slatted crate on street"
+        },
+        {
+          "path": "docs/research/video/f5r7/0132.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            165,
+            130,
+            50,
+            40
+          ],
+          "caption": "crate by colonnade"
+        }
+      ]
+    },
+    {
+      "id": "skyBackground",
+      "name": "Parallax sky and skyline",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Full-screen backdrop: rust-red and brown dithered clouds over black ruined-city silhouettes (antenna towers, block houses with lit windows). Scrolls much slower than the playfield. Frame 1 adds white lightning bolts and brighter clouds. The orange glowing strip below row 170 is probably outside the 169 px playfield.",
+      "states": [
+        "normal",
+        "lightning flash"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/lev1/f000.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            0,
+            0,
+            320,
+            170
+          ],
+          "caption": "background frame 0"
+        },
+        {
+          "path": "docs/research/gamedata/png/lev1/f001.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            0,
+            0,
+            320,
+            170
+          ],
+          "caption": "lightning variant"
+        }
+      ]
+    },
+    {
+      "id": "midgroundRuins",
+      "name": "Mid-ground ruined huts",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Small dark brown block houses with window grids and broken posts standing just behind the walkway (1-3 tiles), drawn as map tiles in front of the sky.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0226_street_start_barrel_hud.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            540,
+            400,
+            375,
+            100
+          ],
+          "caption": "huts right of the start"
+        }
+      ]
+    },
+    {
+      "id": "streetWalkway",
+      "name": "Street walkway floor",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Riveted rust-brown and olive metal walkway, 1 tile thick, with a row of rounded plates and small hanging hooks; every floor of the level is this plank, 7 tiles apart.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0226_street_start_barrel_hud.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            495,
+            870,
+            85
+          ],
+          "caption": "walkway"
+        }
+      ]
+    },
+    {
+      "id": "hazardPlate",
+      "name": "Hazard-striped plate with beacon lamps",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Raised floor plate with yellow-black stripes about 8 tiles wide, flanked by small yellow dome lamps on coil-spring posts. Under the start and as the ship landing pad; purpose unclear (landing pad or hatch).",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0176.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            60,
+            145,
+            235,
+            47
+          ],
+          "caption": "plate with lamps at both ends"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0226_street_start_barrel_hud.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            720,
+            460,
+            195,
+            115
+          ],
+          "caption": "plate and lamp at start"
+        }
+      ]
+    },
+    {
+      "id": "chainFence",
+      "name": "Chain-link fence",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Silver diagonal-mesh fence panels about 2 tiles tall between thin steel posts, often with a small grey sign plate; some panels torn. A variant carries a TOXIC!! sign (map cells 101-103, row 49).",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0342_drone_fire_hit_swirl_on_player.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            260,
+            350,
+            520,
+            155
+          ],
+          "caption": "fence panels with sign plate"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0226_street_start_barrel_hud.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            350,
+            385,
+            155
+          ],
+          "caption": "torn fence at start"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2400,
+            1160,
+            180,
+            70
+          ],
+          "caption": "TOXIC sign fence"
+        }
+      ]
+    },
+    {
+      "id": "latticePylon",
+      "name": "Lattice pylon",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Vertical steel truss column with zigzag bracing and riveted flanges, 1 tile wide, floor to ceiling; some stand on a stepped concrete plinth.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0372_fuel_tank_radiation_sign.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            100,
+            75,
+            95,
+            430
+          ],
+          "caption": "pylon"
+        },
+        {
+          "path": "docs/research/video/f5r7/0183.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            70,
+            24,
+            60,
+            148
+          ],
+          "caption": "pylon on concrete plinth"
+        }
+      ]
+    },
+    {
+      "id": "girderBridge",
+      "name": "Girder bridge",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Horizontal riveted truss beam with X bracing and square gusset plates, 1 tile tall, spanning overhead between pylons and pipe columns.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0342_drone_fire_hit_swirl_on_player.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            200,
+            810,
+            95
+          ],
+          "caption": "girder bridge"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0608_gantry_building_drone_missile_hit.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            130,
+            620,
+            90
+          ],
+          "caption": "girder above gantry building"
+        }
+      ]
+    },
+    {
+      "id": "pipeColumn",
+      "name": "Vertical pipe column",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thick grey-bronze vertical pipe with ring joints, 1 tile wide and several tiles tall; on the top floor the same pipes form tall smokestacks.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0342_drone_fire_hit_swirl_on_player.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            545,
+            75,
+            95,
+            430
+          ],
+          "caption": "pipe column"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2040,
+            0,
+            1008,
+            432
+          ],
+          "caption": "map: top-floor smokestacks, tanks, trusses"
+        }
+      ]
+    },
+    {
+      "id": "pipeBend",
+      "name": "Large L-shaped pipe",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Big grey pipe running horizontally then bending down to the floor (about 5 x 5 tiles), on the street east of the fuel tank; similar L pipes run along the metro tunnel.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0129.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            160,
+            40,
+            144,
+            132
+          ],
+          "caption": "street pipe bend and sign post"
+        }
+      ]
+    },
+    {
+      "id": "fuelTank",
+      "name": "Fuel tank",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Horizontal grey cylindrical tank with domed ends and a yellow radiation trefoil on the end, about 4 x 2 tiles, raised on the street. Longer twin tanks sit on the top floor.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0126.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            200,
+            85,
+            104,
+            75
+          ],
+          "caption": "tank from the left"
+        },
+        {
+          "path": "docs/research/video/f5r7/0129.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            15,
+            85,
+            120,
+            60
+          ],
+          "caption": "tank end with trefoil"
+        }
+      ]
+    },
+    {
+      "id": "windowBuilding",
+      "name": "Concrete building with barred windows",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Flat-roofed grey stucco block (about 7 x 4 tiles) with three large barred windows, the middle one shot through; low concrete wall beside it.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0372_fuel_tank_radiation_sign.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            180,
+            205,
+            580,
+            295
+          ],
+          "caption": "window building"
+        },
+        {
+          "path": "docs/research/images/steam-screens/s5.jpg",
+          "imgSize": [
+            1920,
+            1080
+          ],
+          "crop": [
+            360,
+            380,
+            1160,
+            520
+          ],
+          "caption": "Steam shot, same building"
+        }
+      ]
+    },
+    {
+      "id": "ruinedBuilding",
+      "name": "Ruined concrete building",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Grey concrete facades with stepped roofs, balconies and ragged blast holes in the walls (several variants, 4-8 tiles wide); the dark holes show sky through. Also the tall plain facade with a breach next to the street lift.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0082.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            125,
+            25,
+            179,
+            147
+          ],
+          "caption": "stepped-roof building with holes"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0261_hide_pose_enemy_adjacent_wall_hole_scene.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            75,
+            460,
+            425
+          ],
+          "caption": "breached facade"
+        }
+      ]
+    },
+    {
+      "id": "colonnadeBuilding",
+      "name": "Colonnade building (block 05)",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Overhanging grey upper storey on a row of pale square pillars, painted block number 05, open dark bays below; the wire box hangs on its wall.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0132.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            15,
+            25,
+            289,
+            147
+          ],
+          "caption": "colonnade"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0405_green_wall_panel_wire_cutscene_trigger.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            75,
+            870,
+            425
+          ],
+          "caption": "colonnade with 05 and pipe"
+        }
+      ]
+    },
+    {
+      "id": "brickWall",
+      "name": "Brick wall and shaft",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Dark brown brick walls, full floor height, framing lift shafts and buildings, usually with a vertical pipe at the edge.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0296_lift_scaffold_crate_item_message.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            110,
+            320,
+            470
+          ],
+          "caption": "brick wall by lift"
+        }
+      ]
+    },
+    {
+      "id": "facadeTower",
+      "name": "Tall facade towers",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Multi-storey building facades with vertical pilasters, brick strips and triangular braces, used as level walls (left edge) and as tall towers at the east end (about 9 x 27 tiles).",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0296_lift_scaffold_crate_item_message.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            550,
+            75,
+            365,
+            505
+          ],
+          "caption": "facade with braces right of lift"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            3024,
+            48,
+            264,
+            720
+          ],
+          "caption": "map: east tower"
+        }
+      ]
+    },
+    {
+      "id": "graffitiWall",
+      "name": "Graffiti wall",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Freestanding broken concrete wall (about 7 x 3 tiles) with red, orange and white spray graffiti; a second graffiti wall stands at the east end (cells 135-141, rows 40-44).",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0105.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            60,
+            85,
+            180,
+            87
+          ],
+          "caption": "graffiti wall"
+        },
+        {
+          "path": "docs/research/video/sheets/KkPeKkoohvk_10.png",
+          "imgSize": [
+            1280,
+            720
+          ],
+          "crop": [
+            985,
+            200,
+            270,
+            150
+          ],
+          "caption": "video B: graffiti wall"
+        }
+      ]
+    },
+    {
+      "id": "gantryBuilding",
+      "name": "Gantry building with blue lights",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Industrial hall front: brown panelled lower storey with dark bays and ceiling lamps, a strip of blue lights above, girder on top and a fenced upper deck.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0608_gantry_building_drone_missile_hit.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            130,
+            880,
+            375
+          ],
+          "caption": "gantry building"
+        }
+      ]
+    },
+    {
+      "id": "barSign",
+      "name": "BAR neon sign",
+      "csName": null,
+      "interactive": false,
+      "marker": 9,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Big red neon letters B A R on a rusty frame atop a splayed lattice stand (about 4 x 3 tiles) in front of the bar. In footage B and A glow red and R is dark grey-blue; in the map the R cells hold yellow lamp tiles, so R is probably animated (flicker).",
+      "states": [
+        "neon on",
+        "R flicker / off"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0187.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            130,
+            50,
+            120,
+            120
+          ],
+          "caption": "BAR sign"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1008,
+            768,
+            216,
+            144
+          ],
+          "caption": "map: B A plus lamp tiles"
+        }
+      ]
+    },
+    {
+      "id": "metroTrain",
+      "name": "Subway train carriage",
+      "csName": "souprava metra",
+      "interactive": false,
+      "marker": 5,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Long white-grey carriages with dark windows, red and grey side stripes and blood splatter, standing on the platform track (about 5 x 3 tiles per car) with dark pillars between cars.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0436_subway_train_carriage_player_opens_door.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            300,
+            870,
+            210
+          ],
+          "caption": "bloodied carriages"
+        },
+        {
+          "path": "docs/research/gamedata/png/METROPAC/f010.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            15,
+            15,
+            290,
+            180
+          ],
+          "caption": "cutscene close-up of carriage"
+        }
+      ]
+    },
+    {
+      "id": "metroPlatformWall",
+      "name": "Metro platform walls",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Station walls of blue-grey grid tiles under a band of brick and a gravel-textured ceiling; a large round wall fan unit (about 2 x 2 tiles) sits by the lift.",
+      "states": [
+        "fan spinning (assumed)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0139.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            15,
+            24,
+            289,
+            150
+          ],
+          "caption": "tiled wall, lift and fan"
+        },
+        {
+          "path": "docs/research/video/f5r7/0174.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            215,
+            85,
+            89,
+            75
+          ],
+          "caption": "wall fan"
+        }
+      ]
+    },
+    {
+      "id": "tunnelWall",
+      "name": "Metro tunnel walls",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Rough grey concrete wall panels split by riveted steel pillars, dark ceiling with a long horizontal pipe; two corridors stack per screen.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0456_subway_tunnel_pipes.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            75,
+            870,
+            500
+          ],
+          "caption": "tunnel corridor"
+        },
+        {
+          "path": "docs/research/video/frames-best/L1_t0468_pickup_E-BLASTER_label_top_right.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            75,
+            870,
+            500
+          ],
+          "caption": "stacked corridors with pipe"
+        }
+      ]
+    },
+    {
+      "id": "stripLight",
+      "name": "Tunnel strip light",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "White fluorescent bar about 1.5 tiles wide under the tunnel ceiling, casting a pale cone on the wall.",
+      "states": [
+        "lit (metro powered)",
+        "dark before switchboard (inferred from NENÍ TAM SVĚTLO)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0456_subway_tunnel_pipes.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            440,
+            270,
+            200,
+            200
+          ],
+          "caption": "strip light and light cone"
+        }
+      ]
+    },
+    {
+      "id": "tunnelFloor",
+      "name": "Tunnel floor rail",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thin metal walkway with a yellow-black hazard stripe and short posts every few tiles; used on metro platform and tunnel floors.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0468_pickup_E-BLASTER_label_top_right.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            45,
+            490,
+            870,
+            80
+          ],
+          "caption": "floor rail"
+        }
+      ]
+    },
+    {
+      "id": "rubblePile",
+      "name": "Boulder rubble pile",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Heap of large grey angular boulders blocking part of a tunnel (about 4 x 4 tiles); smaller scrap and broken posts lie on streets.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0500_crouch_search_dead_body_card_holoplan.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            480,
+            210,
+            400,
+            300
+          ],
+          "caption": "boulder pile"
+        },
+        {
+          "path": "docs/research/video/f5r7/0121.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            150,
+            140,
+            154,
+            30
+          ],
+          "caption": "street scrap"
+        }
+      ]
+    },
+    {
+      "id": "fallenGirders",
+      "name": "Collapsed girder wreckage",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Tangle of fallen diagonal beams and debris (about 5 x 4 tiles) east of the controller spot.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2736,
+            1104,
+            168,
+            120
+          ],
+          "caption": "map: wreckage"
+        }
+      ]
+    },
+    {
+      "id": "staircase",
+      "name": "Diagonal staircase with railings",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Steep diagonal stair stringers with orange handrails (about 5 x 4 tiles) beside the crane on the top floor; not used in footage, maybe decor.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            432,
+            264,
+            240,
+            168
+          ],
+          "caption": "map: stairs next to crane"
+        }
+      ]
+    },
+    {
+      "id": "floorVent",
+      "name": "Wall-base vent grille",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Small grey slotted grilles (about 1 x 0.3 tiles) at the foot of concrete walls.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0261_hide_pose_enemy_adjacent_wall_hole_scene.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            140,
+            470,
+            290,
+            40
+          ],
+          "caption": "vents at wall base"
+        }
+      ]
+    },
+    {
+      "id": "signPost",
+      "name": "Street sign post",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Thin grey pole with a small box or plate on top, about 2 tiles tall, standing on the street.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/video/f5r7/0129.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            255,
+            95,
+            35,
+            75
+          ],
+          "caption": "sign post"
+        }
+      ]
+    }
+  ]
+}

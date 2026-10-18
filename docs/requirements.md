@@ -99,6 +99,7 @@ flowchart LR
 | `config/levels/mesto/level.json` | Level 1 map grid and metadata |
 | `config/levels/mesto/tasks.json` | Level 1 items and task dependency web |
 | `config/levels/mesto/enemies.json` | Level 1 enemies: type, cell, floor, patrol range, confidence |
+| `config/levels/mesto/objects.json` | Level 1 environment objects (52): name, interactive flag, map marker, task, sheet, states, description |
 | `config/robots/xbot.json` | Hero palette, frame axes, proportions, level lines, joint and hook names (part polygons stay in code) |
 | `config/cutscenes/crowbar-door.json` | Agreed crowbar clip: stage, clip window, robot placement and pry swing, palette, keyframe tracks |
 
@@ -117,6 +118,8 @@ flowchart LR
 | `spikes/gun-design/` | Gun design sheet: side, held side and front, slung back, game size, references |
 | `spikes/enemy-design/` | Enemy design sheet: greyscale tint sliders, palette overrides, full and game size, face-off with the hero, references |
 | `spikes/shared/gun.js` | Shared gun model and hold poses |
+| `spikes/env-design/` | Level 1 environment sheet: vector variant per object state next to original crops, hero for scale, LOD and tile grid toggles |
+| `spikes/shared/env.js` | Shared environment asset registry and drawing primitives; assets in `env-props.js`, `env-structures.js`, `env-buildings.js`, `env-machines.js` |
 | `spikes/hud-design/` | HUD frame look: controls for aspect, weapon, ammo, life, reserve, shields and item; side by side with original screenshots |
 
 ## Open
@@ -126,6 +129,7 @@ flowchart LR
 - Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Original stays default and keys are configurable; revisit after trying the sandbox.
 - Ladder: Left / Right do nothing while climbing (plan's assumption).
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
+- Environment sheet: the 13 `machines` objects have no vector assets yet (`spikes/shared/env-machines.js` is empty); props, structures and buildings have all 13 each.
 - Sandbox HUD shows live life and weapon only. Ammo (350), reserve (full) and shields (5) are fixed until phase 3 adds them.
 - TODO: E-Blaster (mission 1 bonus weapon, subway pickup) needs its own design sheet spike first, like `spikes/gun-design/`. Then add it to HUD slot 3 in `spikes/hud-design/`; until then the slot stays empty.
 - Hero tuning values in `config/hero/movement.json` are first guesses until tuned in the sandbox.
