@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { damage } from "./hero";
+import { damage, kill } from "./hero";
 import { cfg, game, run, runUntil, tick, type Game } from "./testWorld";
 
 const kinds = (g: Game, kind: string) => g.events.filter((e) => e.kind === kind);
@@ -117,6 +117,72 @@ describe("projectiles", () => {
     run(g, 0.5, ["hide"]);
     expect(g.hero.energy).toBe(100);
     expect(g.world.projectiles[0]!.x).toBeLessThan(6);
+  });
+});
+
+describe("dead body", () => {
+  const lethal = (g: Game) => {
+    g.hero.energy = cfg.energy.hit;
+    g.events.push(...damage(g.hero, cfg));
+  };
+
+  it("falls to the floor when killed mid-jump", () => {
+    const g = game();
+    tick(g, [], ["up"]);
+    run(g, 0.6);
+    expect(g.hero.onGround).toBe(false);
+    lethal(g);
+    run(g, 1);
+    expect(g.hero).toMatchObject({ state: "death", y: 14, onGround: true });
+    expect(kinds(g, "died")).toHaveLength(1);
+  });
+
+  it("rides a moving lift", () => {
+    const g = game({ x: 18.5, y: 14 });
+    tick(g);
+    tick(g, [], ["up"]);
+    run(g, 0.5);
+    lethal(g);
+    run(g, 1.4);
+    expect(g.hero.state).toBe("death");
+    expect(g.hero.y).toBeCloseTo(g.world.lift.y, 6);
+    expect(g.world.lift.y).toBeLessThan(10);
+    expect(kinds(g, "died")).toHaveLength(1);
+  });
+
+  it("falls off the ladder", () => {
+    const g = game({ x: 3.4, y: 14 });
+    tick(g, [], ["up"]);
+    run(g, 2, ["up"]);
+    expect(g.hero.state).toBe("ladder");
+    lethal(g);
+    run(g, 1);
+    expect(g.hero).toMatchObject({ state: "death", y: 14, onGround: true });
+    expect(kinds(g, "died")).toHaveLength(1);
+  });
+
+  it("stops below the pit and still respawns", () => {
+    const g = game({ x: 29.5, y: 14 });
+    runUntil(g, (h) => h.state === "fallDeath");
+    run(g, 1);
+    expect(g.hero.y).toBe(g.world.grid.height + 2);
+    expect(kinds(g, "died")).toHaveLength(1);
+    run(g, 1.1);
+    expect(g.hero.state).toBe("idle");
+  });
+});
+
+describe("kill", () => {
+  it("kills a hidden hero", () => {
+    const g = hidden();
+    expect(kill(g.hero).map((e) => e.kind)).toEqual(["died"]);
+    expect(g.hero).toMatchObject({ state: "death", energy: 0 });
+  });
+
+  it("ignores a dead hero", () => {
+    const g = game();
+    kill(g.hero);
+    expect(kill(g.hero)).toEqual([]);
   });
 });
 

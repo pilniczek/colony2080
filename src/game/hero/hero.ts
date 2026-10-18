@@ -132,7 +132,16 @@ function die(h: Hero, state: "fallDeath" | "death", events: HeroEvent[]): void {
   enter(h, state);
   h.vx = 0;
   h.vy = 0;
+  h.hidden = false;
   events.push({ kind: "died", x: h.x, y: h.y });
+}
+
+export function kill(h: Hero): HeroEvent[] {
+  const events: HeroEvent[] = [];
+  if (isDead(h.state)) return events;
+  h.energy = 0;
+  die(h, "death", events);
+  return events;
 }
 
 export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
@@ -330,8 +339,6 @@ const transitions: Partial<Record<HeroState, Handler>> = {
   death: respawn,
 };
 
-const selfMoving = new Set<HeroState>(["ladder", "fallDeath", "death"]);
-
 const launchHeight = (state: HeroState, cfg: MovementConfig): number =>
   state === "runJump" ? cfg.jump.runHeight : cfg.jump.standHeight;
 
@@ -395,6 +402,16 @@ function settle(s: Step, startY: number): void {
   else enter(h, "land");
 }
 
+function fallDead(s: Step): void {
+  const { h, world } = s;
+  h.vx = 0;
+  physics(s);
+  const pit = world.grid.height + PIT_MARGIN;
+  if (h.y <= pit) return;
+  h.y = pit;
+  h.vy = 0;
+}
+
 function overlaps(p: Projectile, box: Box): boolean {
   const dx = p.x - clamp(p.x, box.x - box.w / 2, box.x + box.w / 2);
   const dy = p.y - clamp(p.y, box.y - box.h, box.y);
@@ -424,7 +441,8 @@ export function updateHero(
   h.time += dt * h.rate;
   clipEvents(s);
   transitions[h.state]?.(s);
-  if (!selfMoving.has(h.state)) {
+  if (isDead(h.state)) fallDead(s);
+  else if (h.state !== "ladder") {
     const startY = h.y;
     h.vx = horizontalSpeed(s);
     physics(s);
