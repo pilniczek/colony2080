@@ -375,20 +375,47 @@ move("movement", "Walking jump", "direction + Up", (W + 120) / WALK.speed, (c, t
   bot(c, { x, y: FLOOR + Math.min(walkBob(p) * (1 - k), lift(pose)) - h, pose });
 });
 
-move("movement", "Running jump", "Alt + direction + Up", 1.7, (c, t) => {
-  const gap = [104, 214];
-  backdrop(c, [gap]);
+const RUN_JUMP = { period: 1.7, j0: 0.48, j1: 0.92 };
+
+function runningJumpAt(t) {
+  const { j0, j1 } = RUN_JUMP;
   const p = t / RUN.cycle * TAU;
   const x = -60 + RUN.speed * t;
   const leap = { ...legs(10, [-70, 76, 14], [14, 72, 18]), arm: -60, armFar: 40, fore: -50, foreFar: -60 };
-  const j0 = 0.48, j1 = 0.92;
   const k = span(t, j0 - 0.06, j0 + 0.04) * (1 - span(t, j1 - 0.04, j1 + 0.06));
   const pose = mix(runPose(p), leap, k);
   const u = clamp((t - j0) / (j1 - j0));
   const h = t > j0 && t < j1 ? 4 * 34 * u * (1 - u) : 0;
-  if (h === 0) shadow(c, x, FLOOR, 30);
-  bot(c, { x, y: FLOOR + Math.min(runBob(p) * (1 - k), lift(pose)) - h, pose });
-});
+  return { x, y: FLOOR + Math.min(runBob(p) * (1 - k), lift(pose)) - h, pose, airborne: h > 0 };
+}
+
+function runningJump(c, t, look = {}) {
+  backdrop(c, [[104, 214]]);
+  const { x, y, pose, airborne } = runningJumpAt(t);
+  if (!airborne) shadow(c, x, FLOOR, 30);
+  bot(c, { x, y, pose: { ...pose, ...look.pose } });
+  return { x, y };
+}
+
+function hitLook(t, hitT) {
+  const dt = t - hitT;
+  if (dt < 0 || dt > 0.6) return {};
+  const flash = 1 - span(dt, 0, 0.25);
+  const tint = flash > 0 ? { brightness: 1 + flash * 0.6, saturate: 1 + flash } : undefined;
+  return { pose: { head: { rot: -16 * Math.sin(22 * dt) * Math.exp(-7 * dt), tint }, chest: { tint } } };
+}
+
+function hitFx(c, t, hitT, [hx, hy], [sx, sy]) {
+  const k = span(t, hitT - 0.3, hitT);
+  if (k > 0 && k < 1) {
+    const bx = W - (W - hx) * k;
+    c.strokeStyle = "#ff6a3a"; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(bx, hy); c.lineTo(bx + 16, hy); c.stroke();
+  }
+  if (t >= hitT && t < hitT + 0.3) spark(c, sx, sy, 14, span(t, hitT, hitT + 0.3));
+}
+
+move("movement", "Running jump", "Alt + direction + Up", RUN_JUMP.period, runningJump);
 
 move("movement", "Fall and land", "walk off edge", 3.2, (c, t) => {
   const top = FLOOR - 86;
@@ -508,6 +535,19 @@ function fire(c, t, pose, x, y, targetX) {
   if (shot % 3 === 0) spark(c, targetX + 2, my, 7, 0.3);
 }
 
+const JAB = { arm: -88, fore: 12 }, CROSS = { armFar: -84, foreFar: 6 };
+const punchImpact = u => Math.max(num([[0, 0], [0.12, 1], [0.3, 0], [1, 0]], u), num([[0, 0], [0.5, 0], [0.62, 1], [0.8, 0], [1, 0]], u));
+
+function bag(c, swing) {
+  c.save();
+  c.translate(258, 40);
+  c.rotate(swing * 0.12);
+  c.fillStyle = "#4a5c5f"; c.fillRect(-1, -40, 2, 40);
+  c.fillStyle = "#6b3a1c"; c.fillRect(-16, 0, 32, 92);
+  c.fillStyle = "#3a1e0e"; c.fillRect(-16, 20, 32, 4); c.fillRect(-16, 68, 32, 4);
+  c.restore();
+}
+
 function punchPose(t, base, jab, cross, period) {
   const u = t % period / period;
   const near = num([[0, 0], [0.12, 1], [0.32, 0], [1, 0]], u);
@@ -515,31 +555,34 @@ function punchPose(t, base, jab, cross, period) {
   return { ...base, ...mix(GUARD, jab, near), ...(cross ? { armFar: mix(GUARD, cross, far).armFar, foreFar: mix(GUARD, cross, far).foreFar } : {}) };
 }
 
-move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", 1.2, (c, t) => {
+const PUNCH_X = 150, PUNCH_HIT_Y = FLOOR - 92;
+
+function punchOrShoot(c, t, look = {}) {
   backdrop(c);
   const stance = legs(2, [-14, 10], [16, 6]);
-  const x = 150;
+  const x = PUNCH_X;
   if (armed()) {
     box(c, 300, FLOOR, 40, 70, "#3c4a4c", "#1a2224");
     const pose = stance;
     const y = FLOOR + lift(pose);
     shadow(c, x, FLOOR, 30);
-    bot(c, { x, y, pose });
+    bot(c, { x, y, pose: { ...pose, ...look.pose } });
     fire(c, t, pose, x, y, 300);
     return;
   }
-  const pose = punchPose(t, stance, { arm: -88, fore: 12 }, { armFar: -84, foreFar: 6 }, 1.2);
+  const pose = punchPose(t, stance, JAB, CROSS, 1.2);
   const y = FLOOR + lift(pose);
-  const hit = Math.max(num([[0, 0], [0.12, 1], [0.3, 0], [1, 0]], t / 1.2), num([[0, 0], [0.5, 0], [0.62, 1], [0.8, 0], [1, 0]], t / 1.2));
-  c.save();
-  c.translate(258, 40);
-  c.rotate(hit * 0.12);
-  c.fillStyle = "#4a5c5f"; c.fillRect(-1, -40, 2, 40);
-  c.fillStyle = "#6b3a1c"; c.fillRect(-16, 0, 32, 92);
-  c.fillStyle = "#3a1e0e"; c.fillRect(-16, 20, 32, 4); c.fillRect(-16, 68, 32, 4);
-  c.restore();
+  bag(c, punchImpact(t / 1.2));
   shadow(c, x, FLOOR, 30);
-  bot(c, { x, y, pose });
+  bot(c, { x, y, pose: { ...pose, ...look.pose } });
+}
+
+move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", 1.2, punchOrShoot);
+
+move("fight", { fists: "Hit while punching", gun: "Hit while shooting" }, "taking damage during Ctrl", 1.2, (c, t) => {
+  punchOrShoot(c, t, hitLook(t, 0.9));
+  const impact = [PUNCH_X + 14, PUNCH_HIT_Y];
+  hitFx(c, t, 0.9, impact, impact);
 });
 
 move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", 1.0, (c, t) => {
@@ -626,18 +669,18 @@ move("movement", "Lift ride", "stand on platform", 5, (c, t) => {
 
 move("fight", "Hit reaction", "taking damage", 2, (c, t) => {
   backdrop(c);
-  const hitT = 0.6;
-  const recoil = { ...legs(-14, [-18, 14], [22, 20]), arm: 40, armFar: 50, fore: -50, foreFar: -60 };
-  const pose = keyed([[0, STAND], [hitT, STAND], [hitT + 0.1, recoil], [hitT + 0.6, STAND]], t);
-  const x = 170 - 14 * easeOut(span(t, hitT, hitT + 0.2)) * (1 - span(t, hitT + 0.6, 2));
+  const x = 170;
   shadow(c, x, FLOOR, 30);
-  const flash = 1 - span(t, hitT, hitT + 0.25);
-  bot(c, { x, y: FLOOR + lift(pose), pose, tint: t > hitT && flash > 0 ? { brightness: 1 + flash * 0.6, saturate: 1 + flash } : null });
-  if (t < hitT) {
-    c.strokeStyle = "#ff6a3a"; c.lineWidth = 2;
-    const bx = 360 - (360 - 190) * t / hitT;
-    c.beginPath(); c.moveTo(bx, FLOOR - 120); c.lineTo(bx + 16, FLOOR - 120); c.stroke();
-  } else if (t < hitT + 0.3) spark(c, x + 14, FLOOR - 120, 14, span(t, hitT, hitT + 0.3));
+  const look = hitLook(t, 0.6);
+  bot(c, { x, y: FLOOR + lift(STAND), pose: { ...STAND, ...look.pose } });
+  const impact = [x + 14, FLOOR - 120];
+  hitFx(c, t, 0.6, impact, impact);
+});
+
+move("fight", "Hit in running jump", "taking damage mid-air", RUN_JUMP.period, (c, t) => {
+  const hitT = (RUN_JUMP.j0 + RUN_JUMP.j1) / 2, at = runningJumpAt(hitT);
+  const { x, y } = runningJump(c, t, hitLook(t, hitT));
+  hitFx(c, t, hitT, [at.x + 14, at.y - 100], [x + 14, y - 100]);
 });
 
 move("fight", "Death", "energy runs out", 5, (c, t) => {

@@ -428,14 +428,14 @@ function sideTree({ farLimbs, badge, propBehindArm }) {
   P(lowerTorso, { pts: [[350, 318], [392, 318], [400, 344], [390, 380], [366, 404], [352, 400]], r: 2 });
   P(lowerTorso, { pts: [[216, 316], [264, 316], [268, 352], [256, 392], [234, 404], [214, 394], [206, 352]], r: 6 });
   sideLeg(s, { hip: "hipNear", knee: "kneeNear", ankle: "ankleNear", heel: "heelNear", toe: "toeNear" });
-  const upperTorso = G(s, SIDE_TORSO_TF);
+  const upperTorso = G(s, SIDE_TORSO_TF, "chest", [SIDE_AX, 344]);
   P(upperTorso, { pts: [[194, 112], [406, 112], [388, 330], [212, 330]], mat: "metal", r: 2 });
   const sideChestPlate = [[352, 104], [400, 104], [412, 118], [412, 212], [402, 240], [386, 248], [368, 236], [352, 220]];
   P(upperTorso, { pts: mirrorPts(sideChestPlate, SIDE_AX), r: 12 });
   hook(upperTorso, "back");
   P(upperTorso, { pts: sideChestPlate, r: 12 });
   if (badge) trefoil(upperTorso, 400, 160, BADGE_R, 0.5 / SIDE_TORSO_SX, 0.68);
-  const head = G(s, "translate(-28 0)");
+  const head = G(s, "translate(-28 0)", "head", [320, 156]);
   P(head, { pts: [[300, 100], [336, 100], [340, 160], [304, 160]], mat: "metal", shade: "none", r: 4 });
   P(head, { pts: [[312, 96], [336, 96], [338, 120], [310, 120]], mat: "metal", shade: "cyl", r: 2 });
   P(head, { pts: [[282, 102], [280, 34], [292, 22], [374, 22], [388, 34], [388, 104]], r: 3 });
@@ -609,6 +609,7 @@ function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 2.2, 
     if (node.m) ctx.transform(node.m.a, node.m.b, node.m.c, node.m.d, node.m.e, node.m.f);
     if (node.dim) pal = shade(pal, { brightness: node.dim });
     const j = node.name != null ? joint(pose[node.name]) : null;
+    if (j?.tint) pal = shade(pal, j.tint);
     if (j) {
       ctx.translate(j.dx + node.pivot[0], j.dy + node.pivot[1]);
       ctx.rotate(j.rot * Math.PI / 180);
