@@ -321,7 +321,6 @@ function frontTree({ rightArmFirst, propBehindArm }) {
   F(b, [[317, 110], [323, 110], [323, 150], [317, 150]], "m0");
   P(b, { pts: [[300, 160], [340, 160], [344, 182], [330, 196], [310, 196], [296, 182]], r: 12, shade: "dome" });
   trefoil(b, 418, 150, BADGE_R, 1 / BODY_SX);
-  F(b, [[196, 222], [226, 226], [226, 230], [196, 226]], "a0");
   headFront(s, false);
   const arms = bodyGroup(s);
   const left = () => frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" }, false, null, false, false, propBehindArm);
@@ -350,7 +349,6 @@ function backTree({ leftArmBehind, rightForeBehind, thumbsBehind, forearmsUnder 
   for (const side of [false, true]) {
     const M = p => side ? mirrorPts(p) : p;
     F(b, M([[220, 150], [268, 146], [268, 152], [220, 156]]), "a0");
-    F(b, M([[210, 240], [262, 250], [262, 256], [210, 246]]), "a0");
     for (const [x, y] of [[236, 196], [278, 230]]) E(b, side ? 2 * AX - x : x, y, 4, 4, "a0");
   }
   for (const [x, y, h] of [[250, 160, 40], [268, 170, 60], [384, 150, 50], [404, 200, 34]]) F(b, [[x, y], [x + 4, y], [x + 3, y + h], [x + 1, y + h]], "a0");
