@@ -79,6 +79,9 @@ const views: [View, Options][] = [
   ["back", { thumbsBehind: true, forearmsUnder: true }],
   ["front", { rightArmFirst: true, propBehindArm: true }],
   ["side", { farLimbs: true, badge: true, propBehindArm: true }],
+  ["front", { rightArmFirst: true, propBehindArm: true, enemy: true }],
+  ["side", { farLimbs: true, badge: true, propBehindArm: true, enemy: true }],
+  ["back", { thumbsBehind: true, forearmsUnder: true, enemy: true }],
 ];
 
 type Carry = "side" | "front" | "slung";

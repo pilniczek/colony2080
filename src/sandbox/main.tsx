@@ -32,6 +32,7 @@ const world = loadSandbox(sandboxJson);
 world.emitter.on = true;
 const hero = createHero(world.spawn, "gun", tuning().movement.energy.max);
 const rigs = createRigs(true);
+const enemyRigs = createRigs(true, true);
 const hold = holdPoses(rigs.side, rigs.front);
 const input = new Input(controls.keyboard, () => performance.now(), tuning().movement.inputBufferMs);
 input.attach(window);
@@ -132,7 +133,7 @@ const loop = new FixedLoop({
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, heroLook(world.enemy.body, clips, rigs, hold));
+    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, heroLook(world.enemy.body, clips, enemyRigs, hold), enemyRigs);
     drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays);
     push();
   },

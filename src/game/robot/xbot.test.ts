@@ -18,6 +18,9 @@ const views: [keyof typeof config.joints, () => GroupNode][] = [
   ["front", () => buildFront()],
   ["side", () => buildSide({ farLimbs: true })],
   ["back", () => buildBack()],
+  ["front", () => buildFront({ enemy: true })],
+  ["side", () => buildSide({ farLimbs: true, enemy: true })],
+  ["back", () => buildBack({ enemy: true })],
 ];
 
 describe.each(views)("%s view", (view, build) => {
@@ -34,4 +37,12 @@ describe.each(views)("%s view", (view, build) => {
 
 it("drops small parts in game LOD", () => {
   expect(partCount(buildSide({ lod: true }))).toBeLessThan(partCount(buildSide()));
+});
+
+it.each([
+  ["front", (enemy: boolean) => buildFront({ enemy })],
+  ["side", (enemy: boolean) => buildSide({ farLimbs: true, badge: true, enemy })],
+  ["back", (enemy: boolean) => buildBack({ enemy })],
+])("drops hero detail from the %s enemy", (_, build) => {
+  expect(partCount(build(true))).toBeLessThan(partCount(build(false)));
 });

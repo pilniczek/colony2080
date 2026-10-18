@@ -49,11 +49,11 @@ const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 
 export const heroScale = (cfg: MovementConfig): number =>
   (cfg.heroHeightCells * cfg.cellPx) / (ROBOT.FOOT_Y - xbot.levels.head);
 
-export const createRigs = (lod: boolean): Rigs => ({
-  side: buildSide({ lod, farLimbs: true, propBehindArm: true }),
-  front: buildFront({ lod, rightArmFirst: true, propBehindArm: true }),
-  back: buildBack({ lod }),
-  climber: buildBack({ lod, thumbsBehind: true, forearmsUnder: true }),
+export const createRigs = (lod: boolean, enemy = false): Rigs => ({
+  side: buildSide({ lod, enemy, farLimbs: true, propBehindArm: true }),
+  front: buildFront({ lod, enemy, rightArmFirst: true, propBehindArm: true }),
+  back: buildBack({ lod, enemy }),
+  climber: buildBack({ lod, enemy, thumbsBehind: true, forearmsUnder: true }),
 });
 
 const step = <T>(track: [number, T][], t: number): T => {

@@ -23,7 +23,7 @@ const TRACER = { length: 14, width: 2 };
 const BAG = { rope: 12, w: 32, h: 92 };
 const SHOT_FLASH_MS = 1000 / 12;
 const EMITTER_FLASH = { ahead: 34 };
-const ENEMY_TINT = { brightness: 1.1, saturate: 0 };
+const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
 const BLAST = { grow: 0.25, hideBody: 0.45, center: -84, spin: 3.2, pull: [0.75, 1.1], fade: [0.9, 1.2], ring: [0.95, 1.45], ringRadius: 72, ringWidth: 11, swirl: 0.16, size: 1.6 } as const;
 const FIREBALLS: [number, number, number, number][] = [
   [6, -96, 0, 22],
@@ -382,7 +382,7 @@ function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: 
   const age = enemy.deadAge;
   if (age === null || age < BLAST.hideBody) {
     shadow(f, enemy.body, look);
-    heroFigure(f, enemy.body, look, rigs, scale, enemyFiring(enemy), shade(ROBOT.palette, ENEMY_TINT));
+    heroFigure(f, enemy.body, look, rigs, scale, enemyFiring(enemy), ENEMY_PALETTE);
   } else scrap(f, enemy.body);
   if (age !== null) blast(f, enemy.body, age);
 }
@@ -459,6 +459,7 @@ export function drawScene(
   view: ViewTransform,
   alpha: number,
   enemyLook: HeroLook,
+  enemyRigs: Rigs,
 ): void {
   const scale = heroScale(cfg);
   const unit = scale / SPIKE_K;
@@ -474,7 +475,7 @@ export function drawScene(
   ladders(f);
   for (const p of world.props) PROPS[p.kind]?.(f, p);
   emitter(f);
-  enemyFigure(f, world.enemy, enemyLook, rigs, scale);
+  enemyFigure(f, world.enemy, enemyLook, enemyRigs, scale);
   shadow(f, hero, look);
   heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
   projectiles(f, alpha);
