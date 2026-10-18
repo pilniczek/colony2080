@@ -42,7 +42,7 @@ const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
 const REACH_STEPS = 10;
 const ALPHA_VISIBLE = 40 / 255;
 const GAITS: Record<GaitName, Gait> = { walk: WALK, run: RUN };
-const LAND = { stand: 0.08, gait: 0.06 };
+const LAND = { stand: 0.08, fall: 0.1, gait: 0.06 };
 const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 22, damping: 7, star: [14, -100] as Pt };
 
 export const createRigs = (lod: boolean): Rigs => ({
@@ -241,8 +241,8 @@ const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => 
 
 const landed = (h: Hero, look: HeroLook, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook => {
   const gait = h.state === "walk" || h.state === "run";
-  const window = gait ? LAND.gait : LAND.stand;
   const landing = h.landing;
+  const window = gait ? LAND.gait : landing?.from === "fall" ? LAND.fall : LAND.stand;
   if (!landing || landing.age >= window || look.view !== "side" || (!gait && h.state !== "idle")) return look;
   const from = baseLook({ ...h, state: landing.from, time: landing.time, onGround: false, landing: null }, clips, rigs, hold);
   const progress = span(landing.age, 0, window);

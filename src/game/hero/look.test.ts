@@ -4,7 +4,7 @@ import { holdPoses } from "../robot/gun";
 import { gaitBob, gaitPose, RUN, SPIKE_K, TAU, WALK } from "./gait";
 import { createHero, damage, type Hero } from "./hero";
 import { createRigs, heroLook } from "./look";
-import { cfg, clips, game, tick } from "./testWorld";
+import { cfg, clips, game, tick, type Game } from "./testWorld";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -168,18 +168,26 @@ describe("hero look", () => {
     expect(heroLook(g.hero, clips, rigs, hold)).toMatchObject({ view: "front", tint: 1 });
   });
 
+  const angleOr0 = (pose: Record<string, unknown>, k: string): number => (typeof pose[k] === "number" ? (pose[k] as number) : 0);
   const maxStep = (a: Record<string, unknown>, b: Record<string, unknown>): number =>
-    Math.max(0, ...Object.keys(b).filter((k) => typeof a[k] === "number" && typeof b[k] === "number").map((k) => Math.abs((b[k] as number) - (a[k] as number))));
+    Math.max(0, ...[...new Set([...Object.keys(a), ...Object.keys(b)])].map((k) => Math.abs(angleOr0(b, k) - angleOr0(a, k))));
 
-  for (const [state, held, window, slope] of [
-    ["standJump", [], 0.08, 1.5],
-    ["walkJump", ["moveRight"], 0.06, 1],
-    ["runJump", ["moveRight", "runModifier"], 0.06, 1],
+  const jumpFrom = (held: string[]) => (g: Game) => {
+    for (let i = 0; i < 20; i++) tick(g, held);
+    tick(g, held, ["up"]);
+  };
+  const walkOff = (g: Game) => {
+    while (g.hero.state !== "fall") tick(g, ["moveRight"]);
+  };
+  for (const [state, start, at, held, end, window, slope] of [
+    ["standJump", jumpFrom([]), undefined, [], "idle", 0.08, 1.5],
+    ["walkJump", jumpFrom(["moveRight"]), undefined, ["moveRight"], "walk", 0.06, 1],
+    ["runJump", jumpFrom(["moveRight", "runModifier"]), undefined, ["moveRight", "runModifier"], "run", 0.06, 1],
+    ["fall", walkOff, { x: 15, y: 11 }, [], "idle", 0.1, 1.5],
   ] as const) {
     it(`${state} lands without a pose snap`, () => {
-      const g = game();
-      for (let i = 0; i < 20; i++) tick(g, [...held]);
-      tick(g, [...held], ["up"]);
+      const g = game(at);
+      start(g);
       expect(g.hero.state).toBe(state);
       const looks: Record<string, unknown>[] = [];
       const targets: Record<string, unknown>[] = [];
@@ -191,7 +199,7 @@ describe("hero look", () => {
         targets.push(heroLook({ ...g.hero, landing: null }, clips, rigs, hold).pose);
       }
       expect(landed).toBeGreaterThan(0);
-      expect(g.hero.state).toBe(state === "standJump" ? "idle" : state === "walkJump" ? "walk" : "run");
+      expect(g.hero.state).toBe(end);
       const gap = maxStep(looks[landed]!, targets[landed]!);
       const rate = Math.max(...targets.slice(landed, -1).map((t, i) => maxStep(t, targets[landed + i + 1]!)));
       const bound = rate + (gap * slope) / (window * 60) + 1;
