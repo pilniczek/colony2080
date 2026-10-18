@@ -21,6 +21,7 @@ export interface Hero {
   onLift: boolean;
   hidden: boolean;
   climb: number;
+  hitAt: number | null;
 }
 
 export type HeroEvent = { kind: "pickup" | "use" | "shot" | "punch" | "died"; x: number; y: number };
@@ -61,6 +62,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     onLift: false,
     hidden: false,
     climb: 0,
+    hitAt: null,
   };
 }
 
@@ -72,6 +74,7 @@ function clipOf(s: Step): Clip {
 }
 
 const enter = (h: Hero, state: HeroState): void => {
+  if (h.hitAt !== null) h.hitAt -= h.time;
   h.state = state;
   h.time = 0;
   h.rate = 1;
@@ -85,13 +88,10 @@ const crossedLoop = (s: Step, t: number, duration: number): boolean =>
 
 const finished = (s: Step): boolean => (s.h.rate > 0 ? s.h.time >= clipOf(s).duration : s.h.time <= 0);
 
-const eventTime = (clip: Clip, name: string): number => clip.events?.find(([, n]) => n === name)?.[0] ?? 0;
+type Jump = "standJump" | "walkJump" | "runJump" | "duckJump";
 
-const viewSwitch = (clip: Clip): number => clip.view?.find(([t]) => t > 0)?.[0] ?? clip.duration / 2;
-
-const isJump = (state: HeroState): boolean => state === "standJump" || state === "runJump";
-
-const isAirborne = (state: HeroState): boolean => state === "fall" || isJump(state);
+const isAirborne = (state: HeroState): boolean =>
+  state === "fall" || state === "standJump" || state === "walkJump" || state === "runJump" || state === "duckJump";
 
 const isDead = (state: HeroState): boolean => state === "death" || state === "fallDeath";
 
@@ -123,9 +123,21 @@ function enterLadder(h: Hero): void {
   h.onLift = false;
 }
 
-function jump(h: Hero, state: "standJump" | "runJump"): void {
+function launch(cfg: MovementConfig, state: Jump): { height: number; speed: number } {
+  if (state === "runJump") return { height: cfg.jump.runHeight, speed: cfg.jump.runSpeed };
+  if (state === "walkJump") return { height: cfg.jump.walkHeight, speed: cfg.jump.walkSpeed };
+  return { height: cfg.jump.standHeight, speed: 0 };
+}
+
+function jump(s: Step, state: Jump): void {
+  const { h, cfg } = s;
+  const { height, speed } = launch(cfg, state);
   enter(h, state);
   h.fallFrom = h.y;
+  h.vx = h.facing * speed;
+  h.vy = -Math.sqrt(2 * cfg.gravity * height);
+  h.onGround = false;
+  h.onLift = false;
 }
 
 function die(h: Hero, state: "fallDeath" | "death", events: HeroEvent[]): void {
@@ -148,15 +160,18 @@ export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   const events: HeroEvent[] = [];
   if (h.hidden || isDead(h.state)) return events;
   h.energy = Math.max(0, h.energy - cfg.energy.hit);
+  h.hitAt = h.time;
   if (h.energy === 0) die(h, "death", events);
-  else if (!isAirborne(h.state)) enter(h, "hit");
   return events;
 }
 
 function gait(s: Step): void {
   const { h, input } = s;
-  if (input.dir === 0) return enter(h, "idle");
-  if (input.dir !== h.facing) return enter(h, "turn");
+  if (input.dir === 0) return h.state === "idle" ? undefined : enter(h, "idle");
+  if (input.dir !== h.facing) {
+    h.facing = input.dir;
+    if (h.state === "idle") return;
+  }
   const next = input.held.has("runModifier") ? "run" : "walk";
   if (h.state !== next) enter(h, next);
 }
@@ -205,6 +220,7 @@ function stance(s: Step, slot: Weapon | null): boolean {
   }
   if (input.held.has("hide") && !(h.onLift && world.lift.target !== null)) {
     enter(h, "hide");
+    h.hidden = true;
     return true;
   }
   if (h.onLift || !input.held.has("down")) return false;
@@ -220,7 +236,7 @@ function idle(s: Step): void {
     if (s.consume("up")) callLift(world.lift, -1);
     else if (s.consume("down")) callLift(world.lift, 1);
   } else if (s.consume("up")) {
-    return world.grid.ladderAt(h.x, h.y - LADDER_REACH) ? enterLadder(h) : jump(h, "standJump");
+    return world.grid.ladderAt(h.x, h.y - LADDER_REACH) ? enterLadder(h) : jump(s, "standJump");
   } else if (input.held.has("down") && atLadderTop(s)) {
     return enterLadder(h);
   }
@@ -229,14 +245,16 @@ function idle(s: Step): void {
 }
 
 function moving(s: Step): void {
-  if (s.consume("up") && s.h.state === "run") return jump(s.h, "runJump");
+  if (s.consume("up")) return jump(s, s.h.state === "run" ? "runJump" : "walkJump");
   if (act(s)) return;
   gait(s);
 }
 
-function turn(s: Step): void {
-  if (crossed(s, viewSwitch(clipOf(s)))) s.h.facing = s.h.facing === 1 ? -1 : 1;
-  if (finished(s)) enter(s.h, "idle");
+function airborne(s: Step): void {
+  const { h, input } = s;
+  if (input.dir === 0 || input.dir === h.facing) return;
+  h.facing = input.dir;
+  h.vx = -h.vx;
 }
 
 function toIdle(s: Step): void {
@@ -251,6 +269,7 @@ function crouch(s: Step): void {
 
 function duck(s: Step): void {
   if (!s.input.held.has("down")) return enter(s.h, "idle");
+  if (s.consume("up")) return jump(s, "duckJump");
   if (s.consume("shoot")) startAttack(s, "duckAttack");
 }
 
@@ -274,12 +293,9 @@ function attack(s: Step): void {
 
 function hide(s: Step): void {
   const { h, input } = s;
-  const clip = clipOf(s);
-  if (crossed(s, viewSwitch(clip))) h.hidden = h.rate > 0;
-  if (h.rate < 0) return toIdle(s);
   if (input.held.has("hide")) return;
-  h.rate = -1;
-  h.time = Math.min(h.time, clip.duration);
+  h.hidden = false;
+  enter(h, "idle");
 }
 
 function weaponSwitch(s: Step): void {
@@ -315,17 +331,15 @@ function respawn(s: Step): void {
   if (h.time * 1000 >= cfg.respawnMs) Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max));
 }
 
-const none: Handler = () => {};
-
 const transitions: Partial<Record<HeroState, Handler>> = {
   idle,
   walk: moving,
   run: moving,
-  turn,
-  standJump: none,
-  runJump: none,
-  fall: none,
-  land: toIdle,
+  standJump: airborne,
+  walkJump: airborne,
+  runJump: airborne,
+  duckJump: airborne,
+  fall: airborne,
   ladder,
   duck,
   duckAttack: attack,
@@ -334,13 +348,9 @@ const transitions: Partial<Record<HeroState, Handler>> = {
   hide,
   attack,
   weaponSwitch,
-  hit: toIdle,
   fallDeath: respawn,
   death: respawn,
 };
-
-const launchHeight = (state: HeroState, cfg: MovementConfig): number =>
-  state === "runJump" ? cfg.jump.runHeight : cfg.jump.standHeight;
 
 function pickup(s: Step): void {
   const item = touching(s, "item");
@@ -350,27 +360,20 @@ function pickup(s: Step): void {
 }
 
 function clipEvents(s: Step): void {
-  const { h, cfg } = s;
   const clip = clipOf(s);
   for (const [t, name] of clip.events ?? []) {
     if (!(clip.loop ? crossedLoop(s, t, clip.duration) : crossed(s, t))) continue;
     if (name === "pickup") pickup(s);
     if (name === "punch") emit(s, "punch");
-    if (name === "launch") {
-      h.vy = -Math.sqrt(2 * cfg.gravity * launchHeight(h.state, cfg));
-      h.onGround = false;
-      h.onLift = false;
-    }
   }
 }
 
 function horizontalSpeed(s: Step): number {
-  const { h, cfg } = s;
-  if (h.state === "walk" || h.state === "run") {
-    const clip = clipOf(s);
-    return (h.facing * (clip.travel ?? 0)) / clip.duration;
-  }
-  return h.state === "runJump" ? h.facing * cfg.jump.runSpeed : 0;
+  const { h } = s;
+  if (isAirborne(h.state)) return h.vx;
+  if (h.state !== "walk" && h.state !== "run") return 0;
+  const clip = clipOf(s);
+  return (h.facing * (clip.travel ?? 0)) / clip.duration;
 }
 
 function physics(s: Step): void {
@@ -396,10 +399,10 @@ function settle(s: Step, startY: number): void {
     }
     return;
   }
-  const landed = h.state === "fall" || (isJump(h.state) && h.time > eventTime(clipOf(s), "launch"));
-  if (!landed) return;
-  if (h.y - h.fallFrom > cfg.fallDeathCells) die(h, "fallDeath", s.events);
-  else enter(h, "land");
+  if (!isAirborne(h.state)) return;
+  if (h.y - h.fallFrom > cfg.fallDeathCells) return die(h, "fallDeath", s.events);
+  enter(h, "idle");
+  idle(s);
 }
 
 function fallDead(s: Step): void {

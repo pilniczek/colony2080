@@ -1,8 +1,8 @@
 import type { Keys } from "../../engine/anim/keyed";
 
 export type HeroState =
-  | "idle" | "turn" | "walk" | "run" | "standJump" | "runJump" | "fall" | "land" | "fallDeath" | "duck"
-  | "duckAttack" | "kneel" | "use" | "hide" | "attack" | "weaponSwitch" | "ladder" | "hit" | "death";
+  | "idle" | "walk" | "run" | "standJump" | "walkJump" | "runJump" | "duckJump" | "fall" | "fallDeath" | "duck"
+  | "duckAttack" | "kneel" | "use" | "hide" | "attack" | "weaponSwitch" | "ladder" | "death";
 export type Weapon = "fists" | "gun";
 export type View = "side" | "front" | "back";
 export type GunTrack = "hand" | "none" | "dropped";
@@ -31,7 +31,7 @@ export interface MovementConfig {
   box: { width: number; height: number; duckHeight: number };
   gravity: number;
   maxFallSpeed: number;
-  jump: { standHeight: number; runHeight: number; runSpeed: number };
+  jump: { standHeight: number; runHeight: number; runSpeed: number; walkHeight: number; walkSpeed: number };
   fallDeathCells: number;
   ladderSpeed: number;
   liftSpeed: number;
@@ -78,7 +78,7 @@ export function loadMovement(json: unknown): MovementConfig {
     box: group("box", ["width", "height", "duckHeight"]),
     gravity: n("gravity"),
     maxFallSpeed: n("maxFallSpeed"),
-    jump: group("jump", ["standHeight", "runHeight", "runSpeed"]),
+    jump: group("jump", ["standHeight", "runHeight", "runSpeed", "walkHeight", "walkSpeed"]),
     fallDeathCells: n("fallDeathCells"),
     ladderSpeed: n("ladderSpeed"),
     liftSpeed: n("liftSpeed"),
@@ -146,4 +146,6 @@ const weaponClips: Partial<Record<HeroState, Record<Weapon, string>>> = {
   use: { fists: "use", gun: "useGun" },
 };
 
-export const clipFor = (state: HeroState, weapon: Weapon): string => weaponClips[state]?.[weapon] ?? state;
+const sharedClips: Partial<Record<HeroState, string>> = { walkJump: "standJump", duckJump: "standJump" };
+
+export const clipFor = (state: HeroState, weapon: Weapon): string => weaponClips[state]?.[weapon] ?? sharedClips[state] ?? state;

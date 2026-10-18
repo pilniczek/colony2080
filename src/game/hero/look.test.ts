@@ -73,20 +73,15 @@ describe("hero look", () => {
     expect(heroLook(hero({ state: "death", time: 4 }), clips, rigs, hold).gun).toBe("none");
   });
 
-  it("turn shows the front view early in the clip", () => {
-    expect(heroLook(hero({ state: "turn", time: 0.05 }), clips, rigs, hold).view).toBe("front");
-    expect(heroLook(hero({ state: "turn", time: 0.2, facing: -1 }), clips, rigs, hold)).toMatchObject({ view: "side", flip: true });
-  });
-
   it("front view is never mirrored", () => {
     for (const facing of [1, -1] as const) {
-      const look = heroLook(hero({ state: "turn", time: 0.05, facing }), clips, rigs, hold);
+      const look = heroLook(hero({ state: "hide", time: 0.05, facing }), clips, rigs, hold);
       expect(look).toMatchObject({ view: "front", flip: false });
     }
   });
 
   it("front view with the gun uses the front carry", () => {
-    const look = heroLook(hero({ state: "turn", weapon: "gun", time: 0.05 }), clips, rigs, hold);
+    const look = heroLook(hero({ state: "hide", weapon: "gun", time: 0.05 }), clips, rigs, hold);
     expect(look.gun).toBe("hand");
     expect(look.pose).toMatchObject({ ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R });
   });
@@ -99,25 +94,18 @@ describe("hero look", () => {
     expect(heroLook(hero({ state: "weaponSwitch", time: 0.05 }), clips, rigs, hold).gun).toBe("none");
   });
 
-  it("hide tints toward the end of the clip", () => {
-    expect(heroLook(hero({ state: "hide", time: 0.6 }), clips, rigs, hold).tint).toBeCloseTo(1, 6);
-    expect(heroLook(hero({ state: "hide", time: 0.45 }), clips, rigs, hold).tint).toBeCloseTo(0.5, 6);
+  it("hide is front view and fully tinted from the press frame", () => {
+    expect(heroLook(hero({ state: "hide", time: 0 }), clips, rigs, hold)).toMatchObject({ view: "front", tint: 1 });
+    expect(heroLook(hero({ state: "hide", time: 0.45 }), clips, rigs, hold).tint).toBe(1);
   });
 
-  it("standing jump lift fades over the launch instead of snapping", () => {
-    const launch = clips.standJump!.events![0]![0];
-    const at = (time: number) => heroLook(hero({ state: "standJump", time, onGround: time < launch }), clips, rigs, hold).lift * cellsPerUnit;
-    expect(Math.abs(at(launch) - at(launch - 1 / 60))).toBeLessThan(0.04);
-    expect(Math.abs(at(launch + 1 / 60) - at(launch))).toBeLessThan(0.04);
-    expect(at(launch + 0.1)).toBe(0);
-  });
-
-  it("running jump eases its lift out from take-off", () => {
-    const at = (time: number) => heroLook(hero({ state: "runJump", time, onGround: time === 0 }), clips, rigs, hold).lift * cellsPerUnit;
-    expect(Math.abs(at(0))).toBeLessThan(0.2);
-    for (let f = 0; f < 3; f++) expect(Math.abs(at((f + 1) / 60) - at(f / 60)), `frame ${f}`).toBeLessThan(0.1);
-    expect(at(0.1)).toBe(0);
-  });
+  for (const state of ["standJump", "walkJump", "duckJump", "runJump"] as const) {
+    it(`${state} eases its lift out from take-off`, () => {
+      const at = (time: number) => heroLook(hero({ state, time, onGround: false }), clips, rigs, hold).lift * cellsPerUnit;
+      for (let f = 0; f < 3; f++) expect(Math.abs(at((f + 1) / 60) - at(f / 60)), `frame ${f}`).toBeLessThan(0.1);
+      expect(at(0.1)).toBe(0);
+    });
+  }
 
   it("weapon switch starts at rest and reaches the hip before the draw", () => {
     const start = heroLook(hero({ state: "weaponSwitch", time: 0 }), clips, rigs, hold).pose;

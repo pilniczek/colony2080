@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import { clipFor, loadClips, loadMovement, type HeroState, type Weapon } from "./config";
 
 const states: HeroState[] = [
-  "idle", "turn", "walk", "run", "standJump", "runJump", "fall", "land", "fallDeath", "duck",
-  "duckAttack", "kneel", "use", "hide", "attack", "weaponSwitch", "ladder", "hit", "death",
+  "idle", "walk", "run", "standJump", "walkJump", "runJump", "duckJump", "fall", "fallDeath", "duck",
+  "duckAttack", "kneel", "use", "hide", "attack", "weaponSwitch", "ladder", "death",
 ];
 const weapons: Weapon[] = ["fists", "gun"];
 
@@ -19,11 +19,17 @@ describe("loadMovement", () => {
     const cfg = loadMovement(movementJson);
     expect(cfg.gravity).toBe(30);
     expect(cfg.jump.runSpeed).toBe(6.5);
+    expect(cfg.jump.walkHeight).toBe(0.47);
+    expect(cfg.jump.walkSpeed).toBe(1.43);
     expect(cfg.energy.hit).toBe(25);
   });
 
   it("names a non-numeric field", () => {
     expect(() => loadMovement({ ...movementJson, gravity: "x" })).toThrow(/gravity/);
+  });
+
+  it("names a missing jump field", () => {
+    expect(() => loadMovement({ ...movementJson, jump: { ...movementJson.jump, walkSpeed: undefined } })).toThrow(/jump\.walkSpeed/);
   });
 
   it("names a missing nested field", () => {
@@ -52,6 +58,16 @@ describe("loadClips", () => {
     }
   });
 
+  it("has no launch events and no wind-up clips", () => {
+    for (const [name, clip] of Object.entries(clips)) expect(clip.events?.map(([, e]) => e) ?? [], name).not.toContain("launch");
+    for (const name of ["turn", "land", "hit"]) expect(clips).not.toHaveProperty(name);
+  });
+
+  it("starts the hide clip front and fully tinted", () => {
+    expect(clips.hide!.view).toEqual([[0, "front"]]);
+    expect(clips.hide!.tint).toEqual([[0, 1]]);
+  });
+
   it("maps states to weapon clips", () => {
     expect(clipFor("attack", "fists")).toBe("punch");
     expect(clipFor("attack", "gun")).toBe("shoot");
@@ -66,11 +82,11 @@ describe("loadClips", () => {
   });
 
   it("rejects unsorted keys", () => {
-    expect(() => loadClips(withClip("land", { pose: [[0.5, {}], [0, {}]] }))).toThrow(/land\.pose/);
+    expect(() => loadClips(withClip("fall", { pose: [[0.4, {}], [0, {}]] }))).toThrow(/fall\.pose/);
   });
 
   it("rejects a key past the duration", () => {
-    expect(() => loadClips(withClip("hit", { rot: [[0, 0], [2, 0]] }))).toThrow(/hit\.rot/);
+    expect(() => loadClips(withClip("duck", { rot: [[0, 0], [2, 0]] }))).toThrow(/duck\.rot/);
   });
 
   it("rejects a non-finite joint value", () => {
@@ -78,6 +94,6 @@ describe("loadClips", () => {
   });
 
   it("rejects an unknown view", () => {
-    expect(() => loadClips(withClip("turn", { view: [[0, "top"]] }))).toThrow(/turn\.view/);
+    expect(() => loadClips(withClip("hide", { view: [[0, "top"]] }))).toThrow(/hide\.view/);
   });
 });

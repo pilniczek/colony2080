@@ -61,24 +61,14 @@ describe("use", () => {
 });
 
 describe("hide", () => {
-  it("hides after the front switch while held and turns back on release", () => {
+  it("hides on the press frame while held and steps out on release", () => {
     const g = game();
-    run(g, 0.1, ["hide"]);
-    expect(g.hero.state).toBe("hide");
-    expect(g.hero.hidden).toBe(false);
-    run(g, 0.1, ["hide"]);
-    expect(g.hero.hidden).toBe(true);
+    tick(g, ["hide"]);
+    expect(g.hero).toMatchObject({ state: "hide", hidden: true });
     run(g, 1, ["hide"]);
-    expect(g.hero.state).toBe("hide");
-    expect(g.hero.hidden).toBe(true);
-    run(g, 0.4);
-    expect(g.hero.state).toBe("hide");
-    expect(g.hero.hidden).toBe(true);
-    run(g, 0.1);
-    expect(g.hero.hidden).toBe(false);
-    runUntil(g, (h) => h.state === "idle");
-    expect(g.hero.state).toBe("idle");
-    expect(g.hero.time).toBeLessThan(0.1);
+    expect(g.hero).toMatchObject({ state: "hide", hidden: true });
+    tick(g);
+    expect(g.hero).toMatchObject({ state: "idle", hidden: false });
   });
 
   it("does nothing on a moving lift", () => {
@@ -97,7 +87,8 @@ describe("projectiles", () => {
     fire(g, 9);
     run(g, 0.5);
     expect(g.hero.energy).toBe(75);
-    expect(g.seen.has("hit")).toBe(true);
+    expect(g.hero.hitAt).not.toBeNull();
+    expect([...g.seen]).toEqual(["idle"]);
     expect(g.world.projectiles).toHaveLength(0);
   });
 
@@ -129,7 +120,7 @@ describe("dead body", () => {
   it("falls to the floor when killed mid-jump", () => {
     const g = game();
     tick(g, [], ["up"]);
-    run(g, 0.6);
+    run(g, 0.2);
     expect(g.hero.onGround).toBe(false);
     lethal(g);
     run(g, 1);
@@ -193,10 +184,12 @@ describe("damage", () => {
     expect(g.hero.energy).toBe(100);
   });
 
-  it("enters hit, then death with died after four hits, then respawns", () => {
+  it("keeps the state and records hitAt, then death with died after four hits, then respawns", () => {
     const g = game();
+    run(g, 0.5);
     const events = [damage(g.hero, cfg), damage(g.hero, cfg), damage(g.hero, cfg)].flat();
-    expect(g.hero.state).toBe("hit");
+    expect(g.hero.state).toBe("idle");
+    expect(g.hero.hitAt).toBeCloseTo(0.5, 9);
     expect(events).toEqual([]);
     expect(damage(g.hero, cfg).map((e) => e.kind)).toEqual(["died"]);
     expect(g.hero.state).toBe("death");
@@ -204,10 +197,11 @@ describe("damage", () => {
     run(g, cfg.respawnMs / 1000 + 0.1);
     expect(g.hero.state).toBe("idle");
     expect(g.hero.energy).toBe(cfg.energy.max);
+    expect(g.hero.hitAt).toBeNull();
   });
 
   it("keeps a lethal fall lethal when hit mid-fall", () => {
-    const g = game({ x: 10, y: 4 });
+    const g = game({ x: 22, y: 4 });
     runUntil(g, (h) => h.state === "fall", ["moveRight"]);
     runUntil(g, (h) => h.y > 8);
     damage(g.hero, cfg);
@@ -215,31 +209,44 @@ describe("damage", () => {
     expect(g.hero.energy).toBe(75);
     runUntil(g, (h) => h.onGround);
     expect(g.hero.state).toBe("fallDeath");
-    expect(g.seen.has("hit")).toBe(false);
   });
 
-  it("keeps the jump when hit mid-jump", () => {
+  it("keeps the hit age across a state change", () => {
     const g = game();
-    tick(g, [], ["up"]);
-    run(g, 0.6);
-    expect(g.hero.onGround).toBe(false);
+    run(g, 0.2, ["moveRight"]);
     damage(g.hero, cfg);
-    expect(g.hero.state).toBe("standJump");
-    expect(g.hero.energy).toBe(75);
-    runUntil(g, (h) => h.state === "idle");
-    expect(g.seen.has("land")).toBe(true);
-    expect(g.seen.has("hit")).toBe(false);
-  });
-
-  it("commits to hit and returns to idle", () => {
-    const g = game();
-    damage(g.hero, cfg);
-    run(g, 0.5, ["moveRight"]);
-    expect(g.hero.state).toBe("hit");
-    expect(g.hero.x).toBe(7.5);
-    run(g, 0.2);
+    run(g, 0.1, ["moveRight"]);
+    tick(g);
     expect(g.hero.state).toBe("idle");
+    expect(g.hero.time - g.hero.hitAt!).toBeCloseTo(7 / 60, 9);
   });
+
+  const committed: [string, () => Game, string[]][] = [
+    ["punch", () => { const g = game(); tick(g, ["shoot"], ["shoot"]); run(g, 0.1, ["shoot"]); return g; }, ["shoot"]],
+    ["gun fire", () => { const g = game({ x: 7.5, y: 14, weapon: "gun" }); tick(g, ["shoot"], ["shoot"]); run(g, 0.1, ["shoot"]); return g; }, ["shoot"]],
+    ["jump", () => { const g = game(); tick(g, [], ["up"]); run(g, 0.1); return g; }, []],
+    ["ladder", () => { const g = game({ x: 3.4, y: 14 }); tick(g, [], ["up"]); run(g, 0.5, ["up"]); return g; }, ["up"]],
+    ["kneel", () => { const g = game({ x: 9.5, y: 14 }); tick(g, ["down"]); run(g, 0.3); return g; }, []],
+  ];
+
+  for (const [name, start, held] of committed) {
+    it(`never interrupts ${name}`, () => {
+      const plain = start();
+      const g = start();
+      const { state, time } = g.hero;
+      damage(g.hero, cfg);
+      expect(g.hero).toMatchObject({ state, time, hitAt: time, energy: 75 });
+      for (let i = 0; i < 30; i++) {
+        tick(plain, held);
+        tick(g, held);
+        const { state: s, time: t, x, y, vx, vy } = plain.hero;
+        expect(g.hero).toMatchObject({ state: s, time: t, x, y, vx, vy });
+      }
+      expect(kinds(g, "shot")).toEqual(kinds(plain, "shot"));
+      expect(kinds(g, "punch")).toEqual(kinds(plain, "punch"));
+      expect(kinds(g, "pickup")).toEqual(kinds(plain, "pickup"));
+    });
+  }
 });
 
 describe("attack", () => {
@@ -254,16 +261,15 @@ describe("attack", () => {
     expect(g.hero.state).toBe("idle");
   });
 
-  it("starts attack right after landing from a shoot press 100 ms before land ends", () => {
+  it("starts attack on the landing frame from a shoot press just before touchdown", () => {
     const g = game();
     tick(g, [], ["up"]);
-    runUntil(g, (h) => h.state === "land");
-    runUntil(g, (h) => h.time >= 0.4 - 1e-9);
+    runUntil(g, (h) => h.vy > 0 && h.y > 13.7);
     tick(g, [], ["shoot"]);
-    runUntil(g, (h) => h.state !== "land");
-    expect(g.hero.state).toBe("idle");
-    tick(g);
+    expect(g.hero.state).toBe("standJump");
+    runUntil(g, (h) => h.onGround);
     expect(g.hero.state).toBe("attack");
+    expect(g.hero.time).toBe(0);
   });
 
   it("commits a punch until cancelAt, punching once at the jab peak", () => {
@@ -276,7 +282,7 @@ describe("attack", () => {
     expect(g.hero.x).toBe(7.5);
     expect(kinds(g, "punch")).toHaveLength(1);
     run(g, 0.1, ["moveLeft"]);
-    expect(g.hero.state).toBe("turn");
+    expect(g.hero).toMatchObject({ state: "walk", facing: -1 });
   });
 
   it("punches again each loop while shoot is held", () => {
