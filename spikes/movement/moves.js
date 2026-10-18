@@ -50,7 +50,7 @@ const TAU = Math.PI * 2;
 const LEG = { hipY: 344, farX: -24, thigh: 178, shin: 178, ankleY: 700, heel: 80 };
 const RUN = {
   cycle: 0.66, speed: 300, stance: 0.34, reach: 0.36, heelStrike: -6, flat: [0.15, 0.55], toeOff: 44,
-  drop: 4, bob: 2.4, lean: 12, leanPulse: 1.5, sway: 3, arm: 34, armPhase: 0.8, fore: -78,
+  drop: 4, bob: 2.4, lean: 12, leanPulse: 1.5, arm: 34, armPhase: 0.8, fore: -78,
   swing: [
     [0.5, { hip: 24, knee: 78, foot: 80 }],
     [0.62, { hip: -6, knee: 112, foot: 94 }],
@@ -60,7 +60,7 @@ const RUN = {
 };
 const WALK = {
   cycle: 1.1, speed: 110, stance: 0.6, reach: 0.5, heelStrike: -14, flat: [0.18, 0.6], toeOff: 30,
-  drop: 3, bob: -2.6, lean: 0, leanPulse: 0, sway: 0, arm: 16, armPhase: 0.97, fore: -6,
+  drop: 3, bob: -2.6, lean: 0, leanPulse: 0, arm: 16, armPhase: 0.97, fore: -6,
   swing: [
     [0.7, { hip: 0, knee: 58, foot: 22 }],
     [0.82, { hip: -24, knee: 46, foot: -6 }]
@@ -130,14 +130,13 @@ function swingLeg(g, u, hipX) {
 }
 
 function gaitPose(g, p) {
-  const u = cycle(p), w = stepPhase(u);
+  const u = cycle(p);
   const leg = (v, hipX) => {
     const { hip, knee, foot } = v < g.stance ? stanceLeg(g, v, hipX) : swingLeg(g, v, hipX);
     return [hip, knee, foot - hip - knee];
   };
   const swing = g.arm * Math.cos(TAU * (u - g.armPhase));
-  const sway = g.sway * Math.cos(TAU * (w - lowPhase(g) - 0.08));
-  return { ...legs(gaitLean(g, u), leg(u, 0), leg((u + 0.5) % 1, LEG.farX)), arm: swing, armFar: -swing, fore: g.fore, foreFar: g.fore, sway };
+  return { ...legs(gaitLean(g, u), leg(u, 0), leg((u + 0.5) % 1, LEG.farX)), arm: swing, armFar: -swing, fore: g.fore, foreFar: g.fore };
 }
 
 const walkPose = p => gaitPose(WALK, p);
@@ -161,8 +160,7 @@ const { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R, FRONT_BARREL } = GUN.holdP
 
 function carry(pose) {
   const b = pose.body || 0;
-  const sway = pose.sway || 0;
-  return { ...pose, arm: CARRY.arm - b + sway, fore: CARRY.fore, armFar: CARRY_FAR.armFar - b + sway, foreFar: CARRY_FAR.foreFar };
+  return { ...pose, arm: CARRY.arm - b, fore: CARRY.fore, armFar: CARRY_FAR.armFar - b, foreFar: CARRY_FAR.foreFar };
 }
 
 const slungGun = (c, pal) => GUN.slung(c, { pal, lineW: LINE, simple: true });
