@@ -366,6 +366,29 @@ move("movement", "Walking jump", "direction + Up", (W + 120) / WALK.speed, (c, t
   bot(c, { x, y: FLOOR + Math.min(walkBob(p) * (1 - k), lift(pose)) - h, pose });
 });
 
+const ZIGZAG = { x0: 40, j0: 1.27, j1: 1.82 };
+ZIGZAG.turns = [1, 2].map(i => ZIGZAG.j0 + (ZIGZAG.j1 - ZIGZAG.j0) * i / 3);
+ZIGZAG.dir = t => (t >= ZIGZAG.turns[0] && t < ZIGZAG.turns[1]) ? -1 : 1;
+ZIGZAG.x = t => {
+  const [a, b] = ZIGZAG.turns;
+  const back = clamp(t, a, b) - a;
+  return ZIGZAG.x0 + WALK.speed * (t - 2 * back);
+};
+
+move("movement", "Jump, turn twice", "direction + Up, then opposite, then back", ZIGZAG.j1 + (W + 60 - ZIGZAG.x(ZIGZAG.j1)) / WALK.speed, (c, t) => {
+  const { j0, j1 } = ZIGZAG;
+  backdrop(c);
+  const p = t / WALK.cycle * TAU;
+  const x = ZIGZAG.x(t);
+  const leap = { ...LEAP, arm: -40, armFar: 30, fore: -40, foreFar: -50 };
+  const k = span(t, j0, j0 + 0.08) * (1 - span(t, j1, j1 + 0.06));
+  const pose = mix(walkPose(p), leap, k);
+  const u = clamp((t - j0) / (j1 - j0));
+  const h = t > j0 && t < j1 ? 4 * 36 * u * (1 - u) : 0;
+  if (h === 0) shadow(c, x, FLOOR, 30);
+  bot(c, { x, y: FLOOR + Math.min(walkBob(p) * (1 - k), lift(pose)) - h, pose, flip: ZIGZAG.dir(t) < 0 });
+});
+
 const RUN_JUMP = { period: 1.7, j0: 0.48, j1: 0.92 };
 
 function runningJumpAt(t) {
@@ -506,11 +529,10 @@ move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   backdrop(c);
   barrel(c, 214, FLOOR, 40, 62);
   box(c, 96, FLOOR, 44, 44);
-  const showFront = t > 0.65 && t < 3.15;
-  const dark = span(t, 0.8, 1.1) * (1 - span(t, 2.7, 3.0));
+  const hidden = t > 0.8 && t < 3;
   shadow(c, 180, FLOOR, 30);
-  bot(c, { view: showFront ? "front" : "side", x: 180, y: FLOOR, pose: STAND, tint: { brightness: 1 - dark * 0.68, saturate: 1 - dark * 0.7 } });
-  if (dark > 0.9) label(c, "HIDDEN");
+  bot(c, { view: hidden ? "front" : "side", x: 180, y: FLOOR, pose: STAND, tint: hidden ? { brightness: 0.32, saturate: 0.3 } : null });
+  if (hidden) label(c, "HIDDEN");
 });
 
 function fire(c, t, pose, x, y, targetX) {
@@ -672,6 +694,59 @@ move("fight", "Hit in running jump", "taking damage mid-air", RUN_JUMP.period, (
   const hitT = (RUN_JUMP.j0 + RUN_JUMP.j1) / 2, at = runningJumpAt(hitT);
   const { x, y } = runningJump(c, t, hitLook(t, hitT));
   hitFx(c, t, hitT, [at.x + 14, at.y - 100], [x + 14, y - 100]);
+});
+
+const JUMP_DEATH = { hitT: 0.62, landT: 0.98, slide: 0.45 };
+
+move("fight", "Death in running jump", "energy runs out mid-air", 5, (c, t) => {
+  const { hitT, landT, slide } = JUMP_DEATH;
+  const at = runningJumpAt(hitT);
+  const limp = { ...legs(0, [-30, 40, 20], [10, 30, 20]), arm: -150, armFar: -130, fore: -10, foreFar: -20 };
+  const lieY = FLOOR - bottom(FLAT_BACK, LIE);
+  let x, y, pose, rot = 0;
+  if (t < hitT) {
+    ({ x, y, pose } = runningJumpAt(t));
+  } else if (t < landT) {
+    const u = (t - hitT) / (landT - hitT);
+    x = at.x + RUN.speed * 0.8 * (t - hitT);
+    pose = mix(at.pose, limp, ease(clamp(u * 2.5)));
+    rot = LIE * easeIn(u);
+    y = at.y + (lieY - at.y) * easeIn(u);
+  } else {
+    const landX = at.x + RUN.speed * 0.8 * (landT - hitT);
+    x = landX + RUN.speed * 0.8 * slide / 2 * easeOut(span(t, landT, landT + slide));
+    pose = keyed([[landT, limp], [landT + 0.2, FLAT_BACK]], t);
+    rot = LIE;
+    y = lieY;
+  }
+  backdrop(c);
+  c.save();
+  c.globalAlpha = 1 - span(t, 4.5, 5);
+  if (t < RUN_JUMP.j0 || t >= landT) shadow(c, x, FLOOR, 30);
+  const held = t < hitT;
+  if (!held && armed() && t >= landT) droppedGun(c, x + 30 - 20 * span(t, landT, landT + 0.3));
+  bot(c, { x, y, pose: { ...pose, ...hitLook(t, hitT).pose }, rot, hold: held });
+  if (t > landT && t < landT + 0.4) spark(c, x - 30, FLOOR - 6, 18, span(t, landT, landT + 0.4));
+  hitFx(c, t, hitT, [at.x + 14, at.y - 100], [at.x + 14, at.y - 100]);
+  c.restore();
+  if (t > landT + 0.6) label(c, "DEAD");
+});
+
+move("fight", "Jump into pit", "running jump falls short", 3.5, (c, t) => {
+  const { j0, j1 } = RUN_JUMP;
+  const pit = [130, 330];
+  backdrop(c, [pit]);
+  let { x, y, pose, airborne } = runningJumpAt(Math.min(t, j1));
+  if (t > j1) {
+    const u = (t - j0) / (j1 - j0);
+    const flail = { ...legs(-10, [-40, 60, 10], [20, 50, 20]), arm: -160 + 30 * Math.sin(t * 18), armFar: -120 - 30 * Math.sin(t * 18), fore: -20, foreFar: -30 };
+    x = -60 + RUN.speed * t;
+    y = FLOOR - 4 * 34 * u * (1 - u);
+    pose = mix(pose, flail, ease(span(t, j1, j1 + 0.15)));
+  }
+  if (!airborne && t < j1) shadow(c, x, FLOOR, 30);
+  bot(c, { x, y, pose });
+  if (t > j1 + 0.5) label(c, "DEAD");
 });
 
 move("fight", "Death", "energy runs out", 5, (c, t) => {
