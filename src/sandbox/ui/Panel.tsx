@@ -1,5 +1,6 @@
 import { useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from "react";
 import type { Weapon } from "../../game/hero/config";
+import { Environment } from "./Environment";
 import { Overlays } from "./Overlays";
 import { Recorder } from "./Recorder";
 import { TimeControls } from "./TimeControls";
@@ -14,6 +15,7 @@ export interface SandboxCommands {
   hit(): void;
   kill(): void;
   setEmitter(on: boolean): void;
+  setEmitterPeriod(seconds: number): void;
 }
 
 export const styles = {
@@ -71,6 +73,7 @@ export function Panel({ commands }: { commands: SandboxCommands }) {
       <TimeControls step={commands.step} />
       <Overlays />
       <Recorder commands={commands} />
+      <Environment commands={commands} />
       <Tuning />
     </aside>
   );

@@ -526,17 +526,19 @@ function fallDead(s: Step): void {
   h.vy = 0;
 }
 
-function overlaps(p: Projectile, box: Box): boolean {
-  const dx = p.x - clamp(p.x, box.x - box.w / 2, box.x + box.w / 2);
+function overlaps(p: Projectile, box: Box, dt: number): boolean {
+  const from = p.x - p.vx * dt;
+  const [lo, hi] = [Math.min(from, p.x), Math.max(from, p.x)];
+  const dx = Math.max(0, box.x - box.w / 2 - hi, lo - (box.x + box.w / 2));
   const dy = p.y - clamp(p.y, box.y - box.h, box.y);
   return dx * dx + dy * dy < p.r * p.r;
 }
 
 function projectileHits(s: Step): void {
-  const { h, world, cfg } = s;
-  const box = { ...boxOf(h, cfg), h: isDucked(h.state) ? cfg.box.duckHeight : cfg.box.height };
+  const { h, world, cfg, dt } = s;
+  const box = boxOf(h, cfg);
   world.projectiles = world.projectiles.filter((p) => {
-    if (p.tag === HERO_SHOT || h.hidden || isDead(h.state) || !overlaps(p, box)) return true;
+    if (p.tag === HERO_SHOT || h.hidden || isDead(h.state) || !overlaps(p, box, dt)) return true;
     s.events.push(...damage(h, cfg));
     return false;
   });

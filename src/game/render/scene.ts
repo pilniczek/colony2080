@@ -4,7 +4,7 @@ import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/dr
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import type { Projectile } from "../../engine/world/projectiles";
 import type { MovementConfig } from "../hero/config";
-import { HERO_SHOT, type Hero } from "../hero/hero";
+import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Enemy } from "../level/enemy";
@@ -20,8 +20,8 @@ const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
 const TRACER = { length: 14, width: 2 };
 const BAG = { rope: 12, w: 32, h: 92 };
-const BOLT = { tail: 40, width: 4, glow: 2 };
-const EMITTER_FLASH = { ms: 90, ahead: 32, radius: 12 };
+const SHOT_FLASH_MS = 1000 / 12;
+const EMITTER_FLASH = { ahead: 34 };
 const ENEMY_TINT = { brightness: 1.1, saturate: 0 };
 const BLAST = { grow: 0.25, fade: 0.4, hold: 0.35, hideBody: 0.45 };
 const FIREBALLS: [number, number, number, number][] = [
@@ -239,7 +239,7 @@ function emitter(f: Frame): void {
   ctx.fillRect(e.dir < 0 ? x - 30 * unit : x + 14 * unit, y - 4 * unit, 16 * unit, 8 * unit);
   ctx.fillStyle = e.on ? COLORS.off : COLORS.emitterOff;
   ctx.fillRect(x - 4 * unit, y - 10 * unit, 8 * unit, 8 * unit);
-  if (e.on && e.fired && e.clock < EMITTER_FLASH.ms) star(ctx, [x + e.dir * EMITTER_FLASH.ahead * unit, y], EMITTER_FLASH.radius * unit, e.clock / EMITTER_FLASH.ms);
+  if (e.on && e.fired && e.clock < SHOT_FLASH_MS) star(ctx, [x + e.dir * EMITTER_FLASH.ahead * unit, y], FLASH.radius * SPIKE_K * unit, FLASH.k);
 }
 
 function projectiles(f: Frame, alpha: number): void {
@@ -247,27 +247,8 @@ function projectiles(f: Frame, alpha: number): void {
   for (const p of world.projectiles) {
     const x = (p.x - p.vx * (1 - alpha) * FIXED_STEP) * cell;
     const y = p.y * cell;
-    if (p.tag === HERO_SHOT) {
-      tracer(f, p, x, y);
-      continue;
-    }
-    bolt(f, p, x, y);
+    tracer(f, p, x, y);
   }
-}
-
-function bolt(f: Frame, p: Projectile, x: number, y: number): void {
-  const { ctx, cell, unit } = f;
-  const tail = x - Math.sign(p.vx) * BOLT.tail * unit;
-  const g = ctx.createLinearGradient(x, y, tail, y);
-  g.addColorStop(0, COLORS.shot);
-  g.addColorStop(1, COLORS.blastOut);
-  ctx.strokeStyle = g;
-  ctx.lineWidth = BOLT.width * unit;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(tail, y);
-  ctx.stroke();
-  fireball(f, x, y, p.r * cell * BOLT.glow, 1);
 }
 
 function tracer(f: Frame, p: Projectile, x: number, y: number): void {
@@ -353,11 +334,11 @@ function scrap(f: Frame, body: Hero): void {
   for (const [dx, dy, w] of [[-12, -9, 6], [8, -18, 4], [20, -10, 5]] as const) ctx.fillRect(x + body.facing * dx * unit, y + dy * unit, w * unit, 2 * unit);
 }
 
-function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: number, fireRate: number): void {
+function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: number): void {
   const age = enemy.deadAge;
   if (age === null || age < BLAST.hideBody) {
     shadow(f, enemy.body, look);
-    heroFigure(f, enemy.body, look, rigs, scale, fireRate, shade(ROBOT.palette, ENEMY_TINT));
+    heroFigure(f, enemy.body, look, rigs, scale, enemyFiring(enemy), shade(ROBOT.palette, ENEMY_TINT));
   } else scrap(f, enemy.body);
   if (age !== null) blast(f, enemy.body, age);
 }
@@ -399,12 +380,15 @@ const hitStar = (ctx: CanvasRenderingContext2D, hit: HitLook): void => star(ctx,
 const firing = (hero: Hero, fireRate: number): boolean =>
   hero.weapon === "gun" && hero.fireTime !== null && Math.floor(hero.fireTime * fireRate) % 2 === 0;
 
+const enemyFiring = ({ body, firePeriodMs }: Enemy): boolean =>
+  body.fireTime !== null && (body.fireTime * 1000) % firePeriodMs < SHOT_FLASH_MS;
+
 function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs): void {
   const muzzle = muzzleInRig(look, rigs);
   if (muzzle) star(ctx, [muzzle[0] + FLASH.ahead, muzzle[1]], FLASH.radius, FLASH.k);
 }
 
-function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number, fireRate: number, base: Palette = ROBOT.palette): void {
+function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number, flash: boolean, base: Palette = ROBOT.palette): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(base, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : base;
   const front = look.view === "front";
@@ -416,7 +400,7 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
   if (look.gun === "slung") gunSlung(ctx, palette, { lineW, simple: true });
-  if (firing(hero, fireRate)) muzzleFlash(ctx, look, rigs);
+  if (flash) muzzleFlash(ctx, look, rigs);
   if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();
 }
@@ -446,9 +430,9 @@ export function drawScene(
   ladders(f);
   for (const p of world.props) PROPS[p.kind]?.(f, p);
   emitter(f);
-  enemyFigure(f, world.enemy, enemyLook, rigs, scale, cfg.fireRate);
+  enemyFigure(f, world.enemy, enemyLook, rigs, scale);
   shadow(f, hero, look);
-  heroFigure(f, hero, look, rigs, scale, cfg.fireRate);
+  heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
   projectiles(f, alpha);
   impacts(f);
   ctx.restore();

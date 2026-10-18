@@ -5,7 +5,7 @@ import { stepProjectiles, type Projectile } from "../engine/world/projectiles";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
-import { hitEnemy, isDead } from "./level/enemy";
+import { ENEMY_SHOT, hitEnemy, isDead } from "./level/enemy";
 import type { SandboxWorld } from "./level/sandboxLevel";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { ROBOT } from "./robot/xbot";
@@ -82,6 +82,17 @@ export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], cli
     const bullet = { x, y, vx: h.facing * cfg.shot.speed, r: cfg.shot.radius, tag: HERO_SHOT, originX: x };
     if (strike(world, cfg, h.x, bullet)) continue;
     const face = wallBetween(world, h.x, bullet);
+    if (face === null) world.projectiles.push(bullet);
+    else world.sparks.push({ x: face, y, age: 0 });
+  }
+}
+
+export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, count: number): void {
+  const { body } = world.enemy;
+  for (let i = 0; i < count; i++) {
+    const [x, y] = heroMuzzle(body, clips, cfg);
+    const bullet = { x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x };
+    const face = wallBetween(world, body.x, bullet);
     if (face === null) world.projectiles.push(bullet);
     else world.sparks.push({ x: face, y, age: 0 });
   }

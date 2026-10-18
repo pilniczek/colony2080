@@ -121,14 +121,14 @@ describe("projectiles", () => {
     expect(g.world.projectiles).toHaveLength(0);
   });
 
-  it("pass over a ducked hero", () => {
+  it("hit a ducked hero", () => {
     const g = game();
     run(g, 0.3, ["down"]);
     expect(g.hero.state).toBe("duck");
     fire(g, 9);
     run(g, 0.5, ["down"]);
-    expect(g.hero.energy).toBe(100);
-    expect(g.world.projectiles[0]!.x).toBeLessThan(6);
+    expect(g.hero.energy).toBe(75);
+    expect(g.world.projectiles).toHaveLength(0);
   });
 
   it("fly through a hidden hero", () => {

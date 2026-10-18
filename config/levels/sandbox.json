@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; enemy.hits is 14 machine-gun hits per regular enemy (docs/research/reports/10-level1-enemies.md), enemy.respawnMs is the sandbox respawn after a death (user)",
+  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; enemy.hits is 14 machine-gun hits per regular enemy (docs/research/reports/10-level1-enemies.md), enemy.respawnMs is the sandbox respawn after a death (user); the enemy patrols the top left platform, sees the hero on its floor ahead within enemy.sightCells and fires every enemy.firePeriodMs (Claude's call)",
   "rows": [
     "########################################",
     "#......................................#",
@@ -29,6 +29,6 @@
     { "kind": "bag", "x": 13.5 },
     { "kind": "target", "x": 15.5 }
   ],
-  "enemy": { "x": 32.5, "facing": -1, "hits": 14, "respawnMs": 5000 },
-  "emitter": { "x": 38.5, "y": 12.6, "dir": -1, "periodMs": 2000, "speed": 25, "radius": 0.15 }
+  "enemy": { "x": 6.5, "y": 4, "facing": 1, "hits": 14, "respawnMs": 5000, "sightCells": 14, "firePeriodMs": 500 },
+  "emitter": { "x": 38.5, "y": 12.6, "dir": -1, "periodMs": 2000 }
 }

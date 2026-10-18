@@ -24,8 +24,6 @@ export interface Emitter {
   y: number;
   dir: -1 | 1;
   periodMs: number;
-  speed: number;
-  radius: number;
   on: boolean;
   clock: number;
   fired: boolean;
@@ -53,14 +51,15 @@ interface SandboxJson {
   spawn: [number, number];
   lift: { x: number; width: number; top: number; bottom: number };
   props: Prop[];
-  emitter: { x: number; y: number; dir: -1 | 1; periodMs: number; speed: number; radius: number };
+  emitter: { x: number; y: number; dir: -1 | 1; periodMs: number };
   enemy: EnemyJson;
 }
 
 export function loadSandbox(json: unknown): SandboxWorld {
   const data = json as SandboxJson;
+  const grid = new TileGrid(data.rows);
   return {
-    grid: new TileGrid(data.rows),
+    grid,
     lift: {
       x: data.lift.x,
       y: data.lift.bottom,
@@ -75,7 +74,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     emitter: { ...data.emitter, on: false, clock: 0, fired: false },
     projectiles: [],
     sparks: [],
-    enemy: createEnemy(data.enemy, data.spawn[1]),
+    enemy: createEnemy(data.enemy, grid),
   };
 }
 
@@ -109,7 +108,7 @@ export function updateLift(lift: Lift, speed: number, dt: number): void {
   lift.vy = dir * speed;
 }
 
-export function updateEmitter(world: SandboxWorld, dt: number): void {
+export function updateEmitter(world: SandboxWorld, shot: { speed: number; radius: number }, dt: number): void {
   const { emitter } = world;
   if (!emitter.on) {
     emitter.clock = 0;
@@ -120,6 +119,6 @@ export function updateEmitter(world: SandboxWorld, dt: number): void {
   while (emitter.clock >= emitter.periodMs) {
     emitter.clock -= emitter.periodMs;
     emitter.fired = true;
-    world.projectiles.push({ x: emitter.x, y: emitter.y, vx: emitter.dir * emitter.speed, r: emitter.radius });
+    world.projectiles.push({ x: emitter.x, y: emitter.y, vx: emitter.dir * shot.speed, r: shot.radius, originX: emitter.x });
   }
 }

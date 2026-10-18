@@ -10,10 +10,11 @@ import { createHero, type Hero } from "./hero/hero";
 import { loadSandbox } from "./level/sandboxLevel";
 import { stepWorld } from "./stepWorld";
 
-const cfg = loadMovement(movementJson);
+const scenario = loadMovement(movementJson);
+const SCENARIO_SHOT = { speed: 8, radius: 0.15 };
+const cfg = { ...scenario, shot: SCENARIO_SHOT };
 const clips = loadClips(clipsJson);
 const STEPS = 720;
-const SCENARIO_EMITTER_SPEED = 8;
 const script: Record<number, ["down" | "up", string][]> = {
   0: [["down", "ArrowRight"], ["down", "AltLeft"]],
   40: [["down", "ArrowUp"]],
@@ -30,7 +31,6 @@ const script: Record<number, ["down" | "up", string][]> = {
 function fromSpawn(input: Input, live: boolean): Hero {
   const world = loadSandbox(sandboxJson);
   world.emitter.on = true;
-  world.emitter.speed = SCENARIO_EMITTER_SPEED;
   const hero = createHero(world.spawn, "gun", cfg.energy.max);
   for (let f = 0; f < STEPS; f++) {
     for (const [type, code] of live ? (script[f] ?? []) : []) {

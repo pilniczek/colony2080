@@ -11,7 +11,7 @@ const numberPaths = (o: object, prefix = ""): string[] =>
 const valueAt = (m: MovementConfig, path: string): number =>
   path.split(".").reduce<unknown>((o, k) => (o as Record<string, unknown>)[k], m) as number;
 
-function NumberField({ label, value, onCommit }: { label: string; value: number; onCommit: (v: number) => void }) {
+export function NumberField({ label, value, onCommit }: { label: string; value: number; onCommit: (v: number) => void }) {
   const [text, setText] = useState(String(value));
   const [focused, setFocused] = useState(false);
   useEffect(() => {

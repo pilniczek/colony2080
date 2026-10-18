@@ -76,6 +76,7 @@ let fps = 0;
 const respawn = (): void => {
   Object.assign(world, loadSandbox(sandboxJson));
   world.emitter.on = run.emitterOn;
+  world.emitter.periodMs = tuning().emitterPeriod * 1000;
   Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max));
   prev = { x: hero.x, y: hero.y };
 };
@@ -172,6 +173,11 @@ const commands: SandboxCommands = {
   setEmitter(on) {
     world.emitter.on = on;
     useSandbox.setState({ emitterOn: on });
+  },
+  setEmitterPeriod(seconds) {
+    if (!(seconds > 0)) return;
+    world.emitter.periodMs = seconds * 1000;
+    useSandbox.setState({ emitterPeriod: seconds });
   },
 };
 

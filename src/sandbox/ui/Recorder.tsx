@@ -6,7 +6,6 @@ export function Recorder({ commands }: { commands: SandboxCommands }) {
   const playing = useSandbox((s) => s.playing);
   const record = useSandbox((s) => s.record);
   const weapon = useSandbox((s) => s.weapon);
-  const emitterOn = useSandbox((s) => s.emitterOn);
   const locked = recording || playing;
   return (
     <Section title="Run">
@@ -35,9 +34,6 @@ export function Recorder({ commands }: { commands: SandboxCommands }) {
         <Button disabled={locked} onClick={commands.kill}>
           Kill
         </Button>
-        <label>
-          <input type="checkbox" checked={emitterOn} disabled={locked} onChange={(e) => commands.setEmitter(e.target.checked)} /> emitter
-        </label>
       </div>
     </Section>
   );

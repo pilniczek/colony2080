@@ -1,3 +1,4 @@
+import sandboxJson from "@config/levels/sandbox.json";
 import clipsJson from "@config/hero/clips.json";
 import movementJson from "@config/hero/movement.json";
 import { create } from "zustand";
@@ -18,6 +19,7 @@ export interface SandboxState {
   fps: number;
   inputLog: string[];
   emitterOn: boolean;
+  emitterPeriod: number;
   overlays: Record<OverlayName, boolean>;
   paused: boolean;
   timeScale: number;
@@ -84,6 +86,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   fps: 0,
   inputLog: [],
   emitterOn: true,
+  emitterPeriod: sandboxJson.emitter.periodMs / 1000,
   overlays: { hitbox: false, tiles: false, joints: false, info: false },
   paused: false,
   timeScale: 1,
