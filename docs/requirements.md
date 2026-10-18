@@ -69,6 +69,7 @@ flowchart LR
 | Hide input | Hold Shift to stay hidden, release to step out. Works anywhere except on a moving lift | user |
 | Lift input | One Up or Down press starts a ride to the next stop; the lift stops there on its own. On the lift Up and Down only call the lift (no jump, no duck) | user |
 | Sandbox hits | Sandbox has a projectile emitter firing periodically at chest height to try hit, duck and hide | user |
+| Sandbox enemy | One idle enemy stands on the island right of the pit: the player robot in greyscale, holding the gun, facing the player. It does not move or shoot yet. 14 hero bullets destroy it (14 machine-gun hits, `docs/research/reports/10-level1-enemies.md`) in a cluster of orange fireballs, and it leaves a scrap pile (`LEV1.GRA` f22, video A 4:22). It comes back after 5 s. Emitter bullets pass it, and it does not block the hero | user (look, death, respawn), Claude's call (spot, hit count, emitter) |
 | Sandbox shots | Hero gun shots are visible: muzzle flash, tracer and impact spark as in the spike `fire()`. The original fires instant hits with a muzzle flash and a small bolt (`docs/research/reports/08-video-level1.md`). Projectiles collide only with what blocks the hero's movement: walls stop them, props the hero walks through let them pass | user |
 | Dev server | Sandbox and game run on the Vite dev server (`npm run dev`); spikes keep opening from `file://` | user |
 | Story year | Story set in 2080, alien invasion 5 years earlier (2075). Departs from the original's 2013 / 2018 / 2028 | user |

@@ -6,6 +6,7 @@ import type { MovementConfig } from "../hero/config";
 import { HERO_SHOT, type Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, type HeroLook, type HitLook, type Rigs } from "../hero/look";
+import type { Enemy } from "../level/enemy";
 import { ceilingAbove, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
@@ -18,6 +19,20 @@ const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
 const TRACER = { length: 14, width: 2 };
 const BAG = { rope: 12, w: 32, h: 92 };
+const ENEMY_TINT = { brightness: 1.1, saturate: 0 };
+const BLAST = { grow: 0.25, fade: 0.4, hold: 0.35, hideBody: 0.45 };
+const FIREBALLS: [number, number, number, number][] = [
+  [6, -96, 0, 22],
+  [-14, -72, 0.08, 26],
+  [22, -60, 0.16, 24],
+  [-4, -116, 0.24, 30],
+  [-26, -100, 0.3, 24],
+  [18, -128, 0.36, 28],
+  [0, -84, 0.4, 36],
+  [-18, -40, 0.46, 22],
+  [24, -36, 0.5, 20],
+];
+const SCRAP: [number, number][] = [[-34, 0], [-26, -8], [-14, -10], [-8, -18], [2, -12], [10, -22], [18, -12], [28, -10], [36, 0]];
 
 const COLORS = {
   skyTop: "#1b2629",
@@ -47,6 +62,12 @@ const COLORS = {
   shot: "#ff6a3a",
   emitterOff: "#3a2a22",
   spark: "#ffd76a",
+  blastCore: "#fff3b0",
+  blastMid: "#ffb030",
+  blastEdge: "#e8641a",
+  blastOut: "rgba(150,40,10,0)",
+  scrap: "#5d6668",
+  scrapLight: "#a9b3b5",
 };
 
 interface Frame {
@@ -278,6 +299,54 @@ function shadow(f: Frame, hero: Hero, look: HeroLook): void {
 export const rigFor = (look: HeroLook, rigs: Rigs): GroupNode =>
   look.view === "side" ? rigs.side : look.view === "front" ? rigs.front : rigs.climber;
 
+function fireball(f: Frame, x: number, y: number, radius: number, alpha: number): void {
+  const { ctx } = f;
+  const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
+  g.addColorStop(0, COLORS.blastCore);
+  g.addColorStop(0.45, COLORS.blastMid);
+  g.addColorStop(0.8, COLORS.blastEdge);
+  g.addColorStop(1, COLORS.blastOut);
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function blast(f: Frame, body: Hero, age: number): void {
+  const { cell, unit } = f;
+  for (const [dx, dy, start, r] of FIREBALLS) {
+    const t = age - start;
+    if (t < 0) continue;
+    const grow = Math.min(1, t / BLAST.grow);
+    const alpha = 1 - Math.min(1, Math.max(0, t - BLAST.grow - BLAST.hold) / BLAST.fade);
+    if (alpha <= 0) continue;
+    fireball(f, body.x * cell + body.facing * dx * unit, body.y * cell + dy * unit, r * unit * (0.3 + 0.7 * grow), alpha);
+  }
+}
+
+function scrap(f: Frame, body: Hero): void {
+  const { ctx, cell, unit } = f;
+  const [x, y] = [body.x * cell, body.y * cell];
+  ctx.fillStyle = COLORS.scrap;
+  ctx.beginPath();
+  for (const [dx, dy] of SCRAP) ctx.lineTo(x + body.facing * dx * unit, y + dy * unit);
+  ctx.fill();
+  ctx.fillStyle = COLORS.scrapLight;
+  for (const [dx, dy, w] of [[-12, -9, 6], [8, -18, 4], [20, -10, 5]] as const) ctx.fillRect(x + body.facing * dx * unit, y + dy * unit, w * unit, 2 * unit);
+}
+
+function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: number, fireRate: number): void {
+  const age = enemy.deadAge;
+  if (age === null || age < BLAST.hideBody) {
+    shadow(f, enemy.body, look);
+    heroFigure(f, enemy.body, look, rigs, scale, fireRate, shade(ROBOT.palette, ENEMY_TINT));
+  } else scrap(f, enemy.body);
+  if (age !== null) blast(f, enemy.body, age);
+}
+
 function droppedGun(f: Frame, hero: Hero, scale: number, palette: Palette): void {
   const { ctx, cell, unit, lineW } = f;
   ctx.save();
@@ -320,9 +389,9 @@ function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs):
   if (muzzle) star(ctx, [muzzle[0] + FLASH.ahead, muzzle[1]], FLASH.radius, FLASH.k);
 }
 
-function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number, fireRate: number): void {
+function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number, fireRate: number, base: Palette = ROBOT.palette): void {
   const { ctx, cell, lineW } = f;
-  const palette = look.tint ? shade(ROBOT.palette, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : ROBOT.palette;
+  const palette = look.tint ? shade(base, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : base;
   const front = look.view === "front";
   const gun: HookDraw = (c, pal) => gunHook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
   const hooks: Record<string, HookDraw> = {};
@@ -346,6 +415,7 @@ export function drawScene(
   cfg: MovementConfig,
   view: ViewTransform,
   alpha: number,
+  enemyLook: HeroLook,
 ): void {
   const scale = heroScale(cfg);
   const unit = scale / SPIKE_K;
@@ -361,6 +431,7 @@ export function drawScene(
   ladders(f);
   for (const p of world.props) PROPS[p.kind]?.(f, p);
   emitter(f);
+  enemyFigure(f, world.enemy, enemyLook, rigs, scale, cfg.fireRate);
   shadow(f, hero, look);
   heroFigure(f, hero, look, rigs, scale, cfg.fireRate);
   projectiles(f, alpha);

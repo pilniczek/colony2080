@@ -1,6 +1,7 @@
 import type { Platform } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
+import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
 
 export interface Prop {
   kind: string;
@@ -43,6 +44,7 @@ export interface SandboxWorld {
   emitter: Emitter;
   projectiles: Projectile[];
   sparks: Spark[];
+  enemy: Enemy;
 }
 
 interface SandboxJson {
@@ -51,6 +53,7 @@ interface SandboxJson {
   lift: { x: number; width: number; top: number; bottom: number };
   props: Prop[];
   emitter: { x: number; y: number; dir: -1 | 1; periodMs: number; speed: number; radius: number };
+  enemy: EnemyJson;
 }
 
 export function loadSandbox(json: unknown): SandboxWorld {
@@ -71,6 +74,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     emitter: { ...data.emitter, on: false, clock: 0 },
     projectiles: [],
     sparks: [],
+    enemy: createEnemy(data.enemy, data.spawn[1]),
   };
 }
 

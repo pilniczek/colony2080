@@ -121,7 +121,7 @@ const loop = new FixedLoop({
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha);
+    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, heroLook(world.enemy.body, clips, rigs, hold));
     drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays);
     push();
   },

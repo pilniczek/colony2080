@@ -93,7 +93,8 @@ describe("hero bullets", () => {
     fire(g, 3);
     const passed = (kind: string) => g.world.props.find((p) => p.kind === kind)!.x;
     expect(bullets(g).some((b) => b.x > passed("barrel"))).toBe(true);
-    expect(g.world.sparks.every((s) => s.x === 39)).toBe(true);
+    const enemy = g.world.enemy.body.x;
+    expect(g.world.sparks.every((s) => s.x === 39 || Math.abs(s.x - enemy) < cfg.box.width)).toBe(true);
   });
 
   it("passes through props at point blank", () => {

@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md",
+  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; enemy.hits is 14 machine-gun hits per regular enemy (docs/research/reports/10-level1-enemies.md), enemy.respawnMs is the sandbox respawn after a death (user)",
   "rows": [
     "########################################",
     "#......................................#",
@@ -29,5 +29,6 @@
     { "kind": "bag", "x": 13.5 },
     { "kind": "target", "x": 15.5 }
   ],
+  "enemy": { "x": 32.5, "facing": -1, "hits": 14, "respawnMs": 5000 },
   "emitter": { "x": 38.5, "y": 12.6, "dir": -1, "periodMs": 2000, "speed": 8, "radius": 0.15 }
 }

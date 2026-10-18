@@ -5,6 +5,7 @@ import { stepProjectiles, type Projectile } from "../engine/world/projectiles";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
+import { hitEnemy, isDead } from "./level/enemy";
 import type { SandboxWorld } from "./level/sandboxLevel";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { ROBOT } from "./robot/xbot";
@@ -55,22 +56,44 @@ function wallBetween(world: SandboxWorld, from: number, p: Projectile): number |
   return null;
 }
 
+function enemyFace(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile): number | null {
+  const { enemy } = world;
+  if (p.tag !== HERO_SHOT || isDead(enemy)) return null;
+  const { x, y } = enemy.body;
+  const half = cfg.box.width / 2 + p.r;
+  if (p.y < y - cfg.box.height - p.r || p.y > y + p.r) return null;
+  const [lo, hi] = [Math.min(from, p.x), Math.max(from, p.x)];
+  if (hi < x - half || lo > x + half) return null;
+  return p.vx > 0 ? Math.max(from, x - half) : Math.min(from, x + half);
+}
+
+function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile): boolean {
+  const face = enemyFace(world, cfg, from, p);
+  if (face === null) return false;
+  hitEnemy(world.enemy);
+  world.sparks.push({ x: face, y: p.y, age: 0 });
+  return true;
+}
+
 export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], clips: ClipSet, cfg: MovementConfig): void {
   for (const e of events) {
     if (e.kind !== "shot") continue;
     const [x, y] = heroMuzzle(h, clips, cfg);
     const bullet = { x, y, vx: h.facing * cfg.shot.speed, r: cfg.shot.radius, tag: HERO_SHOT };
+    if (strike(world, cfg, h.x, bullet)) continue;
     const face = wallBetween(world, h.x, bullet);
     if (face === null) world.projectiles.push(bullet);
     else world.sparks.push({ x: face, y, age: 0 });
   }
 }
 
-export function stepShots(world: SandboxWorld, dt: number): void {
+export function stepShots(world: SandboxWorld, cfg: MovementConfig, dt: number): void {
   world.sparks = world.sparks.filter((s) => (s.age += dt) < SPARK_LIFE);
+  const from = new Map(world.projectiles.map((p) => [p, p.x]));
   const alive = new Set(stepProjectiles(world.projectiles, world.grid, dt));
   const { width, height } = world.grid;
   world.projectiles = world.projectiles.filter((p) => {
+    if (strike(world, cfg, from.get(p)!, p)) return false;
     const inside = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height;
     if (!alive.has(p) && inside) world.sparks.push({ x: wallFace(p), y: p.y, age: 0 });
     return alive.has(p);

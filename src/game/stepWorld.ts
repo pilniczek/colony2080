@@ -2,6 +2,7 @@ import type { InputFrame } from "../engine/input";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { updateHero, type Hero, type HeroEvent } from "./hero/hero";
 import { updateEmitter, updateLift, type SandboxWorld } from "./level/sandboxLevel";
+import { updateEnemy } from "./level/enemy";
 import { fireShots, stepShots } from "./shots";
 
 export function stepWorld(
@@ -14,7 +15,8 @@ export function stepWorld(
   consume: (action: string) => boolean,
 ): HeroEvent[] {
   updateEmitter(world, dt);
-  stepShots(world, dt);
+  updateEnemy(world.enemy, dt);
+  stepShots(world, cfg, dt);
   updateLift(world.lift, cfg.liftSpeed, dt);
   const events = updateHero(hero, input, world, cfg, clips, dt, consume);
   fireShots(world, hero, events, clips, cfg);
