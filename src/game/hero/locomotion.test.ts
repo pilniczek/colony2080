@@ -369,6 +369,24 @@ describe("ladder", () => {
   });
 });
 
+describe("ladder dismount", () => {
+  for (const [key, facing] of [["moveRight", 1], ["moveLeft", -1]] as const) {
+    it(`drops off the ladder on ${key}`, () => {
+      const g = game({ x: 3.5, y: 14 });
+      tick(g, [], ["up"]);
+      run(g, 1, ["up"]);
+      const y = g.hero.y;
+      tick(g, [key]);
+      expect(g.hero).toMatchObject({ state: "fall", facing, fallFrom: y });
+      expect(g.hero.vx).toBeCloseTo(facing * walkSpeed, 6);
+      runUntil(g, (h) => h.onGround);
+      expect(g.hero.y).toBeCloseTo(14, 6);
+      expect(Math.sign(g.hero.x - 3.5)).toBe(facing);
+      expect(g.hero.state).toBe("idle");
+    });
+  }
+});
+
 describe("ladder from a gait", () => {
   for (const held of [["moveRight"], ["moveRight", RUNNING]]) {
     it(`grabs the ladder on up while ${held.length > 1 ? "running" : "walking"}`, () => {

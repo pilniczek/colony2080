@@ -33,20 +33,20 @@ describe("topBar", () => {
     expect(bar.plates).toHaveLength(3);
     expect(bar.gaps).toHaveLength(4);
     expect(bar.empty).toBeNull();
-    expect(bar.gridW).toBeCloseTo(168.4, 9);
+    expect(bar.gridW).toBeCloseTo(179.2, 9);
   });
 
   it("lets the weapons plate absorb a few extra units", () => {
     const bar = topBar(325);
     expect(bar.empty).toBeNull();
-    expect(bar.gridW).toBeCloseTo(173.4, 9);
+    expect(bar.gridW).toBeCloseTo(184.2, 9);
   });
 
   it("puts an empty plate between the weapons and badge plates on wide screens", () => {
     const bar = topBar(467);
     expect(bar.plates).toHaveLength(4);
     expect(bar.gaps).toHaveLength(5);
-    expect(bar.gridW).toBeCloseTo(168.4, 9);
+    expect(bar.gridW).toBeCloseTo(179.2, 9);
     const [a, b] = bar.empty ?? [0, 0];
     expect(b - a).toBeCloseTo(467 - 320 - 3.6, 9);
     expect(bar.plates[1]).toEqual(bar.empty);

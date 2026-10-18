@@ -131,14 +131,13 @@ function top(W: number, s: HudState, icons: HudIcons): string {
   ${bar.gaps.map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map(plate).join("")}
   ${bar.empty ? emptyScrews(bar.empty) : ""}
-  ${gridPanel(14, bar.gridW)}
+  ${gridPanel(bar.gridX, bar.gridW)}
   ${image(icons.gun, 19, 4.4)}${counter(59, s.ammo)}
   ${image(icons.fist, 96, 3.8)}
   ${s.bonus ? BLASTER + counter(168, s.bonusAmmo) : ""}
   ${SLOTS.slice(0, s.bonus ? 3 : 2).map((x, i) => lamp(x, s.weapon === i)).join("")}
   ${badge(bar.badge)}
-  ${gridPanel(bar.inv, 59)}${item}
-  ${screw(7, 6)}${screw(7, 19)}`;
+  ${gridPanel(bar.inv, 59)}${item}`;
 }
 
 function keyBox(x: number, letter: string): string {

@@ -413,6 +413,7 @@ function ladder(s: Step): void {
   const { h, input, world, cfg, dt } = s;
   s.consume("up");
   s.consume("down");
+  if (input.dir !== 0) return dropOffLadder(s, input.dir);
   const dir = (input.held.has("down") ? 1 : 0) - (input.held.has("up") ? 1 : 0);
   if (dir === 0) return;
   const r = moveBox(boxOf(h, cfg), 0, dir * cfg.ladderSpeed * dt, world.grid, [world.lift], { ignoreOneWay: true });
@@ -423,6 +424,17 @@ function ladder(s: Step): void {
     h.y = Math.floor(h.y - EPS) + 1;
     leaveLadder(h);
   }
+}
+
+function dropOffLadder(s: Step, facing: -1 | 1): void {
+  const { h, clips } = s;
+  h.facing = facing;
+  enter(h, "fall");
+  h.fallGait = null;
+  h.gaitTime = 0;
+  h.fallFrom = h.y;
+  h.vx = h.facing * (clips.walk ? travelSpeed(clips.walk) : 0);
+  h.vy = 0;
 }
 
 function leaveLadder(h: Hero): void {

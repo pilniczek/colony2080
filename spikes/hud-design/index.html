@@ -178,7 +178,7 @@ function rod(a, b, y) {
 }
 
 function topBar(W, s) {
-  const edge = 3.6, inv = W - edge - 62.5, badge = inv - 59.5;
+  const edge = 1.2, inv = W - edge - 62.5, badge = inv - 59.5;
   const item = s.item
     ? `<text x="${inv + 29.5}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
     : `<g transform="translate(${inv + 5} 0)">${HAND}</g>`;
@@ -186,13 +186,13 @@ function topBar(W, s) {
   const wide = empty[1] - empty[0] >= 8;
   const gaps = [[0, edge], ...(wide ? [[fixedEnd, empty[0]]] : []), [badge - 7.6, badge - 4], [badge + 52.4, inv - 3.5], [W - edge, W]];
   const plates = gaps.slice(1).map(([a], i) => [gaps[i][1], a]);
-  const gridW = plates[0][1] - 18.4;
+  const gridX = edge + 4.4, gridW = plates[0][1] - 4.4 - gridX;
   const emptyScrews = wide ? `${screw(empty[0] + 3, 6)}${screw(empty[1] - 3, 6)}${screw(empty[0] + 3, 19)}${screw(empty[1] - 3, 19)}` : "";
   return `<rect x="${edge}" width="${W - 2 * edge}" height="26.4" fill="#060504"/>
   ${gaps.map(([a, b]) => [4.2, 9.6, 15, 20.4].map((y) => rod(a, b, y)).join("")).join("")}
   ${plates.map(([a, b]) => plate(a, b)).join("")}
   ${emptyScrews}
-  ${gridPanel(14, gridW)}
+  ${gridPanel(gridX, gridW)}
   ${GUN}${counter(59, s.ammo)}
   ${FIST}
   ${s.bonus ? BLASTER + counter(168, s.bonusAmmo) : ""}
@@ -206,8 +206,7 @@ function topBar(W, s) {
   <text x="${badge + 24}" y="16" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
   <text x="${badge + 24}" y="15.4" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
   ${screw(badge + 2.4, 4.4)}${screw(badge + 45.6, 4.4)}${screw(badge + 2.4, 20.2)}${screw(badge + 45.6, 20.2)}
-  ${gridPanel(inv, 59)}${item}
-  ${screw(7, 6)}${screw(7, 19)}`;
+  ${gridPanel(inv, 59)}${item}`;
 }
 
 function view(W) {

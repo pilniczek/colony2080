@@ -64,6 +64,7 @@ flowchart LR
 | Shared animations | One action, one animation: a move reused in another context (duck punch, jumps, falls, deaths, hits, gun rest) uses the same shared pose, timing and effect. Context-only differences (body lean) are compensated, not re-keyed (2026-10-18) | user |
 | Weapon variants | Every move has a fists and a gun version; overview pages switch between them | user |
 | Movement set | Full set in the engine (walk, run, jumps, fall, duck, kneel, use, hide, shoot, punch, ladder, lift, hit, death); mission 1 uses what level 1 needs. List: design spec | user |
+| Ladder dismount | Left / Right on a ladder drops the robot off: it turns that way and falls at walk speed | user |
 | Melee | Punches only, no kick. Fists are a selectable weapon (slot 2) | user |
 | Hide look | Front view with dark tint | user |
 | Energy and shields | Energy runs 0-100 and starts full. One enemy hit takes 10. Shields (0-5) are a reserve: when energy reaches 0 with a shield left, one shield is spent and energy refills to 100; with none left the hero dies. A new game starts with 0 shields. Rounded from the original (`docs/research/reports/10-level1-enemies.md`): start 98, one enemy burst 9, a shield refills from below 10 to 90, death below 10. The original rounding makes shields cancel most droid damage; we drop that (2026-10-18) | user (rounding), research |
@@ -84,7 +85,7 @@ flowchart LR
 | Death | Drop the gun, fall on the back, body flat on the floor | user |
 | Inventory key | `I` instead of Tab | user |
 | Phase order | Movement overview page first (non-interactive, one looping cell per move). Engine, movement sandbox and cutscenes later | user |
-| HUD frame | Clean vector redraw of the original frame layout, no pixels. Brown-tinted metal with 3D bevels, gradient edges and screws. Top bar: 3 separate plates (weapons, `C2080` badge, inventory) joined by 4 rods per gap; the outer ends have the same gap and rods. Side panels: green circuit pattern (repeating tile) from the top edge down, teal pipe with gold clamps along the game view, indicators centred between frame edge and pipe. Left: thin square-ended glass life tube (fill yellow at top, red at bottom), red level marker, `E` key. Right: reserve glass tube, 5 shield lights, `S` key. Active weapon slot has a red lamp under it (lens, holder, glow); free space around it. Spike `spikes/hud-design/`, sandbox `src/game/hud/` | user |
+| HUD frame | Clean vector redraw of the original frame layout, no pixels. Brown-tinted metal with 3D bevels, gradient edges and screws. Top bar: 3 separate plates (weapons, `C2080` badge, inventory) joined by 4 rods per gap; the outer ends show only short rod stubs. Each plate keeps equal empty space at both ends of its grid panel, no screws on the weapons plate. Side panels: green circuit pattern (repeating tile) from the top edge down, teal pipe with gold clamps along the game view, indicators centred between frame edge and pipe. Left: thin square-ended glass life tube (fill yellow at top, red at bottom), red level marker, `E` key. Right: reserve glass tube, 5 shield lights, `S` key. Active weapon slot has a red lamp under it (lens, holder, glow); free space around it. Spike `spikes/hud-design/`, sandbox `src/game/hud/` | user |
 | HUD badge | `C2080` instead of the original `C28` | user |
 | HUD weapon icons | Slot 1 is the rotary gun from the gun model, slot 2 the robot's side forearm and fist, pointing right. Slot 3 (bonus weapon) stays empty until the E-Blaster is designed | user |
 | HUD wide screens | The frame takes the screen aspect. Extra width over 16:10 becomes an empty plate between the weapons plate and the badge plate (below 8 units the weapons plate takes it). Screens narrower than 16:10 keep the 320 x 200 layout with black bars top and bottom | user (wide), Claude's call (narrow) |
@@ -128,7 +129,6 @@ flowchart LR
 - Robot part polygons still live in code (`spikes/shared/xbot.js`); only parameters are in `config/robots/xbot.json`.
 - Intro cutscene and dying-rebel scene in mission 1 scope or not (cutscenes postponed).
 - Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Original stays default and keys are configurable; revisit after trying the sandbox.
-- Ladder: Left / Right do nothing while climbing (plan's assumption).
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
 - Environment sheet: the 13 `machines` objects have no vector assets yet (`spikes/shared/env-machines.js` is empty); props, structures and buildings have all 13 each.
 - Sandbox HUD shows live life, shields and weapon only. Ammo (350) and reserve (full) are fixed until phase 3 adds them. Shields start at `energy.shields` in `config/hero/movement.json`.
