@@ -9,3 +9,5 @@
 /docs/research/gamedata/disasm/
 /.claude/worktrees/
 /.superpowers/
+node_modules/
+dist/
