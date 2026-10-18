@@ -16,13 +16,28 @@ interface Game {
   hero: Hero;
   events: HeroEvent[];
   seen: Set<HeroState>;
+  frame: number;
+  buffer: Map<string, number>;
 }
 
-function game(at?: { x: number; y: number; state?: HeroState }): Game {
-  const world = loadSandbox(sandbox);
+const dropLevel = {
+  ...sandbox,
+  rows: [
+    "########################################",
+    ...Array.from({ length: 6 }, () => "#......................................#"),
+    "###########............................#",
+    ...Array.from({ length: 6 }, () => "#......................................#"),
+    "########################################",
+    "########################################",
+  ],
+  lift: { ...sandbox.lift, x: 34 },
+};
+
+function game(at?: { x: number; y: number; state?: HeroState }, level: unknown = sandbox): Game {
+  const world = loadSandbox(level);
   const hero = createHero(world.spawn, "fists", cfg.energy.max);
   if (at) Object.assign(hero, at);
-  return { world, hero, events: [], seen: new Set([hero.state]) };
+  return { world, hero, events: [], seen: new Set([hero.state]), frame: 0, buffer: new Map() };
 }
 
 function tick(g: Game, held: string[] = [], pressed: string[] = []): void {
@@ -30,10 +45,12 @@ function tick(g: Game, held: string[] = [], pressed: string[] = []): void {
   g.world.projectiles = stepProjectiles(g.world.projectiles, g.world.grid, dt);
   updateLift(g.world.lift, cfg.liftSpeed, dt);
   const dir = held.includes("moveRight") ? 1 : held.includes("moveLeft") ? -1 : 0;
-  const pending = new Set(pressed);
-  const input = { held: new Set(held), pressed: new Set(pressed), dir } as const;
-  g.events.push(...updateHero(g.hero, input, g.world, cfg, clips, dt, (action) => pending.delete(action)));
+  for (const action of pressed) g.buffer.set(action, g.frame);
+  for (const [action, at] of g.buffer) if ((g.frame - at) * dt * 1000 > cfg.inputBufferMs) g.buffer.delete(action);
+  const input = { held: new Set(held), pressed: new Set(g.buffer.keys()), dir } as const;
+  g.events.push(...updateHero(g.hero, input, g.world, cfg, clips, dt, (action) => g.buffer.delete(action)));
   g.seen.add(g.hero.state);
+  g.frame++;
 }
 
 function run(g: Game, seconds: number, held: string[] = []): void {
@@ -128,6 +145,24 @@ describe("jumps", () => {
 });
 
 describe("falls", () => {
+  it("survives a running jump down a 7-cell drop, measured from take-off", () => {
+    const g = game({ x: 10.6, y: 7, state: "run" }, dropLevel);
+    tick(g, ["moveRight", "runModifier"], ["up"]);
+    expect(g.hero.state).toBe("runJump");
+    runUntil(g, (h) => h.state === "idle");
+    expect(g.seen.has("land")).toBe(true);
+    expect(g.seen.has("fallDeath")).toBe(false);
+    expect(g.hero.y).toBeCloseTo(14, 6);
+  });
+
+  it("survives walking off an exactly 7-cell drop", () => {
+    const g = game({ x: 10, y: 7 }, dropLevel);
+    runUntil(g, (h) => h.state === "fall", ["moveRight"]);
+    runUntil(g, (h) => h.onGround);
+    expect(g.hero.state).toBe("land");
+    expect(g.hero.y).toBeCloseTo(14, 6);
+  });
+
   it("dies walking off the left platform edge", () => {
     const g = game({ x: 10, y: 4 });
     runUntil(g, (h) => h.state === "fall", ["moveRight"]);
@@ -189,9 +224,31 @@ describe("ladder", () => {
   });
 });
 
+describe("buffered up", () => {
+  it("drops an up tap made in the last frames of a climb", () => {
+    const g = game({ x: 3.5, y: 14 });
+    tick(g, [], ["up"]);
+    runUntil(g, (h) => h.y < 4.1, ["up"]);
+    tick(g, ["up"], ["up"]);
+    runUntil(g, (h) => h.state !== "ladder", ["up"]);
+    run(g, 0.5);
+    expect([...g.seen]).toEqual(["idle", "ladder"]);
+    expect(g.hero.y).toBeCloseTo(4, 6);
+  });
+
+  it("drops an up tap made while walking", () => {
+    const g = game();
+    run(g, 0.2, ["moveRight"]);
+    tick(g, ["moveRight"], ["up"]);
+    run(g, 0.5);
+    expect([...g.seen]).toEqual(["idle", "walk"]);
+  });
+});
+
 describe("lift", () => {
   it("rides to the top on one up press without jumping", () => {
     const g = game({ x: 18.5, y: 14 });
+    tick(g);
     tick(g, [], ["up"]);
     run(g, 5);
     expect([...g.seen]).toEqual(["idle"]);

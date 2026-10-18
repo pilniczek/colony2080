@@ -15,6 +15,7 @@ export interface Hero {
   energy: number;
   fallFrom: number;
   onGround: boolean;
+  onLift: boolean;
   hidden: boolean;
   climb: number;
 }
@@ -52,6 +53,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     energy,
     fallFrom: spawn[1],
     onGround: true,
+    onLift: false,
     hidden: false,
     climb: 0,
   };
@@ -81,14 +83,6 @@ const isAirborne = (state: HeroState): boolean => state === "fall" || isJump(sta
 
 const boxOf = (h: Hero, cfg: MovementConfig): Box => ({ x: h.x, y: h.y, w: cfg.box.width, h: cfg.box.height });
 
-function ridingLift(s: Step): boolean {
-  const { h, world, cfg, dt } = s;
-  const { lift } = world;
-  const half = cfg.box.width / 2;
-  const before = lift.y - lift.vy * dt;
-  return h.onGround && Math.abs(h.y - before) <= EPS && h.x + half > lift.x && h.x - half < lift.x + lift.w;
-}
-
 function atLadderTop(s: Step): boolean {
   const { h, world } = s;
   const row = Math.round(h.y);
@@ -101,6 +95,7 @@ function enterLadder(h: Hero): void {
   h.vx = 0;
   h.vy = 0;
   h.onGround = false;
+  h.onLift = false;
 }
 
 function jump(h: Hero, state: "standJump" | "runJump"): void {
@@ -126,7 +121,7 @@ function gait(s: Step): void {
 
 function idle(s: Step): void {
   const { h, input, world } = s;
-  if (ridingLift(s)) {
+  if (h.onLift) {
     if (s.consume("up")) callLift(world.lift, -1);
     else if (s.consume("down")) callLift(world.lift, 1);
   } else if (s.consume("up")) {
@@ -138,7 +133,7 @@ function idle(s: Step): void {
 }
 
 function moving(s: Step): void {
-  if (s.h.state === "run" && s.consume("up")) return jump(s.h, "runJump");
+  if (s.consume("up") && s.h.state === "run") return jump(s.h, "runJump");
   gait(s);
 }
 
@@ -155,6 +150,8 @@ function land(s: Step): void {
 
 function ladder(s: Step): void {
   const { h, input, world, cfg, dt } = s;
+  s.consume("up");
+  s.consume("down");
   const dir = (input.held.has("down") ? 1 : 0) - (input.held.has("up") ? 1 : 0);
   if (dir === 0) return;
   const r = moveBox(boxOf(h, cfg), 0, dir * cfg.ladderSpeed * dt, world.grid, [world.lift], { ignoreOneWay: true });
@@ -205,6 +202,7 @@ function clipEvents(s: Step): void {
     if (name === "launch") {
       h.vy = -Math.sqrt(2 * cfg.gravity * launchHeight(h.state, cfg));
       h.onGround = false;
+      h.onLift = false;
     }
   }
 }
@@ -221,13 +219,14 @@ function horizontalSpeed(s: Step): number {
 function physics(s: Step): void {
   const { h, world, cfg, dt } = s;
   const box = boxOf(h, cfg);
-  if (ridingLift(s)) box.y = moveBox(box, 0, world.lift.vy * dt, world.grid, [world.lift]).y;
+  if (h.onLift) box.y = moveBox(box, 0, world.lift.vy * dt, world.grid, [world.lift]).y;
   const vy = Math.min(h.vy + cfg.gravity * dt, cfg.maxFallSpeed);
   const r = moveBox(box, h.vx * dt, ((h.vy + vy) / 2) * dt, world.grid, [world.lift]);
   h.x = r.x;
   h.y = r.y;
   h.vy = (r.hitY && vy < 0) || (r.onGround && vy > 0) ? 0 : vy;
   h.onGround = r.onGround && h.vy >= 0;
+  h.onLift = h.onGround && r.platform === world.lift;
 }
 
 function settle(s: Step, startY: number): void {
@@ -238,7 +237,6 @@ function settle(s: Step, startY: number): void {
       enter(h, "fall");
       h.fallFrom = startY;
     }
-    h.fallFrom = Math.min(h.fallFrom, h.y);
     return;
   }
   const landed = h.state === "fall" || (isJump(h.state) && h.time > eventTime(clipOf(s), "launch"));
