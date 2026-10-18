@@ -12,7 +12,7 @@ import { stepWorld } from "./stepWorld";
 
 const cfg = loadMovement(movementJson);
 const clips = loadClips(clipsJson);
-const STEPS = 420;
+const STEPS = 720;
 const script: Record<number, ["down" | "up", string][]> = {
   0: [["down", "ArrowRight"], ["down", "AltLeft"]],
   40: [["down", "ArrowUp"]],
@@ -22,6 +22,8 @@ const script: Record<number, ["down" | "up", string][]> = {
   97: [["up", "ControlLeft"], ["up", "ArrowRight"]],
   120: [["down", "ArrowLeft"]],
   200: [["up", "ArrowLeft"]],
+  676: [["down", "ArrowUp"]],
+  680: [["up", "ArrowUp"]],
 };
 
 function fromSpawn(input: Input, live: boolean): Hero {
@@ -38,8 +40,6 @@ function fromSpawn(input: Input, live: boolean): Hero {
   return hero;
 }
 
-const outcome = (h: Hero) => ({ x: h.x, y: h.y, state: h.state, energy: h.energy });
-
 describe("record and replay", () => {
   it("replays a recorded run from spawn to the same end", () => {
     let wall = 0;
@@ -51,7 +51,7 @@ describe("record and replay", () => {
     const replayed = fromSpawn(input, false);
     expect(record.length).toBe(Object.values(script).flat().length);
     expect(recorded.x).not.toBe(sandboxJson.spawn[0]);
-    expect(recorded.energy).toBeLessThan(cfg.energy.max);
-    expect(outcome(replayed)).toEqual(outcome(recorded));
+    expect(recorded.state).toBe("jumpDeath");
+    expect(replayed).toEqual(recorded);
   });
 });
