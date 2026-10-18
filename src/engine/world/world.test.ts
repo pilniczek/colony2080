@@ -50,6 +50,12 @@ describe("moveBox", () => {
     expect(upper.y).toBe(4);
   });
 
+  it("falls out below the grid", () => {
+    const r = moveBox(box(29.5, 14), 0, 5, grid, []);
+    expect(r.y).toBeGreaterThan(grid.height);
+    expect(r.onGround).toBe(false);
+  });
+
   it("bumps the ceiling", () => {
     const r = moveBox(box(7.5, 14), 0, -12, grid, []);
     expect(r.hitY).toBe(true);

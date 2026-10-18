@@ -6,32 +6,36 @@ import { callLift, loadSandbox, updateEmitter, updateLift } from "./sandboxLevel
 
 const dt = 1 / 60;
 
-describe("lift", () => {
-  it("carries a standing box to the top, stops exactly and clears the target", () => {
-    const world = loadSandbox(sandbox);
-    const { lift, grid } = world;
-    let hero = { x: 18.5, y: lift.y, w: 0.7, h: 1.9 };
-    callLift(lift, -1);
-    expect(lift.target).toBe(4);
-    for (let i = 0; i < 1000 && lift.target !== null; i++) {
-      updateLift(lift, 3, dt);
-      const carried = moveBox(hero, 0, lift.vy * dt, grid, [lift]);
-      const settled = moveBox({ ...hero, x: carried.x, y: carried.y }, 0, 0.02, grid, [lift]);
-      hero = { ...hero, x: settled.x, y: settled.y };
-      expect(settled.platform).toBe(lift);
-      if (i === 5) {
-        const before = lift.target;
-        callLift(lift, 1);
-        expect(lift.target).toBe(before);
-      }
+function ride(dir: -1 | 1, speed: number): void {
+  const world = loadSandbox(sandbox);
+  const { lift, grid } = world;
+  const start = dir < 0 ? lift.bottom : lift.top;
+  lift.y = start;
+  let hero = { x: 18.5, y: start, w: 0.7, h: 1.9 };
+  callLift(lift, dir);
+  const target = lift.target;
+  let frames = 0;
+  while (lift.target !== null && frames++ < 2000) {
+    if (frames === 6) {
+      callLift(lift, dir === -1 ? 1 : -1);
+      expect(lift.target).toBe(target);
     }
-    expect(lift.y).toBe(4);
-    expect(lift.target).toBeNull();
-    expect(lift.vy).toBe(0);
-    const final = moveBox(hero, 0, 0.02, grid, [lift]);
-    expect(final.y).toBe(4);
-    expect(final.platform).toBe(lift);
-  });
+    updateLift(lift, speed, dt);
+    const carried = moveBox(hero, 0, lift.vy * dt, grid, [lift]);
+    const settled = moveBox({ ...hero, y: carried.y }, 0, 0.02, grid, [lift]);
+    hero = { ...hero, y: settled.y };
+    expect(settled.platform).toBe(lift);
+    expect(settled.y).toBeCloseTo(lift.y, 9);
+  }
+  expect(lift.y).toBe(target);
+  expect(lift.target).toBeNull();
+  updateLift(lift, speed, dt);
+  expect(lift.vy).toBe(0);
+}
+
+describe("lift", () => {
+  it("carries a standing box up, stops exactly on top and clears the target", () => ride(-1, 3.7));
+  it("carries a standing box down, stopping exactly on the bottom", () => ride(1, 3.7));
 
   it("moves down on a bottom call", () => {
     const { lift } = loadSandbox(sandbox);
@@ -53,7 +57,9 @@ describe("emitter", () => {
   it("spawns one projectile per period while on and loses it at the wall", () => {
     const world = loadSandbox(sandbox);
     world.emitter.on = true;
-    for (let i = 0; i < 120; i++) updateEmitter(world, dt);
+    for (let i = 0; i < 119; i++) updateEmitter(world, dt);
+    expect(world.projectiles).toHaveLength(0);
+    for (let i = 0; i < 2; i++) updateEmitter(world, dt);
     expect(world.projectiles).toHaveLength(1);
     expect(world.projectiles[0]).toMatchObject({ x: 38.5, y: 12.6, vx: -8, r: 0.15 });
     world.emitter.on = false;

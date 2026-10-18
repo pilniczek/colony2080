@@ -35,7 +35,6 @@ interface Surface {
 const MAX_SUBSTEP = 0.25;
 const EDGE = 1e-6;
 const SUPPORT = 1e-3;
-const PLATFORM_SNAP = 0.15;
 
 function cellRange(lo: number, hi: number): [number, number] {
   return [Math.floor(lo + EDGE), Math.ceil(hi - EDGE) - 1];
@@ -69,7 +68,7 @@ function landingSurface(
     }
   }
   for (const p of platforms) {
-    if (overlapsPlatform(left, right, p) && fromY <= p.y + PLATFORM_SNAP && toY > p.y) best = Math.min(best, p.y);
+    if (overlapsPlatform(left, right, p) && fromY <= p.y + EDGE && toY > p.y) best = Math.min(best, p.y);
   }
   return best;
 }
@@ -86,19 +85,18 @@ function floorRow(left: number, right: number, fromY: number, toY: number, grid:
 function findSupport(box: Box, grid: TileGrid, platforms: Platform[], ignoreOneWay: boolean): Surface | null {
   const left = box.x - box.w / 2;
   const right = box.x + box.w / 2;
-  if (solidInRect(grid, left, right, box.y + SUPPORT, box.y + SUPPORT + EDGE * 2)) {
-    return { y: box.y, platform: null };
+  if (!ignoreOneWay) {
+    for (const p of platforms) {
+      if (overlapsPlatform(left, right, p) && Math.abs(p.y - box.y) <= SUPPORT) return { y: box.y, platform: p };
+    }
+    const row = Math.round(box.y);
+    if (Math.abs(row - box.y) <= SUPPORT) {
+      const [c0, c1] = cellRange(left, right);
+      for (let c = c0; c <= c1; c++) if (grid.ladderTop(c, row)) return { y: box.y, platform: null };
+    }
   }
-  if (ignoreOneWay) return null;
-  const row = Math.round(box.y);
-  if (Math.abs(row - box.y) <= SUPPORT) {
-    const [c0, c1] = cellRange(left, right);
-    for (let c = c0; c <= c1; c++) if (grid.ladderTop(c, row)) return { y: box.y, platform: null };
-  }
-  for (const p of platforms) {
-    if (overlapsPlatform(left, right, p) && Math.abs(p.y - box.y) <= SUPPORT) return { y: box.y, platform: p };
-  }
-  return null;
+  const underfoot = solidInRect(grid, left, right, box.y + SUPPORT, box.y + SUPPORT + EDGE * 2);
+  return underfoot ? { y: box.y, platform: null } : null;
 }
 
 export function moveBox(

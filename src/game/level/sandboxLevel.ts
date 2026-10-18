@@ -81,7 +81,7 @@ export function updateLift(lift: Lift, speed: number, dt: number): void {
   if (Math.abs(remaining) <= step) {
     lift.y = lift.target;
     lift.target = null;
-    lift.vy = 0;
+    lift.vy = remaining / dt;
     return;
   }
   const dir = Math.sign(remaining);
