@@ -3,7 +3,7 @@ import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { callLift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
-import { clipFor, type Clip, type ClipSet, type HeroState, type MovementConfig, type Weapon } from "./config";
+import { clipFor, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
   x: number;
@@ -22,6 +22,7 @@ export interface Hero {
   hidden: boolean;
   climb: number;
   gaitTime: number;
+  fallGait: GaitName | null;
   landing: Landing | null;
   hitAge: number | null;
 }
@@ -71,6 +72,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     hidden: false,
     climb: 0,
     gaitTime: 0,
+    fallGait: null,
     landing: null,
     hitAge: null,
   };
@@ -102,9 +104,11 @@ type Jump = "standJump" | "walkJump" | "runJump" | "duckJump";
 const isAirborne = (state: HeroState): boolean =>
   state === "fall" || state === "standJump" || state === "walkJump" || state === "runJump" || state === "duckJump";
 
+const isGait = (state: HeroState): state is GaitName => state === "walk" || state === "run";
+
 const isDead = (state: HeroState): boolean => state === "death" || state === "fallDeath" || state === "jumpDeath";
 
-const isDucked = (state: HeroState): boolean => state === "duck" || state === "duckAttack";
+export const isDucked = (state: HeroState): boolean => state === "duck" || state === "duckAttack";
 
 const boxOf = (h: Hero, cfg: MovementConfig): Box => ({ x: h.x, y: h.y, w: cfg.box.width, h: cfg.box.height });
 
@@ -144,7 +148,7 @@ function launch(s: Step, state: Jump): { height: number; speed: number } {
 function jump(s: Step, state: Jump): void {
   const { h, cfg } = s;
   const { height, speed } = launch(s, state);
-  h.gaitTime = h.state === "walk" || h.state === "run" ? h.time : 0;
+  h.gaitTime = isGait(h.state) ? h.time : 0;
   enter(h, state);
   h.fallFrom = h.y;
   h.vx = h.facing * speed;
@@ -404,7 +408,7 @@ function clipEvents(s: Step): void {
 function horizontalSpeed(s: Step): number {
   const { h } = s;
   if (isAirborne(h.state)) return h.vx;
-  if (h.state !== "walk" && h.state !== "run") return 0;
+  if (!isGait(h.state)) return 0;
   return h.facing * travelSpeed(clipOf(s));
 }
 
@@ -426,6 +430,8 @@ function settle(s: Step, startY: number): void {
   if (h.y > world.grid.height + PIT_MARGIN) return die(h, "fallDeath", s.events);
   if (!h.onGround) {
     if (!isAirborne(h.state)) {
+      h.fallGait = isGait(h.state) ? h.state : null;
+      h.gaitTime = h.fallGait ? h.time : 0;
       enter(h, "fall");
       h.fallFrom = startY;
     }
@@ -434,17 +440,19 @@ function settle(s: Step, startY: number): void {
   if (!isAirborne(h.state)) return;
   if (h.y - h.fallFrom > cfg.fallDeathCells) return die(h, "fallDeath", s.events);
   const landing = { from: h.state, time: h.time, age: 0 };
-  enter(h, "idle");
+  enter(h, s.input.dir === 0 ? "idle" : s.input.held.has("runModifier") ? "run" : "walk");
   h.landing = landing;
-  idle(s);
   resumeGait(s, landing);
+  if (h.state === "idle") idle(s);
+  else moving(s);
+  if (h.state === "duck") h.time = clipOf(s).duration;
 }
 
 function resumeGait(s: Step, landing: Landing): void {
   const { h, clips } = s;
-  const gait = clips[clipFor(landing.from, h.weapon)]?.gait;
+  const gait = landing.from === "fall" ? h.fallGait : clips[clipFor(landing.from, h.weapon)]?.gait;
   const from = gait && clips[gait];
-  if (!from || (h.state !== "walk" && h.state !== "run")) return;
+  if (!from || !isGait(h.state)) return;
   const u = (h.gaitTime + landing.time) / from.duration;
   h.time = (u - Math.floor(u)) * clipOf(s).duration;
 }

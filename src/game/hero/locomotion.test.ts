@@ -108,6 +108,42 @@ describe("jumps", () => {
     });
   }
 
+  for (const [jump, held, speed] of [["walkJump", ["moveRight"], walkSpeed], ["runJump", ["moveRight", "runModifier"], cfg.jump.runSpeed]] as const) {
+    it(`${jump} with up buffered before touchdown jumps again keeping the gait phase and speed`, () => {
+      const takeOff = (): Game => {
+        const g = game();
+        run(g, 0.4, [...held]);
+        tick(g, [...held], ["up"]);
+        return g;
+      };
+      const plain = takeOff();
+      let frames = 0;
+      for (; plain.hero.state === jump; frames++) tick(plain, [...held]);
+      const g = takeOff();
+      const gaitTime = g.hero.gaitTime;
+      run(g, (frames - 3) / 60, [...held]);
+      tick(g, [...held], ["up"]);
+      run(g, 1 / 60, [...held]);
+      const air = g.hero.time + dt;
+      tick(g, [...held]);
+      expect(g.seen.has("standJump")).toBe(false);
+      expect(g.hero).toMatchObject({ state: jump, time: 0 });
+      expect(g.hero.vy).toBeLessThan(0);
+      expect(g.hero.vx).toBeCloseTo(speed, 9);
+      expect(g.hero.gaitTime).toBeCloseTo((gaitTime + air) % clips[clips[jump]!.gait!]!.duration, 9);
+    });
+  }
+
+  it("lands a duck jump with down held straight into the full duck", () => {
+    const g = game();
+    run(g, 0.3, ["down"]);
+    tick(g, ["down", "up"], ["up"]);
+    expect(g.hero.state).toBe("duckJump");
+    runUntil(g, (h) => h.onGround, ["down"]);
+    expect(g.hero.state).toBe("duck");
+    expect(g.hero.time).toBe(clips.duck!.duration);
+  });
+
   it("leaves the floor on the press frame and the standing jump peaks at 1.0 cells", () => {
     const g = game();
     tick(g, [], ["up"]);
@@ -241,6 +277,21 @@ describe("falls", () => {
     }
     runUntil(g, (h) => h.onGround);
     expect(g.hero).toMatchObject({ state: "idle", y: 11 });
+  });
+
+  it("lands a walk off a ledge back into walk at the walk-off phase plus fall time", () => {
+    const g = game({ x: 15, y: 11 });
+    runUntil(g, (h) => h.state === "fall", ["moveRight"]);
+    const takeOff = g.hero.gaitTime;
+    expect(takeOff).toBeGreaterThan(0);
+    let air = 0;
+    while (g.hero.state === "fall") {
+      air = g.hero.time;
+      tick(g, ["moveRight"]);
+    }
+    air += dt;
+    expect(g.hero.state).toBe("walk");
+    expect(g.hero.time).toBeCloseTo((takeOff + air) % clips.walk!.duration, 9);
   });
 
   it("dies walking off the right high platform", () => {

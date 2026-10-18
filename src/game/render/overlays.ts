@@ -4,7 +4,7 @@ import type { Pose } from "../../engine/rig/pose";
 import { jointMatrix } from "../../engine/rig/pose";
 import type { Pt, RigNode } from "../../engine/rig/tree";
 import { clipFor, type MovementConfig } from "../hero/config";
-import type { Hero } from "../hero/hero";
+import { isDucked, type Hero } from "../hero/hero";
 import type { HeroLook, Rigs } from "../hero/look";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { heroScale, rigFor, toRigSpace } from "./scene";
@@ -42,8 +42,6 @@ function jointPivots(node: RigNode, pose: Pose, m: Mat2D = identity(), out: [str
   return out;
 }
 
-const isDucked = (h: Hero): boolean => h.state === "duck" || h.state === "duckAttack";
-
 function tiles(ctx: CanvasRenderingContext2D, world: SandboxWorld, cell: number, px: number): void {
   const { grid, lift } = world;
   ctx.lineWidth = px;
@@ -66,7 +64,7 @@ function tiles(ctx: CanvasRenderingContext2D, world: SandboxWorld, cell: number,
 function hitbox(ctx: CanvasRenderingContext2D, hero: Hero, cfg: MovementConfig, px: number): void {
   const cell = cfg.cellPx;
   const w = cfg.box.width * cell;
-  const h = (isDucked(hero) ? cfg.box.duckHeight : cfg.box.height) * cell;
+  const h = (isDucked(hero.state) ? cfg.box.duckHeight : cfg.box.height) * cell;
   ctx.strokeStyle = hero.hidden ? COLORS.hidden : COLORS.box;
   ctx.lineWidth = 1.5 * px;
   ctx.setLineDash(hero.hidden ? [4 * px, 3 * px] : []);

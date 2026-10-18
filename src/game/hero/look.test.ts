@@ -220,6 +220,19 @@ describe("hero look", () => {
     expectPose(heroLook(hero({ state: "duckJump", time: 0.1, onGround: false }), clips, rigs, hold).pose, LEAP);
   });
 
+  it("duck jump landing with down held goes straight from the leap into the duck pose", () => {
+    const g = game();
+    for (let i = 0; i < 18; i++) tick(g, ["down"]);
+    tick(g, ["down", "up"], ["up"]);
+    expect(g.hero.state).toBe("duckJump");
+    while (g.hero.state === "duckJump") tick(g, ["down"]);
+    expect(g.hero.state).toBe("duck");
+    for (let i = 0; i < 10; i++) {
+      expectPose(heroLook(g.hero, clips, rigs, hold).pose, DUCK);
+      tick(g, ["down"]);
+    }
+  });
+
   for (const [state, gait, g, leap] of [["walkJump", "walk", WALK, LEAP], ["runJump", "run", RUN, LONG_LEAP]] as const) {
     it(`${state} blends from the gait pose at take-off into the leap`, () => {
       const g0 = game();
