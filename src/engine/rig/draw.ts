@@ -248,5 +248,5 @@ const drawNode = (ctx: CanvasRenderingContext2D, node: RigNode, pal: Palette, st
   }
 };
 
-export const drawRig = (ctx: CanvasRenderingContext2D, root: RigNode, { palette, pose = {}, hooks = {}, lineW = 2.2, simple = false }: DrawOptions): void =>
+export const drawRig = (ctx: CanvasRenderingContext2D, root: RigNode, { palette, pose = {}, hooks = {}, lineW = 1.4, simple = false }: DrawOptions): void =>
   drawNode(ctx, root, palette, { pose, hooks, lineW, simple });

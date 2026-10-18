@@ -1,8 +1,8 @@
-import { apply } from "../../engine/math/mat2d";
+import { apply, type Mat2D } from "../../engine/math/mat2d";
 import { drawRig, type Palette } from "../../engine/rig/draw";
 import { locate, solve, type Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
-import { ROBOT } from "./xbot";
+import { buildBack, ROBOT } from "./xbot";
 
 type MatKey = "m" | "c" | "a";
 
@@ -54,14 +54,14 @@ const partsFor = (length: number): GunPart[] => {
 
 export const GUN_PARTS = partsFor(BARREL.length);
 
-const MAT: Record<MatKey, [string, string, string, string]> = {
-  m: ["m0", "m1", "m2", "m3"],
-  c: ["c0", "c1", "c2", "c3"],
-  a: ["a0", "a1", "a2", "a3"],
+const MAT: Record<MatKey, { tones: [string, string, string, string]; line: string }> = {
+  m: { tones: ["m0", "m1", "m2", "m3"], line: "mLine" },
+  c: { tones: ["c0", "c1", "c2", "c3"], line: "mLine" },
+  a: { tones: ["a0", "a1", "a2", "a3"], line: "aLine" },
 };
 
 export const MUZZLE: Pt = [BARREL.x + BARREL.length + 2, -40];
-export const SUPPORT: Pt = [BARREL.x + 40, -2];
+export const SUPPORT: Pt = [BARREL.x - 6, -10];
 
 export const toHook = ([x, y]: Pt): Pt => [-y, x];
 
@@ -89,18 +89,19 @@ const bandFill = (ctx: CanvasRenderingContext2D, p: GunPart, tones: string[], si
 };
 
 const drawPart = (ctx: CanvasRenderingContext2D, p: GunPart, pal: Palette, lineW: number, simple: boolean): void => {
-  const tones = MAT[p.mat].map((k) => pal[k] as string);
+  const { tones: keys, line } = MAT[p.mat];
+  const tones = keys.map((k) => pal[k] as string);
   ctx.fillStyle = bandFill(ctx, p, tones, simple);
   ctx.fillRect(p.x, p.y, p.w, p.h);
   if (lineW) {
     const t = ctx.getTransform();
-    ctx.strokeStyle = pal.mLine as string;
+    ctx.strokeStyle = pal[line] as string;
     ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
     ctx.strokeRect(p.x, p.y, p.w, p.h);
   }
 };
 
-export const drawGun = (ctx: CanvasRenderingContext2D, { palette = ROBOT.palette, lineW = 2, simple = false, barrel = BARREL.length }: GunOptions = {}): void => {
+export const drawGun = (ctx: CanvasRenderingContext2D, { palette = ROBOT.palette, lineW = 1.4, simple = false, barrel = BARREL.length }: GunOptions = {}): void => {
   for (const p of partsFor(barrel)) drawPart(ctx, p, palette, lineW, simple);
 };
 
@@ -111,11 +112,17 @@ export const gunHook = (ctx: CanvasRenderingContext2D, palette: Palette = ROBOT.
   ctx.restore();
 };
 
+const slungAt = (): Mat2D => {
+  const m = locate(buildBack(), "back", {});
+  if (!m) throw new Error("missing hook back");
+  return m;
+};
+
+const SLUNG_AT = slungAt();
+
 export const gunSlung = (ctx: CanvasRenderingContext2D, palette: Palette = ROBOT.palette, opts: HookOptions = {}): void => {
   ctx.save();
-  ctx.translate(330, 236);
-  ctx.rotate(-0.95);
-  ctx.translate(-40, -60);
+  ctx.transform(SLUNG_AT.a, SLUNG_AT.b, SLUNG_AT.c, SLUNG_AT.d, SLUNG_AT.e, SLUNG_AT.f);
   gunHook(ctx, palette, opts);
   ctx.restore();
 };
@@ -147,7 +154,7 @@ export const holdPoses = (side: GroupNode, front: GroupNode): HoldPoses => {
   };
 };
 
-export const FRONT_BARREL = 270;
+export const FRONT_BARREL = 247;
 
 const BAND = GUN_PARTS.find((p) => p.name === "barrelBack") as GunPart;
 const SCAN = { x: -600, w: 1600 };

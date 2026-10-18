@@ -2,7 +2,8 @@ import config from "@config/robots/xbot.json";
 import type { Palette } from "../../engine/rig/draw";
 import { createBuilder, mirrorPts, type Builder, type GroupNode, type PartSpec, type Pt } from "../../engine/rig/tree";
 
-type Kit = Builder & { low: boolean };
+type Bulk = keyof typeof config.gameLod.bulk;
+type Kit = Builder & { low: boolean; bulk: (limb: Bulk) => number };
 type Mirror = (pts: Pt[]) => Pt[];
 
 const AX = config.frame.axis;
@@ -19,7 +20,7 @@ export const ROBOT: { AX: number; SIDE_AX: number; FOOT_Y: number; palette: Pale
 
 const mirror = (pts: Pt[], ax = AX): Pt[] => mirrorPts(pts, ax);
 
-const kit = (low: boolean): Kit => ({ ...createBuilder(low ? config.gameLod : null), low });
+const kit = (low: boolean): Kit => ({ ...createBuilder(low ? config.gameLod : null), low, bulk: (limb) => (low ? config.gameLod.bulk[limb] : 1) });
 
 const both = (k: Kit, parent: GroupNode, spec: PartSpec, ax = AX): void => {
   k.P(parent, spec);
@@ -89,18 +90,18 @@ const backLeg = (k: Kit, s: GroupNode, right: boolean): void => {
   const M: Mirror = (p) => (right ? mirror(p) : p);
   const sfx = right ? "R" : "L";
   const piston = leg.piston;
-  const thigh = k.G(k.G(s, null, "leg" + sfx, [AX, 344]), null, "thigh" + sfx, [AX, 344]);
+  const hx = right ? 2 * AX - LEG_CX - LEG_SHIFT : LEG_CX + LEG_SHIFT;
+  const thigh = k.G(k.G(s, null, "leg" + sfx, [hx, 344]), null, "thigh" + sfx, [hx, 344]);
   k.P(legOne(k, thigh, "thigh", right), { ...piston, pts: M(piston.pts) });
   k.F(legOne(k, thigh, "thigh", right), M(leg.pistonRing), "m1");
   k.P(legOne(k, thigh, "thigh", right), { ...leg.thigh, pts: M(leg.thigh.pts) });
-  const lower = k.G(s, null, "shin" + sfx, [AX, 522]);
+  const lower = k.G(s, null, "shin" + sfx, [hx, 522]);
   k.P(legOne(k, lower, "shin", right), { pts: M([[162, 500], [264, 500], [280, 690], [148, 690]]), r: 1 });
   for (let i = 0; i < 4; i++)
     k.F(legOne(k, lower, "shin", right), M([[176, 560 + i * 26], [252, 560 + i * 26], [254, 566 + i * 26], [174, 566 + i * 26]]), "a0");
   k.P(legOne(k, lower, "knee", right), { pts: M([[178, 456], [244, 456], [246, 512], [176, 512]]), mat: "metal", shade: "cyl", r: 1 });
   k.P(legOne(k, lower, "foot", right), { pts: M([[146, 688], [282, 688], [290, 714], [286, 744], [142, 744], [136, 714]]), mat: "metal", r: 1 });
-  if (right) k.hook(k.G(lower, `translate(${2 * AX - 211} 744)`), "footR");
-  else k.hook(k.G(lower, "translate(211 744)"), "footL");
+  k.hook(k.G(lower, `translate(${hx} 744)`), "foot" + sfx);
 };
 
 const bodyGroup = (k: Kit, parent: GroupNode): GroupNode => k.G(parent, `translate(${AX} 0) scale(${BODY_SX} 1) translate(${-AX} 0)`);
@@ -109,9 +110,10 @@ const headFront = (k: Kit, s: GroupNode, back: boolean): void => {
   k.P(s, { pts: [[306, 96], [334, 96], [336, 120], [304, 120]], mat: "metal", shade: "cyl", r: 2 });
   both(k, s, { pts: [[246, 4], [256, 4], [258, 70], [244, 70]], r: 4, shade: "cyl" });
   both(k, s, { pts: [[240, 56], [266, 52], [268, 98], [242, 100]], r: 2 });
-  if (back) k.P(s, { pts: [[313, 12], [327, 12], [330, 30], [310, 30]], r: 2 });
+  const crest = (): void => k.P(s, { pts: [[313, 12], [327, 12], [330, 24], [326, 34], [314, 34], [310, 24]], r: 2 });
+  if (back) crest();
   k.P(s, { pts: [[264, 102], [262, 34], [276, 22], [364, 22], [378, 34], [376, 102]], r: 3 });
-  if (!back) k.P(s, { pts: [[313, 12], [327, 12], [330, 30], [326, 46], [314, 46], [310, 30]], r: 2 });
+  if (!back) crest();
   if (back) {
     k.F(s, [[274, 70], [366, 70], [366, 74], [274, 74]], "a0");
     k.F(s, [[318, 58], [322, 58], [322, 100], [318, 100]], "a0");
@@ -129,15 +131,15 @@ const frontHand = (k: Kit, parent: GroupNode, M: Mirror, thumbFront: boolean): v
     k.F(parent, M([[116, 430], [136, 428], [136, 431], [116, 433]]), "a0");
   };
   if (!thumbFront) thumb();
-  k.P(parent, { pts: M([[44, 400], [134, 398], [136, 434], [44, 436]]), mat: "metal", r: 2 });
+  k.P(parent, { pts: M([[46, 400], [129, 398], [129, 434], [46, 436]]), mat: "metal", r: 2 });
   if (k.low)
     for (let i = 0; i < 4; i++)
       k.P(parent, { pts: M([[46 + i * 21, 422], [65 + i * 21, 422], [65 + i * 21, 478], [46 + i * 21, 478]]), shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = 46 + i * 21;
-    k.P(parent, { pts: M([[x, 422], [x + 20, 422], [x + 20, 437], [x, 437]]), r: 2, lw: FINGER_LW });
-    k.P(parent, { pts: M([[x + 0.5, 437], [x + 19.5, 437], [x + 19.5, 456], [x + 0.5, 456]]), shade: "cyl", r: 2, lw: FINGER_LW });
-    k.P(parent, { pts: M([[x + 1, 456], [x + 19, 456], [x + 19, 472], [x + 10, 478], [x + 1, 472]]), shade: "cyl", r: 3, lw: FINGER_LW });
+    k.P(parent, { pts: M([[x, 428], [x + 10, 422], [x + 20, 428], [x + 20, 444], [x, 444]]), shade: "cyl", r: 3, lw: FINGER_LW });
+    k.P(parent, { pts: M([[x, 444], [x + 20, 444], [x + 20, 463], [x, 463]]), shade: "cyl", r: 2, lw: FINGER_LW });
+    k.P(parent, { pts: M([[x, 463], [x + 20, 463], [x + 20, 478], [x, 478]]), r: 2, lw: FINGER_LW });
   }
   if (thumbFront) thumb();
 };
@@ -170,8 +172,9 @@ const frontArm = (
   const foreTf = `translate(${mirrored ? -FORE_SHIFT : FORE_SHIFT} -22)`;
   const under = foreUnder ? k.G(arm, foreTf, names.fore, el) : null;
   k.P(k.G(arm, `translate(${mirrored ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
-  k.P(arm, { pts: M(bicep), r: 18, shade: "dome" });
-  k.P(arm, { pts: M(pauldron), r: 20, shade: "dome" });
+  const domes = k.G(arm, `translate(${sh[0]} 0) scale(${k.bulk("arms")} 1) translate(${-sh[0]} 0)`);
+  k.P(domes, { pts: M(bicep), r: 18, shade: "dome" });
+  k.P(domes, { pts: M(pauldron), r: 20, shade: "dome" });
   const fore = under || k.G(foreParent ? k.G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirrored ? 2 * AX - 89 : 89;
   if (names.hand && propBehindArm) k.hook(k.G(fore, `translate(${fc} 440)`), names.hand);
@@ -253,7 +256,7 @@ interface BackOptions {
 
 const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, thumbsBehind = false, forearmsUnder = false }: BackOptions): GroupNode => {
   const root = k.root();
-  const s = k.G(root, null, "body", [AX, FOOT_Y]);
+  const s = k.G(root, null, "body", [AX, 344]);
   const left = { arm: "armL", fore: "foreL", hand: "handL" };
   if (leftArmBehind) frontArm(k, bodyGroup(k, s), false, left, { thumbFront: !thumbsBehind });
   const behindRight = rightForeBehind ? bodyGroup(k, s) : null;
@@ -285,6 +288,7 @@ const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, thum
     { arm: "armR", fore: "foreR", hand: "handR" },
     { thumbFront: !rightForeBehind && !thumbsBehind, foreParent: behindRight, flipHand: rightForeBehind, foreUnder: forearmsUnder },
   );
+  k.hook(k.G(s, `translate(330 236) rotate(${(-0.95 * 180) / Math.PI}) translate(-40 -60)`), "back");
   return root;
 };
 
@@ -299,55 +303,56 @@ interface LegNames {
 }
 
 const sideLeg = (k: Kit, parent: GroupNode, names: LegNames, dim?: number): void => {
+  const sx = 0.88 * k.bulk("sideLegs");
   const hip = k.G(parent, null, names.hip, [300, 344], { dim });
-  const th = k.G(hip, legTf("thigh", 296, 0.88));
+  const th = k.G(hip, legTf("thigh", SIDE_AX, sx));
   k.P(th, { pts: [[278, 342], [314, 342], [314, 440], [278, 440]], mat: "chrome", shade: "cyl", r: 1 });
   k.P(th, { pts: [[246, 338], [278, 338], [278, 432], [314, 432], [314, 338], [342, 338], [346, 452], [334, 468], [258, 468], [246, 452]], r: 1 });
   const knee = k.G(hip, null, names.knee, [300, 522]);
-  const sh = k.G(knee, legTf("shin", 296, 0.88));
+  const sh = k.G(knee, legTf("shin", SIDE_AX, sx));
   k.P(sh, { pts: [[256, 500], [340, 500], [354, 690], [240, 690]], r: 1 });
   k.P(sh, { pts: [[298, 540], [312, 540], [316, 660], [298, 660]], mat: "metal", shade: "none", r: 1 });
   const ankle = k.G(knee, null, names.ankle, [300, 700]);
-  const ft = k.G(ankle, legTf("foot", 300, 0.88));
+  const ft = k.G(ankle, legTf("foot", SIDE_AX, 0.88));
   k.P(ft, { pts: [[204, 688], [384, 688], [402, 712], [398, 744], [202, 744]], mat: "metal", r: 1 });
   k.P(ft, { pts: [[300, 688], [384, 688], [396, 706], [300, 706]], r: 1 });
   if (names.heel) k.hook(k.G(ankle, "translate(220 744)"), names.heel);
   if (names.toe) k.hook(k.G(ankle, "translate(380 744)"), names.toe);
-  const kn = k.G(knee, legTf("knee", 300, 0.88));
+  const kn = k.G(knee, legTf("knee", SIDE_AX, sx));
   k.E(kn, 300, 486, 30, 30, "m1");
   k.E(kn, 294, 480, 12, 12, "m3");
   k.P(kn, { pts: [[300, 448], [340, 452], [362, 478], [362, 510], [344, 534], [318, 532], [310, 500]], mat: "chrome", r: 1 });
 };
 
 const sideHand = (k: Kit, parent: GroupNode): void => {
-  k.P(parent, { pts: [[352, 410], [376, 406], [384, 428], [376, 448], [360, 444], [350, 428]], r: 4 });
-  k.P(parent, { pts: [[278, 398], [364, 396], [366, 434], [278, 436]], mat: "metal", r: 2 });
+  k.P(parent, { pts: [[342, 410], [366, 406], [374, 428], [366, 448], [350, 444], [340, 428]], r: 4 });
+  k.P(parent, { pts: [[270, 398], [353, 396], [353, 434], [270, 436]], mat: "metal", r: 2 });
   if (k.low)
     for (let i = 0; i < 4; i++)
-      k.P(parent, { pts: [[280 + i * 21, 422], [299 + i * 21, 422], [299 + i * 21, 478], [280 + i * 21, 478]], shade: "cyl", r: 4 });
+      k.P(parent, { pts: [[270 + i * 21, 422], [289 + i * 21, 422], [289 + i * 21, 478], [270 + i * 21, 478]], shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
-    const x = 280 + i * 21;
-    k.P(parent, { pts: [[x, 422], [x + 20, 422], [x + 20, 437], [x, 437]], r: 2, lw: FINGER_LW });
-    k.P(parent, { pts: [[x + 0.5, 437], [x + 19.5, 437], [x + 19.5, 456], [x + 0.5, 456]], shade: "cyl", r: 2, lw: FINGER_LW });
-    k.P(parent, { pts: [[x + 1, 456], [x + 19, 456], [x + 19, 472], [x + 10, 478], [x + 1, 472]], shade: "cyl", r: 3, lw: FINGER_LW });
+    const x = 270 + i * 21;
+    k.P(parent, { pts: [[x, 428], [x + 10, 422], [x + 20, 428], [x + 20, 444], [x, 444]], shade: "cyl", r: 3, lw: FINGER_LW });
+    k.P(parent, { pts: [[x, 444], [x + 20, 444], [x + 20, 463], [x, 463]], shade: "cyl", r: 2, lw: FINGER_LW });
+    k.P(parent, { pts: [[x, 463], [x + 20, 463], [x + 20, 478], [x, 478]], r: 2, lw: FINGER_LW });
   }
 };
 
 const sideArm = (k: Kit, parent: GroupNode, names: Required<ArmNames>, { dim, propBehindArm = false }: { dim?: number; propBehindArm?: boolean } = {}): void => {
   const arm = k.G(parent, "translate(2 -4)", names.arm, [300, 150], { dim });
   k.P(arm, { pts: [[288, 274], [334, 274], [334, 294], [288, 294]], mat: "metal", shade: "cyl", r: 1 });
-  const bulbs = k.G(arm, SIDE_SHOULDER_TF);
-  k.P(bulbs, { pts: [[276, 196], [346, 196], [364, 220], [360, 257], [340, 279], [308, 286], [280, 278], [264, 254], [264, 217]], r: 18, shade: "dome" });
-  k.P(bulbs, { pts: [[248, 106], [292, 96], [336, 102], [362, 126], [370, 164], [358, 196], [330, 212], [292, 216], [256, 206], [234, 182], [230, 146], [236, 122]], r: 22, shade: "dome" });
-  const lower = k.G(arm, "translate(0 -22) rotate(-18 311 306)", names.fore, [311, 306]);
-  if (propBehindArm) k.hook(k.G(lower, "translate(322 446)"), names.hand);
+  const lower = k.G(arm, "translate(0 -22) rotate(-18 311 288)", names.fore, [311, 288]);
+  if (propBehindArm) k.hook(k.G(lower, "translate(312 438)"), names.hand);
   const fa = k.G(lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
-  k.P(fa, { pts: [[262, 308], [358, 304], [366, 320], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
+  k.P(fa, { pts: [[262, 290], [358, 286], [366, 302], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
   k.F(fa, [[264, 352], [366, 350], [366, 354], [264, 356]], "a0");
   k.F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
-  const hand = k.G(lower, "translate(322 446)");
+  const hand = k.G(lower, "translate(312 438)");
   if (!propBehindArm) k.hook(hand, names.hand);
   sideHand(k, lower);
+  const bulbs = k.G(arm, `translate(${SS.cx} 0) scale(${k.bulk("arms")} 1) translate(${-SS.cx} 0) ${SIDE_SHOULDER_TF}`);
+  k.P(bulbs, { pts: [[276, 196], [346, 196], [364, 220], [360, 257], [340, 279], [308, 286], [280, 278], [264, 254], [264, 217]], r: 18, shade: "dome" });
+  k.P(bulbs, { pts: [[248, 106], [292, 96], [336, 102], [362, 126], [370, 164], [358, 196], [330, 212], [292, 216], [256, 206], [234, 182], [230, 146], [236, 122]], r: 22, shade: "dome" });
 };
 
 const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: boolean): GroupNode => {
@@ -370,14 +375,14 @@ const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: bool
   k.P(upperTorso, { pts: [[194, 112], [406, 112], [388, 330], [212, 330]], mat: "metal", r: 2 });
   const sideChestPlate: Pt[] = [[352, 104], [400, 104], [412, 118], [412, 212], [402, 240], [386, 248], [368, 236], [352, 220]];
   k.P(upperTorso, { pts: mirror(sideChestPlate, SIDE_AX), r: 12 });
-  k.hook(upperTorso, "back");
+  k.hook(k.G(upperTorso, `translate(218 170) scale(${1 / SIDE_TORSO_SX} 1) rotate(30)`), "back");
   k.P(upperTorso, { pts: sideChestPlate, r: 12 });
-  if (badge) k.trefoil(upperTorso, 400, 160, BADGE_R, 0.5 / SIDE_TORSO_SX, 0.68);
+  if (badge) k.trefoil(upperTorso, 400, 150, BADGE_R, 0.5 / SIDE_TORSO_SX, 0.68);
   const head = k.G(s, "translate(-28 0)", "head", [320, 156]);
   k.P(head, { pts: [[300, 100], [336, 100], [340, 160], [304, 160]], mat: "metal", shade: "none", r: 4 });
   k.P(head, { pts: [[312, 96], [336, 96], [338, 120], [310, 120]], mat: "metal", shade: "cyl", r: 2 });
   k.P(head, { pts: [[282, 102], [280, 34], [292, 22], [374, 22], [388, 34], [388, 104]], r: 3 });
-  k.P(head, { pts: [[300, 24], [304, 12], [382, 12], [388, 24]], r: 2 });
+  k.P(head, { pts: [[300, 24], [304, 12], [382, 12], [388, 24], [388, 34], [376, 24]], r: 2 });
   k.P(head, { pts: [[356, 48], [388, 48], [388, 104], [372, 104], [372, 80], [356, 80]], mat: "metal", shade: "none", r: 2 });
   k.F(head, [[368, 56], [388, 56], [388, 63], [368, 63]], "visor", 1);
   k.P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });

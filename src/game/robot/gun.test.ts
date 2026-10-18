@@ -32,7 +32,7 @@ describe("gun", () => {
   const front = buildFront({ rightArmFirst: true, propBehindArm: true });
   const poses = holdPoses(side, front);
 
-  it("front barrel matches the spike silhouette result", () => expect(FRONT_BARREL).toBeCloseTo(270, 0));
+  it("front barrel matches the spike silhouette result", () => expect(FRONT_BARREL).toBeCloseTo(247, 0));
 
   it("draws a 196 barrel by default", () => expect(barrelWidth()).toBe(196));
 
@@ -42,11 +42,11 @@ describe("gun", () => {
     expect(toHook([1, 2])).toEqual([-2, 1]);
   });
 
-  it("side far hand is solved as close to the support grip as the arm reaches", () => {
+  it("side far hand reaches the support grip", () => {
     const gapFor = (pose: Pose): number => gap(point(side, "handFar", pose, [0, 0]), point(side, "hand", pose, SUPPORT_IN_HOOK));
     const solved = gapFor({ ...poses.CARRY, ...poses.CARRY_FAR });
     expect(solved).toBeLessThan(gapFor(poses.CARRY));
-    expect(solved).toBeCloseTo(31.06, 1);
+    expect(solved).toBeLessThan(1);
   });
 
   it("front right hand reaches the support grip", () => {
