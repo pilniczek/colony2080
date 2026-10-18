@@ -24,11 +24,11 @@
   "joints": {
     "front": ["body", "armL", "foreL", "armR", "foreR"],
     "back": ["body", "armL", "foreL", "armR", "foreR", "legL", "thighL", "shinL", "legR", "thighR", "shinR"],
-    "side": ["body", "hipNear", "kneeNear", "ankleNear", "hipFar", "kneeFar", "ankleFar", "arm", "fore", "armFar", "foreFar"]
+    "side": ["body", "chest", "head", "hipNear", "kneeNear", "ankleNear", "hipFar", "kneeFar", "ankleFar", "arm", "fore", "armFar", "foreFar"]
   },
   "hooks": {
     "front": ["handL", "handR"],
-    "back": ["handL", "handR", "footL", "footR"],
+    "back": ["handL", "handR", "back", "footL", "footR"],
     "side": ["hand", "handFar", "back", "heelNear", "toeNear", "heelFar", "toeFar"]
   }
 }

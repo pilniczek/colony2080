@@ -30,13 +30,13 @@
 </header>
 <main>
   <figure class="wide"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200"></canvas></figure>
-  <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="900" data-h="780"></canvas></figure>
+  <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Slung, back (ladder pose)</figcaption><canvas id="slungBack" data-w="640" data-h="780"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2)</h2>
 <main class="game">
-  <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="900" data-h="780"></canvas></figure>
+  <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
 </main>
@@ -64,8 +64,12 @@ const roots = {
 };
 const CLIMB = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
 const hold = GUN.holdPoses(roots.side, roots.front);
+const gHold = GUN.holdPoses(roots.gSide, roots.gFront);
 const sidePose = { ...hold.CARRY, ...hold.CARRY_FAR };
 const frontPose = { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R };
+const gSidePose = { ...gHold.CARRY, ...gHold.CARRY_FAR };
+const gFrontPose = { ...gHold.FRONT_CARRY, ...gHold.FRONT_CARRY_R };
+const SIDE_SHIFT = -150;
 const opts = { lines: true };
 
 function robot(ctx, root, pose, hookName, simple, lineW, barrel) {
@@ -77,17 +81,16 @@ function climber(ctx, root, simple, lineW) {
   ctx.fillRect(170, 0, 20, 780);
   ctx.fillRect(450, 0, 20, 780);
   for (let y = 60; y < 780; y += 110) ctx.fillRect(170, y, 300, 14);
-  render(ctx, root, { pose: CLIMB, lineW, simple });
-  GUN.slung(ctx, { lineW, simple });
+  render(ctx, root, { pose: CLIMB, lineW, simple, hooks: { back: c => GUN.hook(c, { lineW, simple }) } });
 }
 
 const VIEWS = {
   side: (ctx, lw) => { ctx.translate(250, 130); GUN.draw(ctx, { lineW: lw * 1.4 }); },
-  heldSide: (ctx, lw) => { ctx.translate(-80, 0); robot(ctx, roots.side, sidePose, "hand", false, lw * 1.4); },
+  heldSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.side, sidePose, "hand", false, lw * 1.4); },
   heldFront: (ctx, lw) => robot(ctx, roots.front, frontPose, "handL", false, lw * 1.4, hold.FRONT_BARREL),
-  gSide: (ctx, lw) => { ctx.translate(-80, 0); robot(ctx, roots.gSide, sidePose, "hand", true, lw); },
+  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, gSidePose, "hand", true, lw); },
   slungBack: (ctx, lw) => climber(ctx, roots.back, false, lw * 1.4),
-  gFront: (ctx, lw) => robot(ctx, roots.gFront, frontPose, "handL", true, lw, hold.FRONT_BARREL),
+  gFront: (ctx, lw) => robot(ctx, roots.gFront, gFrontPose, "handL", true, lw, gHold.FRONT_BARREL),
   gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw)
 };
 

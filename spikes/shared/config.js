@@ -86,6 +86,8 @@ window.C28_CONFIG = {
     ],
     "side": [
      "body",
+     "chest",
+     "head",
      "hipNear",
      "kneeNear",
      "ankleNear",
@@ -106,6 +108,7 @@ window.C28_CONFIG = {
     "back": [
      "handL",
      "handR",
+     "back",
      "footL",
      "footR"
     ],
@@ -125,26 +128,30 @@ window.C28_CONFIG = {
   "crowbarDoor": {
    "status": "draft",
    "source": "docs/requirements.md",
-   "note": "Agreed crowbar item-use clip. Track keys are absolute seconds; the clip plays clip.start..clip.end (the walk before clip.start is not shown). Keyframe: [time, value, easing?], easing in linear|in|out|inOut; string-valued tracks switch values.",
+   "note": "Agreed crowbar item-use clip. Track keys are absolute seconds on the original METROPAC.ANM timeline (0..clip.end); the clip plays clip.start..clip.end. Keyframe: [time, value, easing?], easing in linear|in|out|inOut; string-valued tracks switch values. robot.x is stage units; crowbar sizes and farGripOffset are robot model units.",
    "stage": {
     "width": 1600,
     "height": 900,
     "floorY": 740,
-    "doorSeamX": 900
+    "doorSeamX": 900,
+    "doorHalfWidth": 95
    },
    "clip": {
     "start": 1.85,
     "end": 5.8
    },
    "robot": {
-    "model": "config/robots/xbot.json",
     "scale": 0.46,
-    "backShotX": 705,
-    "barReach": 60,
+    "x": 705,
     "barTilt": -0.15,
     "farGripOffset": 78,
     "pullArmDeg": -24,
     "pullForeDeg": 32
+   },
+   "crowbar": {
+    "reach": 500,
+    "butt": 60,
+    "width": 16
    },
    "palette": {
     "tunnel": "#0f1a1c",
@@ -154,7 +161,6 @@ window.C28_CONFIG = {
     "lampCone": "#e9d8a6",
     "wagon": "#8c9396",
     "wagonShade": "#5f676a",
-    "wagonDark": "#3d4447",
     "stripe": "#9c4a2a",
     "window": "#16211f",
     "windowGlint": "#3a4d50",
@@ -166,17 +172,12 @@ window.C28_CONFIG = {
     "platform": "#3a3430",
     "platformLine": "#2d2825",
     "safety": "#a8892f",
-    "pillar": "#080d0e",
     "crowbar": "#dcd6c8",
     "crowbarShade": "#8f8a80",
     "shadow": "#000000"
    },
    "tracks": {
     "shot": [
-     [
-      0,
-      "A"
-     ],
      [
       1.85,
       "B"
@@ -188,21 +189,12 @@ window.C28_CONFIG = {
     ],
     "camX": [
      [
-      0,
-      520
-     ],
-     [
       1.85,
-      860,
-      "inOut"
-     ],
-     [
-      1.85,
-      790
+      705
      ],
      [
       2.95,
-      800
+      715
      ],
      [
       2.95,
@@ -216,20 +208,12 @@ window.C28_CONFIG = {
     ],
     "camY": [
      [
-      0,
-      520
-     ],
-     [
       1.85,
-      520
-     ],
-     [
-      1.85,
-      560
+      540
      ],
      [
       2.95,
-      545
+      525
      ],
      [
       2.95,
@@ -242,14 +226,6 @@ window.C28_CONFIG = {
      ]
     ],
     "camZ": [
-     [
-      0,
-      1
-     ],
-     [
-      1.85,
-      1.05
-     ],
      [
       1.85,
       1.7
@@ -268,26 +244,7 @@ window.C28_CONFIG = {
       "out"
      ]
     ],
-    "walkX": [
-     [
-      0,
-      120
-     ],
-     [
-      1.6,
-      790,
-      "out"
-     ],
-     [
-      5.8,
-      790
-     ]
-    ],
     "armB": [
-     [
-      0,
-      0
-     ],
      [
       1.95,
       0
@@ -313,10 +270,6 @@ window.C28_CONFIG = {
     ],
     "foreB": [
      [
-      0,
-      0
-     ],
-     [
       1.95,
       0
      ],
@@ -341,10 +294,6 @@ window.C28_CONFIG = {
     ],
     "barShown": [
      [
-      0,
-      0
-     ],
-     [
       2.24,
       0
      ],
@@ -354,10 +303,6 @@ window.C28_CONFIG = {
      ]
     ],
     "barLen": [
-     [
-      0,
-      0.2
-     ],
      [
       2.25,
       0.2
@@ -374,10 +319,6 @@ window.C28_CONFIG = {
     ],
     "farGrip": [
      [
-      0,
-      0
-     ],
-     [
       2.55,
       0
      ],
@@ -392,10 +333,6 @@ window.C28_CONFIG = {
      ]
     ],
     "pry": [
-     [
-      0,
-      0
-     ],
      [
       2.95,
       0
@@ -425,20 +362,16 @@ window.C28_CONFIG = {
       "in"
      ],
      [
-      5,
-      0.6,
-      "out"
+      5.3,
+      1
      ],
      [
       5.8,
-      0.6
+      0.6,
+      "out"
      ]
     ],
     "gap": [
-     [
-      0,
-      0
-     ],
      [
       3.55,
       0
@@ -469,10 +402,6 @@ window.C28_CONFIG = {
     ],
     "glow": [
      [
-      0,
-      0
-     ],
-     [
       4.5,
       0
      ],
@@ -487,10 +416,6 @@ window.C28_CONFIG = {
      ]
     ],
     "shake": [
-     [
-      0,
-      0
-     ],
      [
       3.55,
       0

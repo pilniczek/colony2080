@@ -49,9 +49,11 @@
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script>
-const { buildSide, buildBack, render: renderBot, locate, solve, AX, SIDE_AX, FOOT_Y } = window.XBOT;
+const { buildSide, buildBack, render: renderBot, locate, solve, AX, SIDE_AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
 const CFG = window.C28_CONFIG.cutscenes.crowbarDoor;
 const W = CFG.stage.width, H = CFG.stage.height, FLOOR = CFG.stage.floorY, SEAM = CFG.stage.doorSeamX;
+const DOOR_HALF = CFG.stage.doorHalfWidth;
+const DOOR = { x: SEAM - DOOR_HALF, w: 2 * DOOR_HALF, top: 322, bottom: 705 };
 
 const palette = { ...CFG.palette };
 
@@ -105,17 +107,6 @@ function rect(x, y, w, h, color) {
   ctx.fillRect(x, y, w, h);
 }
 
-function disc(x, y, r, color) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-
-
-
-
 function drawWorld(t) {
   rect(-2000, -1000, 6000, 3000, palette.tunnel);
   rect(-2000, 120, 6000, 600, palette.wall);
@@ -138,26 +129,27 @@ function drawWorld(t) {
     ctx.globalAlpha = 1;
   }
 
-  rect(805, 322, 190, 383, palette.interior);
+  const { x: dx, w: dw, top, bottom } = DOOR, dh = bottom - top;
+  rect(dx, top, dw, dh, palette.interior);
   if (glow > 0) {
     ctx.globalAlpha = 0.55 * glow;
-    poly([[830, 330], [970, 330], [990, 705], [810, 705]], palette.interiorLight);
+    poly([[dx + 25, top + 8], [dx + dw - 25, top + 8], [dx + dw - 5, bottom], [dx + 5, bottom]], palette.interiorLight);
     ctx.globalAlpha = 0.9 * glow;
-    rect(895, 330, 8, 375, palette.interior);
-    rect(840, 520, 120, 10, palette.interior);
+    rect(SEAM - 5, top + 8, 8, dh - 8, palette.interior);
+    rect(dx + 35, 520, dw - 70, 10, palette.interior);
     ctx.globalAlpha = 1;
   }
   ctx.save();
   ctx.beginPath();
-  ctx.rect(805, 322, 190, 383);
+  ctx.rect(dx, top, dw, dh);
   ctx.clip();
   const half = gap / 2;
-  drawDoorHalf(805 - half, true);
+  drawDoorHalf(dx - half, true);
   drawDoorHalf(SEAM + half, false);
   ctx.restore();
-  rect(795, 312, 210, 12, palette.doorFrame);
-  rect(795, 312, 10, 393, palette.doorFrame);
-  rect(995, 312, 10, 393, palette.doorFrame);
+  rect(dx - 10, top - 10, dw + 20, 12, palette.doorFrame);
+  rect(dx - 10, top - 10, 10, dh + 10, palette.doorFrame);
+  rect(dx + dw, top - 10, 10, dh + 10, palette.doorFrame);
 
   rect(-2000, 705, 6000, 900, palette.platform);
   rect(-2000, 712, 6000, 12, palette.safety);
@@ -166,17 +158,13 @@ function drawWorld(t) {
 }
 
 function drawDoorHalf(x, left) {
-  rect(x, 322, 95, 383, palette.door);
-  rect(left ? x : x + 75, 322, 20, 383, palette.doorShade);
-  rect(x + 20, 360, 55, 120, palette.window);
+  const { top, bottom } = DOOR;
+  rect(x, top, DOOR_HALF, bottom - top, palette.door);
+  rect(left ? x : x + DOOR_HALF - 20, top, 20, bottom - top, palette.doorShade);
+  rect(x + 20, top + 38, DOOR_HALF - 40, 120, palette.window);
   ctx.globalAlpha = 0.6;
-  poly([[x + 30, 360], [x + 50, 360], [x + 28, 480], [x + 20, 480]], palette.windowGlint);
+  poly([[x + 30, top + 38], [x + 50, top + 38], [x + 28, top + 158], [x + 20, top + 158]], palette.windowGlint);
   ctx.globalAlpha = 1;
-}
-
-function drawForeground() {
-  rect(1460, -1000, 90, 2600, palette.pillar);
-  rect(-400, -1000, 140, 2600, palette.pillar);
 }
 
 function floorShadow(x, w) {
@@ -190,107 +178,94 @@ function floorShadow(x, w) {
 
 const RB = CFG.robot;
 const K = RB.scale;
-const sideRoot = buildSide({ farLimbs: true });
+const X = RB.x;
+const BAR = CFG.crowbar;
+const LINE_W = 1.4;
+const STAND = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
+const sideRoot = buildSide({ farLimbs: true, propBehindArm: true });
 const backRoot = buildBack({ leftArmBehind: true, rightForeBehind: true });
-let camM = new DOMMatrix();
-let lineScale = 1;
 
-function drawCrowbar(len, w, butt = w * 0.2) {
-  ctx.fillStyle = palette.crowbarShade;
-  ctx.fillRect(-butt, -w / 2, len + butt - w * 0.2, w);
-  ctx.fillStyle = palette.crowbar;
-  ctx.fillRect(-butt, -w / 2, len + butt - w * 0.2, w * 0.55);
-  ctx.save();
-  ctx.translate(len - w * 0.2, 0);
-  ctx.rotate(-0.9);
-  ctx.fillStyle = palette.crowbarShade;
-  ctx.fillRect(0, -w / 2, w * 2.4, w);
-  ctx.restore();
+function drawCrowbar(c, reach, w, butt) {
+  const t = c.getTransform();
+  const lw = LINE_W / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+  const len = reach + butt - w * 0.2;
+  c.strokeStyle = BOT_PALETTE.mLine;
+  c.lineWidth = lw;
+  c.save();
+  c.translate(reach - w * 0.2, 0);
+  c.rotate(-0.9);
+  c.fillStyle = palette.crowbarShade;
+  c.fillRect(0, -w / 2, w * 2.4, w);
+  c.strokeRect(0, -w / 2, w * 2.4, w);
+  c.restore();
+  c.fillStyle = palette.crowbarShade;
+  c.fillRect(-butt, -w / 2, len, w);
+  c.fillStyle = palette.crowbar;
+  c.fillRect(-butt, -w / 2, len, w * 0.55);
+  c.strokeRect(-butt, -w / 2, len, w);
 }
 
-function placeRobot(root, x, y, ax, pose, hooks) {
+function robotMatrix(ax, lean = 0) {
+  return new DOMMatrix().translate(X, FLOOR).rotate(lean).scale(K).translate(-ax, -FOOT_Y);
+}
+
+function placeRobot(root, m, pose, hooks) {
   ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(K, K);
-  ctx.translate(-ax, -FOOT_Y);
-  renderBot(ctx, root, { pose, hooks, lineW: 1.4 * lineScale });
+  ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
+  renderBot(ctx, root, { pose, hooks, lineW: LINE_W });
   ctx.restore();
 }
 
 const BAR_TILT = RB.barTilt;
 const FAR_GRIP = RB.farGripOffset;
+const ORIGIN = new DOMPoint(0, 0);
 
 let farSeed = null;
 
 function drawProfile(t) {
-  const x = sample("walkX", t);
-  const walking = t < 1.6;
-  const p = (x - 120) / 80 * Math.PI;
-  const swing = (ph, amp) => walking ? amp * Math.sin(ph) : 0;
-  const flex = ph => walking ? 4 + 30 * Math.pow(Math.max(0, Math.cos(ph)), 1.5) : 4;
-  const bob = walking ? -5 * Math.abs(Math.cos(p)) : 0;
-  const shown = sample("barShown", t) >= 0.5;
-  const pose = {
-    hipNear: swing(p, -24), kneeNear: flex(p),
-    hipFar: swing(p + Math.PI, -24), kneeFar: flex(p + Math.PI),
-    arm: walking ? 16 * Math.sin(p) : sample("armB", t),
-    fore: walking ? 0 : sample("foreB", t),
-    armFar: swing(p, -16), foreFar: 0
-  };
+  const pose = { ...STAND, arm: sample("armB", t), fore: sample("foreB", t), armFar: 0, foreFar: 0 };
   const blend = sample("farGrip", t);
   if (blend > 0) {
-    const near = locate(sideRoot, "hand", pose);
-    const target = near.rotate(BAR_TILT * 180 / Math.PI).transformPoint(new DOMPoint(FAR_GRIP, 0));
+    const rest = locate(sideRoot, "handFar", pose).transformPoint(ORIGIN);
+    const grip = locate(sideRoot, "hand", pose).rotate(BAR_TILT * 180 / Math.PI).transformPoint(new DOMPoint(FAR_GRIP, 0));
+    const target = new DOMPoint(rest.x + (grip.x - rest.x) * blend, rest.y + (grip.y - rest.y) * blend);
     farSeed = solve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 40], [-120, 10]], target, farSeed);
-    pose.armFar += (farSeed.armFar - pose.armFar) * blend;
-    pose.foreFar += (farSeed.foreFar - pose.foreFar) * blend;
+    Object.assign(pose, farSeed);
   }
+  const k = sample("barLen", t);
   const hooks = {
-    hand: shown ? c => {
-      const k = sample("barLen", t);
+    hand: sample("barShown", t) >= 0.5 ? c => {
       c.save();
       c.rotate(BAR_TILT);
-      drawCrowbar(270 * k, 16, 60 * k);
+      drawCrowbar(c, BAR.reach * k, BAR.width, BAR.butt * k);
       c.restore();
     } : null
   };
-  floorShadow(x, 70);
-  placeRobot(sideRoot, x, FLOOR + bob, SIDE_AX, pose, hooks);
+  floorShadow(X, 70);
+  placeRobot(sideRoot, robotMatrix(SIDE_AX), pose, hooks);
 }
 
-const BACK_X = RB.backShotX;
-const BAR_REACH = RB.barReach;
 const PULL_ARM = RB.pullArmDeg;
 const PULL_FORE = RB.pullForeDeg;
-
-function toWorld(pt) {
-  return { x: BACK_X + K * (pt.x - AX), y: FLOOR + K * (pt.y - FOOT_Y) };
-}
-
-function toRobot(pt) {
-  return new DOMPoint(AX + (pt.x - BACK_X) / K, FOOT_Y + (pt.y - FLOOR) / K);
-}
 
 function drawBack(t) {
   const pry = sample("pry", t);
   const pull = { arm: PULL_ARM * pry, fore: PULL_FORE * pry };
   const pose = {
-    body: -2 * pry,
     armL: -12 + pull.arm, foreL: -70 + pull.fore,
     armR: -20 + pull.arm, foreR: -64 + pull.fore
   };
-  const hand = name => toWorld(locate(backRoot, name, pose).transformPoint(new DOMPoint(0, 0)));
-  const end = hand("handL");
-  const fist = hand("handR");
-  const len = Math.hypot(fist.x - end.x, fist.y - end.y);
-  const dir = { x: (fist.x - end.x) / len, y: (fist.y - end.y) / len };
+  const m = robotMatrix(AX, -2 * pry);
+  const end = locate(backRoot, "handL", pose, m).transformPoint(ORIGIN);
+  const fist = locate(backRoot, "handR", pose, m).transformPoint(ORIGIN);
   ctx.save();
   ctx.translate(end.x, end.y);
-  ctx.rotate(Math.atan2(dir.y, dir.x));
-  drawCrowbar(len + BAR_REACH, 7.5);
+  ctx.rotate(Math.atan2(fist.y - end.y, fist.x - end.x));
+  ctx.scale(K, K);
+  drawCrowbar(ctx, BAR.reach, BAR.width, BAR.butt);
   ctx.restore();
-  floorShadow(BACK_X, 90);
-  placeRobot(backRoot, BACK_X, FLOOR, AX, pose, {});
+  floorShadow(X, 90);
+  placeRobot(backRoot, m, pose, {});
 }
 
 function render(t) {
@@ -314,12 +289,8 @@ function render(t) {
   const cx = sample("camX", t) + Math.sin(t * 90) * sh * 0.4;
   const cy = sample("camY", t) + Math.cos(t * 77) * sh * 0.4;
   ctx.setTransform(s * z, 0, 0, s * z, ox + (W / 2 - cx * z) * s, oy + (H / 2 - cy * z) * s);
-  camM = ctx.getTransform();
-  lineScale = Math.max(1, s * z * 0.9);
   drawWorld(t);
-  const shot = sample("shot", t);
-  if (shot === "C") drawBack(t); else drawProfile(t);
-  if (shot === "A") drawForeground();
+  if (sample("shot", t) === "C") drawBack(t); else drawProfile(t);
   ctx.restore();
 }
 

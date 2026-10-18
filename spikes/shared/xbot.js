@@ -208,17 +208,17 @@ function legOne(parent, kind, right) {
 function backLeg(s, right) {
   const M = p => right ? mirrorPts(p) : p;
   const sfx = right ? "R" : "L";
-  const thigh = G(G(s, null, "leg" + sfx, [AX, 344]), null, "thigh" + sfx, [AX, 344]);
+  const hx = right ? 2 * AX - LEG_CX - LEG_SHIFT : LEG_CX + LEG_SHIFT;
+  const thigh = G(G(s, null, "leg" + sfx, [hx, 344]), null, "thigh" + sfx, [hx, 344]);
   P(legOne(thigh, "thigh", right), { ...leg.piston, pts: M(leg.piston.pts) });
   F(legOne(thigh, "thigh", right), M(leg.pistonRing), "m1");
   P(legOne(thigh, "thigh", right), { ...leg.thigh, pts: M(leg.thigh.pts) });
-  const lower = G(s, null, "shin" + sfx, [AX, 522]);
+  const lower = G(s, null, "shin" + sfx, [hx, 522]);
   P(legOne(lower, "shin", right), { pts: M([[162, 500], [264, 500], [280, 690], [148, 690]]), r: 1 });
   for (let i = 0; i < 4; i++) F(legOne(lower, "shin", right), M([[176, 560 + i * 26], [252, 560 + i * 26], [254, 566 + i * 26], [174, 566 + i * 26]]), "a0");
   P(legOne(lower, "knee", right), { pts: M([[178, 456], [244, 456], [246, 512], [176, 512]]), mat: "metal", shade: "cyl", r: 1 });
   P(legOne(lower, "foot", right), { pts: M([[146, 688], [282, 688], [290, 714], [286, 744], [142, 744], [136, 714]]), mat: "metal", r: 1 });
-  if (right) hook(G(lower, `translate(${2 * AX - 211} 744)`), "footR");
-  else hook(G(lower, "translate(211 744)"), "footL");
+  hook(G(lower, `translate(${hx} 744)`), "foot" + sfx);
 }
 
 function bodyGroup(parent) {
@@ -341,7 +341,7 @@ function buildBack({ leftArmBehind = false, rightForeBehind = false, thumbsBehin
 
 function backTree({ leftArmBehind, rightForeBehind, thumbsBehind, forearmsUnder }) {
   const root = { k: "g", kids: [] };
-  const s = G(root, null, "body", [AX, FOOT_Y]);
+  const s = G(root, null, "body", [AX, 344]);
   if (leftArmBehind) frontArm(bodyGroup(s), false, { arm: "armL", fore: "foreL", hand: "handL" }, !thumbsBehind);
   const behindRight = rightForeBehind ? bodyGroup(s) : null;
   P(bodyGroup(s), { pts: [[198, 318], [442, 318], [442, 372], [198, 372]], mat: "chrome", shade: "hcyl", r: 6 });
@@ -362,26 +362,27 @@ function backTree({ leftArmBehind, rightForeBehind, thumbsBehind, forearmsUnder 
   const arms = bodyGroup(s);
   if (!leftArmBehind) frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" }, !thumbsBehind, null, false, forearmsUnder);
   frontArm(arms, true, { arm: "armR", fore: "foreR", hand: "handR" }, !rightForeBehind && !thumbsBehind, behindRight, rightForeBehind, forearmsUnder);
+  hook(G(s, `translate(330 236) rotate(${-0.95 * 180 / Math.PI}) translate(-40 -60)`), "back");
   return root;
 }
 
 function sideLeg(parent, names, extra) {
   const sx = 0.88 * bulk("sideLegs");
   const hip = G(parent, null, names.hip, [300, 344], extra);
-  const th = G(hip, legTf("thigh", 296, sx));
+  const th = G(hip, legTf("thigh", SIDE_AX, sx));
   P(th, { pts: [[278, 342], [314, 342], [314, 440], [278, 440]], mat: "chrome", shade: "cyl", r: 1 });
   P(th, { pts: [[246, 338], [278, 338], [278, 432], [314, 432], [314, 338], [342, 338], [346, 452], [334, 468], [258, 468], [246, 452]], r: 1 });
   const knee = G(hip, null, names.knee, [300, 522]);
-  const sh = G(knee, legTf("shin", 296, sx));
+  const sh = G(knee, legTf("shin", SIDE_AX, sx));
   P(sh, { pts: [[256, 500], [340, 500], [354, 690], [240, 690]], r: 1 });
   P(sh, { pts: [[298, 540], [312, 540], [316, 660], [298, 660]], mat: "metal", shade: "none", r: 1 });
   const ankle = G(knee, null, names.ankle, [300, 700]);
-  const ft = G(ankle, legTf("foot", 300, 0.88));
+  const ft = G(ankle, legTf("foot", SIDE_AX, 0.88));
   P(ft, { pts: [[204, 688], [384, 688], [402, 712], [398, 744], [202, 744]], mat: "metal", r: 1 });
   P(ft, { pts: [[300, 688], [384, 688], [396, 706], [300, 706]], r: 1 });
   if (names.heel) hook(G(ankle, "translate(220 744)"), names.heel);
   if (names.toe) hook(G(ankle, "translate(380 744)"), names.toe);
-  const kn = G(knee, legTf("knee", 300, sx));
+  const kn = G(knee, legTf("knee", SIDE_AX, sx));
   E(kn, 300, 486, 30, 30, "m1");
   E(kn, 294, 480, 12, 12, "m3");
   P(kn, { pts: [[300, 448], [340, 452], [362, 478], [362, 510], [344, 534], [318, 532], [310, 500]], mat: "chrome", r: 1 });
@@ -403,12 +404,12 @@ function sideArm(parent, names, extra) {
   const arm = G(parent, "translate(2 -4)", names.arm, [300, 150], extra);
   P(arm, { pts: [[288, 274], [334, 274], [334, 294], [288, 294]], mat: "metal", shade: "cyl", r: 1 });
   const lower = G(arm, "translate(0 -22) rotate(-18 311 288)", names.fore, [311, 288]);
-  if (names.hand && extra?.propBehindArm) hook(G(lower, "translate(312 446)"), names.hand);
+  if (names.hand && extra?.propBehindArm) hook(G(lower, "translate(312 438)"), names.hand);
   const fa = G(lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
   P(fa, { pts: [[262, 290], [358, 286], [366, 302], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
   F(fa, [[264, 352], [366, 350], [366, 354], [264, 356]], "a0");
   F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
-  const hand = G(lower, "translate(312 446)");
+  const hand = G(lower, "translate(312 438)");
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
   sideHand(lower);
   const bulbs = G(arm, `translate(${SS.cx} 0) scale(${bulk("arms")} 1) translate(${-SS.cx} 0) ${SIDE_SHOULDER_TF}`);
@@ -439,9 +440,9 @@ function sideTree({ farLimbs, badge, propBehindArm }) {
   P(upperTorso, { pts: [[194, 112], [406, 112], [388, 330], [212, 330]], mat: "metal", r: 2 });
   const sideChestPlate = [[352, 104], [400, 104], [412, 118], [412, 212], [402, 240], [386, 248], [368, 236], [352, 220]];
   P(upperTorso, { pts: mirrorPts(sideChestPlate, SIDE_AX), r: 12 });
-  hook(upperTorso, "back");
+  hook(G(upperTorso, `translate(218 170) scale(${1 / SIDE_TORSO_SX} 1) rotate(30)`), "back");
   P(upperTorso, { pts: sideChestPlate, r: 12 });
-  if (badge) trefoil(upperTorso, 400, 160, BADGE_R, 0.5 / SIDE_TORSO_SX, 0.68);
+  if (badge) trefoil(upperTorso, 400, 150, BADGE_R, 0.5 / SIDE_TORSO_SX, 0.68);
   const head = G(s, "translate(-28 0)", "head", [320, 156]);
   P(head, { pts: [[300, 100], [336, 100], [340, 160], [304, 160]], mat: "metal", shade: "none", r: 4 });
   P(head, { pts: [[312, 96], [336, 96], [338, 120], [310, 120]], mat: "metal", shade: "cyl", r: 2 });

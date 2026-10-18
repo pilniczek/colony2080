@@ -22,9 +22,9 @@ const partSets = new Map();
 const partsFor = length => partSets.get(length) || partSets.set(length, buildParts(length)).get(length);
 const PARTS = partsFor(BARREL.length);
 
-const MAT = { m: ["m0", "m1", "m2", "m3"], c: ["c0", "c1", "c2", "c3"], a: ["a0", "a1", "a2", "a3"] };
+const MAT = { m: ["m0", "m1", "m2", "m3", "mLine"], c: ["c0", "c1", "c2", "c3", "mLine"], a: ["a0", "a1", "a2", "a3", "aLine"] };
 const MUZZLE = [BARREL.x + BARREL.length + 2, -40];
-const SUPPORT = [BARREL.x + 40, -2];
+const SUPPORT = [BARREL.x - 6, -10];
 
 const fills = new WeakMap();
 
@@ -43,12 +43,13 @@ function bandFill(ctx, p, tones, simple) {
 }
 
 function part(ctx, p, pal, lineW, simple) {
-  const tones = MAT[p.mat].map(k => pal[k]);
+  const [c0, c1, c2, c3, line] = MAT[p.mat].map(k => pal[k]);
+  const tones = [c0, c1, c2, c3];
   ctx.fillStyle = bandFill(ctx, p, tones, simple);
   ctx.fillRect(p.x, p.y, p.w, p.h);
   if (lineW) {
     const t = ctx.getTransform();
-    ctx.strokeStyle = pal.mLine;
+    ctx.strokeStyle = line;
     ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
     ctx.strokeRect(p.x, p.y, p.w, p.h);
   }
@@ -69,11 +70,12 @@ function hook(ctx, opts) {
   ctx.restore();
 }
 
+let slungAt = null;
+
 function slung(ctx, opts) {
+  slungAt ||= window.XBOT.locate(window.XBOT.buildBack(), "back");
   ctx.save();
-  ctx.translate(330, 236);
-  ctx.rotate(-0.95);
-  ctx.translate(-40, -60);
+  ctx.transform(slungAt.a, slungAt.b, slungAt.c, slungAt.d, slungAt.e, slungAt.f);
   hook(ctx, opts);
   ctx.restore();
 }
