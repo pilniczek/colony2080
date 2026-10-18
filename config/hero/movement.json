@@ -1,0 +1,18 @@
+{
+  "status": "draft",
+  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md",
+  "cellPx": 24,
+  "heroHeightCells": 1.9,
+  "floorHeightCells": 7,
+  "box": { "width": 0.7, "height": 1.9, "duckHeight": 1.2 },
+  "gravity": 30,
+  "maxFallSpeed": 18,
+  "jump": { "standHeight": 1.0, "runHeight": 1.2, "runSpeed": 6.5 },
+  "fallDeathCells": 7,
+  "ladderSpeed": 2.0,
+  "liftSpeed": 2.5,
+  "inputBufferMs": 150,
+  "fireRate": 12,
+  "energy": { "max": 100, "hit": 25 },
+  "respawnMs": 2000
+}
