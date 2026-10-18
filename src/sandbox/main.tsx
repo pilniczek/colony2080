@@ -19,6 +19,7 @@ const MAX_STEPS = 5;
 const SNAP_CELLS = 1;
 const LOG_SIZE = 8;
 const FPS_SMOOTHING = 0.1;
+const MAX_PANEL_SHARE = 0.5;
 
 const canvas = document.getElementById("game");
 const ui = document.getElementById("ui");
@@ -37,10 +38,17 @@ input.attach(window);
 let prev = { x: hero.x, y: hero.y };
 let view: ViewTransform = { scale: 1, offsetX: 0, offsetY: 0 };
 
+const freeWidth = (dpr: number): number => {
+  const panel = ui.querySelector("[data-panel]");
+  const reserved = panel ? panel.getBoundingClientRect().width * dpr : 0;
+  return reserved < canvas.width * MAX_PANEL_SHARE ? canvas.width - reserved : canvas.width;
+};
+
 const fit = (): void => {
-  resizeCanvas(canvas, devicePixelRatio || 1);
+  const dpr = devicePixelRatio || 1;
+  resizeCanvas(canvas, dpr);
   const { cellPx } = tuning().movement;
-  view = fitView(canvas.width, canvas.height, world.grid.width * cellPx, world.grid.height * cellPx);
+  view = fitView(freeWidth(dpr), canvas.height, world.grid.width * cellPx, world.grid.height * cellPx);
 };
 
 const watchPixelRatio = (): void => {
@@ -178,6 +186,7 @@ useSandbox.subscribe((s, before) => {
 
 fit();
 window.addEventListener("resize", fit);
+new MutationObserver(fit).observe(ui, { childList: true });
 watchPixelRatio();
 loop.start();
 

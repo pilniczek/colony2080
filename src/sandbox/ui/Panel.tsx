@@ -64,7 +64,7 @@ export function Panel({ commands }: { commands: SandboxCommands }) {
       </div>
     );
   return (
-    <aside style={styles.panel}>
+    <aside data-panel style={styles.panel}>
       <div style={{ ...styles.row, justifyContent: "flex-end" }}>
         <Button onClick={() => setOpen(false)}>Hide</Button>
       </div>
