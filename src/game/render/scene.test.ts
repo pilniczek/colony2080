@@ -3,7 +3,8 @@ import { holdPoses } from "../robot/gun";
 import { createHero, type Hero } from "../hero/hero";
 import { createRigs, heroLook } from "../hero/look";
 import { cfg, clips } from "../hero/testWorld";
-import { castsShadow, heroBehindEnemies, weaponHooks } from "./scene";
+import type { Enemy } from "../level/enemy";
+import { castsShadow, heroBehindEnemies, visibleEnemies, viewCells, weaponHooks } from "./scene";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -51,5 +52,28 @@ describe("weapon hooks", () => {
   it("uses the front hand hook in the front view and no hook on the ladder", () => {
     expect(hooks({ state: "hide", hidden: true, weapon: "blaster", blaster: 400, time: 0.05 })).toEqual(["handL"]);
     expect(hooks({ state: "ladder", weapon: "blaster", blaster: 400, onGround: false })).toEqual([]);
+  });
+});
+
+describe("visible enemies", () => {
+  const at = (x: number, y: number) => ({ body: hero({ x, y }) }) as Enemy;
+  const view = { x: 10, y: 10, w: 20, h: 12 };
+
+  it("skips enemies outside the view", () => {
+    const near = at(20, 15);
+    expect(visibleEnemies([at(50, 15), near, at(20, 40)], view, 2)).toEqual([near]);
+  });
+
+  it("keeps an enemy partly inside the margin", () => {
+    const edge = at(31.5, 15);
+    const below = at(20, 23.5);
+    expect(visibleEnemies([edge, below, at(32.5, 15)], view, 2)).toEqual([edge, below]);
+  });
+});
+
+describe("view cells", () => {
+  it("maps the game window through the view transform", () => {
+    const rect = viewCells({ scale: 2, offsetX: -480, offsetY: -240 }, { x: 0, y: 0, w: 960, h: 480 }, 24);
+    expect(rect).toEqual({ x: 10, y: 5, w: 20, h: 10 });
   });
 });

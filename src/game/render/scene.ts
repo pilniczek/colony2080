@@ -282,6 +282,22 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
 
 export const heroBehindEnemies = (hero: Hero): boolean => hero.hidden;
 
+export const viewCells = (view: ViewTransform, screen: Rect, cell: number): Rect => {
+  const unit = view.scale * cell;
+  return { x: (screen.x - view.offsetX) / unit, y: (screen.y - view.offsetY) / unit, w: screen.w / unit, h: screen.h / unit };
+};
+
+export const visibleEnemies = (enemies: Enemy[], view: Rect, margin: number): Enemy[] =>
+  enemies.filter(
+    ({ body }) =>
+      body.x >= view.x - margin && body.x <= view.x + view.w + margin && body.y >= view.y - margin && body.y <= view.y + view.h + margin,
+  );
+
+export interface EnemyView {
+  enemy: Enemy;
+  look: HeroLook;
+}
+
 export function drawScene(
   ctx: CanvasRenderingContext2D,
   world: SandboxWorld,
@@ -291,7 +307,7 @@ export function drawScene(
   cfg: MovementConfig,
   view: ViewTransform,
   alpha: number,
-  enemyLooks: HeroLook[],
+  enemyViews: EnemyView[],
   enemyRigs: Rigs,
   sight: Path2D | null = null,
   lines = 1,
@@ -314,7 +330,7 @@ export function drawScene(
   if (behind) drawHero();
   ctx.save();
   if (sight) ctx.clip(sight);
-  world.enemies.forEach((enemy, i) => enemyFigure(f, enemy, enemyLooks[i]!, enemyRigs, scale, cfg.fireRate));
+  enemyViews.forEach(({ enemy, look: enemyLook }) => enemyFigure(f, enemy, enemyLook, enemyRigs, scale, cfg.fireRate));
   ctx.restore();
   if (!behind) drawHero();
   if (sight) ctx.clip(sight);

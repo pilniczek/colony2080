@@ -17,13 +17,14 @@ import { hudFit, viewRect } from "./hud/layout";
 import { resetWorld, type SandboxWorld } from "./level/sandboxLevel";
 import { drawFog, revealedPath } from "./render/fog";
 import { drawOverlays } from "./render/overlays";
-import { drawScene } from "./render/scene";
+import { drawScene, viewCells, visibleEnemies } from "./render/scene";
 import { snapView } from "./render/snapView";
 import { holdPoses } from "./robot/gun";
 import { stepWorld } from "./stepWorld";
 
 const MAX_STEPS = 5;
 const SNAP_CELLS = 1;
+const ENEMY_MARGIN_CELLS = 2;
 const LOG_SIZE = 8;
 const FPS_SMOOTHING = 0.1;
 const MAX_PANEL_SHARE = 0.5;
@@ -176,7 +177,7 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
       ctx.rect(gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h);
       ctx.clip();
       const sight = world.fog && revealedPath(world.fog, cfg.cellPx);
-      drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, world.enemies.map((e) => heroLook(e.body, clips, enemyRigs, hold, cfg)), enemyRigs, sight, devicePixelRatio || 1, gameWindow);
+      drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => ({ enemy, look: heroLook(enemy.body, clips, enemyRigs, hold, cfg) })), enemyRigs, sight, devicePixelRatio || 1, gameWindow);
       if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx);
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
       drawOver?.(ctx, view, cfg.cellPx);
