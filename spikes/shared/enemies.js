@@ -18,7 +18,6 @@ const GUARD_PALETTE = {
   top0: "#061204", top1: "#0c2008", top2: "#182414", top3: "#2c3c24",
   stripe0: "#163220", stripe1: "#285038", stripe2: "#305840", stripe3: "#406c48",
   light: "#c89a30", glint: "#4a7068",
-  gj0: "#3c341c", gj1: "#786c54", gj2: "#a09c8c", gj3: "#d0c8ac",
   shell0: "#2c3838", shell1: "#404c4c", shell2: "#4c5858", shell3: "#586464", groove: "#202a28", band: "#304040",
   visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
   lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
@@ -33,8 +32,7 @@ Object.assign(MAT, {
   flyerStripe: ["fs0", "fs1", "fs2", "fs3", "fhLine"],
   flyerHump: ["fk0", "fk1", "fk2", "fk3", "fhLine"],
   guardMetal: ["gm0", "gm1", "gm2", "gm3", "gmLine"],
-  guardChrome: ["gc0", "gc1", "gc2", "gc3", "gmLine"],
-  guardJaw: ["gj0", "gj1", "gj2", "gj3", "gmLine"]
+  guardChrome: ["gc0", "gc1", "gc2", "gc3", "gmLine"]
 });
 
 const FIRE_TICKS = 9;
@@ -94,7 +92,7 @@ function sideGun(ctx, x, y, facing, barrel) {
   ctx.restore();
 }
 
-function flyerHull(ctx, { hot = false, hump = true } = {}) {
+function flyerHull(ctx, { hot = false, hump = true, patch = true } = {}) {
   P.poly(ctx, [[4, 14.2], [38, 14.2], [46.5, 13], [38, 15.8], [26, 17.2], [12, 17.4], [4, 16.6], [3.2, 15]], "flyerHull", 0);
   P.poly(ctx, [[4, 11], [26, 11], [47.5, 11.2], [49, 11.8], [46.5, 13], [38, 14.2], [4, 14.2]], "flyerHull", 2);
   P.poly(ctx, [[4, 8], [19, 8.2], [26, 8.4], [26, 11], [4, 11]], "flyerHull", 2);
@@ -109,7 +107,7 @@ function flyerHull(ctx, { hot = false, hump = true } = {}) {
   if (!ENV.simple) {
     for (const x of [10.5, 19, 26]) P.line(ctx, [[x, 11.2], [x, 14]], "fh0", 0.4, "butt");
     P.line(ctx, [[5, 9.5], [9, 9.5]], "fh3", 0.4, "butt");
-    P.flat(ctx, 26.5, 12, 2.5, 1.6, "fPatch");
+    if (patch) P.flat(ctx, 26.5, 12, 2.5, 1.6, "fPatch");
     P.line(ctx, [[20, 3.8], [33, 5]], "fc3", 0.4);
   }
   for (const x of [9, 11.5, 14, 16.5, 19, 21.5, 24]) P.flat(ctx, x, 11.1, 1.2, 1, x === 24 && hot ? "fLightHot" : "fLight");
@@ -179,9 +177,18 @@ const HULL = { nose: 21, rear: 54, top: 9, sx: 33 / 45.8, sy: 24 / 15.2 };
 
 function sideHead(ctx) {
   ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(26, 0);
+  ctx.lineTo(60, 0);
+  ctx.lineTo(60, 60);
+  ctx.lineTo(0, 60);
+  ctx.lineTo(0, 24.2);
+  ctx.lineTo(26, 24.2);
+  ctx.closePath();
+  ctx.clip();
   ctx.translate(HULL.rear + 3.2 * HULL.sx, HULL.top - 2.2 * HULL.sy);
   ctx.scale(-HULL.sx, HULL.sy);
-  flyerHull(ctx, { hump: false });
+  flyerHull(ctx, { hump: false, patch: false });
   ctx.restore();
 
   ctx.fillStyle = ENV.pal.groove;
@@ -192,14 +199,6 @@ function sideHead(ctx) {
   P.line(ctx, [[26, 18.4], [26, 24.2]], "gmLine", 0.4, "butt");
   slit(ctx, HULL.nose, 42, 24.2, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
 
-  fillPath(ctx, c => {
-    c.moveTo(29, 26.8);
-    c.lineTo(38.6, 26.6);
-    c.quadraticCurveTo(40.4, 29.4, 38.8, 32.4);
-    c.quadraticCurveTo(33.5, 33, 31, 31.4);
-    c.quadraticCurveTo(29, 29.6, 29, 26.8);
-  }, grad(ctx, 29, 0, 40, 0, [[0, "gj0"], [0.45, "gj1"], [0.8, "gj2"], [1, "gj3"]]));
-  if (!ENV.simple) P.line(ctx, [[39.2, 27.4], [39.4, 31.4]], "gj3", 0.6);
 }
 
 function frontHead(ctx) {
@@ -242,17 +241,7 @@ function frontHead(ctx) {
   ctx.restore();
   if (!ENV.simple) P.glow(ctx, 0, -31.3, 5, "visorGlow", 0.25);
 
-  fillPath(ctx, c => {
-    c.moveTo(-5, -27.2);
-    c.lineTo(5, -27.2);
-    c.quadraticCurveTo(6.2, -23.5, 3.5, -21.2);
-    c.quadraticCurveTo(0, -20.4, -3.5, -21.2);
-    c.quadraticCurveTo(-6.2, -23.5, -5, -27.2);
-  }, grad(ctx, 0, -27, 0, -21, [[0, "gj3"], [0.3, "gj2"], [0.7, "gj1"], [1, "gj0"]]));
 }
-
-const ARM_GUN = { x: 41, y: 37 };
-const ARM_MUZZLE = (GUN.BARREL.x + GUN.BARREL.length + 2) * GUN_PX;
 
 function guardBody(ctx, fire) {
   P.box(ctx, 50, 1, 1.4, 12, "guardMetal", 2, { vertical: true });
@@ -268,9 +257,14 @@ function guardBody(ctx, fire) {
 
   guardLeg(ctx, 0, 1);
 
-  P.beam(ctx, [44, 25], [40.5, 32], 3, "guardChrome");
-  sideGun(ctx, ARM_GUN.x, ARM_GUN.y, -1, GUN.BARREL.length);
-  if (fire >= 0) flash(ctx, ARM_GUN.x - ARM_MUZZLE, ARM_GUN.y - 40 * GUN_PX, -1, fire, 3.6);
+  P.beam(ctx, [44, 25], [40, 32], 3, "guardChrome");
+  P.box(ctx, 21, 31, 22, 5.5, "guardMetal", 2);
+  if (!ENV.simple) {
+    for (const x of [26, 31, 36]) P.flat(ctx, x, 31, 0.8, 5.5, "gm0");
+    P.line(ctx, [[22, 32.2], [42, 32.2]], "gm3", 0.5, "butt");
+  }
+  P.box(ctx, 20, 31.5, 1.8, 4.5, "guardChrome", 2, { vertical: true });
+  if (fire >= 0) flash(ctx, 20, 33.7, -1, fire, 4.2);
 }
 
 function acidDrips(ctx, t, p) {
@@ -304,7 +298,7 @@ function guardWreck(ctx) {
   P.poly(ctx, [[10, 56], [14, 53], [22, 54.5], [30, 50.5], [40, 52], [48, 49.5], [56, 52], [48, 53.5], [36, 54.5], [24, 57], [14, 58]], "guardChrome", 2, { line: false });
   for (const [a, b] of [[[10, 70], [18, 59]], [[20, 72], [28, 60]], [[24, 66], [32, 64]]]) P.beam(ctx, a, b, 1.6, "rust");
   P.poly(ctx, [[36, 58], [44, 52], [44, 58]], "guardMetal", 2);
-  P.box(ctx, 47, 60, 22, 12, "guardJaw", 1);
+  P.box(ctx, 47, 60, 22, 12, "guardMetal", 1);
   if (!ENV.simple) {
     P.flat(ctx, 48, 62, 6, 2, "gc2");
     P.flat(ctx, 30, 62, 6, 1, "visor");
@@ -362,13 +356,9 @@ function frontLeg(ctx, side, tone) {
 function frontGun(ctx, side, fire) {
   const x = side * 14;
   P.beam(ctx, [side * 9, -28], [x, -23], 3, "guardChrome");
-  P.box(ctx, x - 3.5, -23.5, 7, 7, "guardMetal", 2);
-  P.flat(ctx, x - 0.6, -23.5, 1.2, 7, "fs1");
-  P.disc(ctx, x, -19.6, 2.6, "gc1", "gmLine");
-  for (let i = 0; i < 3; i++) {
-    const a = -Math.PI / 2 + i * Math.PI * 2 / 3;
-    P.disc(ctx, x + Math.cos(a) * 1.3, -19.6 + Math.sin(a) * 1.3, 0.75, "gm0");
-  }
+  P.box(ctx, x - 3.5, -23, 7, 6.5, "guardMetal", 2);
+  P.disc(ctx, x, -19.6, 2.1, "gm0", "gmLine");
+  if (!ENV.simple) P.disc(ctx, x, -19.6, 1, "gc0");
   if (fire >= 0) burst(ctx, x, -19.6, 5, fire);
 }
 
