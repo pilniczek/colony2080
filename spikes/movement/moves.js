@@ -839,14 +839,21 @@ const cells = MOVES.filter(m => m.category === CATEGORY).map(m => {
   const cap = document.createElement("figcaption");
   const b = document.createElement("b");
   const s = document.createElement("span");
+  const meta = document.createElement("div");
+  const track = document.createElement("div");
+  const fill = document.createElement("i");
+  const time = document.createElement("span");
+  meta.className = "progress";
+  track.append(fill);
+  meta.append(track, time);
   cap.append(b, s);
-  fig.append(canvas, cap);
+  fig.append(canvas, meta, cap);
   grid.append(fig);
   if (m.scene) {
     fig.className = "scene";
     fig.onclick = () => window.openCutscene(m.scene);
   }
-  return { m, canvas, ctx: canvas.getContext("2d"), b, s, visible: true };
+  return { m, canvas, ctx: canvas.getContext("2d"), b, s, fill, time, visible: true };
 });
 
 const watcher = new IntersectionObserver(entries => {
@@ -867,15 +874,18 @@ setWeapon(WEAPON);
 function frame(now) {
   const dpr = devicePixelRatio || 1;
   LINE = dpr;
-  for (const { m, canvas, ctx, visible } of cells) {
+  for (const { m, canvas, ctx, fill, time, visible } of cells) {
     if (!visible) continue;
+    const t = (now / 1000) % m.period;
+    fill.style.width = `${(t / m.period) * 100}%`;
+    time.textContent = `${t.toFixed(1)} / ${m.period.toFixed(1)} s`;
     const w = Math.round(canvas.clientWidth * dpr);
     if (canvas.width !== w) { canvas.width = w; canvas.height = Math.round(w * H / W); }
     const s = canvas.width / W;
     ctx.setTransform(s, 0, 0, s, 0, 0);
     ctx.clearRect(0, 0, W, H);
     ctx.save();
-    m.draw(ctx, (now / 1000) % m.period);
+    m.draw(ctx, t);
     ctx.restore();
   }
   requestAnimationFrame(frame);
