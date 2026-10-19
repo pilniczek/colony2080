@@ -78,9 +78,13 @@ export const crowbar: EnvAsset = {
   box: [-2, -8, 28, 0],
   draw(ctx, state) {
     if (state) return scuff(ctx, 2, 22);
-    poly(ctx, [[0, -2.6], [2, -3.6], [3, -2.4], [21, -1.2], [23.5, -5.5], [25.5, -6.6], [26, -5.2], [24, -0.2], [21, 0], [2, -1]], "chrome", 1);
-    if (!P.simple()) flat(ctx, 3, -2.3, 17, 0.4, "c3");
-  },
+    poly(ctx, [[0.4, -1.2], [1.6, -2.4], [20.6, -2.4], [23.2, -6.4], [25.2, -6.9], [25.9, -5.9], [22.6, -0.6], [1.6, -0.6]], "chrome", 1);
+    if (P.simple()) return;
+    flat(ctx, 2, -2.1, 18.4, 0.4, "c3");
+    ctx.beginPath();
+    ctx.moveTo(24.7, -6.6); ctx.lineTo(23.5, -4.6);
+    stroke(ctx, "mLine");
+  }
 };
 
 export const craneKey: EnvAsset = {
@@ -105,20 +109,24 @@ export const craneKey: EnvAsset = {
 
 export const shipPart: EnvAsset = {
   id: "shipPart",
-  box: [-2, -12, 20, 0],
+  box: [-2, -13, 20, 0],
   draw(ctx, state) {
     if (state === 0) return;
     if (state === 2) return scuff(ctx, 1, 16);
-    poly(ctx, [[0, 0], [2, -3], [18, -3], [17, 0]], "chrome", 1);
-    box(ctx, 12, -10, 5.6, 7, "chrome", 2);
-    disc(ctx, 14.8, -6.6, 1.2, "c3", "mLine");
-    box(ctx, 3, -9, 8, 6, "chrome", 1, { vertical: true });
-    for (let x = 4.6; x < 10.5; x += P.simple() ? 3 : 1.6) flat(ctx, x, -9, 0.5, 6, "c0");
+    poly(ctx, [[0, 0], [3, -2.6], [19, -2.6], [16, 0]], "chrome", 1);
+    box(ctx, 2.2, -10, 1.6, 8.6, "chrome", 2, { vertical: true });
+    box(ctx, 3.8, -8.4, 10, 5.6, "chrome", 2);
+    for (let x = 5.4; x < 13.5; x += P.simple() ? 3.2 : 1.6) flat(ctx, x, -8.4, 0.45, 5.6, "c0");
+    if (!P.simple()) flat(ctx, 3.8, -7.4, 10, 0.5, "c3");
+    flat(ctx, 3.8, -10, 10, 0.6, "c1", "mLine");
+    box(ctx, 13.8, -11, 2, 9.6, "chrome", 1, { vertical: true });
+    for (const y of [-9.4, -4] as const) disc(ctx, 14.8, y, 0.55, "c3", "mLine");
     ctx.save();
     ctx.lineCap = "round";
-    for (const x of [4.4, 6.8, 9.2] as const) {
+    for (const [x, top] of [[6.4, -12.2], [9.2, -12.6]] as const) {
       ctx.beginPath();
-      ctx.ellipse(x, -9, 1, 2.6, 0.25, PI, PI * 2);
+      ctx.moveTo(x, -8.4);
+      ctx.bezierCurveTo(x, top, 13.4, top, 14.4, -10.6);
       ctx.strokeStyle = color("aLine");
       ctx.lineWidth = 1.1;
       ctx.stroke();
@@ -187,26 +195,25 @@ export const wires: EnvAsset = {
 
 export const tapHandle: EnvAsset = {
   id: "tapHandle",
-  box: [-2, -14, 14, 0],
+  box: [-2, -12, 14, 0],
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 12);
-    box(ctx, 4.6, -3.6, 2.8, 3.6, "chrome", 2, { vertical: true });
-    box(ctx, 5.4, -12.2, 1.2, 9.2, "chrome", 1, { vertical: true });
-    box(ctx, 0.6, -8.2, 10.8, 1.2, "chrome", 1);
+    box(ctx, 5.4, -9.6, 1.2, 9.2, "chrome", 1, { vertical: true });
+    box(ctx, 0.6, -5.6, 10.8, 1.2, "chrome", 1);
     ctx.beginPath();
-    ctx.ellipse(6, -7.6, 5.6, 5, 0, 0, PI * 2);
-    ctx.ellipse(6, -7.6, 4.3, 3.8, 0, 0, PI * 2);
+    ctx.ellipse(6, -5, 5.6, 5, 0, 0, PI * 2);
+    ctx.ellipse(6, -5, 4.3, 3.8, 0, 0, PI * 2);
     ctx.fillStyle = color("c1");
     ctx.fill("evenodd");
     stroke(ctx, "mLine");
     if (!P.simple()) {
       ctx.beginPath();
-      ctx.ellipse(6, -7.6, 4.95, 4.4, 0, PI * 1.05, PI * 1.7);
+      ctx.ellipse(6, -5, 4.95, 4.4, 0, PI * 1.05, PI * 1.7);
       ctx.strokeStyle = color("c3");
       ctx.lineWidth = 0.5;
       ctx.stroke();
     }
-    disc(ctx, 6, -7.6, 1.8, "c0", "mLine");
+    disc(ctx, 6, -5, 1.8, "c0", "mLine");
   }
 };
 
