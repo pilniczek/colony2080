@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Phase 1b: engine core and movement sandbox built, awaiting feel sign-off, for a browser clone of Colony 28 (1996/97 Czech DOS cinematic side-scroller).
+Phase 1b: engine core and movement sandbox built, feel signed off (2026-10-19), for a browser clone of Colony 28 (1996/97 Czech DOS cinematic side-scroller).
 
 - `docs/requirements.md` - decision log and open questions. Source of truth for what is decided. Design spec: `docs/superpowers/specs/2026-10-17-colony2080-design.md` (phases, movement set). Phase 1b plan: `docs/superpowers/plans/2026-10-17-engine-core-movement-sandbox.md` (built).
 - `WORK-REPORT.md` - local session handoff (gitignored): open follow-ups and abandoned approaches.
