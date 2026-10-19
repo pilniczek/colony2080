@@ -244,18 +244,24 @@ function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs):
   if (muzzle) star(ctx, [muzzle[0] + FLASH.ahead, muzzle[1]], FLASH.radius, FLASH.k);
 }
 
+export function weaponHooks(look: HeroLook, lineW: number): Record<string, HookDraw> {
+  const front = look.view === "front";
+  const hooks: Record<string, HookDraw> = {};
+  if (look.gun === "hand") hooks[front ? "handL" : "hand"] = (c, pal) => MODELS[look.hand].hook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
+  const back = look.back;
+  if (back && look.view === "side") hooks.back = (c, pal) => MODELS[back].hook(c, pal, { lineW, simple: true });
+  return hooks;
+}
+
 function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number, flash: boolean, base: Palette = ROBOT.palette): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(base, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : base;
-  const front = look.view === "front";
-  const gun: HookDraw = (c, pal) => MODELS[look.hand].hook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
-  const hooks: Record<string, HookDraw> = {};
-  if (look.gun === "hand") hooks[front ? "handL" : "hand"] = gun;
+  const hooks = weaponHooks(look, lineW);
   if (look.gun === "dropped") droppedGun(f, hero, look, scale, palette);
   ctx.save();
   toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
-  if (look.gun === "slung") MODELS[look.back].slung(ctx, palette, { lineW, simple: true });
+  if (look.gun === "slung") MODELS[look.hand].slung(ctx, palette, { lineW, simple: true });
   if (flash) muzzleFlash(ctx, look, rigs);
   if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();

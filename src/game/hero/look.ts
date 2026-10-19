@@ -25,7 +25,7 @@ export interface HeroLook {
   pose: Pose;
   gun: GunLook;
   hand: GunModel;
-  back: GunModel;
+  back: GunModel | null;
   rot: number;
   tint: number;
   lift: number;
@@ -192,16 +192,18 @@ export const spikeUnit = (cfg: MovementConfig): number => heroScale(cfg) / SPIKE
 
 const handModel = (h: Hero): GunModel => (h.weapon === "blaster" ? "blaster" : "gun");
 
-const backModel = (h: Hero): GunModel => (h.weapon === "gun" && h.blaster !== null ? "blaster" : "gun");
-
-const models = (h: Hero): { hand: GunModel; back: GunModel } => ({ hand: handModel(h), back: backModel(h) });
+const backModel = (h: Hero): GunModel | null => {
+  if (h.weapon === "blaster") return "gun";
+  return h.weapon === "gun" && h.blaster !== null ? "blaster" : null;
+};
 
 const ladderLook = (h: Hero, rigs: Rigs, cfg: MovementConfig): HeroLook => ({
   view: "back",
   flip: false,
   pose: climbPose(climberOf(rigs.climber), (h.climb * cfg.cellPx) / spikeUnit(cfg)),
   gun: holdsGun(h.weapon) ? "slung" : "none",
-  ...models(h),
+  hand: handModel(h),
+  back: null,
   rot: 0,
   tint: 0,
   lift: 0,
@@ -301,7 +303,8 @@ const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: Movement
     flip: view === "side" && h.facing < 0,
     pose: h.hidden && view === "front" ? { ...held.pose, ...lookToward(h.facing) } : held.pose,
     gun: held.gun,
-    ...models(h),
+    hand: handModel(h),
+    back: backModel(h),
     rot,
     tint: h.hidden ? 1 : clip.tint ? num(clip.tint, t, (k) => k) : 0,
     lift: moving?.lift ?? grounding(h, clip, held.pose, rot, rigs.side, t),

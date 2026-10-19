@@ -485,6 +485,7 @@ function quickSwitch(s: Step): void {
 
 function arm(h: Hero, weapon: Weapon): void {
   h.weapon = weapon;
+  h.switchTo = weapon;
   h.fireTime = null;
 }
 

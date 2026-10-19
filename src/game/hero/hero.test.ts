@@ -32,7 +32,7 @@ describe("blaster select", () => {
     for (const from of ["fists", "gun"] as const) {
       const g = armed(from, cfg.blaster.ammo);
       tick(g, [], ["weapon3"]);
-      expect(g.hero).toMatchObject({ state: "idle", weapon: "blaster" });
+      expect(g.hero).toMatchObject({ state: "idle", weapon: "blaster", switchTo: "blaster" });
     }
   });
 

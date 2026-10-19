@@ -9,7 +9,6 @@ import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./her
 import { ENEMY_SHOT, hitEnemy, isDead, type Enemy } from "./level/enemy";
 import type { Prop, SandboxWorld } from "./level/sandboxLevel";
 import { applyBlocks, say } from "./level/tasks";
-import { EBLASTER_MUZZLE_IN_HOOK } from "./robot/eblaster";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { ROBOT } from "./robot/xbot";
 
@@ -31,7 +30,7 @@ export function muzzleInRig(look: HeroLook, rigs: Rigs): Pt | null {
   if (look.gun !== "hand") return null;
   const front = look.view === "front";
   const mat = locate(front ? rigs.front : rigs.side, front ? "handL" : "hand", look.pose);
-  return mat ? apply(mat, look.hand === "blaster" ? EBLASTER_MUZZLE_IN_HOOK : MUZZLE_IN_HOOK) : null;
+  return mat ? apply(mat, MUZZLE_IN_HOOK) : null;
 }
 
 export function heroMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {

@@ -3,7 +3,7 @@ import { holdPoses } from "../robot/gun";
 import { createHero, type Hero } from "../hero/hero";
 import { createRigs, heroLook } from "../hero/look";
 import { cfg, clips } from "../hero/testWorld";
-import { castsShadow, heroBehindEnemies } from "./scene";
+import { castsShadow, heroBehindEnemies, weaponHooks } from "./scene";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -32,5 +32,24 @@ describe("draw order", () => {
     expect(heroBehindEnemies(hero({ state: "hide", hidden: true }))).toBe(true);
     expect(heroBehindEnemies(hero({ state: "weaponSwitch", hidden: true }))).toBe(true);
     for (const state of ["idle", "walk", "duck"] as const) expect(heroBehindEnemies(hero({ state })), state).toBe(false);
+  });
+});
+
+describe("weapon hooks", () => {
+  const hooks = (patch: Partial<Hero>): string[] => {
+    const h = hero(patch);
+    return Object.keys(weaponHooks(heroLook(h, clips, rigs, hold, cfg), 1)).sort();
+  };
+
+  it("draws the other owned gun on the side back hook", () => {
+    expect(hooks({ state: "idle", weapon: "blaster", blaster: 400 })).toEqual(["back", "hand"]);
+    expect(hooks({ state: "idle", weapon: "gun", blaster: 400 })).toEqual(["back", "hand"]);
+    expect(hooks({ state: "idle", weapon: "gun" })).toEqual(["hand"]);
+    expect(hooks({ state: "idle", weapon: "fists", blaster: 400 })).toEqual([]);
+  });
+
+  it("has no back hook in the front view or on the ladder", () => {
+    expect(hooks({ state: "hide", hidden: true, weapon: "blaster", blaster: 400, time: 0.05 })).toEqual(["handL"]);
+    expect(hooks({ state: "ladder", weapon: "blaster", blaster: 400, onGround: false })).toEqual([]);
   });
 });
