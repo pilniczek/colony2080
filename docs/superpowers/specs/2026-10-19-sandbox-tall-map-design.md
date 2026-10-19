@@ -24,6 +24,7 @@ User:
 - Twice the height, more platforms and elevators.
 - Camera: the hero stays in the middle of the view. At a map border the view stops and the hero keeps moving toward the edge. Same rule horizontally and vertically.
 - The invisible ceiling above row 0 stays.
+- An elevator is always at the hero's level when the hero reaches its shaft; the hero never stands beside an empty shaft. The map guarantees it: a lift's two stop floors connect only through that lift (no walk, ladder, other lift, jump or drop between them in either direction, deadly drops included, since the hero respawns while the lift stays). Each lift starts at the stop on the spawn side. Where a floor edge would allow such a path, solid obstacles (railings, parapets, walls) block it. A reachability test enforces the rule for every lift.
 - Widen the map slightly so horizontal camera movement shows. The extra width adds no interactive elements: no elevators, ladders, props or enemies there, only floor, walls and scenery.
 
 Claude's call:
