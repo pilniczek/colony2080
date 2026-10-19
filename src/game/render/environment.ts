@@ -6,6 +6,7 @@ import type { Hero } from "../hero/hero";
 import { RUNG, spikeUnit } from "../hero/look";
 import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
+import type { Rect as CellRect, Run } from "../level/terrain";
 import { onGround, type Lift, type Prop, type SandboxWorld, type Scenery } from "../level/sandboxLevel";
 import { nearestFirst, TileCache, TILE_PX, visibleTiles } from "./tiles";
 
@@ -24,6 +25,18 @@ const CULL_PAD_CELLS = 1;
 
 const layers = new WeakMap<SandboxWorld, Record<string, TileCache<HTMLCanvasElement>>>();
 
+type Lookup = (col: number, row: number) => readonly unknown[];
+
+const indexes = new WeakMap<SandboxWorld, { key: string; lookups: Map<string, Lookup> }>();
+
+interface LadderRun {
+  col: number;
+  row: number;
+  end: number;
+}
+
+const ladderRuns = new WeakMap<SandboxWorld, LadderRun[]>();
+
 export interface Env {
   ctx: CanvasRenderingContext2D;
   world: SandboxWorld;
@@ -33,9 +46,47 @@ export interface Env {
   lines: number;
   screen: Rect;
   clip?: Rect;
+  tile?: { col: number; row: number; px: number };
 }
 
-const near = (e: Env, x: number, y: number, w: number, h: number): boolean => {
+export function bucketByTile<T>(items: readonly T[], boxOf: (item: T) => Rect, tilePx: number): (col: number, row: number) => T[] {
+  const buckets = new Map<string, T[]>();
+  for (const item of items) {
+    const { x, y, w, h } = boxOf(item);
+    for (let row = Math.floor(y / tilePx); row <= Math.floor((y + h) / tilePx); row++) {
+      for (let col = Math.floor(x / tilePx); col <= Math.floor((x + w) / tilePx); col++) {
+        const id = `${col},${row}`;
+        const bucket = buckets.get(id);
+        if (bucket) bucket.push(item);
+        else buckets.set(id, [item]);
+      }
+    }
+  }
+  return (col, row) => buckets.get(`${col},${row}`) ?? [];
+}
+
+function pick<T>(e: Env, name: string, items: readonly T[], boxOf: (e: Env, item: T) => Rect): readonly T[] {
+  const { tile, world, cell } = e;
+  if (!tile) return items;
+  const key = `${cell}|${tile.px}`;
+  let own = indexes.get(world);
+  if (own?.key !== key) {
+    own = { key, lookups: new Map() };
+    indexes.set(world, own);
+  }
+  let lookup = own.lookups.get(name);
+  if (!lookup) {
+    const pad = CULL_PAD_CELLS * cell + 1;
+    lookup = bucketByTile(items, (item) => {
+      const { x, y, w, h } = boxOf(e, item);
+      return { x: x - pad, y: y - pad, w: w + 2 * pad, h: h + 2 * pad };
+    }, tile.px);
+    own.lookups.set(name, lookup);
+  }
+  return lookup(tile.col, tile.row) as readonly T[];
+}
+
+const near = (e: Env, { x, y, w, h }: Rect): boolean => {
   const { clip } = e;
   const pad = CULL_PAD_CELLS * e.cell;
   return !clip || (x - pad < clip.x + clip.w && x + w + pad > clip.x && y - pad < clip.y + clip.h && y + h + pad > clip.y);
@@ -86,7 +137,7 @@ function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: num
   ctx.translate(-col * TILE_PX, -row * TILE_PX);
   ctx.scale(scale, scale);
   const clip = { x: (col * TILE_PX) / scale, y: (row * TILE_PX) / scale, w: canvas.width / scale, h: canvas.height / scale };
-  paint({ ...e, ctx, clip });
+  paint({ ...e, ctx, clip, tile: { col, row, px: TILE_PX / scale } });
   return canvas;
 }
 
@@ -113,33 +164,43 @@ function cached(e: Env, name: string, paint: (off: Env) => void): void {
 
 export function below(e: Env): void {
   sky(e);
-  scenery(e, e.world.backdrop);
+  scenery(e, "backdrop", e.world.backdrop);
   haze(e);
   terrain(e);
 }
 
 export function above(e: Env): void {
   ladders(e);
-  scenery(e, e.world.dressing);
+  scenery(e, "dressing", e.world.dressing);
 }
 
-function scenery(e: Env, items: Scenery[]): void {
-  for (const s of items) {
-    const x = s.x * e.cell;
-    const y = (s.y ?? e.world.spawn[1]) * e.cell;
-    const [left, top, right, bottom] = ASSETS[s.asset].box;
-    if (near(e, x + left * k(e), y + top * k(e), (right - left) * k(e), (bottom - top) * k(e))) put(e, s.asset, x, y, s.state ?? 0);
+const sceneryAt = (e: Env, s: Scenery): [number, number] => [s.x * e.cell, (s.y ?? e.world.spawn[1]) * e.cell];
+
+const sceneryBox = (e: Env, s: Scenery): Rect => {
+  const [x, y] = sceneryAt(e, s);
+  const [left, top, right, bottom] = ASSETS[s.asset].box;
+  return { x: x + left * k(e), y: y + top * k(e), w: (right - left) * k(e), h: (bottom - top) * k(e) };
+};
+
+function scenery(e: Env, name: string, items: Scenery[]): void {
+  for (const s of pick(e, name, items, sceneryBox)) {
+    const [x, y] = sceneryAt(e, s);
+    if (near(e, sceneryBox(e, s))) put(e, s.asset, x, y, s.state ?? 0);
   }
 }
+
+const wallBox = ({ cell }: Env, r: CellRect): Rect => ({ x: r.col * cell, y: r.row * cell, w: r.w * cell, h: r.h * cell });
+
+const runBox = ({ cell }: Env, r: Run): Rect => ({ x: r.col * cell, y: r.row * cell, w: r.w * cell, h: cell });
 
 function terrain(e: Env): void {
   const { cell } = e;
   const { walls, ledges, girders } = e.world.terrain;
-  for (const r of walls) {
-    if (near(e, r.col * cell, r.row * cell, r.w * cell, r.h * cell)) put(e, "brickWall", r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
+  for (const r of pick(e, "walls", walls, wallBox)) {
+    if (near(e, wallBox(e, r))) put(e, "brickWall", r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   }
-  for (const r of ledges) if (near(e, r.col * cell, r.row * cell, r.w * cell, cell)) put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
-  for (const r of girders) if (near(e, r.col * cell, r.row * cell, r.w * cell, cell)) put(e, "girderBridge", r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
+  for (const r of pick(e, "ledges", ledges, runBox)) if (near(e, runBox(e, r))) put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
+  for (const r of pick(e, "girders", girders, runBox)) if (near(e, runBox(e, r))) put(e, "girderBridge", r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
 }
 
 function lift(e: Env, l: Lift, alpha: number): void {
@@ -149,19 +210,31 @@ function lift(e: Env, l: Lift, alpha: number): void {
   put(e, "lift", l.x * cell, l.bottom * cell, 0, size);
 }
 
-function ladders(e: Env): void {
-  const { cell, unit } = e;
-  const { grid } = e.world;
-  const [from, to] = columns(e, cell, grid.width);
-  for (let col = from; col < to; col++) {
+function runsOf(world: SandboxWorld): LadderRun[] {
+  const known = ladderRuns.get(world);
+  if (known) return known;
+  const { grid } = world;
+  const runs: LadderRun[] = [];
+  for (let col = 0; col < grid.width; col++) {
     for (let row = 0; row < grid.height; row++) {
       if (!grid.ladderTop(col, row)) continue;
       let end = row;
       while (grid.at(col, end) === "H") end++;
-      if (!near(e, col * cell, row * cell, cell, (end - row) * cell)) continue;
-      const size = { h: px(e, (end - row) * cell), w: px(e, LADDER_W * unit), rung: px(e, RUNG * unit) };
-      put(e, "ladder", (col + 0.5) * cell - (LADDER_W / 2) * unit, end * cell, 0, size);
+      runs.push({ col, row, end });
     }
+  }
+  ladderRuns.set(world, runs);
+  return runs;
+}
+
+const ladderBox = ({ cell }: Env, { col, row, end }: LadderRun): Rect => ({ x: col * cell, y: row * cell, w: cell, h: (end - row) * cell });
+
+function ladders(e: Env): void {
+  const { cell, unit } = e;
+  for (const r of pick(e, "ladders", runsOf(e.world), ladderBox)) {
+    if (!near(e, ladderBox(e, r))) continue;
+    const size = { h: px(e, (r.end - r.row) * cell), w: px(e, LADDER_W * unit), rung: px(e, RUNG * unit) };
+    put(e, "ladder", (r.col + 0.5) * cell - (LADDER_W / 2) * unit, r.end * cell, 0, size);
   }
 }
 

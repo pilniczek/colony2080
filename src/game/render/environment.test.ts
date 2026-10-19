@@ -1,11 +1,19 @@
 import sandboxJson from "@config/levels/sandbox.json";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ITEMS } from "../items";
+import { loadMesto } from "../level/mesto";
 import { loadSandbox, type Prop } from "../level/sandboxLevel";
-import { above, below, prop, type Env } from "./environment";
+import { above, below, bucketByTile, prop, type Env } from "./environment";
 import type { Rect } from "../geometry";
 
 const CELL = 24;
+
+const drawn = vi.hoisted(() => ({ count: 0 }));
+
+vi.mock("../env/paint", async (actual) => {
+  const paint = await actual<typeof import("../env/paint")>();
+  return { ...paint, drawAsset: (...args: Parameters<typeof paint.drawAsset>) => (drawn.count++, paint.drawAsset(...args)) };
+});
 
 const counting = () => {
   let assets = 0;
@@ -47,6 +55,58 @@ describe("static layer culling", () => {
 
   it("paints every asset for a tile covering the layer", () => {
     expect(painted(worldRect)).toBe(painted());
+  });
+});
+
+describe("bucketByTile", () => {
+  const items = [
+    { id: "a", box: { x: 10, y: 10, w: 20, h: 20 } },
+    { id: "b", box: { x: 90, y: 10, w: 30, h: 20 } },
+    { id: "c", box: { x: 250, y: 150, w: 10, h: 10 } },
+  ];
+  const lookup = bucketByTile(items, (i) => i.box, 100);
+  const ids = (col: number, row: number): string[] => lookup(col, row).map((i) => i.id);
+
+  it("files each item under every tile its box touches, in item order", () => {
+    expect(ids(0, 0)).toEqual(["a", "b"]);
+    expect(ids(1, 0)).toEqual(["b"]);
+    expect(ids(2, 1)).toEqual(["c"]);
+  });
+
+  it("returns nothing for an empty tile", () => {
+    expect(ids(5, 5)).toEqual([]);
+  });
+});
+
+describe("mesto static tile", () => {
+  const mesto = loadMesto();
+  const tile = 256;
+  const size = { w: mesto.grid.width * CELL, h: mesto.grid.height * CELL };
+  const paint = (clip?: Rect, at?: { col: number; row: number }): number => {
+    const { ctx } = counting();
+    drawn.count = 0;
+    const e: Env = { ctx, world: mesto, hero: { blaster: null }, cell: CELL, unit: 1, lines: 1, screen: { x: 0, y: 0, ...size }, clip, tile: at && { ...at, px: tile } };
+    below(e);
+    above(e);
+    return drawn.count;
+  };
+
+  it("paints a tile from its bucket only", () => {
+    const all = paint();
+    const col = Math.floor(size.w / 2 / tile);
+    const row = Math.floor(size.h / 2 / tile);
+    const one = paint({ x: col * tile, y: row * tile, w: tile, h: tile }, { col, row });
+    expect(one).toBeGreaterThan(0);
+    expect(one).toBeLessThan(all / 20);
+  });
+
+  it("paints every tile the same with and without the index", () => {
+    for (let row = 0; row * tile < size.h; row++) {
+      for (let col = 0; col * tile < size.w; col++) {
+        const clip = { x: col * tile, y: row * tile, w: tile, h: tile };
+        expect(paint(clip, { col, row })).toBe(paint(clip));
+      }
+    }
   });
 });
 
