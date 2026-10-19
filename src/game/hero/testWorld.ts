@@ -29,7 +29,11 @@ export function game(
   return { world, hero, events: [], seen: new Set([hero.state]), frame: 0, buffer: new Map() };
 }
 
-export const bottomlessPits = { ...sandbox, rows: sandbox.rows.slice(0, 16), lifts: sandbox.lifts.slice(0, 1) };
+const PITS = [[28, 30], [34, 37]] as const;
+const openPits = (row: string, at: number): string =>
+  at < 14 ? row : [...row].map((c, col) => (PITS.some(([a, b]) => col >= a && col <= b) ? "." : c)).join("");
+
+export const bottomlessPits = { ...sandbox, rows: sandbox.rows.slice(0, 16).map(openPits), lifts: sandbox.lifts.slice(0, 1) };
 
 export const RUNNING = "running";
 

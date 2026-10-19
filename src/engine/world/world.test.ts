@@ -37,7 +37,7 @@ describe("moveBox", () => {
   });
 
   it("walks off a ledge into the gap", () => {
-    const r = moveBox(box(27.9, 14), 0.5, 0.1, grid, []);
+    const r = moveBox(box(33.9, 14), 0.5, 0.1, grid, []);
     expect(r.onGround).toBe(false);
     expect(r.y).toBeCloseTo(14.1, 6);
   });
@@ -51,9 +51,9 @@ describe("moveBox", () => {
   });
 
   it("falls out below the grid", () => {
-    const topHalf = new TileGrid(sandbox.rows.slice(0, 16));
-    const r = moveBox(box(29.5, 14), 0, 5, topHalf, []);
-    expect(r.y).toBeGreaterThan(topHalf.height);
+    const pit = new TileGrid(["#...#", "##.##"]);
+    const r = moveBox(box(2.5, 1), 0, 5, pit, []);
+    expect(r.y).toBeGreaterThan(pit.height);
     expect(r.onGround).toBe(false);
   });
 

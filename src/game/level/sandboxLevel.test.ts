@@ -38,6 +38,12 @@ describe("lift", () => {
   it("carries a standing box up, stops exactly on top and clears the target", () => ride(-1, 3.7));
   it("carries a standing box down, stopping exactly on the bottom", () => ride(1, 3.7));
 
+  it("starts at the bottom stop unless the level says top", () => {
+    const lift = { x: 1, width: 3, top: 4, bottom: 14 };
+    expect(loadSandbox({ ...sandbox, lifts: [lift] }).lifts[0]!.y).toBe(14);
+    expect(loadSandbox({ ...sandbox, lifts: [{ ...lift, start: "top" }] }).lifts[0]!.y).toBe(4);
+  });
+
   it("moves down on a bottom call", () => {
     const lift = loadSandbox(sandbox).lifts[0]!;
     lift.y = 4;

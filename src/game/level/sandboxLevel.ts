@@ -60,7 +60,7 @@ interface SandboxJson {
   sky: string;
   backdrop: SceneryJson[];
   dressing: SceneryJson[];
-  lifts: { x: number; width: number; top: number; bottom: number }[];
+  lifts: { x: number; width: number; top: number; bottom: number; start?: "top" | "bottom" }[];
   props: Prop[];
   enemy: EnemyJson;
 }
@@ -79,7 +79,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     grid,
     lifts: data.lifts.map((lift) => ({
       x: lift.x,
-      y: lift.bottom,
+      y: lift.start === "top" ? lift.top : lift.bottom,
       w: lift.width,
       vy: 0,
       top: lift.top,

@@ -7,31 +7,81 @@ import type { Run } from "./terrain";
 
 const world = loadSandbox(sandbox);
 const { grid, lifts } = world;
-const { fallDeathCells } = loadMovement(movementJson);
+const cfg = loadMovement(movementJson);
+const { fallDeathCells } = cfg;
 const JUMP_UP = 1;
-const JUMP_GAP = 4;
+const STRICT_JUMP_CELLS = 3;
 const JUMP_CLEARANCE = 3;
+const PROBED_JUMP_CELLS: [number, number][] = [[-1, 3], [0, 4], [3, 6], [7, 7]];
+
+type Stop = "top" | "bottom";
 
 const runs: Run[] = [...world.terrain.ledges, ...world.terrain.girders];
-const decks: Run[] = lifts.map((l) => ({ row: l.top, col: l.x, w: l.w }));
-const floors = [...runs, ...decks];
+const decks = new Map<Run, string>(
+  lifts.flatMap((l, i) => (["top", "bottom"] as const).map((stop): [Run, string] => [{ row: l[stop], col: l.x, w: l.w }, stopId(i, stop)])),
+);
+const floors = [...runs, ...decks.keys()];
 const id = (r: Run): string => `${r.row},${r.col}`;
-const deckId = (i: number): string => `deck ${i}`;
-const node = (r: Run): string => (decks.includes(r) ? deckId(decks.indexOf(r)) : id(r));
+function stopId(lift: number, stop: Stop): string {
+  return `lift ${lift} ${stop}`;
+}
+const node = (r: Run): string => decks.get(r) ?? id(r);
+const deckOf = new Map(lifts.flatMap((_, i) => [[stopId(i, "top"), i] as const, [stopId(i, "bottom"), i] as const]));
 
 const inShaft = (l: Lift, col: number): boolean => col >= l.x && col < l.x + l.w;
 const runAt = (row: number, col: number): Run | undefined => runs.find((r) => r.row === row && col >= r.col && col < r.col + r.w);
 const touching = (row: number, c0: number, c1: number): Run[] =>
   floors.filter((r) => r.row === row && r.col <= c1 + 1 && r.col + r.w - 1 >= c0 - 1);
-const bottomStop = (l: Lift): Run[] => runs.filter((r) => r.row === l.bottom && r.col <= l.x + l.w - 1 && r.col + r.w - 1 >= l.x);
+const stopsAt = (l: Lift, row: number): boolean => l.top === row || l.bottom === row;
 const clear = (col: number, top: number, bottom: number): boolean => {
   for (let row = top; row <= bottom; row++) if (grid.solid(col, row)) return false;
   return true;
 };
 
+function fallTime(height: number): number {
+  const capTime = cfg.maxFallSpeed / cfg.gravity;
+  const capHeight = (cfg.gravity * capTime ** 2) / 2;
+  return height <= capHeight ? Math.sqrt((2 * height) / cfg.gravity) : capTime + (height - capHeight) / cfg.maxFallSpeed;
+}
+
+const jumpCells = (drop: number): number => {
+  const air = Math.sqrt((2 * cfg.jump.runHeight) / cfg.gravity) + fallTime(cfg.jump.runHeight + drop);
+  return Math.floor(cfg.jump.runSpeed * air + cfg.box.width + 1);
+};
+
+interface Model {
+  maxDrop: number;
+  jumpCells: (drop: number) => number;
+  blocked: (col: number, from: number, to: number) => boolean;
+  landing: (col: number, row: number, from: number) => boolean;
+  fromLadders: boolean;
+}
+
+const strict: Model = {
+  maxDrop: fallDeathCells,
+  jumpCells: () => STRICT_JUMP_CELLS,
+  blocked: (col, from, to) => !clear(col, Math.min(from, to) - JUMP_CLEARANCE, Math.max(from, to) - 1),
+  landing: (col, row, from) => clear(col, Math.min(from, row) - JUMP_CLEARANCE, row - 1),
+  fromLadders: false,
+};
+
+const generous: Model = {
+  maxDrop: fallDeathCells,
+  jumpCells,
+  blocked: (col, from) => grid.solid(col, from - 1) && grid.solid(col, from - 2),
+  landing: () => true,
+  fromLadders: true,
+};
+
 interface Edge {
   to: string;
   lift?: number;
+  deck?: number;
+}
+
+interface Origin {
+  run: Run;
+  key: string;
 }
 
 function landings(col: number, from: number, maxDrop: number): string[] {
@@ -39,57 +89,80 @@ function landings(col: number, from: number, maxDrop: number): string[] {
   let land = from + 1;
   while (land < grid.height && !grid.solid(col, land) && !grid.ladderTop(col, land)) land++;
   lifts.forEach((l, i) => {
-    if (inShaft(l, col) && l.top > from && l.top <= land && l.top - from <= maxDrop) out.push(deckId(i));
+    for (const stop of ["top", "bottom"] as const) {
+      if (inShaft(l, col) && l[stop] > from && l[stop] <= land && l[stop] - from <= maxDrop) out.push(stopId(i, stop));
+    }
   });
   if (land >= grid.height || land - from > maxDrop) return out;
   const under = runAt(land, col);
   return [...out, ...(under ? [id(under)] : touching(land, col, col).map(node))];
 }
 
-function jumps(r: Run, side: -1 | 1, maxDrop: number): string[] {
+function jumps(r: Run, side: -1 | 1, m: Model): string[] {
   const edge = side < 0 ? r.col : r.col + r.w - 1;
   return floors
-    .filter((t) => t !== r && t.row >= r.row - JUMP_UP && t.row - r.row <= maxDrop)
+    .filter((t) => t !== r && t.row >= r.row - JUMP_UP && t.row - r.row <= m.maxDrop)
     .filter((t) => {
       const near = side < 0 ? t.col + t.w - 1 : t.col;
-      const gap = (near - edge) * side;
-      if (gap < 1 || gap > JUMP_GAP) return false;
-      const top = Math.min(r.row, t.row) - JUMP_CLEARANCE;
-      for (let c = edge + side; c !== near; c += side) if (!clear(c, top, Math.max(r.row, t.row) - 1)) return false;
-      return clear(near, top, t.row - 1);
+      const empty = (near - edge) * side - 1;
+      if (empty < 0 || empty > m.jumpCells(t.row - r.row)) return false;
+      const path = Array.from({ length: empty + 1 }, (_, k) => edge + side * (k + 1));
+      if (path.slice(0, -1).some((c) => m.blocked(c, r.row, t.row))) return false;
+      if (t.row > r.row && !path.some((c) => clear(c, r.row, t.row - 1))) return false;
+      return m.landing(near, t.row, r.row);
     })
     .map(node);
 }
 
-function graph(maxDrop: number): Map<string, Edge[]> {
+function ladders(): { col: number; top: number; end: number }[] {
+  const out: { col: number; top: number; end: number }[] = [];
+  for (let col = 0; col < grid.width; col++) {
+    for (let top = 0; top < grid.height; top++) {
+      if (!grid.ladderTop(col, top)) continue;
+      let end = top;
+      while (grid.at(col, end) === "H") end++;
+      out.push({ col, top, end });
+    }
+  }
+  return out;
+}
+
+function graph(m: Model): Map<string, Edge[]> {
   const out = new Map<string, Edge[]>(floors.map((r) => [node(r), []]));
   const link = (from: string[], to: string[], lift?: number): void => {
     for (const a of from) for (const b of to) if (a !== b) out.get(a)!.push({ to: b, lift });
   };
   const both = (group: string[], lift?: number): void => link(group, group, lift);
+  const leap = (from: string, to: string[]): void => {
+    for (const b of to) if (b !== from) out.get(from)!.push({ to: b, deck: deckOf.get(b) });
+  };
+  const origins: Origin[] = floors.map((run) => ({ run, key: node(run) }));
   lifts.forEach((l, i) => {
-    both([deckId(i), ...bottomStop(l).map(id)], i);
-    both([deckId(i), ...touching(l.top, l.x, l.x + l.w - 1).map(node)]);
+    both([stopId(i, "top"), stopId(i, "bottom")], i);
+    for (const stop of ["top", "bottom"] as const) both([stopId(i, stop), ...touching(l[stop], l.x, l.x + l.w - 1).map(node)]);
   });
-  for (let col = 0; col < grid.width; col++) {
-    for (let row = 0; row < grid.height; row++) {
-      if (!grid.ladderTop(col, row)) continue;
-      let end = row;
-      while (grid.at(col, end) === "H") end++;
-      both([...touching(row, col, col), ...touching(end, col, col)].map(node));
+  for (const { col, top, end } of ladders()) {
+    const group = [...touching(top, col, col), ...touching(end, col, col)].map(node);
+    both(group);
+    if (!m.fromLadders) continue;
+    for (let row = top; row < end; row++) {
+      const key = `ladder ${col},${row}`;
+      out.set(key, []);
+      link(group, [key]);
+      origins.push({ run: { row, col, w: 1 }, key });
     }
   }
-  for (const r of floors) {
+  for (const { run: r, key } of origins) {
     for (const side of [-1, 1] as const) {
       const c = side < 0 ? r.col - 1 : r.col + r.w;
-      link([node(r)], jumps(r, side, maxDrop));
+      leap(key, jumps(r, side, m));
       if (grid.solid(c, r.row - 1)) {
         const step = runAt(r.row - 1, c);
-        if (step && !grid.solid(c, r.row - 2)) link([node(r)], [id(step)]);
+        if (step && !grid.solid(c, r.row - 2)) link([key], [id(step)]);
         continue;
       }
-      if (grid.solid(c, r.row) || grid.ladderTop(c, r.row) || lifts.some((l) => l.top === r.row && inShaft(l, c))) continue;
-      link([node(r)], landings(c, r.row, maxDrop));
+      if (grid.solid(c, r.row) || grid.ladderTop(c, r.row) || lifts.some((l) => stopsAt(l, r.row) && inShaft(l, c))) continue;
+      leap(key, landings(c, r.row, m.maxDrop));
     }
   }
   return out;
@@ -99,8 +172,8 @@ function reach(g: Map<string, Edge[]>, from: string, without?: number): Set<stri
   const seen = new Set([from]);
   const todo = [from];
   for (let next = todo.pop(); next !== undefined; next = todo.pop()) {
-    for (const { to, lift } of g.get(next)!) {
-      if (lift !== undefined && lift === without) continue;
+    for (const { to, lift, deck } of g.get(next)!) {
+      if (without !== undefined && (lift === without || deck === without)) continue;
       if (seen.has(to)) continue;
       seen.add(to);
       todo.push(to);
@@ -110,40 +183,75 @@ function reach(g: Map<string, Edge[]>, from: string, without?: number): Set<stri
 }
 
 describe("sandbox reachability", () => {
-  const survivable = graph(fallDeathCells);
+  const conservative = graph(strict);
+  const permissive = graph(generous);
   const spawn = id(runAt(world.spawn[1], Math.floor(world.spawn[0]))!);
 
-  it("reaches every floor from the spawn by walking, jumps, ladders, lifts and survivable drops", () => {
-    const from = reach(survivable, spawn);
+  it("bounds the generous jump by the probed run jump reach", () => {
+    for (const [drop, cells] of PROBED_JUMP_CELLS) expect(jumpCells(drop), `drop ${drop}`).toBeGreaterThanOrEqual(cells);
+  });
+
+  it("reaches every floor from the spawn by walking, short jumps, ladders, lifts and survivable drops", () => {
+    const from = reach(conservative, spawn);
     expect(runs.filter((r) => !from.has(id(r)))).toEqual([]);
   });
 
   it("gets back to the spawn floor from every floor", () => {
-    expect(runs.filter((r) => !reach(survivable, id(r)).has(spawn))).toEqual([]);
+    expect(runs.filter((r) => !reach(conservative, id(r)).has(spawn))).toEqual([]);
   });
 
-  it("joins the two stops of each lift only through that lift", () => {
+  it("joins the two stops of each lift only through that lift, counting long jumps and ladder drop-offs", () => {
     lifts.forEach((l, i) => {
-      const bottom = bottomStop(l).map(id);
-      expect(bottom.length, `lift ${i} bottom stop`).toBeGreaterThan(0);
-      const fromTop = reach(survivable, deckId(i), i);
-      expect(bottom.filter((b) => fromTop.has(b)), `lift ${i} top to bottom`).toEqual([]);
-      for (const b of bottom) expect(reach(survivable, b, i).has(deckId(i)), `lift ${i} bottom to top`).toBe(false);
+      expect(reach(permissive, stopId(i, "top"), i).has(stopId(i, "bottom")), `lift ${i} top to bottom`).toBe(false);
+      expect(reach(permissive, stopId(i, "bottom"), i).has(stopId(i, "top")), `lift ${i} bottom to top`).toBe(false);
     });
   });
 
   it("starts each lift at the stop the spawn reaches without it", () => {
     lifts.forEach((l, i) => {
-      expect(l.y).toBe(l.bottom);
-      const from = reach(survivable, spawn, i);
-      expect(bottomStop(l).some((b) => from.has(id(b))), `lift ${i}`).toBe(true);
+      const json = sandbox.lifts[i]!;
+      const start: Stop = "start" in json && json.start === "top" ? "top" : "bottom";
+      expect(l.y).toBe(l[start]);
+      expect(reach(conservative, spawn, i).has(stopId(i, start)), `lift ${i}`).toBe(true);
     });
   });
 
-  it("gives the lower half at least two lifts, three platforms and a ladder", () => {
-    expect(lifts.filter((l) => l.top > 15).length).toBeGreaterThanOrEqual(2);
+  it("changes floors in the lower half only by lift, with no survivable drop off any edge", () => {
+    for (const r of runs.filter((run) => run.row > 15)) {
+      for (const c of [r.col - 1, r.col + r.w]) {
+        if (grid.solid(c, r.row - 1) || grid.solid(c, r.row) || lifts.some((l) => stopsAt(l, r.row) && inShaft(l, c))) continue;
+        expect(landings(c, r.row, fallDeathCells), `${id(r)} edge ${c}`).toEqual([]);
+      }
+    }
+  });
+
+  it("keeps ladders rare: the original one plus at most one in the lower half", () => {
+    const all = ladders();
+    expect(all.filter((l) => l.top < 16)).toEqual([{ col: 3, top: 4, end: 14 }]);
+    expect(all.filter((l) => l.top >= 16).length).toBeLessThanOrEqual(1);
+  });
+
+  it("gives the lower half at least two lifts and three platforms", () => {
+    expect(lifts.filter((l) => l.bottom > 15).length).toBeGreaterThanOrEqual(2);
     expect(runs.filter((r) => r.row > 15 && r.row < 28).length).toBeGreaterThanOrEqual(3);
-    expect([...Array(grid.width).keys()].some((c) => grid.ladderTop(c, 21))).toBe(true);
+  });
+
+  it("leaves room for three enemy patrols of six flat cells off lift decks in the lower half", () => {
+    const stretches = runs
+      .filter((r) => r.row > 15)
+      .flatMap((r) => {
+        const out: number[] = [];
+        let len = 0;
+        for (let c = r.col; c <= r.col + r.w; c++) {
+          const free = c < r.col + r.w && !lifts.some((l) => stopsAt(l, r.row) && inShaft(l, c));
+          if (free) len++;
+          if (free || !len) continue;
+          out.push(len);
+          len = 0;
+        }
+        return out;
+      });
+    expect(stretches.filter((len) => len >= 6).length).toBeGreaterThanOrEqual(3);
   });
 
   it("keeps lift shafts apart horizontally", () => {

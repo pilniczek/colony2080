@@ -19,15 +19,14 @@ const t = terrain(grid);
 describe("terrain", () => {
   it("finds the free-standing platforms as girders", () => {
     expect(t.girders).toEqual([
-      { row: 4, col: 20, w: 4 }, { row: 11, col: 12, w: 4 },
-      { row: 18, col: 27, w: 5 }, { row: 18, col: 33, w: 6 }, { row: 25, col: 29, w: 6 },
+      { row: 4, col: 20, w: 4 }, { row: 11, col: 12, w: 4 }, { row: 18, col: 15, w: 7 }, { row: 25, col: 23, w: 7 },
     ]);
   });
 
   it("treats wall-backed runs as ledges", () => {
     expect(t.ledges).toEqual(expect.arrayContaining([
-      { row: 4, col: 1, w: 2 }, { row: 4, col: 4, w: 7 }, { row: 13, col: 26, w: 1 }, { row: 14, col: 1, w: 12 }, { row: 14, col: 14, w: 12 },
-      { row: 14, col: 39, w: 8 }, { row: 21, col: 4, w: 5 }, { row: 21, col: 18, w: 4 }, { row: 21, col: 39, w: 8 }, { row: 28, col: 1, w: 46 },
+      { row: 4, col: 1, w: 2 }, { row: 4, col: 4, w: 7 }, { row: 13, col: 26, w: 1 }, { row: 14, col: 1, w: 25 },
+      { row: 14, col: 37, w: 10 }, { row: 21, col: 1, w: 4 }, { row: 21, col: 8, w: 39 }, { row: 28, col: 1, w: 46 },
     ]));
   });
 
