@@ -175,14 +175,14 @@ function canopy(ctx, trace, top, bottom, shine) {
 
 const HULL = { nose: 21, rear: 54, top: 9, sx: 33 / 45.8, sy: 24 / 15.2 };
 
-const SQUASH = 0.25;
+const SQUASH = 0.5;
 
 function squashAbove(ctx, y, draw) {
   ctx.save();
   ctx.beginPath();
   ctx.rect(-100, y, 200, 200);
   ctx.clip();
-  draw();
+  draw(false);
   ctx.restore();
   ctx.save();
   ctx.translate(0, y);
@@ -191,24 +191,26 @@ function squashAbove(ctx, y, draw) {
   ctx.beginPath();
   ctx.rect(-100, y - 200, 200, 200);
   ctx.clip();
-  draw();
+  draw(true);
   ctx.restore();
 }
 
 function sideHead(ctx) {
-  squashAbove(ctx, 21, () => sideHull(ctx));
+  squashAbove(ctx, 21, top => sideHull(ctx, top ? BROW : 26));
   sideVisor(ctx);
 }
 
-function sideHull(ctx) {
+const BROW = 22;
+
+function sideHull(ctx, front) {
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(26, 0);
+  ctx.moveTo(front, 0);
   ctx.lineTo(60, 0);
   ctx.lineTo(60, 60);
   ctx.lineTo(0, 60);
   ctx.lineTo(0, 24.2);
-  ctx.lineTo(26, 24.2);
+  ctx.lineTo(front, 24.2);
   ctx.closePath();
   ctx.clip();
   ctx.translate(HULL.rear + 3.2 * HULL.sx, HULL.top - 2.2 * HULL.sy);
@@ -218,6 +220,7 @@ function sideHull(ctx) {
 }
 
 function sideVisor(ctx) {
+  P.line(ctx, [[BROW, 21], [26, 21]], "gmLine", 0.5, "butt");
   ctx.fillStyle = ENV.pal.groove;
   ctx.fillRect(26, 21, 16, 1.1);
   slit(ctx, 26, 41, 22.1, 1.1, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
