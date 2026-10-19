@@ -45,15 +45,37 @@ describe("hudSvg", () => {
     }
   });
 
-  it("renders the slot 3 icon, counter and active key only with the bonus weapon", () => {
-    const owned = hudSvg(320, 200, { ...base, bonus: true, weapon: 2, bonusAmmo: 400 }, icons);
-    expect(owned).toContain(">400</text>");
-    expect(owned).toContain('fill="#7ae0ff"');
-    expect(owned).toMatch(/fill="#ff4a26"[^>]*>3</);
-    expect(owned).toContain(">3</text>");
-    const without = hudSvg(320, 200, base, icons);
-    expect(without).not.toContain('fill="#7ae0ff"');
-    expect(without).not.toContain(">3</text>");
+  describe("slot 3", () => {
+    const tabLetters = (svg: string): { x: number; label: string; lit: boolean }[] =>
+      [...svg.matchAll(/<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#[0-9a-f]+)"[^>]*>([^<]*)<\/text>/g)].map((m) => ({ x: Number(m[1]), label: m[3]!, lit: m[2] === "#ff4a26" }));
+    const slotKey = (svg: string): { x: number; label: string; lit: boolean } | undefined => {
+      const { weapons } = topBar(320);
+      return tabLetters(svg).find((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + 17)) < 1e-6 && t.lit);
+    };
+    const slotKeyAny = (svg: string): boolean => {
+      const { weapons } = topBar(320);
+      return tabLetters(svg).some((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + 17)) < 1e-6);
+    };
+
+    it("renders the icon, counter and lit key 3 when the bonus weapon is active", () => {
+      const svg = hudSvg(320, 200, { ...base, bonus: true, weapon: 2, bonusAmmo: 400 }, icons);
+      expect(svg).toContain(">400</text>");
+      expect(svg).toContain('fill="#7ae0ff"');
+      expect(slotKey(svg)).toBeDefined();
+    });
+
+    it("leaves key 3 unlit when another weapon is active", () => {
+      const svg = hudSvg(320, 200, { ...base, bonus: true, weapon: 0, bonusAmmo: 400 }, icons);
+      expect(slotKeyAny(svg)).toBe(true);
+      expect(slotKey(svg)).toBeUndefined();
+    });
+
+    it("renders no icon, counter or key tab without the bonus weapon", () => {
+      const svg = hudSvg(320, 200, base, icons);
+      expect(svg).not.toContain('fill="#7ae0ff"');
+      expect(slotKeyAny(svg)).toBe(false);
+      expect([...new Set(tabLetters(svg).map((t) => t.label))]).toEqual(["1", "2", "ALT", "ENTER"]);
+    });
   });
 
   it("right-aligns the bonus counter at the blaster edge", () => {

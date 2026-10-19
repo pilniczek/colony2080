@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BEAM_FRAMES, BEAM_TICK_HZ, beamFrame, bolt, drawBeam } from "./beam";
+import { bolt } from "../arcLook";
+import { BEAM_FRAMES, BEAM_TICK_HZ, beamFrame, drawBeam } from "./beam";
 
 const record = (length: number, frame: number, seed: number): string[] => {
   const calls: string[] = [];

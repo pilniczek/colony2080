@@ -1,10 +1,9 @@
 import type { Palette } from "../../engine/rig/draw";
 import type { Pt } from "../../engine/rig/tree";
+import { ARC, stroke } from "../arcLook";
 import { BARREL, createWeaponModel, type MatKeys, type WeaponPart } from "./weaponModel";
 
 export { MUZZLE as EBLASTER_MUZZLE, MUZZLE_IN_HOOK as EBLASTER_MUZZLE_IN_HOOK, SUPPORT as EBLASTER_SUPPORT } from "./weaponModel";
-
-export const ARC = { e0: "#202488", e1: "#3a52c4", e2: "#6084a4", e3: "#b8dcf4", eLine: "#0c1040", glow: "#7ae0ff", grey: "#c4cccc", core: "#f4f4f4" };
 
 const PRONG = 48;
 const COILS = 4;
@@ -38,14 +37,6 @@ const MAT: Record<string, MatKeys> = {
 };
 
 const EMITTER_ARC: Pt[] = [[-6, -62], [2, -54], [-4, -46], [4, -40], [-4, -34], [2, -26], [-6, -18]];
-
-export const stroke = (ctx: CanvasRenderingContext2D, pts: Pt[], color: string, width: number): void => {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.beginPath();
-  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
-  ctx.stroke();
-};
 
 const emitter = (ctx: CanvasRenderingContext2D, length: number, simple: boolean): void => {
   const end = BARREL.x + length;
