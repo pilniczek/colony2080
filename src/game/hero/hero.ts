@@ -318,7 +318,7 @@ function standUp(s: Step, from: Jump): boolean {
   if (h.onLift) {
     const dir = liftCall(s);
     const lift = liftAt(world, h, cfg);
-    if (dir !== null && lift) callLift(lift, dir);
+    if (dir !== null && lift) requestLift(s, lift, dir);
     return false;
   }
   if (!s.consume("up")) return false;
@@ -335,6 +335,10 @@ function idle(s: Step): void {
   if (input.dir !== 0) gait(s);
 }
 
+function requestLift(s: Step, lift: Lift, dir: -1 | 1): void {
+  if (!callLift(lift, dir, s.world.flags) && lift.hint) say(s.world, lift.hint);
+}
+
 function liftCall(s: Step): -1 | 1 | null {
   return s.consume("up") ? -1 : s.consume("down") ? 1 : null;
 }
@@ -347,7 +351,7 @@ function moving(s: Step): void {
     if (dir !== null) {
       enter(h, "idle");
       const lift = liftAt(world, h, cfg);
-      if (lift) callLift(lift, dir);
+      if (lift) requestLift(s, lift, dir);
       return;
     }
   }

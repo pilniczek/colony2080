@@ -93,7 +93,7 @@
     {"x": 67, "width": 3, "top": 37, "bottom": 51, "start": "bottom"},
     {"x": 131, "width": 3, "top": 37, "bottom": 44, "start": "top"},
     {"x": 82, "width": 3, "top": 44, "bottom": 51, "start": "top"},
-    {"x": 55, "width": 3, "top": 30, "bottom": 37, "start": "bottom", "enabledBy": "flag:upperFloorsOpen"},
+    {"x": 55, "width": 3, "top": 30, "bottom": 37, "start": "bottom", "enabledBy": "flag:upperFloorsOpen", "hint": "The lift is broken."},
     {"x": 33, "width": 3, "top": 23, "bottom": 30, "start": "bottom"},
     {"x": 84, "width": 3, "top": 23, "bottom": 30, "start": "top"},
     {"x": 104, "width": 3, "top": 23, "bottom": 30, "start": "bottom"},

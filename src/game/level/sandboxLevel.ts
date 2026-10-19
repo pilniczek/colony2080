@@ -40,6 +40,8 @@ export interface Lift extends Platform {
   bottom: number;
   stops: number[];
   target: number | null;
+  enabledBy?: string;
+  hint?: string;
 }
 
 export interface Spark {
@@ -85,6 +87,7 @@ export interface LiftJson {
   start?: "top" | "bottom";
   startRow?: number;
   enabledBy?: string;
+  hint?: string;
 }
 
 export interface SandboxJson {
@@ -125,6 +128,8 @@ export function loadSandbox(json: unknown): SandboxWorld {
     bottom: lift.bottom,
     stops: lift.stops ? [...lift.stops] : [lift.top, lift.bottom],
     target: null,
+    ...(lift.enabledBy === undefined ? {} : { enabledBy: lift.enabledBy }),
+    ...(lift.hint === undefined ? {} : { hint: lift.hint }),
   }));
   const world: SandboxWorld = {
     grid,
@@ -176,10 +181,12 @@ export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">, cfg: Movem
   );
 }
 
-export function callLift(lift: Lift, dir: -1 | 1): void {
-  if (lift.target !== null) return;
+export function callLift(lift: Lift, dir: -1 | 1, flags?: Set<string>): boolean {
+  if (lift.enabledBy !== undefined && !flags?.has(lift.enabledBy)) return false;
+  if (lift.target !== null) return true;
   const ahead = lift.stops.filter((row) => (row - lift.y) * dir > 0);
   lift.target = ahead.length ? (dir < 0 ? Math.max(...ahead) : Math.min(...ahead)) : dir < 0 ? lift.top : lift.bottom;
+  return true;
 }
 
 export function updateLift(lift: Lift, speed: number, dt: number): void {

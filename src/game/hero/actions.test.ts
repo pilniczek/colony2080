@@ -41,6 +41,21 @@ describe("kneel and duck", () => {
     expect(g.hero.state).toBe("idle");
     expect(g.world.lifts[0]!.target).toBe(14);
   });
+
+  it("says the lift hint once per press while the lift is disabled", () => {
+    const g = game({ x: 18.5, y: 4 });
+    const lift = g.world.lifts[0]!;
+    lift.y = 4;
+    lift.enabledBy = "flag:open";
+    lift.hint = "Broken.";
+    tick(g);
+    tick(g, ["down"], ["down"]);
+    expect(lift.target).toBeNull();
+    expect(g.world.subtitle?.text).toBe("Broken.");
+    g.world.subtitle = null;
+    tick(g, ["down"]);
+    expect(g.world.subtitle).toBeNull();
+  });
 });
 
 describe("use", () => {
