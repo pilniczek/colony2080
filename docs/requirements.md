@@ -149,4 +149,4 @@ flowchart LR
 - Sandbox HUD shows live life, shields, weapon and ammo (see Ammo). Reserve (full) is fixed until phase 3 adds it. Shields start at `energy.shields` in `config/hero/movement.json`.
 - TODO: E-Blaster (mission 1 bonus weapon, subway pickup) needs its own design sheet spike first, like `spikes/gun-design/`. Then add it to HUD slot 3 in `spikes/hud-design/`; until then the slot stays empty.
 - Hero tuning values in `config/hero/movement.json` are first guesses until tuned in the sandbox.
-- Collision source for levels (decoded map data or hand-authored) is decided in phase 4.
+- Collision source for levels (decoded map data or hand-authored) is decided in phase 4; out of current scope (2026-10-19).
