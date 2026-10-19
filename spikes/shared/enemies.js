@@ -175,7 +175,32 @@ function canopy(ctx, trace, top, bottom, shine) {
 
 const HULL = { nose: 21, rear: 54, top: 9, sx: 33 / 45.8, sy: 24 / 15.2 };
 
+const SQUASH = 0.25;
+
+function squashAbove(ctx, y, draw) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(-100, y, 200, 200);
+  ctx.clip();
+  draw();
+  ctx.restore();
+  ctx.save();
+  ctx.translate(0, y);
+  ctx.scale(1, SQUASH);
+  ctx.translate(0, -y);
+  ctx.beginPath();
+  ctx.rect(-100, y - 200, 200, 200);
+  ctx.clip();
+  draw();
+  ctx.restore();
+}
+
 function sideHead(ctx) {
+  squashAbove(ctx, 21, () => sideHull(ctx));
+  sideVisor(ctx);
+}
+
+function sideHull(ctx) {
   ctx.save();
   ctx.beginPath();
   ctx.moveTo(26, 0);
@@ -190,7 +215,9 @@ function sideHead(ctx) {
   ctx.scale(-HULL.sx, HULL.sy);
   flyerHull(ctx, { hump: false, patch: false });
   ctx.restore();
+}
 
+function sideVisor(ctx) {
   ctx.fillStyle = ENV.pal.groove;
   ctx.fillRect(26, 21, 16, 1.1);
   slit(ctx, 26, 41, 22.1, 1.1, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
@@ -202,6 +229,10 @@ function sideHead(ctx) {
 }
 
 function frontHead(ctx) {
+  squashAbove(ctx, -32.9, () => frontShell(ctx));
+}
+
+function frontShell(ctx) {
   const shell = c => {
     c.moveTo(-9.6, -34);
     c.quadraticCurveTo(0, -42, 9.6, -34);
@@ -244,14 +275,9 @@ function frontHead(ctx) {
 }
 
 function guardBody(ctx, fire) {
-  P.box(ctx, 50, 1, 1.4, 12, "guardMetal", 2, { vertical: true });
-  P.disc(ctx, 50.7, 1, 0.9, "visor");
   guardLeg(ctx, 6, 0);
   P.box(ctx, 26, 30, 14, 3, "guardMetal", 0);
 
-  P.box(ctx, 40, 7, 12, 7.5, "flyerHump", 2);
-  if (!ENV.simple) for (const [x, y] of [[42.5, 9], [45.5, 9], [48.5, 9], [42.5, 12], [45.5, 12], [48.5, 12]]) P.disc(ctx, x, y, 0.9, "gm0");
-  P.flat(ctx, 40, 7, 2, 7.5, "gm3");
 
   sideHead(ctx);
 
@@ -310,7 +336,7 @@ const GUARD_SIZE = 1.4;
 
 const GUARD = {
   id: "guard",
-  box: { x: -53, y: -78, w: 49, h: 78 },
+  box: { x: -53, y: -50, w: 49, h: 50 },
   draw(ctx, state, t) {
     ctx.scale(GUARD_SIZE, GUARD_SIZE);
     if (state === 3) {
@@ -364,16 +390,12 @@ function frontGun(ctx, side, fire) {
 
 const GUARD_FRONT = {
   id: "guardFront",
-  box: { x: -25, y: -78, w: 50, h: 78 },
+  box: { x: -25, y: -50, w: 50, h: 50 },
   draw(ctx, state, t) {
     const fire = state === 1 ? fireFrame(t % 1.4) : -1;
     ctx.scale(GUARD_SIZE, GUARD_SIZE);
     frontLeg(ctx, -1, 1);
     frontLeg(ctx, 1, 1);
-    P.box(ctx, 3.5, -50.5, 1.4, 12, "guardMetal", 2, { vertical: true });
-    P.disc(ctx, 4.2, -50.5, 0.9, "visor");
-    P.box(ctx, 2, -44.5, 10, 8, "flyerHump", 2);
-    if (!ENV.simple) for (const [x, y] of [[4.5, -42.5], [7, -42.5], [9.5, -42.5], [4.5, -39.5], [7, -39.5], [9.5, -39.5]]) P.disc(ctx, x, y, 0.9, "gm0");
     frontHead(ctx);
     frontGun(ctx, -1, fire < 0 ? -1 : Math.max(0, fire - 2));
     frontGun(ctx, 1, fire);
