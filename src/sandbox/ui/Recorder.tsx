@@ -10,8 +10,6 @@ export function Recorder({ commands }: { commands: SandboxCommands }) {
   const weapon = useSandbox((s) => s.weapon);
   const ammo = useSandbox((s) => s.ammo);
   const shields = useSandbox((s) => s.shields);
-  const reserve = useSandbox((s) => s.reserve);
-  const setReserve = useSandbox((s) => s.setReserve);
   const locked = recording || playing;
   return (
     <Section title="Run">
@@ -43,7 +41,6 @@ export function Recorder({ commands }: { commands: SandboxCommands }) {
       </div>
       {!locked && <NumberField label="ammo" value={ammo} onCommit={commands.setAmmo} min={0} />}
       {!locked && <NumberField label="shields" value={shields} onCommit={commands.setShields} min={0} max={SHIELDS_MAX} />}
-      <NumberField label="reserve %" value={reserve} onCommit={setReserve} min={0} max={100} />
     </Section>
   );
 }

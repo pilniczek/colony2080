@@ -22,7 +22,7 @@ Research base for the colony2080 clone. Collected 2026-10-16 by parallel researc
 | Controls | Original key bindings, see `config/controls.json` | 07 |
 | Combat | "Hide and Shoot": SHIFT steps into background, invulnerable while hidden. Scarce ammo, 3 machine-gun ammo types, unlimited melee | 02, 07 |
 | Enemies | Fixed positions, stay dead. Types: plain robots, rocket robots, two-legged walker, flyers, teleporting flyers | 06, 07 |
-| HUD | Riveted metal frame. Life + reserve energy bars, shield column, 2 weapon slots with ammo counters, inventory slot, automap | 04, 07, 09 |
+| HUD | Riveted metal frame. Life bar, static reserve tube (the shields are the reserve, report 11), shield column, 2 weapon slots with ammo counters, inventory slot, automap | 04, 07, 09 |
 | Scrolling | Smooth horizontal scroll with slow parallax. Vertical scroll on lifts. Not flip-screen | 08 |
 | Hide visual | Player turns into a dark sprite beside a prop. Enemies ignore him until he steps out and fires | 08 |
 | Item use | Every item or door use plays a short pre-rendered 3D clip | 06, 08 |

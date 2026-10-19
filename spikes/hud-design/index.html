@@ -31,7 +31,6 @@
   <label>Ammo <input id="ammo" type="number" min="0" max="999" value="109"></label>
   <label>Bonus ammo <input id="bonusAmmo" type="number" min="0" max="999" value="12"></label>
   <label>Life <input id="life" type="range" min="0" max="100" value="55"></label>
-  <label>Reserve <input id="reserve" type="range" min="0" max="100" value="100"></label>
   <label><input id="running" type="checkbox" checked> Run</label>
   <label>Shields <input id="shields" type="number" min="0" max="5" value="3"></label>
   <label>Item <select id="item"><option value="">none</option></select></label>
@@ -327,7 +326,7 @@ function shieldChannel(x) {
 }
 
 function rightColumn(W, s) {
-  const x = W - SIDE, top = 75.6, h = 50, fill = (h - 2.6) * s.reserve / 100;
+  const x = W - SIDE, top = 75.6, h = 50, fill = h - 2.6;
   const lit = (i) => 4 - i < s.shields;
   const lamps = [0, 1, 2, 3, 4];
   const lights = lamps.map((i) => shieldLight(x, i, lit(i))).join("");
@@ -367,7 +366,6 @@ function state() {
     ammo: +$("ammo").value,
     bonusAmmo: +$("bonusAmmo").value,
     life: +$("life").value,
-    reserve: +$("reserve").value,
     shields: +$("shields").value,
     running: $("running").checked,
     item: $("item").value

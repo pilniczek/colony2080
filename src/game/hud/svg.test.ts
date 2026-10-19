@@ -4,7 +4,7 @@ import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState 
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
-const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, reserve: 100, shields: 3, running: true, item: null };
+const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, item: null };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
 const count = (svg: string, text: string): number => svg.split(text).length - 1;

@@ -7,7 +7,6 @@ export interface HudState {
   ammo: number;
   bonusAmmo: number;
   life: number;
-  reserve: number;
   shields: number;
   running: boolean;
   item: ItemId | null;
@@ -247,7 +246,7 @@ function rightColumn(W: number, s: HudState): string {
   const lamps = Array.from({ length: SHIELDS_MAX }, (_, i) => i);
   const lights = lamps.map((i) => shieldLight(x, i, lit(i))).join("");
   const halos = lamps.filter(lit).map((i) => shieldHalo(x, i)).join("");
-  return `${tube(x + 3.8, y0, 3.4, h, (h - 2.6) * pct(s.reserve), 1.2, "url(#amberFill)")}
+  return `${tube(x + 3.8, y0, 3.4, h, h - 2.6, 1.2, "url(#amberFill)")}
   <rect x="${x + 1}" y="130.2" width="9" height="51.8" rx="1" fill="url(#plate)"/>
   ${bevel(x + 1, 130.2, 9, 51.8, 1, true, 0.4)}
   ${shieldChannel(x)}

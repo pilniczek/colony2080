@@ -18,7 +18,6 @@ export interface SandboxState {
   vy: number;
   energy: number;
   shields: number;
-  reserve: number;
   ammo: number;
   item: ItemId | null;
   weapon: Weapon;
@@ -38,7 +37,6 @@ export interface SandboxState {
   toggleOverlay(name: OverlayName): void;
   setPaused(v: boolean): void;
   setTimeScale(v: number): void;
-  setReserve(v: number): void;
   setMovementValue(path: string, value: number): void;
   setClipValue(clip: string, field: ClipField, value: number): void;
   resetTuning(): void;
@@ -92,7 +90,6 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   vy: 0,
   energy: 0,
   shields: 0,
-  reserve: 100,
   ammo: 0,
   item: null,
   weapon: "gun",
@@ -111,7 +108,6 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   toggleOverlay: (name) => set((s) => ({ overlays: { ...s.overlays, [name]: !s.overlays[name] } })),
   setPaused: (paused) => set({ paused }),
   setTimeScale: (timeScale) => set({ timeScale }),
-  setReserve: (v) => Number.isFinite(v) && set({ reserve: Math.min(100, Math.max(0, v)) }),
   setMovementValue: (path, value) => {
     if (!Number.isFinite(value) || value < 0 || (value === 0 && POSITIVE_PATHS.has(path))) return;
     const next = withNumber(get().movement as unknown as Tree, path.split("."), value);
