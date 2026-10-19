@@ -357,6 +357,16 @@ const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefi
   return result;
 };
 
+const runEnvCoverage = (out: HTMLElement): VisualResult => {
+  const missing = window.ENV.ASSETS.filter((a) => !envAssets.some((p) => p.id === a.id)).map((a) => a.id);
+  const name = `env coverage, unported: ${missing.join(", ") || "none"}`;
+  const box = document.createElement("div");
+  box.className = "case";
+  box.append(name);
+  out.append(box);
+  return { name, mismatches: missing.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: missing.length === 0 };
+};
+
 const out = document.getElementById("out");
 if (!out) throw new Error("missing #out");
 const lods = [false, true];
@@ -375,7 +385,7 @@ const eblasterCases = [
 ];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1] };
+const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1] };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
@@ -385,6 +395,7 @@ const envSizes: [string, Size][] = [
   ["lift", { w: 72, top: -272, py: -120 }],
 ];
 const envCases = [
+  runEnvCoverage,
   ...envAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod) => (o: HTMLElement) => runEnvCase(a.id, state, lod, undefined, o)))),
   ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
   ...envAssets.filter((a) => a.anim).flatMap((a) => (envStates[a.id] ?? [0]).map((state) => (o: HTMLElement) => runEnvCase(a.id, state, false, undefined, o, ENV_ANIM_T))),
