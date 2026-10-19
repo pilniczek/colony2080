@@ -103,6 +103,34 @@ export const craneKey: EnvAsset = {
   },
 };
 
+export const shipPart: EnvAsset = {
+  id: "shipPart",
+  box: [-2, -12, 20, 0],
+  draw(ctx, state) {
+    if (state === 0) return;
+    if (state === 2) return scuff(ctx, 1, 16);
+    poly(ctx, [[1, -1], [1, -7], [4, -9], [4, 0]], "steel", 1);
+    box(ctx, 4, -9, 8, 9, "chrome", 1, { vertical: true });
+    for (let x = 5.2; x < 11.5; x += P.simple() ? 3 : 1.6) flat(ctx, x, -8.4, 0.7, 7.8, "a0");
+    poly(ctx, [[12, -7.5], [16.5, -10], [17.5, -10], [17.5, 1], [16.5, 0], [12, -1.5]], "chrome", 2);
+    flat(ctx, 16.6, -9.4, 0.9, 9, "hole");
+  },
+};
+
+export const controller: EnvAsset = {
+  id: "controller",
+  box: [-2, -10, 16, 0],
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 1, 13);
+    poly(ctx, [[10, -3], [12.5, -8.5], [13.2, -8.2], [11, -3]], "chrome", 1);
+    disc(ctx, 12.9, -8.6, 0.7, "neon", "mLine");
+    box(ctx, 1, -3.8, 11, 3.8, "green", 1);
+    flat(ctx, 2, -3.2, 3.6, 2, "screen", "gLine");
+    if (P.simple()) return;
+    for (const [x, c] of [[7, "y2"], [8.6, "neon"], [10.2, "c2"]] as [number, string][]) flat(ctx, x, -2.8, 1, 1, c);
+  },
+};
+
 export const crate: EnvAsset = {
   id: "crate",
   box: [-2, -30, 34, 0],
@@ -171,4 +199,4 @@ export const rubblePile: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, crowbar, craneKey, crate, signPost, floorVent, rubblePile];
+export const propAssets: EnvAsset[] = [barrel, crowbar, craneKey, shipPart, controller, crate, signPost, floorVent, rubblePile];

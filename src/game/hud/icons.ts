@@ -42,7 +42,7 @@ function placeholder(ctx: CanvasRenderingContext2D, w: number, h: number): void 
   ctx.stroke();
 }
 
-function assetIcon(ctx: CanvasRenderingContext2D, asset: AssetId, tilt: number, w: number, h: number): void {
+function assetIcon(ctx: CanvasRenderingContext2D, asset: AssetId, state: number, tilt: number, w: number, h: number): void {
   const def = ASSETS[asset];
   const [x0, y0, x1, y1] = def.box;
   const angle = (tilt * Math.PI) / 180;
@@ -52,13 +52,13 @@ function assetIcon(ctx: CanvasRenderingContext2D, asset: AssetId, tilt: number, 
   ctx.rotate(-angle);
   ctx.scale(s, s);
   ctx.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
-  drawAsset(ctx, def, { state: 0, lod: false, lines: 1 });
+  drawAsset(ctx, def, { state, lod: false, lines: 1 });
 }
 
-function itemIcon({ icon: { asset, tilt, scale } }: Item): HudIcon {
+function itemIcon({ icon: { asset, state, tilt, scale } }: Item): HudIcon {
   const w = HAND_BOX.w * scale;
   const h = HAND_BOX.h * scale;
-  return icon(w, h, (ctx) => (asset === null ? placeholder(ctx, w, h) : assetIcon(ctx, asset, tilt, w, h)));
+  return icon(w, h, (ctx) => (asset === null ? placeholder(ctx, w, h) : assetIcon(ctx, asset, state, tilt, w, h)));
 }
 
 export function hudIcons(): HudIcons {

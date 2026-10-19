@@ -8,7 +8,7 @@ const ASSET_IDS = [
   "streetWalkway", "girderBridge", "ladder", "pipeColumn", "chainFence", "stripLight",
   "skyBackground", "midgroundRuins", "windowBuilding", "ruinedBuilding", "colonnadeBuilding", "facadeTower", "brickWall",
   "switchboard", "lift",
-  "barrel", "crowbar", "craneKey", "crate", "signPost", "floorVent", "rubblePile",
+  "barrel", "crowbar", "craneKey", "shipPart", "controller", "crate", "signPost", "floorVent", "rubblePile",
 ] as const;
 
 export type AssetId = (typeof ASSET_IDS)[number];

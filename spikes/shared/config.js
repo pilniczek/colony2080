@@ -58,9 +58,10 @@ window.C28_CONFIG = {
    "name": "ship part",
    "cs": "Součástka",
    "icon": {
-    "asset": null,
-    "tilt": 0,
-    "scale": 1
+    "asset": "shipPart",
+    "state": 1,
+    "tilt": 20,
+    "scale": 1.25
    }
   },
   "decoder": {
@@ -76,9 +77,9 @@ window.C28_CONFIG = {
    "name": "controller",
    "cs": "Ovladač",
    "icon": {
-    "asset": null,
-    "tilt": 0,
-    "scale": 1
+    "asset": "controller",
+    "tilt": 25,
+    "scale": 1.25
    }
   },
   "craneKey": {

@@ -8,9 +8,9 @@
     "card": { "name": "card", "cs": "Karta", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
     "holoPlan": { "name": "holo plan", "cs": "Holog. plán", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
     "shipPlan": { "name": "ship plan", "cs": "Nákres", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
-    "shipPart": { "name": "ship part", "cs": "Součástka", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "shipPart": { "name": "ship part", "cs": "Součástka", "icon": { "asset": "shipPart", "state": 1, "tilt": 20, "scale": 1.25 } },
     "decoder": { "name": "decoder", "cs": "Dekodér", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
-    "controller": { "name": "controller", "cs": "Ovladač", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "controller": { "name": "controller", "cs": "Ovladač", "icon": { "asset": "controller", "tilt": 25, "scale": 1.25 } },
     "craneKey": { "name": "crane key", "cs": "Klíč", "icon": { "asset": "craneKey", "tilt": 30, "scale": 1.25 } }
   }
 }
