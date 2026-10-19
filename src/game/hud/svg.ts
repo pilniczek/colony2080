@@ -30,8 +30,8 @@ const MONO = "Share Tech Mono, monospace";
 const BOLD = "Orbitron, sans-serif";
 const HI = "#d8c8ae";
 const LO = "#0e0b08";
-const BAR_H = 26.4;
-const ROD_YS = [4.2, 9.6, 15, 20.4];
+const BAR_H = VIEW_BOX.top;
+const ROD_YS = [3.4, 7.8, 12.2, 16.6];
 
 const DEFS = `<defs>
   <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a08f76"/><stop offset=".1" stop-color="#6e604e"/><stop offset=".5" stop-color="#4b4034"/><stop offset=".85" stop-color="#2f2720"/><stop offset="1" stop-color="#1a1511"/></linearGradient>
@@ -63,12 +63,12 @@ const DEFS = `<defs>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
 
-const BLASTER = `<g transform="translate(108 7.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
+const BLASTER = `<g transform="translate(108 5.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
   <rect y="1" width="34" height="3" rx=".5"/><rect x="8" y="-1.4" width="14" height="2.4" rx=".5" fill="#3f4a46"/>
   <rect x="5" y="4" width="10" height="2.5"/><rect x="9" y="6.5" width="3" height="4.5" rx=".5"/></g>
-  <path d="M143 9.7q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
+  <path d="M143 7.7q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
 
-const HAND = `<g transform="translate(0 4.4)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
+const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
@@ -77,16 +77,14 @@ const bevel = (x: number, y: number, w: number, h: number, r: number, raised = t
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
 
 const counter = (x: number, n: number): string =>
-  `<text x="${x}" y="15.6" font-family="${MONO}" font-size="7.4" fill="${AMBER}" filter="url(#glow)">N:${String(Math.round(n)).padStart(3, "0")}</text>`;
+  `<text x="${x}" y="12.6" font-family="${MONO}" font-size="7.4" fill="${AMBER}" filter="url(#glow)">N:${String(Math.round(n)).padStart(3, "0")}</text>`;
 
 const image = ({ url, w, h }: HudIcon, x: number, y: number): string =>
   `<image href="${url}" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
 
-const gridPanel = (x: number, w: number): string => `<rect x="${x - 0.6}" y="2" width="${w + 1.2}" height="18.6" rx="2" fill="url(#plate)"/>
-  ${bevel(x - 0.6, 2, w + 1.2, 18.6, 2, true, 0.4)}
-  <rect x="${x + 0.4}" y="3" width="${w - 0.8}" height="16.6" rx="1.4" fill="#0b0806"/>
-  ${["grid", "insetTop", "insetSide", "glare"].map((f) => `<rect x="${x + 1}" y="3.6" width="${w - 2}" height="15.4" rx="1" fill="url(#${f})"/>`).join("")}
-  ${bevel(x + 0.4, 3, w - 0.8, 16.6, 1.4, false, 0.35)}`;
+const gridPanel = (x: number, w: number): string => `<rect x="${x + 0.4}" y="1.8" width="${w - 0.8}" height="16.2" rx="1.4" fill="#0b0806"/>
+  ${["grid", "insetTop", "insetSide", "glare"].map((f) => `<rect x="${x + 1}" y="2.4" width="${w - 2}" height="15" rx="1" fill="url(#${f})"/>`).join("")}
+  ${bevel(x + 0.4, 1.8, w - 0.8, 16.2, 1.4, false, 0.35)}`;
 
 const plate = ([a, b]: Span): string => `<rect x="${a}" y="0" width="${b - a}" height="${BAR_H}" rx="1.6" fill="url(#metal)"/>
   <path d="M${a + 1.6} .4H${b - 1.6}" stroke="#e8d8bc" stroke-width=".5"/>
@@ -96,32 +94,29 @@ const rod = ([a, b]: Span, y: number): string => `<rect x="${a - 1}" y="${y - 1.
   <rect x="${a - 1.8}" y="${y - 1.9}" width="1.4" height="3.8" rx=".4" fill="url(#plate)" stroke="${LO}" stroke-width=".25"/>
   <rect x="${b + 0.4}" y="${y - 1.9}" width="1.4" height="3.8" rx=".4" fill="url(#plate)" stroke="${LO}" stroke-width=".25"/>`;
 
-const emptyScrews = ([a, b]: Span): string => screw(a + 3, 6) + screw(b - 3, 6) + screw(a + 3, 19) + screw(b - 3, 19);
+const emptyScrews = ([a, b]: Span): string => screw(a + 3, 4.6) + screw(b - 3, 4.6) + screw(a + 3, 15.4) + screw(b - 3, 15.4);
 
 function badge(x: number): string {
-  return `<rect x="${x - 0.4}" y="1.8" width="48.8" height="21" rx="3.4" fill="#0b0806"/>
-  <rect x="${x + 0.6}" y="2.6" width="46.8" height="19.4" rx="3" fill="url(#plate)"/>
-  ${bevel(x + 0.6, 2.6, 46.8, 19.4, 3, true, 0.5)}
-  <rect x="${x + 3.4}" y="5.4" width="41.2" height="13.8" rx="1.8" fill="#16110d"/>
-  <rect x="${x + 3.4}" y="5.4" width="41.2" height="13.8" rx="1.8" fill="url(#insetTop)"/>
-  ${bevel(x + 3.4, 5.4, 41.2, 13.8, 1.8, false, 0.45)}
-  <text x="${x + 24}" y="16" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
-  <text x="${x + 24}" y="15.4" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
-  ${screw(x + 2.4, 4.4)}${screw(x + 45.6, 4.4)}${screw(x + 2.4, 20.2)}${screw(x + 45.6, 20.2)}`;
+  return `<rect x="${x + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="#16110d"/>
+  <rect x="${x + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="url(#insetTop)"/>
+  ${bevel(x + 3.4, 3.8, 41.2, 12.8, 1.8, false, 0.45)}
+  <text x="${x + 24}" y="13.9" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
+  <text x="${x + 24}" y="13.3" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
+  ${screw(x + 2.4, 3.2)}${screw(x + 45.6, 3.2)}${screw(x + 2.4, 17.2)}${screw(x + 45.6, 17.2)}`;
 }
 
 function top(W: number, s: HudState, icons: HudIcons): string {
   const bar = topBar(W);
   const item = s.item
-    ? `<text x="${bar.inv + bar.invW / 2}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
+    ? `<text x="${bar.inv + bar.invW / 2}" y="11.9" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
     : `<g transform="translate(${bar.inv + 5} 0)">${HAND}</g>`;
   return `<rect x="${bar.gaps[0]![1]}" width="${W - 2 * bar.gaps[0]![1]}" height="${BAR_H}" fill="#060504"/>
-  ${bar.gaps.map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
+  ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map(plate).join("")}
   ${bar.empty ? emptyScrews(bar.empty) : ""}
   ${gridPanel(bar.gridX, bar.gridW)}
-  ${weapon(image(icons.gun, 19, 4.4) + counter(59, s.ammo), s.weapon === 0)}
-  ${weapon(image(icons.fist, 84, 3.8), s.weapon === 1)}
+  ${weapon(image(icons.gun, 19, 2.9) + counter(59, s.ammo), s.weapon === 0)}
+  ${weapon(image(icons.fist, 84, 2.4), s.weapon === 1)}
   ${s.bonus ? weapon(BLASTER + counter(150, s.bonusAmmo), s.weapon === 2) : ""}
   ${badge(bar.badge)}
   ${gridPanel(bar.run, bar.runW)}${runText(bar.run + bar.runW / 2, s.running)}
@@ -131,7 +126,7 @@ function top(W: number, s: HudState, icons: HudIcons): string {
 const weapon = (content: string, active: boolean): string => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
 
 const runText = (x: number, on: boolean): string =>
-  `<text x="${x}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${on ? AMBER : "#8a6a3a"}"${on ? ' filter="url(#glow)"' : ""}>RUN</text>`;
+  `<text x="${x}" y="11.9" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${on ? AMBER : "#8a6a3a"}"${on ? ' filter="url(#glow)"' : ""}>RUN</text>`;
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 
@@ -211,9 +206,10 @@ function rightColumn(W: number, s: HudState): string {
   ${keyBox(x + 1, "S")}`;
 }
 
-function sides(W: number): string {
-  return `<rect width="${VIEW_BOX.left}" height="192" fill="url(#circuit)"/>
-  <rect transform="translate(${W - VIEW_BOX.right} 0)" width="${VIEW_BOX.right}" height="192" fill="url(#circuit)"/>`;
+function sides(W: number, H: number): string {
+  const h = H - VIEW_BOX.bottom;
+  return `<rect width="${VIEW_BOX.left}" height="${h}" fill="url(#circuit)"/>
+  <rect transform="translate(${W - VIEW_BOX.right} 0)" width="${VIEW_BOX.right}" height="${h}" fill="url(#circuit)"/>`;
 }
 
 function bottom(W: number): string {
@@ -225,12 +221,13 @@ function bottom(W: number): string {
   ${screw(W / 2 - 14, 196)}${screw(W / 2 + 14, 196)}`;
 }
 
-function frame(W: number): string {
+function frame(W: number, H: number): string {
   const { left, top: t, right, bottom: b } = VIEW_BOX;
-  return `<path fill-rule="evenodd" fill="url(#metalV)" d="M0 0H${W}V${HUD_H}H0Z M${left} ${t}V${HUD_H - b}H${W - right}V${t}Z"/>`;
+  return `<path fill-rule="evenodd" fill="url(#metalV)" d="M0 0H${W}V${H}H0Z M${left} ${t}V${H - b}H${W - right}V${t}Z"/>`;
 }
 
-export function hudSvg(W: number, s: HudState, icons: HudIcons): string {
-  return `<svg viewBox="0 0 ${W} ${HUD_H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">${DEFS}
-  ${frame(W)}${sides(W)}${top(W, s, icons)}${leftColumn(s)}${rightColumn(W, s)}${bottom(W)}</svg>`;
+export function hudSvg(W: number, H: number, s: HudState, icons: HudIcons): string {
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">${DEFS}
+  ${frame(W, H)}${sides(W, H)}${top(W, s, icons)}
+  <g transform="translate(0 ${H - HUD_H})">${leftColumn(s)}${rightColumn(W, s)}${bottom(W)}</g></svg>`;
 }

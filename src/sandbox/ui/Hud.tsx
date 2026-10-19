@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { hudIcons } from "../../game/hud/icons";
-import { HUD_H } from "../../game/hud/layout";
 import { hudSvg, type HudState } from "../../game/hud/svg";
 import { useSandbox } from "../store";
 
@@ -18,11 +17,11 @@ export function Hud() {
   const running = useSandbox((s) => s.running);
   const svg = useMemo(() => {
     const state: HudState = { ...UNSIMULATED, weapon: weapon === "gun" ? 0 : 1, life: (100 * energy) / max, reserve, shields, running, ammo };
-    return hudSvg(fit.W, state, icons);
-  }, [fit.W, energy, reserve, shields, ammo, max, weapon, running, icons]);
+    return hudSvg(fit.W, fit.H, state, icons);
+  }, [fit.W, fit.H, energy, reserve, shields, ammo, max, weapon, running, icons]);
   return (
     <div
-      style={{ position: "absolute", left: fit.x, top: fit.y, width: fit.W * fit.unit, height: HUD_H * fit.unit, pointerEvents: "none" }}
+      style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none" }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

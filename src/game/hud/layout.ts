@@ -2,9 +2,9 @@ export type Span = [number, number];
 
 export const HUD_H = 200;
 export const HUD_MIN_W = 320;
-export const VIEW_BOX = { left: 11, top: 27, right: 11, bottom: 8 };
+export const VIEW_BOX = { left: 11, top: 20.4, right: 11, bottom: 8 };
 
-const EDGE = 1.2;
+const EDGE = 0;
 const GAP = 2;
 const PLATE_PAD = 3.5;
 const INVENTORY_W = 46.5;
@@ -17,9 +17,8 @@ const MIN_EMPTY = 8;
 
 export interface HudFit {
   W: number;
+  H: number;
   unit: number;
-  x: number;
-  y: number;
 }
 
 export interface Rect {
@@ -44,16 +43,16 @@ export interface TopBar {
 
 export function hudFit(width: number, height: number): HudFit {
   const W = Math.max(HUD_MIN_W, (HUD_H * width) / height);
-  const unit = Math.min(height / HUD_H, width / W);
-  return { W, unit, x: (width - W * unit) / 2, y: (height - HUD_H * unit) / 2 };
+  const H = Math.max(HUD_H, (HUD_MIN_W * height) / width);
+  return { W, H, unit: height / H };
 }
 
-export function viewRect({ W, unit, x, y }: HudFit): Rect {
+export function viewRect({ W, H, unit }: HudFit): Rect {
   return {
-    x: x + VIEW_BOX.left * unit,
-    y: y + VIEW_BOX.top * unit,
+    x: VIEW_BOX.left * unit,
+    y: VIEW_BOX.top * unit,
     w: (W - VIEW_BOX.left - VIEW_BOX.right) * unit,
-    h: (HUD_H - VIEW_BOX.top - VIEW_BOX.bottom) * unit,
+    h: (H - VIEW_BOX.top - VIEW_BOX.bottom) * unit,
   };
 }
 
