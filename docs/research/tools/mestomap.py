@@ -4,6 +4,8 @@ import sys
 W, H = 160, 80
 BAND = 6
 SPAWN = [62.5, 59]
+EMPTY = (0, 0)
+LIFT_HINTS = {55: "The lift is broken."}
 TUNNEL_WEST_END = (70, 40)
 TASK_WALLS = {
     (75, 20): "waterPipe",
@@ -36,6 +38,16 @@ def band_top(floor, floors):
     return max(floor - BAND, above[-1] + 1) if above else floor - BAND
 
 
+def wall_top(data, planks, col, floor):
+    for row in range(floor - 1, -1, -1):
+        if planks[row][col] == "#":
+            return row + 1
+    row = floor
+    while row > 0 and tile_at(data, col, row - 1) != EMPTY:
+        row -= 1
+    return row
+
+
 def lift_stops(lift):
     return lift.get("stopsAfterRepair") or lift["stops"]
 
@@ -64,6 +76,8 @@ def lift_json(lift):
         out["startRow"] = start
     if lift.get("enabledBy"):
         out["enabledBy"] = lift["enabledBy"]
+    if lift["x"] in LIFT_HINTS:
+        out["hint"] = LIFT_HINTS[lift["x"]]
     return out
 
 
@@ -77,6 +91,7 @@ def build(data, layout):
     segments[extra["row"]] = [extra["cols"]]
     grid = [["."] * W for _ in range(H)]
     task_walls = []
+    walls = []
     for floor, segs in sorted(segments.items()):
         top = band_top(floor, floors) if floor in floors else floor - BAND
         for a, b in segs:
@@ -85,18 +100,20 @@ def build(data, layout):
         gaps = [c for (_, b), (a, _) in zip(segs, segs[1:]) for c in range(b + 1, a)]
         for col in gaps:
             key = (floor, col)
+            grid[floor][col] = "#"
             if key in TASK_WALLS:
-                grid[floor][col] = "#"
                 task_walls.append({"id": TASK_WALLS[key], "col": col, "top": top, "bottom": floor - 1})
-            elif key == TUNNEL_WEST_END:
-                grid[floor][col] = "#"
-            else:
-                fill(grid, col, top, floor, "#")
+            elif key != TUNNEL_WEST_END:
+                walls.append((col, floor))
         for col in (segs[0][0] - 1, segs[-1][1] + 1):
             if (floor, col) in code_walls or tile_at(data, col, floor - 1) in solid_tiles:
-                fill(grid, col, top, floor, "#")
+                grid[floor][col] = "#"
+                walls.append((col, floor))
             else:
                 fill(grid, col, top, floor - 1, "|")
+    planks = [row[:] for row in grid]
+    for col, floor in walls:
+        fill(grid, col, wall_top(data, planks, col, floor), floor, "#")
     for col, row in shaft_cells(layout["lifts"], segments):
         grid[row][col] = "."
     lifts = [lift_json(lift) for lift in layout["lifts"]]
