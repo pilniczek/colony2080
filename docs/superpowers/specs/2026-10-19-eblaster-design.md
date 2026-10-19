@@ -58,7 +58,7 @@ Claude's call:
 
 ## Design sheet
 
-An E-Blaster section in `spikes/gun-design/index.html`:
+`spikes/gun-design/index.html` gets a Fists / Gun / Blaster switch like the movement pages; every view shows the selected weapon (fists: empty hands). For the Blaster:
 
 - model views like the rotary gun: side, held side and front, back, slung on the back, game size;
 - beam: the 6 flicker shapes, animated loop, both facings, standing and ducking, at full and game size;
