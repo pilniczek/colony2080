@@ -112,6 +112,13 @@ describe("fog blocks shots", () => {
     expect(g.world.sparks).toHaveLength(0);
   });
 
+  it("does not hang on a bullet with no horizontal speed", () => {
+    const g = fogged(game({ x: 9.5, y: 4, weapon: "gun" }));
+    g.world.projectiles.push({ tag: "hero", x: 9.5, y: 4, vx: 0, r: 0.1 } as (typeof g.world.projectiles)[number]);
+    stepShots(g.world, cfg, 1 / 60);
+    expect(g.world.projectiles.every((p) => Number.isFinite(p.x))).toBe(true);
+  });
+
   it("keeps an enemy in the fog from seeing the hero", () => {
     const g = fogged(game({ x: 9.5, y: 4 }));
     const [enemy] = g.world.enemies;

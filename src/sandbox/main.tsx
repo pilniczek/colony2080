@@ -7,6 +7,7 @@ import { createRoot } from "react-dom/client";
 import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
+import { snapView } from "../game/render/snapView";
 import { createFog, loadFog } from "../game/fog";
 import type { Weapon } from "../game/hero/config";
 import { hudFit, viewRect, type Rect } from "../game/hud/layout";
@@ -80,7 +81,7 @@ const cameraView = (shown: { x: number; y: number }, cfg: { cellPx: number; box:
     shown.x * cellPx,
     (shown.y - cfg.box.height / 2) * cellPx,
   );
-  return { ...v, offsetX: v.offsetX + gameWindow.x, offsetY: v.offsetY + gameWindow.y };
+  return snapView({ ...v, offsetX: v.offsetX + gameWindow.x, offsetY: v.offsetY + gameWindow.y });
 };
 
 const watchPixelRatio = (): void => {

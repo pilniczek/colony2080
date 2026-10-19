@@ -103,6 +103,7 @@ export function updateFog(fog: Fog, h: Hero, sight: Sight, dt: number): void {
 export const visible = (fog: Fog, x: number, y: number): boolean => revealedAt(fog, Math.floor(x), Math.floor(y));
 
 export function fogEdge(fog: Fog, x: number, y: number, dir: number): number {
+  if (dir === 0) return 0;
   const row = Math.floor(y);
   if (row < 0 || row >= fog.height) return dir * Infinity;
   let col = Math.floor(x);

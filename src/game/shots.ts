@@ -50,6 +50,7 @@ const wallFace = (p: Projectile): number => (p.vx > 0 ? Math.floor(p.x) : Math.f
 
 function wallBetween(world: SandboxWorld, from: number, p: Projectile): number | null {
   const dir = Math.sign(p.vx);
+  if (dir === 0) return null;
   const row = Math.floor(p.y);
   for (let col = Math.floor(from); dir > 0 ? col <= Math.floor(p.x) : col >= Math.floor(p.x); col += dir) {
     if (world.grid.solid(col, row)) return dir > 0 ? col : col + 1;
