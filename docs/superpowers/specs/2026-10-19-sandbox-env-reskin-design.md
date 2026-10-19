@@ -41,7 +41,7 @@ Claude's call:
 - Sizes: spike assets have fixed boxes (`lift` 50 px wide with its platform moved by `t` over 72 px, `girderBridge` 144 px, `streetWalkway` 120 px, wall fills 72x168 and 168x122). Assets the sandbox needs at other sizes gain size parameters in the spike first (`lift`: width, shaft height, platform y instead of `t`; `girderBridge`, `streetWalkway`, wall fill: width, height). Default parameters keep the current spike output, so `spikes/env-design/` does not change. The port takes the same parameters. No stretching.
 - Platforms: runs that touch a wall or sit on solid tiles read as solid ledges (`streetWalkway` top on wall fill): row 4 cols 0-10 (enemy patrol), the row 13 col 26 step, the floor. Free-standing runs become `girderBridge`: row 4 cols 20-23 and row 11 cols 12-15.
 - Ladder through solid: the ladder draws over the wall fill, so the ladder cell in row 4 col 3 shows rails and rungs over the ledge.
-- Hiding beside: crate and barrel switch to their "player hiding beside" state while the hero is in `hide` and its box overlaps the prop's x span. Visual only; hide rules stay as they are.
+- Hiding beside: crate and barrel always draw their normal state. The spike "player hiding beside" state draws its own shaded robot for the sheet; in the sandbox the real hero already shows the hide pose, so that state would draw a second hero.
 - Visual check: add env cases to `tools/visual/compare.html` (spike vs port render per used asset and state), same pattern as robot and gun.
 
 ## Mapping
@@ -54,8 +54,8 @@ Claude's call:
 | Mid-air platforms (rows 4 and 11 runs) | `girderBridge` | - |
 | Lift | `lift`; state from `lift.vy`: 0 idle, < 0 moving up, > 0 moving down | per frame |
 | Ladder | new `ladder` | - |
-| `crate` | `crate` | normal; player hiding beside when the hero hides next to it |
-| `barrel` | `barrel` | same rule as crate |
+| `crate` | `crate` | normal |
+| `barrel` | `barrel` | normal |
 | `item` | `crowbar` | on ground; hidden when `taken` |
 | `panel` | `switchboard` | `on: false` dead, `on: true` repaired |
 | Dressing (no collision, no gameplay) | a few of `rubblePile`, `signPost`, `floorVent`, `pipeColumn`, `chainFence`, `stripLight` placed on free floor | builder's layout |
