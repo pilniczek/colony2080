@@ -7,15 +7,15 @@ import type { Projectile } from "../../engine/world/projectiles";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
-import { heroScale, RUNG, spikeUnit, type HeroLook, type HitLook, type Rigs } from "../hero/look";
+import { heroScale, spikeUnit, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Enemy } from "../level/enemy";
-import { type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import type { SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
+import { drawEnvironment } from "./environment";
 
 const DEG = Math.PI / 180;
-const PILLAR_EVERY = 3;
 const STAR = { radius: 14 / SPIKE_K, points: 10, inner: 0.35, outer: 0.6 };
 const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
@@ -39,28 +39,6 @@ const FIREBALLS: [number, number, number, number][] = [
 const SCRAP: [number, number][] = [[-34, 0], [-26, -8], [-14, -10], [-8, -18], [2, -12], [10, -22], [18, -12], [28, -10], [36, 0]];
 
 const COLORS = {
-  skyTop: "#1b2629",
-  skyBottom: "#0f1517",
-  pillar: "#162022",
-  slab: "#2d3a3c",
-  slabTop: "#4a5c5f",
-  rivet: "#1f2a2c",
-  crate: "#5b4a32",
-  crateLine: "#2a2016",
-  barrel: "#6b3a1c",
-  barrelLight: "#8c4c22",
-  barrelBand: "#3a1e0e",
-  item: "#3fa34a",
-  itemLight: "#b8e0b0",
-  panel: "#26363a",
-  panelLine: "#4a5c5f",
-  on: "#3fa34a",
-  off: "#e0281e",
-  shaft: "#3a2a22",
-  liftDeck: "#4a5c5f",
-  liftStripe: "#e0b020",
-  liftCage: "#6f878b",
-  ladder: "#4a5c5f",
   shot: "#ff6a3a",
   spark: "#ffd76a",
   blastCore: "#fff3b0",
@@ -79,138 +57,6 @@ interface Frame {
   unit: number;
   lineW: number;
 }
-
-const floorOf = (f: Frame, p: Prop): number => (p.y ?? f.world.spawn[1]) * f.cell;
-
-function backdrop(f: Frame): void {
-  const { ctx, world, cell } = f;
-  const w = world.grid.width * cell;
-  const h = world.grid.height * cell;
-  const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, COLORS.skyTop);
-  g.addColorStop(1, COLORS.skyBottom);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = COLORS.pillar;
-  for (let i = 0; i * PILLAR_EVERY < world.grid.width; i++) {
-    const top = (2 + (i % 3) * 0.75) * cell;
-    ctx.fillRect((i * PILLAR_EVERY + 0.5) * cell, top, 1.5 * cell, h - top);
-  }
-}
-
-function tiles(f: Frame): void {
-  const { ctx, world, cell, unit } = f;
-  const { grid } = world;
-  for (let row = 0; row < grid.height; row++) {
-    for (let col = 0; col < grid.width; col++) {
-      if (!grid.solid(col, row)) continue;
-      ctx.fillStyle = COLORS.slab;
-      ctx.fillRect(col * cell, row * cell, cell, cell);
-      if (row === 0 || grid.solid(col, row - 1)) continue;
-      ctx.fillStyle = COLORS.slabTop;
-      ctx.fillRect(col * cell, row * cell, cell, 3 * unit);
-      ctx.fillStyle = COLORS.rivet;
-      for (let x = col * cell + 10 * unit; x < (col + 1) * cell; x += 28 * unit) ctx.fillRect(x, row * cell + 8 * unit, 2 * unit, 2 * unit);
-    }
-  }
-}
-
-function ladders(f: Frame): void {
-  const { ctx, world, cell, unit } = f;
-  const { grid } = world;
-  ctx.fillStyle = COLORS.ladder;
-  for (let col = 0; col < grid.width; col++) {
-    for (let row = 0; row < grid.height; row++) {
-      if (!grid.ladderTop(col, row)) continue;
-      let end = row;
-      while (grid.at(col, end) === "H") end++;
-      const cx = (col + 0.5) * cell;
-      const [top, bottom] = [row * cell, end * cell];
-      ctx.fillRect(cx - 28 * unit, top, 5 * unit, bottom - top);
-      ctx.fillRect(cx + 23 * unit, top, 5 * unit, bottom - top);
-      for (let y = bottom - RUNG * unit; y > top; y -= RUNG * unit) ctx.fillRect(cx - 28 * unit, y, 56 * unit, 3 * unit);
-    }
-  }
-}
-
-function lift(f: Frame, alpha: number): void {
-  const { ctx, world, cell, unit } = f;
-  const l = world.lift;
-  const left = l.x * cell;
-  const right = (l.x + l.w) * cell;
-  const y = (l.y - l.vy * (1 - alpha) * FIXED_STEP) * cell;
-  ctx.fillStyle = COLORS.shaft;
-  ctx.fillRect(left - 14 * unit, l.top * cell, 10 * unit, (l.bottom - l.top) * cell);
-  ctx.fillRect(right + 4 * unit, l.top * cell, 10 * unit, (l.bottom - l.top) * cell);
-  ctx.fillStyle = COLORS.liftDeck;
-  ctx.fillRect(left, y, right - left, 8 * unit);
-  ctx.fillStyle = COLORS.liftStripe;
-  for (let x = left; x < right; x += 16 * unit) ctx.fillRect(x, y + 2 * unit, Math.min(8 * unit, right - x), 4 * unit);
-  ctx.fillStyle = COLORS.liftCage;
-  ctx.fillRect(left, y - 40 * unit, 3 * unit, 40 * unit);
-  ctx.fillRect(right - 3 * unit, y - 40 * unit, 3 * unit, 40 * unit);
-  ctx.fillRect(left, y - 40 * unit, right - left, 3 * unit);
-}
-
-function box(f: Frame, p: Prop, w: number, h: number, fill: string, line: string): void {
-  const { ctx, unit } = f;
-  const x = p.x * f.cell - w / 2;
-  const y = floorOf(f, p);
-  const inset = 0.75 * unit;
-  ctx.fillStyle = fill;
-  ctx.fillRect(x, y - h, w, h);
-  ctx.strokeStyle = line;
-  ctx.lineWidth = 1.5 * unit;
-  ctx.strokeRect(x + inset, y - h + inset, w - 2 * inset, h - 2 * inset);
-  ctx.beginPath();
-  ctx.moveTo(x, y - h);
-  ctx.lineTo(x + w, y);
-  ctx.moveTo(x + w, y - h);
-  ctx.lineTo(x, y);
-  ctx.stroke();
-}
-
-const crate = (f: Frame, p: Prop): void => box(f, p, (p.width ?? 1) * f.cell, (p.height ?? 1) * f.cell, COLORS.crate, COLORS.crateLine);
-
-function barrel(f: Frame, p: Prop): void {
-  const { ctx, cell, unit } = f;
-  const w = (p.width ?? 1) * cell;
-  const h = (p.height ?? 1) * cell;
-  const x = p.x * cell - w / 2;
-  const y = floorOf(f, p);
-  ctx.fillStyle = COLORS.barrel;
-  ctx.fillRect(x, y - h, w, h);
-  ctx.fillStyle = COLORS.barrelLight;
-  ctx.fillRect(x + w * 0.15, y - h, w * 0.2, h);
-  ctx.fillStyle = COLORS.barrelBand;
-  for (const k of [0.2, 0.8]) ctx.fillRect(x, y - h * k - 2 * unit, w, 4 * unit);
-}
-
-function item(f: Frame, p: Prop): void {
-  if (p.taken) return;
-  const { ctx, cell, unit } = f;
-  const x = p.x * cell;
-  const y = floorOf(f, p);
-  ctx.fillStyle = COLORS.item;
-  ctx.fillRect(x - 6 * unit, y - 8 * unit, 12 * unit, 8 * unit);
-  ctx.fillStyle = COLORS.itemLight;
-  ctx.fillRect(x - 6 * unit, y - 8 * unit, 12 * unit, 2 * unit);
-}
-
-function panel(f: Frame, p: Prop): void {
-  const { ctx, cell, unit } = f;
-  const x = p.x * cell;
-  const y = floorOf(f, p);
-  ctx.fillStyle = COLORS.panel;
-  ctx.fillRect(x - 17 * unit, y - 26 * unit, 34 * unit, 52 * unit);
-  ctx.strokeStyle = COLORS.panelLine;
-  ctx.lineWidth = unit;
-  ctx.strokeRect(x - 17 * unit, y - 26 * unit, 34 * unit, 52 * unit);
-  ctx.fillStyle = p.on ? COLORS.on : COLORS.off;
-  ctx.fillRect(x + 3 * unit, y - 20 * unit, 8 * unit, 8 * unit);
-}
-
-const PROPS: Record<string, (f: Frame, p: Prop) => void> = { crate, barrel, item, panel };
 
 function projectiles(f: Frame, alpha: number): void {
   const { world, cell } = f;
@@ -426,6 +272,7 @@ export function drawScene(
   enemyLook: HeroLook,
   enemyRigs: Rigs,
   sight: Path2D | null = null,
+  lines = 1,
 ): void {
   const scale = heroScale(cfg);
   const unit = spikeUnit(cfg);
@@ -435,11 +282,7 @@ export function drawScene(
   ctx.beginPath();
   ctx.rect(0, 0, world.grid.width * f.cell, world.grid.height * f.cell);
   ctx.clip();
-  backdrop(f);
-  tiles(f);
-  lift(f, alpha);
-  ladders(f);
-  for (const p of world.props) PROPS[p.kind]?.(f, p);
+  drawEnvironment(ctx, world, cfg, alpha, lines);
   ctx.save();
   if (sight) ctx.clip(sight);
   enemyFigure(f, world.enemy, enemyLook, enemyRigs, scale);

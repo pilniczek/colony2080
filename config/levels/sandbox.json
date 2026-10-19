@@ -25,15 +25,15 @@
     { "asset": "midgroundRuins", "x": 0.5 },
     { "asset": "windowBuilding", "x": 7 },
     { "asset": "ruinedBuilding", "x": 17.5 },
-    { "asset": "colonnadeBuilding", "x": 26 },
-    { "asset": "facadeTower", "x": 31 }
+    { "asset": "colonnadeBuilding", "x": 27.5 },
+    { "asset": "facadeTower", "x": 30.4 },
+    { "asset": "rubblePile", "x": 11.25 }
   ],
   "dressing": [
-    { "asset": "rubblePile", "x": 11.5 },
     { "asset": "signPost", "x": 1.2 },
     { "asset": "floorVent", "x": 7.5 },
-    { "asset": "pipeColumn", "x": 27 },
-    { "asset": "stripLight", "x": 32 }
+    { "asset": "pipeColumn", "x": 32 },
+    { "asset": "stripLight", "x": 6.25, "y": 8 }
   ],
   "lift": { "x": 17, "width": 3, "top": 4, "bottom": 14 },
   "props": [
