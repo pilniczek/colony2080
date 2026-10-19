@@ -13,7 +13,7 @@
     { "id": "unlockPlasma", "object": "codeLock", "requires": ["item:decoder"], "gives": ["flag:plasmaOff"], "state": 1, "sets": { "plasmaBarrier": 1 }, "subtitle": "Code accepted. The plasma dies down." },
     { "id": "repairLift", "object": "damagedLift", "requires": ["item:controller"], "gives": ["flag:upperFloorsOpen"], "state": 0, "subtitle": "The lift screen clears. It runs again." },
     { "id": "openDoor", "object": "cardDoor", "requires": ["item:card"], "gives": ["flag:doorOpen"], "state": 1, "subtitle": "Card accepted. The door opens." },
-    { "id": "useAcidTank", "object": "acidTank", "requires": ["item:tapHandle"], "gives": ["flag:acidPoured"], "state": 2, "subtitle": "Acid pours out of the tank." },
+    { "id": "useAcidTank", "object": "acidTank", "requires": ["item:tapHandle"], "gives": ["flag:acidPoured"], "state": 2, "sets": { "acidGuard": 1 }, "subtitle": "Acid pours out of the tank. The guard below melts down." },
     { "id": "repairCrane", "object": "crane", "requires": ["item:craneKey"], "gives": ["flag:levelComplete"], "state": 1, "subtitle": "Level complete" }
   ]
 }

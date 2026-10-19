@@ -2,7 +2,7 @@ export const TILE = 24;
 
 export type EnvPalette = Record<string, string>;
 
-export type Material = "rust" | "concrete" | "brick" | "steel" | "chrome" | "green" | "armor" | "yellow" | "olive" | "denim" | "jacket" | "skin" | "hair" | "boot";
+export type Material = "rust" | "concrete" | "brick" | "steel" | "chrome" | "green" | "armor" | "yellow" | "olive" | "denim" | "jacket" | "skin" | "hair" | "boot" | "flyerHull" | "flyerShell" | "flyerStripe" | "flyerHump" | "guardMetal" | "guardChrome";
 
 type Tones = [string, string, string, string, string];
 
@@ -51,6 +51,22 @@ export const PALETTE: EnvPalette = {
   hair0: "#120c08", hair1: "#2a1a10", hair2: "#46301e", hair3: "#5e4630",
   boot0: "#110e0c", boot1: "#262019", boot2: "#3e352a", boot3: "#5a4e3e",
   sky0: "#2a1008", sky1: "#5a2a14", sky2: "#8a4a28", sky3: "#b8744a", skyline: "#0e0a08", skyline2: "#1e1410",
+  fh0: "#182424", fh1: "#2c3838", fh2: "#404c4c", fh3: "#586464", fhLine: "#070d0e",
+  fc0: "#061204", fc1: "#0c2008", fc2: "#182414", fc3: "#2c3c24",
+  fs0: "#0c3020", fs1: "#285038", fs2: "#305840", fs3: "#406c48",
+  fk0: "#282420", fk1: "#3c3a34", fk2: "#545048", fk3: "#686458",
+  fWindow: "#244830", fLight: "#c89a30", fLightHot: "#f0d070", fBelly: "#1c140c", fPatch: "#98a8a8",
+  e0: "#202488", e1: "#4c70a0", e2: "#c4cccc", e3: "#f4f4f4", eGlow: "#6084f4",
+  fire0: "#b04010", fire1: "#e88a28", fire2: "#f8d070", fire3: "#ffffff",
+  gm0: "#182424", gm1: "#2c3838", gm2: "#404c4c", gm3: "#586464", gmLine: "#070d0e",
+  gc0: "#445854", gc1: "#6c7c7a", gc2: "#98a8a8", gc3: "#c4cccc",
+  top0: "#061204", top1: "#0c2008", top2: "#182414", top3: "#2c3c24",
+  stripe0: "#163220", stripe1: "#285038", stripe2: "#305840", stripe3: "#406c48",
+  light: "#c89a30", glint: "#4a7068",
+  shell0: "#2c3838", shell1: "#404c4c", shell2: "#4c5858", shell3: "#586464", groove: "#202a28", band: "#304040",
+  visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
+  lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
+  visor: "#ac2c0c", visorGlow: "#ff5a30", fume: "#a8c890",
 };
 
 export const MAT: Record<Material, Tones> = {
@@ -68,6 +84,12 @@ export const MAT: Record<Material, Tones> = {
   skin: ["skin0", "skin1", "skin2", "skin3", "kLine"],
   hair: ["hair0", "hair1", "hair2", "hair3", "kLine"],
   boot: ["boot0", "boot1", "boot2", "boot3", "kLine"],
+  flyerHull: ["fh0", "fh1", "fh2", "fh3", "fhLine"],
+  flyerShell: ["fc0", "fc1", "fc2", "fc3", "fhLine"],
+  flyerStripe: ["fs0", "fs1", "fs2", "fs3", "fhLine"],
+  flyerHump: ["fk0", "fk1", "fk2", "fk3", "fhLine"],
+  guardMetal: ["gm0", "gm1", "gm2", "gm3", "gmLine"],
+  guardChrome: ["gc0", "gc1", "gc2", "gc3", "gmLine"],
 };
 
 let pal = PALETTE;

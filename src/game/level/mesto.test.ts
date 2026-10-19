@@ -110,7 +110,7 @@ describe("mesto map", () => {
 describe("mesto props", () => {
   const { props } = world;
   const objects = ["dyingRebel", "wireBox", "switchboard", "trainDoor", "tapValveWheel", "corpse", "barDoor", "crashedShip", "codeLock", "damagedLift", "acidTank", "cardDoor", "crane"];
-  const gates = ["metroTunnel", "waterPipe", "plasmaBarrier"];
+  const gates = ["metroTunnel", "waterPipe", "plasmaBarrier", "acidGuard"];
 
   it("places every interactive object once", () => {
     const ids = props.filter((p) => p.kind === "object").map((p) => p.id).sort();

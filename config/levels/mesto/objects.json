@@ -773,6 +773,50 @@
       ]
     },
     {
+      "id": "acidGuard",
+      "name": "Acid guard",
+      "csName": "strážce",
+      "interactive": false,
+      "marker": 14,
+      "task": "useAcidTank",
+      "sheet": "enemies",
+      "description": "Guard robot that normal weapons cannot kill, standing on floor 30 at map cells 109-111, rows 27-29 (drawn as map tiles, not a sprite). It blocks the way to the lift up to the crane level. Acid from the tank one floor up destroys it; map variant M16 swaps it for wreckage. Our look is a compact walker built on the flyer hull with the original stepped red visor (spikes/enemy-design).",
+      "states": [
+        "alive (blocks)",
+        "wreck"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M11.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2592,
+            600,
+            144,
+            144
+          ],
+          "caption": "map M11: guard tiles"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M16.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2664,
+            600,
+            144,
+            144
+          ],
+          "caption": "map M16: guard wreck"
+        }
+      ]
+    },
+    {
       "id": "craneKey",
       "name": "Crane key pickup",
       "csName": "klíček / Klíč",

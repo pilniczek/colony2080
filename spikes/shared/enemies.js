@@ -21,10 +21,12 @@ const GUARD_PALETTE = {
   shell0: "#2c3838", shell1: "#404c4c", shell2: "#4c5858", shell3: "#586464", groove: "#202a28", band: "#304040",
   visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
   lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
-  visor: "#ac2c0c", visorGlow: "#ff5a30", rust: "#8a4a22", rustLight: "#b8703a",
+  visor: "#ac2c0c", visorGlow: "#ff5a30",
   acid: "#7ed43a", acidDark: "#2e6a12", fume: "#a8c890",
   fire0: "#b04010", fire1: "#e88a28", fire2: "#f8d070", fire3: "#ffffff"
 };
+
+Object.assign(ENV.PALETTE, GUARD_PALETTE);
 
 Object.assign(MAT, {
   flyerHull: ["fh0", "fh1", "fh2", "fh3", "fhLine"],
@@ -585,6 +587,14 @@ const GUARD_FRONT = {
 };
 
 const GUARD_LEVELS = [["top", -38.5], ["visor", -32.5], ["hip", -23.5], ["knee", -FRONT_KNEE], ["foot", 0]].map(([name, y]) => [name, y * GUARD_SIZE]);
+
+ENV.define({
+  id: "acidGuard",
+  box: [-56, -56, 54, 56],
+  draw(ctx, state) {
+    GUARD.draw(ctx, state === 1 ? 3 : 0, 0);
+  }
+});
 
 window.ENEMIES = {
   FLYER, GUARD, GUARD_FRONT, GUARD_LEVELS, FLYER_PALETTE, GUARD_PALETTE,
