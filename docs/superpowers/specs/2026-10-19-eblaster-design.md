@@ -24,6 +24,7 @@ User:
 - Mirror the original E-Blaster.
 - The range of every weapon matches the sight range: one value, `sightCells` in `config/hero/movement.json`. When it changes, sight, bullet range and beam range change together. Recorded in `docs/requirements.md`.
 - The E-Blaster has its own held model (deviation from the original, which reuses the gun sprite), designed with views in `spikes/gun-design/` like the rotary gun: side, held side, front, back, slung, game size.
+- Every spike with a Fists / Gun select (`spikes/movement/movement.html`, `interaction.html`, `fight.html`) gets a third choice, Blaster: every armed cell shows the hero holding the E-Blaster, and the shooting cells fire the beam instead of bullets.
 - While hidden, every weapon switch plays the switch animation, gun and E-Blaster included. A gun to E-Blaster change animates like the fists switch: the held weapon goes to the back, the other one is drawn. Outside cover, switches stay instant as today.
 
 From the original (report 12):
