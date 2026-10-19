@@ -833,12 +833,8 @@ move("fight", "Death", "energy runs out", 5, (c, t) => {
 });
 
 const grid = document.getElementById("grid");
-const cells = MOVES.filter(m => m.category === CATEGORY).map(m => {
-  const fig = document.createElement("figure");
-  const canvas = document.createElement("canvas");
-  const cap = document.createElement("figcaption");
-  const b = document.createElement("b");
-  const s = document.createElement("span");
+
+function progressBar(fig, before) {
   const meta = document.createElement("div");
   const track = document.createElement("div");
   const fill = document.createElement("i");
@@ -846,14 +842,25 @@ const cells = MOVES.filter(m => m.category === CATEGORY).map(m => {
   meta.className = "progress";
   track.append(fill);
   meta.append(track, time);
+  fig.insertBefore(meta, before);
+  return { fill, time };
+}
+const cells = MOVES.filter(m => m.category === CATEGORY).map(m => {
+  const fig = document.createElement("figure");
+  const canvas = document.createElement("canvas");
+  const cap = document.createElement("figcaption");
+  const b = document.createElement("b");
+  const s = document.createElement("span");
   cap.append(b, s);
-  fig.append(canvas, meta, cap);
+  fig.append(canvas, cap);
   grid.append(fig);
+  const cell = { m, canvas, ctx: canvas.getContext("2d"), b, s, progress: null, visible: true };
   if (m.scene) {
     fig.className = "scene";
     fig.onclick = () => window.openCutscene(m.scene);
+    cell.progress = progressBar(fig, cap);
   }
-  return { m, canvas, ctx: canvas.getContext("2d"), b, s, fill, time, visible: true };
+  return cell;
 });
 
 const watcher = new IntersectionObserver(entries => {
@@ -874,11 +881,13 @@ setWeapon(WEAPON);
 function frame(now) {
   const dpr = devicePixelRatio || 1;
   LINE = dpr;
-  for (const { m, canvas, ctx, fill, time, visible } of cells) {
+  for (const { m, canvas, ctx, progress, visible } of cells) {
     if (!visible) continue;
     const t = (now / 1000) % m.period;
-    fill.style.width = `${(t / m.period) * 100}%`;
-    time.textContent = `${t.toFixed(1)} / ${m.period.toFixed(1)} s`;
+    if (progress) {
+      progress.fill.style.width = `${(t / m.period) * 100}%`;
+      progress.time.textContent = `${t.toFixed(1)} / ${m.period.toFixed(1)} s`;
+    }
     const w = Math.round(canvas.clientWidth * dpr);
     if (canvas.width !== w) { canvas.width = w; canvas.height = Math.round(w * H / W); }
     const s = canvas.width / W;
