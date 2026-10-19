@@ -2,6 +2,8 @@ import { barrelFor, drawGun, FRONT_BARREL, gunHook, gunSlung, holdPoses } from "
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
+import { drawAsset, type EnvAsset, type Size } from "../../src/game/env/paint";
+import { structureAssets } from "../../src/game/env/structures";
 import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
 
 interface SpikeNode {
@@ -40,6 +42,16 @@ interface SpikeGun {
   slung(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
 }
 
+interface SpikeEnvAsset {
+  id: string;
+  box: [number, number, number, number];
+}
+
+interface SpikeEnv {
+  ASSETS: SpikeEnvAsset[];
+  draw(ctx: CanvasRenderingContext2D, asset: SpikeEnvAsset, opts: { state?: number; t?: number; lines?: number; lod?: boolean; size?: Size }): void;
+}
+
 interface Spike {
   buildFront(opts: Options): SpikeNode;
   buildSide(opts: Options): SpikeNode;
@@ -60,6 +72,7 @@ declare global {
   interface Window {
     XBOT: Spike;
     GUN: SpikeGun;
+    ENV: SpikeEnv;
     __visualCount?: number;
     __visual?: VisualResult[];
   }
@@ -272,6 +285,46 @@ const runFrontBarrel = (out: HTMLElement): VisualResult => {
   return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
 };
 
+const ENV_SCALE = 2;
+const ENV_PAD = 16;
+
+const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefined, out: HTMLElement): VisualResult => {
+  const spikeAsset = window.ENV.ASSETS.find((a) => a.id === id);
+  const portAsset = structureAssets.find((a: EnvAsset) => a.id === id);
+  if (!spikeAsset || !portAsset) throw new Error(`missing env asset ${id}`);
+  const [bx, by, bw, bh] = spikeAsset.box;
+  const x0 = Math.min(bx, 0) - ENV_PAD;
+  const y0 = Math.min(by, -(size?.h ?? 0)) - ENV_PAD;
+  const x1 = Math.max(bx + bw, size?.w ?? 0) + ENV_PAD;
+  const y1 = Math.max(by + bh, 24) + ENV_PAD;
+  const make = (): CanvasRenderingContext2D => {
+    const c = document.createElement("canvas");
+    c.width = Math.ceil((x1 - x0) * ENV_SCALE);
+    c.height = Math.ceil((y1 - y0) * ENV_SCALE);
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    if (!ctx) throw new Error("no 2d context");
+    ctx.scale(ENV_SCALE, ENV_SCALE);
+    ctx.translate(-x0, -y0);
+    return ctx;
+  };
+  const spike = make();
+  const own = make();
+  const opts = { state, t: 0, lines: 1, lod, size };
+  window.ENV.draw(spike, spikeAsset, opts);
+  drawAsset(own, portAsset, opts);
+  const a = spike.getImageData(0, 0, spike.canvas.width, spike.canvas.height).data;
+  const b = own.getImageData(0, 0, own.canvas.width, own.canvas.height).data;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 4) if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2] || a[i + 3] !== b[i + 3]) diff++;
+  const name = `env ${id} ${JSON.stringify({ state, lod, size })}`;
+  const result = { name, mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0, pass: diff === 0 };
+  const box = document.createElement("div");
+  box.className = "case";
+  box.append(spike.canvas, own.canvas, document.createElement("br"), `${name} diff ${diff}`);
+  out.append(box);
+  return result;
+};
+
 const out = document.getElementById("out");
 if (!out) throw new Error("missing #out");
 const lods = [false, true];
@@ -283,6 +336,16 @@ const gunCases = [
   ),
 ];
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const cases = [...robotCases, ...hitCases, ...gunCases, runFrontBarrel];
+const envStates: Record<string, number[]> = { stripLight: [0, 1] };
+const envSizes: [string, Size][] = [
+  ["streetWalkway", { w: 96 }],
+  ["girderBridge", { w: 96 }],
+  ["ladder", { h: 240, w: 17.2, rung: 6.76 }],
+];
+const envCases = [
+  ...structureAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod) => (o: HTMLElement) => runEnvCase(a.id, state, lod, undefined, o)))),
+  ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
+];
+const cases = [...robotCases, ...hitCases, ...gunCases, runFrontBarrel, ...envCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));
