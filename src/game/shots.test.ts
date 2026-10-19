@@ -165,6 +165,17 @@ describe("hero bullets", () => {
     expect(g.world.sparks).toHaveLength(0);
   });
 
+  it("hits a hero the enemy sees at the edge of its range", () => {
+    for (const d of [8.8, 8.9, cfg.sightCells]) {
+      const g = game({ x: 5.5 + d, y: 14 });
+      const [enemy] = g.world.enemies;
+      Object.assign(enemy!.body, { x: 5.5, y: 14, facing: 1 });
+      fireEnemy(g.world, cfg, clips, enemy!, 1);
+      run(g, 1);
+      expect(g.hero.energy).toBeLessThan(cfg.energy.max);
+    }
+  });
+
   it("passes through props the hero walks through", () => {
     const g = armed(19.5);
     fire(g, 3);

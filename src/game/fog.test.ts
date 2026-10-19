@@ -98,7 +98,7 @@ describe("fog blocks shots", () => {
     tick(g, ["shoot"], ["shoot"]);
     run(g, 3, ["shoot"]);
     expect(g.world.sparks).toHaveLength(0);
-    expect(g.world.projectiles.every((p) => p.x <= 9)).toBe(true);
+    expect(g.world.projectiles.every((p) => p.x <= 2.5 + cfg.sightCells)).toBe(true);
   });
 
   it("keeps an enemy in the fog safe from hero bullets", () => {

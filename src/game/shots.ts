@@ -228,10 +228,13 @@ export function stepShots(world: SandboxWorld, cfg: MovementConfig, dt: number):
   const alive = new Set(stepProjectiles(world.projectiles, world.grid, dt));
   const { width, height } = world.grid;
   world.projectiles = world.projectiles.filter((p) => {
-    const edge = sightEdge(world, from.get(p)!, p);
-    if (strike(world, cfg, from.get(p)!, p, edge, cfg.shot.damage, true)) return false;
+    const x0 = from.get(p)!;
+    const edge = sightEdge(world, x0, p);
+    if (strike(world, cfg, x0, p, edge, cfg.shot.damage, true)) return false;
     const inside = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height;
     if (!alive.has(p) && inside && !beyond(p, wallFace(p), edge)) world.sparks.push({ x: wallFace(p), y: p.y, age: 0 });
-    return alive.has(p) && !beyond(p, p.x, edge);
+    if (!alive.has(p) || x0 === p.endX || beyond(p, x0, edge)) return false;
+    if (beyond(p, p.x, edge)) p.x = p.endX = edge;
+    return true;
   });
 }

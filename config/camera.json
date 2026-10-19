@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/requirements.md; playfield 290x169 px = about 12x7 tiles (docs/research/README.md), hero 6 cells from the left screen edge (docs/research/reports/10-level1-enemies.md), fog reveal width is the hero sightCells (config/hero/movement.json), rowsAbove and rowsBelow are the original 6 and 1 plus 50% (user); sandbox camera view 40 x 16 cells (user, sandbox tall map plan)",
+  "source": "docs/requirements.md; playfield 290x169 px = about 12x7 tiles (docs/research/README.md), hero 6 cells from the left screen edge (docs/research/reports/10-level1-enemies.md), fog reveal width is the hero sightCells (config/hero/movement.json), rowsBelow is the original 1 plus 50%, rowsAbove the original 6 plus 50% lowered by 2 (user); sandbox camera view 40 x 16 cells (user, sandbox tall map plan)",
   "view": {
     "widthCells": 40,
     "heightCells": 16
@@ -12,7 +12,7 @@
   },
   "fogOfWar": {
     "enabled": true,
-    "rowsAbove": 9,
+    "rowsAbove": 7,
     "rowsBelow": 1.5,
     "followRate": 6,
     "color": "#0a1013",
