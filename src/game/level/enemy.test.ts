@@ -1,7 +1,8 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { cfg, clips, dt, game, run, tick, type Game } from "../hero/testWorld";
-import { ENEMY_SHOT, hitEnemy, isDead, updateEnemy, type Enemy } from "./enemy";
+import { TileGrid } from "../../engine/world/tiles";
+import { createEnemy, ENEMY_SHOT, hitEnemy, isDead, updateEnemy, type Enemy } from "./enemy";
 
 const PATROL = { left: 1 + cfg.box.width / 2, right: 11 - cfg.box.width / 2 };
 
@@ -235,6 +236,13 @@ describe("sandbox enemy", () => {
         expect(right <= l.x || left >= l.x + l.w).toBe(true);
       }
     }
+  });
+
+  it("stops its patrol at a middle lift stop", () => {
+    const grid = new TileGrid(["..........", "##########"]);
+    const shaft = { x: 6, w: 2, top: 0, bottom: 2, stops: [0, 1, 2] };
+    const enemy = createEnemy({ ...sandbox.enemies[0]!, x: 1.5, y: 1, facing: 1 }, grid, [shaft]);
+    expect(enemy.patrol[1]).toBeCloseTo(6 - 0.35, 9);
   });
 
   it("does not see the hero at spawn", () => {

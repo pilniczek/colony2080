@@ -20,6 +20,13 @@ describe("TileGrid", () => {
     expect(grid.ladderTop(3, 4)).toBe(true);
     expect(grid.ladderTop(3, 5)).toBe(false);
   });
+
+  it("treats an invisible blocker as solid", () => {
+    const blocked = new TileGrid(["|.#"]);
+    expect(blocked.solid(0, 0)).toBe(true);
+    expect(blocked.solid(1, 0)).toBe(false);
+    expect(blocked.solid(2, 0)).toBe(true);
+  });
 });
 
 describe("moveBox", () => {

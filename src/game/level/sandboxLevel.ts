@@ -30,6 +30,7 @@ export interface Scenery {
 export interface Lift extends Platform {
   top: number;
   bottom: number;
+  stops: number[];
   target: number | null;
 }
 
@@ -63,13 +64,24 @@ export interface SandboxWorld {
 
 type SceneryJson = Omit<Scenery, "asset"> & { asset: string };
 
-interface SandboxJson {
+export interface LiftJson {
+  x: number;
+  width: number;
+  top: number;
+  bottom: number;
+  stops?: number[];
+  start?: "top" | "bottom";
+  startRow?: number;
+  enabledBy?: string;
+}
+
+export interface SandboxJson {
   rows: string[];
   spawn: [number, number];
   sky: string;
   backdrop: SceneryJson[];
   dressing: SceneryJson[];
-  lifts: { x: number; width: number; top: number; bottom: number; start?: "top" | "bottom" }[];
+  lifts: LiftJson[];
   props: Prop[];
   enemies: EnemyJson[];
 }
@@ -91,11 +103,12 @@ export function loadSandbox(json: unknown): SandboxWorld {
   const grid = new TileGrid(data.rows);
   const lifts = data.lifts.map((lift) => ({
     x: lift.x,
-    y: lift.start === "top" ? lift.top : lift.bottom,
+    y: lift.startRow ?? (lift.start === "top" ? lift.top : lift.bottom),
     w: lift.width,
     vy: 0,
     top: lift.top,
     bottom: lift.bottom,
+    stops: lift.stops ? [...lift.stops] : [lift.top, lift.bottom],
     target: null,
   }));
   return {
@@ -137,7 +150,8 @@ export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">, cfg: Movem
 
 export function callLift(lift: Lift, dir: -1 | 1): void {
   if (lift.target !== null) return;
-  lift.target = dir < 0 ? lift.top : lift.bottom;
+  const ahead = lift.stops.filter((row) => (row - lift.y) * dir > 0);
+  lift.target = ahead.length ? (dir < 0 ? Math.max(...ahead) : Math.min(...ahead)) : dir < 0 ? lift.top : lift.bottom;
 }
 
 export function updateLift(lift: Lift, speed: number, dt: number): void {

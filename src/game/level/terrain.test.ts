@@ -35,4 +35,10 @@ describe("terrain", () => {
     expect(new Set(cells).size).toBe(cells.length);
     expect(new Set(cells)).toEqual(new Set(solidCells(grid)));
   });
+
+  it("draws no wall or ledge for an invisible blocker", () => {
+    const blocked = terrain(new TileGrid(["|...|", "|...|", "#####"]));
+    const cells = [...blocked.walls.flatMap(cellsOfRect), ...blocked.ledges.flatMap(cellsOfRun), ...blocked.girders.flatMap(cellsOfRun)];
+    expect([...new Set(cells)].sort()).toEqual(["0,2", "1,2", "2,2", "3,2", "4,2"]);
+  });
 });

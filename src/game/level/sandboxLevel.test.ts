@@ -54,6 +54,37 @@ describe("lift", () => {
   });
 });
 
+describe("lift stops", () => {
+  const three = { x: 1, width: 3, top: 4, bottom: 18, stops: [4, 11, 18] };
+
+  it("defaults to its top and bottom stops", () => {
+    expect(loadSandbox(sandbox).lifts.map((l) => l.stops)).toEqual(sandbox.lifts.map((l) => [l.top, l.bottom]));
+  });
+
+  it("goes to the next stop in the pressed direction", () => {
+    const lift = loadSandbox({ ...sandbox, lifts: [three] }).lifts[0]!;
+    expect(lift.y).toBe(18);
+    callLift(lift, -1);
+    expect(lift.target).toBe(11);
+    lift.y = 11;
+    lift.target = null;
+    callLift(lift, -1);
+    expect(lift.target).toBe(4);
+    lift.y = 4;
+    lift.target = null;
+    callLift(lift, 1);
+    expect(lift.target).toBe(11);
+    lift.y = 11;
+    lift.target = null;
+    callLift(lift, 1);
+    expect(lift.target).toBe(18);
+  });
+
+  it("starts at the start row when the level gives one", () => {
+    expect(loadSandbox({ ...sandbox, lifts: [{ ...three, startRow: 11 }] }).lifts[0]!.y).toBe(11);
+  });
+});
+
 describe("sandbox scenery", () => {
   it("rejects an unknown asset id", () => {
     expect(() => loadSandbox({ ...sandbox, dressing: [{ asset: "nope", x: 1 }] })).toThrow("unknown asset: nope");

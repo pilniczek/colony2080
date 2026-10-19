@@ -14,6 +14,11 @@ export class TileGrid {
   }
 
   solid(col: number, row: number): boolean {
+    const tile = this.at(col, row);
+    return tile === "#" || tile === "|";
+  }
+
+  wall(col: number, row: number): boolean {
     return this.at(col, row) === "#";
   }
 

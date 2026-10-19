@@ -29,6 +29,7 @@ export interface Shaft {
   w: number;
   top: number;
   bottom: number;
+  stops?: number[];
 }
 
 export interface Enemy {
@@ -56,7 +57,7 @@ const floorAt = (grid: TileGrid, col: number, row: number): boolean =>
 function patrolOf(grid: TileGrid, shafts: Shaft[], [x, y]: [number, number]): [number, number] {
   const row = Math.round(y);
   const walkable = (col: number): boolean =>
-    floorAt(grid, col, row) && !shafts.some((s) => (s.top === row || s.bottom === row) && col >= s.x && col < s.x + s.w);
+    floorAt(grid, col, row) && !shafts.some((s) => (s.stops ?? [s.top, s.bottom]).includes(row) && col >= s.x && col < s.x + s.w);
   let [left, right] = [Math.floor(x), Math.floor(x)];
   while (walkable(left - 1)) left--;
   while (walkable(right + 1)) right++;
