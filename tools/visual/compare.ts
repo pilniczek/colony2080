@@ -3,6 +3,7 @@ import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw"
 import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
 import { drawAsset, type EnvAsset, type Size } from "../../src/game/env/paint";
+import { buildingAssets } from "../../src/game/env/buildings";
 import { structureAssets } from "../../src/game/env/structures";
 import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
 
@@ -285,12 +286,13 @@ const runFrontBarrel = (out: HTMLElement): VisualResult => {
   return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
 };
 
+const envAssets: EnvAsset[] = [...structureAssets, ...buildingAssets];
 const ENV_SCALE = 2;
 const ENV_PAD = 16;
 
 const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefined, out: HTMLElement): VisualResult => {
   const spikeAsset = window.ENV.ASSETS.find((a) => a.id === id);
-  const portAsset = structureAssets.find((a: EnvAsset) => a.id === id);
+  const portAsset = envAssets.find((a: EnvAsset) => a.id === id);
   if (!spikeAsset || !portAsset) throw new Error(`missing env asset ${id}`);
   const [bx, by, bw, bh] = spikeAsset.box;
   const x0 = Math.min(bx, 0) - ENV_PAD;
@@ -336,14 +338,16 @@ const gunCases = [
   ),
 ];
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { stripLight: [0, 1] };
+const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1] };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
   ["ladder", { h: 240, w: 17.2, rung: 6.76 }],
+  ["brickWall", { w: 24, h: 384 }],
+  ["brickWall", { w: 960, h: 48 }],
 ];
 const envCases = [
-  ...structureAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod) => (o: HTMLElement) => runEnvCase(a.id, state, lod, undefined, o)))),
+  ...envAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod) => (o: HTMLElement) => runEnvCase(a.id, state, lod, undefined, o)))),
   ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
 ];
 const cases = [...robotCases, ...hitCases, ...gunCases, runFrontBarrel, ...envCases];
