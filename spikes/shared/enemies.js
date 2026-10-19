@@ -187,7 +187,7 @@ function sideLegArmor(ctx, knee, ankle) {
 }
 
 function guardLeg(ctx, dx) {
-  const hip = [35 + dx, 30], knee = [27 + dx, 40.5], ankle = [36 + dx, 49.5];
+  const hip = [38.5 + dx, 30], knee = [30.5 + dx, 40.5], ankle = [39.5 + dx, 49.5];
   P.beam(ctx, hip, knee, 4.2, "guardMetal");
   sideLegArmor(ctx, knee, ankle);
 }
