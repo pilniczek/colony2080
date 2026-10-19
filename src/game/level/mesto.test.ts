@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
+import enemies from "@config/levels/mesto/enemies.json";
 import { loadMesto, mestoJson } from "./mesto";
 
 const world = loadMesto();
 const { grid, spawn, lifts } = world;
 const json = mestoJson() as { taskWalls: { id: string; col: number; top: number; bottom: number }[] };
+
+const droids = enemies.enemies.filter((e) => e.type === "chromeDroid");
 
 describe("mesto map", () => {
   it("loads 160 x 80", () => {
@@ -67,5 +70,16 @@ describe("mesto map", () => {
       expect(grid.wall(w.col, w.bottom + 1)).toBe(true);
       for (let row = w.top; row <= w.bottom; row++) expect(grid.solid(w.col, row)).toBe(false);
     }
+  });
+
+  it("places 27 droids, no flyers", () => {
+    expect(droids).toHaveLength(27);
+    expect(world.enemies).toHaveLength(27);
+    expect(world.enemies.every((e) => e.respawnMs === null)).toBe(true);
+  });
+
+  it("stands every droid on a floor", () => {
+    const off = droids.filter((d) => !grid.solid(d.cell[0]!, d.cell[1]! + 1) || grid.solid(d.cell[0]!, d.cell[1]!)).map((d) => d.id);
+    expect(off).toEqual([]);
   });
 });

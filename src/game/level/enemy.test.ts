@@ -245,6 +245,13 @@ describe("sandbox enemy", () => {
     expect(enemy.patrol[1]).toBeCloseTo(6 - 0.35, 9);
   });
 
+  it("keeps a configured patrol inside the walkable floor", () => {
+    const grid = new TileGrid(["..........", "##########"]);
+    const base = { ...sandbox.enemies[0]!, x: 3.5, y: 1, facing: 1 as const };
+    expect(createEnemy({ ...base, patrol: [2, 6] }, grid).patrol).toEqual([2 + 0.35, 6 - 0.35]);
+    expect(createEnemy({ ...base, patrol: [-5, 40] }, grid).patrol).toEqual([0.35, 10 - 0.35]);
+  });
+
   it("does not see the hero at spawn", () => {
     const g = game();
     run(g, 0.1);

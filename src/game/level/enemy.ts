@@ -17,6 +17,7 @@ export interface EnemyJson {
   reactMs: number;
   burst: Burst;
   pauseMs: number;
+  patrol?: [number, number];
 }
 
 export interface Burst {
@@ -64,6 +65,11 @@ function patrolOf(grid: TileGrid, shafts: Shaft[], [x, y]: [number, number]): [n
   return [left + HALF_WIDTH, right + 1 - HALF_WIDTH];
 }
 
+function configuredPatrol(walkable: [number, number], cells: [number, number] | undefined): [number, number] {
+  if (!cells) return walkable;
+  return [Math.max(walkable[0], cells[0] + HALF_WIDTH), Math.min(walkable[1], cells[1] - HALF_WIDTH)];
+}
+
 export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = []): Enemy {
   const base = { spot: [json.x, json.y] as [number, number], facing: json.facing, hits: json.hits };
   return {
@@ -72,7 +78,7 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
     reactMs: json.reactMs,
     burst: json.burst,
     pauseMs: json.pauseMs,
-    patrol: patrolOf(grid, shafts, base.spot),
+    patrol: configuredPatrol(patrolOf(grid, shafts, base.spot), json.patrol),
     body: spawnBody(base),
     deadAge: null,
     alertAge: null,
