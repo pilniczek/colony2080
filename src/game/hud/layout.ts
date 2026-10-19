@@ -1,3 +1,4 @@
+import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
 
 export type Span = [number, number];
@@ -28,13 +29,6 @@ export interface HudFit {
   W: number;
   H: number;
   unit: number;
-}
-
-export interface Rect {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
 }
 
 export interface TopBar {

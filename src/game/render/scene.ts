@@ -8,7 +8,7 @@ import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, spikeUnit, type HeroLook, type HitLook, type Rigs } from "../hero/look";
-import type { Rect } from "../hud/layout";
+import type { Rect } from "../geometry";
 import type { Enemy } from "../level/enemy";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";

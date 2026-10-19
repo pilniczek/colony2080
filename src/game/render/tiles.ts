@@ -1,13 +1,8 @@
+import type { Rect } from "../geometry";
+
 export const TILE_PX = 512;
 
 export type TileCoord = [number, number];
-
-interface Rect {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
 
 const span = (from: number, size: number, tile: number, margin: number, limit: number): [number, number] => [
   Math.max(0, Math.floor(from / tile) - margin),
@@ -20,6 +15,13 @@ export function visibleTiles(view: Rect, tile: number, margin: number, limits: {
   const tiles: TileCoord[] = [];
   for (let row = r0; row <= r1; row++) for (let col = c0; col <= c1; col++) tiles.push([col, row]);
   return tiles;
+}
+
+export function nearestFirst(tiles: TileCoord[], view: Rect, tile: number): TileCoord[] {
+  const cx = view.x + view.w / 2;
+  const cy = view.y + view.h / 2;
+  const far = ([col, row]: TileCoord): number => Math.hypot((col + 0.5) * tile - cx, (row + 0.5) * tile - cy);
+  return [...tiles].sort((a, b) => far(a) - far(b));
 }
 
 const id = (col: number, row: number): string => `${col},${row}`;
@@ -42,12 +44,17 @@ export class TileCache<T> {
       this.tiles.clear();
     }
     const kept = new Map<string, T>();
+    let missed = false;
     const shown = coords.map(([col, row]): [number, number, T] => {
-      const tile = this.tiles.get(id(col, row)) ?? make(col, row);
+      let tile = this.tiles.get(id(col, row));
+      if (tile === undefined) {
+        missed = true;
+        tile = make(col, row);
+      }
       kept.set(id(col, row), tile);
       return [col, row, tile];
     });
-    let budget = prefetch?.budget ?? 0;
+    let budget = missed ? 0 : (prefetch?.budget ?? 0);
     for (const [col, row] of prefetch?.tiles ?? []) {
       const tile = kept.get(id(col, row)) ?? this.tiles.get(id(col, row));
       if (tile !== undefined) kept.set(id(col, row), tile);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TileCache, TILE_PX, visibleTiles } from "./tiles";
+import { nearestFirst, TileCache, TILE_PX, visibleTiles } from "./tiles";
 
 const sorted = (tiles: [number, number][]): string[] => tiles.map(([c, r]) => `${c},${r}`).sort();
 
@@ -109,21 +109,29 @@ describe("TileCache", () => {
   });
 
   describe("prefetch", () => {
-    const ring = visibleTiles({ x: 150, y: 0, w: 100, h: 100 }, 100, 1, { w: 1000, h: 100 });
-    const need = visibleTiles({ x: 150, y: 0, w: 100, h: 100 }, 100, 0, { w: 1000, h: 100 });
+    const at = { x: 130, y: 0, w: 100, h: 100 };
+    const ring = nearestFirst(visibleTiles(at, 100, 1, { w: 1000, h: 100 }), at, 100);
+    const need = visibleTiles(at, 100, 0, { w: 1000, h: 100 });
 
-    it("paints visible tiles now and at most the budget of margin tiles per sync", () => {
+    it("paints no margin tile on a sync that painted a visible tile", () => {
       const cache = new TileCache<string>();
       const { painted, make } = counter();
       const shown = cache.sync("a", need, make, { tiles: ring, budget: 1 });
       expect(shown.map(([c, r]) => `${c},${r}`).sort()).toEqual(["1,0", "2,0"]);
-      expect(painted.sort()).toEqual(["0,0", "1,0", "2,0"]);
+      expect(painted.sort()).toEqual(["1,0", "2,0"]);
+    });
+
+    it("then paints at most the budget of margin tiles per sync, nearest first", () => {
+      const cache = new TileCache<string>();
+      const { painted, make } = counter();
+      cache.sync("a", need, make, { tiles: ring, budget: 1 });
       painted.length = 0;
       cache.sync("a", need, make, { tiles: ring, budget: 1 });
-      expect(painted).toEqual(["3,0"]);
-      painted.length = 0;
+      expect(painted).toEqual(["0,0"]);
       cache.sync("a", need, make, { tiles: ring, budget: 1 });
-      expect(painted).toEqual([]);
+      expect(painted).toEqual(["0,0", "3,0"]);
+      cache.sync("a", need, make, { tiles: ring, budget: 1 });
+      expect(painted).toEqual(["0,0", "3,0"]);
       expect(cache.size).toBe(4);
     });
 
@@ -131,10 +139,18 @@ describe("TileCache", () => {
       const cache = new TileCache<string>();
       const { make } = counter();
       cache.sync("a", need, make, { tiles: ring, budget: 4 });
+      cache.sync("a", need, make, { tiles: ring, budget: 4 });
       const far = visibleTiles({ x: 750, y: 0, w: 100, h: 100 }, 100, 0, { w: 1000, h: 100 });
       cache.sync("a", far, make, { tiles: far, budget: 0 });
       expect(cache.size).toBe(2);
       expect(cache.has(1, 0)).toBe(false);
     });
+  });
+});
+
+describe("nearestFirst", () => {
+  it("orders tiles by the distance of their centre to the view centre", () => {
+    const tiles: [number, number][] = [[0, 0], [1, 0], [2, 0], [3, 0], [1, 1]];
+    expect(nearestFirst(tiles, { x: 130, y: 0, w: 100, h: 100 }, 100)).toEqual([[1, 0], [2, 0], [1, 1], [0, 0], [3, 0]]);
   });
 });

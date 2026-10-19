@@ -10,7 +10,8 @@ import { followView, resizeCanvas, type ViewTransform } from "../engine/render/v
 import { snapView } from "../game/render/snapView";
 import { createFog, loadFog } from "../game/fog";
 import type { Weapon } from "../game/hero/config";
-import { hudFit, viewRect, type Rect } from "../game/hud/layout";
+import type { Rect } from "../game/geometry";
+import { hudFit, viewRect } from "../game/hud/layout";
 import { SHIELDS_MAX } from "../game/hud/svg";
 import { createHero, damage, kill } from "../game/hero/hero";
 import { createRigs, heroLook } from "../game/hero/look";
