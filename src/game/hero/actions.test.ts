@@ -279,7 +279,7 @@ describe("damage", () => {
     tick(g);
     expect(g.hero.state).toBe("idle");
     tick(g, [], ["weapon2"]);
-    expect(g.hero.state).toBe("weaponSwitch");
+    expect(g.hero).toMatchObject({ state: "idle", weapon: "fists" });
     run(g, 0.2);
     expect(g.hero.hitAge).toBeCloseTo(20 / 60, 9);
   });
@@ -485,40 +485,62 @@ describe("attack", () => {
 });
 
 describe("weapon switch", () => {
-  it("draws the gun with weapon1 at the clip's gun time", () => {
+  it("draws the gun at once with weapon1 and stays idle", () => {
     const g = game();
     tick(g, [], ["weapon1"]);
-    expect(g.hero.state).toBe("weaponSwitch");
-    run(g, 0.1);
-    expect(g.hero.weapon).toBe("fists");
-    runUntil(g, (h) => h.state === "idle");
-    expect(g.hero.weapon).toBe("gun");
+    expect(g.hero).toMatchObject({ state: "idle", weapon: "gun" });
   });
 
-  it("holsters with weapon2 by playing the switch reversed", () => {
+  it("holsters at once with weapon2", () => {
     const g = game({ x: 7.5, y: 14, weapon: "gun" });
     tick(g, [], ["weapon2"]);
-    expect(g.hero.state).toBe("weaponSwitch");
-    run(g, 0.8);
-    expect(g.hero.weapon).toBe("gun");
-    run(g, 0.1);
-    expect(g.hero.weapon).toBe("fists");
-    runUntil(g, (h) => h.state === "idle");
-    expect(g.hero.weapon).toBe("fists");
+    expect(g.hero).toMatchObject({ state: "idle", weapon: "fists" });
   });
 
   it("switches once on a simultaneous weapon1 and weapon2 press", () => {
     const g = game();
     tick(g, [], ["weapon1", "weapon2", "weapon3"]);
-    expect(g.hero.state).toBe("weaponSwitch");
     expect(g.buffer.size).toBe(0);
-    runUntil(g, (h) => h.state === "idle");
-    expect(g.hero.weapon).toBe("gun");
+    expect(g.hero).toMatchObject({ state: "idle", weapon: "gun" });
   });
 
   it("ignores the slot already selected and weapon3", () => {
     const g = game();
     tick(g, [], ["weapon2", "weapon3"]);
-    expect(g.hero.state).toBe("idle");
+    expect(g.hero).toMatchObject({ state: "idle", weapon: "fists" });
+  });
+
+  it("switches mid-run and mid-jump without leaving the state", () => {
+    const g = game();
+    run(g, 0.3, ["moveRight", RUNNING]);
+    const state = g.hero.state;
+    tick(g, ["moveRight", RUNNING], ["weapon1"]);
+    expect(g.hero).toMatchObject({ state, weapon: "gun" });
+    tick(g, ["moveRight", RUNNING], ["up"]);
+    run(g, 0.1, ["moveRight", RUNNING]);
+    const air = g.hero.state;
+    tick(g, ["moveRight", RUNNING], ["weapon2"]);
+    expect(g.hero).toMatchObject({ state: air, weapon: "fists" });
+  });
+
+  it("plays the switch clip while hidden and returns to cover", () => {
+    const g = game();
+    tick(g, ["hide"]);
+    tick(g, ["hide"], ["weapon1"]);
+    expect(g.hero).toMatchObject({ state: "weaponSwitch", hidden: true, weapon: "fists" });
+    runUntil(g, (h) => h.state !== "weaponSwitch", ["hide"]);
+    expect(g.hero).toMatchObject({ state: "hide", hidden: true, weapon: "gun" });
+  });
+
+  it("cuts the hidden switch short on any other input with the weapon already swapped", () => {
+    for (const [held, pressed] of [[["hide", "moveRight"], []], [[], []], [["hide", "shoot"], ["shoot"]]] as [string[], string[]][]) {
+      const g = game({ x: 7.5, y: 14, weapon: "gun" });
+      tick(g, ["hide"]);
+      tick(g, ["hide"], ["weapon2"]);
+      run(g, 0.1, ["hide"]);
+      tick(g, held, pressed);
+      expect(g.hero.state).not.toBe("weaponSwitch");
+      expect(g.hero.weapon).toBe("fists");
+    }
   });
 });

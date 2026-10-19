@@ -168,9 +168,12 @@ const carry = (pose: Angles, hold: Hold): Angles => {
 
 const joints = (pose: Angles): Angles => Object.fromEntries(Object.entries(pose).filter(([k]) => k !== "carry"));
 
-const withCarryKey = (pose: Angles, hold: Hold, inHand: boolean): Angles => {
+const frontCarry = (pose: Angles, hold: Hold): Angles => ({ ...pose, ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R });
+
+const withCarryKey = (pose: Angles, hold: Hold, inHand: boolean, view: View): Angles => {
   const rest = joints(pose);
-  return pose.carry !== undefined && inHand ? mix(rest, carry(rest, hold), pose.carry) : rest;
+  const target = view === "front" ? frontCarry(rest, hold) : carry(rest, hold);
+  return pose.carry !== undefined && inHand ? mix(rest, target, pose.carry) : rest;
 };
 
 const letGo = (pose: Angles, hold: Hold, t: number, drop: number, inHand: boolean): Angles => {
@@ -198,7 +201,7 @@ const ladderLook = (h: Hero, rigs: Rigs, cfg: MovementConfig): HeroLook => ({
 
 const armed = (view: View, pose: Angles, hold: Hold): { pose: Angles; gun: GunLook } => {
   if (view === "side") return { pose: carry(pose, hold), gun: "hand" };
-  if (view === "front") return { pose: { ...pose, ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R }, gun: "hand" };
+  if (view === "front") return { pose: frontCarry(pose, hold), gun: "hand" };
   return { pose, gun: "slung" };
 };
 
@@ -257,7 +260,7 @@ const gunHeld = (h: Hero, clip: Clip, raw: Angles, view: View, hold: Hold, t: nu
   if (!track) return armed(view, joints(raw), hold);
   const gun = track === "dropped" && !h.onGround ? "hand" : track;
   const drop = dropAt(clip);
-  if (drop === undefined || gun === "none") return { pose: withCarryKey(raw, hold, gun === "hand"), gun };
+  if (drop === undefined || gun === "none") return { pose: withCarryKey(raw, hold, gun === "hand", view), gun };
   return { pose: letGo(raw, hold, t, drop, gun === "hand"), gun };
 };
 
@@ -283,7 +286,7 @@ const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: Movement
     pose: held.pose,
     gun: held.gun,
     rot,
-    tint: clip.tint ? num(clip.tint, t, (k) => k) : 0,
+    tint: h.hidden ? 1 : clip.tint ? num(clip.tint, t, (k) => k) : 0,
     lift: moving?.lift ?? grounding(h, clip, held.pose, rot, rigs.side, t),
     hit: null,
     gunSlide: gunSlide(clip, t),

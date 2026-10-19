@@ -183,16 +183,15 @@
       ]
     },
     "weaponSwitch": {
-      "duration": 1.35,
+      "duration": 0.6,
       "loop": false,
       "pose": [
         [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "carry": 0}],
-        [0.35, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 0}],
-        [0.5, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 0}],
-        [0.95, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 1}],
-        [1.35, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 26, "fore": -4, "carry": 1}]
+        [0.5, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "carry": 1}],
+        [0.6, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "carry": 1}]
       ],
-      "gun": [[0, "none"], [0.5, "hand"]]
+      "view": [[0, "front"]],
+      "gun": [[0, "none"], [0.15, "hand"]]
     },
     "death": {
       "duration": 5,

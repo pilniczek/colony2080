@@ -147,12 +147,18 @@ describe("hero look", () => {
     expect(look.pose).toMatchObject({ ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R });
   });
 
-  it("weapon switch blends to the carry and drops the pseudo key", () => {
+  it("weapon switch is a front view clip that blends to the front carry and drops the pseudo key", () => {
     const look = heroLook(hero({ state: "weaponSwitch", weapon: "gun", time: 1 }), clips, rigs, hold, cfg);
+    expect(look.view).toBe("front");
     expect(look.pose.carry).toBeUndefined();
     expect(look.gun).toBe("hand");
-    expect(look.pose).toMatchObject({ arm: hold.CARRY.arm, fore: hold.CARRY.fore, ...hold.CARRY_FAR });
+    expect(look.pose).toMatchObject({ ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R });
     expect(heroLook(hero({ state: "weaponSwitch", time: 0.05 }), clips, rigs, hold, cfg).gun).toBe("none");
+  });
+
+  it("keeps the hide tint while switching behind cover", () => {
+    expect(heroLook(hero({ state: "weaponSwitch", time: 0.5, hidden: true }), clips, rigs, hold, cfg).tint).toBe(1);
+    expect(heroLook(hero({ state: "weaponSwitch", time: 0.5 }), clips, rigs, hold, cfg).tint).toBe(0);
   });
 
   for (const state of ["standJump", "walkJump", "duckJump", "runJump"] as const) {
@@ -166,11 +172,14 @@ describe("hero look", () => {
     });
   }
 
-  it("weapon switch starts at rest and reaches the hip before the draw", () => {
-    const start = heroLook(hero({ state: "weaponSwitch", time: 0 }), clips, rigs, hold, cfg).pose;
-    expect([start.arm ?? 0, start.fore ?? 0]).toEqual([0, 0]);
+  it("weapon switch moves the hand from rest toward the carry without lifting it", () => {
+    const at = (time: number) => heroLook(hero({ state: "weaponSwitch", weapon: "gun", time }), clips, rigs, hold, cfg).pose;
+    expect([at(0).armL ?? 0, at(0).foreL ?? 0]).toEqual([0, 0]);
     const drawAt = clips.weaponSwitch!.gun!.find(([, g]) => g === "hand")![0];
-    expect(heroLook(hero({ state: "weaponSwitch", time: drawAt - 0.01 }), clips, rigs, hold, cfg).pose).toMatchObject({ arm: 26, fore: -4 });
+    for (const t of [drawAt, 0.3, 0.45]) {
+      expect(at(t).armL).toBeLessThanOrEqual(0);
+      expect(at(t).armL).toBeGreaterThanOrEqual(hold.FRONT_CARRY.armL);
+    }
   });
 
   it("is zero in the air and the same for the same input", () => {

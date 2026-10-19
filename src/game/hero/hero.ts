@@ -59,7 +59,7 @@ const LADDER_REACH = 0.5;
 const PIT_MARGIN = 2;
 export const HERO_SHOT = "hero";
 
-export function createHero(spawn: [number, number], weapon: Weapon, energy: number, shields = 0, ammo = 0): Hero {
+export function createHero(spawn: [number, number], weapon: Weapon, energy: number, shields = 0, ammo = 0, running = false): Hero {
   return {
     x: spawn[0],
     y: spawn[1],
@@ -82,7 +82,7 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     fallGait: null,
     landing: null,
     hitAge: null,
-    running: false,
+    running,
     fireTime: null,
   };
 }
@@ -299,12 +299,8 @@ function takeCover(s: Step): boolean {
   return true;
 }
 
-function stance(s: Step, slot: Weapon | null): boolean {
+function stance(s: Step): boolean {
   const { h, input } = s;
-  if (slot && slot !== h.weapon) {
-    switchWeapon(s, slot);
-    return true;
-  }
   if (takeCover(s)) return true;
   if (h.onLift || !input.held.has("down")) return false;
   s.consume("down");
@@ -327,11 +323,9 @@ function standUp(s: Step, from: Jump): boolean {
 
 function idle(s: Step): void {
   const { h, input } = s;
-  const slot = weaponSlot(s);
   if (standUp(s, "standJump")) return;
   if (!h.onLift && input.held.has("down") && atLadderTop(s)) return enterLadder(s);
-  if (emptyGun(h)) return switchWeapon(s, "fists");
-  if (act(s) || stance(s, slot)) return;
+  if (act(s) || stance(s)) return;
   if (input.dir !== 0) gait(s);
 }
 
@@ -414,10 +408,31 @@ function hide(s: Step): void {
 }
 
 function weaponSwitch(s: Step): void {
-  const { h } = s;
+  const { h, input } = s;
+  const target: Weapon = h.rate > 0 ? "gun" : "fists";
   const drawAt = clipOf(s).gun?.find(([, g]) => g === "hand")?.[0] ?? 0;
-  if (crossed(s, drawAt)) h.weapon = h.rate > 0 ? "gun" : "fists";
-  toIdle(s);
+  if (crossed(s, drawAt)) h.weapon = target;
+  const cut = !input.held.has("hide") || input.dir !== 0 || ["shoot", "up", "down"].some((a) => input.held.has(a));
+  if (!cut && !finished(s)) return;
+  h.weapon = target;
+  if (takeCover(s)) return;
+  h.hidden = false;
+  enter(h, "idle");
+}
+
+function quickSwitch(s: Step): void {
+  const { h } = s;
+  if (isDead(h.state) || h.state === "weaponSwitch") return;
+  if (emptyGun(h)) arm(h, "fists");
+  const slot = weaponSlot(s);
+  if (!slot || slot === h.weapon) return;
+  if (h.state === "hide") switchWeapon(s, slot);
+  else arm(h, slot);
+}
+
+function arm(h: Hero, weapon: Weapon): void {
+  h.weapon = weapon;
+  h.fireTime = null;
 }
 
 function ladder(s: Step): void {
@@ -455,7 +470,7 @@ function leaveLadder(h: Hero): void {
 
 function respawn(s: Step): void {
   const { h, world, cfg } = s;
-  if (h.time * 1000 >= cfg.respawnMs) Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max, cfg.energy.shields, h.ammo));
+  if (h.time * 1000 >= cfg.respawnMs) Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max, cfg.energy.shields, h.ammo, h.running));
 }
 
 const transitions: Partial<Record<HeroState, Handler>> = {
@@ -601,6 +616,7 @@ export function updateHero(
   if (h.landing) h.landing.age += dt;
   if (h.fireTime !== null) h.fireTime += dt;
   if (consume("runToggle")) h.running = !h.running;
+  quickSwitch(s);
   clipEvents(s);
   transitions[h.state]?.(s);
   if (isDead(h.state)) fallDead(s);

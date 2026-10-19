@@ -28,27 +28,35 @@ describe("viewRect", () => {
 });
 
 describe("topBar", () => {
-  it("has 3 plates and 4 rod gaps at 320", () => {
+  it("has 4 plates and 5 rod gaps at 320", () => {
     const bar = topBar(320);
-    expect(bar.plates).toHaveLength(3);
-    expect(bar.gaps).toHaveLength(4);
+    expect(bar.plates).toHaveLength(4);
+    expect(bar.gaps).toHaveLength(5);
     expect(bar.empty).toBeNull();
-    expect(bar.gridW).toBeCloseTo(179.2, 9);
+    expect(bar.gridW).toBeCloseTo(171.9, 9);
+  });
+
+  it("gives the run plate and the inventory plate equal 3.5 margins around their grids", () => {
+    const bar = topBar(320);
+    const [, , run, inventory] = bar.plates;
+    expect(run).toEqual([bar.run - 3.5, bar.run + bar.runW + 3.5]);
+    expect(inventory![0]).toBeCloseTo(bar.inv - 3.5, 9);
+    expect(inventory![1]).toBeCloseTo(bar.inv + bar.invW + 3.5, 9);
   });
 
   it("lets the weapons plate absorb a few extra units", () => {
     const bar = topBar(325);
     expect(bar.empty).toBeNull();
-    expect(bar.gridW).toBeCloseTo(184.2, 9);
+    expect(bar.gridW).toBeCloseTo(176.9, 9);
   });
 
   it("puts an empty plate between the weapons and badge plates on wide screens", () => {
     const bar = topBar(467);
-    expect(bar.plates).toHaveLength(4);
-    expect(bar.gaps).toHaveLength(5);
-    expect(bar.gridW).toBeCloseTo(179.2, 9);
+    expect(bar.plates).toHaveLength(5);
+    expect(bar.gaps).toHaveLength(6);
+    expect(bar.gridW).toBeCloseTo(171.9, 9);
     const [a, b] = bar.empty ?? [0, 0];
-    expect(b - a).toBeCloseTo(467 - 320 - 3.6, 9);
+    expect(b - a).toBeCloseTo(467 - 320 - 2, 9);
     expect(bar.plates[1]).toEqual(bar.empty);
   });
 });

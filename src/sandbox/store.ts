@@ -93,7 +93,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   reserve: 100,
   ammo: 0,
   weapon: "gun",
-  running: false,
+  running: true,
   fps: 0,
   inputLog: [],
   fogOn: fogConfig.enabled,

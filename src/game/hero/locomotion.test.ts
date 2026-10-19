@@ -338,6 +338,16 @@ describe("falls", () => {
     expect([g.hero.x, g.hero.y]).toEqual(g.world.spawn);
     expect(g.hero.energy).toBe(cfg.energy.max);
   });
+
+  it("keeps the run mode on respawn", () => {
+    for (const running of [false, true]) {
+      const g = game(highLedge);
+      runUntil(g, (h) => h.state === "fallDeath", ["moveRight"]);
+      g.hero.running = running;
+      run(g, cfg.respawnMs / 1000 + 0.1);
+      expect(g.hero.running).toBe(running);
+    }
+  });
 });
 
 describe("ladder", () => {

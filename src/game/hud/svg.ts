@@ -8,6 +8,7 @@ export interface HudState {
   life: number;
   reserve: number;
   shields: number;
+  running: boolean;
   item: string;
 }
 
@@ -31,7 +32,6 @@ const HI = "#d8c8ae";
 const LO = "#0e0b08";
 const BAR_H = 26.4;
 const ROD_YS = [4.2, 9.6, 15, 20.4];
-const SLOTS = [30, 98, 145];
 
 const DEFS = `<defs>
   <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a08f76"/><stop offset=".1" stop-color="#6e604e"/><stop offset=".5" stop-color="#4b4034"/><stop offset=".85" stop-color="#2f2720"/><stop offset="1" stop-color="#1a1511"/></linearGradient>
@@ -48,9 +48,6 @@ const DEFS = `<defs>
   <linearGradient id="bevelUp" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="${HI}" stop-opacity=".85"/><stop offset=".4" stop-color="${HI}" stop-opacity=".25"/><stop offset=".6" stop-color="${LO}" stop-opacity=".35"/><stop offset="1" stop-color="${LO}" stop-opacity=".95"/></linearGradient>
   <linearGradient id="bevelDown" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="${LO}" stop-opacity=".95"/><stop offset=".4" stop-color="${LO}" stop-opacity=".35"/><stop offset=".6" stop-color="${HI}" stop-opacity=".2"/><stop offset="1" stop-color="${HI}" stop-opacity=".75"/></linearGradient>
   <linearGradient id="rodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3128"/><stop offset=".3" stop-color="#f0e4cc"/><stop offset=".55" stop-color="#8a7a64"/><stop offset="1" stop-color="#1a140f"/></linearGradient>
-  <radialGradient id="lampOn" cx=".5" cy=".42" r=".62"><stop offset="0" stop-color="#fff6e4"/><stop offset=".18" stop-color="#ffb08a"/><stop offset=".42" stop-color="#ff3a16"/><stop offset=".78" stop-color="#b80c02"/><stop offset="1" stop-color="#4a0400"/></radialGradient>
-  <radialGradient id="lampOff" cx=".5" cy=".4" r=".62"><stop offset="0" stop-color="#6e2a1e"/><stop offset=".5" stop-color="#3c0d07"/><stop offset="1" stop-color="#170403"/></radialGradient>
-  <radialGradient id="halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4020" stop-opacity=".7"/><stop offset=".5" stop-color="#ff2a10" stop-opacity=".25"/><stop offset="1" stop-color="#ff2a10" stop-opacity="0"/></radialGradient>
   <linearGradient id="shieldOn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b87a14"/><stop offset=".22" stop-color="#e2a818"/><stop offset=".5" stop-color="#ffd62a"/><stop offset=".78" stop-color="#e2a818"/><stop offset="1" stop-color="#b87a14"/></linearGradient>
   <linearGradient id="shieldOff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a3416"/><stop offset=".22" stop-color="#5e5a1c"/><stop offset=".5" stop-color="#6c6a22"/><stop offset=".78" stop-color="#5e5a1c"/><stop offset="1" stop-color="#5a3416"/></linearGradient>
   <pattern id="lampLines" width="1" height="2" patternUnits="userSpaceOnUse"><rect y="1" width="1" height="1" fill="#000" fill-opacity=".3"/></pattern>
@@ -60,14 +57,16 @@ const DEFS = `<defs>
   <pattern id="circuit" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#111a17"/><path d="M1 1H8V5H12M3 13V8H6V11M10 8H13M1 6H4" fill="none" stroke="#24403a" stroke-width=".35"/><circle cx="12" cy="5" r=".55" fill="#2f5249"/><circle cx="6" cy="11" r=".55" fill="#2f5249"/></pattern>
   <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="lampHalo" x="-150%" y="-100%" width="400%" height="300%"><feGaussianBlur stdDeviation="1.6"/></filter>
+  <filter id="iconGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="b"/><feFlood flood-color="#ffb21c" flood-opacity=".6"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="iconDim"><feColorMatrix type="saturate" values=".25"/><feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer></filter>
   <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".35"/></filter>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
 
-const BLASTER = `<g transform="translate(126 7.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
+const BLASTER = `<g transform="translate(108 7.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
   <rect y="1" width="34" height="3" rx=".5"/><rect x="8" y="-1.4" width="14" height="2.4" rx=".5" fill="#3f4a46"/>
   <rect x="5" y="4" width="10" height="2.5"/><rect x="9" y="6.5" width="3" height="4.5" rx=".5"/></g>
-  <path d="M161 9.7q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
+  <path d="M143 9.7q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
 
 const HAND = `<g transform="translate(0 4.4)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
@@ -82,19 +81,6 @@ const counter = (x: number, n: number): string =>
 
 const image = ({ url, w, h }: HudIcon, x: number, y: number): string =>
   `<image href="${url}" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
-
-function lamp(slot: number, on: boolean): string {
-  const w = 12, h = 2, x = slot + 2, y = 22.2, padX = 1.6, padY = 1;
-  return `${on ? `<ellipse cx="${x + w / 2}" cy="${y + h / 2}" rx="${w}" ry="4.4" fill="url(#halo)"/>` : ""}
-  <rect x="${x - padX}" y="${y - padY}" width="${w + 2 * padX}" height="${h + 2 * padY}" rx="1.4" fill="url(#plate)"/>
-  ${bevel(x - padX, y - padY, w + 2 * padX, h + 2 * padY, 1.4, true, 0.3)}
-  <rect x="${x - 0.5}" y="${y - 0.4}" width="${w + 1}" height="${h + 0.8}" rx="1" fill="#0a0605"/>
-  ${bevel(x - 0.5, y - 0.4, w + 1, h + 0.8, 1, false, 0.2)}
-  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".8" fill="url(#${on ? "lampOn" : "lampOff"})"${on ? ' filter="url(#glow)"' : ""}/>
-  <path d="${[3, 6, 9].map((d) => `M${x + d} ${y + 0.2}v${h - 0.4}`).join("")}" stroke="#000" stroke-opacity="${on ? 0.14 : 0.3}" stroke-width=".2"/>
-  <rect x="${x + 1}" y="${y + 0.25}" width="${w - 2}" height=".5" rx=".25" fill="#fff" opacity="${on ? 0.55 : 0.14}" filter="url(#soft)"/>
-  <circle cx="${x + 2}" cy="${y + 0.55}" r=".28" fill="#fff" opacity="${on ? 0.9 : 0.25}"/>`;
-}
 
 const gridPanel = (x: number, w: number): string => `<rect x="${x - 0.6}" y="2" width="${w + 1.2}" height="18.6" rx="2" fill="url(#plate)"/>
   ${bevel(x - 0.6, 2, w + 1.2, 18.6, 2, true, 0.4)}
@@ -127,20 +113,25 @@ function badge(x: number): string {
 function top(W: number, s: HudState, icons: HudIcons): string {
   const bar = topBar(W);
   const item = s.item
-    ? `<text x="${bar.inv + 29.5}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
+    ? `<text x="${bar.inv + bar.invW / 2}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
     : `<g transform="translate(${bar.inv + 5} 0)">${HAND}</g>`;
   return `<rect x="${bar.gaps[0]![1]}" width="${W - 2 * bar.gaps[0]![1]}" height="${BAR_H}" fill="#060504"/>
   ${bar.gaps.map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map(plate).join("")}
   ${bar.empty ? emptyScrews(bar.empty) : ""}
   ${gridPanel(bar.gridX, bar.gridW)}
-  ${image(icons.gun, 19, 4.4)}${counter(59, s.ammo)}
-  ${image(icons.fist, 96, 3.8)}
-  ${s.bonus ? BLASTER + counter(168, s.bonusAmmo) : ""}
-  ${SLOTS.slice(0, s.bonus ? 3 : 2).map((x, i) => lamp(x, s.weapon === i)).join("")}
+  ${weapon(image(icons.gun, 19, 4.4) + counter(59, s.ammo), s.weapon === 0)}
+  ${weapon(image(icons.fist, 84, 3.8), s.weapon === 1)}
+  ${s.bonus ? weapon(BLASTER + counter(150, s.bonusAmmo), s.weapon === 2) : ""}
   ${badge(bar.badge)}
-  ${gridPanel(bar.inv, 59)}${item}`;
+  ${gridPanel(bar.run, bar.runW)}${runText(bar.run + bar.runW / 2, s.running)}
+  ${gridPanel(bar.inv, bar.invW)}${item}`;
 }
+
+const weapon = (content: string, active: boolean): string => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
+
+const runText = (x: number, on: boolean): string =>
+  `<text x="${x}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${on ? AMBER : "#8a6a3a"}"${on ? ' filter="url(#glow)"' : ""}>RUN</text>`;
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 

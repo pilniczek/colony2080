@@ -38,7 +38,7 @@ if (!ctx) throw new Error("no 2d context");
 const tuning = () => useSandbox.getState();
 const fogConfig = loadFog(cameraJson);
 const world = loadSandbox(sandboxJson);
-const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo);
+const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, true);
 const applyFog = (on: boolean): void => {
   world.fog = on ? createFog(fogConfig, hero, world.grid) : null;
 };
@@ -84,7 +84,7 @@ const watchPixelRatio = (): void => {
 
 const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
-let run = { fogOn: tuning().fogOn, weapon: "gun" as Weapon };
+let run = { fogOn: tuning().fogOn, weapon: "gun" as Weapon, running: true };
 let recordedSteps = 0;
 let playedSteps = 0;
 let inputLog: string[] = [];
@@ -94,7 +94,7 @@ let fps = 0;
 
 const respawn = (): void => {
   Object.assign(world, loadSandbox(sandboxJson));
-  Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo));
+  Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, run.running));
   applyFog(run.fogOn);
   prev = { x: hero.x, y: hero.y };
 };
@@ -175,7 +175,7 @@ const commands: SandboxCommands = {
   step: () => loop.stepOnce(),
   startRecording() {
     if (tuning().playing) endPlayback();
-    run = { fogOn: tuning().fogOn, weapon: hero.weapon };
+    run = { fogOn: tuning().fogOn, weapon: hero.weapon, running: hero.running };
     respawn();
     input.startRecording();
     recordedSteps = 0;

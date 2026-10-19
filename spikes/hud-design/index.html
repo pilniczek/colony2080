@@ -32,6 +32,7 @@
   <label>Bonus ammo <input id="bonusAmmo" type="number" min="0" max="999" value="12"></label>
   <label>Life <input id="life" type="range" min="0" max="100" value="55"></label>
   <label>Reserve <input id="reserve" type="range" min="0" max="100" value="100"></label>
+  <label><input id="running" type="checkbox" checked> Run</label>
   <label>Shields <input id="shields" type="number" min="0" max="5" value="3"></label>
   <label>Item <select id="item"><option value="">empty hand</option><option>PACIDLO</option><option>ELEKTROMAGNET</option></select></label>
 </header>
@@ -73,9 +74,6 @@ const DEFS = `<defs>
   <linearGradient id="glare" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/></linearGradient>
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0f08"/><stop offset=".6" stop-color="#3b2214"/><stop offset="1" stop-color="#20160f"/></linearGradient>
   <linearGradient id="flame" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffde70"/><stop offset=".5" stop-color="#ff7a10"/><stop offset="1" stop-color="#ff7a10" stop-opacity="0"/></linearGradient>
-  <radialGradient id="lampOn" cx=".5" cy=".42" r=".62"><stop offset="0" stop-color="#fff6e4"/><stop offset=".18" stop-color="#ffb08a"/><stop offset=".42" stop-color="#ff3a16"/><stop offset=".78" stop-color="#b80c02"/><stop offset="1" stop-color="#4a0400"/></radialGradient>
-  <radialGradient id="lampOff" cx=".5" cy=".4" r=".62"><stop offset="0" stop-color="#6e2a1e"/><stop offset=".5" stop-color="#3c0d07"/><stop offset="1" stop-color="#170403"/></radialGradient>
-  <radialGradient id="halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4020" stop-opacity=".7"/><stop offset=".5" stop-color="#ff2a10" stop-opacity=".25"/><stop offset="1" stop-color="#ff2a10" stop-opacity="0"/></radialGradient>
   <linearGradient id="shieldOn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b87a14"/><stop offset=".22" stop-color="#e2a818"/><stop offset=".5" stop-color="#ffd62a"/><stop offset=".78" stop-color="#e2a818"/><stop offset="1" stop-color="#b87a14"/></linearGradient>
   <linearGradient id="shieldOff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a3416"/><stop offset=".22" stop-color="#5e5a1c"/><stop offset=".5" stop-color="#6c6a22"/><stop offset=".78" stop-color="#5e5a1c"/><stop offset="1" stop-color="#5a3416"/></linearGradient>
   <pattern id="lampLines" width="1" height="2" patternUnits="userSpaceOnUse"><rect y="1" width="1" height="1" fill="#000" fill-opacity=".3"/></pattern>
@@ -89,6 +87,8 @@ const DEFS = `<defs>
   <linearGradient id="bevelDown" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#0e0b08" stop-opacity=".95"/><stop offset=".4" stop-color="#0e0b08" stop-opacity=".35"/><stop offset=".6" stop-color="#d8c8ae" stop-opacity=".2"/><stop offset="1" stop-color="#d8c8ae" stop-opacity=".75"/></linearGradient>
   <linearGradient id="rodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3128"/><stop offset=".3" stop-color="#f0e4cc"/><stop offset=".55" stop-color="#8a7a64"/><stop offset="1" stop-color="#1a140f"/></linearGradient>
   <filter id="lampHalo" x="-150%" y="-100%" width="400%" height="300%"><feGaussianBlur stdDeviation="1.6"/></filter>
+  <filter id="iconGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="b"/><feFlood flood-color="#ffb21c" flood-opacity=".6"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="iconDim"><feColorMatrix type="saturate" values=".25"/><feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer></filter>
   <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".35"/></filter>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
@@ -99,19 +99,6 @@ const bevel = (x, y, w, h, r, raised = true, lw = .45) =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
 const SIDE = 11;
 const counter = (x, n) => `<text x="${x}" y="15.6" font-family="${MONO}" font-size="7.4" fill="${AMBER}" filter="url(#glow)">N:${String(n).padStart(3, "0")}</text>`;
-
-function lamp(slot, on) {
-  const w = 12, h = 2, x = slot + 2, y = 22.2, padX = 1.6, padY = 1;
-  return `${on ? `<ellipse cx="${x + w / 2}" cy="${y + h / 2}" rx="${w}" ry="4.4" fill="url(#halo)"/>` : ""}
-  <rect x="${x - padX}" y="${y - padY}" width="${w + 2 * padX}" height="${h + 2 * padY}" rx="1.4" fill="url(#plate)"/>
-  ${bevel(x - padX, y - padY, w + 2 * padX, h + 2 * padY, 1.4, true, .3)}
-  <rect x="${x - .5}" y="${y - .4}" width="${w + 1}" height="${h + .8}" rx="1" fill="#0a0605"/>
-  ${bevel(x - .5, y - .4, w + 1, h + .8, 1, false, .2)}
-  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx=".8" fill="url(#${on ? "lampOn" : "lampOff"})"${on ? ' filter="url(#glow)"' : ""}/>
-  <path d="${[3, 6, 9].map((d) => `M${x + d} ${y + .2}v${h - .4}`).join("")}" stroke="#000" stroke-opacity="${on ? .14 : .3}" stroke-width=".2"/>
-  <rect x="${x + 1}" y="${y + .25}" width="${w - 2}" height=".5" rx=".25" fill="#fff" opacity="${on ? .55 : .14}" filter="url(#soft)"/>
-  <circle cx="${x + 2}" cy="${y + .55}" r=".28" fill="#fff" opacity="${on ? .9 : .25}"/>`;
-}
 
 const gridPanel = (x, w) => `<rect x="${x - .6}" y="2" width="${w + 1.2}" height="18.6" rx="2" fill="url(#plate)"/>
   ${bevel(x - .6, 2, w + 1.2, 18.6, 2, true, .4)}
@@ -159,11 +146,11 @@ const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
 }) };
 
 const GUN = `<image href="${GUN_ICON.url}" x="19" y="4.4" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
-const FIST = `<image href="${FIST_ICON.url}" x="96" y="3.8" width="${FIST_ICON.w}" height="${FIST_ICON.h}"/>`;
-const BLASTER = `<g transform="translate(126 7.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
+const FIST = `<image href="${FIST_ICON.url}" x="84" y="3.8" width="${FIST_ICON.w}" height="${FIST_ICON.h}"/>`;
+const BLASTER = `<g transform="translate(108 7.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
   <rect y="1" width="34" height="3" rx=".5"/><rect x="8" y="-1.4" width="14" height="2.4" rx=".5" fill="#3f4a46"/>
   <rect x="5" y="4" width="10" height="2.5"/><rect x="9" y="6.5" width="3" height="4.5" rx=".5"/></g>
-  <path d="M161 9.7q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
+  <path d="M143 9.7q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
 const HAND = `<g transform="translate(0 4.4)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
@@ -181,13 +168,13 @@ function rod(a, b, y) {
 }
 
 function topBar(W, s) {
-  const edge = 1.2, inv = W - edge - 62.5, badge = inv - 59.5;
+  const edge = 1.2, gap = 2, pad = 3.5, invW = 46.5, runW = 14, inv = W - edge - pad - invW, run = inv - 2 * pad - gap - runW, badge = run - 52.4 - gap - pad;
   const item = s.item
-    ? `<text x="${inv + 29.5}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
+    ? `<text x="${inv + invW / 2}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
     : `<g transform="translate(${inv + 5} 0)">${HAND}</g>`;
-  const fixedEnd = 320 - edge - 62.5 - 59.5 - 7.6, empty = [fixedEnd + 3.6, badge - 7.6];
+  const fixedEnd = badge - (W - 320) - 4 - gap, empty = [fixedEnd + gap, badge - 4 - gap];
   const wide = empty[1] - empty[0] >= 8;
-  const gaps = [[0, edge], ...(wide ? [[fixedEnd, empty[0]]] : []), [badge - 7.6, badge - 4], [badge + 52.4, inv - 3.5], [W - edge, W]];
+  const gaps = [[0, edge], ...(wide ? [[fixedEnd, empty[0]]] : []), [badge - 4 - gap, badge - 4], [badge + 52.4, badge + 52.4 + gap], [run + runW + pad, inv - pad], [W - edge, W]];
   const plates = gaps.slice(1).map(([a], i) => [gaps[i][1], a]);
   const gridX = edge + 4.4, gridW = plates[0][1] - 4.4 - gridX;
   const emptyScrews = wide ? `${screw(empty[0] + 3, 6)}${screw(empty[1] - 3, 6)}${screw(empty[0] + 3, 19)}${screw(empty[1] - 3, 19)}` : "";
@@ -196,10 +183,9 @@ function topBar(W, s) {
   ${plates.map(([a, b]) => plate(a, b)).join("")}
   ${emptyScrews}
   ${gridPanel(gridX, gridW)}
-  ${GUN}${counter(59, s.ammo)}
-  ${FIST}
-  ${s.bonus ? BLASTER + counter(168, s.bonusAmmo) : ""}
-  ${lamp(30, s.weapon === 0)}${lamp(98, s.weapon === 1)}${s.bonus ? lamp(145, s.weapon === 2) : ""}
+  ${weapon(GUN + counter(59, s.ammo), s.weapon === 0)}
+  ${weapon(FIST, s.weapon === 1)}
+  ${s.bonus ? weapon(BLASTER + counter(150, s.bonusAmmo), s.weapon === 2) : ""}
   <rect x="${badge - .4}" y="1.8" width="48.8" height="21" rx="3.4" fill="#0b0806"/>
   <rect x="${badge + .6}" y="2.6" width="46.8" height="19.4" rx="3" fill="url(#plate)"/>
   ${bevel(badge + .6, 2.6, 46.8, 19.4, 3, true, .5)}
@@ -209,7 +195,8 @@ function topBar(W, s) {
   <text x="${badge + 24}" y="16" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
   <text x="${badge + 24}" y="15.4" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
   ${screw(badge + 2.4, 4.4)}${screw(badge + 45.6, 4.4)}${screw(badge + 2.4, 20.2)}${screw(badge + 45.6, 20.2)}
-  ${gridPanel(inv, 59)}${item}`;
+  ${gridPanel(run, runW)}${runText(run + runW / 2, s.running)}
+  ${gridPanel(inv, invW)}${item}`;
 }
 
 function view(W) {
@@ -226,6 +213,11 @@ function view(W) {
     <rect x="2" y="-27" width="18" height="2.2" fill="#8d9797"/></g>
   <text x="${W / 2}" y="80" text-anchor="middle" font-family="${MONO}" font-size="7" fill="#5c4632">GAME VIEW (placeholder)</text>`;
 }
+
+const weapon = (content, active) => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
+
+const runText = (x, on) =>
+  `<text x="${x}" y="13.8" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${on ? AMBER : "#8a6a3a"}"${on ? ' filter="url(#glow)"' : ""}>RUN</text>`;
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 
@@ -332,6 +324,7 @@ function state() {
     life: +$("life").value,
     reserve: +$("reserve").value,
     shields: +$("shields").value,
+    running: $("running").checked,
     item: $("item").value
   };
 }
