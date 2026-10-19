@@ -8,7 +8,7 @@ Mission 1 has a bonus weapon in HUD slot 3, the E-Blaster. The sandbox gets it n
 
 - E-Blaster views in the gun design sheet (`spikes/gun-design/`): its own held model in every view, beam, HUD slot 3 icon, ground pickup.
 - HUD slot 3 shows the E-Blaster icon and ammo once picked up, in the spike and the sandbox.
-- Sandbox: pick up the E-Blaster, select it with key 3, fire a continuous lightning beam that damages every enemy in range on the floor.
+- Sandbox: pick up the E-Blaster, select it with key 3, fire a continuous lightning beam that damages every enemy in range it crosses.
 
 ## Non-goals
 
@@ -31,7 +31,7 @@ From the original (report 12):
 
 - The carry pose and clips stay those of the gun.
 - Holding fire keeps a beam on: a blue-edged white zigzag drawn at full length at once, starting at the pose muzzle, mirrored for the facing, lower when ducking (it follows the muzzle). It flickers through 6 shapes, one per original tick, with 0-2 px random vertical jitter.
-- Each tick the beam damages every enemy in range on the hero's floor, so it pierces. Each enemy hit gets the gun's impact spark every tick.
+- Each tick the beam damages every enemy in range whose body the beam crosses, so it pierces. Each enemy hit gets the gun's impact spark every tick.
 - Fires while standing, walking, running and ducking; never while hidden.
 - Ammo: 400 on pickup, 1 per original tick of firing (about 32 per s), no refills in level 1. 0 at start; key 3 does nothing until pickup.
 - Empty weapon rules: an empty E-Blaster switches to the gun, an empty gun to the E-Blaster, both empty to fists.
@@ -50,9 +50,9 @@ Claude's call:
 - HUD icon drawn as vector code like the gun and fist icons.
 - Weapon model: `Weapon` gets a third value `blaster`. It uses the gun clips and carry pose with its own model in the hand; key 3 switches at once like `quickSwitch` today, and while hidden through the `weaponSwitch` clip (gun to E-Blaster: holster, then draw). Only the held weapon is drawn; the other owned weapon is never shown.
 - Beam ticks: the beam runs on fixed 32 Hz ticks of game time. Each tick spends 1 ammo, deals one damage chunk to each enemy in range, shows one spark per enemy and advances the flicker shape.
-- Same floor: an enemy is in range when it stands on the hero's floor row (feet row), like enemy sight, within `sightCells` and before the first wall or covered fog cell. The beam hits the whole enemy whatever the beam height, so a ducking hero still hits a standing enemy, as in the original.
+- Hit test: like bullets, an enemy is hit when the beam y (the muzzle y) is inside its body box and its near face lies between the hero body x and the beam end (`sightCells`, the first wall or covered fog cell). A jumping hero hits while the beam crosses the body; the low duck muzzle stays inside a standing enemy, so a ducking hero still hits it, as in the original.
 - Damage unit: enemy health is its `hits` (7). A kill takes about 0.48 s, about 15 ticks, so `blaster.damage` per tick is 0.47 hits (15 ticks per kill).
-- Hit effect: the enemy hit reaction (`reactMs` turn, tint flash, head snap, star) starts when the beam first touches it; while the beam stays on it only the per-tick sparks repeat.
+- Hit effect: the enemy hit reaction (`reactMs` turn, tint flash, head snap, star) starts when the beam first touches it; while the beam stays on it only the per-tick sparks repeat. An enemy that leaves the beam and comes back gets the reaction again.
 - Pickup: a new prop kind `weapon` in `config/levels/sandbox.json` (`"weapon": "blaster"`), picked with the item pick-up key and reach. Ownership lives on the hero (`hero.blaster` ammo, null before pickup); `resetWorld` restores the prop but it stays hidden while the hero owns the E-Blaster.
 - Blaster ammo is its own field next to gun `ammo`, kept on respawn; the debug panel gets a blaster ammo input like the gun ammo one. The slot 3 counter uses the slot 1 format.
 

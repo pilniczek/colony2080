@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { bolt } from "../arcLook";
-import { BEAM_FRAMES, BEAM_TICK_HZ, beamFrame, drawBeam } from "./beam";
+import { BEAM_FRAMES, drawBeam } from "./beam";
 
 const record = (length: number, frame: number, seed: number): string[] => {
   const calls: string[] = [];
@@ -17,12 +17,8 @@ const record = (length: number, frame: number, seed: number): string[] => {
 };
 
 describe("beam", () => {
-  it("steps one frame per tick and loops", () => {
+  it("loops over six frames", () => {
     expect(BEAM_FRAMES).toBe(6);
-    expect(BEAM_TICK_HZ).toBe(32);
-    expect(beamFrame(0)).toBe(0);
-    expect(beamFrame(1 / 32)).toBe(1);
-    expect(beamFrame(6 / 32)).toBe(0);
   });
 
   it("draws the same call list for the same length, frame and seed", () => {

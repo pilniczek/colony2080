@@ -16,7 +16,7 @@ import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
-import { BEAM_TICK_HZ, beamFrame, drawBeam } from "./beam";
+import { BEAM_FRAMES, drawBeam } from "./beam";
 import { drawEnvironment } from "./environment";
 
 const DEG = Math.PI / 180;
@@ -97,7 +97,7 @@ function beam(f: Frame): void {
   ctx.save();
   ctx.translate(b.x * cell, b.y * cell);
   ctx.scale(b.facing * k, k);
-  drawBeam(ctx, Math.abs(b.end - b.x) * TILE, beamFrame(b.tick / BEAM_TICK_HZ), b.tick);
+  drawBeam(ctx, Math.abs(b.end - b.x) * TILE, b.tick % BEAM_FRAMES, b.tick);
   ctx.restore();
 }
 

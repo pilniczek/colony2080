@@ -3,7 +3,7 @@ import type { Pt } from "../../engine/rig/tree";
 import { ARC, stroke } from "../arcLook";
 import { BARREL, createWeaponModel, type MatKeys, type WeaponPart } from "./weaponModel";
 
-export { MUZZLE as EBLASTER_MUZZLE, MUZZLE_IN_HOOK as EBLASTER_MUZZLE_IN_HOOK, SUPPORT as EBLASTER_SUPPORT } from "./weaponModel";
+export { MUZZLE as EBLASTER_MUZZLE } from "./weaponModel";
 
 const PRONG = 48;
 const COILS = 4;

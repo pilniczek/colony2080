@@ -6,7 +6,7 @@ import { fogEdge, visible } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
-import { ENEMY_SHOT, hitEnemy, isDead, SAME_FLOOR, type Enemy } from "./level/enemy";
+import { ENEMY_SHOT, hitEnemy, isDead, type Enemy } from "./level/enemy";
 import type { Prop, SandboxWorld } from "./level/sandboxLevel";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
@@ -176,15 +176,16 @@ function burn(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig)
     hitShootable(world, line.prop);
     world.sparks.push({ x: line.end, y: line.y, age: 0 });
   }
-  const half = cfg.box.width / 2;
+  const ray = { x: line.end, y: line.y, vx: h.facing, r: 0, tag: HERO_SHOT };
+  const burned = new Set<Enemy>();
   for (const enemy of world.enemies) {
-    const { x, y } = enemy.body;
-    if (isDead(enemy) || Math.abs(y - h.y) > SAME_FLOOR || (x - h.x) * h.facing < 0 || (line.end - x) * h.facing < 0) continue;
+    const face = enemyFace(enemy, cfg, h.x, ray);
+    if (face === null) continue;
     hitEnemy(enemy, cfg.blaster.damage, !world.beamHits.has(enemy));
-    world.beamHits.add(enemy);
-    if (isDead(enemy)) world.beamHits.delete(enemy);
-    world.sparks.push({ x: ahead(h.facing, line.x, x - h.facing * half), y: line.y, age: 0 });
+    if (!isDead(enemy)) burned.add(enemy);
+    world.sparks.push({ x: ahead(h.facing, line.x, face), y: line.y, age: 0 });
   }
+  world.beamHits = burned;
 }
 
 export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clips: ClipSet, cfg: MovementConfig): void {

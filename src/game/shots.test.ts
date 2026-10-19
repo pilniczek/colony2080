@@ -369,6 +369,51 @@ describe("blaster beam", () => {
     }
   });
 
+  it("hits an enemy whose near face is in range though its centre is not", () => {
+    const g = blaster(3.5, [[3.5 + cfg.sightCells + 0.2, 9]]);
+    zap(g);
+    expect(energy(g)).toEqual([7 - cfg.blaster.damage]);
+  });
+
+  it("hits a standing enemy on every beam tick of a stand jump that crosses its body", () => {
+    for (const step of [0, 1]) {
+      const level = beamLevel([[7.5, 9 - step]]);
+      if (step) level.rows[8] = `${level.rows[8]!.slice(0, 6)}###${level.rows[8]!.slice(9)}`;
+      const g = game({ x: 3.5, y: 9, weapon: "blaster", state: "idle" }, level);
+      Object.assign(g.hero, { blaster: cfg.blaster.ammo, onGround: true });
+      const [enemy] = g.world.enemies;
+      enemy!.body.energy = 1000;
+      tick(g, ["shoot"], ["shoot"]);
+      tick(g, ["shoot", "up"], ["up"]);
+      expect(g.hero.state).toBe("standJump");
+      let crossing = 0;
+      while (g.hero.state === "standJump") {
+        const [before, events] = [enemy!.body.energy, g.events.length];
+        tick(g, ["shoot"]);
+        const ticks = g.events.slice(events).filter((e) => e.kind === "beam").length;
+        const { y } = enemy!.body;
+        const inside = g.world.beam!.y >= y - cfg.box.height && g.world.beam!.y <= y;
+        if (ticks && inside) crossing++;
+        expect(before - enemy!.body.energy).toBeCloseTo(inside ? ticks * cfg.blaster.damage : 0, 9);
+      }
+      expect(crossing).toBeGreaterThan(step ? 10 : 3);
+    }
+  });
+
+  it("restarts the hit reaction when an enemy comes back into the beam", () => {
+    const g = blaster(3.5, [[8.5, 9]]);
+    const [enemy] = g.world.enemies;
+    zap(g);
+    enemy!.body.x = 16.5;
+    zap(g);
+    expect(g.world.beamHits.has(enemy!)).toBe(false);
+    Object.assign(enemy!.body, { x: 8.5, hitAge: 0.1 });
+    enemy!.alertAge = null;
+    zap(g);
+    expect(enemy!.body.hitAge).toBe(0);
+    expect(enemy!.alertAge).toBe(0);
+  });
+
   it("is cleared by a world reset", () => {
     const g = blaster(3.5, [[8.5, 9]]);
     zap(g);

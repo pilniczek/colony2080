@@ -2,15 +2,12 @@ import type { Pt } from "../../engine/rig/tree";
 import { ARC, bolt, LAYERS, rng, stroke } from "../arcLook";
 
 export const BEAM_FRAMES = 6;
-export const BEAM_TICK_HZ = 32;
 
 const mix = (seed: number): number => {
   let h = Math.imul(seed ^ (seed >>> 16), 0x45d9f3b);
   h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
   return (h ^ (h >>> 16)) >>> 11;
 };
-
-export const beamFrame = (t: number): number => Math.floor(t * BEAM_TICK_HZ) % BEAM_FRAMES;
 
 const knot = (ctx: CanvasRenderingContext2D): void => {
   ctx.globalAlpha = 0.6;
