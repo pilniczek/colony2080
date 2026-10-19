@@ -18,7 +18,7 @@ export function stepWorld(
   if (world.fog) updateFog(world.fog, hero, cfg.box.height, dt);
   fireEnemy(world, cfg, clips, updateEnemy(world.enemy, world.grid, world.fog, hero, clips, dt));
   stepShots(world, cfg, dt);
-  updateLift(world.lift, cfg.liftSpeed, dt);
+  for (const lift of world.lifts) updateLift(lift, cfg.liftSpeed, dt);
   const events = updateHero(hero, input, world, cfg, clips, dt, consume);
   fireShots(world, hero, events, clips, cfg);
   return events;

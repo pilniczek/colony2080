@@ -43,7 +43,7 @@ function jointPivots(node: RigNode, pose: Pose, m: Mat2D = identity(), out: [str
 }
 
 function tiles(ctx: CanvasRenderingContext2D, world: SandboxWorld, cell: number, px: number): void {
-  const { grid, lift } = world;
+  const { grid, lifts } = world;
   ctx.lineWidth = px;
   for (let row = 0; row < grid.height; row++) {
     for (let col = 0; col < grid.width; col++) {
@@ -56,8 +56,10 @@ function tiles(ctx: CanvasRenderingContext2D, world: SandboxWorld, cell: number,
   ctx.strokeStyle = COLORS.lift;
   ctx.lineWidth = 2 * px;
   ctx.beginPath();
-  ctx.moveTo(lift.x * cell, lift.y * cell);
-  ctx.lineTo((lift.x + lift.w) * cell, lift.y * cell);
+  for (const lift of lifts) {
+    ctx.moveTo(lift.x * cell, lift.y * cell);
+    ctx.lineTo((lift.x + lift.w) * cell, lift.y * cell);
+  }
   ctx.stroke();
 }
 

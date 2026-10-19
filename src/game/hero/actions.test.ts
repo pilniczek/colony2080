@@ -34,11 +34,11 @@ describe("kneel and duck", () => {
 
   it("calls the lift instead of ducking on it", () => {
     const g = game({ x: 18.5, y: 4 });
-    g.world.lift.y = 4;
+    g.world.lifts[0]!.y = 4;
     tick(g);
     tick(g, ["down"], ["down"]);
     expect(g.hero.state).toBe("idle");
-    expect(g.world.lift.target).toBe(14);
+    expect(g.world.lifts[0]!.target).toBe(14);
   });
 });
 
@@ -188,8 +188,8 @@ describe("dead body", () => {
     lethal(g);
     run(g, 1.4);
     expect(g.hero.state).toBe("death");
-    expect(g.hero.y).toBeCloseTo(g.world.lift.y, 6);
-    expect(g.world.lift.y).toBeLessThan(10);
+    expect(g.hero.y).toBeCloseTo(g.world.lifts[0]!.y, 6);
+    expect(g.world.lifts[0]!.y).toBeLessThan(10);
     expect(kinds(g, "died")).toHaveLength(1);
   });
 

@@ -3,7 +3,7 @@ import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset, TILE, type Size } from "../env/paint";
 import type { MovementConfig } from "../hero/config";
 import { RUNG, spikeUnit } from "../hero/look";
-import type { Prop, SandboxWorld, Scenery } from "../level/sandboxLevel";
+import type { Lift, Prop, SandboxWorld, Scenery } from "../level/sandboxLevel";
 
 const SKY_H = 170;
 const SKY_W = 320;
@@ -109,9 +109,8 @@ function terrain(e: Env): void {
   for (const r of girders) put(e, "girderBridge", r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
 }
 
-function lift(e: Env, alpha: number): void {
+function lift(e: Env, l: Lift, alpha: number): void {
   const { cell } = e;
-  const l = e.world.lift;
   const y = (l.y - l.vy * (1 - alpha) * FIXED_STEP) * cell;
   const size = { w: px(e, l.w * cell), top: px(e, (l.top - l.bottom) * cell - LIFT_HEAD), py: px(e, y - l.bottom * cell) };
   put(e, "lift", l.x * cell, l.bottom * cell, 0, size);
@@ -141,7 +140,7 @@ function prop(e: Env, p: Prop): void {
 export function drawEnvironment(ctx: CanvasRenderingContext2D, world: SandboxWorld, cfg: MovementConfig, alpha: number, lines: number): void {
   const e: Env = { ctx, world, cell: cfg.cellPx, unit: spikeUnit(cfg), lines };
   cached(e, "below", below);
-  lift(e, alpha);
+  for (const l of e.world.lifts) lift(e, l, alpha);
   cached(e, "above", above);
   for (const p of world.props) prop(e, p);
 }

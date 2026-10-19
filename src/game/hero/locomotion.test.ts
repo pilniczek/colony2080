@@ -16,7 +16,7 @@ const dropLevel = {
     "########################################",
     "########################################",
   ],
-  lift: { ...sandbox.lift, x: 34 },
+  lifts: [{ ...sandbox.lifts[0]!, x: 34 }],
 };
 
 const highLedge = { x: 22, y: 4 };
@@ -429,7 +429,7 @@ describe("lift", () => {
     expect(g.hero).toMatchObject({ state: "walk", onLift: true });
     tick(g, ["moveRight"], ["up"]);
     expect(g.hero).toMatchObject({ state: "idle", onGround: true });
-    expect(g.world.lift.target).toBe(4);
+    expect(g.world.lifts[0]!.target).toBe(4);
     expect(g.seen.has("walkJump")).toBe(false);
   });
 
@@ -440,7 +440,7 @@ describe("lift", () => {
     expect(g.hero).toMatchObject({ state: "run", onLift: true });
     tick(g, ["moveRight", RUNNING], ["up"]);
     expect(g.hero.state).toBe("runJump");
-    expect(g.world.lift.target).toBeNull();
+    expect(g.world.lifts[0]!.target).toBeNull();
   });
 
   it("rides to the top on one up press without jumping", () => {
@@ -449,7 +449,7 @@ describe("lift", () => {
     tick(g, [], ["up"]);
     run(g, 5);
     expect([...g.seen]).toEqual(["idle"]);
-    expect(g.world.lift.y).toBe(4);
+    expect(g.world.lifts[0]!.y).toBe(4);
     expect(g.hero.y).toBeCloseTo(4, 6);
   });
 });

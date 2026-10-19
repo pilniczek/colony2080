@@ -35,7 +35,7 @@
     { "asset": "floorVent", "x": 7.5 },
     { "asset": "stripLight", "x": 6.25, "y": 8 }
   ],
-  "lift": { "x": 17, "width": 3, "top": 4, "bottom": 14 },
+  "lifts": [{ "x": 17, "width": 3, "top": 4, "bottom": 14 }],
   "props": [
     { "kind": "crate", "x": 5 },
     { "kind": "barrel", "x": 24 },

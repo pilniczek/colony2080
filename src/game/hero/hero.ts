@@ -2,7 +2,7 @@ import type { InputFrame } from "../../engine/input";
 import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
-import { callLift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { callLift, liftAt, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { clipFor, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
@@ -292,7 +292,7 @@ function weaponSlot(s: Step): Weapon | null {
 
 function takeCover(s: Step): boolean {
   const { h, input, world } = s;
-  if (!input.held.has("hide") || (h.onLift && world.lift.target !== null)) return false;
+  if (!input.held.has("hide") || (h.onLift && liftAt(world, h)?.target != null)) return false;
   enter(h, "hide");
   h.hidden = true;
   h.fireTime = null;
@@ -312,7 +312,8 @@ function standUp(s: Step, from: Jump): boolean {
   const { h, world } = s;
   if (h.onLift) {
     const dir = liftCall(s);
-    if (dir !== null) callLift(world.lift, dir);
+    const lift = liftAt(world, h);
+    if (dir !== null && lift) callLift(lift, dir);
     return false;
   }
   if (!s.consume("up")) return false;
@@ -340,7 +341,9 @@ function moving(s: Step): void {
     const dir = liftCall(s);
     if (dir !== null) {
       enter(h, "idle");
-      return callLift(world.lift, dir);
+      const lift = liftAt(world, h);
+      if (lift) callLift(lift, dir);
+      return;
     }
   }
   if (s.consume("up")) {
@@ -442,7 +445,7 @@ function ladder(s: Step): void {
   if (input.dir !== 0) return dropOffLadder(s, input.dir);
   const dir = (input.held.has("down") ? 1 : 0) - (input.held.has("up") ? 1 : 0);
   if (dir === 0) return;
-  const r = moveBox(boxOf(h, cfg), 0, dir * cfg.ladderSpeed * dt, world.grid, [world.lift], { ignoreOneWay: true });
+  const r = moveBox(boxOf(h, cfg), 0, dir * cfg.ladderSpeed * dt, world.grid, world.lifts, { ignoreOneWay: true });
   h.climb -= r.y - h.y;
   h.y = r.y;
   if (dir > 0 && r.hitY) return leaveLadder(h);
@@ -521,14 +524,15 @@ function horizontalSpeed(s: Step): number {
 function physics(s: Step): void {
   const { h, world, cfg, dt } = s;
   const box = boxOf(h, cfg);
-  if (h.onLift) box.y = moveBox(box, 0, world.lift.vy * dt, world.grid, [world.lift]).y;
+  const carrier = h.onLift ? liftAt(world, h) : null;
+  if (carrier) box.y = moveBox(box, 0, carrier.vy * dt, world.grid, world.lifts).y;
   const vy = Math.min(h.vy + cfg.gravity * dt, cfg.maxFallSpeed);
-  const r = moveBox(box, h.vx * dt, ((h.vy + vy) / 2) * dt, world.grid, [world.lift]);
+  const r = moveBox(box, h.vx * dt, ((h.vy + vy) / 2) * dt, world.grid, world.lifts);
   h.x = r.x;
   h.y = r.y;
   h.vy = (r.hitY && vy < 0) || (r.onGround && vy > 0) ? 0 : vy;
   h.onGround = r.onGround && h.vy >= 0;
-  h.onLift = h.onGround && r.platform === world.lift;
+  h.onLift = h.onGround && world.lifts.some((l) => l === r.platform);
 }
 
 function settle(s: Step, startY: number): void {

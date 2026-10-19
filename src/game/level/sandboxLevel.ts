@@ -3,6 +3,7 @@ import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
 import { isAssetId, type AssetId } from "../env/assets";
 import type { Fog } from "../fog";
+import type { Hero } from "../hero/hero";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
 import { terrain } from "./terrain";
 
@@ -37,7 +38,7 @@ export interface Spark {
 
 export interface SandboxWorld {
   grid: TileGrid;
-  lift: Lift;
+  lifts: Lift[];
   props: Prop[];
   spawn: [number, number];
   sky: AssetId;
@@ -58,7 +59,7 @@ interface SandboxJson {
   sky: string;
   backdrop: SceneryJson[];
   dressing: SceneryJson[];
-  lift: { x: number; width: number; top: number; bottom: number };
+  lifts: { x: number; width: number; top: number; bottom: number }[];
   props: Prop[];
   enemy: EnemyJson;
 }
@@ -75,15 +76,15 @@ export function loadSandbox(json: unknown): SandboxWorld {
   const grid = new TileGrid(data.rows);
   return {
     grid,
-    lift: {
-      x: data.lift.x,
-      y: data.lift.bottom,
-      w: data.lift.width,
+    lifts: data.lifts.map((lift) => ({
+      x: lift.x,
+      y: lift.bottom,
+      w: lift.width,
       vy: 0,
-      top: data.lift.top,
-      bottom: data.lift.bottom,
+      top: lift.top,
+      bottom: lift.bottom,
       target: null,
-    },
+    })),
     props: data.props.map((prop) => ({ ...prop })),
     spawn: [data.spawn[0], data.spawn[1]],
     sky: scenery([{ asset: data.sky, x: 0 }])[0]!.asset,
@@ -95,6 +96,10 @@ export function loadSandbox(json: unknown): SandboxWorld {
     sparks: [],
     enemy: createEnemy(data.enemy, grid),
   };
+}
+
+export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">): Lift | null {
+  return world.lifts.find((l) => h.x >= l.x && h.x <= l.x + l.w && h.y >= l.top - 1 && h.y <= l.bottom) ?? null;
 }
 
 export function callLift(lift: Lift, dir: -1 | 1): void {
