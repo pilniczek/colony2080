@@ -171,7 +171,7 @@ const loop = new FixedLoop({
     ctx.rect(gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h);
     ctx.clip();
     const sight = world.fog && revealedPath(world.fog, cfg.cellPx);
-    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, world.enemies.map((e) => heroLook(e.body, clips, enemyRigs, hold, cfg)), enemyRigs, sight, devicePixelRatio || 1);
+    drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, world.enemies.map((e) => heroLook(e.body, clips, enemyRigs, hold, cfg)), enemyRigs, sight, devicePixelRatio || 1, gameWindow);
     if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx);
     drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
     ctx.restore();

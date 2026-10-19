@@ -3,8 +3,10 @@ import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset, TILE, type Size } from "../env/paint";
 import type { MovementConfig } from "../hero/config";
 import { RUNG, spikeUnit } from "../hero/look";
+import type { Rect } from "../hud/layout";
 import { ITEMS } from "../items";
 import type { Lift, Prop, SandboxWorld, Scenery } from "../level/sandboxLevel";
+import { TileCache, TILE_PX, visibleTiles } from "./tiles";
 
 const SKY_H = 170;
 const SKY_W = 320;
@@ -14,12 +16,10 @@ const HAZE = "rgba(26, 12, 8, 0.45)";
 
 const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", panel: "switchboard" };
 
-interface Layer {
-  key: string;
-  canvas: HTMLCanvasElement;
-}
+const TILE_MARGIN = 1;
+const PREFETCH_PER_FRAME = 1;
 
-const layers = new WeakMap<SandboxWorld, Record<string, Layer>>();
+const layers = new WeakMap<SandboxWorld, Record<string, TileCache<HTMLCanvasElement>>>();
 
 interface Env {
   ctx: CanvasRenderingContext2D;
@@ -27,6 +27,7 @@ interface Env {
   cell: number;
   unit: number;
   lines: number;
+  screen: Rect;
 }
 
 function place(e: Env, id: AssetId, x: number, y: number, scale: number, state = 0, size?: Size): void {
@@ -57,32 +58,35 @@ function haze(e: Env): void {
   ctx.fillRect(0, 0, world.grid.width * cell, world.grid.height * cell);
 }
 
-function render(e: Env, scale: number, paint: (off: Env) => void): HTMLCanvasElement {
-  const { world, cell } = e;
+function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: number; h: number }, col: number, row: number): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
-  canvas.width = Math.ceil(world.grid.width * cell * scale);
-  canvas.height = Math.ceil(world.grid.height * cell * scale);
+  canvas.width = Math.min(TILE_PX, size.w - col * TILE_PX);
+  canvas.height = Math.min(TILE_PX, size.h - row * TILE_PX);
   const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+  ctx.translate(-col * TILE_PX, -row * TILE_PX);
   ctx.scale(scale, scale);
   paint({ ...e, ctx });
   return canvas;
 }
 
 function cached(e: Env, name: string, paint: (off: Env) => void): void {
-  const { ctx, world, cell, unit, lines } = e;
+  const { ctx, world, cell, unit, lines, screen } = e;
   const t = ctx.getTransform();
   const scale = Math.hypot(t.a, t.b);
-  const key = `${scale}|${lines}|${cell}|${unit}`;
+  const x = Math.round(t.e);
+  const y = Math.round(t.f);
+  const size = { w: Math.ceil(world.grid.width * cell * scale), h: Math.ceil(world.grid.height * cell * scale) };
   const own = layers.get(world) ?? {};
   layers.set(world, own);
-  let layer = own[name];
-  if (layer?.key !== key) {
-    layer = { key, canvas: render(e, scale, paint) };
-    own[name] = layer;
-  }
+  const cache = (own[name] ??= new TileCache());
+  const view = { x: screen.x - x, y: screen.y - y, w: screen.w, h: screen.h };
+  const ahead = { tiles: visibleTiles(view, TILE_PX, TILE_MARGIN, size), budget: PREFETCH_PER_FRAME };
+  const key = `${scale}|${lines}|${cell}|${unit}`;
+  const make = (col: number, row: number): HTMLCanvasElement => render(e, scale, paint, size, col, row);
+  const tiles = cache.sync(key, visibleTiles(view, TILE_PX, 0, size), make, ahead);
   ctx.save();
-  ctx.setTransform(1, 0, 0, 1, Math.round(t.e), Math.round(t.f));
-  ctx.drawImage(layer.canvas, 0, 0);
+  ctx.setTransform(1, 0, 0, 1, x, y);
+  for (const [col, row, canvas] of tiles) ctx.drawImage(canvas, col * TILE_PX, row * TILE_PX);
   ctx.restore();
 }
 
@@ -139,8 +143,15 @@ function prop(e: Env, p: Prop): void {
   put(e, id, p.x * e.cell - ((left + right) / 2) * k(e), (p.y ?? e.world.spawn[1]) * e.cell, icon?.state ?? (p.kind === "panel" && p.on ? 1 : 0));
 }
 
-export function drawEnvironment(ctx: CanvasRenderingContext2D, world: SandboxWorld, cfg: MovementConfig, alpha: number, lines: number): void {
-  const e: Env = { ctx, world, cell: cfg.cellPx, unit: spikeUnit(cfg), lines };
+export function drawEnvironment(
+  ctx: CanvasRenderingContext2D,
+  world: SandboxWorld,
+  cfg: MovementConfig,
+  alpha: number,
+  lines: number,
+  screen: Rect = { x: 0, y: 0, w: ctx.canvas.width, h: ctx.canvas.height },
+): void {
+  const e: Env = { ctx, world, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen };
   cached(e, "below", below);
   for (const l of e.world.lifts) lift(e, l, alpha);
   cached(e, "above", above);

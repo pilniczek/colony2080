@@ -8,6 +8,7 @@ import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, spikeUnit, type HeroLook, type HitLook, type Rigs } from "../hero/look";
+import type { Rect } from "../hud/layout";
 import type { Enemy } from "../level/enemy";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
@@ -271,6 +272,7 @@ export function drawScene(
   enemyRigs: Rigs,
   sight: Path2D | null = null,
   lines = 1,
+  screen?: Rect,
 ): void {
   const scale = heroScale(cfg);
   const unit = spikeUnit(cfg);
@@ -280,7 +282,7 @@ export function drawScene(
   ctx.beginPath();
   ctx.rect(0, 0, world.grid.width * f.cell, world.grid.height * f.cell);
   ctx.clip();
-  drawEnvironment(ctx, world, cfg, alpha, lines);
+  drawEnvironment(ctx, world, cfg, alpha, lines, screen);
   const drawHero = (): void => {
     shadow(f, hero, look);
     heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
