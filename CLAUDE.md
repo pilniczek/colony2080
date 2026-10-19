@@ -16,6 +16,7 @@ Phase 1b: engine core and movement sandbox built, feel signed off (2026-10-19), 
 
 - `npm run dev` - Vite dev server, opens the home page (`index.html`: game name, mission select, dev links to the sandbox and every spike page) in browser. Agents start bare `npx vite --port 5199 --strictPort` (no browser); never pass `--open false`, Vite reads `false` as path `/false`.
 - `npm run build` - production build of `index.html` and `sandbox.html` into `dist/`; `spikes/` is copied as a production variant (`scripts/spikes-prod.ts`): `<!-- originals -->` blocks are cut, `shared/originals.js` is switched off, config `refs` are emptied and `source` dropped, and the build fails if any served spike file still mentions `docs/research`.
+- `npm run preview` - production build, then serves `dist/` and opens the home page: the website as published (production spike variants without original game resources). Rerun after changes; it does not watch. Agents run `npx vite build && npx vite preview --port 5198 --strictPort`.
 - `npm test` - Vitest (node environment) over `src/**/*.test.ts`.
 - `npm run lint` - ESLint; `src/engine/**` may not import React, Zustand, `game/` or `sandbox/`.
 - `npm run typecheck` - `tsc --noEmit`.
