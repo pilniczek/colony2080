@@ -16,7 +16,7 @@
     "rowsBelow": 1.5,
     "followRate": 6,
     "color": "#0a1013",
-    "opacity": 0.97,
+    "opacity": 1,
     "rememberedOpacity": 0.6,
     "scanlineColor": "#1e2c32",
     "scanlineGapPx": 3
