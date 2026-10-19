@@ -4,7 +4,7 @@ import { hudIcons } from "../../game/hud/icons";
 import { hudSvg, keyLabel, type HudKeys, type HudState } from "../../game/hud/svg";
 import { useSandbox } from "../store";
 
-const UNSIMULATED = { bonus: false, bonusAmmo: 0, item: "" };
+const UNSIMULATED = { bonus: false, bonusAmmo: 0 };
 const { keyboard } = controls;
 const KEYS: HudKeys = {
   weapons: [keyboard.weapon1, keyboard.weapon2, keyboard.weapon3].map(([code]) => keyLabel(code ?? "")),
@@ -21,10 +21,11 @@ export function Hud() {
   const max = useSandbox((s) => s.movement.energy.max);
   const weapon = useSandbox((s) => s.weapon);
   const running = useSandbox((s) => s.running);
+  const items = useSandbox((s) => s.items);
   const svg = useMemo(() => {
-    const state: HudState = { ...UNSIMULATED, weapon: weapon === "gun" ? 0 : 1, life: (100 * energy) / max, reserve, shields, running, ammo };
+    const state: HudState = { ...UNSIMULATED, weapon: weapon === "gun" ? 0 : 1, life: (100 * energy) / max, reserve, shields, running, ammo, items };
     return hudSvg(fit.W, fit.H, state, icons, KEYS);
-  }, [fit.W, fit.H, energy, reserve, shields, ammo, max, weapon, running, icons]);
+  }, [fit.W, fit.H, energy, reserve, shields, ammo, max, weapon, running, items, icons]);
   return (
     <div
       style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none" }}

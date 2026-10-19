@@ -13,7 +13,7 @@ import { hudFit, viewRect, type Rect } from "../game/hud/layout";
 import { SHIELDS_MAX } from "../game/hud/svg";
 import { createHero, damage, kill } from "../game/hero/hero";
 import { createRigs, heroLook } from "../game/hero/look";
-import { loadSandbox, resetWorld } from "../game/level/sandboxLevel";
+import { heldItems, loadSandbox, resetWorld } from "../game/level/sandboxLevel";
 import { drawFog, revealedPath } from "../game/render/fog";
 import { drawOverlays } from "../game/render/overlays";
 import { drawScene } from "../game/render/scene";
@@ -128,7 +128,9 @@ const push = (): void => {
   const now = performance.now();
   if (lastRender) fps += (1000 / Math.max(1, now - lastRender) - fps) * FPS_SMOOTHING;
   lastRender = now;
+  const items = heldItems(world);
   useSandbox.setState({
+    ...(items.join() === useSandbox.getState().items.join() ? {} : { items }),
     state: hero.state,
     time: hero.time,
     vx: hero.vx,

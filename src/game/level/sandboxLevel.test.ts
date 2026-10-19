@@ -2,7 +2,7 @@ import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox } from "../../engine/world/collide";
 import { cfg, game, run, runUntil, RUNNING, tick } from "../hero/testWorld";
-import { callLift, loadSandbox, updateLift } from "./sandboxLevel";
+import { callLift, heldItems, loadSandbox, resetWorld, updateLift } from "./sandboxLevel";
 
 const dt = 1 / 60;
 
@@ -153,5 +153,17 @@ describe("moving lift", () => {
     expect(energy[2]).toBeLessThan(cfg.energy.max);
     expect(energy[2]).toBeLessThan(target.hits);
     expect(energy.filter((v) => v < sandbox.enemies[0]!.hits)).toHaveLength(1);
+  });
+});
+
+describe("held items", () => {
+  it("lists the crowbar once taken and clears it when the map resets", () => {
+    const g = game({ x: 9.5, y: 14 });
+    expect(heldItems(g.world)).toEqual([]);
+    tick(g, ["down"]);
+    runUntil(g, (h) => h.state === "idle");
+    expect(heldItems(g.world)).toEqual(["crowbar"]);
+    resetWorld(g.world);
+    expect(heldItems(g.world)).toEqual([]);
   });
 });

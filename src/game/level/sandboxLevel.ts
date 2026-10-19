@@ -109,6 +109,9 @@ export function resetWorld(world: SandboxWorld): void {
   world.fog = fog && createFog(fog.cfg, { x, y }, world.grid);
 }
 
+export const heldItems = (world: SandboxWorld): string[] =>
+  world.props.filter((p) => p.kind === "item" && p.taken).map(() => "crowbar");
+
 export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">, cfg: MovementConfig): Lift | null {
   const half = cfg.box.width / 2;
   return (

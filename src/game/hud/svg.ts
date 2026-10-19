@@ -9,7 +9,7 @@ export interface HudState {
   reserve: number;
   shields: number;
   running: boolean;
-  item: string;
+  items: string[];
 }
 
 export interface HudIcon {
@@ -21,6 +21,7 @@ export interface HudIcon {
 export interface HudIcons {
   gun: HudIcon;
   fist: HudIcon;
+  items: Partial<Record<string, HudIcon>>;
 }
 
 export interface HudKeys {
@@ -32,7 +33,6 @@ export const SHIELDS_MAX = 5;
 
 export const keyLabel = (code: string): string => code.replace(/^(Digit|Key)/, "").replace(/(Left|Right)$/, "").toUpperCase();
 
-const AMBER = "#ffb21c";
 const READOUT = "#a8844a";
 const MONO = "Share Tech Mono, monospace";
 const BOLD = "Orbitron, sans-serif";
@@ -115,11 +115,24 @@ function badge(x: number): string {
   ${screw(x + 2.4, 3.2)}${screw(x + 45.6, 3.2)}${screw(x + 2.4, 17.2)}${screw(x + 45.6, 17.2)}`;
 }
 
+const ITEM_X = 19;
+const ITEM_GAP = 1;
+const HAND_MID_Y = 9.1;
+
+function heldIcons(ids: string[], icons: HudIcons, x: number): string {
+  let at = x;
+  return ids.flatMap((id) => {
+    const icon = icons.items[id];
+    if (!icon) return [];
+    const out = image(icon, at, HAND_MID_Y - icon.h / 2);
+    at += icon.w + ITEM_GAP;
+    return [out];
+  }).join("");
+}
+
 function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   const bar = topBar(W);
-  const item = s.item
-    ? `<text x="${bar.inv + bar.invW / 2}" y="11.9" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
-    : `<g transform="translate(${bar.inv + 5} 0)">${HAND}</g>`;
+  const item = `<g transform="translate(${bar.inv + 5} 0)">${HAND}</g>${heldIcons(s.items, icons, bar.inv + ITEM_X)}`;
   return `<rect x="${bar.gaps[0]![1]}" width="${W - 2 * bar.gaps[0]![1]}" height="${BAR_H}" fill="#060504"/>
   ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map(plate).join("")}

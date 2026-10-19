@@ -34,7 +34,7 @@
   <label>Reserve <input id="reserve" type="range" min="0" max="100" value="100"></label>
   <label><input id="running" type="checkbox" checked> Run</label>
   <label>Shields <input id="shields" type="number" min="0" max="5" value="3"></label>
-  <label>Item <select id="item"><option value="">empty hand</option><option>PACIDLO</option><option>ELEKTROMAGNET</option></select></label>
+  <label><input id="crowbar" type="checkbox"> Crowbar taken</label>
 </header>
 <main class="full">
   <figure><figcaption>Vector HUD</figcaption><div id="big"></div></figure>
@@ -54,11 +54,12 @@
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
+<script src="../shared/env.js"></script>
+<script src="../shared/env-props.js"></script>
 <script>
 (() => {
 const HUD_H = 200;
 const READOUT = "#a8844a";
-const AMBER = "#ffb21c";
 const MONO = "Share Tech Mono, monospace";
 const BOLD = "Orbitron, sans-serif";
 const $ = (id) => document.getElementById(id);
@@ -146,6 +147,13 @@ const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
   window.XBOT.render(ctx, { ...fore, m: null, name: null });
 }) };
 
+const CROWBAR_ICON = { w: 24, h: 7, url: icon(24, 7, (ctx) => {
+  const asset = window.ENV.ASSETS.find((a) => a.id === "crowbar"), [x0, y0, x1, y1] = asset.box, s = 24 / (x1 - x0);
+  ctx.scale(s, s);
+  ctx.translate(-x0, -y0 + (7 / s - (y1 - y0)) / 2);
+  window.ENV.draw(ctx, asset, { state: 0, lod: false, lines: 1 });
+}) };
+
 const GUN = `<image href="${GUN_ICON.url}" x="19" y="2.9" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
 const FIST = `<image href="${FIST_ICON.url}" x="84" y="2.4" width="${FIST_ICON.w}" height="${FIST_ICON.h}"/>`;
 const BLASTER = `<g transform="translate(108 5.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
@@ -170,9 +178,7 @@ function rod(a, b, y) {
 
 function topBar(W, s) {
   const edge = 0, gap = 2, pad = 3.5, invW = 46.5, runW = 18, inv = W - edge - pad - invW, run = inv - 2 * pad - gap - runW, badge = run - 52.4 - gap - pad;
-  const item = s.item
-    ? `<text x="${inv + invW / 2}" y="11.9" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
-    : `<g transform="translate(${inv + 5} 0)">${HAND}</g>`;
+  const item = `<g transform="translate(${inv + 5} 0)">${HAND}</g>${s.crowbar ? `<image href="${CROWBAR_ICON.url}" x="${inv + 19}" y="${9.1 - CROWBAR_ICON.h / 2}" width="${CROWBAR_ICON.w}" height="${CROWBAR_ICON.h}"/>` : ""}`;
   const fixedEnd = badge - (W - 320) - 4 - gap, empty = [fixedEnd + gap, badge - 4 - gap];
   const wide = empty[1] - empty[0] >= 8;
   const gaps = [[0, edge], ...(wide ? [[fixedEnd, empty[0]]] : []), [badge - 4 - gap, badge - 4], [badge + 52.4, badge + 52.4 + gap], [run + runW + pad, inv - pad], [W - edge, W]];
@@ -346,7 +352,7 @@ function state() {
     reserve: +$("reserve").value,
     shields: +$("shields").value,
     running: $("running").checked,
-    item: $("item").value
+    crowbar: $("crowbar").checked
   };
 }
 
