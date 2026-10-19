@@ -46,11 +46,12 @@ export interface RunOptions {
   world: SandboxWorld;
   ui: ReactNode;
   afterStep?: () => void;
+  drawOver?: (ctx: CanvasRenderingContext2D, view: ViewTransform, cellPx: number) => void;
 }
 
 const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
-export function startRun({ world, ui: tree, afterStep }: RunOptions): Run {
+export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): Run {
   const canvas = document.getElementById("game");
   const ui = document.getElementById("ui");
   if (!(canvas instanceof HTMLCanvasElement) || !ui) throw new Error("missing #game or #ui");
@@ -176,6 +177,7 @@ export function startRun({ world, ui: tree, afterStep }: RunOptions): Run {
       drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, world.enemies.map((e) => heroLook(e.body, clips, enemyRigs, hold, cfg)), enemyRigs, sight, devicePixelRatio || 1, gameWindow);
       if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx);
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
+      drawOver?.(ctx, view, cfg.cellPx);
       ctx.restore();
       push();
     },

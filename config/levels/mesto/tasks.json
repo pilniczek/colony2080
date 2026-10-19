@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md, docs/research/reports/06-cz-walkthroughs.md level 1 task order, docs/research/reports/13-level1-layout.md blocking and map variants; object ids from config/levels/mesto/objects.json, metroTunnel is the dark tunnel gate; crowbar and craneKey are item props (no task row); the valve is used once with no item: it closes the water (M13 drops the water wall) and hands over the tap handle, which the item table lists at the valve spot",
+  "source": "docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md, docs/research/reports/06-cz-walkthroughs.md level 1 task order, docs/research/reports/13-level1-layout.md blocking and map variants; object ids from config/levels/mesto/objects.json, metroTunnel is the dark tunnel gate; crowbar, craneKey and controller are item props (no task row; the plasma wall gates the controller); the valve is used once with no item: it closes the water (M13 drops the water wall) and hands over the tap handle, which the item table lists at the valve spot",
   "tasks": [
     { "id": "talkRebel", "object": "dyingRebel", "requires": [], "gives": ["flag:rebelTalked"], "state": 1, "subtitle": "Find the bar man. He knows the way out." },
     { "id": "pullWires", "object": "wireBox", "requires": [], "gives": ["item:wires"], "state": 1, "subtitle": "Wires torn out." },
@@ -12,7 +12,6 @@
     { "id": "getShipPart", "object": "crashedShip", "requires": ["item:shipPlan", "flag:hullOpen"], "consumes": ["item:shipPlan"], "gives": ["item:shipPart"], "state": 2, "subtitle": "The part is out of the hull." },
     { "id": "tradeShipPart", "object": "barDoor", "requires": ["item:shipPart"], "consumes": ["item:shipPart"], "gives": ["item:decoder"], "subtitle": "A decoder for the part." },
     { "id": "unlockPlasma", "object": "codeLock", "requires": ["item:decoder"], "consumes": ["item:decoder"], "gives": ["flag:plasmaOff"], "state": 1, "sets": { "plasmaBarrier": 1 }, "subtitle": "Code accepted. The plasma dies down." },
-    { "id": "takeController", "object": "controller", "requires": [], "gives": ["item:controller"], "state": 1, "subtitle": "Picked up controller" },
     { "id": "repairLift", "object": "damagedLift", "requires": ["item:controller"], "consumes": ["item:controller"], "gives": ["flag:upperFloorsOpen"], "state": 1, "subtitle": "The lift screen clears. It runs again." },
     { "id": "openDoor", "object": "cardDoor", "requires": ["item:card"], "consumes": ["item:card"], "gives": ["flag:doorOpen"], "state": 1, "subtitle": "Card accepted. The door opens." },
     { "id": "useAcidTank", "object": "acidTank", "requires": ["item:tapHandle"], "consumes": ["item:tapHandle"], "gives": ["flag:acidPoured"], "state": 2, "subtitle": "Acid pours out of the tank." },

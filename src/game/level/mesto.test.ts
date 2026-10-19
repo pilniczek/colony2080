@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import enemies from "@config/levels/mesto/enemies.json";
+import tasks from "@config/levels/mesto/tasks.json";
+import { ITEMS } from "../items";
 import { loadMesto, mestoJson } from "./mesto";
 import { terrain } from "./terrain";
 
@@ -85,7 +87,7 @@ describe("mesto map", () => {
     expect(json.taskWalls.map((w) => w.id).sort()).toEqual(["cardDoor", "metroTunnel", "plasmaBarrier", "waterPipe"]);
     for (const w of json.taskWalls) {
       expect(grid.wall(w.col, w.bottom + 1)).toBe(true);
-      for (let row = w.top; row <= w.bottom; row++) expect(grid.solid(w.col, row)).toBe(false);
+      for (let row = w.top; row <= w.bottom; row++) expect(grid.at(w.col, row)).toBe(".");
     }
   });
 
@@ -98,5 +100,60 @@ describe("mesto map", () => {
   it("stands every droid on a floor", () => {
     const off = droids.filter((d) => !grid.solid(d.cell[0]!, d.cell[1]! + 1) || grid.solid(d.cell[0]!, d.cell[1]!)).map((d) => d.id);
     expect(off).toEqual([]);
+  });
+});
+
+describe("mesto props", () => {
+  const { props } = world;
+  const objects = ["dyingRebel", "wireBox", "switchboard", "trainDoor", "tapValveWheel", "corpse", "barDoor", "crashedShip", "codeLock", "damagedLift", "acidTank", "cardDoor", "crane"];
+  const gates = ["metroTunnel", "waterPipe", "plasmaBarrier"];
+
+  it("places every interactive object once", () => {
+    const ids = props.filter((p) => p.kind === "object").map((p) => p.id).sort();
+    expect(ids).toEqual([...objects].sort());
+    expect(props.filter((p) => p.kind === "gate").map((p) => p.id).sort()).toEqual([...gates].sort());
+  });
+
+  it("places the map items at their original cells", () => {
+    const items = Object.fromEntries(props.filter((p) => p.kind === "item").map((p) => [p.item, [p.x, p.y]]));
+    expect(items).toEqual({ crowbar: [24.5, 44], controller: [111.5, 51], craneKey: [20.5, 16] });
+  });
+
+  it("names a known item on every item prop", () => {
+    for (const p of props.filter((q) => q.kind === "item")) expect(ITEMS[p.item!], p.item).toBeDefined();
+  });
+
+  it("finds a prop for every task object", () => {
+    const ids = new Set(props.map((p) => p.id));
+    for (const t of tasks.tasks) expect(ids.has(t.object), t.object).toBe(true);
+    for (const t of tasks.tasks) for (const id of Object.keys((t as { sets?: object }).sets ?? {})) expect(ids.has(id), id).toBe(true);
+  });
+
+  it("has no E-blaster", () => {
+    expect(JSON.stringify(props).toLowerCase()).not.toContain("blaster");
+  });
+
+  it("drops the controller task for the controller pickup", () => {
+    expect(tasks.tasks.map((t) => t.object)).not.toContain("controller");
+  });
+
+  it("stands every prop on a floor", () => {
+    const off = props.filter((p) => p.y === undefined || !grid.wall(Math.floor(p.x), p.y) || grid.wall(Math.floor(p.x), p.y - 1));
+    expect(off.map((p) => p.id ?? p.item)).toEqual([]);
+  });
+
+  it("blocks the task wall cells until the task opens them", () => {
+    for (const w of json.taskWalls) {
+      const p = props.find((q) => q.id === w.id)!;
+      expect(p.solidStates, w.id).toEqual([0]);
+      expect(p.cells, w.id).toEqual({ col: w.col, row: w.top, w: 1, h: w.bottom - w.top + 1 });
+      expect(grid.solid(w.col, w.bottom), w.id).toBe(true);
+    }
+  });
+
+  it("opens the ship hull by gunfire", () => {
+    const ship = props.find((p) => p.id === "crashedShip")!;
+    expect(ship.shootable).toMatchObject({ hits: 7, state: 1, gives: ["flag:hullOpen"] });
+    expect(typeof ship.shootable!.subtitle).toBe("string");
   });
 });

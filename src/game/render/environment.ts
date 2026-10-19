@@ -166,10 +166,10 @@ function ladders(e: Env): void {
 export function prop(e: Env, p: Prop): void {
   if (p.kind === "item" && p.taken) return;
   const icon = p.kind === "item" ? ITEMS[p.item!]!.icon : null;
-  const id = p.kind === "item" ? icon?.asset : PROP_ASSETS[p.kind];
+  const id = p.kind === "item" ? icon?.asset : (p.asset ?? PROP_ASSETS[p.kind]);
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
-  put(e, id, p.x * e.cell - ((left + right) / 2) * k(e), (p.y ?? e.world.spawn[1]) * e.cell, icon?.state ?? (p.kind === "panel" && p.on ? 1 : 0));
+  put(e, id, p.x * e.cell - ((left + right) / 2) * k(e), (p.y ?? e.world.spawn[1]) * e.cell, icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0)));
 }
 
 export function drawEnvironment(

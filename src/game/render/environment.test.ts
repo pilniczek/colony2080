@@ -1,7 +1,7 @@
 import sandboxJson from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { ITEMS } from "../items";
-import { loadSandbox } from "../level/sandboxLevel";
+import { loadSandbox, type Prop } from "../level/sandboxLevel";
 import { above, below, prop, type Env } from "./environment";
 import type { Rect } from "../geometry";
 
@@ -50,14 +50,23 @@ describe("static layer culling", () => {
   });
 });
 
+const painting = (p: Prop): number => {
+  const { ctx } = counting();
+  let count = 0;
+  const spy = new Proxy(ctx, { get: (t, key) => (key === "fill" || key === "stroke" ? () => count++ : Reflect.get(t, key)) });
+  prop({ ctx: spy, world, cell: CELL, unit: 1, lines: 1, screen: worldRect }, p);
+  return count;
+};
+
+describe("object props", () => {
+  it("paints an object from its asset in its state", () => {
+    expect(painting({ kind: "object", id: "a", x: 3 })).toBe(0);
+    expect(painting({ kind: "object", id: "a", asset: "switchboard", x: 3, state: 1 })).toBeGreaterThan(painting({ kind: "object", id: "a", asset: "switchboard", x: 3, state: 0 }));
+  });
+});
+
 describe("item props", () => {
-  const fills = (item: string, taken: boolean): number => {
-    const { ctx } = counting();
-    let count = 0;
-    const spy = new Proxy(ctx, { get: (t, key) => (key === "fill" || key === "stroke" ? () => count++ : Reflect.get(t, key)) });
-    prop({ ctx: spy, world, cell: CELL, unit: 1, lines: 1, screen: worldRect }, { kind: "item", item, x: 3, taken });
-    return count;
-  };
+  const fills = (item: string, taken: boolean): number => painting({ kind: "item", item, x: 3, taken });
 
   it.each(Object.keys(ITEMS))("paints %s from its asset", (item) => {
     expect(fills(item, false)).toBeGreaterThan(0);

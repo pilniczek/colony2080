@@ -32,6 +32,7 @@ const { hits, reactMs, burst, pauseMs } = sandbox.enemies[0]!;
 export function mestoJson(): SandboxJson & Pick<typeof map, "taskWalls"> {
   return {
     ...world,
+    props: world.props as SandboxJson["props"],
     rows: map.rows,
     lifts: map.lifts as SandboxJson["lifts"],
     taskWalls: map.taskWalls,
