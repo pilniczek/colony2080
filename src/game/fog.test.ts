@@ -1,7 +1,7 @@
 import cameraJson from "@config/camera.json";
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
-import { createFog, loadFog, revealedAt, sightRect, updateFog } from "./fog";
+import { createFog, loadFog, revealedAt, seenAt, sightRect, updateFog } from "./fog";
 import { cfg, clips, game, run, tick, type Game } from "./hero/testWorld";
 import { updateEnemy } from "./level/enemy";
 import { fireShots, stepShots } from "./shots";
@@ -15,7 +15,7 @@ const fogged = (g: Game): Game => {
 
 const coverLeftOf = (g: Game, col: number): void => {
   const fog = g.world.fog!;
-  for (let row = 0; row < fog.height; row++) fog.revealed.fill(0, row * fog.width, row * fog.width + col);
+  for (let row = 0; row < fog.height; row++) fog.seen.fill(0, row * fog.width, row * fog.width + col);
 };
 
 const ROOM = [
@@ -63,6 +63,25 @@ describe("reveal", () => {
     expect(g.hero.x).toBeGreaterThan(17);
     expect(revealedAt(g.world.fog!, 5, 13)).toBe(true);
   });
+
+  it("sees only the cells in the current sight", () => {
+    const g = fogged(game({ x: 10.5, y: 14 }));
+    expect(seenAt(g.world.fog!, 5, 13)).toBe(true);
+    run(g, 5, ["moveRight"]);
+    expect(seenAt(g.world.fog!, 5, 13)).toBe(false);
+    expect(seenAt(g.world.fog!, Math.floor(g.hero.x), 13)).toBe(true);
+  });
+
+  it("bumps the version only when the seen cells change", () => {
+    const g = fogged(game({ x: 10.5, y: 14 }));
+    const fog = g.world.fog!;
+    const before = fog.version;
+    updateFog(fog, g.hero, cfg, 1 / 60);
+    expect(fog.version).toBe(before);
+    g.hero.x += 1;
+    updateFog(fog, g.hero, cfg, 1 / 60);
+    expect(fog.version).toBe(before + 1);
+  });
 });
 
 describe("fog follow", () => {
@@ -101,7 +120,7 @@ describe("fog blocks shots", () => {
     expect(g.world.projectiles.every((p) => p.x <= 2.5 + cfg.sightCells)).toBe(true);
   });
 
-  it("keeps an enemy in the fog safe from hero bullets", () => {
+  it("keeps an enemy in a remembered cell safe from hero bullets", () => {
     const g = fogged(game({ x: 9.5, y: 4, weapon: "gun" }));
     g.hero.facing = -1;
     Object.assign(g.world.enemies[0]!.body, { x: 4.5, facing: -1 });
@@ -119,7 +138,7 @@ describe("fog blocks shots", () => {
     expect(g.world.projectiles.every((p) => Number.isFinite(p.x))).toBe(true);
   });
 
-  it("keeps an enemy in the fog from seeing the hero", () => {
+  it("keeps an enemy in a remembered cell from seeing the hero", () => {
     const g = fogged(game({ x: 9.5, y: 4 }));
     const [enemy] = g.world.enemies;
     Object.assign(enemy!.body, { x: 5.5, facing: 1 });

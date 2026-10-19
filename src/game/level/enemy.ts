@@ -1,5 +1,5 @@
 import type { TileGrid } from "../../engine/world/tiles";
-import { revealedAt, type Fog } from "../fog";
+import { seenAt, type Fog } from "../fog";
 import type { ClipSet, MovementConfig } from "../hero/config";
 import { createHero, type Hero } from "../hero/hero";
 
@@ -106,7 +106,7 @@ function sees(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells:
   if (Math.sign(dx) !== body.facing || Math.abs(dx) > sightCells) return false;
   const row = Math.floor(body.y - 1);
   for (let col = Math.floor(Math.min(body.x, hero.x)); col <= Math.floor(Math.max(body.x, hero.x)); col++) {
-    if (grid.solid(col, row) || (fog && !revealedAt(fog, col, row))) return false;
+    if (grid.solid(col, row) || (fog && !seenAt(fog, col, row))) return false;
   }
   return true;
 }

@@ -17,7 +17,7 @@ import { canOpenInventory, inventoryKey, openCursor } from "./hud/inventoryKeys"
 import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
 import { resetWorld, showItem, type SandboxWorld } from "./level/sandboxLevel";
-import { drawFog, revealedPath } from "./render/fog";
+import { drawFog, seenPath } from "./render/fog";
 import { drawOverlays } from "./render/overlays";
 import { drawScene, viewCells, visibleEnemies } from "./render/scene";
 import { snapView } from "./render/snapView";
@@ -186,7 +186,7 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
       ctx.beginPath();
       ctx.rect(gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h);
       ctx.clip();
-      const sight = world.fog && revealedPath(world.fog, cfg.cellPx);
+      const sight = world.fog && seenPath(world.fog, cfg.cellPx);
       drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => ({ enemy, look: heroLook(enemy.body, clips, enemyRigs, hold, cfg) })), enemyRigs, sight, devicePixelRatio || 1, gameWindow);
       if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow);
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);

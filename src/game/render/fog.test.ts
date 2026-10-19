@@ -26,10 +26,11 @@ const fakeContext = (calls: string[]): CanvasRenderingContext2D =>
 
 const fog = (width: number, height: number): Fog =>
   ({
-    cfg: { color: "#0a1013", opacity: 0.97, scanlineColor: "#1e2c32", scanlineGapPx: 3 },
+    cfg: { color: "#0a1013", opacity: 0.97, rememberedOpacity: 0.6, scanlineColor: "#1e2c32", scanlineGapPx: 3 },
     width,
     height,
     revealed: new Uint8Array(width * height),
+    seen: new Uint8Array(width * height),
     version: 0,
   }) as unknown as Fog;
 

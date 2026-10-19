@@ -9,6 +9,7 @@ export interface FogConfig {
   followRate: number;
   color: string;
   opacity: number;
+  rememberedOpacity: number;
   scanlineColor: string;
   scanlineGapPx: number;
 }
@@ -27,6 +28,8 @@ export interface Fog {
   width: number;
   height: number;
   revealed: Uint8Array;
+  seen: Uint8Array;
+  seenCells: number[];
   version: number;
 }
 
@@ -44,8 +47,11 @@ export function sightRect(cfg: FogConfig, sightCells: number, x: number, anchorY
   return { left: x - sightCells, right: x + sightCells, top: anchorY - cfg.rowsAbove, bottom: anchorY + cfg.rowsBelow };
 }
 
-export const revealedAt = (fog: Fog, col: number, row: number): boolean =>
-  col >= 0 && col < fog.width && row >= 0 && row < fog.height && fog.revealed[row * fog.width + col] === 1;
+const inside = (fog: Fog, col: number, row: number): boolean => col >= 0 && col < fog.width && row >= 0 && row < fog.height;
+
+export const revealedAt = (fog: Fog, col: number, row: number): boolean => inside(fog, col, row) && fog.revealed[row * fog.width + col] === 1;
+
+export const seenAt = (fog: Fog, col: number, row: number): boolean => inside(fog, col, row) && fog.seen[row * fog.width + col] === 1;
 
 function clearLine(grid: TileGrid, [ax, ay]: [number, number], [bx, by]: [number, number]): boolean {
   const [dx, dy] = [bx - ax, by - ay];
@@ -69,24 +75,27 @@ function inSight(grid: TileGrid, eye: [number, number], col: number, row: number
   return points.some(([px, py]) => clearLine(grid, eye, [col + px, row + py]));
 }
 
+const sameCells = (a: number[], b: number[]): boolean => a.length === b.length && a.every((v, i) => v === b[i]);
+
 function reveal(fog: Fog, r: SightRect, eye: [number, number]): void {
-  let added = false;
+  const cells: number[] = [];
   for (let row = Math.max(0, Math.ceil(r.top - 0.5)); row < Math.min(fog.height, Math.floor(r.bottom + 0.5)); row++) {
     for (let col = Math.max(0, Math.ceil(r.left - 0.5)); col < Math.min(fog.width, Math.floor(r.right + 0.5)); col++) {
-      const i = row * fog.width + col;
-      if (fog.revealed[i] || !inSight(fog.grid, eye, col, row)) continue;
-      fog.revealed[i] = 1;
-      added = true;
+      if (inSight(fog.grid, eye, col, row)) cells.push(row * fog.width + col);
     }
   }
-  if (added) fog.version++;
+  if (sameCells(cells, fog.seenCells)) return;
+  for (const i of fog.seenCells) fog.seen[i] = 0;
+  for (const i of cells) fog.seen[i] = fog.revealed[i] = 1;
+  fog.seenCells = cells;
+  fog.version++;
 }
 
 const revealAround = (fog: Fog, x: number, sight: Sight): void =>
   reveal(fog, sightRect(fog.cfg, sight.sightCells, x, fog.anchorY), [x, fog.anchorY - sight.box.height * EYE_SHARE]);
 
 export function createFog(cfg: FogConfig, sight: Sight, hero: Pick<Hero, "x" | "y">, grid: TileGrid): Fog {
-  const fog = { cfg, grid, anchorY: hero.y, width: grid.width, height: grid.height, revealed: new Uint8Array(grid.width * grid.height), version: 0 };
+  const fog = { cfg, grid, anchorY: hero.y, width: grid.width, height: grid.height, revealed: new Uint8Array(grid.width * grid.height), seen: new Uint8Array(grid.width * grid.height), seenCells: [], version: 0 };
   revealAround(fog, hero.x, sight);
   return fog;
 }
@@ -100,15 +109,15 @@ export function updateFog(fog: Fog, h: Hero, sight: Sight, dt: number): void {
   revealAround(fog, h.x, sight);
 }
 
-export const visible = (fog: Fog, x: number, y: number): boolean => revealedAt(fog, Math.floor(x), Math.floor(y));
+export const visible = (fog: Fog, x: number, y: number): boolean => seenAt(fog, Math.floor(x), Math.floor(y));
 
 export function fogEdge(fog: Fog, x: number, y: number, dir: number): number {
   if (dir === 0) return 0;
   const row = Math.floor(y);
   if (row < 0 || row >= fog.height) return dir * Infinity;
   let col = Math.floor(x);
-  if (!revealedAt(fog, col, row)) return -dir * Infinity;
-  while (revealedAt(fog, col + dir, row)) col += dir;
+  if (!seenAt(fog, col, row)) return -dir * Infinity;
+  while (seenAt(fog, col + dir, row)) col += dir;
   const next = col + dir;
   if (next < 0 || next >= fog.width) return dir * Infinity;
   return dir > 0 ? next : col;

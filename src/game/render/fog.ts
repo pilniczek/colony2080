@@ -1,18 +1,18 @@
 import type { ViewTransform } from "../../engine/render/view";
-import { revealedAt, type Fog } from "../fog";
+import { seenAt, type Fog } from "../fog";
 import type { Rect } from "../geometry";
 
 const paths = new WeakMap<Fog, { version: number; cell: number; path: Path2D }>();
 
-export function revealedPath(fog: Fog, cell: number): Path2D {
+export function seenPath(fog: Fog, cell: number): Path2D {
   const cached = paths.get(fog);
   if (cached && cached.version === fog.version && cached.cell === cell) return cached.path;
   const path = new Path2D();
   for (let row = 0; row < fog.height; row++) {
     for (let col = 0; col < fog.width; col++) {
-      if (!revealedAt(fog, col, row)) continue;
+      if (!seenAt(fog, col, row)) continue;
       const start = col;
-      while (revealedAt(fog, col + 1, row)) col++;
+      while (seenAt(fog, col + 1, row)) col++;
       path.rect(start * cell, row * cell, (col + 1 - start) * cell, cell);
     }
   }
@@ -38,9 +38,11 @@ function paintMask(fog: Fog, canvas: HTMLCanvasElement): void {
   const ctx = canvas.getContext("2d")!;
   const image = ctx.createImageData(fog.width, fog.height);
   const n = parseInt(fog.cfg.color.slice(1), 16);
-  const alpha = Math.round(fog.cfg.opacity * 255);
+  const covered = Math.round(fog.cfg.opacity * 255);
+  const remembered = Math.round(fog.cfg.rememberedOpacity * 255);
   for (let i = 0; i < fog.revealed.length; i++) {
-    image.data.set([(n >> 16) & 255, (n >> 8) & 255, n & 255, fog.revealed[i] ? 0 : alpha], i * 4);
+    const alpha = fog.seen[i] ? 0 : fog.revealed[i] ? remembered : covered;
+    image.data.set([(n >> 16) & 255, (n >> 8) & 255, n & 255, alpha], i * 4);
   }
   ctx.putImageData(image, 0, 0);
 }

@@ -264,7 +264,7 @@ describe("shootable props", () => {
     const g = shooter([ship]);
     g.world.fog = createFog(loadFog(cameraJson), cfg, g.hero, g.world.grid);
     const fog = g.world.fog;
-    for (let row = 0; row < fog.height; row++) fog.revealed.fill(0, row * fog.width + 7, (row + 1) * fog.width);
+    for (let row = 0; row < fog.height; row++) fog.seen.fill(0, row * fog.width + 7, (row + 1) * fog.width);
     g.world.projectiles.push({ x: 4, y: 7, vx: cfg.shot.speed, r: cfg.shot.radius, tag: "hero" });
     for (let i = 0; i < 30; i++) stepShots(g.world, cfg, 1 / 60);
     expect(shipOf(g).hitsTaken).toBeUndefined();
@@ -323,7 +323,7 @@ describe("blaster beam", () => {
     const g = blaster(3.5);
     g.world.fog = createFog(loadFog(cameraJson), cfg, g.hero, g.world.grid);
     const fog = g.world.fog;
-    for (let row = 0; row < fog.height; row++) fog.revealed.fill(0, row * fog.width + 8, (row + 1) * fog.width);
+    for (let row = 0; row < fog.height; row++) fog.seen.fill(0, row * fog.width + 8, (row + 1) * fog.width);
     zap(g);
     expect(g.world.beam!.end).toBe(8);
   });
