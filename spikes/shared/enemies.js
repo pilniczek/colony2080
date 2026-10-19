@@ -12,13 +12,14 @@ const FLYER_PALETTE = {
 };
 
 const GUARD_PALETTE = {
-  gm0: "#1a2426", gm1: "#2e3c40", gm2: "#4a5a5e", gm3: "#8a9a9c", gmLine: "#060a0b",
-  gc0: "#3c4a4e", gc1: "#6e7e82", gc2: "#a8b4b6", gc3: "#e4ecec",
+  ...FLYER_PALETTE,
+  gm0: "#182424", gm1: "#2c3838", gm2: "#404c4c", gm3: "#586464", gmLine: "#070d0e",
+  gc0: "#445854", gc1: "#6c7c7a", gc2: "#98a8a8", gc3: "#c4cccc",
   top0: "#061204", top1: "#0c2008", top2: "#182414", top3: "#2c3c24",
   stripe0: "#163220", stripe1: "#285038", stripe2: "#305840", stripe3: "#406c48",
   light: "#c89a30", glint: "#4a7068",
   gj0: "#3c341c", gj1: "#786c54", gj2: "#a09c8c", gj3: "#d0c8ac",
-  shell0: "#2c3838", shell1: "#545854", shell2: "#70706c", shell3: "#888484", groove: "#202a28", band: "#304040",
+  shell0: "#2c3838", shell1: "#404c4c", shell2: "#4c5858", shell3: "#586464", groove: "#202a28", band: "#304040",
   visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
   lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
   visor: "#ac2c0c", visorGlow: "#ff5a30", rust: "#8a4a22", rustLight: "#b8703a",
@@ -83,14 +84,35 @@ const mountedGun = GUN.model({
   ]
 });
 
-function sideGun(ctx) {
+function sideGun(ctx, x, y, facing, barrel) {
   const t = ctx.getTransform();
   const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
   ctx.save();
-  ctx.translate(MOUNT.x, MOUNT.y);
-  ctx.scale(GUN_PX, GUN_PX);
-  mountedGun.draw(ctx, { pal: ENV.pal, lineW, simple: ENV.simple, barrel: MOUNT_BARREL });
+  ctx.translate(x, y);
+  ctx.scale(GUN_PX * facing, GUN_PX);
+  mountedGun.draw(ctx, { pal: ENV.pal, lineW, simple: ENV.simple, barrel });
   ctx.restore();
+}
+
+function flyerHull(ctx, { hot = false, hump = true } = {}) {
+  P.poly(ctx, [[4, 14.2], [38, 14.2], [46.5, 13], [38, 15.8], [26, 17.2], [12, 17.4], [4, 16.6], [3.2, 15]], "flyerHull", 0);
+  P.poly(ctx, [[4, 11], [26, 11], [47.5, 11.2], [49, 11.8], [46.5, 13], [38, 14.2], [4, 14.2]], "flyerHull", 2);
+  P.poly(ctx, [[4, 8], [19, 8.2], [26, 8.4], [26, 11], [4, 11]], "flyerHull", 2);
+  P.poly(ctx, [[26, 8.4], [38, 9.2], [47.5, 11.2], [26, 11]], "flyerStripe", 1, { dir: [1, 0] });
+  P.poly(ctx, [[19, 3.6], [26, 3.4], [34, 4.6], [40, 6.4], [44, 8.4], [47.5, 11.2], [38, 9.2], [26, 8.4], [19, 8.2]], "flyerShell", 1);
+  P.poly(ctx, [[3.5, 5.2], [10.5, 4.8], [10.5, 8], [4, 8]], "flyerHull", 0);
+  if (hump) {
+    P.poly(ctx, [[10.5, 4.8], [11, 2.2], [18.5, 2.2], [19.2, 4], [19, 8.2], [10.5, 8]], "flyerHump", 2);
+    P.flat(ctx, 12.5, 5.2, 2.6, 1.8, "fWindow", "fhLine");
+  }
+
+  if (!ENV.simple) {
+    for (const x of [10.5, 19, 26]) P.line(ctx, [[x, 11.2], [x, 14]], "fh0", 0.4, "butt");
+    P.line(ctx, [[5, 9.5], [9, 9.5]], "fh3", 0.4, "butt");
+    P.flat(ctx, 26.5, 12, 2.5, 1.6, "fPatch");
+    P.line(ctx, [[20, 3.8], [33, 5]], "fc3", 0.4);
+  }
+  for (const x of [9, 11.5, 14, 16.5, 19, 21.5, 24]) P.flat(ctx, x, 11.1, 1.2, 1, x === 24 && hot ? "fLightHot" : "fLight");
 }
 
 const FLYER = {
@@ -104,24 +126,9 @@ const FLYER = {
     ellipse(ctx, 8.5, 17, 3.2, 2, "fBelly", "fhLine");
     if (!ENV.simple) ellipse(ctx, 8.5, 17, 1.6, 0.9, "fh0");
 
-    P.poly(ctx, [[4, 14.2], [38, 14.2], [46.5, 13], [38, 15.8], [26, 17.2], [12, 17.4], [4, 16.6], [3.2, 15]], "flyerHull", 0);
-    P.poly(ctx, [[4, 11], [26, 11], [47.5, 11.2], [49, 11.8], [46.5, 13], [38, 14.2], [4, 14.2]], "flyerHull", 2);
-    P.poly(ctx, [[4, 8], [19, 8.2], [26, 8.4], [26, 11], [4, 11]], "flyerHull", 2);
-    P.poly(ctx, [[26, 8.4], [38, 9.2], [47.5, 11.2], [26, 11]], "flyerStripe", 1, { dir: [1, 0] });
-    P.poly(ctx, [[19, 3.6], [26, 3.4], [34, 4.6], [40, 6.4], [44, 8.4], [47.5, 11.2], [38, 9.2], [26, 8.4], [19, 8.2]], "flyerShell", 1);
-    P.poly(ctx, [[3.5, 5.2], [10.5, 4.8], [10.5, 8], [4, 8]], "flyerHull", 0);
-    P.poly(ctx, [[10.5, 4.8], [11, 2.2], [18.5, 2.2], [19.2, 4], [19, 8.2], [10.5, 8]], "flyerHump", 2);
-    P.flat(ctx, 12.5, 5.2, 2.6, 1.8, "fWindow", "fhLine");
+    flyerHull(ctx, { hot: fire >= 0 });
 
-    if (!ENV.simple) {
-      for (const x of [10.5, 19, 26]) P.line(ctx, [[x, 11.2], [x, 14]], "fh0", 0.4, "butt");
-      P.line(ctx, [[5, 9.5], [9, 9.5]], "fh3", 0.4, "butt");
-      P.flat(ctx, 26.5, 12, 2.5, 1.6, "fPatch");
-      P.line(ctx, [[20, 3.8], [33, 5]], "fc3", 0.4);
-    }
-    for (const x of [9, 11.5, 14, 16.5, 19, 21.5, 24]) P.flat(ctx, x, 11.1, 1.2, 1, x === 24 && fire >= 0 ? "fLightHot" : "fLight");
-
-    sideGun(ctx);
+    sideGun(ctx, MOUNT.x, MOUNT.y, 1, MOUNT_BARREL);
     if (fire >= 0) flash(ctx, MOUNT.x + MOUNT_MUZZLE, MOUNT.y - 40 * GUN_PX, 1, fire, 3.4);
 
     ellipse(ctx, 2.6, 10.5, 1.9, 7, "e0", "fhLine");
@@ -163,44 +170,27 @@ function slit(ctx, x0, x1, y, h, stops) {
   ctx.fillRect(x0, y, x1 - x0, h);
 }
 
+function canopy(ctx, trace, top, bottom, shine) {
+  fillPath(ctx, trace, grad(ctx, 0, top, 0, bottom, [[0, "fc3"], [0.2, "fc2"], [1, "fc1"]]), "fc0");
+  if (!ENV.simple) ENV.P.curve(ctx, shine, "fc3", 0.5);
+}
+
+const HULL = { nose: 21, rear: 54, top: 9, sx: 33 / 45.8, sy: 24 / 15.2 };
+
 function sideHead(ctx) {
-  const shell = c => {
-    c.moveTo(20.5, 24.6);
-    c.lineTo(26, 24.2);
-    c.lineTo(26, 18.2);
-    c.lineTo(29, 13.6);
-    c.quadraticCurveTo(38, 9.6, 48, 9.8);
-    c.lineTo(52, 11.6);
-    c.lineTo(53.6, 22);
-    c.quadraticCurveTo(53.8, 28, 51.5, 31);
-    c.quadraticCurveTo(46, 33.6, 40, 33.2);
-    c.lineTo(31, 31.2);
-    c.lineTo(25.5, 28);
-    c.lineTo(20.5, 24.6);
-  };
-  fillPath(ctx, shell, grad(ctx, 0, 10, 0, 33, [[0, "shell3"], [0.4, "shell2"], [0.75, "shell1"], [1, "shell0"]]));
   ctx.save();
-  ctx.beginPath();
-  shell(ctx);
-  ctx.clip();
-  ctx.fillStyle = grad(ctx, 0, 26.4, 0, 29, [[0, "stripe2"], [1, "stripe1"]]);
-  ctx.fillRect(41, 26.4, 13, 2.6);
-  if (!ENV.simple) {
-    for (const x of [44, 48.5]) P.line(ctx, [[x, 12], [x, 32]], "shell0", 0.4, "butt");
-    P.line(ctx, [[30, 14.6], [47, 12.2]], "shell0", 0.35);
-    P.line(ctx, [[26, 18.4], [54, 18.4]], "shell0", 0.4, "butt");
-    for (const x of [42.5, 45, 47.5, 50]) P.flat(ctx, x, 29.8, 1.2, 1, "light");
-    for (const [x, y] of [[46, 21], [51, 21]]) P.disc(ctx, x, y, 0.35, "shell3");
-  }
+  ctx.translate(HULL.rear + 3.2 * HULL.sx, HULL.top - 2.2 * HULL.sy);
+  ctx.scale(-HULL.sx, HULL.sy);
+  flyerHull(ctx, { hump: false });
+  ctx.restore();
+
   ctx.fillStyle = ENV.pal.groove;
   ctx.fillRect(26, 18.4, 16, 1.6);
   slit(ctx, 26, 41, 20, 1.3, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
   ctx.fillStyle = ENV.pal.band;
   ctx.fillRect(26, 21.3, 16, 2.9);
-  slit(ctx, 20, 42, 24.2, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
-  ctx.fillStyle = ENV.pal.shell0;
-  ctx.fillRect(20, 25.1, 22, 1.4);
-  ctx.restore();
+  P.line(ctx, [[26, 18.4], [26, 24.2]], "gmLine", 0.4, "butt");
+  slit(ctx, HULL.nose, 42, 24.2, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
 
   fillPath(ctx, c => {
     c.moveTo(29, 26.8);
@@ -226,11 +216,6 @@ function frontHead(ctx) {
   shell(ctx);
   ctx.clip();
   if (!ENV.simple) {
-    const dome = ctx.createRadialGradient(-2, -37, 0, -2, -37, 8);
-    dome.addColorStop(0, ENV.pal.shell3);
-    dome.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = dome;
-    ctx.fillRect(-11, -42, 20, 10);
     for (const side of [-1, 1]) {
       const x = side * 8.6;
       ctx.fillStyle = grad(ctx, 0, -37, 0, -24, [[0, "shell2"], [1, "shell0"]]);
@@ -241,6 +226,13 @@ function frontHead(ctx) {
     ctx.fillStyle = grad(ctx, 0, -39, 0, -33, [[0, "lip2"], [1, "rgba(0,0,0,0)"]]);
     ctx.fillRect(3.5, -39, 0.7, 6);
   }
+  canopy(ctx, c => {
+    c.moveTo(-12, -32.9);
+    c.lineTo(-12, -44);
+    c.lineTo(12, -44);
+    c.lineTo(12, -32.9);
+    c.quadraticCurveTo(0, -34.4, -12, -32.9);
+  }, -41, -33, [[-7, -37.2], [-2, -39.6], [4, -39.2]]);
   ctx.fillStyle = ENV.pal.groove;
   ctx.fillRect(-11, -32.9, 22, 3.4);
   slit(ctx, -7.5, 7.5, -31.9, 1.2, [[0, "visor0"], [0.25, "visor1"], [0.5, "visor3"], [0.75, "visor2"], [1, "visor0"]]);
@@ -259,28 +251,26 @@ function frontHead(ctx) {
   }, grad(ctx, 0, -27, 0, -21, [[0, "gj3"], [0.3, "gj2"], [0.7, "gj1"], [1, "gj0"]]));
 }
 
+const ARM_GUN = { x: 41, y: 37 };
+const ARM_MUZZLE = (GUN.BARREL.x + GUN.BARREL.length + 2) * GUN_PX;
+
 function guardBody(ctx, fire) {
-  P.box(ctx, 50, -2, 1.4, 12, "guardMetal", 2, { vertical: true });
-  P.disc(ctx, 50.7, -2, 0.9, "visor");
+  P.box(ctx, 50, 1, 1.4, 12, "guardMetal", 2, { vertical: true });
+  P.disc(ctx, 50.7, 1, 0.9, "visor");
   guardLeg(ctx, 6, 0);
   P.box(ctx, 26, 30, 14, 3, "guardMetal", 0);
 
-  P.box(ctx, 40, 4, 12, 7.5, "guardMetal", 1);
-  if (!ENV.simple) for (const [x, y] of [[42.5, 6], [45.5, 6], [48.5, 6], [42.5, 9], [45.5, 9], [48.5, 9]]) P.disc(ctx, x, y, 0.9, "gm0");
-  P.flat(ctx, 40, 4, 2, 7.5, "gm3");
+  P.box(ctx, 40, 7, 12, 7.5, "flyerHump", 2);
+  if (!ENV.simple) for (const [x, y] of [[42.5, 9], [45.5, 9], [48.5, 9], [42.5, 12], [45.5, 12], [48.5, 12]]) P.disc(ctx, x, y, 0.9, "gm0");
+  P.flat(ctx, 40, 7, 2, 7.5, "gm3");
 
   sideHead(ctx);
 
   guardLeg(ctx, 0, 1);
 
-  P.beam(ctx, [44, 25], [40, 32], 3, "guardChrome");
-  P.box(ctx, 21, 31, 22, 5.5, "guardMetal", 2);
-  if (!ENV.simple) {
-    for (const x of [26, 31, 36]) P.flat(ctx, x, 31, 0.8, 5.5, "gm0");
-    P.line(ctx, [[22, 32.2], [42, 32.2]], "gm3", 0.5, "butt");
-  }
-  P.box(ctx, 20, 31.5, 1.8, 4.5, "guardChrome", 2, { vertical: true });
-  if (fire >= 0) flash(ctx, 20, 33.7, -1, fire, 4.2);
+  P.beam(ctx, [44, 25], [40.5, 32], 3, "guardChrome");
+  sideGun(ctx, ARM_GUN.x, ARM_GUN.y, -1, GUN.BARREL.length);
+  if (fire >= 0) flash(ctx, ARM_GUN.x - ARM_MUZZLE, ARM_GUN.y - 40 * GUN_PX, -1, fire, 3.6);
 }
 
 function acidDrips(ctx, t, p) {
@@ -372,9 +362,13 @@ function frontLeg(ctx, side, tone) {
 function frontGun(ctx, side, fire) {
   const x = side * 14;
   P.beam(ctx, [side * 9, -28], [x, -23], 3, "guardChrome");
-  P.box(ctx, x - 3.5, -23, 7, 6.5, "guardMetal", 2);
-  P.disc(ctx, x, -19.6, 2.1, "gm0", "gmLine");
-  if (!ENV.simple) P.disc(ctx, x, -19.6, 1, "gc0");
+  P.box(ctx, x - 3.5, -23.5, 7, 7, "guardMetal", 2);
+  P.flat(ctx, x - 0.6, -23.5, 1.2, 7, "fs1");
+  P.disc(ctx, x, -19.6, 2.6, "gc1", "gmLine");
+  for (let i = 0; i < 3; i++) {
+    const a = -Math.PI / 2 + i * Math.PI * 2 / 3;
+    P.disc(ctx, x + Math.cos(a) * 1.3, -19.6 + Math.sin(a) * 1.3, 0.75, "gm0");
+  }
   if (fire >= 0) burst(ctx, x, -19.6, 5, fire);
 }
 
@@ -388,7 +382,7 @@ const GUARD_FRONT = {
     frontLeg(ctx, 1, 1);
     P.box(ctx, 3.5, -50.5, 1.4, 12, "guardMetal", 2, { vertical: true });
     P.disc(ctx, 4.2, -50.5, 0.9, "visor");
-    P.box(ctx, 2, -44.5, 10, 8, "guardMetal", 1);
+    P.box(ctx, 2, -44.5, 10, 8, "flyerHump", 2);
     if (!ENV.simple) for (const [x, y] of [[4.5, -42.5], [7, -42.5], [9.5, -42.5], [4.5, -39.5], [7, -39.5], [9.5, -39.5]]) P.disc(ctx, x, y, 0.9, "gm0");
     frontHead(ctx);
     frontGun(ctx, -1, fire < 0 ? -1 : Math.max(0, fire - 2));
