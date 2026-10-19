@@ -1,6 +1,10 @@
 {
   "status": "draft",
-  "source": "docs/requirements.md; playfield 290x169 px = about 12x7 tiles (docs/research/README.md), hero 6 cells from the left screen edge (docs/research/reports/10-level1-enemies.md)",
+  "source": "docs/requirements.md; playfield 290x169 px = about 12x7 tiles (docs/research/README.md), hero 6 cells from the left screen edge (docs/research/reports/10-level1-enemies.md); sandbox camera view 40 x 16 cells (user, sandbox tall map plan)",
+  "view": {
+    "widthCells": 40,
+    "heightCells": 16
+  },
   "viewLimit": {
     "enabled": false,
     "maxWidthCells": 24,

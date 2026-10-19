@@ -6,7 +6,7 @@ import cameraJson from "@config/camera.json";
 import { createRoot } from "react-dom/client";
 import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
-import { fitView, resizeCanvas, type ViewTransform } from "../engine/render/view";
+import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { createFog, loadFog } from "../game/fog";
 import type { Weapon } from "../game/hero/config";
 import { hudFit, viewRect, type Rect } from "../game/hud/layout";
@@ -37,6 +37,7 @@ if (!ctx) throw new Error("no 2d context");
 
 const tuning = () => useSandbox.getState();
 const fogConfig = loadFog(cameraJson);
+const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: number } };
 const world = loadSandbox(sandboxJson);
 const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, true);
 const applyFog = (on: boolean): void => {
@@ -50,7 +51,6 @@ const input = new Input(controls.keyboard, () => performance.now(), tuning().mov
 input.attach(window);
 
 let prev = { x: hero.x, y: hero.y };
-let view: ViewTransform = { scale: 1, offsetX: 0, offsetY: 0 };
 let gameWindow: Rect = { x: 0, y: 0, w: 1, h: 1 };
 
 const freeWidth = (dpr: number): number => {
@@ -62,13 +62,25 @@ const freeWidth = (dpr: number): number => {
 const fit = (): void => {
   const dpr = devicePixelRatio || 1;
   resizeCanvas(canvas, dpr);
-  const { cellPx } = tuning().movement;
   const hud = hudFit(freeWidth(dpr) / dpr, canvas.height / dpr);
   const r = viewRect(hud);
   gameWindow = { x: r.x * dpr, y: r.y * dpr, w: r.w * dpr, h: r.h * dpr };
-  const fitted = fitView(gameWindow.w, gameWindow.h, world.grid.width * cellPx, world.grid.height * cellPx);
-  view = { ...fitted, offsetX: fitted.offsetX + gameWindow.x, offsetY: fitted.offsetY + gameWindow.y };
   useSandbox.setState({ hud });
+};
+
+const cameraView = (shown: { x: number; y: number }, cfg: { cellPx: number; box: { height: number } }): ViewTransform => {
+  const { cellPx } = cfg;
+  const v = followView(
+    gameWindow.w,
+    gameWindow.h,
+    world.grid.width * cellPx,
+    world.grid.height * cellPx,
+    cameraConfig.view.widthCells * cellPx,
+    cameraConfig.view.heightCells * cellPx,
+    shown.x * cellPx,
+    (shown.y - cfg.box.height / 2) * cellPx,
+  );
+  return { ...v, offsetX: v.offsetX + gameWindow.x, offsetY: v.offsetY + gameWindow.y };
 };
 
 const watchPixelRatio = (): void => {
@@ -148,6 +160,7 @@ const loop = new FixedLoop({
     const { movement: cfg, clips, overlays } = tuning();
     const shown = { ...hero, x: lerp(prev.x, hero.x, alpha), y: lerp(prev.y, hero.y, alpha) };
     const look = heroLook(hero, clips, rigs, hold, cfg);
+    const view = cameraView(shown, cfg);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
