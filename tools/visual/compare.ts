@@ -3,8 +3,7 @@ import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw"
 import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
 import { drawAsset, type EnvAsset, type Size } from "../../src/game/env/paint";
-import { buildingAssets } from "../../src/game/env/buildings";
-import { structureAssets } from "../../src/game/env/structures";
+import { assetList } from "../../src/game/env/assets";
 import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
 
 interface SpikeNode {
@@ -286,7 +285,7 @@ const runFrontBarrel = (out: HTMLElement): VisualResult => {
   return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
 };
 
-const envAssets: EnvAsset[] = [...structureAssets, ...buildingAssets];
+const envAssets: EnvAsset[] = assetList;
 const ENV_SCALE = 2;
 const ENV_PAD = 16;
 
@@ -338,13 +337,14 @@ const gunCases = [
   ),
 ];
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1] };
+const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], lift: [0, 1, 2], switchboard: [0, 1], crowbar: [0, 1] };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
   ["ladder", { h: 240, w: 17.2, rung: 6.76 }],
   ["brickWall", { w: 24, h: 384 }],
   ["brickWall", { w: 960, h: 48 }],
+  ["lift", { w: 72, top: -272, py: -120 }],
 ];
 const envCases = [
   ...envAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod) => (o: HTMLElement) => runEnvCase(a.id, state, lod, undefined, o)))),
