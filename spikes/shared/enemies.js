@@ -143,6 +143,7 @@ const FLYER = {
 };
 
 const LEG = 1 / 12;
+const KNEE_PAD = 0.75;
 const FAR_LEG = { dx: 2.5, shade: "brightness(0.6) saturate(0.8)" };
 const SIDE_LEG = {
   joint: [300, 486],
@@ -177,23 +178,25 @@ function sideLegArmor(ctx, knee, ankle) {
   inRigUnits(ctx, [0, 0], -LEG, len / 190, [298, 500], () => P.poly(ctx, SIDE_LEG.shin, "guardMetal", 2, { dir: [1, 0] }));
   ctx.restore();
   const half = (SIDE_LEG.shin[2][0] - SIDE_LEG.shin[3][0]) * LEG / 2;
-  const back = [ankle[0] + half * (ankle[1] - knee[1]) / len, ankle[1] - half * (ankle[0] - knee[0]) / len];
+  const side = [half * (ankle[1] - knee[1]) / len, -half * (ankle[0] - knee[0]) / len];
+  const rear = side[0] >= 0 ? 1 : -1;
+  const back = [ankle[0] + side[0] * rear, ankle[1] + side[1] * rear];
   const footTop = 53.5 - (744 - SIDE_LEG.foot[0][1]) * LEG;
   const heel = ankle[0] + (300 - SIDE_LEG.foot[0][0]) * LEG;
-  P.poly(ctx, [[ankle[0], footTop + 0.5], back, [heel, footTop + 0.5]], "guardMetal", 1);
+  const up = [back[0] - 3 * (ankle[0] - knee[0]) / len, back[1] - 3 * (ankle[1] - knee[1]) / len];
+  P.poly(ctx, [[ankle[0], footTop + 0.5], back, up, [heel, footTop + 0.5]], "guardMetal", 1);
   inRigUnits(ctx, [ankle[0], 53.5], -LEG, LEG, [300, 744], () => {
     P.poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
     P.poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
   });
-  inRigUnits(ctx, knee, LEG, LEG, SIDE_LEG.joint, () => {
+  inRigUnits(ctx, knee, LEG * KNEE_PAD, LEG * KNEE_PAD, SIDE_LEG.joint, () => {
     P.disc(ctx, 300, 486, 30, "gm1", "gmLine");
-    if (!ENV.simple) P.disc(ctx, 294, 480, 12, "gm3");
-    P.poly(ctx, SIDE_LEG.cap, "guardChrome", 2);
+    P.poly(ctx, SIDE_LEG.cap, "guardChrome", 1);
   });
 }
 
 function guardLeg(ctx, dx) {
-  const hip = [42.5 + dx, 30], knee = [47.5 + dx, 40.5], ankle = [41.5 + dx, 49.5];
+  const hip = [42.5 + dx, 30], knee = [47.5 + dx, 38.5], ankle = [41.5 + dx, 49.5];
   P.beam(ctx, hip, knee, 4.2, "guardMetal");
   sideLegArmor(ctx, knee, ankle);
 }
