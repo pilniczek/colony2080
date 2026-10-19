@@ -18,13 +18,7 @@ const buildParts = length => [
   { name: "ringRear", x: BARREL.x + 18, y: -70, w: 18, h: 60, mat: "m", tone: 0 },
   { name: "ringFront", x: BARREL.x + length - 34, y: -68, w: 16, h: 56, mat: "m", tone: 0 }
 ];
-const partSets = new Map();
-const partsFor = length => partSets.get(length) || partSets.set(length, buildParts(length)).get(length);
-const PARTS = partsFor(BARREL.length);
-
 const MAT = { m: ["m0", "m1", "m2", "m3", "mLine"], c: ["c0", "c1", "c2", "c3", "mLine"], a: ["a0", "a1", "a2", "a3", "aLine"] };
-const MUZZLE = [BARREL.x + BARREL.length + 2, -40];
-const SUPPORT = [BARREL.x - 6, -10];
 
 const fills = new WeakMap();
 
@@ -42,43 +36,55 @@ function bandFill(ctx, p, tones, simple) {
   return fill;
 }
 
-function part(ctx, p, pal, lineW, simple) {
-  const [c0, c1, c2, c3, line] = MAT[p.mat].map(k => pal[k]);
-  const tones = [c0, c1, c2, c3];
-  ctx.fillStyle = bandFill(ctx, p, tones, simple);
-  ctx.fillRect(p.x, p.y, p.w, p.h);
-  if (lineW) {
-    const t = ctx.getTransform();
-    ctx.strokeStyle = line;
-    ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
-    ctx.strokeRect(p.x, p.y, p.w, p.h);
-  }
-}
-
-function draw(ctx, { pal = PALETTE, lineW = 1.4, simple = false, barrel = BARREL.length } = {}) {
-  for (const p of partsFor(barrel)) part(ctx, p, pal, lineW, simple);
-}
-
 function toHook(pt) {
   return [-pt[1], pt[0]];
 }
 
-function hook(ctx, opts) {
-  ctx.save();
-  ctx.transform(0, 1, -1, 0, 0, 0);
-  draw(ctx, opts);
-  ctx.restore();
+function model({ buildParts, mat = MAT, colors = {}, after = null }) {
+  const partSets = new Map();
+  const partsFor = length => partSets.get(length) || partSets.set(length, buildParts(length)).get(length);
+
+  function part(ctx, p, pal, lineW, simple) {
+    const [c0, c1, c2, c3, line] = mat[p.mat].map(k => pal[k] ?? colors[k]);
+    ctx.fillStyle = bandFill(ctx, p, [c0, c1, c2, c3], simple);
+    ctx.fillRect(p.x, p.y, p.w, p.h);
+    if (lineW) {
+      const t = ctx.getTransform();
+      ctx.strokeStyle = line;
+      ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+      ctx.strokeRect(p.x, p.y, p.w, p.h);
+    }
+  }
+
+  function draw(ctx, { pal = PALETTE, lineW = 1.4, simple = false, barrel = BARREL.length } = {}) {
+    for (const p of partsFor(barrel)) part(ctx, p, pal, lineW, simple);
+    if (after) after(ctx, barrel, simple);
+  }
+
+  function hook(ctx, opts) {
+    ctx.save();
+    ctx.transform(0, 1, -1, 0, 0, 0);
+    draw(ctx, opts);
+    ctx.restore();
+  }
+
+  let slungAt = null;
+
+  function slung(ctx, opts) {
+    slungAt ||= window.XBOT.locate(window.XBOT.buildBack(), "back");
+    ctx.save();
+    ctx.transform(slungAt.a, slungAt.b, slungAt.c, slungAt.d, slungAt.e, slungAt.f);
+    hook(ctx, opts);
+    ctx.restore();
+  }
+
+  return { PARTS: partsFor(BARREL.length), MUZZLE, SUPPORT, draw, hook, slung, toHook, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT) };
 }
 
-let slungAt = null;
-
-function slung(ctx, opts) {
-  slungAt ||= window.XBOT.locate(window.XBOT.buildBack(), "back");
-  ctx.save();
-  ctx.transform(slungAt.a, slungAt.b, slungAt.c, slungAt.d, slungAt.e, slungAt.f);
-  hook(ctx, opts);
-  ctx.restore();
-}
+const MUZZLE = [BARREL.x + BARREL.length + 2, -40];
+const SUPPORT = [BARREL.x - 6, -10];
+const core = model({ buildParts });
+const PARTS = core.PARTS;
 
 const CARRY = { arm: 0, fore: -72 };
 const FRONT_CARRY = { armL: -24, foreL: -66 };
@@ -114,5 +120,5 @@ function holdPoses(side, front) {
   return { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R, FRONT_BARREL: barrelFor(front, "handL", { ...FRONT_CARRY, ...FRONT_CARRY_R }) };
 }
 
-window.GUN = { holdPoses, slung, PARTS, MUZZLE, SUPPORT, draw, hook, toHook, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT) };
+window.GUN = { ...core, holdPoses, model, BARREL, MAT };
 })();

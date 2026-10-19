@@ -1,8 +1,7 @@
 (() => {
-const PALETTE = window.XBOT.PALETTE;
 const ARC = { e0: "#202488", e1: "#3a52c4", e2: "#6084a4", e3: "#b8dcf4", eLine: "#0c1040", glow: "#7ae0ff", grey: "#c4cccc", core: "#f4f4f4" };
 
-const BARREL = { x: 70, length: 196 };
+const BARREL = window.GUN.BARREL;
 const PRONG = 48;
 const COILS = 4;
 
@@ -26,46 +25,7 @@ const buildParts = length => {
     { name: "prongLow", x: end - PRONG, y: -18, w: PRONG, h: 12, mat: "c", tone: 1 }
   ];
 };
-const partSets = new Map();
-const partsFor = length => partSets.get(length) || partSets.set(length, buildParts(length)).get(length);
-const PARTS = partsFor(BARREL.length);
-
-const MAT = { m: ["m0", "m1", "m2", "m3", "mLine"], c: ["c0", "c1", "c2", "c3", "mLine"], e: ["e0", "e1", "e2", "e3", "eLine"] };
-const muzzleAt = length => [BARREL.x + length + 2, -40];
-const MUZZLE = muzzleAt(BARREL.length);
-const SUPPORT = [BARREL.x - 6, -10];
-
-const fills = new WeakMap();
-
-function bandFill(ctx, p, tones, simple) {
-  const key = tones.join() + simple;
-  const hit = fills.get(p);
-  if (hit && hit.key === key) return hit.fill;
-  const top = tones[Math.min(3, p.tone + 1)], mid = tones[p.tone], low = tones[Math.max(0, p.tone - 1)];
-  const stops = simple
-    ? [[0, top], [0.28, top], [0.28, mid], [0.74, mid], [0.74, low], [1, low]]
-    : [[0, top], [0.1, top], [0.1, tones[3]], [0.1 + Math.max(1 / p.h, 0.08), tones[3]], [0.1 + Math.max(1 / p.h, 0.08), top], [0.28, top], [0.28, mid], [0.74, mid], [0.74, low], [1, low]];
-  const fill = ctx.createLinearGradient(0, p.y, 0, p.y + p.h);
-  for (const [at, color] of stops) fill.addColorStop(at, color);
-  fills.set(p, { key, fill });
-  return fill;
-}
-
-const lineScale = ctx => {
-  const t = ctx.getTransform();
-  return 1 / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
-};
-
-function part(ctx, p, pal, lineW, simple) {
-  const [c0, c1, c2, c3, line] = MAT[p.mat].map(k => pal[k] ?? ARC[k]);
-  ctx.fillStyle = bandFill(ctx, p, [c0, c1, c2, c3], simple);
-  ctx.fillRect(p.x, p.y, p.w, p.h);
-  if (lineW) {
-    ctx.strokeStyle = line;
-    ctx.lineWidth = lineW * lineScale(ctx);
-    ctx.strokeRect(p.x, p.y, p.w, p.h);
-  }
-}
+const MAT = { ...window.GUN.MAT, e: ["e0", "e1", "e2", "e3", "eLine"] };
 
 const EMITTER_ARC = [[-6, -62], [2, -54], [-4, -46], [4, -40], [-4, -34], [2, -26], [-6, -18]];
 
@@ -92,31 +52,7 @@ function emitter(ctx, length, simple) {
   ctx.restore();
 }
 
-function draw(ctx, { pal = PALETTE, lineW = 1.4, simple = false, barrel = BARREL.length } = {}) {
-  for (const p of partsFor(barrel)) part(ctx, p, pal, lineW, simple);
-  emitter(ctx, barrel, simple);
-}
-
-function toHook(pt) {
-  return [-pt[1], pt[0]];
-}
-
-function hook(ctx, opts) {
-  ctx.save();
-  ctx.transform(0, 1, -1, 0, 0, 0);
-  draw(ctx, opts);
-  ctx.restore();
-}
-
-let slungAt = null;
-
-function slung(ctx, opts) {
-  slungAt ||= window.XBOT.locate(window.XBOT.buildBack(), "back");
-  ctx.save();
-  ctx.transform(slungAt.a, slungAt.b, slungAt.c, slungAt.d, slungAt.e, slungAt.f);
-  hook(ctx, opts);
-  ctx.restore();
-}
+const core = window.GUN.model({ buildParts, mat: MAT, colors: ARC, after: emitter });
 
 const FRAMES = 6;
 const TICK_HZ = 32;
@@ -197,5 +133,5 @@ const icon = x => `<g transform="translate(${x} 5.2)" stroke="#202826" stroke-wi
   <rect x="29.4" y="-.4" width="1.2" height="4.8" fill="#55636a"/><rect x="30.4" y="-.4" width="3.6" height="1.1" fill="#c4ccd0"/><rect x="30.4" y="3.3" width="3.6" height="1.1" fill="#c4ccd0"/></g>
   <g transform="translate(${x} 5.2)" fill="none" stroke-linecap="round" stroke-linejoin="round">${ICON_BEAM}</g>`;
 
-window.EBLASTER = { PARTS, MUZZLE, SUPPORT, FRAMES, TICK_HZ, BEAM_H, ARC, ICON, draw, hook, slung, toHook, muzzleAt, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT), beam, frameAt, icon };
+window.EBLASTER = { ...core, FRAMES, TICK_HZ, BEAM_H, ARC, ICON, beam, frameAt, icon };
 })();

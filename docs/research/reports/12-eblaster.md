@@ -87,8 +87,8 @@ Tick rate is CPU-bound, about 32 ticks/s in footage A (see `10-level1-enemies.md
 
 ## Corrections to earlier reports
 
-- `10-level1-enemies.md` and the `config/levels/mesto/enemies.json` behaviour texts say the E-Blaster "drains 0.03 per particle per tick". The 40-particle table `ds:0x4996` gets entries only in levels 3 and 4 (`7:0x28D7-0x28E8`). That is the level 3 flamethrower (PLAMENOMET). The level 1 E-Blaster is the beam above.
-- `10-level1-enemies.md` says the pickup is at `3:0x9706` with 500 ammo. That block is the flamethrower pickup (`ZA DVEŘMI JSI OBJEVIL PLAMENOMET!`, `DESKA2.GRA`). The E-Blaster pickup is `4:0xA64E-0xA78F` with 400 ammo.
+- `10-level1-enemies.md` and the `config/levels/mesto/enemies.json` behaviour texts said the E-Blaster "drains 0.03 per particle per tick" (fixed). The 40-particle table `ds:0x4996` gets entries only in levels 3 and 4 (`7:0x28D7-0x28E8`). That is the level 3 flamethrower (PLAMENOMET). The level 1 E-Blaster is the beam above.
+- `10-level1-enemies.md` said the pickup is at `3:0x9706` with 500 ammo (fixed). That block is the flamethrower pickup (`ZA DVEŘMI JSI OBJEVIL PLAMENOMET!`, `DESKA2.GRA`). The E-Blaster pickup is `4:0xA64E-0xA78F` with 400 ammo.
 
 ## Crops (local only, `docs/research/video/` is gitignored)
 
