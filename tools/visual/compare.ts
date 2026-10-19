@@ -1,3 +1,5 @@
+import { BEAM_FRAMES, drawBeam } from "../../src/game/render/beam";
+import { drawEBlaster, eblasterHook, eblasterSlung } from "../../src/game/robot/eblaster";
 import { barrelFor, drawGun, FRONT_BARREL, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
@@ -42,6 +44,10 @@ interface SpikeGun {
   slung(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
 }
 
+interface SpikeEBlaster extends Omit<SpikeGun, "holdPoses"> {
+  beam(ctx: CanvasRenderingContext2D, length: number, frame: number, seed: number): void;
+}
+
 interface SpikeEnvAsset {
   id: string;
   box: [number, number, number, number];
@@ -72,6 +78,7 @@ declare global {
   interface Window {
     XBOT: Spike;
     GUN: SpikeGun;
+    EBLASTER: SpikeEBlaster;
     ENV: SpikeEnv;
     __visualCount?: number;
     __visual?: VisualResult[];
@@ -98,6 +105,7 @@ const views: [View, Options][] = [
 ];
 
 type Carry = "side" | "front" | "slung";
+type WeaponKind = "gun" | "eblaster";
 
 const carries: [View, Options, Carry][] = [
   ["side", { farLimbs: true, propBehindArm: true }, "side"],
@@ -200,12 +208,18 @@ interface Scene {
   portAfter?: (ctx: CanvasRenderingContext2D) => void;
 }
 
-const gunScene = (carry: Carry, simple: boolean): Scene => {
+const weaponDraws = {
+  gun: { spike: () => window.GUN, hook: gunHook, slung: gunSlung, draw: drawGun },
+  eblaster: { spike: () => window.EBLASTER, hook: eblasterHook, slung: eblasterSlung, draw: drawEBlaster },
+};
+
+const gunScene = (carry: Carry, simple: boolean, kind: WeaponKind = "gun"): Scene => {
+  const weapon = weaponDraws[kind];
   const spikeHold = window.GUN.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
   const portHold = holdPoses(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }));
   const barrel = carry === "front" ? FRONT_BARREL : undefined;
-  const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => window.GUN.hook(ctx, { pal, lineW: LINE_W, simple, barrel });
-  const portGun: HookDraw = (ctx, pal) => gunHook(ctx, pal, { lineW: LINE_W, simple, barrel });
+  const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => weapon.spike().hook(ctx, { pal, lineW: LINE_W, simple, barrel });
+  const portGun: HookDraw = (ctx, pal) => weapon.hook(ctx, pal, { lineW: LINE_W, simple, barrel });
   if (carry === "side")
     return {
       spikePose: { ...spikeHold.CARRY, ...spikeHold.CARRY_FAR },
@@ -223,8 +237,8 @@ const gunScene = (carry: Carry, simple: boolean): Scene => {
   return {
     spikePose: CLIMB,
     portPose: CLIMB,
-    spikeAfter: (ctx) => window.GUN.slung(ctx, { pal: ROBOT.palette, lineW: LINE_W, simple }),
-    portAfter: (ctx) => gunSlung(ctx, ROBOT.palette, { lineW: LINE_W, simple }),
+    spikeAfter: (ctx) => weapon.spike().slung(ctx, { pal: ROBOT.palette, lineW: LINE_W, simple }),
+    portAfter: (ctx) => weapon.slung(ctx, ROBOT.palette, { lineW: LINE_W, simple }),
   };
 };
 
@@ -260,15 +274,31 @@ const runCase = (label: string, view: View, opts: Options, out: HTMLElement, sce
   return report(label, r, spike.canvas, own.canvas, out);
 };
 
-const runGunAlone = (simple: boolean, out: HTMLElement): VisualResult => {
+const runGunAlone = (simple: boolean, out: HTMLElement, kind: WeaponKind = "gun"): VisualResult => {
+  const weapon = weaponDraws[kind];
   const spike = canvas();
   const own = canvas();
   spike.translate(...GUN_ALONE_SHIFT);
   own.translate(...GUN_ALONE_SHIFT);
-  window.GUN.draw(spike, { pal: ROBOT.palette, lineW: LINE_W, simple });
-  drawGun(own, { palette: ROBOT.palette, lineW: LINE_W, simple });
+  weapon.spike().draw(spike, { pal: ROBOT.palette, lineW: LINE_W, simple });
+  weapon.draw(own, { palette: ROBOT.palette, lineW: LINE_W, simple });
   const diff = pixelDiff(spike, own);
-  return report(`gun alone ${JSON.stringify({ lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
+  return report(`${kind} alone ${JSON.stringify({ lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
+};
+
+const BEAM_LENGTH = 216;
+const BEAM_SEEDS = [1, 2];
+const BEAM_SHIFT: [number, number] = [20, 20];
+
+const runBeam = (frame: number, seed: number, out: HTMLElement): VisualResult => {
+  const spike = canvas();
+  const own = canvas();
+  spike.translate(...BEAM_SHIFT);
+  own.translate(...BEAM_SHIFT);
+  window.EBLASTER.beam(spike, BEAM_LENGTH, frame, seed);
+  drawBeam(own, BEAM_LENGTH, frame, seed);
+  const diff = pixelDiff(spike, own);
+  return report(`beam ${JSON.stringify({ frame, seed })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
 };
 
 const runFrontBarrel = (out: HTMLElement): VisualResult => {
@@ -336,6 +366,13 @@ const gunCases = [
     lods.map((lod) => (o: HTMLElement) => runCase(`gun ${carry} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o, gunScene(carry, lod))),
   ),
 ];
+const eblasterCases = [
+  ...lods.map((lod) => (o: HTMLElement) => runGunAlone(lod, o, "eblaster")),
+  ...carries.flatMap(([view, opts, carry]) =>
+    lods.map((lod) => (o: HTMLElement) => runCase(`eblaster ${carry} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o, gunScene(carry, lod, "eblaster"))),
+  ),
+];
+const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
 const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], lift: [0, 1, 2], switchboard: [0, 1], crowbar: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1] };
 const envSizes: [string, Size][] = [
@@ -350,6 +387,6 @@ const envCases = [
   ...envAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod) => (o: HTMLElement) => runEnvCase(a.id, state, lod, undefined, o)))),
   ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
 ];
-const cases = [...robotCases, ...hitCases, ...gunCases, runFrontBarrel, ...envCases];
+const cases = [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runFrontBarrel, ...envCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

@@ -1,4 +1,5 @@
 import { ITEMS, type ItemId } from "../items";
+import { blasterIcon, BLASTER_BODY_W } from "./blasterIcon";
 import { HAND_DRAWN, HAND_SCALE, HUD_H, READOUT_SIZE, SLOT, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
@@ -54,7 +55,6 @@ const DEFS = `<defs>
   <linearGradient id="insetTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".75"/><stop offset=".3" stop-color="#000" stop-opacity="0"/><stop offset=".85" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
   <linearGradient id="insetSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".6"/><stop offset=".04" stop-color="#000" stop-opacity="0"/><stop offset=".96" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></linearGradient>
   <linearGradient id="glare" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/></linearGradient>
-  <linearGradient id="flame" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffde70"/><stop offset=".5" stop-color="#ff7a10"/><stop offset="1" stop-color="#ff7a10" stop-opacity="0"/></linearGradient>
   <linearGradient id="bevelUp" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="${HI}" stop-opacity=".85"/><stop offset=".4" stop-color="${HI}" stop-opacity=".25"/><stop offset=".6" stop-color="${LO}" stop-opacity=".35"/><stop offset="1" stop-color="${LO}" stop-opacity=".95"/></linearGradient>
   <linearGradient id="bevelDown" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="${LO}" stop-opacity=".95"/><stop offset=".4" stop-color="${LO}" stop-opacity=".35"/><stop offset=".6" stop-color="${HI}" stop-opacity=".2"/><stop offset="1" stop-color="${HI}" stop-opacity=".75"/></linearGradient>
   <linearGradient id="rodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3128"/><stop offset=".3" stop-color="#f0e4cc"/><stop offset=".55" stop-color="#8a7a64"/><stop offset="1" stop-color="#1a140f"/></linearGradient>
@@ -74,12 +74,6 @@ const DEFS = `<defs>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
 
-const blaster = (x: number): string => `<g transform="translate(${x} 5.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
-  <rect y="1" width="34" height="3" rx=".5"/><rect x="8" y="-1.4" width="14" height="2.4" rx=".5" fill="#3f4a46"/>
-  <rect x="5" y="4" width="10" height="2.5"/><rect x="9" y="6.5" width="3" height="4.5" rx=".5"/></g>
-  <path transform="translate(${x} 5.2)" d="M35 2.5q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
-
-const BLASTER_BODY_W = 34;
 const keyCentre = (i: number): number => (i === 2 ? BLASTER_BODY_W : WEAPON_W[i]!) / 2;
 
 const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
@@ -142,7 +136,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${gridPanel(bar.gridX, bar.gridW)}
   ${weapon(image(icons.gun, wx[0]!, 2.9), s.weapon === 0)}${counter(wx[0]! + WEAPON_W[0]!, s.ammo)}
   ${weapon(image(icons.fist, wx[1]!, 2.4), s.weapon === 1)}
-  ${s.bonus ? weapon(blaster(wx[2]!), s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo) : ""}
+  ${s.bonus ? weapon(blasterIcon(wx[2]!), s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo) : ""}
   ${wx.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x + keyCentre(i), keys.weapons[i] ?? "", s.weapon === i)).join("")}
   ${badge(bar.badge)}
   ${gridPanel(bar.run, bar.runW)}${readout(bar.run + bar.runW / 2, "RUN")}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}

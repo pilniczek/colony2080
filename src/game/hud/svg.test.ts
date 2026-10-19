@@ -45,6 +45,17 @@ describe("hudSvg", () => {
     }
   });
 
+  it("renders the slot 3 icon, counter and active key only with the bonus weapon", () => {
+    const owned = hudSvg(320, 200, { ...base, bonus: true, weapon: 2, bonusAmmo: 400 }, icons);
+    expect(owned).toContain(">400</text>");
+    expect(owned).toContain('fill="#7ae0ff"');
+    expect(owned).toMatch(/fill="#ff4a26"[^>]*>3</);
+    expect(owned).toContain(">3</text>");
+    const without = hudSvg(320, 200, base, icons);
+    expect(without).not.toContain('fill="#7ae0ff"');
+    expect(without).not.toContain(">3</text>");
+  });
+
   it("right-aligns the bonus counter at the blaster edge", () => {
     const { weapons } = topBar(320);
     const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 7 }, icons);

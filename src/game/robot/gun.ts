@@ -1,33 +1,13 @@
-import { apply, type Mat2D } from "../../engine/math/mat2d";
-import { drawRig, type Palette } from "../../engine/rig/draw";
+import { apply } from "../../engine/math/mat2d";
+import { drawRig } from "../../engine/rig/draw";
 import { locate, solve, type Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
-import { buildBack, ROBOT } from "./xbot";
+import { BARREL, createWeaponModel, MUZZLE, MUZZLE_IN_HOOK, SUPPORT, SUPPORT_IN_HOOK, toHook, type WeaponPart } from "./weaponModel";
+import { ROBOT } from "./xbot";
 
-type MatKey = "m" | "c" | "a";
+export type { WeaponOptions as GunOptions } from "./weaponModel";
 
-interface GunPart {
-  name: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  mat: MatKey;
-  tone: number;
-}
-
-export interface GunOptions {
-  palette?: Palette;
-  lineW?: number;
-  simple?: boolean;
-  barrel?: number;
-}
-
-type HookOptions = Omit<GunOptions, "palette">;
-
-const BARREL = { x: 70, length: 196 };
-
-const buildParts = (length: number): GunPart[] => [
+const buildParts = (length: number): WeaponPart[] => [
   { name: "grip", x: -14, y: -14, w: 26, h: 56, mat: "m", tone: 1 },
   { name: "stock", x: -82, y: -64, w: 22, h: 50, mat: "m", tone: 0 },
   { name: "handle", x: -36, y: -96, w: 72, h: 18, mat: "m", tone: 1 },
@@ -44,88 +24,19 @@ const buildParts = (length: number): GunPart[] => [
   { name: "ringFront", x: BARREL.x + length - 34, y: -68, w: 16, h: 56, mat: "m", tone: 0 },
 ];
 
-const partSets = new Map<number, GunPart[]>();
+const MAT = {
+  m: ["m0", "m1", "m2", "m3", "mLine"],
+  c: ["c0", "c1", "c2", "c3", "mLine"],
+  a: ["a0", "a1", "a2", "a3", "aLine"],
+} as const;
 
-const partsFor = (length: number): GunPart[] => {
-  let parts = partSets.get(length);
-  if (!parts) partSets.set(length, (parts = buildParts(length)));
-  return parts;
-};
+const model = createWeaponModel({ buildParts, mat: MAT });
 
-export const GUN_PARTS = partsFor(BARREL.length);
-
-const MAT: Record<MatKey, { tones: [string, string, string, string]; line: string }> = {
-  m: { tones: ["m0", "m1", "m2", "m3"], line: "mLine" },
-  c: { tones: ["c0", "c1", "c2", "c3"], line: "mLine" },
-  a: { tones: ["a0", "a1", "a2", "a3"], line: "aLine" },
-};
-
-export const MUZZLE: Pt = [BARREL.x + BARREL.length + 2, -40];
-export const SUPPORT: Pt = [BARREL.x - 6, -10];
-
-export const toHook = ([x, y]: Pt): Pt => [-y, x];
-
-export const MUZZLE_IN_HOOK = toHook(MUZZLE);
-export const SUPPORT_IN_HOOK = toHook(SUPPORT);
-
-const fills = new WeakMap<GunPart, { key: string; fill: CanvasGradient }>();
-
-const bandFill = (ctx: CanvasRenderingContext2D, p: GunPart, tones: string[], simple: boolean): CanvasGradient => {
-  const key = tones.join() + simple;
-  const hit = fills.get(p);
-  if (hit && hit.key === key) return hit.fill;
-  const tone = (i: number): string => tones[i] as string;
-  const top = tone(Math.min(3, p.tone + 1));
-  const mid = tone(p.tone);
-  const low = tone(Math.max(0, p.tone - 1));
-  const shine = 0.1 + Math.max(1 / p.h, 0.08);
-  const stops: [number, string][] = simple
-    ? [[0, top], [0.28, top], [0.28, mid], [0.74, mid], [0.74, low], [1, low]]
-    : [[0, top], [0.1, top], [0.1, tone(3)], [shine, tone(3)], [shine, top], [0.28, top], [0.28, mid], [0.74, mid], [0.74, low], [1, low]];
-  const fill = ctx.createLinearGradient(0, p.y, 0, p.y + p.h);
-  for (const [at, color] of stops) fill.addColorStop(at, color);
-  fills.set(p, { key, fill });
-  return fill;
-};
-
-const drawPart = (ctx: CanvasRenderingContext2D, p: GunPart, pal: Palette, lineW: number, simple: boolean): void => {
-  const { tones: keys, line } = MAT[p.mat];
-  const tones = keys.map((k) => pal[k] as string);
-  ctx.fillStyle = bandFill(ctx, p, tones, simple);
-  ctx.fillRect(p.x, p.y, p.w, p.h);
-  if (lineW) {
-    const t = ctx.getTransform();
-    ctx.strokeStyle = pal[line] as string;
-    ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
-    ctx.strokeRect(p.x, p.y, p.w, p.h);
-  }
-};
-
-export const drawGun = (ctx: CanvasRenderingContext2D, { palette = ROBOT.palette, lineW = 1.4, simple = false, barrel = BARREL.length }: GunOptions = {}): void => {
-  for (const p of partsFor(barrel)) drawPart(ctx, p, palette, lineW, simple);
-};
-
-export const gunHook = (ctx: CanvasRenderingContext2D, palette: Palette = ROBOT.palette, opts: HookOptions = {}): void => {
-  ctx.save();
-  ctx.transform(0, 1, -1, 0, 0, 0);
-  drawGun(ctx, { ...opts, palette });
-  ctx.restore();
-};
-
-const slungAt = (): Mat2D => {
-  const m = locate(buildBack(), "back", {});
-  if (!m) throw new Error("missing hook back");
-  return m;
-};
-
-const SLUNG_AT = slungAt();
-
-export const gunSlung = (ctx: CanvasRenderingContext2D, palette: Palette = ROBOT.palette, opts: HookOptions = {}): void => {
-  ctx.save();
-  ctx.transform(SLUNG_AT.a, SLUNG_AT.b, SLUNG_AT.c, SLUNG_AT.d, SLUNG_AT.e, SLUNG_AT.f);
-  gunHook(ctx, palette, opts);
-  ctx.restore();
-};
+export const GUN_PARTS = model.parts;
+export { MUZZLE, MUZZLE_IN_HOOK, SUPPORT, SUPPORT_IN_HOOK, toHook };
+export const drawGun = model.draw;
+export const gunHook = model.hook;
+export const gunSlung = model.slung;
 
 export const CARRY = { arm: 0, fore: -72 };
 export const FRONT_CARRY = { armL: -24, foreL: -66 };
@@ -156,7 +67,7 @@ export const holdPoses = (side: GroupNode, front: GroupNode): HoldPoses => {
 
 export const FRONT_BARREL = 247;
 
-const BAND = GUN_PARTS.find((p) => p.name === "barrelBack") as GunPart;
+const BAND = GUN_PARTS.find((p) => p.name === "barrelBack") as WeaponPart;
 const SCAN = { x: -600, w: 1600 };
 
 const silhouetteEdge = (robot: GroupNode, pose: Pose, hook: string): number => {
