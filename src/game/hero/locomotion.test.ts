@@ -480,13 +480,14 @@ describe("lift", () => {
     expect(g.hero.y).toBeCloseTo(4, 6);
   });
 
-  it("does not call the lift from the floor edge next to its deck", () => {
+  it("steps onto the deck and rides down when called from the floor edge", () => {
     const g = game({ x: 33.8, y: 14 });
     tick(g);
     expect(g.hero).toMatchObject({ onGround: true, onLift: true });
     tick(g, ["down"], ["down"]);
-    run(g, 1, ["down"]);
-    expect(g.world.lifts[1]!.target).toBeNull();
-    expect(g.world.lifts[1]!.y).toBe(14);
+    run(g, 5);
+    expect(g.world.lifts[1]!.y).toBe(21);
+    expect(g.hero).toMatchObject({ onGround: true, onLift: true });
+    expect(g.hero.y).toBeCloseTo(21, 6);
   });
 });
