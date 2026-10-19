@@ -7,7 +7,8 @@ import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
 import { ENEMY_SHOT, hitEnemy, isDead, type Enemy } from "./level/enemy";
-import type { SandboxWorld } from "./level/sandboxLevel";
+import type { Prop, SandboxWorld } from "./level/sandboxLevel";
+import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { ROBOT } from "./robot/xbot";
 
@@ -68,6 +69,29 @@ function enemyFace(enemy: Enemy, cfg: MovementConfig, from: number, p: Projectil
   return p.vx > 0 ? Math.max(from, x - half) : Math.min(from, x + half);
 }
 
+const shootable = (prop: Prop): boolean => !!prop.shootable && (prop.hitsTaken ?? 0) < prop.shootable.hits;
+
+function propFace(prop: Prop, from: number, p: Projectile): number | null {
+  if (p.tag !== HERO_SHOT || !shootable(prop)) return null;
+  const half = (prop.width ?? 1) / 2;
+  const floor = prop.y ?? 0;
+  if (p.y < floor - (prop.height ?? 1) || p.y > floor) return null;
+  const [lo, hi] = [Math.min(from, p.x), Math.max(from, p.x)];
+  if (hi < prop.x - half || lo > prop.x + half) return null;
+  return p.vx > 0 ? Math.max(from, prop.x - half) : Math.min(from, prop.x + half);
+}
+
+export function hitShootable(world: SandboxWorld, prop: Prop): void {
+  const { shootable: spec } = prop;
+  if (!spec || !shootable(prop)) return;
+  prop.hitsTaken = (prop.hitsTaken ?? 0) + 1;
+  if (prop.hitsTaken < spec.hits) return;
+  prop.state = spec.state;
+  for (const flag of spec.gives ?? []) world.flags.add(flag);
+  applyBlocks(world);
+  if (spec.subtitle) say(world, spec.subtitle);
+}
+
 function sightEdge(world: SandboxWorld, x: number, p: Projectile): number {
   const fog = world.fog ? fogEdge(world.fog, x, p.y, Math.sign(p.vx)) : p.vx * Infinity;
   const end = p.endX ?? p.vx * Infinity;
@@ -78,12 +102,28 @@ const beyond = (p: Projectile, x: number, edge: number): boolean => (x - edge) *
 
 const seen = (world: SandboxWorld, x: number, y: number): boolean => !world.fog || visible(world.fog, x, y);
 
-function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number, damage = 1): boolean {
+function nearestProp(world: SandboxWorld, from: number, p: Projectile, edge: number): { prop: Prop; face: number } | null {
+  let best: { prop: Prop; face: number } | null = null;
+  for (const prop of world.props) {
+    const face = propFace(prop, from, p);
+    if (face === null || beyond(p, face, edge)) continue;
+    if (!best || Math.abs(face - from) < Math.abs(best.face - from)) best = { prop, face };
+  }
+  return best;
+}
+
+function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number, damage = 1, shots = false): boolean {
   let struck: { enemy: Enemy; face: number } | null = null;
   for (const enemy of world.enemies) {
     const face = enemyFace(enemy, cfg, from, p);
     if (face === null || beyond(p, face, edge)) continue;
     if (!struck || Math.abs(face - from) < Math.abs(struck.face - from)) struck = { enemy, face };
+  }
+  const prop = shots ? nearestProp(world, from, p, edge) : null;
+  if (prop && (!struck || Math.abs(prop.face - from) < Math.abs(struck.face - from))) {
+    hitShootable(world, prop.prop);
+    world.sparks.push({ x: prop.face, y: p.y, age: 0 });
+    return true;
   }
   if (!struck) return false;
   hitEnemy(struck.enemy, damage);
@@ -93,7 +133,7 @@ function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Proje
 
 function launch(world: SandboxWorld, cfg: MovementConfig, from: number, bullet: Projectile): void {
   const edge = sightEdge(world, bullet.x, bullet);
-  if (strike(world, cfg, from, bullet, edge, cfg.shot.damage)) return;
+  if (strike(world, cfg, from, bullet, edge, cfg.shot.damage, true)) return;
   const face = wallBetween(world, from, bullet);
   if (face === null) world.projectiles.push(bullet);
   else if (!beyond(bullet, face, edge)) world.sparks.push({ x: face, y: bullet.y, age: 0 });
@@ -133,7 +173,7 @@ export function stepShots(world: SandboxWorld, cfg: MovementConfig, dt: number):
   const { width, height } = world.grid;
   world.projectiles = world.projectiles.filter((p) => {
     const edge = sightEdge(world, from.get(p)!, p);
-    if (strike(world, cfg, from.get(p)!, p, edge, cfg.shot.damage)) return false;
+    if (strike(world, cfg, from.get(p)!, p, edge, cfg.shot.damage, true)) return false;
     const inside = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height;
     if (!alive.has(p) && inside && !beyond(p, wallFace(p), edge)) world.sparks.push({ x: wallFace(p), y: p.y, age: 0 });
     return alive.has(p) && !beyond(p, p.x, edge);

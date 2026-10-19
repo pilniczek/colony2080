@@ -24,6 +24,8 @@ export interface Prop {
   state?: number;
   solidStates?: number[];
   cells?: { col: number; row: number; w: number; h: number };
+  shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string };
+  hitsTaken?: number;
 }
 
 export interface Scenery {

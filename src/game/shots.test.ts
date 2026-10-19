@@ -1,7 +1,9 @@
+import cameraJson from "@config/camera.json";
 import { describe, expect, it } from "vitest";
-import { cfg, clips, game, run, tick, type Game } from "./hero/testWorld";
+import { createFog, loadFog } from "./fog";
+import { cfg, clips, game, objectLevel, run, tick, type Game } from "./hero/testWorld";
 import { spikeUnit } from "./hero/look";
-import { fireEnemy, heroMuzzle, SPARK_LIFE } from "./shots";
+import { fireEnemy, heroMuzzle, SPARK_LIFE, stepShots } from "./shots";
 
 const TARGET_TOP = 14 - 1.51;
 
@@ -188,5 +190,79 @@ describe("sparks", () => {
     expect(g.world.sparks.length).toBeGreaterThan(0);
     run(g, SPARK_LIFE + 0.05);
     expect(g.world.sparks).toHaveLength(0);
+  });
+});
+
+describe("shootable props", () => {
+  const ship = { kind: "object", id: "crashedShip", x: 10, y: 8, width: 4, height: 3, shootable: { hits: 3, state: 1, gives: ["flag:hullOpen"], subtitle: "The hull cover is open." } };
+  const decoy = { kind: "object", id: "decoy", x: 6, y: 8, width: 1, height: 3 };
+  const shooter = (props: unknown[], facing: 1 | -1 = 1, y = 8): Game => {
+    const g = game({ x: facing > 0 ? 3.5 : 16.5, y, weapon: "gun" }, { ...objectLevel, props });
+    g.hero.facing = facing;
+    return g;
+  };
+  const shipOf = (g: Game) => g.world.props.find((p) => p.id === "crashedShip")!;
+
+  it("stops a hero bullet at a shootable prop and counts the hit", () => {
+    const g = shooter([ship]);
+    tick(g, ["shoot"], ["shoot"]);
+    for (let i = 0; i < 30 && !g.world.sparks.length; i++) tick(g);
+    expect(shipOf(g).hitsTaken).toBe(1);
+    expect(g.world.projectiles).toHaveLength(0);
+    expect(g.world.sparks[0]!.x).toBeCloseTo(8, 0);
+  });
+
+  it("switches the prop state at its hit count", () => {
+    const g = shooter([ship]);
+    fire(g, 0.5);
+    expect(shipOf(g).hitsTaken).toBe(3);
+    expect(shipOf(g).state).toBe(1);
+    expect(g.world.flags.has("flag:hullOpen")).toBe(true);
+    expect(g.world.subtitle?.text).toBe("The hull cover is open.");
+  });
+
+  it("keeps the state closed before the last hit", () => {
+    const g = shooter([{ ...ship, shootable: { ...ship.shootable, hits: 50 } }]);
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.3);
+    expect(shipOf(g).state).toBeUndefined();
+    expect(g.world.flags.has("flag:hullOpen")).toBe(false);
+  });
+
+  it("lets bullets pass other props", () => {
+    const g = shooter([decoy, ship]);
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.3);
+    expect(g.world.props.find((p) => p.id === "decoy")!.hitsTaken).toBeUndefined();
+    expect(shipOf(g).hitsTaken).toBe(1);
+  });
+
+  it("ignores enemy bullets and bullets on another row", () => {
+    const g = shooter([ship]);
+    g.world.projectiles.push({ x: 7, y: 7, vx: 20, r: 0.1, tag: "enemy" });
+    run(g, 0.5);
+    expect(shipOf(g).hitsTaken).toBeUndefined();
+    const high = shooter([ship]);
+    high.world.projectiles.push({ x: 7, y: 3, vx: 20, r: 0.1, tag: "hero" });
+    run(high, 0.5);
+    expect(shipOf(high).hitsTaken).toBeUndefined();
+  });
+
+  it("does not count a bullet dropped by fog", () => {
+    const g = shooter([ship]);
+    g.world.fog = createFog(loadFog(cameraJson), cfg, g.hero, g.world.grid);
+    const fog = g.world.fog;
+    for (let row = 0; row < fog.height; row++) fog.revealed.fill(0, row * fog.width + 7, (row + 1) * fog.width);
+    g.world.projectiles.push({ x: 4, y: 7, vx: cfg.shot.speed, r: cfg.shot.radius, tag: "hero" });
+    for (let i = 0; i < 30; i++) stepShots(g.world, cfg, 1 / 60);
+    expect(shipOf(g).hitsTaken).toBeUndefined();
+    expect(g.world.projectiles).toHaveLength(0);
+  });
+
+  it("is hit from the right side too", () => {
+    const g = shooter([ship], -1);
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.5);
+    expect(shipOf(g).hitsTaken).toBe(1);
   });
 });
