@@ -235,12 +235,12 @@ function define(asset) {
   return asset;
 }
 
-function draw(ctx, asset, { state, t = 0, palette = PALETTE, lines = 1, lod = false } = {}) {
+function draw(ctx, asset, { state, t = 0, palette = PALETTE, lines = 1, lod = false, size } = {}) {
   pal = palette;
   lineW = lines;
   simple = lod;
   ctx.save();
-  asset.draw(ctx, state ?? 0, t);
+  asset.draw(ctx, state ?? 0, t, size);
   ctx.restore();
 }
 

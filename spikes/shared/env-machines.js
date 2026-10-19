@@ -502,17 +502,18 @@ define({
   }
 });
 
-const LIFT = { w: 50, rack: 25, railA: 11, railB: 39, top: -104, travel: 72, rail: 18 };
+const LIFT = { w: 50, top: -104, travel: 72, rail: 18 };
 
-function shaft(ctx) {
-  const { rack, railA, railB, top } = LIFT;
+function shaft(ctx, { w = LIFT.w, top = LIFT.top } = {}) {
+  const rack = w / 2, railA = rack - 14, railB = rack + 14;
   for (const x of [railA, railB]) box(ctx, x - 1.5, top, 3, -top + 6, "concrete", 1, { vertical: true });
   box(ctx, rack - 2, top, 4, -top + 6, "concrete", 0, { vertical: true });
   for (let y = top + 2; y < 6; y += simple() ? 6 : 3.5) flat(ctx, rack - 3, y, 6, simple() ? 2 : 1.2, "k2");
 }
 
-function platform(ctx, py) {
-  const { w, rack, rail } = LIFT;
+function platform(ctx, py, w = LIFT.w) {
+  const { rail } = LIFT;
+  const rack = w / 2;
   poly(ctx, [[rack - 8, py + 7], [rack + 8, py + 7], [rack + 5, py + 13], [rack - 5, py + 13]], "steel", 1);
   if (!simple()) disc(ctx, rack, py + 9.5, 2, "c1", "mLine");
   hazard(ctx, 0, py + 3, w, 4, 3);
@@ -522,20 +523,20 @@ function platform(ctx, py) {
   box(ctx, 1, py - rail / 2, w - 2, 1.5, "concrete", 2);
 }
 
-function liftAt(ctx, state, t) {
+function liftAt(ctx, state, t, { w = LIFT.w, top = LIFT.top, py } = {}) {
   const { travel } = LIFT;
   const k = (t * 0.35) % 1;
-  const py = state === 1 ? -k * travel : state === 2 ? -(1 - k) * travel : 0;
-  shaft(ctx);
-  platform(ctx, py);
+  const y = py ?? (state === 1 ? -k * travel : state === 2 ? -(1 - k) * travel : 0);
+  shaft(ctx, { w, top });
+  platform(ctx, y, w);
 }
 
 define({
   id: "lift",
   box: [-4, -106, 54, 20],
   anim: true,
-  draw(ctx, state, t) {
-    liftAt(ctx, state, t);
+  draw(ctx, state, t, size) {
+    liftAt(ctx, state, t, size);
   }
 });
 

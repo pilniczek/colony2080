@@ -355,11 +355,11 @@ define({
 define({
   id: "brickWall",
   box: [0, -168, 72, 0],
-  draw(ctx) {
-    bricks(ctx, 0, -168, 58, 168, 7);
-    flat(ctx, 58, -168, 14, 168, "r0", "rust");
-    cylV(ctx, 61, -168, 7, 168, "concrete", 2);
-    for (let y = -150; y < 0; y += 36) box(ctx, 59.5, y, 10, 3, "concrete", 1);
+  draw(ctx, state, t, { w = 72, h = 168 } = {}) {
+    bricks(ctx, 0, -h, w - 14, h, 7);
+    flat(ctx, w - 14, -h, 14, h, "r0", "rust");
+    cylV(ctx, w - 11, -h, 7, h, "concrete", 2);
+    for (let y = -h + 18; y < 0; y += 36) box(ctx, w - 12.5, y, 10, 3, "concrete", 1);
   }
 });
 

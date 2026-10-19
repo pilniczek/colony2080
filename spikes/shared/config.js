@@ -2549,6 +2549,18 @@ window.C28_CONFIG = {
         "caption": "sign post"
        }
       ]
+     },
+     {
+      "id": "ladder",
+      "name": "Ladder",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Steel ladder with two rails and chrome rungs, climbed by the hero; height follows the ladder cells, rung spacing matches the game climb steps.",
+      "states": [],
+      "refs": []
      }
     ]
    }

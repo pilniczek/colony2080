@@ -71,8 +71,8 @@ function walkway(ctx, x, w) {
 define({
   id: "streetWalkway",
   box: [0, -2, 120, 25],
-  draw(ctx) {
-    walkway(ctx, 0, 120);
+  draw(ctx, state, t, { w = 120 } = {}) {
+    walkway(ctx, 0, w);
   }
 });
 
@@ -172,17 +172,28 @@ function gusset(ctx, x) {
 define({
   id: "girderBridge",
   box: [0, -25, 144, 1],
-  draw(ctx) {
-    for (let x = 24; x < 120; x += TILE) {
+  draw(ctx, state, t, { w = 144 } = {}) {
+    for (let x = 24; x < w - 24; x += TILE) {
       bar(ctx, x + 1, -19, x + TILE - 1, -5, 3, "concrete", 1);
       bar(ctx, x + 1, -5, x + TILE - 1, -19, 3, "concrete", 2);
     }
-    box(ctx, 0, -24, 144, 5, "concrete", 2);
-    box(ctx, 0, -5, 144, 5, "concrete", 1);
-    rivets(ctx, 24, -21.5, 96, 8, "k3");
-    rivets(ctx, 24, -2.5, 96, 8, "k3");
+    box(ctx, 0, -24, w, 5, "concrete", 2);
+    box(ctx, 0, -5, w, 5, "concrete", 1);
+    rivets(ctx, 24, -21.5, w - 48, 8, "k3");
+    rivets(ctx, 24, -2.5, w - 48, 8, "k3");
     gusset(ctx, 0);
-    gusset(ctx, 120);
+    gusset(ctx, w - 24);
+  }
+});
+
+define({
+  id: "ladder",
+  box: [0, -168, 17.2, 0],
+  draw(ctx, state, t, { h = 168, w = 17.2, rung = 6.76 } = {}) {
+    box(ctx, 0, -h, 2.4, h, "steel", 2, { vertical: true });
+    box(ctx, w - 2.4, -h, 2.4, h, "steel", 2, { vertical: true });
+    for (let k = 1; -rung * k > -h; k++) box(ctx, 2.4, -rung * k - 0.7, w - 4.8, 1.4, "chrome", 2);
+    if (!window.ENV.simple) for (let k = 1; -rung * k > -h; k += 4) for (const x of [0.6, w - 1.8]) flat(ctx, x, -rung * k - 0.6, 1.2, 1.2, "m3");
   }
 });
 
