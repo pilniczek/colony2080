@@ -60,7 +60,7 @@ describe("sandbox scenery", () => {
   });
 });
 
-const twoLifts = { ...sandbox, lifts: [...sandbox.lifts, { x: 30, width: 3, top: 4, bottom: 14 }] };
+const twoLifts = { ...sandbox, lifts: [sandbox.lifts[0]!, { x: 30, width: 3, top: 4, bottom: 14 }] };
 
 describe("several lifts", () => {
   it("rides only the lift it stands on", () => {

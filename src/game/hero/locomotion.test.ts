@@ -1,7 +1,7 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import type { Hero } from "./hero";
-import { cfg, clips, dt, game, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
+import { bottomlessPits, cfg, clips, dt, game, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
 
 const walkSpeed = clips.walk!.travel! / clips.walk!.duration;
 const runSpeed = clips.run!.travel! / clips.run!.duration;
@@ -251,7 +251,7 @@ describe("jumps", () => {
   });
 
   it("falls into the pit from a running jump at the 4-cell gap", () => {
-    const g = game({ x: 33.6, y: 14, state: "run" });
+    const g = game({ x: 33.6, y: 14, state: "run" }, bottomlessPits);
     tick(g, ["moveRight", RUNNING], ["up"]);
     run(g, 2);
     expect(g.hero.state).toBe("fallDeath");

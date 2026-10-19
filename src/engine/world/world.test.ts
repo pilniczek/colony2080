@@ -10,9 +10,9 @@ const box = (x: number, y: number): Box => ({ x, y, w: 0.7, h: 1.9 });
 describe("TileGrid", () => {
   it("is solid on the sides and top, empty below, one-way on ladder tops", () => {
     expect(grid.solid(-1, 5)).toBe(true);
-    expect(grid.solid(40, 5)).toBe(true);
+    expect(grid.solid(grid.width, 5)).toBe(true);
     expect(grid.solid(5, -1)).toBe(true);
-    expect(grid.solid(5, 16)).toBe(false);
+    expect(grid.solid(5, grid.height)).toBe(false);
     expect(grid.at(5, 99)).toBe(".");
     expect(grid.solid(0, 0)).toBe(true);
     expect(grid.ladderAt(3.5, 10)).toBe(true);
@@ -51,8 +51,9 @@ describe("moveBox", () => {
   });
 
   it("falls out below the grid", () => {
-    const r = moveBox(box(29.5, 14), 0, 5, grid, []);
-    expect(r.y).toBeGreaterThan(grid.height);
+    const topHalf = new TileGrid(sandbox.rows.slice(0, 16));
+    const r = moveBox(box(29.5, 14), 0, 5, topHalf, []);
+    expect(r.y).toBeGreaterThan(topHalf.height);
     expect(r.onGround).toBe(false);
   });
 

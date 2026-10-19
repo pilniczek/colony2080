@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { damage, kill } from "./hero";
-import { cfg, game, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
+import { bottomlessPits, cfg, game, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
 
 const kinds = (g: Game, kind: string) => g.events.filter((e) => e.kind === kind);
 
@@ -205,7 +205,7 @@ describe("dead body", () => {
   });
 
   it("stops below the pit and still respawns", () => {
-    const g = game({ x: 29.5, y: 14 });
+    const g = game({ x: 29.5, y: 14 }, bottomlessPits);
     runUntil(g, (h) => h.state === "fallDeath");
     run(g, 1);
     expect(g.hero.y).toBe(g.world.grid.height + 2);

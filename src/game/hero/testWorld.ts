@@ -29,6 +29,8 @@ export function game(
   return { world, hero, events: [], seen: new Set([hero.state]), frame: 0, buffer: new Map() };
 }
 
+export const bottomlessPits = { ...sandbox, rows: sandbox.rows.slice(0, 16), lifts: sandbox.lifts.slice(0, 1) };
+
 export const RUNNING = "running";
 
 export function tick(g: Game, held: string[] = [], pressed: string[] = []): void {
