@@ -188,7 +188,7 @@ Use the existing test world helpers (`src/game/hero/testWorld.ts`) and the same 
 - Produces: `resetWorld(world: SandboxWorld): void` restores everything `loadSandbox` builds (grid, lifts at `bottom`, props, all enemies (dead non-respawning ones revived), projectiles, sparks, terrain, scenery) from the kept source, and resets `world.fog` to a fresh fog with the same config when fog is on (stays `null` when off).
 - The reset runs on the step where the hero respawns after a death (`death`, `fallDeath`, `jumpDeath` end). Hero ammo carries over unchanged.
 
-- [ ] **Step 1: Write the failing tests** in `stepWorld.test.ts`: take the crowbar, flip the switchboard on, call a lift to its top, uncover fog cells, damage the enemy, then kill the hero and run past `respawnMs`. Expect: crowbar `taken` false, switchboard `on` false, every lift at `bottom` with `target` null, enemy hits back to full, no projectiles or sparks, fog revealed cells equal a fresh fog after the first step at spawn, hero ammo unchanged.
+- [ ] **Step 1: Write the failing tests** in `stepWorld.test.ts`: take the crowbar, flip the switchboard on, call a lift to its top, uncover fog cells, damage the first enemy, kill a non-respawning enemy, then kill the hero and run past `respawnMs`. Expect: crowbar `taken` false, switchboard `on` false, every lift at `bottom` with `target` null, every enemy alive with full hits, no projectiles or sparks, fog revealed cells equal a fresh fog after the first step at spawn, hero ammo unchanged.
 - [ ] **Step 2: Run `npx vitest run src/game/stepWorld.test.ts`. Expected: FAIL**
 - [ ] **Step 3: Implement**
 - [ ] **Step 4: Run `npm test && npm run lint && npm run typecheck`. Expected: pass (hud-only typecheck errors from another session excepted)**
