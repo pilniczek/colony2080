@@ -44,7 +44,7 @@ flowchart LR
 - Scaling (Claude's call): boxes and robot sit in one fixed 320 x 200 layout, scaled to fit and centred; the room background fills the rest of the screen, so no bars show.
 - Background: dark room with a bright lamp, floor grid.
 - Left column: `INVENTORY` panel (item names, label at the bottom), selected item drawn big under it.
-- Middle column: `X-BOT STATISTICS` title box; stats box with `ENERGY n%`, `SHIELDS:` glyph bar (5 segments), pulse line and level bars, body diagram; ammo box with a gun row (`xN`) and an E-Blaster row (`EXTRA xN`, shown only once the E-Blaster is owned).
+- Middle column: `C2080` / `STATISTICS` title box (the build rejects the original robot name); stats box with `ENERGY n%`, `SHIELDS:` glyph bar (5 segments), pulse line and level bars, body diagram; ammo box with a gun row (`xN`) and an E-Blaster row (`EXTRA xN`, shown only once the E-Blaster is owned).
 - Right: big hero robot, front view, static pose.
 - Panels: teal frame, dark backing with grid lines, item names pale yellow, selected row highlighted.
 - Gaps between boxes are small and equal, like the HUD plates (2 units). No box overlaps another (the original body diagram crosses its box edge; ours stays inside).
