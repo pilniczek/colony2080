@@ -144,7 +144,7 @@ flowchart LR
 
 - Intro cutscene and dying-rebel scene: not part of current work (user, 2026-10-19); mission 1 scope decided later.
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
-- Crowbar cutscene polish, revisited once all level animations exist (2026-10-19): hands overhead in the side shot, at hip level in the back shot.
+- Crowbar cutscene polish, revisited once all level animations exist (2026-10-19): hands overhead in the side shot, at hip level in the back shot; a larger back-shot pry pull (`pullForeDeg`) so the door visibly follows it; grip order and hand spacing change across the cut (78 vs about 367 model units); the crowbar pokes out of the top of the shot B frame around 2.7 s.
 - Environment sheet: all 52 objects and the `ladder` drawn, first pass kept, iterate later. The sandbox uses a subset (ported to `src/game/env/`). Guessed looks (no original sprite or unclear): code lock, item pickups on the ground (crowbar, E-Blaster, ship part, controller, crane key), hazard plate purpose, staircase treads. Marker 6 is either the valve wheel near the E-Blaster or the water pipe; both are drawn.
 - Environment primitives to add on the next round: olive and cloth / skin materials (now local colours in `env-structures.js`, `env-props.js`), a colour option for `P.hazard`, a thin-edge wall fill (big walls look stripy with `P.box` bands), shared line / beam helpers.
 - Sandbox HUD shows live life, shields, weapon and ammo (see Ammo). Reserve (full) is fixed until phase 3 adds it. Shields start at `energy.shields` in `config/hero/movement.json`.
