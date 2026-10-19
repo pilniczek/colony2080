@@ -339,6 +339,21 @@ function frontShell(ctx) {
 
 }
 
+const GUN_BACK = 2;
+
+function shoulder(ctx) {
+  fillPath(ctx, c => {
+    c.moveTo(27, 25.6);
+    c.lineTo(41, 25.6);
+    c.quadraticCurveTo(43.4, 28.3, 41, 31);
+    c.lineTo(31, 31);
+    c.quadraticCurveTo(29, 29, 27, 25.6);
+  }, grad(ctx, 27, 0, 43, 0, [[0, "gm0"], [0.35, "gm1"], [0.7, "gm2"], [0.88, "gc2"], [1, "gc3"]]));
+  if (ENV.simple) return;
+  P.line(ctx, [[30, 26.6], [40.6, 26.6]], "gm3", 0.4, "butt");
+  P.line(ctx, [[41.6, 26.6], [41.6, 30]], "gc3", 0.7, "butt");
+}
+
 function guardBody(ctx, fire) {
   farLeg(ctx);
   P.box(ctx, 26, 30, 14, 3, "guardMetal", 0);
@@ -348,14 +363,15 @@ function guardBody(ctx, fire) {
 
   guardLeg(ctx, 0);
 
-  P.beam(ctx, [44, 25], [40, 32], 3, "guardChrome");
-  P.box(ctx, 21, 31, 22, 5.5, "guardMetal", 2);
+  const g = GUN_BACK;
+  P.box(ctx, 21 + g, 31, 22, 5.5, "guardMetal", 2);
   if (!ENV.simple) {
-    for (const x of [26, 31, 36]) P.flat(ctx, x, 31, 0.8, 5.5, "gm0");
-    P.line(ctx, [[22, 32.2], [42, 32.2]], "gm3", 0.5, "butt");
+    for (const x of [26, 31, 36]) P.flat(ctx, x + g, 31, 0.8, 5.5, "gm0");
+    P.line(ctx, [[22 + g, 32.2], [42 + g, 32.2]], "gm3", 0.5, "butt");
   }
-  P.box(ctx, 20, 31.5, 1.8, 4.5, "guardChrome", 2, { vertical: true });
-  if (fire >= 0) flash(ctx, 20, 33.7, -1, fire, 4.2);
+  P.box(ctx, 20 + g, 31.5, 1.8, 4.5, "guardChrome", 2, { vertical: true });
+  if (fire >= 0) flash(ctx, 20 + g, 33.7, -1, fire, 4.2);
+  shoulder(ctx);
 }
 
 function acidDrips(ctx, t, p) {
