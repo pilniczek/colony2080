@@ -7,6 +7,7 @@ import { loadSandbox } from "../game/level/sandboxLevel";
 import { startRun, type Run, type RunStart } from "../game/run";
 import { blasterAmmo, useSandbox } from "./store";
 import { Hud } from "./ui/Hud";
+import { InventoryScreen } from "./ui/InventoryScreen";
 import { Panel, type SandboxCommands } from "./ui/Panel";
 
 const tuning = () => useSandbox.getState();
@@ -75,6 +76,7 @@ const run: Run = startRun({
   ui: (
     <>
       <Hud />
+      <InventoryScreen />
       <Panel commands={commands} />
     </>
   ),

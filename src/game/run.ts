@@ -13,8 +13,10 @@ import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
 import { createHero, type Hero } from "./hero/hero";
 import { createRigs, heroLook } from "./hero/look";
+import { canOpenInventory, inventoryKey, openCursor } from "./hud/inventoryKeys";
+import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
-import { resetWorld, type SandboxWorld } from "./level/sandboxLevel";
+import { resetWorld, showItem, type SandboxWorld } from "./level/sandboxLevel";
 import { drawFog, revealedPath } from "./render/fog";
 import { drawOverlays } from "./render/overlays";
 import { drawScene, viewCells, visibleEnemies } from "./render/scene";
@@ -50,6 +52,8 @@ export interface RunOptions {
   afterStep?: () => void;
   drawOver?: (ctx: CanvasRenderingContext2D, view: ViewTransform, cellPx: number) => void;
 }
+
+const sameItems = (a: readonly string[], b: readonly string[]): boolean => a.length === b.length && a.every((id, i) => id === b[i]);
 
 const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
@@ -135,6 +139,7 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
     lastRender = now;
     useSandbox.setState({
       item: world.inventory.shown,
+      items: sameItems(tuning().items, world.inventory.items) ? tuning().items : [...world.inventory.items],
       subtitle: world.subtitle?.text ?? null,
       complete: world.complete,
       state: hero.state,
@@ -159,6 +164,10 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
       const { movement: cfg, clips } = tuning();
       prev = { x: hero.x, y: hero.y };
       input.bufferMs = cfg.inputBufferMs;
+      if (input.consume("inventory") && canOpenInventory(hero.state)) {
+        useSandbox.setState({ inventory: { open: true, cursor: openCursor(world.inventory.items, world.inventory.shown) } });
+        return;
+      }
       const frame = input.frame();
       logInput(frame.held);
       stepWorld(world, hero, frame, cfg, clips, dt, (action) => input.consume(action));
@@ -194,7 +203,7 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
   };
 
   const applyTime = ({ paused, timeScale }: { paused: boolean; timeScale: number }): void => {
-    loop.paused = paused;
+    loop.paused = paused || tuning().inventory.open;
     loop.timeScale = timeScale;
   };
 
@@ -203,6 +212,20 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
     applyTime(s);
     if (s.movement.cellPx !== before.movement.cellPx) fit();
   });
+
+  const inventoryKeys = (e: KeyboardEvent): void => {
+    const { inventory } = tuning();
+    if (!inventory.open) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (e.repeat) return;
+    const items = newestFirst(world.inventory.items);
+    const { cursor, pick, close } = inventoryKey(e.code, inventory.cursor, items.length, controls.keyboard);
+    if (pick) showItem(world, items[cursor]!);
+    if (close) input.releaseAll();
+    useSandbox.setState({ inventory: { open: !close, cursor }, item: world.inventory.shown });
+  };
+  window.addEventListener("keydown", inventoryKeys, { capture: true });
 
   fit();
   window.addEventListener("resize", fit);
