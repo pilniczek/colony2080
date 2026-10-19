@@ -149,11 +149,13 @@ const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
 
 const HAND_SCALE = .8, HAND_DRAWN = { w: 12, h: 13 };
 const HAND_BOX = { w: HAND_DRAWN.w * HAND_SCALE, h: HAND_DRAWN.h * HAND_SCALE };
+const CROWBAR_SCALE = 1.25;
+const CROWBAR_BOX = { w: HAND_BOX.w * CROWBAR_SCALE, h: HAND_BOX.h * CROWBAR_SCALE };
 const CROWBAR_TILT = Math.PI / 4;
-const CROWBAR_ICON = { w: HAND_BOX.w, h: HAND_BOX.h, url: icon(HAND_BOX.w, HAND_BOX.h, (ctx) => {
+const CROWBAR_ICON = { w: CROWBAR_BOX.w, h: CROWBAR_BOX.h, url: icon(CROWBAR_BOX.w, CROWBAR_BOX.h, (ctx) => {
   const asset = window.ENV.ASSETS.find((a) => a.id === "crowbar"), [x0, y0, x1, y1] = asset.box;
-  const s = Math.min(HAND_BOX.w, HAND_BOX.h) / ((x1 - x0 + (y1 - y0)) * Math.cos(CROWBAR_TILT));
-  ctx.translate(HAND_BOX.w / 2, HAND_BOX.h / 2);
+  const s = Math.min(CROWBAR_BOX.w, CROWBAR_BOX.h) / ((x1 - x0 + (y1 - y0)) * Math.cos(CROWBAR_TILT));
+  ctx.translate(CROWBAR_BOX.w / 2, CROWBAR_BOX.h / 2);
   ctx.rotate(-CROWBAR_TILT);
   ctx.scale(s, s);
   ctx.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
@@ -184,9 +186,9 @@ function rod(a, b, y) {
 
 function topBar(W, s) {
   const edge = 0, gap = 2, pad = 3.5, invW = 46.5, runW = 18, inv = W - edge - pad - invW, run = inv - 2 * pad - gap - runW, badge = run - 52.4 - gap - pad;
-  const slotX = inv + 5, handW = HAND_BOX.w, label = s.crowbar ? "crowbar" : "nothing", freeFrom = slotX + (s.crowbar ? CROWBAR_ICON.w : handW);
+  const slotX = inv + 5, handW = HAND_BOX.w, label = s.crowbar ? "crowbar" : "nothing", centre = slotX + handW / 2, freeFrom = centre + (s.crowbar ? CROWBAR_ICON.w : handW) / 2;
   const hand = `<g transform="translate(${slotX + handW / 2} 9.1) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} -9.1)">${HAND}</g>`;
-  const art = s.crowbar ? `<image href="${CROWBAR_ICON.url}" x="${slotX}" y="${9.1 - CROWBAR_ICON.h / 2}" width="${CROWBAR_ICON.w}" height="${CROWBAR_ICON.h}"/>` : hand;
+  const art = s.crowbar ? `<image href="${CROWBAR_ICON.url}" x="${centre - CROWBAR_ICON.w / 2}" y="${9.1 - CROWBAR_ICON.h / 2}" width="${CROWBAR_ICON.w}" height="${CROWBAR_ICON.h}"/>` : hand;
   const item = art + readout((freeFrom + inv + invW) / 2, label);
   const fixedEnd = badge - (W - 320) - 4 - gap, empty = [fixedEnd + gap, badge - 4 - gap];
   const wide = empty[1] - empty[0] >= 8;

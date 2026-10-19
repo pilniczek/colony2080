@@ -84,6 +84,7 @@ const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" st
 
 export const HAND_SCALE = 0.8;
 const HAND_DRAWN = { w: 12, h: 13 };
+export const CROWBAR_SCALE = 1.25;
 export const HAND_BOX = { w: HAND_DRAWN.w * HAND_SCALE, h: HAND_DRAWN.h * HAND_SCALE };
 
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
@@ -131,9 +132,10 @@ function slot(x: number, w: number, items: string[], icons: HudIcons): string {
   const id = items.find((i) => icons.items[i]);
   const icon = id === undefined ? undefined : icons.items[id];
   const left = x + SLOT_ICON_X;
-  const art = icon ? image(icon, left, SLOT_MID_Y - icon.h / 2) : handAt(left);
+  const centre = left + HAND_BOX.w / 2;
+  const art = icon ? image(icon, centre - icon.w / 2, SLOT_MID_Y - icon.h / 2) : handAt(left);
   const label = id === undefined ? "nothing" : (ITEM_NAMES[id] ?? id);
-  return art + readout((left + (icon?.w ?? HAND_BOX.w) + x + w) / 2, label);
+  return art + readout((centre + (icon?.w ?? HAND_BOX.w) / 2 + x + w) / 2, label);
 }
 
 function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {

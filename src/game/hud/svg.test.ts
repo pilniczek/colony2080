@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { HAND_BOX, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
+import { CROWBAR_SCALE, HAND_BOX, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
-const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", w: HAND_BOX.w, h: HAND_BOX.h } } };
+const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", w: HAND_BOX.w * CROWBAR_SCALE, h: HAND_BOX.h * CROWBAR_SCALE } } };
 const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, reserve: 100, shields: 3, running: true, items: [] };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
@@ -49,7 +49,7 @@ describe("hudSvg", () => {
 
     it("replaces the hand with the held item and labels it", () => {
       const svg = hudSvg(320, 200, { ...base, items: ["crowbar"] }, icons);
-      expect(crowbarX(svg)).toBeCloseTo(handX(bar)!, 6);
+      expect(crowbarX(svg) + (HAND_BOX.w * CROWBAR_SCALE) / 2).toBeCloseTo(handX(bar)! + HAND_BOX.w / 2, 6);
       expect(handX(svg)).toBeNull();
       expect(svg).toContain(">crowbar</text>");
       expect(svg).not.toContain(">nothing</text>");
