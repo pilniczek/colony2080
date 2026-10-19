@@ -176,6 +176,11 @@ function sideLegArmor(ctx, knee, ankle) {
   ctx.rotate(Math.atan2(ankle[1] - knee[1], ankle[0] - knee[0]) - Math.PI / 2);
   inRigUnits(ctx, [0, 0], -LEG, len / 190, [298, 500], () => P.poly(ctx, SIDE_LEG.shin, "guardMetal", 2, { dir: [1, 0] }));
   ctx.restore();
+  const half = (SIDE_LEG.shin[2][0] - SIDE_LEG.shin[3][0]) * LEG / 2;
+  const back = [ankle[0] + half * (ankle[1] - knee[1]) / len, ankle[1] - half * (ankle[0] - knee[0]) / len];
+  const footTop = 53.5 - (744 - SIDE_LEG.foot[0][1]) * LEG;
+  const heel = ankle[0] + (300 - SIDE_LEG.foot[0][0]) * LEG;
+  P.poly(ctx, [[ankle[0], footTop + 0.5], back, [heel, footTop + 0.5]], "guardMetal", 1);
   inRigUnits(ctx, [ankle[0], 53.5], -LEG, LEG, [300, 744], () => {
     P.poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
     P.poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
@@ -188,7 +193,7 @@ function sideLegArmor(ctx, knee, ankle) {
 }
 
 function guardLeg(ctx, dx) {
-  const hip = [38.5 + dx, 30], knee = [33.5 + dx, 40.5], ankle = [39.5 + dx, 49.5];
+  const hip = [40.5 + dx, 30], knee = [35.5 + dx, 40.5], ankle = [41.5 + dx, 49.5];
   P.beam(ctx, hip, knee, 4.2, "guardMetal");
   sideLegArmor(ctx, knee, ankle);
 }
