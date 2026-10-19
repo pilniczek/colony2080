@@ -6,7 +6,7 @@ Mission 1 has a bonus weapon in HUD slot 3, the E-Blaster. The sandbox gets it n
 
 ## Goals
 
-- E-Blaster design sheet spike: beam, HUD slot 3 icon, ground pickup, held look.
+- E-Blaster views in the gun design sheet (`spikes/gun-design/`): its own held model in every view, beam, HUD slot 3 icon, ground pickup.
 - HUD slot 3 shows the E-Blaster icon and ammo once picked up, in the spike and the sandbox.
 - Sandbox: pick up the E-Blaster, select it with key 3, fire a continuous lightning beam that damages every enemy in range on the floor.
 
@@ -23,10 +23,12 @@ User:
 
 - Mirror the original E-Blaster.
 - The range of every weapon matches the sight range: one value, `sightCells` in `config/hero/movement.json`. When it changes, sight, bullet range and beam range change together. Recorded in `docs/requirements.md`.
+- The E-Blaster has its own held model (deviation from the original, which reuses the gun sprite), designed with views in `spikes/gun-design/` like the rotary gun: side, held side, front, back, slung, game size.
+- While hidden, every weapon switch plays the switch animation, gun and E-Blaster included. A gun to E-Blaster change animates like the fists switch: the held weapon goes to the back, the other one is drawn. Outside cover, switches stay instant as today.
 
 From the original (report 12):
 
-- The hero keeps holding the rotary gun model and carry pose; no new held model.
+- The carry pose and clips stay those of the gun.
 - Holding fire keeps a beam on: a blue-edged white zigzag drawn at full length at once, starting at the pose muzzle, mirrored for the facing, lower when ducking (it follows the muzzle). It flickers through 6 shapes, one per original tick, with 0-2 px random vertical jitter.
 - Each tick the beam damages every enemy in range on the hero's floor, so it pierces. Each enemy hit gets the gun's impact spark every tick.
 - Fires while standing, walking, running and ducking; never while hidden.
@@ -45,7 +47,7 @@ Claude's call:
 - Death keeps the E-Blaster and its ammo, like gun ammo today; once taken, the pickup stays taken after the map reset, so ammo cannot be farmed.
 - Sandbox placement: one pickup on a floor reachable from the spawn, not in the right strip (cols 40-47), not on a lift deck, out of enemy fire at the pickup spot.
 - HUD icon drawn as vector code like the gun and fist icons.
-- Weapon model: `Weapon` gets a third value `blaster`. It uses the gun clips and carry pose unchanged; key 3 switches at once like `quickSwitch` today (hidden: the `weaponSwitch` clip), with no visual change besides the beam and the HUD active slot.
+- Weapon model: `Weapon` gets a third value `blaster`. It uses the gun clips and carry pose with its own model in the hand; key 3 switches at once like `quickSwitch` today, and while hidden through the `weaponSwitch` clip (gun to E-Blaster: holster, then draw). The back hook shows the gun-type weapon not in hand when the hero owns both, else the one it owns.
 - Beam ticks: the beam runs on fixed 32 Hz ticks of game time. Each tick spends 1 ammo, deals one damage chunk to each enemy in range, shows one spark per enemy and advances the flicker shape.
 - Same floor: an enemy is in range when it stands on the hero's floor row (feet row), like enemy sight, within `sightCells` and before the first wall or covered fog cell. The beam hits the whole enemy whatever the beam height, so a ducking hero still hits a standing enemy, as in the original.
 - Damage unit: enemy health is its `hits` (7). A kill takes about 0.48 s, about 15 ticks, so `blaster.damage` per tick is 0.47 hits (15 ticks per kill).
@@ -55,12 +57,13 @@ Claude's call:
 
 ## Design sheet
 
-`spikes/eblaster-design/index.html`, linked from the home page dev list:
+An E-Blaster section in `spikes/gun-design/index.html`:
 
+- model views like the rotary gun: side, held side and front, back, slung on the back, game size;
 - beam: the 6 flicker shapes, animated loop, both facings, standing and ducking, at full and game size;
 - HUD slot 3 icon, lit and unlit, with counter;
-- ground pickup asset (`eBlaster`) at full and game size;
-- hero holding the gun firing the beam (game LOD);
+- ground pickup asset (`eBlaster`) at full and game size, matching the held model;
+- hero holding the E-Blaster firing the beam (game LOD);
 - original references (beam strip, HUD slot, footage frames) only through `spikes/shared/originals.js` or `<!-- originals -->` blocks, so the production build drops them.
 
 `spikes/hud-design/` gets slot 3 controls (picked up, ammo, selected). `spikes/movement/fight.html` gets the beam in the gun cells only if cheap; not required.
@@ -75,5 +78,5 @@ Claude's call:
 ## Left to the builder
 
 - Exact beam zigzag geometry and colours within the look above.
-- Icon drawing.
+- E-Blaster model shape (silver body with a blue arc emitter, in the style of the rotary gun and the HUD icon) and icon drawing.
 - Pickup spot in the sandbox within the placement rules.
