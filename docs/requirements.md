@@ -142,7 +142,7 @@ flowchart LR
 ## Open
 
 - Robot part polygons still live in code (`spikes/shared/xbot.js`); only parameters are in `config/robots/xbot.json`.
-- Intro cutscene and dying-rebel scene in mission 1 scope or not (cutscenes postponed).
+- Intro cutscene and dying-rebel scene: not part of current work (user, 2026-10-19); mission 1 scope decided later.
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
 - Environment sheet: all 52 objects and the `ladder` drawn, first pass kept, iterate later. The sandbox uses a subset (ported to `src/game/env/`). Guessed looks (no original sprite or unclear): code lock, item pickups on the ground (crowbar, E-Blaster, ship part, controller, crane key), hazard plate purpose, staircase treads. Marker 6 is either the valve wheel near the E-Blaster or the water pipe; both are drawn.
 - Environment primitives to add on the next round: olive and cloth / skin materials (now local colours in `env-structures.js`, `env-props.js`), a colour option for `P.hazard`, a thin-edge wall fill (big walls look stripy with `P.box` bands), shared line / beam helpers.
