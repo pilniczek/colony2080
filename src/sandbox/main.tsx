@@ -41,7 +41,7 @@ const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: nu
 const world = loadSandbox(sandboxJson);
 const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, true);
 const applyFog = (on: boolean): void => {
-  world.fog = on ? createFog(fogConfig, hero, world.grid) : null;
+  world.fog = on ? createFog(fogConfig, tuning().movement, hero, world.grid) : null;
 };
 applyFog(tuning().fogOn);
 const rigs = createRigs(true);
@@ -105,7 +105,7 @@ let lastRender = 0;
 let fps = 0;
 
 const respawn = (): void => {
-  resetWorld(world);
+  resetWorld(world, tuning().movement);
   Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, run.running));
   applyFog(run.fogOn);
   prev = { x: hero.x, y: hero.y };

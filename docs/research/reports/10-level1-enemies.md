@@ -214,6 +214,18 @@ flowchart LR
 - Constant pool at seg 5 `0x62C8`: `0x62CC` 1.0, `0x62D0` 0.1, `0x62DA` 0.15, `0x62E4` 0.5, `0x62E8` 0.03.
 - Earlier versions of this report read the fists path as "E-blaster 0.5 per hit" and missed the 1.0 death threshold (14 gun hits, 4 E-blaster hits). The 16 and 26 rounds counted per kill in the videos still fit 7 hits, as the gun spends 1 ammo per call and shots miss.
 
+### Gun, tick rate and enemy reactions (static analysis, not checked in the running game)
+
+Addresses are in `docs/research/gamedata/disasm/verify/`.
+
+- **Tick rate depends on the CPU.** The game step does not use the PIT or retrace waits. Each frame (`7:0xAD5A`) ends with 7 busy loops of `speed*3000` iterations (`7:0xCAB8-0xCCE6`), where speed `[0xDFCC]` is 0-9. With no `data\rychlost.dat`, `1:0x5C03-0x5D24` raises speed while 50 frames take under 1 s, so the target is at most about 50 ticks per s. RYCHLOST HRY sets it by hand (`3:0x2300-0x235E`). Video A spends about 16 rounds per s, so it runs at about 32 ticks per s.
+- **Gun rate.** One shot every 2 ticks while fire is held: state 0x25-0x42 loops, and each even state spends 1 ammo and calls the hit routine `5:0x62F2` (`7:0x8496`, `7:0x929F-0x92E5`, `3:0xBFDF-0xC25C`).
+- **Hit test.** Instant hit-scan, no random chance. The target (`4:0xCB11-0xCD74`) is the nearest live enemy (hp >= 1.0) in the active window (±12 cells, ±3 rows), on the facing side, in the player row or one row above (below when ducking). Random(12) only scatters the spark (`5:0x7D8C-0x7E75`). Shots with no target in front are spent for nothing, and fire does not stop at a kill. This explains the 16-26 rounds per kill seen in the videos.
+- **Hit reaction: none.** A hit changes hp and adds a spark; state changes only on death (`5:0x8158-0x8195`).
+- **Turning.** A player behind the enemy at 20-120 px (left) or 44-144 px (right) turns it with chance 1/7 per tick, about 7 ticks on average (`4:0xBD92`, `4:0xBE35-0xC17E`).
+- **Firing.** The enemy faces the player, the gap is 40-136 px (player to the left) or 8-118 px (player to the right), rows within ±1, player not hidden (`[0x3BD9]`). Then a burst starts with chance 1/13 per tick (`4:0xC3B2`, `4:0xC41E-0xC7EE`). A burst lasts 9 ticks, then the enemy walks again, so a cycle averages about 22 ticks: about 0.41 energy per tick with 0 shields.
+- Not determined: the `[0xDB48]`/6 check and the `[0xE3D2]` condition before an enemy fires.
+
 ### Changes
 
 - `config/levels/mesto/enemies.json`: cells and types unchanged. g15 confidence goes from low to medium (code confirms the offset, but he was never seen in play), and its behaviour text now names the weapon id 3 condition.

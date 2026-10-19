@@ -67,8 +67,11 @@ function enemyFace(enemy: Enemy, cfg: MovementConfig, from: number, p: Projectil
   return p.vx > 0 ? Math.max(from, x - half) : Math.min(from, x + half);
 }
 
-const sightEdge = (world: SandboxWorld, x: number, p: Projectile): number =>
-  world.fog ? fogEdge(world.fog, x, p.y, Math.sign(p.vx)) : p.vx * Infinity;
+function sightEdge(world: SandboxWorld, x: number, p: Projectile): number {
+  const fog = world.fog ? fogEdge(world.fog, x, p.y, Math.sign(p.vx)) : p.vx * Infinity;
+  const end = p.endX ?? p.vx * Infinity;
+  return p.vx > 0 ? Math.min(fog, end) : Math.max(fog, end);
+}
 
 const beyond = (p: Projectile, x: number, edge: number): boolean => (x - edge) * Math.sign(p.vx) > 0;
 
@@ -89,7 +92,7 @@ function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Proje
 
 function launch(world: SandboxWorld, cfg: MovementConfig, from: number, bullet: Projectile): void {
   const edge = sightEdge(world, bullet.x, bullet);
-  if (strike(world, cfg, from, bullet, edge)) return;
+  if (strike(world, cfg, from, bullet, edge, cfg.shot.damage)) return;
   const face = wallBetween(world, from, bullet);
   if (face === null) world.projectiles.push(bullet);
   else if (!beyond(bullet, face, edge)) world.sparks.push({ x: face, y: bullet.y, age: 0 });
@@ -99,7 +102,7 @@ export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], cli
   for (const e of events) {
     if (e.kind !== "shot") continue;
     const [x, y] = heroMuzzle(h, clips, cfg);
-    const bullet = { x, y, vx: h.facing * cfg.shot.speed, r: cfg.shot.radius, tag: HERO_SHOT, originX: x };
+    const bullet = { x, y, vx: h.facing * cfg.shot.speed, r: cfg.shot.radius, tag: HERO_SHOT, originX: x, endX: h.x + h.facing * cfg.sightCells };
     launch(world, cfg, h.x, bullet);
   }
 }
@@ -118,7 +121,7 @@ export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipS
   for (let i = 0; i < count; i++) {
     const [x, y] = heroMuzzle(body, clips, cfg);
     if (!seen(world, x, y)) continue;
-    launch(world, cfg, body.x, { x: body.x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x });
+    launch(world, cfg, body.x, { x: body.x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x, endX: body.x + body.facing * cfg.sightCells });
   }
 }
 
@@ -129,7 +132,7 @@ export function stepShots(world: SandboxWorld, cfg: MovementConfig, dt: number):
   const { width, height } = world.grid;
   world.projectiles = world.projectiles.filter((p) => {
     const edge = sightEdge(world, from.get(p)!, p);
-    if (strike(world, cfg, from.get(p)!, p, edge)) return false;
+    if (strike(world, cfg, from.get(p)!, p, edge, cfg.shot.damage)) return false;
     const inside = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height;
     if (!alive.has(p) && inside && !beyond(p, wallFace(p), edge)) world.sparks.push({ x: wallFace(p), y: p.y, age: 0 });
     return alive.has(p) && !beyond(p, p.x, edge);

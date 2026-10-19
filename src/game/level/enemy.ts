@@ -1,6 +1,6 @@
 import type { TileGrid } from "../../engine/world/tiles";
 import { revealedAt, type Fog } from "../fog";
-import type { ClipSet } from "../hero/config";
+import type { ClipSet, MovementConfig } from "../hero/config";
 import { createHero, type Hero } from "../hero/hero";
 
 export const ENEMY_SHOT = "enemy";
@@ -14,7 +14,14 @@ export interface EnemyJson {
   facing: -1 | 1;
   hits: number;
   respawnMs: number | null;
-  sightCells: number;
+  reactMs: number;
+  burst: Burst;
+  pauseMs: number;
+}
+
+export interface Burst {
+  shots: number;
+  ms: number;
 }
 
 export interface Shaft {
@@ -30,9 +37,13 @@ export interface Enemy {
   facing: -1 | 1;
   hits: number;
   respawnMs: number | null;
-  sightCells: number;
+  reactMs: number;
+  burst: Burst;
+  pauseMs: number;
   patrol: [number, number];
   deadAge: number | null;
+  alertAge: number | null;
+  pauseLeft: number;
 }
 
 const walking = (body: Hero): Hero => ({ ...body, state: "walk" });
@@ -57,10 +68,14 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
   return {
     ...base,
     respawnMs: json.respawnMs,
-    sightCells: json.sightCells,
+    reactMs: json.reactMs,
+    burst: json.burst,
+    pauseMs: json.pauseMs,
     patrol: patrolOf(grid, shafts, base.spot),
     body: spawnBody(base),
     deadAge: null,
+    alertAge: null,
+    pauseLeft: 0,
   };
 }
 
@@ -70,15 +85,16 @@ export function hitEnemy(e: Enemy, damage = 1): boolean {
   if (isDead(e)) return false;
   e.body.energy -= damage;
   e.body.hitAge = 0;
+  e.alertAge ??= 0;
   if (e.body.energy <= 0) e.deadAge = 0;
   return true;
 }
 
-function sees(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null): boolean {
+function sees(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean {
   const { body } = e;
   const dx = hero.x - body.x;
   if (hero.hidden || hero.energy <= 0 || Math.abs(hero.y - body.y) > SAME_FLOOR) return false;
-  if (Math.sign(dx) !== body.facing || Math.abs(dx) > e.sightCells) return false;
+  if (Math.sign(dx) !== body.facing || Math.abs(dx) > sightCells) return false;
   const row = Math.floor(body.y - 1);
   for (let col = Math.floor(Math.min(body.x, hero.x)); col <= Math.floor(Math.max(body.x, hero.x)); col++) {
     if (grid.solid(col, row) || (fog && !revealedAt(fog, col, row))) return false;
@@ -98,27 +114,45 @@ function patrol(e: Enemy, clips: ClipSet, dt: number): void {
   }
 }
 
-function shoot(body: Hero, fireRate: number, dt: number): number {
+function shoot(e: Enemy, dt: number): number {
+  const { body, burst } = e;
   if (body.state !== "attack") {
+    if (e.pauseLeft > 0) {
+      if (body.state !== "idle") Object.assign(body, { state: "idle", time: 0, fireTime: null });
+      return 0;
+    }
     Object.assign(body, { state: "attack", time: 0, fireTime: 0 });
     return 1;
   }
-  const before = Math.floor((body.fireTime ?? 0) * fireRate + 1e-9);
+  const rate = (burst.shots - 1) / (burst.ms / 1000);
+  const before = Math.floor((body.fireTime ?? 0) * rate + 1e-9);
   body.fireTime = (body.fireTime ?? 0) + dt;
-  return Math.floor(body.fireTime * fireRate + 1e-9) - before;
+  const fired = Math.min(burst.shots - 1, Math.floor(body.fireTime * rate + 1e-9));
+  if (fired === burst.shots - 1) {
+    Object.assign(body, { state: "idle", time: 0, fireTime: null });
+    e.pauseLeft = e.pauseMs / 1000;
+  }
+  return fired - before;
 }
 
-export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, fireRate: number, dt: number): number {
+export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, cfg: Pick<MovementConfig, "sightCells">, dt: number): number {
   e.body.time += dt;
+  e.pauseLeft = Math.max(0, e.pauseLeft - dt);
   if (e.body.hitAge !== null) e.body.hitAge += dt;
   if (e.deadAge !== null) {
     e.deadAge += dt;
     if (e.respawnMs === null || e.deadAge * 1000 < e.respawnMs - 1e-6) return 0;
     e.body = spawnBody(e);
     e.deadAge = null;
+    e.alertAge = null;
+    e.pauseLeft = 0;
     return 0;
   }
-  if (sees(e, grid, hero, fog)) return shoot(e.body, fireRate, dt);
+  if (e.alertAge !== null && (e.alertAge += dt) * 1000 >= e.reactMs - 1e-6) {
+    if (hero.x !== e.body.x) e.body.facing = hero.x > e.body.x ? 1 : -1;
+    e.alertAge = null;
+  }
+  if (sees(e, grid, hero, fog, cfg.sightCells)) return shoot(e, dt);
   if (e.body.state !== "walk") Object.assign(e.body, { state: "walk", time: 0, fireTime: null });
   patrol(e, clips, dt);
   return 0;

@@ -14,7 +14,7 @@ import { stepWorld } from "./stepWorld";
 
 const scenario = loadMovement(movementJson);
 const SCENARIO_SHOT = { speed: 8, radius: 0.15 };
-const cfg = { ...scenario, shot: SCENARIO_SHOT };
+const cfg = { ...scenario, shot: { ...scenario.shot, ...SCENARIO_SHOT } };
 const clips = loadClips(clipsJson);
 const STEPS = 720;
 const script: Record<number, ["down" | "up", string][]> = {
@@ -33,7 +33,7 @@ const script: Record<number, ["down" | "up", string][]> = {
 function fromSpawn(input: Input, live: boolean): Hero {
   const world = loadSandbox(sandboxJson);
   const hero = createHero(world.spawn, "gun", 4 * cfg.energy.hit, 0, cfg.ammo);
-  world.fog = createFog(loadFog(cameraJson), hero, world.grid);
+  world.fog = createFog(loadFog(cameraJson), cfg, hero, world.grid);
   for (let f = 0; f < STEPS; f++) {
     for (const [type, code] of live ? (script[f] ?? []) : []) {
       if (type === "down") input.keyDown(code);
@@ -68,12 +68,12 @@ describe("map reset on hero respawn", () => {
     };
     const fresh = loadSandbox(sandboxJson);
     const freshHero = createHero(fresh.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
-    fresh.fog = createFog(loadFog(cameraJson), freshHero, fresh.grid);
+    fresh.fog = createFog(loadFog(cameraJson), cfg, freshHero, fresh.grid);
     step(fresh, freshHero);
 
     const world = loadSandbox(sandboxJson);
     const hero = createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
-    world.fog = createFog(loadFog(cameraJson), hero, world.grid);
+    world.fog = createFog(loadFog(cameraJson), cfg, hero, world.grid);
     world.props.find((p) => p.kind === "item")!.taken = true;
     world.props.find((p) => p.kind === "panel")!.on = true;
     for (const lift of world.lifts) {

@@ -163,7 +163,7 @@ describe("held items", () => {
     tick(g, ["down"]);
     runUntil(g, (h) => h.state === "idle");
     expect(heldItems(g.world)).toEqual(["crowbar"]);
-    resetWorld(g.world);
+    resetWorld(g.world, cfg);
     expect(heldItems(g.world)).toEqual([]);
   });
 });

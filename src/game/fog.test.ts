@@ -1,19 +1,38 @@
 import cameraJson from "@config/camera.json";
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
-import { createFog, loadFog, revealedAt, sightRect, updateFog, type FogConfig } from "./fog";
-import { cfg, game, run, tick, type Game } from "./hero/testWorld";
+import { createFog, loadFog, revealedAt, sightRect, updateFog } from "./fog";
+import { cfg, clips, game, run, tick, type Game } from "./hero/testWorld";
+import { updateEnemy } from "./level/enemy";
+import { fireShots, stepShots } from "./shots";
 
 const fogCfg = loadFog(cameraJson);
 
-const fogged = (g: Game, widthCells = fogCfg.widthCells): Game => {
-  g.world.fog = createFog({ ...fogCfg, widthCells } satisfies FogConfig, g.hero, g.world.grid);
+const fogged = (g: Game): Game => {
+  g.world.fog = createFog(fogCfg, cfg, g.hero, g.world.grid);
   return g;
 };
 
+const coverLeftOf = (g: Game, col: number): void => {
+  const fog = g.world.fog!;
+  for (let row = 0; row < fog.height; row++) fog.revealed.fill(0, row * fog.width, row * fog.width + col);
+};
+
+const ROOM = [
+  "##############",
+  "#............#",
+  "#............#",
+  "#########....#",
+  "#.......#....#",
+  "#.......#....#",
+  "#.......#....#",
+  "#.......#....#",
+  "##############",
+];
+
 describe("sight rect", () => {
-  it("spans the original playfield: 6 cells each side, 6 rows above the feet and 1 below", () => {
-    expect(sightRect(fogCfg, 10, 14)).toEqual({ left: 4, right: 16, top: 8, bottom: 15 });
+  it("spans sightCells each side, rowsAbove above the feet and rowsBelow below", () => {
+    expect(sightRect(fogCfg, cfg.sightCells, 10, 14)).toEqual({ left: 10 - cfg.sightCells, right: 10 + cfg.sightCells, top: 14 - fogCfg.rowsAbove, bottom: 14 + fogCfg.rowsBelow });
   });
 });
 
@@ -21,11 +40,21 @@ describe("reveal", () => {
   it("uncovers the cells whose centres are in sight", () => {
     const g = fogged(game({ x: 10, y: 14 }));
     const fog = g.world.fog!;
-    expect(revealedAt(fog, 4, 13)).toBe(true);
-    expect(revealedAt(fog, 15, 8)).toBe(true);
-    expect(revealedAt(fog, 3, 13)).toBe(false);
-    expect(revealedAt(fog, 16, 13)).toBe(false);
-    expect(revealedAt(fog, 10, 7)).toBe(false);
+    expect(revealedAt(fog, 10 - cfg.sightCells, 13)).toBe(true);
+    expect(revealedAt(fog, 9 + cfg.sightCells, 13)).toBe(true);
+    expect(revealedAt(fog, 9 - cfg.sightCells, 13)).toBe(false);
+    expect(revealedAt(fog, 10 + cfg.sightCells, 13)).toBe(false);
+    expect(revealedAt(fog, 10, 13 - fogCfg.rowsAbove)).toBe(false);
+  });
+
+  it("stops at walls and floors but uncovers the blocking cells", () => {
+    const g = fogged(game({ x: 4.5, y: 8 }, { ...sandbox, rows: ROOM, lifts: [], enemies: [], props: [] }));
+    const fog = g.world.fog!;
+    expect(revealedAt(fog, 5, 6)).toBe(true);
+    expect(revealedAt(fog, 8, 6)).toBe(true);
+    expect(revealedAt(fog, 9, 6)).toBe(false);
+    expect(revealedAt(fog, 4, 3)).toBe(true);
+    expect(revealedAt(fog, 4, 2)).toBe(false);
   });
 
   it("keeps uncovered cells uncovered after the hero walks away", () => {
@@ -56,9 +85,9 @@ describe("fog follow", () => {
 
   it("moves when the hero leaves it", () => {
     const g = game({ x: 10.5, y: 14 });
-    g.world.fog = createFog(fogCfg, g.hero, g.world.grid);
+    g.world.fog = createFog(fogCfg, cfg, g.hero, g.world.grid);
     Object.assign(g.hero, { y: 4, onGround: false, state: "fall" });
-    updateFog(g.world.fog, g.hero, cfg.box.height, 1 / 60);
+    updateFog(g.world.fog, g.hero, cfg, 1 / 60);
     expect(g.world.fog.anchorY).toBeLessThan(14);
   });
 });
@@ -73,20 +102,22 @@ describe("fog blocks shots", () => {
   });
 
   it("keeps an enemy in the fog safe from hero bullets", () => {
-    const g = fogged(game({ x: 9.5, y: 4, weapon: "gun" }), 4);
+    const g = fogged(game({ x: 9.5, y: 4, weapon: "gun" }));
     g.hero.facing = -1;
     Object.assign(g.world.enemies[0]!.body, { x: 4.5, facing: -1 });
-    tick(g, ["shoot"], ["shoot"]);
-    run(g, 0.5, ["shoot"]);
+    coverLeftOf(g, 7);
+    fireShots(g.world, g.hero, [{ kind: "shot", x: g.hero.x, y: g.hero.y }], clips, cfg);
+    for (let i = 0; i < 30; i++) stepShots(g.world, cfg, 1 / 60);
     expect(g.world.enemies[0]!.body.energy).toBe(sandbox.enemies[0]!.hits);
     expect(g.world.sparks).toHaveLength(0);
   });
 
   it("keeps an enemy in the fog from seeing the hero", () => {
-    const g = fogged(game({ x: 9.5, y: 4 }), 2);
-    Object.assign(g.world.enemies[0]!.body, { x: 5.5, facing: 1 });
-    run(g, 0.3);
-    expect(g.world.enemies[0]!.body.state).toBe("walk");
-    expect(g.world.projectiles).toHaveLength(0);
+    const g = fogged(game({ x: 9.5, y: 4 }));
+    const [enemy] = g.world.enemies;
+    Object.assign(enemy!.body, { x: 5.5, facing: 1 });
+    coverLeftOf(g, 8);
+    for (let i = 0; i < 20; i++) expect(updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, 1 / 60)).toBe(0);
+    expect(enemy!.body.state).toBe("walk");
   });
 });

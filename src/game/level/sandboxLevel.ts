@@ -102,11 +102,11 @@ export function loadSandbox(json: unknown): SandboxWorld {
   };
 }
 
-export function resetWorld(world: SandboxWorld): void {
+export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
   const { fog } = world;
   Object.assign(world, loadSandbox(world.source));
   const [x, y] = world.spawn;
-  world.fog = fog && createFog(fog.cfg, { x, y }, world.grid);
+  world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }
 
 export const heldItems = (world: SandboxWorld): string[] =>

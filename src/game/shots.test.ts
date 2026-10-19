@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { cfg, clips, game, run, tick, type Game } from "./hero/testWorld";
 import { spikeUnit } from "./hero/look";
-import { heroMuzzle, SPARK_LIFE } from "./shots";
+import { fireEnemy, heroMuzzle, SPARK_LIFE } from "./shots";
 
 const TARGET_TOP = 14 - 1.51;
 
@@ -142,8 +142,28 @@ describe("hero bullets", () => {
     expect(g.world.sparks).toMatchObject([{ x: 1 }]);
   });
 
+  it("vanishes without a spark at the sight range", () => {
+    const g = armed(2.5);
+    fire(g, 1);
+    expect(bullets(g).length).toBeGreaterThan(0);
+    expect(bullets(g).every((b) => b.x <= 2.5 + cfg.sightCells)).toBe(true);
+    expect(g.world.sparks).toHaveLength(0);
+  });
+
+  it("gives enemy bullets the same range", () => {
+    const g = game({ x: 30.5, y: 14 });
+    const [enemy] = g.world.enemies;
+    Object.assign(enemy!.body, { x: 20.5, y: 14, facing: 1 });
+    fireEnemy(g.world, cfg, clips, enemy!, 1);
+    expect(g.world.projectiles).toHaveLength(1);
+    run(g, 1);
+    expect(g.world.projectiles).toHaveLength(0);
+    expect(g.hero.energy).toBe(cfg.energy.max);
+    expect(g.world.sparks).toHaveLength(0);
+  });
+
   it("passes through props the hero walks through", () => {
-    const g = armed(11.5);
+    const g = armed(19.5);
     fire(g, 3);
     const passed = (kind: string) => g.world.props.find((p) => p.kind === kind)!.x;
     expect(bullets(g).some((b) => b.x > passed("barrel"))).toBe(true);
