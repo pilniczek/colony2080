@@ -90,6 +90,7 @@
   <h2>References</h2>
   <main id="weaponRefList"></main>
 </section>
+<script src="../shared/clock.js"></script>
 <script src="../shared/config.js"></script>
 <script src="../shared/originals.js"></script>
 <script src="../shared/xbot.js"></script>
@@ -270,7 +271,7 @@ function paint(ids, t) {
   }
 }
 
-const draw = () => paint(Object.keys(VIEWS), performance.now() / 1000);
+const draw = () => paint(Object.keys(VIEWS), SPIKE_CLOCK.seconds());
 
 function setWeapon(w) {
   WEAPON = w;
@@ -281,8 +282,8 @@ function setWeapon(w) {
   draw();
 }
 
-function tick(now) {
-  if (WEAPON === "blaster") paint([...ANIMATED], now / 1000);
+function tick() {
+  if (WEAPON === "blaster") paint([...ANIMATED], SPIKE_CLOCK.seconds());
   requestAnimationFrame(tick);
 }
 

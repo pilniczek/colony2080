@@ -938,7 +938,8 @@ function setWeapon(w) {
 for (const btn of document.querySelectorAll("[data-weapon]")) btn.onclick = () => setWeapon(btn.dataset.weapon);
 setWeapon(WEAPON);
 
-function frame(now) {
+function frame() {
+  const now = SPIKE_CLOCK.now();
   const dpr = devicePixelRatio || 1;
   LINE = dpr;
   for (const { m, canvas, ctx, progress, visible } of cells) {

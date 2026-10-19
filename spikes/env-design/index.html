@@ -46,6 +46,7 @@
 </header>
 <nav id="toc"></nav>
 <div id="sheet"></div>
+<script src="../shared/clock.js"></script>
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/env.js"></script>
@@ -170,12 +171,12 @@ function build() {
   }
 }
 
-function paintAll(t = performance.now() / 1000) {
+function paintAll(t = SPIKE_CLOCK.seconds()) {
   for (const v of views) paint(v, t);
 }
 
 function loop() {
-  const t = performance.now() / 1000;
+  const t = SPIKE_CLOCK.seconds();
   for (const v of views) if (v.asset.anim) paint(v, t);
   requestAnimationFrame(loop);
 }

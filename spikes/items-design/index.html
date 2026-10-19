@@ -32,6 +32,7 @@
 <!-- /originals -->
 </header>
 <div id="sheet"></div>
+<script src="../shared/clock.js"></script>
 <script src="../shared/config.js"></script>
 <script src="../shared/originals.js"></script>
 <script src="../shared/xbot.js"></script>
@@ -148,7 +149,7 @@ function render() {
 $("lines").onchange = render;
 render();
 setInterval(() => {
-  if (!$("spin")?.checked) return;
+  if (!$("spin")?.checked || SPIKE_CLOCK.paused) return;
   for (const v of refViews) {
     v.frame = v.frame % (SHEET.frames - 1) + 1;
     paintRef(v);

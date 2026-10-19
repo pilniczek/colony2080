@@ -120,6 +120,7 @@
 </main>
 <!-- /originals -->
 </section>
+<script src="../shared/clock.js"></script>
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
@@ -303,7 +304,7 @@ function fit(c, dpr) {
   return [w, h];
 }
 
-function draw(t = performance.now() / 1000) {
+function draw(t = SPIKE_CLOCK.seconds()) {
   const dpr = devicePixelRatio || 1;
   const pal = PALETTES[opts.kind]();
   for (const fig of document.querySelectorAll(".heroOnly")) fig.hidden = !opts.hero;
@@ -319,8 +320,8 @@ function draw(t = performance.now() / 1000) {
   }
 }
 
-function animate(ms) {
-  draw(ms / 1000);
+function animate() {
+  draw();
   requestAnimationFrame(animate);
 }
 
