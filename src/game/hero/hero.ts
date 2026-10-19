@@ -291,8 +291,8 @@ function weaponSlot(s: Step): Weapon | null {
 }
 
 function takeCover(s: Step): boolean {
-  const { h, input, world } = s;
-  if (!input.held.has("hide") || (h.onLift && liftAt(world, h)?.target != null)) return false;
+  const { h, input, world, cfg } = s;
+  if (!input.held.has("hide") || (h.onLift && liftAt(world, h, cfg)?.target != null)) return false;
   enter(h, "hide");
   h.hidden = true;
   h.fireTime = null;
@@ -309,10 +309,10 @@ function stance(s: Step): boolean {
 }
 
 function standUp(s: Step, from: Jump): boolean {
-  const { h, world } = s;
+  const { h, world, cfg } = s;
   if (h.onLift) {
     const dir = liftCall(s);
-    const lift = liftAt(world, h);
+    const lift = liftAt(world, h, cfg);
     if (dir !== null && lift) callLift(lift, dir);
     return false;
   }
@@ -335,13 +335,13 @@ function liftCall(s: Step): -1 | 1 | null {
 }
 
 function moving(s: Step): void {
-  const { h, world } = s;
+  const { h, world, cfg } = s;
   if (takeCover(s)) return;
   if (h.state === "walk" && h.onLift) {
     const dir = liftCall(s);
     if (dir !== null) {
       enter(h, "idle");
-      const lift = liftAt(world, h);
+      const lift = liftAt(world, h, cfg);
       if (lift) callLift(lift, dir);
       return;
     }
@@ -524,7 +524,7 @@ function horizontalSpeed(s: Step): number {
 function physics(s: Step): void {
   const { h, world, cfg, dt } = s;
   const box = boxOf(h, cfg);
-  const carrier = h.onLift ? liftAt(world, h) : null;
+  const carrier = h.onLift ? liftAt(world, h, cfg) : null;
   if (carrier) box.y = moveBox(box, 0, carrier.vy * dt, world.grid, world.lifts).y;
   const vy = Math.min(h.vy + cfg.gravity * dt, cfg.maxFallSpeed);
   const r = moveBox(box, h.vx * dt, ((h.vy + vy) / 2) * dt, world.grid, world.lifts);

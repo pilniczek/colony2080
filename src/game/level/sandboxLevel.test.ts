@@ -81,4 +81,30 @@ describe("several lifts", () => {
     expect(g.world.lifts[1]!.target).toBe(4);
     expect(g.world.lifts[0]!.target).toBeNull();
   });
+
+  it("carries and calls from the deck edge with the center outside the span", () => {
+    const g = game({ x: 16.8, y: 14 }, twoLifts);
+    tick(g);
+    expect(g.hero.onLift).toBe(true);
+    tick(g, [], ["up"]);
+    run(g, 1);
+    expect(g.world.lifts[0]!.target).toBe(4);
+    expect(g.hero.onGround).toBe(true);
+    expect(g.hero.y).toBeCloseTo(g.world.lifts[0]!.y, 6);
+    expect(g.hero.y).toBeLessThan(14);
+  });
+
+  it("carries only its own lift while both move", () => {
+    const g = game({ x: 18.5, y: 14 }, twoLifts);
+    callLift(g.world.lifts[1]!, -1);
+    tick(g);
+    tick(g, [], ["up"]);
+    run(g, 1);
+    const [a, b] = g.world.lifts;
+    expect(a!.target).toBe(4);
+    expect(b!.y).toBeLessThan(14);
+    expect(g.hero.y).toBeCloseTo(a!.y, 6);
+    run(g, 5);
+    expect(g.hero.y).toBeCloseTo(4, 6);
+  });
 });

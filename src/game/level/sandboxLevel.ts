@@ -3,6 +3,7 @@ import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
 import { isAssetId, type AssetId } from "../env/assets";
 import type { Fog } from "../fog";
+import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
 import { terrain } from "./terrain";
@@ -98,8 +99,11 @@ export function loadSandbox(json: unknown): SandboxWorld {
   };
 }
 
-export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">): Lift | null {
-  return world.lifts.find((l) => h.x >= l.x && h.x <= l.x + l.w && h.y >= l.top - 1 && h.y <= l.bottom) ?? null;
+export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">, cfg: MovementConfig): Lift | null {
+  const half = cfg.box.width / 2;
+  return (
+    world.lifts.find((l) => h.x + half > l.x && h.x - half < l.x + l.w && h.y >= l.top - 1 && h.y <= l.bottom) ?? null
+  );
 }
 
 export function callLift(lift: Lift, dir: -1 | 1): void {
