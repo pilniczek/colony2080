@@ -1,12 +1,15 @@
-const { buildSide, buildFront, buildBack, render, locate, shade, SIDE_AX, AX, FOOT_Y, PALETTE: P } = window.XBOT;
+const { buildSide, buildFront, buildBack, render, locate, shade, SIDE_AX, AX, FOOT_Y, LEVELS, PALETTE: P } = window.XBOT;
 const side = buildSide({ farLimbs: true, propBehindArm: true, lod: true });
 const front = buildFront({ lod: true, rightArmFirst: true, propBehindArm: true });
 const back = buildBack({ lod: true });
 const climber = buildBack({ lod: true, thumbsBehind: true, forearmsUnder: true });
 const ROOTS = { side, front, back, climber };
+const MODELS = { gun: GUN, blaster: EBLASTER };
 let WEAPON = "fists";
 try { WEAPON = localStorage.getItem("xbotWeapon") || "fists"; } catch {}
-const armed = () => WEAPON === "gun";
+if (!MODELS[WEAPON]) WEAPON = "fists";
+const armed = () => WEAPON !== "fists";
+const model = () => MODELS[WEAPON];
 const W = 360, H = 250, FLOOR = 228, K = 0.2;
 const D = Math.PI / 180;
 let LINE = 1;
@@ -167,7 +170,7 @@ function carry(pose) {
   return { ...pose, arm: CARRY.arm - b, fore: CARRY.fore, armFar: CARRY_FAR.armFar - b, foreFar: CARRY_FAR.foreFar };
 }
 
-const slungGun = (c, pal) => GUN.slung(c, { pal, lineW: LINE, simple: true });
+const slungGun = (c, pal) => model().slung(c, { pal, lineW: LINE, simple: true });
 
 function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, tint = null, hold = true }) {
   let after = null;
@@ -304,15 +307,14 @@ function label(c, text, x = 8, y = 16) {
   c.fillText(text, x, y);
 }
 
-const gun = (c, pal) => GUN.hook(c, { pal, lineW: LINE, simple: true });
-const frontGun = (c, pal) => GUN.hook(c, { pal, lineW: LINE, simple: true, barrel: FRONT_BARREL });
-const MUZZLE = GUN.muzzleInHook;
+const gun = (c, pal, m = model()) => m.hook(c, { pal, lineW: LINE, simple: true });
+const frontGun = (c, pal) => model().hook(c, { pal, lineW: LINE, simple: true, barrel: FRONT_BARREL });
 
 function droppedGun(c, x) {
   c.save();
   c.translate(x, FLOOR - 9);
   c.scale(K, K);
-  GUN.draw(c, { lineW: LINE, simple: true });
+  model().draw(c, { lineW: LINE, simple: true });
   c.restore();
 }
 
@@ -602,26 +604,32 @@ move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
 const FIRE_RATE = 12;
 const SHOOT_PERIOD = 18 / FIRE_RATE;
 
-function fire(c, t, pose, x, y, targetX) {
+const BEAM_PX = K * (FOOT_Y - LEVELS.find(([k]) => k === "head")[1]) / (1.9 * 24);
+const muzzle = (pose, x, y) => handAt(carry(pose), x, y, model().muzzleInHook);
+
+function beam(c, t, [mx, my]) {
+  c.save();
+  c.translate(mx, my);
+  c.scale(BEAM_PX, BEAM_PX);
+  EBLASTER.beam(c, (W - mx) / BEAM_PX, EBLASTER.frameAt(t), Math.floor(t * EBLASTER.TICK_HZ));
+  c.restore();
+}
+
+function fire(c, t, pose, x, y) {
+  const [mx, my] = muzzle(pose, x, y);
+  if (WEAPON === "blaster") return beam(c, t, [mx, my]);
   const shot = Math.floor(t * FIRE_RATE);
-  const [mx, my] = handAt(carry(pose), x, y, MUZZLE);
   if (shot % 2 === 0) spark(c, mx + 4, my, 8, 0.2);
   c.strokeStyle = "#ffd76a";
   c.lineWidth = 2;
-  for (let i = 0; i < 3; i++) {
-    const bx = mx + ((t * FIRE_RATE - shot) + i) * 60;
-    if (bx < targetX) { c.beginPath(); c.moveTo(bx, my); c.lineTo(bx + 14, my); c.stroke(); }
-  }
-  if (shot % 3 === 0) spark(c, targetX + 2, my, 7, 0.3);
+  for (let bx = mx + (t * FIRE_RATE - shot) * 60; bx < W; bx += 60) { c.beginPath(); c.moveTo(bx, my); c.lineTo(bx + 14, my); c.stroke(); }
 }
 
 function shoot(c, t, pose, x, look = {}) {
   const y = FLOOR + lift(pose);
-  const [, my] = handAt(carry(pose), x, y, MUZZLE);
-  box(c, 300, FLOOR, 40, FLOOR - my + 14, "#3c4a4c", "#1a2224");
   shadow(c, x, FLOOR, 30);
   bot(c, { x, y, pose: { ...pose, ...look.pose } });
-  fire(c, t, pose, x, y, 300);
+  fire(c, t, pose, x, y);
 }
 
 const JAB = { arm: -88, fore: 12 }, CROSS = { armFar: -84, foreFar: 6 };
@@ -662,17 +670,17 @@ function punchOrShoot(c, t, look = {}) {
   bot(c, { x, y, pose: { ...pose, ...look.pose } });
 }
 
-const FIGHT_PERIOD = { fists: PUNCH_PERIOD, gun: SHOOT_PERIOD };
+const FIGHT_PERIOD = { fists: PUNCH_PERIOD, gun: SHOOT_PERIOD, blaster: SHOOT_PERIOD };
 
-move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", FIGHT_PERIOD, punchOrShoot);
+move("fight", { fists: "Punch", gun: "Shoot", blaster: "Shoot" }, "Ctrl", FIGHT_PERIOD, punchOrShoot);
 
-move("fight", { fists: "Hit while punching", gun: "Hit while shooting" }, "taking damage during Ctrl", FIGHT_PERIOD, (c, t) => {
+move("fight", { fists: "Hit while punching", gun: "Hit while shooting", blaster: "Hit while shooting" }, "taking damage during Ctrl", FIGHT_PERIOD, (c, t) => {
   punchOrShoot(c, t, hitLook(t, 0.9));
   const impact = [PUNCH_X + 14, FLOOR - HIT_HEIGHT];
   hitFx(c, t, 0.9, impact, impact);
 });
 
-move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", FIGHT_PERIOD, (c, t) => {
+move("fight", { fists: "Duck punch", gun: "Duck shoot", blaster: "Duck shoot" }, "Down + Ctrl", FIGHT_PERIOD, (c, t) => {
   backdrop(c);
   const duck = DUCK_LEGS;
   const x = 140;
@@ -682,16 +690,34 @@ move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", FIGHT_P
   bot(c, { x, y: FLOOR + lift(pose), pose });
 });
 
-move("fight", "Weapon switch", "1 / 2 / 3", 3.4, (c, t) => {
-  backdrop(c);
-  const rest = STAND;
-  const hip = { ...STAND, arm: 26, fore: -4 };
+const SWITCH_HIP = { ...STAND, arm: 26, fore: -4 };
+const SWITCH_LABEL = { gun: "1  GUN", blaster: "3  BLASTER" };
+
+function switchPlan(order) {
   const aim = carry(STAND);
-  const pose = keyed([[0, rest], [0.35, hip], [0.5, hip], [0.95, aim], [1.6, aim], [2.05, hip], [2.2, hip], [2.55, rest], [3.4, rest]], t);
-  const held = t > 0.45 && t < 2.15;
+  let at = 0.35;
+  const keys = [[0, STAND], [at, SWITCH_HIP]];
+  const held = order.map(w => {
+    keys.push([at + 0.15, SWITCH_HIP], [at + 0.6, aim], [at + 1.25, aim], [at + 1.7, SWITCH_HIP]);
+    const drawn = [at + 0.1, at + 1.8, w];
+    at += 1.85;
+    keys.push([at, SWITCH_HIP]);
+    return drawn;
+  });
+  keys.push([at + 0.35, STAND], [at + 1.2, STAND]);
+  return { period: at + 1.2, keys, held };
+}
+
+const SWITCH = { fists: switchPlan(["gun"]), gun: switchPlan(["gun"]), blaster: switchPlan(["gun", "blaster"]) };
+
+move("fight", "Weapon switch", "1 / 2 / 3", Object.fromEntries(Object.entries(SWITCH).map(([w, p]) => [w, p.period])), (c, t) => {
+  backdrop(c);
+  const { keys, held } = SWITCH[WEAPON];
+  const pose = keyed(keys, t);
+  const inHand = held.find(([a, b]) => t > a && t < b)?.[2];
   shadow(c, 160, FLOOR, 30);
-  bot(c, { x: 160, y: FLOOR + lift(pose), pose, hold: false, hooks: held ? { hand: gun } : {} });
-  label(c, held ? "1  GUN" : "2  FISTS");
+  bot(c, { x: 160, y: FLOOR + lift(pose), pose, hold: false, hooks: inHand ? { hand: (hc, pal) => gun(hc, pal, MODELS[inHand]) } : {} });
+  label(c, inHand ? SWITCH_LABEL[inHand] : "2  FISTS");
 });
 
 const CLIMB_REACH = Array.from({ length: 11 }, (_, i) =>
