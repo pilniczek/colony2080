@@ -198,6 +198,9 @@ export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">, cfg: Movem
   );
 }
 
+export const liftGoes = (lift: Lift, dir: -1 | 1): boolean =>
+  lift.target !== null || (dir < 0 ? lift.y > lift.top : lift.y < lift.bottom);
+
 export function callLift(lift: Lift, dir: -1 | 1, flags?: Set<string>): boolean {
   if (lift.enabledBy !== undefined && !flags?.has(lift.enabledBy)) return false;
   if (lift.target !== null) return true;

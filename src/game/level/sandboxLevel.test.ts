@@ -131,16 +131,13 @@ describe("several lifts", () => {
     expect(g.world.lifts[0]!.target).toBeNull();
   });
 
-  it("carries and calls from the deck edge with the center outside the span", () => {
+  it("jumps instead of calling the lift from the deck edge", () => {
     const g = game({ x: 16.8, y: 14 }, twoLifts);
     tick(g);
     expect(g.hero.onLift).toBe(true);
     tick(g, [], ["up"]);
-    run(g, 1);
-    expect(g.world.lifts[0]!.target).toBe(4);
-    expect(g.hero.onGround).toBe(true);
-    expect(g.hero.y).toBeCloseTo(g.world.lifts[0]!.y, 6);
-    expect(g.hero.y).toBeLessThan(14);
+    expect(g.hero.state).toBe("standJump");
+    expect(g.world.lifts[0]!.target).toBeNull();
   });
 
   it("carries only its own lift while both move", () => {

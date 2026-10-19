@@ -480,13 +480,37 @@ describe("lift", () => {
     expect(g.hero.y).toBeCloseTo(4, 6);
   });
 
-  it("does not call the lift down from the floor edge next to its deck", () => {
+  it("ducks instead of calling the lift from the floor edge next to its deck", () => {
     const g = game({ x: 33.8, y: 14 });
     tick(g);
     expect(g.hero).toMatchObject({ onGround: true, onLift: true });
     tick(g, ["down"], ["down"]);
-    run(g, 1, ["down"]);
+    expect(g.hero.state).toBe("duck");
     expect(g.world.lifts[1]!.target).toBeNull();
-    expect(g.world.lifts[1]!.y).toBe(14);
+  });
+
+  it("ducks on down at the bottom stop", () => {
+    const g = game({ x: 18.5, y: 14 });
+    tick(g);
+    tick(g, ["down"], ["down"]);
+    expect(g.hero.state).toBe("duck");
+    expect(g.world.lifts[0]!.target).toBeNull();
+  });
+
+  it("jumps on up at the top stop", () => {
+    const g = game({ x: 35.5, y: 14 });
+    tick(g);
+    expect(g.hero.onLift).toBe(true);
+    tick(g, [], ["up"]);
+    expect(g.hero.state).toBe("standJump");
+    expect(g.world.lifts[1]!.target).toBeNull();
+  });
+
+  it("calls the lift down from the deck at the top stop", () => {
+    const g = game({ x: 35.5, y: 14 });
+    tick(g);
+    tick(g, ["down"], ["down"]);
+    expect(g.hero.state).toBe("idle");
+    expect(g.world.lifts[1]!.target).toBe(21);
   });
 });

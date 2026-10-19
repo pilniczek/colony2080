@@ -3,7 +3,7 @@ import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
-import { callLift, liftAt, onGround, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { callLift, liftAt, liftGoes, onGround, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { runUse, say } from "../level/tasks";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
@@ -340,62 +340,51 @@ function takeCover(s: Step): boolean {
 function stance(s: Step): boolean {
   const { h, input } = s;
   if (takeCover(s)) return true;
-  if (h.onLift || !input.held.has("down")) return false;
+  if (onMovingLift(s) || !input.held.has("down")) return false;
   s.consume("down");
   enter(h, touching(s, ...PICKABLE) ? "kneel" : "duck");
   return true;
 }
 
 function standUp(s: Step, from: Jump): boolean {
-  const { h, world, cfg } = s;
-  if (h.onLift) {
-    const dir = liftCall(s);
-    const lift = liftAt(world, h, cfg);
-    if (dir !== null && lift) requestLift(s, lift, dir);
-    return false;
-  }
-  if (!s.consume("up")) return false;
+  const { h, world } = s;
+  if (liftPress(s) || !s.consume("up")) return false;
   if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) enterLadder(s);
   else jump(s, from);
   return true;
 }
 
 function idle(s: Step): void {
-  const { h, input } = s;
+  const { input } = s;
   if (standUp(s, "standJump")) return;
-  if (!h.onLift && input.held.has("down") && atLadderTop(s)) return enterLadder(s);
+  if (!onMovingLift(s) && input.held.has("down") && atLadderTop(s)) return enterLadder(s);
   if (act(s) || stance(s)) return;
   if (input.dir !== 0) gait(s);
 }
 
-function requestLift(s: Step, lift: Lift, dir: -1 | 1): void {
-  if (dir > 0 && onFloorTile(s)) return;
-  if (!callLift(lift, dir, s.world.flags) && lift.hint) say(s.world, lift.hint);
+function liftPress(s: Step): boolean {
+  const dir = s.input.pressed.has("up") ? -1 : s.input.pressed.has("down") ? 1 : null;
+  if (dir === null || !rideLift(s, dir)) return false;
+  s.consume(dir < 0 ? "up" : "down");
+  return true;
 }
 
-function onFloorTile({ h, world, cfg }: Step): boolean {
+function rideLift({ h, world, cfg }: Step, dir: -1 | 1): boolean {
+  const lift = h.onLift ? liftAt(world, h, cfg) : null;
+  if (!lift || !liftGoes(lift, dir) || !onDeck(h.x, lift, cfg)) return false;
+  if (!callLift(lift, dir, world.flags) && lift.hint) say(world, lift.hint);
+  return true;
+}
+
+function onDeck(x: number, lift: Lift, cfg: MovementConfig): boolean {
   const half = cfg.box.width / 2;
-  const row = Math.round(h.y);
-  for (let c = Math.floor(h.x - half + EPS); c < Math.ceil(h.x + half - EPS); c++) if (world.grid.solid(c, row)) return true;
-  return false;
-}
-
-function liftCall(s: Step): -1 | 1 | null {
-  return s.consume("up") ? -1 : s.consume("down") ? 1 : null;
+  return x - half >= lift.x - EPS && x + half <= lift.x + lift.w + EPS;
 }
 
 function moving(s: Step): void {
-  const { h, world, cfg } = s;
+  const { h, world } = s;
   if (takeCover(s)) return;
-  if (h.state === "walk" && h.onLift) {
-    const dir = liftCall(s);
-    if (dir !== null) {
-      enter(h, "idle");
-      const lift = liftAt(world, h, cfg);
-      if (lift) requestLift(s, lift, dir);
-      return;
-    }
-  }
+  if (h.state === "walk" && liftPress(s)) return enter(h, "idle");
   if (s.consume("up")) {
     if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(s);
     return jump(s, h.state === "run" ? "runJump" : "walkJump");
