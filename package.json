@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --open /sandbox.html",
+    "dev": "vite --open /",
     "build": "vite build",
     "test": "vitest run",
     "lint": "eslint .",

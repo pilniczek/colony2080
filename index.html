@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Colony 2080</title>
+    <style>
+      :root { --bg: #0b0806; --panel: #1c140d; --edge: #3a2a1a; --text: #d8c8a8; --muted: #8a7a62; --amber: #e8a43a; --red: #e0281e; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; background: radial-gradient(ellipse at 50% 0%, #2a1a0e 0%, var(--bg) 70%); color: var(--text); font: 15px/1.5 "Share Tech Mono", ui-monospace, monospace; }
+      main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+      h1 { font-family: Orbitron, sans-serif; font-weight: 900; font-size: clamp(36px, 9vw, 72px); letter-spacing: .08em; margin: 0; color: var(--amber); text-shadow: 0 0 18px #e8a43a55; text-align: center; }
+      .tag { text-align: center; color: var(--muted); margin: 4px 0 40px; letter-spacing: .2em; text-transform: uppercase; font-size: 12px; }
+      h2 { font-family: Orbitron, sans-serif; font-weight: 900; font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 32px 0 10px; }
+      .missions { display: grid; gap: 10px; }
+      .mission { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 18px; background: var(--panel); border: 1px solid var(--edge); border-radius: 4px; color: var(--text); text-decoration: none; }
+      .mission:hover, .mission:focus-visible { border-color: var(--amber); color: var(--amber); }
+      .mission b { font-family: Orbitron, sans-serif; font-weight: 900; letter-spacing: .1em; }
+      .mission span { color: var(--muted); font-size: 12px; }
+      ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 16px; }
+      li a { color: var(--text); text-decoration: none; }
+      li a:hover, li a:focus-visible { color: var(--amber); }
+      li small { display: block; color: var(--muted); font-size: 12px; }
+      .dev { margin-top: 48px; padding-top: 8px; border-top: 1px dashed var(--edge); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>COLONY 2080</h1>
+      <p class="tag">Browser clone of Colony 28</p>
+
+      <h2>Mission select</h2>
+      <div class="missions">
+        <a class="mission" href="#mission-1"><b>1 · MĚSTO</b><span>coming soon</span></a>
+      </div>
+
+      <section class="dev">
+        <h2>Dev</h2>
+        <ul>
+          <li><a href="sandbox.html">Sandbox</a><small>movement, lifts, enemies, HUD</small></li>
+        </ul>
+        <h2>Design sheets</h2>
+        <ul>
+          <li><a href="spikes/robot-design/index.html">Robot</a><small>hero design, palette, references</small></li>
+          <li><a href="spikes/gun-design/index.html">Gun</a><small>rotary gun and hold poses</small></li>
+          <li><a href="spikes/enemy-design/index.html">Enemy</a><small>enemy variant and tint</small></li>
+          <li><a href="spikes/env-design/index.html">Environment</a><small>level 1 objects next to originals</small></li>
+          <li><a href="spikes/items-design/index.html">Items</a><small>inventory items next to originals</small></li>
+          <li><a href="spikes/hud-design/index.html">HUD</a><small>HUD frame controls</small></li>
+        </ul>
+        <h2>Moves</h2>
+        <ul>
+          <li><a href="spikes/movement/movement.html">Movement</a><small>walk, run, jumps, ladder, lift</small></li>
+          <li><a href="spikes/movement/interaction.html">Interaction</a><small>use, pick up, cutscenes</small></li>
+          <li><a href="spikes/movement/fight.html">Fight</a><small>punch, shoot, hits, deaths</small></li>
+        </ul>
+      </section>
+    </main>
+    <script type="module" src="/src/home/main.ts"></script>
+  </body>
+</html>

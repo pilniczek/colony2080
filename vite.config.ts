@@ -1,16 +1,25 @@
+import { cpSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
+
+const root = (path: string): string => fileURLToPath(new URL(path, import.meta.url));
+
+const copySpikes = (): Plugin => ({
+  name: "copy-spikes",
+  apply: "build",
+  closeBundle: () => cpSync(root("./spikes"), root("./dist/spikes"), { recursive: true }),
+});
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), copySpikes()],
   resolve: {
-    alias: { "@config": fileURLToPath(new URL("./config", import.meta.url)) },
+    alias: { "@config": root("./config") },
   },
-  optimizeDeps: { entries: ["sandbox.html"] },
+  optimizeDeps: { entries: ["index.html", "sandbox.html"] },
   build: {
     rollupOptions: {
-      input: { sandbox: fileURLToPath(new URL("./sandbox.html", import.meta.url)) },
+      input: { index: root("./index.html"), sandbox: root("./sandbox.html") },
     },
   },
 });
