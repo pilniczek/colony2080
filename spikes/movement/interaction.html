@@ -11,12 +11,33 @@
   <h1>X-BOT interaction</h1>
   <nav><a href="movement.html">Movement</a> <a href="interaction.html">Interaction</a> <a href="fight.html">Fight</a></nav>
   <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button></div>
-  <p>Every move loops forever. Side view facing right unless noted.</p>
+  <p>Every move loops forever. Side view facing right unless noted. Click a cutscene cell to open its player.</p>
 </header>
 <main id="grid"></main>
+<dialog id="player">
+  <header><h2></h2><button id="close">Close</button></header>
+  <div class="stage">
+    <div><span class="label">Clone (vector)</span><canvas></canvas></div>
+    <div class="refWrap"><span class="label" id="refLabel"></span><img id="ref" alt="original frame"></div>
+  </div>
+  <div class="bar">
+    <button id="play">Pause</button>
+    <button id="restart">Restart</button>
+    <input id="scrub" type="range" min="0" max="1000" value="0">
+    <span id="time"></span>
+    <label>Speed <select id="speed"><option>0.25</option><option>0.5</option><option selected>1</option></select></label>
+    <label><input id="loop" type="checkbox" checked> Loop</label>
+    <button id="refToggle">Show original</button>
+    <button id="palToggle">Palette</button>
+    <button id="copyPal">Copy palette JSON</button>
+  </div>
+  <div id="palette"></div>
+</dialog>
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
+<script src="../shared/cutscenes.js"></script>
 <script src="moves.js"></script>
+<script src="player.js"></script>
 </body>
 </html>

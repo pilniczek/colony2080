@@ -325,7 +325,11 @@ function item(c, x, y) {
 
 const MOVES = [];
 const CATEGORY = document.body.dataset.category;
-const move = (category, name, keys, period, draw) => MOVES.push({ category, name, keys, period, draw });
+const move = (category, name, keys, period, draw, scene) => MOVES.push({ category, name, keys, period, draw, scene });
+
+function triggering(scene, lead, draw) {
+  return [lead + scene.duration, (c, t) => t < lead ? draw(c, t) : scene.render(c, W, H, t - lead), scene];
+}
 
 move("movement", "Idle", "-", 3, c => {
   backdrop(c);
@@ -567,6 +571,16 @@ move("interaction", "Use", "Enter at target", 1.6, (c, t) => {
   shadow(c, 140, FLOOR, 30);
   bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
 });
+
+const CROWBAR_IDLE = 0.8;
+move("interaction", "Use crowbar", "Enter at door, plays cutscene", ...triggering(CUTSCENES.crowbarDoor, CROWBAR_IDLE + ACTION_TIME.in, (c, t) => {
+  CUTSCENES.crowbarDoor.backdrop(c, 140, FLOOR, K, 0);
+  const rest = armed() ? { ...STAND, ...GUN_REST } : STAND;
+  const reach = armed() ? { ...rest, armFar: REACH.arm, foreFar: REACH.fore } : REACH;
+  const pose = keyed([[CROWBAR_IDLE, rest], [CROWBAR_IDLE + ACTION_TIME.in, reach]], t);
+  shadow(c, 140, FLOOR, 30);
+  bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
+}));
 
 move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   backdrop(c);
@@ -828,6 +842,10 @@ const cells = MOVES.filter(m => m.category === CATEGORY).map(m => {
   cap.append(b, s);
   fig.append(canvas, cap);
   grid.append(fig);
+  if (m.scene) {
+    fig.className = "scene";
+    fig.onclick = () => window.openCutscene(m.scene);
+  }
   return { m, canvas, ctx: canvas.getContext("2d"), b, s, visible: true };
 });
 

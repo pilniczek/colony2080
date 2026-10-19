@@ -18,3 +18,24 @@ nav a:hover { color: var(--text); }
 .weapon button:first-child { border-radius: 4px 0 0 4px; }
 .weapon button:last-child { border-radius: 0 4px 4px 0; border-left: 0; }
 .weapon button[aria-pressed="true"] { background: #e2701a; border-color: #e2701a; color: #140a02; font-weight: 600; }
+figure.scene { cursor: pointer; }
+figure.scene:hover { outline: 1px solid #e2701a; }
+#player { width: min(1400px, 96vw); height: min(860px, 94vh); padding: 0; border: 0; border-radius: 6px; background: var(--bg); color: var(--text); flex-direction: column; }
+#player[open] { display: flex; }
+#player::backdrop { background: #000c; }
+#player header h2 { font-size: 15px; margin: 0; font-weight: 600; flex: 1; }
+#player .stage { flex: 1; display: flex; gap: 8px; padding: 8px; min-height: 0; }
+#player .stage > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+#player canvas, #player img { flex: 1; width: 100%; min-height: 0; object-fit: contain; background: #000; }
+#player img { image-rendering: pixelated; }
+#player:not(.with-ref) .refWrap { display: none; }
+#player .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+#player .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 8px 12px; background: var(--panel); }
+#player button { background: #22302f; color: var(--text); border: 1px solid #2f3f3e; border-radius: 4px; padding: 4px 10px; cursor: pointer; font: inherit; }
+#player button:hover { border-color: #e2701a; }
+#scrub { flex: 1; min-width: 160px; accent-color: #e2701a; }
+#time { font-variant-numeric: tabular-nums; min-width: 92px; }
+#palette { display: none; flex-wrap: wrap; gap: 6px 14px; padding: 8px 12px; background: var(--panel); border-top: 1px solid #22302f; }
+#player.with-palette #palette { display: flex; }
+#palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
+#palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
