@@ -1,0 +1,118 @@
+import { ITEMS, type ItemId } from "../items";
+import { pickUp, useTop, type Prop, type SandboxWorld } from "./sandboxLevel";
+
+export interface Task {
+  id: string;
+  object: string;
+  requires: string[];
+  consumes: string[];
+  gives: string[];
+  state?: number;
+  sets?: Record<string, number>;
+  subtitle: string;
+}
+
+export interface Subtitle {
+  text: string;
+  age: number;
+}
+
+const ITEM = "item:";
+const FLAG = "flag:";
+const COMPLETE = "flag:levelComplete";
+const MISSING = "Something is missing here.";
+const DONE = "Nothing more to do here.";
+
+const itemOf = (token: string): ItemId | null => (token.startsWith(ITEM) ? token.slice(ITEM.length) : null);
+const doneToken = (task: Task) => `task:${task.id}`;
+
+function tokens(id: string, value: unknown, field: string): string[] {
+  if (value === undefined && field === "consumes") return [];
+  if (!Array.isArray(value)) throw new Error(`task ${id}: missing ${field}`);
+  return value.map((token: unknown) => {
+    if (typeof token !== "string" || !(token.startsWith(ITEM) || token.startsWith(FLAG))) {
+      throw new Error(`task ${id}: bad token: ${String(token)}`);
+    }
+    const item = itemOf(token);
+    if (item !== null && !ITEMS[item]) throw new Error(`task ${id}: unknown item: ${item}`);
+    return token;
+  });
+}
+
+function loadTask(json: unknown): Task {
+  const t = (json ?? {}) as Record<string, unknown>;
+  const id = String(t.id);
+  if (typeof t.object !== "string") throw new Error(`task ${id}: missing object`);
+  if (typeof t.subtitle !== "string") throw new Error(`task ${id}: missing subtitle`);
+  const task: Task = {
+    id,
+    object: t.object,
+    requires: tokens(id, t.requires, "requires"),
+    consumes: tokens(id, t.consumes, "consumes"),
+    gives: tokens(id, t.gives, "gives"),
+    subtitle: t.subtitle,
+  };
+  if (typeof t.state === "number") task.state = t.state;
+  if (t.sets) task.sets = { ...(t.sets as Record<string, number>) };
+  return task;
+}
+
+export function loadTasks(json: unknown): Task[] {
+  const { tasks } = (json ?? {}) as { tasks?: unknown[] };
+  if (!Array.isArray(tasks)) throw new Error("tasks config has no tasks");
+  return tasks.map(loadTask);
+}
+
+export function say(world: SandboxWorld, text: string): void {
+  world.subtitle = { text, age: 0 };
+}
+
+const met = (world: SandboxWorld, token: string): boolean => {
+  const item = itemOf(token);
+  return item === null ? world.flags.has(token) : world.inventory.shown === item;
+};
+
+const open = (world: SandboxWorld, prop: Prop) =>
+  world.tasks.filter((t) => t.object === prop.id && !world.flags.has(doneToken(t)));
+
+export function hintFor(prop: Prop, world: SandboxWorld): string {
+  return open(world, prop).length ? MISSING : DONE;
+}
+
+export function applyBlocks(world: SandboxWorld): void {
+  world.grid.clearBlocks();
+  for (const prop of world.props) {
+    const { cells, solidStates } = prop;
+    if (!cells || !solidStates?.includes(prop.state ?? 0)) continue;
+    for (let row = cells.row; row < cells.row + cells.h; row++) {
+      for (let col = cells.col; col < cells.col + cells.w; col++) world.grid.block(col, row, true);
+    }
+  }
+}
+
+function setState(world: SandboxWorld, id: string, state: number): void {
+  for (const prop of world.props) if (prop.id === id) prop.state = state;
+}
+
+export function runUse(world: SandboxWorld, prop: Prop): void {
+  const task = open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
+  if (!task) {
+    say(world, hintFor(prop, world));
+    return;
+  }
+  for (const token of task.consumes) {
+    if (itemOf(token) === null) world.flags.delete(token);
+    else useTop(world);
+  }
+  for (const token of task.gives) {
+    const item = itemOf(token);
+    if (item === null) world.flags.add(token);
+    else pickUp(world, item);
+  }
+  world.flags.add(doneToken(task));
+  if (task.state !== undefined) prop.state = task.state;
+  for (const [id, state] of Object.entries(task.sets ?? {})) setState(world, id, state);
+  applyBlocks(world);
+  say(world, task.subtitle);
+  if (world.flags.has(COMPLETE)) world.complete = true;
+}

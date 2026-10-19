@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { damage, kill } from "./hero";
-import { bottomlessPits, cfg, game, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
+import { pickUp } from "../level/sandboxLevel";
+import { bottomlessPits, cfg, game, objectLevel, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
 
 const kinds = (g: Game, kind: string) => g.events.filter((e) => e.kind === kind);
 
@@ -55,6 +56,29 @@ describe("use", () => {
     expect(g.world.props.find((p) => p.kind === "panel")?.on).toBe(true);
     runUntil(g, (h) => h.state === "idle");
     expect(g.hero.state).toBe("idle");
+  });
+
+  it("picks the nearest object in reach", () => {
+    const g = game({ x: 12, y: 8 }, objectLevel);
+    const prop = (id: string) => g.world.props.find((p) => p.id === id)!;
+    prop("switchboard").x = 10.4;
+    pickUp(g.world, "wires");
+    pickUp(g.world, "crowbar");
+    g.world.flags.add("flag:metroPowered");
+    tick(g, [], ["useItem"]);
+    expect(g.hero.state).toBe("use");
+    runUntil(g, (h) => h.state === "idle");
+    expect(prop("trainDoor").state).toBe(2);
+    expect(prop("switchboard").state ?? 0).toBe(0);
+    expect(g.world.inventory.shown).toBe("wires");
+    expect(kinds(g, "use")).toHaveLength(1);
+  });
+
+  it("says the picked item", () => {
+    const g = game({ x: 9.5, y: 14 });
+    tick(g, ["down"]);
+    run(g, 0.4);
+    expect(g.world.subtitle?.text).toBe("Picked up crowbar");
   });
 
   it("ignores useItem away from the panel", () => {

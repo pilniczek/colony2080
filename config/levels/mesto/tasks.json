@@ -1,29 +1,21 @@
 {
   "status": "draft",
-  "source": "docs/research/reports/06-cz-walkthroughs.md",
+  "source": "docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md, docs/research/reports/06-cz-walkthroughs.md level 1 task order, docs/research/reports/13-level1-layout.md blocking and map variants; object ids from config/levels/mesto/objects.json, metroTunnel is the dark tunnel gate; crowbar and craneKey are item props (no task row); the valve is used once with no item: it closes the water (M13 drops the water wall) and hands over the tap handle, which the item table lists at the valve spot",
   "tasks": [
-    { "id": "talkRebel", "marker": 1, "requires": [], "gives": ["flag:rebelTalked"] },
-    { "id": "takeCrowbar", "marker": 2, "requires": [], "gives": ["item:crowbar"] },
-    { "id": "pullWires", "marker": 3, "requires": [], "gives": ["item:wires"] },
-    { "id": "wireSwitchboard", "marker": 4, "requires": ["item:wires"], "consumes": ["item:wires"], "gives": ["flag:metroPowered"] },
-    { "id": "openTrainDoor", "marker": 5, "requires": ["item:crowbar", "flag:metroPowered"], "gives": ["flag:metroOpen"] },
-    { "id": "takeEBlaster", "marker": 8, "requires": ["flag:metroOpen"], "gives": ["weapon:eBlaster"] },
-    { "id": "takeTapHandle", "marker": 6, "requires": ["flag:metroOpen"], "gives": ["item:tapHandle"] },
-    { "id": "searchCorpse", "marker": 7, "requires": ["flag:metroOpen"], "gives": ["item:card", "item:holoPlan"] },
-    { "id": "tradeHoloPlan", "marker": 9, "requires": ["item:holoPlan"], "consumes": ["item:holoPlan"], "gives": ["item:shipPlan"] },
-    { "id": "getShipPart", "marker": 10, "requires": ["item:shipPlan"], "gives": ["item:shipPart"] },
-    { "id": "tradeShipPart", "marker": 9, "requires": ["item:shipPart"], "consumes": ["item:shipPart"], "gives": ["item:decoder"] },
-    { "id": "unlockPlasma", "marker": 11, "requires": ["item:decoder"], "consumes": ["item:decoder"], "gives": ["flag:plasmaOff"] },
-    { "id": "takeController", "marker": 12, "requires": ["flag:plasmaOff"], "gives": ["item:controller"] },
-    { "id": "repairLift", "marker": 13, "requires": ["item:controller"], "consumes": ["item:controller"], "gives": ["flag:upperFloorsOpen"] },
-    { "id": "openDoor", "marker": 17, "requires": ["flag:upperFloorsOpen", "item:card"], "gives": ["flag:doorOpen"] },
-    { "id": "acidGuard", "marker": 14, "requires": ["flag:upperFloorsOpen", "item:tapHandle"], "consumes": ["item:tapHandle"], "gives": ["flag:acidGuardDead"] },
-    { "id": "shootGuard", "marker": 15, "requires": ["flag:doorOpen", "flag:acidGuardDead"], "gives": ["item:craneKey"] },
-    { "id": "repairCrane", "marker": 16, "requires": ["item:craneKey"], "consumes": ["item:craneKey"], "gives": ["flag:levelComplete"] }
-  ],
-  "unconfirmed": [
-    "openDoor vs acidGuard ordering",
-    "shipPlan as hard requirement for getShipPart",
-    "which items are consumed on use"
+    { "id": "talkRebel", "object": "dyingRebel", "requires": [], "gives": ["flag:rebelTalked"], "state": 1, "subtitle": "Find the bar man. He knows the way out." },
+    { "id": "pullWires", "object": "wireBox", "requires": [], "gives": ["item:wires"], "state": 1, "subtitle": "Wires torn out." },
+    { "id": "wireSwitchboard", "object": "switchboard", "requires": ["item:wires"], "consumes": ["item:wires"], "gives": ["flag:metroPowered"], "state": 1, "sets": { "metroTunnel": 1 }, "subtitle": "The metro lights come on." },
+    { "id": "openTrainDoor", "object": "trainDoor", "requires": ["item:crowbar", "flag:metroPowered"], "consumes": ["item:crowbar"], "gives": ["flag:metroOpen"], "state": 2, "subtitle": "The train door gives way." },
+    { "id": "takeTapHandle", "object": "tapValveWheel", "requires": [], "gives": ["flag:waterOff", "item:tapHandle"], "state": 1, "sets": { "waterPipe": 1 }, "subtitle": "Water off. The tap handle comes loose." },
+    { "id": "searchCorpse", "object": "corpse", "requires": [], "gives": ["item:card", "item:holoPlan"], "state": 1, "subtitle": "A card and a holo plan." },
+    { "id": "tradeHoloPlan", "object": "barDoor", "requires": ["item:holoPlan"], "consumes": ["item:holoPlan"], "gives": ["item:shipPlan"], "subtitle": "A ship plan for the holo plan." },
+    { "id": "getShipPart", "object": "crashedShip", "requires": ["item:shipPlan", "flag:hullOpen"], "consumes": ["item:shipPlan"], "gives": ["item:shipPart"], "state": 2, "subtitle": "The part is out of the hull." },
+    { "id": "tradeShipPart", "object": "barDoor", "requires": ["item:shipPart"], "consumes": ["item:shipPart"], "gives": ["item:decoder"], "subtitle": "A decoder for the part." },
+    { "id": "unlockPlasma", "object": "codeLock", "requires": ["item:decoder"], "consumes": ["item:decoder"], "gives": ["flag:plasmaOff"], "state": 1, "sets": { "plasmaBarrier": 1 }, "subtitle": "Code accepted. The plasma dies down." },
+    { "id": "takeController", "object": "controller", "requires": [], "gives": ["item:controller"], "state": 1, "subtitle": "Picked up controller" },
+    { "id": "repairLift", "object": "damagedLift", "requires": ["item:controller"], "consumes": ["item:controller"], "gives": ["flag:upperFloorsOpen"], "state": 1, "subtitle": "The lift screen clears. It runs again." },
+    { "id": "openDoor", "object": "cardDoor", "requires": ["item:card"], "consumes": ["item:card"], "gives": ["flag:doorOpen"], "state": 1, "subtitle": "Card accepted. The door opens." },
+    { "id": "useAcidTank", "object": "acidTank", "requires": ["item:tapHandle"], "consumes": ["item:tapHandle"], "gives": ["flag:acidPoured"], "state": 2, "subtitle": "Acid pours out of the tank." },
+    { "id": "repairCrane", "object": "crane", "requires": ["item:craneKey"], "consumes": ["item:craneKey"], "gives": ["flag:levelComplete"], "state": 1, "subtitle": "Level complete" }
   ]
 }

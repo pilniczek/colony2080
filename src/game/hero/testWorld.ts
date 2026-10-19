@@ -55,3 +55,53 @@ export function run(g: Game, seconds: number, held: string[] = []): void {
 export function runUntil(g: Game, done: (h: Hero) => boolean, held: string[] = [], seconds = 10): void {
   for (let i = 0; i < seconds * 60 && !done(g.hero); i++) tick(g, held);
 }
+
+const wall = `#${".".repeat(18)}#`;
+
+export const objectLevel = {
+  rows: [...Array<string>(8).fill(wall), "#".repeat(20), "#".repeat(20)],
+  spawn: [3.5, 8],
+  sky: "skyBackground",
+  backdrop: [],
+  dressing: [],
+  lifts: [],
+  enemies: [],
+  props: [
+    { kind: "object", id: "switchboard", x: 6, width: 3 },
+    { kind: "object", id: "gate", x: 10, width: 1, state: 0, solidStates: [0], cells: { col: 10, row: 5, w: 1, h: 3 } },
+    { kind: "object", id: "trainDoor", x: 13, width: 3 },
+    { kind: "object", id: "crane", x: 17, width: 3 },
+  ],
+  tasks: {
+    tasks: [
+      {
+        id: "wireSwitchboard",
+        object: "switchboard",
+        requires: ["item:wires"],
+        consumes: ["item:wires"],
+        gives: ["flag:metroPowered", "item:card", "item:holoPlan"],
+        state: 1,
+        sets: { gate: 1 },
+        subtitle: "Power is back.",
+      },
+      {
+        id: "openTrainDoor",
+        object: "trainDoor",
+        requires: ["item:crowbar", "flag:metroPowered"],
+        consumes: ["item:crowbar"],
+        gives: ["flag:metroOpen"],
+        state: 2,
+        subtitle: "The door gives way.",
+      },
+      {
+        id: "repairCrane",
+        object: "crane",
+        requires: ["item:craneKey"],
+        consumes: ["item:craneKey"],
+        gives: ["flag:levelComplete"],
+        state: 1,
+        subtitle: "Level complete",
+      },
+    ],
+  },
+};

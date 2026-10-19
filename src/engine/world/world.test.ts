@@ -27,6 +27,19 @@ describe("TileGrid", () => {
     expect(blocked.solid(1, 0)).toBe(false);
     expect(blocked.solid(2, 0)).toBe(true);
   });
+
+  it("blocks overlay cells as solid but not as wall until cleared", () => {
+    const g = new TileGrid(["...", "..."]);
+    g.block(1, 0, true);
+    g.block(2, 1, true);
+    expect(g.solid(1, 0)).toBe(true);
+    expect(g.wall(1, 0)).toBe(false);
+    expect(g.at(1, 0)).toBe(".");
+    g.block(1, 0, false);
+    expect(g.solid(1, 0)).toBe(false);
+    g.clearBlocks();
+    expect(g.solid(2, 1)).toBe(false);
+  });
 });
 
 describe("moveBox", () => {

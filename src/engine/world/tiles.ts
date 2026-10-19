@@ -1,6 +1,7 @@
 export class TileGrid {
   readonly width: number;
   readonly height: number;
+  private readonly blocks = new Set<number>();
 
   constructor(private readonly rows: string[]) {
     this.height = rows.length;
@@ -15,7 +16,20 @@ export class TileGrid {
 
   solid(col: number, row: number): boolean {
     const tile = this.at(col, row);
-    return tile === "#" || tile === "|";
+    return tile === "#" || tile === "|" || this.blocks.has(this.key(col, row));
+  }
+
+  block(col: number, row: number, on: boolean): void {
+    if (on) this.blocks.add(this.key(col, row));
+    else this.blocks.delete(this.key(col, row));
+  }
+
+  clearBlocks(): void {
+    this.blocks.clear();
+  }
+
+  private key(col: number, row: number): number {
+    return row * this.width + col;
   }
 
   wall(col: number, row: number): boolean {

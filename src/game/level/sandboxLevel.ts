@@ -7,6 +7,7 @@ import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { ITEMS, type ItemId } from "../items";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
+import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
 import { terrain } from "./terrain";
 
 export interface Prop {
@@ -18,6 +19,11 @@ export interface Prop {
   item?: ItemId;
   taken?: boolean;
   on?: boolean;
+  id?: string;
+  asset?: AssetId;
+  state?: number;
+  solidStates?: number[];
+  cells?: { col: number; row: number; w: number; h: number };
 }
 
 export interface Scenery {
@@ -59,6 +65,10 @@ export interface SandboxWorld {
   projectiles: Projectile[];
   sparks: Spark[];
   enemies: Enemy[];
+  flags: Set<string>;
+  tasks: Task[];
+  subtitle: Subtitle | null;
+  complete: boolean;
   source: SandboxJson;
 }
 
@@ -84,11 +94,14 @@ export interface SandboxJson {
   lifts: LiftJson[];
   props: Prop[];
   enemies: EnemyJson[];
+  tasks?: unknown;
 }
 
 function checkedProp(prop: Prop): Prop {
   if (prop.kind === "item" && !(prop.item && ITEMS[prop.item])) throw new Error(`unknown item: ${prop.item}`);
-  return { ...prop };
+  if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
+  if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
+  return structuredClone(prop);
 }
 
 function scenery(items: SceneryJson[]): Scenery[] {
@@ -111,7 +124,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     stops: lift.stops ? [...lift.stops] : [lift.top, lift.bottom],
     target: null,
   }));
-  return {
+  const world: SandboxWorld = {
     grid,
     lifts,
     props: data.props.map(checkedProp),
@@ -125,8 +138,14 @@ export function loadSandbox(json: unknown): SandboxWorld {
     projectiles: [],
     sparks: [],
     enemies: data.enemies.map((e) => createEnemy(e, grid, lifts)),
+    flags: new Set(),
+    tasks: data.tasks === undefined ? [] : loadTasks(data.tasks),
+    subtitle: null,
+    complete: false,
     source: data,
   };
+  applyBlocks(world);
+  return world;
 }
 
 export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
@@ -139,6 +158,13 @@ export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
 export function pickUp(world: SandboxWorld, id: ItemId): void {
   world.inventory.items.push(id);
   world.inventory.shown = id;
+}
+
+export function useTop(world: SandboxWorld): ItemId | null {
+  const { inventory } = world;
+  const top = inventory.items.pop() ?? null;
+  inventory.shown = inventory.items.at(-1) ?? null;
+  return top;
 }
 
 export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">, cfg: MovementConfig): Lift | null {

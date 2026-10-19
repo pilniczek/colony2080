@@ -14,6 +14,10 @@ describe("mesto map", () => {
     expect(grid.height).toBe(80);
   });
 
+  it("loads the task web", () => {
+    expect(world.tasks.map((t) => t.id)).toContain("repairCrane");
+  });
+
   it("spawns on a floor", () => {
     expect(spawn).toEqual([62.5, 59]);
     expect(grid.solid(Math.floor(spawn[0]), spawn[1])).toBe(true);

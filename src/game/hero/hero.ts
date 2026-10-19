@@ -2,7 +2,9 @@ import type { InputFrame } from "../../engine/input";
 import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
+import { ITEMS } from "../items";
 import { callLift, liftAt, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { runUse, say } from "../level/tasks";
 import { clipFor, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
@@ -129,14 +131,17 @@ function atLadderTop(s: Step): boolean {
   return h.onGround && Math.abs(h.y - row) <= EPS && world.grid.ladderTop(Math.floor(h.x), row);
 }
 
-function touching(s: Step, kind: string): Prop | undefined {
+function touching(s: Step, ...kinds: string[]): Prop | undefined {
   const { h, world, cfg } = s;
-  return world.props.find((p) => {
+  const inReach = world.props.filter((p) => {
     const y = p.y ?? world.spawn[1];
     const reach = (cfg.box.width + (p.width ?? 0)) / 2;
-    return p.kind === kind && !p.taken && Math.abs(p.x - h.x) <= reach && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
+    return kinds.includes(p.kind) && !p.taken && Math.abs(p.x - h.x) <= reach && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
   });
+  return inReach.reduce<Prop | undefined>((best, p) => (best && Math.abs(best.x - h.x) <= Math.abs(p.x - h.x) ? best : p), undefined);
 }
+
+const USABLE = ["panel", "object"];
 
 function ladderBottom(s: Step): number {
   const { h, world } = s;
@@ -265,7 +270,7 @@ function startAttack(s: Step, state: "attack" | "duckAttack"): void {
 }
 
 function use(s: Step): boolean {
-  if (!touching(s, "panel") || !s.consume("useItem")) return false;
+  if (!touching(s, ...USABLE) || !s.consume("useItem")) return false;
   enter(s.h, "use");
   return true;
 }
@@ -507,13 +512,15 @@ function pickup(s: Step): void {
   if (!item) return;
   item.taken = true;
   pickUp(s.world, item.item!);
+  say(s.world, `Picked up ${ITEMS[item.item!]!.name}`);
   emit(s, "pickup");
 }
 
 function press(s: Step): void {
-  const panel = touching(s, "panel");
-  if (!panel) return;
-  panel.on = !panel.on;
+  const prop = touching(s, ...USABLE);
+  if (!prop) return;
+  if (prop.kind === "panel") prop.on = !prop.on;
+  else runUse(s.world, prop);
   emit(s, "use");
 }
 

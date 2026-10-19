@@ -1,6 +1,7 @@
 import map from "@config/levels/mesto/map.json";
 import enemies from "@config/levels/mesto/enemies.json";
 import sandbox from "@config/levels/sandbox.json";
+import tasks from "@config/levels/mesto/tasks.json";
 import world from "@config/levels/mesto/world.json";
 import type { EnemyJson } from "./enemy";
 import { loadSandbox, type SandboxJson, type SandboxWorld } from "./sandboxLevel";
@@ -34,6 +35,7 @@ export function mestoJson(): SandboxJson & Pick<typeof map, "taskWalls"> {
     rows: map.rows,
     lifts: map.lifts as SandboxJson["lifts"],
     taskWalls: map.taskWalls,
+    tasks,
     spawn: [map.spawn[0]!, map.spawn[1]!],
     enemies: droidsOf(enemies, { hits, reactMs, burst, pauseMs, respawnMs: null }),
   };
