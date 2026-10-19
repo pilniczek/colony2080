@@ -65,8 +65,8 @@ for e in sorted(raw, key=lambda q: q["index"]):
     pat = [e["patrol"][0] + OFF, e["patrol"][1] + OFF]
     s = seen.get(e["index"])
     mk, d = near(cell)
-    beh = ("Flyer: patrols cells %d-%d about 3 rows above the floor, fires downward at the player. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits." if fly else
-           "Chrome droid: patrols cells %d-%d on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points: 14 machine-gun hits or 4 E-blaster hits.") % tuple(pat)
+    beh = ("Flyer: patrols cells %d-%d about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick." if fly else
+           "Chrome droid: patrols cells %d-%d on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.") % tuple(pat)
     if s: beh += " Video: " + s[2]
     out.append({
         "id": "e%02d" % e["index"], "type": "flyer" if fly else "chromeDroid", "cell": cell,

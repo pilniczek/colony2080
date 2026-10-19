@@ -15,7 +15,6 @@ export interface EnemyJson {
   hits: number;
   respawnMs: number | null;
   sightCells: number;
-  firePeriodMs: number;
 }
 
 export interface Shaft {
@@ -32,7 +31,6 @@ export interface Enemy {
   hits: number;
   respawnMs: number | null;
   sightCells: number;
-  firePeriodMs: number;
   patrol: [number, number];
   deadAge: number | null;
 }
@@ -60,7 +58,6 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
     ...base,
     respawnMs: json.respawnMs,
     sightCells: json.sightCells,
-    firePeriodMs: json.firePeriodMs,
     patrol: patrolOf(grid, shafts, base.spot),
     body: spawnBody(base),
     deadAge: null,
@@ -69,9 +66,9 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
 
 export const isDead = (e: Enemy): boolean => e.deadAge !== null;
 
-export function hitEnemy(e: Enemy): boolean {
+export function hitEnemy(e: Enemy, damage = 1): boolean {
   if (isDead(e)) return false;
-  e.body.energy -= 1;
+  e.body.energy -= damage;
   e.body.hitAge = 0;
   if (e.body.energy <= 0) e.deadAge = 0;
   return true;
@@ -101,19 +98,17 @@ function patrol(e: Enemy, clips: ClipSet, dt: number): void {
   }
 }
 
-function shoot(e: Enemy, dt: number): number {
-  const { body } = e;
+function shoot(body: Hero, fireRate: number, dt: number): number {
   if (body.state !== "attack") {
     Object.assign(body, { state: "attack", time: 0, fireTime: 0 });
     return 1;
   }
-  const period = e.firePeriodMs / 1000;
-  const before = Math.floor((body.fireTime ?? 0) / period + 1e-9);
+  const before = Math.floor((body.fireTime ?? 0) * fireRate + 1e-9);
   body.fireTime = (body.fireTime ?? 0) + dt;
-  return Math.floor(body.fireTime / period + 1e-9) - before;
+  return Math.floor(body.fireTime * fireRate + 1e-9) - before;
 }
 
-export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, dt: number): number {
+export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, fireRate: number, dt: number): number {
   e.body.time += dt;
   if (e.body.hitAge !== null) e.body.hitAge += dt;
   if (e.deadAge !== null) {
@@ -123,7 +118,7 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
     e.deadAge = null;
     return 0;
   }
-  if (sees(e, grid, hero, fog)) return shoot(e, dt);
+  if (sees(e, grid, hero, fog)) return shoot(e.body, fireRate, dt);
   if (e.body.state !== "walk") Object.assign(e.body, { state: "walk", time: 0, fireTime: null });
   patrol(e, clips, dt);
   return 0;

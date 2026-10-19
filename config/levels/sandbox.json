@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; enemies[].hits is 14 machine-gun hits per regular enemy (docs/research/reports/10-level1-enemies.md), enemies[].respawnMs is the sandbox respawn after a death and null keeps it dead (user); the first enemy patrols the top left platform and three more patrol lower-half platforms off the lift shafts, none in cols 40-47 and none seeing the hero at spawn; each sees the hero on its floor ahead within sightCells and fires every firePeriodMs (Claude's call); backdrop and dressing are scenery from the ported env assets (src/game/env), laid out by Claude; the lower half (rows 16-31: floors at rows 21 and 28, 7 cells apart, girders at rows 18 and 25) and the right strip (cols 40-47) follow the sandbox tall map spec (docs/superpowers/specs/2026-10-19-sandbox-tall-map-design.md), laid out by Claude; floors change only by lift or the original ladder, each lift is the only way between its two stops and starts at the stop reachable from the spawn, pits are closed (user)",
+  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; enemies[].hits is 7 machine-gun hits per regular enemy (docs/research/reports/10-level1-enemies.md), enemies[].respawnMs is the sandbox respawn after a death and null keeps it dead (user); the first enemy patrols the top left platform and three more patrol lower-half platforms off the lift shafts, none in cols 40-47 and none seeing the hero at spawn; each sees the hero on its floor ahead within sightCells and fires at the hero fireRate (user); backdrop and dressing are scenery from the ported env assets (src/game/env), laid out by Claude; the lower half (rows 16-31: floors at rows 21 and 28, 7 cells apart, girders at rows 18 and 25) and the right strip (cols 40-47) follow the sandbox tall map spec (docs/superpowers/specs/2026-10-19-sandbox-tall-map-design.md), laid out by Claude; floors change only by lift or the original ladder, each lift is the only way between its two stops and starts at the stop reachable from the spawn, pits are closed (user)",
   "rows": [
     "#...............#..............................#",
     "#...............#..............................#",
@@ -74,9 +74,9 @@
     { "kind": "panel", "x": 21.5, "y": 14 }
   ],
   "enemies": [
-    { "x": 6.5, "y": 4, "facing": 1, "hits": 14, "respawnMs": 5000, "sightCells": 14, "firePeriodMs": 500 },
-    { "x": 18.5, "y": 18, "facing": -1, "hits": 14, "respawnMs": null, "sightCells": 14, "firePeriodMs": 500 },
-    { "x": 26.5, "y": 21, "facing": 1, "hits": 14, "respawnMs": null, "sightCells": 14, "firePeriodMs": 500 },
-    { "x": 13.5, "y": 28, "facing": 1, "hits": 14, "respawnMs": null, "sightCells": 14, "firePeriodMs": 500 }
+    { "x": 6.5, "y": 4, "facing": 1, "hits": 7, "respawnMs": 5000, "sightCells": 14 },
+    { "x": 18.5, "y": 18, "facing": -1, "hits": 7, "respawnMs": null, "sightCells": 14 },
+    { "x": 26.5, "y": 21, "facing": 1, "hits": 7, "respawnMs": null, "sightCells": 14 },
+    { "x": 13.5, "y": 28, "facing": 1, "hits": 7, "respawnMs": null, "sightCells": 14 }
   ]
 }

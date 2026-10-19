@@ -91,6 +91,16 @@ describe("hide", () => {
     }
   });
 
+  it("turns toward the arrow while hidden and leaves cover facing it", () => {
+    const g = game();
+    tick(g, ["hide"]);
+    run(g, 0.3, ["hide", "moveLeft"]);
+    expect(g.hero).toMatchObject({ state: "hide", facing: -1 });
+    run(g, 0.3, ["hide"]);
+    tick(g);
+    expect(g.hero).toMatchObject({ state: "idle", facing: -1 });
+  });
+
   it("hides at once while shooting and stops the fire", () => {
     for (const held of [["shoot"], ["shoot", "moveRight"]]) {
       const g = game({ x: 10.5, y: 14, weapon: "gun" });
@@ -119,7 +129,7 @@ describe("projectiles", () => {
     const g = game();
     fire(g, 9);
     run(g, 0.5);
-    expect(g.hero.energy).toBe(90);
+    expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
     expect(g.hero.hitAge).not.toBeNull();
     expect([...g.seen]).toEqual(["idle"]);
     expect(g.world.projectiles).toHaveLength(0);
@@ -131,7 +141,7 @@ describe("projectiles", () => {
     expect(g.hero.state).toBe("duck");
     fire(g, 9);
     run(g, 0.5, ["down"]);
-    expect(g.hero.energy).toBe(90);
+    expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
     expect(g.world.projectiles).toHaveLength(0);
   });
 
@@ -248,10 +258,10 @@ describe("damage", () => {
     expect(g.hero).toMatchObject({ state: "idle", energy: cfg.energy.max, shields: 1 });
   });
 
-  it("keeps the state and starts hitAge, then death with died after ten hits, then respawns", () => {
+  it("keeps the state and starts hitAge, then death with died on the last hit, then respawns", () => {
     const g = game();
     run(g, 0.5);
-    const events = Array.from({ length: 9 }, () => damage(g.hero, cfg)).flat();
+    const events = Array.from({ length: cfg.energy.max / cfg.energy.hit - 1 }, () => damage(g.hero, cfg)).flat();
     expect(g.hero.state).toBe("idle");
     expect(g.hero.hitAge).toBe(0);
     expect(events).toEqual([]);
@@ -270,7 +280,7 @@ describe("damage", () => {
     runUntil(g, (h) => h.y > 8);
     damage(g.hero, cfg);
     expect(g.hero.state).toBe("fall");
-    expect(g.hero.energy).toBe(90);
+    expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
     runUntil(g, (h) => h.onGround);
     expect(g.hero.state).toBe("fallDeath");
   });
@@ -304,7 +314,7 @@ describe("damage", () => {
       const g = start();
       const { state, time } = g.hero;
       damage(g.hero, cfg);
-      expect(g.hero).toMatchObject({ state, time, hitAge: 0, energy: 90 });
+      expect(g.hero).toMatchObject({ state, time, hitAge: 0, energy: cfg.energy.max - cfg.energy.hit });
       for (let i = 0; i < 30; i++) {
         tick(plain, held);
         tick(g, held);

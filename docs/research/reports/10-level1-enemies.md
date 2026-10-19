@@ -6,7 +6,7 @@ Status: draft. Machine-readable copy: `config/levels/mesto/enemies.json`. Annota
 
 - **The placement data exists in the game files.** It is hard-coded in `KLEV1.EXE`: the level-1 setup routine fills a fixed enemy table with plain `mov [mem], imm` stores. This overturns the "not found" line in report 09.
 - Level 1 has **44 regular enemies: 27 chrome droids (engine type 1) and 17 flyers (type 2)**, plus **two special guards**: one that can only be shot (marker 15) and one that only acid kills (marker 14, drawn as map tiles).
-- Every regular enemy has 2.0 hit points: **14 machine-gun hits or 4 E-blaster hits**. Each patrols a fixed x range on its own floor.
+- Every regular enemy has 2.0 hit points and dies below 1.0: **7 machine-gun hits or 3 punches**. The E-blaster drains 0.03 per particle per tick instead of a fixed hit. Each patrols a fixed x range on its own floor.
 - 23 of the 44 table entries were matched to a sighting in the two level-1 videos. Every sighting landed inside its entry's patrol range on the right floor.
 - No rocket robot, two-legged walker, teleporting flyer or turret appears in level 1. The engine's enemy code only knows types 1 and 2.
 
@@ -27,7 +27,7 @@ flowchart LR
    - the enemy table at `ds:0x6AEF`: up to 50 slots of 27 bytes. +0/+2 patrol x min/max (16-bit), +4 x and +8 y (32-bit, map cells), +0xC type (1 or 2), +0xD alive flag, +0x15 hit points (6-byte Pascal real, 2.0). Slot 1 is a dummy at (0, 0) that the hit code skips; slots 2, 12 and 16 are unused. Example, slot 3: `mov [0x6b40],0x16`, `mov [0x6b42],0x7d`, `mov [0x6b44],0x26`, `mov [0x6b48],0x35`, `mov byte [0x6b4c],1` (patrol 22-125, x 38, y 53, type 1).
    - a separate table of shootable objects at `ds:0x39B9` (12-byte records): one level-1 entry, x 20, y 10, 80 hit points.
    - player start (x 56, y 53, 350 ammo), item cells and lift columns.
-   - Damage code (segment 5, about 0x7D96-0x7F63): machine gun takes 0.15 x ammo type per hit (ammo type 1, so 14 hits), E-blaster 0.5 per hit (4 hits) and only on the player's floor.
+   - Damage code (segment 5, about 0x7D96-0x80F9): weapon 1 (machine gun) takes 0.15 x ammo type per hit (`5:0x7E38`, ammo type 1 in level 1); weapon 2 (fists) takes 0.5 per punch (`5:0x7E79-0x7F63`, constant `cs:0x62E4`), only on the player's floor; weapon 3 (E-blaster, `5:0x7F67-0x80F9`) takes 0.03 per tick from every one of the 40 particles in `ds:0x499E` within 1 cell of the enemy while hp >= 1.0. The death check (`5:0x8102-0x81A1`) kills the enemy once hp < 1.0 (`cs:0x62CC`), so the machine gun kills in 7 hits (2.0 - 7 x 0.15 = 0.95), fists in 3 and the E-blaster in about 34 particle-ticks. See Fists below.
    - No other file holds placement data. The CD image adds only `INSTALL.EXE` and `INSTAL.INI`. `MAPY/*.MAP` files are exactly 25600 bytes. No downloaded program was run.
 2. **Coordinate frame.** The engine's x is 6 cells left of the map column where the object is drawn. Checks: the player start (engine x 56) shows the player at map column 62 on the first gameplay frame; the corpse (engine 10) is at column 16; the E-blaster (34) is picked up at column 40; the street-to-metro lift (73) is at column 79; the flyer e26 (engine 129, patrol 127-134) was seen at columns 134-136. Engine y is the top row of a 7-row floor band. Ground enemies stand in row y+5 (floor plank at y+6). Flyers are lifted 4 rows at setup and hover around row y+3. All cells below use **map cells = engine x + 6** and those rows.
 3. **Video.** Video A (5r7Yie502C0, native 320x200) at 4 fps from 3:20, video B (KkPeKkoohvk, 640x360 game area rescaled to 320x200) at 2 fps. Frames whose HUD did not match were dropped (cutscenes, inventory, map). The parallax sky (`LEV1.GRA` frame 0) was matched first, so pixels that are just sky are masked out. The rest was matched against `map_M11..M16.png` (grayscale, masked squared difference, coarse search at 1/4 scale, fine search at full scale). A path-smoothing pass picked the most consistent candidate per frame, and broken stretches were re-searched inside the known floor band. Then a 24-px cell grid with map coordinates was drawn on the frames (`video/enemies/*_grid.png`) and each enemy's cell was read off by eye.
@@ -37,9 +37,9 @@ flowchart LR
 
 | Type | Engine type | Count | Look | Behaviour | Hits to kill |
 |---|---|---|---|---|---|
-| Chrome droid | 1 | 27 | Silver humanoid, same build as the player (`LEV1.GRA` f21-22) | Walks its patrol range on the floor, comes up to the player, fires fast orange bolts. Ignores a hidden player and walks right up to him (A 3:49, 4:21, 5:17). Dies in a big orange explosion and leaves scrap. | 14 machine-gun or 4 E-blaster |
-| Flyer | 2 | 17 | Grey-green pod with a nose gun and wing (`LEV1.GRA` f23-24) | Hovers about 3 rows above the floor and patrols with the droids. Fires missiles; one hit killed the player at 10% energy (A 10:09). Can be shot down (A 5:24, 5:43, 6:24, 9:15; B 14:24, 14:38, 14:55). | 14 machine-gun or 4 E-blaster |
-| Shoot-only guard (marker 15) | separate table | 1 | Not seen in footage | Stands at the crane level; the crane key lies behind him. Only hurt from the same floor. | 80 hp, 4 per hit, about 20 hits |
+| Chrome droid | 1 | 27 | Silver humanoid, same build as the player (`LEV1.GRA` f21-22) | Walks its patrol range on the floor, comes up to the player, fires fast orange bolts. Ignores a hidden player and walks right up to him (A 3:49, 4:21, 5:17). Dies in a big orange explosion and leaves scrap. | 7 machine-gun or 3 punches |
+| Flyer | 2 | 17 | Grey-green pod with a nose gun and wing (`LEV1.GRA` f23-24) | Hovers about 3 rows above the floor and patrols with the droids. Fires missiles; one hit killed the player at 10% energy (A 10:09). Can be shot down (A 5:24, 5:43, 6:24, 9:15; B 14:24, 14:38, 14:55). | 7 machine-gun or 3 punches |
+| Shoot-only guard (marker 15) | separate table | 1 | Not seen in footage | Stands at the crane level; the crane key lies behind him. Only hurt from the same floor and only by the E-blaster. | 80 hp, 4 per E-blaster hit, about 20 hits |
 | Acid-only guard (marker 14) | map tiles | 1 | Tiles in `M11`, replaced by wreckage in `M16` | Blocks the corridor; normal weapons do nothing. The tap handle on the acid tank one floor up kills it ("KYSELINOU JSI POLIL STRAZCE"). | acid only |
 
 Notes:
@@ -200,8 +200,19 @@ flowchart LR
 - **Field order.** In the level-1 record (`4:0x6D6E-0x6D8B`), dword +0 (`0x39C5`) = 10, dword +4 (`0x39C9`) = 20 and byte +8 = 80 hp. The consumers below compare +4 against the player x and +0 against the player y `[0xDB25]`, so x = 20 and y = 10, as the main report says.
 - **Where x is used.** Only in collision and hit tests; no draw code reads `ds:0x39B9`:
   - Player blocking, seg 3 `0x614D-0x6356`: `(gx+1)*24` against `px*24 + [0xDB52] + [0xDB44]`. A guard with hp above 0 stops the player.
-  - Shot hits, seg 7 `0x050F-0x068C` (level 1 only, `0x008E`): passes if `-144 <= gx*24 - (px*24 + [0xDB44] + [0xDB52]) <= 0` and `gy == player y`. It then subtracts 4 hp and puts an impact spark into the shared effect table `ds:0x4E70` at x = gx, y = gy-1. The routine runs only when the weapon selector `[0x5487]` is 3 (`7:0x0098`). Which weapon that id is was not traced. A second routine (`7:0x0F46`, levels 2, 5, 6, 7 and 8) takes 6 hp per hit.
+  - Shot hits, seg 7 `0x050F-0x068C` (level 1 only, `0x008E`): passes if `-144 <= gx*24 - (px*24 + [0xDB44] + [0xDB52]) <= 0` and `gy == player y`. It then subtracts 4 hp and puts an impact spark into the shared effect table `ds:0x4E70` at x = gx, y = gy-1. The routine runs only when the weapon selector `[0x5487]` is 3 (`7:0x0098`), the E-blaster (see Fists below for the weapon ids). A second routine (`7:0x0F46`, levels 2, 5, 6, 7 and 8) takes 6 hp per hit.
 - **Comparison with regular enemies.** Enemy targeting (`4:0xCE90-0xCFDB`) uses the same reference, `px*24 + [0xDB52] + [0xDB44]`, against `ex*24 + pixel x offset`. The enemy hit spark (`5:0x7DA0-0x7E0B`) fills the same `ds:0x4E70` effect record the same way (x = enemy x, y = enemy y - 1). Both tables are measured against the same player x with no extra offset, so they share one coordinate frame. The +6 is a property of that frame (player start, items and lifts already show it), so the guard stands at **map column 26, row 10 band** (cell [26, 15]). The bare x 20 would be wrong.
+
+### Fists (static analysis, not checked in the running game)
+
+- **Weapon ids** in `[0x5487]` (seg 1 `0x40A4-0x437B`): 1 = machine gun (ammo `[0xDB36]`, HUD `b31.gra`), 2 = fists (HUD `b32.gra`, key 0xB at any time, forced when both ammo counts are 0), 3 = E-blaster (key 0xC only after the pickup at `3:0x9706` sets `[0x5486]=1` and `[0xDB38]=500`). An empty E-blaster switches back to 1; an empty gun switches to 3.
+- **Animation** (seg 7 `0x843C-0x8496`): fire with weapon 2 picks `Random(10)`: 0-1 state 0x25, 2-5 state 0x2F, 6-9 state 0x39. Each punch runs about 10 states, then returns to stand (0x19). Ducking uses states 0x63 and 0x6D; the other facing adds 1000.
+- **One hit per punch** (seg 3 `0xC0F7-0xC25C`): the damage routine `5:0x62F2` runs once per punch, on frame 0x26, 0x30, 0x3A, 0x63 or 0x6D (and their mirrors), with the punch sound.
+- **Target** (seg 4 `0xCDD7-0xD13C`): `d = (ex*24 + enemy px offset) - (px*24 + [0xDB52] + [0xDB44])`, needs -34 <= d <= 34 px (about 1.4 cells), enemy y == player y and the facing side; the nearest wins (`[0x5485]`).
+- **Damage** (seg 5 `0x7E79-0x7F63`): an impact spark and `hp -= 0.5` (`cs:0x62E4`). 2.0, 1.5, 1.0, then 0.5 < 1.0 kills on the 3rd punch. Level 1 hp 2.0 is the Real48 at `4:0x6DD8`.
+- **Other levels:** a second actor table at `ds:0x39F6` (23-byte records, 20 slots, used when `[0xDC6E]==1`) takes 1.0 per punch with a 50 px reach (`5:0x7A6B-0x7B93`).
+- Constant pool at seg 5 `0x62C8`: `0x62CC` 1.0, `0x62D0` 0.1, `0x62DA` 0.15, `0x62E4` 0.5, `0x62E8` 0.03.
+- Earlier versions of this report read the fists path as "E-blaster 0.5 per hit" and missed the 1.0 death threshold (14 gun hits, 4 E-blaster hits). The 16 and 26 rounds counted per kill in the videos still fit 7 hits, as the gun spends 1 ammo per call and shots miss.
 
 ### Changes
 

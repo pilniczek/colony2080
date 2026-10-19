@@ -74,7 +74,7 @@ const beyond = (p: Projectile, x: number, edge: number): boolean => (x - edge) *
 
 const seen = (world: SandboxWorld, x: number, y: number): boolean => !world.fog || visible(world.fog, x, y);
 
-function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number): boolean {
+function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number, damage = 1): boolean {
   let struck: { enemy: Enemy; face: number } | null = null;
   for (const enemy of world.enemies) {
     const face = enemyFace(enemy, cfg, from, p);
@@ -82,7 +82,7 @@ function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Proje
     if (!struck || Math.abs(face - from) < Math.abs(struck.face - from)) struck = { enemy, face };
   }
   if (!struck) return false;
-  hitEnemy(struck.enemy);
+  hitEnemy(struck.enemy, damage);
   world.sparks.push({ x: struck.face, y: p.y, age: 0 });
   return true;
 }
@@ -104,12 +104,21 @@ export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], cli
   }
 }
 
+export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], cfg: MovementConfig): void {
+  for (const e of events) {
+    if (e.kind !== "punch") continue;
+    const x = h.x + h.facing * (cfg.punch.reach - cfg.box.width / 2);
+    const fist = { x, y: h.y - cfg.box.duckHeight / 2, vx: h.facing, r: 0, tag: HERO_SHOT };
+    strike(world, cfg, h.x, fist, sightEdge(world, h.x, fist), cfg.punch.damage);
+  }
+}
+
 export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, enemy: Enemy, count: number): void {
   const { body } = enemy;
   for (let i = 0; i < count; i++) {
     const [x, y] = heroMuzzle(body, clips, cfg);
     if (!seen(world, x, y)) continue;
-    launch(world, cfg, body.x, { x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x });
+    launch(world, cfg, body.x, { x: body.x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x });
   }
 }
 

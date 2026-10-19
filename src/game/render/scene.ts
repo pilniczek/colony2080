@@ -22,7 +22,6 @@ const IMPACT = { radius: 7, k: 0.3 };
 const TRACER = { length: 14, width: 2 };
 const DUST = { back: 30, up: 6, radius: 18 };
 const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
-const SHOT_FLASH_MS = 1000 / 12;
 const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
 const BLAST = { grow: 0.25, hideBody: 0.45, center: -84, spin: 3.2, pull: [0.75, 1.1], fade: [0.9, 1.2], ring: [0.95, 1.45], ringRadius: 72, ringWidth: 11, swirl: 0.16, size: 1.6 } as const;
 const FIREBALLS: [number, number, number, number][] = [
@@ -182,11 +181,11 @@ function scrap(f: Frame, body: Hero): void {
   for (const [dx, dy, w] of [[-12, -9, 6], [8, -18, 4], [20, -10, 5]] as const) ctx.fillRect(x + body.facing * dx * unit, y + dy * unit, w * unit, 2 * unit);
 }
 
-function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: number): void {
+function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: number, fireRate: number): void {
   const age = enemy.deadAge;
   if (age === null || age < BLAST.hideBody) {
     shadow(f, enemy.body, look);
-    heroFigure(f, enemy.body, look, rigs, scale, enemyFiring(enemy), ENEMY_PALETTE);
+    heroFigure(f, enemy.body, look, rigs, scale, firing(enemy.body, fireRate), ENEMY_PALETTE);
   } else scrap(f, enemy.body);
   if (age !== null) blast(f, enemy.body, age);
 }
@@ -233,9 +232,6 @@ const hitStar = (ctx: CanvasRenderingContext2D, hit: HitLook): void => star(ctx,
 
 const firing = (hero: Hero, fireRate: number): boolean =>
   hero.weapon === "gun" && hero.fireTime !== null && Math.floor(hero.fireTime * fireRate) % 2 === 0;
-
-const enemyFiring = ({ body, firePeriodMs }: Enemy): boolean =>
-  body.fireTime !== null && (body.fireTime * 1000) % firePeriodMs < SHOT_FLASH_MS;
 
 function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs): void {
   const muzzle = muzzleInRig(look, rigs);
@@ -285,7 +281,7 @@ export function drawScene(
   drawEnvironment(ctx, world, cfg, alpha, lines);
   ctx.save();
   if (sight) ctx.clip(sight);
-  world.enemies.forEach((enemy, i) => enemyFigure(f, enemy, enemyLooks[i]!, enemyRigs, scale));
+  world.enemies.forEach((enemy, i) => enemyFigure(f, enemy, enemyLooks[i]!, enemyRigs, scale, cfg.fireRate));
   ctx.restore();
   shadow(f, hero, look);
   heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
