@@ -115,32 +115,133 @@ function flyerHull(ctx, { hot = false, hump = true, patch = true } = {}) {
   for (const x of [9, 11.5, 14, 16.5, 19, 21.5, 24]) P.flat(ctx, x, 11.1, 1.2, 1, x === 24 && hot ? "fLightHot" : "fLight");
 }
 
+const BLAST = { grow: 0.25, hideBody: 0.45, center: -84, spin: 3.2, pull: [0.75, 1.1], fade: [0.9, 1.2], ring: [0.95, 1.45], ringRadius: 72, ringWidth: 11, swirl: 0.16, size: 1.6, loop: 2 };
+const BLAST_PX = (1.9 * ENV.TILE) / 147;
+const FIREBALLS = [[6, -96, 0, 22], [-14, -72, 0.08, 26], [22, -60, 0.16, 24], [-4, -116, 0.24, 30], [-26, -100, 0.3, 24], [18, -128, 0.36, 28], [0, -84, 0.4, 36], [-18, -40, 0.46, 22], [24, -36, 0.5, 20]];
+const BLAST_COLORS = { core: "#fff3b0", mid: "#ffb030", edge: "#e8641a", out: "rgba(150,40,10,0)", vortex: "#d8301c", scrap: "#5d6668", scrapLight: "#a9b3b5" };
+const SCRAP = [[-34, 0], [-26, -8], [-14, -10], [-8, -18], [2, -12], [10, -22], [18, -12], [28, -10], [36, 0]];
+
+const span = (t, [a, b]) => Math.min(1, Math.max(0, (t - a) / (b - a)));
+
+function fireball(ctx, x, y, r, alpha) {
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, BLAST_COLORS.core);
+  g.addColorStop(0.45, BLAST_COLORS.mid);
+  g.addColorStop(0.8, BLAST_COLORS.edge);
+  g.addColorStop(1, BLAST_COLORS.out);
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function swirlBall(ctx, x, y, r, angle, alpha) {
+  fireball(ctx, x, y, r, alpha);
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.strokeStyle = BLAST_COLORS.edge;
+  ctx.lineWidth = r * BLAST.swirl;
+  ctx.lineCap = "round";
+  for (const [k, from, sweep] of [[0.62, 0, 1.3], [0.34, Math.PI, 1.1]]) {
+    ctx.beginPath();
+    ctx.arc(x, y, r * k, angle + from, angle + from + Math.PI * sweep);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function vortexRing(ctx, cy, age) {
+  const u = span(age, BLAST.ring);
+  if (u <= 0 || u >= 1) return;
+  const angle = BLAST.spin * 1.5 * age;
+  ctx.save();
+  ctx.globalAlpha *= 1 - u;
+  ctx.strokeStyle = BLAST_COLORS.vortex;
+  ctx.lineWidth = BLAST.ringWidth * (1 - u * 0.8);
+  ctx.lineCap = "round";
+  const radius = BLAST.ringRadius * (0.7 + 0.5 * u);
+  for (let i = 0; i < 3; i++) {
+    const from = angle + (i * 2 * Math.PI) / 3;
+    ctx.beginPath();
+    ctx.arc(0, cy, radius * (1 - 0.08 * i), from, from + Math.PI * (0.55 - 0.25 * u));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function blast(ctx, age, facing = 1) {
+  const cy = BLAST.center;
+  const angle = facing * BLAST.spin * age;
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const pull = 1 - 0.85 * span(age, BLAST.pull);
+  const alpha = 1 - span(age, BLAST.fade);
+  FIREBALLS.forEach(([dx, dy, start, r], i) => {
+    const t = age - start;
+    if (t < 0 || alpha <= 0) return;
+    const ox = facing * dx * BLAST.size, oy = (dy - BLAST.center) * BLAST.size;
+    const grow = Math.min(1, t / BLAST.grow) * (1 + 0.4 * (1 - pull));
+    swirlBall(ctx, (ox * cos - oy * sin) * pull, cy + (ox * sin + oy * cos) * pull, r * BLAST.size * (0.3 + 0.7 * grow), angle * 1.6 + i, alpha);
+  });
+  vortexRing(ctx, cy, age);
+}
+
+function scrap(ctx, facing = 1) {
+  ctx.fillStyle = BLAST_COLORS.scrap;
+  ctx.beginPath();
+  for (const [dx, dy] of SCRAP) ctx.lineTo(facing * dx, dy);
+  ctx.fill();
+  ctx.fillStyle = BLAST_COLORS.scrapLight;
+  for (const [dx, dy, w] of [[-12, -9, 6], [8, -18, 4], [20, -10, 5]]) ctx.fillRect(facing * dx, dy, w, 2);
+}
+
+function inBlastUnits(ctx, x, y, draw) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(BLAST_PX, BLAST_PX);
+  draw();
+  ctx.restore();
+}
+
 const FLYER = {
   id: "flyer",
   box: { x: -24.5, y: -9, w: 49, h: 18 },
   draw(ctx, state, t) {
-    const fire = state === 1 ? fireFrame(t % 1.2) : -1;
-    const flicker = 0.8 + 0.2 * Math.sin(t * 31) * Math.sin(t * 13);
-    ctx.translate(-24.5, -10.5 + Math.sin(t * 2.4) * 0.6);
-
-    ellipse(ctx, 8.5, 17, 3.2, 2, "fBelly", "fhLine");
-    if (!ENV.simple) ellipse(ctx, 8.5, 17, 1.6, 0.9, "fh0");
-
-    flyerHull(ctx, { hot: fire >= 0 });
-
-    sideGun(ctx, MOUNT.x, MOUNT.y, 1, MOUNT_BARREL);
-    if (fire >= 0) flash(ctx, MOUNT.x + MOUNT_MUZZLE, MOUNT.y - 40 * GUN_PX, 1, fire, 3.4);
-
-    ellipse(ctx, 2.6, 10.5, 1.9, 7, "e0", "fhLine");
-    ellipse(ctx, 2.9, 10.5, 1.3, 5.6, "e1");
-    ctx.save();
-    ctx.globalAlpha = flicker;
-    ellipse(ctx, 3.2, 10.5, 0.9, 4.6, "e2");
-    ellipse(ctx, 3.4, 10.5, 0.5, 3.2, "e3");
-    ctx.restore();
-    if (!ENV.simple) P.glow(ctx, 1.5, 10.5, 7 * flicker, "eGlow", 0.35);
+    if (state !== 2) return flyerBody(ctx, state, t);
+    const age = t % BLAST.loop;
+    if (age < BLAST.hideBody) {
+      ctx.save();
+      flyerBody(ctx, 0, t);
+      ctx.restore();
+    }
+    inBlastUnits(ctx, 0, -BLAST.center * BLAST_PX, () => blast(ctx, age));
   }
 };
+
+function flyerBody(ctx, state, t) {
+  const fire = state === 1 ? fireFrame(t % 1.2) : -1;
+  const flicker = 0.8 + 0.2 * Math.sin(t * 31) * Math.sin(t * 13);
+  ctx.translate(-24.5, -10.5 + Math.sin(t * 2.4) * 0.6);
+
+  ellipse(ctx, 8.5, 17, 3.2, 2, "fBelly", "fhLine");
+  if (!ENV.simple) ellipse(ctx, 8.5, 17, 1.6, 0.9, "fh0");
+
+  flyerHull(ctx, { hot: fire >= 0 });
+
+  sideGun(ctx, MOUNT.x, MOUNT.y, 1, MOUNT_BARREL);
+  if (fire >= 0) flash(ctx, MOUNT.x + MOUNT_MUZZLE, MOUNT.y - 40 * GUN_PX, 1, fire, 3.4);
+
+  ellipse(ctx, 2.6, 10.5, 1.9, 7, "e0", "fhLine");
+  ellipse(ctx, 2.9, 10.5, 1.3, 5.6, "e1");
+  ctx.save();
+  ctx.globalAlpha = flicker;
+  ellipse(ctx, 3.2, 10.5, 0.9, 4.6, "e2");
+  ellipse(ctx, 3.4, 10.5, 0.5, 3.2, "e3");
+  ctx.restore();
+  if (!ENV.simple) P.glow(ctx, 1.5, 10.5, 7 * flicker, "eGlow", 0.35);
+}
 
 const LEG = 1 / 12;
 const KNEE_PAD = 0.75;
@@ -487,7 +588,8 @@ const GUARD_LEVELS = [["top", -38.5], ["visor", -32.5], ["hip", -23.5], ["knee",
 
 window.ENEMIES = {
   FLYER, GUARD, GUARD_FRONT, GUARD_LEVELS, FLYER_PALETTE, GUARD_PALETTE,
-  FLYER_STATES: ["hover", "firing"],
+  BLAST, BLAST_PX, blast, scrap, inBlastUnits,
+  FLYER_STATES: ["hover", "firing", "explode"],
   GUARD_STATES: ["idle", "firing", "acid (guess)", "wreck"]
 };
 })();

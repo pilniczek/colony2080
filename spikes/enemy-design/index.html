@@ -55,6 +55,8 @@
   <figure><figcaption>Enemy, front</figcaption><canvas id="front" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, side, carry</figcaption><canvas id="side" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, back</figcaption><canvas id="back" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Enemy, explosion</figcaption><canvas id="blastWalker" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Enemy, wreck</figcaption><canvas id="wreckWalker" data-w="640" data-h="780"></canvas></figure>
   <figure class="heroOnly"><figcaption>Hero, side, carry</figcaption><canvas id="heroSide" data-w="640" data-h="780"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
@@ -76,6 +78,7 @@
 <main>
   <figure><figcaption>Flyer, hover</figcaption><canvas id="flyerHover" data-w="1000" data-h="420"></canvas></figure>
   <figure><figcaption>Flyer, firing</figcaption><canvas id="flyerFire" data-w="1000" data-h="420"></canvas></figure>
+  <figure><figcaption>Flyer, explosion (no wreck)</figcaption><canvas id="flyerBlast" data-w="1000" data-h="900"></canvas></figure>
   <figure class="heroOnly"><figcaption>Scale, hero and low flyer</figcaption><canvas id="flyerScale" data-w="1700" data-h="900"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
@@ -181,6 +184,18 @@ function enemy(ctx, asset, { x, y, state = 0, t, pal, lineW, lod = false, facing
   ctx.restore();
 }
 
+const WALKER_BLAST = (FOOT_Y - Object.fromEntries(LEVELS).head) / 147;
+
+function walkerUnits(ctx, draw) {
+  ctx.save();
+  ctx.translate(XBOT.SIDE_AX, FOOT_Y);
+  ctx.scale(WALKER_BLAST, WALKER_BLAST);
+  draw();
+  ctx.restore();
+}
+
+const walkerScrap = ctx => walkerUnits(ctx, () => ENEMIES.scrap(ctx));
+
 function backdrop(ctx, w, h) {
   const g = ctx.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0, SKY[0]);
@@ -207,6 +222,13 @@ const VIEWS = {
     front: (ctx, lw, pal) => robot(ctx, { root: roots.front, pose: POSES.front, hook: "handL", barrel: hold.FRONT_BARREL, pal, lineW: lw * 1.4 }),
     side: (ctx, lw, pal) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.side, pose: POSES.side, hook: "hand", pal, lineW: lw * 1.4 }); },
     back: (ctx, lw, pal) => { render(ctx, roots.back, { pal, lineW: lw * 1.4 }); GUN.slung(ctx, { pal, lineW: lw * 1.4 }); },
+    blastWalker: (ctx, lw, pal, w, h, t) => {
+      const age = t % ENEMIES.BLAST.loop;
+      if (age < ENEMIES.BLAST.hideBody) robot(ctx, { root: roots.side, pose: POSES.side, hook: "hand", pal, lineW: lw * 1.4 });
+      else walkerScrap(ctx);
+      walkerUnits(ctx, () => ENEMIES.blast(ctx, age));
+    },
+    wreckWalker: ctx => walkerScrap(ctx),
     heroSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.heroSide, pose: POSES.side, hook: "hand", pal: PALETTE, lineW: lw * 1.4 }); },
     gDuel: (ctx, lw, pal, w, h) => {
       backdrop(ctx, w, h);
@@ -220,6 +242,7 @@ const VIEWS = {
   flyer: {
     flyerHover: (ctx, lw, pal, w, h, t) => enemy(ctx, FLYER, { x: w / 2, y: h / 2, t, pal, lineW: lw }),
     flyerFire: (ctx, lw, pal, w, h, t) => enemy(ctx, FLYER, { x: w / 2, y: h / 2, state: 1, t, pal, lineW: lw }),
+    flyerBlast: (ctx, lw, pal, w, h, t) => enemy(ctx, FLYER, { x: w / 2, y: h / 2, state: 2, t, pal, lineW: lw }),
     flyerScale: (ctx, lw, pal, w, h, t) => {
       const floor = h - 40;
       floorLine(ctx, w, floor);
@@ -297,7 +320,7 @@ function draw(t = performance.now() / 1000) {
 }
 
 function animate(ms) {
-  if (opts.kind !== "walker") draw(ms / 1000);
+  draw(ms / 1000);
   requestAnimationFrame(animate);
 }
 
