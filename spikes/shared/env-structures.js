@@ -296,6 +296,25 @@ define({
   }
 });
 
+define({
+  id: "tunnelGate",
+  box: [-4, -148, 32, 0],
+  draw(ctx, state) {
+    if (state === 0) {
+      flat(ctx, 1, -142, 22, 142, "hole");
+      if (!window.ENV.simple) for (let y = -134; y < -4; y += 12) flat(ctx, 1, y, 22, 1, "m0");
+      disc(ctx, 12, -120, 1.6, "screenOff", "mLine");
+    } else {
+      glow(ctx, 12, -40, 34, "c3", 0.22);
+      flat(ctx, 1, -2, 22, 2, "c1");
+      disc(ctx, 12, -120, 1.6, "screen", "mLine");
+      glow(ctx, 12, -120, 6, "screen", 0.6);
+    }
+    for (const x of [-3, 23]) box(ctx, x, -142, 4, 142, "steel", 1, { vertical: true });
+    box(ctx, -3, -146, 30, 4, "steel", 2);
+  }
+});
+
 function tunnelPillar(ctx, x) {
   box(ctx, x, -66, 24, 66, "steel", 1, { vertical: true });
   for (const cx of [x + 3, x + 21]) dots(ctx, column(cx, -66, 0, 9), "m3");

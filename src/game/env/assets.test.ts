@@ -21,8 +21,7 @@ const props = world.props as WorldProp[];
 const rows = tasks.tasks as TaskRow[];
 const stateCount = (asset: string): number => Math.max(1, objects.objects.find((o) => o.id === asset)?.states.length ?? 1);
 const assetOf = (id: string): string | undefined => props.find((p) => p.id === id)?.asset;
-const STATELESS_GATES = ["metroTunnel"];
-const ART_OF: Record<string, string> = { damagedLift: "liftPanel" };
+const ART_OF: Record<string, string> = { damagedLift: "liftPanel", metroTunnel: "tunnelGate" };
 
 describe("ASSETS", () => {
   it("has every collected asset under its id and nothing else", () => {
@@ -38,7 +37,7 @@ describe("ASSETS", () => {
   });
   it("draws every mesto object and gate with its own asset", () => {
     for (const p of props) {
-      if (p.kind === "item" || STATELESS_GATES.includes(p.id ?? "")) continue;
+      if (p.kind === "item") continue;
       expect(p.asset, p.id).toBe(ART_OF[p.id ?? ""] ?? p.id);
     }
   });

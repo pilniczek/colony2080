@@ -1,4 +1,5 @@
 import { BEAM_FRAMES, drawBeam } from "../../src/game/render/beam";
+import { blasterIcon } from "../../src/game/hud/blasterIcon";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../../src/game/robot/eblaster";
 import { barrelFor, drawGun, FRONT_BARREL, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
@@ -46,6 +47,7 @@ interface SpikeGun {
 
 interface SpikeEBlaster extends Omit<SpikeGun, "holdPoses"> {
   beam(ctx: CanvasRenderingContext2D, length: number, frame: number, seed: number): void;
+  icon(x: number): string;
 }
 
 interface SpikeEnvAsset {
@@ -301,6 +303,18 @@ const runBeam = (frame: number, seed: number, out: HTMLElement): VisualResult =>
   return report(`beam ${JSON.stringify({ frame, seed })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
 };
 
+const ICON_XS = [0, 37.5];
+
+const runBlasterIcon = (out: HTMLElement): VisualResult => {
+  const differ = ICON_XS.filter((x) => window.EBLASTER.icon(x) !== blasterIcon(x));
+  const name = `blaster icon ${JSON.stringify({ xs: ICON_XS })}, differ: ${differ.join(", ") || "none"}`;
+  const box = document.createElement("div");
+  box.className = "case";
+  box.append(name);
+  out.append(box);
+  return { name, mismatches: differ.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: differ.length === 0 };
+};
+
 const runFrontBarrel = (out: HTMLElement): VisualResult => {
   const spike = window.GUN.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true })).FRONT_BARREL;
   const front = buildFront({ rightArmFirst: true, propBehindArm: true });
@@ -385,7 +399,7 @@ const eblasterCases = [
 ];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1] };
+const envStates: Record<string, number[]> = { stripLight: [0, 1], tunnelGate: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1] };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
@@ -400,6 +414,6 @@ const envCases = [
   ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
   ...envAssets.filter((a) => a.anim).flatMap((a) => (envStates[a.id] ?? [0]).map((state) => (o: HTMLElement) => runEnvCase(a.id, state, false, undefined, o, ENV_ANIM_T))),
 ];
-const cases = [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runFrontBarrel, ...envCases];
+const cases = [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

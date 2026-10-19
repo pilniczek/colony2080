@@ -171,7 +171,8 @@ export function prop(e: Env, p: Prop): void {
   const id = p.kind === "item" ? icon?.asset : (p.asset ?? PROP_ASSETS[p.kind]);
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
-  put(e, id, p.x * e.cell - ((left + right) / 2) * k(e), (p.y ?? e.world.spawn[1]) * e.cell, icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0)));
+  const { dx = 0, dy = 0 } = p.art ?? {};
+  put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0)));
 }
 
 export function drawEnvironment(

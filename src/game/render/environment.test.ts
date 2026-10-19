@@ -65,6 +65,22 @@ describe("object props", () => {
   });
 });
 
+const placedAt = (p: Prop): number[] => {
+  const { ctx } = counting();
+  let at: number[] = [];
+  const spy = new Proxy(ctx, { get: (t, key) => (key === "translate" ? (...args: number[]) => void (at.length || (at = args)) : Reflect.get(t, key)) });
+  prop({ ctx: spy, world, hero: { blaster: null }, cell: CELL, unit: 1, lines: 1, screen: worldRect }, p);
+  return at;
+};
+
+describe("prop art offset", () => {
+  it("moves the art by art.dx and art.dy cells and keeps it in place without one", () => {
+    const base = placedAt({ kind: "object", id: "a", asset: "switchboard", x: 3, y: 5 });
+    expect(placedAt({ kind: "object", id: "a", asset: "switchboard", x: 3, y: 5, art: { dx: 2, dy: -1 } })).toEqual([base[0]! + 2 * CELL, base[1]! - CELL]);
+    expect(placedAt({ kind: "object", id: "a", asset: "switchboard", x: 3, y: 5, art: { dx: 0.5 } })).toEqual([base[0]! + 0.5 * CELL, base[1]!]);
+  });
+});
+
 describe("item props", () => {
   const fills = (item: string, taken: boolean): number => painting({ kind: "item", item, x: 3, taken });
 

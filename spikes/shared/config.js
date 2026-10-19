@@ -1240,6 +1240,7 @@ window.C28_CONFIG = {
       "task": "repairLift",
       "sheet": "machines",
       "description": "Standard lift shaft by a lattice pylon (map col 56, floors 31-38) whose control panel is broken: OVLÁDACÍ PANEL VÝTAHU JE POŠKOZEN; walkthrough calls it a snowy/grainy screen. Using the controller on it opens floors 24, 17 and 10.",
+      "note": "The level draws the liftPanel asset for this object (state 1 damaged, 0 repaired), since the map lift draws the lift itself.",
       "states": [
        "broken (grainy screen)",
        "repaired",
@@ -2495,6 +2496,22 @@ window.C28_CONFIG = {
         "caption": "wall fan"
        }
       ]
+     },
+     {
+      "id": "tunnelGate",
+      "name": "Dark metro tunnel mouth",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": "wireSwitchboard",
+      "sheet": "structures",
+      "description": "Steel-framed tunnel mouth, 1 tile wide and 6 tall, that blocks the metro tunnel at map col 56 until the switchboard powers the metro: dark and closed, then lit and open.",
+      "note": "Not an original object: the original blocks the dark tunnel with an invisible task wall (metroTunnel); this asset gives that gate a look.",
+      "states": [
+       "dark (closed)",
+       "lit (open)"
+      ],
+      "refs": []
      },
      {
       "id": "tunnelWall",
