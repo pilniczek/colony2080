@@ -6,6 +6,14 @@ import { resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel"
 import { updateEnemy } from "./level/enemy";
 import { fireEnemy, fireShots, landPunches, stepShots } from "./shots";
 
+export const SUBTITLE_MS = 3500;
+
+function ageSubtitle(world: SandboxWorld, dt: number): void {
+  if (!world.subtitle) return;
+  world.subtitle.age += dt * 1000;
+  if (world.subtitle.age >= SUBTITLE_MS) world.subtitle = null;
+}
+
 export function stepWorld(
   world: SandboxWorld,
   hero: Hero,
@@ -15,6 +23,8 @@ export function stepWorld(
   dt: number,
   consume: (action: string) => boolean,
 ): HeroEvent[] {
+  if (world.complete) return [];
+  ageSubtitle(world, dt);
   if (world.fog) updateFog(world.fog, hero, cfg, dt);
   for (const enemy of world.enemies) fireEnemy(world, cfg, clips, enemy, updateEnemy(enemy, world.grid, world.fog, hero, clips, cfg, dt));
   stepShots(world, cfg, dt);

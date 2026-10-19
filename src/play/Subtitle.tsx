@@ -1,0 +1,41 @@
+import type { CSSProperties, ReactNode } from "react";
+import { viewRect } from "../game/hud/layout";
+import { useSandbox } from "../sandbox/store";
+
+const BOTTOM_SHARE = 0.08;
+const FONT_UNITS = 6;
+
+export const SUBTITLE_STYLE: CSSProperties = {
+  color: "#ffd84a",
+  fontFamily: '"Share Tech Mono", ui-monospace, monospace',
+  textShadow: "0 0 4px #000, 0 2px 3px #000, 0 0 10px #000c",
+  textAlign: "center",
+  lineHeight: 1.3,
+};
+
+export function Caption({ children }: { children: ReactNode }) {
+  const fit = useSandbox((s) => s.hud);
+  const r = viewRect(fit);
+  return (
+    <div
+      style={{
+        ...SUBTITLE_STYLE,
+        position: "absolute",
+        left: r.x,
+        width: r.w,
+        bottom: `calc(100% - ${r.y + r.h * (1 - BOTTOM_SHARE)}px)`,
+        fontSize: FONT_UNITS * fit.unit,
+        padding: "0 16px",
+        boxSizing: "border-box",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function Subtitle() {
+  const text = useSandbox((s) => s.subtitle);
+  const complete = useSandbox((s) => s.complete);
+  return text && !complete ? <Caption>{text}</Caption> : null;
+}

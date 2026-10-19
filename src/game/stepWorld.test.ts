@@ -10,7 +10,8 @@ import { loadClips, loadMovement } from "./hero/config";
 import { createFog, loadFog } from "./fog";
 import { createHero, kill, type Hero } from "./hero/hero";
 import { loadSandbox, pickUp } from "./level/sandboxLevel";
-import { stepWorld } from "./stepWorld";
+import { say } from "./level/tasks";
+import { stepWorld, SUBTITLE_MS } from "./stepWorld";
 
 const scenario = loadMovement(movementJson);
 const SCENARIO_SHOT = { speed: 8, radius: 0.15 };
@@ -102,5 +103,38 @@ describe("map reset on hero respawn", () => {
     const covered = (w: typeof world): number => w.fog!.revealed.reduce((n, v) => n + v, 0);
     expect(covered(world)).toBe(covered(fresh));
     expect(hero.ammo).toBe(3);
+  });
+});
+
+describe("subtitles and level end", () => {
+  const still = new Input(controls.keyboard, () => 0, cfg.inputBufferMs);
+  const steps = (world: ReturnType<typeof loadSandbox>, hero: Hero, n: number, input = still): void => {
+    for (let i = 0; i < n; i++) stepWorld(world, hero, input.frame(), cfg, clips, FIXED_STEP, (action) => input.consume(action));
+  };
+
+  it("ages out the subtitle after 3.5 s", () => {
+    const world = loadSandbox(sandboxJson);
+    const hero = createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
+    say(world, "Hello");
+    steps(world, hero, Math.floor(SUBTITLE_MS / 1000 / FIXED_STEP) - 2);
+    expect(world.subtitle?.text).toBe("Hello");
+    steps(world, hero, 4);
+    expect(world.subtitle).toBeNull();
+  });
+
+  it("freezes the world once complete", () => {
+    const world = loadSandbox(sandboxJson);
+    const hero = createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
+    const input = new Input(controls.keyboard, () => 0, cfg.inputBufferMs);
+    input.keyDown("ArrowRight");
+    world.complete = true;
+    say(world, "Level complete");
+    world.projectiles.push({ x: hero.x, y: hero.y - 1, vx: -1, r: 0.3, tag: "enemy" });
+    const enemiesBefore = world.enemies.map((e) => [e.body.x, e.body.y]);
+    const start = { x: hero.x, y: hero.y, energy: hero.energy };
+    steps(world, hero, 600, input);
+    expect({ x: hero.x, y: hero.y, energy: hero.energy }).toEqual(start);
+    expect(world.enemies.map((e) => [e.body.x, e.body.y])).toEqual(enemiesBefore);
+    expect(world.subtitle?.text).toBe("Level complete");
   });
 });

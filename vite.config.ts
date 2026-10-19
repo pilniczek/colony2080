@@ -21,10 +21,10 @@ export default defineConfig({
   resolve: {
     alias: { "@config": root("./config") },
   },
-  optimizeDeps: { entries: ["index.html", "sandbox.html"] },
+  optimizeDeps: { entries: ["index.html", "sandbox.html", "game.html"] },
   build: {
     rollupOptions: {
-      input: { index: root("./index.html"), sandbox: root("./sandbox.html") },
+      input: { index: root("./index.html"), sandbox: root("./sandbox.html"), game: root("./game.html") },
     },
   },
 });
