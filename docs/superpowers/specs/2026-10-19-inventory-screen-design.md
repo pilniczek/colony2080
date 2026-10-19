@@ -65,7 +65,7 @@ Today the inventory is a stack: the newest item is shown and `useTop` pops the t
 
 - Picking up an item still makes it the shown item.
 - The screen can show any held item. Picking does not reorder the list (Claude's call).
-- A use consumes the shown item (not the top), removed from wherever it sits. The newest remaining item becomes shown.
+- A use consumes the shown item (not the top), removed from wherever it sits. The newest remaining item becomes shown. Superseded the same day: used items stay unless the task consumes them (mission 1 spec, 2026-10-19 revisit).
 - Death still empties the inventory.
 
 This removes the soft-lock flaw. Update `docs/requirements.md` (Stack inventory, Known issues, the `I` open question).
