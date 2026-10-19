@@ -114,7 +114,7 @@ Binary and media folders are local only (copyrighted, large); the list lives in 
 | `gamedata/raw/CD/` | Original CD image |
 | `tools/enemies/` | Enemy table disassembly helpers and video-to-map locator scripts |
 | `gamedata/disasm/` | `KLEV1.EXE` disassembly, decoded level 1 enemy table, verification disassembly in `verify/` (local only) |
-| `gamedata/png/enemy-sprites/` | Rebuilt droid and flyer sprites from `LEV1.GRA` frames 21-24 (local only) |
+| `gamedata/png/enemy-sprites/` | Rebuilt droid and flyer sprites from `LEV1.GRA` frames 21-24, acid guard tiles and wreck, two acid guard frames from `ZABIJ.ANM` (local only) |
 | `tools/robot/` | Reference-frame extraction from game clips (`pick.py`, `save.py`, `sheet.py`, `orange.py`) and spike screenshot tools (`shot*.mjs`, need `playwright-core`) |
 | `video/` | Six gameplay videos (`*.mp4`), contact sheets, picked frames (`frames-best/`), raw frames (`f5r7/`) |
 

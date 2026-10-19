@@ -19,26 +19,37 @@
   figure canvas { width: 100%; display: block; }
   main.game { display: flex; flex-wrap: wrap; }
   h2 { font-size: 13px; font-weight: 600; margin: 4px 16px 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-  figure img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
+  figure img { width: 100%; height: auto; max-height: 360px; object-fit: contain; display: block; border-radius: 4px; image-rendering: pixelated; }
   #palette { display: none; flex-wrap: wrap; gap: 6px 14px; padding: 8px 16px; background: var(--panel); }
   body.with-palette #palette { display: flex; }
   #palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
   #palette label.edited { color: var(--text); font-weight: 600; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
+  .kinds { display: flex; border: 1px solid #2f3f3e; border-radius: 4px; overflow: hidden; }
+  .kinds label { padding: 4px 10px; cursor: pointer; color: var(--muted); }
+  .kinds input { display: none; }
+  .kinds label:has(input:checked) { background: #2f4140; color: var(--text); }
+  section[hidden], .walkerOnly[hidden] { display: none; }
 </style>
 </head>
 <body>
 <header>
   <h1>Enemy design sheet</h1>
-  <label>Brightness <input id="brightness" type="range" min="0.4" max="1.6" step="0.01"><output id="brightnessOut"></output></label>
-  <label>Saturation <input id="saturate" type="range" min="0" max="1" step="0.01"><output id="saturateOut"></output></label>
+  <div class="kinds">
+    <label><input type="radio" name="kind" value="walker" checked>Gun walker</label>
+    <label><input type="radio" name="kind" value="flyer">Flyer</label>
+    <label><input type="radio" name="kind" value="guard">Acid guard</label>
+  </div>
+  <label class="walkerOnly">Brightness <input id="brightness" type="range" min="0.4" max="1.6" step="0.01"><output id="brightnessOut"></output></label>
+  <label class="walkerOnly">Saturation <input id="saturate" type="range" min="0" max="1" step="0.01"><output id="saturateOut"></output></label>
   <button id="palToggle">Palette</button>
   <button id="resetPal">Reset overrides</button>
-  <button id="copy">Copy enemy JSON</button>
+  <button id="copy">Copy palette JSON</button>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
   <label><input id="hero" type="checkbox" checked> Hero beside</label>
 </header>
 <div id="palette"></div>
+<section data-kind="walker">
 <main>
   <figure><figcaption>Enemy, front</figcaption><canvas id="front" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, side, carry</figcaption><canvas id="side" data-w="640" data-h="780"></canvas></figure>
@@ -59,16 +70,69 @@
   <figure><figcaption>Enemy by wall hole, t0261</figcaption><img src="../../docs/research/video/frames-best/L1_t0261_hide_pose_enemy_adjacent_wall_hole_scene.png" alt="enemy by wall hole"></figure>
 </main>
 <!-- /originals -->
+</section>
+<section data-kind="flyer" hidden>
+<main>
+  <figure><figcaption>Flyer, hover</figcaption><canvas id="flyerHover" data-w="1000" data-h="420"></canvas></figure>
+  <figure><figcaption>Flyer, firing</figcaption><canvas id="flyerFire" data-w="1000" data-h="420"></canvas></figure>
+  <figure class="heroOnly"><figcaption>Scale, hero and low flyer</figcaption><canvas id="flyerScale" data-w="1700" data-h="900"></canvas></figure>
+</main>
+<h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
+<main class="game">
+  <figure><figcaption>Face-off, low and high flyer</figcaption><canvas id="gFlyer" data-w="1700" data-h="1700"></canvas></figure>
+</main>
+<!-- originals -->
+<h2>References</h2>
+<main>
+  <figure><figcaption>Hover frames, LEV1.GRA f23</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/sprites_f23.png" alt="flyer hover frames"></figure>
+  <figure><figcaption>Firing frames, LEV1.GRA f24</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/sprites_f24.png" alt="flyer firing frames"></figure>
+  <figure><figcaption>Flyer by the crowbar, A 5:22</figcaption><img src="../../docs/research/video/enemies/A_0522_e14_flyer_near_crowbar.png" alt="flyer near crowbar"></figure>
+  <figure><figcaption>Flyer by the lift, B 14:54</figcaption><img src="../../docs/research/video/enemies/B_1454_e26_flyer_by_lift.png" alt="flyer by lift"></figure>
+  <figure><figcaption>Flyer shot kills the player, A 10:09</figcaption><img src="../../docs/research/video/enemies/A_1009_e22_flyer_kills_player_KONEC_HRY.png" alt="flyer kills player"></figure>
+  <figure><figcaption>Beam hits a low flyer, B 14:38</figcaption><img src="../../docs/research/video/frames-best/L1_KkPeK_t1438_eblaster_beam_hits_low_flyer.png" alt="beam hits low flyer"></figure>
+</main>
+<!-- /originals -->
+</section>
+<section data-kind="guard" hidden>
+<main>
+  <figure><figcaption>Acid guard, idle</figcaption><canvas id="guardIdle" data-w="1300" data-h="1250"></canvas></figure>
+  <figure><figcaption>Acid guard, firing</figcaption><canvas id="guardFire" data-w="1300" data-h="1250"></canvas></figure>
+  <figure><figcaption>Acid guard, acid (guess)</figcaption><canvas id="guardAcid" data-w="1300" data-h="1250"></canvas></figure>
+  <figure><figcaption>Acid guard, front</figcaption><canvas id="guardFront" data-w="1300" data-h="1250"></canvas></figure>
+  <figure><figcaption>Acid guard, wreck</figcaption><canvas id="guardWreck" data-w="1300" data-h="1250"></canvas></figure>
+  <figure class="heroOnly"><figcaption>Scale, hero and guard</figcaption><canvas id="guardScale" data-w="1900" data-h="1250"></canvas></figure>
+</main>
+<h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
+<main class="game">
+  <figure><figcaption>Face-off</figcaption><canvas id="gGuard" data-w="1900" data-h="1250"></canvas></figure>
+  <figure><figcaption>Wreck</figcaption><canvas id="gGuardWreck" data-w="1300" data-h="1250"></canvas></figure>
+</main>
+<!-- originals -->
+<h2>References</h2>
+<main>
+  <figure><figcaption>Guard tiles, LEV1.GRA f9 tiles 75-77, 88-90, 101-103</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/guard_acid_tiles.png" alt="guard tiles"></figure>
+  <figure><figcaption>Kill clip ZABIJ.ANM, frame 8</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/guard_clip_walk.png" alt="guard walks in kill clip"></figure>
+  <figure><figcaption>Kill clip ZABIJ.ANM, frame 45</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/guard_clip_fire.png" alt="guard fires in kill clip"></figure>
+  <figure><figcaption>Wreck tiles, map M16 columns 113-115</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/guard_acid_wreck.png" alt="guard wreck tiles"></figure>
+</main>
+<!-- /originals -->
+</section>
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
+<script src="../shared/env.js"></script>
+<script src="../shared/enemies.js"></script>
 <script>
-const { PALETTE, shade, buildFront, buildSide, buildBack, render } = window.XBOT;
+const { PALETTE, shade, buildFront, buildSide, buildBack, render, FOOT_Y, LEVELS } = window.XBOT;
+const { FLYER, GUARD, GUARD_FRONT, FLYER_PALETTE, GUARD_PALETTE } = window.ENEMIES;
 
 const SKY = ["#1b2629", "#0f1517"];
+const HERO_CELLS = 1.9;
+const K = (FOOT_Y - Object.fromEntries(LEVELS).head) / (HERO_CELLS * ENV.TILE);
+const LOW_FLYER = 32;
 const tint = { brightness: 1.1, saturate: 0 };
-const overrides = {};
-const opts = { lines: true, hero: true };
+const overrides = { walker: {}, flyer: {}, guard: {} };
+const opts = { lines: true, hero: true, kind: "walker" };
 
 const roots = {
   front: buildFront({ rightArmFirst: true, propBehindArm: true, enemy: true }),
@@ -90,10 +154,30 @@ const POSES = {
 };
 const SIDE_SHIFT = -150;
 
-const enemyPalette = () => ({ ...shade(PALETTE, tint), visor: PALETTE.visor, ...overrides });
+const PALETTES = {
+  walker: () => ({ ...shade(PALETTE, tint), visor: PALETTE.visor, ...overrides.walker }),
+  flyer: () => ({ ...ENV.PALETTE, ...FLYER_PALETTE, ...overrides.flyer }),
+  guard: () => ({ ...ENV.PALETTE, ...GUARD_PALETTE, ...overrides.guard })
+};
+const OWN_KEYS = { walker: Object.keys(PALETTE), flyer: Object.keys(FLYER_PALETTE), guard: Object.keys(GUARD_PALETTE) };
 
 function robot(ctx, { root, pose, hook, barrel, pal, simple, lineW }) {
   render(ctx, root, { pal, pose, lineW, simple, hooks: { [hook]: c => GUN.hook(c, { pal, lineW, simple, barrel }) } });
+}
+
+function hero(ctx, { x, floor, lineW, simple }) {
+  ctx.save();
+  ctx.translate(x - XBOT.SIDE_AX, floor - FOOT_Y);
+  robot(ctx, { root: simple ? roots.gHeroSide : roots.heroSide, pose: simple ? POSES.gSide : POSES.side, hook: "hand", pal: PALETTE, simple, lineW });
+  ctx.restore();
+}
+
+function enemy(ctx, asset, { x, y, state = 0, t, pal, lineW, lod = false, facing = 1 }) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(K * facing, K);
+  ENV.draw(ctx, asset, { state, t, palette: pal, lines: lineW, lod });
+  ctx.restore();
 }
 
 function backdrop(ctx, w, h) {
@@ -102,6 +186,11 @@ function backdrop(ctx, w, h) {
   g.addColorStop(1, SKY[1]);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
+}
+
+function floorLine(ctx, w, y) {
+  ctx.fillStyle = "#2a2622";
+  ctx.fillRect(0, y, w, 6);
 }
 
 function facingLeft(ctx, w, fn) {
@@ -113,58 +202,125 @@ function facingLeft(ctx, w, fn) {
 }
 
 const VIEWS = {
-  front: (ctx, lw, pal) => robot(ctx, { root: roots.front, pose: POSES.front, hook: "handL", barrel: hold.FRONT_BARREL, pal, lineW: lw * 1.4 }),
-  side: (ctx, lw, pal) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.side, pose: POSES.side, hook: "hand", pal, lineW: lw * 1.4 }); },
-  back: (ctx, lw, pal) => { render(ctx, roots.back, { pal, lineW: lw * 1.4 }); GUN.slung(ctx, { pal, lineW: lw * 1.4 }); },
-  heroSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.heroSide, pose: POSES.side, hook: "hand", pal: PALETTE, lineW: lw * 1.4 }); },
-  gDuel: (ctx, lw, pal, w, h) => {
-    backdrop(ctx, w, h);
-    ctx.translate(SIDE_SHIFT, 0);
-    if (opts.hero) robot(ctx, { root: roots.gHeroSide, pose: POSES.gSide, hook: "hand", pal: PALETTE, simple: true, lineW: lw });
-    facingLeft(ctx, w - 2 * SIDE_SHIFT, () => robot(ctx, { root: roots.gSide, pose: POSES.gSide, hook: "hand", pal, simple: true, lineW: lw }));
+  walker: {
+    front: (ctx, lw, pal) => robot(ctx, { root: roots.front, pose: POSES.front, hook: "handL", barrel: hold.FRONT_BARREL, pal, lineW: lw * 1.4 }),
+    side: (ctx, lw, pal) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.side, pose: POSES.side, hook: "hand", pal, lineW: lw * 1.4 }); },
+    back: (ctx, lw, pal) => { render(ctx, roots.back, { pal, lineW: lw * 1.4 }); GUN.slung(ctx, { pal, lineW: lw * 1.4 }); },
+    heroSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.heroSide, pose: POSES.side, hook: "hand", pal: PALETTE, lineW: lw * 1.4 }); },
+    gDuel: (ctx, lw, pal, w, h) => {
+      backdrop(ctx, w, h);
+      ctx.translate(SIDE_SHIFT, 0);
+      if (opts.hero) robot(ctx, { root: roots.gHeroSide, pose: POSES.gSide, hook: "hand", pal: PALETTE, simple: true, lineW: lw });
+      facingLeft(ctx, w - 2 * SIDE_SHIFT, () => robot(ctx, { root: roots.gSide, pose: POSES.gSide, hook: "hand", pal, simple: true, lineW: lw }));
+    },
+    gFront: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); robot(ctx, { root: roots.gFront, pose: POSES.gFront, hook: "handL", barrel: gHold.FRONT_BARREL, pal, simple: true, lineW: lw }); },
+    gBack: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); render(ctx, roots.gBack, { pal, lineW: lw, simple: true }); GUN.slung(ctx, { pal, lineW: lw, simple: true }); }
   },
-  gFront: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); robot(ctx, { root: roots.gFront, pose: POSES.gFront, hook: "handL", barrel: gHold.FRONT_BARREL, pal, simple: true, lineW: lw }); },
-  gBack: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); render(ctx, roots.gBack, { pal, lineW: lw, simple: true }); GUN.slung(ctx, { pal, lineW: lw, simple: true }); }
+  flyer: {
+    flyerHover: (ctx, lw, pal, w, h, t) => enemy(ctx, FLYER, { x: w / 2, y: h / 2, t, pal, lineW: lw }),
+    flyerFire: (ctx, lw, pal, w, h, t) => enemy(ctx, FLYER, { x: w / 2, y: h / 2, state: 1, t, pal, lineW: lw }),
+    flyerScale: (ctx, lw, pal, w, h, t) => {
+      const floor = h - 40;
+      floorLine(ctx, w, floor);
+      hero(ctx, { x: 360, floor, lineW: lw * 1.4 });
+      enemy(ctx, FLYER, { x: 1250, y: floor - LOW_FLYER * K, state: 1, t, pal, lineW: lw, facing: -1 });
+    },
+    gFlyer: (ctx, lw, pal, w, h, t) => {
+      backdrop(ctx, w, h);
+      const floor = h - 100;
+      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw, simple: true });
+      enemy(ctx, FLYER, { x: 1250, y: floor - LOW_FLYER * K, state: 1, t, pal, lineW: lw, lod: true, facing: -1 });
+      enemy(ctx, FLYER, { x: 950, y: floor - (LOW_FLYER + 2 * ENV.TILE) * K, t: t + 0.7, pal, lineW: lw, lod: true, facing: -1 });
+    }
+  },
+  guard: {
+    guardIdle: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, t, pal, lineW: lw }),
+    guardFire: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 1, t, pal, lineW: lw }),
+    guardAcid: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 2, t, pal, lineW: lw }),
+    guardFront: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD_FRONT, { x: w / 2, y: h - 50, state: Math.floor(t / 2.8) % 2, t, pal, lineW: lw }),
+    guardWreck: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 3, t, pal, lineW: lw }),
+    guardScale: (ctx, lw, pal, w, h, t) => {
+      const floor = h - 50;
+      floorLine(ctx, w, floor);
+      hero(ctx, { x: 360, floor, lineW: lw * 1.4 });
+      enemy(ctx, GUARD, { x: 1600, y: floor, t, pal, lineW: lw });
+    },
+    gGuard: (ctx, lw, pal, w, h, t) => {
+      backdrop(ctx, w, h);
+      const floor = h - 50;
+      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw, simple: true });
+      enemy(ctx, GUARD, { x: 1600, y: floor, state: 1, t, pal, lineW: lw, lod: true });
+    },
+    gGuardWreck: (ctx, lw, pal, w, h, t) => { backdrop(ctx, w, h); enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 3, t, pal, lineW: lw, lod: true }); }
+  }
 };
 
-function draw() {
+function fit(c, dpr) {
+  const w = +c.dataset.w, h = +c.dataset.h;
+  c.style.aspectRatio = `${w} / ${h}`;
+  if (c.closest(".game")) c.style.width = `${w * 0.2}px`;
+  const cw = Math.round(c.clientWidth * dpr), ch = Math.round(c.clientWidth * h / w * dpr);
+  if (c.width !== cw) c.width = cw;
+  if (c.height !== ch) c.height = ch;
+  return [w, h];
+}
+
+function draw(t = performance.now() / 1000) {
   const dpr = devicePixelRatio || 1;
-  const pal = enemyPalette();
+  const pal = PALETTES[opts.kind]();
   for (const fig of document.querySelectorAll(".heroOnly")) fig.hidden = !opts.hero;
-  for (const [id, view] of Object.entries(VIEWS)) {
+  for (const [id, view] of Object.entries(VIEWS[opts.kind])) {
     const c = document.getElementById(id);
     if (c.closest("[hidden]")) continue;
-    const w = +c.dataset.w, h = +c.dataset.h;
-    c.style.aspectRatio = `${w} / ${h}`;
-    if (c.closest(".game")) c.style.width = `${w * 0.2}px`;
-    c.width = Math.round(c.clientWidth * dpr);
-    c.height = Math.round(c.clientWidth * h / w * dpr);
+    const [w, h] = fit(c, dpr);
     const ctx = c.getContext("2d");
-    const s = c.width / w;
-    ctx.setTransform(s, 0, 0, s, 0, 0);
+    ctx.setTransform(c.width / w, 0, 0, c.width / w, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    view(ctx, opts.lines ? dpr : 0, pal, w, h);
+    view(ctx, opts.lines ? dpr : 0, pal, w, h, t);
   }
-  syncPalette(pal);
+}
+
+function animate(ms) {
+  if (opts.kind !== "walker") draw(ms / 1000);
+  requestAnimationFrame(animate);
 }
 
 const palEl = document.getElementById("palette");
 const inputs = {};
-for (const k of Object.keys(PALETTE)) {
-  const label = document.createElement("label");
-  const input = document.createElement("input");
-  input.type = "color";
-  input.oninput = () => { overrides[k] = input.value; draw(); };
-  label.append(input, k);
-  palEl.append(label);
-  inputs[k] = input;
+
+function buildPalette() {
+  palEl.replaceChildren();
+  for (const k in inputs) delete inputs[k];
+  for (const k of OWN_KEYS[opts.kind]) {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "color";
+    input.oninput = () => { overrides[opts.kind][k] = input.value; draw(); syncPalette(); };
+    label.append(input, k);
+    palEl.append(label);
+    inputs[k] = input;
+  }
+  syncPalette();
 }
 
-function syncPalette(pal) {
+const pick = (pal, keys) => Object.fromEntries(keys.map(k => [k, pal[k]]));
+
+function syncPalette() {
+  const pal = PALETTES[opts.kind]();
   for (const [k, input] of Object.entries(inputs)) {
     input.value = pal[k];
-    input.parentElement.classList.toggle("edited", k in overrides);
+    input.parentElement.classList.toggle("edited", k in overrides[opts.kind]);
   }
+}
+
+function setKind(kind) {
+  opts.kind = kind;
+  for (const s of document.querySelectorAll("section[data-kind]")) s.hidden = s.dataset.kind !== kind;
+  for (const el of document.querySelectorAll(".walkerOnly")) el.hidden = kind !== "walker";
+  document.querySelector(`input[name=kind][value=${kind}]`).checked = true;
+  if (location.hash.slice(1) !== kind) history.replaceState(null, "", "#" + kind);
+  buildPalette();
+  draw();
 }
 
 for (const key of ["brightness", "saturate"]) {
@@ -172,16 +328,23 @@ for (const key of ["brightness", "saturate"]) {
   const out = document.getElementById(key + "Out");
   input.value = tint[key];
   out.value = tint[key].toFixed(2);
-  input.oninput = () => { tint[key] = +input.value; out.value = tint[key].toFixed(2); draw(); };
+  input.oninput = () => { tint[key] = +input.value; out.value = tint[key].toFixed(2); draw(); syncPalette(); };
 }
 
+for (const input of document.querySelectorAll("input[name=kind]")) input.onchange = () => setKind(input.value);
 document.getElementById("palToggle").onclick = () => document.body.classList.toggle("with-palette");
-document.getElementById("resetPal").onclick = () => { for (const k in overrides) delete overrides[k]; draw(); };
-document.getElementById("copy").onclick = () => navigator.clipboard.writeText(JSON.stringify({ tint, overrides, palette: enemyPalette() }, null, 2));
+document.getElementById("resetPal").onclick = () => { overrides[opts.kind] = {}; draw(); syncPalette(); };
+document.getElementById("copy").onclick = () => {
+  const extra = opts.kind === "walker" ? { tint } : {};
+  navigator.clipboard.writeText(JSON.stringify({ kind: opts.kind, ...extra, overrides: overrides[opts.kind], palette: pick(PALETTES[opts.kind](), OWN_KEYS[opts.kind]) }, null, 2));
+};
 document.getElementById("lines").onchange = e => { opts.lines = e.target.checked; draw(); };
 document.getElementById("hero").onchange = e => { opts.hero = e.target.checked; draw(); };
-addEventListener("resize", draw);
-draw();
+addEventListener("resize", () => draw());
+const kindFromHash = () => VIEWS[location.hash.slice(1)] ? location.hash.slice(1) : "walker";
+addEventListener("hashchange", () => setKind(kindFromHash()));
+setKind(kindFromHash());
+requestAnimationFrame(animate);
 </script>
 </body>
 </html>
