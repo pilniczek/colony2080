@@ -82,6 +82,7 @@ flowchart LR
 | Ammo | Machine gun starts with 350 (original level 1 start, `docs/research/reports/10-level1-enemies.md`), `ammo` in `config/hero/movement.json`. Each hero bullet spends one. At 0 the gun stops firing with no muzzle flash, the hero holsters it and switches to fists, and the gun cannot be drawn until ammo is above 0. Ammo carries over a respawn. Sandbox panel Run section sets live ammo (2026-10-18) | user (empty gun), research (start) |
 | Duck vs bullets | Ducking does not dodge bullets: the hero takes hits ducked or standing. The original shows no crouch-to-dodge (`docs/research/reports/08-video-level1.md`) | user |
 | Hide input | Hold Shift to stay hidden, release to step out. Works anywhere except on a moving lift. Hide wins over walk, run and shooting: the hero hides on the frame Shift is held even with an arrow down, and walks on after release if the arrow is still held | user |
+| Default keys | Original layout stays default (Alt run, Ctrl shoot, Shift hide, `config/controls.json`) after trying the sandbox, despite browser shortcut overlap; keys stay configurable (2026-10-19) | user |
 | Run input | Alt toggles run mode: one press runs, the next walks; the mode stays until pressed again. Run mode is on at start and survives respawn. Holding Alt + arrow + Up was unreliable (key chords, browser shortcuts) | user |
 | Jump while shooting | Up while shooting the gun jumps (duck jump when ducked) and the fire keeps its cadence. Shoot in the air fires the gun, and landing with Shoot held goes straight back to shooting. Gun only for now | user (jump and shoot), Claude's call (gun only, landing) |
 | Move while shooting | Shoot plus an arrow with the gun walks (or runs in run mode) that way and keeps firing, Shoot alone stands and fires, switching keeps the fire cadence. Duck shooting turns in place. Landing while firing picks walk or stand by the arrow held | user (walk and turn while shooting), Claude's call (run, duck turn, landing) |
@@ -142,7 +143,6 @@ flowchart LR
 
 - Robot part polygons still live in code (`spikes/shared/xbot.js`); only parameters are in `config/robots/xbot.json`.
 - Intro cutscene and dying-rebel scene in mission 1 scope or not (cutscenes postponed).
-- Default key layout: original Alt / Ctrl / Shift collide with browser shortcuts. Original stays default and keys are configurable; revisit after trying the sandbox.
 - Weapon slot 3 (level bonus weapon) is ignored until phase 3.
 - Environment sheet: all 52 objects and the `ladder` drawn, first pass kept, iterate later. The sandbox uses a subset (ported to `src/game/env/`). Guessed looks (no original sprite or unclear): code lock, item pickups on the ground (crowbar, E-Blaster, ship part, controller, crane key), hazard plate purpose, staircase treads. Marker 6 is either the valve wheel near the E-Blaster or the water pipe; both are drawn.
 - Environment primitives to add on the next round: olive and cloth / skin materials (now local colours in `env-structures.js`, `env-props.js`), a colour option for `P.hazard`, a thin-edge wall fill (big walls look stripy with `P.box` bands), shared line / beam helpers.
