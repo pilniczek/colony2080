@@ -14,8 +14,11 @@ const FLYER_PALETTE = {
 const GUARD_PALETTE = {
   gm0: "#1a2426", gm1: "#2e3c40", gm2: "#4a5a5e", gm3: "#8a9a9c", gmLine: "#060a0b",
   gc0: "#3c4a4e", gc1: "#6e7e82", gc2: "#a8b4b6", gc3: "#e4ecec",
+  top0: "#061204", top1: "#0c2008", top2: "#182414", top3: "#2c3c24",
+  stripe0: "#163220", stripe1: "#285038", stripe2: "#305840", stripe3: "#406c48",
+  light: "#c89a30", glint: "#4a7068",
   gj0: "#3c341c", gj1: "#786c54", gj2: "#a09c8c", gj3: "#d0c8ac",
-  shell0: "#2c3838", shell1: "#545854", shell2: "#70706c", shell3: "#888484", groove: "#202a28",
+  shell0: "#2c3838", shell1: "#545854", shell2: "#70706c", shell3: "#888484", groove: "#202a28", band: "#304040",
   visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
   lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
   visor: "#ac2c0c", visorGlow: "#ff5a30", rust: "#8a4a22", rustLight: "#b8703a",
@@ -162,49 +165,42 @@ function slit(ctx, x0, x1, y, h, stops) {
 
 function sideHead(ctx) {
   const shell = c => {
-    c.moveTo(21, 24.4);
-    c.lineTo(25, 20.6);
-    c.quadraticCurveTo(28, 17.2, 33, 16.2);
-    c.quadraticCurveTo(41, 14.4, 47.5, 14.8);
-    c.lineTo(51.6, 16.4);
-    c.lineTo(53.4, 22);
+    c.moveTo(20.5, 24.6);
+    c.lineTo(26, 24.2);
+    c.lineTo(26, 18.2);
+    c.lineTo(29, 13.6);
+    c.quadraticCurveTo(38, 9.6, 48, 9.8);
+    c.lineTo(52, 11.6);
+    c.lineTo(53.6, 22);
     c.quadraticCurveTo(53.8, 28, 51.5, 31);
     c.quadraticCurveTo(46, 33.6, 40, 33.2);
     c.lineTo(31, 31.2);
-    c.lineTo(26, 27);
-    c.lineTo(21, 24.4);
+    c.lineTo(25.5, 28);
+    c.lineTo(20.5, 24.6);
   };
-  fillPath(ctx, shell, grad(ctx, 0, 14, 0, 33, [[0, "shell2"], [0.35, "shell1"], [0.7, "gm1"], [1, "shell0"]]));
+  fillPath(ctx, shell, grad(ctx, 0, 10, 0, 33, [[0, "shell3"], [0.4, "shell2"], [0.75, "shell1"], [1, "shell0"]]));
   ctx.save();
   ctx.beginPath();
   shell(ctx);
   ctx.clip();
+  ctx.fillStyle = grad(ctx, 0, 26.4, 0, 29, [[0, "stripe2"], [1, "stripe1"]]);
+  ctx.fillRect(41, 26.4, 13, 2.6);
   if (!ENV.simple) {
-    const dome = ctx.createRadialGradient(38, 16.5, 0, 38, 16.5, 9);
-    dome.addColorStop(0, ENV.pal.shell3);
-    dome.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = dome;
-    ctx.fillRect(28, 13, 20, 10);
-    for (const x of [43, 46.5, 50]) {
-      ctx.fillStyle = grad(ctx, 0, 15, 0, 30, [[0, "shell2"], [1, "shell0"]]);
-      ctx.fillRect(x, 15, 2.2, 15);
-      P.line(ctx, [[x, 15], [x, 30]], "shell0", 0.4, "butt");
-      ctx.fillStyle = grad(ctx, 0, 15.5, 0, 22, [[0, "stain"], [1, "rgba(0,0,0,0)"]]);
-      ctx.fillRect(x + 0.6, 15.5, 1, 6.5);
-    }
-    ctx.fillStyle = grad(ctx, 0, 15, 0, 27, [[0, "lip2"], [0.6, "lip1"], [1, "rgba(0,0,0,0)"]]);
-    ctx.fillRect(49.4, 15.2, 0.8, 12);
-    P.line(ctx, [[30, 18.6], [42, 17.4]], "shell0", 0.35);
-    for (const [x, y] of [[33, 18.8], [39, 18.1]]) P.disc(ctx, x, y, 0.35, "shell3");
+    for (const x of [44, 48.5]) P.line(ctx, [[x, 12], [x, 32]], "shell0", 0.4, "butt");
+    P.line(ctx, [[30, 14.6], [47, 12.2]], "shell0", 0.35);
+    P.line(ctx, [[26, 18.4], [54, 18.4]], "shell0", 0.4, "butt");
+    for (const x of [42.5, 45, 47.5, 50]) P.flat(ctx, x, 29.8, 1.2, 1, "light");
+    for (const [x, y] of [[46, 21], [51, 21]]) P.disc(ctx, x, y, 0.35, "shell3");
   }
   ctx.fillStyle = ENV.pal.groove;
-  ctx.fillRect(20, 21.2, 22, 3.4);
-  slit(ctx, 24, 40, 22.2, 1.2, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
-  slit(ctx, 20, 42, 24.6, 0.9, [[0, "lip0"], [0.5, "lip1"], [0.82, "lip2"], [1, "lip1"]]);
+  ctx.fillRect(26, 18.4, 16, 1.6);
+  slit(ctx, 26, 41, 20, 1.3, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
+  ctx.fillStyle = ENV.pal.band;
+  ctx.fillRect(26, 21.3, 16, 2.9);
+  slit(ctx, 20, 42, 24.2, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
   ctx.fillStyle = ENV.pal.shell0;
-  ctx.fillRect(20, 25.5, 22, 1.2);
+  ctx.fillRect(20, 25.1, 22, 1.4);
   ctx.restore();
-  if (!ENV.simple) P.glow(ctx, 36, 22.8, 4, "visorGlow", 0.25);
 
   fillPath(ctx, c => {
     c.moveTo(29, 26.8);
@@ -264,14 +260,14 @@ function frontHead(ctx) {
 }
 
 function guardBody(ctx, fire) {
-  P.box(ctx, 50, 3, 1.4, 12, "guardMetal", 2, { vertical: true });
-  P.disc(ctx, 50.7, 3, 0.9, "visor");
+  P.box(ctx, 50, -2, 1.4, 12, "guardMetal", 2, { vertical: true });
+  P.disc(ctx, 50.7, -2, 0.9, "visor");
   guardLeg(ctx, 6, 0);
   P.box(ctx, 26, 30, 14, 3, "guardMetal", 0);
 
-  P.box(ctx, 40, 9, 12, 8, "guardMetal", 1);
-  if (!ENV.simple) for (const [x, y] of [[42.5, 11], [45.5, 11], [48.5, 11], [42.5, 14], [45.5, 14], [48.5, 14]]) P.disc(ctx, x, y, 0.9, "gm0");
-  P.flat(ctx, 40, 9, 2, 8, "gm3");
+  P.box(ctx, 40, 4, 12, 7.5, "guardMetal", 1);
+  if (!ENV.simple) for (const [x, y] of [[42.5, 6], [45.5, 6], [48.5, 6], [42.5, 9], [45.5, 9], [48.5, 9]]) P.disc(ctx, x, y, 0.9, "gm0");
+  P.flat(ctx, 40, 4, 2, 7.5, "gm3");
 
   sideHead(ctx);
 
@@ -330,7 +326,7 @@ const GUARD_SIZE = 1.4;
 
 const GUARD = {
   id: "guard",
-  box: { x: -53, y: -72, w: 49, h: 72 },
+  box: { x: -53, y: -78, w: 49, h: 78 },
   draw(ctx, state, t) {
     ctx.scale(GUARD_SIZE, GUARD_SIZE);
     if (state === 3) {
@@ -384,7 +380,7 @@ function frontGun(ctx, side, fire) {
 
 const GUARD_FRONT = {
   id: "guardFront",
-  box: { x: -25, y: -72, w: 50, h: 72 },
+  box: { x: -25, y: -78, w: 50, h: 78 },
   draw(ctx, state, t) {
     const fire = state === 1 ? fireFrame(t % 1.4) : -1;
     ctx.scale(GUARD_SIZE, GUARD_SIZE);
