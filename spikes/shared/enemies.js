@@ -144,6 +144,7 @@ const FLYER = {
 
 const LEG = 1 / 12;
 const KNEE_PAD = 0.75;
+const FOOT_AHEAD = 2;
 const FAR_LEG = { dx: 2.5, shade: "brightness(0.6) saturate(0.8)" };
 const SIDE_LEG = {
   joint: [300, 486],
@@ -183,9 +184,10 @@ function sideLegArmor(ctx, knee, ankle) {
   const edge = [ankle[0] + side[0] * front, ankle[1] + side[1] * front];
   const up = [edge[0] - 3 * (ankle[0] - knee[0]) / len, edge[1] - 3 * (ankle[1] - knee[1]) / len];
   const footTop = 53.5 - (744 - SIDE_LEG.foot[0][1]) * LEG;
-  const toe = ankle[0] - (SIDE_LEG.toe[1][0] - 300) * LEG;
+  const footX = ankle[0] - FOOT_AHEAD;
+  const toe = footX - (SIDE_LEG.toe[1][0] - 300) * LEG;
   P.poly(ctx, [[ankle[0], footTop + 0.5], edge, up, [toe, footTop + 0.5]], "guardMetal", 1);
-  inRigUnits(ctx, [ankle[0], 53.5], -LEG, LEG, [300, 744], () => {
+  inRigUnits(ctx, [footX, 53.5], -LEG, LEG, [300, 744], () => {
     P.poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
     P.poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
   });
