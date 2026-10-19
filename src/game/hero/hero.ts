@@ -369,12 +369,15 @@ function idle(s: Step): void {
 }
 
 function requestLift(s: Step, lift: Lift, dir: -1 | 1): void {
-  if (!callLift(lift, dir, s.world.flags)) {
-    if (lift.hint) say(s.world, lift.hint);
-    return;
-  }
-  const half = s.cfg.box.width / 2;
-  s.h.x = Math.min(Math.max(s.h.x, lift.x + half), lift.x + lift.w - half);
+  if (dir > 0 && onFloorTile(s)) return;
+  if (!callLift(lift, dir, s.world.flags) && lift.hint) say(s.world, lift.hint);
+}
+
+function onFloorTile({ h, world, cfg }: Step): boolean {
+  const half = cfg.box.width / 2;
+  const row = Math.round(h.y);
+  for (let c = Math.floor(h.x - half + EPS); c < Math.ceil(h.x + half - EPS); c++) if (world.grid.solid(c, row)) return true;
+  return false;
 }
 
 function liftCall(s: Step): -1 | 1 | null {
