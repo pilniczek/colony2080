@@ -52,6 +52,10 @@ function loadTask(json: unknown): Task {
     gives: tokens(id, t.gives, "gives"),
     subtitle: t.subtitle,
   };
+  const used = task.requires.filter((token) => itemOf(token) !== null);
+  if (used.length > 1) throw new Error(`task ${id}: needs more than one item`);
+  const spent = task.consumes.filter((token) => itemOf(token) !== null);
+  if (spent.join() !== used.join()) throw new Error(`task ${id}: must consume the used item`);
   if (typeof t.state === "number") task.state = t.state;
   if (t.sets) task.sets = { ...(t.sets as Record<string, number>) };
   return task;

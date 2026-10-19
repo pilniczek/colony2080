@@ -109,6 +109,19 @@ describe("loadTasks", () => {
     expect(loadTasks({ tasks: [task] })[0]!.consumes).toEqual([]);
   });
 
+  it("rejects a task that needs two items", () => {
+    const task = { id: "a", object: "o", requires: ["item:wires", "item:crowbar"], consumes: ["item:wires", "item:crowbar"], gives: [], subtitle: "x" };
+    expect(() => loadTasks({ tasks: [task] })).toThrow("task a: needs more than one item");
+  });
+
+  it("rejects a task that keeps or skips the used item", () => {
+    const task = { id: "a", object: "o", requires: ["item:wires", "flag:f"], gives: [], subtitle: "x" };
+    expect(() => loadTasks({ tasks: [task] })).toThrow("task a: must consume the used item");
+    expect(() => loadTasks({ tasks: [{ ...task, consumes: ["item:crowbar"] }] })).toThrow("task a: must consume the used item");
+    expect(() => loadTasks({ tasks: [{ ...task, requires: [], consumes: ["item:wires"] }] })).toThrow("task a: must consume the used item");
+    expect(loadTasks({ tasks: [{ ...task, consumes: ["item:wires"] }] })[0]!.consumes).toEqual(["item:wires"]);
+  });
+
   it("loads the mesto task web on mesto objects", () => {
     const tasks = loadTasks(tasksJson);
     const objects = new Set(tasks.map((t) => t.object));
