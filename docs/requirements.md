@@ -127,6 +127,7 @@ flowchart LR
 
 - Static cache before mission 1: a tile in view that is not cached yet paints on the spot, so the worst frame is 24-36 ms (old full-world cache 10-16 ms), and a camera jump (respawn, teleport) at 4K paints about 35-40 tiles per layer at once. Cache memory follows the screen: about 150-175 MB at 4K on the mesto map. Each tile still loops over all terrain and scenery; add a spatial index if mesto tile paints get slow. Deferred until mission 1 is built and the mesto map can be measured (2026-10-19).
 - Level 4 dead ends: from level 4 the original lets the player make an unrecoverable mistake (Score 44 walkthrough, `docs/research/reports/06-cz-walkthroughs.md`). The level 4 jump at marker 13 must be exact or the player dies without warning. Decide how saving and level 4 design handle this when building them (e.g. warn, block the dead end, or rely on manual saves as the original does). Out of current scope (2026-10-19).
+- Mission 1 accepted flaws (2026-10-19, user): newest-item-only inventory can soft-lock some pickup orders; card door may gate nothing; acid tank kills nothing; crane key lies free (no shoot guard); E-blaster missing; flyers missing; no cutscenes; death resets all task progress (no saves). Fix in a later session. Spec: `docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md`.
 
 ## Spikes
 
