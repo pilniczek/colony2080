@@ -1,23 +1,48 @@
 import tasksJson from "@config/levels/mesto/tasks.json";
 import { describe, expect, it } from "vitest";
 import { cfg, objectLevel } from "../hero/testWorld";
-import { loadSandbox, pickUp, resetWorld, useTop, type SandboxWorld } from "./sandboxLevel";
+import { loadSandbox, pickUp, resetWorld, showItem, useShown, type SandboxWorld } from "./sandboxLevel";
 import { loadTasks, runUse } from "./tasks";
 
 const world = (): SandboxWorld => loadSandbox(objectLevel);
 const prop = (w: SandboxWorld, id: string) => w.props.find((p) => p.id === id)!;
 const use = (w: SandboxWorld, id: string) => runUse(w, prop(w, id));
 
-describe("stack inventory", () => {
-  it("pops the top item and shows the one picked before", () => {
+describe("inventory", () => {
+  it("uses the shown item and shows the one picked before", () => {
     const w = world();
     pickUp(w, "wires");
     pickUp(w, "crowbar");
-    expect(useTop(w)).toBe("crowbar");
+    expect(useShown(w)).toBe("crowbar");
     expect(w.inventory).toEqual({ items: ["wires"], shown: "wires" });
-    expect(useTop(w)).toBe("wires");
+    expect(useShown(w)).toBe("wires");
     expect(w.inventory).toEqual({ items: [], shown: null });
-    expect(useTop(w)).toBeNull();
+    expect(useShown(w)).toBeNull();
+  });
+
+  it("uses the shown item, wherever it sits", () => {
+    const w = world();
+    pickUp(w, "wires");
+    pickUp(w, "crowbar");
+    pickUp(w, "card");
+    showItem(w, "wires");
+    expect(useShown(w)).toBe("wires");
+    expect(w.inventory).toEqual({ items: ["crowbar", "card"], shown: "card" });
+  });
+
+  it("shows any held item without reordering", () => {
+    const w = world();
+    pickUp(w, "wires");
+    pickUp(w, "crowbar");
+    showItem(w, "wires");
+    expect(w.inventory).toEqual({ items: ["wires", "crowbar"], shown: "wires" });
+  });
+
+  it("ignores an item it does not hold", () => {
+    const w = world();
+    pickUp(w, "wires");
+    showItem(w, "card");
+    expect(w.inventory.shown).toBe("wires");
   });
 });
 
@@ -35,6 +60,17 @@ describe("runUse", () => {
     expect(w.inventory).toEqual({ items: ["wires"], shown: "wires" });
     expect(prop(w, "trainDoor").state).toBe(2);
     expect(w.flags.has("flag:metroOpen")).toBe(true);
+  });
+
+  it("uses an older item once it is shown", () => {
+    const w = world();
+    pickUp(w, "crowbar");
+    pickUp(w, "wires");
+    showItem(w, "crowbar");
+    w.flags.add("flag:metroPowered");
+    use(w, "trainDoor");
+    expect(w.inventory).toEqual({ items: ["wires"], shown: "wires" });
+    expect(prop(w, "trainDoor").state).toBe(2);
   });
 
   it("gives items and flags and changes state", () => {

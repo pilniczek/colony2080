@@ -115,7 +115,8 @@ flowchart LR
 | Mission 1 scope | Playable `game.html`: walk, pick up items, use every object, reach the level end. Only the 27 chrome droids (no respawn, no flyers, no guards), no cutscenes (a use changes state at once), E-Blaster not placed (2026-10-19) | user |
 | Mission 1 layout | Map, lifts, items, objects and droids come from the decoded original level data, scenery is laid out by Claude over the decoded map image (2026-10-19) | user (original layout), Claude's call (scenery) |
 | Subtitles | Our own English wording in yellow at the bottom of the game window, one line per use or hint; the level end shows a caption with a link to the mission select (2026-10-19) | user |
-| Stack inventory | Every picked item stays, only the newest is shown and usable, every use consumes the used item. Some pickup orders can soft-lock (accepted, see Known issues) (2026-10-19) | user |
+| Stack inventory | Every picked item stays; the newest picked is shown. The inventory screen on `I` shows any held item. A use consumes the shown item, then the newest remaining is shown (2026-10-19) | user |
+| Inventory screen | `I` opens a full-screen inventory after the original layout (item list, X-BOT statistics, big robot, static item picture), English labels, game paused; Up / Down move, ENTER shows the item in the HUD and closes, `I` / Esc close. Spec: `docs/superpowers/specs/2026-10-19-inventory-screen-design.md` (2026-10-19) | user |
 | Shootable props | A prop with `shootable` takes hero bullets and beams; after `hits` hits it changes state and gives its flags (the crashed ship hull). Other props block neither the hero nor bullets (2026-10-19) | user (rule), Claude's call (hit count) |
 
 ## Config drafts
@@ -138,7 +139,7 @@ flowchart LR
 
 - Static cache before mission 1: a tile in view that is not cached yet paints on the spot, so the worst frame is 24-36 ms (old full-world cache 10-16 ms), and a camera jump (respawn, teleport) at 4K paints about 35-40 tiles per layer at once. Cache memory follows the screen: about 150-175 MB at 4K on the mesto map. Mesto at 1920 x 1080 with per-tile buckets (2026-10-19, busy machine): one layer tile paints in 0.8 ms median, 21 ms worst (full scan 1.0 ms, 20 ms), so the scan was never the cost. A teleport frame on `/game.html` takes 450-580 ms, and about 75% of it is the hero rig draw (`drawHero` -> `drawPart`), not the static cache (`drawEnvironment` about 4%). The enemy cull skips pose and draw of enemies outside the view plus 2 cells, but it did not move the numbers: on `/game.html` at 1920 x 1080 (dev server, 12 teleports) a teleport frame stays about 500 ms median (505 ms with the cull, 523 ms without, worst 536 vs 622 ms), idle frames 17 vs 20 ms median, so the droids were not the cost and the slow frame has another source (profile the teleport frame again).
 - Level 4 dead ends: from level 4 the original lets the player make an unrecoverable mistake (Score 44 walkthrough, `docs/research/reports/06-cz-walkthroughs.md`). The level 4 jump at marker 13 must be exact or the player dies without warning. Decide how saving and level 4 design handle this when building them (e.g. warn, block the dead end, or rely on manual saves as the original does). Out of current scope (2026-10-19).
-- Mission 1 accepted flaws (2026-10-19, user): newest-item-only inventory can soft-lock some pickup orders; card door may gate nothing; acid tank kills nothing; crane key lies free (no shoot guard); E-blaster missing; flyers missing; no cutscenes; death resets all task progress (no saves). Fix in a later session. Spec: `docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md`.
+- Mission 1 accepted flaws (2026-10-19, user): card door may gate nothing; acid tank kills nothing; crane key lies free (no shoot guard); E-blaster missing; flyers missing; no cutscenes; death resets all task progress (no saves). Fix in a later session. Spec: `docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md`.
 
 ## Spikes
 
@@ -159,7 +160,6 @@ flowchart LR
 ## Open
 
 - Intro cutscene and dying-rebel scene: not part of current work (user, 2026-10-19); mission 1 scope decided later.
-- Inventory screen on `I` (pick the item shown in the HUD, as the original "INVENTAR / X-BOT STATISTIKA" screen) comes in the next phase; until then `I` does nothing (2026-10-19).
 - Crowbar cutscene polish, revisited once all level animations exist (2026-10-19): hands overhead in the side shot, at hip level in the back shot; a larger back-shot pry pull (`pullForeDeg`) so the door visibly follows it; grip order and hand spacing change across the cut (78 vs about 367 model units); the crowbar pokes out of the top of the shot B frame around 2.7 s.
 - Environment sheet: all 52 objects and the `ladder` drawn, first pass kept, iterate later. The sandbox uses a subset (ported to `src/game/env/`). Guessed looks (no original sprite or unclear): code lock, E-Blaster pickup on the ground, hazard plate purpose, staircase treads. Marker 6 is either the valve wheel near the E-Blaster or the water pipe; both are drawn.
 - Sandbox HUD shows live life, shields, weapon and ammo (see Ammo). Shields start at `energy.shields` in `config/hero/movement.json`.

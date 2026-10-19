@@ -184,11 +184,17 @@ export function pickUp(world: SandboxWorld, id: ItemId): void {
   world.inventory.shown = id;
 }
 
-export function useTop(world: SandboxWorld): ItemId | null {
+export function showItem(world: SandboxWorld, id: ItemId): void {
+  if (world.inventory.items.includes(id)) world.inventory.shown = id;
+}
+
+export function useShown(world: SandboxWorld): ItemId | null {
   const { inventory } = world;
-  const top = inventory.items.pop() ?? null;
+  const { shown } = inventory;
+  if (shown === null) return null;
+  inventory.items.splice(inventory.items.indexOf(shown), 1);
   inventory.shown = inventory.items.at(-1) ?? null;
-  return top;
+  return shown;
 }
 
 export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">, cfg: MovementConfig): Lift | null {

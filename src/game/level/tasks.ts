@@ -1,5 +1,5 @@
 import { ITEMS, type ItemId } from "../items";
-import { pickUp, useTop, type Prop, type SandboxWorld } from "./sandboxLevel";
+import { pickUp, useShown, type Prop, type SandboxWorld } from "./sandboxLevel";
 
 export interface Task {
   id: string;
@@ -106,7 +106,7 @@ export function runUse(world: SandboxWorld, prop: Prop): void {
   }
   for (const token of task.consumes) {
     if (itemOf(token) === null) world.flags.delete(token);
-    else useTop(world);
+    else useShown(world);
   }
   for (const token of task.gives) {
     const item = itemOf(token);
