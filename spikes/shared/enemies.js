@@ -14,8 +14,11 @@ const FLYER_PALETTE = {
 const GUARD_PALETTE = {
   gm0: "#1a2426", gm1: "#2e3c40", gm2: "#4a5a5e", gm3: "#8a9a9c", gmLine: "#060a0b",
   gc0: "#3c4a4e", gc1: "#6e7e82", gc2: "#a8b4b6", gc3: "#e4ecec",
-  gj0: "#4a3828", gj1: "#806a50", gj2: "#bca07a", gj3: "#f2e2bc",
-  visor: "#d03018", visorGlow: "#ff5a30", rust: "#8a4a22", rustLight: "#b8703a",
+  gj0: "#3c341c", gj1: "#786c54", gj2: "#a09c8c", gj3: "#d0c8ac",
+  shell0: "#2c3838", shell1: "#545854", shell2: "#70706c", shell3: "#888484", groove: "#202a28",
+  visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
+  lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
+  visor: "#ac2c0c", visorGlow: "#ff5a30", rust: "#8a4a22", rustLight: "#b8703a",
   acid: "#7ed43a", acidDark: "#2e6a12", fume: "#a8c890",
   fire0: "#b04010", fire1: "#e88a28", fire2: "#f8d070", fire3: "#ffffff"
 };
@@ -137,6 +140,129 @@ function guardLeg(ctx, dx, tone) {
   P.poly(ctx, [[ankle[0] - 13, 53.5], [ankle[0] - 7, 50], [ankle[0] + 2, 48.5], [ankle[0] + 5, 51], [ankle[0] + 5, 53.5]], "guardChrome", tone);
 }
 
+function grad(ctx, x0, y0, x1, y1, stops) {
+  const g = ctx.createLinearGradient(x0, y0, x1, y1);
+  for (const [at, c] of stops) g.addColorStop(at, ENV.pal[c] || c);
+  return g;
+}
+
+function fillPath(ctx, trace, fill, line = "gmLine") {
+  ctx.beginPath();
+  trace(ctx);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  if (line) P.stroke(ctx, line);
+}
+
+function slit(ctx, x0, x1, y, h, stops) {
+  ctx.fillStyle = grad(ctx, x0, 0, x1, 0, stops);
+  ctx.fillRect(x0, y, x1 - x0, h);
+}
+
+function sideHead(ctx) {
+  const shell = c => {
+    c.moveTo(21, 24.4);
+    c.lineTo(25, 20.6);
+    c.quadraticCurveTo(28, 17.2, 33, 16.2);
+    c.quadraticCurveTo(41, 14.4, 47.5, 14.8);
+    c.lineTo(51.6, 16.4);
+    c.lineTo(53.4, 22);
+    c.quadraticCurveTo(53.8, 28, 51.5, 31);
+    c.quadraticCurveTo(46, 33.6, 40, 33.2);
+    c.lineTo(31, 31.2);
+    c.lineTo(26, 27);
+    c.lineTo(21, 24.4);
+  };
+  fillPath(ctx, shell, grad(ctx, 0, 14, 0, 33, [[0, "shell2"], [0.35, "shell1"], [0.7, "gm1"], [1, "shell0"]]));
+  ctx.save();
+  ctx.beginPath();
+  shell(ctx);
+  ctx.clip();
+  if (!ENV.simple) {
+    const dome = ctx.createRadialGradient(38, 16.5, 0, 38, 16.5, 9);
+    dome.addColorStop(0, ENV.pal.shell3);
+    dome.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = dome;
+    ctx.fillRect(28, 13, 20, 10);
+    for (const x of [43, 46.5, 50]) {
+      ctx.fillStyle = grad(ctx, 0, 15, 0, 30, [[0, "shell2"], [1, "shell0"]]);
+      ctx.fillRect(x, 15, 2.2, 15);
+      P.line(ctx, [[x, 15], [x, 30]], "shell0", 0.4, "butt");
+      ctx.fillStyle = grad(ctx, 0, 15.5, 0, 22, [[0, "stain"], [1, "rgba(0,0,0,0)"]]);
+      ctx.fillRect(x + 0.6, 15.5, 1, 6.5);
+    }
+    ctx.fillStyle = grad(ctx, 0, 15, 0, 27, [[0, "lip2"], [0.6, "lip1"], [1, "rgba(0,0,0,0)"]]);
+    ctx.fillRect(49.4, 15.2, 0.8, 12);
+    P.line(ctx, [[30, 18.6], [42, 17.4]], "shell0", 0.35);
+    for (const [x, y] of [[33, 18.8], [39, 18.1]]) P.disc(ctx, x, y, 0.35, "shell3");
+  }
+  ctx.fillStyle = ENV.pal.groove;
+  ctx.fillRect(20, 21.2, 22, 3.4);
+  slit(ctx, 24, 40, 22.2, 1.2, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
+  slit(ctx, 20, 42, 24.6, 0.9, [[0, "lip0"], [0.5, "lip1"], [0.82, "lip2"], [1, "lip1"]]);
+  ctx.fillStyle = ENV.pal.shell0;
+  ctx.fillRect(20, 25.5, 22, 1.2);
+  ctx.restore();
+  if (!ENV.simple) P.glow(ctx, 36, 22.8, 4, "visorGlow", 0.25);
+
+  fillPath(ctx, c => {
+    c.moveTo(29, 26.8);
+    c.lineTo(38.6, 26.6);
+    c.quadraticCurveTo(40.4, 29.4, 38.8, 32.4);
+    c.quadraticCurveTo(33.5, 33, 31, 31.4);
+    c.quadraticCurveTo(29, 29.6, 29, 26.8);
+  }, grad(ctx, 29, 0, 40, 0, [[0, "gj0"], [0.45, "gj1"], [0.8, "gj2"], [1, "gj3"]]));
+  if (!ENV.simple) P.line(ctx, [[39.2, 27.4], [39.4, 31.4]], "gj3", 0.6);
+}
+
+function frontHead(ctx) {
+  const shell = c => {
+    c.moveTo(-9.6, -34);
+    c.quadraticCurveTo(0, -42, 9.6, -34);
+    c.quadraticCurveTo(11.2, -29, 9.4, -23.5);
+    c.quadraticCurveTo(0, -20, -9.4, -23.5);
+    c.quadraticCurveTo(-11.2, -29, -9.6, -34);
+  };
+  fillPath(ctx, shell, grad(ctx, 0, -39, 0, -21, [[0, "shell2"], [0.35, "shell1"], [0.7, "gm1"], [1, "shell0"]]));
+  ctx.save();
+  ctx.beginPath();
+  shell(ctx);
+  ctx.clip();
+  if (!ENV.simple) {
+    const dome = ctx.createRadialGradient(-2, -37, 0, -2, -37, 8);
+    dome.addColorStop(0, ENV.pal.shell3);
+    dome.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = dome;
+    ctx.fillRect(-11, -42, 20, 10);
+    for (const side of [-1, 1]) {
+      const x = side * 8.6;
+      ctx.fillStyle = grad(ctx, 0, -37, 0, -24, [[0, "shell2"], [1, "shell0"]]);
+      ctx.fillRect(x - 1.1, -37, 2.2, 13);
+      ctx.fillStyle = grad(ctx, 0, -36, 0, -30, [[0, "stain"], [1, "rgba(0,0,0,0)"]]);
+      ctx.fillRect(x - 0.5, -36, 1, 6);
+    }
+    ctx.fillStyle = grad(ctx, 0, -39, 0, -33, [[0, "lip2"], [1, "rgba(0,0,0,0)"]]);
+    ctx.fillRect(3.5, -39, 0.7, 6);
+  }
+  ctx.fillStyle = ENV.pal.groove;
+  ctx.fillRect(-11, -32.9, 22, 3.4);
+  slit(ctx, -7.5, 7.5, -31.9, 1.2, [[0, "visor0"], [0.25, "visor1"], [0.5, "visor3"], [0.75, "visor2"], [1, "visor0"]]);
+  slit(ctx, -11, 11, -29.5, 0.9, [[0, "lip0"], [0.35, "lip1"], [0.6, "lip2"], [1, "lip0"]]);
+  ctx.fillStyle = ENV.pal.shell0;
+  ctx.fillRect(-11, -28.6, 22, 1.2);
+  ctx.restore();
+  if (!ENV.simple) P.glow(ctx, 0, -31.3, 5, "visorGlow", 0.25);
+
+  fillPath(ctx, c => {
+    c.moveTo(-5, -27.2);
+    c.lineTo(5, -27.2);
+    c.quadraticCurveTo(6.2, -23.5, 3.5, -21.2);
+    c.quadraticCurveTo(0, -20.4, -3.5, -21.2);
+    c.quadraticCurveTo(-6.2, -23.5, -5, -27.2);
+  }, grad(ctx, 0, -27, 0, -21, [[0, "gj3"], [0.3, "gj2"], [0.7, "gj1"], [1, "gj0"]]));
+}
+
 function guardBody(ctx, fire) {
   P.box(ctx, 50, 3, 1.4, 12, "guardMetal", 2, { vertical: true });
   P.disc(ctx, 50.7, 3, 0.9, "visor");
@@ -147,17 +273,7 @@ function guardBody(ctx, fire) {
   if (!ENV.simple) for (const [x, y] of [[42.5, 11], [45.5, 11], [48.5, 11], [42.5, 14], [45.5, 14], [48.5, 14]]) P.disc(ctx, x, y, 0.9, "gm0");
   P.flat(ctx, 40, 9, 2, 8, "gm3");
 
-  P.poly(ctx, [[25, 22.5], [28, 18.5], [36, 15.5], [46, 15], [51, 17.5], [53, 24], [51, 31], [44, 33], [36, 32.5], [30, 29.5], [26, 25.5]], "guardMetal", 2);
-  P.poly(ctx, [[28, 18.5], [36, 15.5], [46, 15], [46.5, 17.2], [36, 17.8], [29, 20.5]], "guardChrome", 2, { line: false });
-  P.poly(ctx, [[46, 15], [51, 17.5], [53, 24], [51, 31], [49.5, 25], [47.5, 18.5]], "guardChrome", 1, { line: false });
-  P.poly(ctx, [[29, 26.5], [38, 26], [40, 28], [39, 32], [34, 32.4], [30, 29.5]], "guardJaw", 2);
-  if (!ENV.simple) {
-    P.line(ctx, [[27, 23.6], [40, 23.6]], "gc2", 0.6, "butt");
-    for (const x of [42, 45]) P.line(ctx, [[x, 17.5], [x + 0.6, 22]], "rust", 0.8, "butt");
-    P.line(ctx, [[38.6, 27], [38.6, 31]], "gj3", 0.8, "butt");
-    P.glow(ctx, 32, 21.8, 6, "visorGlow", 0.35);
-  }
-  P.flat(ctx, 28, 21.3, 10, 1.1, "visor");
+  sideHead(ctx);
 
   guardLeg(ctx, 0, 1);
 
@@ -278,15 +394,7 @@ const GUARD_FRONT = {
     P.disc(ctx, 4.2, -50.5, 0.9, "visor");
     P.box(ctx, 2, -44.5, 10, 8, "guardMetal", 1);
     if (!ENV.simple) for (const [x, y] of [[4.5, -42.5], [7, -42.5], [9.5, -42.5], [4.5, -39.5], [7, -39.5], [9.5, -39.5]]) P.disc(ctx, x, y, 0.9, "gm0");
-    P.poly(ctx, [[-9, -37], [-5, -39], [5, -39], [9, -37], [11, -29], [9, -21], [-9, -21], [-11, -29]], "guardMetal", 2, { dir: [1, 0] });
-    P.poly(ctx, [[-9, -37], [-5, -39], [5, -39], [9, -37], [7, -35.5], [-7, -35.5]], "guardChrome", 2, { line: false });
-    P.poly(ctx, [[-5, -27], [5, -27], [6, -24], [4, -21], [-4, -21], [-6, -24]], "guardJaw", 2);
-    if (!ENV.simple) {
-      P.line(ctx, [[-8, -29.6], [8, -29.6]], "gc2", 0.6, "butt");
-      for (const x of [-6, 6]) P.line(ctx, [[x, -36], [x + 0.4, -32]], "rust", 0.8, "butt");
-      P.glow(ctx, 0, -31.7, 6, "visorGlow", 0.35);
-    }
-    P.flat(ctx, -6, -32.3, 12, 1.2, "visor");
+    frontHead(ctx);
     frontGun(ctx, -1, fire < 0 ? -1 : Math.max(0, fire - 2));
     frontGun(ctx, 1, fire);
   }
