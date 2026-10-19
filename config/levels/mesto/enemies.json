@@ -11,7 +11,7 @@
         58
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 11-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Walked in from the left to the hidden player at x 44, killed there (A 4:02). Ammo 324 to 300.",
+      "behaviour": "Chrome droid: patrols cells 11-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Walked in from the left to the hidden player at x 44, killed there (A 4:02). Ammo 324 to 300.",
       "nearMarker": 1,
       "floor": 53,
       "area": "long street (floor 53)",
@@ -40,7 +40,7 @@
         58
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 28-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Walked in from the left past the hidden player to x 58, turned back, killed at x 54-55 (A 3:52). Ammo 350 to 324.",
+      "behaviour": "Chrome droid: patrols cells 28-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Walked in from the left past the hidden player to x 58, turned back, killed at x 54-55 (A 3:52). Ammo 350 to 324.",
       "nearMarker": 1,
       "floor": 53,
       "area": "long street (floor 53)",
@@ -69,7 +69,7 @@
         56
       ],
       "confidence": "high",
-      "behaviour": "Flyer: patrols cells 11-131 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Flyer that follows the player into the colonnade from the left (x about 115). Could swap identity with e07.",
+      "behaviour": "Flyer: patrols cells 11-131 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Flyer that follows the player into the colonnade from the left (x about 115). Could swap identity with e07.",
       "nearMarker": null,
       "floor": 53,
       "area": "long street (floor 53)",
@@ -98,7 +98,7 @@
         58
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 81-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Walks left to the fuel tank at x 99-100, killed (A 6:20).",
+      "behaviour": "Chrome droid: patrols cells 81-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Walks left to the fuel tank at x 99-100, killed (A 6:20).",
       "nearMarker": 3,
       "floor": 53,
       "area": "long street (floor 53)",
@@ -127,7 +127,7 @@
         56
       ],
       "confidence": "high",
-      "behaviour": "Flyer: patrols cells 81-131 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Flies in from the right at x 107-108 above the fuel tank pipes, fires, shot down (A 6:24). Could swap identity with e05.",
+      "behaviour": "Flyer: patrols cells 81-131 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Flies in from the right at x 107-108 above the fuel tank pipes, fires, shot down (A 6:24). Could swap identity with e05.",
       "nearMarker": 3,
       "floor": 53,
       "area": "long street (floor 53)",
@@ -156,7 +156,7 @@
         58
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 81-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Walks left through the colonnade (x 116-123) with a flyer, killed (A 6:37).",
+      "behaviour": "Chrome droid: patrols cells 81-131 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Walks left through the colonnade (x 116-123) with a flyer, killed (A 6:37).",
       "nearMarker": 3,
       "floor": 53,
       "area": "long street (floor 53)",
@@ -185,7 +185,7 @@
         69
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 58-76 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Metro platform, walks right toward the lift at x 74-75, killed (A 6:58).",
+      "behaviour": "Chrome droid: patrols cells 58-76 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Metro platform, walks right toward the lift at x 74-75, killed (A 6:58).",
       "nearMarker": 4,
       "floor": 64,
       "area": "metro platform (floor 64)",
@@ -214,7 +214,7 @@
         69
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 58-76 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Metro platform, walks in front of the train at x 68-69, killed (A 7:03).",
+      "behaviour": "Chrome droid: patrols cells 58-76 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Metro platform, walks in front of the train at x 68-69, killed (A 7:03).",
       "nearMarker": 4,
       "floor": 64,
       "area": "metro platform (floor 64)",
@@ -243,7 +243,7 @@
         58
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 8-23 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Comes from the left right after the rebel cutscene (A 4:06-4:14), likely the robot shown shooting the rebel. Walks right from x 19-20 to the hidden player, killed at x 21 (A 4:23) for 16 rounds.",
+      "behaviour": "Chrome droid: patrols cells 8-23 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Comes from the left right after the rebel cutscene (A 4:06-4:14), likely the robot shown shooting the rebel. Walks right from x 19-20 to the hidden player, killed at x 21 (A 4:23) for 16 rounds.",
       "nearMarker": 1,
       "floor": 53,
       "area": "long street (floor 53)",
@@ -272,7 +272,7 @@
         50
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 26-32 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Seen from the lift while riding up, then walks left from x 28-29 to the lift, killed at x 28-30 (A 5:09).",
+      "behaviour": "Chrome droid: patrols cells 26-32 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Seen from the lift while riding up, then walks left from x 28-29 to the lift, killed at x 28-30 (A 5:09).",
       "nearMarker": 2,
       "floor": 45,
       "area": "floor 45",
@@ -301,7 +301,7 @@
         41
       ],
       "confidence": "high",
-      "behaviour": "Flyer: patrols cells 24-33 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Flies at x 29-32 about 3 rows above the floor next to the crowbar spot, fires, shot down (A 5:24).",
+      "behaviour": "Flyer: patrols cells 24-33 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Flies at x 29-32 about 3 rows above the floor next to the crowbar spot, fires, shot down (A 5:24).",
       "nearMarker": 2,
       "floor": 38,
       "area": "floor 38",
@@ -330,7 +330,7 @@
         74
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 28-46 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Metro tunnel, walks left from x 32-33 firing, killed at x 30-31 (A 7:46). Also B 10:00.",
+      "behaviour": "Chrome droid: patrols cells 28-46 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Metro tunnel, walks left from x 32-33 firing, killed at x 30-31 (A 7:46). Also B 10:00.",
       "nearMarker": 8,
       "floor": 69,
       "area": "metro tunnel (floor 69)",
@@ -359,7 +359,7 @@
         50
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 36-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Walks left from x 46-47 past the graffiti wall to the hidden player at x 39-41, killed (A 5:18).",
+      "behaviour": "Chrome droid: patrols cells 36-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Walks left from x 46-47 past the graffiti wall to the hidden player at x 39-41, killed (A 5:18).",
       "nearMarker": null,
       "floor": 45,
       "area": "floor 45",
@@ -388,7 +388,7 @@
         48
       ],
       "confidence": "high",
-      "behaviour": "Flyer: patrols cells 36-67 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Flies at x 49-52 under the girder bridge, shot down while the player hides (A 5:43).",
+      "behaviour": "Flyer: patrols cells 36-67 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Flies at x 49-52 under the girder bridge, shot down while the player hides (A 5:43).",
       "nearMarker": null,
       "floor": 45,
       "area": "floor 45",
@@ -417,7 +417,7 @@
         50
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 36-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Walks up to the hidden player at x 56-57, killed at x 59-60 (A 5:49).",
+      "behaviour": "Chrome droid: patrols cells 36-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Walks up to the hidden player at x 56-57, killed at x 59-60 (A 5:49).",
       "nearMarker": null,
       "floor": 45,
       "area": "floor 45",
@@ -446,7 +446,7 @@
         34
       ],
       "confidence": "high",
-      "behaviour": "Flyer: patrols cells 29-53 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Flies left to the hidden player at x 50-54 near the street lift, shot down (A 9:15).",
+      "behaviour": "Flyer: patrols cells 29-53 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Flies left to the hidden player at x 50-54 near the street lift, shot down (A 9:15).",
       "nearMarker": 9,
       "floor": 31,
       "area": "bar street (floor 31)",
@@ -475,7 +475,7 @@
         36
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 29-53 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Walks to the hidden player under the BAR sign at x 45-46, killed (A 9:22). In B it was killed with the E-blaster at x 53 (B 13:04).",
+      "behaviour": "Chrome droid: patrols cells 29-53 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Walks to the hidden player under the BAR sign at x 45-46, killed (A 9:22). In B it was killed with the E-blaster at x 53 (B 13:04).",
       "nearMarker": 9,
       "floor": 31,
       "area": "bar street (floor 31)",
@@ -504,7 +504,7 @@
         34
       ],
       "confidence": "high",
-      "behaviour": "Flyer: patrols cells 70-130 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Flies in from the right at x 82-84 and its shot kills the player at 10% energy (A 10:09, KONEC HRY). In B a flyer is shot down with the E-blaster near x 97-101 (B 14:24), either this one or e24.",
+      "behaviour": "Flyer: patrols cells 70-130 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Flies in from the right at x 82-84 and its shot kills the player at 10% energy (A 10:09, KONEC HRY). In B a flyer is shot down with the E-blaster near x 97-101 (B 14:24), either this one or e24.",
       "nearMarker": 13,
       "floor": 31,
       "area": "bar street (floor 31)",
@@ -533,7 +533,7 @@
         36
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 70-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Stands at x 84-85 by the gantry building east of the bar.",
+      "behaviour": "Chrome droid: patrols cells 70-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Stands at x 84-85 by the gantry building east of the bar.",
       "nearMarker": null,
       "floor": 31,
       "area": "bar street (floor 31)",
@@ -562,7 +562,7 @@
         34
       ],
       "confidence": "high",
-      "behaviour": "Flyer: patrols cells 70-130 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Flies at x 110-111, shot down with the E-blaster (B 14:38).",
+      "behaviour": "Flyer: patrols cells 70-130 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Flies at x 110-111, shot down with the E-blaster (B 14:38).",
       "nearMarker": 11,
       "floor": 31,
       "area": "bar street (floor 31)",
@@ -591,7 +591,7 @@
         36
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 70-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Walks left at x 115-116 by the fence, killed (B 14:44).",
+      "behaviour": "Chrome droid: patrols cells 70-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Walks left at x 115-116 by the fence, killed (B 14:44).",
       "nearMarker": null,
       "floor": 31,
       "area": "bar street (floor 31)",
@@ -620,7 +620,7 @@
         34
       ],
       "confidence": "high",
-      "behaviour": "Flyer: patrols cells 133-140 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Flies at x 134-136 near the lift down, shot down with the E-blaster (B 14:55).",
+      "behaviour": "Flyer: patrols cells 133-140 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Flies at x 134-136 near the lift down, shot down with the E-blaster (B 14:55).",
       "nearMarker": null,
       "floor": 31,
       "area": "bar street (floor 31)",
@@ -649,7 +649,7 @@
         43
       ],
       "confidence": "high",
-      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: One of two droids waiting at x 127-130 when the player rides the lift down from floor 31. They kill him (B 15:18).",
+      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: One of two droids waiting at x 127-130 when the player rides the lift down from floor 31. They kill him (B 15:18).",
       "nearMarker": 11,
       "floor": 38,
       "area": "floor 38",
@@ -678,7 +678,7 @@
         43
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Probably the second droid in the B 15:18 lift ambush (e28 or e29).",
+      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Probably the second droid in the B 15:18 lift ambush (e28 or e29).",
       "nearMarker": 11,
       "floor": 38,
       "area": "floor 38",
@@ -707,7 +707,7 @@
         43
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick. Video: Possibly the second droid in the B 15:18 lift ambush (e28 or e29).",
+      "behaviour": "Chrome droid: patrols cells 104-130 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12). Video: Possibly the second droid in the B 15:18 lift ambush (e28 or e29).",
       "nearMarker": 11,
       "floor": 38,
       "area": "floor 38",
@@ -736,7 +736,7 @@
         43
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 86-102 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 86-102 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 11,
       "floor": 38,
       "area": "floor 38",
@@ -765,7 +765,7 @@
         43
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 86-102 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 86-102 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 11,
       "floor": 38,
       "area": "floor 38",
@@ -794,7 +794,7 @@
         48
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 84-113 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 84-113 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 12,
       "floor": 45,
       "area": "floor 45",
@@ -823,7 +823,7 @@
         29
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 57-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 57-67 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 13,
       "floor": 24,
       "area": "floor 24",
@@ -852,7 +852,7 @@
         27
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 35-54 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 35-54 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 17,
       "floor": 24,
       "area": "floor 24",
@@ -881,7 +881,7 @@
         29
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 35-54 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 35-54 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 17,
       "floor": 24,
       "area": "floor 24",
@@ -910,7 +910,7 @@
         27
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 35-54 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 35-54 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 17,
       "floor": 24,
       "area": "floor 24",
@@ -939,7 +939,7 @@
         22
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 35-47 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 35-47 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 17,
       "floor": 17,
       "area": "floor 17",
@@ -968,7 +968,7 @@
         20
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 35-47 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 35-47 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 17,
       "floor": 17,
       "area": "floor 17",
@@ -997,7 +997,7 @@
         22
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 56-84 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 56-84 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 17,
       "floor": 17,
       "area": "floor 17",
@@ -1026,7 +1026,7 @@
         20
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 56-84 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 56-84 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 17,
       "floor": 17,
       "area": "floor 17",
@@ -1055,7 +1055,7 @@
         22
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 56-84 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 56-84 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 17,
       "floor": 17,
       "area": "floor 17",
@@ -1084,7 +1084,7 @@
         27
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 75-84 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 75-84 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": null,
       "floor": 24,
       "area": "floor 24",
@@ -1113,7 +1113,7 @@
         15
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": null,
       "floor": 10,
       "area": "top floor 10 (crane level)",
@@ -1142,7 +1142,7 @@
         13
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": null,
       "floor": 10,
       "area": "top floor 10 (crane level)",
@@ -1171,7 +1171,7 @@
         15
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": null,
       "floor": 10,
       "area": "top floor 10 (crane level)",
@@ -1200,7 +1200,7 @@
         13
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": null,
       "floor": 10,
       "area": "top floor 10 (crane level)",
@@ -1229,7 +1229,7 @@
         15
       ],
       "confidence": "medium",
-      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Chrome droid: patrols cells 54-121 on the floor, walks up to the player, ignores him while hidden, fires fast bolts. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 14,
       "floor": 10,
       "area": "top floor 10 (crane level)",
@@ -1258,7 +1258,7 @@
         13
       ],
       "confidence": "medium",
-      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster drains 0.03 per particle per tick.",
+      "behaviour": "Flyer: patrols cells 54-121 about 3 rows above the floor, fires downward at the player. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches; the E-blaster beam kills in 5 ticks (report 12).",
       "nearMarker": 14,
       "floor": 10,
       "area": "top floor 10 (crane level)",

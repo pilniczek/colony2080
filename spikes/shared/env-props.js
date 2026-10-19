@@ -1,6 +1,6 @@
 (() => {
 const { define, P } = window.ENV;
-const { rng, path, color, flat, box, poly, cylV, disc, rivets, glow, stroke, tones } = P;
+const { rng, path, color, flat, box, poly, cylV, disc, rivets, glow, stroke, tones, line } = P;
 const { PI, sin, cos, atan2, hypot } = Math;
 
 const simple = () => window.ENV.simple;
@@ -204,20 +204,31 @@ define({
   }
 });
 
+const EBLASTER_K = 0.058;
+const EBLASTER_PARTS = [
+  [-14, -14, 26, 56, "steel", 1], [-78, -60, 20, 42, "steel", 0], [-44, -90, 92, 22, "steel", 1], [-34, -86, 72, 10, "den2"],
+  [-60, -72, 130, 62, "chrome", 1], [-14, -72, 12, 62, "den1"], [14, -10, 46, 34, "steel", 0], [22, -2, 30, 8, "den2"],
+  [70, -58, 152, 36, "chrome", 2], [70, -44, 152, 8, "plasma"],
+  [84, -66, 12, 52, "steel", 0], [114, -66, 12, 52, "steel", 0], [145, -66, 12, 52, "steel", 0], [176, -66, 12, 52, "steel", 0],
+  [214, -74, 14, 68, "steel", 0], [218, -74, 48, 12, "chrome", 1], [218, -18, 48, 12, "chrome", 1]
+];
+const EBLASTER_ARC = [[260, -62], [268, -54], [262, -46], [270, -40], [262, -34], [268, -26], [260, -18]];
+const eblasterAt = ([x, y]) => [(x + 78) * EBLASTER_K - 1, (y - 42) * EBLASTER_K];
+
 define({
   id: "eBlaster",
   box: [-2, -10, 24, 0],
   draw(ctx, state) {
     if (state) return scuff(ctx, 1, 20);
-    poly(ctx, [[3, -1], [5, -5], [8, -5], [7, -1]], "steel", 1);
-    box(ctx, 2, -8, 13, 4.5, "steel", 2);
-    box(ctx, 14, -7.2, 7, 2.2, "chrome", 1);
-    flat(ctx, 20.5, -7.4, 1.4, 2.6, "mLine");
-    box(ctx, 7.5, -9.4, 5, 1.6, "steel", 1);
-    flat(ctx, 8, -7, 5, 2.4, "plasma", "mLine");
-    if (!simple()) flat(ctx, 8.5, -6.6, 4, 0.6, "plasmaCore");
-    glow(ctx, 10.5, -5.8, 6, "plasma", 0.35);
-    rivets(ctx, 2, -4.4, 13, 4, "m3");
+    for (const [x, y, w, h, mat, tone] of EBLASTER_PARTS) {
+      const [px, py] = eblasterAt([x, y]);
+      if (tone === undefined) flat(ctx, px, py, w * EBLASTER_K, h * EBLASTER_K, mat);
+      else box(ctx, px, py, w * EBLASTER_K, h * EBLASTER_K, mat, tone);
+    }
+    const arc = EBLASTER_ARC.map(eblasterAt);
+    line(ctx, arc, "den1", 0.7);
+    line(ctx, arc, "plasmaCore", simple() ? 0.3 : 0.22);
+    glow(ctx, ...eblasterAt([268, -40]), 3, "plasma", 0.45);
   }
 });
 

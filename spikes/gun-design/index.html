@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gun Design Sheet</title>
+<title>Weapon Design Sheet</title>
 <style>
   :root { --bg: #0b1112; --panel: #141c1e; --text: #c9d1d0; --muted: #7d8a89; }
   * { box-sizing: border-box; }
@@ -11,21 +11,32 @@
   header { padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: var(--panel); }
   header h1 { font-size: 15px; margin: 0; font-weight: 600; }
   header label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  .weapon { display: flex; }
+  .weapon button { background: #22302f; color: var(--muted); border: 1px solid #2f3f3e; padding: 4px 12px; cursor: pointer; font: inherit; }
+  .weapon button:first-child { border-radius: 4px 0 0 4px; }
+  .weapon button:last-child { border-radius: 0 4px 4px 0; }
+  .weapon button + button { border-left: 0; }
+  .weapon button[aria-pressed="true"] { background: #e2701a; border-color: #e2701a; color: #140a02; font-weight: 600; }
   h2 { font-size: 13px; font-weight: 600; margin: 4px 16px 0; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
   main { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; padding: 12px 16px; }
   main.game { display: flex; flex-wrap: wrap; align-items: flex-start; }
-  figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  figure { margin: 0; background: #10181a; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   figure.wide { grid-column: span 2; }
+  figure.full { grid-column: 1 / -1; }
   figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
   figure canvas { width: 100%; display: block; }
+  main.game figure { max-width: 100%; overflow-x: auto; }
+  figure svg { width: 100%; height: auto; display: block; }
   figure img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
+  [hidden] { display: none !important; }
 
   @media (max-width: 560px) { figure.wide { grid-column: auto; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>Gun design sheet</h1>
+  <h1>Weapon design sheet</h1>
+  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button></div>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
 </header>
 <main>
@@ -33,6 +44,7 @@
   <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Slung, back (ladder pose)</figcaption><canvas id="slungBack" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Slung, side (back hook)</figcaption><canvas id="slungSide" data-w="640" data-h="780"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2)</h2>
 <main class="game">
@@ -40,7 +52,29 @@
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
 </main>
+<section data-for="blaster">
+  <h2>Beam (9 cells, 32 ticks per s)</h2>
+  <main>
+    <figure class="full"><figcaption>Full size: facing right and left, standing and ducking</figcaption><canvas id="beamFull" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <main class="game">
+    <figure><figcaption>Game size, game LOD hero holding the E-Blaster</figcaption><canvas id="beamGame" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <h2>Beam frames, 6 shapes</h2>
+  <main id="frames"></main>
+  <h2>HUD slot 3 icon</h2>
+  <main>
+    <figure><figcaption>Selected</figcaption><div id="iconLit"></div></figure>
+    <figure><figcaption>Not selected</figcaption><div id="iconDim"></div></figure>
+  </main>
+  <h2>Ground pickup (eBlaster asset)</h2>
+  <main class="game">
+    <figure><figcaption>Full size (x 12)</figcaption><canvas id="groundFull" data-w="26" data-h="11" data-scale="12"></canvas></figure>
+    <figure><figcaption>Game size, game LOD</figcaption><canvas id="groundGame" data-w="26" data-h="11" data-scale="game"></canvas></figure>
+  </main>
+</section>
 <!-- originals -->
+<section data-for="gun">
 <h2>References</h2>
 <main>
   <figure><figcaption>ZABIJMIM f12, muzzle</figcaption><img src="../../docs/research/robot/cutscenes/ZABIJMIM_f012_gun.png" alt="gun muzzle"></figure>
@@ -50,12 +84,21 @@
   <figure><figcaption>Side shot in game</figcaption><img src="../../docs/research/robot/video/5r7Yie502C0_04-48_side-shoot-muzzle-flash.png" alt="side shot"></figure>
   <figure><figcaption>Sprite carry, walk</figcaption><img src="../../docs/research/robot/sprites/A_state-walk_220s_x6.png" alt="sprite walk"></figure>
 </main>
+</section>
 <!-- /originals -->
+<section id="weaponRefs" hidden>
+  <h2>References</h2>
+  <main id="weaponRefList"></main>
+</section>
 <script src="../shared/config.js"></script>
+<script src="../shared/originals.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
+<script src="../shared/eblaster.js"></script>
+<script src="../shared/env.js"></script>
+<script src="../shared/env-props.js"></script>
 <script>
-const { buildSide, buildFront, buildBack, render } = window.XBOT;
+const { buildSide, buildFront, buildBack, render, locate, FOOT_Y, LEVELS } = window.XBOT;
 const roots = {
   side: buildSide({ farLimbs: true, propBehindArm: true }),
   front: buildFront({ rightArmFirst: true, propBehindArm: true }),
@@ -64,18 +107,35 @@ const roots = {
   gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true }),
   gBack: buildBack({ thumbsBehind: true, forearmsUnder: true, lod: true })
 };
+const MODELS = { gun: GUN, blaster: EBLASTER };
 const CLIMB = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
+const DUCK = { body: 16, hipNear: -86, kneeNear: 124, ankleNear: -44, hipFar: -68, kneeFar: 128, ankleFar: -76 };
+const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
 const hold = GUN.holdPoses(roots.side, roots.front);
 const gHold = GUN.holdPoses(roots.gSide, roots.gFront);
-const sidePose = { ...hold.CARRY, ...hold.CARRY_FAR };
+const carry = (pose, h) => {
+  const b = pose.body || 0;
+  return { ...pose, arm: h.CARRY.arm - b, fore: h.CARRY.fore, armFar: h.CARRY_FAR.armFar - b, foreFar: h.CARRY_FAR.foreFar };
+};
+const sidePose = carry({}, hold);
 const frontPose = { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R };
-const gSidePose = { ...gHold.CARRY, ...gHold.CARRY_FAR };
+const gSidePose = carry({}, gHold);
 const gFrontPose = { ...gHold.FRONT_CARRY, ...gHold.FRONT_CARRY_R };
 const SIDE_SHIFT = -150;
+const GAME_PX = (1.9 * 24) / (FOOT_Y - LEVELS.find(([k]) => k === "head")[1]);
+const SHEET_SCALE = 0.2;
+const BEAM_LEN = 9 * 24;
+const ROW_H = 780;
 const opts = { lines: true };
+let WEAPON = "gun";
+try { WEAPON = localStorage.getItem("weaponSheet") || "gun"; } catch {}
+if (!MODELS[WEAPON] && WEAPON !== "fists") WEAPON = "gun";
+
+const model = () => MODELS[WEAPON];
+const held = (hookName, lineW, simple, barrel) => model() ? { [hookName]: c => model().hook(c, { lineW, simple, barrel }) } : {};
 
 function robot(ctx, root, pose, hookName, simple, lineW, barrel) {
-  render(ctx, root, { pose, lineW, simple, hooks: { [hookName]: c => GUN.hook(c, { lineW, simple, barrel }) } });
+  render(ctx, root, { pose: model() ? pose : {}, lineW, simple, hooks: held(hookName, lineW, simple, barrel) });
 }
 
 function climber(ctx, root, simple, lineW) {
@@ -83,39 +143,154 @@ function climber(ctx, root, simple, lineW) {
   ctx.fillRect(170, 0, 20, 780);
   ctx.fillRect(450, 0, 20, 780);
   for (let y = 60; y < 780; y += 110) ctx.fillRect(170, y, 300, 14);
-  render(ctx, root, { pose: CLIMB, lineW, simple, hooks: { back: c => GUN.hook(c, { lineW, simple }) } });
+  render(ctx, root, { pose: CLIMB, lineW, simple, hooks: held("back", lineW, simple) });
+}
+
+function footLift(root, pose) {
+  return FOOT_Y - Math.max(...FEET.map(h => locate(root, h, pose)?.transformPoint(new DOMPoint(0, 0)).y ?? -Infinity));
+}
+
+function beamRow(ctx, root, pose, simple, lineW, facing, t) {
+  const tick = Math.floor(t * EBLASTER.TICK_HZ);
+  ctx.save();
+  if (facing > 0) ctx.translate(SIDE_SHIFT, 0);
+  else { ctx.translate(+ctx.canvas.dataset.w - SIDE_SHIFT, 0); ctx.scale(-1, 1); }
+  ctx.translate(0, footLift(root, pose));
+  render(ctx, root, { pose, lineW, simple, hooks: { hand: c => EBLASTER.hook(c, { lineW, simple }) } });
+  const m = locate(root, "hand", pose).transformPoint(new DOMPoint(...EBLASTER.muzzleInHook));
+  ctx.translate(m.x, m.y);
+  ctx.scale(1 / GAME_PX, 1 / GAME_PX);
+  EBLASTER.beam(ctx, BEAM_LEN, EBLASTER.frameAt(t), tick);
+  ctx.restore();
+}
+
+function beamRows(ctx, root, h, simple, lineW, t) {
+  const rows = [[1, carry({}, h)], [-1, carry({}, h)], [1, carry(DUCK, h)], [-1, carry(DUCK, h)]];
+  rows.forEach(([facing, pose], i) => {
+    ctx.save();
+    ctx.translate(0, i * ROW_H);
+    ctx.fillStyle = "#2a3436";
+    ctx.fillRect(0, FOOT_Y, +ctx.canvas.dataset.w, 8);
+    beamRow(ctx, root, pose, simple, lineW, facing, t);
+    ctx.restore();
+  });
+}
+
+function findNode(node, name) {
+  if (node.name === name) return node;
+  for (const kid of node.kids || []) {
+    const hit = findNode(kid, name);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+const FORE = findNode(buildSide(), "fore");
+
+function fist(ctx, lineW) {
+  ctx.translate(300, 100);
+  ctx.scale(1.2, 1.2);
+  ctx.translate(-387, 313);
+  ctx.beginPath();
+  ctx.rect(290, -386, 194, 146);
+  ctx.clip();
+  ctx.rotate(-Math.PI / 2);
+  render(ctx, { ...FORE, m: null, name: null }, { lineW });
+}
+
+function ground(ctx, lod) {
+  const def = ENV.ASSETS.find(a => a.id === "eBlaster");
+  ctx.translate(2, 10.5);
+  ENV.draw(ctx, def, { state: 0, lod, lines: opts.lines ? 1 : 0 });
 }
 
 const VIEWS = {
-  side: (ctx, lw) => { ctx.translate(250, 130); GUN.draw(ctx, { lineW: lw * 1.4 }); },
+  side: (ctx, lw) => model() ? (ctx.translate(250, 130), model().draw(ctx, { lineW: lw * 1.4 })) : fist(ctx, lw * 1.4),
   heldSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.side, sidePose, "hand", false, lw * 1.4); },
   heldFront: (ctx, lw) => robot(ctx, roots.front, frontPose, "handL", false, lw * 1.4, hold.FRONT_BARREL),
-  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, gSidePose, "hand", true, lw); },
   slungBack: (ctx, lw) => climber(ctx, roots.back, false, lw * 1.4),
+  slungSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); render(ctx, roots.side, { lineW: lw * 1.4, hooks: held("back", lw * 1.4, false) }); },
+  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, gSidePose, "hand", true, lw); },
   gFront: (ctx, lw) => robot(ctx, roots.gFront, gFrontPose, "handL", true, lw, gHold.FRONT_BARREL),
-  gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw)
+  gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw),
+  beamFull: (ctx, lw, t) => beamRows(ctx, roots.side, hold, false, lw * 1.4, t),
+  beamGame: (ctx, lw, t) => beamRows(ctx, roots.gSide, gHold, true, lw, t),
+  groundFull: ctx => ground(ctx, false),
+  groundGame: ctx => ground(ctx, true)
 };
+const ANIMATED = new Set(["beamFull", "beamGame"]);
 
-function draw() {
+const frames = document.getElementById("frames");
+for (let f = 0; f < EBLASTER.FRAMES; f++) {
+  const fig = document.createElement("figure");
+  fig.innerHTML = `<figcaption>Frame ${f}</figcaption><canvas id="frame${f}" data-w="${BEAM_LEN + 8}" data-h="${EBLASTER.BEAM_H + 8}"></canvas>`;
+  frames.append(fig);
+  VIEWS["frame" + f] = ctx => {
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, BEAM_LEN + 8, EBLASTER.BEAM_H + 8);
+    ctx.translate(4, (EBLASTER.BEAM_H + 8) / 2);
+    EBLASTER.beam(ctx, BEAM_LEN, f, 1);
+  };
+}
+
+const ICON_DEFS = `<defs>
+  <pattern id="grid" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><rect width="3.2" height="3.2" fill="#120b05"/><path d="M0 .1H3.2M.1 0V3.2" stroke="#5a360c" stroke-width=".2"/></pattern>
+  <filter id="iconGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="b"/><feFlood flood-color="#ffb21c" flood-opacity=".6"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="iconDim"><feColorMatrix type="saturate" values=".25"/><feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer></filter>
+</defs>`;
+const iconSvg = (lit, n) => `<svg viewBox="0 0 65 20" xmlns="http://www.w3.org/2000/svg">${ICON_DEFS.replace(/id="(\w+)"/g, `id="$1${lit ? "L" : "D"}"`).replace(/url\(#(\w+)\)/g, `url(#$1${lit ? "L" : "D"})`)}
+  <rect width="65" height="20" rx="1.4" fill="url(#grid${lit ? "L" : "D"})"/>
+  <g filter="url(#icon${lit ? "GlowL" : "DimD"})">${EBLASTER.icon(4)}</g>
+  <text x="${4 + EBLASTER.ICON.arcEnd}" y="16" text-anchor="end" font-family="monospace" font-size="4.6" fill="#a8844a">${n}</text></svg>`;
+document.getElementById("iconLit").innerHTML = iconSvg(true, 400);
+document.getElementById("iconDim").innerHTML = iconSvg(false, 387);
+
+function refs() {
+  const list = window.ORIGINALS.on && window.ORIGINALS.weapons?.[WEAPON];
+  document.getElementById("weaponRefs").hidden = !list;
+  document.getElementById("weaponRefList").innerHTML = list ? list.map(([label, path]) => `<figure><figcaption>${label}</figcaption><img src="${window.ORIGINALS.src(path)}" alt="${label}"></figure>`).join("") : "";
+}
+
+function paint(ids, t) {
   const dpr = devicePixelRatio || 1;
-  for (const [id, view] of Object.entries(VIEWS)) {
+  for (const id of ids) {
     const c = document.getElementById(id);
+    if (!c.offsetParent) continue;
     const w = +c.dataset.w, h = +c.dataset.h;
+    const zoom = c.dataset.scale === "game" ? SHEET_SCALE / GAME_PX : +c.dataset.scale || SHEET_SCALE;
     c.style.aspectRatio = `${w} / ${h}`;
-    if (c.closest(".game")) c.style.width = `${w * 0.2}px`;
+    if (c.closest(".game")) c.style.width = `${w * zoom}px`;
     c.width = Math.round(c.clientWidth * dpr);
     c.height = Math.round(c.clientWidth * h / w * dpr);
     const ctx = c.getContext("2d");
     const s = c.width / w;
     ctx.setTransform(s, 0, 0, s, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    view(ctx, opts.lines ? dpr : 0);
+    VIEWS[id](ctx, opts.lines ? dpr : 0, t);
   }
 }
 
+const draw = () => paint(Object.keys(VIEWS), performance.now() / 1000);
+
+function setWeapon(w) {
+  WEAPON = w;
+  try { localStorage.setItem("weaponSheet", w); } catch {}
+  for (const btn of document.querySelectorAll("[data-weapon]")) btn.setAttribute("aria-pressed", String(btn.dataset.weapon === w));
+  for (const el of document.querySelectorAll("[data-for]")) el.hidden = !el.dataset.for.split(" ").includes(w);
+  refs();
+  draw();
+}
+
+function tick(now) {
+  if (WEAPON === "blaster") paint([...ANIMATED], now / 1000);
+  requestAnimationFrame(tick);
+}
+
+for (const btn of document.querySelectorAll("[data-weapon]")) btn.onclick = () => setWeapon(btn.dataset.weapon);
 document.getElementById("lines").onchange = e => { opts.lines = e.target.checked; draw(); };
 addEventListener("resize", draw);
-draw();
+setWeapon(WEAPON);
+requestAnimationFrame(tick);
 </script>
 </body>
 </html>
