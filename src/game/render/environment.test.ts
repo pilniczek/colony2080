@@ -1,7 +1,8 @@
 import sandboxJson from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
+import { ITEMS } from "../items";
 import { loadSandbox } from "../level/sandboxLevel";
-import { above, below, type Env } from "./environment";
+import { above, below, prop, type Env } from "./environment";
 import type { Rect } from "../geometry";
 
 const CELL = 24;
@@ -46,5 +47,25 @@ describe("static layer culling", () => {
 
   it("paints every asset for a tile covering the layer", () => {
     expect(painted(worldRect)).toBe(painted());
+  });
+});
+
+describe("item props without art", () => {
+  const itemId = Object.keys(ITEMS).find((id) => ITEMS[id]!.icon.asset === null)!;
+
+  const fills = (taken: boolean): number => {
+    const { ctx } = counting();
+    let count = 0;
+    const spy = new Proxy(ctx, { get: (t, key) => (key === "fill" ? () => count++ : Reflect.get(t, key)) });
+    prop({ ctx: spy, world, cell: CELL, unit: 1, lines: 1, screen: worldRect }, { kind: "item", item: itemId, x: 3, taken });
+    return count;
+  };
+
+  it("paints a ground placeholder", () => {
+    expect(fills(false)).toBeGreaterThan(0);
+  });
+
+  it("paints nothing once taken", () => {
+    expect(fills(true)).toBe(0);
   });
 });

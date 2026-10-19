@@ -5,6 +5,7 @@ import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
 import { buildSide, ROBOT } from "../robot/xbot";
 import { ITEMS, type Item } from "../items";
+import { drawPlaceholder } from "../render/placeholder";
 import { HAND_BOX } from "./layout";
 import type { HudIcon, HudIcons } from "./svg";
 
@@ -32,17 +33,6 @@ export function findGroup(node: RigNode, name: string): GroupNode | null {
   return null;
 }
 
-function placeholder(ctx: CanvasRenderingContext2D, w: number, h: number): void {
-  const r = Math.min(w, h) * 0.32;
-  ctx.fillStyle = "#6a4206";
-  ctx.strokeStyle = "#f0a818";
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  ctx.roundRect(w / 2 - r, h / 2 - r, 2 * r, 2 * r, 1);
-  ctx.fill();
-  ctx.stroke();
-}
-
 function assetIcon(ctx: CanvasRenderingContext2D, asset: AssetId, state: number, tilt: number, w: number, h: number): void {
   const def = ASSETS[asset];
   const [x0, y0, x1, y1] = def.box;
@@ -59,7 +49,7 @@ function assetIcon(ctx: CanvasRenderingContext2D, asset: AssetId, state: number,
 function itemIcon({ icon: { asset, state, tilt, scale } }: Item): HudIcon {
   const w = HAND_BOX.w * scale;
   const h = HAND_BOX.h * scale;
-  return icon(w, h, (ctx) => (asset === null ? placeholder(ctx, w, h) : assetIcon(ctx, asset, state, tilt, w, h)));
+  return icon(w, h, (ctx) => (asset === null ? drawPlaceholder(ctx, w, h) : assetIcon(ctx, asset, state, tilt, w, h)));
 }
 
 export function hudIcons(): HudIcons {
