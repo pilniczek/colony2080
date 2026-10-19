@@ -192,11 +192,11 @@ function sideHead(ctx) {
   ctx.restore();
 
   ctx.fillStyle = ENV.pal.groove;
-  ctx.fillRect(26, 18.4, 16, 1.6);
-  slit(ctx, 26, 41, 20, 1.3, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
+  ctx.fillRect(26, 21, 16, 1.1);
+  slit(ctx, 26, 41, 22.1, 1.1, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
   ctx.fillStyle = ENV.pal.band;
-  ctx.fillRect(26, 21.3, 16, 2.9);
-  P.line(ctx, [[26, 18.4], [26, 24.2]], "gmLine", 0.4, "butt");
+  ctx.fillRect(26, 23.2, 16, 1);
+  P.line(ctx, [[26, 21], [26, 24.2]], "gmLine", 0.4, "butt");
   slit(ctx, HULL.nose, 42, 24.2, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
 
 }
