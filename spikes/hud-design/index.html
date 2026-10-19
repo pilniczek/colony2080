@@ -102,7 +102,7 @@ const screw = (x, y) => `<use href="#screw" x="${x}" y="${y}"/>`;
 const bevel = (x, y, w, h, r, raised = true, lw = .45) =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
 const SIDE = 11, BAR_H = 20.4;
-const counter = (x, n) => `<text x="${x}" y="16" font-family="${MONO}" font-size="4.6" fill="${READOUT}">${String(n).padStart(3, "0")}</text>`;
+const counter = (x, n) => `<text x="${x}" y="16" text-anchor="end" font-family="${MONO}" font-size="4.6" fill="${READOUT}">${n}</text>`;
 
 const gridPanel = (x, w) => `<rect x="${x + .4}" y="1.8" width="${w - .8}" height="16.2" rx="1.4" fill="#0b0806"/>
   <rect x="${x + 1}" y="2.4" width="${w - 2}" height="15" rx="1" fill="url(#grid)"/>
@@ -216,9 +216,9 @@ function topBar(W, s) {
   ${gaps.filter(([a, b]) => b > a).map(([a, b]) => [3.4, 7.8, 12.2, 16.6].map((y) => rod(a, b, y)).join("")).join("")}
   ${plates.map(([a, b]) => plate(a, b)).join("")}
   ${gridPanel(gridX, gridW)}
-  ${weapon(GUN(wx[0]), s.weapon === 0)}${counter(wx[0] + 27.6, s.ammo)}
+  ${weapon(GUN(wx[0]), s.weapon === 0)}${counter(wx[0] + WEAPON_W[0], s.ammo)}
   ${weapon(FIST(wx[1]), s.weapon === 1)}
-  ${s.bonus ? weapon(BLASTER(wx[2]), s.weapon === 2) + counter(wx[2] + 26.6, s.bonusAmmo) : ""}
+  ${s.bonus ? weapon(BLASTER(wx[2]), s.weapon === 2) + counter(wx[2] + WEAPON_W[2], s.bonusAmmo) : ""}
   ${WEAPON_KEYS.slice(0, s.bonus ? 3 : 2).map((label, i) => keyTab(wx[i] + WEAPON_W[i] / 2 - (i === 2 ? 11.5 : 0), label, s.weapon === i)).join("")}
   <rect x="${badge + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="#16110d"/>
   <rect x="${badge + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="url(#insetTop)"/>

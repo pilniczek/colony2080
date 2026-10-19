@@ -81,7 +81,6 @@ const blaster = (x: number): string => `<g transform="translate(${x} 5.2)" fill=
   <path transform="translate(${x} 5.2)" d="M35 2.5q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
 
 const BLASTER_BODY_W = 34;
-const COUNTER_DX = [27.6, 0, 26.6];
 const keyCentre = (i: number): number => (i === 2 ? BLASTER_BODY_W : WEAPON_W[i]!) / 2;
 
 const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
@@ -94,7 +93,7 @@ const bevel = (x: number, y: number, w: number, h: number, r: number, raised = t
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
 
 const counter = (x: number, n: number): string =>
-  `<text x="${x}" y="16" font-family="${MONO}" font-size="4.6" fill="${READOUT}">${String(Math.round(n)).padStart(3, "0")}</text>`;
+  `<text x="${x}" y="16" text-anchor="end" font-family="${MONO}" font-size="4.6" fill="${READOUT}">${Math.round(n)}</text>`;
 
 const image = ({ url, w, h }: HudIcon, x: number, y: number): string =>
   `<image href="${url}" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
@@ -142,9 +141,9 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map(plate).join("")}
   ${gridPanel(bar.gridX, bar.gridW)}
-  ${weapon(image(icons.gun, wx[0]!, 2.9), s.weapon === 0)}${counter(wx[0]! + COUNTER_DX[0]!, s.ammo)}
+  ${weapon(image(icons.gun, wx[0]!, 2.9), s.weapon === 0)}${counter(wx[0]! + WEAPON_W[0]!, s.ammo)}
   ${weapon(image(icons.fist, wx[1]!, 2.4), s.weapon === 1)}
-  ${s.bonus ? weapon(blaster(wx[2]!), s.weapon === 2) + counter(wx[2]! + COUNTER_DX[2]!, s.bonusAmmo) : ""}
+  ${s.bonus ? weapon(blaster(wx[2]!), s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo) : ""}
   ${wx.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x + keyCentre(i), keys.weapons[i] ?? "", s.weapon === i)).join("")}
   ${badge(bar.badge)}
   ${gridPanel(bar.run, bar.runW)}${readout(bar.run + bar.runW / 2, "RUN")}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}

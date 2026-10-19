@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HAND_BOX, SLOT, topBar } from "./layout";
+import { HAND_BOX, SLOT, topBar, WEAPON_W } from "./layout";
 import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
@@ -17,9 +17,9 @@ describe("hudSvg", () => {
   });
 
   it("shows the bonus slot only when the bonus weapon is owned", () => {
-    expect(hudSvg(320, 200, base, icons)).not.toContain(">012</text>");
+    expect(hudSvg(320, 200, base, icons)).not.toContain(">12</text>");
     const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 12, weapon: 2 }, icons);
-    expect(svg).toContain(">012</text>");
+    expect(svg).toContain(">12</text>");
     expect(count(svg, 'filter="url(#iconDim)"')).toBe(2);
   });
 
@@ -33,6 +33,22 @@ describe("hudSvg", () => {
 
   it("lights one shield light per shield", () => {
     expect(count(hudSvg(320, 200, base, icons), 'fill="url(#shieldOn)"')).toBe(3);
+  });
+
+  it("right-aligns the ammo counter at the icon edge without leading zeros", () => {
+    const { weapons } = topBar(320);
+    const counter = (ammo: number): RegExpExecArray | null => new RegExp(`<text x="([\\d.]+)" y="16" text-anchor="end"[^>]*>(\\d+)</text>`).exec(hudSvg(320, 200, { ...base, ammo }, icons));
+    for (const [ammo, text] of [[0, "0"], [99, "99"], [350, "350"], [109999, "109999"]] as const) {
+      const m = counter(ammo)!;
+      expect(m[2]).toBe(text);
+      expect(Number(m[1])).toBeCloseTo(weapons[0]! + WEAPON_W[0]!, 9);
+    }
+  });
+
+  it("right-aligns the bonus counter at the blaster edge", () => {
+    const { weapons } = topBar(320);
+    const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 7 }, icons);
+    expect(svg).toContain(`<text x="${weapons[2]! + WEAPON_W[2]!}" y="16" text-anchor="end"`);
   });
 
   it("shows the ammo counter and badge", () => {
