@@ -179,12 +179,12 @@ function sideLegArmor(ctx, knee, ankle) {
   ctx.restore();
   const half = (SIDE_LEG.shin[2][0] - SIDE_LEG.shin[3][0]) * LEG / 2;
   const side = [half * (ankle[1] - knee[1]) / len, -half * (ankle[0] - knee[0]) / len];
-  const rear = side[0] >= 0 ? 1 : -1;
-  const back = [ankle[0] + side[0] * rear, ankle[1] + side[1] * rear];
+  const front = side[0] <= 0 ? 1 : -1;
+  const edge = [ankle[0] + side[0] * front, ankle[1] + side[1] * front];
+  const up = [edge[0] - 3 * (ankle[0] - knee[0]) / len, edge[1] - 3 * (ankle[1] - knee[1]) / len];
   const footTop = 53.5 - (744 - SIDE_LEG.foot[0][1]) * LEG;
-  const heel = ankle[0] + (300 - SIDE_LEG.foot[0][0]) * LEG;
-  const up = [back[0] - 3 * (ankle[0] - knee[0]) / len, back[1] - 3 * (ankle[1] - knee[1]) / len];
-  P.poly(ctx, [[ankle[0], footTop + 0.5], back, up, [heel, footTop + 0.5]], "guardMetal", 1);
+  const toe = ankle[0] - (SIDE_LEG.toe[1][0] - 300) * LEG;
+  P.poly(ctx, [[ankle[0], footTop + 0.5], edge, up, [toe, footTop + 0.5]], "guardMetal", 1);
   inRigUnits(ctx, [ankle[0], 53.5], -LEG, LEG, [300, 744], () => {
     P.poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
     P.poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
