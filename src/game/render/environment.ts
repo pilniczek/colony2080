@@ -17,7 +17,7 @@ const HAZE = "rgba(26, 12, 8, 0.45)";
 
 const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", panel: "switchboard" };
 
-const [GROUND_ITEM_LEFT, GROUND_ITEM_TOP, GROUND_ITEM_RIGHT] = ASSETS.craneKey.box;
+const [GROUND_ITEM_LEFT, GROUND_ITEM_TOP, GROUND_ITEM_RIGHT] = ASSETS.shipPart.box;
 const GROUND_ITEM_W = GROUND_ITEM_RIGHT - GROUND_ITEM_LEFT;
 const GROUND_ITEM_H = -GROUND_ITEM_TOP;
 
