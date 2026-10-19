@@ -17,9 +17,9 @@ describe("kneel and duck", () => {
     const g = game({ x: 9.5, y: 14 });
     tick(g, ["down"]);
     expect(g.hero.state).toBe("kneel");
-    run(g, 0.7);
-    expect(kinds(g, "pickup")).toHaveLength(0);
     run(g, 0.2);
+    expect(kinds(g, "pickup")).toHaveLength(0);
+    run(g, 0.1);
     expect(kinds(g, "pickup")).toHaveLength(1);
     runUntil(g, (h) => h.state === "idle");
     expect(g.world.props.find((p) => p.kind === "item")?.taken).toBe(true);

@@ -363,7 +363,10 @@ move("movement", "Run", "Alt + Left / Right", ...entering(RUN.speed, (W + 120) /
 
 const JUMP = { air: 0.55, height: 52, in: 0.08, out: 0.06 };
 const LEAP = { ...legs(6, [-52, 66, 14], [0, 58, 18]), arm: -40, armFar: 30, fore: -40, foreFar: -50 };
-const DUCK_LEGS = legs(16, [-70, 124, -44], [-52, 128, -76]);
+const crouch = body => legs(body, [-70, 124, -44], [-52, 128, -76]);
+const ACTION_TIME = { in: 0.25, out: 0.3 };
+const ACTION_END = ACTION_TIME.in + ACTION_TIME.out;
+const DUCK_LEGS = crouch(16);
 const DUCK = { ...DUCK_LEGS, ...levelArms(GUARD, DUCK_LEGS.body) };
 const FALL = { ...legs(4, [-30, 40, 0], [10, 30, 10]), arm: -70, armFar: -40, fore: -30, foreFar: -30 };
 
@@ -386,7 +389,7 @@ move("movement", "Standing jump", "Up", 2.4, (c, t) => verticalJump(c, t, [[0, {
 
 move("movement", "Duck jump", "hold Down, then Up", 2.8, (c, t) => verticalJump(c, t, [
   [0, { ...STAND }],
-  [0.25, DUCK]
+  [ACTION_TIME.in, DUCK]
 ], 0.85));
 
 function walkingJumpAt(t, j0, lead = 0, regait = 0) {
@@ -512,13 +515,13 @@ move("movement", "Fall death", "fall too high", 5, (c, t) => {
 
 move("movement", "Duck", "hold Down", 2.4, (c, t) => {
   backdrop(c);
-  const pose = keyed([[0, STAND], [0.25, DUCK], [1.6, DUCK], [1.9, STAND]], t);
+  const pose = keyed([[0, STAND], [ACTION_TIME.in, DUCK], [1.6, DUCK], [1.6 + ACTION_TIME.out, STAND]], t);
   shadow(c, 180, FLOOR, 30);
   bot(c, { x: 180, y: FLOOR + lift(pose), pose });
 });
 
 const KNEEL_X = 150;
-const KNEEL_LEGS = legs(60, [-90, 110, -20], [15, 130, -10]);
+const KNEEL_LEGS = crouch(70);
 const KNEEL_Y = FLOOR + lift(KNEEL_LEGS);
 const KNEEL_REACH = new DOMPoint(SIDE_AX + (handAt(KNEEL_LEGS, KNEEL_X, KNEEL_Y, [0, 0], "toeNear")[0] + 6 - KNEEL_X) / K, FOOT_Y - 11 / K + (FLOOR - KNEEL_Y) / K);
 const reachItem = (arm, fore, hook) => XBOT.solve(side, hook, KNEEL_LEGS, [arm, fore], [[-180, 60], [-150, 60]], KNEEL_REACH);
@@ -535,32 +538,32 @@ function heldItem(hc) {
   hc.restore();
 }
 
-move("interaction", "Kneel, pick up", "Down on item", 2.8, (c, t) => {
+move("interaction", "Kneel, pick up", "Down on item", 1.6, (c, t) => {
   backdrop(c);
   const [rest, kneel] = armed() ? [carry(STAND), KNEEL_ARMED] : [STAND, KNEEL];
-  const pose = keyed([[0, rest], [0.45, kneel], [1.15, kneel], [1.6, rest]], t);
+  const pose = keyed([[0, rest], [ACTION_TIME.in, kneel], [ACTION_END, rest]], t);
   shadow(c, KNEEL_X, FLOOR, 30);
-  if (t <= 0.8) item(c, kneelGrip()[0], FLOOR);
+  if (t <= ACTION_TIME.in) item(c, kneelGrip()[0], FLOOR);
   const hooks = armed() ? { hand: gun } : {};
-  if (t > 0.8 && t < 2.2) hooks[kneelHook()] = heldItem;
+  if (t > ACTION_TIME.in && t < 1.2) hooks[kneelHook()] = heldItem;
   bot(c, { x: KNEEL_X, y: FLOOR + lift(pose), pose, hold: false, hooks });
-  if (t > 1.6 && t < 2.2) label(c, "+ ITEM");
+  if (t > ACTION_END && t < 1.2) label(c, "+ ITEM");
 });
 
 const REACH = { ...STAND, arm: -74, fore: -8 };
 const PANEL = handAt(REACH, 140, FLOOR);
-move("interaction", "Use", "Enter at target", 2.6, (c, t) => {
+move("interaction", "Use", "Enter at target", 1.6, (c, t) => {
   backdrop(c);
   c.fillStyle = "#26363a";
   c.fillRect(PANEL[0] - 4, PANEL[1] - 26, 34, 52);
   c.strokeStyle = "#4a5c5f";
   c.strokeRect(PANEL[0] - 4, PANEL[1] - 26, 34, 52);
-  const on = t > 0.7 && t < 2.3;
+  const on = t > ACTION_TIME.in && t < 1.4;
   c.fillStyle = on ? "#3fa34a" : "#e0281e";
   c.fillRect(PANEL[0] + 16, PANEL[1] - 20, 8, 8);
   const rest = armed() ? { ...STAND, ...GUN_REST } : STAND;
   const reach = armed() ? { ...rest, armFar: REACH.arm, foreFar: REACH.fore } : REACH;
-  const pose = keyed([[0, rest], [0.55, reach], [1.1, reach], [1.6, rest]], t);
+  const pose = keyed([[0, rest], [ACTION_TIME.in, reach], [ACTION_END, rest]], t);
   shadow(c, 140, FLOOR, 30);
   bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
 });

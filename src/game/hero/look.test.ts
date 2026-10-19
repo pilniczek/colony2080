@@ -308,12 +308,12 @@ describe("hero look", () => {
   it("use lowers the gun and reaches with the far arm", () => {
     const rest = heroLook(hero({ state: "use", weapon: "gun", time: 0 }), clips, rigs, hold, cfg);
     expect(rest).toMatchObject({ gun: "hand", pose: { arm: 4, fore: -6 } });
-    const reach = heroLook(hero({ state: "use", weapon: "fists", time: 0.8 }), clips, rigs, hold, cfg).pose;
-    expect(heroLook(hero({ state: "use", weapon: "gun", time: 0.8 }), clips, rigs, hold, cfg).pose).toMatchObject({ armFar: reach.arm, foreFar: reach.fore });
+    const reach = heroLook(hero({ state: "use", weapon: "fists", time: 0.25 }), clips, rigs, hold, cfg).pose;
+    expect(heroLook(hero({ state: "use", weapon: "gun", time: 0.25 }), clips, rigs, hold, cfg).pose).toMatchObject({ armFar: reach.arm, foreFar: reach.fore });
   });
 
   it("kneel keeps the gun in carry", () => {
-    for (const time of [0, 0.45, 0.8, 1.6]) {
+    for (const time of [0, 0.25, 0.4, 0.55]) {
       const look = heroLook(hero({ state: "kneel", weapon: "gun", time }), clips, rigs, hold, cfg);
       expect(look.gun).toBe("hand");
       expect(angle(look.pose, "body") + angle(look.pose, "arm")).toBeCloseTo(hold.CARRY.arm, 6);
