@@ -31,6 +31,7 @@
 </header>
 <div id="sheet"></div>
 <script src="../shared/config.js"></script>
+<script src="../shared/originals.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/env.js"></script>
 <script src="../shared/env-props.js"></script>
@@ -101,7 +102,7 @@ function refView(preview) {
   const view = { ctx, img, frame: 1, ready: false };
   img.onload = () => { view.ready = true; paintRef(view); };
   img.onerror = () => { ctx.fillStyle = "#7d8a89"; ctx.font = "11px system-ui"; ctx.fillText(`missing ${name}_sheet.png (local only)`, 8, 20); };
-  img.src = `../../docs/research/gamedata/png/${name}_sheet.png`;
+  img.src = window.ORIGINALS.src(`gamedata/png/${name}_sheet.png`);
   refViews.push(view);
   return figure("ref", `original ${preview}`, c);
 }
@@ -130,7 +131,7 @@ function render() {
     s.append(h);
     const row = document.createElement("div");
     row.className = "row";
-    if (item.preview) row.append(refView(item.preview));
+    if (item.preview && window.ORIGINALS.on) row.append(refView(item.preview));
     const shown = item.icon.state ?? 0;
     row.append(figure("", "ours", assetView(def, shown, BIG, false)));
     row.append(figure("hud", `hud icon tilt ${item.icon.tilt}`, hudView(def, item.icon)));

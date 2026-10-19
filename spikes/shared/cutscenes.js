@@ -252,7 +252,7 @@ function crowbarDoor(CFG) {
       label: "Original METROPAC.ANM (time-normalised)",
       frame: t => {
         const i = Math.min(61, 1 + Math.floor((t + CFG.clip.start) / CFG.clip.end * 61));
-        return `../../docs/research/gamedata/png/METROPAC/f${String(i).padStart(3, "0")}.png`;
+        return window.ORIGINALS.src(`gamedata/png/METROPAC/f${String(i).padStart(3, "0")}.png`);
       }
     }
   };

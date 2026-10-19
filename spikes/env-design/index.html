@@ -165,7 +165,7 @@ function build() {
         el("h3", {}, o.name, o.csName ? el("span", { className: "cs", textContent: o.csName }) : null, ...tags(o)),
         el("p", { className: "desc", textContent: o.description }),
         el("div", { className: "label", textContent: "Our variant" }), ours,
-        el("div", { className: "label", textContent: "Original" }), refs));
+        ...(o.refs.length ? [el("div", { className: "label", textContent: "Original" }), refs] : [])));
     }
   }
 }

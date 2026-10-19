@@ -1,18 +1,18 @@
-import { cpSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
+import { buildProductionSpikes } from "./scripts/spikes-prod";
 
 const root = (path: string): string => fileURLToPath(new URL(path, import.meta.url));
 
-const copySpikes = (): Plugin => ({
-  name: "copy-spikes",
+const productionSpikes = (): Plugin => ({
+  name: "production-spikes",
   apply: "build",
-  closeBundle: () => cpSync(root("./spikes"), root("./dist/spikes"), { recursive: true }),
+  closeBundle: () => buildProductionSpikes(root("./spikes"), root("./dist/spikes")),
 });
 
 export default defineConfig({
-  plugins: [react(), copySpikes()],
+  plugins: [react(), productionSpikes()],
   resolve: {
     alias: { "@config": root("./config") },
   },

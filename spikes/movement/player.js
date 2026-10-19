@@ -29,7 +29,7 @@ function frame(now) {
   if (ui.canvas.width !== w || ui.canvas.height !== h) { ui.canvas.width = w; ui.canvas.height = h; }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   scene.render(ctx, w, h, t);
-  if (dialog.classList.contains("with-ref")) {
+  if (ui.ref && dialog.classList.contains("with-ref")) {
     const src = scene.ref.frame(t);
     if (src !== refSrc) { refSrc = src; ui.ref.src = src; }
   }
@@ -56,7 +56,7 @@ window.openCutscene = s => {
   t = 0;
   refSrc = "";
   ui.title.textContent = s.name;
-  ui.refLabel.textContent = s.ref.label;
+  if (ui.refLabel) ui.refLabel.textContent = s.ref.label;
   buildPalette();
   setPlaying(true);
   dialog.showModal();
@@ -67,7 +67,7 @@ window.openCutscene = s => {
 ui.play.onclick = () => { if (t >= scene.duration) t = 0; setPlaying(!playing); };
 ui.restart.onclick = () => { t = 0; setPlaying(true); };
 ui.scrub.oninput = () => { t = ui.scrub.value / 1000 * scene.duration; setPlaying(false); };
-ui.refToggle.onclick = () => {
+if (ui.refToggle) ui.refToggle.onclick = () => {
   const on = dialog.classList.toggle("with-ref");
   ui.refToggle.textContent = on ? "Hide original" : "Show original";
   refSrc = "";

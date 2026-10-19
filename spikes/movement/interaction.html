@@ -18,7 +18,9 @@
   <header><h2></h2><button id="close">Close</button></header>
   <div class="stage">
     <div><span class="label">Clone (vector)</span><canvas></canvas></div>
+<!-- originals -->
     <div class="refWrap"><span class="label" id="refLabel"></span><img id="ref" alt="original frame"></div>
+<!-- /originals -->
   </div>
   <div class="bar">
     <button id="play">Pause</button>
@@ -27,13 +29,16 @@
     <span id="time"></span>
     <label>Speed <select id="speed"><option>0.25</option><option>0.5</option><option selected>1</option></select></label>
     <label><input id="loop" type="checkbox" checked> Loop</label>
+<!-- originals -->
     <button id="refToggle">Show original</button>
+<!-- /originals -->
     <button id="palToggle">Palette</button>
     <button id="copyPal">Copy palette JSON</button>
   </div>
   <div id="palette"></div>
 </dialog>
 <script src="../shared/config.js"></script>
+<script src="../shared/originals.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
 <script src="../shared/cutscenes.js"></script>
