@@ -121,6 +121,8 @@ export const isDucked = (state: HeroState): boolean => state === "duck" || state
 
 const boxOf = (h: Hero, cfg: MovementConfig): Box => ({ x: h.x, y: h.y, w: cfg.box.width, h: cfg.box.height });
 
+const onMovingLift = ({ h, world, cfg }: Step): boolean => h.onLift && liftAt(world, h, cfg)?.target != null;
+
 function atLadderTop(s: Step): boolean {
   const { h, world } = s;
   const row = Math.round(h.y);
@@ -168,6 +170,7 @@ function launch(s: Step, state: Jump): { height: number; speed: number } {
 
 function jump(s: Step, state: Jump): void {
   const { h, cfg } = s;
+  if (onMovingLift(s)) return;
   const { height, speed } = launch(s, state);
   h.gaitTime = isGait(h.state) ? h.time : 0;
   enter(h, state);
@@ -291,8 +294,8 @@ function weaponSlot(s: Step): Weapon | null {
 }
 
 function takeCover(s: Step): boolean {
-  const { h, input, world, cfg } = s;
-  if (!input.held.has("hide") || (h.onLift && liftAt(world, h, cfg)?.target != null)) return false;
+  const { h, input } = s;
+  if (!input.held.has("hide") || onMovingLift(s)) return false;
   enter(h, "hide");
   h.hidden = true;
   h.fireTime = null;

@@ -26,6 +26,9 @@ User:
 - The invisible ceiling above row 0 stays.
 - An elevator is always at the hero's level when the hero reaches its shaft; the hero never stands beside an empty shaft. The map guarantees it: a lift's two stop floors connect only through that lift (no walk, ladder, other lift, jump or survivable drop between them in either direction). Each lift starts at the stop on the spawn side. Where a floor edge would allow such a path, solid obstacles (railings, parapets, walls) block it. A reachability test enforces the rule for every lift.
 - Dead-end lift balconies are fine.
+- No intentional pits or drops as a way to move: the hero changes floors only by elevator or ladder. Elevators are the common way; ladders are rare, a unique route.
+- Each lift has an optional `start` stop (`top` or `bottom`, default `bottom`) so it starts on the spawn side.
+- The hero cannot jump while standing on a moving lift (Claude's call; closes a jump-off bypass of the lift rule).
 - A few more enemies across the map that do not respawn after they die; the existing top-left enemy keeps its respawn.
 - When the hero dies, the whole map resets on respawn: lifts to their start stops, props (crowbar back on the ground, switchboard off), every enemy (killed non-respawning ones come back), bullets, sparks and fog (all cells covered again, fog on or off as the panel set it). Hero ammo carries over as today. A deadly fall therefore never strands a lift.
 - Widen the map slightly so horizontal camera movement shows. The extra width adds no interactive elements: no elevators, ladders, props or enemies there, only floor, walls and scenery.
@@ -33,11 +36,11 @@ User:
 Claude's call:
 
 - The current 16 rows stay as they are, as the top half. New rows 16-31 go below. Every existing coordinate (spawn, props, lift, enemy) and the tests that use them keep working.
-- Width: 8 new columns on the right (cols 40-47); the right outer wall moves from col 39 to col 47. Floors and the lower half continue into the strip. Tests that hit the old right wall at x 39 move to the new wall. The two pits in rows 14-15 open into the new lower half; whatever lies under them is part of the new layout.
+- Width: 8 new columns on the right (cols 40-47); the right outer wall moves from col 39 to col 47. Floors and the lower half continue into the strip. Tests that hit the old right wall at x 39 move to the new wall. The two pits in rows 14-15 close.
 - View size: the view shows 40 x 16 cells, the area the whole map filled before (`config/camera.json`, new `view: { widthCells: 40, heightCells: 16 }`). Scale fits that area into the game window, as `fitView` does today for the whole map.
 - Camera rule: view center = hero center, then clamped so the view never shows outside the map. If the map is smaller than the view on an axis, the map is centered on that axis, as today. The clamp math is a pure function in `src/engine/render/view.ts` with unit tests. Fog, overlays and the environment cache use the same view transform, so they follow with no change of their own.
 - Elevators: `lift` becomes `lifts: Lift[]` in `config/levels/sandbox.json` and `SandboxWorld`. The hero uses the elevator it stands on or calls the one whose shaft it stands in, same rules as today's single elevator. The current elevator stays first in the list with the same values.
-- New lower half layout: floors 7 cells apart (`floorHeightCells` 7), ground at row 31 (rows 30-31 solid, or a thicker base). At least 2 new elevators, at least 3 new platforms (mix of wall-backed ledges and free-standing girders), at least 1 new ladder, so every floor is reachable from the spawn and back up. Built only from the ported env assets and the terrain classifier, same art rules as now (tall non-blocking scenery in the backdrop under the haze).
+- New lower half layout: floors 7 cells apart (`floorHeightCells` 7), ground at row 31 (rows 30-31 solid, or a thicker base). At least 2 new elevators, at least 3 new platforms (mix of wall-backed ledges and free-standing girders), floors linked mainly by elevators, so every floor is reachable from the spawn and back up. Built only from the ported env assets and the terrain classifier, same art rules as now (tall non-blocking scenery in the backdrop under the haze).
 - Sky and backdrop cover the full 32-row height.
 - Enemies: `enemy` becomes `enemies: EnemyJson[]` in the config and `SandboxWorld`; `respawnMs: null` means no respawn. The existing enemy stays first with its values. 3 new enemies, one per lower-half area that has room to patrol, none in the widened strip, none on a lift deck, none able to see or shoot the hero at spawn.
 
@@ -50,5 +53,4 @@ Claude's call:
 ## Left to the builder
 
 - Exact lower-half layout, elevator positions and travel.
-- Whether pits drop to a lower floor or into a closed shaft.
 - Backdrop placement for the lower half.

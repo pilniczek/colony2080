@@ -1,7 +1,7 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox } from "../../engine/world/collide";
-import { game, run, tick } from "../hero/testWorld";
+import { game, run, runUntil, RUNNING, tick } from "../hero/testWorld";
 import { callLift, loadSandbox, updateLift } from "./sandboxLevel";
 
 const dt = 1 / 60;
@@ -106,5 +106,26 @@ describe("several lifts", () => {
     expect(g.hero.y).toBeCloseTo(a!.y, 6);
     run(g, 5);
     expect(g.hero.y).toBeCloseTo(4, 6);
+  });
+});
+
+describe("moving lift", () => {
+  it("keeps a running hero on the deck when up is pressed mid-ride", () => {
+    const g = game({ x: 17.8, y: 14 });
+    tick(g);
+    tick(g, [], ["up"]);
+    run(g, 1);
+    const lift = g.world.lifts[0]!;
+    expect(lift.target).toBe(4);
+    for (let i = 0; i < 4; i++) tick(g, ["moveRight", RUNNING]);
+    expect(g.hero.state).toBe("run");
+    tick(g, ["moveRight", RUNNING], ["up"]);
+    tick(g);
+    expect(g.seen.has("runJump")).toBe(false);
+    expect(g.hero.onLift).toBe(true);
+    runUntil(g, () => lift.target === null);
+    run(g, 0.2);
+    expect(g.hero.y).toBeCloseTo(4, 6);
+    expect(g.hero.onLift).toBe(true);
   });
 });
