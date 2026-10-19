@@ -147,10 +147,11 @@ const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
   window.XBOT.render(ctx, { ...fore, m: null, name: null });
 }) };
 
-const CROWBAR_ICON = { w: 24, h: 7, url: icon(24, 7, (ctx) => {
-  const asset = window.ENV.ASSETS.find((a) => a.id === "crowbar"), [x0, y0, x1, y1] = asset.box, s = 24 / (x1 - x0);
+const HAND_SCALE = .8;
+const CROWBAR_ICON = { w: 14 * HAND_SCALE, h: 4 * HAND_SCALE, url: icon(14 * HAND_SCALE, 4 * HAND_SCALE, (ctx) => {
+  const asset = window.ENV.ASSETS.find((a) => a.id === "crowbar"), [x0, y0, x1, y1] = asset.box, s = 14 * HAND_SCALE / (x1 - x0);
   ctx.scale(s, s);
-  ctx.translate(-x0, -y0 + (7 / s - (y1 - y0)) / 2);
+  ctx.translate(-x0, -y0 + (4 * HAND_SCALE / s - (y1 - y0)) / 2);
   window.ENV.draw(ctx, asset, { state: 0, lod: false, lines: 1 });
 }) };
 
@@ -178,7 +179,10 @@ function rod(a, b, y) {
 
 function topBar(W, s) {
   const edge = 0, gap = 2, pad = 3.5, invW = 46.5, runW = 18, inv = W - edge - pad - invW, run = inv - 2 * pad - gap - runW, badge = run - 52.4 - gap - pad;
-  const item = `<g transform="translate(${inv + 5} 0)">${HAND}</g>${s.crowbar ? `<image href="${CROWBAR_ICON.url}" x="${inv + 19}" y="${9.1 - CROWBAR_ICON.h / 2}" width="${CROWBAR_ICON.w}" height="${CROWBAR_ICON.h}"/>` : ""}`;
+  const slotX = inv + 5, handW = 12 * HAND_SCALE, label = s.crowbar ? "crowbar" : "nothing", freeFrom = slotX + (s.crowbar ? CROWBAR_ICON.w : handW);
+  const hand = `<g transform="translate(${slotX + handW / 2} 9.1) scale(${HAND_SCALE}) translate(-6 -9.1)">${HAND}</g>`;
+  const art = s.crowbar ? `<image href="${CROWBAR_ICON.url}" x="${slotX}" y="${9.1 - CROWBAR_ICON.h / 2}" width="${CROWBAR_ICON.w}" height="${CROWBAR_ICON.h}"/>` : hand;
+  const item = art + readout((freeFrom + inv + invW) / 2, label);
   const fixedEnd = badge - (W - 320) - 4 - gap, empty = [fixedEnd + gap, badge - 4 - gap];
   const wide = empty[1] - empty[0] >= 8;
   const gaps = [[0, edge], ...(wide ? [[fixedEnd, empty[0]]] : []), [badge - 4 - gap, badge - 4], [badge + 52.4, badge + 52.4 + gap], [run + runW + pad, inv - pad], [W - edge, W]];
@@ -200,8 +204,8 @@ function topBar(W, s) {
   <text x="${badge + 24}" y="13.9" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
   <text x="${badge + 24}" y="13.3" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
   ${screw(badge + 2.4, 3.2)}${screw(badge + 45.6, 3.2)}${screw(badge + 2.4, 17.2)}${screw(badge + 45.6, 17.2)}
-  ${gridPanel(run, runW)}${runText(run + runW / 2)}${keyTab(run + runW / 2, "ALT", s.running)}
-  ${gridPanel(inv, invW)}${item}`;
+  ${gridPanel(run, runW)}${readout(run + runW / 2, "RUN")}${keyTab(run + runW / 2, "ALT", s.running)}
+  ${gridPanel(inv, invW)}${item}${keyTab(inv + invW / 2, "ENTER")}`;
 }
 
 function view(W, H) {
@@ -222,8 +226,8 @@ function view(W, H) {
 
 const weapon = (content, active) => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
 
-const runText = (x) =>
-  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">RUN</text>`;
+const readout = (x, label) =>
+  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">${label}</text>`;
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 
@@ -238,8 +242,10 @@ function keyBox(x, letter) {
 
 const WEAPON_KEYS = [[36.5, "1"], [94, "2"], [125, "3"]];
 const TAB = { top: 15.2, bottom: 18.2, r: 0.8, font: 3.4, pad: 1.2 };
-const tabWidth = (label) => label.length * TAB.font * 0.7 + 2 * TAB.pad;
-const TAB_MIN_W = 1.6 * tabWidth("1");
+const GLYPH_W = TAB.font * 0.7;
+const TAB_MIN_W = 1.6 * (GLYPH_W + 2 * TAB.pad);
+const TAB_SIDE = (TAB_MIN_W - GLYPH_W) / 2;
+const tabWidth = (label) => Math.max(TAB_MIN_W, label.length * GLYPH_W + 2 * TAB_SIDE);
 
 const letter = (x, y, attrs, label) =>
   `<text x="${x}" y="${y}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${TAB.font}" ${attrs}>${label}</text>`;
@@ -251,7 +257,7 @@ const litLetter = (x, y, label) => letter(x, y, 'fill="#ff2a10" opacity=".55" fi
 
 function keyTab(cx, label, active = false) {
   const { top, bottom, r } = TAB;
-  const w = Math.max(TAB_MIN_W, tabWidth(label)), a = cx - w / 2, b = cx + w / 2, base = (top + BAR_H) / 2 + TAB.font * 0.36;
+  const w = tabWidth(label), a = cx - w / 2, b = cx + w / 2, base = (top + BAR_H) / 2 + TAB.font * 0.36;
   const edge = `M${a} ${bottom}V${top + r}Q${a} ${top} ${a + r} ${top}H${b - r}Q${b} ${top} ${b} ${top + r}V${bottom}`;
   return `<path d="${edge}Z" fill="url(#plate)"/>
   <path d="${edge}" fill="none" stroke="${HI}" stroke-opacity=".55" stroke-width=".35"/>

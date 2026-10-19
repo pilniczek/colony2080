@@ -4,9 +4,10 @@ import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
 import { buildSide, ROBOT } from "../robot/xbot";
-import type { HudIcon, HudIcons } from "./svg";
+import { HAND_SCALE, type HudIcon, type HudIcons } from "./svg";
 
 const PX_PER_UNIT = 12;
+const CROWBAR_SIZE = { w: 14 * HAND_SCALE, h: 4 * HAND_SCALE };
 const FIST_BOX = { x: 290, y: -386, w: 194, h: 146 };
 
 function icon(w: number, h: number, paint: (ctx: CanvasRenderingContext2D) => void): HudIcon {
@@ -48,11 +49,11 @@ export function hudIcons(): HudIcons {
     ctx.rotate(-Math.PI / 2);
     drawRig(ctx, { ...fore, m: null, name: undefined }, { palette: ROBOT.palette });
   });
-  const crowbar = icon(24, 7, (ctx) => {
+  const crowbar = icon(CROWBAR_SIZE.w, CROWBAR_SIZE.h, (ctx) => {
     const [x0, y0, x1, y1] = ASSETS.crowbar.box;
-    const s = 24 / (x1 - x0);
+    const s = CROWBAR_SIZE.w / (x1 - x0);
     ctx.scale(s, s);
-    ctx.translate(-x0, -y0 + (7 / s - (y1 - y0)) / 2);
+    ctx.translate(-x0, -y0 + (CROWBAR_SIZE.h / s - (y1 - y0)) / 2);
     drawAsset(ctx, ASSETS.crowbar, { state: 0, lod: false, lines: 1 });
   });
   return { gun, fist, items: { crowbar } };

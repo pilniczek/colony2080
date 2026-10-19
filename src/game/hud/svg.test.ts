@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
+import { HAND_SCALE, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
-const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", w: 24, h: 7 } } };
+const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", w: 14, h: 4 } } };
 const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, reserve: 100, shields: 3, running: true, items: [] };
-const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT" };
+const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
 const count = (svg: string, text: string): number => svg.split(text).length - 1;
 
@@ -40,22 +40,31 @@ describe("hudSvg", () => {
   });
 
   describe("inventory slot", () => {
-    const handX = (svg: string): number => Number(/<g transform="translate\(([\d.]+) 0\)"><g transform="translate\(0 2\.6\)"/.exec(svg)![1]);
+    const handX = (svg: string): number | null => {
+      const m = /<g transform="translate\(([\d.]+) [\d.]+\) scale\([\d.]+\) translate\([-\d.]+ [-\d.]+\)"><g transform="translate\(0 2\.6\)"/.exec(svg);
+      return m ? Number(m[1]) - (12 * HAND_SCALE) / 2 : null;
+    };
     const crowbarX = (svg: string): number => Number(/<image href="crowbar\.png" x="([\d.]+)"/.exec(svg)![1]);
+    const bar = hudSvg(320, 200, base, icons);
 
-    it("draws the crowbar icon right of the hand when it is held", () => {
+    it("replaces the hand with the held item and labels it", () => {
       const svg = hudSvg(320, 200, { ...base, items: ["crowbar"] }, icons);
-      expect(crowbarX(svg)).toBeGreaterThan(handX(svg));
+      expect(crowbarX(svg)).toBeCloseTo(handX(bar)!, 6);
+      expect(handX(svg)).toBeNull();
+      expect(svg).toContain(">crowbar</text>");
+      expect(svg).not.toContain(">nothing</text>");
     });
 
-    it("draws the hand alone when nothing is held", () => {
-      const svg = hudSvg(320, 200, base, icons);
+    it("shows the hand and nothing when no item is held", () => {
+      expect(handX(bar)).toBeGreaterThan(0);
+      expect(bar).toContain(">nothing</text>");
+      expect(bar).not.toContain("crowbar.png");
+    });
+
+    it("shows the empty hand for a held item without an icon", () => {
+      const svg = hudSvg(320, 200, { ...base, items: ["unknown"] }, icons);
       expect(handX(svg)).toBeGreaterThan(0);
-      expect(svg).not.toContain("crowbar.png");
-    });
-
-    it("skips a held item without an icon", () => {
-      expect(hudSvg(320, 200, { ...base, items: ["unknown"] }, icons)).not.toContain("<image href=\"undefined");
+      expect(svg).toContain(">nothing</text>");
     });
   });
 
@@ -66,6 +75,7 @@ describe("hudSvg", () => {
     expect(svg).toContain(keyText("2"));
     expect(svg).not.toContain(keyText("3"));
     expect(svg).toContain(keyText("ALT"));
+    expect(svg).toContain(keyText("ENTER"));
     expect(hudSvg(320, 200, { ...base, bonus: true }, icons)).toContain(keyText("3"));
   });
 

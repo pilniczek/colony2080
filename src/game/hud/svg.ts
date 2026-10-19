@@ -27,6 +27,7 @@ export interface HudIcons {
 export interface HudKeys {
   weapons: string[];
   run: string;
+  item: string;
 }
 
 export const SHIELDS_MAX = 5;
@@ -81,6 +82,10 @@ const BLASTER = `<g transform="translate(108 5.2)" fill="#7f8b86" stroke="#20282
 const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
+export const HAND_SCALE = 0.8;
+const HAND_W = 12 * HAND_SCALE;
+const HAND_DRAWN_W = 12;
+
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
 
 const bevel = (x: number, y: number, w: number, h: number, r: number, raised = true, lw = 0.45): string =>
@@ -115,24 +120,25 @@ function badge(x: number): string {
   ${screw(x + 2.4, 3.2)}${screw(x + 45.6, 3.2)}${screw(x + 2.4, 17.2)}${screw(x + 45.6, 17.2)}`;
 }
 
-const ITEM_X = 19;
-const ITEM_GAP = 1;
-const HAND_MID_Y = 9.1;
+const ITEM_NAMES: Record<string, string> = { crowbar: "crowbar" };
+const SLOT_ICON_X = 5;
+const SLOT_MID_Y = 9.1;
 
-function heldIcons(ids: string[], icons: HudIcons, x: number): string {
-  let at = x;
-  return ids.flatMap((id) => {
-    const icon = icons.items[id];
-    if (!icon) return [];
-    const out = image(icon, at, HAND_MID_Y - icon.h / 2);
-    at += icon.w + ITEM_GAP;
-    return [out];
-  }).join("");
+const handAt = (left: number): string =>
+  `<g transform="translate(${left + HAND_W / 2} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN_W / 2} ${-SLOT_MID_Y})">${HAND}</g>`;
+
+function slot(x: number, w: number, items: string[], icons: HudIcons): string {
+  const id = items.find((i) => icons.items[i]);
+  const icon = id === undefined ? undefined : icons.items[id];
+  const left = x + SLOT_ICON_X;
+  const art = icon ? image(icon, left, SLOT_MID_Y - icon.h / 2) : handAt(left);
+  const label = id === undefined ? "nothing" : (ITEM_NAMES[id] ?? id);
+  return art + readout((left + (icon?.w ?? HAND_W) + x + w) / 2, label);
 }
 
 function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   const bar = topBar(W);
-  const item = `<g transform="translate(${bar.inv + 5} 0)">${HAND}</g>${heldIcons(s.items, icons, bar.inv + ITEM_X)}`;
+  const item = slot(bar.inv, bar.invW, s.items, icons);
   return `<rect x="${bar.gaps[0]![1]}" width="${W - 2 * bar.gaps[0]![1]}" height="${BAR_H}" fill="#060504"/>
   ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map(plate).join("")}
@@ -143,14 +149,16 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${s.bonus ? weapon(BLASTER, s.weapon === 2) + counter(134.6, s.bonusAmmo) : ""}
   ${WEAPON_KEYS_X.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x, keys.weapons[i] ?? "", s.weapon === i)).join("")}
   ${badge(bar.badge)}
-  ${gridPanel(bar.run, bar.runW)}${runText(bar.run + bar.runW / 2)}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}
-  ${gridPanel(bar.inv, bar.invW)}${item}`;
+  ${gridPanel(bar.run, bar.runW)}${readout(bar.run + bar.runW / 2, "RUN")}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}
+  ${gridPanel(bar.inv, bar.invW)}${item}${keyTab(bar.inv + bar.invW / 2, keys.item)}`;
 }
 
 const WEAPON_KEYS_X = [36.5, 94, 125];
 const TAB = { top: 15.2, bottom: 18.2, r: 0.8, font: 3.4, pad: 1.2 };
-const tabWidth = (label: string): number => label.length * TAB.font * 0.7 + 2 * TAB.pad;
-const TAB_MIN_W = 1.6 * tabWidth("1");
+const GLYPH_W = TAB.font * 0.7;
+const TAB_MIN_W = 1.6 * (GLYPH_W + 2 * TAB.pad);
+const TAB_SIDE = (TAB_MIN_W - GLYPH_W) / 2;
+const tabWidth = (label: string): number => Math.max(TAB_MIN_W, label.length * GLYPH_W + 2 * TAB_SIDE);
 
 const letter = (x: number, y: number, attrs: string, label: string): string =>
   `<text x="${x}" y="${y}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${TAB.font}" ${attrs}>${label}</text>`;
@@ -162,7 +170,7 @@ const litLetter = (x: number, y: number, label: string): string => letter(x, y, 
 
 function keyTab(cx: number, label: string, active = false): string {
   const { top, bottom, r } = TAB;
-  const w = Math.max(TAB_MIN_W, tabWidth(label)), a = cx - w / 2, b = cx + w / 2, base = (top + BAR_H) / 2 + TAB.font * 0.36;
+  const w = tabWidth(label), a = cx - w / 2, b = cx + w / 2, base = (top + BAR_H) / 2 + TAB.font * 0.36;
   const edge = `M${a} ${bottom}V${top + r}Q${a} ${top} ${a + r} ${top}H${b - r}Q${b} ${top} ${b} ${top + r}V${bottom}`;
   return `<path d="${edge}Z" fill="url(#plate)"/>
   <path d="${edge}" fill="none" stroke="${HI}" stroke-opacity=".55" stroke-width=".35"/>
@@ -171,8 +179,9 @@ function keyTab(cx: number, label: string, active = false): string {
 
 const weapon = (content: string, active: boolean): string => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
 
-const runText = (x: number): string =>
-  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">RUN</text>`;
+const readout = (x: number, label: string): string =>
+  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">${label}</text>`;
+
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 

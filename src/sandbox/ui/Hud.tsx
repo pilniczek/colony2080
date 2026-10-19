@@ -9,6 +9,7 @@ const { keyboard } = controls;
 const KEYS: HudKeys = {
   weapons: [keyboard.weapon1, keyboard.weapon2, keyboard.weapon3].map(([code]) => keyLabel(code ?? "")),
   run: keyLabel(keyboard.runToggle[0] ?? ""),
+  item: keyLabel(keyboard.useItem[0] ?? ""),
 };
 
 export function Hud() {
