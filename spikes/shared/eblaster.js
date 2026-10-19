@@ -127,26 +127,30 @@ function rng(seed) {
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
 }
 
+function mix(seed) {
+  let h = Math.imul(seed ^ (seed >>> 16), 0x45d9f3b);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+  return (h ^ (h >>> 16)) >>> 11;
+}
+
 const frameAt = t => Math.floor(t * TICK_HZ) % FRAMES;
 
 function bolt(length, frame) {
   const r = rng(frame + 1);
-  const main = [[0, 0]];
-  const forks = [];
-  let x = 0, side = r() < 0.5 ? 1 : -1;
-  while (x < length) {
-    x = Math.min(length, x + 5 + r() * 5);
-    side = -side;
-    const y = x === length ? 0 : side * (1.5 + r() * 2.5);
-    main.push([x, y]);
-    if (x < length - 8 && r() < 0.3) {
-      const dir = y < 0 ? -1 : 1;
-      const a = [x + 3 + r() * 4, y + dir * (2 + r() * 2)];
-      forks.push([[x, y], a, [a[0] + 3 + r() * 4, a[1] - dir * (1 + r() * 2)]]);
+  const count = r() < 0.5 ? 2 : 3;
+  return Array.from({ length: count }, (_, k) => {
+    const pts = [[0, 0]];
+    let x = 0, side = k % 2 ? 1 : -1;
+    while (x < length) {
+      x = Math.min(length, x + 5 + r() * 5);
+      side = -side;
+      pts.push([x, x === length ? 0 : side * (1 + r() * 3.5)]);
     }
-  }
-  return { main, forks };
+    return pts;
+  });
 }
+
+const LAYERS = [[ARC.e0, 5, 0.55], [ARC.e2, 3, 1], [ARC.grey, 1.8, 1], [ARC.core, 1, 1]];
 
 function knot(ctx) {
   ctx.globalAlpha = 0.6;
@@ -160,26 +164,28 @@ function knot(ctx) {
 }
 
 function beam(ctx, length, frame, seed) {
-  const { main, forks } = bolt(length, frame);
-  const dy = Math.floor(rng(seed)() * 3) - 1;
+  const dy = Math.floor(rng(mix(seed))() * 3) - 1;
+  const strands = bolt(length, frame).map(pts => pts.map(([x, y], i) => [x, i > 1 ? y + dy : y]));
   ctx.save();
-  ctx.translate(0, dy);
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.globalAlpha = 0.55;
-  stroke(ctx, main, ARC.e0, 5);
-  for (const f of forks) stroke(ctx, f, ARC.e0, 3);
+  for (const [color, width, alpha] of LAYERS) {
+    ctx.globalAlpha = alpha;
+    for (const pts of strands) stroke(ctx, pts, color, width);
+  }
   ctx.globalAlpha = 1;
-  stroke(ctx, main, ARC.e2, 3);
-  for (const f of forks) stroke(ctx, f, ARC.e2, 1.4);
-  stroke(ctx, main, ARC.grey, 1.8);
-  for (const f of forks) stroke(ctx, f, ARC.grey, 0.6);
-  stroke(ctx, main, ARC.core, 1);
   knot(ctx);
   ctx.restore();
 }
 
-const ICON = { body: 34, arcEnd: 57 };
+const ICON = { body: 34, arcEnd: 57, frame: 2, scale: 0.5 };
+const ICON_Y = 2;
+const svgNum = n => +n.toFixed(2);
+const ICON_STRANDS = bolt((ICON.arcEnd - ICON.body) / ICON.scale, ICON.frame)
+  .map(pts => "M" + pts.map(([x, y]) => `${svgNum(ICON.body + x * ICON.scale)} ${svgNum(ICON_Y + y * ICON.scale)}`).join("L"));
+const ICON_BEAM = LAYERS.map(([color, width, alpha]) => ICON_STRANDS.map(d => `<path d="${d}" stroke="${color}" stroke-width="${svgNum(width * ICON.scale)}"${alpha < 1 ? ` opacity="${alpha}"` : ""}/>`).join("")).join("")
+  + `<circle cx="${ICON.body}" cy="${ICON_Y}" r="${4 * ICON.scale}" fill="${ARC.glow}" opacity=".6"/>`
+  + `<path d="M${ICON.body - 1.5} ${ICON_Y - 1.5}l3 3M${ICON.body - 1.5} ${ICON_Y + 1.5}l3 -3" stroke="${ARC.core}" stroke-width="${ICON.scale}"/>`;
 
 const icon = x => `<g transform="translate(${x} 5.2)" stroke="#202826" stroke-width=".3">
   <rect x="6" y="4" width="3" height="7" rx=".5" fill="#8e9aa0"/><rect x="9" y="4" width="6" height="2.6" fill="#55636a"/><rect x="10" y="4.8" width="4" height=".9" fill="#6084a4" stroke="none"/>
@@ -189,10 +195,7 @@ const icon = x => `<g transform="translate(${x} 5.2)" stroke="#202826" stroke-wi
   <rect x="19" y=".6" width="11" height="2.8" fill="#dfe5e7"/><rect x="19" y="1.6" width="11" height=".8" fill="#6084a4" stroke="none"/>
   ${[20.2, 23.2, 26.2].map(c => `<rect x="${c}" y=".1" width="1.2" height="3.8" fill="#55636a"/>`).join("")}
   <rect x="29.4" y="-.4" width="1.2" height="4.8" fill="#55636a"/><rect x="30.4" y="-.4" width="3.6" height="1.1" fill="#c4ccd0"/><rect x="30.4" y="3.3" width="3.6" height="1.1" fill="#c4ccd0"/></g>
-  <g transform="translate(${x} 5.2)" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M33.4 .4L34.6 1.3L33.6 2L34.6 2.7L33.4 3.6" stroke="#7ae0ff" stroke-width=".9"/>
-  <path d="M34 2L37 .6L40 3.2L43.5 .9L46.5 3.4L50 1.2L53 2.8L${ICON.arcEnd} 2" stroke="#3a52c4" stroke-width="1.6" opacity=".75"/>
-  <path d="M34 2L37 .6L40 3.2L43.5 .9L46.5 3.4L50 1.2L53 2.8L${ICON.arcEnd} 2" stroke="#f4f4f4" stroke-width=".5"/></g>`;
+  <g transform="translate(${x} 5.2)" fill="none" stroke-linecap="round" stroke-linejoin="round">${ICON_BEAM}</g>`;
 
 window.EBLASTER = { PARTS, MUZZLE, SUPPORT, FRAMES, TICK_HZ, BEAM_H, ARC, ICON, draw, hook, slung, toHook, muzzleAt, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT), beam, frameAt, icon };
 })();
