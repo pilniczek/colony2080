@@ -21,6 +21,7 @@ const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel",
 
 const TILE_MARGIN = 1;
 const PREFETCH_PER_FRAME = 1;
+const DROPPED_KEPT = 40;
 const CULL_PAD_CELLS = 1;
 
 const layers = new WeakMap<SandboxWorld, Record<string, TileCache<HTMLCanvasElement>>>();
@@ -141,6 +142,10 @@ function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: num
   return canvas;
 }
 
+function free(canvas: HTMLCanvasElement): void {
+  canvas.width = canvas.height = 0;
+}
+
 function cached(e: Env, name: string, paint: (off: Env) => void): void {
   const { ctx, world, cell, unit, lines, screen } = e;
   const t = ctx.getTransform();
@@ -150,7 +155,7 @@ function cached(e: Env, name: string, paint: (off: Env) => void): void {
   const size = { w: Math.ceil(world.grid.width * cell * scale), h: Math.ceil(world.grid.height * cell * scale) };
   const own = layers.get(world) ?? {};
   layers.set(world, own);
-  const cache = (own[name] ??= new TileCache());
+  const cache = (own[name] ??= new TileCache(DROPPED_KEPT, free));
   const view = { x: screen.x - x, y: screen.y - y, w: screen.w, h: screen.h };
   const ahead = { tiles: nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX), budget: PREFETCH_PER_FRAME };
   const key = `${scale}|${lines}|${cell}|${unit}`;

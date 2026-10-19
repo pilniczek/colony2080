@@ -108,6 +108,66 @@ describe("TileCache", () => {
     expect(cache.size).toBe(3);
   });
 
+  describe("dropped tiles", () => {
+    const freed: string[] = [];
+    const keeper = (keep: number) => new TileCache<string>(keep, (tile) => freed.push(tile));
+
+    it("reuses a recently dropped tile", () => {
+      const cache = keeper(3);
+      const { painted, make } = counter();
+      cache.sync("a", view(0), make);
+      cache.sync("a", view(500), make);
+      painted.length = 0;
+      cache.sync("a", view(0), make);
+      expect(painted).toEqual([]);
+      expect(cache.size).toBe(3);
+    });
+
+    it("evicts the oldest dropped tile past the cap and frees it", () => {
+      freed.length = 0;
+      const cache = keeper(2);
+      const { painted, make } = counter();
+      cache.sync("a", [[0, 0]], make);
+      cache.sync("a", [[1, 0]], make);
+      cache.sync("a", [[2, 0]], make);
+      expect(freed).toEqual([]);
+      cache.sync("a", [[3, 0]], make);
+      expect(freed).toEqual(["0,0"]);
+      painted.length = 0;
+      cache.sync("a", [[1, 0]], make);
+      cache.sync("a", [[0, 0]], make);
+      expect(painted).toEqual(["0,0"]);
+    });
+
+    it("keeps the visible tiles of a dropped view over its margin ring", () => {
+      freed.length = 0;
+      const cache = keeper(2);
+      const { painted, make } = counter();
+      const at = { x: 130, y: 0, w: 100, h: 100 };
+      const ring = nearestFirst(visibleTiles(at, 100, 1, { w: 1000, h: 100 }), at, 100);
+      const need = visibleTiles(at, 100, 0, { w: 1000, h: 100 });
+      for (let i = 0; i < 3; i++) cache.sync("a", need, make, { tiles: ring, budget: 1 });
+      cache.sync("a", [[8, 0]], make);
+      expect(freed.sort()).toEqual(["0,0", "3,0"]);
+      painted.length = 0;
+      cache.sync("a", need, make);
+      expect(painted).toEqual([]);
+    });
+
+    it("clears kept tiles on a key change", () => {
+      freed.length = 0;
+      const cache = keeper(3);
+      const { painted, make } = counter();
+      cache.sync("a", view(0), make);
+      cache.sync("a", view(500), make);
+      cache.sync("b", view(500), make);
+      expect(freed.sort()).toEqual(["0,0", "1,0", "2,0", "5,0", "6,0", "7,0"]);
+      painted.length = 0;
+      cache.sync("b", view(0), make);
+      expect(painted.sort()).toEqual(["0,0", "1,0", "2,0"]);
+    });
+  });
+
   describe("prefetch", () => {
     const at = { x: 130, y: 0, w: 100, h: 100 };
     const ring = nearestFirst(visibleTiles(at, 100, 1, { w: 1000, h: 100 }), at, 100);

@@ -29,6 +29,12 @@ const id = (col: number, row: number): string => `${col},${row}`;
 export class TileCache<T> {
   private key = "";
   private tiles = new Map<string, T>();
+  private dropped = new Map<string, T>();
+
+  constructor(
+    private readonly keep = 0,
+    private readonly release: (tile: T) => void = () => {},
+  ) {}
 
   get size(): number {
     return this.tiles.size;
@@ -41,12 +47,14 @@ export class TileCache<T> {
   sync(key: string, coords: TileCoord[], make: (col: number, row: number) => T, prefetch?: { tiles: TileCoord[]; budget: number }): [number, number, T][] {
     if (key !== this.key) {
       this.key = key;
+      for (const tile of [...this.tiles.values(), ...this.dropped.values()]) this.release(tile);
       this.tiles.clear();
+      this.dropped.clear();
     }
     const kept = new Map<string, T>();
     let missed = false;
     const shown = coords.map(([col, row]): [number, number, T] => {
-      let tile = this.tiles.get(id(col, row));
+      let tile = this.reuse(col, row);
       if (tile === undefined) {
         missed = true;
         tile = make(col, row);
@@ -56,14 +64,31 @@ export class TileCache<T> {
     });
     let budget = missed ? 0 : (prefetch?.budget ?? 0);
     for (const [col, row] of prefetch?.tiles ?? []) {
-      const tile = kept.get(id(col, row)) ?? this.tiles.get(id(col, row));
+      const tile = kept.get(id(col, row)) ?? this.reuse(col, row);
       if (tile !== undefined) kept.set(id(col, row), tile);
       else if (budget > 0) {
         budget--;
         kept.set(id(col, row), make(col, row));
       }
     }
+    for (const [at, tile] of [...this.tiles].reverse()) if (!kept.has(at)) this.drop(at, tile);
     this.tiles = kept;
     return shown;
+  }
+
+  private reuse(col: number, row: number): T | undefined {
+    const at = id(col, row);
+    const tile = this.tiles.get(at) ?? this.dropped.get(at);
+    this.dropped.delete(at);
+    return tile;
+  }
+
+  private drop(at: string, tile: T): void {
+    this.dropped.set(at, tile);
+    for (const [old, stale] of this.dropped) {
+      if (this.dropped.size <= this.keep) break;
+      this.dropped.delete(old);
+      this.release(stale);
+    }
   }
 }
