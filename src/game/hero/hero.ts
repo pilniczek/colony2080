@@ -372,8 +372,9 @@ function liftPress(s: Step): boolean {
 function rideLift({ h, world, cfg }: Step, dir: -1 | 1): boolean {
   const lift = h.onLift ? liftAt(world, h, cfg) : null;
   if (!lift || !liftGoes(lift, dir) || !onDeck(h.x, lift, cfg)) return false;
-  if (!callLift(lift, dir, world.flags) && lift.hint) say(world, lift.hint);
-  return true;
+  if (callLift(lift, dir, world.flags)) return true;
+  if (lift.hint) say(world, lift.hint);
+  return false;
 }
 
 function onDeck(x: number, lift: Lift, cfg: MovementConfig): boolean {

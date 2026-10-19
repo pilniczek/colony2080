@@ -42,7 +42,7 @@ describe("kneel and duck", () => {
     expect(g.world.lifts[0]!.target).toBe(14);
   });
 
-  it("says the lift hint once per press while the lift is disabled", () => {
+  it("says the lift hint once per press and ducks while the lift is disabled", () => {
     const g = game({ x: 18.5, y: 4 });
     const lift = g.world.lifts[0]!;
     lift.y = 4;
@@ -51,10 +51,23 @@ describe("kneel and duck", () => {
     tick(g);
     tick(g, ["down"], ["down"]);
     expect(lift.target).toBeNull();
+    expect(g.hero.state).toBe("duck");
     expect(g.world.subtitle?.text).toBe("Broken.");
     g.world.subtitle = null;
     tick(g, ["down"]);
     expect(g.world.subtitle).toBeNull();
+  });
+
+  it("says the lift hint and jumps on up while the lift is disabled", () => {
+    const g = game({ x: 18.5, y: 14 });
+    const lift = g.world.lifts[0]!;
+    lift.enabledBy = "flag:open";
+    lift.hint = "Broken.";
+    tick(g);
+    tick(g, [], ["up"]);
+    expect(lift.target).toBeNull();
+    expect(g.hero.state).toBe("standJump");
+    expect(g.world.subtitle?.text).toBe("Broken.");
   });
 });
 
