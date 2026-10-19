@@ -27,7 +27,9 @@
 <header>
   <h1>Item sheet</h1>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
+<!-- originals -->
   <label><input id="spin" type="checkbox" checked> Spin original</label>
+<!-- /originals -->
 </header>
 <div id="sheet"></div>
 <script src="../shared/config.js"></script>
@@ -94,15 +96,14 @@ function hudView(def, { state = 0, tilt, scale }) {
 
 const refViews = [];
 function refView(preview) {
-  const name = preview.split("/").pop().replace(/\.GRA$/i, "");
   const [, , cw, ch] = SHEET.crop;
   const [c, ctx] = canvas(cw * REF_SCALE, ch * REF_SCALE);
   ctx.imageSmoothingEnabled = false;
   const img = new Image();
   const view = { ctx, img, frame: 1, ready: false };
   img.onload = () => { view.ready = true; paintRef(view); };
-  img.onerror = () => { ctx.fillStyle = "#7d8a89"; ctx.font = "11px system-ui"; ctx.fillText(`missing ${name}_sheet.png (local only)`, 8, 20); };
-  img.src = window.ORIGINALS.src(`gamedata/png/${name}_sheet.png`);
+  img.onerror = () => { ctx.fillStyle = "#7d8a89"; ctx.font = "11px system-ui"; ctx.fillText("missing local preview sheet", 8, 20); };
+  img.src = window.ORIGINALS.previewSheet(preview);
   refViews.push(view);
   return figure("ref", `original ${preview}`, c);
 }
@@ -127,7 +128,7 @@ function render() {
     const def = asset(item.icon.asset);
     const s = document.createElement("section");
     const h = document.createElement("h3");
-    h.innerHTML = `${item.name} <span class="cs">${item.cs}</span> <span class="tag">${id}</span> <span class="tag">asset ${item.icon.asset}</span>`;
+    h.innerHTML = `${item.name} <span class="cs">${item.cs ?? ""}</span> <span class="tag">${id}</span> <span class="tag">asset ${item.icon.asset}</span>`;
     s.append(h);
     const row = document.createElement("div");
     row.className = "row";
@@ -147,7 +148,7 @@ function render() {
 $("lines").onchange = render;
 render();
 setInterval(() => {
-  if (!$("spin").checked) return;
+  if (!$("spin")?.checked) return;
   for (const v of refViews) {
     v.frame = v.frame % (SHEET.frames - 1) + 1;
     paintRef(v);

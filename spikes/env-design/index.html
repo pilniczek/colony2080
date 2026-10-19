@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mesto Environment Sheet</title>
+<title>Level 1 Environment Sheet</title>
 <style>
   :root { --bg: #0b1112; --panel: #141c1e; --card: #10181a; --text: #c9d1d0; --muted: #7d8a89; --accent: #e2701a; --cool: #3fd0e0; }
   * { box-sizing: border-box; }
@@ -37,7 +37,7 @@
 </head>
 <body>
 <header>
-  <h1>Mesto environment sheet</h1>
+  <h1>Level 1 environment sheet</h1>
   <label>Show <select id="filter"><option value="">all</option><option value="only-interactive">interactive</option><option value="only-static">non-interactive</option></select></label>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
   <label><input id="lod" type="checkbox"> Game LOD</label>
@@ -163,7 +163,7 @@ function build() {
       const refs = el("div", { className: "row refs" }, ...o.refs.map(r => el("figure", {}, el("figcaption", { textContent: r.caption }), refCanvas(r))));
       sheet.append(el("section", { id: o.id, className: "asset " + (o.interactive ? "interactive" : "static") },
         el("h3", {}, o.name, o.csName ? el("span", { className: "cs", textContent: o.csName }) : null, ...tags(o)),
-        el("p", { className: "desc", textContent: o.description }),
+        el("p", { className: "desc", textContent: o.description ?? "" }),
         el("div", { className: "label", textContent: "Our variant" }), ours,
         ...(o.refs.length ? [el("div", { className: "label", textContent: "Original" }), refs] : [])));
     }

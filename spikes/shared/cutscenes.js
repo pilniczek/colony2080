@@ -248,15 +248,14 @@ function crowbarDoor(CFG) {
       c.restore();
     },
     render: (c, w, h, t) => render(c, w, h, t + CFG.clip.start),
-    ref: {
-      label: "Original METROPAC.ANM (time-normalised)",
-      frame: t => {
-        const i = Math.min(61, 1 + Math.floor((t + CFG.clip.start) / CFG.clip.end * 61));
-        return window.ORIGINALS.src(`gamedata/png/METROPAC/f${String(i).padStart(3, "0")}.png`);
-      }
+    ref: REF && {
+      label: REF.label,
+      frame: t => REF.frame(Math.min(REF.frames, 1 + Math.floor((t + CFG.clip.start) / CFG.clip.end * REF.frames)))
     }
   };
 }
+
+const REF = window.ORIGINALS.cutscenes.crowbarDoor;
 
 window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor) };
 })();

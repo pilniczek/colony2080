@@ -29,7 +29,7 @@ function frame(now) {
   if (ui.canvas.width !== w || ui.canvas.height !== h) { ui.canvas.width = w; ui.canvas.height = h; }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   scene.render(ctx, w, h, t);
-  if (ui.ref && dialog.classList.contains("with-ref")) {
+  if (ui.ref && scene.ref && dialog.classList.contains("with-ref")) {
     const src = scene.ref.frame(t);
     if (src !== refSrc) { refSrc = src; ui.ref.src = src; }
   }
@@ -56,7 +56,7 @@ window.openCutscene = s => {
   t = 0;
   refSrc = "";
   ui.title.textContent = s.name;
-  if (ui.refLabel) ui.refLabel.textContent = s.ref.label;
+  if (ui.refLabel && s.ref) ui.refLabel.textContent = s.ref.label;
   buildPalette();
   setPlaying(true);
   dialog.showModal();
