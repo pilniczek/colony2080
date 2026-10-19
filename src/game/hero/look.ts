@@ -50,7 +50,7 @@ const DROP = { letGo: 0.3, slide: 0.3, dust: 0.4 };
 export const RUNG = 22;
 const CLIMB = { hands: [152.5, 130.5], feet: [RUNG, 0], reachTop: 110, reachSpan: 150 } as const;
 const HIT_HEIGHT = 100;
-const LOOK = { head: 6, headSx: 0.92, face: 14 };
+const LOOK = { head: 14, headSx: 0.8, face: 40, faceSx: 0.6 };
 const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 22, damping: 7, star: [14, -HIT_HEIGHT] as Pt };
 
 export const heroScale = (cfg: MovementConfig): number =>
@@ -272,7 +272,7 @@ const gunSlide = (clip: Clip, t: number): number => {
 
 const lookToward = (facing: number): Pose => ({
   head: { dx: facing * LOOK.head, sx: LOOK.headSx },
-  face: { dx: facing * LOOK.face },
+  face: { dx: facing * LOOK.face, sx: LOOK.faceSx },
 });
 
 const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: MovementConfig): HeroLook => {
