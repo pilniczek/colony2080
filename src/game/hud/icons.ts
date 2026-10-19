@@ -3,13 +3,18 @@ import type { GroupNode, RigNode } from "../../engine/rig/tree";
 import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
-import { buildSide, ROBOT } from "../robot/xbot";
+import { buildFront, buildSide, ROBOT } from "../robot/xbot";
 import { ITEMS, type Item } from "../items";
+import { BODY_BOX, GUN_SCALE, INVENTORY_BOXES, ITEM_FILL, STAT_COLOR, type InventoryArt } from "./inventory";
 import { HAND_BOX } from "./layout";
 import type { HudIcon, HudIcons } from "./svg";
 
 const PX_PER_UNIT = 12;
 const FIST_BOX = { x: 290, y: -386, w: 194, h: 146 };
+const STAGE = 2400;
+const ITEM_ZOOM = 8;
+const OUTLINE_STEPS = [[-6, 0], [6, 0], [0, -6], [0, 6], [-4, -4], [4, 4], [-4, 4], [4, -4]] as const;
+const DIAGRAM_FILL = 0.18;
 
 function icon(w: number, h: number, paint: (ctx: CanvasRenderingContext2D) => void): HudIcon {
   const canvas = document.createElement("canvas");
@@ -51,12 +56,15 @@ function itemIcon({ icon: { asset, state, tilt, scale } }: Item): HudIcon {
   return icon(w, h, (ctx) => assetIcon(ctx, asset, state, tilt, w, h));
 }
 
-export function hudIcons(): HudIcons {
-  const gun = icon(35, 14, (ctx) => {
-    ctx.scale(0.1, 0.1);
+const gunIcon = (scale = 1): HudIcon =>
+  icon(35 * scale, 14 * scale, (ctx) => {
+    ctx.scale(0.1 * scale, 0.1 * scale);
     ctx.translate(84, 98);
     drawGun(ctx);
   });
+
+export function hudIcons(): HudIcons {
+  const gun = gunIcon();
   const fist = icon(20, 15, (ctx) => {
     const fore = findGroup(buildSide(), "fore");
     if (!fore) throw new Error("side rig has no fore joint");
@@ -70,4 +78,75 @@ export function hudIcons(): HudIcons {
     drawRig(ctx, { ...fore, m: null, name: undefined }, { palette: ROBOT.palette });
   });
   return { gun, fist, items: Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, itemIcon(item)])) };
+}
+
+function stage(paint: (ctx: CanvasRenderingContext2D) => void): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = STAGE;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no 2d context");
+  ctx.translate(STAGE / 2, STAGE / 2);
+  paint(ctx);
+  return canvas;
+}
+
+function trimmed(canvas: HTMLCanvasElement, w: number, h: number): HudIcon {
+  const { data } = canvas.getContext("2d")!.getImageData(0, 0, STAGE, STAGE);
+  let x0 = STAGE, y0 = STAGE, x1 = 0, y1 = 0;
+  for (let y = 0; y < STAGE; y++) {
+    for (let x = 0; x < STAGE; x++) {
+      if (data[(y * STAGE + x) * 4 + 3] === 0) continue;
+      x0 = Math.min(x0, x);
+      x1 = Math.max(x1, x);
+      y0 = Math.min(y0, y);
+      y1 = Math.max(y1, y);
+    }
+  }
+  const bw = x1 - x0 + 1;
+  const bh = y1 - y0 + 1;
+  const k = Math.min(w / bw, h / bh);
+  return icon(bw * k, bh * k, (ctx) => {
+    ctx.scale(k, k);
+    ctx.drawImage(canvas, -x0, -y0);
+  });
+}
+
+function outline(source: HTMLCanvasElement, color: string): HTMLCanvasElement {
+  const silhouette = stage((ctx) => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(source, 0, 0);
+    ctx.globalCompositeOperation = "source-in";
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, STAGE, STAGE);
+  });
+  return stage((ctx) => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    for (const [dx, dy] of OUTLINE_STEPS) ctx.drawImage(silhouette, dx, dy);
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.drawImage(silhouette, 0, 0);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = DIAGRAM_FILL;
+    ctx.drawImage(silhouette, 0, 0);
+  });
+}
+
+function bigItem({ icon: { asset, state, tilt } }: Item): HudIcon {
+  const { w, h } = INVENTORY_BOXES.item;
+  const canvas = stage((ctx) => {
+    ctx.rotate((-tilt * Math.PI) / 180);
+    ctx.scale(ITEM_ZOOM, ITEM_ZOOM);
+    drawAsset(ctx, ASSETS[asset], { state, lod: false, lines: 1 });
+  });
+  return trimmed(canvas, w * ITEM_FILL, h * ITEM_FILL);
+}
+
+export function inventoryArt(): InventoryArt {
+  const robot = stage((ctx) => drawRig(ctx, buildFront(), { palette: ROBOT.palette }));
+  const { w, h } = INVENTORY_BOXES.robot;
+  return {
+    robot: trimmed(robot, w, h),
+    body: trimmed(outline(robot, STAT_COLOR), BODY_BOX.w, BODY_BOX.h),
+    gun: gunIcon(GUN_SCALE),
+    items: Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, bigItem(item)])),
+  };
 }
