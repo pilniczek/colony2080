@@ -156,8 +156,6 @@ const SIDE_LEG = {
 };
 const FRONT_LEG = {
   axis: 211,
-  knee: [[150, 456], [272, 456], [276, 478], [262, 510], [232, 530], [190, 530], [160, 510], [146, 478]],
-  holes: [[176, 478, 7], [211, 476, 7], [246, 478, 7], [192, 500, 5], [230, 500, 5]],
   shin: [[164, 508], [262, 508], [278, 690], [150, 690]],
   foot: [[146, 688], [282, 688], [290, 714], [286, 744], [142, 744], [136, 714]],
   toe: [[152, 688], [276, 688], [282, 706], [146, 706]]
@@ -446,13 +444,11 @@ function burst(ctx, x, y, r, k) {
 
 function frontLeg(ctx, side) {
   const x = side * 7;
-  P.poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.5, -13], [x - 2.5, -13]], "guardMetal", 1, { dir: [1, 0] });
+  P.poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.4, -11], [x - 2.4, -11]], "guardMetal", 1, { dir: [1, 0] });
   inRigUnits(ctx, [x, 0], side * LEG, 14 / (744 - 456), [FRONT_LEG.axis, 744], () => {
     P.poly(ctx, FRONT_LEG.shin, "guardMetal", 2, { dir: [1, 0] });
     P.poly(ctx, FRONT_LEG.foot, "guardMetal", 1);
     P.poly(ctx, FRONT_LEG.toe, "guardChrome", 2);
-    P.poly(ctx, FRONT_LEG.knee, "guardChrome", 2);
-    if (!ENV.simple) for (const [hx, hy, r] of FRONT_LEG.holes) ellipse(ctx, hx, hy, r, r * 0.8, "gm0");
   });
 }
 
@@ -460,12 +456,12 @@ function frontGun(ctx, side, fire) {
   const x = side * 14;
   P.box(ctx, x - 3.5, -22.5, 7, 6.5, "guardMetal", 2);
   fillPath(ctx, c => {
-    c.moveTo(side * 8.6, -26.5);
-    c.lineTo(side * 12.4, -26.5);
-    c.lineTo(x + side * 3.5, -22.5);
-    c.lineTo(side * 9.6, -22.5);
-    c.quadraticCurveTo(side * 8.2, -24.3, side * 8.6, -26.5);
-  }, grad(ctx, side * 8.6, 0, x + side * 3.5, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]));
+    c.moveTo(side * 9.4, -25.4);
+    c.lineTo(side * 11.4, -25.4);
+    c.lineTo(x + side * 0.5, -22.5);
+    c.lineTo(side * 10, -22.5);
+    c.quadraticCurveTo(side * 9.2, -23.8, side * 9.4, -25.4);
+  }, grad(ctx, side * 9.4, 0, x, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]));
   P.disc(ctx, x, -19.2, 2.1, "gm0", "gmLine");
   if (!ENV.simple) P.disc(ctx, x, -19.2, 1, "gc0");
   if (fire >= 0) burst(ctx, x, -19.2, 5, fire);
