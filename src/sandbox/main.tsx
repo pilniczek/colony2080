@@ -10,6 +10,7 @@ import { fitView, resizeCanvas, type ViewTransform } from "../engine/render/view
 import { createFog, loadFog } from "../game/fog";
 import type { Weapon } from "../game/hero/config";
 import { hudFit, viewRect, type Rect } from "../game/hud/layout";
+import { SHIELDS_MAX } from "../game/hud/svg";
 import { createHero, damage, kill } from "../game/hero/hero";
 import { createRigs, heroLook } from "../game/hero/look";
 import { loadSandbox } from "../game/level/sandboxLevel";
@@ -196,6 +197,7 @@ const commands: SandboxCommands = {
   hit: () => void damage(hero, tuning().movement),
   kill: () => void kill(hero),
   setAmmo: (ammo) => void (hero.ammo = Math.max(0, Math.round(ammo))),
+  setShields: (shields) => void (hero.shields = Math.min(SHIELDS_MAX, Math.max(0, Math.round(shields)))),
   setFog(on) {
     applyFog(on);
     useSandbox.setState({ fogOn: on });

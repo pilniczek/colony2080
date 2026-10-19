@@ -23,7 +23,7 @@ describe("hudFit", () => {
 
 describe("viewRect", () => {
   it("is the frame window in screen pixels", () => {
-    expect(viewRect({ W: 320, unit: 2, x: 10, y: 20 })).toEqual({ x: 38, y: 74, w: 584, h: 330 });
+    expect(viewRect({ W: 320, unit: 2, x: 10, y: 20 })).toEqual({ x: 32, y: 74, w: 596, h: 330 });
   });
 });
 

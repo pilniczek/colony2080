@@ -11,7 +11,15 @@ const numberPaths = (o: object, prefix = ""): string[] =>
 const valueAt = (m: MovementConfig, path: string): number =>
   path.split(".").reduce<unknown>((o, k) => (o as Record<string, unknown>)[k], m) as number;
 
-export function NumberField({ label, value, onCommit }: { label: string; value: number; onCommit: (v: number) => void }) {
+interface NumberFieldProps {
+  label: string;
+  value: number;
+  onCommit: (v: number) => void;
+  min?: number;
+  max?: number;
+}
+
+export function NumberField({ label, value, onCommit, min, max }: NumberFieldProps) {
   const [text, setText] = useState(String(value));
   const [focused, setFocused] = useState(false);
   useEffect(() => {
@@ -24,12 +32,17 @@ export function NumberField({ label, value, onCommit }: { label: string; value: 
         style={styles.input}
         type="number"
         step="any"
+        min={min}
+        max={max}
         value={text}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onChange={(e) => {
-          setText(e.target.value);
-          if (e.target.value.trim() !== "") onCommit(Number(e.target.value));
+          const raw = e.target.value;
+          if (raw.trim() === "" || !Number.isFinite(Number(raw))) return setText(raw);
+          const n = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, Number(raw)));
+          setText(n === Number(raw) ? raw : String(n));
+          onCommit(n);
         }}
       />
     </label>

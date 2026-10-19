@@ -39,7 +39,7 @@ const DEFS = `<defs>
   <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b09f86"/><stop offset=".45" stop-color="#6e5e4c"/><stop offset="1" stop-color="#3a3027"/></linearGradient>
   <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset=".45" stop-color="#bba98f"/><stop offset=".55" stop-color="#5a4d3f"/><stop offset="1" stop-color="#eadfcb"/></linearGradient>
   <linearGradient id="amberFill" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a85a00"/><stop offset=".45" stop-color="#ffd650"/><stop offset=".6" stop-color="#ffe9a0"/><stop offset="1" stop-color="#a85a00"/></linearGradient>
-  <linearGradient id="lifeFill" gradientUnits="userSpaceOnUse" x1="0" y1="60" x2="0" y2="164"><stop offset="0" stop-color="#fff2a0"/><stop offset=".35" stop-color="#ffd030"/><stop offset=".7" stop-color="#ff8a10"/><stop offset="1" stop-color="#d81c06"/></linearGradient>
+  <linearGradient id="lifeFill" gradientUnits="userSpaceOnUse" x1="0" y1="77.1" x2="0" y2="181.1"><stop offset="0" stop-color="#fff2a0"/><stop offset=".35" stop-color="#ffd030"/><stop offset=".7" stop-color="#ff8a10"/><stop offset="1" stop-color="#d81c06"/></linearGradient>
   <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".22" stop-color="#fff" stop-opacity=".45"/><stop offset=".38" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></linearGradient>
   <linearGradient id="insetTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".75"/><stop offset=".3" stop-color="#000" stop-opacity="0"/><stop offset=".85" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
   <linearGradient id="insetSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".6"/><stop offset=".04" stop-color="#000" stop-opacity="0"/><stop offset=".96" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></linearGradient>
@@ -51,12 +51,15 @@ const DEFS = `<defs>
   <radialGradient id="lampOn" cx=".5" cy=".42" r=".62"><stop offset="0" stop-color="#fff6e4"/><stop offset=".18" stop-color="#ffb08a"/><stop offset=".42" stop-color="#ff3a16"/><stop offset=".78" stop-color="#b80c02"/><stop offset="1" stop-color="#4a0400"/></radialGradient>
   <radialGradient id="lampOff" cx=".5" cy=".4" r=".62"><stop offset="0" stop-color="#6e2a1e"/><stop offset=".5" stop-color="#3c0d07"/><stop offset="1" stop-color="#170403"/></radialGradient>
   <radialGradient id="halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4020" stop-opacity=".7"/><stop offset=".5" stop-color="#ff2a10" stop-opacity=".25"/><stop offset="1" stop-color="#ff2a10" stop-opacity="0"/></radialGradient>
-  <radialGradient id="shieldOn" cx=".45" cy=".4" r=".65"><stop offset="0" stop-color="#fffbe0"/><stop offset=".3" stop-color="#ffe060"/><stop offset=".75" stop-color="#d89a10"/><stop offset="1" stop-color="#6a4400"/></radialGradient>
-  <radialGradient id="shieldOff" cx=".45" cy=".4" r=".65"><stop offset="0" stop-color="#5a5228"/><stop offset=".6" stop-color="#34301a"/><stop offset="1" stop-color="#1a170c"/></radialGradient>
+  <linearGradient id="shieldOn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b87a14"/><stop offset=".22" stop-color="#e2a818"/><stop offset=".5" stop-color="#ffd62a"/><stop offset=".78" stop-color="#e2a818"/><stop offset="1" stop-color="#b87a14"/></linearGradient>
+  <linearGradient id="shieldOff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a3416"/><stop offset=".22" stop-color="#5e5a1c"/><stop offset=".5" stop-color="#6c6a22"/><stop offset=".78" stop-color="#5e5a1c"/><stop offset="1" stop-color="#5a3416"/></linearGradient>
+  <pattern id="lampLines" width="1" height="2" patternUnits="userSpaceOnUse"><rect y="1" width="1" height="1" fill="#000" fill-opacity=".3"/></pattern>
+  <pattern id="lampRail" width="1" height="2" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#3a2412"/></pattern>
   <radialGradient id="screwHead" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#e6d8c0"/><stop offset=".45" stop-color="#8a7a64"/><stop offset="1" stop-color="#2e261e"/></radialGradient>
   <pattern id="grid" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><rect width="3.2" height="3.2" fill="#120b05"/><path d="M0 .1H3.2M.1 0V3.2" stroke="#5a360c" stroke-width=".2"/></pattern>
   <pattern id="circuit" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#111a17"/><path d="M1 1H8V5H12M3 13V8H6V11M10 8H13M1 6H4" fill="none" stroke="#24403a" stroke-width=".35"/><circle cx="12" cy="5" r=".55" fill="#2f5249"/><circle cx="6" cy="11" r=".55" fill="#2f5249"/></pattern>
   <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="lampHalo" x="-150%" y="-100%" width="400%" height="300%"><feGaussianBlur stdDeviation="1.6"/></filter>
   <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".35"/></filter>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
@@ -139,12 +142,15 @@ function top(W: number, s: HudState, icons: HudIcons): string {
   ${gridPanel(bar.inv, 59)}${item}`;
 }
 
+const KEY = { y: 181.5, size: 9, font: 6.2 };
+
 function keyBox(x: number, letter: string): string {
-  return `<rect x="${x - 0.6}" y="165.9" width="13.2" height="13.2" rx="1.6" fill="#0b0806"/>
-  <rect x="${x}" y="166.5" width="12" height="12" rx="1.2" fill="url(#plate)"/>
-  ${bevel(x, 166.5, 12, 12, 1.2, true, 0.5)}
-  <text x="${x + 6.3}" y="176.1" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="8.4" fill="${HI}" opacity=".55">${letter}</text>
-  <text x="${x + 6}" y="175.8" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="8.4" fill="#1a140f">${letter}</text>`;
+  const { y, size, font } = KEY, base = y + size / 2 + font * 0.36;
+  return `<rect x="${x - 0.5}" y="${y - 0.5}" width="${size + 1}" height="${size + 1}" rx="1.3" fill="#0b0806"/>
+  <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="1" fill="url(#plate)"/>
+  ${bevel(x, y, size, size, 1, true, 0.4)}
+  <text x="${x + size / 2 + 0.25}" y="${base + 0.25}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="${HI}" opacity=".55">${letter}</text>
+  <text x="${x + size / 2}" y="${base}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="#1a140f">${letter}</text>`;
 }
 
 function tube(x: number, y: number, w: number, h: number, fillH: number, inner: number, paint: string): string {
@@ -159,31 +165,59 @@ function tube(x: number, y: number, w: number, h: number, fillH: number, inner: 
 const pct = (v: number): number => Math.min(100, Math.max(0, v)) / 100;
 
 function leftColumn(s: HudState): string {
-  const y0 = 60, h = 104, fill = (h - 2.6) * pct(s.life), y = y0 + h - 1.3 - fill;
-  return `${tube(4.6, y0, 4, h, fill, 1.2, "url(#lifeFill)")}
-  <path d="M9.8 80h1.4M9.8 100h1.4M9.8 120h1.4M9.8 140h1.4" stroke="${LO}" stroke-width=".6"/>
-  <path d="M9.8 80.5h1.4M9.8 100.5h1.4M9.8 120.5h1.4M9.8 140.5h1.4" stroke="${HI}" stroke-opacity=".5" stroke-width=".3"/>
+  const y0 = 77.1, h = 104, fill = (h - 2.6) * pct(s.life), y = y0 + h - 1.3 - fill;
+  return `${tube(3.5, y0, 4, h, fill, 1.2, "url(#lifeFill)")}
+  <path d="M8.7 97.1h1.4M8.7 117.1h1.4M8.7 137.1h1.4M8.7 157.1h1.4" stroke="${LO}" stroke-width=".6"/>
+  <path d="M8.7 97.6h1.4M8.7 117.6h1.4M8.7 137.6h1.4M8.7 157.6h1.4" stroke="${HI}" stroke-opacity=".5" stroke-width=".3"/>
   <path d="M0 ${y - 2.5}l3.4 2.5L0 ${y + 2.5}z" fill="#ff3018" filter="url(#glow)"/>
   <path d="M0 ${y - 1.9}l2 1.4" stroke="#ffd0b0" stroke-width=".3"/>
-  ${keyBox(0.6, "E")}`;
+  ${keyBox(1, "E")}`;
 }
 
+const LAMP = { x: 3, y: 132.6, w: 5, h: 8.6, pitch: 9.6 };
+
 function shieldLight(x: number, i: number, on: boolean): string {
-  const ly = 112.6 + i * 9.8;
-  return `<rect x="${x + 5}" y="${ly - 0.4}" width="8.6" height="9.2" rx=".9" fill="#0a0806"/>
-  <rect x="${x + 5.4}" y="${ly}" width="7.8" height="8.4" rx=".7" fill="url(#${on ? "shieldOn" : "shieldOff"})"${on ? ' filter="url(#glow)"' : ""}/>
-  <path d="M${x + 6} ${ly + 4.2}h6.6" stroke="#000" stroke-opacity=".18" stroke-width=".3"/>
-  <rect x="${x + 6.2}" y="${ly + 0.7}" width="3.4" height="1" rx=".5" fill="#fff" opacity="${on ? 0.75 : 0.18}" filter="url(#soft)"/>`;
+  const lx = x + LAMP.x, ly = LAMP.y + i * LAMP.pitch, { w, h } = LAMP;
+  const body = `<rect x="${lx}" y="${ly}" width="${w}" height="${h}" fill="url(#${on ? "shieldOn" : "shieldOff"})"${on ? ' filter="url(#glow)"' : ""}/>`;
+  if (!on) {
+    return `${body}
+  <rect x="${lx}" y="${ly}" width="${w}" height="${h}" fill="url(#lampLines)"/>
+  <path d="M${lx} ${ly + 0.3}h${w}M${lx} ${ly + h - 0.3}h${w}" stroke="#2a2410" stroke-width=".6"/>`;
+  }
+  const cx = lx + w / 2, mid = ly + h / 2;
+  return `${body}
+  <path d="M${lx} ${ly + 0.3}h${w}M${lx} ${ly + h - 0.3}h${w}" stroke="#a8781a" stroke-width=".6"/>
+  <rect x="${cx - 0.5}" y="${ly + 1.8}" width="1" height="${h - 3.6}" fill="#fff23c"/>
+  <rect x="${cx - 0.5}" y="${mid - 1.6}" width="1" height="1" fill="#fffbe8"/>
+  <rect x="${cx - 0.5}" y="${mid + 0.4}" width="1" height="1" fill="#fffbe8"/>`;
+}
+
+function shieldHalo(x: number, i: number): string {
+  const lx = x + LAMP.x, ly = LAMP.y + i * LAMP.pitch, { w, h } = LAMP;
+  return `<rect x="${lx - 0.6}" y="${ly - 0.6}" width="${w + 1.2}" height="${h + 1.2}" rx="1.5" fill="#ffb21c" opacity=".75" filter="url(#lampHalo)" style="mix-blend-mode:screen"/>
+  <rect x="${lx + w / 2 - 1}" y="${ly + 1.5}" width="2" height="${h - 3}" fill="#fff6c0" opacity=".6" filter="url(#soft)" style="mix-blend-mode:screen"/>`;
+}
+
+function shieldChannel(x: number): string {
+  const top = LAMP.y - 1, h = 5 * LAMP.pitch + 1, rail = (rx: number): string =>
+    `<rect x="${rx}" y="${top}" width="1" height="${h}" fill="url(#lampRail)"/>`;
+  return `<rect x="${x + LAMP.x - 1}" y="${top}" width="${LAMP.w + 2}" height="${h}" fill="#050403"/>
+  ${rail(x + LAMP.x - 1)}${rail(x + LAMP.x + LAMP.w)}`;
 }
 
 function rightColumn(W: number, s: HudState): string {
-  const x = W - 16, y0 = 56, h = 50;
-  const lights = Array.from({ length: SHIELDS_MAX }, (_, i) => shieldLight(x, i, SHIELDS_MAX - 1 - i < s.shields)).join("");
-  return `${tube(x + 7.6, y0, 3.4, h, (h - 2.6) * pct(s.reserve), 1.2, "url(#amberFill)")}
-  <rect x="${x + 3.4}" y="110.6" width="11.8" height="51.8" rx="1.4" fill="url(#plate)"/>
-  ${bevel(x + 3.4, 110.6, 11.8, 51.8, 1.4, true, 0.4)}
+  const x = W - VIEW_BOX.right, y0 = 75.6, h = 50;
+  const lit = (i: number): boolean => SHIELDS_MAX - 1 - i < s.shields;
+  const lamps = Array.from({ length: SHIELDS_MAX }, (_, i) => i);
+  const lights = lamps.map((i) => shieldLight(x, i, lit(i))).join("");
+  const halos = lamps.filter(lit).map((i) => shieldHalo(x, i)).join("");
+  return `${tube(x + 3.8, y0, 3.4, h, (h - 2.6) * pct(s.reserve), 1.2, "url(#amberFill)")}
+  <rect x="${x + 1}" y="130.2" width="9" height="51.8" rx="1" fill="url(#plate)"/>
+  ${bevel(x + 1, 130.2, 9, 51.8, 1, true, 0.4)}
+  ${shieldChannel(x)}
   ${lights}
-  ${keyBox(x + 3.3, "S")}`;
+  ${halos}
+  ${keyBox(x + 1, "S")}`;
 }
 
 function sides(W: number): string {

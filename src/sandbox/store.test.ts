@@ -86,3 +86,16 @@ describe("clip tuning", () => {
     expect(json.clips.run.duration).toBe(0.9);
   });
 });
+
+describe("reserve", () => {
+  it("clamps to 0..100 and ignores non-finite numbers", () => {
+    store().setReserve(40);
+    expect(store().reserve).toBe(40);
+    store().setReserve(NaN);
+    expect(store().reserve).toBe(40);
+    store().setReserve(150);
+    expect(store().reserve).toBe(100);
+    store().setReserve(-5);
+    expect(store().reserve).toBe(0);
+  });
+});

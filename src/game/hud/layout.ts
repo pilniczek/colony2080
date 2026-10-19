@@ -2,7 +2,7 @@ export type Span = [number, number];
 
 export const HUD_H = 200;
 export const HUD_MIN_W = 320;
-export const VIEW_BOX = { left: 14, top: 27, right: 14, bottom: 8 };
+export const VIEW_BOX = { left: 11, top: 27, right: 11, bottom: 8 };
 
 const EDGE = 1.2;
 const GAP = 3.6;
