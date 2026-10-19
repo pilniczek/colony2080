@@ -409,6 +409,7 @@ function hide(s: Step): void {
   if (input.held.has("hide")) return;
   h.hidden = false;
   enter(h, "idle");
+  if (input.held.has("shoot")) startAttack(s, "attack");
 }
 
 function weaponSwitch(s: Step): void {

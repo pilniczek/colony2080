@@ -114,6 +114,17 @@ describe("hide", () => {
     }
   });
 
+  it("resumes fire on release while shoot stays held", () => {
+    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    tick(g, ["shoot"], ["shoot"]);
+    tick(g, ["shoot", "hide"]);
+    run(g, 0.3, ["shoot", "hide"]);
+    const fired = kinds(g, "shot").length;
+    tick(g, ["shoot"]);
+    expect(g.hero.state).toBe("attack");
+    expect(kinds(g, "shot")).toHaveLength(fired + 1);
+  });
+
   it("does nothing on a moving lift", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
