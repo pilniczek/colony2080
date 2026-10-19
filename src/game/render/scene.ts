@@ -256,6 +256,8 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   if (look.dust !== null) landingDust(f, hero, look.dust);
 }
 
+export const heroBehindEnemies = (hero: Hero): boolean => hero.hidden;
+
 export function drawScene(
   ctx: CanvasRenderingContext2D,
   world: SandboxWorld,
@@ -279,12 +281,17 @@ export function drawScene(
   ctx.rect(0, 0, world.grid.width * f.cell, world.grid.height * f.cell);
   ctx.clip();
   drawEnvironment(ctx, world, cfg, alpha, lines);
+  const drawHero = (): void => {
+    shadow(f, hero, look);
+    heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
+  };
+  const behind = heroBehindEnemies(hero);
+  if (behind) drawHero();
   ctx.save();
   if (sight) ctx.clip(sight);
   world.enemies.forEach((enemy, i) => enemyFigure(f, enemy, enemyLooks[i]!, enemyRigs, scale, cfg.fireRate));
   ctx.restore();
-  shadow(f, hero, look);
-  heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
+  if (!behind) drawHero();
   if (sight) ctx.clip(sight);
   projectiles(f, alpha);
   impacts(f);

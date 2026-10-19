@@ -3,7 +3,7 @@ import { holdPoses } from "../robot/gun";
 import { createHero, type Hero } from "../hero/hero";
 import { createRigs, heroLook } from "../hero/look";
 import { cfg, clips } from "../hero/testWorld";
-import { castsShadow } from "./scene";
+import { castsShadow, heroBehindEnemies } from "./scene";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -24,5 +24,13 @@ describe("shadow", () => {
 
   it("is not cast on the ladder", () => {
     expect(shadowed({ state: "ladder", climb: 2, onGround: false })).toBe(false);
+  });
+});
+
+describe("draw order", () => {
+  it("puts the hero behind enemies only while hidden", () => {
+    expect(heroBehindEnemies(hero({ state: "hide", hidden: true }))).toBe(true);
+    expect(heroBehindEnemies(hero({ state: "weaponSwitch", hidden: true }))).toBe(true);
+    for (const state of ["idle", "walk", "duck"] as const) expect(heroBehindEnemies(hero({ state })), state).toBe(false);
   });
 });
