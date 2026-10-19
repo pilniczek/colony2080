@@ -325,10 +325,12 @@ function item(c, x, y) {
 
 const MOVES = [];
 const CATEGORY = document.body.dataset.category;
-const move = (category, name, keys, period, draw, scene) => MOVES.push({ category, name, keys, period, draw, scene });
+const move = (category, name, keys, period, draw, scene, clip) => MOVES.push({ category, name, keys, period, draw, scene, clip });
 
-function triggering(scene, lead, draw) {
-  return [lead + scene.duration, (c, t) => t < lead ? draw(c, t) : scene.render(c, W, H, t - lead), scene];
+function triggering(scene, lead, draw, tail, after) {
+  const end = lead + scene.duration;
+  const play = (c, t) => t < lead ? draw(c, t) : t < end ? scene.render(c, W, H, t - lead) : after(c, t - end);
+  return [end + tail, play, scene, [lead, end]];
 }
 
 move("movement", "Idle", "-", 3, c => {
@@ -572,15 +574,20 @@ move("interaction", "Use", "Enter at target", 1.6, (c, t) => {
   bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
 });
 
-const CROWBAR_IDLE = 0.8;
-move("interaction", "Use crowbar", "Enter at door, plays cutscene", ...triggering(CUTSCENES.crowbarDoor, CROWBAR_IDLE + ACTION_TIME.in, (c, t) => {
-  CUTSCENES.crowbarDoor.backdrop(c, 140, FLOOR, K, 0);
-  const rest = armed() ? { ...STAND, ...GUN_REST } : STAND;
-  const reach = armed() ? { ...rest, armFar: REACH.arm, foreFar: REACH.fore } : REACH;
-  const pose = keyed([[CROWBAR_IDLE, rest], [CROWBAR_IDLE + ACTION_TIME.in, reach]], t);
+const CROWBAR_LEAD = 1;
+const CROWBAR_TAIL = 1;
+const CROWBAR_IDLE = CROWBAR_LEAD - ACTION_TIME.in;
+const crowbarRest = () => armed() ? { ...STAND, ...GUN_REST } : STAND;
+function crowbarScene(c, doorT, pose) {
+  CUTSCENES.crowbarDoor.backdrop(c, 140, FLOOR, K, doorT);
   shadow(c, 140, FLOOR, 30);
   bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
-}));
+}
+move("interaction", "Use crowbar", "Enter at door, plays cutscene", ...triggering(CUTSCENES.crowbarDoor, CROWBAR_LEAD, (c, t) => {
+  const rest = crowbarRest();
+  const reach = armed() ? { ...rest, armFar: REACH.arm, foreFar: REACH.fore } : REACH;
+  crowbarScene(c, 0, keyed([[CROWBAR_IDLE, rest], [CROWBAR_LEAD, reach]], t));
+}, CROWBAR_TAIL, c => crowbarScene(c, CUTSCENES.crowbarDoor.duration, crowbarRest())));
 
 move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   backdrop(c);
@@ -885,8 +892,10 @@ function frame(now) {
     if (!visible) continue;
     const t = (now / 1000) % m.period;
     if (progress) {
-      progress.fill.style.width = `${(t / m.period) * 100}%`;
-      progress.time.textContent = `${t.toFixed(1)} / ${m.period.toFixed(1)} s`;
+      const [from, to] = m.clip;
+      const played = Math.min(Math.max(t - from, 0), to - from);
+      progress.fill.style.width = `${(played / (to - from)) * 100}%`;
+      progress.time.textContent = `${played.toFixed(1)} / ${(to - from).toFixed(1)} s`;
     }
     const w = Math.round(canvas.clientWidth * dpr);
     if (canvas.width !== w) { canvas.width = w; canvas.height = Math.round(w * H / W); }
