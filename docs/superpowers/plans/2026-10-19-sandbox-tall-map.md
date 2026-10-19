@@ -168,7 +168,7 @@ Use the existing test world helpers (`src/game/hero/testWorld.ts`) and the same 
 
 **Files:**
 - Modify: `CLAUDE.md` (code layout: `src/game/env/`, `render/environment.ts` with depth haze and static-layer cache, `level/terrain.ts`, `lifts`, `followView` camera, HUD item icons; `test:visual` covers env assets; spikes: `ENV.draw` `size` option, `ladder` asset)
-- Modify: `docs/requirements.md` (decision log rows dated 2026-10-19: sandbox reskinned from env assets, ladder asset, bag and target dropped, hiding-beside state unused in game, depth haze for non-blocking scenery, open sky; tall 48 x 32 map with several lifts; camera follows the hero with edge stops; lifts stay at the hero level (map rule and reach test); map resets when the hero dies; crowbar icon next to the HUD hand. Update the environment sheet status line)
+- Modify: `docs/requirements.md` (decision log rows dated 2026-10-19: sandbox reskinned from env assets, ladder asset, bag and target dropped, hiding-beside state unused in game, depth haze for non-blocking scenery, open sky; tall 48 x 32 map with several lifts; camera follows the hero with edge stops; lifts stay at the hero level (map rule and reach test); map resets when the hero dies; several enemies, extra ones without respawn; crowbar icon next to the HUD hand. Update the environment sheet status line)
 
 - [ ] **Step 1: Edit both files; each idea once**
 - [ ] **Step 2: Commit `Document the env reskin, tall map and camera`**
@@ -185,7 +185,7 @@ Use the existing test world helpers (`src/game/hero/testWorld.ts`) and the same 
 - Test: `src/game/stepWorld.test.ts`
 
 **Interfaces:**
-- Produces: `resetWorld(world: SandboxWorld): void` restores everything `loadSandbox` builds (grid, lifts at `bottom`, props, enemy, projectiles, sparks, terrain, scenery) from the kept source, and resets `world.fog` to a fresh fog with the same config when fog is on (stays `null` when off).
+- Produces: `resetWorld(world: SandboxWorld): void` restores everything `loadSandbox` builds (grid, lifts at `bottom`, props, all enemies (dead non-respawning ones revived), projectiles, sparks, terrain, scenery) from the kept source, and resets `world.fog` to a fresh fog with the same config when fog is on (stays `null` when off).
 - The reset runs on the step where the hero respawns after a death (`death`, `fallDeath`, `jumpDeath` end). Hero ammo carries over unchanged.
 
 - [ ] **Step 1: Write the failing tests** in `stepWorld.test.ts`: take the crowbar, flip the switchboard on, call a lift to its top, uncover fog cells, damage the enemy, then kill the hero and run past `respawnMs`. Expect: crowbar `taken` false, switchboard `on` false, every lift at `bottom` with `target` null, enemy hits back to full, no projectiles or sparks, fog revealed cells equal a fresh fog after the first step at spawn, hero ammo unchanged.
@@ -193,3 +193,26 @@ Use the existing test world helpers (`src/game/hero/testWorld.ts`) and the same 
 - [ ] **Step 3: Implement**
 - [ ] **Step 4: Run `npm test && npm run lint && npm run typecheck`. Expected: pass (hud-only typecheck errors from another session excepted)**
 - [ ] **Step 5: Commit `Reset the sandbox map when the hero dies`**
+
+---
+
+### Task 7: Several enemies, some without respawn
+
+Run order of the remaining tasks: 7, 6, 4, 5.
+
+**Files:**
+- Modify: `src/game/level/enemy.ts`, `src/game/level/enemy.test.ts`
+- Modify: `src/game/level/sandboxLevel.ts`, `src/game/stepWorld.ts`, `src/game/shots.ts`, `src/game/render/scene.ts`, `src/sandbox/main.tsx`, tests that use `world.enemy`
+- Modify: `config/levels/sandbox.json` (`enemy` to `enemies`, 3 new entries with `"respawnMs": null`, update `source`)
+
+**Interfaces:**
+- `EnemyJson.respawnMs: number | null`, `Enemy.respawnMs: number | null`; `null` keeps a dead enemy dead (scrap stays).
+- `SandboxWorld.enemies: Enemy[]`. Every enemy updates and fires each step; hero bullets hit the first live enemy they touch; each enemy draws with the enemy rigs and palette, clipped by the fog sight; `main.tsx` builds one look per enemy.
+- Layout (spec): 3 new enemies in lower-half areas with room to patrol, none in cols 40-47, none on a lift deck, none that can see the hero at spawn (`sightCells`, same floor rule as today).
+
+- [ ] **Step 1: Write the failing tests** in `enemy.test.ts`: an enemy with `respawnMs: null` killed by hits stays dead after 60 s of updates; in `sandboxLevel.test.ts`: the loaded world has 4 enemies, the first equal to the old single enemy, the others with `respawnMs` null; a hero bullet fired at the second enemy damages only it.
+- [ ] **Step 2: Run `npx vitest run src/game`. Expected: FAIL**
+- [ ] **Step 3: Implement; migrate every `world.enemy` use**
+- [ ] **Step 4: Run `npm test && npm run lint && npm run typecheck && npm run test:visual`. Expected: pass**
+- [ ] **Step 5: Screenshot each new enemy patrolling, and a kill that leaves scrap with no respawn**
+- [ ] **Step 6: Commit `Add sandbox enemies that do not respawn`**

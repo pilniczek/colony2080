@@ -25,7 +25,9 @@ User:
 - Camera: the hero stays in the middle of the view. At a map border the view stops and the hero keeps moving toward the edge. Same rule horizontally and vertically.
 - The invisible ceiling above row 0 stays.
 - An elevator is always at the hero's level when the hero reaches its shaft; the hero never stands beside an empty shaft. The map guarantees it: a lift's two stop floors connect only through that lift (no walk, ladder, other lift, jump or survivable drop between them in either direction). Each lift starts at the stop on the spawn side. Where a floor edge would allow such a path, solid obstacles (railings, parapets, walls) block it. A reachability test enforces the rule for every lift.
-- When the hero dies, the whole map resets on respawn: lifts to their start stops, props (crowbar back on the ground, switchboard off), enemy, bullets, sparks and fog (all cells covered again, fog on or off as the panel set it). Hero ammo carries over as today. A deadly fall therefore never strands a lift.
+- Dead-end lift balconies are fine.
+- A few more enemies across the map that do not respawn after they die; the existing top-left enemy keeps its respawn.
+- When the hero dies, the whole map resets on respawn: lifts to their start stops, props (crowbar back on the ground, switchboard off), every enemy (killed non-respawning ones come back), bullets, sparks and fog (all cells covered again, fog on or off as the panel set it). Hero ammo carries over as today. A deadly fall therefore never strands a lift.
 - Widen the map slightly so horizontal camera movement shows. The extra width adds no interactive elements: no elevators, ladders, props or enemies there, only floor, walls and scenery.
 
 Claude's call:
@@ -37,6 +39,7 @@ Claude's call:
 - Elevators: `lift` becomes `lifts: Lift[]` in `config/levels/sandbox.json` and `SandboxWorld`. The hero uses the elevator it stands on or calls the one whose shaft it stands in, same rules as today's single elevator. The current elevator stays first in the list with the same values.
 - New lower half layout: floors 7 cells apart (`floorHeightCells` 7), ground at row 31 (rows 30-31 solid, or a thicker base). At least 2 new elevators, at least 3 new platforms (mix of wall-backed ledges and free-standing girders), at least 1 new ladder, so every floor is reachable from the spawn and back up. Built only from the ported env assets and the terrain classifier, same art rules as now (tall non-blocking scenery in the backdrop under the haze).
 - Sky and backdrop cover the full 32-row height.
+- Enemies: `enemy` becomes `enemies: EnemyJson[]` in the config and `SandboxWorld`; `respawnMs: null` means no respawn. The existing enemy stays first with its values. 3 new enemies, one per lower-half area that has room to patrol, none in the widened strip, none on a lift deck, none able to see or shoot the hero at spawn.
 
 ## Constraints
 
