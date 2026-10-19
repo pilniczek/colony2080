@@ -133,26 +133,39 @@ export const controller: EnvAsset = {
 
 export const wires: EnvAsset = {
   id: "wires",
-  box: [-2, -8, 18, 0],
+  box: [-2, -10, 22, 0],
   draw(ctx, state) {
-    if (state) return scuff(ctx, 0, 16);
+    if (state) return scuff(ctx, 0, 20);
+    const curve = () => {
+      ctx.beginPath();
+      ctx.moveTo(2, -1.4);
+      ctx.bezierCurveTo(8, -3, 10, -8.6, 15, -7.4);
+      ctx.bezierCurveTo(17.4, -6.8, 17.6, -5, 16.6, -3.6);
+    };
     ctx.save();
     ctx.lineCap = "round";
-    for (const [cx, w, c, line] of [[6, 2.2, "a1", "aLine"], [9.5, 2.2, "y2", "yLine"]] as const) {
-      ctx.beginPath();
-      ctx.ellipse(cx, -3.6, 4.6, 3.2, -0.2, 0, PI * 2);
-      ctx.strokeStyle = color(line);
-      ctx.lineWidth = w + 0.8;
-      ctx.stroke();
-      ctx.strokeStyle = color(c);
-      ctx.lineWidth = w;
+    curve();
+    ctx.strokeStyle = color("aLine");
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+    ctx.strokeStyle = color("a1");
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    if (!P.simple()) {
+      ctx.translate(-0.2, -0.35);
+      curve();
+      ctx.strokeStyle = color("a3");
+      ctx.lineWidth = 0.4;
       ctx.stroke();
     }
-    ctx.strokeStyle = color("a3");
+    ctx.restore();
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.strokeStyle = color("c2");
     ctx.lineWidth = 0.7;
     ctx.beginPath();
-    ctx.moveTo(13.4, -2); ctx.lineTo(16, -0.6);
-    ctx.moveTo(13.6, -4.4); ctx.lineTo(16.4, -4.8);
+    ctx.moveTo(2, -1.4); ctx.lineTo(0, -0.8);
+    ctx.moveTo(16.6, -3.6); ctx.lineTo(16, -2);
     ctx.stroke();
     ctx.restore();
   }
@@ -160,33 +173,50 @@ export const wires: EnvAsset = {
 
 export const tapHandle: EnvAsset = {
   id: "tapHandle",
-  box: [-2, -12, 12, 0],
+  box: [-2, -14, 14, 0],
   draw(ctx, state) {
-    if (state) return scuff(ctx, 0, 10);
-    box(ctx, 4, -2.4, 2, 2.4, "steel", 1);
+    if (state) return scuff(ctx, 0, 12);
+    box(ctx, 4.6, -3.6, 2.8, 3.6, "chrome", 2, { vertical: true });
+    box(ctx, 5.4, -12.2, 1.2, 9.2, "chrome", 1, { vertical: true });
+    box(ctx, 0.6, -8.2, 10.8, 1.2, "chrome", 1);
     ctx.beginPath();
-    ctx.arc(5, -6.6, 4.4, 0, PI * 2);
-    ctx.arc(5, -6.6, 3.2, 0, PI * 2, true);
-    ctx.fillStyle = color("neon");
+    ctx.ellipse(6, -7.6, 5.6, 5, 0, 0, PI * 2);
+    ctx.ellipse(6, -7.6, 4.3, 3.8, 0, 0, PI * 2);
+    ctx.fillStyle = color("c1");
     ctx.fill("evenodd");
-    stroke(ctx, "aLine");
-    box(ctx, 4.4, -10.4, 1.2, 7.6, "rust", 2, { vertical: true });
-    box(ctx, 1.2, -7.2, 7.6, 1.2, "rust", 2);
-    disc(ctx, 5, -6.6, 1.1, "c2", "mLine");
+    stroke(ctx, "mLine");
+    if (!P.simple()) {
+      ctx.beginPath();
+      ctx.ellipse(6, -7.6, 4.95, 4.4, 0, PI * 1.05, PI * 1.7);
+      ctx.strokeStyle = color("c3");
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+    disc(ctx, 6, -7.6, 1.8, "c0", "mLine");
   }
 };
 
 export const card: EnvAsset = {
   id: "card",
-  box: [-2, -8, 14, 0],
+  box: [-2, -9, 16, 0],
   draw(ctx, state) {
-    if (state) return scuff(ctx, 0, 12);
-    poly(ctx, [[0, 0], [1.4, -6.4], [11.4, -6.4], [10, 0]], "chrome", 2);
-    poly(ctx, [[0.9, -2.2], [1.2, -3.4], [11.1, -3.4], [10.8, -2.2]], "hole", 2, { line: false });
-    poly(ctx, [[2.4, -4.2], [2.6, -5.4], [4.6, -5.4], [4.4, -4.2]], "y2", 2);
+    if (state) return scuff(ctx, 0, 14);
+    poly(ctx, [[0, 0], [1.6, -7.6], [13.6, -7.6], [12, 0]], "chrome", 1);
+    poly(ctx, [[4.6, 0], [6.2, -7.6], [9, -7.6], [7.4, 0]], "a1", 2, { line: false });
+    poly(ctx, [[0.3, -1.4], [0.6, -2.8], [7.6, -2.8], [7.3, -1.4]], "a1", 2, { line: false });
+    poly(ctx, [[0.6, -2.8], [1.6, -7.6], [6.2, -7.6], [5.2, -2.8]], "c2", 2, { line: false });
+    poly(ctx, [[1.8, -3.6], [2.1, -5], [3.9, -5], [3.6, -3.6]], "y1", 2, { line: false });
+    path(ctx, [[0, 0], [1.6, -7.6], [13.6, -7.6], [12, 0]]);
+    stroke(ctx, "mLine");
     if (P.simple()) return;
-    flat(ctx, 6.4, -5.2, 3.6, 0.6, "neon");
-    flat(ctx, 2, -1.4, 6, 0.4, "c0");
+    poly(ctx, [[1.4, -5.4], [1.6, -6.4], [3.4, -6.4], [3.2, -5.4]], "y0", 2, { line: false });
+    ctx.strokeStyle = color("mLine");
+    ctx.lineWidth = 0.25;
+    ctx.beginPath();
+    for (let x = 9.8; x < 12.6; x += 0.5) { ctx.moveTo(x + 0.6, -6.8); ctx.lineTo(x + 0.2, -5); }
+    ctx.stroke();
+    flat(ctx, 9.4, -4, 2.6, 0.4, "c0");
+    flat(ctx, 9.2, -3, 2.4, 0.4, "c0");
   }
 };
 
@@ -195,58 +225,54 @@ export const holoPlan: EnvAsset = {
   box: [-2, -14, 14, 0],
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 12);
-    P.glow(ctx, 5, -7, 7, "plasma", 0.3);
-    ctx.save();
-    ctx.globalAlpha = 0.75;
-    poly(ctx, [[1, -12], [9, -12], [7.4, -3], [2.6, -3]], "plasma", 2, { line: false });
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = color("plasmaCore");
-    ctx.lineWidth = 0.4;
-    ctx.beginPath();
-    for (let y = -10.5; y < -3.5; y += P.simple() ? 3 : 1.8) { ctx.moveTo(1.6 + (y + 12) * 0.18, y); ctx.lineTo(8.4 - (y + 12) * 0.18, y); }
-    ctx.moveTo(5, -12); ctx.lineTo(5, -3);
-    ctx.stroke();
-    ctx.restore();
-    box(ctx, 1, -3, 8, 3, "steel", 2);
-    flat(ctx, 3, -2.6, 4, 0.8, "plasma");
+    poly(ctx, [[1, -8], [3, -10], [11, -10], [9, -8]], "c3", 2);
+    poly(ctx, [[9, -8], [11, -10], [11, -2], [9, 0]], "rust", 1);
+    box(ctx, 1, -8, 8, 8, "rust", 2);
+    flat(ctx, 1, -8.6, 8, 0.6, "water");
+    poly(ctx, [[9, -8.6], [11, -10.6], [11, -10], [9, -8]], "water", 2, { line: false });
+    for (let x = 2.4; x < 8.5; x += P.simple() ? 3 : 1.8) flat(ctx, x, -6.6, 0.9, 5.6, "r0");
+    if (!P.simple()) P.glow(ctx, 6, -10.5, 5, "plasma", 0.3);
   }
 };
 
 export const shipPlan: EnvAsset = {
   id: "shipPlan",
-  box: [-2, -8, 20, 0],
+  box: [-2, -14, 22, 0],
   draw(ctx, state) {
-    if (state) return scuff(ctx, 0, 18);
-    poly(ctx, [[3, -1], [17, -1], [18, 0], [4, 0]], "water", 2);
+    if (state) return scuff(ctx, 0, 20);
+    poly(ctx, [[0, 0], [2.4, -12], [19, -12.4], [20, 0]], "c2", 2, { dir: [1, 0] });
+    ctx.save();
+    ctx.strokeStyle = color("m1");
+    ctx.lineWidth = 0.3;
+    ctx.beginPath();
+    ctx.moveTo(3.4, -10); ctx.lineTo(9, -10.2); ctx.lineTo(10.4, -9.2); ctx.lineTo(8.6, -8.6); ctx.lineTo(3.6, -9.2); ctx.closePath();
+    ctx.moveTo(12, -10); ctx.lineTo(18, -10.2);
+    ctx.moveTo(15, -10.1); ctx.lineTo(15, -8.6);
+    ctx.moveTo(15.4, -6.4); ctx.lineTo(15.8, -1.6);
+    ctx.moveTo(13, -4.6); ctx.lineTo(15.6, -3.6); ctx.lineTo(18.4, -4.6);
     if (!P.simple()) {
-      ctx.strokeStyle = color("c3");
-      ctx.lineWidth = 0.3;
-      ctx.beginPath();
-      ctx.moveTo(8, -0.5); ctx.lineTo(16, -0.5);
-      ctx.stroke();
+      ctx.moveTo(2.8, -2); ctx.quadraticCurveTo(3.4, -5.6, 6, -6);
+      for (const x of [7.4, 10] as const) { ctx.rect(x, -6, 1.6, 4.4); ctx.moveTo(x + 0.8, -6); ctx.lineTo(x + 0.8, -1.6); }
+      ctx.moveTo(2.6, -7); ctx.lineTo(18.6, -7.2);
     }
-    flat(ctx, 0, -6, 16, 5, "water", "mLine");
-    flat(ctx, 0, -5, 16, 0.8, "#6aa8c8");
-    flat(ctx, 0, -2.4, 16, 0.6, "#24506a");
-    disc(ctx, 16, -3.5, 2.5, "#2e6688", "mLine");
-    disc(ctx, 16, -3.5, 1.1, "c2");
-    if (!P.simple()) for (const x of [3, 7, 11]) flat(ctx, x, -4.2, 2.2, 0.35, "c3");
+    ctx.stroke();
+    ctx.restore();
+    disc(ctx, 15, -8.6, 0.6, "m0");
   }
 };
 
 export const decoder: EnvAsset = {
   id: "decoder",
-  box: [-2, -12, 14, 0],
+  box: [-2, -10, 16, 0],
   draw(ctx, state) {
-    if (state) return scuff(ctx, 0, 12);
-    box(ctx, 8, -11, 1, 5, "chrome", 1, { vertical: true });
-    disc(ctx, 8.5, -11.2, 0.8, "neon", "mLine");
-    box(ctx, 1, -6.4, 10, 6.4, "steel", 2);
-    flat(ctx, 2, -5.6, 5, 2.4, "plasma", "mLine");
-    if (!P.simple()) flat(ctx, 2.6, -4.8, 3, 0.5, "plasmaCore");
-    flat(ctx, 8, -5.4, 2, 1, "neon");
-    if (P.simple()) return;
-    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) flat(ctx, 2 + c * 2.2, -2.4 + r * 1.1 - 0.4, 1.3, 0.7, "c1");
+    if (state) return scuff(ctx, 0, 14);
+    box(ctx, 3, -2.6, 6, 2.6, "chrome", 1);
+    poly(ctx, [[0, -2.6], [1.2, -8], [13, -8], [14, -2.6]], "chrome", 1);
+    box(ctx, 0, -4, 14, 1.4, "chrome", 0);
+    flat(ctx, 1.8, -7.4, 3.4, 1.8, "neon", "mLine");
+    for (let x = 6; x < 10.5; x += P.simple() ? 2.2 : 1.1) flat(ctx, x, -6.6, 0.6, 2.4, "c3", "mLine");
+    disc(ctx, 11.6, -6.6, 0.55, "screen");
+    disc(ctx, 12.6, -5.6, 0.55, "a2");
   }
 };
 

@@ -50,7 +50,7 @@ window.C28_CONFIG = {
    "cs": "Nákres",
    "icon": {
     "asset": "shipPlan",
-    "tilt": 20,
+    "tilt": 0,
     "scale": 1.25
    }
   },
@@ -1351,7 +1351,7 @@ window.C28_CONFIG = {
       "marker": 3,
       "task": "pullWires",
       "sheet": "props",
-      "description": "Wire bundle ripped out of the electrical distribution box (marker 3); carried to the metro switchboard. Inventory item only, no original sprite; Claude's design.",
+      "description": "One orange insulated wire with bare silver ends, ripped out of the electrical distribution box (marker 3); carried to the metro switchboard. Inventory item only, no level sprite; drawn after the inventory preview `GRAFIKA/PRDRAT.GRA`.",
       "states": [
        "on ground",
        "taken"
@@ -1366,7 +1366,7 @@ window.C28_CONFIG = {
       "marker": 6,
       "task": "takeTapHandle",
       "sheet": "props",
-      "description": "Red valve handwheel with a cross, unscrewed from the tunnel pipe (marker 6); used against the acid guard. Inventory item only, no original sprite; Claude's design.",
+      "description": "Chrome handwheel with four spokes, a hub and a short stem, unscrewed from the tunnel pipe (marker 6); used against the acid guard. Inventory item only, no level sprite; drawn after the inventory preview `GRAFIKA/PRKOH.GRA`.",
       "states": [
        "on ground",
        "taken"
@@ -1381,7 +1381,7 @@ window.C28_CONFIG = {
       "marker": 7,
       "task": "searchCorpse",
       "sheet": "props",
-      "description": "Access card found on the corpse in the train (marker 7); opens card door 17. Inventory item only, no original sprite; Claude's design.",
+      "description": "Grey access card with an orange L band, gold contact pads and a barcode, found on the corpse in the train (marker 7); opens card door 17. Inventory item only, no level sprite; drawn after the inventory preview `GRAFIKA/PRKART.GRA`.",
       "states": [
        "on ground",
        "taken"
@@ -1396,7 +1396,7 @@ window.C28_CONFIG = {
       "marker": 7,
       "task": "searchCorpse",
       "sheet": "props",
-      "description": "Holographic plan from the corpse in the train (marker 7): projector puck with a blue hologram; traded at marker 9. Inventory item only, no original sprite; Claude's design.",
+      "description": "Brown box projector with a white top panel, blue rim and slotted front, found on the corpse in the train (marker 7); traded at marker 9. Inventory item only, no level sprite; drawn after the inventory preview `GRAFIKA/PRHOLO.GRA`.",
       "states": [
        "on ground",
        "taken"
@@ -1411,7 +1411,7 @@ window.C28_CONFIG = {
       "marker": 9,
       "task": "tradeHoloPlan",
       "sheet": "props",
-      "description": "Rolled blueprint of the ship, traded for the holo plan (marker 9). Inventory item only, no original sprite; Claude's design.",
+      "description": "White sheet with technical drawings of the ship, traded for the holo plan (marker 9). Inventory item only, no level sprite; drawn after the inventory preview `GRAFIKA/PRPLAN.GRA`.",
       "states": [
        "on ground",
        "taken"
@@ -1426,7 +1426,7 @@ window.C28_CONFIG = {
       "marker": 9,
       "task": "tradeShipPart",
       "sheet": "props",
-      "description": "Handheld decoder with screen, keypad and antenna, traded for the ship part (marker 9); unlocks the plasma barrier. Inventory item only, no original sprite; Claude's design.",
+      "description": "Grey handheld device with a red display, ridged keys and green and orange lights, traded for the ship part (marker 9); unlocks the plasma barrier. Inventory item only, no level sprite; drawn after the inventory preview `GRAFIKA/PRDEKOD.GRA`.",
       "states": [
        "on ground",
        "taken"

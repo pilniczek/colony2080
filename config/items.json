@@ -7,7 +7,7 @@
     "tapHandle": { "name": "tap handle", "cs": "Kohout uzávěru", "icon": { "asset": "tapHandle", "tilt": 0, "scale": 1.25 } },
     "card": { "name": "card", "cs": "Karta", "icon": { "asset": "card", "tilt": 0, "scale": 1.25 } },
     "holoPlan": { "name": "holo plan", "cs": "Holog. plán", "icon": { "asset": "holoPlan", "tilt": 0, "scale": 1.25 } },
-    "shipPlan": { "name": "ship plan", "cs": "Nákres", "icon": { "asset": "shipPlan", "tilt": 20, "scale": 1.25 } },
+    "shipPlan": { "name": "ship plan", "cs": "Nákres", "icon": { "asset": "shipPlan", "tilt": 0, "scale": 1.25 } },
     "shipPart": { "name": "ship part", "cs": "Součástka", "icon": { "asset": "shipPart", "state": 1, "tilt": 20, "scale": 1.25 } },
     "decoder": { "name": "decoder", "cs": "Dekodér", "icon": { "asset": "decoder", "tilt": 0, "scale": 1.25 } },
     "controller": { "name": "controller", "cs": "Ovladač", "icon": { "asset": "controller", "tilt": 25, "scale": 1.25 } },
