@@ -2,13 +2,13 @@ import clipsJson from "@config/hero/clips.json";
 import movementJson from "@config/hero/movement.json";
 import xbot from "@config/robots/xbot.json";
 import { describe, expect, it } from "vitest";
-import { clipFor, loadClips, loadMovement, type HeroState, type Weapon } from "./config";
+import { clipFor, holdsGun, loadClips, loadMovement, type HeroState, type Weapon } from "./config";
 
 const states: HeroState[] = [
   "idle", "walk", "run", "standJump", "walkJump", "runJump", "duckJump", "fall", "fallDeath", "duck",
   "duckAttack", "kneel", "use", "hide", "attack", "weaponSwitch", "ladder", "death", "jumpDeath",
 ];
-const weapons: Weapon[] = ["fists", "gun"];
+const weapons: Weapon[] = ["fists", "gun", "blaster"];
 
 const withClip = (name: string, patch: object): unknown => ({
   ...clipsJson,
@@ -23,6 +23,11 @@ describe("loadMovement", () => {
     expect(cfg.jump.walkHeight).toBe(0.47);
     expect(cfg.energy).toEqual({ max: 100, hit: 1, shields: 0 });
     expect(cfg.deathSlide).toBe(0.45);
+    expect(cfg.blaster).toEqual({ tickHz: 32, damage: 0.47, ammo: 400 });
+  });
+
+  it("names a missing blaster tick rate", () => {
+    expect(() => loadMovement({ ...movementJson, blaster: { ...movementJson.blaster, tickHz: undefined } })).toThrow(/blaster\.tickHz/);
   });
 
   it("names a non-numeric field", () => {
@@ -67,6 +72,15 @@ describe("loadClips", () => {
   it("starts the hide clip front and fully tinted", () => {
     expect(clips.hide!.view).toEqual([[0, "front"]]);
     expect(clips.hide!.tint).toEqual([[0, 1]]);
+  });
+
+  it("gives the blaster the gun clips", () => {
+    for (const state of states) expect(clipFor(state, "blaster"), state).toBe(clipFor(state, "gun"));
+    expect(clipFor("attack", "blaster")).toBe(clipFor("attack", "gun"));
+  });
+
+  it("counts the gun and the blaster as guns", () => {
+    expect(weapons.filter(holdsGun)).toEqual(["gun", "blaster"]);
   });
 
   it("maps states to weapon clips", () => {

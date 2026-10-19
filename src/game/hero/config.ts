@@ -3,7 +3,7 @@ import type { Keys } from "../../engine/anim/keyed";
 export type HeroState =
   | "idle" | "walk" | "run" | "standJump" | "walkJump" | "runJump" | "duckJump" | "fall" | "fallDeath" | "duck"
   | "duckAttack" | "kneel" | "use" | "hide" | "attack" | "weaponSwitch" | "ladder" | "death" | "jumpDeath";
-export type Weapon = "fists" | "gun";
+export type Weapon = "fists" | "gun" | "blaster";
 export type View = "side" | "front" | "back";
 export type GunTrack = "hand" | "none" | "dropped";
 export type GaitName = "walk" | "run";
@@ -45,6 +45,7 @@ export interface MovementConfig {
   punch: { damage: number; reach: number };
   energy: { max: number; hit: number; shields: number };
   ammo: number;
+  blaster: { tickHz: number; damage: number; ammo: number };
   respawnMs: number;
   deathSlide: number;
 }
@@ -97,6 +98,7 @@ export function loadMovement(json: unknown): MovementConfig {
     punch: group("punch", ["damage", "reach"]),
     energy: group("energy", ["max", "hit", "shields"]),
     ammo: n("ammo"),
+    blaster: group("blaster", ["tickHz", "damage", "ammo"]),
     respawnMs: n("respawnMs"),
     deathSlide: n("deathSlide"),
   };
@@ -158,11 +160,13 @@ export function loadClips(json: unknown): ClipSet {
   return Object.fromEntries(Object.entries(clips).map(([name, v]) => [name, loadClip(v, name)]));
 }
 
-const weaponClips: Partial<Record<HeroState, Record<Weapon, string>>> = {
+export const holdsGun = (weapon: Weapon): boolean => weapon !== "fists";
+
+const weaponClips: Partial<Record<HeroState, Record<"fists" | "gun", string>>> = {
   attack: { fists: "punch", gun: "shoot" },
   duckAttack: { fists: "duckPunch", gun: "duckShoot" },
   use: { fists: "use", gun: "useGun" },
   kneel: { fists: "kneel", gun: "kneelGun" },
 };
 
-export const clipFor = (state: HeroState, weapon: Weapon): string => weaponClips[state]?.[weapon] ?? state;
+export const clipFor = (state: HeroState, weapon: Weapon): string => weaponClips[state]?.[holdsGun(weapon) ? "gun" : "fists"] ?? state;

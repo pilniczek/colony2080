@@ -5,11 +5,12 @@ import { jointMatrix, locate, solve, type Pose, type Tint } from "../../engine/r
 import type { GroupNode, Pt, RigNode } from "../../engine/rig/tree";
 import type { holdPoses } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
-import { clipFor, type Clip, type ClipSet, type GaitName, type MovementConfig, type View } from "./config";
+import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type MovementConfig, type View } from "./config";
 import { gaitBob, gaitPose, RUN, SPIKE_K, TAU, WALK, type Gait } from "./gait";
 import type { Hero } from "./hero";
 
 export type GunLook = "hand" | "slung" | "dropped" | "none";
+export type GunModel = "gun" | "blaster";
 
 export interface HitLook {
   star: Pt;
@@ -23,6 +24,8 @@ export interface HeroLook {
   flip: boolean;
   pose: Pose;
   gun: GunLook;
+  hand: GunModel;
+  back: GunModel;
   rot: number;
   tint: number;
   lift: number;
@@ -187,11 +190,18 @@ const clipTime = (clip: Clip, time: number): number =>
 
 export const spikeUnit = (cfg: MovementConfig): number => heroScale(cfg) / SPIKE_K;
 
+const handModel = (h: Hero): GunModel => (h.weapon === "blaster" ? "blaster" : "gun");
+
+const backModel = (h: Hero): GunModel => (h.weapon === "gun" && h.blaster !== null ? "blaster" : "gun");
+
+const models = (h: Hero): { hand: GunModel; back: GunModel } => ({ hand: handModel(h), back: backModel(h) });
+
 const ladderLook = (h: Hero, rigs: Rigs, cfg: MovementConfig): HeroLook => ({
   view: "back",
   flip: false,
   pose: climbPose(climberOf(rigs.climber), (h.climb * cfg.cellPx) / spikeUnit(cfg)),
-  gun: h.weapon === "gun" ? "slung" : "none",
+  gun: holdsGun(h.weapon) ? "slung" : "none",
+  ...models(h),
   rot: 0,
   tint: 0,
   lift: 0,
@@ -257,7 +267,7 @@ const dustAt = (h: Hero, clip: Clip, t: number): number | null => {
 const dropAt = (clip: Clip): number | undefined => clip.gun?.find(([, g]) => g === "dropped")?.[0];
 
 const gunHeld = (h: Hero, clip: Clip, raw: Angles, view: View, hold: Hold, t: number): { pose: Angles; gun: GunLook } => {
-  const track: GunLook | null = h.weapon !== "gun" ? "none" : clip.gun ? step(clip.gun, t) : null;
+  const track: GunLook | null = !holdsGun(h.weapon) ? "none" : clip.gun ? step(clip.gun, t) : null;
   if (!track) return armed(view, joints(raw), hold);
   const gun = track === "dropped" && !h.onGround ? "hand" : track;
   const drop = dropAt(clip);
@@ -291,6 +301,7 @@ const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: Movement
     flip: view === "side" && h.facing < 0,
     pose: h.hidden && view === "front" ? { ...held.pose, ...lookToward(h.facing) } : held.pose,
     gun: held.gun,
+    ...models(h),
     rot,
     tint: h.hidden ? 1 : clip.tint ? num(clip.tint, t, (k) => k) : 0,
     lift: moving?.lift ?? grounding(h, clip, held.pose, rot, rigs.side, t),

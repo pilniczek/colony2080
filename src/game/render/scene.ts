@@ -7,10 +7,11 @@ import type { Projectile } from "../../engine/world/projectiles";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
-import { heroScale, spikeUnit, type HeroLook, type HitLook, type Rigs } from "../hero/look";
+import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Rect } from "../geometry";
 import type { Enemy } from "../level/enemy";
 import type { SandboxWorld } from "../level/sandboxLevel";
+import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
@@ -36,6 +37,10 @@ const FIREBALLS: [number, number, number, number][] = [
   [-18, -40, 0.46, 22],
   [24, -36, 0.5, 20],
 ];
+const MODELS = {
+  gun: { draw: drawGun, hook: gunHook, slung: gunSlung },
+  blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
+} satisfies Record<GunModel, unknown>;
 const SCRAP: [number, number][] = [[-34, 0], [-26, -8], [-14, -10], [-8, -18], [2, -12], [10, -22], [18, -12], [28, -10], [36, 0]];
 
 const COLORS = {
@@ -197,7 +202,7 @@ function droppedGun(f: Frame, hero: Hero, look: HeroLook, scale: number, palette
   ctx.save();
   ctx.translate(hero.x * cell + hero.facing * ahead * unit, hero.y * cell - DROPPED_GUN.up * unit);
   ctx.scale(scale * hero.facing, scale);
-  drawGun(ctx, { palette, lineW, simple: true });
+  MODELS[look.hand].draw(ctx, { palette, lineW, simple: true });
   ctx.restore();
 }
 
@@ -243,14 +248,14 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(base, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : base;
   const front = look.view === "front";
-  const gun: HookDraw = (c, pal) => gunHook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
+  const gun: HookDraw = (c, pal) => MODELS[look.hand].hook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
   const hooks: Record<string, HookDraw> = {};
   if (look.gun === "hand") hooks[front ? "handL" : "hand"] = gun;
   if (look.gun === "dropped") droppedGun(f, hero, look, scale, palette);
   ctx.save();
   toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
-  if (look.gun === "slung") gunSlung(ctx, palette, { lineW, simple: true });
+  if (look.gun === "slung") MODELS[look.back].slung(ctx, palette, { lineW, simple: true });
   if (flash) muzzleFlash(ctx, look, rigs);
   if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();

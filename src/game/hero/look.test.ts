@@ -156,6 +156,15 @@ describe("hero look", () => {
     expect(look.pose).toMatchObject({ ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R });
   });
 
+  it("holds the blaster with the gun carry and slings the other owned gun", () => {
+    const gun = heroLook(hero({ state: "attack", weapon: "gun", time: 0.2 }), clips, rigs, hold, cfg);
+    const blaster = heroLook(hero({ state: "attack", weapon: "blaster", blaster: 400, time: 0.2 }), clips, rigs, hold, cfg);
+    expect(blaster).toMatchObject({ gun: "hand", hand: "blaster", back: "gun", pose: gun.pose });
+    expect(gun).toMatchObject({ gun: "hand", hand: "gun", back: "gun" });
+    expect(heroLook(hero({ state: "attack", weapon: "gun", blaster: 400, time: 0.2 }), clips, rigs, hold, cfg)).toMatchObject({ hand: "gun", back: "blaster" });
+    expect(heroLook(hero({ state: "ladder", weapon: "blaster", blaster: 400, onGround: false }), clips, rigs, hold, cfg)).toMatchObject({ gun: "slung", back: "gun" });
+  });
+
   it("weapon switch is a front view clip that blends to the front carry and drops the pseudo key", () => {
     const look = heroLook(hero({ state: "weaponSwitch", weapon: "gun", time: 1 }), clips, rigs, hold, cfg);
     expect(look.view).toBe("front");

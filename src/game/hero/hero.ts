@@ -5,7 +5,7 @@ import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
 import { callLift, liftAt, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { runUse, say } from "../level/tasks";
-import { clipFor, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
+import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
   x: number;
@@ -17,9 +17,11 @@ export interface Hero {
   time: number;
   rate: 1 | -1;
   weapon: Weapon;
+  switchTo: Weapon;
   energy: number;
   shields: number;
   ammo: number;
+  blaster: number | null;
   fallFrom: number;
   onGround: boolean;
   onLift: boolean;
@@ -39,7 +41,7 @@ export interface Landing {
   age: number;
 }
 
-export type HeroEvent = { kind: "pickup" | "use" | "shot" | "punch" | "died" | "respawned"; x: number; y: number };
+export type HeroEvent = { kind: "pickup" | "use" | "shot" | "beam" | "punch" | "died" | "respawned"; x: number; y: number };
 
 interface Step {
   h: Hero;
@@ -61,7 +63,15 @@ const LADDER_REACH = 0.5;
 const PIT_MARGIN = 2;
 export const HERO_SHOT = "hero";
 
-export function createHero(spawn: [number, number], weapon: Weapon, energy: number, shields = 0, ammo = 0, running = false): Hero {
+export function createHero(
+  spawn: [number, number],
+  weapon: Weapon,
+  energy: number,
+  shields = 0,
+  ammo = 0,
+  running = false,
+  blaster: number | null = null,
+): Hero {
   return {
     x: spawn[0],
     y: spawn[1],
@@ -72,9 +82,11 @@ export function createHero(spawn: [number, number], weapon: Weapon, energy: numb
     time: 0,
     rate: 1,
     weapon,
+    switchTo: weapon,
     energy,
     shields,
     ammo,
+    blaster,
     fallFrom: spawn[1],
     onGround: true,
     onLift: false,
@@ -237,10 +249,24 @@ function emit(s: Step, kind: HeroEvent["kind"]): void {
   s.events.push({ kind, x: s.h.x, y: s.h.y });
 }
 
-const emptyGun = (h: Hero): boolean => h.weapon === "gun" && h.ammo <= 0;
+const ammoOf = (h: Hero, weapon: Weapon): number => (weapon === "gun" ? h.ammo : weapon === "blaster" ? (h.blaster ?? 0) : 0);
+
+const emptyWeapon = (h: Hero): boolean => holdsGun(h.weapon) && ammoOf(h, h.weapon) <= 0;
+
+const fallbackWeapon = (h: Hero): Weapon => {
+  const other = h.weapon === "gun" ? "blaster" : "gun";
+  return ammoOf(h, other) > 0 ? other : "fists";
+};
+
+const fireRate = ({ h, cfg }: Step): number => (h.weapon === "blaster" ? cfg.blaster.tickHz : cfg.fireRate);
 
 function shoot(s: Step): void {
-  s.h.ammo -= 1;
+  const { h } = s;
+  if (h.weapon === "blaster") {
+    h.blaster = ammoOf(h, "blaster") - 1;
+    return emit(s, "beam");
+  }
+  h.ammo -= 1;
   emit(s, "shot");
 }
 
@@ -250,8 +276,8 @@ function pullTrigger(s: Step): void {
 }
 
 function gunFire(s: Step): void {
-  const { h, input, cfg, dt } = s;
-  if (h.weapon !== "gun" || !input.held.has("shoot") || h.ammo <= 0) {
+  const { h, input, dt } = s;
+  if (!holdsGun(h.weapon) || !input.held.has("shoot") || emptyWeapon(h)) {
     h.fireTime = null;
     return;
   }
@@ -259,14 +285,15 @@ function gunFire(s: Step): void {
     s.consume("shoot");
     return pullTrigger(s);
   }
-  const shots = (t: number): number => Math.floor(t * cfg.fireRate + SHOT_EPS);
+  const rate = fireRate(s);
+  const shots = (t: number): number => Math.floor(t * rate + SHOT_EPS);
   if (shots(h.fireTime) > shots(h.fireTime - dt)) shoot(s);
 }
 
 function startAttack(s: Step, state: "attack" | "duckAttack"): void {
-  if (emptyGun(s.h)) return;
+  if (emptyWeapon(s.h)) return;
   enter(s.h, state);
-  if (s.h.weapon === "gun") pullTrigger(s);
+  if (holdsGun(s.h.weapon)) pullTrigger(s);
 }
 
 function use(s: Step): boolean {
@@ -284,15 +311,20 @@ function act(s: Step): boolean {
 
 function switchWeapon(s: Step, weapon: Weapon): void {
   const { h } = s;
+  const holster = holdsGun(h.weapon);
   enter(h, "weaponSwitch");
-  if (weapon === "gun") return;
+  h.switchTo = weapon;
+  if (!holster) return;
   h.rate = -1;
   h.time = clipOf(s).duration;
 }
 
 function weaponSlot(s: Step): Weapon | null {
-  const [gun, fists] = ["weapon1", "weapon2", "weapon3"].map((slot) => s.consume(slot));
-  return gun && s.h.ammo > 0 ? "gun" : fists ? "fists" : null;
+  const { h } = s;
+  const [gun, fists, blaster] = ["weapon1", "weapon2", "weapon3"].map((slot) => s.consume(slot));
+  if (gun && ammoOf(h, "gun") > 0) return "gun";
+  if (fists) return "fists";
+  return blaster && ammoOf(h, "blaster") > 0 ? "blaster" : null;
 }
 
 function takeCover(s: Step): boolean {
@@ -359,7 +391,7 @@ function moving(s: Step): void {
     if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(s);
     return jump(s, h.state === "run" ? "runJump" : "walkJump");
   }
-  if (h.weapon === "gun") {
+  if (holdsGun(h.weapon)) {
     gunFire(s);
     if (use(s)) return;
   } else if (act(s)) return;
@@ -399,7 +431,7 @@ function leaveAttack(s: Step): void {
 function attack(s: Step): void {
   const { h, input } = s;
   if (takeCover(s)) return;
-  if (h.weapon === "gun") {
+  if (holdsGun(h.weapon)) {
     const ducked = h.state === "duckAttack";
     if (ducked && input.dir !== 0) h.facing = input.dir;
     if (standUp(s, ducked ? "duckJump" : "standJump")) return;
@@ -421,11 +453,18 @@ function hide(s: Step): void {
   if (input.held.has("shoot")) startAttack(s, "attack");
 }
 
+function drawNext(h: Hero): void {
+  h.weapon = h.switchTo;
+  h.rate = 1;
+  h.time = 0;
+}
+
 function weaponSwitch(s: Step): void {
   const { h, input } = s;
-  const target: Weapon = h.rate > 0 ? "gun" : "fists";
+  const target = h.switchTo;
   const drawAt = clipOf(s).gun?.find(([, g]) => g === "hand")?.[0] ?? 0;
-  if (crossed(s, drawAt)) h.weapon = target;
+  if (crossed(s, drawAt) && (h.rate > 0 || !holdsGun(target))) h.weapon = target;
+  if (h.rate < 0 && finished(s) && holdsGun(target)) drawNext(h);
   const cut = !input.held.has("hide") || input.dir !== 0 || ["shoot", "up", "down"].some((a) => input.held.has(a));
   if (!cut && !finished(s)) return;
   h.weapon = target;
@@ -437,7 +476,7 @@ function weaponSwitch(s: Step): void {
 function quickSwitch(s: Step): void {
   const { h } = s;
   if (isDead(h.state) || h.state === "weaponSwitch") return;
-  if (emptyGun(h)) arm(h, "fists");
+  if (emptyWeapon(h)) arm(h, fallbackWeapon(h));
   const slot = weaponSlot(s);
   if (!slot || slot === h.weapon) return;
   if (h.state === "hide") switchWeapon(s, slot);
@@ -485,7 +524,7 @@ function leaveLadder(h: Hero): void {
 function respawn(s: Step): void {
   const { h, world, cfg } = s;
   if (h.time * 1000 < cfg.respawnMs) return;
-  Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max, cfg.energy.shields, h.ammo, h.running));
+  Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max, cfg.energy.shields, h.ammo, h.running, h.blaster));
   emit(s, "respawned");
 }
 
