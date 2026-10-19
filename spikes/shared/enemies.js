@@ -345,10 +345,10 @@ function shoulder(ctx) {
   fillPath(ctx, c => {
     c.moveTo(35, 27);
     c.lineTo(40.5, 27);
-    c.quadraticCurveTo(42, 29, 40.5, 31);
+    c.lineTo(21 + GUN_BACK + 22, 31);
     c.lineTo(36, 31);
     c.quadraticCurveTo(34.6, 29.2, 35, 27);
-  }, grad(ctx, 35, 0, 42, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]));
+  }, grad(ctx, 35, 0, 45, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]));
 }
 
 function guardBody(ctx, fire) {
