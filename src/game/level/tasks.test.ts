@@ -47,7 +47,7 @@ describe("inventory", () => {
 });
 
 describe("runUse", () => {
-  it("uses the shown item and shows the one picked before", () => {
+  it("uses the shown item and keeps it unless the task consumes it", () => {
     const w = world();
     pickUp(w, "wires");
     pickUp(w, "crowbar");
@@ -57,20 +57,19 @@ describe("runUse", () => {
     expect(prop(w, "switchboard").state ?? 0).toBe(0);
     w.flags.add("flag:metroPowered");
     use(w, "trainDoor");
-    expect(w.inventory).toEqual({ items: ["wires"], shown: "wires" });
+    expect(w.inventory).toEqual({ items: ["wires", "crowbar"], shown: "crowbar" });
     expect(prop(w, "trainDoor").state).toBe(2);
     expect(w.flags.has("flag:metroOpen")).toBe(true);
   });
 
   it("uses an older item once it is shown", () => {
     const w = world();
-    pickUp(w, "crowbar");
     pickUp(w, "wires");
-    showItem(w, "crowbar");
-    w.flags.add("flag:metroPowered");
-    use(w, "trainDoor");
-    expect(w.inventory).toEqual({ items: ["wires"], shown: "wires" });
-    expect(prop(w, "trainDoor").state).toBe(2);
+    pickUp(w, "crowbar");
+    showItem(w, "wires");
+    use(w, "switchboard");
+    expect(w.inventory).toEqual({ items: ["crowbar", "card", "holoPlan"], shown: "holoPlan" });
+    expect(prop(w, "switchboard").state).toBe(1);
   });
 
   it("gives items and flags and changes state", () => {
@@ -150,22 +149,30 @@ describe("loadTasks", () => {
     expect(() => loadTasks({ tasks: [task] })).toThrow("task a: needs more than one item");
   });
 
-  it("rejects a task that keeps or skips the used item", () => {
+  it("rejects a task that consumes an item it does not use", () => {
     const task = { id: "a", object: "o", requires: ["item:wires", "flag:f"], gives: [], subtitle: "x" };
-    expect(() => loadTasks({ tasks: [task] })).toThrow("task a: must consume the used item");
-    expect(() => loadTasks({ tasks: [{ ...task, consumes: ["item:crowbar"] }] })).toThrow("task a: must consume the used item");
-    expect(() => loadTasks({ tasks: [{ ...task, requires: [], consumes: ["item:wires"] }] })).toThrow("task a: must consume the used item");
+    expect(loadTasks({ tasks: [task] })[0]!.consumes).toEqual([]);
+    expect(() => loadTasks({ tasks: [{ ...task, consumes: ["item:crowbar"] }] })).toThrow("task a: consumes an item it does not use");
+    expect(() => loadTasks({ tasks: [{ ...task, requires: [], consumes: ["item:wires"] }] })).toThrow("task a: consumes an item it does not use");
     expect(loadTasks({ tasks: [{ ...task, consumes: ["item:wires"] }] })[0]!.consumes).toEqual(["item:wires"]);
   });
 
   it("loads the mesto task web on mesto objects", () => {
     const tasks = loadTasks(tasksJson);
     const objects = new Set(tasks.map((t) => t.object));
-    for (const id of ["dyingRebel", "wireBox", "switchboard", "trainDoor", "tapValveWheel", "corpse", "barDoor", "crashedShip", "codeLock", "damagedLift", "acidTank", "cardDoor", "crane"]) {
+    for (const id of ["dyingRebel", "wireBox", "switchboard", "trainDoor", "tapValveWheel", "corpse", "barDoor", "codeLock", "damagedLift", "acidTank", "cardDoor", "crane"]) {
       expect(objects.has(id), id).toBe(true);
     }
     const ids = tasks.map((t) => t.id);
-    for (const gone of ["acidGuard", "shootGuard", "takeEBlaster"]) expect(ids).not.toContain(gone);
+    for (const gone of ["acidGuard", "shootGuard", "takeEBlaster", "getShipPart"]) expect(ids).not.toContain(gone);
     for (const t of tasks) expect(t.consumes.every((c) => t.requires.includes(c)), t.id).toBe(true);
+  });
+
+  it("keeps every used item except the ship part the bar man trades", () => {
+    const tasks = loadTasks(tasksJson);
+    expect(tasks.filter((t) => t.consumes.length).map((t) => t.id)).toEqual(["tradeShipPart"]);
+    expect(tasks.map((t) => t.id)).not.toContain("getShipPart");
+    expect(tasks.find((t) => t.id === "tradeHoloPlan")!.gives).toContain("flag:partWanted");
+    expect(tasks.find((t) => t.id === "tradeShipPart")!.requires).toEqual(["item:shipPart", "flag:partWanted"]);
   });
 });

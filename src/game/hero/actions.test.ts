@@ -98,7 +98,7 @@ describe("use", () => {
     runUntil(g, (h) => h.state === "idle");
     expect(prop("trainDoor").state).toBe(2);
     expect(prop("switchboard").state ?? 0).toBe(0);
-    expect(g.world.inventory.shown).toBe("wires");
+    expect(g.world.inventory.shown).toBe("crowbar");
     expect(kinds(g, "use")).toHaveLength(1);
   });
 

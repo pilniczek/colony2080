@@ -119,7 +119,7 @@ describe("mesto props", () => {
   });
 
   it("places the map items at their original cells", () => {
-    const items = Object.fromEntries(props.filter((p) => p.kind === "item").map((p) => [p.item, [p.x, p.y]]));
+    const items = Object.fromEntries(props.filter((p) => p.kind === "item" && !p.shownBy).map((p) => [p.item, [p.x, p.y]]));
     expect(items).toEqual({ crowbar: [24.5, 44], controller: [111.5, 51], craneKey: [20.5, 16] });
   });
 
@@ -133,8 +133,14 @@ describe("mesto props", () => {
     for (const t of tasks.tasks) for (const id of Object.keys((t as { sets?: object }).sets ?? {})) expect(ids.has(id), id).toBe(true);
   });
 
-  it("has no E-blaster", () => {
-    expect(JSON.stringify(props).toLowerCase()).not.toContain("blaster");
+  it("puts the E-Blaster at its original cell on the metro floor", () => {
+    expect(props.filter((p) => p.kind === "weapon")).toEqual([{ kind: "weapon", weapon: "blaster", x: 40.5, y: 75 }]);
+  });
+
+  it("drops the ship part in front of the ship once the hull cover is off", () => {
+    const part = props.find((p) => p.item === "shipPart")!;
+    expect(part).toMatchObject({ kind: "item", y: 41, shownBy: "flag:hullOpen" });
+    expect(Math.abs(part.x - props.find((p) => p.id === "crashedShip")!.x)).toBeLessThanOrEqual(2);
   });
 
   it("drops the controller task for the controller pickup", () => {

@@ -19,6 +19,7 @@ export interface Prop {
   item?: ItemId;
   weapon?: "blaster";
   taken?: boolean;
+  shownBy?: string;
   on?: boolean;
   id?: string;
   asset?: AssetId;
@@ -177,7 +178,8 @@ export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }
 
-export const onGround = (prop: Prop, hero: Pick<Hero, "blaster">): boolean => !prop.taken && (prop.kind !== "weapon" || hero.blaster === null);
+export const onGround = (prop: Prop, hero: Pick<Hero, "blaster">, flags: ReadonlySet<string> = new Set()): boolean =>
+  !prop.taken && (prop.kind !== "weapon" || hero.blaster === null) && (prop.shownBy === undefined || flags.has(prop.shownBy));
 
 export function pickUp(world: SandboxWorld, id: ItemId): void {
   world.inventory.items.push(id);

@@ -246,4 +246,10 @@ describe("weapon prop", () => {
     expect(onGround({ kind: "item", item: "crowbar", x: 1 }, { blaster: 400 })).toBe(true);
     expect(onGround({ kind: "item", item: "crowbar", x: 1, taken: true }, { blaster: null })).toBe(false);
   });
+
+  it("keeps an item off the ground until its shownBy flag is set", () => {
+    const part = { kind: "item", item: "shipPart", x: 1, shownBy: "flag:hullOpen" };
+    expect(onGround(part, { blaster: null }, new Set())).toBe(false);
+    expect(onGround(part, { blaster: null }, new Set(["flag:hullOpen"]))).toBe(true);
+  });
 });

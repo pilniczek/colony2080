@@ -88,7 +88,6 @@ export const objectLevel = {
         id: "openTrainDoor",
         object: "trainDoor",
         requires: ["item:crowbar", "flag:metroPowered"],
-        consumes: ["item:crowbar"],
         gives: ["flag:metroOpen"],
         state: 2,
         subtitle: "The door gives way.",

@@ -192,6 +192,8 @@
     {"kind": "object", "id": "tapValveWheel", "asset": "tapValveWheel", "art": {"dx": -0.7}, "x": 43.5, "y": 75, "width": 1, "state": 0},
     {"kind": "gate", "id": "waterPipe", "asset": "waterPipe", "x": 20.5, "y": 75, "width": 1, "solidStates": [0], "cells": {"col": 20, "row": 71, "w": 1, "h": 4}, "state": 0},
     {"kind": "object", "id": "corpse", "asset": "corpse", "x": 15.5, "y": 70, "width": 2, "state": 0},
+    {"kind": "item", "item": "shipPart", "x": 12, "y": 41, "shownBy": "flag:hullOpen"},
+    {"kind": "weapon", "weapon": "blaster", "x": 40.5, "y": 75},
     {"kind": "object", "id": "crashedShip", "asset": "crashedShip", "art": {"dx": 1.4}, "x": 12.5, "y": 41, "width": 3, "height": 2, "shootable": {"hits": 7, "state": 1, "gives": ["flag:hullOpen"], "subtitle": "The hull cover falls off."}, "state": 0},
     {"kind": "object", "id": "barDoor", "asset": "barDoor", "x": 39.5, "y": 37, "width": 2, "state": 0},
     {"kind": "object", "id": "damagedLift", "asset": "liftPanel", "x": 58.5, "y": 37, "width": 2, "state": 1},

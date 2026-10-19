@@ -19,7 +19,6 @@ First playable level of the clone. The player walks the whole level 1 map, picks
 
 - Cutscenes, the crowbar-door scene included. Uses change state at once.
 - Flyers, the acid guard (marker 14) and the shoot guard (marker 15).
-- E-blaster (marker 8): not placed, task `takeEBlaster` dropped for now.
 - Intro and dying-rebel story scenes.
 - Saves, automap, inventory screen.
 - Pixel-accurate original tiles: art stays our vector env assets.
@@ -33,10 +32,10 @@ User:
 - Text appears as movie subtitles in yellow.
 - Enemies: only chrome droids (silver humanoid, the existing sandbox enemy variant). No flyers, no guards.
 - Acid tank: usable with the tap handle, state changes, kills nothing (no acid guard). Shoot guard gone, so the crane key lies free at its original cell.
-- E-blaster not placed.
+- E-blaster pickup at its original cell (column 40, floor 75), the sandbox weapon pickup (2026-10-19 revisit).
 - Crane repair: subtitle "level complete" plus a link to the home page.
-- Only the newest picked item is usable (no inventory screen, no cycle key). Accepted flaw.
-- Ship part (marker 10): shoot the hull cover off as in the original. New engine work: hero bullets hit shootable props.
+- Any held item is usable once shown on the inventory screen (2026-10-19 revisit; was newest only).
+- Ship part (marker 10): shoot the hull cover off as in the original; the part then lies on the pad under the hole (item prop with `shownBy: flag:hullOpen`) and is picked up like any item, no ship plan needed (footage picks it up before the bar visit). Showing the holo plan at the bar gives the ship plan and `flag:partWanted`, which the part trade needs, so the bar keeps its order. New engine work: hero bullets hit shootable props.
 - Card door stays where the original has it, even if it no longer gates anything with the guards gone. Accepted flaw.
 
 Claude's call:
@@ -49,9 +48,9 @@ Claude's call:
 - Enemies: the 27 chrome droids from `config/levels/mesto/enemies.json` with `type: chromeDroid`, same behaviour and tuning as the sandbox enemy, never respawn (`respawnMs: null`, original enemies stay dead).
 - Death keeps the existing rule: the whole map resets on respawn (lifts, props, enemies, fog, inventory, task state). Ammo carries over.
 - Subtitles: our own short English wording per task and block. No original game text, translated or not (no original game online rule). Bottom of the game window, yellow, fade after a few seconds, newest replaces the current one.
-- Inventory as a stack: every picked item stays in the inventory, the newest is shown and only it can be used. Every use consumes the item it uses, so the one picked before it shows again (user).
+- Inventory: every picked item stays; the newest picked is shown, the inventory screen shows any other. Used items stay, as in the original, except the ship part the bar man trades for the decoder (2026-10-19 revisit; was a stack where every use consumed its item).
 - Lifts may have more than two stops if the decoded table says so; the lift model and the reach rule widen to N stops. The repaired damaged lift (marker 13) gets its stops from the shafts in the map rows above it.
-- `tasks.json` rewritten: `acidGuard` becomes `useAcidTank` (gives a flag, kills nothing), `shootGuard` and `takeEBlaster` go, new `takeCraneKey` pickup at the original key cell; every item use consumes the item.
+- `tasks.json` rewritten: `acidGuard` becomes `useAcidTank` (gives a flag, kills nothing), `shootGuard` and `takeEBlaster` go (the E-Blaster is a weapon pickup), new `takeCraneKey` pickup at the original key cell; `getShipPart` went in the 2026-10-19 revisit (the part is a ground pickup).
 - Dying rebel (marker 1) placed and usable: ENTER gives `flag:rebelTalked` and a subtitle, then it lies as a corpse.
 - After "level complete" the game freezes (no input, enemies stop) under the subtitle and the home page link.
 - Shootable props: a prop with a `shootable` hit box stops hero bullets with a spark and counts hits; at its hit count it switches state (hull cover falls, ship part drops as a pickup). All other props stay transparent to bullets.
@@ -66,17 +65,15 @@ Claude's call:
 - `src/engine/**` keeps its import rules.
 - No code comments.
 - Published site never names the original game: committed config keeps `source` citations only in fields the production build strips; subtitles and item names are our own.
-- Tests: task web reachability (at least one pickup and use order completes the level under the newest-item rule), reach rule per lift, map grid loads at 160 x 80.
+- Tests: task web reachability (the pickup and use order completes the level, showing each needed item first), reach rule per lift, map grid loads at 160 x 80.
 
 ## Accepted flaws (fix in a later session)
 
 Also listed in `docs/requirements.md` under Known issues.
 
-- Only the newest picked item is usable. Some pickup orders bury a needed item under a newer one and soft-lock the level until death resets the map.
 - Card door (marker 17) may gate nothing now that the guards are gone.
 - Acid tank (marker 14) use kills nothing; the task has no effect on the route.
 - Crane key lies free; the shoot guard that guarded it is missing.
-- E-blaster missing, so HUD slot 3 stays empty and the metro has one task less.
 - Flyers missing: 17 of the 44 original regular enemies.
 - No cutscenes: every use, pickup and the level end change state at once.
 - Death resets the whole 160 x 80 map, including all task progress, since saves are not built.
