@@ -2,7 +2,8 @@ import movementJson from "@config/hero/movement.json";
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { loadMovement } from "../hero/config";
-import { loadMesto } from "./mesto";
+import { game, RUNNING, run, tick } from "../hero/testWorld";
+import { loadMesto, mestoJson } from "./mesto";
 import { id, inShaft, reachOf, stopId, stopsAt } from "./reach";
 import { loadSandbox, type SandboxWorld } from "./sandboxLevel";
 
@@ -121,5 +122,25 @@ describe("lift reach rule", () => {
 
   it("joins the stops of each mesto lift only through that lift, deadly shaft drops aside", () => {
     expect(liftBypasses(loadMesto())).toEqual([]);
+  });
+
+  it("lets the hero out of each mesto shaft floor pit with a running jump while the deck is away", () => {
+    const mesto = loadMesto();
+    const pits = mesto.lifts.filter((l) => Array.from({ length: l.w }, (_, k) => mesto.grid.at(l.x + k, l.bottom + 1)).every((c) => c === "|"));
+    expect(pits.map((l) => [l.x, l.bottom + 1])).toEqual([[33, 31], [52, 17]]);
+    for (const pit of pits) {
+      for (let k = 0; k < pit.w; k++) {
+        for (const dir of ["moveLeft", "moveRight"]) {
+          const g = game({ x: pit.x + k + 0.5, y: pit.bottom + 1 }, mestoJson());
+          g.world.lifts.find((l) => l.x === pit.x)!.y = pit.top;
+          run(g, 0.3);
+          const held = [dir, RUNNING];
+          for (let i = 0; i < 3; i++) tick(g, held);
+          tick(g, held, ["up"]);
+          run(g, 1.5, held);
+          expect(g.hero.y, `lift ${pit.x} col ${pit.x + k} ${dir}`).toBe(pit.bottom);
+        }
+      }
+    }
   });
 });

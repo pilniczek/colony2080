@@ -173,7 +173,7 @@ Our hero falls, and floors sit 7 rows apart, the same as `fallDeathCells`: a hol
 | 52-54, 17 | 15 (crane floor, bottom 16) | floor 16 to floor 23, past lifts 12 and 14 |
 | 33-35, 31 | 11 (bottom 30) | floor 30 to floor 37, past the damaged lift 10 |
 
-Drops down a lift's own shaft count as riding it. Drops of more than `fallDeathCells` kill the hero and reset the map, so they stay open. The route test (`src/game/level/route.test.ts`) runs the whole task web from the spawn with lift positions tracked (no remote call).
+With the deck away the hero drops one row into a 3-wide pit. A walk or standing jump does not get out, a running jump does from any pit cell, both ways (tested in `reach.test.ts`). The deck cannot come down on him: lifts move only with the hero on them. Drops down a lift's own shaft count as riding it. Drops of more than `fallDeathCells` kill the hero and reset the map, so they stay open. The route test (`src/game/level/route.test.ts`) runs the whole task web from the spawn with lift positions tracked (no remote call).
 
 ## Confidence
 
