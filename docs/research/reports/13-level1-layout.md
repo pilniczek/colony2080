@@ -164,6 +164,17 @@ Lift 14 also stops on floor 23 (columns 117-126).
 - The task web in `config/levels/mesto/tasks.json` lists "openDoor vs acidGuard ordering" as unconfirmed. Reach settles it: the card door comes first (the acid tank is reached through it).
 - The original lifts cannot be called. The clone may differ, but start stops then decide which routes exist.
 
+## Our blockers
+
+Our hero falls, and floors sit 7 rows apart, the same as `fallDeathCells`: a hole in a floor is a survivable drop. The lift reach rule (`src/game/level/reach.test.ts`) finds two shaft holes that join floors past a lift. `docs/research/tools/mestomap.py` (`SHAFT_FLOORS`) puts an invisible `|` row under each bottom stop:
+
+| Cells (col, row) | Lift | Drop it stops |
+|---|---|---|
+| 52-54, 17 | 15 (crane floor, bottom 16) | floor 16 to floor 23, past lifts 12 and 14 |
+| 33-35, 31 | 11 (bottom 30) | floor 30 to floor 37, past the damaged lift 10 |
+
+Drops down a lift's own shaft count as riding it. Drops of more than `fallDeathCells` kill the hero and reset the map, so they stay open. The route test (`src/game/level/route.test.ts`) runs the whole task web from the spawn with lift positions tracked (no remote call).
+
 ## Confidence
 
 - Lift table, stops, start rows, damaged-lift repair: HIGH. Decoded from code, every stop matches the deck tiles in M11.

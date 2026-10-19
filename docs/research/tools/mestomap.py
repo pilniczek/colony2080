@@ -13,12 +13,14 @@ TASK_WALLS = {
     (23, 49): "cardDoor",
     (70, 56): "metroTunnel",
 }
+SHAFT_FLOORS = [(col, 17) for col in range(52, 55)] + [(col, 31) for col in range(33, 36)]
 SOURCE = (
     "docs/research/reports/13-level1-layout.md, built by docs/research/tools/mestomap.py from MAPY/M11.MAP "
     "and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end "
     "(map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, "
     "dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; "
-    "lift stops are the repaired ones for the damaged lift (enabledBy)"
+    "lift stops are the repaired ones for the damaged lift (enabledBy); '|' shaft floors under two bottom stops stop a survivable "
+    "drop past a lift (report 13, Our blockers)"
 )
 
 
@@ -116,6 +118,10 @@ def build(data, layout):
         fill(grid, col, wall_top(data, planks, col, floor), floor, "#")
     for col, row in shaft_cells(layout["lifts"], segments):
         grid[row][col] = "."
+    for col, row in SHAFT_FLOORS:
+        if grid[row][col] != ".":
+            raise SystemExit(f"shaft floor not empty at {col},{row}")
+        grid[row][col] = "|"
     lifts = [lift_json(lift) for lift in layout["lifts"]]
     for lift in lifts:
         for row in range(lift["top"] - 2, lift["bottom"] + 1):
