@@ -1,6 +1,6 @@
 (() => {
 const { define, P, TILE } = window.ENV;
-const { box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, trefoil, glow, text, stroke } = P;
+const { box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, trefoil, glow, text, stroke, slab } = P;
 
 function dots(ctx, pts, color) {
   if (window.ENV.simple) return;
@@ -49,17 +49,9 @@ function speckle(ctx, x, y, w, h, colors, per, seed = 1) {
   }
 }
 
-function olive(ctx, pts) {
-  poly(ctx, pts, "concrete", 2);
-  ctx.save();
-  ctx.globalAlpha = 0.3;
-  poly(ctx, pts, "y1", 2, { line: false });
-  ctx.restore();
-}
-
 function walkway(ctx, x, w) {
   box(ctx, x, 0, w, 24, "rust", 1);
-  for (let i = x; i < x + w; i += TILE / 2) olive(ctx, chamfer(i + 1, 4, 10, 10, 2.5));
+  for (let i = x; i < x + w; i += TILE / 2) poly(ctx, chamfer(i + 1, 4, 10, 10, 2.5), "olive", 2);
   box(ctx, x, 0, w, 3, "concrete", 1);
   box(ctx, x, 15.5, w, 2.5, "rust", 2);
   rivets(ctx, x, 16.75, w, 6);
@@ -337,7 +329,7 @@ function grid(ctx, x, y, w, h, step, color) {
 }
 
 function bricks(ctx, x, y, w, h) {
-  box(ctx, x, y, w, h, "brick", 1);
+  slab(ctx, x, y, w, h, "brick", 1);
   ctx.beginPath();
   for (let r = 0; r * 6 < h; r++) {
     ctx.moveTo(x, y + r * 6); ctx.lineTo(x + w, y + r * 6);

@@ -1,45 +1,10 @@
 (() => {
 const { define, P } = window.ENV;
-const { rng, path, color, flat, box, cylV, cylH, disc, rivets, mesh, truss, glow, text, stroke, tones } = P;
+const { rng, path, color, flat, box, cylV, cylH, disc, rivets, mesh, truss, glow, text, stroke, tones, shape, line, curve, beam, slab } = P;
 const { PI, sin, cos, round, min, max } = Math;
 const TRAIN = window.C28_CONFIG.cutscenes.crowbarDoor.palette;
 
 const simple = () => window.ENV.simple;
-
-function shape(ctx, pts, fill, line = null) {
-  ctx.fillStyle = color(fill);
-  path(ctx, pts);
-  ctx.fill();
-  if (line) stroke(ctx, line);
-}
-
-function line(ctx, pts, c, w, cap = "round") {
-  ctx.strokeStyle = color(c);
-  ctx.lineWidth = w;
-  ctx.lineCap = cap;
-  ctx.lineJoin = "round";
-  ctx.beginPath();
-  pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
-  ctx.stroke();
-}
-
-function beam(ctx, a, b, w, mat) {
-  const [, c1, c2, , edge] = tones(mat);
-  line(ctx, [a, b], edge, w + 1, "butt");
-  line(ctx, [a, b], c1, w, "butt");
-  line(ctx, [a, b], c2, w * 0.35, "butt");
-}
-
-function slab(ctx, x, y, w, h, mat = "concrete", tone = 2) {
-  const t = tones(mat);
-  const e = min(2, h / 4), s = min(3, h / 4);
-  flat(ctx, x, y, w, h, t[tone]);
-  flat(ctx, x, y, w, e, t[min(3, tone + 1)]);
-  flat(ctx, x, y + h - s, w, s, t[max(0, tone - 1)]);
-  ctx.beginPath();
-  ctx.rect(x, y, w, h);
-  stroke(ctx, mat);
-}
 
 function pillar(ctx, x, y, w, h, mat = "concrete", tone = 2, flutes = 0) {
   const t = tones(mat);
@@ -407,18 +372,6 @@ const TAGS = (() => {
     return [c, c === "c3" ? 1 : 1.6 + r() * 1.8, pts];
   });
 })();
-
-function curve(ctx, pts, c, w) {
-  ctx.strokeStyle = color(c);
-  ctx.lineWidth = w;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.beginPath();
-  ctx.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length - 1; i++) ctx.quadraticCurveTo(pts[i][0], pts[i][1], (pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2);
-  ctx.lineTo(...pts[pts.length - 1]);
-  ctx.stroke();
-}
 
 define({
   id: "graffitiWall",

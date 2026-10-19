@@ -1,45 +1,9 @@
 import { P, type EnvAsset, type Size } from "./paint";
 
-const { rng, path, color, flat, box, cylV, rivets, glow, text, stroke, tones } = P;
+const { rng, path, flat, box, cylV, rivets, glow, text, stroke, tones, shape, line, beam, slab } = P;
 const { PI, sin, cos, round, min, max } = Math;
 
 type Pt = [number, number];
-
-const shape = (ctx: CanvasRenderingContext2D, pts: Pt[], fill: string, line: string | null = null): void => {
-  ctx.fillStyle = color(fill);
-  path(ctx, pts);
-  ctx.fill();
-  if (line) stroke(ctx, line);
-};
-
-const line = (ctx: CanvasRenderingContext2D, pts: Pt[], c: string, w: number, cap: CanvasLineCap = "round"): void => {
-  ctx.strokeStyle = color(c);
-  ctx.lineWidth = w;
-  ctx.lineCap = cap;
-  ctx.lineJoin = "round";
-  ctx.beginPath();
-  pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])));
-  ctx.stroke();
-};
-
-const beam = (ctx: CanvasRenderingContext2D, a: Pt, b: Pt, w: number, mat: string): void => {
-  const [, c1, c2, , edge] = tones(mat) as [string, string, string, string, string];
-  line(ctx, [a, b], edge, w + 1, "butt");
-  line(ctx, [a, b], c1, w, "butt");
-  line(ctx, [a, b], c2, w * 0.35, "butt");
-};
-
-const slab = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, mat = "concrete", tone = 2): void => {
-  const t = tones(mat) as string[];
-  const e = min(2, h / 4);
-  const s = min(3, h / 4);
-  flat(ctx, x, y, w, h, t[tone] as string);
-  flat(ctx, x, y, w, e, t[min(3, tone + 1)] as string);
-  flat(ctx, x, y + h - s, w, s, t[max(0, tone - 1)] as string);
-  ctx.beginPath();
-  ctx.rect(x, y, w, h);
-  stroke(ctx, mat);
-};
 
 const pillar = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, mat = "concrete", tone = 2): void => {
   const t = tones(mat) as string[];

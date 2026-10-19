@@ -13,6 +13,12 @@ const PALETTE = {
   hazard: "#e8c21a", hazardDark: "#141414", hole: "#0c0806", glass: "#1c2a30",
   neon: "#ff3a2a", neonGlow: "#ff7a50", screen: "#3fa34a", screenOff: "#16301a",
   blood: "#5a0a08", acid: "#7ed43a", acidDark: "#2e6a12", water: "#3a7aa0", plasma: "#7ae0ff", plasmaCore: "#ffffff",
+  o0: "#5c4c1e", o1: "#7b6834", o2: "#9a854c", o3: "#c0ab6d",
+  den0: "#141a52", den1: "#2433a0", den2: "#3f5ad8", den3: "#7c92f0",
+  jac0: "#232a22", jac1: "#414b3c", jac2: "#646f5a", jac3: "#8c967c",
+  skin0: "#5a2e16", skin1: "#9a5a32", skin2: "#c98a5a", skin3: "#e8b88a",
+  hair0: "#120c08", hair1: "#2a1a10", hair2: "#46301e", hair3: "#5e4630",
+  boot0: "#110e0c", boot1: "#262019", boot2: "#3e352a", boot3: "#5a4e3e",
   sky0: "#2a1008", sky1: "#5a2a14", sky2: "#8a4a28", sky3: "#b8744a", skyline: "#0e0a08", skyline2: "#1e1410"
 };
 
@@ -24,7 +30,13 @@ const MAT = {
   chrome: ["c0", "c1", "c2", "c3", "mLine"],
   green: ["g0", "g1", "g2", "g3", "gLine"],
   armor: ["a0", "a1", "a2", "a3", "aLine"],
-  yellow: ["y0", "y1", "y2", "y3", "yLine"]
+  yellow: ["y0", "y1", "y2", "y3", "yLine"],
+  olive: ["o0", "o1", "o2", "o3", "kLine"],
+  denim: ["den0", "den1", "den2", "den3", "kLine"],
+  jacket: ["jac0", "jac1", "jac2", "jac3", "kLine"],
+  skin: ["skin0", "skin1", "skin2", "skin3", "kLine"],
+  hair: ["hair0", "hair1", "hair2", "hair3", "kLine"],
+  boot: ["boot0", "boot1", "boot2", "boot3", "kLine"]
 };
 
 let pal = PALETTE;
@@ -123,13 +135,13 @@ function rivets(ctx, x, y, w, step, color = "r3") {
   for (let i = x + step / 2; i < x + w; i += step) flat(ctx, i - 0.75, y - 0.75, 1.5, 1.5, color);
 }
 
-function hazard(ctx, x, y, w, h, step = 6) {
+function hazard(ctx, x, y, w, h, step = 6, { fill = "hazard", dark = "hazardDark", line = "yLine" } = {}) {
   ctx.save();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
   ctx.clip();
-  flat(ctx, x, y, w, h, "hazard");
-  ctx.fillStyle = pal.hazardDark;
+  flat(ctx, x, y, w, h, fill);
+  ctx.fillStyle = color(dark);
   for (let i = x - h; i < x + w; i += step * 2) {
     ctx.beginPath();
     ctx.moveTo(i, y + h); ctx.lineTo(i + step, y + h); ctx.lineTo(i + step + h, y); ctx.lineTo(i + h, y);
@@ -139,7 +151,7 @@ function hazard(ctx, x, y, w, h, step = 6) {
   ctx.restore();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
-  stroke(ctx, "yLine");
+  stroke(ctx, line);
 }
 
 function mesh(ctx, x, y, w, h, color = "c1", step = 4) {
@@ -209,6 +221,53 @@ function trefoil(ctx, cx, cy, r) {
   disc(ctx, cx, cy, r * 0.12, "hazardDark");
 }
 
+function slab(ctx, x, y, w, h, mat = "concrete", tone = 2) {
+  const t = tones(mat);
+  const e = Math.min(2, h / 4), s = Math.min(3, h / 4);
+  flat(ctx, x, y, w, h, t[tone]);
+  flat(ctx, x, y, w, e, t[Math.min(3, tone + 1)]);
+  flat(ctx, x, y + h - s, w, s, t[Math.max(0, tone - 1)]);
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  stroke(ctx, mat);
+}
+
+function shape(ctx, pts, fill, line = null) {
+  ctx.fillStyle = color(fill);
+  path(ctx, pts);
+  ctx.fill();
+  if (line) stroke(ctx, line);
+}
+
+function line(ctx, pts, c, w, cap = "round") {
+  ctx.strokeStyle = color(c);
+  ctx.lineWidth = w;
+  ctx.lineCap = cap;
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+  ctx.stroke();
+}
+
+function curve(ctx, pts, c, w) {
+  ctx.strokeStyle = color(c);
+  ctx.lineWidth = w;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length - 1; i++) ctx.quadraticCurveTo(pts[i][0], pts[i][1], (pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2);
+  ctx.lineTo(...pts[pts.length - 1]);
+  ctx.stroke();
+}
+
+function beam(ctx, a, b, w, mat) {
+  const [, c1, c2, , edge] = tones(mat);
+  line(ctx, [a, b], edge, w + 1, "butt");
+  line(ctx, [a, b], c1, w, "butt");
+  line(ctx, [a, b], c2, w * 0.35, "butt");
+}
+
 function glow(ctx, cx, cy, r, color, alpha = 0.5) {
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
   g.addColorStop(0, pal[color] || color);
@@ -246,7 +305,7 @@ function draw(ctx, asset, { state, t = 0, palette = PALETTE, lines = 1, lod = fa
 
 window.ENV = {
   TILE, PALETTE, MAT, ASSETS, define, draw,
-  P: { rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw },
+  P: { rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw, shape, line, curve, beam, slab },
   get pal() { return pal; },
   get simple() { return simple; }
 };

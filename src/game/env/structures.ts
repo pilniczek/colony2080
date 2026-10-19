@@ -34,17 +34,9 @@ export const wire = (ctx: CanvasRenderingContext2D, pts: Pt[], color: string, k 
   stroke(ctx, color, k);
 };
 
-const olive = (ctx: CanvasRenderingContext2D, pts: Pt[]): void => {
-  poly(ctx, pts, "concrete", 2);
-  ctx.save();
-  ctx.globalAlpha = 0.3;
-  poly(ctx, pts, "y1", 2, { line: false });
-  ctx.restore();
-};
-
 const walkway = (ctx: CanvasRenderingContext2D, x: number, w: number): void => {
   box(ctx, x, 0, w, 24, "rust", 1);
-  for (let i = x; i < x + w; i += TILE / 2) olive(ctx, chamfer(i + 1, 4, 10, 10, 2.5));
+  for (let i = x; i < x + w; i += TILE / 2) poly(ctx, chamfer(i + 1, 4, 10, 10, 2.5), "olive", 2);
   box(ctx, x, 0, w, 3, "concrete", 1);
   box(ctx, x, 15.5, w, 2.5, "rust", 2);
   rivets(ctx, x, 16.75, w, 6);

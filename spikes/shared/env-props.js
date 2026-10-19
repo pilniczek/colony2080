@@ -1,17 +1,10 @@
 (() => {
 const { define, P } = window.ENV;
-const { rng, path, color, flat, box, poly, cylV, disc, rivets, glow, stroke } = P;
+const { rng, path, color, flat, box, poly, cylV, disc, rivets, glow, stroke, tones } = P;
 const { PI, sin, cos, atan2, hypot } = Math;
 
 const simple = () => window.ENV.simple;
 
-const CLOTH = {
-  denim: ["#141a52", "#2433a0", "#3f5ad8", "#7c92f0"],
-  jacket: ["#232a22", "#414b3c", "#646f5a", "#8c967c"],
-  skin: ["#5a2e16", "#9a5a32", "#c98a5a", "#e8b88a"],
-  hair: ["#120c08", "#2a1a10", "#46301e", "#5e4630"],
-  boot: ["#110e0c", "#262019", "#3e352a", "#5a4e3e"]
-};
 const ROCK = ["k0", "k2", "c1", "c2"];
 const LIGHT = [-0.6, -0.8];
 
@@ -114,26 +107,26 @@ function arc(cx, cy, rx, ry, a0, a1, n = 8) {
   });
 }
 
-function lyingHuman(ctx, x, { flip = false, suit = CLOTH.jacket, breathe = 0, arm = 0, pocket = null } = {}) {
+function lyingHuman(ctx, x, { flip = false, suit = tones("jacket"), breathe = 0, arm = 0, pocket = null } = {}) {
   ctx.save();
   ctx.translate(x, 0);
   if (flip) { ctx.translate(42, 0); ctx.scale(-1, 1); }
   const b = breathe;
-  cel(ctx, [[0, 0], [0.4, -3.6], [2.4, -5.2], [5.2, -4.6], [5.6, 0]], CLOTH.boot);
-  cel(ctx, [[4.6, 0], [4.8, -4.4], [11, -6.6], [15, -6], [20.5, -6.4], [21.5, 0]], CLOTH.denim);
-  if (!simple()) flat(ctx, 13, -4.4, 6.5, 0.5, CLOTH.denim[0]);
+  cel(ctx, [[0, 0], [0.4, -3.6], [2.4, -5.2], [5.2, -4.6], [5.6, 0]], tones("boot"));
+  cel(ctx, [[4.6, 0], [4.8, -4.4], [11, -6.6], [15, -6], [20.5, -6.4], [21.5, 0]], tones("denim"));
+  if (!simple()) flat(ctx, 13, -4.4, 6.5, 0.5, "den0");
   cel(ctx, [[19.5, 0], [19.5, -6.6], ...arc(28, -6.4, 8.4, 3.4 + b, PI, PI * 1.85), [36, -5.6], [36, 0]], suit);
   if (pocket) pocket(ctx);
   ctx.save();
   ctx.translate(33.5, -7.6 - b);
   ctx.rotate(arm);
   cel(ctx, [[0, -1.4], [-7.5, -2.2], [-8.6, -0.4], [-7.6, 1.2], [0, 1.4]], suit);
-  cel(ctx, [[-7.4, -1.8], [-11.4, -1.2], ...arc(-11.4, -0.2, 1.2, 1.1, PI * 1.5, PI * 0.5, 4), [-7.6, 1.2]], CLOTH.skin);
+  cel(ctx, [[-7.4, -1.8], [-11.4, -1.2], ...arc(-11.4, -0.2, 1.2, 1.1, PI * 1.5, PI * 0.5, 4), [-7.6, 1.2]], tones("skin"));
   ctx.restore();
-  cel(ctx, [[35.4, -5.4], [37.2, -5.8], [37.6, -1], [35.4, -0.6]], CLOTH.skin, { lit: 0.2 });
-  cel(ctx, arc(40, -3.7, 3.5, 3.6, 0, PI * 2, 14), CLOTH.skin);
-  cel(ctx, [...arc(40, -3.7, 3.5, 3.6, -PI * 0.42, PI * 0.42, 6), [41.6, -2.4], [42, -4.4], [41.4, -6]], CLOTH.hair, { lit: 0.25 });
-  if (!simple()) poly(ctx, [[37.4, -6.4], [37.6, -7.6], [38.8, -7]], CLOTH.skin[2], 2, { line: false });
+  cel(ctx, [[35.4, -5.4], [37.2, -5.8], [37.6, -1], [35.4, -0.6]], tones("skin"), { lit: 0.2 });
+  cel(ctx, arc(40, -3.7, 3.5, 3.6, 0, PI * 2, 14), tones("skin"));
+  cel(ctx, [...arc(40, -3.7, 3.5, 3.6, -PI * 0.42, PI * 0.42, 6), [41.6, -2.4], [42, -4.4], [41.4, -6]], tones("hair"), { lit: 0.25 });
+  if (!simple()) poly(ctx, [[37.4, -6.4], [37.6, -7.6], [38.8, -7]], "skin2", 2, { line: false });
   ctx.restore();
 }
 
@@ -183,7 +176,7 @@ define({
     blood(ctx, 4, 34, 1.8);
     lyingHuman(ctx, 4, {
       flip: true,
-      suit: CLOTH.denim,
+      suit: tones("denim"),
       arm: state ? 0.28 : 0,
       pocket: state
         ? c => flat(c, 25, -6.6, 4, 2.6, "hole")
