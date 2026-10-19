@@ -95,6 +95,7 @@ Binary and media folders are local only (copyrighted, large); the list lives in 
 | `reports/08-video-level1.md` | Level 1 screen by screen from YouTube footage, with timestamps |
 | `reports/09-gamedata.md` | Decoded data file formats, maps, strings |
 | `reports/10-level1-enemies.md` | Level 1 enemy roster and placement decoded from `KLEV1.EXE`, matched to footage |
+| `reports/13-level1-layout.md` | Level 1 lifts, item cells, wall tiles and wall tables, map variant diffs, decoded from `KLEV1.EXE` and `M11..M16` |
 | `tools/` | Python decoders: FLI (`fli.py`), map renderer (`rendermap.py`), tiles, strings |
 | `sources/steam/` | Steam API and store page snapshots |
 | `sources/cz-walkthroughs/` | Walkthrough pages and level map images |
