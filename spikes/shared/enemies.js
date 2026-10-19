@@ -102,6 +102,8 @@ function flyerHull(ctx, { hot = false, hump = true, patch = true } = {}) {
   if (hump) {
     P.poly(ctx, [[10.5, 4.8], [11, 2.2], [18.5, 2.2], [19.2, 4], [19, 8.2], [10.5, 8]], "flyerHump", 2);
     P.flat(ctx, 12.5, 5.2, 2.6, 1.8, "fWindow", "fhLine");
+  } else {
+    P.poly(ctx, [[3.5, 5.2], [10.5, 4.4], [19.4, 3.5], [19, 8.2], [4, 8]], "flyerHull", 1);
   }
 
   if (!ENV.simple) {
