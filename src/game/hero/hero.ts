@@ -409,7 +409,8 @@ function moving(s: Step): void {
 }
 
 function airborne(s: Step): void {
-  const { h, input } = s;
+  const { h, input, world } = s;
+  if (world.grid.ladderAt(h.x, h.y - EPS) && s.consume("up")) return enterLadder(s);
   gunFire(s);
   if (input.dir === 0 || input.dir === h.facing) return;
   h.facing = input.dir;

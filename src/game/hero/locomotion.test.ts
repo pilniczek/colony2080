@@ -379,6 +379,33 @@ describe("ladder", () => {
   });
 });
 
+describe("ladder from the air", () => {
+  const falling = { x: 3.5, y: 9, state: "fall" as const };
+
+  it("grabs the ladder on up from any fall height and climbs up without damage", () => {
+    const g = game(falling);
+    g.hero.fallFrom = -100;
+    tick(g, [], ["up"]);
+    expect(g.hero).toMatchObject({ state: "ladder", vy: 0 });
+    runUntil(g, (h) => h.state !== "ladder", ["up"]);
+    expect(g.hero).toMatchObject({ state: "idle", energy: cfg.energy.max });
+    expect(g.hero.y).toBeCloseTo(4, 6);
+  });
+
+  it("grabs the ladder on up during a jump", () => {
+    const g = game({ x: 3.5, y: 9, state: "walkJump" });
+    tick(g, [], ["up"]);
+    expect(g.hero.state).toBe("ladder");
+  });
+
+  it("keeps falling past the ladder without up", () => {
+    const g = game(falling);
+    g.hero.fallFrom = -100;
+    runUntil(g, (h) => h.state !== "fall");
+    expect(g.hero.state).toBe("fallDeath");
+  });
+});
+
 describe("ladder dismount", () => {
   for (const [key, facing] of [["moveRight", 1], ["moveLeft", -1]] as const) {
     it(`drops off the ladder on ${key}`, () => {

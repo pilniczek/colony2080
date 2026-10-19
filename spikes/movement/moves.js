@@ -740,6 +740,13 @@ function rungHeight(climb, phase) {
   return 2 * RUNG * (n + (k < 0.5 ? 0 : ease(2 * k - 1)));
 }
 
+function ladderRails(c, lx) {
+  c.fillStyle = "#4a5c5f";
+  c.fillRect(lx - 28, 0, 5, FLOOR);
+  c.fillRect(lx + 23, 0, 5, FLOOR);
+  for (let y = FLOOR - RUNG; y > 0; y -= RUNG) c.fillRect(lx - 28, y, 56, 3);
+}
+
 function climbPose(climb) {
   const rel = (phase, top) => rungHeight(climb, phase) + top - climb;
   const l = climbArm(rel(0, CLIMB.hands[0])), r = climbArm(rel(1, CLIMB.hands[1]));
@@ -750,15 +757,30 @@ function climbPose(climb) {
 move("movement", "Ladder", "Up / Down at ladder, back view", 4, (c, t) => {
   backdrop(c);
   const lx = 180;
-  c.fillStyle = "#4a5c5f";
-  c.fillRect(lx - 28, 0, 5, FLOOR);
-  c.fillRect(lx + 23, 0, 5, FLOOR);
-  for (let y = FLOOR - RUNG; y > 0; y -= RUNG) c.fillRect(lx - 28, y, 56, 3);
+  ladderRails(c, lx);
   const climb = CLIMB.height * clamp((t - 0.5) / 3.0);
   c.save();
   c.globalAlpha = span(t, 0, 0.3) * (1 - span(t, 3.6, 4));
   bot(c, { view: "climber", x: lx, y: FLOOR - climb, pose: climbPose(climb) });
   c.restore();
+});
+
+const LADDER_CATCH = { catchT: 0.7, from: 2 * RUNG, to: 6 * RUNG };
+
+move("movement", "Ladder catch", "Up while falling at ladder, any height, no damage", 4.2, (c, t) => {
+  backdrop(c);
+  const lx = 180, { catchT, from, to } = LADDER_CATCH;
+  ladderRails(c, lx);
+  c.save();
+  c.globalAlpha = 1 - span(t, 3.8, 4.2);
+  if (t < catchT) {
+    bot(c, { x: lx, y: -40 + (FLOOR - from + 40) * easeIn(t / catchT), pose: FALL });
+  } else {
+    const climb = from + (to - from) * clamp((t - catchT - 0.3) / 2.6);
+    bot(c, { view: "climber", x: lx, y: FLOOR - climb, pose: climbPose(climb) });
+  }
+  c.restore();
+  if (t > catchT - 0.05 && t < catchT + 0.6) label(c, "UP");
 });
 
 move("movement", "Lift ride", "stand on platform", 5, (c, t) => {
