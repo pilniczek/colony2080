@@ -113,6 +113,7 @@ flowchart LR
 | HUD fonts | Orbitron 900 (badge, keys, key hints) and Share Tech Mono (counters, item names), bundled with `@fontsource` | Claude's call |
 | Automap | Not in the HUD for now | user |
 | Mission 1 scope | Playable `game.html`: walk, pick up items, use every object, reach the level end. Only the 27 chrome droids (no respawn, no flyers, no guards), no cutscenes (a use changes state at once), E-Blaster not placed (2026-10-19) | user |
+| Enemy looks | Flyer follows the original pod and carries a side-mounted rotary gun variant. Acid guard is a compact BattleTech-style walker (reverse-knee legs, short cockpit with red visor, arm gun, shoulder missile box), not the long original side sprite (2026-10-20) | user |
 | Mission 1 layout | Map, lifts, items, objects and droids come from the decoded original level data, scenery is laid out by Claude over the decoded map image (2026-10-19) | user (original layout), Claude's call (scenery) |
 | Subtitles | Our own English wording in yellow at the bottom of the game window, one line per use or hint; the level end shows a caption with a link to the mission select (2026-10-19) | user |
 | Stack inventory | Every picked item stays; the newest picked is shown. The inventory screen on `I` shows any held item. A use needs the shown item and keeps it, as in the original, unless the task consumes it; only the bar trade of the ship part for the decoder does, then the newest remaining is shown (2026-10-19) | user |
