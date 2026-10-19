@@ -18,7 +18,6 @@ const GUARD_PALETTE = {
   top0: "#061204", top1: "#0c2008", top2: "#182414", top3: "#2c3c24",
   stripe0: "#163220", stripe1: "#285038", stripe2: "#305840", stripe3: "#406c48",
   light: "#c89a30", glint: "#4a7068",
-  ga0: "#4a4a4a", ga1: "#7a7a7a", ga2: "#a8a8a8", ga3: "#d4d4d4", gaLine: "#1c1c1c",
   shell0: "#2c3838", shell1: "#404c4c", shell2: "#4c5858", shell3: "#586464", groove: "#202a28", band: "#304040",
   visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
   lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
@@ -33,8 +32,7 @@ Object.assign(MAT, {
   flyerStripe: ["fs0", "fs1", "fs2", "fs3", "fhLine"],
   flyerHump: ["fk0", "fk1", "fk2", "fk3", "fhLine"],
   guardMetal: ["gm0", "gm1", "gm2", "gm3", "gmLine"],
-  guardChrome: ["gc0", "gc1", "gc2", "gc3", "gmLine"],
-  guardArmor: ["ga0", "ga1", "ga2", "ga3", "gaLine"]
+  guardChrome: ["gc0", "gc1", "gc2", "gc3", "gmLine"]
 });
 
 const FIRE_TICKS = 9;
@@ -144,37 +142,54 @@ const FLYER = {
   }
 };
 
-const KNEE_PAD = [[-2.4, -3.6], [2.4, -3.6], [3.4, -1.6], [3.4, 1.8], [2.2, 3.6], [-2.2, 3.6], [-3.4, 1.8], [-3.4, -1.6]];
+const LEG = 1 / 12;
+const SIDE_LEG = {
+  joint: [300, 486],
+  cap: [[300, 448], [340, 452], [362, 478], [362, 510], [344, 534], [318, 532], [310, 500]],
+  shin: [[256, 500], [340, 500], [354, 690], [240, 690]],
+  foot: [[204, 688], [384, 688], [402, 712], [398, 744], [202, 744]],
+  toe: [[300, 688], [384, 688], [396, 706], [300, 706]]
+};
+const FRONT_LEG = {
+  axis: 211,
+  knee: [[150, 456], [272, 456], [276, 478], [262, 510], [232, 530], [190, 530], [160, 510], [146, 478]],
+  holes: [[176, 478, 7], [211, 476, 7], [246, 478, 7], [192, 500, 5], [230, 500, 5]],
+  shin: [[164, 508], [262, 508], [278, 690], [150, 690]],
+  foot: [[146, 688], [282, 688], [290, 714], [286, 744], [142, 744], [136, 714]],
+  toe: [[152, 688], [276, 688], [282, 706], [146, 706]]
+};
 
-function kneePad(ctx, x, y) {
-  P.poly(ctx, KNEE_PAD.map(([px, py]) => [x + px, y + py]), "guardArmor", 2, { dir: [1, 0] });
-  if (!ENV.simple) P.poly(ctx, [[x - 2.4, y - 3.6], [x + 2.4, y - 3.6], [x + 3.4, y - 1.6], [x - 3.4, y - 1.6]], "guardArmor", 3, { line: false });
-}
-
-function shin(ctx, from, to, top, bottom) {
-  const len = Math.hypot(to[0] - from[0], to[1] - from[1]);
+function inRigUnits(ctx, at, sx, sy, origin, draw) {
   ctx.save();
-  ctx.translate(...from);
-  ctx.rotate(Math.atan2(to[1] - from[1], to[0] - from[0]) - Math.PI / 2);
-  P.poly(ctx, [[-top / 2, 0], [top / 2, 0], [bottom / 2, len], [-bottom / 2, len]], "guardArmor", 2, { dir: [1, 0] });
-  if (!ENV.simple) P.poly(ctx, [[-top / 2, 0], [-top / 2 + 1, 0], [-bottom / 2 + 1, len], [-bottom / 2, len]], "guardArmor", 3, { line: false });
+  ctx.translate(...at);
+  ctx.scale(sx, sy);
+  ctx.translate(-origin[0], -origin[1]);
+  draw();
   ctx.restore();
 }
 
-function boot(ctx, heel, toe) {
-  P.poly(ctx, [[toe, 53.5], [toe + 1, 50.6], [toe + 4, 49.2], [heel - 1, 49.2], [heel, 50.6], [heel, 53.5]], "guardArmor", 2);
-  if (!ENV.simple) {
-    P.poly(ctx, [[toe + 1, 50.6], [toe + 4, 49.2], [heel - 1, 49.2], [heel, 50.6]], "guardArmor", 3, { line: false });
-    P.flat(ctx, toe, 52.6, heel - toe, 0.9, "ga0");
-  }
+function sideLegArmor(ctx, knee, ankle) {
+  const len = Math.hypot(ankle[0] - knee[0], ankle[1] - knee[1]);
+  ctx.save();
+  ctx.translate(...knee);
+  ctx.rotate(Math.atan2(ankle[1] - knee[1], ankle[0] - knee[0]) - Math.PI / 2);
+  inRigUnits(ctx, [0, 0], -LEG, len / 190, [298, 500], () => P.poly(ctx, SIDE_LEG.shin, "guardMetal", 2, { dir: [1, 0] }));
+  ctx.restore();
+  inRigUnits(ctx, [ankle[0], 53.5], -LEG, LEG, [300, 744], () => {
+    P.poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
+    P.poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
+  });
+  inRigUnits(ctx, knee, -LEG, LEG, SIDE_LEG.joint, () => {
+    P.disc(ctx, 300, 486, 30, "gm1", "gmLine");
+    if (!ENV.simple) P.disc(ctx, 294, 480, 12, "gm3");
+    P.poly(ctx, SIDE_LEG.cap, "guardChrome", 2);
+  });
 }
 
 function guardLeg(ctx, dx) {
   const hip = [42 + dx, 30], knee = [34 + dx, 40.5], ankle = [43 + dx, 49.5];
   P.beam(ctx, hip, knee, 4.2, "guardMetal");
-  shin(ctx, knee, ankle, 4.6, 3.6);
-  boot(ctx, ankle[0] + 4, ankle[0] - 10);
-  kneePad(ctx, ...knee);
+  sideLegArmor(ctx, knee, ankle);
 }
 
 function grad(ctx, x0, y0, x1, y1, stops) {
@@ -406,11 +421,13 @@ function burst(ctx, x, y, r, k) {
 function frontLeg(ctx, side) {
   const x = side * 7;
   P.poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.5, -13], [x - 2.5, -13]], "guardMetal", 1, { dir: [1, 0] });
-  P.poly(ctx, [[x - 2.3, -12], [x + 2.3, -12], [x + 1.9, -3.5], [x - 1.9, -3.5]], "guardArmor", 2, { dir: [1, 0] });
-  if (!ENV.simple) P.flat(ctx, x - 2.1, -12, 1, 8.5, "ga3");
-  P.poly(ctx, [[x - 5.5, 0], [x - 5, -2.8], [x - 3.4, -4.2], [x + 3.4, -4.2], [x + 5, -2.8], [x + 5.5, 0]], "guardArmor", 2);
-  if (!ENV.simple) P.flat(ctx, x - 5.5, -0.9, 11, 0.9, "ga0");
-  kneePad(ctx, x, -13);
+  inRigUnits(ctx, [x, 0], side * LEG, 14 / (744 - 456), [FRONT_LEG.axis, 744], () => {
+    P.poly(ctx, FRONT_LEG.shin, "guardMetal", 2, { dir: [1, 0] });
+    P.poly(ctx, FRONT_LEG.foot, "guardMetal", 1);
+    P.poly(ctx, FRONT_LEG.toe, "guardChrome", 2);
+    P.poly(ctx, FRONT_LEG.knee, "guardChrome", 2);
+    if (!ENV.simple) for (const [hx, hy, r] of FRONT_LEG.holes) ellipse(ctx, hx, hy, r, r * 0.8, "gm0");
+  });
 }
 
 function frontGun(ctx, side, fire) {
