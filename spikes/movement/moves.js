@@ -599,14 +599,17 @@ move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   if (hidden) label(c, "HIDDEN");
 });
 
+const FIRE_RATE = 12;
+const SHOOT_PERIOD = 18 / FIRE_RATE;
+
 function fire(c, t, pose, x, y, targetX) {
-  const shot = Math.floor(t * 12);
+  const shot = Math.floor(t * FIRE_RATE);
   const [mx, my] = handAt(carry(pose), x, y, MUZZLE);
   if (shot % 2 === 0) spark(c, mx + 4, my, 8, 0.2);
   c.strokeStyle = "#ffd76a";
   c.lineWidth = 2;
   for (let i = 0; i < 3; i++) {
-    const bx = mx + ((t * 12 - shot) + i) * 60;
+    const bx = mx + ((t * FIRE_RATE - shot) + i) * 60;
     if (bx < targetX) { c.beginPath(); c.moveTo(bx, my); c.lineTo(bx + 14, my); c.stroke(); }
   }
   if (shot % 3 === 0) spark(c, targetX + 2, my, 7, 0.3);
@@ -659,15 +662,17 @@ function punchOrShoot(c, t, look = {}) {
   bot(c, { x, y, pose: { ...pose, ...look.pose } });
 }
 
-move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", PUNCH_PERIOD, punchOrShoot);
+const FIGHT_PERIOD = { fists: PUNCH_PERIOD, gun: SHOOT_PERIOD };
 
-move("fight", { fists: "Hit while punching", gun: "Hit while shooting" }, "taking damage during Ctrl", PUNCH_PERIOD, (c, t) => {
+move("fight", { fists: "Punch", gun: "Shoot" }, "Ctrl", FIGHT_PERIOD, punchOrShoot);
+
+move("fight", { fists: "Hit while punching", gun: "Hit while shooting" }, "taking damage during Ctrl", FIGHT_PERIOD, (c, t) => {
   punchOrShoot(c, t, hitLook(t, 0.9));
   const impact = [PUNCH_X + 14, FLOOR - HIT_HEIGHT];
   hitFx(c, t, 0.9, impact, impact);
 });
 
-move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", PUNCH_PERIOD, (c, t) => {
+move("fight", { fists: "Duck punch", gun: "Duck shoot" }, "Down + Ctrl", FIGHT_PERIOD, (c, t) => {
   backdrop(c);
   const duck = DUCK_LEGS;
   const x = 140;
@@ -890,7 +895,7 @@ function frame(now) {
   LINE = dpr;
   for (const { m, canvas, ctx, progress, visible } of cells) {
     if (!visible) continue;
-    const t = (now / 1000) % m.period;
+    const t = (now / 1000) % (typeof m.period === "number" ? m.period : m.period[WEAPON]);
     if (progress) {
       const [from, to] = m.clip;
       const played = Math.min(Math.max(t - from, 0), to - from);
