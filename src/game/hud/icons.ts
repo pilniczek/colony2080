@@ -5,7 +5,8 @@ import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
 import { buildSide, ROBOT } from "../robot/xbot";
 import { ITEMS, type Item } from "../items";
-import { HAND_BOX, type HudIcon, type HudIcons } from "./svg";
+import { HAND_BOX } from "./layout";
+import type { HudIcon, HudIcons } from "./svg";
 
 const PX_PER_UNIT = 12;
 const FIST_BOX = { x: 290, y: -386, w: 194, h: 146 };

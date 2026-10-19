@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { HAND_BOX, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
+import { HAND_BOX, SLOT, topBar } from "./layout";
+import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "placeholder.png", ...ICON } } };
@@ -54,6 +55,13 @@ describe("hudSvg", () => {
       expect(handX(svg)).toBeNull();
       expect(svg).toContain(">crane key</text>");
       expect(svg).not.toContain(">nothing</text>");
+    });
+
+    it("centres the label in the free space right of the icon column", () => {
+      const { inv, invW } = topBar(320);
+      const svg = hudSvg(320, 200, { ...base, item: "craneKey" }, icons);
+      const x = Number(/<text x="([\d.]+)"[^>]*>crane key<\/text>/.exec(svg)![1]);
+      expect(x).toBeCloseTo((inv + SLOT.pad + SLOT.iconW + SLOT.gap + inv + invW - SLOT.pad) / 2, 6);
     });
 
     it("shows the placeholder icon and name of an item without an env asset", () => {

@@ -1,5 +1,5 @@
 import { ITEMS, type ItemId } from "../items";
-import { HUD_H, topBar, VIEW_BOX, type Span } from "./layout";
+import { HAND_DRAWN, HAND_SCALE, HUD_H, READOUT_SIZE, SLOT, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
   weapon: number;
@@ -75,17 +75,18 @@ const DEFS = `<defs>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
 
-const BLASTER = `<g transform="translate(108 5.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
+const blaster = (x: number): string => `<g transform="translate(${x} 5.2)" fill="#7f8b86" stroke="#202826" stroke-width=".3">
   <rect y="1" width="34" height="3" rx=".5"/><rect x="8" y="-1.4" width="14" height="2.4" rx=".5" fill="#3f4a46"/>
   <rect x="5" y="4" width="10" height="2.5"/><rect x="9" y="6.5" width="3" height="4.5" rx=".5"/></g>
-  <path d="M143 7.7q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
+  <path transform="translate(${x} 5.2)" d="M35 2.5q8-3 22 0q-14 2.6-22 0z" fill="url(#flame)"/>`;
+
+const BLASTER_BODY_W = 34;
+const COUNTER_DX = [27.6, 0, 26.6];
+const keyCentre = (i: number): number => (i === 2 ? BLASTER_BODY_W : WEAPON_W[i]!) / 2;
 
 const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
-export const HAND_SCALE = 0.8;
-const HAND_DRAWN = { w: 12, h: 13 };
-export const HAND_BOX = { w: HAND_DRAWN.w * HAND_SCALE, h: HAND_DRAWN.h * HAND_SCALE };
 
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
 
@@ -110,7 +111,6 @@ const rod = ([a, b]: Span, y: number): string => `<rect x="${a - 1}" y="${y - 1.
   <rect x="${a - 1.8}" y="${y - 1.9}" width="1.4" height="3.8" rx=".4" fill="url(#plate)" stroke="${LO}" stroke-width=".25"/>
   <rect x="${b + 0.4}" y="${y - 1.9}" width="1.4" height="3.8" rx=".4" fill="url(#plate)" stroke="${LO}" stroke-width=".25"/>`;
 
-const emptyScrews = ([a, b]: Span): string => screw(a + 3, 4.6) + screw(b - 3, 4.6) + screw(a + 3, 15.4) + screw(b - 3, 15.4);
 
 function badge(x: number): string {
   return `<rect x="${x + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="#16110d"/>
@@ -121,39 +121,36 @@ function badge(x: number): string {
   ${screw(x + 2.4, 3.2)}${screw(x + 45.6, 3.2)}${screw(x + 2.4, 17.2)}${screw(x + 45.6, 17.2)}`;
 }
 
-const SLOT_ICON_X = 5;
 const SLOT_MID_Y = 9.1;
 
-const handAt = (left: number): string =>
-  `<g transform="translate(${left + HAND_BOX.w / 2} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-SLOT_MID_Y})">${HAND}</g>`;
+const handAt = (centre: number): string =>
+  `<g transform="translate(${centre} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-SLOT_MID_Y})">${HAND}</g>`;
 
 function slot(x: number, w: number, item: ItemId | null, icons: HudIcons): string {
   const icon = item === null ? undefined : icons.items[item];
-  const left = x + SLOT_ICON_X;
-  const centre = left + HAND_BOX.w / 2;
-  const art = icon ? image(icon, centre - icon.w / 2, SLOT_MID_Y - icon.h / 2) : handAt(left);
+  const centre = x + SLOT.pad + SLOT.iconW / 2;
+  const art = icon ? image(icon, centre - icon.w / 2, SLOT_MID_Y - icon.h / 2) : handAt(centre);
   const label = item === null ? "nothing" : (ITEMS[item]?.name ?? item);
-  return art + readout((centre + (icon?.w ?? HAND_BOX.w) / 2 + x + w) / 2, label);
+  return art + readout((x + SLOT.pad + SLOT.iconW + SLOT.gap + x + w - SLOT.pad) / 2, label);
 }
 
 function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   const bar = topBar(W);
+  const wx = bar.weapons;
   const item = slot(bar.inv, bar.invW, s.item, icons);
   return `<rect x="${bar.gaps[0]![1]}" width="${W - 2 * bar.gaps[0]![1]}" height="${BAR_H}" fill="#060504"/>
   ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map(plate).join("")}
-  ${bar.empty ? emptyScrews(bar.empty) : ""}
   ${gridPanel(bar.gridX, bar.gridW)}
-  ${weapon(image(icons.gun, 19, 2.9), s.weapon === 0)}${counter(46.6, s.ammo)}
-  ${weapon(image(icons.fist, 84, 2.4), s.weapon === 1)}
-  ${s.bonus ? weapon(BLASTER, s.weapon === 2) + counter(134.6, s.bonusAmmo) : ""}
-  ${WEAPON_KEYS_X.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x, keys.weapons[i] ?? "", s.weapon === i)).join("")}
+  ${weapon(image(icons.gun, wx[0]!, 2.9), s.weapon === 0)}${counter(wx[0]! + COUNTER_DX[0]!, s.ammo)}
+  ${weapon(image(icons.fist, wx[1]!, 2.4), s.weapon === 1)}
+  ${s.bonus ? weapon(blaster(wx[2]!), s.weapon === 2) + counter(wx[2]! + COUNTER_DX[2]!, s.bonusAmmo) : ""}
+  ${wx.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x + keyCentre(i), keys.weapons[i] ?? "", s.weapon === i)).join("")}
   ${badge(bar.badge)}
   ${gridPanel(bar.run, bar.runW)}${readout(bar.run + bar.runW / 2, "RUN")}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}
   ${gridPanel(bar.inv, bar.invW)}${item}${keyTab(bar.inv + bar.invW / 2, keys.item)}`;
 }
 
-const WEAPON_KEYS_X = [36.5, 94, 125];
 const TAB = { top: 15.2, bottom: 18.2, r: 0.8, font: 3.4, pad: 1.2 };
 const GLYPH_W = TAB.font * 0.7;
 const TAB_MIN_W = 1.6 * (GLYPH_W + 2 * TAB.pad);
@@ -180,7 +177,7 @@ function keyTab(cx: number, label: string, active = false): string {
 const weapon = (content: string, active: boolean): string => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
 
 const readout = (x: number, label: string): string =>
-  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">${label}</text>`;
+  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + READOUT_SIZE * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="${READOUT_SIZE}" fill="${READOUT}">${label}</text>`;
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 

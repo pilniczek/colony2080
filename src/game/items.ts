@@ -29,7 +29,7 @@ function loadItem(id: string, json: unknown): Item {
   const { asset, tilt, scale, state = 0 } = (icon ?? {}) as Record<string, unknown>;
   if (!icon) fail(id, "missing icon");
   if (asset !== null && (typeof asset !== "string" || !isAssetId(asset))) throw new Error(`unknown asset: ${String(asset)}`);
-  if (!isNumber(tilt) || !isNumber(scale) || !isNumber(state)) fail(id, "icon needs numeric tilt and scale");
+  if (!isNumber(tilt) || !isNumber(scale) || !isNumber(state)) fail(id, "icon needs numeric state, tilt and scale");
   return { name, cs, icon: { asset, state, tilt, scale } } as Item;
 }
 

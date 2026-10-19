@@ -1,3 +1,5 @@
+import { ITEMS } from "../items";
+
 export type Span = [number, number];
 
 export const HUD_H = 200;
@@ -7,13 +9,20 @@ export const VIEW_BOX = { left: 11, top: 20.4, right: 11, bottom: 8 };
 const EDGE = 0;
 const GAP = 2;
 const PLATE_PAD = 3.5;
-const INVENTORY_W = 46.5;
 const RUN_W = 18;
-const BADGE_PLATE: Span = [-4, 52.4];
-const BADGE_SPAN = BADGE_PLATE[1] + GAP + PLATE_PAD;
-const BADGE_GAPS: Span[] = [[BADGE_PLATE[0] - GAP, BADGE_PLATE[0]], [BADGE_PLATE[1], BADGE_PLATE[1] + GAP]];
+export const HAND_SCALE = 0.8;
+export const HAND_DRAWN = { w: 12, h: 13 };
+export const HAND_BOX = { w: HAND_DRAWN.w * HAND_SCALE, h: HAND_DRAWN.h * HAND_SCALE };
+export const READOUT_SIZE = 5.6;
+const MONO_ADVANCE = 0.54;
+const LONGEST_NAME = Math.max(...Object.values(ITEMS).map((item) => item.name.length));
+const ICON_W = Math.max(HAND_BOX.w, ...Object.values(ITEMS).map((item) => HAND_BOX.w * item.icon.scale));
+export const SLOT = { pad: PLATE_PAD, iconW: ICON_W, gap: 2 };
+const INVENTORY_W = 2 * SLOT.pad + SLOT.iconW + SLOT.gap + LONGEST_NAME * READOUT_SIZE * MONO_ADVANCE;
+export const WEAPON_W = [35, 20, 57];
 const GRID_MARGIN = 4.4;
-const MIN_EMPTY = 8;
+const WEAPON_GAP = 12;
+const BADGE_WINDOW_HALF = 24;
 
 export interface HudFit {
   W: number;
@@ -36,9 +45,9 @@ export interface TopBar {
   gridX: number;
   badge: number;
   gridW: number;
+  weapons: number[];
   gaps: Span[];
   plates: Span[];
-  empty: Span | null;
 }
 
 export function hudFit(width: number, height: number): HudFit {
@@ -58,20 +67,20 @@ export function viewRect({ W, H, unit }: HudFit): Rect {
 
 const invAt = (W: number): number => W - EDGE - PLATE_PAD - INVENTORY_W;
 const runAt = (W: number): number => invAt(W) - 2 * PLATE_PAD - GAP - RUN_W;
-const badgeAt = (W: number): number => runAt(W) - BADGE_SPAN;
+const WEAPONS_GRID_W = WEAPON_W.reduce((a, b) => a + b, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
 
 export function topBar(W: number): TopBar {
   const inv = invAt(W);
   const run = runAt(W);
-  const badge = badgeAt(W);
-  const runGap: Span = [run + RUN_W + PLATE_PAD, inv - PLATE_PAD];
-  const badgeGaps = BADGE_GAPS.map(([a, b]): Span => [badge + a, badge + b]);
-  const fixedEnd = badgeAt(HUD_MIN_W) + BADGE_GAPS[0]![0];
-  const empty: Span = [fixedEnd + GAP, badgeGaps[0]![0]];
-  const wide = empty[1] - empty[0] >= MIN_EMPTY;
-  const gaps: Span[] = [[0, EDGE], ...(wide ? [[fixedEnd, empty[0]] as Span] : []), ...badgeGaps, runGap, [W - EDGE, W]];
-  const plates = gaps.slice(1).map(([a], i): Span => [gaps[i]![1], a]);
   const gridX = EDGE + GRID_MARGIN;
-  const gridW = plates[0]![1] - GRID_MARGIN - gridX;
-  return { inv, invW: INVENTORY_W, run, runW: RUN_W, gridX, badge, gridW, gaps, plates, empty: wide ? empty : null };
+  const gridW = WEAPONS_GRID_W;
+  const weaponsEnd = gridX + gridW + GRID_MARGIN;
+  const runPlateStart = run - PLATE_PAD;
+  const badgeEnd = runPlateStart - GAP;
+  const badge = (weaponsEnd + GAP + badgeEnd) / 2 - BADGE_WINDOW_HALF;
+  const runGap: Span = [run + RUN_W + PLATE_PAD, inv - PLATE_PAD];
+  const gaps: Span[] = [[0, EDGE], [weaponsEnd, weaponsEnd + GAP], [badgeEnd, runPlateStart], runGap, [W - EDGE, W]];
+  const plates = gaps.slice(1).map(([a], i): Span => [gaps[i]![1], a]);
+  const weapons = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((a, b) => a + b, 0));
+  return { inv, invW: INVENTORY_W, run, runW: RUN_W, gridX, badge, gridW, weapons, gaps, plates };
 }

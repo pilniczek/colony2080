@@ -8,7 +8,7 @@ describe("loadItems", () => {
   it("names the item and field of an invalid entry", () => {
     expect(() => loadItems({ items: { a: { cs: "x", icon: { asset: null, tilt: 0, scale: 1 } } } })).toThrow("item a: missing name");
     expect(() => loadItems({ items: { a: { name: "x", cs: "x" } } })).toThrow("item a: missing icon");
-    expect(() => loadItems({ items: { a: { name: "x", cs: "x", icon: { asset: null, tilt: "1", scale: 1 } } } })).toThrow("item a: icon needs numeric tilt and scale");
+    expect(() => loadItems({ items: { a: { name: "x", cs: "x", icon: { asset: null, tilt: "1", scale: 1 } } } })).toThrow("item a: icon needs numeric state, tilt and scale");
   });
 
   it("defaults the icon state to 0", () => {
