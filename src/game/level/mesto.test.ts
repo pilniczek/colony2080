@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import enemies from "@config/levels/mesto/enemies.json";
+import map from "@config/levels/mesto/map.json";
 import tasks from "@config/levels/mesto/tasks.json";
 import { ITEMS } from "../items";
-import { loadMesto, mestoJson } from "./mesto";
+import { loadMesto } from "./mesto";
 import { terrain } from "./terrain";
 
 const world = loadMesto();
 const { grid, spawn, lifts } = world;
-const json = mestoJson() as { taskWalls: { id: string; col: number; top: number; bottom: number }[] };
 
 const droids = enemies.enemies.filter((e) => e.type === "chromeDroid");
 
@@ -84,8 +84,8 @@ describe("mesto map", () => {
   });
 
   it("leaves task walls out of the grid on a walkable plank", () => {
-    expect(json.taskWalls.map((w) => w.id).sort()).toEqual(["cardDoor", "metroTunnel", "plasmaBarrier", "waterPipe"]);
-    for (const w of json.taskWalls) {
+    expect(map.taskWalls.map((w) => w.id).sort()).toEqual(["cardDoor", "metroTunnel", "plasmaBarrier", "waterPipe"]);
+    for (const w of map.taskWalls) {
       expect(grid.wall(w.col, w.bottom + 1)).toBe(true);
       for (let row = w.top; row <= w.bottom; row++) expect(grid.at(w.col, row)).toBe(".");
     }
@@ -95,6 +95,10 @@ describe("mesto map", () => {
     expect(droids).toHaveLength(27);
     expect(world.enemies).toHaveLength(27);
     expect(world.enemies.every((e) => e.respawnMs === null)).toBe(true);
+  });
+
+  it("takes the droid cells and patrols from the research list", () => {
+    expect(map.droids).toEqual(droids.map((d) => ({ cell: d.cell, patrol: d.patrol })));
   });
 
   it("stands every droid on a floor", () => {
@@ -143,7 +147,7 @@ describe("mesto props", () => {
   });
 
   it("blocks the task wall cells until the task opens them", () => {
-    for (const w of json.taskWalls) {
+    for (const w of map.taskWalls) {
       const p = props.find((q) => q.id === w.id)!;
       expect(p.solidStates, w.id).toEqual([0]);
       expect(p.cells, w.id).toEqual({ col: w.col, row: w.top, w: 1, h: w.bottom - w.top + 1 });

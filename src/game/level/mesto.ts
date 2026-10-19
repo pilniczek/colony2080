@@ -1,5 +1,4 @@
 import map from "@config/levels/mesto/map.json";
-import enemies from "@config/levels/mesto/enemies.json";
 import sandbox from "@config/levels/sandbox.json";
 import tasks from "@config/levels/mesto/tasks.json";
 import world from "@config/levels/mesto/world.json";
@@ -9,36 +8,31 @@ import { loadSandbox, type SandboxJson, type SandboxWorld } from "./sandboxLevel
 type DroidTuning = Omit<EnemyJson, "x" | "y" | "facing" | "patrol">;
 
 interface DroidEntry {
-  type: string;
   cell: number[];
   patrol: number[];
 }
 
-export function droidsOf(json: unknown, tuning: DroidTuning): EnemyJson[] {
-  const { enemies: entries } = json as { enemies: DroidEntry[] };
-  return entries
-    .filter((e) => e.type === "chromeDroid")
-    .map((e) => ({
-      ...tuning,
-      x: e.cell[0]! + 0.5,
-      y: e.cell[1]! + 1,
-      facing: 1,
-      patrol: [e.patrol[0]!, e.patrol[1]! + 1],
-    }));
+export function droidsOf(entries: DroidEntry[], tuning: DroidTuning): EnemyJson[] {
+  return entries.map((e) => ({
+    ...tuning,
+    x: e.cell[0]! + 0.5,
+    y: e.cell[1]! + 1,
+    facing: 1,
+    patrol: [e.patrol[0]!, e.patrol[1]! + 1],
+  }));
 }
 
 const { hits, reactMs, burst, pauseMs } = sandbox.enemies[0]!;
 
-export function mestoJson(): SandboxJson & Pick<typeof map, "taskWalls"> {
+export function mestoJson(): SandboxJson {
   return {
     ...world,
     props: world.props as SandboxJson["props"],
     rows: map.rows,
     lifts: map.lifts as SandboxJson["lifts"],
-    taskWalls: map.taskWalls,
     tasks,
     spawn: [map.spawn[0]!, map.spawn[1]!],
-    enemies: droidsOf(enemies, { hits, reactMs, burst, pauseMs, respawnMs: null }),
+    enemies: droidsOf(map.droids, { hits, reactMs, burst, pauseMs, respawnMs: null }),
   };
 }
 

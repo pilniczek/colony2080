@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/research/reports/13-level1-layout.md, built by docs/research/tools/mestomap.py from MAPY/M11.MAP and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end (map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; lift stops are the repaired ones for the damaged lift (enabledBy); '|' shaft floors under two bottom stops stop a survivable drop past a lift (report 13, Our blockers)",
+  "source": "docs/research/reports/13-level1-layout.md, built by docs/research/tools/mestomap.py from MAPY/M11.MAP and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end (map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; '|' shaft floors under two bottom stops stop a survivable drop past a lift (report 13, Our blockers)",
   "rows": [
     "....................................###..........................#..............................................................................................",
     "....................................###..........................#..............................................................................................",
@@ -105,6 +105,35 @@
     {"id": "metroTunnel", "col": 56, "top": 64, "bottom": 69},
     {"id": "plasmaBarrier", "col": 102, "top": 38, "bottom": 43},
     {"id": "waterPipe", "col": 20, "top": 71, "bottom": 74}
+  ],
+  "droids": [
+    {"cell": [30, 58], "patrol": [11, 131]},
+    {"cell": [44, 58], "patrol": [28, 131]},
+    {"cell": [102, 58], "patrol": [81, 131]},
+    {"cell": [127, 58], "patrol": [81, 131]},
+    {"cell": [67, 69], "patrol": [58, 76]},
+    {"cell": [62, 69], "patrol": [58, 76]},
+    {"cell": [14, 58], "patrol": [8, 23]},
+    {"cell": [28, 50], "patrol": [26, 32]},
+    {"cell": [33, 74], "patrol": [28, 46]},
+    {"cell": [46, 50], "patrol": [36, 67]},
+    {"cell": [56, 50], "patrol": [36, 67]},
+    {"cell": [35, 36], "patrol": [29, 53]},
+    {"cell": [89, 36], "patrol": [70, 130]},
+    {"cell": [121, 36], "patrol": [70, 130]},
+    {"cell": [128, 43], "patrol": [104, 130]},
+    {"cell": [111, 43], "patrol": [104, 130]},
+    {"cell": [107, 43], "patrol": [104, 130]},
+    {"cell": [87, 43], "patrol": [86, 102]},
+    {"cell": [99, 43], "patrol": [86, 102]},
+    {"cell": [59, 29], "patrol": [57, 67]},
+    {"cell": [48, 29], "patrol": [35, 54]},
+    {"cell": [42, 22], "patrol": [35, 47]},
+    {"cell": [57, 22], "patrol": [56, 84]},
+    {"cell": [75, 22], "patrol": [56, 84]},
+    {"cell": [64, 15], "patrol": [54, 121]},
+    {"cell": [78, 15], "patrol": [54, 121]},
+    {"cell": [103, 15], "patrol": [54, 121]}
   ],
   "spawn": [62.5, 59]
 }

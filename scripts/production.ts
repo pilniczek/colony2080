@@ -6,7 +6,7 @@ const ORIGINALS_OFF = "window.ORIGINALS = { on: false, src: () => null, cutscene
 const CONFIG_PREFIX = "window.C28_CONFIG = ";
 const BLANKED_KEYS = new Set(["source", "note", "units", "description", "csName", "cs", "preview"]);
 const EMPTIED_KEYS = new Set(["refs"]);
-const ORIGINAL_GAME = [/colony[ -]?28/i, /x-bot/i, /klev\d/i, /grafika/i, /\.gra\b/i, /\.anm\b/i, /metropac/i, /docs\/research/i, /město/i, /kolonie/i, /score 44/i, /steam/i];
+const ORIGINAL_GAME = [/colony[ -]?28/i, /x-bot/i, /klev\d/i, /grafika/i, /\.gra\b/i, /\.anm\b/i, /metropac/i, /docs\/research/i, /město/i, /kolonie/i, /score 44/i, /steam/i, /\bds:0x/i, /\bM1[1-6]\b/, /\bfootage\b/i, /\bvideo [AB]\b/i, /\breport \d+\b/i, /\bfirstSighting\b/, /\bbehaviour\b/i];
 const TEXT_FILE = /\.(html|js|mjs|css|json|svg|txt)$/;
 
 const files = (dir: string): string[] => readdirSync(dir).flatMap((name) => {
