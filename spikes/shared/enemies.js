@@ -130,50 +130,41 @@ const FLYER = {
 };
 
 function guardBody(ctx, fire) {
-  P.box(ctx, 58.5, 10, 2, 57, "guardMetal", 2, { vertical: true });
-  P.beam(ctx, [62, 40], [53, 63], 2.2, "guardMetal");
-  P.poly(ctx, [[41, 72], [54, 62.5], [61, 72]], "guardMetal", 1);
+  P.box(ctx, 57, 9, 3, 40, "guardMetal", 2, { vertical: true });
+  P.poly(ctx, [[40, 53.5], [52, 45], [60, 47.5], [61, 53.5]], "guardMetal", 1);
 
-  P.poly(ctx, [[35, 47.5], [69, 47.5], [72, 50], [72, 54], [69, 55.5], [35, 55.5]], "guardChrome", 1);
-  P.box(ctx, 9, 55.5, 41, 3, "guardMetal", 1);
-  P.box(ctx, 9, 43, 32, 4.5, "guardChrome", 1);
+  P.box(ctx, 7, 33, 34, 7, "guardMetal", 2);
   if (!ENV.simple) {
-    for (const x of [20, 31]) P.flat(ctx, x, 43, 1, 4.5, "gc0");
-    for (const x of [22, 38]) P.flat(ctx, x, 55.5, 1, 3, "gm0");
-    P.line(ctx, [[37, 50.5], [68, 50.5]], "gc3", 0.5, "butt");
+    for (const x of [13, 20, 23.5, 33]) P.flat(ctx, x, 33, 0.8, 7, "gm0");
+    P.line(ctx, [[8, 34.2], [40, 34.2]], "gm3", 0.5, "butt");
   }
-  P.box(ctx, 8, 42.4, 2, 5.7, "guardMetal", 2, { vertical: true });
-  P.box(ctx, 8, 55, 2, 4, "guardMetal", 2, { vertical: true });
-  if (fire >= 0) {
-    flash(ctx, 8, 45.2, -1, fire, 4);
-    flash(ctx, 8, 57, -1, Math.max(0, fire - 2), 3);
-  }
+  P.box(ctx, 39.5, 33, 1.8, 7, "guardChrome", 2, { vertical: true });
+  if (fire >= 0) flash(ctx, 7, 36.5, -1, fire, 4.5);
 
-  P.poly(ctx, [[37, 15.8], [48, 5.5], [48, 16]], "guardMetal", 2, { dir: [1, 0] });
-  P.box(ctx, 46, 15.5, 2, 9.5, "guardMetal", 0, { vertical: true });
+  P.poly(ctx, [[39, 10], [47, 4], [47.5, 15], [40, 15]], "guardMetal", 2, { dir: [1, 0] });
 
-  ellipse(ctx, 61, 37.5, 6, 6, "gc1", "gmLine");
+  P.poly(ctx, [[53, 23], [64, 23], [66, 25], [66, 31], [64, 32.5], [53, 32.5]], "guardChrome", 1);
   if (!ENV.simple) {
-    ellipse(ctx, 60, 36.5, 3.6, 3.6, "gc2");
-    ellipse(ctx, 61, 37.5, 1.6, 1.6, "gm1");
+    P.line(ctx, [[54, 27.5], [65, 27.5]], "gc3", 0.6, "butt");
+    P.flat(ctx, 59.5, 23, 1, 9.5, "gc0");
   }
-  P.poly(ctx, [[63.5, 32.5], [67.5, 29.5], [68.5, 31], [65, 34]], "guardChrome", 2);
-  P.poly(ctx, [[64, 42], [68, 45], [67, 46.5], [63, 43.5]], "guardChrome", 1);
+  P.poly(ctx, [[61, 22.5], [64, 19.5], [65.5, 20.5], [63, 23.5]], "guardChrome", 2);
+  P.disc(ctx, 65.5, 20.8, 0.6, "gc3");
 
-  P.poly(ctx, [[10.5, 32.5], [15, 28.5], [30, 26], [45, 24.5], [50, 25.5], [53, 30], [56.5, 35], [55, 38.5], [48, 40], [43, 41.5], [37, 41], [30, 36], [15, 35]], "guardMetal", 2);
-  P.poly(ctx, [[15, 28.5], [30, 26], [45, 24.5], [46, 27], [30, 28.3], [16, 30.4]], "guardChrome", 2, { line: false });
-  P.poly(ctx, [[48, 26], [50, 25.5], [53, 30], [56.5, 35], [55, 38.5], [52, 35], [49.5, 30.5]], "guardChrome", 1, { line: false });
-  P.poly(ctx, [[28, 35.5], [43, 35], [47, 37], [46, 41], [40, 42.2], [33, 40.5]], "guardJaw", 2);
+  P.poly(ctx, [[6, 23.5], [9, 19.5], [24, 15.5], [42, 14], [45, 16], [52, 25.5], [53, 29], [38, 30.5], [30, 31], [20, 29.5], [9, 26.5]], "guardMetal", 2);
+  P.poly(ctx, [[9, 19.5], [24, 15.5], [42, 14], [43, 16], [24, 17.6], [10, 21]], "guardChrome", 2, { line: false });
+  P.poly(ctx, [[42, 14], [45, 16], [52, 25.5], [53, 29], [50, 27.5], [43, 18]], "guardChrome", 1, { line: false });
+  P.poly(ctx, [[20, 26], [37, 25.5], [38.5, 27.5], [38, 31], [30, 31.2], [22, 29.5]], "guardJaw", 2);
   if (!ENV.simple) {
-    P.line(ctx, [[14, 33.6], [37, 33.6]], "gm0", 0.7, "butt");
-    for (const x of [39, 42.5, 45]) P.line(ctx, [[x, 25.5], [x + 0.6, 30]], "rust", 0.8, "butt");
-    P.line(ctx, [[43.5, 37], [45.5, 39]], "gj3", 0.8);
-    P.glow(ctx, 22.5, 31.6, 7, "visorGlow", 0.35);
+    P.line(ctx, [[9, 22.6], [30, 22.6]], "gc2", 0.7, "butt");
+    for (const x of [30, 34, 37]) P.line(ctx, [[x, 15.5], [x + 0.6, 20.5]], "rust", 0.8, "butt");
+    P.line(ctx, [[37.4, 26], [37.4, 30.5]], "gj3", 0.8, "butt");
+    P.glow(ctx, 19, 21.3, 7, "visorGlow", 0.35);
   }
-  P.flat(ctx, 17, 31, 11, 1.2, "visor");
+  P.flat(ctx, 11, 20.8, 16, 1.1, "visor");
 
-  P.beam(ctx, [64, 33], [38, 63], 2.6, "guardChrome");
-  P.poly(ctx, [[22, 72], [26, 68], [41, 62.5], [44, 66], [44, 72]], "guardChrome", 1);
+  P.beam(ctx, [55, 33], [41, 47.5], 2.4, "guardChrome");
+  P.poly(ctx, [[16, 53.5], [22, 50], [31, 45], [43, 46], [44, 53.5]], "guardChrome", 1);
 }
 
 function acidDrips(ctx, t, p) {
@@ -187,7 +178,7 @@ function acidDrips(ctx, t, p) {
   ctx.save();
   ctx.globalAlpha = 0.25 + 0.45 * p;
   for (let i = 0; i < 9; i++) {
-    const x = 14 + i * 5.5, y = 26 + (i % 3) * 8;
+    const x = 10 + i * 5, y = 17 + (i % 3) * 8;
     ellipse(ctx, x, y, 2 + p * 3, 1.2 + p * 2, i % 2 ? "acid" : "acidDark");
   }
   ctx.restore();
@@ -199,7 +190,7 @@ function acidDrips(ctx, t, p) {
     ellipse(ctx, 20 + i * 10, 22 - rise * 18, 3 + rise * 4, 2 + rise * 3, "fume");
   }
   ctx.restore();
-  ellipse(ctx, 36, 71.5, 22 * (0.3 + p), 1.4, "acid");
+  ellipse(ctx, 34, 53, 22 * (0.3 + p), 1.4, "acid");
 }
 
 function guardWreck(ctx) {
@@ -217,10 +208,13 @@ function guardWreck(ctx) {
 
 const GUARD = {
   id: "guard",
-  box: { x: -50, y: -67, w: 63, h: 67 },
+  box: { x: -53, y: -50, w: 61, h: 50 },
   draw(ctx, state, t) {
-    ctx.translate(-59.5, -72);
-    if (state === 3) return guardWreck(ctx);
+    if (state === 3) {
+      ctx.translate(-59.5, -72);
+      return guardWreck(ctx);
+    }
+    ctx.translate(-58.5, -53.5);
     const fire = state === 1 ? fireFrame(t % 1.4) : -1;
     if (state !== 2) return guardBody(ctx, fire);
     const p = (t % 3) / 3;
