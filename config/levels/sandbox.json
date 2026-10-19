@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; enemy.hits is 14 machine-gun hits per regular enemy (docs/research/reports/10-level1-enemies.md), enemy.respawnMs is the sandbox respawn after a death (user); the enemy patrols the top left platform, sees the hero on its floor ahead within enemy.sightCells and fires every enemy.firePeriodMs (Claude's call); the target is 40 spike px wide and reaches 14 spike px above the standing shoot muzzle line (spikes/movement/moves.js shoot)",
+  "source": "docs/superpowers/specs/2026-10-17-colony2080-design.md; enemy.hits is 14 machine-gun hits per regular enemy (docs/research/reports/10-level1-enemies.md), enemy.respawnMs is the sandbox respawn after a death (user); the enemy patrols the top left platform, sees the hero on its floor ahead within enemy.sightCells and fires every enemy.firePeriodMs (Claude's call); backdrop and dressing are scenery from the ported env assets (src/game/env), laid out by Claude",
   "rows": [
     "########################################",
     "#......................................#",
@@ -20,14 +20,27 @@
     "############################...###....##"
   ],
   "spawn": [7.5, 14],
+  "sky": "skyBackground",
+  "backdrop": [
+    { "asset": "midgroundRuins", "x": 0.5 },
+    { "asset": "windowBuilding", "x": 7 },
+    { "asset": "ruinedBuilding", "x": 17.5 },
+    { "asset": "colonnadeBuilding", "x": 26 },
+    { "asset": "facadeTower", "x": 31 }
+  ],
+  "dressing": [
+    { "asset": "rubblePile", "x": 7.5 },
+    { "asset": "signPost", "x": 12 },
+    { "asset": "floorVent", "x": 14 },
+    { "asset": "pipeColumn", "x": 27 },
+    { "asset": "stripLight", "x": 32 }
+  ],
   "lift": { "x": 17, "width": 3, "top": 4, "bottom": 14 },
   "props": [
-    { "kind": "crate", "x": 5, "width": 1, "height": 1 },
-    { "kind": "barrel", "x": 24, "width": 1, "height": 1.3 },
+    { "kind": "crate", "x": 5 },
+    { "kind": "barrel", "x": 24 },
     { "kind": "item", "x": 9.5 },
-    { "kind": "panel", "x": 21.5, "y": 12 },
-    { "kind": "bag", "x": 13.5 },
-    { "kind": "target", "x": 15.5, "width": 0.51, "height": 1.51 }
+    { "kind": "panel", "x": 21.5, "y": 14 }
   ],
   "enemy": { "x": 6.5, "y": 4, "facing": 1, "hits": 14, "respawnMs": 5000, "sightCells": 14, "firePeriodMs": 500 }
 }

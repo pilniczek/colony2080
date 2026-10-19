@@ -3,6 +3,8 @@ import { cfg, clips, game, run, tick, type Game } from "./hero/testWorld";
 import { spikeUnit } from "./hero/look";
 import { heroMuzzle, SPARK_LIFE } from "./shots";
 
+const TARGET_TOP = 14 - 1.51;
+
 const armed = (x: number, facing: 1 | -1 = 1): Game => {
   const g = game({ x, y: 14, weapon: "gun" });
   g.hero.facing = facing;
@@ -20,8 +22,7 @@ describe("hero muzzle", () => {
   it("shoots under the top of the target, 14 spike px below it", () => {
     const g = armed(10.5);
     tick(g, ["shoot"], ["shoot"]);
-    const target = g.world.props.find((p) => p.kind === "target")!;
-    const top = 14 - target.height!;
+    const top = TARGET_TOP;
     const below = ((heroMuzzle(g.hero, clips, cfg)[1] - top) * cfg.cellPx) / spikeUnit(cfg);
     expect(below).toBeGreaterThan(12);
     expect(below).toBeLessThan(16);

@@ -9,7 +9,7 @@ import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, RUNG, spikeUnit, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Enemy } from "../level/enemy";
-import { ceilingAbove, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
@@ -20,7 +20,6 @@ const STAR = { radius: 14 / SPIKE_K, points: 10, inner: 0.35, outer: 0.6 };
 const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
 const TRACER = { length: 14, width: 2 };
-const BAG = { rope: 12, w: 32, h: 92 };
 const DUST = { back: 30, up: 6, radius: 18 };
 const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
 const SHOT_FLASH_MS = 1000 / 12;
@@ -57,8 +56,6 @@ const COLORS = {
   panelLine: "#4a5c5f",
   on: "#3fa34a",
   off: "#e0281e",
-  target: "#3c4a4c",
-  targetLine: "#1a2224",
   shaft: "#3a2a22",
   liftDeck: "#4a5c5f",
   liftStripe: "#e0b020",
@@ -175,8 +172,6 @@ function box(f: Frame, p: Prop, w: number, h: number, fill: string, line: string
 
 const crate = (f: Frame, p: Prop): void => box(f, p, (p.width ?? 1) * f.cell, (p.height ?? 1) * f.cell, COLORS.crate, COLORS.crateLine);
 
-const target = (f: Frame, p: Prop): void => box(f, p, (p.width ?? 1) * f.cell, (p.height ?? 1) * f.cell, COLORS.target, COLORS.targetLine);
-
 function barrel(f: Frame, p: Prop): void {
   const { ctx, cell, unit } = f;
   const w = (p.width ?? 1) * cell;
@@ -215,20 +210,7 @@ function panel(f: Frame, p: Prop): void {
   ctx.fillRect(x + 3 * unit, y - 20 * unit, 8 * unit, 8 * unit);
 }
 
-function bag(f: Frame, p: Prop): void {
-  const { ctx, cell, unit } = f;
-  const x = p.x * cell;
-  const top = ceilingAbove(f.world, p) * cell;
-  ctx.fillStyle = COLORS.slabTop;
-  ctx.fillRect(x - unit, top, 2 * unit, BAG.rope * unit);
-  ctx.fillStyle = COLORS.barrel;
-  ctx.fillRect(x - (BAG.w / 2) * unit, top + BAG.rope * unit, BAG.w * unit, BAG.h * unit);
-  ctx.fillStyle = COLORS.barrelBand;
-  ctx.fillRect(x - 16 * unit, top + 32 * unit, 32 * unit, 4 * unit);
-  ctx.fillRect(x - 16 * unit, top + 80 * unit, 32 * unit, 4 * unit);
-}
-
-const PROPS: Record<string, (f: Frame, p: Prop) => void> = { crate, barrel, item, panel, bag, target };
+const PROPS: Record<string, (f: Frame, p: Prop) => void> = { crate, barrel, item, panel };
 
 function projectiles(f: Frame, alpha: number): void {
   const { world, cell } = f;

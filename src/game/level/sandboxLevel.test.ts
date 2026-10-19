@@ -45,3 +45,15 @@ describe("lift", () => {
     expect(lift.vy).toBe(3);
   });
 });
+
+describe("sandbox scenery", () => {
+  it("rejects an unknown asset id", () => {
+    expect(() => loadSandbox({ ...sandbox, dressing: [{ asset: "nope", x: 1 }] })).toThrow("unknown asset: nope");
+  });
+
+  it("has no bag or target prop", () => {
+    const kinds = loadSandbox(sandbox).props.map((p) => p.kind);
+    expect(kinds).not.toContain("bag");
+    expect(kinds).not.toContain("target");
+  });
+});
