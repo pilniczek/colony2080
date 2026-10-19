@@ -107,7 +107,8 @@ const backLeg = (k: Kit, s: GroupNode, right: boolean, enemy: boolean): void => 
 
 const bodyGroup = (k: Kit, parent: GroupNode): GroupNode => k.G(parent, `translate(${AX} 0) scale(${BODY_SX} 1) translate(${-AX} 0)`);
 
-const headFront = (k: Kit, s: GroupNode, back: boolean, enemy: boolean): void => {
+const headFront = (k: Kit, body: GroupNode, back: boolean, enemy: boolean): void => {
+  const s = back ? body : k.G(body, null, "head", [320, 120]);
   k.P(s, { pts: [[306, 96], [334, 96], [336, 120], [304, 120]], mat: "metal", shade: "cyl", r: 2 });
   if (!enemy) both(k, s, { pts: [[246, 4], [256, 4], [258, 70], [244, 70]], r: 4, shade: "cyl" });
   both(k, s, { pts: [[240, 56], [266, 52], [268, 98], [242, 100]], r: 2 });
@@ -121,10 +122,11 @@ const headFront = (k: Kit, s: GroupNode, back: boolean, enemy: boolean): void =>
     k.F(s, [[318, 58], [322, 58], [322, 100], [318, 100]], "a0");
     return;
   }
-  k.P(s, { pts: [[272, 48], [368, 48], [368, 80], [348, 80], [348, 104], [292, 104], [292, 80], [272, 80]], mat: "metal", shade: "none", r: 2 });
-  k.F(s, [[274, 50], [320, 50], [320, 102], [294, 102], [294, 78], [274, 78]], "m2");
-  k.F(s, [[280, 56], [312, 56], [312, 63], [280, 63]], "visor", 1);
-  k.F(s, mirror([[280, 56], [312, 56], [312, 63], [280, 63]]), "visor", 1);
+  const face = k.G(s, null, "face", [320, 76]);
+  k.P(face, { pts: [[272, 48], [368, 48], [368, 80], [348, 80], [348, 104], [292, 104], [292, 80], [272, 80]], mat: "metal", shade: "none", r: 2 });
+  k.F(face, [[274, 50], [320, 50], [320, 102], [294, 102], [294, 78], [274, 78]], "m2");
+  k.F(face, [[280, 56], [312, 56], [312, 63], [280, 63]], "visor", 1);
+  k.F(face, mirror([[280, 56], [312, 56], [312, 63], [280, 63]]), "visor", 1);
 };
 
 const frontHand = (k: Kit, parent: GroupNode, M: Mirror, thumbFront: boolean): void => {

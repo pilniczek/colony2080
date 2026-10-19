@@ -405,6 +405,7 @@ function attack(s: Step): void {
 
 function hide(s: Step): void {
   const { h, input } = s;
+  if (input.dir !== 0) h.facing = input.dir;
   if (input.held.has("hide")) return;
   h.hidden = false;
   enter(h, "idle");

@@ -141,6 +141,15 @@ describe("hero look", () => {
     }
   });
 
+  it("hidden hero turns its head toward the facing it leaves cover with", () => {
+    const shift = (facing: 1 | -1) => {
+      const pose = heroLook(hero({ state: "hide", hidden: true, time: 0.05, facing }), clips, rigs, hold, cfg).pose;
+      return [pose.head, pose.face].map((j) => (j as { dx: number }).dx);
+    };
+    for (const dx of shift(1)) expect(dx).toBeGreaterThan(0);
+    for (const dx of shift(-1)) expect(dx).toBeLessThan(0);
+  });
+
   it("front view with the gun uses the front carry", () => {
     const look = heroLook(hero({ state: "hide", weapon: "gun", time: 0.05 }), clips, rigs, hold, cfg);
     expect(look.gun).toBe("hand");

@@ -225,7 +225,8 @@ function bodyGroup(parent) {
   return G(parent, `translate(${AX} 0) scale(${BODY_SX} 1) translate(${-AX} 0)`);
 }
 
-function headFront(s, back, enemy) {
+function headFront(body, back, enemy) {
+  const s = back ? body : G(body, null, "head", [320, 120]);
   P(s, { pts: [[306, 96], [334, 96], [336, 120], [304, 120]], mat: "metal", shade: "cyl", r: 2 });
   if (!enemy) both(s, { pts: [[246, 4], [256, 4], [258, 70], [244, 70]], r: 4, shade: "cyl" });
   both(s, { pts: [[240, 56], [266, 52], [268, 98], [242, 100]], r: 2 });
@@ -239,10 +240,11 @@ function headFront(s, back, enemy) {
     F(s, [[318, 58], [322, 58], [322, 100], [318, 100]], "a0");
     return;
   }
-  P(s, { pts: [[272, 48], [368, 48], [368, 80], [348, 80], [348, 104], [292, 104], [292, 80], [272, 80]], mat: "metal", shade: "none", r: 2 });
-  F(s, [[274, 50], [320, 50], [320, 102], [294, 102], [294, 78], [274, 78]], "m2");
-  F(s, [[280, 56], [312, 56], [312, 63], [280, 63]], "visor", 1);
-  F(s, mirrorPts([[280, 56], [312, 56], [312, 63], [280, 63]]), "visor", 1);
+  const face = G(s, null, "face", [320, 76]);
+  P(face, { pts: [[272, 48], [368, 48], [368, 80], [348, 80], [348, 104], [292, 104], [292, 80], [272, 80]], mat: "metal", shade: "none", r: 2 });
+  F(face, [[274, 50], [320, 50], [320, 102], [294, 102], [294, 78], [274, 78]], "m2");
+  F(face, [[280, 56], [312, 56], [312, 63], [280, 63]], "visor", 1);
+  F(face, mirrorPts([[280, 56], [312, 56], [312, 63], [280, 63]]), "visor", 1);
 }
 
 function frontHand(parent, M, thumbFront) {

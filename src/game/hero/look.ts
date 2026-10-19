@@ -50,6 +50,7 @@ const DROP = { letGo: 0.3, slide: 0.3, dust: 0.4 };
 export const RUNG = 22;
 const CLIMB = { hands: [152.5, 130.5], feet: [RUNG, 0], reachTop: 110, reachSpan: 150 } as const;
 const HIT_HEIGHT = 100;
+const LOOK = { head: 6, headSx: 0.92, face: 14 };
 const HIT = { window: 0.6, flash: 0.25, glow: 0.6, spark: 0.3, snap: -16, rate: 22, damping: 7, star: [14, -HIT_HEIGHT] as Pt };
 
 export const heroScale = (cfg: MovementConfig): number =>
@@ -269,6 +270,11 @@ const gunSlide = (clip: Clip, t: number): number => {
   return drop === undefined ? 0 : span(t, drop, drop + DROP.slide);
 };
 
+const lookToward = (facing: number): Pose => ({
+  head: { dx: facing * LOOK.head, sx: LOOK.headSx },
+  face: { dx: facing * LOOK.face },
+});
+
 const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: MovementConfig): HeroLook => {
   const name = clipFor(h.state, h.weapon);
   const clip = clips[name];
@@ -283,7 +289,7 @@ const baseLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold, cfg: Movement
   return {
     view,
     flip: view === "side" && h.facing < 0,
-    pose: held.pose,
+    pose: h.hidden && view === "front" ? { ...held.pose, ...lookToward(h.facing) } : held.pose,
     gun: held.gun,
     rot,
     tint: h.hidden ? 1 : clip.tint ? num(clip.tint, t, (k) => k) : 0,
