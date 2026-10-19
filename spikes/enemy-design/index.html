@@ -29,7 +29,7 @@
   .kinds label { padding: 4px 10px; cursor: pointer; color: var(--muted); }
   .kinds input { display: none; }
   .kinds label:has(input:checked) { background: #2f4140; color: var(--text); }
-  section[hidden], .walkerOnly[hidden] { display: none; }
+  section[hidden], .walkerOnly[hidden], .guardOnly[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -47,6 +47,7 @@
   <button id="copy">Copy palette JSON</button>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
   <label><input id="hero" type="checkbox" checked> Hero beside</label>
+  <label class="guardOnly"><input id="guides" type="checkbox" checked> Level guides</label>
 </header>
 <div id="palette"></div>
 <section data-kind="walker">
@@ -95,10 +96,9 @@
 </section>
 <section data-kind="guard" hidden>
 <main>
-  <figure><figcaption>Acid guard, idle</figcaption><canvas id="guardIdle" data-w="1300" data-h="1400"></canvas></figure>
+  <figure><figcaption>Acid guard, front</figcaption><canvas id="guardFront" data-w="1300" data-h="1400"></canvas></figure>
   <figure><figcaption>Acid guard, firing</figcaption><canvas id="guardFire" data-w="1300" data-h="1400"></canvas></figure>
   <figure><figcaption>Acid guard, acid (guess)</figcaption><canvas id="guardAcid" data-w="1300" data-h="1400"></canvas></figure>
-  <figure><figcaption>Acid guard, front</figcaption><canvas id="guardFront" data-w="1300" data-h="1400"></canvas></figure>
   <figure><figcaption>Acid guard, wreck</figcaption><canvas id="guardWreck" data-w="1300" data-h="1400"></canvas></figure>
   <figure class="heroOnly"><figcaption>Scale, hero and guard</figcaption><canvas id="guardScale" data-w="2300" data-h="1400"></canvas></figure>
 </main>
@@ -132,7 +132,8 @@ const K = (FOOT_Y - Object.fromEntries(LEVELS).head) / (HERO_CELLS * ENV.TILE);
 const LOW_FLYER = 32;
 const tint = { brightness: 1.1, saturate: 0 };
 const overrides = { walker: {}, flyer: {}, guard: {} };
-const opts = { lines: true, hero: true, kind: "walker" };
+const opts = { lines: true, hero: true, guides: true, kind: "walker" };
+const GUIDED = new Set(["guardFront", "guardFire", "guardAcid", "guardWreck", "guardScale"]);
 
 const roots = {
   front: buildFront({ rightArmFirst: true, propBehindArm: true, enemy: true }),
@@ -234,7 +235,6 @@ const VIEWS = {
     }
   },
   guard: {
-    guardIdle: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, t, pal, lineW: lw }),
     guardFire: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 1, t, pal, lineW: lw }),
     guardAcid: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 2, t, pal, lineW: lw }),
     guardFront: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD_FRONT, { x: w / 2, y: h - 50, state: Math.floor(t / 2.8) % 2, t, pal, lineW: lw }),
@@ -254,6 +254,21 @@ const VIEWS = {
     gGuardWreck: (ctx, lw, pal, w, h, t) => { backdrop(ctx, w, h); enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 3, t, pal, lineW: lw, lod: true }); }
   }
 };
+
+function guides(ctx, w, floor) {
+  ctx.save();
+  ctx.setLineDash([6, 6]);
+  ctx.strokeStyle = "rgba(63,208,224,0.6)";
+  ctx.fillStyle = "rgba(63,208,224,0.8)";
+  ctx.lineWidth = 2;
+  ctx.font = "24px system-ui";
+  for (const [name, y] of ENEMIES.GUARD_LEVELS) {
+    const at = floor + y * K;
+    ctx.beginPath(); ctx.moveTo(0, at); ctx.lineTo(w, at); ctx.stroke();
+    ctx.fillText(name, 8, at - 8);
+  }
+  ctx.restore();
+}
 
 function fit(c, dpr) {
   const w = +c.dataset.w, h = +c.dataset.h;
@@ -277,6 +292,7 @@ function draw(t = performance.now() / 1000) {
     ctx.setTransform(c.width / w, 0, 0, c.width / w, 0, 0);
     ctx.clearRect(0, 0, w, h);
     view(ctx, opts.lines ? dpr : 0, pal, w, h, t);
+    if (opts.guides && GUIDED.has(id)) guides(ctx, w, h - 50);
   }
 }
 
@@ -317,6 +333,7 @@ function setKind(kind) {
   opts.kind = kind;
   for (const s of document.querySelectorAll("section[data-kind]")) s.hidden = s.dataset.kind !== kind;
   for (const el of document.querySelectorAll(".walkerOnly")) el.hidden = kind !== "walker";
+  for (const el of document.querySelectorAll(".guardOnly")) el.hidden = kind !== "guard";
   document.querySelector(`input[name=kind][value=${kind}]`).checked = true;
   if (location.hash.slice(1) !== kind) history.replaceState(null, "", "#" + kind);
   buildPalette();
@@ -340,6 +357,7 @@ document.getElementById("copy").onclick = () => {
 };
 document.getElementById("lines").onchange = e => { opts.lines = e.target.checked; draw(); };
 document.getElementById("hero").onchange = e => { opts.hero = e.target.checked; draw(); };
+document.getElementById("guides").onchange = e => { opts.guides = e.target.checked; draw(); };
 addEventListener("resize", () => draw());
 const kindFromHash = () => VIEWS[location.hash.slice(1)] ? location.hash.slice(1) : "walker";
 addEventListener("hashchange", () => setKind(kindFromHash()));

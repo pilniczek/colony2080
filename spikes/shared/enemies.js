@@ -442,10 +442,12 @@ function burst(ctx, x, y, r, k) {
   P.disc(ctx, x, y, r * 0.45 * heat + 0.3, heat > 0.5 ? "fire3" : "fire2");
 }
 
+const FRONT_KNEE = 53.5 - 38.5;
+
 function frontLeg(ctx, side) {
   const x = side * 7;
-  P.poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.4, -11], [x - 2.4, -11]], "guardMetal", 1, { dir: [1, 0] });
-  inRigUnits(ctx, [x, 0], side * LEG, 14 / (744 - 456), [FRONT_LEG.axis, 744], () => {
+  P.poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.6, -FRONT_KNEE + 0.5], [x - 2.6, -FRONT_KNEE + 0.5]], "guardMetal", 1, { dir: [1, 0] });
+  inRigUnits(ctx, [x, 0], side * LEG, FRONT_KNEE / (744 - FRONT_LEG.shin[0][1]), [FRONT_LEG.axis, 744], () => {
     P.poly(ctx, FRONT_LEG.shin, "guardMetal", 2, { dir: [1, 0] });
     P.poly(ctx, FRONT_LEG.foot, "guardMetal", 1);
     P.poly(ctx, FRONT_LEG.toe, "guardChrome", 2);
@@ -481,8 +483,10 @@ const GUARD_FRONT = {
   }
 };
 
+const GUARD_LEVELS = [["top", -38.5], ["visor", -32.5], ["hip", -23.5], ["knee", -FRONT_KNEE], ["foot", 0]].map(([name, y]) => [name, y * GUARD_SIZE]);
+
 window.ENEMIES = {
-  FLYER, GUARD, GUARD_FRONT, FLYER_PALETTE, GUARD_PALETTE,
+  FLYER, GUARD, GUARD_FRONT, GUARD_LEVELS, FLYER_PALETTE, GUARD_PALETTE,
   FLYER_STATES: ["hover", "firing"],
   GUARD_STATES: ["idle", "firing", "acid (guess)", "wreck"]
 };
