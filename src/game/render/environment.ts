@@ -6,7 +6,6 @@ import { RUNG, spikeUnit } from "../hero/look";
 import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
 import type { Lift, Prop, SandboxWorld, Scenery } from "../level/sandboxLevel";
-import { drawPlaceholder } from "./placeholder";
 import { nearestFirst, TileCache, TILE_PX, visibleTiles } from "./tiles";
 
 const SKY_H = 170;
@@ -17,9 +16,6 @@ const HAZE = "rgba(26, 12, 8, 0.45)";
 
 const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", panel: "switchboard" };
 
-const [GROUND_ITEM_LEFT, GROUND_ITEM_TOP, GROUND_ITEM_RIGHT] = ASSETS.shipPart.box;
-const GROUND_ITEM_W = GROUND_ITEM_RIGHT - GROUND_ITEM_LEFT;
-const GROUND_ITEM_H = -GROUND_ITEM_TOP;
 
 const TILE_MARGIN = 1;
 const PREFETCH_PER_FRAME = 1;
@@ -167,20 +163,10 @@ function ladders(e: Env): void {
   }
 }
 
-function groundPlaceholder(e: Env, p: Prop): void {
-  const { ctx } = e;
-  ctx.save();
-  ctx.translate(p.x * e.cell - (GROUND_ITEM_W / 2) * k(e), (p.y ?? e.world.spawn[1]) * e.cell - GROUND_ITEM_H * k(e));
-  ctx.scale(k(e), k(e));
-  drawPlaceholder(ctx, GROUND_ITEM_W, GROUND_ITEM_H);
-  ctx.restore();
-}
-
 export function prop(e: Env, p: Prop): void {
   if (p.kind === "item" && p.taken) return;
   const icon = p.kind === "item" ? ITEMS[p.item!]!.icon : null;
   const id = p.kind === "item" ? icon?.asset : PROP_ASSETS[p.kind];
-  if (p.kind === "item" && !id) return groundPlaceholder(e, p);
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
   put(e, id, p.x * e.cell - ((left + right) / 2) * k(e), (p.y ?? e.world.spawn[1]) * e.cell, icon?.state ?? (p.kind === "panel" && p.on ? 1 : 0));

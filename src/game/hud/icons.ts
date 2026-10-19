@@ -5,7 +5,6 @@ import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
 import { buildSide, ROBOT } from "../robot/xbot";
 import { ITEMS, type Item } from "../items";
-import { drawPlaceholder } from "../render/placeholder";
 import { HAND_BOX } from "./layout";
 import type { HudIcon, HudIcons } from "./svg";
 
@@ -49,7 +48,7 @@ function assetIcon(ctx: CanvasRenderingContext2D, asset: AssetId, state: number,
 function itemIcon({ icon: { asset, state, tilt, scale } }: Item): HudIcon {
   const w = HAND_BOX.w * scale;
   const h = HAND_BOX.h * scale;
-  return icon(w, h, (ctx) => (asset === null ? drawPlaceholder(ctx, w, h) : assetIcon(ctx, asset, state, tilt, w, h)));
+  return icon(w, h, (ctx) => assetIcon(ctx, asset, state, tilt, w, h));
 }
 
 export function hudIcons(): HudIcons {

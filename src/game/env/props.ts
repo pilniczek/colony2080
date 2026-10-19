@@ -131,6 +131,125 @@ export const controller: EnvAsset = {
   },
 };
 
+export const wires: EnvAsset = {
+  id: "wires",
+  box: [-2, -8, 18, 0],
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 0, 16);
+    ctx.save();
+    ctx.lineCap = "round";
+    for (const [cx, w, c, line] of [[6, 2.2, "a1", "aLine"], [9.5, 2.2, "y2", "yLine"]] as const) {
+      ctx.beginPath();
+      ctx.ellipse(cx, -3.6, 4.6, 3.2, -0.2, 0, PI * 2);
+      ctx.strokeStyle = color(line);
+      ctx.lineWidth = w + 0.8;
+      ctx.stroke();
+      ctx.strokeStyle = color(c);
+      ctx.lineWidth = w;
+      ctx.stroke();
+    }
+    ctx.strokeStyle = color("a3");
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(13.4, -2); ctx.lineTo(16, -0.6);
+    ctx.moveTo(13.6, -4.4); ctx.lineTo(16.4, -4.8);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+export const tapHandle: EnvAsset = {
+  id: "tapHandle",
+  box: [-2, -12, 12, 0],
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 0, 10);
+    box(ctx, 4, -2.4, 2, 2.4, "steel", 1);
+    ctx.beginPath();
+    ctx.arc(5, -6.6, 4.4, 0, PI * 2);
+    ctx.arc(5, -6.6, 3.2, 0, PI * 2, true);
+    ctx.fillStyle = color("neon");
+    ctx.fill("evenodd");
+    stroke(ctx, "aLine");
+    box(ctx, 4.4, -10.4, 1.2, 7.6, "rust", 2, { vertical: true });
+    box(ctx, 1.2, -7.2, 7.6, 1.2, "rust", 2);
+    disc(ctx, 5, -6.6, 1.1, "c2", "mLine");
+  }
+};
+
+export const card: EnvAsset = {
+  id: "card",
+  box: [-2, -8, 14, 0],
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 0, 12);
+    poly(ctx, [[0, 0], [1.4, -6.4], [11.4, -6.4], [10, 0]], "chrome", 2);
+    poly(ctx, [[0.9, -2.2], [1.2, -3.4], [11.1, -3.4], [10.8, -2.2]], "hole", 2, { line: false });
+    poly(ctx, [[2.4, -4.2], [2.6, -5.4], [4.6, -5.4], [4.4, -4.2]], "y2", 2);
+    if (P.simple()) return;
+    flat(ctx, 6.4, -5.2, 3.6, 0.6, "neon");
+    flat(ctx, 2, -1.4, 6, 0.4, "c0");
+  }
+};
+
+export const holoPlan: EnvAsset = {
+  id: "holoPlan",
+  box: [-2, -14, 14, 0],
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 0, 12);
+    P.glow(ctx, 5, -7, 7, "plasma", 0.3);
+    ctx.save();
+    ctx.globalAlpha = 0.75;
+    poly(ctx, [[1, -12], [9, -12], [7.4, -3], [2.6, -3]], "plasma", 2, { line: false });
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = color("plasmaCore");
+    ctx.lineWidth = 0.4;
+    ctx.beginPath();
+    for (let y = -10.5; y < -3.5; y += P.simple() ? 3 : 1.8) { ctx.moveTo(1.6 + (y + 12) * 0.18, y); ctx.lineTo(8.4 - (y + 12) * 0.18, y); }
+    ctx.moveTo(5, -12); ctx.lineTo(5, -3);
+    ctx.stroke();
+    ctx.restore();
+    box(ctx, 1, -3, 8, 3, "steel", 2);
+    flat(ctx, 3, -2.6, 4, 0.8, "plasma");
+  }
+};
+
+export const shipPlan: EnvAsset = {
+  id: "shipPlan",
+  box: [-2, -8, 20, 0],
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 0, 18);
+    poly(ctx, [[3, -1], [17, -1], [18, 0], [4, 0]], "water", 2);
+    if (!P.simple()) {
+      ctx.strokeStyle = color("c3");
+      ctx.lineWidth = 0.3;
+      ctx.beginPath();
+      ctx.moveTo(8, -0.5); ctx.lineTo(16, -0.5);
+      ctx.stroke();
+    }
+    flat(ctx, 0, -6, 16, 5, "water", "mLine");
+    flat(ctx, 0, -5, 16, 0.8, "#6aa8c8");
+    flat(ctx, 0, -2.4, 16, 0.6, "#24506a");
+    disc(ctx, 16, -3.5, 2.5, "#2e6688", "mLine");
+    disc(ctx, 16, -3.5, 1.1, "c2");
+    if (!P.simple()) for (const x of [3, 7, 11]) flat(ctx, x, -4.2, 2.2, 0.35, "c3");
+  }
+};
+
+export const decoder: EnvAsset = {
+  id: "decoder",
+  box: [-2, -12, 14, 0],
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 0, 12);
+    box(ctx, 8, -11, 1, 5, "chrome", 1, { vertical: true });
+    disc(ctx, 8.5, -11.2, 0.8, "neon", "mLine");
+    box(ctx, 1, -6.4, 10, 6.4, "steel", 2);
+    flat(ctx, 2, -5.6, 5, 2.4, "plasma", "mLine");
+    if (!P.simple()) flat(ctx, 2.6, -4.8, 3, 0.5, "plasmaCore");
+    flat(ctx, 8, -5.4, 2, 1, "neon");
+    if (P.simple()) return;
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) flat(ctx, 2 + c * 2.2, -2.4 + r * 1.1 - 0.4, 1.3, 0.7, "c1");
+  }
+};
+
 export const crate: EnvAsset = {
   id: "crate",
   box: [-2, -30, 34, 0],
@@ -199,4 +318,4 @@ export const rubblePile: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, crowbar, craneKey, shipPart, controller, crate, signPost, floorVent, rubblePile];
+export const propAssets: EnvAsset[] = [barrel, crowbar, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile];

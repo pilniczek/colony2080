@@ -50,22 +50,20 @@ describe("static layer culling", () => {
   });
 });
 
-describe("item props without art", () => {
-  const itemId = Object.keys(ITEMS).find((id) => ITEMS[id]!.icon.asset === null)!;
-
-  const fills = (taken: boolean): number => {
+describe("item props", () => {
+  const fills = (item: string, taken: boolean): number => {
     const { ctx } = counting();
     let count = 0;
-    const spy = new Proxy(ctx, { get: (t, key) => (key === "fill" ? () => count++ : Reflect.get(t, key)) });
-    prop({ ctx: spy, world, cell: CELL, unit: 1, lines: 1, screen: worldRect }, { kind: "item", item: itemId, x: 3, taken });
+    const spy = new Proxy(ctx, { get: (t, key) => (key === "fill" || key === "stroke" ? () => count++ : Reflect.get(t, key)) });
+    prop({ ctx: spy, world, cell: CELL, unit: 1, lines: 1, screen: worldRect }, { kind: "item", item, x: 3, taken });
     return count;
   };
 
-  it("paints a ground placeholder", () => {
-    expect(fills(false)).toBeGreaterThan(0);
+  it.each(Object.keys(ITEMS))("paints %s from its asset", (item) => {
+    expect(fills(item, false)).toBeGreaterThan(0);
   });
 
   it("paints nothing once taken", () => {
-    expect(fills(true)).toBe(0);
+    expect(fills("wires", true)).toBe(0);
   });
 });

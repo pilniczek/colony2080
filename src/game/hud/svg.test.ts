@@ -3,7 +3,7 @@ import { HAND_BOX, SLOT, topBar, WEAPON_W } from "./layout";
 import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
-const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "placeholder.png", ...ICON } } };
+const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
 const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, reserve: 100, shields: 3, running: true, item: null };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
@@ -80,9 +80,9 @@ describe("hudSvg", () => {
       expect(x).toBeCloseTo((inv + SLOT.pad + SLOT.iconW + SLOT.gap + inv + invW - SLOT.pad) / 2, 6);
     });
 
-    it("shows the placeholder icon and name of an item without an env asset", () => {
+    it("shows the icon and name of a newly drawn item", () => {
       const svg = hudSvg(320, 200, { ...base, item: "wires" }, icons);
-      expect(svg).toContain('<image href="placeholder.png"');
+      expect(svg).toContain('<image href="wires.png"');
       expect(svg).toContain(">wires</text>");
     });
 

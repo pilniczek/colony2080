@@ -2,25 +2,25 @@ import tasks from "@config/levels/mesto/tasks.json";
 import { describe, expect, it } from "vitest";
 import { ITEMS, loadItems } from "./items";
 
-const entry = (asset: string | null) => ({ name: "x", cs: "x", icon: { asset, tilt: 0, scale: 1 } });
+const entry = (asset: unknown) => ({ name: "x", cs: "x", icon: { asset, tilt: 0, scale: 1 } });
 
 describe("loadItems", () => {
   it("names the item and field of an invalid entry", () => {
-    expect(() => loadItems({ items: { a: { cs: "x", icon: { asset: null, tilt: 0, scale: 1 } } } })).toThrow("item a: missing name");
+    expect(() => loadItems({ items: { a: { cs: "x", icon: { asset: "crowbar", tilt: 0, scale: 1 } } } })).toThrow("item a: missing name");
     expect(() => loadItems({ items: { a: { name: "x", cs: "x" } } })).toThrow("item a: missing icon");
-    expect(() => loadItems({ items: { a: { name: "x", cs: "x", icon: { asset: null, tilt: "1", scale: 1 } } } })).toThrow("item a: icon needs numeric state, tilt and scale");
+    expect(() => loadItems({ items: { a: { name: "x", cs: "x", icon: { asset: "crowbar", tilt: "1", scale: 1 } } } })).toThrow("item a: icon needs numeric state, tilt and scale");
   });
 
   it("defaults the icon state to 0", () => {
-    expect(loadItems({ items: { a: entry(null) } }).a!.icon.state).toBe(0);
+    expect(loadItems({ items: { a: entry("crowbar") } }).a!.icon.state).toBe(0);
   });
 
   it("rejects an unknown asset", () => {
     expect(() => loadItems({ items: { a: entry("nope") } })).toThrow("unknown asset: nope");
   });
 
-  it("accepts a null asset as a placeholder", () => {
-    expect(loadItems({ items: { a: entry(null) } }).a!.icon.asset).toBeNull();
+  it("rejects an item without an asset", () => {
+    expect(() => loadItems({ items: { a: entry(null) } })).toThrow("unknown asset: null");
   });
 
   it("keeps the crowbar look and configures the crane key", () => {

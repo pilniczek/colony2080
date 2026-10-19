@@ -13,45 +13,45 @@ window.C28_CONFIG = {
    "name": "wires",
    "cs": "Dráty",
    "icon": {
-    "asset": null,
+    "asset": "wires",
     "tilt": 0,
-    "scale": 1
+    "scale": 1.25
    }
   },
   "tapHandle": {
    "name": "tap handle",
    "cs": "Kohout uzávěru",
    "icon": {
-    "asset": null,
+    "asset": "tapHandle",
     "tilt": 0,
-    "scale": 1
+    "scale": 1.25
    }
   },
   "card": {
    "name": "card",
    "cs": "Karta",
    "icon": {
-    "asset": null,
+    "asset": "card",
     "tilt": 0,
-    "scale": 1
+    "scale": 1.25
    }
   },
   "holoPlan": {
    "name": "holo plan",
    "cs": "Holog. plán",
    "icon": {
-    "asset": null,
+    "asset": "holoPlan",
     "tilt": 0,
-    "scale": 1
+    "scale": 1.25
    }
   },
   "shipPlan": {
    "name": "ship plan",
    "cs": "Nákres",
    "icon": {
-    "asset": null,
-    "tilt": 0,
-    "scale": 1
+    "asset": "shipPlan",
+    "tilt": 20,
+    "scale": 1.25
    }
   },
   "shipPart": {
@@ -68,9 +68,9 @@ window.C28_CONFIG = {
    "name": "decoder",
    "cs": "Dekodér",
    "icon": {
-    "asset": null,
+    "asset": "decoder",
     "tilt": 0,
-    "scale": 1
+    "scale": 1.25
    }
   },
   "controller": {
@@ -1342,6 +1342,96 @@ window.C28_CONFIG = {
         "caption": "map: top floor around guard and key"
        }
       ]
+     },
+     {
+      "id": "wires",
+      "name": "Wires",
+      "csName": "Dráty",
+      "interactive": true,
+      "marker": 3,
+      "task": "pullWires",
+      "sheet": "props",
+      "description": "Wire bundle ripped out of the electrical distribution box (marker 3); carried to the metro switchboard. Inventory item only, no original sprite; Claude's design.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": []
+     },
+     {
+      "id": "tapHandle",
+      "name": "Tap handle",
+      "csName": "Kohout uzávěru",
+      "interactive": true,
+      "marker": 6,
+      "task": "takeTapHandle",
+      "sheet": "props",
+      "description": "Red valve handwheel with a cross, unscrewed from the tunnel pipe (marker 6); used against the acid guard. Inventory item only, no original sprite; Claude's design.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": []
+     },
+     {
+      "id": "card",
+      "name": "Card",
+      "csName": "Karta",
+      "interactive": true,
+      "marker": 7,
+      "task": "searchCorpse",
+      "sheet": "props",
+      "description": "Access card found on the corpse in the train (marker 7); opens card door 17. Inventory item only, no original sprite; Claude's design.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": []
+     },
+     {
+      "id": "holoPlan",
+      "name": "Holo plan",
+      "csName": "Holog. plán",
+      "interactive": true,
+      "marker": 7,
+      "task": "searchCorpse",
+      "sheet": "props",
+      "description": "Holographic plan from the corpse in the train (marker 7): projector puck with a blue hologram; traded at marker 9. Inventory item only, no original sprite; Claude's design.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": []
+     },
+     {
+      "id": "shipPlan",
+      "name": "Ship plan",
+      "csName": "Nákres",
+      "interactive": true,
+      "marker": 9,
+      "task": "tradeHoloPlan",
+      "sheet": "props",
+      "description": "Rolled blueprint of the ship, traded for the holo plan (marker 9). Inventory item only, no original sprite; Claude's design.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": []
+     },
+     {
+      "id": "decoder",
+      "name": "Decoder",
+      "csName": "Dekodér",
+      "interactive": true,
+      "marker": 9,
+      "task": "tradeShipPart",
+      "sheet": "props",
+      "description": "Handheld decoder with screen, keypad and antenna, traded for the ship part (marker 9); unlocks the plasma barrier. Inventory item only, no original sprite; Claude's design.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": []
      },
      {
       "id": "crane",
