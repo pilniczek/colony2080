@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = p => JSON.parse(readFileSync(join(root, p), "utf8"));
 const config = {
+  items: read("config/items.json").items,
   robots: { xbot: read("config/robots/xbot.json") },
   cutscenes: { crowbarDoor: read("config/cutscenes/crowbar-door.json") },
   levels: { mesto: { objects: read("config/levels/mesto/objects.json") } }

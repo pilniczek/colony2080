@@ -29,7 +29,7 @@ Decided in `docs/requirements.md`:
 - Custom engine in plain TypeScript on Canvas 2D. Engine must not depend on React. No Next.js, no three.js, no DOS emulator.
 - Art is vector, drawn as code. Not pixel art, not original assets. View scales to device (no fixed 320x200 canvas).
 - Cutscenes (item use, story) are in-engine animated vector scenes, not video files.
-- Level logic is a task dependency web: each task has `requires` / `consumes` / `gives` over `item:*`, `flag:*`, `weapon:*` tokens (see `config/levels/mesto/tasks.json`).
+- Level logic is a task dependency web: each task has `requires` / `consumes` / `gives` over `item:*`, `flag:*`, `weapon:*` tokens (see `config/levels/mesto/tasks.json`). Items live in `config/items.json` (`src/game/items.ts`); item props name their item and `world.inventory` holds picked ones.
 
 Code layout:
 

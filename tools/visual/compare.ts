@@ -337,7 +337,7 @@ const gunCases = [
   ),
 ];
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], lift: [0, 1, 2], switchboard: [0, 1], crowbar: [0, 1] };
+const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], lift: [0, 1, 2], switchboard: [0, 1], crowbar: [0, 1], craneKey: [0, 2] };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],

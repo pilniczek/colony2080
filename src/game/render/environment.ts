@@ -3,6 +3,7 @@ import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset, TILE, type Size } from "../env/paint";
 import type { MovementConfig } from "../hero/config";
 import { RUNG, spikeUnit } from "../hero/look";
+import { ITEMS } from "../items";
 import type { Lift, Prop, SandboxWorld, Scenery } from "../level/sandboxLevel";
 
 const SKY_H = 170;
@@ -11,7 +12,7 @@ const LIFT_HEAD = 32;
 const LADDER_W = 56;
 const HAZE = "rgba(26, 12, 8, 0.45)";
 
-const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", item: "crowbar", panel: "switchboard" };
+const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", panel: "switchboard" };
 
 interface Layer {
   key: string;
@@ -131,8 +132,8 @@ function ladders(e: Env): void {
 }
 
 function prop(e: Env, p: Prop): void {
-  const id = PROP_ASSETS[p.kind];
-  if (!id || (p.kind === "item" && p.taken)) return;
+  const id = p.kind === "item" ? (p.taken ? null : ITEMS[p.item!]!.icon.asset) : PROP_ASSETS[p.kind];
+  if (!id) return;
   const [left, , right] = ASSETS[id].box;
   put(e, id, p.x * e.cell - ((left + right) / 2) * k(e), (p.y ?? e.world.spawn[1]) * e.cell, p.kind === "panel" && p.on ? 1 : 0);
 }

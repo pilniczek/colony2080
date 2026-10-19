@@ -34,7 +34,7 @@
   <label>Reserve <input id="reserve" type="range" min="0" max="100" value="100"></label>
   <label><input id="running" type="checkbox" checked> Run</label>
   <label>Shields <input id="shields" type="number" min="0" max="5" value="3"></label>
-  <label><input id="crowbar" type="checkbox"> Crowbar taken</label>
+  <label>Item <select id="item"><option value="">none</option></select></label>
 </header>
 <main class="full">
   <figure><figcaption>Vector HUD</figcaption><div id="big"></div></figure>
@@ -149,18 +149,32 @@ const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
 
 const HAND_SCALE = .8, HAND_DRAWN = { w: 12, h: 13 };
 const HAND_BOX = { w: HAND_DRAWN.w * HAND_SCALE, h: HAND_DRAWN.h * HAND_SCALE };
-const CROWBAR_SCALE = 1.25;
-const CROWBAR_BOX = { w: HAND_BOX.w * CROWBAR_SCALE, h: HAND_BOX.h * CROWBAR_SCALE };
-const CROWBAR_TILT = Math.PI / 4;
-const CROWBAR_ICON = { w: CROWBAR_BOX.w, h: CROWBAR_BOX.h, url: icon(CROWBAR_BOX.w, CROWBAR_BOX.h, (ctx) => {
-  const asset = window.ENV.ASSETS.find((a) => a.id === "crowbar"), [x0, y0, x1, y1] = asset.box;
-  const s = Math.min(CROWBAR_BOX.w, CROWBAR_BOX.h) / ((x1 - x0 + (y1 - y0)) * Math.cos(CROWBAR_TILT));
-  ctx.translate(CROWBAR_BOX.w / 2, CROWBAR_BOX.h / 2);
-  ctx.rotate(-CROWBAR_TILT);
-  ctx.scale(s, s);
-  ctx.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
-  window.ENV.draw(ctx, asset, { state: 0, lod: false, lines: 1 });
-}) };
+const ITEMS = window.C28_CONFIG.items;
+const itemIcon = ({ asset, tilt, scale }) => {
+  const w = HAND_BOX.w * scale, h = HAND_BOX.h * scale;
+  return { w, h, url: icon(w, h, (ctx) => {
+    if (asset === null) {
+      const r = Math.min(w, h) * .32;
+      ctx.fillStyle = "#6a4206";
+      ctx.strokeStyle = "#f0a818";
+      ctx.lineWidth = .5;
+      ctx.beginPath();
+      ctx.roundRect(w / 2 - r, h / 2 - r, 2 * r, 2 * r, 1);
+      ctx.fill();
+      ctx.stroke();
+      return;
+    }
+    const def = window.ENV.ASSETS.find((a) => a.id === asset), [x0, y0, x1, y1] = def.box, angle = tilt * Math.PI / 180;
+    const s = Math.min(w, h) / ((x1 - x0) * Math.cos(angle) + (y1 - y0) * Math.sin(angle));
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate(-angle);
+    ctx.scale(s, s);
+    ctx.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+    window.ENV.draw(ctx, def, { state: 0, lod: false, lines: 1 });
+  }) };
+};
+const ITEM_ICONS = Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, itemIcon(item.icon)]));
+for (const [id, item] of Object.entries(ITEMS)) $("item").add(new Option(item.name, id));
 
 const GUN = `<image href="${GUN_ICON.url}" x="19" y="2.9" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
 const FIST = `<image href="${FIST_ICON.url}" x="84" y="2.4" width="${FIST_ICON.w}" height="${FIST_ICON.h}"/>`;
@@ -186,9 +200,9 @@ function rod(a, b, y) {
 
 function topBar(W, s) {
   const edge = 0, gap = 2, pad = 3.5, invW = 46.5, runW = 18, inv = W - edge - pad - invW, run = inv - 2 * pad - gap - runW, badge = run - 52.4 - gap - pad;
-  const slotX = inv + 5, handW = HAND_BOX.w, label = s.crowbar ? "crowbar" : "nothing", centre = slotX + handW / 2, freeFrom = centre + (s.crowbar ? CROWBAR_ICON.w : handW) / 2;
+  const slotX = inv + 5, handW = HAND_BOX.w, held = s.item ? ITEM_ICONS[s.item] : null, label = held ? ITEMS[s.item].name : "nothing", centre = slotX + handW / 2, freeFrom = centre + (held ? held.w : handW) / 2;
   const hand = `<g transform="translate(${slotX + handW / 2} 9.1) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} -9.1)">${HAND}</g>`;
-  const art = s.crowbar ? `<image href="${CROWBAR_ICON.url}" x="${centre - CROWBAR_ICON.w / 2}" y="${9.1 - CROWBAR_ICON.h / 2}" width="${CROWBAR_ICON.w}" height="${CROWBAR_ICON.h}"/>` : hand;
+  const art = held ? `<image href="${held.url}" x="${centre - held.w / 2}" y="${9.1 - held.h / 2}" width="${held.w}" height="${held.h}"/>` : hand;
   const item = art + readout((freeFrom + inv + invW) / 2, label);
   const fixedEnd = badge - (W - 320) - 4 - gap, empty = [fixedEnd + gap, badge - 4 - gap];
   const wide = empty[1] - empty[0] >= 8;
@@ -365,7 +379,7 @@ function state() {
     reserve: +$("reserve").value,
     shields: +$("shields").value,
     running: $("running").checked,
-    crowbar: $("crowbar").checked
+    item: $("item").value
   };
 }
 

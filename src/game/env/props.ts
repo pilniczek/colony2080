@@ -83,6 +83,26 @@ export const crowbar: EnvAsset = {
   },
 };
 
+export const craneKey: EnvAsset = {
+  id: "craneKey",
+  box: [-2, -6, 12, 0],
+  draw(ctx, state) {
+    if (state === 2) return scuff(ctx, 0, 10);
+    ctx.save();
+    ctx.translate(0, -1.4);
+    ctx.beginPath();
+    ctx.arc(2.2, -1.2, 2, 0, PI * 2);
+    ctx.arc(2.2, -1.2, 0.9, 0, PI * 2, true);
+    ctx.fillStyle = color("y1");
+    ctx.fill("evenodd");
+    stroke(ctx, "yLine");
+    box(ctx, 4, -1.9, 5.6, 1.4, "yellow", 2);
+    poly(ctx, [[7, -0.5], [7.8, -0.5], [7.8, 1], [7, 1]], "yellow", 1);
+    poly(ctx, [[8.6, -0.5], [9.6, -0.5], [9.6, 1.4], [8.6, 1.4]], "yellow", 1);
+    ctx.restore();
+  },
+};
+
 export const crate: EnvAsset = {
   id: "crate",
   box: [-2, -30, 34, 0],
@@ -151,4 +171,4 @@ export const rubblePile: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, crowbar, crate, signPost, floorVent, rubblePile];
+export const propAssets: EnvAsset[] = [barrel, crowbar, craneKey, crate, signPost, floorVent, rubblePile];

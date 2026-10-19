@@ -1,0 +1,16 @@
+{
+  "status": "draft",
+  "source": "config/levels/mesto/tasks.json task graph, docs/research/reports/06-cz-walkthroughs.md",
+  "items": {
+    "crowbar": { "name": "crowbar", "cs": "Páčidlo", "icon": { "asset": "crowbar", "tilt": 45, "scale": 1.25 } },
+    "wires": { "name": "wires", "cs": "Dráty", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "tapHandle": { "name": "tap handle", "cs": "Kohout uzávěru", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "card": { "name": "card", "cs": "Karta", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "holoPlan": { "name": "holo plan", "cs": "Holog. plán", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "shipPlan": { "name": "ship plan", "cs": "Nákres", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "shipPart": { "name": "ship part", "cs": "Součástka", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "decoder": { "name": "decoder", "cs": "Dekodér", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "controller": { "name": "controller", "cs": "Ovladač", "icon": { "asset": null, "tilt": 0, "scale": 1 } },
+    "craneKey": { "name": "crane key", "cs": "Klíč", "icon": { "asset": "craneKey", "tilt": 30, "scale": 1.25 } }
+  }
+}

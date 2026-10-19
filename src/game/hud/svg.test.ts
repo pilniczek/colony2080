@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { CROWBAR_SCALE, HAND_BOX, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
+import { HAND_BOX, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
-const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", w: HAND_BOX.w * CROWBAR_SCALE, h: HAND_BOX.h * CROWBAR_SCALE } } };
-const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, reserve: 100, shields: 3, running: true, items: [] };
+const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", w: 12, h: 13 }, craneKey: { url: "craneKey.png", w: 12, h: 13 }, wires: { url: "placeholder.png", w: 12, h: 13 } } };
+const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, reserve: 100, shields: 3, running: true, item: null };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
 const count = (svg: string, text: string): number => svg.split(text).length - 1;
@@ -44,27 +44,27 @@ describe("hudSvg", () => {
       const m = /<g transform="translate\(([\d.]+) [\d.]+\) scale\([\d.]+\) translate\([-\d.]+ [-\d.]+\)"><g transform="translate\(0 2\.6\)"/.exec(svg);
       return m ? Number(m[1]) - HAND_BOX.w / 2 : null;
     };
-    const crowbarX = (svg: string): number => Number(/<image href="crowbar\.png" x="([\d.]+)"/.exec(svg)![1]);
+    const imageX = (svg: string, file: string): number => Number(new RegExp(`<image href="${file}" x="([\\d.]+)"`).exec(svg)![1]);
     const bar = hudSvg(320, 200, base, icons);
 
-    it("replaces the hand with the held item and labels it", () => {
-      const svg = hudSvg(320, 200, { ...base, items: ["crowbar"] }, icons);
-      expect(crowbarX(svg) + (HAND_BOX.w * CROWBAR_SCALE) / 2).toBeCloseTo(handX(bar)! + HAND_BOX.w / 2, 6);
+    it("replaces the hand with the shown item and labels it with its name", () => {
+      const svg = hudSvg(320, 200, { ...base, item: "craneKey" }, icons);
+      expect(imageX(svg, "craneKey.png") + 6).toBeCloseTo(handX(bar)! + HAND_BOX.w / 2, 6);
       expect(handX(svg)).toBeNull();
-      expect(svg).toContain(">crowbar</text>");
+      expect(svg).toContain(">crane key</text>");
       expect(svg).not.toContain(">nothing</text>");
     });
 
-    it("shows the hand and nothing when no item is held", () => {
+    it("shows the placeholder icon and name of an item without an env asset", () => {
+      const svg = hudSvg(320, 200, { ...base, item: "wires" }, icons);
+      expect(svg).toContain('<image href="placeholder.png"');
+      expect(svg).toContain(">wires</text>");
+    });
+
+    it("shows the hand and nothing when no item is shown", () => {
       expect(handX(bar)).toBeGreaterThan(0);
       expect(bar).toContain(">nothing</text>");
       expect(bar).not.toContain("crowbar.png");
-    });
-
-    it("shows the empty hand for a held item without an icon", () => {
-      const svg = hudSvg(320, 200, { ...base, items: ["unknown"] }, icons);
-      expect(handX(svg)).toBeGreaterThan(0);
-      expect(svg).toContain(">nothing</text>");
     });
   });
 

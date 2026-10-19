@@ -1,18 +1,6 @@
 {
   "status": "draft",
   "source": "docs/research/reports/06-cz-walkthroughs.md",
-  "items": {
-    "crowbar": { "cs": "Páčidlo" },
-    "wires": { "cs": "Dráty" },
-    "tapHandle": { "cs": "Kohout uzávěru" },
-    "card": { "cs": "Karta" },
-    "holoPlan": { "cs": "Holog. plán" },
-    "shipPlan": { "cs": "Nákres" },
-    "shipPart": { "cs": "Součástka" },
-    "decoder": { "cs": "Dekodér" },
-    "controller": { "cs": "Ovladač" },
-    "craneKey": { "cs": "Klíč" }
-  },
   "tasks": [
     { "id": "talkRebel", "marker": 1, "requires": [], "gives": ["flag:rebelTalked"] },
     { "id": "takeCrowbar", "marker": 2, "requires": [], "gives": ["item:crowbar"] },

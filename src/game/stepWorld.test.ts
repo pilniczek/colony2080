@@ -9,7 +9,7 @@ import { FIXED_STEP } from "../engine/loop";
 import { loadClips, loadMovement } from "./hero/config";
 import { createFog, loadFog } from "./fog";
 import { createHero, kill, type Hero } from "./hero/hero";
-import { loadSandbox } from "./level/sandboxLevel";
+import { loadSandbox, pickUp } from "./level/sandboxLevel";
 import { stepWorld } from "./stepWorld";
 
 const scenario = loadMovement(movementJson);
@@ -75,6 +75,7 @@ describe("map reset on hero respawn", () => {
     const hero = createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
     world.fog = createFog(loadFog(cameraJson), cfg, hero, world.grid);
     world.props.find((p) => p.kind === "item")!.taken = true;
+    pickUp(world, "crowbar");
     world.props.find((p) => p.kind === "panel")!.on = true;
     for (const lift of world.lifts) {
 
@@ -92,6 +93,7 @@ describe("map reset on hero respawn", () => {
     for (let i = 0; i < Math.ceil(cfg.respawnMs / 1000 / FIXED_STEP) + 5; i++) step(world, hero);
 
     expect(world.props.find((p) => p.kind === "item")!.taken).toBeFalsy();
+    expect(world.inventory).toEqual({ items: [], shown: null });
     expect(world.props.find((p) => p.kind === "panel")!.on).toBeFalsy();
     expect(world.lifts.map((l) => [l.y, l.target])).toEqual(fresh.lifts.map((l) => [l.y, null]));
     expect(world.enemies.map((e) => [e.hits, e.deadAge])).toEqual(fresh.enemies.map((e) => [e.hits, null]));

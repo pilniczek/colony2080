@@ -22,11 +22,11 @@ export function Hud() {
   const max = useSandbox((s) => s.movement.energy.max);
   const weapon = useSandbox((s) => s.weapon);
   const running = useSandbox((s) => s.running);
-  const items = useSandbox((s) => s.items);
+  const item = useSandbox((s) => s.item);
   const svg = useMemo(() => {
-    const state: HudState = { ...UNSIMULATED, weapon: weapon === "gun" ? 0 : 1, life: (100 * energy) / max, reserve, shields, running, ammo, items };
+    const state: HudState = { ...UNSIMULATED, weapon: weapon === "gun" ? 0 : 1, life: (100 * energy) / max, reserve, shields, running, ammo, item };
     return hudSvg(fit.W, fit.H, state, icons, KEYS);
-  }, [fit.W, fit.H, energy, reserve, shields, ammo, max, weapon, running, items, icons]);
+  }, [fit.W, fit.H, energy, reserve, shields, ammo, max, weapon, running, item, icons]);
   return (
     <div
       style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none" }}

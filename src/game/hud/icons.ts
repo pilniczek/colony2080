@@ -1,13 +1,13 @@
 import { drawRig } from "../../engine/rig/draw";
 import type { GroupNode, RigNode } from "../../engine/rig/tree";
-import { ASSETS } from "../env/assets";
+import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
 import { buildSide, ROBOT } from "../robot/xbot";
-import { CROWBAR_SCALE, HAND_BOX, type HudIcon, type HudIcons } from "./svg";
+import { ITEMS, type Item } from "../items";
+import { HAND_BOX, type HudIcon, type HudIcons } from "./svg";
 
 const PX_PER_UNIT = 12;
-const CROWBAR_TILT = Math.PI / 4;
 const FIST_BOX = { x: 290, y: -386, w: 194, h: 146 };
 
 function icon(w: number, h: number, paint: (ctx: CanvasRenderingContext2D) => void): HudIcon {
@@ -31,6 +31,36 @@ export function findGroup(node: RigNode, name: string): GroupNode | null {
   return null;
 }
 
+function placeholder(ctx: CanvasRenderingContext2D, w: number, h: number): void {
+  const r = Math.min(w, h) * 0.32;
+  ctx.fillStyle = "#6a4206";
+  ctx.strokeStyle = "#f0a818";
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.roundRect(w / 2 - r, h / 2 - r, 2 * r, 2 * r, 1);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function assetIcon(ctx: CanvasRenderingContext2D, asset: AssetId, tilt: number, w: number, h: number): void {
+  const def = ASSETS[asset];
+  const [x0, y0, x1, y1] = def.box;
+  const angle = (tilt * Math.PI) / 180;
+  const reach = (x1 - x0) * Math.cos(angle) + (y1 - y0) * Math.sin(angle);
+  const s = Math.min(w, h) / reach;
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(-angle);
+  ctx.scale(s, s);
+  ctx.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+  drawAsset(ctx, def, { state: 0, lod: false, lines: 1 });
+}
+
+function itemIcon({ icon: { asset, tilt, scale } }: Item): HudIcon {
+  const w = HAND_BOX.w * scale;
+  const h = HAND_BOX.h * scale;
+  return icon(w, h, (ctx) => (asset === null ? placeholder(ctx, w, h) : assetIcon(ctx, asset, tilt, w, h)));
+}
+
 export function hudIcons(): HudIcons {
   const gun = icon(35, 14, (ctx) => {
     ctx.scale(0.1, 0.1);
@@ -49,16 +79,5 @@ export function hudIcons(): HudIcons {
     ctx.rotate(-Math.PI / 2);
     drawRig(ctx, { ...fore, m: null, name: undefined }, { palette: ROBOT.palette });
   });
-  const crowbarBox = { w: HAND_BOX.w * CROWBAR_SCALE, h: HAND_BOX.h * CROWBAR_SCALE };
-  const crowbar = icon(crowbarBox.w, crowbarBox.h, (ctx) => {
-    const [x0, y0, x1, y1] = ASSETS.crowbar.box;
-    const reach = (x1 - x0 + (y1 - y0)) * Math.cos(CROWBAR_TILT);
-    const s = Math.min(crowbarBox.w, crowbarBox.h) / reach;
-    ctx.translate(crowbarBox.w / 2, crowbarBox.h / 2);
-    ctx.rotate(-CROWBAR_TILT);
-    ctx.scale(s, s);
-    ctx.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
-    drawAsset(ctx, ASSETS.crowbar, { state: 0, lod: false, lines: 1 });
-  });
-  return { gun, fist, items: { crowbar } };
+  return { gun, fist, items: Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, itemIcon(item)])) };
 }

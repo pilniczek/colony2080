@@ -2,7 +2,7 @@ import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox } from "../../engine/world/collide";
 import { cfg, game, run, runUntil, RUNNING, tick } from "../hero/testWorld";
-import { callLift, heldItems, loadSandbox, resetWorld, updateLift } from "./sandboxLevel";
+import { callLift, loadSandbox, pickUp, resetWorld, updateLift } from "./sandboxLevel";
 
 const dt = 1 / 60;
 
@@ -156,14 +156,33 @@ describe("moving lift", () => {
   });
 });
 
-describe("held items", () => {
-  it("lists the crowbar once taken and clears it when the map resets", () => {
+describe("inventory", () => {
+  it("takes the crowbar from its prop and shows it", () => {
     const g = game({ x: 9.5, y: 14 });
-    expect(heldItems(g.world)).toEqual([]);
+    expect(g.world.inventory).toEqual({ items: [], shown: null });
     tick(g, ["down"]);
     runUntil(g, (h) => h.state === "idle");
-    expect(heldItems(g.world)).toEqual(["crowbar"]);
+    expect(g.world.inventory).toEqual({ items: ["crowbar"], shown: "crowbar" });
+  });
+
+  it("shows the newest item and keeps the older one in the list", () => {
+    const world = loadSandbox(sandbox);
+    pickUp(world, "crowbar");
+    pickUp(world, "craneKey");
+    expect(world.inventory).toEqual({ items: ["crowbar", "craneKey"], shown: "craneKey" });
+  });
+
+  it("empties and restores the props when the map resets", () => {
+    const g = game({ x: 9.5, y: 14 });
+    pickUp(g.world, "crowbar");
+    pickUp(g.world, "craneKey");
+    g.world.props.forEach((p) => (p.taken = true));
     resetWorld(g.world, cfg);
-    expect(heldItems(g.world)).toEqual([]);
+    expect(g.world.inventory).toEqual({ items: [], shown: null });
+    expect(g.world.props.filter((p) => p.kind === "item").map((p) => [p.item, p.taken])).toEqual([["crowbar", undefined], ["craneKey", undefined]]);
+  });
+
+  it("rejects an item prop with an unknown item", () => {
+    expect(() => loadSandbox({ ...sandbox, props: [{ kind: "item", x: 1, item: "nope" }] })).toThrow("unknown item: nope");
   });
 });

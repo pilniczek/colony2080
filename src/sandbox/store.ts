@@ -6,6 +6,7 @@ import type { InputRecord } from "../engine/input";
 import { loadFog } from "../game/fog";
 import { hudFit, type HudFit } from "../game/hud/layout";
 import { loadClips, loadMovement, type ClipSet, type HeroState, type MovementConfig, type Weapon } from "../game/hero/config";
+import type { ItemId } from "../game/items";
 
 export type OverlayName = "hitbox" | "tiles" | "joints" | "info";
 export type ClipField = "duration" | "travel";
@@ -19,7 +20,7 @@ export interface SandboxState {
   shields: number;
   reserve: number;
   ammo: number;
-  items: string[];
+  item: ItemId | null;
   weapon: Weapon;
   running: boolean;
   fps: number;
@@ -93,7 +94,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   shields: 0,
   reserve: 100,
   ammo: 0,
-  items: [],
+  item: null,
   weapon: "gun",
   running: true,
   fps: 0,

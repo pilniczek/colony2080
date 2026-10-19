@@ -2,7 +2,7 @@ import type { InputFrame } from "../../engine/input";
 import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
-import { callLift, liftAt, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { callLift, liftAt, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { clipFor, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
@@ -505,6 +505,7 @@ function pickup(s: Step): void {
   const item = touching(s, "item");
   if (!item) return;
   item.taken = true;
+  pickUp(s.world, item.item!);
   emit(s, "pickup");
 }
 

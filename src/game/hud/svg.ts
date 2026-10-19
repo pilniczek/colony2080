@@ -1,3 +1,4 @@
+import { ITEMS, type ItemId } from "../items";
 import { HUD_H, topBar, VIEW_BOX, type Span } from "./layout";
 
 export interface HudState {
@@ -9,7 +10,7 @@ export interface HudState {
   reserve: number;
   shields: number;
   running: boolean;
-  items: string[];
+  item: ItemId | null;
 }
 
 export interface HudIcon {
@@ -21,7 +22,7 @@ export interface HudIcon {
 export interface HudIcons {
   gun: HudIcon;
   fist: HudIcon;
-  items: Partial<Record<string, HudIcon>>;
+  items: Record<ItemId, HudIcon>;
 }
 
 export interface HudKeys {
@@ -84,7 +85,6 @@ const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" st
 
 export const HAND_SCALE = 0.8;
 const HAND_DRAWN = { w: 12, h: 13 };
-export const CROWBAR_SCALE = 1.25;
 export const HAND_BOX = { w: HAND_DRAWN.w * HAND_SCALE, h: HAND_DRAWN.h * HAND_SCALE };
 
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
@@ -121,26 +121,24 @@ function badge(x: number): string {
   ${screw(x + 2.4, 3.2)}${screw(x + 45.6, 3.2)}${screw(x + 2.4, 17.2)}${screw(x + 45.6, 17.2)}`;
 }
 
-const ITEM_NAMES: Record<string, string> = { crowbar: "crowbar" };
 const SLOT_ICON_X = 5;
 const SLOT_MID_Y = 9.1;
 
 const handAt = (left: number): string =>
   `<g transform="translate(${left + HAND_BOX.w / 2} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-SLOT_MID_Y})">${HAND}</g>`;
 
-function slot(x: number, w: number, items: string[], icons: HudIcons): string {
-  const id = items.find((i) => icons.items[i]);
-  const icon = id === undefined ? undefined : icons.items[id];
+function slot(x: number, w: number, item: ItemId | null, icons: HudIcons): string {
+  const icon = item === null ? undefined : icons.items[item];
   const left = x + SLOT_ICON_X;
   const centre = left + HAND_BOX.w / 2;
   const art = icon ? image(icon, centre - icon.w / 2, SLOT_MID_Y - icon.h / 2) : handAt(left);
-  const label = id === undefined ? "nothing" : (ITEM_NAMES[id] ?? id);
+  const label = item === null ? "nothing" : (ITEMS[item]?.name ?? item);
   return art + readout((centre + (icon?.w ?? HAND_BOX.w) / 2 + x + w) / 2, label);
 }
 
 function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   const bar = topBar(W);
-  const item = slot(bar.inv, bar.invW, s.items, icons);
+  const item = slot(bar.inv, bar.invW, s.item, icons);
   return `<rect x="${bar.gaps[0]![1]}" width="${W - 2 * bar.gaps[0]![1]}" height="${BAR_H}" fill="#060504"/>
   ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map(plate).join("")}
