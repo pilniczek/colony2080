@@ -2,7 +2,7 @@ import type { InputFrame } from "../../engine/input";
 import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
-import { callLift, liftAt, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { callLift, liftAt, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { clipFor, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
@@ -532,13 +532,19 @@ function horizontalSpeed(s: Step): number {
   return h.facing * travelSpeed(clipOf(s));
 }
 
+function keepOnDeck(from: number, to: number, lift: Lift, cfg: MovementConfig): number {
+  const half = cfg.box.width / 2;
+  return Math.min(Math.max(to, Math.min(from, lift.x + half)), Math.max(from, lift.x + lift.w - half));
+}
+
 function physics(s: Step): void {
   const { h, world, cfg, dt } = s;
   const box = boxOf(h, cfg);
   const carrier = h.onLift ? liftAt(world, h, cfg) : null;
   if (carrier) box.y = moveBox(box, 0, carrier.vy * dt, world.grid, world.lifts).y;
   const vy = Math.min(h.vy + cfg.gravity * dt, cfg.maxFallSpeed);
-  const r = moveBox(box, h.vx * dt, ((h.vy + vy) / 2) * dt, world.grid, world.lifts);
+  const dx = carrier?.target != null ? keepOnDeck(h.x, h.x + h.vx * dt, carrier, cfg) - h.x : h.vx * dt;
+  const r = moveBox(box, dx, ((h.vy + vy) / 2) * dt, world.grid, world.lifts);
   h.x = r.x;
   h.y = r.y;
   h.vy = (r.hitY && vy < 0) || (r.onGround && vy > 0) ? 0 : vy;

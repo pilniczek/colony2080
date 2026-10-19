@@ -122,6 +122,24 @@ describe("hide", () => {
     expect([...g.seen]).toEqual(["idle"]);
     expect(g.hero.hidden).toBe(false);
   });
+
+  it("walks, runs and shoots on a moving lift but stops at its edge", () => {
+    for (const [dir, edge] of [
+      ["moveRight", 20 - cfg.box.width / 2],
+      ["moveLeft", 17 + cfg.box.width / 2],
+    ] as const) {
+      const g = game({ x: 18.5, y: 14, weapon: "gun" });
+      tick(g);
+      tick(g, [], ["up"]);
+      run(g, 0.6, [dir, RUNNING, "shoot"]);
+      const lift = g.world.lifts[0]!;
+      expect(lift.target).not.toBeNull();
+      expect(g.hero).toMatchObject({ state: "run", onLift: true });
+      expect(g.hero.x).toBeCloseTo(edge, 6);
+      expect(g.hero.y).toBeCloseTo(lift.y, 6);
+      expect(kinds(g, "shot").length).toBeGreaterThan(1);
+    }
+  });
 });
 
 describe("projectiles", () => {
