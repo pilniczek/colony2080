@@ -83,8 +83,8 @@ const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" st
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
 export const HAND_SCALE = 0.8;
-const HAND_W = 12 * HAND_SCALE;
-const HAND_DRAWN_W = 12;
+const HAND_DRAWN = { w: 12, h: 13 };
+export const HAND_BOX = { w: HAND_DRAWN.w * HAND_SCALE, h: HAND_DRAWN.h * HAND_SCALE };
 
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
 
@@ -125,7 +125,7 @@ const SLOT_ICON_X = 5;
 const SLOT_MID_Y = 9.1;
 
 const handAt = (left: number): string =>
-  `<g transform="translate(${left + HAND_W / 2} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN_W / 2} ${-SLOT_MID_Y})">${HAND}</g>`;
+  `<g transform="translate(${left + HAND_BOX.w / 2} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-SLOT_MID_Y})">${HAND}</g>`;
 
 function slot(x: number, w: number, items: string[], icons: HudIcons): string {
   const id = items.find((i) => icons.items[i]);
@@ -133,7 +133,7 @@ function slot(x: number, w: number, items: string[], icons: HudIcons): string {
   const left = x + SLOT_ICON_X;
   const art = icon ? image(icon, left, SLOT_MID_Y - icon.h / 2) : handAt(left);
   const label = id === undefined ? "nothing" : (ITEM_NAMES[id] ?? id);
-  return art + readout((left + (icon?.w ?? HAND_W) + x + w) / 2, label);
+  return art + readout((left + (icon?.w ?? HAND_BOX.w) + x + w) / 2, label);
 }
 
 function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
@@ -181,7 +181,6 @@ const weapon = (content: string, active: boolean): string => `<g filter="url(#${
 
 const readout = (x: number, label: string): string =>
   `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">${label}</text>`;
-
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 

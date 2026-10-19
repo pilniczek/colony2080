@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { HAND_SCALE, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
+import { HAND_BOX, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
-const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", w: 14, h: 4 } } };
+const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", w: HAND_BOX.w, h: HAND_BOX.h } } };
 const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, reserve: 100, shields: 3, running: true, items: [] };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
@@ -42,7 +42,7 @@ describe("hudSvg", () => {
   describe("inventory slot", () => {
     const handX = (svg: string): number | null => {
       const m = /<g transform="translate\(([\d.]+) [\d.]+\) scale\([\d.]+\) translate\([-\d.]+ [-\d.]+\)"><g transform="translate\(0 2\.6\)"/.exec(svg);
-      return m ? Number(m[1]) - (12 * HAND_SCALE) / 2 : null;
+      return m ? Number(m[1]) - HAND_BOX.w / 2 : null;
     };
     const crowbarX = (svg: string): number => Number(/<image href="crowbar\.png" x="([\d.]+)"/.exec(svg)![1]);
     const bar = hudSvg(320, 200, base, icons);
