@@ -51,7 +51,7 @@ Claude's call:
 - Subtitles: our own short English wording per task and block. No original game text, translated or not (no original game online rule). Bottom of the game window, yellow, fade after a few seconds, newest replaces the current one.
 - Inventory as a stack: every picked item stays in the inventory, the newest is shown and only it can be used. Every use consumes the item it uses, so the one picked before it shows again (user).
 - Lifts may have more than two stops if the decoded table says so; the lift model and the reach rule widen to N stops. The repaired damaged lift (marker 13) gets its stops from the shafts in the map rows above it.
-- `tasks.json` rewritten: `acidGuard` becomes `useAcidTank` (gives a flag, kills nothing), `shootGuard` and `takeEBlaster` go, new `takeCraneKey` pickup at the original key cell every item use consumes the item.
+- `tasks.json` rewritten: `acidGuard` becomes `useAcidTank` (gives a flag, kills nothing), `shootGuard` and `takeEBlaster` go, new `takeCraneKey` pickup at the original key cell; every item use consumes the item.
 - Dying rebel (marker 1) placed and usable: ENTER gives `flag:rebelTalked` and a subtitle, then it lies as a corpse.
 - After "level complete" the game freezes (no input, enemies stop) under the subtitle and the home page link.
 - Shootable props: a prop with a `shootable` hit box stops hero bullets with a spark and counts hits; at its hit count it switches state (hull cover falls, ship part drops as a pickup). All other props stay transparent to bullets.
