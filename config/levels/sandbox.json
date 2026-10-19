@@ -29,9 +29,9 @@
     { "asset": "facadeTower", "x": 31 }
   ],
   "dressing": [
-    { "asset": "rubblePile", "x": 7.5 },
-    { "asset": "signPost", "x": 12 },
-    { "asset": "floorVent", "x": 14 },
+    { "asset": "rubblePile", "x": 11.5 },
+    { "asset": "signPost", "x": 1.2 },
+    { "asset": "floorVent", "x": 7.5 },
     { "asset": "pipeColumn", "x": 27 },
     { "asset": "stripLight", "x": 32 }
   ],
