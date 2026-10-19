@@ -1,5 +1,5 @@
 import { SHIELDS_MAX } from "../../game/hud/svg";
-import { useSandbox } from "../store";
+import { BLASTER_AMMO_MAX, useSandbox } from "../store";
 import { Button, Section, styles, type SandboxCommands } from "./Panel";
 import { NumberField } from "./Tuning";
 
@@ -9,6 +9,7 @@ export function Recorder({ commands }: { commands: SandboxCommands }) {
   const record = useSandbox((s) => s.record);
   const weapon = useSandbox((s) => s.weapon);
   const ammo = useSandbox((s) => s.ammo);
+  const blaster = useSandbox((s) => s.blaster);
   const shields = useSandbox((s) => s.shields);
   const locked = recording || playing;
   return (
@@ -32,6 +33,9 @@ export function Recorder({ commands }: { commands: SandboxCommands }) {
         <Button active={weapon === "gun"} disabled={ammo <= 0} onClick={() => commands.setWeapon("gun")}>
           Gun
         </Button>
+        <Button active={weapon === "blaster"} disabled={!blaster} onClick={() => commands.setWeapon("blaster")}>
+          Blaster
+        </Button>
         <Button disabled={locked} onClick={commands.hit}>
           Hit
         </Button>
@@ -40,6 +44,7 @@ export function Recorder({ commands }: { commands: SandboxCommands }) {
         </Button>
       </div>
       {!locked && <NumberField label="ammo" value={ammo} onCommit={commands.setAmmo} min={0} />}
+      {!locked && <NumberField label="blaster ammo" value={blaster ?? 0} onCommit={commands.setBlaster} min={0} max={BLASTER_AMMO_MAX} />}
       {!locked && <NumberField label="shields" value={shields} onCommit={commands.setShields} min={0} max={SHIELDS_MAX} />}
     </Section>
   );

@@ -2,7 +2,7 @@ import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox } from "../../engine/world/collide";
 import { cfg, game, run, runUntil, RUNNING, tick } from "../hero/testWorld";
-import { callLift, loadSandbox, pickUp, resetWorld, updateLift } from "./sandboxLevel";
+import { callLift, loadSandbox, onGround, pickUp, resetWorld, updateLift } from "./sandboxLevel";
 
 const dt = 1 / 60;
 
@@ -227,5 +227,26 @@ describe("inventory", () => {
 
   it("rejects an item prop with an unknown item", () => {
     expect(() => loadSandbox({ ...sandbox, props: [{ kind: "item", x: 1, item: "nope" }] })).toThrow("unknown item: nope");
+  });
+});
+
+describe("weapon prop", () => {
+  it("loads the E-Blaster prop of the sandbox", () => {
+    expect(loadSandbox(sandbox).props.filter((p) => p.kind === "weapon").map((p) => p.weapon)).toEqual(["blaster"]);
+  });
+
+  it("rejects a weapon prop with an unknown weapon", () => {
+    expect(() => loadSandbox({ ...sandbox, props: [{ kind: "weapon", x: 1, weapon: "nope" }] })).toThrow("unknown weapon: nope");
+  });
+
+  it("lies on the ground only while the hero has no E-Blaster", () => {
+    const world = loadSandbox(sandbox);
+    const prop = world.props.find((p) => p.kind === "weapon")!;
+    expect(onGround(prop, { blaster: null })).toBe(true);
+    expect(onGround(prop, { blaster: 0 })).toBe(false);
+    resetWorld(world, cfg);
+    expect(onGround(world.props.find((p) => p.kind === "weapon")!, { blaster: 400 })).toBe(false);
+    expect(onGround({ kind: "item", item: "crowbar", x: 1 }, { blaster: 400 })).toBe(true);
+    expect(onGround({ kind: "item", item: "crowbar", x: 1, taken: true }, { blaster: null })).toBe(false);
   });
 });

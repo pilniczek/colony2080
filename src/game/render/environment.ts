@@ -2,10 +2,11 @@ import { FIXED_STEP } from "../../engine/loop";
 import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset, TILE, type Size } from "../env/paint";
 import type { MovementConfig } from "../hero/config";
+import type { Hero } from "../hero/hero";
 import { RUNG, spikeUnit } from "../hero/look";
 import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
-import type { Lift, Prop, SandboxWorld, Scenery } from "../level/sandboxLevel";
+import { onGround, type Lift, type Prop, type SandboxWorld, type Scenery } from "../level/sandboxLevel";
 import { nearestFirst, TileCache, TILE_PX, visibleTiles } from "./tiles";
 
 const SKY_H = 170;
@@ -14,7 +15,7 @@ const LIFT_HEAD = 32;
 const LADDER_W = 56;
 const HAZE = "rgba(26, 12, 8, 0.45)";
 
-const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", panel: "switchboard" };
+const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", panel: "switchboard", weapon: "eBlaster" };
 
 
 const TILE_MARGIN = 1;
@@ -26,6 +27,7 @@ const layers = new WeakMap<SandboxWorld, Record<string, TileCache<HTMLCanvasElem
 export interface Env {
   ctx: CanvasRenderingContext2D;
   world: SandboxWorld;
+  hero: Pick<Hero, "blaster">;
   cell: number;
   unit: number;
   lines: number;
@@ -164,7 +166,7 @@ function ladders(e: Env): void {
 }
 
 export function prop(e: Env, p: Prop): void {
-  if (p.kind === "item" && p.taken) return;
+  if ((p.kind === "item" || p.kind === "weapon") && !onGround(p, e.hero)) return;
   const icon = p.kind === "item" ? ITEMS[p.item!]!.icon : null;
   const id = p.kind === "item" ? icon?.asset : (p.asset ?? PROP_ASSETS[p.kind]);
   if (!id) return;
@@ -175,12 +177,13 @@ export function prop(e: Env, p: Prop): void {
 export function drawEnvironment(
   ctx: CanvasRenderingContext2D,
   world: SandboxWorld,
+  hero: Pick<Hero, "blaster">,
   cfg: MovementConfig,
   alpha: number,
   lines: number,
   screen: Rect = { x: 0, y: 0, w: ctx.canvas.width, h: ctx.canvas.height },
 ): void {
-  const e: Env = { ctx, world, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen };
+  const e: Env = { ctx, world, hero, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen };
   cached(e, "below", below);
   for (const l of e.world.lifts) lift(e, l, alpha);
   cached(e, "above", above);

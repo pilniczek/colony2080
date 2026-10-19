@@ -27,7 +27,7 @@ const worldRect = { x: 0, y: 0, w: world.grid.width * CELL, h: world.grid.height
 
 const painted = (clip?: Rect): number => {
   const { ctx, assets } = counting();
-  const e: Env = { ctx, world, cell: CELL, unit: 1, lines: 1, screen: worldRect, clip };
+  const e: Env = { ctx, world, hero: { blaster: null }, cell: CELL, unit: 1, lines: 1, screen: worldRect, clip };
   below(e);
   above(e);
   return assets();
@@ -50,11 +50,11 @@ describe("static layer culling", () => {
   });
 });
 
-const painting = (p: Prop): number => {
+const painting = (p: Prop, hero: { blaster: number | null } = { blaster: null }): number => {
   const { ctx } = counting();
   let count = 0;
   const spy = new Proxy(ctx, { get: (t, key) => (key === "fill" || key === "stroke" ? () => count++ : Reflect.get(t, key)) });
-  prop({ ctx: spy, world, cell: CELL, unit: 1, lines: 1, screen: worldRect }, p);
+  prop({ ctx: spy, world, hero, cell: CELL, unit: 1, lines: 1, screen: worldRect }, p);
   return count;
 };
 
@@ -74,5 +74,18 @@ describe("item props", () => {
 
   it("paints nothing once taken", () => {
     expect(fills("wires", true)).toBe(0);
+  });
+});
+
+describe("weapon props", () => {
+  const blaster: Prop = { kind: "weapon", weapon: "blaster", x: 3 };
+
+  it("paints the E-Blaster while the hero has none", () => {
+    expect(painting(blaster, { blaster: null })).toBeGreaterThan(0);
+  });
+
+  it("paints nothing once the hero owns it", () => {
+    expect(painting(blaster, { blaster: 0 })).toBe(0);
+    expect(painting(blaster, { blaster: 400 })).toBe(0);
   });
 });

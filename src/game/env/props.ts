@@ -209,6 +209,34 @@ export const crowbar: EnvAsset = {
   }
 };
 
+const EBLASTER_K = 0.058;
+const EBLASTER_PARTS: [number, number, number, number, string, number?][] = [
+  [-14, -14, 26, 56, "steel", 1], [-78, -60, 20, 42, "steel", 0], [-44, -90, 92, 22, "steel", 1], [-34, -86, 72, 10, "den2"],
+  [-60, -72, 130, 62, "chrome", 1], [-14, -72, 12, 62, "den1"], [14, -10, 46, 34, "steel", 0], [22, -2, 30, 8, "den2"],
+  [70, -58, 152, 36, "chrome", 2], [70, -44, 152, 8, "plasma"],
+  [84, -66, 12, 52, "steel", 0], [114, -66, 12, 52, "steel", 0], [145, -66, 12, 52, "steel", 0], [176, -66, 12, 52, "steel", 0],
+  [214, -74, 14, 68, "steel", 0], [218, -74, 48, 12, "chrome", 1], [218, -18, 48, 12, "chrome", 1],
+];
+const EBLASTER_ARC: Pt[] = [[260, -62], [268, -54], [262, -46], [270, -40], [262, -34], [268, -26], [260, -18]];
+const eblasterAt = ([x, y]: Pt): Pt => [(x + 78) * EBLASTER_K - 1, (y - 42) * EBLASTER_K];
+
+export const eBlaster: EnvAsset = {
+  id: "eBlaster",
+  box: [-2, -10, 24, 0],
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 1, 20);
+    for (const [x, y, w, h, mat, tone] of EBLASTER_PARTS) {
+      const [px, py] = eblasterAt([x, y]);
+      if (tone === undefined) flat(ctx, px, py, w * EBLASTER_K, h * EBLASTER_K, mat);
+      else box(ctx, px, py, w * EBLASTER_K, h * EBLASTER_K, mat, tone);
+    }
+    const arc = EBLASTER_ARC.map(eblasterAt);
+    P.line(ctx, arc, "den1", 0.7);
+    P.line(ctx, arc, "plasmaCore", P.simple() ? 0.3 : 0.22);
+    P.glow(ctx, ...eblasterAt([268, -40]), 3, "plasma", 0.45);
+  }
+};
+
 export const craneKey: EnvAsset = {
   id: "craneKey",
   box: [-2, -6, 12, 0],
@@ -514,4 +542,4 @@ export const fallenGirders: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, fallenGirders];
+export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, fallenGirders];

@@ -41,14 +41,14 @@ describe("weapon hooks", () => {
     return Object.keys(weaponHooks(heroLook(h, clips, rigs, hold, cfg), 1)).sort();
   };
 
-  it("draws the other owned gun on the side back hook", () => {
-    expect(hooks({ state: "idle", weapon: "blaster", blaster: 400 })).toEqual(["back", "hand"]);
-    expect(hooks({ state: "idle", weapon: "gun", blaster: 400 })).toEqual(["back", "hand"]);
+  it("draws only the held weapon, never the other owned one on the back", () => {
+    expect(hooks({ state: "idle", weapon: "blaster", blaster: 400 })).toEqual(["hand"]);
+    expect(hooks({ state: "idle", weapon: "gun", blaster: 400 })).toEqual(["hand"]);
     expect(hooks({ state: "idle", weapon: "gun" })).toEqual(["hand"]);
     expect(hooks({ state: "idle", weapon: "fists", blaster: 400 })).toEqual([]);
   });
 
-  it("has no back hook in the front view or on the ladder", () => {
+  it("uses the front hand hook in the front view and no hook on the ladder", () => {
     expect(hooks({ state: "hide", hidden: true, weapon: "blaster", blaster: 400, time: 0.05 })).toEqual(["handL"]);
     expect(hooks({ state: "ladder", weapon: "blaster", blaster: 400, onGround: false })).toEqual([]);
   });

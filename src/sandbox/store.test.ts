@@ -3,7 +3,8 @@ import movementJson from "@config/hero/movement.json";
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { loadClips, loadMovement } from "../game/hero/config";
-import { useSandbox } from "./store";
+import { blasterAmmo, useSandbox } from "./store";
+import { hudState } from "./ui/Hud";
 
 const store = () => useSandbox.getState();
 
@@ -87,3 +88,38 @@ describe("clip tuning", () => {
   });
 });
 
+
+describe("blaster ammo", () => {
+  it("clamps to 0..999 and rounds", () => {
+    expect(blasterAmmo(-5, 10)).toBe(0);
+    expect(blasterAmmo(1234, 10)).toBe(999);
+    expect(blasterAmmo(12.6, 10)).toBe(13);
+  });
+
+  it("keeps the old value for non-finite numbers", () => {
+    for (const bad of [NaN, Infinity, -Infinity]) {
+      expect(blasterAmmo(bad, 10)).toBe(10);
+      expect(blasterAmmo(bad, null)).toBeNull();
+    }
+  });
+
+  it("gives the E-Blaster for a value above 0 and keeps it unowned for 0", () => {
+    expect(blasterAmmo(50, null)).toBe(50);
+    expect(blasterAmmo(0, null)).toBeNull();
+    expect(blasterAmmo(0, 10)).toBe(0);
+  });
+});
+
+describe("hud state", () => {
+  const base = { energy: 50, shields: 2, ammo: 30, running: true, item: null, max: 100 } as const;
+
+  it("hides slot 3 until the hero owns the E-Blaster", () => {
+    expect(hudState({ ...base, weapon: "gun", blaster: null })).toMatchObject({ bonus: false, weapon: 0 });
+    expect(hudState({ ...base, weapon: "fists", blaster: null })).toMatchObject({ bonus: false, weapon: 1 });
+  });
+
+  it("shows slot 3 with the E-Blaster ammo once owned, active while armed", () => {
+    expect(hudState({ ...base, weapon: "gun", blaster: 0 })).toMatchObject({ bonus: true, bonusAmmo: 0, weapon: 0 });
+    expect(hudState({ ...base, weapon: "blaster", blaster: 321 })).toMatchObject({ bonus: true, bonusAmmo: 321, weapon: 2, life: 50 });
+  });
+});

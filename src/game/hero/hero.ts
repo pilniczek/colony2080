@@ -3,7 +3,7 @@ import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
-import { callLift, liftAt, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { callLift, liftAt, onGround, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { runUse, say } from "../level/tasks";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
@@ -148,12 +148,13 @@ function touching(s: Step, ...kinds: string[]): Prop | undefined {
   const inReach = world.props.filter((p) => {
     const y = p.y ?? world.spawn[1];
     const reach = (cfg.box.width + (p.width ?? 0)) / 2;
-    return kinds.includes(p.kind) && !p.taken && Math.abs(p.x - h.x) <= reach && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
+    return kinds.includes(p.kind) && onGround(p, h) && Math.abs(p.x - h.x) <= reach && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
   });
   return inReach.reduce<Prop | undefined>((best, p) => (best && Math.abs(best.x - h.x) <= Math.abs(p.x - h.x) ? best : p), undefined);
 }
 
 const USABLE = ["panel", "object"];
+const PICKABLE = ["item", "weapon"];
 
 function ladderBottom(s: Step): number {
   const { h, world } = s;
@@ -341,7 +342,7 @@ function stance(s: Step): boolean {
   if (takeCover(s)) return true;
   if (h.onLift || !input.held.has("down")) return false;
   s.consume("down");
-  enter(h, touching(s, "item") ? "kneel" : "duck");
+  enter(h, touching(s, ...PICKABLE) ? "kneel" : "duck");
   return true;
 }
 
@@ -552,11 +553,16 @@ const transitions: Partial<Record<HeroState, Handler>> = {
 };
 
 function pickup(s: Step): void {
-  const item = touching(s, "item");
-  if (!item) return;
-  item.taken = true;
-  pickUp(s.world, item.item!);
-  say(s.world, `Picked up ${ITEMS[item.item!]!.name}`);
+  const prop = touching(s, ...PICKABLE);
+  if (!prop) return;
+  prop.taken = true;
+  if (prop.kind === "weapon") {
+    s.h.blaster = s.cfg.blaster.ammo;
+    say(s.world, "Picked up E-Blaster");
+  } else {
+    pickUp(s.world, prop.item!);
+    say(s.world, `Picked up ${ITEMS[prop.item!]!.name}`);
+  }
   emit(s, "pickup");
 }
 

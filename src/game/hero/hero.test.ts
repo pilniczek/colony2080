@@ -9,6 +9,11 @@ const armed = (weapon: Weapon, blaster: number | null, ammo = cfg.ammo): Game =>
   return g;
 };
 
+function sandboxBlaster(): { x: number; y: number } {
+  const prop = game().world.props.find((p) => p.kind === "weapon")!;
+  return { x: prop.x, y: prop.y ?? game().world.spawn[1] };
+}
+
 const count = (g: Game, kind: string): number => g.events.filter((e) => e.kind === kind).length;
 
 const hiddenSwitch = (g: Game, slot: string): { weapon: Weapon; rate: number }[] => {
@@ -136,5 +141,40 @@ describe("blaster fire", () => {
     kill(g.hero);
     run(g, cfg.respawnMs / 1000 + 0.1);
     expect(g.hero).toMatchObject({ state: "idle", blaster: 123, weapon: "blaster" });
+  });
+});
+
+describe("blaster pickup", () => {
+  const spot = sandboxBlaster();
+  const pickUpBlaster = (g: Game): void => {
+    tick(g, ["down"]);
+    runUntil(g, (h) => h.state === "idle");
+  };
+
+  it("kneels at the E-Blaster and takes it with full ammo, keeping the selected weapon", () => {
+    for (const weapon of ["gun", "fists"] as const) {
+      const g = armed(weapon, null);
+      Object.assign(g.hero, spot);
+      tick(g, ["down"]);
+      expect(g.hero.state).toBe("kneel");
+      runUntil(g, (h) => h.state === "idle");
+      expect(g.hero).toMatchObject({ blaster: cfg.blaster.ammo, weapon });
+      expect(g.world.subtitle?.text).toBe("Picked up E-Blaster");
+    }
+  });
+
+  it("cannot take it again, not even after death and respawn", () => {
+    const g = armed("gun", null);
+    Object.assign(g.hero, spot);
+    pickUpBlaster(g);
+    g.hero.blaster = 5;
+    tick(g, ["down"]);
+    expect(g.hero.state).toBe("duck");
+    kill(g.hero);
+    run(g, cfg.respawnMs / 1000 + 0.1);
+    Object.assign(g.hero, spot);
+    tick(g, ["down"]);
+    expect(g.hero).toMatchObject({ state: "duck", blaster: 5 });
+    expect(count(g, "pickup")).toBe(1);
   });
 });

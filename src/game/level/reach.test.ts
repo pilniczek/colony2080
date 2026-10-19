@@ -254,6 +254,17 @@ describe("sandbox reachability", () => {
     expect(stretches.filter((len) => len >= 6).length).toBeGreaterThanOrEqual(3);
   });
 
+  it("puts the E-Blaster on a floor the spawn reaches, off the right strip and every lift deck", () => {
+    const prop = world.props.find((p) => p.kind === "weapon")!;
+    const row = prop.y ?? world.spawn[1];
+    const col = Math.floor(prop.x);
+    const floor = runAt(row, col);
+    expect(floor).toBeDefined();
+    expect(reach(conservative, spawn).has(id(floor!))).toBe(true);
+    expect(col < 40).toBe(true);
+    expect(lifts.some((l) => stopsAt(l, row) && inShaft(l, col))).toBe(false);
+  });
+
   it("keeps lift shafts apart horizontally", () => {
     const spans = lifts.map((l) => [l.x, l.x + l.w] as const).sort((a, b) => a[0] - b[0]);
     for (let i = 1; i < spans.length; i++) expect(spans[i]![0]).toBeGreaterThanOrEqual(spans[i - 1]![1]);

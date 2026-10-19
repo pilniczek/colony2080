@@ -19,6 +19,7 @@ export interface SandboxState {
   energy: number;
   shields: number;
   ammo: number;
+  blaster: number | null;
   item: ItemId | null;
   subtitle: string | null;
   complete: boolean;
@@ -85,6 +86,14 @@ const fileTuning = () => ({ movement: loadMovement(movementJson), clips: loadCli
 
 const fogConfig = loadFog(cameraJson);
 
+export const BLASTER_AMMO_MAX = 999;
+
+export const blasterAmmo = (value: number, current: number | null): number | null => {
+  if (!Number.isFinite(value)) return current;
+  const ammo = Math.min(BLASTER_AMMO_MAX, Math.max(0, Math.round(value)));
+  return ammo === 0 && current === null ? null : ammo;
+};
+
 export const useSandbox = create<SandboxState>()((set, get) => ({
   state: "idle",
   time: 0,
@@ -93,6 +102,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   energy: 0,
   shields: 0,
   ammo: 0,
+  blaster: null,
   item: null,
   subtitle: null,
   complete: false,

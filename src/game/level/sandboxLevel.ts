@@ -17,6 +17,7 @@ export interface Prop {
   width?: number;
   height?: number;
   item?: ItemId;
+  weapon?: "blaster";
   taken?: boolean;
   on?: boolean;
   id?: string;
@@ -114,6 +115,7 @@ export interface SandboxJson {
 
 function checkedProp(prop: Prop): Prop {
   if (prop.kind === "item" && !(prop.item && ITEMS[prop.item])) throw new Error(`unknown item: ${prop.item}`);
+  if (prop.kind === "weapon" && prop.weapon !== "blaster") throw new Error(`unknown weapon: ${prop.weapon}`);
   if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
   if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
   return structuredClone(prop);
@@ -173,6 +175,8 @@ export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
   const [x, y] = world.spawn;
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }
+
+export const onGround = (prop: Prop, hero: Pick<Hero, "blaster">): boolean => !prop.taken && (prop.kind !== "weapon" || hero.blaster === null);
 
 export function pickUp(world: SandboxWorld, id: ItemId): void {
   world.inventory.items.push(id);

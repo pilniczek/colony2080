@@ -156,19 +156,20 @@ describe("hero look", () => {
     expect(look.pose).toMatchObject({ ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R });
   });
 
-  it("holds the blaster with the gun carry and carries the other owned gun on the back", () => {
+  it("holds the blaster with the gun carry and shows only the held weapon", () => {
     const gun = heroLook(hero({ state: "attack", weapon: "gun", time: 0.2 }), clips, rigs, hold, cfg);
     const blaster = heroLook(hero({ state: "attack", weapon: "blaster", blaster: 400, time: 0.2 }), clips, rigs, hold, cfg);
-    expect(blaster).toMatchObject({ gun: "hand", hand: "blaster", back: "gun", pose: gun.pose });
-    expect(gun).toMatchObject({ gun: "hand", hand: "gun", back: null });
-    expect(heroLook(hero({ state: "attack", weapon: "gun", blaster: 400, time: 0.2 }), clips, rigs, hold, cfg)).toMatchObject({ hand: "gun", back: "blaster" });
-    expect(heroLook(hero({ state: "idle", weapon: "fists", blaster: 400 }), clips, rigs, hold, cfg)).toMatchObject({ gun: "none", back: null });
+    expect(blaster).toMatchObject({ gun: "hand", hand: "blaster", pose: gun.pose });
+    expect(gun).toMatchObject({ gun: "hand", hand: "gun" });
+    expect(heroLook(hero({ state: "attack", weapon: "gun", blaster: 400, time: 0.2 }), clips, rigs, hold, cfg)).toMatchObject({ hand: "gun" });
+    expect(heroLook(hero({ state: "idle", weapon: "fists", blaster: 400 }), clips, rigs, hold, cfg)).toMatchObject({ gun: "none" });
+    expect(blaster).not.toHaveProperty("back");
   });
 
   it("slings only the held weapon on the ladder", () => {
     for (const weapon of ["gun", "blaster"] as const) {
       const look = heroLook(hero({ state: "ladder", weapon, blaster: 400, onGround: false }), clips, rigs, hold, cfg);
-      expect(look, weapon).toMatchObject({ gun: "slung", hand: weapon, back: null });
+      expect(look, weapon).toMatchObject({ gun: "slung", hand: weapon });
     }
   });
 

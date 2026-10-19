@@ -262,8 +262,6 @@ export function weaponHooks(look: HeroLook, lineW: number): Record<string, HookD
   const front = look.view === "front";
   const hooks: Record<string, HookDraw> = {};
   if (look.gun === "hand") hooks[front ? "handL" : "hand"] = (c, pal) => MODELS[look.hand].hook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
-  const back = look.back;
-  if (back && look.view === "side") hooks.back = (c, pal) => MODELS[back].hook(c, pal, { lineW, simple: true });
   return hooks;
 }
 
@@ -307,7 +305,7 @@ export function drawScene(
   ctx.beginPath();
   ctx.rect(0, 0, world.grid.width * f.cell, world.grid.height * f.cell);
   ctx.clip();
-  drawEnvironment(ctx, world, cfg, alpha, lines, screen);
+  drawEnvironment(ctx, world, hero, cfg, alpha, lines, screen);
   const drawHero = (): void => {
     shadow(f, hero, look);
     heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));

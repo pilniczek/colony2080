@@ -15,6 +15,7 @@ export interface SandboxCommands {
   hit(): void;
   kill(): void;
   setAmmo(ammo: number): void;
+  setBlaster(ammo: number): void;
   setShields(shields: number): void;
   setFog(on: boolean): void;
 }

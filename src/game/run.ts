@@ -31,6 +31,7 @@ const MAX_PANEL_SHARE = 0.5;
 export interface RunStart {
   weapon: Weapon;
   running: boolean;
+  blaster: number | null;
   fogOn: boolean;
 }
 
@@ -142,6 +143,7 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
       energy: hero.energy,
       shields: hero.shields,
       ammo: hero.ammo,
+      blaster: hero.blaster,
       weapon: hero.weapon,
       running: hero.running,
       fps: Math.round(fps),
@@ -183,9 +185,9 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
     },
   });
 
-  const restart = ({ weapon, running, fogOn }: RunStart): void => {
+  const restart = ({ weapon, running, blaster, fogOn }: RunStart): void => {
     resetWorld(world, tuning().movement);
-    Object.assign(hero, createHero(world.spawn, weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, running));
+    Object.assign(hero, createHero(world.spawn, weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, running, blaster));
     applyFog(fogOn);
     prev = { x: hero.x, y: hero.y };
   };

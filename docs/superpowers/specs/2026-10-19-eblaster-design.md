@@ -48,7 +48,7 @@ Claude's call:
 - Death keeps the E-Blaster and its ammo, like gun ammo today; once taken, the pickup stays taken after the map reset, so ammo cannot be farmed.
 - Sandbox placement: one pickup on a floor reachable from the spawn, not in the right strip (cols 40-47), not on a lift deck, out of enemy fire at the pickup spot.
 - HUD icon drawn as vector code like the gun and fist icons.
-- Weapon model: `Weapon` gets a third value `blaster`. It uses the gun clips and carry pose with its own model in the hand; key 3 switches at once like `quickSwitch` today, and while hidden through the `weaponSwitch` clip (gun to E-Blaster: holster, then draw). The back hook shows the gun-type weapon not in hand when the hero owns both, else the one it owns.
+- Weapon model: `Weapon` gets a third value `blaster`. It uses the gun clips and carry pose with its own model in the hand; key 3 switches at once like `quickSwitch` today, and while hidden through the `weaponSwitch` clip (gun to E-Blaster: holster, then draw). Only the held weapon is drawn; the other owned weapon is never shown.
 - Beam ticks: the beam runs on fixed 32 Hz ticks of game time. Each tick spends 1 ammo, deals one damage chunk to each enemy in range, shows one spark per enemy and advances the flicker shape.
 - Same floor: an enemy is in range when it stands on the hero's floor row (feet row), like enemy sight, within `sightCells` and before the first wall or covered fog cell. The beam hits the whole enemy whatever the beam height, so a ducking hero still hits a standing enemy, as in the original.
 - Damage unit: enemy health is its `hits` (7). A kill takes about 0.48 s, about 15 ticks, so `blaster.damage` per tick is 0.47 hits (15 ticks per kill).
