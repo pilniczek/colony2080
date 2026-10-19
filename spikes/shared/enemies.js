@@ -343,15 +343,12 @@ const GUN_BACK = 2;
 
 function shoulder(ctx) {
   fillPath(ctx, c => {
-    c.moveTo(27, 25.6);
-    c.lineTo(41, 25.6);
-    c.quadraticCurveTo(43.4, 28.3, 41, 31);
-    c.lineTo(31, 31);
-    c.quadraticCurveTo(29, 29, 27, 25.6);
-  }, grad(ctx, 27, 0, 43, 0, [[0, "gm0"], [0.35, "gm1"], [0.7, "gm2"], [0.88, "gc2"], [1, "gc3"]]));
-  if (ENV.simple) return;
-  P.line(ctx, [[30, 26.6], [40.6, 26.6]], "gm3", 0.4, "butt");
-  P.line(ctx, [[41.6, 26.6], [41.6, 30]], "gc3", 0.7, "butt");
+    c.moveTo(35, 27);
+    c.lineTo(40.5, 27);
+    c.quadraticCurveTo(42, 29, 40.5, 31);
+    c.lineTo(36, 31);
+    c.quadraticCurveTo(34.6, 29.2, 35, 27);
+  }, grad(ctx, 35, 0, 42, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]));
 }
 
 function guardBody(ctx, fire) {
