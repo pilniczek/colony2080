@@ -265,11 +265,8 @@ function startAttack(s: Step, state: "attack" | "duckAttack"): void {
 }
 
 function use(s: Step): boolean {
-  const panel = touching(s, "panel");
-  if (!panel || !s.consume("useItem")) return false;
+  if (!touching(s, "panel") || !s.consume("useItem")) return false;
   enter(s.h, "use");
-  panel.on = !panel.on;
-  emit(s, "use");
   return true;
 }
 
@@ -508,11 +505,19 @@ function pickup(s: Step): void {
   emit(s, "pickup");
 }
 
+function press(s: Step): void {
+  const panel = touching(s, "panel");
+  if (!panel) return;
+  panel.on = !panel.on;
+  emit(s, "use");
+}
+
 function clipEvents(s: Step): void {
   const clip = clipOf(s);
   for (const [t, name] of clip.events ?? []) {
     if (!(clip.loop ? crossedLoop(s, t, clip.duration) : crossed(s, t))) continue;
     if (name === "pickup") pickup(s);
+    if (name === "use") press(s);
     if (name === "punch") emit(s, "punch");
   }
 }

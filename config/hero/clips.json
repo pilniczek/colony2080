@@ -113,7 +113,8 @@
         [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
         [0.25, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": -74, "fore": -8}],
         [0.55, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}]
-      ]
+      ],
+      "events": [[0.25, "use"]]
     },
     "useGun": {
       "duration": 0.55,
@@ -123,7 +124,8 @@
         [0.25, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 4, "fore": -6, "armFar": -74, "foreFar": -8}],
         [0.55, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 4, "fore": -6}]
       ],
-      "gun": [[0, "hand"]]
+      "gun": [[0, "hand"]],
+      "events": [[0.25, "use"]]
     },
     "hide": {
       "duration": 0.6,

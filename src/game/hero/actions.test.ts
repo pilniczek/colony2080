@@ -43,10 +43,14 @@ describe("kneel and duck", () => {
 });
 
 describe("use", () => {
-  it("uses the panel, emits use and flips it on", () => {
+  it("flips the panel on and emits use when the hand reaches it", () => {
     const g = game({ x: 21.5, y: 14 });
     tick(g, [], ["useItem"]);
     expect(g.hero.state).toBe("use");
+    run(g, 0.2);
+    expect(kinds(g, "use")).toHaveLength(0);
+    expect(g.world.props.find((p) => p.kind === "panel")?.on).toBeFalsy();
+    run(g, 0.1);
     expect(kinds(g, "use")).toEqual([{ kind: "use", x: 21.5, y: 14 }]);
     expect(g.world.props.find((p) => p.kind === "panel")?.on).toBe(true);
     runUntil(g, (h) => h.state === "idle");
