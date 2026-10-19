@@ -1,7 +1,7 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox } from "../../engine/world/collide";
-import { game, run, runUntil, RUNNING, tick } from "../hero/testWorld";
+import { cfg, game, run, runUntil, RUNNING, tick } from "../hero/testWorld";
 import { callLift, loadSandbox, updateLift } from "./sandboxLevel";
 
 const dt = 1 / 60;
@@ -133,5 +133,25 @@ describe("moving lift", () => {
     run(g, 0.2);
     expect(g.hero.y).toBeCloseTo(4, 6);
     expect(g.hero.onLift).toBe(true);
+  });
+
+  it("loads four enemies, the three new ones without respawn", () => {
+    const { enemies } = loadSandbox(sandbox);
+    expect(enemies).toHaveLength(4);
+    expect(enemies[0]!.respawnMs).toBe(5000);
+    expect(enemies.slice(1).every((e) => e.respawnMs === null)).toBe(true);
+  });
+
+  it("damages only the enemy a hero bullet reaches", () => {
+    const target = sandbox.enemies[2]!;
+    const g = game({ x: target.x - 3, y: target.y, weapon: "gun" });
+    g.hero.facing = 1;
+    Object.assign(g.world.enemies[2]!.body, { x: target.x, facing: -1 });
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.5, ["shoot"]);
+    const energy = g.world.enemies.map((e) => e.body.energy);
+    expect(energy[2]).toBeLessThan(cfg.energy.max);
+    expect(energy[2]).toBeLessThan(target.hits);
+    expect(energy.filter((v) => v < sandbox.enemies[0]!.hits)).toHaveLength(1);
   });
 });

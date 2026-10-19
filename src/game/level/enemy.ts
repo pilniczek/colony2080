@@ -13,9 +13,16 @@ export interface EnemyJson {
   y: number;
   facing: -1 | 1;
   hits: number;
-  respawnMs: number;
+  respawnMs: number | null;
   sightCells: number;
   firePeriodMs: number;
+}
+
+export interface Shaft {
+  x: number;
+  w: number;
+  top: number;
+  bottom: number;
 }
 
 export interface Enemy {
@@ -23,7 +30,7 @@ export interface Enemy {
   spot: [number, number];
   facing: -1 | 1;
   hits: number;
-  respawnMs: number;
+  respawnMs: number | null;
   sightCells: number;
   firePeriodMs: number;
   patrol: [number, number];
@@ -37,22 +44,24 @@ const spawnBody = (e: Pick<Enemy, "spot" | "facing" | "hits">): Hero => walking(
 const floorAt = (grid: TileGrid, col: number, row: number): boolean =>
   (grid.solid(col, row) || grid.ladderTop(col, row)) && !grid.solid(col, row - 1);
 
-function patrolOf(grid: TileGrid, [x, y]: [number, number]): [number, number] {
+function patrolOf(grid: TileGrid, shafts: Shaft[], [x, y]: [number, number]): [number, number] {
   const row = Math.round(y);
+  const walkable = (col: number): boolean =>
+    floorAt(grid, col, row) && !shafts.some((s) => (s.top === row || s.bottom === row) && col >= s.x && col < s.x + s.w);
   let [left, right] = [Math.floor(x), Math.floor(x)];
-  while (floorAt(grid, left - 1, row)) left--;
-  while (floorAt(grid, right + 1, row)) right++;
+  while (walkable(left - 1)) left--;
+  while (walkable(right + 1)) right++;
   return [left + HALF_WIDTH, right + 1 - HALF_WIDTH];
 }
 
-export function createEnemy(json: EnemyJson, grid: TileGrid): Enemy {
+export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = []): Enemy {
   const base = { spot: [json.x, json.y] as [number, number], facing: json.facing, hits: json.hits };
   return {
     ...base,
     respawnMs: json.respawnMs,
     sightCells: json.sightCells,
     firePeriodMs: json.firePeriodMs,
-    patrol: patrolOf(grid, base.spot),
+    patrol: patrolOf(grid, shafts, base.spot),
     body: spawnBody(base),
     deadAge: null,
   };
@@ -109,7 +118,7 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
   if (e.body.hitAge !== null) e.body.hitAge += dt;
   if (e.deadAge !== null) {
     e.deadAge += dt;
-    if (e.deadAge * 1000 < e.respawnMs - 1e-6) return 0;
+    if (e.respawnMs === null || e.deadAge * 1000 < e.respawnMs - 1e-6) return 0;
     e.body = spawnBody(e);
     e.deadAge = null;
     return 0;

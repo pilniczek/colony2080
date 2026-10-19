@@ -147,7 +147,7 @@ describe("hero bullets", () => {
     fire(g, 3);
     const passed = (kind: string) => g.world.props.find((p) => p.kind === kind)!.x;
     expect(bullets(g).some((b) => b.x > passed("barrel"))).toBe(true);
-    const enemy = g.world.enemy.body.x;
+    const enemy = g.world.enemies[0]!.body.x;
     expect(g.world.sparks.every((s) => s.x === 47 || Math.abs(s.x - enemy) < cfg.box.width)).toBe(true);
   });
 

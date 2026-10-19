@@ -269,7 +269,7 @@ export function drawScene(
   cfg: MovementConfig,
   view: ViewTransform,
   alpha: number,
-  enemyLook: HeroLook,
+  enemyLooks: HeroLook[],
   enemyRigs: Rigs,
   sight: Path2D | null = null,
   lines = 1,
@@ -285,7 +285,7 @@ export function drawScene(
   drawEnvironment(ctx, world, cfg, alpha, lines);
   ctx.save();
   if (sight) ctx.clip(sight);
-  enemyFigure(f, world.enemy, enemyLook, enemyRigs, scale);
+  world.enemies.forEach((enemy, i) => enemyFigure(f, enemy, enemyLooks[i]!, enemyRigs, scale));
   ctx.restore();
   shadow(f, hero, look);
   heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));

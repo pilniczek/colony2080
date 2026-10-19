@@ -75,18 +75,18 @@ describe("fog blocks shots", () => {
   it("keeps an enemy in the fog safe from hero bullets", () => {
     const g = fogged(game({ x: 9.5, y: 4, weapon: "gun" }), 4);
     g.hero.facing = -1;
-    Object.assign(g.world.enemy.body, { x: 4.5, facing: -1 });
+    Object.assign(g.world.enemies[0]!.body, { x: 4.5, facing: -1 });
     tick(g, ["shoot"], ["shoot"]);
     run(g, 0.5, ["shoot"]);
-    expect(g.world.enemy.body.energy).toBe(sandbox.enemy.hits);
+    expect(g.world.enemies[0]!.body.energy).toBe(sandbox.enemies[0]!.hits);
     expect(g.world.sparks).toHaveLength(0);
   });
 
   it("keeps an enemy in the fog from seeing the hero", () => {
     const g = fogged(game({ x: 9.5, y: 4 }), 2);
-    Object.assign(g.world.enemy.body, { x: 5.5, facing: 1 });
+    Object.assign(g.world.enemies[0]!.body, { x: 5.5, facing: 1 });
     run(g, 0.3);
-    expect(g.world.enemy.body.state).toBe("walk");
+    expect(g.world.enemies[0]!.body.state).toBe("walk");
     expect(g.world.projectiles).toHaveLength(0);
   });
 });

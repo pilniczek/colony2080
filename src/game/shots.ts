@@ -6,7 +6,7 @@ import { fogEdge, visible } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
-import { ENEMY_SHOT, hitEnemy, isDead } from "./level/enemy";
+import { ENEMY_SHOT, hitEnemy, isDead, type Enemy } from "./level/enemy";
 import type { SandboxWorld } from "./level/sandboxLevel";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { ROBOT } from "./robot/xbot";
@@ -57,8 +57,7 @@ function wallBetween(world: SandboxWorld, from: number, p: Projectile): number |
   return null;
 }
 
-function enemyFace(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile): number | null {
-  const { enemy } = world;
+function enemyFace(enemy: Enemy, cfg: MovementConfig, from: number, p: Projectile): number | null {
   if (p.tag !== HERO_SHOT || isDead(enemy)) return null;
   const { x, y } = enemy.body;
   const half = cfg.box.width / 2 + p.r;
@@ -76,10 +75,15 @@ const beyond = (p: Projectile, x: number, edge: number): boolean => (x - edge) *
 const seen = (world: SandboxWorld, x: number, y: number): boolean => !world.fog || visible(world.fog, x, y);
 
 function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number): boolean {
-  const face = enemyFace(world, cfg, from, p);
-  if (face === null || beyond(p, face, edge)) return false;
-  hitEnemy(world.enemy);
-  world.sparks.push({ x: face, y: p.y, age: 0 });
+  let struck: { enemy: Enemy; face: number } | null = null;
+  for (const enemy of world.enemies) {
+    const face = enemyFace(enemy, cfg, from, p);
+    if (face === null || beyond(p, face, edge)) continue;
+    if (!struck || Math.abs(face - from) < Math.abs(struck.face - from)) struck = { enemy, face };
+  }
+  if (!struck) return false;
+  hitEnemy(struck.enemy);
+  world.sparks.push({ x: struck.face, y: p.y, age: 0 });
   return true;
 }
 
@@ -100,8 +104,8 @@ export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], cli
   }
 }
 
-export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, count: number): void {
-  const { body } = world.enemy;
+export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, enemy: Enemy, count: number): void {
+  const { body } = enemy;
   for (let i = 0; i < count; i++) {
     const [x, y] = heroMuzzle(body, clips, cfg);
     if (!seen(world, x, y)) continue;

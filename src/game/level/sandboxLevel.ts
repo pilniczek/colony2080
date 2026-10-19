@@ -49,7 +49,7 @@ export interface SandboxWorld {
   fog: Fog | null;
   projectiles: Projectile[];
   sparks: Spark[];
-  enemy: Enemy;
+  enemies: Enemy[];
 }
 
 type SceneryJson = Omit<Scenery, "asset"> & { asset: string };
@@ -62,7 +62,7 @@ interface SandboxJson {
   dressing: SceneryJson[];
   lifts: { x: number; width: number; top: number; bottom: number; start?: "top" | "bottom" }[];
   props: Prop[];
-  enemy: EnemyJson;
+  enemies: EnemyJson[];
 }
 
 function scenery(items: SceneryJson[]): Scenery[] {
@@ -75,17 +75,18 @@ function scenery(items: SceneryJson[]): Scenery[] {
 export function loadSandbox(json: unknown): SandboxWorld {
   const data = json as SandboxJson;
   const grid = new TileGrid(data.rows);
+  const lifts = data.lifts.map((lift) => ({
+    x: lift.x,
+    y: lift.start === "top" ? lift.top : lift.bottom,
+    w: lift.width,
+    vy: 0,
+    top: lift.top,
+    bottom: lift.bottom,
+    target: null,
+  }));
   return {
     grid,
-    lifts: data.lifts.map((lift) => ({
-      x: lift.x,
-      y: lift.start === "top" ? lift.top : lift.bottom,
-      w: lift.width,
-      vy: 0,
-      top: lift.top,
-      bottom: lift.bottom,
-      target: null,
-    })),
+    lifts,
     props: data.props.map((prop) => ({ ...prop })),
     spawn: [data.spawn[0], data.spawn[1]],
     sky: scenery([{ asset: data.sky, x: 0 }])[0]!.asset,
@@ -95,7 +96,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     fog: null,
     projectiles: [],
     sparks: [],
-    enemy: createEnemy(data.enemy, grid),
+    enemies: data.enemies.map((e) => createEnemy(e, grid, lifts)),
   };
 }
 
