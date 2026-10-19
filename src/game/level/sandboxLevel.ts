@@ -2,7 +2,7 @@ import type { Platform } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
 import { isAssetId, type AssetId } from "../env/assets";
-import type { Fog } from "../fog";
+import { createFog, type Fog } from "../fog";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
@@ -50,6 +50,7 @@ export interface SandboxWorld {
   projectiles: Projectile[];
   sparks: Spark[];
   enemies: Enemy[];
+  source: SandboxJson;
 }
 
 type SceneryJson = Omit<Scenery, "asset"> & { asset: string };
@@ -97,7 +98,15 @@ export function loadSandbox(json: unknown): SandboxWorld {
     projectiles: [],
     sparks: [],
     enemies: data.enemies.map((e) => createEnemy(e, grid, lifts)),
+    source: data,
   };
+}
+
+export function resetWorld(world: SandboxWorld): void {
+  const { fog } = world;
+  Object.assign(world, loadSandbox(world.source));
+  const [x, y] = world.spawn;
+  world.fog = fog && createFog(fog.cfg, { x, y }, world.grid);
 }
 
 export function liftAt(world: SandboxWorld, h: Pick<Hero, "x" | "y">, cfg: MovementConfig): Lift | null {

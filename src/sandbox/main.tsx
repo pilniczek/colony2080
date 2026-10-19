@@ -13,7 +13,7 @@ import { hudFit, viewRect, type Rect } from "../game/hud/layout";
 import { SHIELDS_MAX } from "../game/hud/svg";
 import { createHero, damage, kill } from "../game/hero/hero";
 import { createRigs, heroLook } from "../game/hero/look";
-import { loadSandbox } from "../game/level/sandboxLevel";
+import { loadSandbox, resetWorld } from "../game/level/sandboxLevel";
 import { drawFog, revealedPath } from "../game/render/fog";
 import { drawOverlays } from "../game/render/overlays";
 import { drawScene } from "../game/render/scene";
@@ -105,7 +105,7 @@ let lastRender = 0;
 let fps = 0;
 
 const respawn = (): void => {
-  Object.assign(world, loadSandbox(sandboxJson));
+  resetWorld(world);
   Object.assign(hero, createHero(world.spawn, run.weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, run.running));
   applyFog(run.fogOn);
   prev = { x: hero.x, y: hero.y };

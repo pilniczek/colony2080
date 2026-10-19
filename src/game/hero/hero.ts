@@ -37,7 +37,7 @@ export interface Landing {
   age: number;
 }
 
-export type HeroEvent = { kind: "pickup" | "use" | "shot" | "punch" | "died"; x: number; y: number };
+export type HeroEvent = { kind: "pickup" | "use" | "shot" | "punch" | "died" | "respawned"; x: number; y: number };
 
 interface Step {
   h: Hero;
@@ -473,7 +473,9 @@ function leaveLadder(h: Hero): void {
 
 function respawn(s: Step): void {
   const { h, world, cfg } = s;
-  if (h.time * 1000 >= cfg.respawnMs) Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max, cfg.energy.shields, h.ammo, h.running));
+  if (h.time * 1000 < cfg.respawnMs) return;
+  Object.assign(h, createHero(world.spawn, h.weapon, cfg.energy.max, cfg.energy.shields, h.ammo, h.running));
+  emit(s, "respawned");
 }
 
 const transitions: Partial<Record<HeroState, Handler>> = {

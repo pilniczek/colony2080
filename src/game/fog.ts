@@ -54,7 +54,7 @@ function reveal(fog: Fog, r: SightRect): void {
   if (added) fog.version++;
 }
 
-export function createFog(cfg: FogConfig, hero: Hero, grid: { width: number; height: number }): Fog {
+export function createFog(cfg: FogConfig, hero: Pick<Hero, "x" | "y">, grid: { width: number; height: number }): Fog {
   const fog = { cfg, anchorY: hero.y, width: grid.width, height: grid.height, revealed: new Uint8Array(grid.width * grid.height), version: 0 };
   reveal(fog, sightRect(cfg, hero.x, hero.y));
   return fog;
