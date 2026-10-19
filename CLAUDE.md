@@ -14,7 +14,7 @@ Phase 1b: engine core and movement sandbox built, awaiting feel sign-off, for a 
 
 ## Commands
 
-- `npm run dev` - Vite dev server, opens `/sandbox.html`.
+- `npm run dev` - Vite dev server, opens `/sandbox.html` in browser. Agents start bare `npx vite --port 5199 --strictPort` (no browser); never pass `--open false`, Vite reads `false` as path `/false`.
 - `npm run build` - production build of `sandbox.html` into `dist/`.
 - `npm test` - Vitest (node environment) over `src/**/*.test.ts`.
 - `npm run lint` - ESLint; `src/engine/**` may not import React, Zustand, `game/` or `sandbox/`.

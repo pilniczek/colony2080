@@ -7,7 +7,6 @@ export default defineConfig({
   resolve: {
     alias: { "@config": fileURLToPath(new URL("./config", import.meta.url)) },
   },
-  server: { open: "/sandbox.html" },
   optimizeDeps: { entries: ["sandbox.html"] },
   build: {
     rollupOptions: {
