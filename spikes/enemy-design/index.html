@@ -95,17 +95,17 @@
 </section>
 <section data-kind="guard" hidden>
 <main>
-  <figure><figcaption>Acid guard, idle</figcaption><canvas id="guardIdle" data-w="1300" data-h="1250"></canvas></figure>
-  <figure><figcaption>Acid guard, firing</figcaption><canvas id="guardFire" data-w="1300" data-h="1250"></canvas></figure>
-  <figure><figcaption>Acid guard, acid (guess)</figcaption><canvas id="guardAcid" data-w="1300" data-h="1250"></canvas></figure>
-  <figure><figcaption>Acid guard, front</figcaption><canvas id="guardFront" data-w="1300" data-h="1250"></canvas></figure>
-  <figure><figcaption>Acid guard, wreck</figcaption><canvas id="guardWreck" data-w="1300" data-h="1250"></canvas></figure>
-  <figure class="heroOnly"><figcaption>Scale, hero and guard</figcaption><canvas id="guardScale" data-w="1900" data-h="1250"></canvas></figure>
+  <figure><figcaption>Acid guard, idle</figcaption><canvas id="guardIdle" data-w="1300" data-h="1400"></canvas></figure>
+  <figure><figcaption>Acid guard, firing</figcaption><canvas id="guardFire" data-w="1300" data-h="1400"></canvas></figure>
+  <figure><figcaption>Acid guard, acid (guess)</figcaption><canvas id="guardAcid" data-w="1300" data-h="1400"></canvas></figure>
+  <figure><figcaption>Acid guard, front</figcaption><canvas id="guardFront" data-w="1300" data-h="1400"></canvas></figure>
+  <figure><figcaption>Acid guard, wreck</figcaption><canvas id="guardWreck" data-w="1300" data-h="1400"></canvas></figure>
+  <figure class="heroOnly"><figcaption>Scale, hero and guard</figcaption><canvas id="guardScale" data-w="2300" data-h="1400"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
 <main class="game">
-  <figure><figcaption>Face-off</figcaption><canvas id="gGuard" data-w="1900" data-h="1250"></canvas></figure>
-  <figure><figcaption>Wreck</figcaption><canvas id="gGuardWreck" data-w="1300" data-h="1250"></canvas></figure>
+  <figure><figcaption>Face-off</figcaption><canvas id="gGuard" data-w="2300" data-h="1400"></canvas></figure>
+  <figure><figcaption>Wreck</figcaption><canvas id="gGuardWreck" data-w="1300" data-h="1400"></canvas></figure>
 </main>
 <!-- originals -->
 <h2>References</h2>
@@ -243,13 +243,13 @@ const VIEWS = {
       const floor = h - 50;
       floorLine(ctx, w, floor);
       hero(ctx, { x: 360, floor, lineW: lw * 1.4 });
-      enemy(ctx, GUARD, { x: 1600, y: floor, t, pal, lineW: lw });
+      enemy(ctx, GUARD, { x: w - 150, y: floor, t, pal, lineW: lw });
     },
     gGuard: (ctx, lw, pal, w, h, t) => {
       backdrop(ctx, w, h);
       const floor = h - 50;
       if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw, simple: true });
-      enemy(ctx, GUARD, { x: 1600, y: floor, state: 1, t, pal, lineW: lw, lod: true });
+      enemy(ctx, GUARD, { x: w - 150, y: floor, state: 1, t, pal, lineW: lw, lod: true });
     },
     gGuardWreck: (ctx, lw, pal, w, h, t) => { backdrop(ctx, w, h); enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 3, t, pal, lineW: lw, lod: true }); }
   }

@@ -210,10 +210,13 @@ function guardWreck(ctx) {
   }
 }
 
+const GUARD_SIZE = 1.4;
+
 const GUARD = {
   id: "guard",
-  box: { x: -38, y: -51, w: 35, h: 51 },
+  box: { x: -53, y: -72, w: 49, h: 72 },
   draw(ctx, state, t) {
+    ctx.scale(GUARD_SIZE, GUARD_SIZE);
     if (state === 3) {
       ctx.translate(-21, 0);
       ctx.scale(0.6, 0.6);
@@ -246,46 +249,46 @@ function burst(ctx, x, y, r, k) {
   P.disc(ctx, x, y, r * 0.45 * heat + 0.3, heat > 0.5 ? "fire3" : "fire2");
 }
 
-function frontPod(ctx, side, fire) {
-  const x = side * 24;
-  P.beam(ctx, [side * 11, -41], [x, -42], 2, "guardMetal");
-  P.box(ctx, x - 6.5, -47, 13, 9.5, "guardMetal", 1);
-  P.flat(ctx, x - 5.5, -46, 11, 2, "gm3");
-  for (const dx of [-3.5, 0, 3.5]) P.disc(ctx, x + dx, -42, 1.3, "gm0", "gmLine");
-  if (fire >= 0) burst(ctx, x, -42, 6, fire);
+function frontLeg(ctx, side, tone) {
+  const x = side * 7;
+  P.poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.5, -13], [x - 2.5, -13]], "guardMetal", tone, { dir: [1, 0] });
+  P.poly(ctx, [[x - 3.5, -15.5], [x + 3.5, -15.5], [x + 3, -10.5], [x - 3, -10.5]], "guardChrome", tone);
+  P.box(ctx, x - 1.6, -11, 3.2, 8, "guardMetal", tone, { vertical: true });
+  P.poly(ctx, [[x - 5.5, -3.5], [x + 5.5, -3.5], [x + 7, 0], [x - 7, 0]], "guardChrome", tone);
 }
 
-function frontLeg(ctx, side) {
-  const x = side * 9;
-  P.box(ctx, x - 1.5, -28, 3, 10, "guardMetal", 1, { vertical: true });
-  P.poly(ctx, [[x - 3.5, -19], [x + 3.5, -19], [x + 4.5, -5], [x - 4.5, -5]], "guardMetal", 2, { dir: [1, 0] });
-  P.flat(ctx, x - 4, -11, 8, 1.2, "gm0");
-  P.poly(ctx, [[x - 6, -5], [x + 6, -5], [x + 8, 0], [x - 8, 0]], "guardMetal", 0);
+function frontGun(ctx, side, fire) {
+  const x = side * 14;
+  P.beam(ctx, [side * 9, -28], [x, -23], 3, "guardChrome");
+  P.box(ctx, x - 3.5, -23, 7, 6.5, "guardMetal", 2);
+  P.disc(ctx, x, -19.6, 2.1, "gm0", "gmLine");
+  if (!ENV.simple) P.disc(ctx, x, -19.6, 1, "gc0");
+  if (fire >= 0) burst(ctx, x, -19.6, 5, fire);
 }
 
 const GUARD_FRONT = {
   id: "guardFront",
-  box: { x: -31, y: -50, w: 62, h: 50 },
+  box: { x: -25, y: -72, w: 50, h: 72 },
   draw(ctx, state, t) {
     const fire = state === 1 ? fireFrame(t % 1.4) : -1;
-    frontLeg(ctx, -1);
-    frontLeg(ctx, 1);
-    frontPod(ctx, -1, fire < 0 ? -1 : Math.max(0, fire - 2));
-    frontPod(ctx, 1, fire);
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(0, -36, 13, 15, 0, 0, Math.PI * 2);
-    ctx.clip();
-    P.poly(ctx, [[-14, -52], [14, -52], [14, -20], [-14, -20]], "guardMetal", 2, { dir: [1, 0], line: false });
-    P.poly(ctx, [[-14, -52], [14, -52], [14, -44], [-14, -40]], "guardChrome", 1, { line: false });
-    P.flat(ctx, -14, -30, 28, 10, "gm0");
+    ctx.scale(GUARD_SIZE, GUARD_SIZE);
+    frontLeg(ctx, -1, 1);
+    frontLeg(ctx, 1, 1);
+    P.box(ctx, 3.5, -50.5, 1.4, 12, "guardMetal", 2, { vertical: true });
+    P.disc(ctx, 4.2, -50.5, 0.9, "visor");
+    P.box(ctx, 2, -44.5, 10, 8, "guardMetal", 1);
+    if (!ENV.simple) for (const [x, y] of [[4.5, -42.5], [7, -42.5], [9.5, -42.5], [4.5, -39.5], [7, -39.5], [9.5, -39.5]]) P.disc(ctx, x, y, 0.9, "gm0");
+    P.poly(ctx, [[-9, -37], [-5, -39], [5, -39], [9, -37], [11, -29], [9, -21], [-9, -21], [-11, -29]], "guardMetal", 2, { dir: [1, 0] });
+    P.poly(ctx, [[-9, -37], [-5, -39], [5, -39], [9, -37], [7, -35.5], [-7, -35.5]], "guardChrome", 2, { line: false });
+    P.poly(ctx, [[-5, -27], [5, -27], [6, -24], [4, -21], [-4, -21], [-6, -24]], "guardJaw", 2);
     if (!ENV.simple) {
-      P.glow(ctx, 0, -44, 6, "gc2", 0.35);
-      P.line(ctx, [[-12, -34], [12, -34]], "gm0", 0.8, "butt");
+      P.line(ctx, [[-8, -29.6], [8, -29.6]], "gc2", 0.6, "butt");
+      for (const x of [-6, 6]) P.line(ctx, [[x, -36], [x + 0.4, -32]], "rust", 0.8, "butt");
+      P.glow(ctx, 0, -31.7, 6, "visorGlow", 0.35);
     }
-    P.flat(ctx, -6, -36.5, 12, 1.2, "visor");
-    ctx.restore();
-    ellipse(ctx, 0, -36, 13, 15, "rgba(0,0,0,0)", "gmLine");
+    P.flat(ctx, -6, -32.3, 12, 1.2, "visor");
+    frontGun(ctx, -1, fire < 0 ? -1 : Math.max(0, fire - 2));
+    frontGun(ctx, 1, fire);
   }
 };
 
