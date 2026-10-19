@@ -71,6 +71,10 @@ export class Input {
     this.pressedAt.clear();
   }
 
+  clearPresses(): void {
+    this.pressedAt.clear();
+  }
+
   frame(): InputFrame {
     if (this.playback) this.feedPlayback();
     const time = this.clock();

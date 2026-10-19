@@ -164,11 +164,12 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
       const { movement: cfg, clips } = tuning();
       prev = { x: hero.x, y: hero.y };
       input.bufferMs = cfg.inputBufferMs;
-      if (input.consume("inventory") && canOpenInventory(hero.state)) {
+      if (tuning().inventory.open) return;
+      const frame = input.frame();
+      if (input.consume("inventory") && canOpenInventory(hero.state, tuning().recording || tuning().playing)) {
         useSandbox.setState({ inventory: { open: true, cursor: openCursor(world.inventory.items, world.inventory.shown) } });
         return;
       }
-      const frame = input.frame();
       logInput(frame.held);
       stepWorld(world, hero, frame, cfg, clips, dt, (action) => input.consume(action));
       afterStep?.();
@@ -222,7 +223,7 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
     const items = newestFirst(world.inventory.items);
     const { cursor, pick, close } = inventoryKey(e.code, inventory.cursor, items.length, controls.keyboard);
     if (pick) showItem(world, items[cursor]!);
-    if (close) input.releaseAll();
+    if (close) input.clearPresses();
     useSandbox.setState({ inventory: { open: !close, cursor }, item: world.inventory.shown });
   };
   window.addEventListener("keydown", inventoryKeys, { capture: true });

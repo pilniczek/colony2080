@@ -35,9 +35,13 @@ describe("inventory keys", () => {
   });
 
   it("opens only in live states", () => {
-    expect(canOpenInventory("death")).toBe(false);
-    expect(canOpenInventory("jumpDeath")).toBe(false);
-    expect(canOpenInventory("fallDeath")).toBe(false);
-    expect(canOpenInventory("ladder")).toBe(true);
+    expect(canOpenInventory("death", false)).toBe(false);
+    expect(canOpenInventory("jumpDeath", false)).toBe(false);
+    expect(canOpenInventory("fallDeath", false)).toBe(false);
+    expect(canOpenInventory("ladder", false)).toBe(true);
+  });
+
+  it("stays shut while input is recorded or replayed", () => {
+    expect(canOpenInventory("idle", true)).toBe(false);
   });
 });

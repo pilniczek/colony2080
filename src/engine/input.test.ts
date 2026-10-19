@@ -81,6 +81,17 @@ describe("Input", () => {
     expect(frame.dir).toBe(0);
   });
 
+  it("clearPresses drops buffered presses and keeps held keys", () => {
+    const { input } = make();
+    input.keyDown("ArrowLeft");
+    input.keyDown("Enter");
+    input.clearPresses();
+    const frame = input.frame();
+    expect(frame.pressed.size).toBe(0);
+    expect(frame.held.has("moveLeft")).toBe(true);
+    expect(frame.dir).toBe(-1);
+  });
+
   it("buffers a press until consumed or older than bufferMs", () => {
     const { input, clock } = make(150);
     input.keyDown("ControlLeft");

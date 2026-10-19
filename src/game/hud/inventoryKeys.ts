@@ -11,7 +11,7 @@ export interface InventoryKeyResult {
 
 const DEAD: ReadonlySet<HeroState> = new Set(["death", "jumpDeath", "fallDeath"]);
 
-export const canOpenInventory = (state: HeroState): boolean => !DEAD.has(state);
+export const canOpenInventory = (state: HeroState, replaying: boolean): boolean => !replaying && !DEAD.has(state);
 
 export const openCursor = (items: ItemId[], shown: ItemId | null): number => Math.max(0, newestFirst(items).indexOf(shown ?? ""));
 
