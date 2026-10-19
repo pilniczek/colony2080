@@ -179,7 +179,7 @@ function burn(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig)
   const half = cfg.box.width / 2;
   for (const enemy of world.enemies) {
     const { x, y } = enemy.body;
-    if (isDead(enemy) || Math.abs(y - h.y) > SAME_FLOOR || (x - line.x) * h.facing < 0 || (line.end - x) * h.facing < 0) continue;
+    if (isDead(enemy) || Math.abs(y - h.y) > SAME_FLOOR || (x - h.x) * h.facing < 0 || (line.end - x) * h.facing < 0) continue;
     hitEnemy(enemy, cfg.blaster.damage, !world.beamHits.has(enemy));
     world.beamHits.add(enemy);
     if (isDead(enemy)) world.beamHits.delete(enemy);
@@ -194,8 +194,12 @@ export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clip
     world.beamHits.clear();
     return;
   }
-  for (let i = 0; i < ticks; i++) burn(world, h, beamLine(world, h, clips, cfg), cfg);
-  const { x, y, end } = beamLine(world, h, clips, cfg);
+  let line = beamLine(world, h, clips, cfg);
+  for (let i = 0; i < ticks; i++) {
+    burn(world, h, line, cfg);
+    if (line.prop && !shootable(line.prop)) line = beamLine(world, h, clips, cfg);
+  }
+  const { x, y, end } = line;
   world.beam = { x, y, end, facing: h.facing, tick: Math.floor((h.fireTime ?? 0) * cfg.blaster.tickHz + BEAM_EPS) };
 }
 

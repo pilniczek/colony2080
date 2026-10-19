@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createFog, loadFog } from "./fog";
 import { cfg, clips, game, objectLevel, run, tick, type Game } from "./hero/testWorld";
 import { spikeUnit } from "./hero/look";
+import { resetWorld } from "./level/sandboxLevel";
 import { fireBeam, fireEnemy, heroMuzzle, SPARK_LIFE, stepShots } from "./shots";
 
 const TARGET_TOP = 14 - 1.51;
@@ -359,6 +360,23 @@ describe("blaster beam", () => {
     expect(enemy!.body.energy).toBeCloseTo(7 - 2 * cfg.blaster.damage, 9);
   });
 
+  it("hits an enemy closer than the muzzle", () => {
+    for (const facing of [1, -1] as const) {
+      const g = blaster(10.5, [[10.5 + facing * 0.3, 9]], facing);
+      zap(g);
+      expect(facing * (heroMuzzle(g.hero, clips, cfg)[0] - 10.5)).toBeGreaterThan(0.3);
+      expect(energy(g)).toEqual([7 - cfg.blaster.damage]);
+    }
+  });
+
+  it("is cleared by a world reset", () => {
+    const g = blaster(3.5, [[8.5, 9]]);
+    zap(g);
+    resetWorld(g.world, cfg);
+    expect(g.world.beam).toBeNull();
+    expect(g.world.beamHits.size).toBe(0);
+  });
+
   it("hits a standing enemy from a duck", () => {
     const g = blaster(3.5, [[8.5, 9]]);
     g.hero.state = "duckAttack";
@@ -373,6 +391,14 @@ describe("blaster beam", () => {
     expect(g.world.beam!.end).toBe(6.5);
     expect(g.world.props[0]!.hitsTaken).toBe(2);
     expect(energy(g)).toEqual([7]);
+  });
+
+  it("reaches past a shootable prop its tick broke", () => {
+    const target = { kind: "object", id: "target", x: 7, y: 9, width: 1, height: 3, shootable: { hits: 1, state: 1 } };
+    const g = blaster(3.5, [], 1, [target]);
+    zap(g);
+    expect(g.world.props[0]!.state).toBe(1);
+    expect(g.world.beam!.end).toBe(3.5 + cfg.sightCells);
   });
 
   it("clears the beam and its hits once the hero stops firing", () => {
