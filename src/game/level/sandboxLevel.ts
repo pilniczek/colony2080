@@ -50,6 +50,14 @@ export interface Spark {
   age: number;
 }
 
+export interface Beam {
+  x: number;
+  y: number;
+  end: number;
+  facing: 1 | -1;
+  tick: number;
+}
+
 export interface Inventory {
   items: ItemId[];
   shown: ItemId | null;
@@ -68,6 +76,8 @@ export interface SandboxWorld {
   fog: Fog | null;
   projectiles: Projectile[];
   sparks: Spark[];
+  beam: Beam | null;
+  beamHits: Set<Enemy>;
   enemies: Enemy[];
   flags: Set<string>;
   tasks: Task[];
@@ -144,6 +154,8 @@ export function loadSandbox(json: unknown): SandboxWorld {
     fog: null,
     projectiles: [],
     sparks: [],
+    beam: null,
+    beamHits: new Set(),
     enemies: data.enemies.map((e) => createEnemy(e, grid, lifts)),
     flags: new Set(),
     tasks: data.tasks === undefined ? [] : loadTasks(data.tasks),

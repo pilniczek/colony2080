@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createFog, loadFog } from "./fog";
 import { cfg, clips, game, objectLevel, run, tick, type Game } from "./hero/testWorld";
 import { spikeUnit } from "./hero/look";
-import { fireEnemy, heroMuzzle, SPARK_LIFE, stepShots } from "./shots";
+import { fireBeam, fireEnemy, heroMuzzle, SPARK_LIFE, stepShots } from "./shots";
 
 const TARGET_TOP = 14 - 1.51;
 
@@ -264,5 +264,140 @@ describe("shootable props", () => {
     tick(g, ["shoot"], ["shoot"]);
     run(g, 0.5);
     expect(shipOf(g).hitsTaken).toBe(1);
+  });
+});
+
+describe("blaster beam", () => {
+  const open = `#${".".repeat(28)}#`;
+  const walled = `#${".".repeat(18)}#${".".repeat(9)}#`;
+  const solid = "#".repeat(30);
+  const beamLevel = (enemies: [number, number][], props: unknown[] = []) => ({
+    rows: [solid, open, open, open, solid, walled, walled, walled, walled, solid, solid],
+    spawn: [3.5, 9],
+    sky: "skyBackground",
+    backdrop: [],
+    dressing: [],
+    lifts: [],
+    props,
+    enemies: enemies.map(([x, y]) => ({ x, y, facing: -1, hits: 7, respawnMs: null, reactMs: 250, burst: { shots: 9, ms: 280 }, pauseMs: 400 })),
+  });
+  const blaster = (x: number, enemies: [number, number][] = [], facing: 1 | -1 = 1, props: unknown[] = []): Game => {
+    const g = game({ x, y: 9, weapon: "blaster", state: "attack" }, beamLevel(enemies, props));
+    Object.assign(g.hero, { facing, blaster: cfg.blaster.ammo, fireTime: 0, onGround: true });
+    return g;
+  };
+  const zap = (g: Game, times = 1): void => {
+    for (let i = 0; i < times; i++) fireBeam(g.world, g.hero, [{ kind: "beam", x: g.hero.x, y: g.hero.y }], clips, cfg);
+  };
+  const energy = (g: Game) => g.world.enemies.map((e) => e.body.energy);
+
+  it("starts at the muzzle and reaches sightCells from the hero", () => {
+    for (const facing of [1, -1] as const) {
+      const from = facing > 0 ? 3.5 : 15.5;
+      const g = blaster(from, [], facing);
+      zap(g);
+      const [x, y] = heroMuzzle(g.hero, clips, cfg);
+      expect(g.world.beam).toMatchObject({ x, y, facing, end: from + facing * cfg.sightCells });
+    }
+  });
+
+  it("ends at the first wall face", () => {
+    const g = blaster(15.5);
+    zap(g);
+    expect(g.world.beam!.end).toBe(19);
+  });
+
+  it("ends at the first covered fog cell", () => {
+    const g = blaster(3.5);
+    g.world.fog = createFog(loadFog(cameraJson), cfg, g.hero, g.world.grid);
+    const fog = g.world.fog;
+    for (let row = 0; row < fog.height; row++) fog.revealed.fill(0, row * fog.width + 8, (row + 1) * fog.width);
+    zap(g);
+    expect(g.world.beam!.end).toBe(8);
+  });
+
+  it("damages every live enemy in range on the floor, one spark each", () => {
+    const g = blaster(3.5, [[7.5, 9], [10.5, 9], [16.5, 9]]);
+    zap(g);
+    expect(energy(g)).toEqual([7 - cfg.blaster.damage, 7 - cfg.blaster.damage, 7]);
+    expect(g.world.sparks).toHaveLength(2);
+    expect(g.world.sparks.map((s) => s.y)).toEqual([g.world.beam!.y, g.world.beam!.y]);
+  });
+
+  it("spares an enemy behind a wall and one on another floor", () => {
+    const g = blaster(15.5, [[22.5, 9], [17.5, 4]]);
+    zap(g);
+    expect(energy(g)).toEqual([7, 7]);
+    expect(g.world.sparks).toHaveLength(0);
+  });
+
+  it("moves on to the next enemy once one dies", () => {
+    const g = blaster(3.5, [[6.5, 9], [9.5, 9]]);
+    const [near, far] = g.world.enemies;
+    near!.body.energy = cfg.blaster.damage * 1.5;
+    zap(g, 2);
+    expect(near!.deadAge).not.toBeNull();
+    const dead = near!.body.energy;
+    g.world.sparks = [];
+    zap(g, 3);
+    expect(near!.body.energy).toBe(dead);
+    expect(g.world.sparks).toHaveLength(3);
+    expect(far!.body.energy).toBeCloseTo(7 - 5 * cfg.blaster.damage, 9);
+  });
+
+  it("starts the hit reaction on the first touch only", () => {
+    const g = blaster(3.5, [[8.5, 9]]);
+    const [enemy] = g.world.enemies;
+    zap(g);
+    expect(enemy!.body.hitAge).toBe(0);
+    expect(enemy!.alertAge).toBe(0);
+    Object.assign(enemy!.body, { hitAge: 0.1 });
+    enemy!.alertAge = null;
+    zap(g);
+    expect(enemy!.body.hitAge).toBe(0.1);
+    expect(enemy!.alertAge).toBeNull();
+    expect(enemy!.body.energy).toBeCloseTo(7 - 2 * cfg.blaster.damage, 9);
+  });
+
+  it("hits a standing enemy from a duck", () => {
+    const g = blaster(3.5, [[8.5, 9]]);
+    g.hero.state = "duckAttack";
+    zap(g);
+    expect(energy(g)).toEqual([7 - cfg.blaster.damage]);
+  });
+
+  it("ends at a live shootable prop and counts each tick as a hit", () => {
+    const target = { kind: "object", id: "target", x: 7, y: 9, width: 1, height: 3, shootable: { hits: 50, state: 1 } };
+    const g = blaster(3.5, [[10.5, 9]], 1, [target]);
+    zap(g, 2);
+    expect(g.world.beam!.end).toBe(6.5);
+    expect(g.world.props[0]!.hitsTaken).toBe(2);
+    expect(energy(g)).toEqual([7]);
+  });
+
+  it("clears the beam and its hits once the hero stops firing", () => {
+    const g = blaster(3.5, [[8.5, 9]]);
+    zap(g);
+    expect(g.world.beamHits.size).toBe(1);
+    g.hero.fireTime = null;
+    fireBeam(g.world, g.hero, [], clips, cfg);
+    expect(g.world.beam).toBeNull();
+    expect(g.world.beamHits.size).toBe(0);
+  });
+
+  it("stays on between ticks while fire is held and reacts once", () => {
+    const g = blaster(3.5, [[8.5, 9]]);
+    Object.assign(g.hero, { state: "idle", fireTime: null });
+    const [enemy] = g.world.enemies;
+    tick(g, ["shoot"], ["shoot"]);
+    for (let i = 0; i < 20; i++) {
+      expect(g.world.beam).not.toBeNull();
+      tick(g, ["shoot"]);
+    }
+    expect(enemy!.body.hitAge).toBeCloseTo(20 / 60, 9);
+    expect(enemy!.body.energy).toBeCloseTo(7 - 11 * cfg.blaster.damage, 9);
+    expect(g.world.beam!.tick).toBe(10);
+    tick(g);
+    expect(g.world.beam).toBeNull();
   });
 });

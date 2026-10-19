@@ -6,7 +6,7 @@ import { fogEdge, visible } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
-import { ENEMY_SHOT, hitEnemy, isDead, type Enemy } from "./level/enemy";
+import { ENEMY_SHOT, hitEnemy, isDead, SAME_FLOOR, type Enemy } from "./level/enemy";
 import type { Prop, SandboxWorld } from "./level/sandboxLevel";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
@@ -146,6 +146,57 @@ export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], cli
     const bullet = { x, y, vx: h.facing * cfg.shot.speed, r: cfg.shot.radius, tag: HERO_SHOT, originX: x, endX: h.x + h.facing * cfg.sightCells };
     launch(world, cfg, h.x, bullet);
   }
+}
+
+const BEAM_EPS = 1e-6;
+
+const ahead = (dir: number, a: number, b: number): number => (dir > 0 ? Math.max(a, b) : Math.min(a, b));
+
+const nearer = (dir: number, a: number, b: number): number => ahead(-dir, a, b);
+
+interface BeamLine {
+  x: number;
+  y: number;
+  end: number;
+  prop: Prop | null;
+}
+
+function beamLine(world: SandboxWorld, h: Hero, clips: ClipSet, cfg: MovementConfig): BeamLine {
+  const [x, y] = heroMuzzle(h, clips, cfg);
+  const reach = h.x + h.facing * cfg.sightCells;
+  const ray = { x: reach, y, vx: h.facing, r: 0, tag: HERO_SHOT, endX: reach };
+  const open = nearer(h.facing, sightEdge(world, x, ray), wallBetween(world, h.x, ray) ?? reach);
+  const end = ahead(h.facing, x, open);
+  const prop = nearestProp(world, h.x, { ...ray, x: end }, end);
+  return prop ? { x, y, end: ahead(h.facing, x, prop.face), prop: prop.prop } : { x, y, end, prop: null };
+}
+
+function burn(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig): void {
+  if (line.prop) {
+    hitShootable(world, line.prop);
+    world.sparks.push({ x: line.end, y: line.y, age: 0 });
+  }
+  const half = cfg.box.width / 2;
+  for (const enemy of world.enemies) {
+    const { x, y } = enemy.body;
+    if (isDead(enemy) || Math.abs(y - h.y) > SAME_FLOOR || (x - line.x) * h.facing < 0 || (line.end - x) * h.facing < 0) continue;
+    hitEnemy(enemy, cfg.blaster.damage, !world.beamHits.has(enemy));
+    world.beamHits.add(enemy);
+    if (isDead(enemy)) world.beamHits.delete(enemy);
+    world.sparks.push({ x: ahead(h.facing, line.x, x - h.facing * half), y: line.y, age: 0 });
+  }
+}
+
+export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clips: ClipSet, cfg: MovementConfig): void {
+  const ticks = events.filter((e) => e.kind === "beam").length;
+  if (!ticks && (h.weapon !== "blaster" || h.fireTime === null)) {
+    world.beam = null;
+    world.beamHits.clear();
+    return;
+  }
+  for (let i = 0; i < ticks; i++) burn(world, h, beamLine(world, h, clips, cfg), cfg);
+  const { x, y, end } = beamLine(world, h, clips, cfg);
+  world.beam = { x, y, end, facing: h.facing, tick: Math.floor((h.fireTime ?? 0) * cfg.blaster.tickHz + BEAM_EPS) };
 }
 
 export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], cfg: MovementConfig): void {

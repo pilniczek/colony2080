@@ -11,10 +11,12 @@ import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type 
 import type { Rect } from "../geometry";
 import type { Enemy } from "../level/enemy";
 import type { SandboxWorld } from "../level/sandboxLevel";
+import { TILE } from "../env/paint";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
+import { BEAM_TICK_HZ, beamFrame, drawBeam } from "./beam";
 import { drawEnvironment } from "./environment";
 
 const DEG = Math.PI / 180;
@@ -85,6 +87,18 @@ function tracer(f: Frame, p: Projectile, x: number, y: number): void {
   ctx.moveTo(x, y);
   ctx.lineTo(tail, y);
   ctx.stroke();
+}
+
+function beam(f: Frame): void {
+  const { ctx, world, cell } = f;
+  const b = world.beam;
+  if (!b) return;
+  const k = cell / TILE;
+  ctx.save();
+  ctx.translate(b.x * cell, b.y * cell);
+  ctx.scale(b.facing * k, k);
+  drawBeam(ctx, Math.abs(b.end - b.x) * TILE, beamFrame(b.tick / BEAM_TICK_HZ), b.tick);
+  ctx.restore();
 }
 
 function impacts(f: Frame): void {
@@ -307,6 +321,7 @@ export function drawScene(
   if (!behind) drawHero();
   if (sight) ctx.clip(sight);
   projectiles(f, alpha);
+  beam(f);
   impacts(f);
   ctx.restore();
 }

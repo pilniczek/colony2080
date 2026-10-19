@@ -4,7 +4,7 @@ import type { ClipSet, MovementConfig } from "./hero/config";
 import { updateHero, type Hero, type HeroEvent } from "./hero/hero";
 import { resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
-import { fireEnemy, fireShots, landPunches, stepShots } from "./shots";
+import { fireBeam, fireEnemy, fireShots, landPunches, stepShots } from "./shots";
 
 export const SUBTITLE_MS = 3500;
 
@@ -31,6 +31,7 @@ export function stepWorld(
   for (const lift of world.lifts) updateLift(lift, cfg.liftSpeed, dt);
   const events = updateHero(hero, input, world, cfg, clips, dt, consume);
   fireShots(world, hero, events, clips, cfg);
+  fireBeam(world, hero, events, clips, cfg);
   landPunches(world, hero, events, cfg);
   if (events.some((e) => e.kind === "respawned")) resetWorld(world, cfg);
   return events;

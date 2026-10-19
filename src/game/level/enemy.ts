@@ -5,7 +5,7 @@ import { createHero, type Hero } from "../hero/hero";
 
 export const ENEMY_SHOT = "enemy";
 
-const SAME_FLOOR = 0.5;
+export const SAME_FLOOR = 0.5;
 const HALF_WIDTH = 0.35;
 
 export interface EnemyJson {
@@ -88,11 +88,13 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
 
 export const isDead = (e: Enemy): boolean => e.deadAge !== null;
 
-export function hitEnemy(e: Enemy, damage = 1): boolean {
+export function hitEnemy(e: Enemy, damage = 1, react = true): boolean {
   if (isDead(e)) return false;
   e.body.energy -= damage;
-  e.body.hitAge = 0;
-  e.alertAge ??= 0;
+  if (react) {
+    e.body.hitAge = 0;
+    e.alertAge ??= 0;
+  }
   if (e.body.energy <= 0) e.deadAge = 0;
   return true;
 }
