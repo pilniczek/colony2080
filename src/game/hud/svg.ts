@@ -23,9 +23,17 @@ export interface HudIcons {
   fist: HudIcon;
 }
 
+export interface HudKeys {
+  weapons: string[];
+  run: string;
+}
+
 export const SHIELDS_MAX = 5;
 
+export const keyLabel = (code: string): string => code.replace(/^(Digit|Key)/, "").replace(/(Left|Right)$/, "").toUpperCase();
+
 const AMBER = "#ffb21c";
+const READOUT = "#a8844a";
 const MONO = "Share Tech Mono, monospace";
 const BOLD = "Orbitron, sans-serif";
 const HI = "#d8c8ae";
@@ -35,6 +43,7 @@ const ROD_YS = [3.4, 7.8, 12.2, 16.6];
 
 const DEFS = `<defs>
   <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a08f76"/><stop offset=".1" stop-color="#6e604e"/><stop offset=".5" stop-color="#4b4034"/><stop offset=".85" stop-color="#2f2720"/><stop offset="1" stop-color="#1a1511"/></linearGradient>
+  <linearGradient id="barMetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a08f76"/><stop offset=".1" stop-color="#6e604e"/><stop offset=".5" stop-color="#54483a"/><stop offset=".85" stop-color="#43392e"/><stop offset="1" stop-color="#352d24"/></linearGradient>
   <linearGradient id="metalV" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1c1712"/><stop offset=".3" stop-color="#4a3e32"/><stop offset=".45" stop-color="#5c4e40"/><stop offset=".75" stop-color="#342a21"/><stop offset="1" stop-color="#17120e"/></linearGradient>
   <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b09f86"/><stop offset=".45" stop-color="#6e5e4c"/><stop offset="1" stop-color="#3a3027"/></linearGradient>
   <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset=".45" stop-color="#bba98f"/><stop offset=".55" stop-color="#5a4d3f"/><stop offset="1" stop-color="#eadfcb"/></linearGradient>
@@ -59,6 +68,7 @@ const DEFS = `<defs>
   <filter id="lampHalo" x="-150%" y="-100%" width="400%" height="300%"><feGaussianBlur stdDeviation="1.6"/></filter>
   <filter id="iconGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="b"/><feFlood flood-color="#ffb21c" flood-opacity=".6"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="iconDim"><feColorMatrix type="saturate" values=".25"/><feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer></filter>
+  <filter id="keyHalo" x="-100%" y="-100%" width="300%" height="300%"><feMorphology operator="dilate" radius=".3"/><feGaussianBlur stdDeviation=".7"/></filter>
   <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".35"/></filter>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
@@ -77,7 +87,7 @@ const bevel = (x: number, y: number, w: number, h: number, r: number, raised = t
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
 
 const counter = (x: number, n: number): string =>
-  `<text x="${x}" y="12.6" font-family="${MONO}" font-size="7.4" fill="${AMBER}" filter="url(#glow)">N:${String(Math.round(n)).padStart(3, "0")}</text>`;
+  `<text x="${x}" y="16" font-family="${MONO}" font-size="4.6" fill="${READOUT}">${String(Math.round(n)).padStart(3, "0")}</text>`;
 
 const image = ({ url, w, h }: HudIcon, x: number, y: number): string =>
   `<image href="${url}" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
@@ -86,7 +96,7 @@ const gridPanel = (x: number, w: number): string => `<rect x="${x + 0.4}" y="1.8
   ${["grid", "insetTop", "insetSide", "glare"].map((f) => `<rect x="${x + 1}" y="2.4" width="${w - 2}" height="15" rx="1" fill="url(#${f})"/>`).join("")}
   ${bevel(x + 0.4, 1.8, w - 0.8, 16.2, 1.4, false, 0.35)}`;
 
-const plate = ([a, b]: Span): string => `<rect x="${a}" y="0" width="${b - a}" height="${BAR_H}" rx="1.6" fill="url(#metal)"/>
+const plate = ([a, b]: Span): string => `<rect x="${a}" y="0" width="${b - a}" height="${BAR_H}" rx="1.6" fill="url(#barMetal)"/>
   <path d="M${a + 1.6} .4H${b - 1.6}" stroke="#e8d8bc" stroke-width=".5"/>
   ${bevel(a, 0, b - a, BAR_H, 1.6, true, 0.45)}`;
 
@@ -105,7 +115,7 @@ function badge(x: number): string {
   ${screw(x + 2.4, 3.2)}${screw(x + 45.6, 3.2)}${screw(x + 2.4, 17.2)}${screw(x + 45.6, 17.2)}`;
 }
 
-function top(W: number, s: HudState, icons: HudIcons): string {
+function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   const bar = topBar(W);
   const item = s.item
     ? `<text x="${bar.inv + bar.invW / 2}" y="11.9" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
@@ -115,18 +125,41 @@ function top(W: number, s: HudState, icons: HudIcons): string {
   ${bar.plates.map(plate).join("")}
   ${bar.empty ? emptyScrews(bar.empty) : ""}
   ${gridPanel(bar.gridX, bar.gridW)}
-  ${weapon(image(icons.gun, 19, 2.9) + counter(59, s.ammo), s.weapon === 0)}
+  ${weapon(image(icons.gun, 19, 2.9), s.weapon === 0)}${counter(46.6, s.ammo)}
   ${weapon(image(icons.fist, 84, 2.4), s.weapon === 1)}
-  ${s.bonus ? weapon(BLASTER + counter(150, s.bonusAmmo), s.weapon === 2) : ""}
+  ${s.bonus ? weapon(BLASTER, s.weapon === 2) + counter(134.6, s.bonusAmmo) : ""}
+  ${WEAPON_KEYS_X.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x, keys.weapons[i] ?? "", s.weapon === i)).join("")}
   ${badge(bar.badge)}
-  ${gridPanel(bar.run, bar.runW)}${runText(bar.run + bar.runW / 2, s.running)}
+  ${gridPanel(bar.run, bar.runW)}${runText(bar.run + bar.runW / 2)}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}
   ${gridPanel(bar.inv, bar.invW)}${item}`;
+}
+
+const WEAPON_KEYS_X = [36.5, 94, 125];
+const TAB = { top: 15.2, bottom: 18.2, r: 0.8, font: 3.4, pad: 1.2 };
+const tabWidth = (label: string): number => label.length * TAB.font * 0.7 + 2 * TAB.pad;
+const TAB_MIN_W = 1.6 * tabWidth("1");
+
+const letter = (x: number, y: number, attrs: string, label: string): string =>
+  `<text x="${x}" y="${y}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${TAB.font}" ${attrs}>${label}</text>`;
+
+const plainLetter = (x: number, y: number, label: string): string => letter(x + 0.2, y + 0.2, `fill="${HI}" opacity=".55"`, label) + letter(x, y, 'fill="#1a140f"', label);
+
+const litLetter = (x: number, y: number, label: string): string => letter(x, y, 'fill="#ff2a10" opacity=".55" filter="url(#keyHalo)"', label) +
+  letter(x, y, 'fill="#ff4a26" stroke="#7a0a02" stroke-width=".3" paint-order="stroke"', label);
+
+function keyTab(cx: number, label: string, active = false): string {
+  const { top, bottom, r } = TAB;
+  const w = Math.max(TAB_MIN_W, tabWidth(label)), a = cx - w / 2, b = cx + w / 2, base = (top + BAR_H) / 2 + TAB.font * 0.36;
+  const edge = `M${a} ${bottom}V${top + r}Q${a} ${top} ${a + r} ${top}H${b - r}Q${b} ${top} ${b} ${top + r}V${bottom}`;
+  return `<path d="${edge}Z" fill="url(#plate)"/>
+  <path d="${edge}" fill="none" stroke="${HI}" stroke-opacity=".55" stroke-width=".35"/>
+  ${active ? litLetter(cx, base, label) : plainLetter(cx, base, label)}`;
 }
 
 const weapon = (content: string, active: boolean): string => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
 
-const runText = (x: number, on: boolean): string =>
-  `<text x="${x}" y="11.9" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${on ? AMBER : "#8a6a3a"}"${on ? ' filter="url(#glow)"' : ""}>RUN</text>`;
+const runText = (x: number): string =>
+  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">RUN</text>`;
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 
@@ -226,8 +259,8 @@ function frame(W: number, H: number): string {
   return `<path fill-rule="evenodd" fill="url(#metalV)" d="M0 0H${W}V${H}H0Z M${left} ${t}V${H - b}H${W - right}V${t}Z"/>`;
 }
 
-export function hudSvg(W: number, H: number, s: HudState, icons: HudIcons): string {
+export function hudSvg(W: number, H: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">${DEFS}
-  ${frame(W, H)}${sides(W, H)}${top(W, s, icons)}
+  ${frame(W, H)}${sides(W, H)}${top(W, s, icons, keys)}
   <g transform="translate(0 ${H - HUD_H})">${leftColumn(s)}${rightColumn(W, s)}${bottom(W)}</g></svg>`;
 }

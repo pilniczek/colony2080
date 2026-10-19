@@ -30,7 +30,7 @@ describe("topBar", () => {
     expect(bar.plates).toHaveLength(4);
     expect(bar.gaps).toHaveLength(5);
     expect(bar.empty).toBeNull();
-    expect(bar.gridW).toBeCloseTo(174.3, 9);
+    expect(bar.gridW).toBeCloseTo(170.3, 9);
   });
 
   it("gives the run plate and the inventory plate equal 3.5 margins around their grids", () => {
@@ -44,14 +44,14 @@ describe("topBar", () => {
   it("lets the weapons plate absorb a few extra units", () => {
     const bar = topBar(325);
     expect(bar.empty).toBeNull();
-    expect(bar.gridW).toBeCloseTo(179.3, 9);
+    expect(bar.gridW).toBeCloseTo(175.3, 9);
   });
 
   it("puts an empty plate between the weapons and badge plates on wide screens", () => {
     const bar = topBar(467);
     expect(bar.plates).toHaveLength(5);
     expect(bar.gaps).toHaveLength(6);
-    expect(bar.gridW).toBeCloseTo(174.3, 9);
+    expect(bar.gridW).toBeCloseTo(170.3, 9);
     const [a, b] = bar.empty ?? [0, 0];
     expect(b - a).toBeCloseTo(467 - 320 - 2, 9);
     expect(bar.plates[1]).toEqual(bar.empty);

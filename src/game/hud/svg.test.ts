@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { hudSvg, type HudIcons, type HudState } from "./svg";
+import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 } };
 const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, reserve: 100, shields: 3, running: true, item: "" };
+const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT" };
+const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
 const count = (svg: string, text: string): number => svg.split(text).length - 1;
 
 describe("hudSvg", () => {
@@ -13,18 +15,18 @@ describe("hudSvg", () => {
   });
 
   it("shows the bonus slot only when the bonus weapon is owned", () => {
-    expect(hudSvg(320, 200, base, icons)).not.toContain("N:012");
+    expect(hudSvg(320, 200, base, icons)).not.toContain(">012</text>");
     const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 12, weapon: 2 }, icons);
-    expect(svg).toContain("N:012");
+    expect(svg).toContain(">012</text>");
     expect(count(svg, 'filter="url(#iconDim)"')).toBe(2);
   });
 
-  it("lights the RUN panel text only in run mode", () => {
-    const lit = 'filter="url(#glow)">RUN</text>';
-    expect(count(hudSvg(320, 200, base, icons), lit)).toBe(1);
-    const walking = hudSvg(320, 200, { ...base, running: false }, icons);
-    expect(count(walking, ">RUN</text>")).toBe(1);
-    expect(count(walking, lit)).toBe(0);
+  it("lights the RUN key only in run mode and keeps the RUN text unlit", () => {
+    const litKey = /fill="#ff4a26"[^>]*>ALT</;
+    const running = hudSvg(320, 200, base, icons);
+    expect(running).toMatch(litKey);
+    expect(running).toContain(`fill="#a8844a">RUN</text>`);
+    expect(hudSvg(320, 200, { ...base, running: false }, icons)).not.toMatch(litKey);
   });
 
   it("lights one shield light per shield", () => {
@@ -33,8 +35,34 @@ describe("hudSvg", () => {
 
   it("shows the ammo counter, badge and item text", () => {
     const svg = hudSvg(320, 200, { ...base, item: "PACIDLO" }, icons);
-    expect(svg).toContain("N:350");
+    expect(svg).toContain(">350</text>");
     expect(svg).toContain("C2080");
     expect(svg).toContain("PACIDLO");
+  });
+
+  it("shows a key on each owned weapon slot and on the RUN panel", () => {
+    const keyText = (label: string): string => `>${label}</text>`;
+    const svg = hudSvg(320, 200, base, icons);
+    expect(svg).toContain(keyText("1"));
+    expect(svg).toContain(keyText("2"));
+    expect(svg).not.toContain(keyText("3"));
+    expect(svg).toContain(keyText("ALT"));
+    expect(hudSvg(320, 200, { ...base, bonus: true }, icons)).toContain(keyText("3"));
+  });
+
+  it("glows red only the key of the selected weapon", () => {
+    const glowing = (svg: string): string[] => [...svg.matchAll(/fill="#ff4a26"[^>]*>([^<]+)</g)].map((m) => m[1]!);
+    const walking = { ...base, running: false };
+    expect(glowing(hudSvg(320, 200, walking, icons))).toEqual(["1"]);
+    expect(glowing(hudSvg(320, 200, { ...walking, weapon: 1 }, icons))).toEqual(["2"]);
+  });
+});
+
+describe("keyLabel", () => {
+  it("turns key codes into short labels", () => {
+    expect(keyLabel("Digit1")).toBe("1");
+    expect(keyLabel("AltLeft")).toBe("ALT");
+    expect(keyLabel("KeyI")).toBe("I");
+    expect(keyLabel("Escape")).toBe("ESCAPE");
   });
 });

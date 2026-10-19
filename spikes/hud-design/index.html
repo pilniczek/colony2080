@@ -57,6 +57,7 @@
 <script>
 (() => {
 const HUD_H = 200;
+const READOUT = "#a8844a";
 const AMBER = "#ffb21c";
 const MONO = "Share Tech Mono, monospace";
 const BOLD = "Orbitron, sans-serif";
@@ -64,6 +65,7 @@ const $ = (id) => document.getElementById(id);
 
 const DEFS = `<defs>
   <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a08f76"/><stop offset=".1" stop-color="#6e604e"/><stop offset=".5" stop-color="#4b4034"/><stop offset=".85" stop-color="#2f2720"/><stop offset="1" stop-color="#1a1511"/></linearGradient>
+  <linearGradient id="barMetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a08f76"/><stop offset=".1" stop-color="#6e604e"/><stop offset=".5" stop-color="#54483a"/><stop offset=".85" stop-color="#43392e"/><stop offset="1" stop-color="#352d24"/></linearGradient>
   <linearGradient id="metalV" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1c1712"/><stop offset=".3" stop-color="#4a3e32"/><stop offset=".45" stop-color="#5c4e40"/><stop offset=".75" stop-color="#342a21"/><stop offset="1" stop-color="#17120e"/></linearGradient>
   <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b09f86"/><stop offset=".45" stop-color="#6e5e4c"/><stop offset="1" stop-color="#3a3027"/></linearGradient>
   <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset=".45" stop-color="#bba98f"/><stop offset=".55" stop-color="#5a4d3f"/><stop offset="1" stop-color="#eadfcb"/></linearGradient>
@@ -89,6 +91,7 @@ const DEFS = `<defs>
   <filter id="lampHalo" x="-150%" y="-100%" width="400%" height="300%"><feGaussianBlur stdDeviation="1.6"/></filter>
   <filter id="iconGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="b"/><feFlood flood-color="#ffb21c" flood-opacity=".6"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="iconDim"><feColorMatrix type="saturate" values=".25"/><feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer></filter>
+  <filter id="keyHalo" x="-100%" y="-100%" width="300%" height="300%"><feMorphology operator="dilate" radius=".3"/><feGaussianBlur stdDeviation=".7"/></filter>
   <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".35"/></filter>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
@@ -98,7 +101,7 @@ const screw = (x, y) => `<use href="#screw" x="${x}" y="${y}"/>`;
 const bevel = (x, y, w, h, r, raised = true, lw = .45) =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
 const SIDE = 11, BAR_H = 20.4;
-const counter = (x, n) => `<text x="${x}" y="12.6" font-family="${MONO}" font-size="7.4" fill="${AMBER}" filter="url(#glow)">N:${String(n).padStart(3, "0")}</text>`;
+const counter = (x, n) => `<text x="${x}" y="16" font-family="${MONO}" font-size="4.6" fill="${READOUT}">${String(n).padStart(3, "0")}</text>`;
 
 const gridPanel = (x, w) => `<rect x="${x + .4}" y="1.8" width="${w - .8}" height="16.2" rx="1.4" fill="#0b0806"/>
   <rect x="${x + 1}" y="2.4" width="${w - 2}" height="15" rx="1" fill="url(#grid)"/>
@@ -154,7 +157,7 @@ const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" st
 
 function plate(a, b) {
   const w = b - a;
-  return `<rect x="${a}" y="0" width="${w}" height="${BAR_H}" rx="1.6" fill="url(#metal)"/>
+  return `<rect x="${a}" y="0" width="${w}" height="${BAR_H}" rx="1.6" fill="url(#barMetal)"/>
   <path d="M${a + 1.6} .4H${b - 1.6}" stroke="#e8d8bc" stroke-width=".5"/>
   ${bevel(a, 0, w, BAR_H, 1.6, true, .45)}`;
 }
@@ -166,7 +169,7 @@ function rod(a, b, y) {
 }
 
 function topBar(W, s) {
-  const edge = 0, gap = 2, pad = 3.5, invW = 46.5, runW = 14, inv = W - edge - pad - invW, run = inv - 2 * pad - gap - runW, badge = run - 52.4 - gap - pad;
+  const edge = 0, gap = 2, pad = 3.5, invW = 46.5, runW = 18, inv = W - edge - pad - invW, run = inv - 2 * pad - gap - runW, badge = run - 52.4 - gap - pad;
   const item = s.item
     ? `<text x="${inv + invW / 2}" y="11.9" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${AMBER}" filter="url(#glow)">${s.item}</text>`
     : `<g transform="translate(${inv + 5} 0)">${HAND}</g>`;
@@ -181,16 +184,17 @@ function topBar(W, s) {
   ${plates.map(([a, b]) => plate(a, b)).join("")}
   ${emptyScrews}
   ${gridPanel(gridX, gridW)}
-  ${weapon(GUN + counter(59, s.ammo), s.weapon === 0)}
+  ${weapon(GUN, s.weapon === 0)}${counter(46.6, s.ammo)}
   ${weapon(FIST, s.weapon === 1)}
-  ${s.bonus ? weapon(BLASTER + counter(150, s.bonusAmmo), s.weapon === 2) : ""}
+  ${s.bonus ? weapon(BLASTER, s.weapon === 2) + counter(134.6, s.bonusAmmo) : ""}
+  ${WEAPON_KEYS.slice(0, s.bonus ? 3 : 2).map(([x, label], i) => keyTab(x, label, s.weapon === i)).join("")}
   <rect x="${badge + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="#16110d"/>
   <rect x="${badge + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="url(#insetTop)"/>
   ${bevel(badge + 3.4, 3.8, 41.2, 12.8, 1.8, false, .45)}
   <text x="${badge + 24}" y="13.9" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
   <text x="${badge + 24}" y="13.3" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
   ${screw(badge + 2.4, 3.2)}${screw(badge + 45.6, 3.2)}${screw(badge + 2.4, 17.2)}${screw(badge + 45.6, 17.2)}
-  ${gridPanel(run, runW)}${runText(run + runW / 2, s.running)}
+  ${gridPanel(run, runW)}${runText(run + runW / 2)}${keyTab(run + runW / 2, "ALT", s.running)}
   ${gridPanel(inv, invW)}${item}`;
 }
 
@@ -212,8 +216,8 @@ function view(W, H) {
 
 const weapon = (content, active) => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
 
-const runText = (x, on) =>
-  `<text x="${x}" y="11.9" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${on ? AMBER : "#8a6a3a"}"${on ? ' filter="url(#glow)"' : ""}>RUN</text>`;
+const runText = (x) =>
+  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">RUN</text>`;
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 
@@ -226,6 +230,27 @@ function keyBox(x, letter) {
   <text x="${x + size / 2}" y="${base}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="#1a140f">${letter}</text>`;
 }
 
+const WEAPON_KEYS = [[36.5, "1"], [94, "2"], [125, "3"]];
+const TAB = { top: 15.2, bottom: 18.2, r: 0.8, font: 3.4, pad: 1.2 };
+const tabWidth = (label) => label.length * TAB.font * 0.7 + 2 * TAB.pad;
+const TAB_MIN_W = 1.6 * tabWidth("1");
+
+const letter = (x, y, attrs, label) =>
+  `<text x="${x}" y="${y}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${TAB.font}" ${attrs}>${label}</text>`;
+
+const plainLetter = (x, y, label) => letter(x + 0.2, y + 0.2, `fill="${HI}" opacity=".55"`, label) + letter(x, y, 'fill="#1a140f"', label);
+
+const litLetter = (x, y, label) => letter(x, y, 'fill="#ff2a10" opacity=".55" filter="url(#keyHalo)"', label) +
+  letter(x, y, 'fill="#ff4a26" stroke="#7a0a02" stroke-width=".3" paint-order="stroke"', label);
+
+function keyTab(cx, label, active = false) {
+  const { top, bottom, r } = TAB;
+  const w = Math.max(TAB_MIN_W, tabWidth(label)), a = cx - w / 2, b = cx + w / 2, base = (top + BAR_H) / 2 + TAB.font * 0.36;
+  const edge = `M${a} ${bottom}V${top + r}Q${a} ${top} ${a + r} ${top}H${b - r}Q${b} ${top} ${b} ${top + r}V${bottom}`;
+  return `<path d="${edge}Z" fill="url(#plate)"/>
+  <path d="${edge}" fill="none" stroke="${HI}" stroke-opacity=".55" stroke-width=".35"/>
+  ${active ? litLetter(cx, base, label) : plainLetter(cx, base, label)}`;
+}
 function tube(x, top, w, h, fillH, inner = w - 2.6, paint = "url(#amberFill)") {
   const r = 0;
   return `<rect x="${x - .9}" y="${top - .9}" width="${w + 1.8}" height="${h + 1.8}" fill="url(#plate)"/>
