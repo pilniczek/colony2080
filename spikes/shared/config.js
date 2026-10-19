@@ -7,7 +7,8 @@ window.C28_CONFIG = {
     "asset": "crowbar",
     "tilt": 45,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRPAC.GRA"
   },
   "wires": {
    "name": "wires",
@@ -16,7 +17,8 @@ window.C28_CONFIG = {
     "asset": "wires",
     "tilt": 0,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRDRAT.GRA"
   },
   "tapHandle": {
    "name": "tap handle",
@@ -25,7 +27,8 @@ window.C28_CONFIG = {
     "asset": "tapHandle",
     "tilt": 0,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRKOH.GRA"
   },
   "card": {
    "name": "card",
@@ -34,7 +37,8 @@ window.C28_CONFIG = {
     "asset": "card",
     "tilt": 0,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRKART.GRA"
   },
   "holoPlan": {
    "name": "holo plan",
@@ -43,7 +47,8 @@ window.C28_CONFIG = {
     "asset": "holoPlan",
     "tilt": 0,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRHOLO.GRA"
   },
   "shipPlan": {
    "name": "ship plan",
@@ -52,7 +57,8 @@ window.C28_CONFIG = {
     "asset": "shipPlan",
     "tilt": 0,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRPLAN.GRA"
   },
   "shipPart": {
    "name": "ship part",
@@ -62,7 +68,8 @@ window.C28_CONFIG = {
     "state": 1,
     "tilt": 20,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRSOUC.GRA"
   },
   "decoder": {
    "name": "decoder",
@@ -71,7 +78,8 @@ window.C28_CONFIG = {
     "asset": "decoder",
     "tilt": 0,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRDEKOD.GRA"
   },
   "controller": {
    "name": "controller",
@@ -80,7 +88,8 @@ window.C28_CONFIG = {
     "asset": "controller",
     "tilt": 25,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PROVL.GRA"
   },
   "craneKey": {
    "name": "crane key",
@@ -89,7 +98,8 @@ window.C28_CONFIG = {
     "asset": "craneKey",
     "tilt": 30,
     "scale": 1.25
-   }
+   },
+   "preview": "GRAFIKA/PRKLIC.GRA"
   }
  },
  "robots": {
@@ -1094,7 +1104,7 @@ window.C28_CONFIG = {
       "marker": 10,
       "task": "getShipPart",
       "sheet": "props",
-      "description": "Part that falls out of the ship hull; picked from the ground (ZE ZEMĚ JSI SEBRAL SOUČÁSTKU Z RAKETY). No ground sprite identified.",
+      "description": "Part that falls out of the ship hull; picked from the ground (ZE ZEMĚ JSI SEBRAL SOUČÁSTKU Z RAKETY). No ground sprite identified. Look follows the inventory preview `GRAFIKA/PRSOUC.GRA`: grey bracket plate, ribbed drum with orange coil loops, side block with a stud.",
       "states": [
        "inside hull",
        "on ground",
@@ -1199,7 +1209,7 @@ window.C28_CONFIG = {
       "marker": 12,
       "task": "takeController",
       "sheet": "props",
-      "description": "Item spot at map cell 112,50 on floor 45, by a small green machine and fence, left of a heap of fallen girders. No item sprite in the map; never reached in footage.",
+      "description": "Item spot at map cell 112,50 on floor 45, by a small green machine and fence, left of a heap of fallen girders. No item sprite in the map; never reached in footage. Look follows the inventory preview `GRAFIKA/PROVL.GRA`: grey slab with a red block and a row of white keys.",
       "states": [
        "on ground",
        "taken"
@@ -1320,7 +1330,7 @@ window.C28_CONFIG = {
       "marker": 15,
       "task": "shootGuard",
       "sheet": "props",
-      "description": "Small key lying behind the shoot-only guard on the top floor (engine item 15,10, map ~cell 21, row 15). Not seen in footage or map tiles.",
+      "description": "Small key lying behind the shoot-only guard on the top floor (engine item 15,10, map ~cell 21, row 15). Not seen in footage or map tiles. Look follows the inventory preview `GRAFIKA/PRKLIC.GRA`: silver key with a round bow.",
       "states": [
        "guarded",
        "on ground",

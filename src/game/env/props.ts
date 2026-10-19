@@ -91,16 +91,16 @@ export const craneKey: EnvAsset = {
     ctx.save();
     ctx.translate(0, -1.4);
     ctx.beginPath();
-    ctx.arc(2.2, -1.2, 2, 0, PI * 2);
-    ctx.arc(2.2, -1.2, 0.9, 0, PI * 2, true);
-    ctx.fillStyle = color("y1");
+    ctx.arc(2.2, -1.2, 2.2, 0, PI * 2);
+    ctx.arc(1.6, -1.4, 0.6, 0, PI * 2, true);
+    ctx.fillStyle = color("c1");
     ctx.fill("evenodd");
-    stroke(ctx, "yLine");
-    box(ctx, 4, -1.9, 5.6, 1.4, "yellow", 2);
-    poly(ctx, [[7, -0.5], [7.8, -0.5], [7.8, 1], [7, 1]], "yellow", 1);
-    poly(ctx, [[8.6, -0.5], [9.6, -0.5], [9.6, 1.4], [8.6, 1.4]], "yellow", 1);
+    stroke(ctx, "mLine");
+    box(ctx, 4, -1.9, 5.6, 1.4, "chrome", 2);
+    poly(ctx, [[7, -0.5], [7.8, -0.5], [7.8, 1], [7, 1]], "chrome", 1);
+    poly(ctx, [[8.6, -0.5], [9.6, -0.5], [9.6, 1.4], [8.6, 1.4]], "chrome", 1);
     ctx.restore();
-  },
+  }
 };
 
 export const shipPart: EnvAsset = {
@@ -109,26 +109,40 @@ export const shipPart: EnvAsset = {
   draw(ctx, state) {
     if (state === 0) return;
     if (state === 2) return scuff(ctx, 1, 16);
-    poly(ctx, [[1, -1], [1, -7], [4, -9], [4, 0]], "steel", 1);
-    box(ctx, 4, -9, 8, 9, "chrome", 1, { vertical: true });
-    for (let x = 5.2; x < 11.5; x += P.simple() ? 3 : 1.6) flat(ctx, x, -8.4, 0.7, 7.8, "a0");
-    poly(ctx, [[12, -7.5], [16.5, -10], [17.5, -10], [17.5, 1], [16.5, 0], [12, -1.5]], "chrome", 2);
-    flat(ctx, 16.6, -9.4, 0.9, 9, "hole");
-  },
+    poly(ctx, [[0, 0], [2, -3], [18, -3], [17, 0]], "chrome", 1);
+    box(ctx, 12, -10, 5.6, 7, "chrome", 2);
+    disc(ctx, 14.8, -6.6, 1.2, "c3", "mLine");
+    box(ctx, 3, -9, 8, 6, "chrome", 1, { vertical: true });
+    for (let x = 4.6; x < 10.5; x += P.simple() ? 3 : 1.6) flat(ctx, x, -9, 0.5, 6, "c0");
+    ctx.save();
+    ctx.lineCap = "round";
+    for (const x of [4.4, 6.8, 9.2] as const) {
+      ctx.beginPath();
+      ctx.ellipse(x, -9, 1, 2.6, 0.25, PI, PI * 2);
+      ctx.strokeStyle = color("aLine");
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
+      ctx.strokeStyle = color("neon");
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 };
 
 export const controller: EnvAsset = {
   id: "controller",
-  box: [-2, -10, 16, 0],
+  box: [-2, -8, 18, 0],
   draw(ctx, state) {
-    if (state) return scuff(ctx, 1, 13);
-    poly(ctx, [[10, -3], [12.5, -8.5], [13.2, -8.2], [11, -3]], "chrome", 1);
-    disc(ctx, 12.9, -8.6, 0.7, "neon", "mLine");
-    box(ctx, 1, -3.8, 11, 3.8, "green", 1);
-    flat(ctx, 2, -3.2, 3.6, 2, "screen", "gLine");
+    if (state) return scuff(ctx, 1, 14);
+    box(ctx, 0.6, -1.6, 14, 1.6, "chrome", 0);
+    poly(ctx, [[0.6, -1.6], [2.4, -6.4], [16, -6.4], [14.6, -1.6]], "chrome", 1);
+    poly(ctx, [[10.6, -2.6], [11.2, -5.4], [13.8, -5.4], [13.2, -2.6]], "neon", 2);
+    for (let i = 0; i < 4; i++) poly(ctx, [[2.6 + i * 1.8, -2.4], [3.2 + i * 1.8, -4], [4.2 + i * 1.8, -4], [3.6 + i * 1.8, -2.4]], "c3", 2);
     if (P.simple()) return;
-    for (const [x, c] of [[7, "y2"], [8.6, "neon"], [10.2, "c2"]] as [number, string][]) flat(ctx, x, -2.8, 1, 1, c);
-  },
+    flat(ctx, 3.6, -5.6, 6, 0.4, "c0");
+    flat(ctx, 9.6, -2.2, 0.4, 0.4, "c0");
+  }
 };
 
 export const wires: EnvAsset = {

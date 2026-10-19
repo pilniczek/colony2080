@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Item Sheet</title>
+<style>
+  :root { --bg: #0b1112; --panel: #141c1e; --card: #10181a; --text: #c9d1d0; --muted: #7d8a89; --accent: #e2701a; --cool: #3fd0e0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: var(--panel); }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  header label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  section { margin: 12px 16px; padding: 12px; background: var(--card); border-radius: 6px; }
+  section h3 { margin: 0 0 8px; font-size: 15px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .cs { color: var(--muted); font-weight: 400; font-style: italic; }
+  .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; padding: 1px 6px; border-radius: 3px; background: #22302f; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 4px; max-width: 100%; }
+  figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  figure canvas { display: block; max-width: 100%; background: #1a1410; border-radius: 4px; }
+  figure.ref canvas { image-rendering: pixelated; background: #000; }
+  figure.hud canvas { background: #1c120a; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Item sheet</h1>
+  <label><input id="lines" type="checkbox" checked> Outlines</label>
+  <label><input id="spin" type="checkbox" checked> Spin original</label>
+</header>
+<div id="sheet"></div>
+<script src="../shared/config.js"></script>
+<script src="../shared/xbot.js"></script>
+<script src="../shared/env.js"></script>
+<script src="../shared/env-props.js"></script>
+<script>
+const ITEMS = window.C28_CONFIG.items;
+const OBJECTS = Object.fromEntries(window.C28_CONFIG.levels.mesto.objects.objects.map((o) => [o.id, o]));
+const asset = (id) => window.ENV.ASSETS.find((a) => a.id === id);
+const $ = (id) => document.getElementById(id);
+
+const HAND_BOX = { w: 12 * .8, h: 13 * .8 };
+const SHEET = { cols: 6, cell: [160, 100], crop: [0, 57, 78, 42], frames: 31 };
+const REF_SCALE = 4;
+const BIG = 8, GAME = 2, HUD = 8;
+
+function canvas(w, h) {
+  const c = document.createElement("canvas");
+  const dpr = devicePixelRatio || 1;
+  c.width = Math.round(w * dpr);
+  c.height = Math.round(h * dpr);
+  c.style.width = `${w}px`;
+  c.style.height = `${h}px`;
+  const ctx = c.getContext("2d");
+  ctx.scale(dpr, dpr);
+  return [c, ctx];
+}
+
+function figure(cls, caption, node) {
+  const f = document.createElement("figure");
+  if (cls) f.className = cls;
+  f.append(node);
+  const cap = document.createElement("figcaption");
+  cap.textContent = caption;
+  f.append(cap);
+  return f;
+}
+
+function assetView(def, state, scale, lod) {
+  const [x0, y0, x1, y1] = def.box;
+  const pad = 2;
+  const [c, ctx] = canvas((x1 - x0 + 2 * pad) * scale, (y1 - y0 + 2 * pad) * scale);
+  ctx.scale(scale, scale);
+  ctx.translate(pad - x0, pad - y0);
+  window.ENV.draw(ctx, def, { state, lod, lines: $("lines").checked ? 1 : 0 });
+  return c;
+}
+
+function hudView(def, { state = 0, tilt, scale }) {
+  const w = HAND_BOX.w * scale, h = HAND_BOX.h * scale;
+  const [c, ctx] = canvas(w * HUD, h * HUD);
+  ctx.scale(HUD, HUD);
+  const [x0, y0, x1, y1] = def.box, angle = tilt * Math.PI / 180;
+  const s = Math.min(w, h) / ((x1 - x0) * Math.cos(angle) + (y1 - y0) * Math.sin(angle));
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(-angle);
+  ctx.scale(s, s);
+  ctx.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+  window.ENV.draw(ctx, def, { state, lod: false, lines: 1 });
+  return c;
+}
+
+const refViews = [];
+function refView(preview) {
+  const name = preview.split("/").pop().replace(/\.GRA$/i, "");
+  const [, , cw, ch] = SHEET.crop;
+  const [c, ctx] = canvas(cw * REF_SCALE, ch * REF_SCALE);
+  ctx.imageSmoothingEnabled = false;
+  const img = new Image();
+  const view = { ctx, img, frame: 1, ready: false };
+  img.onload = () => { view.ready = true; paintRef(view); };
+  img.onerror = () => { ctx.fillStyle = "#7d8a89"; ctx.font = "11px system-ui"; ctx.fillText(`missing ${name}_sheet.png (local only)`, 8, 20); };
+  img.src = `../../docs/research/gamedata/png/${name}_sheet.png`;
+  refViews.push(view);
+  return figure("ref", `original ${preview}`, c);
+}
+
+function paintRef(view) {
+  if (!view.ready) return;
+  const [sx, sy, cw, ch] = SHEET.crop;
+  const col = view.frame % SHEET.cols, row = Math.floor(view.frame / SHEET.cols);
+  view.ctx.drawImage(view.img, col * SHEET.cell[0] + sx, row * SHEET.cell[1] + sy, cw, ch, 0, 0, cw * REF_SCALE, ch * REF_SCALE);
+}
+
+function states(id) {
+  const n = OBJECTS[id]?.states.length ?? 1;
+  return Array.from({ length: n }, (_, i) => i);
+}
+
+function render() {
+  refViews.length = 0;
+  const sheet = $("sheet");
+  sheet.replaceChildren();
+  for (const [id, item] of Object.entries(ITEMS)) {
+    const def = asset(item.icon.asset);
+    const s = document.createElement("section");
+    const h = document.createElement("h3");
+    h.innerHTML = `${item.name} <span class="cs">${item.cs}</span> <span class="tag">${id}</span> <span class="tag">asset ${item.icon.asset}</span>`;
+    s.append(h);
+    const row = document.createElement("div");
+    row.className = "row";
+    if (item.preview) row.append(refView(item.preview));
+    const shown = item.icon.state ?? 0;
+    row.append(figure("", "ours", assetView(def, shown, BIG, false)));
+    row.append(figure("hud", `hud icon tilt ${item.icon.tilt}`, hudView(def, item.icon)));
+    row.append(figure("", "game LOD", assetView(def, shown, GAME, true)));
+    for (const st of states(item.icon.asset).filter((x) => x !== shown)) {
+      row.append(figure("", OBJECTS[item.icon.asset].states[st], assetView(def, st, GAME * 2, false)));
+    }
+    s.append(row);
+    sheet.append(s);
+  }
+}
+
+$("lines").onchange = render;
+render();
+setInterval(() => {
+  if (!$("spin").checked) return;
+  for (const v of refViews) {
+    v.frame = v.frame % (SHEET.frames - 1) + 1;
+    paintRef(v);
+  }
+}, 100);
+</script>
+</body>
+</html>

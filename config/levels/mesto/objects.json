@@ -553,7 +553,7 @@
       "marker": 10,
       "task": "getShipPart",
       "sheet": "props",
-      "description": "Part that falls out of the ship hull; picked from the ground (ZE ZEMĚ JSI SEBRAL SOUČÁSTKU Z RAKETY). No ground sprite identified.",
+      "description": "Part that falls out of the ship hull; picked from the ground (ZE ZEMĚ JSI SEBRAL SOUČÁSTKU Z RAKETY). No ground sprite identified. Look follows the inventory preview `GRAFIKA/PRSOUC.GRA`: grey bracket plate, ribbed drum with orange coil loops, side block with a stud.",
       "states": [
         "inside hull",
         "on ground",
@@ -658,7 +658,7 @@
       "marker": 12,
       "task": "takeController",
       "sheet": "props",
-      "description": "Item spot at map cell 112,50 on floor 45, by a small green machine and fence, left of a heap of fallen girders. No item sprite in the map; never reached in footage.",
+      "description": "Item spot at map cell 112,50 on floor 45, by a small green machine and fence, left of a heap of fallen girders. No item sprite in the map; never reached in footage. Look follows the inventory preview `GRAFIKA/PROVL.GRA`: grey slab with a red block and a row of white keys.",
       "states": [
         "on ground",
         "taken"
@@ -779,7 +779,7 @@
       "marker": 15,
       "task": "shootGuard",
       "sheet": "props",
-      "description": "Small key lying behind the shoot-only guard on the top floor (engine item 15,10, map ~cell 21, row 15). Not seen in footage or map tiles.",
+      "description": "Small key lying behind the shoot-only guard on the top floor (engine item 15,10, map ~cell 21, row 15). Not seen in footage or map tiles. Look follows the inventory preview `GRAFIKA/PRKLIC.GRA`: silver key with a round bow.",
       "states": [
         "guarded",
         "on ground",
