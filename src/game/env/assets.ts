@@ -5,10 +5,10 @@ import { propAssets } from "./props";
 import { structureAssets } from "./structures";
 
 const ASSET_IDS = [
-  "streetWalkway", "girderBridge", "ladder", "pipeColumn", "chainFence", "stripLight",
-  "skyBackground", "midgroundRuins", "windowBuilding", "ruinedBuilding", "colonnadeBuilding", "facadeTower", "brickWall",
-  "switchboard", "lift",
-  "barrel", "crowbar", "craneKey", "shipPart", "controller", "wires", "tapHandle", "card", "holoPlan", "shipPlan", "decoder", "crate", "signPost", "floorVent", "rubblePile",
+  "streetWalkway", "hazardPlate", "girderBridge", "ladder", "pipeColumn", "pipeBend", "fuelTank", "staircase", "chainFence", "latticePylon", "stripLight", "tunnelFloor", "tunnelWall", "metroPlatformWall",
+  "skyBackground", "midgroundRuins", "windowBuilding", "ruinedBuilding", "colonnadeBuilding", "facadeTower", "brickWall", "graffitiWall", "gantryBuilding", "barSign", "barDoor", "crashedShip", "metroTrain",
+  "wireBox", "switchboard", "trainDoor", "tapValveWheel", "waterPipe", "plasmaBarrier", "codeLock", "acidTank", "crane", "cardDoor", "lift", "liftPanel", "damagedLift",
+  "barrel", "dyingRebel", "corpse", "crowbar", "craneKey", "shipPart", "controller", "wires", "tapHandle", "card", "holoPlan", "shipPlan", "decoder", "crate", "signPost", "floorVent", "rubblePile", "fallenGirders",
 ] as const;
 
 export type AssetId = (typeof ASSET_IDS)[number];

@@ -1,15 +1,18 @@
+import crowbarDoor from "@config/cutscenes/crowbar-door.json";
 import { P, type EnvAsset, type Size } from "./paint";
 
-const { rng, path, flat, box, cylV, rivets, glow, text, stroke, tones, shape, line, beam, slab } = P;
+const { rng, path, color, flat, box, cylV, cylH, disc, rivets, truss, glow, text, stroke, tones, shape, line, curve, beam, slab } = P;
+const TRAIN = crowbarDoor.palette;
 const { PI, sin, cos, round, min, max } = Math;
 
 type Pt = [number, number];
 
-const pillar = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, mat = "concrete", tone = 2): void => {
+const pillar = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, mat = "concrete", tone = 2, flutes = 0): void => {
   const t = tones(mat) as string[];
   flat(ctx, x, y, w, h, t[tone] as string);
   flat(ctx, x, y, w * 0.22, h, t[min(3, tone + 1)] as string);
   flat(ctx, x + w * 0.72, y, w * 0.28, h, t[max(0, tone - 1)] as string);
+  for (let i = 1; i <= flutes; i++) flat(ctx, x + (i * w) / (flutes + 1) - 0.4, y + 2, 0.8, h - 4, t[max(0, tone - 1)] as string);
   ctx.beginPath();
   ctx.rect(x, y, w, h);
   stroke(ctx, mat);
@@ -411,4 +414,305 @@ export const facadeTower: EnvAsset = {
   },
 };
 
-export const buildingAssets: EnvAsset[] = [skyBackground, midgroundRuins, windowBuilding, ruinedBuilding, colonnadeBuilding, facadeTower, brickWall];
+type Tag = [string, number, Pt[]];
+
+const TAGS: Tag[] = (() => {
+  const r = rng(23);
+  return ["neon", "a1", "neon", "c3", "a2", "neon", "y2", "c3", "a1"].map((c): Tag => {
+    const x0 = 30 + r() * 90;
+    const y0 = -10 - r() * 30;
+    const pts: Pt[] = [];
+    for (let k = 0, n = 4 + round(r() * 5); k < n; k++) pts.push([x0 + k * (3 + r() * 4), y0 - (k % 2 ? 4 + r() * 10 : r() * 3)]);
+    return [c, c === "c3" ? 1 : 1.6 + r() * 1.8, pts];
+  });
+})();
+
+const GRAFFITI_TOP: Pt[] = [[0, -30], [5, -36], [9, -34], [14, -46], [20, -44], [26, -56], [33, -54], [38, -64], [48, -62], [54, -68]];
+const GRAFFITI_RIGHT: Pt[] = [[168, -72], [164, -60], [168, -50], [162, -36], [166, -22], [160, -12], [164, 0]];
+const STAINS: [number, number, number, number, number][] = [[30, -24, 10, 6, 1], [140, -50, 12, 8, 2], [96, -58, 14, 5, 3]];
+const CRACKS: Pt[][] = [[[22, -40], [26, -30], [24, -18]], [[146, -66], [142, -52], [148, -40]]];
+
+export const graffitiWall: EnvAsset = {
+  id: "graffitiWall",
+  box: [0, -74, 168, 0],
+  draw(ctx) {
+    shape(ctx, [[0, 0], ...GRAFFITI_TOP, [54, -72], ...GRAFFITI_RIGHT], "k2", "kLine");
+    flat(ctx, 54, -72, 112, 4, "k3", "kLine");
+    flat(ctx, 0, -4, 164, 4, "k1");
+    for (const [cx, cy, rx, ry, sd] of STAINS) shape(ctx, blob(cx, cy, rx, ry, sd), "#5a504066");
+    shape(ctx, blob(16, -10, 4, 4, 4, 8), "hole");
+    rebar(ctx, GRAFFITI_TOP, 8);
+    rebar(ctx, GRAFFITI_RIGHT, 9);
+    for (const [c, w, pts] of TAGS) {
+      if (P.simple() && w < 2) continue;
+      curve(ctx, pts, "#1a0a06", w + 1.2);
+      curve(ctx, pts, c, w);
+    }
+    if (!P.simple()) for (const pts of CRACKS) line(ctx, pts, "k0", 0.6);
+  },
+};
+
+export const gantryBuilding: EnvAsset = {
+  id: "gantryBuilding",
+  box: [0, -126, 182, 0],
+  draw(ctx) {
+    truss(ctx, 0, -120, 182, 20, "rust", 2.5);
+    for (const x of [34, 150]) {
+      box(ctx, x, -124, 20, 28, "steel", 2);
+      if (!P.simple()) for (const y of [-121, -99]) rivets(ctx, x, y, 20, 5, "m3");
+    }
+    flat(ctx, 0, -72, 182, 4, "m1", "mLine");
+    for (let x = 2; x < 182; x += 22) flat(ctx, x, -94, 1.6, 22, "m2", "mLine");
+    for (const y of [-94, -84]) flat(ctx, 0, y, 182, 1.6, "m2", "mLine");
+    box(ctx, 0, -68, 182, 10, "steel", 1);
+    for (let x = 6; x < 176; x += 26) {
+      flat(ctx, x, -66, 16, 6, "water", "mLine");
+      flat(ctx, x + 1, -65.5, 14, 1.5, "plasma");
+      if (!P.simple()) glow(ctx, x + 8, -63, 10, "plasma", 0.25);
+    }
+    box(ctx, 0, -58, 182, 8, "rust", 2);
+    for (const [x0, x1] of [[15, 85], [107, 153]] as Pt[]) {
+      flat(ctx, x0, -50, x1 - x0, 28, "hole");
+      for (let x = x0; x < x1; x += 18) {
+        flat(ctx, x + 6, -50, 6, 2, "y3");
+        if (!P.simple()) glow(ctx, x + 9, -47, 9, "y2", 0.3);
+      }
+      for (let x = x0; x < x1 - 1; x += (x1 - x0) / 3) {
+        slab(ctx, x, -22, (x1 - x0) / 3, 22, "rust", 1);
+        flat(ctx, x + 3, -18, (x1 - x0) / 3 - 6, 12, "r0", "rLine");
+      }
+    }
+    for (const [x, w] of [[0, 15], [85, 7], [100, 7], [153, 29]] as Pt[]) pillar(ctx, x, -50, w, 50, "rust", 2);
+    flat(ctx, 159, -42, 16, 30, "r1", "rLine");
+  },
+};
+
+type Glyph = "B" | "A" | "R";
+
+const GLYPHS: Record<Glyph, (c: CanvasRenderingContext2D) => void> = {
+  B: (c) => {
+    c.moveTo(0, 20);
+    c.lineTo(0, 0);
+    c.lineTo(9, 0);
+    c.ellipse(9, 5, 6, 5, 0, -PI / 2, PI / 2);
+    c.lineTo(0, 10);
+    c.moveTo(9, 10);
+    c.ellipse(9, 15, 7, 5, 0, -PI / 2, PI / 2);
+    c.lineTo(0, 20);
+  },
+  A: (c) => {
+    c.moveTo(0, 20);
+    c.lineTo(8, 0);
+    c.lineTo(16, 20);
+    c.moveTo(4, 12);
+    c.lineTo(12, 12);
+  },
+  R: (c) => {
+    c.moveTo(0, 20);
+    c.lineTo(0, 0);
+    c.lineTo(9, 0);
+    c.ellipse(9, 5.5, 6, 5.5, 0, -PI / 2, PI / 2);
+    c.lineTo(0, 11);
+    c.moveTo(7, 11);
+    c.lineTo(15, 20);
+  },
+};
+
+const NEON_LIT: [string, number][] = [["#2a0806", 7.4], ["#c22a1a", 6], ["neon", 4], ["#ffb89a", 1.2]];
+const NEON_OFF: [string, number][] = [["mLine", 7.4], ["m1", 6], ["m2", 4]];
+
+const glyph = (ctx: CanvasRenderingContext2D, ch: Glyph, x: number, y: number, lit: boolean): void => {
+  ctx.save();
+  ctx.translate(x, y);
+  if (lit && !P.simple()) glow(ctx, 8, 10, 18, "neonGlow", 0.35);
+  for (const [c, w] of lit ? NEON_LIT : NEON_OFF) {
+    ctx.beginPath();
+    GLYPHS[ch](ctx);
+    ctx.strokeStyle = color(c);
+    ctx.lineWidth = w;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.stroke();
+  }
+  ctx.restore();
+};
+
+const SIGN_LEGS: [Pt, Pt][] = [[[30, -62], [12, 0]], [[66, -62], [84, 0]], [[34, -62], [26, 0]], [[62, -62], [70, 0]]];
+const SIGN_FRAME: [Pt, Pt][] = [[[3, -68], [3, -94]], [[93, -68], [93, -94]], [[3, -94], [93, -94]], [[60, -94], [64, -104]]];
+
+export const barSign: EnvAsset = {
+  id: "barSign",
+  box: [0, -106, 96, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    for (const [a, b] of SIGN_LEGS) beam(ctx, a, b, 2.4, "rust");
+    for (const [y0, y1] of [[-52, -36], [-36, -20], [-20, -4]] as Pt[]) {
+      const l0 = 30 - (y0 + 62) * 0.29;
+      const r0 = 66 + (y0 + 62) * 0.29;
+      const l1 = 30 - (y1 + 62) * 0.29;
+      const r1 = 66 + (y1 + 62) * 0.29;
+      beam(ctx, [l0, y0], [r1, y1], 1.2, "rust");
+      beam(ctx, [r0, y0], [l1, y1], 1.2, "rust");
+      beam(ctx, [l1, y1], [r1, y1], 1.4, "rust");
+    }
+    box(ctx, 24, -64, 48, 4, "rust", 2);
+    box(ctx, 2, -68, 92, 4, "rust", 1);
+    for (const [a, b] of SIGN_FRAME) beam(ctx, a, b, 1.4, "rust");
+    const rOn = state === 0 || ((t * 1.7) % 1 < 0.35 && t % 2.3 > 0.4);
+    glyph(ctx, "B", 6, -90, true);
+    glyph(ctx, "A", 38, -90, true);
+    glyph(ctx, "R", 70, -90, rOn);
+  },
+};
+
+const fluted = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+  pillar(ctx, x, y, w, h, "concrete", 2, 3);
+  flat(ctx, x - 1.5, y - 3, w + 3, 3, "k3", "kLine");
+  flat(ctx, x - 1.5, -3, w + 3, 3, "k1", "kLine");
+};
+
+const BAR_TOP: Pt[] = [[0, -78], ...jagged(6, 138, -84, 12, 7, 21), [144, -86]];
+
+export const barDoor: EnvAsset = {
+  id: "barDoor",
+  box: [0, -100, 144, 0],
+  draw(ctx, state) {
+    shape(ctx, [[0, 0], ...BAR_TOP, [144, 0]], "k2", "kLine");
+    rebar(ctx, BAR_TOP, 3);
+    flat(ctx, 0, -66, 144, 3, "k1");
+    flat(ctx, 0, -5, 144, 5, "k1", "kLine");
+    flat(ctx, 8, -58, 38, 26, "hole", "kLine");
+    flat(ctx, 6, -32, 42, 2, "k3", "kLine");
+    for (let x = 14; x < 46; x += 7) flat(ctx, x, -58, 1.4, 26 - (x % 3) * 4, "m2");
+    flat(ctx, 68, -62, 52, 62, "k0", "kLine");
+    flat(ctx, 70, -60, 48, 3, "k1");
+    flat(ctx, 72, -74, 14, 9, "c2", "kLine");
+    flat(ctx, 72, -71, 14, 3, "neon");
+    const dx = 84;
+    const dw = 24;
+    const dy = -58;
+    flat(ctx, dx - 2, dy - 2, dw + 4, -dy + 2, "m1", "mLine");
+    if (state === 1) {
+      flat(ctx, dx, dy, dw, -dy, "hole");
+      shape(ctx, [[dx + 2, 0], [dx + 6, dy + 4], [dx + dw - 4, dy + 4], [dx + dw, 0]], "#c9a85a55");
+      disc(ctx, dx + 12, dy + 18, 5, "#1a1210");
+      shape(ctx, [[dx + 3, dy + 40], [dx + 6, dy + 26], [dx + 18, dy + 26], [dx + 21, dy + 40]], "#1a1210");
+      for (const ex of [10, 14]) flat(ctx, dx + ex - 0.6, dy + 17, 1.2, 0.8, "a2");
+      box(ctx, dx + dw - 3, dy, 3, -dy, "steel", 3, { vertical: true });
+    } else {
+      box(ctx, dx, dy, dw, -dy, "steel", 3, { vertical: true });
+      flat(ctx, dx + 4, dy + 6, dw - 8, 16, "glass", "mLine");
+      flat(ctx, dx + dw - 6, dy + 30, 3, 6, "m1", "mLine");
+      flat(ctx, dx + 3, dy + 40, dw - 6, 1, "m1");
+    }
+    fluted(ctx, 56, -62, 12, 62);
+    fluted(ctx, 120, -62, 12, 62);
+  },
+};
+
+const HULL: Pt[] = [[0, -40], [14, -52], [70, -61], [128, -57], [168, -42], [192, -22], [186, -16], [150, -12], [40, -12], [6, -20]];
+const HULL_TOP: Pt[] = [[14, -52], [70, -61], [128, -57], [168, -42], [124, -45], [66, -48], [20, -44]];
+const HULL_LOW: Pt[] = [[6, -20], [40, -12], [150, -12], [186, -16], [192, -22], [150, -27], [40, -27], [3, -30]];
+const COCKPIT: Pt[] = [[122, -51], [150, -45], [170, -36], [148, -38], [120, -45]];
+const COVER = [8, -38, 20, 12] as const;
+
+const strut = (ctx: CanvasRenderingContext2D, x: number): void => {
+  beam(ctx, [x, -14], [x - 6, -2], 2.4, "steel");
+  beam(ctx, [x + 4, -14], [x + 10, -2], 2.4, "steel");
+  box(ctx, x - 10, -3, 24, 3, "steel", 1);
+};
+
+export const crashedShip: EnvAsset = {
+  id: "crashedShip",
+  box: [-10, -64, 196, 0],
+  draw(ctx, state) {
+    strut(ctx, 46);
+    strut(ctx, 138);
+    shape(ctx, HULL, "k2", "kLine");
+    shape(ctx, HULL_TOP, "k3");
+    shape(ctx, HULL_LOW, "k1");
+    path(ctx, HULL);
+    stroke(ctx, "kLine");
+    if (!P.simple()) for (const x of [60, 98, 140]) line(ctx, [[x, -58 + (x - 60) * 0.05], [x - 4, -13]], "k1", 0.5);
+    line(ctx, [[4, -30], [40, -27], [150, -27], [192, -22]], "k0", 0.7);
+    shape(ctx, COCKPIT, "glass", "mLine");
+    if (!P.simple()) shape(ctx, [[128, -49], [136, -47], [126, -45]], "m3");
+    flat(ctx, 96, -36, 10, 3, "y2", "yLine");
+    if (!P.simple()) glow(ctx, 101, -34, 10, "y2", 0.35);
+    for (const y of [-40, -29]) {
+      cylH(ctx, -8, y, 10, 8, "steel", 2);
+      disc(ctx, -8, y + 4, 3, "hole", "mLine");
+    }
+    const [cx, cy, cw, ch] = COVER;
+    if (state === 0) {
+      box(ctx, cx, cy, cw, ch, "steel", 2);
+      if (!P.simple()) for (const y of [cy + 2, cy + ch - 2]) rivets(ctx, cx, y, cw, 5, "m3");
+      return;
+    }
+    const torn = blob(cx + cw / 2, cy + ch / 2, cw * 0.62, ch * 0.7, 17, 16);
+    shape(ctx, blob(cx + cw / 2, cy + ch / 2, cw * 0.8, ch * 0.9, 18, 16), "k0");
+    shape(ctx, torn, "hole", "kLine");
+    if (!P.simple()) for (let i = 0; i < 5; i++) line(ctx, [[cx + 3 + i * 3.5, cy + ch - 2], [cx + 4 + i * 3.5, cy + 3]], "m1", 0.6);
+    if (state === 1) {
+      if (!P.simple()) glow(ctx, cx + cw / 2, cy + ch / 2, 14, "a1", 0.45);
+      for (const [px, py] of torn.filter((_, i) => i % 3 === 0)) disc(ctx, px, py, 0.9, "a2");
+    }
+  },
+};
+
+const SPLAT = "#9c1410";
+
+const splat = (ctx: CanvasRenderingContext2D, x: number, y: number, seed: number, drips = 2): void => {
+  const r = rng(seed);
+  shape(ctx, blob(x, y, 3 + r() * 2, 1.6 + r(), seed, 10), SPLAT);
+  for (let i = 0; i < drips; i++) {
+    const dx = x + (r() - 0.5) * 5;
+    const len = 3 + r() * 9;
+    line(ctx, [[dx, y], [dx, y + len]], SPLAT, 0.9);
+    disc(ctx, dx, y + len, 0.7, SPLAT);
+  }
+};
+
+const glint = (ctx: CanvasRenderingContext2D, pts: Pt[]): void => {
+  ctx.globalAlpha = 0.6;
+  shape(ctx, pts, TRAIN.windowGlint);
+  ctx.globalAlpha = 1;
+};
+
+export const metroTrain: EnvAsset = {
+  id: "metroTrain",
+  box: [0, -62, 140, 0],
+  draw(ctx) {
+    flat(ctx, 0, -9, 124, 9, "m0", "mLine");
+    for (const x of [20, 34, 92, 106]) {
+      disc(ctx, x, -4, 3.6, "m1", "mLine");
+      disc(ctx, x, -4, 1.2, "m3");
+    }
+    flat(ctx, 0, -55, 124, 46, TRAIN.wagon, "mLine");
+    shape(ctx, [[3, -58], [121, -58], [124, -55], [0, -55]], TRAIN.wagonShade, "mLine");
+    flat(ctx, 0, -55, 124, 1.5, "c1");
+    flat(ctx, 0, -15, 124, 6, TRAIN.wagonShade);
+    flat(ctx, 0, -27, 124, 1, TRAIN.wagonShade);
+    flat(ctx, 0, -24, 124, 3.5, TRAIN.stripe);
+    flat(ctx, 0, -19, 124, 1, TRAIN.wagonShade);
+    for (const [x, w] of [[34, 19], [55, 19], [96, 22]] as Pt[]) {
+      flat(ctx, x - 1, -50, w + 2, 20, TRAIN.wagonShade);
+      flat(ctx, x, -49, w, 18, TRAIN.window);
+      glint(ctx, [[x + 2, -49], [x + 6.5, -49], [x + 1, -31], [x, -31]]);
+    }
+    flat(ctx, 80, -48, 9, 15, "c1", "mLine");
+    flat(ctx, 5, -52, 24, 43, TRAIN.doorFrame, "mLine");
+    flat(ctx, 7, -50, 20, 41, TRAIN.interior);
+    for (const [x, edge] of [[7, 7], [17, 25]] as Pt[]) {
+      flat(ctx, x, -50, 10, 41, TRAIN.door);
+      flat(ctx, edge, -50, 2, 41, TRAIN.doorShade);
+      flat(ctx, x + 2, -46, 6, 13, TRAIN.window);
+      glint(ctx, [[x + 3, -46], [x + 4.5, -46], [x + 3, -33], [x + 2, -33]]);
+    }
+    flat(ctx, 16.6, -50, 0.8, 41, TRAIN.interior);
+    for (const [x, y, seed, drips] of [[44, -51, 3, 3], [100, -51, 4, 2], [62, -29, 5, 2], [116, -33, 6, 1]] as [number, number, number, number][]) splat(ctx, x, y, seed, P.simple() ? 1 : drips);
+    slab(ctx, 126, -62, 14, 62, "concrete", 1);
+  },
+};
+
+export const buildingAssets: EnvAsset[] = [skyBackground, midgroundRuins, windowBuilding, ruinedBuilding, colonnadeBuilding, facadeTower, brickWall, graffitiWall, gantryBuilding, barSign, barDoor, crashedShip, metroTrain];

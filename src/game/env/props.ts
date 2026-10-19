@@ -1,7 +1,7 @@
 import { P, type EnvAsset } from "./paint";
 
-const { rng, path, color, flat, box, poly, cylV, disc, stroke } = P;
-const { PI, sin, cos, hypot } = Math;
+const { rng, path, color, flat, box, poly, cylV, disc, rivets, stroke, tones } = P;
+const { PI, sin, cos, atan2, hypot } = Math;
 
 type Pt = [number, number];
 type Tones = [string, string, string, string];
@@ -32,7 +32,7 @@ const facets = (ctx: CanvasRenderingContext2D, pts: Pt[], cx: number, cy: number
   stroke(ctx, line);
 };
 
-const rock = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, seed: number): void => {
+const rock = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, seed: number, shades: Tones = ROCK): void => {
   const rnd = rng(seed);
   const n = 5 + Math.floor(rnd() * 3);
   const a0 = rnd() * PI;
@@ -41,7 +41,7 @@ const rock = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, 
     const k = r * (0.75 + rnd() * 0.3);
     return [cx + cos(a) * k, cy + sin(a) * k * 0.82];
   });
-  facets(ctx, pts, cx + r * 0.22, cy + r * 0.16, ROCK, "kLine");
+  facets(ctx, pts, cx + r * 0.22, cy + r * 0.16, shades, "kLine");
 };
 
 const scuff = (ctx: CanvasRenderingContext2D, x: number, w: number): void => {
@@ -54,6 +54,93 @@ const scuff = (ctx: CanvasRenderingContext2D, x: number, w: number): void => {
   ctx.restore();
   if (P.simple()) return;
   for (const [dx, s] of [[0.15, 1], [0.55, 0.8], [0.8, 1.2]] as Pt[]) flat(ctx, x + w * dx, -1.4 * s, s, s * 0.8, "k2");
+};
+
+interface CelOptions {
+  line?: string;
+  lit?: number;
+  dark?: number;
+}
+
+const cel = (ctx: CanvasRenderingContext2D, pts: Pt[], shades: string[], { line = "#0a0806", lit = 0.3, dark = 0.3 }: CelOptions = {}): void => {
+  const [c0, c1, c2, c3] = shades as Tones;
+  const ys = pts.map((p) => p[1]);
+  const xs = pts.map((p) => p[0]);
+  const x0 = Math.min(...xs);
+  const x1 = Math.max(...xs);
+  const y0 = Math.min(...ys);
+  const y1 = Math.max(...ys);
+  const h = y1 - y0;
+  path(ctx, pts);
+  ctx.fillStyle = color(c1);
+  ctx.fill();
+  ctx.save();
+  ctx.clip();
+  flat(ctx, x0, y0, x1 - x0, h * lit, c2);
+  if (!P.simple()) flat(ctx, x0, y0, x1 - x0, h * lit * 0.35, c3);
+  flat(ctx, x0, y1 - h * dark, x1 - x0, h * dark, c0);
+  ctx.restore();
+  path(ctx, pts);
+  stroke(ctx, line);
+};
+
+const arc = (cx: number, cy: number, rx: number, ry: number, a0: number, a1: number, n = 8): Pt[] =>
+  Array.from({ length: n + 1 }, (_, i) => {
+    const a = a0 + ((a1 - a0) * i) / n;
+    return [cx + cos(a) * rx, cy + sin(a) * ry] as Pt;
+  });
+
+const blood = (ctx: CanvasRenderingContext2D, x: number, w: number, h = 1.6): void => {
+  ctx.fillStyle = color("blood");
+  ctx.beginPath();
+  ctx.ellipse(x + w / 2, -h / 2, w / 2, h / 2, 0, 0, PI * 2);
+  ctx.fill();
+};
+
+interface HumanOptions {
+  flip?: boolean;
+  suit?: string[];
+  breathe?: number;
+  arm?: number;
+  pocket?: ((ctx: CanvasRenderingContext2D) => void) | null;
+}
+
+const lyingHuman = (ctx: CanvasRenderingContext2D, x: number, { flip = false, suit = tones("jacket"), breathe = 0, arm = 0, pocket = null }: HumanOptions = {}): void => {
+  ctx.save();
+  ctx.translate(x, 0);
+  if (flip) {
+    ctx.translate(42, 0);
+    ctx.scale(-1, 1);
+  }
+  const b = breathe;
+  cel(ctx, [[0, 0], [0.4, -3.6], [2.4, -5.2], [5.2, -4.6], [5.6, 0]], tones("boot"));
+  cel(ctx, [[4.6, 0], [4.8, -4.4], [11, -6.6], [15, -6], [20.5, -6.4], [21.5, 0]], tones("denim"));
+  if (!P.simple()) flat(ctx, 13, -4.4, 6.5, 0.5, "den0");
+  cel(ctx, [[19.5, 0], [19.5, -6.6], ...arc(28, -6.4, 8.4, 3.4 + b, PI, PI * 1.85), [36, -5.6], [36, 0]], suit);
+  if (pocket) pocket(ctx);
+  ctx.save();
+  ctx.translate(33.5, -7.6 - b);
+  ctx.rotate(arm);
+  cel(ctx, [[0, -1.4], [-7.5, -2.2], [-8.6, -0.4], [-7.6, 1.2], [0, 1.4]], suit);
+  cel(ctx, [[-7.4, -1.8], [-11.4, -1.2], ...arc(-11.4, -0.2, 1.2, 1.1, PI * 1.5, PI * 0.5, 4), [-7.6, 1.2]], tones("skin"));
+  ctx.restore();
+  cel(ctx, [[35.4, -5.4], [37.2, -5.8], [37.6, -1], [35.4, -0.6]], tones("skin"), { lit: 0.2 });
+  cel(ctx, arc(40, -3.7, 3.5, 3.6, 0, PI * 2, 14), tones("skin"));
+  cel(ctx, [...arc(40, -3.7, 3.5, 3.6, -PI * 0.42, PI * 0.42, 6), [41.6, -2.4], [42, -4.4], [41.4, -6]], tones("hair"), { lit: 0.25 });
+  if (!P.simple()) poly(ctx, [[37.4, -6.4], [37.6, -7.6], [38.8, -7]], "skin2", 2, { line: false });
+  ctx.restore();
+};
+
+const girder = (ctx: CanvasRenderingContext2D, ax: number, ay: number, bx: number, by: number, w: number): void => {
+  const len = hypot(bx - ax, by - ay);
+  ctx.save();
+  ctx.translate(ax, ay);
+  ctx.rotate(atan2(by - ay, bx - ax));
+  box(ctx, 0, -w / 2, len, w, "rust", 2);
+  flat(ctx, w * 0.3, -w * 0.18, len - w * 0.6, w * 0.36, "r1");
+  rivets(ctx, 0, -w * 0.36, len, 4, "r3");
+  poly(ctx, [[len, -w / 2], [len + w * 0.3, -w * 0.2], [len - w * 0.1, w * 0.1], [len + w * 0.2, w / 2], [len, w / 2]], "rust", 1);
+  ctx.restore();
 };
 
 const drum = (ctx: CanvasRenderingContext2D, x: number, w: number, h: number): void => {
@@ -70,6 +157,41 @@ export const barrel: EnvAsset = {
   box: [-4, -34, 34, 0],
   draw(ctx) {
     drum(ctx, 3, 22, 29);
+  },
+};
+
+export const dyingRebel: EnvAsset = {
+  id: "dyingRebel",
+  box: [-2, -16, 46, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    const dying = state === 0;
+    blood(ctx, 14, dying ? 18 : 28, dying ? 1.4 : 2);
+    lyingHuman(ctx, 0, {
+      breathe: dying ? 0.45 + sin(t * 2.4) * 0.45 : 0,
+      arm: dying ? 0.12 + sin(t * 1.3) * 0.08 + sin(t * 11) * 0.02 : 0,
+    });
+  },
+};
+
+export const corpse: EnvAsset = {
+  id: "corpse",
+  box: [-2, -14, 50, 0],
+  draw(ctx, state) {
+    blood(ctx, 4, 34, 1.8);
+    lyingHuman(ctx, 4, {
+      flip: true,
+      suit: tones("denim"),
+      arm: state ? 0.28 : 0,
+      pocket: state
+        ? (c) => flat(c, 25, -6.6, 4, 2.6, "hole")
+        : (c) => {
+            flat(c, 25.5, -8.6, 3, 2.4, "c3", "mLine");
+            if (!P.simple()) flat(c, 26, -8, 2, 0.4, "neon");
+            disc(c, 30.5, -5.5, 0.9, "plasma");
+            P.glow(c, 30.5, -5.5, 3.5, "plasma", 0.5);
+          },
+    });
   },
 };
 
@@ -365,4 +487,31 @@ export const rubblePile: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, crowbar, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile];
+const GIRDERS: [number, number, number, number, number][] = [
+  [6, -8, 42, -16, 5], [26, -34, 70, -6, 6], [16, -44, 60, -40, 5],
+  [48, -58, 94, -22, 7], [62, -72, 114, -52, 6], [84, -92, 104, -28, 6],
+  [94, -90, 120, -74, 5], [36, -76, 58, -72, 4], [54, -88, 68, -93, 3],
+  [70, -40, 118, -12, 6], [30, -20, 56, -30, 4], [100, -70, 116, -6, 5],
+];
+const MOUND: Pt[] = [[0, 0], [6, -5], [14, -6], [22, -12], [30, -11], [40, -24], [48, -22], [58, -36], [66, -34], [74, -50], [82, -48], [90, -64], [98, -62], [104, -80], [112, -84], [116, -94], [122, -92], [122, 0]];
+const DEBRIS: Tones = ["r0", "r1", "r2", "r3"];
+
+const chunks = (n: number): [number, number, number][] => {
+  const rnd = rng(17);
+  return Array.from({ length: n }, () => {
+    const x = 6 + rnd() * 112;
+    return [x, -rnd() * x * 0.72 - 3, 3.5 + rnd() * 4.5];
+  });
+};
+
+export const fallenGirders: EnvAsset = {
+  id: "fallenGirders",
+  box: [-2, -98, 124, 0],
+  draw(ctx) {
+    poly(ctx, MOUND, "rust", 1);
+    chunks(P.simple() ? 10 : 26).forEach(([x, y, r], i) => rock(ctx, x, y, r, i + 40, DEBRIS));
+    for (const g of GIRDERS) girder(ctx, ...g);
+  },
+};
+
+export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, fallenGirders];

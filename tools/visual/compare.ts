@@ -318,8 +318,9 @@ const runFrontBarrel = (out: HTMLElement): VisualResult => {
 const envAssets: EnvAsset[] = assetList;
 const ENV_SCALE = 2;
 const ENV_PAD = 16;
+const ENV_ANIM_T = 0.7;
 
-const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefined, out: HTMLElement): VisualResult => {
+const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefined, out: HTMLElement, t = 0): VisualResult => {
   const spikeAsset = window.ENV.ASSETS.find((a) => a.id === id);
   const portAsset = envAssets.find((a: EnvAsset) => a.id === id);
   if (!spikeAsset || !portAsset) throw new Error(`missing env asset ${id}`);
@@ -340,14 +341,14 @@ const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefi
   };
   const spike = make();
   const own = make();
-  const opts = { state, t: 0, lines: 1, lod, size };
+  const opts = { state, t, lines: 1, lod, size };
   window.ENV.draw(spike, spikeAsset, opts);
   drawAsset(own, portAsset, opts);
   const a = spike.getImageData(0, 0, spike.canvas.width, spike.canvas.height).data;
   const b = own.getImageData(0, 0, own.canvas.width, own.canvas.height).data;
   let diff = 0;
   for (let i = 0; i < a.length; i += 4) if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2] || a[i + 3] !== b[i + 3]) diff++;
-  const name = `env ${id} ${JSON.stringify({ state, lod, size })}`;
+  const name = `env ${id} ${JSON.stringify({ state, lod, size, t })}`;
   const result = { name, mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0, pass: diff === 0 };
   const box = document.createElement("div");
   box.className = "case";
@@ -374,7 +375,7 @@ const eblasterCases = [
 ];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], lift: [0, 1, 2], switchboard: [0, 1], crowbar: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1] };
+const envStates: Record<string, number[]> = { stripLight: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1] };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
@@ -386,6 +387,7 @@ const envSizes: [string, Size][] = [
 const envCases = [
   ...envAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod) => (o: HTMLElement) => runEnvCase(a.id, state, lod, undefined, o)))),
   ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
+  ...envAssets.filter((a) => a.anim).flatMap((a) => (envStates[a.id] ?? [0]).map((state) => (o: HTMLElement) => runEnvCase(a.id, state, false, undefined, o, ENV_ANIM_T))),
 ];
 const cases = [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runFrontBarrel, ...envCases];
 window.__visualCount = cases.length;
