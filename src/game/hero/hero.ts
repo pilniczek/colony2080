@@ -308,10 +308,13 @@ function use(s: Step): boolean {
     return true;
   }
   startFilm(s.world, cutscene, prop);
-  s.consume("menu");
-  enter(s.h, "idle");
-  s.h.vx = 0;
   return true;
+}
+
+export function halt(h: Hero): void {
+  enter(h, "idle");
+  h.vx = 0;
+  h.fireTime = null;
 }
 
 function act(s: Step): boolean {

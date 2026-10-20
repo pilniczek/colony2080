@@ -1,7 +1,7 @@
 import type { InputFrame } from "../engine/input";
 import { updateFog } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
-import { isDead, updateHero, type Hero, type HeroEvent } from "./hero/hero";
+import { halt, isDead, updateHero, type Hero, type HeroEvent } from "./hero/hero";
 import { approachFilms, resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
 import { fireBeam, fireEnemy, fireGuards, fireShots, landPunches, stepShots } from "./shots";
@@ -24,6 +24,7 @@ export function stepWorld(
   consume: (action: string) => boolean,
 ): HeroEvent[] {
   if (world.complete) return [];
+  const filming = world.cutscene !== null;
   ageSubtitle(world, dt);
   if (world.fog) updateFog(world.fog, hero, cfg, dt);
   for (const enemy of world.enemies) fireEnemy(world, cfg, clips, enemy, updateEnemy(enemy, world.grid, world.fog, hero, clips, cfg, dt));
@@ -36,5 +37,9 @@ export function stepWorld(
   fireBeam(world, hero, events, clips, cfg);
   landPunches(world, hero, events, cfg);
   if (events.some((e) => e.kind === "respawned")) resetWorld(world, cfg);
+  if (!filming && world.cutscene) {
+    halt(hero);
+    consume("menu");
+  }
   return events;
 }

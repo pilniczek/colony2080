@@ -31,6 +31,17 @@ describe("films without a task", () => {
     run(g, 0.4);
     expect(g.world.inventory.items).toContain("crowbar");
     expect(g.world.cutscene?.id).toBe("pickCrowbar");
+    expect(g.hero).toMatchObject({ state: "idle", vx: 0 });
+  });
+
+  it("stop the walking hero that comes near and drop a pending skip", () => {
+    const level = withProps(objectLevel, (p) => (p.id === "crane" ? { ...p, y: 8, approach: { cells: 3, cutscene: "rebelShot", gives: "flag:rebelShot" } } : p));
+    const g = game({ x: 13, y: 8 }, level);
+    tick(g, ["moveRight"], ["menu"]);
+    for (let i = 0; i < 60 && !g.world.cutscene; i++) tick(g, ["moveRight"]);
+    expect(g.world.cutscene?.id).toBe("rebelShot");
+    expect(g.hero).toMatchObject({ state: "idle", vx: 0 });
+    expect(g.buffer.has("menu")).toBe(false);
   });
 
   it("play when a shootable breaks", () => {
