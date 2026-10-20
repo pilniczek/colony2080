@@ -140,6 +140,17 @@ describe("hero state cues", () => {
     expect(cues(g, "siren")).toHaveLength(3);
   });
 
+  it("no siren while a film plays", () => {
+    const g = game({ x: 3.5, y: 8 }, arena());
+    g.hero.energy = 10;
+    g.world.cutscene = { id: "missionStart", prop: null, t: 0 };
+    run(g, 3);
+    expect(cues(g, "siren")).toHaveLength(0);
+    g.world.cutscene = null;
+    tick(g);
+    expect(cues(g, "siren")).toHaveLength(1);
+  });
+
   it("no siren from a dead hero", () => {
     const g = game({ x: 3.5, y: 8, state: "death" }, arena());
     g.hero.energy = 10;
@@ -248,6 +259,11 @@ describe("world cues", () => {
     tick(empty);
     expect(empty.hero.weapon).toBe("fists");
     expect(cues(empty, "click")).toHaveLength(1);
+    const both = game({ x: 3.5, y: 8, weapon: "blaster" }, arena());
+    Object.assign(both.hero, { blaster: 0 });
+    tick(both, [], ["weapon2"]);
+    expect(both.hero.weapon).toBe("fists");
+    expect(cues(both, "click")).toHaveLength(1);
   });
 
   it("teleport pad use cues teleport 13000", () => {
@@ -268,6 +284,20 @@ describe("world cues", () => {
     const plain = game({ x: 5.5, y: 8 }, arena({ hazards: [{ ...zone, id: "plain" }] }));
     run(plain, 2);
     expect(cues(plain, "spark")).toHaveLength(0);
+  });
+
+  it("jeskyne cart stretch sparks, the floor just west of it does not", () => {
+    const zone = game({ x: 110.5, y: 39 }, missionJson("jeskyne"));
+    tick(zone);
+    expect(zone.hero.onGround).toBe(true);
+    expect(cues(zone, "spark")).toEqual([{ id: "spark", rate: 12000, vol: 63, bus: "world" }]);
+    run(zone, 0.5);
+    expect(zone.hero.energy).toBe(cfg.energy.max);
+    expect(zone.hero.hitAge).toBeNull();
+    const west = game({ x: 98.5, y: 39 }, missionJson("jeskyne"));
+    tick(west);
+    expect(west.hero.onGround).toBe(true);
+    expect(cues(west, "spark")).toHaveLength(0);
   });
 
   it("mesto thunders at seeded 8-20 s gaps while not filming", () => {

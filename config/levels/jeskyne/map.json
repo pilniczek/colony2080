@@ -97,7 +97,8 @@
     {"id": "stalactiteChasm", "kind": "death", "col": 60, "row": 20, "w": 8, "h": 3},
     {"id": "middleChasm", "kind": "death", "col": 91, "row": 21, "w": 14, "h": 1},
     {"id": "cartCrush", "kind": "death", "col": 123, "row": 36, "w": 3, "h": 5},
-    {"id": "lava", "kind": "death", "col": 0, "row": 74, "w": 160, "h": 6}
+    {"id": "lava", "kind": "death", "col": 0, "row": 74, "w": 160, "h": 6},
+    {"id": "cartSparks", "kind": "damage", "col": 101, "row": 35, "w": 25, "h": 4, "perSecond": 0, "sound": "spark"}
   ],
   "conveyors": [
     {"col": 97, "row": 39, "w": 34, "vx": 7.33}

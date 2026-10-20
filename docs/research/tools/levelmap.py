@@ -76,6 +76,7 @@ EXTRAS = {
         "liftEnabled": {49: ("flag:liftLock", [29, 44, 55])},
         "fallDeathCells": None,
         "hazardZones": {0: ("stalactiteChasm", "death"), 1: ("middleChasm", "death"), 2: ("cartCrush", "death"), 3: ("lava", "death")},
+        "soundZones": {"cartSparks": ({"x": [95, 119], "y": [30, 33]}, "spark")},
         "conveyorPxPerTick": 5.5,
         "variants": {"stalactiteShot": "M42", "tankShot": "M43"},
         "enemyKinds": ("spiderWalker", "podWalker", "trooper"),
@@ -366,6 +367,8 @@ def hazards(zones, cfg):
         if kind == "damage":
             hazard.update(damage_rates(cfg["damage"][name]))
         out.append(hazard)
+    for name, (engine, sound) in cfg.get("soundZones", {}).items():
+        out.append({"id": name, "kind": "damage", **zone_rect(engine), "perSecond": 0, "sound": sound})
     return out
 
 

@@ -524,13 +524,12 @@ function weaponSwitch(s: Step): void {
 function quickSwitch(s: Step): void {
   const { h } = s;
   if (isDead(h.state) || h.state === "weaponSwitch") return;
-  if (emptyWeapon(h)) {
-    arm(h, fallbackWeapon(h));
-    click(s);
-  }
+  const auto = emptyWeapon(h);
+  if (auto) arm(h, fallbackWeapon(h));
   const slot = weaponSlot(s);
-  if (!slot || slot === h.weapon) return;
-  click(s);
+  const picked = slot !== null && slot !== h.weapon;
+  if (auto || picked) click(s);
+  if (!picked) return;
   if (h.state === "hide") switchWeapon(s, slot);
   else arm(h, slot);
 }

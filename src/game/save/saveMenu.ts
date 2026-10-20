@@ -36,7 +36,7 @@ export interface SaveMenuDeps extends SaveMenuOptions {
   moved: () => void;
   leave: (href: string) => void;
   bodyAt: () => { x: number; y: number } | null;
-  playUi?: (cue: SoundCue) => void;
+  playUi: (cue: SoundCue) => void;
   target?: Pick<Window, "addEventListener">;
 }
 
@@ -123,7 +123,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     e.preventDefault();
     e.stopImmediatePropagation();
     if (e.repeat && !bound(e.code, REPEATING) && e.code !== "Backspace") return;
-    if (bound(e.code, CLICKING)) d.playUi?.(MENU_CUE);
+    if (bound(e.code, CLICKING)) d.playUi(MENU_CUE);
     act(menuKey(state, { code: e.code, key: e.key }, slots(), d.mission, d.keys));
   };
   (d.target ?? window).addEventListener("keydown", onKey as EventListener, { capture: true });

@@ -19,7 +19,7 @@ function ageSubtitle(world: SandboxWorld, dt: number): void {
 
 function worldSounds(world: SandboxWorld, hero: Hero, events: HeroEvent[], filming: boolean, dt: number): void {
   for (const e of events) if (e.kind === "shield") cue(world, "power", 20000);
-  siren(world, hero.energy, !isDead(hero.state), dt);
+  siren(world, hero.energy, !isDead(hero.state) && world.cutscene === null, dt);
   spark(world, inSparks(world, hero), dt);
   if (world.mission === "mesto" && !filming) thunder(world, dt);
 }

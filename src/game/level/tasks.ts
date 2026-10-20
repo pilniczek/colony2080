@@ -1,7 +1,7 @@
 import { isCutsceneId, type CutsceneId } from "../cutscene";
 import { ITEMS, type ItemId } from "../items";
 import { cue } from "../sound/cues";
-import { OPEN_RATE, OPEN_SOUND } from "../sound/props";
+import { OPEN_SOUND } from "../sound/props";
 import { pickUp, useShown, type Prop, type SandboxWorld } from "./sandboxLevel";
 
 export interface Task {
@@ -105,7 +105,7 @@ function moveProp(world: SandboxWorld, prop: Prop, state: number): void {
   if ((prop.state ?? 0) === state) return;
   prop.state = state;
   const sound = prop.asset && OPEN_SOUND[prop.asset];
-  if (sound) cue(world, sound, OPEN_RATE[sound]!);
+  if (sound) cue(world, sound.id, sound.rate);
 }
 
 function setState(world: SandboxWorld, id: string, state: number): void {
