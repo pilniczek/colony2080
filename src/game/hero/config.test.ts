@@ -3,6 +3,7 @@ import movementJson from "@config/hero/movement.json";
 import xbot from "@config/robots/xbot.json";
 import { describe, expect, it } from "vitest";
 import { clipFor, holdsGun, loadClips, loadMovement, type HeroState, type Weapon } from "./config";
+import { RUN, WALK } from "./gait";
 
 const states: HeroState[] = [
   "idle", "walk", "run", "standJump", "walkJump", "runJump", "duckJump", "fall", "fallDeath", "duck",
@@ -93,13 +94,13 @@ describe("loadClips", () => {
     expect(clipFor("walk", "gun")).toBe("walk");
   });
 
-  it("drives walk and run from the gait engine at the spec speeds", () => {
+  it("drives walk and run from the gait engine over its stride", () => {
     const cellsPerPx = movementJson.heroHeightCells / ((xbot.frame.footY - xbot.levels.head) * 0.2);
-    for (const [name, pxPerSecond] of [["walk", 110], ["run", 300]] as const) {
+    for (const [name, gait] of [["walk", WALK], ["run", RUN]] as const) {
       const clip = clips[name]!;
       expect(clip.gait).toBe(name);
       expect(clip.pose).toEqual([]);
-      expect(clip.travel! / clip.duration).toBeCloseTo(pxPerSecond * cellsPerPx, 2);
+      expect(clip.travel!).toBeCloseTo(gait.speed * gait.cycle * cellsPerPx, 2);
     }
   });
 

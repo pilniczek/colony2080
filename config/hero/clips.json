@@ -16,7 +16,7 @@
       "gait": "walk"
     },
     "run": {
-      "duration": 0.66,
+      "duration": 0.5,
       "loop": true,
       "travel": 2.535,
       "gait": "run"

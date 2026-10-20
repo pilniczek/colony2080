@@ -165,7 +165,7 @@ describe("hero state cues", () => {
   });
 
   it("steps alternate rates 10000 and 9400 at vol 33, two per gait cycle", () => {
-    for (const [mode, cycle] of [["walk", 1.1], ["run", 0.66]] as const) {
+    for (const [mode, cycle] of [["walk", 1.1], ["run", 0.5]] as const) {
       const g = game({ x: 3.5, y: 8 }, arena());
       g.hero.running = mode === "run";
       run(g, cycle * 3, ["moveRight"]);
