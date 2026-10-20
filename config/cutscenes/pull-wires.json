@@ -4,6 +4,7 @@
   "title": "Wires torn out",
   "camera": "CAM 04 STREET",
   "duration": 2.61,
+  "sounds": [[0, "servo", 16000], [0.566, "servo", 16000], [1.175, "gunShot", 30000], [1.697, "spark", 30000], [1.74, "spark", 30000], [1.783, "spark", 30000]],
   "stage": { "width": 1600, "height": 900, "floorY": 1330, "pipeX": 150, "brick": { "w": 96, "h": 34 } },
   "robot": { "scale": 1.45, "x": 1000 },
   "box": { "x": 280, "y": 250, "scale": 18, "envScale": 16 },

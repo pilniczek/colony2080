@@ -4,6 +4,7 @@
   "title": "Switchboard wired",
   "camera": "CAM 03 METRO",
   "duration": 2.64,
+  "sounds": [[0, "servo", 11000], [1.54, "servo", 11000]],
   "stage": { "width": 1600, "height": 900, "floorY": 790, "platformY": 700, "pillarX": 700 },
   "robot": { "scale": 0.74, "envScale": 13.2, "lungeDrop": 27 },
   "lunge": { "hipNear": -32, "kneeNear": 34, "ankleNear": -2, "hipFar": 22, "kneeFar": 6, "ankleFar": -28 },

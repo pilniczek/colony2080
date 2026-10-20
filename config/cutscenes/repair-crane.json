@@ -4,6 +4,7 @@
   "title": "Crane ride out of the city",
   "camera": "CAM 13 CRANE",
   "duration": 13.03,
+  "sounds": [[0.302, "servo", 11000], [1.379, "servo", 11000], [2.714, "step", 13000], [3.576, "step", 13000], [4.438, "step", 13000], [5.299, "step", 13000], [6.161, "step", 13000], [7.023, "step", 13000], [7.884, "step", 13000], [12.165, "servo", 11000]],
   "stage": { "width": 1600, "height": 900, "deckTop": 560, "deckFront": 760, "deckRight": 1420, "horizon": 560, "sun": [1150, 560, 760], "cityX": 700, "cityY": 640, "cityScale": 5.6 },
   "robot": { "x": 720, "y": 640, "keyScale": 14, "aboardX": 92 },
   "crane": { "hang": 120, "panelX": 590, "panelScale": 4 },

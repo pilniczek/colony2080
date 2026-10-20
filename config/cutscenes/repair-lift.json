@@ -4,6 +4,7 @@
   "title": "Lift repaired",
   "camera": "CAM 09 ROOF",
   "duration": 4.43,
+  "sounds": [],
   "stage": { "width": 1600, "height": 900, "sun": [1380, 840, 520] },
   "robot": { "scale": 1.35, "x": 860, "y": 190, "controllerScale": 11 },
   "palette": {

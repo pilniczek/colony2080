@@ -5,6 +5,7 @@
   "camera": "CAM 04 STREET",
   "views": [[0, "robot"]],
   "duration": 1.76,
+  "sounds": [[0.044, "servo", 16000], [0.924, "servo", 16000]],
   "stage": {
     "item": "crowbar",
     "itemState": 0,

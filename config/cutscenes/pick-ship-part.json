@@ -5,6 +5,7 @@
   "camera": "CAM 12 HANGAR",
   "views": [[0, "robot"]],
   "duration": 1.76,
+  "sounds": [[0, "step", 7000]],
   "stage": {
     "item": "shipPart",
     "itemState": 1,

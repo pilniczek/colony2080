@@ -5,6 +5,7 @@
   "camera": "CAM 11 TANK",
   "views": [[0, "robot"], [2.23, "camera"]],
   "duration": 4.73,
+  "sounds": [[0, "servo", 11000], [0.481, "servo", 11000], [0.962, "heavyDoor", 18000], [1.006, "servo", 11000]],
   "stage": {
     "width": 1600,
     "height": 900,

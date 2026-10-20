@@ -4,6 +4,7 @@
   "title": "Card door opens",
   "camera": "CAM 10 ROOF",
   "duration": 7.29,
+  "sounds": [[0, "power", 13000]],
   "stage": { "width": 1600, "height": 900, "horizon": 470, "sun": [640, 470, 700] },
   "robot": { "scale": 1.6, "x": 820, "y": 58 },
   "palette": {

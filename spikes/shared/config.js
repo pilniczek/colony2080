@@ -245,6 +245,23 @@ window.C28_CONFIG = {
     "start": 1.85,
     "end": 5.8
    },
+   "sounds": [
+    [
+     0.242,
+     "step",
+     13000
+    ],
+    [
+     0.622,
+     "servo",
+     11000
+    ],
+    [
+     1.953,
+     "servo",
+     11000
+    ]
+   ],
    "robot": {
     "scale": 0.46,
     "x": 705,
@@ -569,6 +586,48 @@ window.C28_CONFIG = {
    "title": "Hull cover shot off",
    "camera": "CAM 12 HANGAR",
    "duration": 3.71,
+   "sounds": [
+    [
+     1.018,
+     "step",
+     10000
+    ],
+    [
+     1.746,
+     "step",
+     10000
+    ],
+    [
+     2.837,
+     "cannon",
+     12000
+    ],
+    [
+     2.983,
+     "cannon",
+     12000
+    ],
+    [
+     3.128,
+     "cannon",
+     12000
+    ],
+    [
+     3.274,
+     "cannon",
+     12000
+    ],
+    [
+     3.419,
+     "cannon",
+     12000
+    ],
+    [
+     3.565,
+     "cannon",
+     12000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -790,6 +849,243 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 61.5,
+   "sounds": [
+    [
+     0.064,
+     "step",
+     13000
+    ],
+    [
+     1.48,
+     "step",
+     13000
+    ],
+    [
+     1.995,
+     "step",
+     13000
+    ],
+    [
+     3.089,
+     "step",
+     13000
+    ],
+    [
+     4.634,
+     "step",
+     13000
+    ],
+    [
+     6.738,
+     "hatch",
+     6000
+    ],
+    [
+     7.136,
+     "hatch",
+     6000
+    ],
+    [
+     7.454,
+     "ignition",
+     14000
+    ],
+    [
+     7.533,
+     "hatch",
+     6000
+    ],
+    [
+     7.93,
+     "hatch",
+     6000
+    ],
+    [
+     8.328,
+     "hatch",
+     6000
+    ],
+    [
+     8.526,
+     "slam",
+     8000
+    ],
+    [
+     10.275,
+     "takeoff",
+     13000
+    ],
+    [
+     16.918,
+     "flyby",
+     7000
+    ],
+    [
+     21.792,
+     "laser",
+     8000
+    ],
+    [
+     23.262,
+     "laser",
+     8000
+    ],
+    [
+     23.931,
+     "laser",
+     8000
+    ],
+    [
+     24.02,
+     "blast",
+     8000
+    ],
+    [
+     25.18,
+     "crackle",
+     18000
+    ],
+    [
+     26.347,
+     "crackle",
+     12000
+    ],
+    [
+     27.02,
+     "crackle",
+     17000
+    ],
+    [
+     27.2,
+     "explosion",
+     9000
+    ],
+    [
+     28.808,
+     "crackle",
+     17000
+    ],
+    [
+     29.904,
+     "crackle",
+     17000
+    ],
+    [
+     31.823,
+     "spark",
+     6000
+    ],
+    [
+     31.867,
+     "spark",
+     6000
+    ],
+    [
+     32.69,
+     "spark",
+     6000
+    ],
+    [
+     33.123,
+     "spark",
+     6000
+    ],
+    [
+     33.167,
+     "spark",
+     6000
+    ],
+    [
+     33.21,
+     "spark",
+     6000
+    ],
+    [
+     33.253,
+     "spark",
+     6000
+    ],
+    [
+     33.297,
+     "spark",
+     6000
+    ],
+    [
+     33.383,
+     "spark",
+     6000
+    ],
+    [
+     33.47,
+     "spark",
+     6000
+    ],
+    [
+     34.813,
+     "spark",
+     6000
+    ],
+    [
+     34.857,
+     "spark",
+     6000
+    ],
+    [
+     36.113,
+     "spark",
+     6000
+    ],
+    [
+     36.157,
+     "spark",
+     6000
+    ],
+    [
+     36.2,
+     "spark",
+     6000
+    ],
+    [
+     41.745,
+     "land",
+     13000
+    ],
+    [
+     43.821,
+     "land",
+     13000
+    ],
+    [
+     44.292,
+     "land",
+     13000
+    ],
+    [
+     45.519,
+     "land",
+     13000
+    ],
+    [
+     45.991,
+     "land",
+     13000
+    ],
+    [
+     46.604,
+     "land",
+     13000
+    ],
+    [
+     47.17,
+     "land",
+     13000
+    ],
+    [
+     48.515,
+     "flyover",
+     10000
+    ]
+   ],
    "note": "One shot per original clip, static lead-ins trimmed. Track keys are film seconds. Stage units: 1600 x 900. Robot k is the rig scale; march speeds are stage px per second.",
    "stage": {
     "width": 1600,
@@ -1806,6 +2102,13 @@ window.C28_CONFIG = {
    "title": "Card door opens",
    "camera": "CAM 10 ROOF",
    "duration": 7.29,
+   "sounds": [
+    [
+     0,
+     "power",
+     13000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -2002,6 +2305,13 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 1.76,
+   "sounds": [
+    [
+     0,
+     "step",
+     7000
+    ]
+   ],
    "stage": {
     "item": "controller",
     "itemState": 0,
@@ -2278,6 +2588,13 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 1.76,
+   "sounds": [
+    [
+     0,
+     "step",
+     7000
+    ]
+   ],
    "stage": {
     "item": "craneKey",
     "itemState": 0,
@@ -2554,6 +2871,18 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 1.76,
+   "sounds": [
+    [
+     0.044,
+     "servo",
+     16000
+    ],
+    [
+     0.924,
+     "servo",
+     16000
+    ]
+   ],
    "stage": {
     "item": "crowbar",
     "itemState": 0,
@@ -2824,6 +3153,18 @@ window.C28_CONFIG = {
    "title": "E-Blaster picked up",
    "camera": "CAM 03 METRO",
    "duration": 2.4,
+   "sounds": [
+    [
+     0,
+     "servo",
+     11000
+    ],
+    [
+     1.698,
+     "servo",
+     11000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -3036,6 +3377,13 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 1.76,
+   "sounds": [
+    [
+     0,
+     "step",
+     7000
+    ]
+   ],
    "stage": {
     "item": "shipPart",
     "itemState": 1,
@@ -3306,6 +3654,38 @@ window.C28_CONFIG = {
    "title": "Wires torn out",
    "camera": "CAM 04 STREET",
    "duration": 2.61,
+   "sounds": [
+    [
+     0,
+     "servo",
+     16000
+    ],
+    [
+     0.566,
+     "servo",
+     16000
+    ],
+    [
+     1.175,
+     "gunShot",
+     30000
+    ],
+    [
+     1.697,
+     "spark",
+     30000
+    ],
+    [
+     1.74,
+     "spark",
+     30000
+    ],
+    [
+     1.783,
+     "spark",
+     30000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -3666,6 +4046,78 @@ window.C28_CONFIG = {
    "title": "Rebel shot down",
    "camera": "CAM 02 STREET",
    "duration": 8.07,
+   "sounds": [
+    [
+     0,
+     "servo",
+     11000
+    ],
+    [
+     2.29,
+     "servo",
+     8000
+    ],
+    [
+     2.685,
+     "punch",
+     13000
+    ],
+    [
+     3.563,
+     "punch",
+     13000
+    ],
+    [
+     4.09,
+     "punch",
+     13000
+    ],
+    [
+     4.618,
+     "laser",
+     8000
+    ],
+    [
+     5.85,
+     "servo",
+     11000
+    ],
+    [
+     6.764,
+     "laser",
+     8000
+    ],
+    [
+     7.243,
+     "laser",
+     8000
+    ],
+    [
+     7.417,
+     "gunShot",
+     13000
+    ],
+    [
+     7.504,
+     "gunShot",
+     13000
+    ],
+    [
+     7.591,
+     "gunShot",
+     13000
+    ],
+    [
+     7.678,
+     "gunShot",
+     13000
+    ],
+    [
+     7.765,
+     "gunShot",
+     13000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900
@@ -4492,6 +4944,58 @@ window.C28_CONFIG = {
    "title": "Crane ride out of the city",
    "camera": "CAM 13 CRANE",
    "duration": 13.03,
+   "sounds": [
+    [
+     0.302,
+     "servo",
+     11000
+    ],
+    [
+     1.379,
+     "servo",
+     11000
+    ],
+    [
+     2.714,
+     "step",
+     13000
+    ],
+    [
+     3.576,
+     "step",
+     13000
+    ],
+    [
+     4.438,
+     "step",
+     13000
+    ],
+    [
+     5.299,
+     "step",
+     13000
+    ],
+    [
+     6.161,
+     "step",
+     13000
+    ],
+    [
+     7.023,
+     "step",
+     13000
+    ],
+    [
+     7.884,
+     "step",
+     13000
+    ],
+    [
+     12.165,
+     "servo",
+     11000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -5070,6 +5574,7 @@ window.C28_CONFIG = {
    "title": "Lift repaired",
    "camera": "CAM 09 ROOF",
    "duration": 4.43,
+   "sounds": [],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -5356,6 +5861,13 @@ window.C28_CONFIG = {
    "title": "Corpse searched",
    "camera": "CAM 06 RUBBLE",
    "duration": 4.43,
+   "sounds": [
+    [
+     0,
+     "step",
+     7000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -5686,6 +6198,18 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 5.686,
+   "sounds": [
+    [
+     0,
+     "step",
+     10000
+    ],
+    [
+     3.714,
+     "step",
+     10000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -5990,6 +6514,7 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 12.93,
+   "sounds": [],
    "stage": {
     "width": 1600,
     "height": 900
@@ -6202,6 +6727,38 @@ window.C28_CONFIG = {
    "title": "Holo plan shown at the bar",
    "camera": "CAM 07 BAR",
    "duration": 11.99,
+   "sounds": [
+    [
+     3.07,
+     "servo",
+     11000
+    ],
+    [
+     4.366,
+     "servo",
+     11000
+    ],
+    [
+     9.204,
+     "heavyDoor",
+     9000
+    ],
+    [
+     10.51,
+     "servo",
+     11000
+    ],
+    [
+     11.076,
+     "step",
+     13000
+    ],
+    [
+     11.729,
+     "servo",
+     11000
+    ]
+   ],
    "items": {
     "robotBefore": null,
     "robotAfter": "shipPlan",
@@ -6646,6 +7203,7 @@ window.C28_CONFIG = {
    "title": "Ship part handed in",
    "camera": "CAM 07 BAR",
    "duration": 2.83,
+   "sounds": [],
    "note": "Same bar door shot as trade-holo-plan (its door block holds stage and tracks); only the handed items differ.",
    "items": {
     "robotBefore": "shipPart",
@@ -6668,6 +7226,28 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 5.14,
+   "sounds": [
+    [
+     0.434,
+     "servo",
+     11000
+    ],
+    [
+     1.303,
+     "servo",
+     11000
+    ],
+    [
+     1.955,
+     "punch",
+     13000
+    ],
+    [
+     2.244,
+     "servo",
+     11000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -6941,6 +7521,28 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 4.73,
+   "sounds": [
+    [
+     0,
+     "servo",
+     11000
+    ],
+    [
+     0.481,
+     "servo",
+     11000
+    ],
+    [
+     0.962,
+     "heavyDoor",
+     18000
+    ],
+    [
+     1.006,
+     "servo",
+     11000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,
@@ -7192,6 +7794,18 @@ window.C28_CONFIG = {
    "title": "Switchboard wired",
    "camera": "CAM 03 METRO",
    "duration": 2.64,
+   "sounds": [
+    [
+     0,
+     "servo",
+     11000
+    ],
+    [
+     1.54,
+     "servo",
+     11000
+    ]
+   ],
    "stage": {
     "width": 1600,
     "height": 900,

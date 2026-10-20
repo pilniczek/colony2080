@@ -4,6 +4,7 @@
   "title": "Ship part handed in",
   "camera": "CAM 07 BAR",
   "duration": 2.83,
+  "sounds": [],
   "note": "Same bar door shot as trade-holo-plan (its door block holds stage and tracks); only the handed items differ.",
   "items": { "robotBefore": "shipPart", "robotAfter": "decoder", "manBefore": null, "manAfter": "shipPart" },
   "palette": {},

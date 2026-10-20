@@ -4,6 +4,7 @@
   "title": "Hull cover shot off",
   "camera": "CAM 12 HANGAR",
   "duration": 3.71,
+  "sounds": [[1.018, "step", 10000], [1.746, "step", 10000], [2.837, "cannon", 12000], [2.983, "cannon", 12000], [3.128, "cannon", 12000], [3.274, "cannon", 12000], [3.419, "cannon", 12000], [3.565, "cannon", 12000]],
   "stage": {
     "width": 1600,
     "height": 900,

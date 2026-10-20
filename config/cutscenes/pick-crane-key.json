@@ -5,6 +5,7 @@
   "camera": "CAM 13 CRANE",
   "views": [[0, "robot"]],
   "duration": 1.76,
+  "sounds": [[0, "step", 7000]],
   "stage": {
     "item": "craneKey",
     "itemState": 0,

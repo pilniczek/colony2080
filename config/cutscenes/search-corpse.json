@@ -4,6 +4,7 @@
   "title": "Corpse searched",
   "camera": "CAM 06 RUBBLE",
   "duration": 4.43,
+  "sounds": [[0, "step", 7000]],
   "stage": {
     "width": 1600,
     "height": 900,

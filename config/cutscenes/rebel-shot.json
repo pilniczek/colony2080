@@ -4,6 +4,7 @@
   "title": "Rebel shot down",
   "camera": "CAM 02 STREET",
   "duration": 8.07,
+  "sounds": [[0, "servo", 11000], [2.29, "servo", 8000], [2.685, "punch", 13000], [3.563, "punch", 13000], [4.09, "punch", 13000], [4.618, "laser", 8000], [5.85, "servo", 11000], [6.764, "laser", 8000], [7.243, "laser", 8000], [7.417, "gunShot", 13000], [7.504, "gunShot", 13000], [7.591, "gunShot", 13000], [7.678, "gunShot", 13000], [7.765, "gunShot", 13000]],
   "stage": {"width": 1600, "height": 900},
   "light": {"dusk": 0.72},
   "palette": {

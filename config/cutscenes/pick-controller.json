@@ -5,6 +5,7 @@
   "camera": "CAM 08 PLASMA",
   "views": [[0, "robot"]],
   "duration": 1.76,
+  "sounds": [[0, "step", 7000]],
   "stage": {
     "item": "controller",
     "itemState": 0,

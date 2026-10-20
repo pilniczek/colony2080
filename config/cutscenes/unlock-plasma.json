@@ -5,6 +5,7 @@
   "camera": "CAM 08 PLASMA",
   "views": [[0, "robot"]],
   "duration": 5.14,
+  "sounds": [[0.434, "servo", 11000], [1.303, "servo", 11000], [1.955, "punch", 13000], [2.244, "servo", 11000]],
   "stage": { "width": 1600, "height": 900, "grid": 72, "speckles": 520 },
   "lock": { "x": 700, "y": 450, "scale": 22, "decoderAt": [4, -27] },
   "hand": { "scale": 5.4, "grip": [170, 90] },

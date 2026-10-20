@@ -5,6 +5,7 @@
   "camera": "CAM 05 PUMP ROOM",
   "views": [[0, "camera"], [3.714, "robot"]],
   "duration": 5.686,
+  "sounds": [[0, "step", 10000], [3.714, "step", 10000]],
   "stage": {
     "width": 1600,
     "height": 900,
