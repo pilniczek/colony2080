@@ -75,7 +75,8 @@ Unconfirmed: whether door 17 must come before acid tank 14, and whether the ship
 ## Open gaps
 
 - Player and enemy sprite sizes and offsets (likely a table inside `KLEV1.EXE`).
-- Object and trigger placement for levels 2-9 (level 1 enemy table decoded from `KLEV1.EXE`, report 10).
+- Object and trigger placement for levels 5-9. `KLEV1.EXE` runs every level (`-levelN`, level number `[0xDC78]`, init dispatch `4:0x80D6`); levels 1-4 are decoded (reports 10, 13-16).
+- Level 1 floor tile list (`7:0xC9C8`): levels 2-4 fall when the tile under the hero is not a floor tile, so report 13's "no floor collision" needs a recheck.
 - Physics values (jump distance, speeds), animation frame counts. No jump, ladder or melee seen in level 1 footage.
 - Invasion year: 2013 vs 2018 vs 2028 across sources.
 
@@ -96,6 +97,9 @@ Binary and media folders are local only (copyrighted, large); the list lives in 
 | `reports/09-gamedata.md` | Decoded data file formats, maps, strings |
 | `reports/10-level1-enemies.md` | Level 1 enemy roster and placement decoded from `KLEV1.EXE`, matched to footage |
 | `reports/13-level1-layout.md` | Level 1 lifts, item cells, wall tiles and wall tables, map variant diffs, decoded from `KLEV1.EXE` and `M11..M16` |
+| `reports/14-level2-layout.md` | Level 2 (vesnice) layout, tasks, guard and enemies, decoded from `KLEV1.EXE` and `M21..M24` |
+| `reports/15-level3-layout.md` | Level 3 (jungle) layout, tasks, stone puzzle, hazards and enemies, decoded from `KLEV1.EXE` and `M31..M34` |
+| `reports/16-level4-layout.md` | Level 4 (jeskyne) layout, doors and levers, death zones, dead ends and enemies, decoded from `KLEV1.EXE` and `M41..M43` |
 | `tools/` | Python decoders: FLI (`fli.py`), map renderer (`rendermap.py`), tiles, strings |
 | `sources/steam/` | Steam API and store page snapshots |
 | `sources/cz-walkthroughs/` | Walkthrough pages and level map images |

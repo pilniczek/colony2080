@@ -80,7 +80,7 @@ flowchart TD
 - In `LEV1.GRA` frame 3 (the HUD image, buffer `ds:0xDF04` = GRA table entry 4) it is a thin brown-pink tube at about x 309-310, y 55-108, above the lamps. It looks half lit and is painted, not drawn.
 - No code draws into that area. Every routine that copies from the HUD image (`[0xDF04]`) was checked: the life tube (`4:0x02E0`), the shield lamps (`3:0xF6D2`), the weapon and ammo plates (`6:0x99CC-0x9CAB`) and full-frame redraws (`1:0x5F70`, `1:0x6268`, `3:0x4F07`, `7:0xCD6B`). The only other column loops with a 320-byte stride (`8:0x3380-0x34A9`) are generic sprite blitters.
 - Footage A 3:44-10:11: the tube's pixel column (x 309-310, y 50-112) stays the same while life drops from 90 to 9, apart from compression noise. Video B level 1 (5:00-15:23): same.
-- Only `KLEV1.EXE` was checked. `COLONY28.EXE` runs the later levels and might use the tube. **[open]**
+- `COLONY28.EXE` is an 18 KB launcher that runs `klev1.exe -levelN` for every level, so `KLEV1.EXE` holds all levels; only the level 1 paths were checked. **[open]**
 
 ## Displayed percent **[code + footage]**
 

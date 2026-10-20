@@ -6,7 +6,7 @@ Status: draft. Machine-readable copy (local only): `gamedata/disasm/level1_layou
 
 - **15 lifts**, one 24-byte slot each at `ds:0x4C90 + 0x18 * (n - 1)`. 14 have two stops, lift 14 has three. Lift 10 is the damaged lift: no travel until repaired. Every stop row shows the lift deck tiles `(9,2) (9,3) (9,4)` at exactly the lift columns: 15 of 15 lifts, 31 of 31 stops. **[code] [map]**
 - **Items** sit in an 11-record table (`0x111` bytes per record). Five lie on the map: crowbar, controller, crane key, the corpse card and the E-blaster. The other six are given by tasks. **[code]**
-- **No floor collision and no ladders.** The hero moves along floor bands only. The row changes only by lifts and two scripted teleports (the metro tunnel). **[code]**
+- **No floor collision and no ladders.** The hero moves along floor bands only. The row changes only by lifts and two scripted teleports (the metro tunnel). **[code]** Recheck: the engine has a per-level floor tile list with falling (level 1 list at `7:0xC9C8`, reports 14-16). **[open]**
 - **Horizontal blocking** comes from three sources: a per-level list of wall tiles checked in the hero stand row, two small wall tables (the two "unknown" tables of report 10), and a code zone for the acid guard. **[code]**
 
 ## Coordinate frame

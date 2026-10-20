@@ -1,0 +1,1366 @@
+{
+ "status": "draft",
+ "source": "docs/research/reports/15-level3-layout.md",
+ "units": "original pixels, 1 tile = 24",
+ "objects": [
+  {
+   "id": "distributionCabinet",
+   "name": "Distribution cabinet",
+   "csName": "rozvodná skříň",
+   "interactive": true,
+   "marker": 1,
+   "task": "shootCabinet",
+   "sheet": "machines",
+   "description": "Small electrical box low in the cave pit (cells 97-98, row 46). Shooting it with the gun from the cave floor (engine y 42, x >= 87) plays delo.anm, puts 2 blasts on it and switches the cannon off ([0x5481]=1, map M32). No hit points: one shot does it (5:0x704B). Its tiles change from (8,32/33) to (8,53/54) in M32/M33.",
+   "states": [
+    "intact (cannon live)",
+    "shot (cannon off)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2280,
+      1056,
+      96,
+      72
+     ],
+     "caption": "map M31: cabinet cells 97-98 row 46"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M33.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2280,
+      1056,
+      96,
+      72
+     ],
+     "caption": "map M33: broken cabinet"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_03.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      960,
+      178,
+      320,
+      178
+     ],
+     "caption": "demo: round vent with a yellow E sign, cabinet candidate"
+    }
+   ]
+  },
+  {
+   "id": "cannonTurret",
+   "name": "Cannon turret",
+   "csName": "dělo",
+   "interactive": false,
+   "marker": 2,
+   "task": "shootCabinet",
+   "sheet": "enemies",
+   "description": "Dome gun turret on a short pedestal at the east end of plank row 32 (cell 90,31), map tiles. While the cabinet is intact, a hero at cells 90-98 on that floor gets strilna.anm, 3 blasts, (6 - shields)/6 x 30 energy and a push one cell right and one row down (3:0xE42D). Cannot be destroyed; the cabinet shot switches it off. LEV3.GRA f25 holds a dome turret sprite (8 frames, firing right) that level 3 does not use as a guard.",
+   "states": [
+    "live (fires at the floor)",
+    "off (base tile replaced)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2112,
+      696,
+      120,
+      96
+     ],
+     "caption": "map M31: turret"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M33.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2112,
+      696,
+      120,
+      96
+     ],
+     "caption": "map M33: turret off"
+    },
+    {
+     "path": "docs/research/video/frames-best/DEMO_jungle_rock_ledges_turret.png",
+     "imgSize": [
+      2562,
+      1422
+     ],
+     "crop": [
+      832,
+      915,
+      358,
+      270
+     ],
+     "caption": "demo: turret on rock ledge"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_02.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      320,
+      0,
+      320,
+      178
+     ],
+     "caption": "demo: turret on a ledge"
+    }
+   ]
+  },
+  {
+   "id": "smallKey",
+   "name": "Small key",
+   "csName": "malý klíč",
+   "interactive": true,
+   "marker": 3,
+   "task": "takeKey",
+   "sheet": "props",
+   "description": "Item record 5 (KLIC) lying in the grass at cell 54 on plank row 32, in front of a small building. Pickup plays klic.anm: V TRAVE JSI NASEL MALY KLIC. Opens the flamethrower door (9).",
+   "states": [
+    "on ground",
+    "taken",
+    "used on door"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1248,
+      696,
+      120,
+      96
+     ],
+     "caption": "map: key spot"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_02.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      640,
+      534,
+      320,
+      178
+     ],
+     "caption": "demo: key found message"
+    }
+   ]
+  },
+  {
+   "id": "tripwire",
+   "name": "Tripwire trap",
+   "csName": "napnutý drát / past",
+   "interactive": true,
+   "marker": 4,
+   "task": "cutTrap",
+   "sheet": "props",
+   "description": "Tensioned wire between two posts (cells 52-53, rows 35-36) on plank row 37, item records 3 and 4 (NAPNUTY DRAT) at cells 54-55 that cannot be picked up. Walking into cell 55 while it is armed sets off 45 blast rounds and ends the game (3:0xE742). Using the cutters there removes it and gives the grenade (sebgra.anm, granat.anm).",
+   "states": [
+    "armed (deadly)",
+    "cut"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1224,
+      816,
+      144,
+      96
+     ],
+     "caption": "map: trap posts"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_03.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      640,
+      534,
+      320,
+      178
+     ],
+     "caption": "demo: trap removed, grenade found"
+    }
+   ]
+  },
+  {
+   "id": "boulder",
+   "name": "Bulky boulder",
+   "csName": "mohutný kámen",
+   "interactive": true,
+   "marker": 5,
+   "task": "blowRock",
+   "sheet": "structures",
+   "description": "Large rock over the spike strip of plank row 20, used from cells 46-54. Wrong item: MOHUTNY KAMEN. The grenade (hodgra.anm, skala1.anm, skala2.anm) collapses it onto the spikes (map M33): PO EXPLOZI SE ZAVALILA CAST PREKAZKY. Not drawn in M31 tiles (probably a sprite) [inferred].",
+   "states": [
+    "standing",
+    "blown (rubble on spikes)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1176,
+      384,
+      312,
+      144
+     ],
+     "caption": "map M31: rock area and spikes"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_04.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      960,
+      0,
+      320,
+      178
+     ],
+     "caption": "demo: boulder above spikes"
+    }
+   ]
+  },
+  {
+   "id": "spikes",
+   "name": "Spike pit",
+   "csName": "bodáky",
+   "interactive": false,
+   "marker": 5,
+   "task": "blowRock",
+   "sheet": "structures",
+   "description": "Strip of spikes on plank row 20, cells 53-60, with no floor tiles: a hero who walks or falls in drops to engine y 15 and dies (OSTNY.anm, 3:0xE9F7). After the grenade, rubble gives floor cells 57-58, so a running jump gets over.",
+   "states": [
+    "open",
+    "rubble on spikes (M33)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1248,
+      432,
+      240,
+      96
+     ],
+     "caption": "map M31: spikes"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M33.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1248,
+      432,
+      240,
+      96
+     ],
+     "caption": "map M33: debris on spikes"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_04.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      320,
+      178,
+      320,
+      178
+     ],
+     "caption": "demo: spikes after the explosion"
+    }
+   ]
+  },
+  {
+   "id": "stonePuzzle",
+   "name": "Stone puzzle",
+   "csName": "hlavolam",
+   "interactive": true,
+   "marker": 6,
+   "task": "stonePuzzle",
+   "sheet": "machines",
+   "description": "Four-stone panel used from cells 104-105 on the ledge at plank row 17. Opens a close-up screen (6:0xB514): move over raised stones, Enter presses one; each press also toggles or releases others by a 4-step counter. All four pressed: Z VODOPADU NAD TEBOU SE VYSUNULY DVA KAMENNE BLOKY and map M34. Otherwise NIC SE NESTALO.",
+   "states": [
+    "unsolved",
+    "solved"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2448,
+      312,
+      144,
+      168
+     ],
+     "caption": "map: puzzle ledge cells 101-105"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_04.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      0,
+      534,
+      320,
+      178
+     ],
+     "caption": "demo: puzzle stones close-up"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_04.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      960,
+      356,
+      320,
+      178
+     ],
+     "caption": "demo: NIC SE NESTALO"
+    }
+   ]
+  },
+  {
+   "id": "waterfall",
+   "name": "Waterfall",
+   "csName": "vodopád",
+   "interactive": false,
+   "marker": 6,
+   "task": "stonePuzzle",
+   "sheet": "structures",
+   "description": "Tall grey waterfall column at cells 94-99, rows 3-20, between plank rows 20 and 11. Solving the puzzle slides out two stone blocks (cells 96,12 and 98,13) that act as steps up to floor 11 (M34). Ambient sound while the hero is nearby (3:0xBF20) [inferred].",
+   "states": [
+    "plain",
+    "with stone steps (M34)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2256,
+      72,
+      144,
+      432
+     ],
+     "caption": "map M31: waterfall"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M34.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2280,
+      264,
+      120,
+      96
+     ],
+     "caption": "map M34: stone steps"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_04.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      960,
+      534,
+      320,
+      178
+     ],
+     "caption": "demo: two blocks in the waterfall"
+    }
+   ]
+  },
+  {
+   "id": "flamethrowerDoor",
+   "name": "Door to the flamethrower",
+   "csName": "dveře",
+   "interactive": true,
+   "marker": 9,
+   "task": "openDoor",
+   "sheet": "buildings",
+   "description": "Door in a small building with a red lamp on plank row 41 (use from cells 119-123). Locked without the key: DVERE JSOU ZAMCENE. With the key: dvere.anm, ZA DVERMI JSI OBJEVIL PLAMENOMET, weapon slot 3 becomes the flamethrower with 500 ammo (3:0x95EC).",
+   "states": [
+    "locked",
+    "opened"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2808,
+      864,
+      192,
+      120
+     ],
+     "caption": "map: door building"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_03.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      0,
+      0,
+      320,
+      178
+     ],
+     "caption": "demo: building door"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_03.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      320,
+      0,
+      320,
+      178
+     ],
+     "caption": "demo: flamethrower found"
+    }
+   ]
+  },
+  {
+   "id": "flamethrower",
+   "name": "Flamethrower",
+   "csName": "plamenomet",
+   "interactive": true,
+   "marker": 9,
+   "task": "openDoor",
+   "sheet": "props",
+   "description": "Bonus weapon 3 of levels 3 and 4: a particle stream (40 particles, table ds:0x499E), 0.03 hp per particle tick on enemies within 1 cell. Starts with 500 ammo and carries into level 4.",
+   "states": [
+    "behind door",
+    "held"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_03.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      320,
+      534,
+      320,
+      178
+     ],
+     "caption": "demo: flamethrower firing"
+    }
+   ]
+  },
+  {
+   "id": "crate",
+   "name": "Crate with cutters",
+   "csName": "bedna",
+   "interactive": true,
+   "marker": 10,
+   "task": "openCrate",
+   "sheet": "props",
+   "description": "Wooden crate under the helicopter wreck at cell 83 on plank row 32, item record 2 (BEDNA). Pickup plays bedna.anm, renames it to STIPACKY: UVNITR BEDNY JSI NASEL STIPACKY. Same thing as the mesto crate, here holding a quest item.",
+   "states": [
+    "closed",
+    "opened (cutters taken)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1944,
+      672,
+      96,
+      96
+     ],
+     "caption": "map: crate spot"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_02.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      320,
+      178,
+      320,
+      178
+     ],
+     "caption": "demo: crate cutscene"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_02.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      640,
+      178,
+      320,
+      178
+     ],
+     "caption": "demo: cutters found"
+    }
+   ]
+  },
+  {
+   "id": "cutters",
+   "name": "Wire cutters",
+   "csName": "štípačky",
+   "interactive": true,
+   "marker": 10,
+   "task": "cutTrap",
+   "sheet": "props",
+   "description": "Item given by the crate (record 2 renamed). Used on the tripwire, then gone.",
+   "states": [
+    "held",
+    "used"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_02.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      640,
+      178,
+      320,
+      178
+     ],
+     "caption": "demo: cutters message"
+    }
+   ]
+  },
+  {
+   "id": "grenade",
+   "name": "Grenade",
+   "csName": "granát",
+   "interactive": true,
+   "marker": 4,
+   "task": "blowRock",
+   "sheet": "props",
+   "description": "Item given by cutting the tripwire (record 3 renamed GRANAT). Thrown at the boulder, then gone.",
+   "states": [
+    "held",
+    "thrown"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_03.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      640,
+      534,
+      320,
+      178
+     ],
+     "caption": "demo: grenade found"
+    }
+   ]
+  },
+  {
+   "id": "canister",
+   "name": "Fuel canister",
+   "csName": "kanystr",
+   "interactive": true,
+   "marker": 8,
+   "task": "takeCanister",
+   "sheet": "props",
+   "description": "Item record 1 (KANYSTR) at cell 100 on the small ledge at plank row 40, beside the orange car wreck. Pickup plays kanistr.anm: NALEZL JSI KANYSTR S PALIVEM. Poured into the jeep.",
+   "states": [
+    "on ground",
+    "taken",
+    "used"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2352,
+      888,
+      144,
+      96
+     ],
+     "caption": "map: canister spot"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_01.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      960,
+      356,
+      320,
+      178
+     ],
+     "caption": "demo: canister found message"
+    }
+   ]
+  },
+  {
+   "id": "jeep",
+   "name": "Jeep with winch",
+   "csName": "jeep / naviják",
+   "interactive": true,
+   "marker": 8,
+   "task": "fuelJeep",
+   "sheet": "machines",
+   "description": "Jeep on plank row 11 at cells 80-83, rows 9-10, east of the fallen tree. Canister used at cells 78-84: napln.anm, DO NADRZE AUTOMOBILU JSI NALIL PALIVO. Then any use at cells 76-80 runs the winch (navijak.anm, sutr.anm), pulls the tree away and ends the level (3:0x97CC).",
+   "states": [
+    "empty tank",
+    "fueled",
+    "winching (level end)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1944,
+      192,
+      96,
+      96
+     ],
+     "caption": "map: jeep"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_05.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      320,
+      0,
+      320,
+      178
+     ],
+     "caption": "demo: jeep and droid"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_05.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      0,
+      178,
+      320,
+      178
+     ],
+     "caption": "demo: fuel message"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_05.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      320,
+      178,
+      320,
+      178
+     ],
+     "caption": "demo: winch cutscene"
+    }
+   ]
+  },
+  {
+   "id": "fallenTree",
+   "name": "Fallen tree",
+   "csName": "padlý strom",
+   "interactive": false,
+   "marker": 8,
+   "task": "winchTree",
+   "sheet": "structures",
+   "description": "Tree trunk lying across plank row 11 at cells 70-81, rows 7-10; west wall of floor 11 (wall table x 71). Pulled away by the jeep winch at the level end.",
+   "states": [
+    "blocking"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1680,
+      144,
+      288,
+      144
+     ],
+     "caption": "map: fallen tree"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_05.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      640,
+      0,
+      320,
+      178
+     ],
+     "caption": "demo: fallen tree and jeep"
+    }
+   ]
+  },
+  {
+   "id": "towerLift",
+   "name": "Rusty tower lift",
+   "csName": "výtah",
+   "interactive": true,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Scripted lift between two lattice towers: up at cells 140-143 on plank row 41 plays vytnah.anm and puts the hero at cell 118 on the spawn ledge (row 25); down at cells 116-119 plays vytdol.anm back to cell 141 (7:0x815E). No lift slot and no visible deck: the ride is a cutscene. Same role as the mesto lift, different mechanics.",
+   "states": [
+    "at bottom",
+    "at top"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3288,
+      696,
+      120,
+      288
+     ],
+     "caption": "map: lower tower"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3384,
+      624,
+      72,
+      384
+     ],
+     "caption": "map: blue pole at the bottom stop"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2712,
+      312,
+      144,
+      312
+     ],
+     "caption": "map: upper tower near the top stop"
+    }
+   ]
+  },
+  {
+   "id": "latticePylon",
+   "name": "Lattice pylon",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Steel truss towers, also used by the scripted lift; same as mesto.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3288,
+      312,
+      120,
+      312
+     ],
+     "caption": "map: lattice tower"
+    }
+   ]
+  },
+  {
+   "id": "mine",
+   "name": "Land mine",
+   "csName": "nášlapná mina",
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "One-shot mines at cells 126,25 (spawn ledge), 108,41 and 97,35 (rock slope). Stepping on one takes (6 - shields)/6 x 15 energy with 3 blasts (7:0x9EAE). Drawn from far pointer ds:0xDF00; picture [open].",
+   "states": [
+    "armed",
+    "exploded"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2952,
+      504,
+      144,
+      120
+     ],
+     "caption": "map: spawn ledge mine cell 126,25"
+    }
+   ]
+  },
+  {
+   "id": "bonusPickup",
+   "name": "Bonus pickups",
+   "csName": null,
+   "interactive": true,
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "Hidden floor bonuses, one shot each: energy +90 at cell 25,31, second ammo type +350 at cell 65,37, shield +1 at cell 29,25 (seg 5).",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      552,
+      480,
+      600,
+      432
+     ],
+     "caption": "map: west rock ledges with the energy and shield bonus cells"
+    }
+   ]
+  },
+  {
+   "id": "caveChasm",
+   "name": "Cave pit and chasm",
+   "csName": "propast",
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Pit at cells 83-100, rows 42-50, below the stepped rock. A hero falling below its floor (engine y > 42, x > 77) dies: propast.anm, game over (3:0xE6CD).",
+   "states": [
+    "deadly"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1992,
+      960,
+      432,
+      264
+     ],
+     "caption": "map: cave pit"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_01.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      320,
+      534,
+      320,
+      178
+     ],
+     "caption": "demo: cave with capsule"
+    }
+   ]
+  },
+  {
+   "id": "caveCapsule",
+   "name": "Cave capsule",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Rounded metal capsule in the cave pit at cells 86-87, rows 46-47. Decor; no code found.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2040,
+      1080,
+      72,
+      72
+     ],
+     "caption": "map: capsule"
+    }
+   ]
+  },
+  {
+   "id": "rockLedges",
+   "name": "Rock ledges",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Stacked rock ledges at cells 22-47, rows 20-37, one row apart: the hero climbs them with the jump (32 px rise) and drops between them (gravity).",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      552,
+      480,
+      600,
+      432
+     ],
+     "caption": "map: west rock ledges"
+    },
+    {
+     "path": "docs/research/video/frames-best/DEMO_jungle_rock_ledges_turret.png",
+     "imgSize": [
+      2562,
+      1422
+     ],
+     "crop": [
+      128,
+      180,
+      2300,
+      1180
+     ],
+     "caption": "demo: rock ledges"
+    }
+   ]
+  },
+  {
+   "id": "rockSlope",
+   "name": "Rock slope",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Stepped rock joining plank row 32 to row 41 at cells 92-100, rows 33-40.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2208,
+      768,
+      216,
+      240
+     ],
+     "caption": "map: rock slope"
+    }
+   ]
+  },
+  {
+   "id": "girderColumn",
+   "name": "Girder column",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Vertical girder at the west map edge (cell 22, rows 15-37); the west wall table entries (x 17) stop the hero here.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      528,
+      360,
+      24,
+      552
+     ],
+     "caption": "map: girder column"
+    }
+   ]
+  },
+  {
+   "id": "helicopterWreck",
+   "name": "Helicopter wreck",
+   "csName": "vrak vrtulníku",
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Crashed bronze helicopter at cells 79-84, rows 27-31 on plank row 32; the crate sits under it.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1872,
+      624,
+      192,
+      168
+     ],
+     "caption": "map: helicopter wreck"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_02.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      640,
+      0,
+      320,
+      178
+     ],
+     "caption": "demo: helicopter wreck"
+    }
+   ]
+  },
+  {
+   "id": "carWreck",
+   "name": "Car wreck",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Orange wrecked car at cells 103-109, rows 38-40, by the canister.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2472,
+      912,
+      192,
+      96
+     ],
+     "caption": "map: car wreck"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_01.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      0,
+      356,
+      320,
+      178
+     ],
+     "caption": "demo: droids by the car wreck"
+    }
+   ]
+  },
+  {
+   "id": "excavator",
+   "name": "Red excavator",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Abandoned mining excavator over the spawn at cells 131-137, rows 22-24.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3120,
+      504,
+      216,
+      120
+     ],
+     "caption": "map: excavator"
+    }
+   ]
+  },
+  {
+   "id": "fuelTank",
+   "name": "Fuel tank",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Cylindrical tanks on plank row 37 (cells 57-66); same kind as mesto.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1368,
+      648,
+      240,
+      144
+     ],
+     "caption": "map: tanks"
+    },
+    {
+     "path": "docs/research/video/sheets/98GhruztJP0_04.png",
+     "imgSize": [
+      1280,
+      712
+     ],
+     "crop": [
+      0,
+      356,
+      320,
+      178
+     ],
+     "caption": "demo: tank by the waterfall"
+    }
+   ]
+  },
+  {
+   "id": "jungleBuilding",
+   "name": "Overgrown building",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "buildings",
+   "description": "Small concrete buildings with windows on plank rows 25 and 32 (cells 37-44 and 50-57).",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1176,
+      648,
+      216,
+      144
+     ],
+     "caption": "map: building on row 32"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      888,
+      360,
+      192,
+      144
+     ],
+     "caption": "map: building on row 25"
+    }
+   ]
+  },
+  {
+   "id": "chainFence",
+   "name": "Fence",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Fence beside the door building on plank row 41; same as mesto.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2592,
+      912,
+      240,
+      96
+     ],
+     "caption": "map: fence"
+    }
+   ]
+  },
+  {
+   "id": "skyBackground",
+   "name": "Parallax sky",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "buildings",
+   "description": "Jungle backdrop from LEV3.GRA frame 0, scrolls slower than the playfield.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/LEV3_f0.png",
+     "imgSize": [
+      320,
+      200
+     ],
+     "crop": [
+      0,
+      0,
+      320,
+      170
+     ],
+     "caption": "LEV3.GRA frame 0"
+    }
+   ]
+  }
+ ]
+}

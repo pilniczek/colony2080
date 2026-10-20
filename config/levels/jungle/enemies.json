@@ -1,0 +1,805 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/15-level3-layout.md",
+  "coordinates": "cell = [x, y] on the 160x80 map grid (24 px cells). Every enemy stands in the cell above its floor plank. World x = engine x + 6. Engine y = top row of the 7-row band; floor (plank) row = engine y + 6. Field \"floor\" is engine y, as in mesto; plank row = floor + 6.",
+  "enemies": [
+    {
+      "id": "e02",
+      "type": "rocketDroid",
+      "cell": [
+        111,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 87-146 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 9,
+      "floor": 35,
+      "area": "plank row 41 (east, below the spawn ledge)",
+      "patrol": [
+        87,
+        146
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 2,
+        "type": 1,
+        "x": 105,
+        "y": 35,
+        "patrol": [
+          81,
+          140
+        ],
+        "hp": 2.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e03",
+      "type": "rocketDroid",
+      "cell": [
+        121,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 87-146 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 9,
+      "floor": 35,
+      "area": "plank row 41 (east, below the spawn ledge)",
+      "patrol": [
+        87,
+        146
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 3,
+        "type": 1,
+        "x": 115,
+        "y": 35,
+        "patrol": [
+          81,
+          140
+        ],
+        "hp": 2.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e05",
+      "type": "rocketDroid",
+      "cell": [
+        106,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 87-146 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 9,
+      "floor": 35,
+      "area": "plank row 41 (east, below the spawn ledge)",
+      "patrol": [
+        87,
+        146
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 5,
+        "type": 1,
+        "x": 100,
+        "y": 35,
+        "patrol": [
+          81,
+          140
+        ],
+        "hp": 2.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e06",
+      "type": "rocketDroid",
+      "cell": [
+        101,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 87-146 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 9,
+      "floor": 35,
+      "area": "plank row 41 (east, below the spawn ledge)",
+      "patrol": [
+        87,
+        146
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 6,
+        "type": 1,
+        "x": 95,
+        "y": 35,
+        "patrol": [
+          81,
+          140
+        ],
+        "hp": 2.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e08",
+      "type": "rocketDroid",
+      "cell": [
+        96,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 87-146 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 9,
+      "floor": 35,
+      "area": "plank row 41 (east, below the spawn ledge)",
+      "patrol": [
+        87,
+        146
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 8,
+        "type": 1,
+        "x": 90,
+        "y": 35,
+        "patrol": [
+          81,
+          140
+        ],
+        "hp": 2.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e09",
+      "type": "rocketDroid",
+      "cell": [
+        92,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 87-146 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 9,
+      "floor": 35,
+      "area": "plank row 41 (east, below the spawn ledge)",
+      "patrol": [
+        87,
+        146
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 9,
+        "type": 1,
+        "x": 86,
+        "y": 35,
+        "patrol": [
+          81,
+          140
+        ],
+        "hp": 2.0,
+        "state": 10
+      }
+    },
+    {
+      "id": "e11",
+      "type": "crawler",
+      "cell": [
+        66,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 38-94 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 3,
+      "floor": 26,
+      "area": "plank row 32 (helicopter wreck, key, turret)",
+      "patrol": [
+        38,
+        94
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 11,
+        "type": 2,
+        "x": 60,
+        "y": 26,
+        "patrol": [
+          32,
+          88
+        ],
+        "hp": 3.0,
+        "state": 10
+      }
+    },
+    {
+      "id": "e12",
+      "type": "crawler",
+      "cell": [
+        56,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 39-94 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 3,
+      "floor": 26,
+      "area": "plank row 32 (helicopter wreck, key, turret)",
+      "patrol": [
+        39,
+        94
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 12,
+        "type": 2,
+        "x": 50,
+        "y": 26,
+        "patrol": [
+          33,
+          88
+        ],
+        "hp": 3.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e13",
+      "type": "crawler",
+      "cell": [
+        47,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 39-94 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 3,
+      "floor": 26,
+      "area": "plank row 32 (helicopter wreck, key, turret)",
+      "patrol": [
+        39,
+        94
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 13,
+        "type": 2,
+        "x": 41,
+        "y": 26,
+        "patrol": [
+          33,
+          88
+        ],
+        "hp": 3.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e14",
+      "type": "rocketDroid",
+      "cell": [
+        41,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 39-94 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 3,
+      "floor": 26,
+      "area": "plank row 32 (helicopter wreck, key, turret)",
+      "patrol": [
+        39,
+        94
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 14,
+        "type": 1,
+        "x": 35,
+        "y": 26,
+        "patrol": [
+          33,
+          88
+        ],
+        "hp": 2.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e15",
+      "type": "crawler",
+      "cell": [
+        33,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 32-36 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 3,
+      "floor": 26,
+      "area": "plank row 32 (helicopter wreck, key, turret)",
+      "patrol": [
+        32,
+        36
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 15,
+        "type": 2,
+        "x": 27,
+        "y": 26,
+        "patrol": [
+          26,
+          30
+        ],
+        "hp": 3.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e16",
+      "type": "rocketDroid",
+      "cell": [
+        51,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 39-94 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6. Written twice in the init: first a type-2 at x 55, then rewritten to type 1 at x 45 keeping hp 3.0.",
+      "nearMarker": 3,
+      "floor": 26,
+      "area": "plank row 32 (helicopter wreck, key, turret)",
+      "patrol": [
+        39,
+        94
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 16,
+        "type": 1,
+        "x": 45,
+        "y": 26,
+        "patrol": [
+          33,
+          88
+        ],
+        "hp": 3.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e17",
+      "type": "rocketDroid",
+      "cell": [
+        79,
+        10
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 78-92 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 8,
+      "floor": 5,
+      "area": "plank row 11 (jeep, fallen tree)",
+      "patrol": [
+        78,
+        92
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 17,
+        "type": 1,
+        "x": 73,
+        "y": 5,
+        "patrol": [
+          72,
+          86
+        ],
+        "hp": 2.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e18",
+      "type": "rocketDroid",
+      "cell": [
+        74,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 39-94 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 3,
+      "floor": 26,
+      "area": "plank row 32 (helicopter wreck, key, turret)",
+      "patrol": [
+        39,
+        94
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 18,
+        "type": 1,
+        "x": 68,
+        "y": 26,
+        "patrol": [
+          33,
+          88
+        ],
+        "hp": 2.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e19",
+      "type": "crawler",
+      "cell": [
+        104,
+        19
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 60-105 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 5,
+      "floor": 14,
+      "area": "plank row 20 (spikes, waterfall)",
+      "patrol": [
+        60,
+        105
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 19,
+        "type": 2,
+        "x": 98,
+        "y": 14,
+        "patrol": [
+          54,
+          99
+        ],
+        "hp": 3.0,
+        "state": 10
+      }
+    },
+    {
+      "id": "e20",
+      "type": "crawler",
+      "cell": [
+        91,
+        10
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 85-92 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 8,
+      "floor": 5,
+      "area": "plank row 11 (jeep, fallen tree)",
+      "patrol": [
+        85,
+        92
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 20,
+        "type": 2,
+        "x": 85,
+        "y": 5,
+        "patrol": [
+          79,
+          86
+        ],
+        "hp": 3.0,
+        "state": 10
+      }
+    },
+    {
+      "id": "e21",
+      "type": "rocketDroid",
+      "cell": [
+        27,
+        36
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 25-50 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 4,
+      "floor": 31,
+      "area": "plank row 37 (tripwire, tanks)",
+      "patrol": [
+        25,
+        50
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 21,
+        "type": 1,
+        "x": 21,
+        "y": 31,
+        "patrol": [
+          19,
+          44
+        ],
+        "hp": 2.0,
+        "state": 10
+      }
+    },
+    {
+      "id": "e22",
+      "type": "rocketDroid",
+      "cell": [
+        36,
+        36
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 25-50 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 4,
+      "floor": 31,
+      "area": "plank row 37 (tripwire, tanks)",
+      "patrol": [
+        25,
+        50
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 22,
+        "type": 1,
+        "x": 30,
+        "y": 31,
+        "patrol": [
+          19,
+          44
+        ],
+        "hp": 2.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e23",
+      "type": "crawler",
+      "cell": [
+        46,
+        36
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 25-50 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 4,
+      "floor": 31,
+      "area": "plank row 37 (tripwire, tanks)",
+      "patrol": [
+        25,
+        50
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 23,
+        "type": 2,
+        "x": 40,
+        "y": 31,
+        "patrol": [
+          19,
+          44
+        ],
+        "hp": 3.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e24",
+      "type": "crawler",
+      "cell": [
+        41,
+        36
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 25-50 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 4,
+      "floor": 31,
+      "area": "plank row 37 (tripwire, tanks)",
+      "patrol": [
+        25,
+        50
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 24,
+        "type": 2,
+        "x": 35,
+        "y": 31,
+        "patrol": [
+          19,
+          44
+        ],
+        "hp": 3.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e25",
+      "type": "rocketDroid",
+      "cell": [
+        60,
+        36
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 55-62 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 4,
+      "floor": 31,
+      "area": "plank row 37 (tripwire, tanks)",
+      "patrol": [
+        55,
+        62
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 25,
+        "type": 1,
+        "x": 54,
+        "y": 31,
+        "patrol": [
+          49,
+          56
+        ],
+        "hp": 2.0,
+        "state": 1010
+      }
+    },
+    {
+      "id": "e26",
+      "type": "crawler",
+      "cell": [
+        58,
+        36
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 55-62 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 4,
+      "floor": 31,
+      "area": "plank row 37 (tripwire, tanks)",
+      "patrol": [
+        55,
+        62
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 26,
+        "type": 2,
+        "x": 52,
+        "y": 31,
+        "patrol": [
+          49,
+          56
+        ],
+        "hp": 3.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e27",
+      "type": "rocketDroid",
+      "cell": [
+        66,
+        19
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 60-101 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 5,
+      "floor": 14,
+      "area": "plank row 20 (spikes, waterfall)",
+      "patrol": [
+        60,
+        101
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 27,
+        "type": 1,
+        "x": 60,
+        "y": 14,
+        "patrol": [
+          54,
+          95
+        ],
+        "hp": 2.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e28",
+      "type": "crawler",
+      "cell": [
+        76,
+        19
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 60-101 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 5,
+      "floor": 14,
+      "area": "plank row 20 (spikes, waterfall)",
+      "patrol": [
+        60,
+        101
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 28,
+        "type": 2,
+        "x": 70,
+        "y": 14,
+        "patrol": [
+          54,
+          95
+        ],
+        "hp": 3.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e29",
+      "type": "rocketDroid",
+      "cell": [
+        86,
+        19
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket droid (LEV3.GRA f21-22): light-blue humanoid with a shoulder rocket tube; fires from the tube, leaves a burning scrap pile. Patrols cells 63-101 on its floor at 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits or 3 punches. Each burst tick takes (6 - shields)/6 x 1.8 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 5,
+      "floor": 14,
+      "area": "plank row 20 (spikes, waterfall)",
+      "patrol": [
+        63,
+        101
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 29,
+        "type": 1,
+        "x": 80,
+        "y": 14,
+        "patrol": [
+          57,
+          95
+        ],
+        "hp": 2.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "e30",
+      "type": "crawler",
+      "cell": [
+        96,
+        19
+      ],
+      "confidence": "medium",
+      "behaviour": "Crawler (LEV3.GRA f23-24): grey-green hunched bot with a big dome hull on two bent legs and a nose gun (the grey crawler of the jungle demo); walks on the floor, no hover in level 3; leaves only sparks. Patrols cells 63-101 on its floor at 3 px per tick. 3.0 hit points, dies below 1.0: 14 machine-gun hits or 5 punches. Each burst tick takes (6 - shields)/6 x 2.0 energy (about 18 per 9-tick burst with no shields); burst chance 1/11 per tick, turns to a player behind it with chance 1/6.",
+      "nearMarker": 5,
+      "floor": 14,
+      "area": "plank row 20 (spikes, waterfall)",
+      "patrol": [
+        63,
+        101
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 30,
+        "type": 2,
+        "x": 90,
+        "y": 14,
+        "patrol": [
+          57,
+          95
+        ],
+        "hp": 3.0,
+        "state": 1
+      }
+    },
+    {
+      "id": "cannon2",
+      "type": "turretCannon",
+      "cell": [
+        90,
+        31
+      ],
+      "confidence": "high",
+      "behaviour": "Dome cannon turret (marker 2), drawn as map tiles at cell 90,31 on plank row 32, not a sprite or table entry. While the distribution cabinet (marker 1) is intact ([0x5481]==0), a hero on engine y 26 at x 84-92 (cells 90-98) triggers grafika\\strilna.anm, 3 blasts, a push of one cell right and one row down and (6 - shields)/6 x 30 energy (3:0xE42D). Weapons do not hurt it; shooting the cabinet in the cave switches it off and loads M32/M33 turret-off tiles.",
+      "nearMarker": 2,
+      "floor": 26,
+      "area": "plank row 32 (east end)",
+      "patrol": null,
+      "firstSighting": null,
+      "engine": {
+        "source": "code zone 3:0xE42D, tile diff M31 vs M32/M33 at (90,31)"
+      }
+    }
+  ]
+}

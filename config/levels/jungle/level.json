@@ -1,0 +1,17 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/15-level3-layout.md",
+  "id": "jungle",
+  "order": 3,
+  "name": { "cs": "Džungle", "en": "Jungle" },
+  "map": {
+    "source": "MAPY/M31.MAP",
+    "widthTiles": 160,
+    "heightTiles": 80,
+    "tileSize": 24,
+    "tileset": "LEV3.GRA",
+    "floorHeightTiles": 7
+  },
+  "originalPlayfield": { "width": 290, "height": 169 },
+  "next": "jeskyne"
+}

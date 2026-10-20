@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Level 1 Environment Sheet</title>
+<title>Environment Sheet</title>
 <style>
   :root { --bg: #0b1112; --panel: #141c1e; --card: #10181a; --text: #c9d1d0; --muted: #7d8a89; --accent: #e2701a; --cool: #3fd0e0; }
   * { box-sizing: border-box; }
@@ -37,7 +37,9 @@
 </head>
 <body>
 <header>
-  <h1>Level 1 environment sheet</h1>
+  <h1>Environment sheet</h1>
+  <label>Mission <select id="mission"></select></label>
+  <label>Assets <select id="scope"><option value="">all</option><option value="shared">shared</option><option value="own">this mission only</option></select></label>
   <label>Show <select id="filter"><option value="">all</option><option value="only-interactive">interactive</option><option value="only-static">non-interactive</option></select></label>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
   <label><input id="lod" type="checkbox"> Game LOD</label>
@@ -57,7 +59,11 @@
 <script src="../shared/env-buildings.js"></script>
 <script src="../shared/enemies.js"></script>
 <script>
-const OBJECTS = window.C28_CONFIG.levels.mesto.objects.objects;
+const LEVELS = Object.entries(window.C28_CONFIG.levels).map(([id, l]) => ({ id, ...l })).sort((a, b) => a.order - b.order);
+const USED_IN = new Map();
+for (const l of LEVELS) for (const o of l.objects.objects) USED_IN.set(o.id, [...(USED_IN.get(o.id) ?? []), l]);
+const params = new URLSearchParams(location.search);
+const view = { mission: LEVELS.some(l => l.id === params.get("mission")) ? params.get("mission") : LEVELS[0].id, scope: params.get("scope") ?? "" };
 const { TILE } = ENV;
 const HERO_H = 32;
 const HERO_GAP = 6;
@@ -138,20 +144,35 @@ function refCanvas(ref) {
   return c;
 }
 
+function others(o) {
+  return USED_IN.get(o.id).filter(l => l.id !== view.mission);
+}
+
 function tags(o) {
+  const shared = others(o);
   return [
     el("span", { className: "tag" + (o.interactive ? " on" : ""), textContent: o.interactive ? "interactive" : "static" }),
+    el("span", { className: "tag", textContent: shared.length ? "shared: " + shared.map(l => l.name).join(", ") : "mission only" }),
     o.marker != null ? el("span", { className: "tag", textContent: "marker " + o.marker }) : null,
     o.task ? el("span", { className: "tag", textContent: o.task }) : null
   ];
 }
 
+function inScope(o) {
+  if (!view.scope) return true;
+  return (others(o).length > 0) === (view.scope === "shared");
+}
+
 function build() {
   const toc = document.getElementById("toc");
   const sheet = document.getElementById("sheet");
+  toc.replaceChildren();
+  sheet.replaceChildren();
+  views.length = 0;
+  const objects = LEVELS.find(l => l.id === view.mission).objects.objects.filter(inScope);
   for (const group of [true, false]) {
     toc.append(el("h2", { textContent: group ? "Interactive" : "Non-interactive" }));
-    for (const o of OBJECTS.filter(o => o.interactive === group)) {
+    for (const o of objects.filter(o => o.interactive === group)) {
       const asset = assets.get(o.id);
       toc.append(el("a", { href: "#" + o.id, textContent: o.name, className: asset ? "" : "missing" }));
       const ours = el("div", { className: "row ours" });
@@ -185,6 +206,18 @@ function loop() {
 
 for (const id of ["lines", "lod", "hero", "grid"]) document.getElementById(id).onchange = e => { opts[id] = e.target.checked; paintAll(); };
 document.getElementById("filter").onchange = e => { document.body.className = e.target.value; };
+for (const id of ["mission", "scope"]) {
+  const select = document.getElementById(id);
+  if (id === "mission") select.append(...LEVELS.map(l => el("option", { value: l.id, textContent: l.order + ". " + l.name })));
+  select.value = view[id];
+  select.onchange = e => {
+    view[id] = e.target.value;
+    const query = new URLSearchParams({ mission: view.mission, ...(view.scope && { scope: view.scope }) });
+    history.replaceState(null, "", "?" + query);
+    build();
+    paintAll();
+  };
+}
 addEventListener("resize", () => paintAll());
 build();
 paintAll();

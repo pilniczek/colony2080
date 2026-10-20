@@ -1,0 +1,918 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/16-level4-layout.md",
+  "units": "original pixels, 1 tile = 24",
+  "objects": [
+    {
+      "id": "leverBank",
+      "name": "Lever bank (four levers)",
+      "csName": "páky",
+      "interactive": true,
+      "marker": 1,
+      "task": "pullLevers",
+      "sheet": "machines",
+      "description": "Four wall levers on floor 20 at columns 28, 30, 38 and 40, drawn as sprites (not map tiles). Each pull toggles one lever. The combination left down, three right up opens the lever door at column 26 (object record 1, target [0,1,1,1], 7:0x3609-0x3B73). Wrong combination closes it again.",
+      "states": [
+        "lever down",
+        "lever up",
+        "moving"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            576,
+            336,
+            456,
+            192
+          ],
+          "caption": "map M41: floor 20, lever columns 28-40 (levers are sprites, not in the map)"
+        }
+      ]
+    },
+    {
+      "id": "leverDoor",
+      "name": "Lever-operated cave door",
+      "csName": "dveře",
+      "interactive": true,
+      "marker": 1,
+      "task": "pullLevers",
+      "sheet": "machines",
+      "description": "Sliding door, 5 rows tall, opened by a lever combination (object table records 1, 3 and 4, 12-frame animation). Record 1 at column 26 on floor 20 (start area); records 3 and 4 at columns 130 and 125 on floor 21, each with one lever (columns 132 and 123). Closed doors push the hero back (3:0x5F25). Drawn as sprites.",
+      "states": [
+        "closed",
+        "opening",
+        "open",
+        "closing"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            480,
+            336,
+            264,
+            192
+          ],
+          "caption": "map M41: door spot at column 26, floor 20"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2880,
+            336,
+            360,
+            192
+          ],
+          "caption": "map M41: lever doors at columns 125 and 130, floor 21"
+        }
+      ]
+    },
+    {
+      "id": "rod",
+      "name": "Rod pickup",
+      "csName": "Tyč",
+      "interactive": true,
+      "marker": 2,
+      "task": "pickRod",
+      "sheet": "props",
+      "description": "Item record 1 (TYC) at engine (21, 22), cell column 27 on floor 28. Used at the lift lock it is consumed.",
+      "states": [
+        "on ground",
+        "in inventory",
+        "used"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            552,
+            576,
+            216,
+            120
+          ],
+          "caption": "map M41: floor 28, rod at column 27 (item drawn as sprite)"
+        }
+      ]
+    },
+    {
+      "id": "liftLock",
+      "name": "Lift mechanism safety lock",
+      "csName": "pojistka výtahu",
+      "interactive": true,
+      "marker": 3,
+      "task": "releaseLiftLock",
+      "sheet": "machines",
+      "description": "Mechanical safety lock of lift 1 at columns 34-36 on floor 55 (hero engine x 28-30, y 49). Using the rod plays XTYC.anm (TYCI JSI PREPNUL MECHANICKOU POJISTKU) and rewrites lift 1 from one stop (55) to three stops (29, 44, 55) (5:0xECB7).",
+      "states": [
+        "locked",
+        "released"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            720,
+            1176,
+            600,
+            192
+          ],
+          "caption": "map M41: floor 55, lock spot columns 34-36 and lift 1 at columns 49-51"
+        }
+      ]
+    },
+    {
+      "id": "lift",
+      "name": "Lift platform and shaft",
+      "csName": "výtah",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Six rope lifts: a thin chain or rope column at the lift centre (tile (10,36) on each stop's stand row) and a deck drawn by tiles (7,61) (7,62) (7,63) where the lift stops in a gap of an upper floor. Same slot code as level 1 (ds:0x4C90). Lift 1 is locked until the rod is used; lift 4 snaps to its top stop while the hero is on the cart stretch (7:0x87A5).",
+      "states": [
+        "idle at floor",
+        "moving up",
+        "moving down",
+        "locked (lift 1)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1032,
+            312,
+            144,
+            792
+          ],
+          "caption": "map M41: lift 2 shaft, columns 44-46, floors 20 to 44"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1920,
+            456,
+            168,
+            288
+          ],
+          "caption": "map M41: lift 4 shaft, three stops 21, 23, 29"
+        }
+      ]
+    },
+    {
+      "id": "stalactite",
+      "name": "Stalactite",
+      "csName": "krápník",
+      "interactive": true,
+      "marker": 4,
+      "task": "shootStalactite",
+      "sheet": "structures",
+      "description": "Rock stalactite hanging at columns 62-63, rows 16-18, over the chasm east of floor 20. Shot with the gun from floor 20 (hero engine x 50-55, y 14): krapnik1.anm, SESTRELIL JSI KRAPNIK, map switches to M42 (5:0x7294). In M42 the tiles are gone.",
+      "states": [
+        "hanging",
+        "falling",
+        "gone"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1392,
+            336,
+            264,
+            168
+          ],
+          "caption": "map M41: stalactite hanging"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M42.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1392,
+            336,
+            264,
+            168
+          ],
+          "caption": "map M42: stalactite gone"
+        }
+      ]
+    },
+    {
+      "id": "crystal",
+      "name": "Crystal block",
+      "csName": "krystal",
+      "interactive": false,
+      "marker": 4,
+      "task": "shootStalactite",
+      "sheet": "structures",
+      "description": "Crystal on floor 29 at columns 62-64, rows 27-28. A code wall (east wall table entry engine (56, 23)) blocks floor 29 there until the stalactite falls on it; then the entry moves to (200, 200) and M42 shows the crystal smashed.",
+      "states": [
+        "intact (blocks)",
+        "smashed"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1392,
+            576,
+            264,
+            144
+          ],
+          "caption": "map M41: crystal intact"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M42.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1392,
+            576,
+            264,
+            144
+          ],
+          "caption": "map M42: crystal smashed"
+        }
+      ]
+    },
+    {
+      "id": "keySlots",
+      "name": "Three key slots",
+      "csName": null,
+      "interactive": true,
+      "marker": 5,
+      "task": "insertKeys",
+      "sheet": "machines",
+      "description": "Slot panel on floor 37 at columns 57-59 (hero engine x 51-53, y 31). Using the yellow, orange or blue key consumes it (vkart1-3.anm, POUZIL JSI ... KLIC). With all three inserted the key doors (object record 2) open (3:0xEB14).",
+      "states": [
+        "empty",
+        "one or two keys",
+        "all keys (doors open)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1248,
+            744,
+            360,
+            192
+          ],
+          "caption": "map M41: floor 37, slot spot columns 57-59"
+        }
+      ]
+    },
+    {
+      "id": "stoneBlocks",
+      "name": "Stone blocks",
+      "csName": "kameny kvádry",
+      "interactive": true,
+      "marker": 6,
+      "task": "smashBlocks",
+      "sheet": "structures",
+      "description": "Two stacked stone blocks at column 81, rows 23-24 (stone block table, 7:0x3236). Destroyed only by fists: 5 punches each, then the frame runs to 12 and the block stops blocking. Drawn as sprites.",
+      "states": [
+        "intact",
+        "cracking",
+        "broken"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1776,
+            408,
+            360,
+            216
+          ],
+          "caption": "map M41: block spot at column 81, floor 23"
+        }
+      ]
+    },
+    {
+      "id": "orangeKey",
+      "name": "Orange key-card pickup",
+      "csName": "Oranžový klíč",
+      "interactive": true,
+      "marker": 7,
+      "task": "pickOrangeKey",
+      "sheet": "props",
+      "description": "Item record 3 (ORANZOVY KLIC) at engine (66, 17), column 72 on floor 23, west of the stone blocks.",
+      "states": [
+        "on ground",
+        "in inventory",
+        "inserted"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1632,
+            456,
+            264,
+            120
+          ],
+          "caption": "map M41: floor 23, key at column 72"
+        }
+      ]
+    },
+    {
+      "id": "chasm",
+      "name": "Chasm with middle platform",
+      "csName": "propast",
+      "interactive": false,
+      "marker": 8,
+      "task": null,
+      "sheet": "structures",
+      "description": "Gap in floor 21 between columns 94 and 101 with a one-cell middle platform at column 99; the hero jumps to it. Falling in is game over (zone engine x 85-98, y 16). The drop east of floor 20 under the stalactite (columns 60-67, rows 21-23) is a second deadly chasm: propast.anm, then game over (3:0xEA79).",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2112,
+            360,
+            384,
+            384
+          ],
+          "caption": "map M41: chasm 8 and middle platform at column 99"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1344,
+            336,
+            360,
+            408
+          ],
+          "caption": "map M41: deadly drop east of floor 20"
+        }
+      ]
+    },
+    {
+      "id": "barrel",
+      "name": "Explosive tank",
+      "csName": "nádrž s výbušninou",
+      "interactive": true,
+      "marker": 8,
+      "task": "shootTank",
+      "sheet": "props",
+      "description": "Explosive barrel at columns 103-104, rows 19-20 on floor 21. It exists only in map M42; its tiles (7,64) (7,65) (7,77) (7,78) are wall tiles. Shot with the gun from the middle platform (hero engine x 92-93, y 15) it explodes (barelbum.anm, ZNICIL JSI BAREL S VYBUSNINOU) and M43 loads. Shooting from x 94-98 kills the hero (5:0x63ED-0x69B7).",
+      "states": [
+        "intact",
+        "exploding",
+        "destroyed"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M42.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2304,
+            336,
+            360,
+            216
+          ],
+          "caption": "map M42: tank on floor 21"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M43.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2304,
+            336,
+            360,
+            216
+          ],
+          "caption": "map M43: tank gone"
+        }
+      ]
+    },
+    {
+      "id": "blueKey",
+      "name": "Blue key pickup",
+      "csName": "Modrý klíč",
+      "interactive": true,
+      "marker": 9,
+      "task": "pickBlueKey",
+      "sheet": "props",
+      "description": "Item record 4 (MODRY KLIC) at engine (111, 15), column 117 on floor 21.",
+      "states": [
+        "on ground",
+        "in inventory",
+        "inserted"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2688,
+            384,
+            264,
+            144
+          ],
+          "caption": "map M41: floor 21, key at column 117"
+        }
+      ]
+    },
+    {
+      "id": "mineCarts",
+      "name": "Moving mine carts",
+      "csName": "jezdící těžební vozík",
+      "interactive": false,
+      "marker": 10,
+      "task": null,
+      "sheet": "machines",
+      "description": "Row of yellow-green carts on rows 38-39, columns 97-130 (sheet 2 tiles). Standing on tiles (2,2) (2,4) (2,6) carries the hero east about 5.5 px per tick (7:0x8875). Ledges above let him jump off toward the yellow key. Reaching columns 123-125 (engine x 117-119, y 31-35) plays zabvozik.anm and ends the game: the hero must jump off before.",
+      "states": [
+        "moving"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2256,
+            816,
+            936,
+            192
+          ],
+          "caption": "map M41: cart strip, rows 38-39"
+        }
+      ]
+    },
+    {
+      "id": "yellowKey",
+      "name": "Yellow key pickup",
+      "csName": "Žlutý klíč",
+      "interactive": true,
+      "marker": 11,
+      "task": "pickYellowKey",
+      "sheet": "props",
+      "description": "Item record 2 (ZLUTY KLIC) at engine (129, 25), column 135 on floor 31, reached by jumping up the ledges above the carts.",
+      "states": [
+        "on ground",
+        "in inventory",
+        "inserted"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            3072,
+            624,
+            312,
+            168
+          ],
+          "caption": "map M41: floor 31, key at column 135"
+        }
+      ]
+    },
+    {
+      "id": "keyDoors",
+      "name": "Key doors",
+      "csName": "dveře",
+      "interactive": false,
+      "marker": 12,
+      "task": "insertKeys",
+      "sheet": "machines",
+      "description": "Door at column 55 on floor 44 (object record 2, engine (49, 38)), 5 rows tall. Opens when all three keys sit in the slots. Drawn as a sprite.",
+      "states": [
+        "closed",
+        "opening",
+        "open"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1152,
+            912,
+            360,
+            192
+          ],
+          "caption": "map M41: floor 44, door spot at column 55"
+        }
+      ]
+    },
+    {
+      "id": "lavaPit",
+      "name": "Lava pits",
+      "csName": null,
+      "interactive": false,
+      "marker": 13,
+      "task": null,
+      "sheet": "structures",
+      "description": "Everything below the bottom corridor (engine y above 68, floor row 75 and lower) is lava: lava.anm, then game over. Pits are the gaps in the corridor floor (columns 44, 46-49, 52, 55, 62, 64-65, 67-68, 75, 92 on row 74) and the left shaft (columns 12-15) whose ledge at row 75 is already in the lava band. Marker 13: from the west end of floor 63 the hero must reach the ledge at row 72 (columns 16-20, energy bonus) instead of falling down the shaft.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            240,
+            1416,
+            504,
+            480
+          ],
+          "caption": "map M41: left shaft, ledge at row 75 and gap at columns 16-19"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            960,
+            1680,
+            792,
+            216
+          ],
+          "caption": "map M41: bottom corridor pits"
+        }
+      ]
+    },
+    {
+      "id": "entryCard",
+      "name": "Entry card pickup",
+      "csName": "Vstupní karta",
+      "interactive": true,
+      "marker": 14,
+      "task": "pickCard",
+      "sheet": "props",
+      "description": "Item record 5 (VSTUPNI KARTA) at engine (93, 46), column 99 on floor 52, at the top of a ledge stair. Pickup plays sebk44.anm (NALEZL JSI VSTUPNI KARTU).",
+      "states": [
+        "on ground",
+        "in inventory",
+        "used"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2112,
+            1128,
+            456,
+            312
+          ],
+          "caption": "map M41: card ledge, column 99 floor 52"
+        }
+      ]
+    },
+    {
+      "id": "cardDoor",
+      "name": "Card door",
+      "csName": "dveře",
+      "interactive": true,
+      "marker": 15,
+      "task": "openCardDoor",
+      "sheet": "machines",
+      "description": "Door at column 104 on floor 74 (object record 5, engine (98, 68)). Using the entry card at hero x 93-97 opens it (OTEVREL JSI DVERE); without it NEMAS U SEBE NIC CIM BY JSI OTEVREL DVERE. Drawn as a sprite.",
+      "states": [
+        "locked",
+        "opening",
+        "open"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2352,
+            1608,
+            312,
+            216
+          ],
+          "caption": "map M41: floor 74, door spot at column 104"
+        }
+      ]
+    },
+    {
+      "id": "airlock",
+      "name": "Exit airlock",
+      "csName": null,
+      "interactive": false,
+      "marker": 15,
+      "task": null,
+      "sheet": "machines",
+      "description": "Two doors on floor 48 at columns 133 and 141 (object records 6 and 7), open at start. Walking into columns 136-139 closes both; when the east door has closed level 5 starts (3:0xEB43-0xEBCF).",
+      "states": [
+        "open",
+        "closing",
+        "closed (level end)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            3072,
+            984,
+            456,
+            216
+          ],
+          "caption": "map M41: floor 48, airlock columns 133-141"
+        }
+      ]
+    },
+    {
+      "id": "rockLedge",
+      "name": "Stepping ledges",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Small rock ledges with a green top, one row apart and offset 1-3 columns, forming zigzag stairs (for example columns 126-136 rows 16-31, 116-121 rows 31-38). The hero climbs them by jumping one row at a time; they replace the ladders of other levels.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            2760,
+            336,
+            576,
+            648
+          ],
+          "caption": "map M41: ledge stairs above the carts"
+        }
+      ]
+    },
+    {
+      "id": "ropeColumn",
+      "name": "Chain or root column",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thin vertical chain or root strands hanging between floors, with dark caps (tiles (10,36) and neighbours). Scenery next to lifts and in shafts.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            3024,
+            720,
+            168,
+            456
+          ],
+          "caption": "map M41: vertical strands"
+        }
+      ]
+    },
+    {
+      "id": "caveRock",
+      "name": "Cave rock walls",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Orange and brown curved rock masses and dark fill between floors (sheets 7 and 9). Rock fill tiles (9,61)-(9,64) and (9,66)-(9,69) are the level wall tiles.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1344,
+            744,
+            600,
+            192
+          ],
+          "caption": "map M41: rock masses on floor 37"
+        }
+      ]
+    },
+    {
+      "id": "caveFloor",
+      "name": "Rock floor plank",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thin pebbled rock floor strip, tiles (7,1)-(7,4) with end caps (7,22) (7,23) (7,103) (7,104). Every walkable plank is one of the floor-list tiles.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            432,
+            432,
+            600,
+            96
+          ],
+          "caption": "map M41: floor 20"
+        }
+      ]
+    },
+    {
+      "id": "metalPillars",
+      "name": "Metal machinery pillars",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Grey-green riveted metal columns and pipes set in the rock (for example floor 63 columns 17-23, floor 44 columns 57-61).",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            384,
+            1392,
+            216,
+            168
+          ],
+          "caption": "map M41: machinery at the west end of floor 63"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1344,
+            936,
+            168,
+            168
+          ],
+          "caption": "map M41: pillars on floor 44"
+        }
+      ]
+    },
+    {
+      "id": "lavaFall",
+      "name": "Glowing lava curtain and strip",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Orange striped glowing block at columns 37-42, rows 68-73 (sheet 1 tile 3) and orange strips in the bottom corridor floor (sheet 1 tiles 4-7). Effect on the hero not traced.",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            816,
+            1584,
+            408,
+            264
+          ],
+          "caption": "map M41: lava curtain over the bottom corridor"
+        }
+      ]
+    },
+    {
+      "id": "caveBackdrop",
+      "name": "Parallax cave backdrop",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Full-screen backdrop: mossy rock ceiling, a dark band, stalagmites on a pale ground and a glowing lava strip at the bottom (LEV4.GRA frame 0).",
+      "states": [],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/lev4/f000.png",
+          "imgSize": [
+            320,
+            200
+          ],
+          "crop": [
+            0,
+            0,
+            320,
+            190
+          ],
+          "caption": "background frame 0"
+        }
+      ]
+    }
+  ]
+}

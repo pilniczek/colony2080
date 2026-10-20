@@ -1,0 +1,732 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/16-level4-layout.md",
+  "coordinates": "cell = [x, y] on the 160x80 map grid (24 px cells): the cell the enemy stands in (floor plank is the row below). World x = engine x + 6. Engine y = floor row - 6 (level 4 floors are not on a 7-row grid).",
+  "enemies": [
+    {
+      "id": "e02",
+      "type": "podWalker",
+      "cell": [
+        27,
+        27
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 22-30 on floor row 28. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": 2,
+      "floor": 22,
+      "area": "floor 28, cols 15-31",
+      "patrol": [
+        22,
+        30
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 2,
+        "type": 2,
+        "x": 21,
+        "y": 22,
+        "patrol": [
+          16,
+          24
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e03",
+      "type": "podWalker",
+      "cell": [
+        95,
+        28
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 89-102 on floor row 29. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 23,
+      "area": "floor 29, cols 49-103",
+      "patrol": [
+        89,
+        102
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 3,
+        "type": 2,
+        "x": 89,
+        "y": 23,
+        "patrol": [
+          83,
+          96
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e04",
+      "type": "podWalker",
+      "cell": [
+        99,
+        14
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 93-123 on floor row 15. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 9,
+      "area": "floor 15, cols 92-125",
+      "patrol": [
+        93,
+        123
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 4,
+        "type": 2,
+        "x": 93,
+        "y": 9,
+        "patrol": [
+          87,
+          117
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e05",
+      "type": "podWalker",
+      "cell": [
+        116,
+        14
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 93-123 on floor row 15. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 9,
+      "area": "floor 15, cols 92-125",
+      "patrol": [
+        93,
+        123
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 5,
+        "type": 2,
+        "x": 110,
+        "y": 9,
+        "patrol": [
+          87,
+          117
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e06",
+      "type": "spiderWalker",
+      "cell": [
+        108,
+        14
+      ],
+      "confidence": "medium",
+      "behaviour": "Spider walker (LEV4.GRA f21/f22): patrols cells 93-123 on floor row 15. Spider walker (LEV4.GRA f21/f22): box body on thin legs with a forward gun. Walks 2 px per tick on its floor, fires bursts (chance 1/10 per tick, damage (6 - shields)/6 x 1.2 per fire tick with knockback), turns to a hero behind it with chance 1/5 per tick. 5.0 hit points, dies below 1.0; about 27 machine-gun hits or 9 punches if the level 1 hit rule (0.15 x ammo type, 0.5 per punch) applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 9,
+      "area": "floor 15, cols 92-125",
+      "patrol": [
+        93,
+        123
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 6,
+        "type": 1,
+        "x": 102,
+        "y": 9,
+        "patrol": [
+          87,
+          117
+        ],
+        "hp": 5.0
+      }
+    },
+    {
+      "id": "e07",
+      "type": "podWalker",
+      "cell": [
+        65,
+        36
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 61-70 on floor row 37. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": 5,
+      "floor": 31,
+      "area": "floor 37, cols 58-74",
+      "patrol": [
+        61,
+        70
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 7,
+        "type": 2,
+        "x": 59,
+        "y": 31,
+        "patrol": [
+          55,
+          64
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e08",
+      "type": "spiderWalker",
+      "cell": [
+        46,
+        54
+      ],
+      "confidence": "medium",
+      "behaviour": "Spider walker (LEV4.GRA f21/f22): patrols cells 39-48 on floor row 55. Spider walker (LEV4.GRA f21/f22): box body on thin legs with a forward gun. Walks 2 px per tick on its floor, fires bursts (chance 1/10 per tick, damage (6 - shields)/6 x 1.2 per fire tick with knockback), turns to a hero behind it with chance 1/5 per tick. 5.0 hit points, dies below 1.0; about 27 machine-gun hits or 9 punches if the level 1 hit rule (0.15 x ammo type, 0.5 per punch) applies. Not seen in footage.",
+      "nearMarker": 3,
+      "floor": 49,
+      "area": "floor 55, cols 35-51",
+      "patrol": [
+        39,
+        48
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 8,
+        "type": 1,
+        "x": 40,
+        "y": 49,
+        "patrol": [
+          33,
+          42
+        ],
+        "hp": 5.0
+      }
+    },
+    {
+      "id": "e09",
+      "type": "podWalker",
+      "cell": [
+        65,
+        43
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 63-69 on floor row 44. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": 12,
+      "floor": 38,
+      "area": "floor 44, cols 44-70",
+      "patrol": [
+        63,
+        69
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 9,
+        "type": 2,
+        "x": 59,
+        "y": 38,
+        "patrol": [
+          57,
+          63
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e10",
+      "type": "spiderWalker",
+      "cell": [
+        70,
+        63
+      ],
+      "confidence": "medium",
+      "behaviour": "Spider walker (LEV4.GRA f21/f22): patrols cells 65-76 on floor row 64. Spider walker (LEV4.GRA f21/f22): box body on thin legs with a forward gun. Walks 2 px per tick on its floor, fires bursts (chance 1/10 per tick, damage (6 - shields)/6 x 1.2 per fire tick with knockback), turns to a hero behind it with chance 1/5 per tick. 5.0 hit points, dies below 1.0; about 27 machine-gun hits or 9 punches if the level 1 hit rule (0.15 x ammo type, 0.5 per punch) applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 58,
+      "area": "floor 64, cols 64-80",
+      "patrol": [
+        65,
+        76
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 10,
+        "type": 1,
+        "x": 64,
+        "y": 58,
+        "patrol": [
+          59,
+          70
+        ],
+        "hp": 5.0
+      }
+    },
+    {
+      "id": "e11",
+      "type": "podWalker",
+      "cell": [
+        52,
+        62
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 19-57 on floor row 63. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 57,
+      "area": "floor 63, cols 16-61",
+      "patrol": [
+        19,
+        57
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 11,
+        "type": 2,
+        "x": 46,
+        "y": 57,
+        "patrol": [
+          13,
+          51
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e12",
+      "type": "spiderWalker",
+      "cell": [
+        47,
+        62
+      ],
+      "confidence": "medium",
+      "behaviour": "Spider walker (LEV4.GRA f21/f22): patrols cells 19-57 on floor row 63. Spider walker (LEV4.GRA f21/f22): box body on thin legs with a forward gun. Walks 2 px per tick on its floor, fires bursts (chance 1/10 per tick, damage (6 - shields)/6 x 1.2 per fire tick with knockback), turns to a hero behind it with chance 1/5 per tick. 5.0 hit points, dies below 1.0; about 27 machine-gun hits or 9 punches if the level 1 hit rule (0.15 x ammo type, 0.5 per punch) applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 57,
+      "area": "floor 63, cols 16-61",
+      "patrol": [
+        19,
+        57
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 12,
+        "type": 1,
+        "x": 41,
+        "y": 57,
+        "patrol": [
+          13,
+          51
+        ],
+        "hp": 5.0
+      }
+    },
+    {
+      "id": "e13",
+      "type": "podWalker",
+      "cell": [
+        37,
+        62
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 19-57 on floor row 63. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 57,
+      "area": "floor 63, cols 16-61",
+      "patrol": [
+        19,
+        57
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 13,
+        "type": 2,
+        "x": 31,
+        "y": 57,
+        "patrol": [
+          13,
+          51
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e14",
+      "type": "spiderWalker",
+      "cell": [
+        24,
+        62
+      ],
+      "confidence": "medium",
+      "behaviour": "Spider walker (LEV4.GRA f21/f22): patrols cells 19-57 on floor row 63. Spider walker (LEV4.GRA f21/f22): box body on thin legs with a forward gun. Walks 2 px per tick on its floor, fires bursts (chance 1/10 per tick, damage (6 - shields)/6 x 1.2 per fire tick with knockback), turns to a hero behind it with chance 1/5 per tick. 5.0 hit points, dies below 1.0; about 27 machine-gun hits or 9 punches if the level 1 hit rule (0.15 x ammo type, 0.5 per punch) applies. Not seen in footage.",
+      "nearMarker": 13,
+      "floor": 57,
+      "area": "floor 63, cols 16-61",
+      "patrol": [
+        19,
+        57
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 14,
+        "type": 1,
+        "x": 18,
+        "y": 57,
+        "patrol": [
+          13,
+          51
+        ],
+        "hp": 5.0
+      }
+    },
+    {
+      "id": "e15",
+      "type": "podWalker",
+      "cell": [
+        35,
+        73
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 21-41 on floor row 74. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 68,
+      "area": "floor 74, cols 20-43",
+      "patrol": [
+        21,
+        41
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 15,
+        "type": 2,
+        "x": 29,
+        "y": 68,
+        "patrol": [
+          15,
+          35
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e16",
+      "type": "podWalker",
+      "cell": [
+        83,
+        73
+      ],
+      "confidence": "medium",
+      "behaviour": "Pod walker (LEV4.GRA f23/f24): patrols cells 78-89 on floor row 74. Pod walker (LEV4.GRA f23/f24): grey domed pod on bent green legs. Stays on its floor (level 4 sets no hover). Moves 3 px per tick, fires bursts (chance 1/10, damage factor 1.4 or 2.4 by facing), turns with chance 1/5. 3.0 hit points, dies below 1.0; about 14 machine-gun hits or 5 punches if the level 1 hit rule applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 68,
+      "area": "floor 74, cols 76-91",
+      "patrol": [
+        78,
+        89
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 16,
+        "type": 2,
+        "x": 77,
+        "y": 68,
+        "patrol": [
+          72,
+          83
+        ],
+        "hp": 3.0
+      }
+    },
+    {
+      "id": "e17",
+      "type": "spiderWalker",
+      "cell": [
+        102,
+        57
+      ],
+      "confidence": "medium",
+      "behaviour": "Spider walker (LEV4.GRA f21/f22): patrols cells 92-105 on floor row 58. Spider walker (LEV4.GRA f21/f22): box body on thin legs with a forward gun. Walks 2 px per tick on its floor, fires bursts (chance 1/10 per tick, damage (6 - shields)/6 x 1.2 per fire tick with knockback), turns to a hero behind it with chance 1/5 per tick. 5.0 hit points, dies below 1.0; about 27 machine-gun hits or 9 punches if the level 1 hit rule (0.15 x ammo type, 0.5 per punch) applies. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 52,
+      "area": "floor 58, cols 92-106",
+      "patrol": [
+        92,
+        105
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 17,
+        "type": 1,
+        "x": 96,
+        "y": 52,
+        "patrol": [
+          86,
+          99
+        ],
+        "hp": 5.0
+      }
+    },
+    {
+      "id": "e18",
+      "type": "spiderWalker",
+      "cell": [
+        121,
+        73
+      ],
+      "confidence": "medium",
+      "behaviour": "Spider walker (LEV4.GRA f21/f22): patrols cells 112-125 on floor row 74. Spider walker (LEV4.GRA f21/f22): box body on thin legs with a forward gun. Walks 2 px per tick on its floor, fires bursts (chance 1/10 per tick, damage (6 - shields)/6 x 1.2 per fire tick with knockback), turns to a hero behind it with chance 1/5 per tick. 5.0 hit points, dies below 1.0; about 27 machine-gun hits or 9 punches if the level 1 hit rule (0.15 x ammo type, 0.5 per punch) applies. Not seen in footage.",
+      "nearMarker": 15,
+      "floor": 68,
+      "area": "floor 74, cols 93-129",
+      "patrol": [
+        112,
+        125
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 18,
+        "type": 1,
+        "x": 115,
+        "y": 68,
+        "patrol": [
+          106,
+          119
+        ],
+        "hp": 5.0
+      }
+    },
+    {
+      "id": "t01",
+      "type": "trooper",
+      "cell": [
+        29,
+        35
+      ],
+      "confidence": "medium",
+      "behaviour": "Trooper (second actor table ds:0x39F6, LEV4.GRA f27 walk, f28 other states): blue humanoid soldier with a rifle. Patrols cells 24-34 on floor row 36. 10.0 hit points; each gun hit takes the ammo type value, a punch 1.0, the level 3 flamethrower 0.1 per particle. Hits the hero for (6 - shields)/6 x 3.0 with knockback. Burst length not traced. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 30,
+      "area": "floor 36, cols 24-35",
+      "patrol": [
+        24,
+        34
+      ],
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39F6",
+        "slot": 1,
+        "x": 23,
+        "y": 30,
+        "patrol": [
+          18,
+          28
+        ],
+        "hp": 10.0
+      }
+    },
+    {
+      "id": "t02",
+      "type": "trooper",
+      "cell": [
+        29,
+        42
+      ],
+      "confidence": "medium",
+      "behaviour": "Trooper (second actor table ds:0x39F6, LEV4.GRA f27 walk, f28 other states): blue humanoid soldier with a rifle. Patrols cells 21-32 on floor row 43. 10.0 hit points; each gun hit takes the ammo type value, a punch 1.0, the level 3 flamethrower 0.1 per particle. Hits the hero for (6 - shields)/6 x 3.0 with knockback. Burst length not traced. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 37,
+      "area": "floor 43, cols 20-34",
+      "patrol": [
+        21,
+        32
+      ],
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39F6",
+        "slot": 2,
+        "x": 23,
+        "y": 37,
+        "patrol": [
+          15,
+          26
+        ],
+        "hp": 10.0
+      }
+    },
+    {
+      "id": "t03",
+      "type": "trooper",
+      "cell": [
+        60,
+        28
+      ],
+      "confidence": "medium",
+      "behaviour": "Trooper (second actor table ds:0x39F6, LEV4.GRA f27 walk, f28 other states): blue humanoid soldier with a rifle. Patrols cells 52-60 on floor row 29. 10.0 hit points; each gun hit takes the ammo type value, a punch 1.0, the level 3 flamethrower 0.1 per particle. Hits the hero for (6 - shields)/6 x 3.0 with knockback. Burst length not traced. Not seen in footage.",
+      "nearMarker": 4,
+      "floor": 23,
+      "area": "floor 29, cols 49-103",
+      "patrol": [
+        52,
+        60
+      ],
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39F6",
+        "slot": 3,
+        "x": 54,
+        "y": 23,
+        "patrol": [
+          46,
+          54
+        ],
+        "hp": 10.0
+      }
+    },
+    {
+      "id": "t04",
+      "type": "trooper",
+      "cell": [
+        128,
+        30
+      ],
+      "confidence": "medium",
+      "behaviour": "Trooper (second actor table ds:0x39F6, LEV4.GRA f27 walk, f28 other states): blue humanoid soldier with a rifle. Patrols cells 122-134 on floor row 31. 10.0 hit points; each gun hit takes the ammo type value, a punch 1.0, the level 3 flamethrower 0.1 per particle. Hits the hero for (6 - shields)/6 x 3.0 with knockback. Burst length not traced. Not seen in footage.",
+      "nearMarker": 11,
+      "floor": 25,
+      "area": "floor 31, cols 122-136",
+      "patrol": [
+        122,
+        134
+      ],
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39F6",
+        "slot": 4,
+        "x": 122,
+        "y": 25,
+        "patrol": [
+          116,
+          128
+        ],
+        "hp": 10.0
+      }
+    },
+    {
+      "id": "t05",
+      "type": "trooper",
+      "cell": [
+        115,
+        20
+      ],
+      "confidence": "medium",
+      "behaviour": "Trooper (second actor table ds:0x39F6, LEV4.GRA f27 walk, f28 other states): blue humanoid soldier with a rifle. Patrols cells 108-120 on floor row 21. 10.0 hit points; each gun hit takes the ammo type value, a punch 1.0, the level 3 flamethrower 0.1 per particle. Hits the hero for (6 - shields)/6 x 3.0 with knockback. Burst length not traced. Not seen in footage.",
+      "nearMarker": 9,
+      "floor": 15,
+      "area": "floor 21, cols 101-132",
+      "patrol": [
+        108,
+        120
+      ],
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39F6",
+        "slot": 5,
+        "x": 109,
+        "y": 15,
+        "patrol": [
+          102,
+          114
+        ],
+        "hp": 10.0
+      }
+    },
+    {
+      "id": "t06",
+      "type": "trooper",
+      "cell": [
+        70,
+        63
+      ],
+      "confidence": "medium",
+      "behaviour": "Trooper (second actor table ds:0x39F6, LEV4.GRA f27 walk, f28 other states): blue humanoid soldier with a rifle. Patrols cells 65-78 on floor row 64. 10.0 hit points; each gun hit takes the ammo type value, a punch 1.0, the level 3 flamethrower 0.1 per particle. Hits the hero for (6 - shields)/6 x 3.0 with knockback. Burst length not traced. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 58,
+      "area": "floor 64, cols 64-80",
+      "patrol": [
+        65,
+        78
+      ],
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39F6",
+        "slot": 6,
+        "x": 64,
+        "y": 58,
+        "patrol": [
+          59,
+          72
+        ],
+        "hp": 10.0
+      }
+    },
+    {
+      "id": "t07",
+      "type": "trooper",
+      "cell": [
+        103,
+        65
+      ],
+      "confidence": "medium",
+      "behaviour": "Trooper (second actor table ds:0x39F6, LEV4.GRA f27 walk, f28 other states): blue humanoid soldier with a rifle. Patrols cells 99-110 on floor row 66. 10.0 hit points; each gun hit takes the ammo type value, a punch 1.0, the level 3 flamethrower 0.1 per particle. Hits the hero for (6 - shields)/6 x 3.0 with knockback. Burst length not traced. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 60,
+      "area": "floor 66, cols 97-112",
+      "patrol": [
+        99,
+        110
+      ],
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39F6",
+        "slot": 7,
+        "x": 97,
+        "y": 60,
+        "patrol": [
+          93,
+          104
+        ],
+        "hp": 10.0
+      }
+    },
+    {
+      "id": "t08",
+      "type": "trooper",
+      "cell": [
+        119,
+        55
+      ],
+      "confidence": "medium",
+      "behaviour": "Trooper (second actor table ds:0x39F6, LEV4.GRA f27 walk, f28 other states): blue humanoid soldier with a rifle. Patrols cells 117-124 on floor row 56. 10.0 hit points; each gun hit takes the ammo type value, a punch 1.0, the level 3 flamethrower 0.1 per particle. Hits the hero for (6 - shields)/6 x 3.0 with knockback. Burst length not traced. Not seen in footage.",
+      "nearMarker": null,
+      "floor": 50,
+      "area": "floor 56, cols 116-129",
+      "patrol": [
+        117,
+        124
+      ],
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39F6",
+        "slot": 8,
+        "x": 113,
+        "y": 50,
+        "patrol": [
+          111,
+          118
+        ],
+        "hp": 10.0
+      }
+    }
+  ]
+}

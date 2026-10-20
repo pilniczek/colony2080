@@ -1,0 +1,840 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/14-level2-layout.md",
+  "coordinates": "cell = [x, y] on the 160x80 map grid (24 px cells). Ground enemies: the cell they stand in (floor plank is the row below). World x = engine x + 6. Engine y = floor plank row - 6; level 2 floors are 9 rows apart.",
+  "enemies": [
+    {
+      "id": "e02",
+      "type": "greyTrooper",
+      "cell": [
+        125,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 119-152, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 35,
+      "area": "floor 41, walk segment 100-152",
+      "patrol": [
+        119,
+        152
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 2,
+        "type": 2,
+        "x": 119,
+        "y": 35,
+        "patrol": [
+          113,
+          146
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e03",
+      "type": "rocketRobot",
+      "cell": [
+        120,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 119-152, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 35,
+      "area": "floor 41, walk segment 100-152",
+      "patrol": [
+        119,
+        152
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 3,
+        "type": 1,
+        "x": 114,
+        "y": 35,
+        "patrol": [
+          113,
+          146
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e04",
+      "type": "greyTrooper",
+      "cell": [
+        104,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 101-114, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 35,
+      "area": "floor 41, walk segment 100-152",
+      "patrol": [
+        101,
+        114
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 4,
+        "type": 2,
+        "x": 98,
+        "y": 35,
+        "patrol": [
+          95,
+          108
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e05",
+      "type": "rocketRobot",
+      "cell": [
+        122,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 119-141, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 26,
+      "area": "floor 32, walk segment 110-151",
+      "patrol": [
+        119,
+        141
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 5,
+        "type": 1,
+        "x": 116,
+        "y": 26,
+        "patrol": [
+          113,
+          135
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e06",
+      "type": "greyTrooper",
+      "cell": [
+        131,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 119-141, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 26,
+      "area": "floor 32, walk segment 110-151",
+      "patrol": [
+        119,
+        141
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 6,
+        "type": 2,
+        "x": 125,
+        "y": 26,
+        "patrol": [
+          113,
+          135
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e07",
+      "type": "rocketRobot",
+      "cell": [
+        134,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 119-141, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 26,
+      "area": "floor 32, walk segment 110-151",
+      "patrol": [
+        119,
+        141
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 7,
+        "type": 1,
+        "x": 128,
+        "y": 26,
+        "patrol": [
+          113,
+          135
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e08",
+      "type": "greyTrooper",
+      "cell": [
+        137,
+        22
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 127-142, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 17,
+      "area": "floor 23, walk segment 126-147",
+      "patrol": [
+        127,
+        142
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 8,
+        "type": 2,
+        "x": 131,
+        "y": 17,
+        "patrol": [
+          121,
+          136
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e09",
+      "type": "rocketRobot",
+      "cell": [
+        82,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 73-87, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 73-136",
+      "patrol": [
+        73,
+        87
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 9,
+        "type": 1,
+        "x": 76,
+        "y": 44,
+        "patrol": [
+          67,
+          81
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e10",
+      "type": "greyTrooper",
+      "cell": [
+        74,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 73-87, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 73-136",
+      "patrol": [
+        73,
+        87
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 10,
+        "type": 2,
+        "x": 68,
+        "y": 44,
+        "patrol": [
+          67,
+          81
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e11",
+      "type": "rocketRobot",
+      "cell": [
+        106,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 93-130, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 73-136",
+      "patrol": [
+        93,
+        130
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 11,
+        "type": 1,
+        "x": 100,
+        "y": 44,
+        "patrol": [
+          87,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e12",
+      "type": "greyTrooper",
+      "cell": [
+        112,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 93-130, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 73-136",
+      "patrol": [
+        93,
+        130
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 12,
+        "type": 2,
+        "x": 106,
+        "y": 44,
+        "patrol": [
+          87,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e13",
+      "type": "rocketRobot",
+      "cell": [
+        125,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 93-130, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 73-136",
+      "patrol": [
+        93,
+        130
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 13,
+        "type": 1,
+        "x": 119,
+        "y": 44,
+        "patrol": [
+          87,
+          124
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e14",
+      "type": "greyTrooper",
+      "cell": [
+        126,
+        58
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 121-132, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 53,
+      "area": "floor 59, walk segment 116-136",
+      "patrol": [
+        121,
+        132
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 14,
+        "type": 2,
+        "x": 120,
+        "y": 53,
+        "patrol": [
+          115,
+          126
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e15",
+      "type": "rocketRobot",
+      "cell": [
+        110,
+        67
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 88-115, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 62,
+      "area": "floor 68, walk segment 81-123",
+      "patrol": [
+        88,
+        115
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 15,
+        "type": 1,
+        "x": 104,
+        "y": 62,
+        "patrol": [
+          82,
+          109
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e16",
+      "type": "greyTrooper",
+      "cell": [
+        99,
+        67
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 88-115, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 62,
+      "area": "floor 68, walk segment 81-123",
+      "patrol": [
+        88,
+        115
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 16,
+        "type": 2,
+        "x": 93,
+        "y": 62,
+        "patrol": [
+          82,
+          109
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e17",
+      "type": "rocketRobot",
+      "cell": [
+        96,
+        67
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 88-115, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 62,
+      "area": "floor 68, walk segment 81-123",
+      "patrol": [
+        88,
+        115
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 17,
+        "type": 1,
+        "x": 90,
+        "y": 62,
+        "patrol": [
+          82,
+          109
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e18",
+      "type": "greyTrooper",
+      "cell": [
+        88,
+        67
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 88-115, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 62,
+      "area": "floor 68, walk segment 81-123",
+      "patrol": [
+        88,
+        115
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 18,
+        "type": 2,
+        "x": 82,
+        "y": 62,
+        "patrol": [
+          82,
+          109
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e19",
+      "type": "rocketRobot",
+      "cell": [
+        79,
+        58
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 79-83, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 53,
+      "area": "floor 59, walk segment 78-102",
+      "patrol": [
+        79,
+        83
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 19,
+        "type": 1,
+        "x": 73,
+        "y": 53,
+        "patrol": [
+          73,
+          77
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e20",
+      "type": "rocketRobot",
+      "cell": [
+        65,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 59-79, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 35,
+      "area": "floor 41, walk segment 53-98",
+      "patrol": [
+        59,
+        79
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 20,
+        "type": 1,
+        "x": 59,
+        "y": 35,
+        "patrol": [
+          53,
+          73
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e21",
+      "type": "rocketRobot",
+      "cell": [
+        72,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 59-79, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 35,
+      "area": "floor 41, walk segment 53-98",
+      "patrol": [
+        59,
+        79
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 21,
+        "type": 1,
+        "x": 66,
+        "y": 35,
+        "patrol": [
+          53,
+          73
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e22",
+      "type": "greyTrooper",
+      "cell": [
+        74,
+        40
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 59-79, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 35,
+      "area": "floor 41, walk segment 53-98",
+      "patrol": [
+        59,
+        79
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 22,
+        "type": 2,
+        "x": 68,
+        "y": 35,
+        "patrol": [
+          53,
+          73
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e23",
+      "type": "rocketRobot",
+      "cell": [
+        77,
+        22
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 73-85, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 17,
+      "area": "floor 23, walk segment 59-85",
+      "patrol": [
+        73,
+        85
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 23,
+        "type": 1,
+        "x": 71,
+        "y": 17,
+        "patrol": [
+          67,
+          79
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e24",
+      "type": "greyTrooper",
+      "cell": [
+        24,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 22-57, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 15-57",
+      "patrol": [
+        22,
+        57
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 24,
+        "type": 2,
+        "x": 18,
+        "y": 44,
+        "patrol": [
+          16,
+          51
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e25",
+      "type": "rocketRobot",
+      "cell": [
+        33,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 22-57, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 15-57",
+      "patrol": [
+        22,
+        57
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 25,
+        "type": 1,
+        "x": 27,
+        "y": 44,
+        "patrol": [
+          16,
+          51
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e26",
+      "type": "greyTrooper",
+      "cell": [
+        36,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 22-57, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 15-57",
+      "patrol": [
+        22,
+        57
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 26,
+        "type": 2,
+        "x": 30,
+        "y": 44,
+        "patrol": [
+          16,
+          51
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e27",
+      "type": "rocketRobot",
+      "cell": [
+        50,
+        49
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 22-57, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 44,
+      "area": "floor 50, walk segment 15-57",
+      "patrol": [
+        22,
+        57
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 27,
+        "type": 1,
+        "x": 44,
+        "y": 44,
+        "patrol": [
+          16,
+          51
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e28",
+      "type": "greyTrooper",
+      "cell": [
+        30,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Grey trooper: bulky grey armoured soldier with a rifle (LEV2.GRA f23 walk, f24 fire then scrap pile). Ground enemy on its floor (no hover in level 2), patrols cells 30-44, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.4 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 26,
+      "area": "floor 32, walk segment 30-45",
+      "patrol": [
+        30,
+        44
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 28,
+        "type": 2,
+        "x": 24,
+        "y": 26,
+        "patrol": [
+          24,
+          38
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "e29",
+      "type": "rocketRobot",
+      "cell": [
+        36,
+        31
+      ],
+      "confidence": "medium",
+      "behaviour": "Rocket robot: blue-steel humanoid with a shoulder rocket launcher (LEV2.GRA f21 walk, f22 kneel-and-fire then burning wreck). Ground enemy on its floor (no hover in level 2), patrols cells 30-44, walks 3 px per tick. 2.0 hit points, dies below 1.0: 7 machine-gun hits, 3 punches or 2 toaster hits. Fire takes (6 - shields) / 6 x 2.2 energy per fire tick (4:0xDC93 / 4:0xE040), rounded per tick.",
+      "nearMarker": null,
+      "floor": 26,
+      "area": "floor 32, walk segment 30-45",
+      "patrol": [
+        30,
+        44
+      ],
+      "firstSighting": null,
+      "engine": {
+        "slot": 29,
+        "type": 1,
+        "x": 30,
+        "y": 26,
+        "patrol": [
+          24,
+          38
+        ],
+        "hp": 2.0
+      }
+    },
+    {
+      "id": "g5",
+      "type": "guardShootable",
+      "cell": [
+        62,
+        22
+      ],
+      "confidence": "medium",
+      "behaviour": "Bridge guard (marker 5): bulky olive armoured soldier with a rifle, sprite LEV2.GRA frame 25 (8 frames, 3x3 tiles, faces right). Shootable table: 70 hit points, only the toaster hurts him, 6 per hit (about 12 hits, 7:0x1574). Blocks the hero while alive and fires the shared guard burst (5:0x24A4: hero on its row 1-6 cells to its right, not hidden). The walkie-talkie lies behind him at cell 60. Never seen in footage.",
+      "nearMarker": 5,
+      "floor": 17,
+      "area": "floor 23, walk segment 59-85",
+      "patrol": null,
+      "firstSighting": null,
+      "engine": {
+        "table": "ds:0x39B9",
+        "x": 56,
+        "y": 17,
+        "hp": 70
+      }
+    }
+  ]
+}

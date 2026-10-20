@@ -1,0 +1,17 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/16-level4-layout.md",
+  "id": "jeskyne",
+  "order": 4,
+  "name": { "cs": "Jeskyně", "en": "Caves" },
+  "map": {
+    "source": "MAPY/M41.MAP",
+    "widthTiles": 160,
+    "heightTiles": 80,
+    "tileSize": 24,
+    "tileset": "LEV4.GRA",
+    "floorHeightTiles": null
+  },
+  "originalPlayfield": { "width": 290, "height": 169 },
+  "next": "vezeni"
+}

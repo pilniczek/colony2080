@@ -1,0 +1,1213 @@
+{
+ "status": "draft",
+ "source": "docs/research/reports/14-level2-layout.md",
+ "units": "original pixels, 1 tile = 24",
+ "objects": [
+  {
+   "id": "smoulderingRemains",
+   "name": "Smouldering remains with small key",
+   "csName": "tlející zbytky",
+   "interactive": true,
+   "marker": 1,
+   "task": "takeSmallKey",
+   "sheet": "props",
+   "description": "Charred robot remains lying on floor 32 (map cell 110-111, row 31, about 2 x 1 tiles). Pickup of item record 1 (TORZO) at engine (105, 26) renames it MALÝ KLÍČ: \"U tlejících zbytků jsi našel malý klíč\".",
+   "states": [
+    "remains with key",
+    "searched"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2544,
+      672,
+      240,
+      120
+     ],
+     "caption": "map M21: remains on floor 32"
+    }
+   ]
+  },
+  {
+   "id": "smallKey",
+   "name": "Small key",
+   "csName": "malý klíč",
+   "interactive": true,
+   "marker": 1,
+   "task": "takeSmallKey",
+   "sheet": "props",
+   "description": "Inventory item (record 1, shown as TORZO until picked). Opens the electric cabinet (marker 9) and is consumed there. Inventory art: open.",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": []
+  },
+  {
+   "id": "fuseBox",
+   "name": "Electric distribution box (fuses)",
+   "csName": "rozvod",
+   "interactive": true,
+   "marker": 2,
+   "task": "breakFuses",
+   "sheet": "machines",
+   "description": "Wall box with a green panel on floor 32 (use window map cells 146-150, art about cells 148-149, rows 29-31). First use (map M21) smashes the fuses: power off, map M22 (energy barrier and bridge vanish). Using the fuse there in M22 restarts the power plant: map M23.",
+   "states": [
+    "working (M21)",
+    "fuses smashed (M22)",
+    "fuse fitted (M23)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3408,
+      624,
+      288,
+      168
+     ],
+     "caption": "map M21: fuse box, floor 32"
+    }
+   ]
+  },
+  {
+   "id": "sourceTeleport",
+   "name": "Teleport",
+   "csName": "teleport",
+   "interactive": true,
+   "marker": 3,
+   "task": "useTeleport",
+   "sheet": "machines",
+   "description": "Small teleport pod with a dish top on floor 23 (use window map cells 127-130, art cells 128-129, rows 20-22). Sends the hero to the target teleport (cell 65, floor 32) once the navigation circuit and the fuse are fitted; else says the target teleport is damaged (or the power plant is off in M22). Two-way.",
+   "states": [
+    "target broken",
+    "power off",
+    "working"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2976,
+      432,
+      216,
+      144
+     ],
+     "caption": "map M21: teleport pod, floor 23"
+    }
+   ]
+  },
+  {
+   "id": "toaster",
+   "name": "TOASTER weapon pickup",
+   "csName": "toaster",
+   "interactive": true,
+   "marker": 4,
+   "task": "takeToaster",
+   "sheet": "props",
+   "description": "Bonus weapon (slot 3) lying at the east end of the bridge, engine (55, 35) = map cell 61, floor 41. Gives 250 shots; the only weapon that hurts the bridge guard. Not drawn in the map tiles (sprite or invisible, open).",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1344,
+      864,
+      240,
+      144
+     ],
+     "caption": "map M21: pickup spot, floor 41 (item not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "bridgeGuardPost",
+   "name": "Guard post across the bridge",
+   "csName": "hlídka",
+   "interactive": true,
+   "marker": 4,
+   "task": "callGuardsAway",
+   "sheet": "structures",
+   "description": "No art of its own: a code wall (engine 48, floor 41, solid near cell 52) at the east end of the bridge with the message \"Nemůžeš jít dál, na druhé straně mostu je hlídka\". Using the walkie-talkie at cells 52-57 calls the guards away and removes it.",
+   "states": [
+    "guarded",
+    "guards called away"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1056,
+      840,
+      432,
+      168
+     ],
+     "caption": "map M21: bridge east end"
+    }
+   ]
+  },
+  {
+   "id": "bridgeGuard",
+   "name": "Bridge guard",
+   "csName": "stráž",
+   "interactive": false,
+   "marker": 5,
+   "task": "shootGuard",
+   "sheet": "enemies",
+   "description": "Bulky olive armoured soldier with a rifle, facing right (LEV2.GRA frame 25, 8 frames of 3x3 tiles). Stands on floor 23 at map cell 62; 70 hit points, only the toaster hurts him (6 per hit). Blocks the hero and fires bursts. The walkie-talkie lies behind him at cell 60.",
+   "states": [
+    "idle",
+    "firing",
+    "dead"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/enemy-sprites/lev2_guard_f25_frames.png",
+     "imgSize": [
+      936,
+      576
+     ],
+     "crop": [
+      0,
+      0,
+      936,
+      432
+     ],
+     "caption": "LEV2.GRA f25 frames 1-8"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1344,
+      408,
+      288,
+      168
+     ],
+     "caption": "map M21: guard spot, floor 23 (sprite not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "walkieTalkie",
+   "name": "Walkie-talkie",
+   "csName": "vysílačka",
+   "interactive": true,
+   "marker": 5,
+   "task": "callGuardsAway",
+   "sheet": "props",
+   "description": "Item record 2 on floor 23 behind the bridge guard, engine (54, 17) = map cell 60. Used at the bridge east end it calls the guard post away; it stays in the inventory.",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1344,
+      408,
+      240,
+      168
+     ],
+     "caption": "map M21: pickup spot (item not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "targetTeleport",
+   "name": "Target teleport (damaged)",
+   "csName": "cílový teleport",
+   "interactive": true,
+   "marker": 6,
+   "task": "repairTeleport",
+   "sheet": "machines",
+   "description": "Same teleport pod as marker 3 on floor 32 (use window map cells 63-67, art cells 65-66, rows 29-31). The navigation circuit repairs it (\"Opravil jsi rozbitý teleport\"); then it links to the marker 3 pod both ways while the fuse is fitted. The walkthrough map swaps markers 5 and 6 in height; code puts the guard on floor 23 and this pod on floor 32.",
+   "states": [
+    "damaged",
+    "repaired"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1440,
+      624,
+      240,
+      168
+     ],
+     "caption": "map M21: target teleport, floor 32"
+    }
+   ]
+  },
+  {
+   "id": "detonator",
+   "name": "Detonator",
+   "csName": "rozbuška",
+   "interactive": true,
+   "marker": 7,
+   "task": "blowWall",
+   "sheet": "props",
+   "description": "Item record 4 on floor 50, engine (73, 44) = map cell 79. Used at the dynamite wall after the dynamite is placed: level end.",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1776,
+      1080,
+      240,
+      144
+     ],
+     "caption": "map M21: pickup spot (item not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "projectileCrate",
+   "name": "Crate with cannon projectile",
+   "csName": "bedna",
+   "interactive": true,
+   "marker": 8,
+   "task": "takeProjectile",
+   "sheet": "props",
+   "description": "Item record 3 (BEDNA) on floor 50, engine (109, 44) = map cell 115. Picking it renames it PROJEKTIL: \"Uvnitř bedny jsi našel projektil do děla\".",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2640,
+      1080,
+      240,
+      144
+     ],
+     "caption": "map M21: pickup spot (item not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "projectile",
+   "name": "Cannon projectile",
+   "csName": "projektil",
+   "interactive": true,
+   "marker": 8,
+   "task": "fireCannon",
+   "sheet": "props",
+   "description": "Inventory item from the crate; loaded into the cannon (marker 12) and consumed.",
+   "states": [
+    "carried",
+    "used"
+   ],
+   "refs": []
+  },
+  {
+   "id": "electricCabinet",
+   "name": "Locked electric cabinet",
+   "csName": "elektrická skříň",
+   "interactive": true,
+   "marker": 9,
+   "task": "takeFuse",
+   "sheet": "machines",
+   "description": "Concrete cabinet block with a grey door on floor 59 (use window map cells 122-126, art about cells 122-128, rows 55-58). Locked (\"Elektrická skříň je zamčena\") until the small key is used; then gives the fuse.",
+   "states": [
+    "locked",
+    "opened, fuse taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2832,
+      1272,
+      312,
+      168
+     ],
+     "caption": "map M21: cabinet, floor 59"
+    }
+   ]
+  },
+  {
+   "id": "fuse",
+   "name": "Fuse",
+   "csName": "pojistka",
+   "interactive": true,
+   "marker": 9,
+   "task": "restorePower",
+   "sheet": "props",
+   "description": "Inventory item (record 7) from the cabinet; fitted into the fuse box while the power is off (map M22).",
+   "states": [
+    "carried",
+    "fitted"
+   ],
+   "refs": []
+  },
+  {
+   "id": "dynamite",
+   "name": "Dynamite",
+   "csName": "dynamit",
+   "interactive": true,
+   "marker": 10,
+   "task": "placeDynamite",
+   "sheet": "props",
+   "description": "Item record 5 on floor 68 by the ruined house, engine (93, 62) = map cell 99 (\"U domu jsi našel dynamit\"). Placed at the wall (marker 14) it moves to engine (25, 26) and can no longer be picked up.",
+   "states": [
+    "on ground",
+    "taken",
+    "placed at wall"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2208,
+      1512,
+      288,
+      144
+     ],
+     "caption": "map M21: pickup spot by the house (item not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "brokenTeleport",
+   "name": "Broken teleport",
+   "csName": "rozbitý teleport",
+   "interactive": true,
+   "marker": 11,
+   "task": "takeNavCircuit",
+   "sheet": "machines",
+   "description": "Wrecked teleport pod on floor 59 (use window map cells 93-98, art about cells 94-96, rows 57-58). Gives the undamaged navigation circuit once.",
+   "states": [
+    "wreck with circuit",
+    "circuit taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2160,
+      1296,
+      264,
+      144
+     ],
+     "caption": "map M21: broken teleport, floor 59"
+    }
+   ]
+  },
+  {
+   "id": "navCircuit",
+   "name": "Navigation circuit",
+   "csName": "navigační obvod",
+   "interactive": true,
+   "marker": 11,
+   "task": "repairTeleport",
+   "sheet": "props",
+   "description": "Inventory item (record 6, NAV. OBVOD); fitted into the target teleport and consumed.",
+   "states": [
+    "carried",
+    "fitted"
+   ],
+   "refs": []
+  },
+  {
+   "id": "cannon",
+   "name": "Border cannon",
+   "csName": "dělo",
+   "interactive": true,
+   "marker": 12,
+   "task": "fireCannon",
+   "sheet": "machines",
+   "description": "Grey artillery gun on floor 41 pointing west, with a wooden watchtower behind it (art about map cells 33-43, rows 35-40; use window cells 31-38). \"Útočný kanón na hlídání hranice města\". With the projectile it blasts the barricade: map M24.",
+   "states": [
+    "idle",
+    "firing"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      720,
+      792,
+      384,
+      216
+     ],
+     "caption": "map M21: cannon and tower, floor 41"
+    }
+   ]
+  },
+  {
+   "id": "fireBarricade",
+   "name": "Burning barricade",
+   "csName": "překážka",
+   "interactive": false,
+   "marker": 12,
+   "task": "fireCannon",
+   "sheet": "structures",
+   "description": "Grey concrete post (map cell 22, rows 37-40) followed by a row of sandbagged fire boxes with red flames (cells 23-29). The post tiles (8,50) (8,63) (8,76) are a stand-row wall; M24 removes them.",
+   "states": [
+    "standing",
+    "blasted (M24)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      480,
+      864,
+      264,
+      144
+     ],
+     "caption": "map M21: barricade"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M24.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      480,
+      864,
+      264,
+      144
+     ],
+     "caption": "map M24: post blasted"
+    }
+   ]
+  },
+  {
+   "id": "teleportPad",
+   "name": "Teleport pair",
+   "csName": "teleport",
+   "interactive": true,
+   "marker": 13,
+   "task": "useTeleport13",
+   "sheet": "machines",
+   "description": "Unconditional two-way teleport: use at map cells 50-54 on floor 50 goes to cell 42 on floor 32, use at cells 40-44 on floor 32 goes back to cell 52. Art not identified in the map tiles (open).",
+   "states": [
+    "idle"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1104,
+      1032,
+      288,
+      192
+     ],
+     "caption": "map M21: floor 50 end"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      888,
+      624,
+      240,
+      168
+     ],
+     "caption": "map M21: floor 32 end"
+    }
+   ]
+  },
+  {
+   "id": "dynamiteWall",
+   "name": "Wall to blow up",
+   "csName": "zeď",
+   "interactive": true,
+   "marker": 14,
+   "task": "blowWall",
+   "sheet": "structures",
+   "description": "Grey concrete post (map cell 29, rows 29-31, stand-row wall) with a row of fire boxes behind it on floor 32. Dynamite then detonator here ends the level.",
+   "states": [
+    "intact",
+    "dynamite placed"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      624,
+      648,
+      336,
+      144
+     ],
+     "caption": "map M21: wall, floor 32"
+    }
+   ]
+  },
+  {
+   "id": "energyBarrier",
+   "name": "Electric barrier",
+   "csName": "elektrická bariéra",
+   "interactive": false,
+   "marker": 2,
+   "task": "breakFuses",
+   "sheet": "machines",
+   "description": "White crackling electric arc one tile wide, rows 37-40 at map cell 99 on floor 41, tiles (1,1)-(1,4), a stand-row wall. Gone in M22 (power off), back in M23 and M24.",
+   "states": [
+    "on",
+    "off (M22)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2304,
+      840,
+      168,
+      168
+     ],
+     "caption": "map M21: barrier on"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M22.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2304,
+      840,
+      168,
+      168
+     ],
+     "caption": "map M22: barrier off"
+    }
+   ]
+  },
+  {
+   "id": "powerBridge",
+   "name": "Bridge over the chasm",
+   "csName": "most",
+   "interactive": false,
+   "marker": 4,
+   "task": "breakFuses",
+   "sheet": "structures",
+   "description": "Thin light rail bridge, one plank row (tiles (2,1)-(2,3)), map cells 45-56 on floor 41 between the barricade side and the toaster spot. M22 removes the planks: a hero who steps on the gap falls (engine y 36 plays padves.anm).",
+   "states": [
+    "standing",
+    "gone (M22)"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1008,
+      888,
+      432,
+      144
+     ],
+     "caption": "map M21: bridge"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M22.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1008,
+      888,
+      432,
+      144
+     ],
+     "caption": "map M22: bridge gone"
+    }
+   ]
+  },
+  {
+   "id": "holoPlan",
+   "name": "Holo plan",
+   "csName": "holografický plán",
+   "interactive": true,
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "Owned from the level start (record 8 owned flag set by the init), so the map screen works. Inventory item only.",
+   "states": [
+    "carried"
+   ],
+   "refs": []
+  },
+  {
+   "id": "energyPickup",
+   "name": "Energy pickup",
+   "csName": null,
+   "interactive": true,
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "Bonus at engine (77, 17) = map cell 83, floor 23: energy + 90, once. Not in the map tiles (sprite or invisible, open).",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1896,
+      456,
+      216,
+      120
+     ],
+     "caption": "map M21: spot (not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "ammoPickup",
+   "name": "Ammo pickup",
+   "csName": null,
+   "interactive": true,
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "Bonus at engine (123, 35) = map cell 129, floor 41: machine-gun ammo + 350 (cap 999), once. Not in the map tiles.",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3000,
+      888,
+      216,
+      120
+     ],
+     "caption": "map M21: spot (not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "shieldPickup",
+   "name": "Shield pickup",
+   "csName": null,
+   "interactive": true,
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "Bonus at engine (35, 35) = map cell 41, floor 41 (west of the bridge): shields + 1 (cap 5), once. Not in the map tiles.",
+   "states": [
+    "on ground",
+    "taken"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      888,
+      888,
+      216,
+      120
+     ],
+     "caption": "map M21: spot (not in tiles)"
+    }
+   ]
+  },
+  {
+   "id": "lift",
+   "name": "Lift platform and shaft",
+   "csName": "výtah",
+   "interactive": true,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Same lift as mesto: 9 lifts, deck tiles (10,1)-(10,3) at every stop, a rung rail column in the shaft. Two stops each, 9 rows apart.",
+   "states": [
+    "idle at floor",
+    "moving up",
+    "moving down"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2712,
+      720,
+      168,
+      312
+     ],
+     "caption": "map M21: lift 1 shaft and decks"
+    }
+   ]
+  },
+  {
+   "id": "villageBackdrop",
+   "name": "Jungle and ruins backdrop",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "buildings",
+   "description": "Parallax backdrop (LEV2.GRA frame 0, frame 1 near identical): palm trees and dark jungle over pale ruined concrete walls and ferns, a green strip and an orange band at the bottom. Same role as mesto skyBackground, different art.",
+   "states": [
+    "normal"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/lev2/f000.png",
+     "imgSize": [
+      320,
+      200
+     ],
+     "crop": [
+      0,
+      0,
+      320,
+      170
+     ],
+     "caption": "background frame 0"
+    }
+   ]
+  },
+  {
+   "id": "rockCliff",
+   "name": "Rock cliff over steel block wall",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Floor-high walls of riveted grey steel blocks with yellow seams, fronted by big rounded boulders spilling down in a slope; close every floor end and frame the chasm.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      96,
+      768,
+      240,
+      456
+     ],
+     "caption": "map M21: west cliffs"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3552,
+      576,
+      288,
+      432
+     ],
+     "caption": "map M21: east cliff by the spawn"
+    }
+   ]
+  },
+  {
+   "id": "grassyWalkway",
+   "name": "Grassy girder walkway",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Floor plank: dry grass and dirt over a riveted steel girder with X bracing, 1 tile thick; every floor of the level, 9 rows apart.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1440,
+      744,
+      288,
+      48
+     ],
+     "caption": "map M21: floor 32 plank"
+    }
+   ]
+  },
+  {
+   "id": "chainFence",
+   "name": "Chain-link fence",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Same mesh fence panels between steel posts as mesto, with small grey sign plates; on most floors.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1416,
+      456,
+      264,
+      96
+     ],
+     "caption": "map M21: fence on floor 23"
+    }
+   ]
+  },
+  {
+   "id": "overheadPipeline",
+   "name": "Overhead pipeline",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Thin double pipe with orange-striped clamps running along row 25-26 above floor 32 (cells 106-160), hung from short concrete blocks.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2496,
+      576,
+      864,
+      96
+     ],
+     "caption": "map M21: pipeline"
+    }
+   ]
+  },
+  {
+   "id": "storageTank",
+   "name": "Riveted storage tank",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Squat brown riveted cylinder tanks with a top hatch (about 2 x 3 tiles) on floor 32 (cells 124-130); a pipe stack with lamps between them.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2880,
+      648,
+      288,
+      120
+     ],
+     "caption": "map M21: tanks"
+    }
+   ]
+  },
+  {
+   "id": "fuelTank",
+   "name": "Horizontal tank",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Horizontal bronze tank with curled end pipes on short legs (about 4 x 2 tiles) on floors 32 and 41; mesto fuelTank role, without the trefoil.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3048,
+      888,
+      192,
+      96
+     ],
+     "caption": "map M21: tank, floor 41"
+    }
+   ]
+  },
+  {
+   "id": "transformer",
+   "name": "Power plant transformer",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Large green-grey machine block with stacked coils, valves and cables on floor 41 (cells 121-127, rows 34-40); likely the power plant the fuse box feeds (inferred).",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2856,
+      792,
+      240,
+      192
+     ],
+     "caption": "map M21: transformer"
+    }
+   ]
+  },
+  {
+   "id": "watchtower",
+   "name": "Wooden watchtower",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Small wooden hut on a tall lattice frame behind the cannon on floor 41 (cells 37-40, rows 34-40).",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      840,
+      792,
+      168,
+      192
+     ],
+     "caption": "map M21: watchtower"
+    }
+   ]
+  },
+  {
+   "id": "villageHouse",
+   "name": "Concrete village house",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "buildings",
+   "description": "Pale concrete houses with flat roofs, window grids and pillars (5-10 tiles wide) on floors 41, 50 and 68; some ruined with broken roofs.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2208,
+      1512,
+      336,
+      144
+     ],
+     "caption": "map M21: ruined house, floor 68"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2280,
+      1056,
+      432,
+      144
+     ],
+     "caption": "map M21: house block, floor 50"
+    }
+   ]
+  },
+  {
+   "id": "stiltBuilding",
+   "name": "Building on stilts",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "buildings",
+   "description": "Brown wooden building with window rows raised on posts, spanning a floor (cells 89-98, rows 51-58), and a smaller stilt hut with spiked roof on floor 50 (cells 74-86).",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2112,
+      1200,
+      264,
+      216
+     ],
+     "caption": "map M21: stilt building"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1752,
+      1008,
+      360,
+      192
+     ],
+     "caption": "map M21: stilt hut"
+    }
+   ]
+  },
+  {
+   "id": "pipeColumn",
+   "name": "Vertical pipe column",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Thick bronze vertical pipe with ring joints (for example cell 60, rows 33-41 and cell 120, rows 33-40).",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1392,
+      768,
+      120,
+      240
+     ],
+     "caption": "map M21: pipe column"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/14-level2-layout.md",
+  "id": "vesnice",
+  "order": 2,
+  "name": {
+    "cs": "Předměstí",
+    "en": "Suburb"
+  },
+  "map": {
+    "source": "MAPY/M21.MAP",
+    "widthTiles": 160,
+    "heightTiles": 80,
+    "tileSize": 24,
+    "tileset": "LEV2.GRA",
+    "floorHeightTiles": 9
+  },
+  "originalPlayfield": {
+    "width": 290,
+    "height": 169
+  },
+  "next": "jungle"
+}
