@@ -15,7 +15,7 @@
 - No original sample, SND file name or byte in `dist/`; recipe ids are English (`gunShot`, not `strelba`).
 - Base rate `11025` Hz; samples quantized to 256 levels (8-bit).
 - Gain = `vol / 63`, `vol` default 63.
-- Original tick = 1/32 s: low energy every 40 ticks = 1.25 s; spark every 10 ticks = 0.3125 s.
+- Original tick = 1/32 s: low energy every 40 ticks = 1.25 s (ours: 15 s by user request); spark every 10 ticks = 0.3125 s.
 - `src/engine/**` imports nothing from `game/`, React, Zustand.
 - No code comments (AGENTS.md). Docs in caveman lite, dash `-` never em dash.
 - Commit messages without any `Co-Authored-By` line.
@@ -182,7 +182,7 @@ Tuning rule for Tasks 5, 7 and 8 recipes: iterate recipe, run `npm run sound:com
 | hero `beam` event | `beam` 8000 |
 | hero `punch` event | `punch` 13000 |
 | enemy explodes, guard breaks | `explosion` rate `8000 + floor(rand * 2000)` (seeded world rng, not `Math.random`, so replay matches) |
-| live hero energy < 20 | `siren` 8500 vol 34, first at drop below, then every 1.25 s |
+| live hero energy < 20 | `siren` 8500 vol 34, first at drop below, then every 15 s (user request) |
 | shield spent in `damage` | `power` 20000 |
 | foot contact in walk or run gait, not while firing | `step` vol 33, rate alternates 10000 / 9400 |
 | landing from fall or jump | `land` 8500 vol 44 |

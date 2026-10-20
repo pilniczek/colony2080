@@ -46,7 +46,7 @@ Research (`docs/research/reports/17-sound.md`, to write from this session's find
 | E-Blaster beam | `LASER3` @8000, every firing tick | each `beam` event |
 | Punch (hit or miss) | `UDER` @13000 | each punch frame |
 | Enemy or guard explosion | `VYBUCH6` @ random 8000-9999 | enemy dies, shootable guard breaks |
-| Low energy (< 20) | `SIRENA3` @8500 (34), every 40 ticks | while live hero energy < 20 |
+| Low energy (< 20) | `SIRENA3` @8500 (34), every 15 s (original: every 40 ticks, slowed on user request) | while live hero energy < 20 |
 | Shield spent, energy refilled | `GATE` @20000 | `damage` spends shield |
 | Footstep | `KROK3` alternating @10000 / @9400 (33) | gait foot contact, walk and run, not while firing |
 | Jump landing | `SIGNAL` @8500 (44) | landing |

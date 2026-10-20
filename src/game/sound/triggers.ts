@@ -4,7 +4,7 @@ import { cue } from "./cues";
 
 const SEED = 28;
 const LOW_ENERGY = 20;
-const SIREN_EVERY = 1.25;
+const SIREN_EVERY = 15;
 const SPARK_EVERY = 0.3125;
 const THUNDER_GAP = [8, 20] as const;
 const STEP_RATES = [10000, 9400] as const;

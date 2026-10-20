@@ -122,18 +122,18 @@ describe("explosions", () => {
 });
 
 describe("hero state cues", () => {
-  it("siren repeats every 1.25 s below 20 energy", () => {
+  it("siren repeats every 15 s below 20 energy", () => {
     const g = game({ x: 3.5, y: 8 }, arena());
     run(g, 0.5);
     expect(cues(g, "siren")).toHaveLength(0);
     g.hero.energy = 19;
     tick(g);
     expect(cues(g, "siren")).toEqual([{ id: "siren", rate: 8500, vol: 34, bus: "world" }]);
-    run(g, 1.25 - 2 * dt);
+    run(g, 15 - 2 * dt);
     expect(cues(g, "siren")).toHaveLength(1);
     run(g, 2 * dt);
     expect(cues(g, "siren")).toHaveLength(2);
-    run(g, 1.25);
+    run(g, 15);
     expect(cues(g, "siren")).toHaveLength(3);
     g.hero.energy = 20;
     run(g, 3);
