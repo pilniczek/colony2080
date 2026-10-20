@@ -31,6 +31,7 @@ flowchart LR
 | One-way floors | Original floor tiles hold the hero only from above. Levels 2-4 floor cells are `=`: one-way, drawn like planks, the hero jumps up through them (ledge stairs). Wall cells stay `#` |
 | Fall damage | Original has none. `map.json` gets optional `fallDeathCells`; missing keeps the hero config value (7, mission 1). Levels 2-4 set `null`: no fall death. Deadly drops there are explicit `hazards` |
 | Hazards | `map.json` `hazards`: cell rects with `kind` `death` (game over, chasm, spikes, lava band, tripwire) or `damage` (energy per tick, optional `push`). Lava band is a rect over the whole map width. Mines and hidden bonuses wait for the items phase |
+| Hazard test | Hazard rects use the stand row (engine y + 5). A hazard hits when the hero centre column and foot cell (`floor(y - 0.001)`) are inside the rect, so the floor under a rect stays walkable and a one-cell tripwire hits only the hero centre |
 | Conveyors | `map.json` `conveyors`: floor cell runs with `vx` (cells per s) that carry a standing hero |
 | Map variants | Each variant is stored as a cell patch against the base map (`variants: { id: [{ col, row, ch }] }`), limited to blocking cells. A task applies one by id. Jungle M32 stale cells (jeep, tree, stairs) are dropped from its patch: only cells inside the cabinet and turret rect count |
 | Doors, levers, stone blocks | Existing prop kinds: `gate` with `solidStates` and `cells`; levers are `object` props whose task sets the gate state; stone blocks are `shootable` gates that take punches. Placed in the items phase |
