@@ -110,7 +110,6 @@ define({
     const lit = state === 1;
     if (lit) glow(ctx, 19.5, -56.5, 7, "screen", 0.6);
     disc(ctx, 19.5, -56.5, 1.5, lit ? "screen" : "screenOff", "mLine");
-    if (lit) cable(ctx, [[13, -36], [12, -24], [6, -18], [2, -6]], "y1", 1.2);
   }
 });
 
