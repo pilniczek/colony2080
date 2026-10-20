@@ -403,3 +403,20 @@ Recipes in `src/game/sound/recipes/` against their original, both as sample stre
 Noise recipes (`cannon`, `explosion`) keep the seed with the best envCorr of seeds 1-40; other seeds score 0.87-0.92 (`cannon`) and 0.92-0.94 (`explosion`). Recipes with a recorded hiss floor in the original (`punch`, `beam`, `cannon`, `laser`, about -55 to -70 dB per band) add white noise at that level; it sits under the -50 dB metric floor, so it shows only in the spectrogram pictures.
 
 World and UI recipes (`step` to `spark`) take their level from the original's 10 ms RMS envelope: breakpoints simplified in the square-root domain, or one value per 10 ms window for the short ones (`land`, `click`, `inventory`, `spark`). Noise and mixed carriers pass through `steady` (normalized to unit RMS over a 5-10 ms window), so the envelope alone sets each window's level and scores barely move with the seed: over 8 seed sets every recipe stays within 0.01 envCorr and 0.3 dB, except `spark` (0.920-0.940). `siren` is one harmonic series on a rising 470-880 Hz fundamental under a fixed formant peak at 1.6 kHz; that is why its loudest partial jumps from the 3rd to the 2nd harmonic. `spark` stops at full level in the original. The recipe adds 10 ms of silence after the cut (samples ratio 1.05), so playback ends without a click. That costs envCorr in the last window.
+
+## Tools
+
+All in `docs/research/tools/sound/`. Run Python with `-I`.
+
+| Script | Use |
+|---|---|
+| `isosnd.py <iso> <outdir>` | Extract `ZVUKY/*.SND` from the CD image (needs pycdlib); prints the count (144) |
+| `nedis.py <exe> <seg> <start> <end>` | Disassemble an NE segment range with relocations resolved (needs capstone); write `seg<n>.txt` per segment |
+| `calls.py <disdir>` | List every `play()` call with id, vol, rate |
+| `films.py <exe> <disdir>` | List film sound tables per ANM |
+| `loads.py <exe> <disdir>` | List inline SND loads per handle |
+| `describe.py <snd@rate>...` | Acoustic summary (duration, attack, centroid, bands, envelope, pitch) |
+| `extract.py <video> <out.npy>` | Video audio to mono 22050 Hz array (needs imageio-ffmpeg) |
+| `match.py`, `wmatch.py <npy> <t0> <t1> <snd@rate>...` | Spectrogram and waveform NCC of an SND against video audio |
+| `scan.py <npy> <t0> <t1> <thr> <snddir>` | Try every SND at 5500-30000 Hz against a video window |
+| `short.py <npy> <t0> <t1> <dur> <snd@rate>...` | Waveform NCC with a short template, for clipped sounds |
