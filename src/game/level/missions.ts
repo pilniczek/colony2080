@@ -1,27 +1,18 @@
-import jeskyneEnemies from "@config/levels/jeskyne/enemies.json";
 import jeskyneMap from "@config/levels/jeskyne/map.json";
-import jungleEnemies from "@config/levels/jungle/enemies.json";
 import jungleMap from "@config/levels/jungle/map.json";
-import mestoEnemies from "@config/levels/mesto/enemies.json";
 import mestoWorld from "@config/levels/mesto/world.json";
-import sandbox from "@config/levels/sandbox.json";
-import vesniceEnemies from "@config/levels/vesnice/enemies.json";
 import vesniceMap from "@config/levels/vesnice/map.json";
 import type { EnemyJson } from "./enemy";
-import { droidsOf, mestoJson, type DroidTuning } from "./mesto";
+import { DROID, droidsOf, FLYER, mestoJson, type DroidTuning } from "./mesto";
 import { loadSandbox, type SandboxJson, type SandboxWorld } from "./sandboxLevel";
 
 export type MissionId = "mesto" | "vesnice" | "jungle" | "jeskyne";
 
 export const MISSIONS: MissionId[] = ["mesto", "vesnice", "jungle", "jeskyne"];
 
-interface KindEntry {
-  type: string;
-  engine?: { hp?: number | null } | null;
-}
-
 interface MapEnemy {
   kind: string;
+  hp: number;
   cell: number[];
   patrol: number[];
 }
@@ -42,40 +33,16 @@ type OtherMission = Exclude<MissionId, "mesto">;
 
 const MAPS: Record<OtherMission, MissionMap> = { vesnice: vesniceMap, jungle: jungleMap, jeskyne: jeskyneMap };
 
-const KIND_ENTRIES: Record<MissionId, KindEntry[]> = {
-  mesto: mestoEnemies.enemies,
-  vesnice: vesniceEnemies.enemies,
-  jungle: jungleEnemies.enemies,
-  jeskyne: jeskyneEnemies.enemies,
-};
+const MESTO_KINDS: Record<string, DroidTuning> = { chromeDroid: DROID, flyer: FLYER };
 
-const MESTO_KINDS = { walker: "chromeDroid", flyer: "flyer" } as const;
+export const enemyKinds = (id: MissionId): Record<string, DroidTuning> =>
+  id === "mesto" ? MESTO_KINDS : Object.fromEntries(MAPS[id].enemies.map((e) => [e.kind, DROID]));
 
-const { hits: sandboxHits, reactMs, burst, pauseMs } = sandbox.enemies[0]!;
-const { flight } = sandbox.enemies.find((e) => "flight" in e) as EnemyJson;
-
-const usedKinds = (id: MissionId): Set<string> =>
-  new Set(id === "mesto" ? Object.values(MESTO_KINDS) : MAPS[id].enemies.map((e) => e.kind));
-
-export function enemyKinds(id: MissionId): Record<string, DroidTuning> {
-  const used = usedKinds(id);
-  const kinds: Record<string, DroidTuning> = {};
-  for (const entry of KIND_ENTRIES[id]) {
-    const hp = entry.engine?.hp;
-    if (!used.has(entry.type) || kinds[entry.type] || typeof hp !== "number") continue;
-    const tuning: DroidTuning = { hits: Math.round((hp / 2) * sandboxHits), reactMs, burst, pauseMs, respawnMs: null };
-    kinds[entry.type] = id === "mesto" && entry.type === MESTO_KINDS.flyer ? { ...tuning, flight } : tuning;
-  }
-  return kinds;
-}
+const hitsOf = (hp: number): number => Math.round((hp / 2) * DROID.hits);
 
 function mapEnemies(id: OtherMission): EnemyJson[] {
   const kinds = enemyKinds(id);
-  return MAPS[id].enemies.flatMap((e) => {
-    const tuning = kinds[e.kind];
-    if (!tuning) throw new Error(`unknown enemy kind in ${id}: ${e.kind}`);
-    return droidsOf([e], tuning);
-  });
+  return MAPS[id].enemies.flatMap((e) => droidsOf([e], { ...kinds[e.kind]!, hits: hitsOf(e.hp) }));
 }
 
 export function missionJson(id: MissionId): SandboxJson {
@@ -91,7 +58,7 @@ export function missionJson(id: MissionId): SandboxJson {
     props: [],
     enemies: mapEnemies(id),
     tasks: { tasks: [] },
-    fallDeathCells: map.fallDeathCells ?? null,
+    ...(map.fallDeathCells === undefined ? {} : { fallDeathCells: map.fallDeathCells }),
     hazards: (map.hazards ?? []) as SandboxJson["hazards"],
     conveyors: (map.conveyors ?? []) as SandboxJson["conveyors"],
     teleports: (map.teleports ?? []) as SandboxJson["teleports"],

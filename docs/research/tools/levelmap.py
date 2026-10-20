@@ -418,7 +418,7 @@ def enemy(grid, deaths, e):
         raise SystemExit(f"enemy {e['id']} has no open foot cell on its floor at row {row}")
     if (free[0], lo, hi) != (col, *e["patrol"]):
         print(f"enemy {e['id']} cell {col} -> {free[0]}, patrol {e['patrol']} -> {[lo, hi]}", file=sys.stderr)
-    return {"kind": e["type"], "cell": foot(grid, free[0], row), "patrol": [lo, hi]}
+    return {"kind": e["type"], "hp": e["engine"]["hp"], "cell": foot(grid, free[0], row), "patrol": [lo, hi]}
 
 
 def enemies_of(grid, enemies, kinds, hazards):

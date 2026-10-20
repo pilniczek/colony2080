@@ -1,8 +1,9 @@
+import jeskyneMap from "@config/levels/jeskyne/map.json";
+import jungleMap from "@config/levels/jungle/map.json";
 import { describe, expect, it } from "vitest";
 import { createHero } from "../hero/hero";
 import { cfg } from "../hero/testWorld";
 import { checkSnapshot, takeSnapshot } from "../save/snapshot";
-import { mestoJson } from "./mesto";
 import { enemyKinds, loadMission, missionJson, MISSIONS } from "./missions";
 import type { SandboxWorld } from "./sandboxLevel";
 
@@ -49,7 +50,7 @@ describe("missions", () => {
   });
 
   it("mesto json is unchanged", () => {
-    expect(missionJson("mesto")).toEqual(mestoJson());
+    expect(missionJson("mesto")).toMatchSnapshot();
   });
 
   it("refuses a vesnice snapshot in mesto", () => {
@@ -68,12 +69,21 @@ describe("missions", () => {
     expect(loadMission("jungle").teleports.map((t) => t.id)).toEqual(["towerLiftUp", "towerLiftDown"]);
   });
 
-  it("tunes each enemy kind from its hit points", () => {
-    expect(enemyKinds("jeskyne").trooper!.hits).toBe(35);
-    expect(enemyKinds("vesnice").greyTrooper!.hits).toBe(7);
+  it("flies only the mesto flyers", () => {
     expect(enemyKinds("mesto").flyer!.flight).toBeDefined();
     expect(enemyKinds("mesto").chromeDroid!.flight).toBeUndefined();
     expect(enemyKinds("jungle").crawler!.flight).toBeUndefined();
+  });
+
+  it("gives each enemy the hits of its own hit points", () => {
+    const rockets = missionJson("jungle").enemies.filter((e, i) => jungleMap.enemies[i]!.kind === "rocketDroid");
+    expect(new Set(rockets.map((e) => e.hits))).toEqual(new Set([7, 11]));
+    expect(missionJson("jeskyne").enemies.map((e) => e.hits)).toEqual(jeskyneMap.enemies.map((e) => Math.round((e.hp / 2) * 7)));
+  });
+
+  it("keeps a missing fall death height missing", () => {
+    expect("fallDeathCells" in missionJson("mesto")).toBe(false);
+    expect(missionJson("vesnice").fallDeathCells).toBeNull();
   });
 
   it("places every map enemy with its kind tuning", () => {
