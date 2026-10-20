@@ -7,7 +7,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "tools/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "tools/**/*.test.ts", "scripts/**/*.test.ts"],
     exclude: ["node_modules/**", "spikes/**", "docs/**", ".claude/**", ".superpowers/**", "dist/**"],
   },
 });

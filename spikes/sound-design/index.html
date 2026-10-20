@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sound Sheet</title>
+<style>
+  :root { --bg: #0b1112; --panel: #141c1e; --card: #10181a; --text: #c9d1d0; --muted: #7d8a89; --accent: #e2701a; --cool: #3fd0e0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: var(--panel); }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  header label, header span { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  h2 { margin: 16px 16px 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  section { margin: 12px 16px; padding: 12px; background: var(--card); border-radius: 6px; }
+  section h3 { margin: 0 0 8px; font-size: 15px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .use { color: var(--muted); font-weight: 400; font-size: 12px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 8px; color: var(--muted); }
+  .controls input { width: 72px; background: #0b1112; color: var(--text); border: 1px solid #2a3836; border-radius: 3px; padding: 2px 4px; }
+  button { background: #22302f; color: var(--text); border: 1px solid #2f4240; border-radius: 3px; padding: 3px 10px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.orig { border-color: #4a3a22; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 4px; max-width: 100%; }
+  figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  figure canvas { display: block; max-width: 100%; background: #000; border-radius: 4px; image-rendering: pixelated; }
+  .err { color: #d06a5a; font-size: 11px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sound sheet</h1>
+  <label>Volume <input id="master" type="range" min="0" max="1" step="0.05" value="0.6"></label>
+  <span>Waveform and spectrogram at the play rate, 300 px per second, frequency up to half the rate.</span>
+</header>
+<div id="sheet"></div>
+<script src="../shared/originals.js"></script>
+<script src="../shared/sounds.js"></script>
+<!-- originals -->
+<script>
+window.SOUND_ORIGINALS = {
+  file: id => window.ORIGINALS.src(`gamedata/raw/CD/ZVUKY/${window.SOUND_ORIGINALS.of[id]}`),
+  of: {
+    gunShot: "STRELBA.SND", cannon: "P1_CANN.SND", laser: "LASER2.SND", beam: "LASER3.SND", punch: "UDER.SND",
+    explosion: "VYBUCH6.SND", step: "KROK3.SND", land: "SIGNAL.SND", click: "IKONA.SND", inventory: "INVEND.SND",
+    power: "GATE.SND", siren: "SIRENA3.SND", liftStart: "VYTAH1.SND", liftStop: "VYTAH2.SND", door: "DVERE.SND",
+    grate: "MRIZ2.SND", thunder: "HROM.SND", teleport: "TELEPORT.SND", spark: "ZKRAT.SND", servo: "HYDRA.SND",
+    crackle: "EL.SND", ignition: "ZAZEH.SND", flyby: "PRULET2.SND", flyover: "PRELET.SND", hatch: "VRATA1.SND",
+    slam: "VRATA2.SND", takeoff: "ODLET.SND", blast: "VYBUCH2.SND", heavyDoor: "DVERE2.SND"
+  }
+};
+</script>
+<!-- /originals -->
+<script>
+const { SOUNDS, BASE_RATE } = window.C28_SOUNDS;
+const ORIGINAL = window.ORIGINALS.on ? window.SOUND_ORIGINALS : null;
+const $ = (id) => document.getElementById(id);
+
+const PX_PER_SECOND = 300;
+const MAX_WIDTH = 900;
+const WAVE_H = 64;
+const SPEC_H = 96;
+const FFT = 256;
+const HOP = 64;
+
+const GROUPS = [
+  ["Combat", {
+    gunShot: [15000, 63, "Hero gun shot"],
+    cannon: [15000, 63, "Droid shot, missions 2-4"],
+    laser: [15000, 63, "Flyer shot"],
+    beam: [8000, 63, "E-Blaster beam, every firing tick"],
+    punch: [13000, 63, "Punch, hit or miss"],
+    explosion: [9000, 63, "Enemy or guard explodes, rate 8000-9999"]
+  }],
+  ["World and UI", {
+    step: [10000, 33, "Footstep, alternates 10000 / 9400"],
+    land: [8500, 44, "Jump landing"],
+    click: [20000, 45, "Weapon switch; menu keys at 5500, vol 33"],
+    inventory: [8000, 63, "Inventory opens"],
+    power: [20000, 63, "Shield spent, energy refilled"],
+    siren: [8500, 34, "Low energy, every 15 s"],
+    liftStart: [8000, 63, "Lift starts"],
+    liftStop: [8000, 63, "Lift stops"],
+    door: [11000, 63, "Door opens"],
+    grate: [18000, 63, "Grate opens"],
+    thunder: [9000, 63, "Mission 1 thunder, random gaps"],
+    teleport: [13000, 63, "Teleport pad"],
+    spark: [12000, 63, "Electric hazard, every 10th tick"]
+  }],
+  ["Films", {
+    servo: [11000, 63, "Servo whine, item pickups and uses"],
+    crackle: [17000, 63, "Electric crackle"],
+    ignition: [14000, 63, "Engine ignition"],
+    flyby: [7000, 63, "Ship pass-by"],
+    flyover: [10000, 63, "Ship flyover drone"],
+    hatch: [6000, 63, "Low hatch clank"],
+    slam: [8000, 63, "Hatch slam"],
+    takeoff: [13000, 63, "Takeoff rumble"],
+    blast: [8000, 63, "Big blast"],
+    heavyDoor: [9000, 63, "Heavy door"]
+  }]
+];
+
+let audio = null;
+let master = null;
+function context() {
+  if (!audio) {
+    audio = new AudioContext();
+    master = audio.createGain();
+    master.gain.value = Number($("master").value);
+    master.connect(audio.destination);
+  }
+  return audio;
+}
+$("master").addEventListener("input", () => { if (master) master.gain.value = Number($("master").value); });
+
+function play(samples, rate, vol) {
+  const ctx = context();
+  const buffer = ctx.createBuffer(1, samples.length, BASE_RATE);
+  buffer.copyToChannel(samples, 0);
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.playbackRate.value = rate / BASE_RATE;
+  const gain = ctx.createGain();
+  gain.gain.value = vol / 63;
+  source.connect(gain).connect(master);
+  source.start();
+}
+
+function canvas(w, h) {
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  c.style.width = `${w}px`;
+  c.style.height = `${h}px`;
+  return [c, c.getContext("2d")];
+}
+
+function figure(caption, node) {
+  const f = document.createElement("figure");
+  const cap = document.createElement("figcaption");
+  cap.textContent = caption;
+  f.append(node, cap);
+  return f;
+}
+
+const widthAt = (samples, rate) => Math.max(1, Math.min(MAX_WIDTH, Math.ceil(samples.length / rate * PX_PER_SECOND)));
+
+function waveform(samples, rate) {
+  const w = widthAt(samples, rate);
+  const [c, ctx] = canvas(w, WAVE_H);
+  const per = samples.length / w;
+  ctx.fillStyle = "#3fd0e0";
+  for (let x = 0; x < w; x++) {
+    let lo = 0, hi = 0;
+    for (let i = Math.floor(x * per); i < Math.min(samples.length, Math.floor((x + 1) * per) + 1); i++) {
+      lo = Math.min(lo, samples[i]);
+      hi = Math.max(hi, samples[i]);
+    }
+    const y0 = (1 - hi) * WAVE_H / 2, y1 = (1 - lo) * WAVE_H / 2;
+    ctx.fillRect(x, y0, 1, Math.max(1, y1 - y0));
+  }
+  return c;
+}
+
+const HANN = Float32Array.from({ length: FFT }, (_, i) => 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (FFT - 1)));
+
+function power(frame) {
+  const re = Float32Array.from(frame, (v, i) => v * HANN[i]);
+  const im = new Float32Array(FFT);
+  for (let i = 1, j = 0; i < FFT; i++) {
+    let bit = FFT >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) [re[i], re[j]] = [re[j], re[i]];
+  }
+  for (let len = 2; len <= FFT; len <<= 1) {
+    const a = -2 * Math.PI / len;
+    for (let i = 0; i < FFT; i += len) {
+      for (let k = 0; k < len / 2; k++) {
+        const cr = Math.cos(a * k), ci = Math.sin(a * k);
+        const p = i + k, q = p + len / 2;
+        const tr = re[q] * cr - im[q] * ci, ti = re[q] * ci + im[q] * cr;
+        re[q] = re[p] - tr; im[q] = im[p] - ti;
+        re[p] += tr; im[p] += ti;
+      }
+    }
+  }
+  return Float32Array.from({ length: FFT / 2 }, (_, k) => re[k] * re[k] + im[k] * im[k]);
+}
+
+function heat(v) {
+  return [Math.min(255, v * 3 * 255), Math.max(0, Math.min(255, (v * 3 - 1) * 255)), Math.max(0, Math.min(255, (v * 3 - 2) * 255))];
+}
+
+function spectrogram(samples, rate) {
+  const w = widthAt(samples, rate);
+  const [c, ctx] = canvas(w, SPEC_H);
+  const image = ctx.createImageData(w, SPEC_H);
+  const frames = Math.max(1, Math.floor((samples.length - FFT) / HOP) + 1);
+  const frame = new Float32Array(FFT);
+  const columns = [];
+  for (let f = 0; f < frames; f++) {
+    frame.fill(0);
+    frame.set(samples.subarray(f * HOP, f * HOP + FFT));
+    columns.push(power(frame));
+  }
+  for (let x = 0; x < w; x++) {
+    const col = columns[Math.min(frames - 1, Math.floor(x / w * frames))];
+    for (let y = 0; y < SPEC_H; y++) {
+      const db = 10 * Math.log10(col[Math.floor((1 - (y + 1) / SPEC_H) * FFT / 2)] + 1e-9);
+      const [r, g, b] = heat(Math.max(0, Math.min(1, (db + 30) / 70)));
+      const at = (y * w + x) * 4;
+      image.data[at] = r; image.data[at + 1] = g; image.data[at + 2] = b; image.data[at + 3] = 255;
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+  return c;
+}
+
+async function originalSamples(id) {
+  const response = await fetch(ORIGINAL.file(id));
+  if (!response.ok) throw new Error(`${response.status}`);
+  return Float32Array.from(new Uint8Array(await response.arrayBuffer()), (b) => (b - 128) / 128);
+}
+
+function views(row, label, samples, rate) {
+  const seconds = (samples.length / rate).toFixed(2);
+  row.append(figure(`${label} wave, ${seconds} s`, waveform(samples, rate)), figure(`${label} spectrogram`, spectrogram(samples, rate)));
+}
+
+function card(id, [rate, vol, use]) {
+  const samples = SOUNDS[id]();
+  const section = document.createElement("section");
+  const title = document.createElement("h3");
+  title.textContent = id;
+  const what = document.createElement("span");
+  what.className = "use";
+  what.textContent = use;
+  title.append(what);
+
+  const controls = document.createElement("div");
+  controls.className = "controls";
+  const rateInput = Object.assign(document.createElement("input"), { type: "number", min: 3000, max: 48000, step: 100, value: rate });
+  const volInput = Object.assign(document.createElement("input"), { type: "number", min: 1, max: 63, step: 1, value: vol });
+  const playButton = Object.assign(document.createElement("button"), { textContent: "Play" });
+  const rateLabel = document.createElement("label");
+  rateLabel.append("Rate Hz ", rateInput);
+  const volLabel = document.createElement("label");
+  volLabel.append("Vol ", volInput);
+  controls.append(playButton, rateLabel, volLabel);
+
+  const synthRow = document.createElement("div");
+  synthRow.className = "row";
+  const originalRow = document.createElement("div");
+  originalRow.className = "row";
+  section.append(title, controls, synthRow, originalRow);
+
+  const currentRate = () => Math.max(3000, Number(rateInput.value) || rate);
+  const currentVol = () => Math.max(1, Math.min(63, Number(volInput.value) || vol));
+  let original = null;
+  const draw = () => {
+    synthRow.replaceChildren();
+    views(synthRow, "Synth", samples, currentRate());
+    if (original) {
+      originalRow.replaceChildren();
+      views(originalRow, "Original", original, currentRate());
+    }
+  };
+  playButton.addEventListener("click", () => play(samples, currentRate(), currentVol()));
+  rateInput.addEventListener("change", draw);
+
+  if (ORIGINAL) {
+    const originalButton = Object.assign(document.createElement("button"), { className: "orig", textContent: "Play original" });
+    controls.append(originalButton);
+    const loaded = originalSamples(id).then((s) => { original = s; draw(); return s; }).catch((e) => {
+      originalButton.disabled = true;
+      controls.append(Object.assign(document.createElement("span"), { className: "err", textContent: `original not loaded (${e.message}); serve the page over http` }));
+    });
+    originalButton.addEventListener("click", () => loaded.then((s) => s && play(s, currentRate(), currentVol())));
+  }
+  draw();
+  return section;
+}
+
+for (const [name, sounds] of GROUPS) {
+  const heading = document.createElement("h2");
+  heading.textContent = name;
+  $("sheet").append(heading, ...Object.entries(sounds).map(([id, spec]) => card(id, spec)));
+}
+const listed = new Set(GROUPS.flatMap(([, sounds]) => Object.keys(sounds)));
+const missing = Object.keys(SOUNDS).filter((id) => !listed.has(id));
+if (missing.length) {
+  const heading = document.createElement("h2");
+  heading.textContent = "Other";
+  $("sheet").append(heading, ...missing.map((id) => card(id, [BASE_RATE, 63, ""])));
+}
+</script>
+</body>
+</html>
