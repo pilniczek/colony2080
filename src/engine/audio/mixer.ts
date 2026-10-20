@@ -22,7 +22,7 @@ export const MAX_VOICES = 8;
 
 const MAX_VOL = 63;
 
-export const LEVEL = 0.3;
+export const LEVEL = 0.15;
 
 const LOUDNESS_WINDOW = Math.round(BASE_RATE * 0.05);
 
