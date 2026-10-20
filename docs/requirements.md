@@ -165,5 +165,5 @@ flowchart LR
 
 ## Open
 
-- Environment sheet: all 52 objects and the `ladder` drawn, first pass kept, iterate later. The sandbox uses a subset (ported to `src/game/env/`). Guessed looks (no original sprite or unclear): code lock, E-Blaster pickup on the ground, hazard plate purpose, staircase treads. Marker 6 is either the valve wheel near the E-Blaster or the water pipe; both are drawn.
+- Environment sheet: all 52 objects and the `ladder` drawn, first pass kept, revisit a look only on new evidence from the original (2026-10-20, user). The sandbox uses a subset (ported to `src/game/env/`). Guessed looks (no original sprite or unclear): code lock, E-Blaster pickup on the ground, hazard plate purpose, staircase treads. Marker 6 is either the valve wheel near the E-Blaster or the water pipe; both are drawn.
 - Sandbox HUD shows live life, shields, weapon and ammo (see Ammo). Shields start at `energy.shields` in `config/hero/movement.json`.
