@@ -22,6 +22,8 @@ export function steady(seconds: number, source: (t: number, i: number) => number
   });
 }
 
+export const fadeOut = (end: number, seconds = 0.01): ((t: number) => number) => (t) => Math.min(1, Math.max(0, (end - t) / seconds));
+
 export const steps = (width: number, levels: number[]): ((t: number) => number) => (t) => levels[Math.floor(t / width)] ?? 0;
 
 export const driven = (carrier: Float32Array, drive: number, windowSeconds = 0.01): Float32Array =>

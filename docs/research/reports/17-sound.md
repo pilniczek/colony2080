@@ -404,9 +404,9 @@ Recipes in `src/game/sound/recipes/` against their original, both as sample stre
 | `ignition` | `ZAZEH` | 1.00 | 0.974 | 2.9 | 0.92 |
 | `flyby` | `PRULET2` | 1.00 | 0.979 | 2.7 | 0.98 |
 | `flyover` | `PRELET` | 1.00 | 0.965 | 2.5 | 0.92 |
-| `hatch` | `VRATA1` | 1.05 | 0.985 | 2.4 | 0.99 |
+| `hatch` | `VRATA1` | 1.05 | 0.948 | 2.4 | 0.98 |
 | `slam` | `VRATA2` | 1.01 | 0.992 | 2.5 | 0.99 |
-| `takeoff` | `ODLET` | 1.00 | 0.966 | 3.0 | 0.99 |
+| `takeoff` | `ODLET` | 1.00 | 0.965 | 3.0 | 0.99 |
 | `blast` | `VYBUCH2` | 1.00 | 0.982 | 3.1 | 0.95 |
 | `heavyDoor` | `DVERE2` | 1.00 | 0.971 | 3.8 | 1.01 |
 
@@ -414,7 +414,7 @@ Noise recipes (`cannon`, `explosion`) keep the seed with the best envCorr of see
 
 World and UI recipes (`step` to `spark`) take their level from the original's 10 ms RMS envelope: breakpoints simplified in the square-root domain, or one value per 10 ms window for the short ones (`land`, `click`, `inventory`, `spark`). Noise and mixed carriers pass through `steady` (normalized to unit RMS over a 5-10 ms window), so the envelope alone sets each window's level and scores barely move with the seed: over 8 seed sets every recipe stays within 0.01 envCorr and 0.3 dB, except `spark` (0.920-0.940). `siren` is one harmonic series on a rising 470-880 Hz fundamental under a fixed formant peak at 1.6 kHz; that is why its loudest partial jumps from the 3rd to the 2nd harmonic. `spark` stops at full level in the original. The recipe adds 10 ms of silence after the cut (samples ratio 1.05), so playback ends without a click. That costs envCorr in the last window.
 
-Film recipes (`servo` to `heavyDoor`, `src/game/sound/recipes/film.ts`) cover every non-voice film cue sound without an earlier recipe: `HYDRA` plus the `Film-only sounds` table. `NIC` gets no recipe: its cue plays silence, so the film cue is left out. Level comes from the original's 10 ms RMS envelope on the 110-sample window grid of the metric (a 0.01 s grid drifts one window every 4.5 s); `takeoff` (`ODLET`), a steady rumble whose level changes every window, takes one value per window. The carrier is shaped noise: `sweptLow` (two one-pole lowpasses on a cutoff curve) for the pass-by and blast brightness, band resonances for `ignition` (2.45 kHz nozzle after the 1.53 s ignition crack) and `flyover` (330 Hz drone), and `driven` (clip, then unit RMS again) for the heavily clipped originals (`hatch`, `slam`, `takeoff`, `blast`, `heavyDoor`). `servo` is noise under 1.1 kHz plus harmonics 2, 5, 7, 8 and 10 of a 175-216 Hz arc; `heavyDoor` is 57, 94, 40 and 83 Hz hums after a 12 Hz swell. `flyby` and `heavyDoor` start with the same 7 ms negative pulse their originals open with. Over 8 seed sets every film recipe stays within 0.02 envCorr and 0.4 dB; the lowest envCorr is `servo` at 0.945.
+Film recipes (`servo` to `heavyDoor`, `src/game/sound/recipes/film.ts`) cover every non-voice film cue sound without an earlier recipe: `HYDRA` plus the `Film-only sounds` table. `NIC` gets no recipe: its cue plays silence, so the film cue is left out. Level comes from the original's 10 ms RMS envelope on the 110-sample window grid of the metric (a 0.01 s grid drifts one window every 4.5 s); `takeoff` (`ODLET`), a steady rumble whose level changes every window, takes one value per window. The carrier is shaped noise: `sweptLow` (two one-pole lowpasses on a cutoff curve) for the pass-by and blast brightness, band resonances for `ignition` (2.45 kHz nozzle after the 1.53 s ignition crack) and `flyover` (330 Hz drone), and `driven` (clip, then unit RMS again) for the heavily clipped originals (`hatch`, `slam`, `takeoff`, `blast`, `heavyDoor`). `servo` is noise under 1.1 kHz plus harmonics 2, 5, 7, 8 and 10 of a 175-216 Hz arc; `heavyDoor` is 57, 94, 40 and 83 Hz hums after a 12 Hz swell. `flyby` and `heavyDoor` start with the same 7 ms negative pulse their originals open with. `hatch` and `takeoff` end on a 10 ms linear fade instead of the original's hard cut; the last `hatch` level step is raised to keep that window's RMS. Over 8 seed sets every film recipe stays within 0.02 envCorr and 0.4 dB; the lowest envCorr is `servo` at 0.945.
 
 ## Tools
 
