@@ -13,6 +13,8 @@ import { READOUT, type HudIcon, type HudIcons } from "./svg";
 const PX_PER_UNIT = 12;
 const FIST_BOX = { x: 290, y: -386, w: 194, h: 146 };
 const STAGE = 2400;
+const PROBE_SHRINK = 8;
+const STAGE_PAD = 16;
 const ITEM_ZOOM = 8;
 const OUTLINE_STEPS = [[-6, 0], [6, 0], [0, -6], [0, 6], [-4, -4], [4, 4], [-4, 4], [4, -4]] as const;
 const DIAGRAM_FILL = 0.18;
@@ -32,12 +34,18 @@ function icon(w: number, h: number, paint: (ctx: CanvasRenderingContext2D) => vo
 
 function inkColumns(canvas: HTMLCanvasElement, h: number): HudIcon {
   const { width, height } = canvas;
-  const alpha = canvas.getContext("2d")!.getImageData(0, 0, width, height).data;
-  const inked = (x: number): boolean => Array.from({ length: height }, (_, y) => alpha[(y * width + x) * 4 + 3]!).some((a) => a > 0);
-  const columns = Array.from({ length: width }, (_, x) => x).filter(inked);
-  if (columns.length === 0) return { url: canvas.toDataURL(), w: width / PX_PER_UNIT, h };
-  const left = columns[0]!, cropped = document.createElement("canvas");
-  cropped.width = columns[columns.length - 1]! - left + 1;
+  const pixels = new Uint32Array(canvas.getContext("2d")!.getImageData(0, 0, width, height).data.buffer);
+  const inked = (x: number): boolean => {
+    for (let y = 0; y < height; y++) if (pixels[y * width + x]! >>> 24) return true;
+    return false;
+  };
+  let left = 0;
+  while (left < width && !inked(left)) left++;
+  if (left === width) return { url: canvas.toDataURL(), w: width / PX_PER_UNIT, h };
+  let right = width - 1;
+  while (!inked(right)) right--;
+  const cropped = document.createElement("canvas");
+  cropped.width = right - left + 1;
   cropped.height = height;
   cropped.getContext("2d")!.drawImage(canvas, -left, 0);
   return { url: cropped.toDataURL(), w: cropped.width / PX_PER_UNIT, h };
@@ -101,36 +109,68 @@ function robotIcon(pose: Pose): HudIcon {
     ctx.scale(1.5, 1.5);
     ctx.translate(-350, -350);
     drawRig(ctx, buildSide({ farLimbs: true, lod: true }), { palette: ROBOT.palette, pose, simple: true });
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.globalCompositeOperation = "source-in";
-    ctx.fillStyle = READOUT;
-    ctx.fillRect(0, 0, STAGE, STAGE);
-  });
+  }, READOUT);
   return trimmed(robot, TOGGLE_W, ICON_H);
 }
 
-function stage(paint: (ctx: CanvasRenderingContext2D) => void): HTMLCanvasElement {
+function canvasOf(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
   const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = STAGE;
-  const ctx = canvas.getContext("2d");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("no 2d context");
-  ctx.translate(STAGE / 2, STAGE / 2);
+  return [canvas, ctx];
+}
+
+function recolor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, color: string): void {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = "source-in";
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function stage(paint: (ctx: CanvasRenderingContext2D) => void, color?: string): HTMLCanvasElement {
+  const [probe, rough] = canvasOf(STAGE / PROBE_SHRINK, STAGE / PROBE_SHRINK);
+  rough.scale(1 / PROBE_SHRINK, 1 / PROBE_SHRINK);
+  rough.translate(STAGE / 2, STAGE / 2);
+  paint(rough);
+  const ink = inkBox(probe);
+  const x0 = Math.max(0, ink.x0 * PROBE_SHRINK - STAGE_PAD);
+  const y0 = Math.max(0, ink.y0 * PROBE_SHRINK - STAGE_PAD);
+  const x1 = Math.min(STAGE, (ink.x1 + 1) * PROBE_SHRINK + STAGE_PAD);
+  const y1 = Math.min(STAGE, (ink.y1 + 1) * PROBE_SHRINK + STAGE_PAD);
+  const [canvas, ctx] = canvasOf(Math.max(1, x1 - x0), Math.max(1, y1 - y0));
+  ctx.translate(STAGE / 2 - x0, STAGE / 2 - y0);
   paint(ctx);
+  if (color) recolor(canvas, ctx, color);
   return canvas;
 }
 
+function inkBox(canvas: HTMLCanvasElement): { x0: number; y0: number; x1: number; y1: number } {
+  const { width, height } = canvas;
+  const pixels = new Uint32Array(canvas.getContext("2d")!.getImageData(0, 0, width, height).data.buffer);
+  const inkRow = (y: number): boolean => {
+    for (let i = y * width, end = i + width; i < end; i++) if (pixels[i]! >>> 24) return true;
+    return false;
+  };
+  let y0 = 0;
+  while (y0 < height && !inkRow(y0)) y0++;
+  if (y0 === height) return { x0: width, y0: height, x1: 0, y1: 0 };
+  let y1 = height - 1;
+  while (!inkRow(y1)) y1--;
+  const inkColumn = (x: number): boolean => {
+    for (let y = y0; y <= y1; y++) if (pixels[y * width + x]! >>> 24) return true;
+    return false;
+  };
+  let x0 = 0;
+  while (!inkColumn(x0)) x0++;
+  let x1 = width - 1;
+  while (!inkColumn(x1)) x1--;
+  return { x0, y0, x1, y1 };
+}
+
 function trimmed(canvas: HTMLCanvasElement, w: number, h: number): HudIcon {
-  const { data } = canvas.getContext("2d")!.getImageData(0, 0, STAGE, STAGE);
-  let x0 = STAGE, y0 = STAGE, x1 = 0, y1 = 0;
-  for (let y = 0; y < STAGE; y++) {
-    for (let x = 0; x < STAGE; x++) {
-      if (data[(y * STAGE + x) * 4 + 3] === 0) continue;
-      x0 = Math.min(x0, x);
-      x1 = Math.max(x1, x);
-      y0 = Math.min(y0, y);
-      y1 = Math.max(y1, y);
-    }
-  }
+  const { x0, y0, x1, y1 } = inkBox(canvas);
   const bw = x1 - x0 + 1;
   const bh = y1 - y0 + 1;
   const k = Math.min(w / bw, h / bh);
@@ -141,22 +181,17 @@ function trimmed(canvas: HTMLCanvasElement, w: number, h: number): HudIcon {
 }
 
 function outline(source: HTMLCanvasElement, color: string): HTMLCanvasElement {
-  const silhouette = stage((ctx) => {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.drawImage(source, 0, 0);
-    ctx.globalCompositeOperation = "source-in";
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, STAGE, STAGE);
-  });
-  return stage((ctx) => {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    for (const [dx, dy] of OUTLINE_STEPS) ctx.drawImage(silhouette, dx, dy);
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.drawImage(silhouette, 0, 0);
-    ctx.globalCompositeOperation = "source-over";
-    ctx.globalAlpha = DIAGRAM_FILL;
-    ctx.drawImage(silhouette, 0, 0);
-  });
+  const [silhouette, shape] = canvasOf(source.width, source.height);
+  shape.drawImage(source, 0, 0);
+  recolor(silhouette, shape, color);
+  const [canvas, ctx] = canvasOf(source.width, source.height);
+  for (const [dx, dy] of OUTLINE_STEPS) ctx.drawImage(silhouette, dx, dy);
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.drawImage(silhouette, 0, 0);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = DIAGRAM_FILL;
+  ctx.drawImage(silhouette, 0, 0);
+  return canvas;
 }
 
 function bigItem({ icon: { asset, state, tilt } }: Item): HudIcon {
