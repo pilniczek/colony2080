@@ -140,7 +140,7 @@ window.C28_CONFIG = {
     "legCenterX": 211,
     "bodyScaleX": 0.8,
     "forearmShift": 10,
-    "backShoulderIn": 20,
+    "shoulderIn": 20,
     "forearmScaleX": 0.86,
     "badgeRadius": 26,
     "sideTorsoScaleX": 0.8,

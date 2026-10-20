@@ -65,7 +65,7 @@ export const holdPoses = (side: GroupNode, front: GroupNode): HoldPoses => {
   };
 };
 
-export const FRONT_BARREL = 247;
+export const FRONT_BARREL = 226;
 
 const BAND = GUN_PARTS.find((p) => p.name === "barrelBack") as WeaponPart;
 const SCAN = { x: -600, w: 1600 };

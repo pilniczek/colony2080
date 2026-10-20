@@ -49,7 +49,7 @@ const LEG_SHIFT = PR.legShift;
 const LEG_CX = PR.legCenterX;
 const BODY_SX = PR.bodyScaleX;
 const FORE_SHIFT = PR.forearmShift;
-const BACK_SHOULDER_IN = PR.backShoulderIn;
+const SHOULDER_IN = PR.shoulderIn;
 const BADGE_R = PR.badgeRadius;
 const FOREARM_SX = PR.forearmScaleX;
 const SIDE_TORSO_SX = PR.sideTorsoScaleX;
@@ -109,8 +109,8 @@ const backLeg = (k: Kit, s: GroupNode, right: boolean, enemy: boolean): void => 
 
 const bodyGroup = (k: Kit, parent: GroupNode): GroupNode => k.G(parent, `translate(${AX} 0) scale(${BODY_SX} 1) translate(${-AX} 0)`);
 
-const backArmGroup = (k: Kit, parent: GroupNode, right: boolean): GroupNode =>
-  k.G(bodyGroup(k, parent), `translate(${right ? -BACK_SHOULDER_IN : BACK_SHOULDER_IN} 0)`);
+const armGroup = (k: Kit, parent: GroupNode, right: boolean): GroupNode =>
+  k.G(bodyGroup(k, parent), `translate(${right ? -SHOULDER_IN : SHOULDER_IN} 0)`);
 
 const headFront = (k: Kit, body: GroupNode, back: boolean, enemy: boolean): void => {
   const s = back ? body : k.G(body, null, "head", [320, 120]);
@@ -196,9 +196,9 @@ const frontArm = (
   frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront);
 };
 
-const shoulder = (k: Kit, parent: GroupNode, mirrored: boolean, arm: string): void => {
+const shoulder = (k: Kit, parent: GroupNode, mirrored: boolean): void => {
   const x = mirrored ? 2 * AX - 100 : 100;
-  const domes = k.G(k.G(parent, null, arm, [x, 150]), `translate(${x} 0) scale(${k.bulk("arms")} 1) translate(${-x} 0)`);
+  const domes = k.G(parent, `translate(${x} 0) scale(${k.bulk("arms")} 1) translate(${-x} 0)`);
   k.P(domes, { pts: mirrored ? mirror(pauldron) : pauldron, r: 20, shade: "dome" });
 };
 
@@ -244,9 +244,8 @@ const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy
   k.P(b, { pts: [[300, 160], [340, 160], [344, 182], [330, 196], [310, 196], [296, 182]], r: 12, shade: "dome" });
   if (!enemy) k.trefoil(b, 418, 150, BADGE_R, 1 / BODY_SX);
   headFront(k, s, false, enemy);
-  const arms = bodyGroup(k, s);
-  const left = (): void => frontArm(k, arms, false, { arm: "armL", fore: "foreL", hand: "handL" }, { propBehindArm });
-  const right = (): void => frontArm(k, arms, true, { arm: "armR", fore: "foreR", hand: "handR" });
+  const left = (): void => frontArm(k, armGroup(k, s, false), false, { arm: "armL", fore: "foreL", hand: "handL" }, { propBehindArm });
+  const right = (): void => frontArm(k, armGroup(k, s, true), true, { arm: "armR", fore: "foreR", hand: "handR" });
   if (rightArmFirst) {
     right();
     left();
@@ -254,9 +253,8 @@ const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy
     left();
     right();
   }
-  const shoulders = bodyGroup(k, s);
-  shoulder(k, shoulders, false, "armL");
-  shoulder(k, shoulders, true, "armR");
+  shoulder(k, armGroup(k, s, false), false);
+  shoulder(k, armGroup(k, s, true), true);
   return root;
 };
 
@@ -291,8 +289,8 @@ const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, thum
   const root = k.root();
   const s = k.G(root, null, "body", [AX, 344]);
   const left = { arm: "armL", fore: "foreL", hand: "handL" };
-  if (leftArmBehind) frontArm(k, backArmGroup(k, s, false), false, left, { thumbFront: !thumbsBehind });
-  const behindRight = rightForeBehind ? backArmGroup(k, s, true) : null;
+  if (leftArmBehind) frontArm(k, armGroup(k, s, false), false, left, { thumbFront: !thumbsBehind });
+  const behindRight = rightForeBehind ? armGroup(k, s, true) : null;
   k.P(bodyGroup(k, s), { pts: [[198, 318], [442, 318], [442, 372], [198, 372]], mat: "chrome", shade: "hcyl", r: 6 });
   backLeg(k, s, false, enemy);
   backLeg(k, s, true, enemy);
@@ -305,16 +303,16 @@ const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, thum
   });
   if (!enemy) backDetail(k, b);
   headFront(k, s, true, enemy);
-  if (!leftArmBehind) frontArm(k, backArmGroup(k, s, false), false, left, { thumbFront: !thumbsBehind, foreUnder: forearmsUnder });
+  if (!leftArmBehind) frontArm(k, armGroup(k, s, false), false, left, { thumbFront: !thumbsBehind, foreUnder: forearmsUnder });
   frontArm(
     k,
-    backArmGroup(k, s, true),
+    armGroup(k, s, true),
     true,
     { arm: "armR", fore: "foreR", hand: "handR" },
     { thumbFront: !rightForeBehind && !thumbsBehind, foreParent: behindRight, flipHand: rightForeBehind, foreUnder: forearmsUnder },
   );
-  shoulder(k, backArmGroup(k, s, false), false, "armL");
-  shoulder(k, backArmGroup(k, s, true), true, "armR");
+  shoulder(k, armGroup(k, s, false), false);
+  shoulder(k, armGroup(k, s, true), true);
   k.hook(k.G(s, `translate(330 236) rotate(${(-0.95 * 180) / Math.PI}) translate(-40 -60)`), "back");
   return root;
 };

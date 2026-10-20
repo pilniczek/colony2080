@@ -32,7 +32,7 @@ describe("gun", () => {
   const front = buildFront({ rightArmFirst: true, propBehindArm: true });
   const poses = holdPoses(side, front);
 
-  it("front barrel matches the spike silhouette result", () => expect(FRONT_BARREL).toBeCloseTo(247, 0));
+  it("front barrel matches the spike silhouette result", () => expect(FRONT_BARREL).toBeCloseTo(226, 0));
 
   it("draws a 196 barrel by default", () => expect(barrelWidth()).toBe(196));
 
