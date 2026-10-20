@@ -38,6 +38,8 @@ const LOG_SIZE = 8;
 const FPS_SMOOTHING = 0.1;
 const MAX_PANEL_SHARE = 0.5;
 const MAP_HINT = "You have no map.";
+const PICTURE_W = 96;
+const PICTURE_QUALITY = 0.6;
 
 export interface RunStart {
   weapon: Weapon;
@@ -186,6 +188,14 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves 
     push();
   };
 
+  const picture = (): string => {
+    const shot = document.createElement("canvas");
+    shot.width = PICTURE_W;
+    shot.height = Math.max(1, Math.round((PICTURE_W * gameWindow.h) / gameWindow.w));
+    shot.getContext("2d")?.drawImage(canvas, gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h, 0, 0, shot.width, shot.height);
+    return shot.toDataURL("image/jpeg", PICTURE_QUALITY);
+  };
+
   const saveMenu =
     saves &&
     createSaveMenu({
@@ -193,13 +203,13 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves 
       world,
       hero,
       input,
-      canvas,
       keys: controls.keyboard,
-      gameWindow: () => gameWindow,
+      picture,
       movement: () => tuning().movement,
       moved: () => {
         prev = { x: hero.x, y: hero.y };
       },
+      leave: (href) => location.assign(href),
     });
 
   const loop = new FixedLoop({

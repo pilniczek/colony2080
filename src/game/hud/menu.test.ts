@@ -25,11 +25,13 @@ describe("menuSvg", () => {
     expect(menuSvg(320, 200, { screen: "save", cursor: 0, typing: null, confirm: false, message: "Save failed." }, slots, robot)).toContain("SAVE FAILED.");
   });
 
-  it("shows game over with load or restart", () => {
-    expect(menuSvg(320, 200, { screen: "gameOver", cursor: 0, canLoad: true }, slots, robot)).toContain("LOAD LAST SAVE");
-    const restart = menuSvg(320, 200, { screen: "gameOver", cursor: 0, canLoad: false }, slots, robot);
-    expect(restart).toContain("GAME OVER");
-    expect(restart).toContain("RESTART MISSION");
+  it("shows game over with load, restart and exit, and a message", () => {
+    const svg = menuSvg(320, 200, { screen: "gameOver", cursor: 1, canLoad: false, message: "This save is damaged." }, slots, robot);
+    for (const entry of ["GAME OVER", "LOAD LAST SAVE", "RESTART MISSION", "EXIT", "THIS SAVE IS DAMAGED."]) expect(svg).toContain(entry);
+  });
+
+  it("asks before leaving to mission select", () => {
+    expect(menuSvg(320, 200, { screen: "pause", cursor: 2, confirm: true }, slots, robot)).toContain("UNSAVED PROGRESS IS LOST");
   });
 
   it("escapes typed text", () => {

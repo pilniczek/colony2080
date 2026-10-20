@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Snapshot } from "./snapshot";
-import { latestFor, readSlots, slotName, writeSlot, type SlotEntry } from "./slots";
+import { readSlots, slotName, writeSlot, type SlotEntry } from "./slots";
 
 const memory = (): Storage => {
   const data = new Map<string, string>();
@@ -16,7 +16,7 @@ const memory = (): Storage => {
   };
 };
 
-const entry = (mission: string, savedAt: number): SlotEntry => ({ mission, name: slotName(mission, ""), savedAt, picture: "", snapshot: {} as Snapshot });
+const entry = (mission: string, savedAt: number): SlotEntry => ({ mission, name: slotName(mission, ""), savedAt, picture: "data:image/jpeg;base64,AA", snapshot: {} as Snapshot });
 
 describe("slots", () => {
   it("names a slot by its mission and the typed text", () => {
@@ -40,12 +40,9 @@ describe("slots", () => {
     expect(readSlots(null)).toEqual([null, null, null, null, null]);
     const junk = memory();
     junk.setItem("c2080.save.A", "{oops");
-    expect(readSlots(junk)[0]).toBeNull();
-  });
-
-  it("finds the newest save of a mission", () => {
-    const slots = [entry("mesto", 3), null, entry("other", 9), entry("mesto", 7), null];
-    expect(latestFor(slots, "mesto")).toBe(slots[3]);
-    expect(latestFor(slots, "nowhere")).toBeNull();
+    junk.setItem("c2080.save.B", JSON.stringify({ ...entry("mesto", 1), picture: 'x" onerror="alert(1)' }));
+    junk.setItem("c2080.save.C", JSON.stringify({ ...entry("mesto", 1), savedAt: "now" }));
+    junk.setItem("c2080.save.D", JSON.stringify({ ...entry("mesto", 1), snapshot: null }));
+    expect(readSlots(junk)).toEqual([null, null, null, null, null]);
   });
 });

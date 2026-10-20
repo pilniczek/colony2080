@@ -20,10 +20,28 @@ export const slotName = (mission: string, typed: string): string => (typed ? `${
 
 const key = (prefix: string, i: number): string => `${prefix}${SLOT_IDS[i]}`;
 
+const PICTURE_PREFIX = "data:image/";
+
+const entryOk = (value: unknown): value is SlotEntry => {
+  if (typeof value !== "object" || value === null) return false;
+  const e = value as Record<string, unknown>;
+  return (
+    typeof e.mission === "string" &&
+    typeof e.name === "string" &&
+    typeof e.savedAt === "number" &&
+    Number.isFinite(e.savedAt) &&
+    typeof e.picture === "string" &&
+    e.picture.startsWith(PICTURE_PREFIX) &&
+    typeof e.snapshot === "object" &&
+    e.snapshot !== null
+  );
+};
+
 function readOne(storage: Storage, k: string): SlotEntry | null {
   try {
     const text = storage.getItem(k);
-    return text ? (JSON.parse(text) as SlotEntry) : null;
+    const entry: unknown = text ? JSON.parse(text) : null;
+    return entryOk(entry) ? entry : null;
   } catch {
     return null;
   }
@@ -40,6 +58,3 @@ export function writeSlot(storage: Storage | null, i: number, entry: SlotEntry, 
     return false;
   }
 }
-
-export const latestFor = (slots: Slots, mission: string): SlotEntry | null =>
-  slots.reduce<SlotEntry | null>((best, slot) => (slot?.mission === mission && (!best || slot.savedAt > best.savedAt) ? slot : best), null);

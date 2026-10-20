@@ -1,35 +1,37 @@
 import type { Bindings, Input } from "../../engine/input";
 import { useSandbox } from "../../sandbox/store";
-import type { Rect } from "../geometry";
 import type { MovementConfig } from "../hero/config";
 import { isDead, type Hero } from "../hero/hero";
-import { menuKey, type MenuResult, type MenuState } from "../hud/menuKeys";
+import { gameOverState, menuKey, type MenuResult, type MenuState } from "../hud/menuKeys";
 import type { SandboxWorld } from "../level/sandboxLevel";
-import { latestFor, readSlots, slotName, writeSlot, type SlotEntry } from "./slots";
-import { applySnapshot, fits, takeSnapshot } from "./snapshot";
+import { readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
+import { checkSnapshot, loadSnapshot, takeSnapshot, type SaveProblem } from "./snapshot";
 
-const PICTURE_W = 96;
-const PICTURE_QUALITY = 0.6;
 const HOME = "index.html";
 const MENU_ACTIONS = ["up", "down", "useItem", "menu"];
-const SAVED = "Saved.";
-const SAVE_FAILED = "Save failed.";
-const MISFIT = "This save does not fit this version of the mission.";
+const REPEATING = ["up", "down"];
+export const SAVED = "Saved.";
+export const SAVE_FAILED = "Save failed.";
+export const PROBLEMS: Record<SaveProblem, string> = {
+  misfit: "This save does not fit this version of the mission.",
+  damaged: "This save is damaged and cannot be loaded.",
+};
 
 export interface SaveMenuOptions {
   mission: string;
   storage: Storage | null;
 }
 
-interface SaveMenuDeps extends SaveMenuOptions {
+export interface SaveMenuDeps extends SaveMenuOptions {
   world: SandboxWorld;
   hero: Hero;
   input: Input;
-  canvas: HTMLCanvasElement;
   keys: Bindings;
-  gameWindow: () => Rect;
+  picture: () => string;
   movement: () => MovementConfig;
   moved: () => void;
+  leave: (href: string) => void;
+  target?: Pick<Window, "addEventListener">;
 }
 
 export interface SaveMenu {
@@ -44,42 +46,47 @@ export const browserStorage = (): Storage | null => {
   }
 };
 
-function picture(canvas: HTMLCanvasElement, r: Rect): string {
-  const shot = document.createElement("canvas");
-  shot.width = PICTURE_W;
-  shot.height = Math.max(1, Math.round((PICTURE_W * r.h) / r.w));
-  shot.getContext("2d")?.drawImage(canvas, r.x, r.y, r.w, r.h, 0, 0, shot.width, shot.height);
-  return shot.toDataURL("image/jpeg", PICTURE_QUALITY);
-}
+export const latestLoadable = (slots: Slots, mission: string, world: SandboxWorld): SlotEntry | null =>
+  slots.reduce<SlotEntry | null>(
+    (best, slot) => (slot?.mission === mission && (!best || slot.savedAt > best.savedAt) && checkSnapshot(world, slot.snapshot) === null ? slot : best),
+    null,
+  );
+
+export const gameOverDue = (hero: Hero, dt: number, respawnMs: number, respawnAllowed: boolean): boolean =>
+  isDead(hero.state) && !respawnAllowed && (hero.time + dt) * 1000 >= respawnMs;
 
 export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   let respawnAllowed = false;
   const menu = (): MenuState | null => useSandbox.getState().menu;
-  const slots = () => useSandbox.getState().slots;
+  const slots = (): Slots => useSandbox.getState().slots;
   const show = (state: MenuState | null): void => useSandbox.setState({ menu: state });
   const refresh = (): void => useSandbox.setState({ slots: readSlots(d.storage) });
+  const loadableNow = (): boolean => latestLoadable(slots(), d.mission, d.world) !== null;
 
   const close = (): void => {
     d.input.clearPresses();
     show(null);
   };
 
-  const withMessage = (state: MenuState | null, message: string): MenuState | null =>
-    state && (state.screen === "save" || state.screen === "load") ? { ...state, message } : state;
+  const withMessage = (state: MenuState | null, message: string): MenuState | null => {
+    if (!state || state.screen === "pause") return state;
+    if (state.screen === "gameOver") return gameOverState(loadableNow(), message);
+    return { ...state, message };
+  };
 
   const load = (entry: SlotEntry | null | undefined, state: MenuState | null): void => {
     if (!entry) return;
-    if (!fits(d.world, entry.snapshot)) {
-      show(withMessage(state, MISFIT));
+    const problem = loadSnapshot(d.world, d.hero, entry.snapshot, d.movement());
+    if (problem) {
+      show(withMessage(state, PROBLEMS[problem]));
       return;
     }
-    applySnapshot(d.world, d.hero, entry.snapshot, d.movement());
     d.moved();
     close();
   };
 
   const save = (r: MenuResult): void => {
-    const entry: SlotEntry = { mission: d.mission, name: slotName(d.mission, r.name ?? ""), savedAt: Date.now(), picture: picture(d.canvas, d.gameWindow()), snapshot: takeSnapshot(d.world, d.hero) };
+    const entry: SlotEntry = { mission: d.mission, name: slotName(d.mission, r.name ?? ""), savedAt: Date.now(), picture: d.picture(), snapshot: takeSnapshot(d.world, d.hero) };
     const ok = writeSlot(d.storage, r.slot!, entry);
     refresh();
     show(withMessage(r.state, ok ? SAVED : SAVE_FAILED));
@@ -87,23 +94,21 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
 
   const act = (r: MenuResult): void => {
     if (r.action === "save") return save(r);
-    if (r.action === "load") return load(r.state?.screen === "gameOver" ? latestFor(slots(), d.mission) : slots()[r.slot!], r.state);
+    if (r.action === "load") return load(r.state?.screen === "gameOver" ? latestLoadable(slots(), d.mission, d.world) : slots()[r.slot!], r.state);
     if (r.action === "restart") {
       respawnAllowed = true;
       return close();
     }
-    if (r.action === "end" || r.action === "home") {
-      location.href = HOME;
-      return;
-    }
+    if (r.action === "end" || r.action === "home") return d.leave(HOME);
     if (r.state) show(r.state);
     else close();
   };
 
+  const bound = (code: string, actions: string[]): boolean => actions.some((action) => d.keys[action]?.includes(code));
+
   const handled = (e: KeyboardEvent, state: MenuState): boolean => {
     const typing = (state.screen === "save" || state.screen === "load") && state.typing !== null;
-    const bound = MENU_ACTIONS.some((action) => d.keys[action]?.includes(e.code));
-    return bound || (typing && (e.key.length === 1 || e.code === "Backspace"));
+    return bound(e.code, MENU_ACTIONS) || (typing && (e.key.length === 1 || e.code === "Backspace"));
   };
 
   const onKey = (e: KeyboardEvent): void => {
@@ -111,19 +116,19 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     if (!state || e.ctrlKey || e.metaKey || e.altKey || !handled(e, state)) return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    if (e.repeat && !["up", "down"].some((action) => d.keys[action]?.includes(e.code)) && e.code !== "Backspace") return;
+    if (e.repeat && !bound(e.code, REPEATING) && e.code !== "Backspace") return;
     act(menuKey(state, { code: e.code, key: e.key }, slots(), d.mission, d.keys));
   };
-  window.addEventListener("keydown", onKey, { capture: true });
+  (d.target ?? window).addEventListener("keydown", onKey as EventListener, { capture: true });
 
   return {
     step(dt) {
       if (menu()) return true;
       const { hero } = d;
       if (!isDead(hero.state)) respawnAllowed = false;
-      else if (!respawnAllowed && (hero.time + dt) * 1000 >= d.movement().respawnMs) {
+      else if (gameOverDue(hero, dt, d.movement().respawnMs, respawnAllowed)) {
         refresh();
-        show({ screen: "gameOver", cursor: 0, canLoad: latestFor(slots(), d.mission) !== null });
+        show(gameOverState(loadableNow()));
         return true;
       }
       if (isDead(hero.state) || !d.input.consume("menu")) return false;

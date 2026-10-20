@@ -1,7 +1,7 @@
 import controls from "@config/controls.json";
 import { describe, expect, it } from "vitest";
 import type { SlotEntry, Slots } from "../save/slots";
-import { menuKey, type MenuState } from "./menuKeys";
+import { gameOverState, menuKey, type MenuState } from "./menuKeys";
 
 const keys = controls.keyboard;
 const press = (code: string, key = code) => ({ code, key });
@@ -20,7 +20,11 @@ describe("menuKey", () => {
   it("opens the lists, goes home and closes on Esc", () => {
     expect(step({ screen: "pause", cursor: 0 }, "Enter").state).toEqual(list("save"));
     expect(step({ screen: "pause", cursor: 1 }, "Enter").state).toEqual(list("load"));
-    expect(step({ screen: "pause", cursor: 2 }, "Enter").action).toBe("home");
+    const leave = step({ screen: "pause", cursor: 2 }, "Enter");
+    expect(leave.action).toBeUndefined();
+    expect(leave.state).toEqual({ screen: "pause", cursor: 2, confirm: true });
+    expect(step(leave.state!, "Enter").action).toBe("home");
+    expect(step(leave.state!, "Escape").state).toEqual({ screen: "pause", cursor: 2 });
     expect(step({ screen: "pause", cursor: 0 }, "Escape").state).toBeNull();
   });
 
@@ -62,10 +66,19 @@ describe("menuKey", () => {
     expect(step(list("load", { cursor: 4 }), "Enter").action).toBeUndefined();
   });
 
-  it("offers load or restart and end after game over", () => {
-    expect(step({ screen: "gameOver", cursor: 0, canLoad: true }, "Enter").action).toBe("load");
-    expect(step({ screen: "gameOver", cursor: 0, canLoad: false }, "Enter").action).toBe("restart");
-    expect(step({ screen: "gameOver", cursor: 1, canLoad: true }, "Enter").action).toBe("end");
-    expect(step({ screen: "gameOver", cursor: 0, canLoad: true }, "Escape").state).toEqual({ screen: "gameOver", cursor: 0, canLoad: true });
+  it("offers load, restart and exit after game over", () => {
+    const over = gameOverState(true);
+    expect(over).toMatchObject({ cursor: 0 });
+    expect(step(over, "Enter").action).toBe("load");
+    expect(step({ ...over, cursor: 1 } as MenuState, "Enter").action).toBe("restart");
+    expect(step({ ...over, cursor: 2 } as MenuState, "Enter").action).toBe("end");
+    expect(step(over, "Escape").state).toEqual(over);
+  });
+
+  it("skips load after game over when no save loads", () => {
+    const over = gameOverState(false);
+    expect(over).toMatchObject({ cursor: 1 });
+    expect(step(over, "ArrowUp").state).toMatchObject({ cursor: 1 });
+    expect(step(over, "ArrowDown").state).toMatchObject({ cursor: 2 });
   });
 });

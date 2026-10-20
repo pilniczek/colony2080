@@ -1,0 +1,187 @@
+import controls from "@config/controls.json";
+import { beforeEach, describe, expect, it } from "vitest";
+import { Input } from "../../engine/input";
+import { useSandbox } from "../../sandbox/store";
+import { createHero, kill, type Hero } from "../hero/hero";
+import { cfg } from "../hero/testWorld";
+import { loadMesto } from "../level/mesto";
+import { pickUp, type SandboxWorld } from "../level/sandboxLevel";
+import { createSaveMenu, gameOverDue, latestLoadable, PROBLEMS, SAVE_FAILED, type SaveMenuDeps } from "./saveMenu";
+import { slotName, writeSlot, type SlotEntry } from "./slots";
+import { takeSnapshot } from "./snapshot";
+
+const DT = 1 / 60;
+
+const memory = (): Storage => {
+  const data = new Map<string, string>();
+  return {
+    get length() {
+      return data.size;
+    },
+    clear: () => data.clear(),
+    getItem: (k) => data.get(k) ?? null,
+    key: (i) => [...data.keys()][i] ?? null,
+    removeItem: (k) => void data.delete(k),
+    setItem: (k, v) => void data.set(k, v),
+  };
+};
+
+interface Rig {
+  world: SandboxWorld;
+  hero: Hero;
+  input: Input;
+  storage: Storage;
+  left: string[];
+  press(code: string, key?: string, extra?: Partial<KeyboardEvent>): { prevented: boolean };
+  menu: ReturnType<typeof createSaveMenu>;
+}
+
+function rig(storage: Storage = memory()): Rig {
+  const world = loadMesto();
+  const hero = createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
+  const input = new Input(controls.keyboard, () => 0, 150);
+  let handler: (e: KeyboardEvent) => void = () => {};
+  const left: string[] = [];
+  const deps: SaveMenuDeps = {
+    mission: "mesto",
+    storage,
+    world,
+    hero,
+    input,
+    keys: controls.keyboard,
+    picture: () => "data:image/jpeg;base64,AA",
+    movement: () => cfg,
+    moved: () => {},
+    leave: (href) => void left.push(href),
+    target: { addEventListener: ((_: string, h: (e: KeyboardEvent) => void) => (handler = h)) as Window["addEventListener"] },
+  };
+  const menu = createSaveMenu(deps);
+  const press = (code: string, key = code, extra: Partial<KeyboardEvent> = {}) => {
+    let prevented = false;
+    handler({ code, key, repeat: false, ctrlKey: false, metaKey: false, altKey: false, preventDefault: () => (prevented = true), stopImmediatePropagation: () => {}, ...extra } as KeyboardEvent);
+    return { prevented };
+  };
+  return { world, hero, input, storage, left, press, menu };
+}
+
+const saveOf = (r: Rig, savedAt: number, change: (h: Hero) => void = () => {}): SlotEntry => {
+  const hero = { ...r.hero };
+  change(hero);
+  return { mission: "mesto", name: slotName("mesto", ""), savedAt, picture: "data:image/jpeg;base64,AA", snapshot: takeSnapshot(r.world, hero) };
+};
+
+const die = (r: Rig): void => {
+  kill(r.hero);
+  r.hero.time = cfg.respawnMs / 1000;
+};
+
+beforeEach(() => useSandbox.setState({ menu: null, slots: [] }));
+
+describe("gameOverDue", () => {
+  it("fires on the tick the respawn would happen, only while dead and not released", () => {
+    const hero = createHero([1, 1], "gun", 1);
+    expect(gameOverDue(hero, DT, 2000, false)).toBe(false);
+    kill(hero);
+    hero.time = 1.9;
+    expect(gameOverDue(hero, DT, 2000, false)).toBe(false);
+    hero.time = 1.99;
+    expect(gameOverDue(hero, DT, 2000, false)).toBe(true);
+    expect(gameOverDue(hero, DT, 2000, true)).toBe(false);
+  });
+});
+
+describe("latestLoadable", () => {
+  it("takes the newest save of the mission that loads", () => {
+    const r = rig();
+    const good = saveOf(r, 1);
+    const misfit = { ...saveOf(r, 3), snapshot: { ...good.snapshot, version: 99 } };
+    const damaged = { ...saveOf(r, 2), snapshot: { ...good.snapshot, hero: null } } as unknown as SlotEntry;
+    const other = { ...saveOf(r, 9), mission: "other" };
+    expect(latestLoadable([good, misfit, damaged, other, null], "mesto", r.world)).toBe(good);
+    expect(latestLoadable([misfit, null], "mesto", r.world)).toBeNull();
+  });
+});
+
+describe("save menu", () => {
+  it("opens the pause menu on Esc only while the hero lives", () => {
+    const r = rig();
+    r.input.keyDown("Escape");
+    expect(r.menu.step(DT)).toBe(true);
+    expect(useSandbox.getState().menu).toEqual({ screen: "pause", cursor: 0 });
+    useSandbox.setState({ menu: null });
+    kill(r.hero);
+    r.input.keyDown("Escape");
+    expect(r.menu.step(DT)).toBe(false);
+    expect(useSandbox.getState().menu).toBeNull();
+  });
+
+  it("offers restart and exit without a save, then lets the hero respawn", () => {
+    const r = rig();
+    die(r);
+    expect(r.menu.step(DT)).toBe(true);
+    expect(useSandbox.getState().menu).toMatchObject({ screen: "gameOver", canLoad: false, cursor: 1 });
+    r.press("Enter");
+    expect(useSandbox.getState().menu).toBeNull();
+    expect(r.menu.step(DT)).toBe(false);
+  });
+
+  it("loads the last good save after game over", () => {
+    const r = rig();
+    writeSlot(r.storage, 2, saveOf(r, 5, (h) => Object.assign(h, { x: 30, ammo: 7 })));
+    die(r);
+    r.menu.step(DT);
+    expect(useSandbox.getState().menu).toMatchObject({ screen: "gameOver", canLoad: true, cursor: 0 });
+    r.press("Enter");
+    expect(useSandbox.getState().menu).toBeNull();
+    expect(r.hero).toMatchObject({ x: 30, ammo: 7, state: "idle" });
+  });
+
+  it("refuses a misfit save from the load list and keeps the world", () => {
+    const r = rig();
+    const entry = saveOf(r, 5, (h) => (h.x = 30));
+    writeSlot(r.storage, 0, { ...entry, snapshot: { ...entry.snapshot, counts: { ...entry.snapshot.counts, props: 1 } } });
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    r.press("ArrowDown");
+    r.press("Enter");
+    r.press("Enter");
+    expect(useSandbox.getState().menu).toMatchObject({ screen: "load", message: PROBLEMS.misfit });
+    expect(r.hero.x).toBe(r.world.spawn[0]);
+  });
+
+  it("says the save failed when storage refuses it", () => {
+    const full = { ...memory(), setItem: () => { throw new Error("full"); } } as Storage;
+    const r = rig(full);
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    r.press("Enter");
+    r.press("Enter");
+    r.press("Enter");
+    expect(useSandbox.getState().menu).toMatchObject({ screen: "save", message: SAVE_FAILED });
+  });
+
+  it("types a name without moving the hero and lets Ctrl through", () => {
+    const r = rig();
+    pickUp(r.world, "crowbar");
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    r.press("Enter");
+    r.press("Enter");
+    expect(r.press("KeyX", "x").prevented).toBe(true);
+    expect(r.press("ArrowLeft").prevented).toBe(false);
+    expect(r.press("KeyC", "c", { ctrlKey: true }).prevented).toBe(false);
+    expect(useSandbox.getState().menu).toMatchObject({ typing: "x" });
+  });
+
+  it("asks before leaving for mission select", () => {
+    const r = rig();
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    r.press("ArrowDown");
+    r.press("ArrowDown");
+    r.press("Enter");
+    expect(r.left).toEqual([]);
+    r.press("Enter");
+    expect(r.left).toEqual(["index.html"]);
+  });
+});
