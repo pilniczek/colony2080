@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HAND_BOX, SLOT, topBar, WEAPON_W } from "./layout";
+import { HAND_BOX, SLOT, TOGGLE_W, topBar, WEAPON_W } from "./layout";
 import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
@@ -23,12 +23,6 @@ describe("hudSvg", () => {
     expect(count(svg, 'filter="url(#iconDim)"')).toBe(2);
   });
 
-  it("lights the run key only in run mode", () => {
-    const litKey = /fill="#ff4a26"[^>]*>ALT</;
-    expect(hudSvg(320, 200, base, icons)).toMatch(litKey);
-    expect(hudSvg(320, 200, { ...base, running: false }, icons)).not.toMatch(litKey);
-  });
-
   it("shows a running figure instead of the RUN text, glowing in run mode and dimmed when walking", () => {
     const runIcon = (svg: string): string | undefined => /<g filter="url\(#(icon\w+)\)" data-icon="run"/.exec(svg)?.[1];
     const running = hudSvg(320, 200, base, icons);
@@ -37,23 +31,45 @@ describe("hudSvg", () => {
     expect(runIcon(hudSvg(320, 200, { ...base, running: false }, icons))).toBe("iconDim");
   });
 
-  it("centres the running figure on the run panel", () => {
-    const { run, runW } = topBar(320);
+  it("centres the running figure on the run slot", () => {
+    const { run } = topBar(320);
     const m = /<g filter="url\(#icon\w+\)" data-icon="run"><g transform="translate\(([\d.]+) /.exec(hudSvg(320, 200, base, icons))!;
-    expect(Number(m[1])).toBeCloseTo(run + runW / 2, 9);
+    expect(Number(m[1])).toBeCloseTo(run + TOGGLE_W / 2, 9);
   });
 
-  describe("sound plate", () => {
+  it("draws one grid panel for both the sound and run slots", () => {
+    const svg = hudSvg(320, 200, base, icons);
+    const panels = [...svg.matchAll(/<rect x="([\d.]+)" y="1\.8" width="([\d.]+)" height="16\.2" rx="1\.4" fill="#0b0806"\/>/g)].map((m) => [Number(m[1]), Number(m[1]) + Number(m[2])]);
+    expect(panels).toHaveLength(3);
+    const { sound, run } = topBar(320);
+    const holding = panels.filter(([a, b]) => a! <= sound && run + TOGGLE_W <= b!);
+    expect(holding).toHaveLength(1);
+  });
+
+  it("lights the S and ALT key tabs under their own icons per state", () => {
+    const { sound, run } = topBar(320);
+    const tab = (svg: string, label: string): { x: number; lit: boolean } | undefined => {
+      const m = new RegExp(`<text x="([\\d.]+)" y="[\\d.]+" text-anchor="middle"[^>]*font-size="3\\.4" fill="(#ff4a26|#1a140f)"[^>]*>${label}</text>`).exec(svg);
+      return m ? { x: Number(m[1]), lit: m[2] === "#ff4a26" } : undefined;
+    };
+    for (const [soundOn, running] of [[true, false], [false, true]] as const) {
+      const svg = hudSvg(320, 200, { ...base, soundOn, running }, icons);
+      expect(tab(svg, "S")).toEqual({ x: expect.closeTo(sound + TOGGLE_W / 2, 9), lit: soundOn });
+      expect(tab(svg, "ALT")).toEqual({ x: expect.closeTo(run + TOGGLE_W / 2, 9), lit: running });
+    }
+  });
+
+  describe("sound slot", () => {
     const soundIcon = (svg: string): RegExpExecArray | null => /<g filter="url\(#(icon\w+)\)" data-icon="sound"( data-sound="off")?><g transform="translate\(([\d.]+) /.exec(svg);
     const soundTab = (svg: string): { x: number; fill: string }[] =>
       [...svg.matchAll(/<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#[0-9a-f]+)"[^>]*>S<\/text>/g)].map((m) => ({ x: Number(m[1]), fill: m[2]! }));
 
-    it("draws a glowing speaker centred on the sound panel when sound is on", () => {
-      const { sound, soundW } = topBar(320);
+    it("draws a glowing speaker centred on the sound slot when sound is on", () => {
+      const { sound } = topBar(320);
       const m = soundIcon(hudSvg(320, 200, base, icons))!;
       expect(m[1]).toBe("iconGlow");
       expect(m[2]).toBeUndefined();
-      expect(Number(m[3])).toBeCloseTo(sound + soundW / 2, 9);
+      expect(Number(m[3])).toBeCloseTo(sound + TOGGLE_W / 2, 9);
     });
 
     it("draws a dimmed crossed speaker when sound is off", () => {
@@ -63,11 +79,11 @@ describe("hudSvg", () => {
     });
 
     it("lights the S key tab only while sound is on", () => {
-      const { sound, soundW } = topBar(320);
+      const { sound } = topBar(320);
       const on = soundTab(hudSvg(320, 200, base, icons));
       const off = soundTab(hudSvg(320, 200, { ...base, soundOn: false }, icons));
-      expect(on.find((t) => t.fill === "#ff4a26")?.x).toBeCloseTo(sound + soundW / 2, 9);
-      expect(off.find((t) => t.fill === "#1a140f")?.x).toBeCloseTo(sound + soundW / 2, 9);
+      expect(on.find((t) => t.fill === "#ff4a26")?.x).toBeCloseTo(sound + TOGGLE_W / 2, 9);
+      expect(off.find((t) => t.fill === "#1a140f")?.x).toBeCloseTo(sound + TOGGLE_W / 2, 9);
       expect(off.some((t) => t.fill === "#ff4a26")).toBe(false);
     });
   });

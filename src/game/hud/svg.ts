@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "../items";
 import { blasterIcon, BLASTER_BODY_W } from "./blasterIcon";
-import { HAND_DRAWN, HAND_SCALE, HUD_H, READOUT_SIZE, SLOT, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
+import { HAND_DRAWN, HAND_SCALE, HUD_H, READOUT_SIZE, SLOT, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
   weapon: number;
@@ -158,8 +158,9 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${s.bonus ? weapon(blasterIcon(wx[2]!), s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo) : ""}
   ${wx.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x + keyCentre(i), keys.weapons[i] ?? "", s.weapon === i)).join("")}
   ${badge(bar.badge)}
-  ${gridPanel(bar.sound, bar.soundW)}${soundIcon(bar.sound + bar.soundW / 2, s.soundOn)}${keyTab(bar.sound + bar.soundW / 2, keys.sound, s.soundOn)}
-  ${gridPanel(bar.run, bar.runW)}${runIcon(bar.run + bar.runW / 2, s.running)}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}
+  ${gridPanel(bar.togglesX, bar.togglesW)}
+  ${soundIcon(bar.sound + TOGGLE_W / 2, s.soundOn)}${keyTab(bar.sound + TOGGLE_W / 2, keys.sound, s.soundOn)}
+  ${runIcon(bar.run + TOGGLE_W / 2, s.running)}${keyTab(bar.run + TOGGLE_W / 2, keys.run, s.running)}
   ${gridPanel(bar.inv, bar.invW)}${item}${keyTab(bar.inv + bar.invW / 2, keys.item)}`;
 }
 

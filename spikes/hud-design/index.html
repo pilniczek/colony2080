@@ -249,15 +249,16 @@ function rod(a, b, y) {
 }
 
 function topBar(W, s) {
-  const edge = 0, gap = 2, pad = 3.5, invW = INV_W, runW = 18, inv = W - edge - pad - invW, run = inv - 2 * pad - gap - runW, sound = run - 2 * pad - gap - runW;
+  const edge = 0, gap = 2, pad = 3.5, invW = INV_W, inv = W - edge - pad - invW;
+  const togglesW = 2 * TOGGLE_W + 3 * TOGGLE_GAP, togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + TOGGLE_W + TOGGLE_GAP;
   const held = s.item ? ITEM_ICONS[s.item] : null, label = held ? ITEMS[s.item].name : "nothing", centre = inv + SLOT.pad + SLOT.iconW / 2;
   const hand = `<g transform="translate(${centre} 9.1) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} -9.1)">${HAND}</g>`;
   const art = held ? `<image href="${held.url}" x="${centre - held.w / 2}" y="${9.1 - held.h / 2}" width="${held.w}" height="${held.h}"/>` : hand;
   const item = art + readout((inv + SLOT.pad + SLOT.iconW + SLOT.gap + inv + invW - SLOT.pad) / 2, label);
   const gridX = edge + 4.4, gridW = WEAPON_W.reduce((x, y) => x + y, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
-  const weaponsEnd = gridX + gridW + 4.4, soundPlateStart = sound - pad, badgeEnd = soundPlateStart - gap;
+  const weaponsEnd = gridX + gridW + 4.4, togglesStart = togglesX - pad, badgeEnd = togglesStart - gap;
   const badge = (weaponsEnd + gap + badgeEnd) / 2 - 24;
-  const gaps = [[0, edge], [weaponsEnd, weaponsEnd + gap], [badgeEnd, soundPlateStart], [sound + runW + pad, run - pad], [run + runW + pad, inv - pad], [W - edge, W]];
+  const gaps = [[0, edge], [weaponsEnd, weaponsEnd + gap], [badgeEnd, togglesStart], [togglesX + togglesW + pad, inv - pad], [W - edge, W]];
   const plates = gaps.slice(1).map(([a], i) => [gaps[i][1], a]);
   const wx = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((x, y) => x + y, 0));
   return `<rect x="${edge}" width="${W - 2 * edge}" height="${BAR_H}" fill="#060504"/>
@@ -274,8 +275,9 @@ function topBar(W, s) {
   <text x="${badge + 24}" y="13.9" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
   <text x="${badge + 24}" y="13.3" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
   ${screw(badge + 2.4, 3.2)}${screw(badge + 45.6, 3.2)}${screw(badge + 2.4, 17.2)}${screw(badge + 45.6, 17.2)}
-  ${gridPanel(sound, runW)}${soundIcon(sound + runW / 2, s.soundOn)}${keyTab(sound + runW / 2, "S", s.soundOn)}
-  ${gridPanel(run, runW)}${runIcon(run + runW / 2, s.running)}${keyTab(run + runW / 2, "ALT", s.running)}
+  ${gridPanel(togglesX, togglesW)}
+  ${soundIcon(sound + TOGGLE_W / 2, s.soundOn)}${keyTab(sound + TOGGLE_W / 2, "S", s.soundOn)}
+  ${runIcon(run + TOGGLE_W / 2, s.running)}${keyTab(run + TOGGLE_W / 2, "ALT", s.running)}
   ${gridPanel(inv, invW)}${item}${keyTab(inv + invW / 2, "ENTER")}`;
 }
 
@@ -329,7 +331,7 @@ function keyBox(x, letter) {
   <text x="${x + size / 2}" y="${base}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="#1a140f">${letter}</text>`;
 }
 
-const WEAPON_W = [35, 20, 57], WEAPON_GAP = 8;
+const WEAPON_W = [35, 20, 57], WEAPON_GAP = 12, TOGGLE_W = 12.5, TOGGLE_GAP = 2;
 const WEAPON_KEYS = ["1", "2", "3"];
 const TAB = { top: 15.2, bottom: 18.2, r: 0.8, font: 3.4, pad: 1.2 };
 const GLYPH_W = TAB.font * 0.7;
