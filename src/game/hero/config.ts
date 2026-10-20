@@ -43,7 +43,7 @@ export interface MovementConfig {
   sightCells: number;
   pickReach: number;
   hitSlowMs: number;
-  shot: { speed: number; radius: number; damage: number };
+  shot: { damage: number };
   punch: { damage: number; reach: number };
   energy: { max: number; hit: number; shields: number };
   ammo: number;
@@ -98,7 +98,7 @@ export function loadMovement(json: unknown): MovementConfig {
     sightCells: n("sightCells"),
     pickReach: n("pickReach"),
     hitSlowMs: n("hitSlowMs"),
-    shot: group("shot", ["speed", "radius", "damage"]),
+    shot: group("shot", ["damage"]),
     punch: group("punch", ["damage", "reach"]),
     energy: group("energy", ["max", "hit", "shields"]),
     ammo: n("ammo"),

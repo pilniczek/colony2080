@@ -25,7 +25,7 @@ export function stepCutscene(world: SandboxWorld, dt: number, skip: boolean): bo
   if (!skip) cueBetween(world, film.id, from, film.t);
   if (!skip && film.t < scene!.duration - END_EPSILON) return true;
   world.cutscene = null;
-  world.projectiles.length = 0;
+  world.heroHits = 0;
   world.sparks.length = 0;
   world.beam = null;
   if (film.prop) runUse(world, film.prop, { filmed: true });

@@ -1,7 +1,6 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox, type Box, type Platform } from "./collide";
-import { stepProjectiles } from "./projectiles";
 import { TileGrid } from "./tiles";
 
 const grid = new TileGrid(sandbox.rows);
@@ -148,17 +147,5 @@ describe("moveBox", () => {
     expect(up.platform).toBeNull();
     const skipped = moveBox(box(18.5, 3), 0, 20, grid, [p], { ignoreOneWay: true });
     expect(skipped.y).toBe(14);
-  });
-});
-
-describe("stepProjectiles", () => {
-  it("drops projectiles in walls or outside the grid", () => {
-    const list = [
-      { x: 5, y: 12.6, vx: -8, r: 0.15 },
-      { x: 1.2, y: 12.6, vx: -8, r: 0.15 },
-    ];
-    const next = stepProjectiles(list, grid, 0.1);
-    expect(next).toHaveLength(1);
-    expect(next[0]?.x).toBeCloseTo(4.2, 6);
   });
 });

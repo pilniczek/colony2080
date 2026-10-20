@@ -71,12 +71,12 @@ describe("playFilm", () => {
     expect(playFilm(w, keys, FIXED_STEP)).toBe("ended");
   });
 
-  it("clears bullets, sparks and the beam when the film ends", () => {
+  it("clears enemy hits, sparks and the beam when the film ends", () => {
     const w = filmed();
-    w.projectiles.push({ x: 5, y: 7, vx: -8, r: 0.15 });
+    w.heroHits = 2;
     w.sparks.push({ x: 5, y: 7, age: 0 } as never);
     stepCutscene(w, FIXED_STEP, true);
-    expect(w.projectiles).toEqual([]);
+    expect(w.heroHits).toBe(0);
     expect(w.sparks).toEqual([]);
     expect(w.beam).toBeNull();
   });

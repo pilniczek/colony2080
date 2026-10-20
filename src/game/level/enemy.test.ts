@@ -2,7 +2,7 @@ import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { cfg, clips, dt, game, run, tick, type Game } from "../hero/testWorld";
 import { TileGrid } from "../../engine/world/tiles";
-import { createEnemy, ENEMY_SHOT, FLYER_HALF, hitEnemy, isDead, updateEnemy, type Enemy, type EnemyJson } from "./enemy";
+import { createEnemy, FLYER_HALF, hitEnemy, isDead, updateEnemy, type Enemy, type EnemyJson } from "./enemy";
 
 const PATROL = { left: 1 + cfg.box.width / 2, right: 11 - cfg.box.width / 2 };
 
@@ -10,7 +10,7 @@ const kill = (g: Game): void => {
   for (let i = 0; i < sandbox.enemies[0]!.hits; i++) hitEnemy(g.world.enemies[0]!);
 };
 
-const enemyShots = (g: Game) => g.world.projectiles.filter((p) => p.tag === ENEMY_SHOT);
+const hurt = (g: Game): number => cfg.energy.max - g.hero.energy;
 
 const facingRight = (g: Game, x: number): void => {
   Object.assign(g.world.enemies[0]!.body, { x, facing: 1 });
@@ -48,8 +48,7 @@ describe("sandbox enemy", () => {
     tick(g);
     const x = g.world.enemies[0]!.body.x;
     expect(g.world.enemies[0]!.body.state).toBe("attack");
-    expect(enemyShots(g)).toHaveLength(1);
-    expect(enemyShots(g)[0]!.vx).toBeCloseTo(cfg.shot.speed, 9);
+    expect(hurt(g)).toBe(cfg.energy.hit);
     run(g, 1.1);
     expect(g.world.enemies[0]!.body.x).toBe(x);
     expect(g.hero.energy).toBeLessThan(cfg.energy.max);
@@ -98,7 +97,7 @@ describe("sandbox enemy", () => {
     }
     for (const g of [behind, hidden, below]) {
       expect(g.world.enemies[0]!.body.state).toBe("walk");
-      expect(enemyShots(g)).toHaveLength(0);
+      expect(hurt(g)).toBe(0);
     }
   });
 
@@ -135,7 +134,7 @@ describe("sandbox enemy", () => {
     expect(Math.abs(g.world.enemies[0]!.body.x - sandbox.enemies[0]!.x)).toBeLessThan(0.2);
   });
 
-  it("takes hero bullets on its floor with a spark where they hit", () => {
+  it("takes hero shots on its floor with a spark where they hit", () => {
     const g = game({ x: 9.5, y: 4, weapon: "gun" });
     g.hero.facing = -1;
     Object.assign(g.world.enemies[0]!.body, { x: 4.5, facing: -1 });
@@ -156,10 +155,10 @@ describe("sandbox enemy", () => {
     const react = sandbox.enemies[0]!.reactMs / 1000;
     run(g, react - 2 * dt);
     expect(enemy.body).toMatchObject({ facing: -1, state: "walk" });
-    expect(enemyShots(g)).toHaveLength(0);
+    expect(hurt(g)).toBe(0);
     run(g, 2 * dt);
     expect(enemy.body).toMatchObject({ facing: 1, state: "attack" });
-    expect(enemyShots(g)).toHaveLength(1);
+    expect(hurt(g)).toBe(cfg.energy.hit);
   });
 
   const seenThenBehind = (behind: number, hide = false): { g: Game; enemy: Enemy } => {
@@ -176,8 +175,9 @@ describe("sandbox enemy", () => {
     const { g, enemy } = seenThenBehind(3.5);
     run(g, sandbox.enemies[0]!.reactMs / 1000 + 2 * dt);
     expect(enemy.body.facing).toBe(-1);
+    const before = hurt(g);
     run(g, 0.1);
-    expect(enemyShots(g).some((p) => p.vx < 0)).toBe(true);
+    expect(hurt(g)).toBeGreaterThan(before);
   });
 
   it("does not follow a hero that hides behind it", () => {
@@ -208,17 +208,16 @@ describe("sandbox enemy", () => {
     expect(enemy.body.x).toBeGreaterThan(x);
   });
 
-  it("takes 16 hero bullets to destroy", () => {
+  it("takes 16 hero shots to destroy", () => {
     const g = game({ x: 9.5, y: 4, weapon: "gun" });
     g.hero.facing = -1;
     const [enemy] = g.world.enemies as [Enemy];
     Object.assign(enemy.body, { x: 4.5, facing: -1 });
     enemy.patrol = [4.5, 4.5];
-    tick(g, ["shoot"], ["shoot"]);
     let hits = 0;
-    while (!isDead(enemy)) {
+    for (let i = 0; !isDead(enemy); i++) {
       const before = enemy.body.energy;
-      tick(g, ["shoot"]);
+      tick(g, ["shoot"], i ? [] : ["shoot"]);
       if (enemy.body.energy < before) hits++;
     }
     expect(hits).toBe(16);
@@ -299,7 +298,6 @@ describe("sandbox flyer", () => {
   const floor = json.y;
   const flyerOf = (g: Game): Enemy => g.world.enemies[4]!;
   const liftOf = (e: Enemy): number => floor - e.body.y;
-  const shotsAt = (g: Game) => enemyShots(g);
 
   it("hovers at the right end of the spawn floor, patrolling right of the lift shaft", () => {
     const e = flyerOf(game());
@@ -326,7 +324,7 @@ describe("sandbox flyer", () => {
     }
     expect(min).toBeLessThan(e.patrol[0] + 0.1);
     expect(max).toBeGreaterThan(e.patrol[1] - 0.1);
-    expect(shotsAt(g)).toHaveLength(0);
+    expect(hurt(g)).toBe(0);
   });
 
   it("dives to aimLift when it sees the hero and fires bursts that hit a standing hero", () => {
@@ -334,7 +332,7 @@ describe("sandbox flyer", () => {
     const e = flyerOf(g);
     tick(g);
     expect(liftOf(e)).toBeLessThan(flight.hoverLift);
-    expect(shotsAt(g)).toHaveLength(0);
+    expect(hurt(g)).toBe(0);
     const dive = (flight.hoverLift - flight.aimLift) / flight.climb;
     run(g, dive + 0.05);
     expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
@@ -394,18 +392,16 @@ describe("sandbox flyer", () => {
     run(g, 0.5);
     expect(e.body.facing).toBe(-1);
     expect(Math.abs(liftOf(e) - flight.hoverLift)).toBeLessThanOrEqual(flight.wave.cells + 1e-9);
-    expect(enemyShots(g)).toHaveLength(0);
+    expect(hurt(g)).toBe(0);
   });
 
-  it("flies over hero bullets while it hovers and takes them once it dives", () => {
+  it("takes hero shots while it hovers", () => {
     const g = game({ x: 37.5, y: floor, weapon: "gun" });
     const e = flyerOf(g);
     Object.assign(e.body, { x: 45.5, facing: 1 });
     g.hero.facing = 1;
     tick(g, ["shoot"], ["shoot"]);
-    run(g, 0.4, ["shoot"]);
-    expect(e.body.energy).toBe(json.hits);
-    run(g, 1.5, ["shoot"]);
+    expect(liftOf(e)).toBeGreaterThan(flight.aimLift + 1);
     expect(e.body.energy).toBeLessThan(json.hits);
   });
 

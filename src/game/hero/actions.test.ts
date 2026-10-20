@@ -5,7 +5,9 @@ import { bottomlessPits, cfg, game, objectLevel, run, runUntil, RUNNING, tick, t
 
 const kinds = (g: Game, kind: string) => g.events.filter((e) => e.kind === kind);
 
-const fire = (g: Game, x: number) => g.world.projectiles.push({ x, y: 12.6, vx: -8, r: 0.15 });
+const fire = (g: Game): void => {
+  g.world.heroHits += 1;
+};
 
 function hidden(): Game {
   const g = game();
@@ -214,15 +216,15 @@ describe("hide", () => {
   });
 });
 
-describe("projectiles", () => {
-  it("hit a standing hero and are removed", () => {
+describe("enemy hits", () => {
+  it("hit a standing hero and are used up", () => {
     const g = game();
-    fire(g, 9);
+    fire(g);
     run(g, 0.5);
     expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
     expect(g.hero.hitAge).not.toBeNull();
     expect([...g.seen]).toEqual(["idle"]);
-    expect(g.world.projectiles).toHaveLength(0);
+    expect(g.world.heroHits).toBe(0);
   });
 
   it("leave an immortal hero unhurt and running", () => {
@@ -230,9 +232,9 @@ describe("projectiles", () => {
     g.world.immortal = true;
     g.hero.running = true;
     run(g, 0.3, ["moveRight"]);
-    fire(g, g.hero.x + 0.5);
+    fire(g);
     run(g, 0.2, ["moveRight"]);
-    expect(g.world.projectiles).toHaveLength(0);
+    expect(g.world.heroHits).toBe(0);
     expect(g.hero.energy).toBe(cfg.energy.max);
     expect(g.hero.hitAge).toBeNull();
     expect(g.hero.state).toBe("run");
@@ -242,18 +244,17 @@ describe("projectiles", () => {
     const g = game();
     run(g, 0.3, ["down"]);
     expect(g.hero.state).toBe("duck");
-    fire(g, 9);
+    fire(g);
     run(g, 0.5, ["down"]);
     expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
-    expect(g.world.projectiles).toHaveLength(0);
   });
 
-  it("fly through a hidden hero", () => {
+  it("miss a hidden hero", () => {
     const g = hidden();
-    fire(g, 9);
+    fire(g);
     run(g, 0.5, ["hide"]);
     expect(g.hero.energy).toBe(100);
-    expect(g.world.projectiles[0]!.x).toBeLessThan(6);
+    expect(g.world.heroHits).toBe(0);
   });
 });
 
@@ -542,7 +543,6 @@ describe("attack", () => {
     tick(g, ["shoot"], ["shoot"]);
     expect(g.hero.state).toBe("standJump");
     expect(kinds(g, "shot")).toHaveLength(1);
-    expect(g.world.projectiles.filter((p) => p.tag === "hero")).toHaveLength(1);
     run(g, 0.2, ["shoot"]);
     const fired = kinds(g, "shot").length;
     expect(fired).toBeGreaterThan(1);

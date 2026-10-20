@@ -1,7 +1,5 @@
 import robotJson from "@config/robots/xbot.json";
-import { apply } from "../../engine/math/mat2d";
 import { drawRig, type HookDraw } from "../../engine/rig/draw";
-import { locate } from "../../engine/rig/pose";
 import type { GroupNode, RigNode } from "../../engine/rig/tree";
 import { buildSide, ROBOT } from "../robot/xbot";
 import { BLAST, BLAST_PX, drawBlast, inBlastUnits } from "./blast";
@@ -59,16 +57,6 @@ const armPalette = (pal: EnvPalette): EnvPalette => ({
   c0: pal.gc0!, c1: pal.gc1!, c2: pal.gc2!, c3: pal.gc3!,
 });
 
-const muzzle = (): Pt => {
-  const hand = locate(armNode(false), "hand", ARM_POSE);
-  if (!hand) throw new Error("robot arm has no hand hook");
-  const [x, y] = apply(hand, [-RIFLE_MUZZLE[1] / ARM_PX, RIFLE_MUZZLE[0] / ARM_PX]);
-  return [ARM_SHOULDER[0] + (x - ARM_PIVOT[0]) * ARM_PX, ARM_SHOULDER[1] + (y - ARM_PIVOT[1]) * ARM_PX - RAISE];
-};
-
-const MUZZLE = muzzle();
-
-export const SHOOT_GUARD_MUZZLE: Pt = [MUZZLE[0] - ORIGIN[0], MUZZLE[1] - ORIGIN[1]];
 export const SHOOT_GUARD_FIRING = 1;
 export const SHOOT_GUARD_EXPLODE = 2;
 

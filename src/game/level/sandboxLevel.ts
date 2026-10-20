@@ -1,7 +1,6 @@
 import type { SoundCue } from "../../engine/audio/mixer";
 import { isCutsceneId, type CutsceneId } from "../cutscene";
 import type { Platform } from "../../engine/world/collide";
-import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
 import { isAssetId, type AssetId } from "../env/assets";
 import { createFog, type Fog } from "../fog";
@@ -49,7 +48,6 @@ export interface Scenery {
   y?: number;
   state?: number;
   w?: number;
-  h?: number;
   flip?: boolean;
 }
 
@@ -132,7 +130,7 @@ export interface SandboxWorld {
   terrain: ReturnType<typeof terrain>;
   bare: CellRect[];
   fog: Fog | null;
-  projectiles: Projectile[];
+  heroHits: number;
   sparks: Spark[];
   beam: Beam | null;
   beamHits: Set<Enemy>;
@@ -237,7 +235,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     terrain: terrain(grid),
     bare: structuredClone(data.bare ?? []),
     fog: null,
-    projectiles: [],
+    heroHits: 0,
     sparks: [],
     beam: null,
     beamHits: new Set(),

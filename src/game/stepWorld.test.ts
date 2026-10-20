@@ -85,12 +85,12 @@ describe("map reset on hero respawn", () => {
     world.fog.revealed.fill(1);
     world.enemies[0]!.hits = 1;
     world.enemies[1]!.deadAge = 0;
-    world.projectiles.push({ x: world.spawn[0] + 1, y: world.spawn[1] - 1, vx: 1, r: 0.1 });
+    world.heroHits = 2;
     world.sparks.push({ x: world.spawn[0] + 1, y: world.spawn[1] - 1, age: 0 });
     hero.ammo = 3;
     kill(hero);
     stepWorld(world, hero, input.frame(), cfg, clips, FIXED_STEP, () => false);
-    expect(world.projectiles.length + world.sparks.length).toBeGreaterThan(0);
+    expect(world.sparks.length).toBeGreaterThan(0);
     for (let i = 0; i < Math.ceil(cfg.respawnMs / 1000 / FIXED_STEP) + 5; i++) step(world, hero);
 
     expect(world.props.find((p) => p.kind === "item")!.taken).toBeFalsy();
@@ -98,7 +98,7 @@ describe("map reset on hero respawn", () => {
     expect(world.props.find((p) => p.kind === "panel")!.on).toBeFalsy();
     expect(world.lifts.map((l) => [l.y, l.target])).toEqual(fresh.lifts.map((l) => [l.y, null]));
     expect(world.enemies.map((e) => [e.hits, e.deadAge])).toEqual(fresh.enemies.map((e) => [e.hits, null]));
-    expect(world.projectiles).toEqual([]);
+    expect(world.heroHits).toBe(0);
     expect(world.sparks).toEqual([]);
     const covered = (w: typeof world): number => w.fog!.revealed.reduce((n, v) => n + v, 0);
     expect(covered(world)).toBe(covered(fresh));
@@ -129,7 +129,7 @@ describe("subtitles and level end", () => {
     input.keyDown("ArrowRight");
     world.complete = true;
     say(world, "Level complete");
-    world.projectiles.push({ x: hero.x, y: hero.y - 1, vx: -1, r: 0.3, tag: "enemy" });
+    world.heroHits = 1;
     const enemiesBefore = world.enemies.map((e) => [e.body.x, e.body.y]);
     const start = { x: hero.x, y: hero.y, energy: hero.energy };
     steps(world, hero, 600, input);

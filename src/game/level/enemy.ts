@@ -1,19 +1,16 @@
 import type { TileGrid } from "../../engine/world/tiles";
-import { FLYER_HULL, FLYER_MUZZLE } from "../env/flyer";
+import { FLYER_HULL } from "../env/flyer";
 import { TILE } from "../env/paint";
 import { seenAt, type Fog } from "../fog";
 import type { ClipSet, MovementConfig } from "../hero/config";
 import { createHero, type Hero } from "../hero/hero";
 import type { KeepOut } from "./cover";
 
-export const ENEMY_SHOT = "enemy";
-
 export const SAME_FLOOR = 0.5;
 const HALF_WIDTH = 0.35;
 const AIM_EPS = 0.02;
 
 export const FLYER_HALF: [number, number] = [FLYER_HULL.w / 2 / TILE, FLYER_HULL.h / 2 / TILE];
-export const FLYER_GUN: [number, number] = [FLYER_MUZZLE[0] / TILE, FLYER_MUZZLE[1] / TILE];
 
 export interface EnemyJson {
   x: number;
@@ -102,6 +99,11 @@ export function bodyBox(e: Enemy, box: { width: number; height: number }): BodyB
   if (!e.flight) return { left: x - box.width / 2, right: x + box.width / 2, top: y - box.height, bottom: y };
   const [halfW, halfH] = FLYER_HALF;
   return { left: x - halfW, right: x + halfW, top: y - halfH, bottom: y + halfH };
+}
+
+export function shotBox(e: Enemy, box: { width: number; height: number }): BodyBox {
+  const body = bodyBox(e, box);
+  return e.flight ? { ...body, bottom: e.spot[1] } : body;
 }
 
 const floorAt = (grid: TileGrid, col: number, row: number): boolean =>

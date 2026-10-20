@@ -19,7 +19,6 @@ const MOUNT_MUZZLE = (GUN_BARREL_X + MOUNT_BARREL + 2) * GUN_PX;
 const MUZZLE_UP = 40 * GUN_PX;
 
 export const FLYER_HULL = { w: 49, h: 18 };
-export const FLYER_MUZZLE: Pt = [MOUNT[0] + MOUNT_MUZZLE - HULL_CENTER[0], MOUNT[1] - MUZZLE_UP - HULL_CENTER[1]];
 
 export const fireFrame = (t: number): number => {
   const k = Math.floor(t * TICK_HZ);

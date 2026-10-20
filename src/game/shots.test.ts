@@ -1,10 +1,12 @@
 import cameraJson from "@config/camera.json";
+import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { createFog, loadFog } from "./fog";
 import { cfg, clips, game, objectLevel, run, tick, type Game } from "./hero/testWorld";
 import { spikeUnit } from "./hero/look";
+import { FLYER_HALF, type Enemy } from "./level/enemy";
 import { resetWorld } from "./level/sandboxLevel";
-import { fireBeam, fireEnemy, heroMuzzle, SPARK_LIFE, stepShots } from "./shots";
+import { fireBeam, heroMuzzle, SPARK_LIFE } from "./shots";
 
 const TARGET_TOP = 14 - 1.51;
 
@@ -13,8 +15,6 @@ const armed = (x: number, facing: 1 | -1 = 1): Game => {
   g.hero.facing = facing;
   return g;
 };
-
-const bullets = (g: Game) => g.world.projectiles.filter((p) => p.tag === "hero");
 
 const fire = (g: Game, seconds: number): void => {
   tick(g, ["shoot"], ["shoot"]);
@@ -56,33 +56,67 @@ describe("hero muzzle", () => {
   });
 });
 
-describe("hero bullets", () => {
-  it("spawns one bullet per shot at the muzzle flying the facing way", () => {
-    for (const facing of [1, -1] as const) {
-      const g = armed(10.5, facing);
+describe("hero shots", () => {
+  const target = (heroX: number, facing: 1 | -1, enemyX: number): { g: Game; enemy: Enemy } => {
+    const g = game({ x: heroX, y: 4, weapon: "gun" });
+    g.hero.facing = facing;
+    const enemy = g.world.enemies[0]!;
+    Object.assign(enemy.body, { x: enemyX, facing });
+    enemy.patrol = [enemyX, enemyX];
+    return { g, enemy };
+  };
+  const shots = (g: Game) => g.events.filter((e) => e.kind === "shot");
+
+  it("hit the nearest enemy ahead at once with a spark on its near face", () => {
+    for (const [heroX, facing] of [[9.5, -1], [1.5, 1]] as const) {
+      const { g, enemy } = target(heroX, facing, 4.5);
       tick(g, ["shoot"], ["shoot"]);
-      const [b] = bullets(g);
-      const [mx, my] = heroMuzzle(g.hero, clips, cfg);
-      expect(bullets(g)).toHaveLength(1);
-      expect(b).toMatchObject({ vx: facing * cfg.shot.speed, r: cfg.shot.radius, y: my });
-      expect(b!.x).toBeCloseTo(mx, 9);
+      expect(enemy.body.energy).toBeCloseTo(sandbox.enemies[0]!.hits - cfg.shot.damage, 9);
+      expect(g.world.sparks).toHaveLength(1);
+      expect(g.world.sparks[0]!.x).toBeCloseTo(4.5 - (facing * cfg.box.width) / 2, 9);
     }
   });
 
-  it("fires 12 bullets in 1 s", () => {
-    const g = armed(10.5, -1);
-    const spawned = new Set<object>();
-    const count = () => bullets(g).forEach((b) => spawned.add(b));
+  it("hit an enemy whose near face is in range though its centre is not", () => {
+    for (const [gap, hit] of [[-0.05, true], [0.05, false]] as const) {
+      const { g, enemy } = target(1.5, 1, 1.5 + cfg.sightCells + cfg.box.width / 2 + gap);
+      tick(g, ["shoot"], ["shoot"]);
+      expect(enemy.body.energy < sandbox.enemies[0]!.hits).toBe(hit);
+    }
+  });
+
+  const hovering = (spotY: number): { g: Game; flyer: Enemy } => {
+    const g = game({ x: 37.5, y: 14, weapon: "gun" });
+    g.hero.facing = 1;
+    const flyer = g.world.enemies[4]!;
+    flyer.spot = [45.5, spotY];
+    flyer.patrol = [45.5, 45.5];
+    Object.assign(flyer.body, { x: 45.5, y: spotY - flyer.flight!.lift, facing: 1 });
+    return { g, flyer };
+  };
+
+  it("hit a flyer hovering above the hero floor with a spark on its hull", () => {
+    const { g, flyer } = hovering(14);
     tick(g, ["shoot"], ["shoot"]);
-    count();
-    for (let i = 0; i < 59; i++) {
-      tick(g, ["shoot"]);
-      count();
-    }
-    expect(spawned.size).toBe(12);
+    expect(flyer.flight!.lift).toBeGreaterThan(sandbox.enemies[4]!.flight!.aimLift + 1);
+    expect(flyer.body.energy).toBeCloseTo(sandbox.enemies[4]!.hits - cfg.shot.damage, 9);
+    expect(g.world.sparks[0]!.y).toBeCloseTo(flyer.body.y + FLYER_HALF[1], 9);
   });
 
-  it("spends one ammo per bullet", () => {
+  it("miss a flyer of the floor above", () => {
+    const { g, flyer } = hovering(4);
+    fire(g, 0.3);
+    expect(flyer.body.energy).toBe(sandbox.enemies[4]!.hits);
+  });
+
+  it("fires 12 shots in 1 s", () => {
+    const { g, enemy } = target(9.5, -1, 4.5);
+    enemy.body.energy = 1000;
+    fire(g, 59 / 60);
+    expect(1000 - enemy.body.energy).toBeCloseTo(12 * cfg.shot.damage, 9);
+  });
+
+  it("spends one ammo per shot", () => {
     const g = armed(10.5, -1);
     expect(g.hero.ammo).toBe(cfg.ammo);
     fire(g, 59 / 60);
@@ -92,15 +126,13 @@ describe("hero bullets", () => {
   it("stops firing on the last round and holsters the gun", () => {
     const g = armed(10.5, -1);
     g.hero.ammo = 1;
-    const spawned = new Set<object>();
     tick(g, ["shoot"], ["shoot"]);
     for (let i = 0; i < 30; i++) {
-      bullets(g).forEach((b) => spawned.add(b));
       expect(i === 0 || g.hero.fireTime === null).toBe(true);
       tick(g, ["shoot"]);
     }
     expect(g.hero.ammo).toBe(0);
-    expect(spawned.size).toBe(1);
+    expect(shots(g)).toHaveLength(1);
     run(g, 2);
     expect(g.hero).toMatchObject({ weapon: "fists", state: "idle" });
   });
@@ -120,7 +152,7 @@ describe("hero bullets", () => {
   it("fires none with fists", () => {
     const g = game({ x: 10.5, y: 14, weapon: "fists" });
     fire(g, 0.5);
-    expect(bullets(g)).toHaveLength(0);
+    expect(shots(g)).toHaveLength(0);
   });
 
   it("never hits the hero", () => {
@@ -130,68 +162,69 @@ describe("hero bullets", () => {
     expect(g.hero.hitAge).toBeNull();
   });
 
-  it("stops at a wall with a spark on the wall face", () => {
+  it("spark on the wall face", () => {
     const g = armed(2.5, -1);
     fire(g, 0.3);
-    expect(bullets(g)).toHaveLength(0);
     expect(g.world.sparks.length).toBeGreaterThan(0);
     for (const s of g.world.sparks) expect(s.x).toBe(1);
   });
 
-  it("sparks on the wall at point blank", () => {
+  it("spark on the wall at point blank", () => {
     const g = armed(1.4, -1);
     tick(g, ["shoot"], ["shoot"]);
-    expect(bullets(g)).toHaveLength(0);
     expect(g.world.sparks).toMatchObject([{ x: 1 }]);
   });
 
-  it("vanishes without a spark at the sight range", () => {
+  it("leave no spark past the sight range", () => {
     const g = armed(2.5);
     fire(g, 1);
-    expect(bullets(g).length).toBeGreaterThan(0);
-    expect(bullets(g).every((b) => b.x <= 2.5 + cfg.sightCells)).toBe(true);
+    expect(shots(g).length).toBeGreaterThan(0);
     expect(g.world.sparks).toHaveLength(0);
   });
 
-  it("gives enemy bullets the same range", () => {
-    const g = game({ x: 30.5, y: 14 });
-    const [enemy] = g.world.enemies;
-    Object.assign(enemy!.body, { x: 20.5, y: 14, facing: 1 });
-    fireEnemy(g.world, cfg, clips, enemy!, 1);
-    expect(g.world.projectiles).toHaveLength(1);
-    run(g, 1);
-    expect(g.world.projectiles).toHaveLength(0);
-    expect(g.hero.energy).toBe(cfg.energy.max);
+  it("pass through props the hero walks through", () => {
+    const g = armed(19.5);
+    fire(g, 1);
     expect(g.world.sparks).toHaveLength(0);
   });
 
-  it("hits a hero the enemy sees at the edge of its range", () => {
-    for (const d of [8.8, 8.9, cfg.sightCells]) {
-      const g = game({ x: 5.5 + d, y: 14 });
-      const [enemy] = g.world.enemies;
-      Object.assign(enemy!.body, { x: 5.5, y: 14, facing: 1 });
-      fireEnemy(g.world, cfg, clips, enemy!, 1);
+  it("pass through props at point blank", () => {
+    const g = armed(15.3);
+    tick(g, ["shoot"], ["shoot"]);
+    expect(shots(g)).toHaveLength(1);
+    expect(g.world.sparks).toHaveLength(0);
+  });
+});
+
+describe("enemy shots", () => {
+  const facing = (heroX: number, enemyX: number): { g: Game; enemy: Enemy } => {
+    const g = game({ x: heroX, y: 4 });
+    const enemy = g.world.enemies[0]!;
+    Object.assign(enemy.body, { x: enemyX, facing: heroX > enemyX ? 1 : -1 });
+    enemy.patrol = [enemyX, enemyX];
+    return { g, enemy };
+  };
+
+  it("hit the hero on the tick they fire", () => {
+    const { g } = facing(9.5, 5.5);
+    tick(g);
+    expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
+    expect(g.world.heroHits).toBe(0);
+  });
+
+  it("hit a hero the enemy sees at the edge of its range and none beyond", () => {
+    for (const [d, hit] of [[8.8, true], [cfg.sightCells, true], [cfg.sightCells + 0.1, false]] as const) {
+      const { g } = facing(1.5 + d, 1.5);
       run(g, 1);
-      expect(g.hero.energy).toBeLessThan(cfg.energy.max);
+      expect(g.hero.energy < cfg.energy.max).toBe(hit);
     }
   });
 
-  it("passes through props the hero walks through", () => {
-    const g = armed(19.5);
-    fire(g, 3);
-    const passed = (kind: string) => g.world.props.find((p) => p.kind === kind)!.x;
-    expect(bullets(g).some((b) => b.x > passed("barrel"))).toBe(true);
-    const enemy = g.world.enemies[0]!.body.x;
-    expect(g.world.sparks.every((s) => s.x === 47 || Math.abs(s.x - enemy) < cfg.box.width)).toBe(true);
-  });
-
-  it("passes through props at point blank", () => {
-    const g = armed(15.3);
-    tick(g, ["shoot"], ["shoot"]);
-    expect(bullets(g)).toHaveLength(1);
+  it("leave no spark", () => {
+    const { g } = facing(9.5, 5.5);
+    run(g, 0.5);
     expect(g.world.sparks).toHaveLength(0);
   });
-
 });
 
 describe("sparks", () => {
@@ -215,13 +248,11 @@ describe("shootable props", () => {
   };
   const shipOf = (g: Game) => g.world.props.find((p) => p.id === "crashedShip")!;
 
-  it("stops a hero bullet at a shootable prop and counts the hit", () => {
+  it("takes a hero shot at once with a spark on its face", () => {
     const g = shooter([ship]);
     tick(g, ["shoot"], ["shoot"]);
-    for (let i = 0; i < 30 && !g.world.sparks.length; i++) tick(g);
     expect(shipOf(g).hitsTaken).toBe(1);
-    expect(g.world.projectiles).toHaveLength(0);
-    expect(g.world.sparks[0]!.x).toBeCloseTo(8, 0);
+    expect(g.world.sparks[0]!.x).toBeCloseTo(8, 9);
   });
 
   it("switches the prop state at its hit count", () => {
@@ -241,7 +272,7 @@ describe("shootable props", () => {
     expect(g.world.flags.has("flag:hullOpen")).toBe(false);
   });
 
-  it("lets bullets pass other props", () => {
+  it("lets shots pass other props", () => {
     const g = shooter([decoy, ship]);
     tick(g, ["shoot"], ["shoot"]);
     run(g, 0.3);
@@ -249,26 +280,22 @@ describe("shootable props", () => {
     expect(shipOf(g).hitsTaken).toBe(1);
   });
 
-  it("ignores enemy bullets and bullets on another row", () => {
-    const g = shooter([ship]);
-    g.world.projectiles.push({ x: 7, y: 7, vx: 20, r: 0.1, tag: "enemy" });
-    run(g, 0.5);
-    expect(shipOf(g).hitsTaken).toBeUndefined();
-    const high = shooter([ship]);
-    high.world.projectiles.push({ x: 7, y: 3, vx: 20, r: 0.1, tag: "hero" });
-    run(high, 0.5);
-    expect(shipOf(high).hitsTaken).toBeUndefined();
+  it("ignores shots above or below it", () => {
+    for (const y of [4, 12]) {
+      const g = shooter([{ ...ship, y, height: 1 }]);
+      fire(g, 0.3);
+      expect(shipOf(g).hitsTaken).toBeUndefined();
+    }
   });
 
-  it("does not count a bullet dropped by fog", () => {
+  it("is not hit through fog", () => {
     const g = shooter([ship]);
     g.world.fog = createFog(loadFog(cameraJson), cfg, g.hero, g.world.grid);
     const fog = g.world.fog;
     for (let row = 0; row < fog.height; row++) fog.seen.fill(0, row * fog.width + 7, (row + 1) * fog.width);
-    g.world.projectiles.push({ x: 4, y: 7, vx: cfg.shot.speed, r: cfg.shot.radius, tag: "hero" });
-    for (let i = 0; i < 30; i++) stepShots(g.world, cfg, 1 / 60);
+    tick(g, ["shoot"], ["shoot"]);
     expect(shipOf(g).hitsTaken).toBeUndefined();
-    expect(g.world.projectiles).toHaveLength(0);
+    expect(g.world.sparks).toHaveLength(0);
   });
 
   it("is hit from the right side too", () => {

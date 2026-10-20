@@ -1,7 +1,5 @@
 import type { InputFrame } from "../../engine/input";
-import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
-import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
 import { callLift, fallLimit, floorsOf, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { inCover } from "../level/cover";
@@ -66,7 +64,6 @@ const EPS = 1e-3;
 const SHOT_EPS = 1e-6;
 const LADDER_REACH = 0.5;
 const PIT_MARGIN = 2;
-export const HERO_SHOT = "hero";
 
 export function createHero(
   spawn: [number, number],
@@ -733,22 +730,11 @@ function fallDead(s: Step): void {
   h.vy = 0;
 }
 
-function overlaps(p: Projectile, box: Box, dt: number): boolean {
-  const from = p.x - p.vx * dt;
-  const [lo, hi] = [Math.min(from, p.x), Math.max(from, p.x)];
-  const dx = Math.max(0, box.x - box.w / 2 - hi, lo - (box.x + box.w / 2));
-  const dy = p.y - clamp(p.y, box.y - box.h, box.y);
-  return dx * dx + dy * dy < p.r * p.r;
-}
-
-function projectileHits(s: Step): void {
-  const { h, world, cfg, dt } = s;
-  const box = boxOf(h, cfg);
-  world.projectiles = world.projectiles.filter((p) => {
-    if (p.tag === HERO_SHOT || h.hidden || isDead(h.state) || !overlaps(p, box, dt)) return true;
-    if (!world.immortal) s.events.push(...damage(h, cfg));
-    return false;
-  });
+function enemyHits(s: Step): void {
+  const { h, world, cfg } = s;
+  const hits = world.immortal ? 0 : world.heroHits;
+  world.heroHits = 0;
+  for (let i = 0; i < hits; i++) s.events.push(...damage(h, cfg));
 }
 
 export function updateHero(
@@ -778,6 +764,6 @@ export function updateHero(
     settle(s, startY);
   }
   if (h.state === before) stepSounds(s);
-  projectileHits(s);
+  enemyHits(s);
   return s.events;
 }

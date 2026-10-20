@@ -1,9 +1,7 @@
 import { span } from "../../engine/anim/keyed";
-import { FIXED_STEP } from "../../engine/loop";
 import type { ViewTransform } from "../../engine/render/view";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
-import type { Projectile } from "../../engine/world/projectiles";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
@@ -27,7 +25,6 @@ const DEG = Math.PI / 180;
 const STAR = { radius: 14 / SPIKE_K, points: 10, inner: 0.35, outer: 0.6 };
 const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
-const TRACER = { length: 14, width: 2 };
 const DUST = { back: 30, up: 6, radius: 18 };
 const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
 const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
@@ -38,7 +35,6 @@ const MODELS = {
 const FLYER_HIT = { flash: 0.25, glow: 0.6 };
 
 const COLORS = {
-  shot: "#ff6a3a",
   spark: "#ffd76a",
 };
 
@@ -49,30 +45,6 @@ interface Frame {
   unit: number;
   lineW: number;
   lines: number;
-}
-
-function projectiles(f: Frame, alpha: number): void {
-  const { world, cell } = f;
-  for (const p of world.projectiles) {
-    const x = (p.x - p.vx * (1 - alpha) * FIXED_STEP) * cell;
-    const y = p.y * cell;
-    tracer(f, p, x, y);
-  }
-}
-
-function tracer(f: Frame, p: Projectile, x: number, y: number): void {
-  const { ctx, unit, cell } = f;
-  const dir = Math.sign(p.vx);
-  const length = TRACER.length * unit;
-  const origin = (p.originX ?? p.x) * cell;
-  if ((x - origin) * dir <= 0) return;
-  const tail = dir > 0 ? Math.max(x - length, origin) : Math.min(x + length, origin);
-  ctx.strokeStyle = COLORS.spark;
-  ctx.lineWidth = TRACER.width * unit;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(tail, y);
-  ctx.stroke();
 }
 
 function beam(f: Frame): void {
@@ -279,7 +251,6 @@ export function drawScene(
   ctx.restore();
   if (!behind) drawHero();
   if (sight) ctx.clip(sight);
-  projectiles(f, alpha);
   beam(f);
   impacts(f);
   ctx.restore();

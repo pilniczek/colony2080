@@ -1,9 +1,8 @@
 import type { TileGrid } from "../../engine/world/tiles";
-import { ASSETS, type AssetId } from "../env/assets";
+import type { AssetId } from "../env/assets";
 import { BLAST } from "../env/blast";
-import { ACID_GUARD_FIRING, ACID_GUARD_MUZZLE } from "../env/guard";
-import { TILE } from "../env/paint";
-import { SHOOT_GUARD_EXPLODE, SHOOT_GUARD_FIRING, SHOOT_GUARD_MUZZLE } from "../env/shootGuard";
+import { ACID_GUARD_FIRING } from "../env/guard";
+import { SHOOT_GUARD_EXPLODE, SHOOT_GUARD_FIRING } from "../env/shootGuard";
 import type { Fog } from "../fog";
 import type { Hero } from "../hero/hero";
 import { burstStep, seesHero, type Burst } from "./enemy";
@@ -17,7 +16,6 @@ export interface PropFire {
 }
 
 interface GuardArt {
-  muzzle: [number, number];
   firing: number;
   explode?: number;
 }
@@ -25,24 +23,14 @@ interface GuardArt {
 const EDGE = 1e-6;
 
 const ART: Partial<Record<AssetId, GuardArt>> = {
-  acidGuard: { muzzle: ACID_GUARD_MUZZLE, firing: ACID_GUARD_FIRING },
-  shootGuard: { muzzle: SHOOT_GUARD_MUZZLE, firing: SHOOT_GUARD_FIRING, explode: SHOOT_GUARD_EXPLODE },
+  acidGuard: { firing: ACID_GUARD_FIRING },
+  shootGuard: { firing: SHOOT_GUARD_FIRING, explode: SHOOT_GUARD_EXPLODE },
 };
 
 const artOf = (prop: Prop): GuardArt => {
   const art = prop.asset && ART[prop.asset];
   if (!art) throw new Error(`no guard art for ${prop.asset}`);
   return art;
-};
-
-function originX(prop: Prop): number {
-  const [left, , right] = ASSETS[prop.asset!].box;
-  return prop.x + (prop.art?.dx ?? 0) - (left + right) / 2 / TILE;
-}
-
-export const gunOf = (prop: Prop): [number, number] => {
-  const { muzzle } = artOf(prop);
-  return [originX(prop) + muzzle[0] / TILE, (prop.y ?? 0) + (prop.art?.dy ?? 0) + muzzle[1] / TILE];
 };
 
 export function watchX(prop: Prop): number {

@@ -15,7 +15,6 @@ const FIRE_LOOP = 1.4;
 const MUZZLE: Pt = [20 + GUN_BACK, 33.7];
 const ORIGIN: Pt = [58.5, 53.5];
 
-export const ACID_GUARD_MUZZLE: Pt = [(MUZZLE[0] - ORIGIN[0]) * GUARD_SIZE, (MUZZLE[1] - ORIGIN[1]) * GUARD_SIZE];
 export const ACID_GUARD_FIRING = 2;
 const HULL = { nose: 21, rear: 54, top: 9, sx: 33 / 45.8, sy: 24 / 15.2 };
 const LEG = 1 / 12;

@@ -1,7 +1,6 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { cfg, dt, game, run, runUntil, tick, type Game } from "../hero/testWorld";
-import { ENEMY_SHOT } from "../level/enemy";
 import { missionJson } from "../level/missions";
 import { loadSandbox, type Prop } from "../level/sandboxLevel";
 import { runUse } from "../level/tasks";
@@ -63,7 +62,13 @@ describe("enemy fire cues", () => {
   });
 
   it("guard shot cues cannon 15000", () => {
-    const g = game({ x: 101.5, y: 30 }, missionJson("mesto"));
+    const g = game({ x: 30.5, y: 16 }, missionJson("mesto"));
+    tick(g);
+    expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
+  });
+
+  it("acid guard repel cues one cannon 15000", () => {
+    const g = game({ x: 108.65, y: 30 }, missionJson("mesto"));
     tick(g);
     expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
   });
@@ -153,7 +158,7 @@ describe("hero state cues", () => {
   it("a spent shield cues power 20000", () => {
     const g = game({ x: 3.5, y: 8 }, arena());
     Object.assign(g.hero, { energy: cfg.energy.hit, shields: 1 });
-    g.world.projectiles.push({ x: g.hero.x, y: g.hero.y - 1, vx: -1, r: 0.2, tag: ENEMY_SHOT });
+    g.world.heroHits = 1;
     tick(g);
     expect(g.hero.shields).toBe(0);
     expect(cues(g, "power")).toEqual([{ id: "power", rate: 20000, vol: 63, bus: "world" }]);

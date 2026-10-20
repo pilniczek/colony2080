@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createFog, loadFog, revealedAt, seenAt, sightRect, updateFog } from "./fog";
 import { cfg, clips, game, run, tick, type Game } from "./hero/testWorld";
 import { updateEnemy } from "./level/enemy";
-import { fireShots, stepShots } from "./shots";
+import { fireShots } from "./shots";
 
 const fogCfg = loadFog(cameraJson);
 
@@ -130,30 +130,21 @@ describe("fog follow", () => {
 });
 
 describe("fog blocks shots", () => {
-  it("drops hero bullets at the edge with no impact spark", () => {
+  it("ends hero shots at the edge with no impact spark", () => {
     const g = fogged(game({ x: 2.5, y: 14, weapon: "gun" }));
     tick(g, ["shoot"], ["shoot"]);
     run(g, 3, ["shoot"]);
     expect(g.world.sparks).toHaveLength(0);
-    expect(g.world.projectiles.every((p) => p.x <= 2.5 + cfg.sightCells)).toBe(true);
   });
 
-  it("keeps an enemy in a remembered cell safe from hero bullets", () => {
+  it("keeps an enemy in a remembered cell safe from hero shots", () => {
     const g = fogged(game({ x: 9.5, y: 4, weapon: "gun" }));
     g.hero.facing = -1;
     Object.assign(g.world.enemies[0]!.body, { x: 4.5, facing: -1 });
     coverLeftOf(g, 7);
     fireShots(g.world, g.hero, [{ kind: "shot", x: g.hero.x, y: g.hero.y }], clips, cfg);
-    for (let i = 0; i < 30; i++) stepShots(g.world, cfg, 1 / 60);
     expect(g.world.enemies[0]!.body.energy).toBe(sandbox.enemies[0]!.hits);
     expect(g.world.sparks).toHaveLength(0);
-  });
-
-  it("does not hang on a bullet with no horizontal speed", () => {
-    const g = fogged(game({ x: 9.5, y: 4, weapon: "gun" }));
-    g.world.projectiles.push({ tag: "hero", x: 9.5, y: 4, vx: 0, r: 0.1 } as (typeof g.world.projectiles)[number]);
-    stepShots(g.world, cfg, 1 / 60);
-    expect(g.world.projectiles.every((p) => Number.isFinite(p.x))).toBe(true);
   });
 
   it("keeps an enemy in a remembered cell from seeing the hero", () => {

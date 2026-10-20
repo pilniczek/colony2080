@@ -4,7 +4,6 @@ import map from "@config/levels/mesto/map.json";
 import tasks from "@config/levels/mesto/tasks.json";
 import { ITEMS } from "../items";
 import { cfg, game, run, runUntil, tick, type Game } from "../hero/testWorld";
-import { ENEMY_SHOT } from "./enemy";
 import { loadMesto, mestoJson } from "./mesto";
 import { coverClips } from "./cover";
 import { applyBlocks } from "./tasks";
@@ -12,8 +11,6 @@ import { terrain } from "./terrain";
 
 const world = loadMesto();
 const { grid, spawn, lifts } = world;
-
-const shipSky = (col: number, row: number): boolean => col >= 6 && col <= 22 && row >= 11 && row <= 50;
 
 const droids = enemies.enemies.filter((e) => e.type === "chromeDroid");
 const flyers = enemies.enemies.filter((e) => e.type === "flyer");
@@ -73,7 +70,7 @@ describe("mesto map", () => {
       for (let col = 1; col < grid.width - 1; col++) {
         if (!grid.wall(col, row) || grid.solid(col, row - 1)) continue;
         for (const next of [col - 1, col + 1]) {
-          if (grid.solid(next, row) || shaft(next, row) || craneGap(next, row) || shipSky(next, row - 1)) continue;
+          if (grid.solid(next, row) || shaft(next, row) || craneGap(next, row)) continue;
           expect(grid.solid(next, row - 1), `${next},${row - 1}`).toBe(true);
         }
       }
@@ -86,7 +83,7 @@ describe("mesto map", () => {
     for (const wall of terrain(grid).walls.filter((w) => w.h > 1)) {
       for (let col = wall.col; col < wall.col + wall.w; col++) {
         const floorAbove = Array.from({ length: wall.row }, (_, row) => grid.wall(col, row)).some(Boolean);
-        if (floorAbove && !grid.wall(col, wall.row - 1) && !liftFloor(col, wall.row - 1) && !shipSky(col, wall.row - 1)) short.push(`${col},${wall.row}`);
+        if (floorAbove && !grid.wall(col, wall.row - 1) && !liftFloor(col, wall.row - 1)) short.push(`${col},${wall.row}`);
       }
     }
     expect(short).toEqual([]);
@@ -248,7 +245,6 @@ describe("mesto train passage", () => {
 });
 
 describe("mesto acid guard", () => {
-  const shots = (g: Game) => g.world.projectiles.filter((p) => p.tag === ENEMY_SHOT);
   const guardOf = (g: Game) => g.world.props.find((p) => p.id === "acidGuard")!;
 
   it("fires bursts at a hero it sees on its floor and hurts him", () => {
@@ -257,10 +253,10 @@ describe("mesto acid guard", () => {
     expect(g.hero.energy).toBeLessThan(cfg.energy.max);
   });
 
-  it("starts its burst at once with a bullet from its cannon", () => {
+  it("starts its burst at once with a hit from its cannon", () => {
     const g = game({ x: 101.5, y: 30 }, mestoJson());
     tick(g);
-    expect(shots(g).length + g.world.sparks.length).toBeGreaterThan(0);
+    expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
     expect(guardOf(g).fireTime).toBe(0);
   });
 
@@ -276,12 +272,11 @@ describe("mesto acid guard", () => {
       tick(wrecked);
     }
     for (const g of [hidden, far, wrecked]) {
-      expect(shots(g)).toHaveLength(0);
       expect(g.hero.energy).toBe(cfg.energy.max);
     }
   });
 
-  it("takes no damage from hero bullets", () => {
+  it("takes no damage from hero shots", () => {
     const g = game({ x: 104.5, y: 30, weapon: "gun" }, mestoJson());
     g.hero.facing = 1;
     tick(g, ["shoot"], ["shoot"]);
@@ -291,7 +286,6 @@ describe("mesto acid guard", () => {
 });
 
 describe("mesto shoot guard", () => {
-  const shots = (g: Game) => g.world.projectiles.filter((p) => p.tag === ENEMY_SHOT);
   const guardOf = (g: Game) => g.world.props.find((p) => p.id === "shootGuard")!;
 
   it("blocks the way to the crane key while it stands", () => {
@@ -302,12 +296,12 @@ describe("mesto shoot guard", () => {
   it("fires bursts at a hero on its right and hurts him", () => {
     const g = game({ x: 30.5, y: 16 }, mestoJson());
     tick(g);
-    expect(shots(g).length + g.world.sparks.length).toBeGreaterThan(0);
+    expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
     run(g, 1);
     expect(g.hero.energy).toBeLessThan(cfg.energy.max);
   });
 
-  it("shrugs off hero bullets", () => {
+  it("shrugs off hero shots", () => {
     const g = game({ x: 30.5, y: 16, weapon: "gun", state: "hide" }, mestoJson());
     g.hero.facing = -1;
     g.hero.hidden = false;
