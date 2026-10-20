@@ -103,8 +103,39 @@ const landsNextTick = (h: Hero): boolean => {
 };
 
 describe("jumps", () => {
+  const roomOf = (rows: string[], spawn: [number, number]) => ({ ...objectLevel, rows, spawn, props: [], tasks: { tasks: [] } });
+
+  it("stand jumps up through a one-way ledge one row up and lands on it", () => {
+    const shelf = roomOf(["#........#", "#........#", "#........#", "#........#", "#........#", "#..====..#", "##########"], [4.5, 6]);
+    const g = game({ x: 4.5, y: 6 }, shelf);
+    tick(g);
+    tick(g, [], ["up"]);
+    expect(g.hero.state).toBe("standJump");
+    runUntil(g, (h) => h.onGround, [], 2);
+    expect(g.hero.y).toBe(5);
+  });
+
+  it("climbs a zigzag stair of three-wide one-way steps by walking and stand jumping", () => {
+    const left = "#.===...#";
+    const right = "#...===.#";
+    const rows = ["#.......#", "#.......#", "#.......#", "#.......#", left, right, left, right, left, right, left, right, "#########"];
+    const g = game({ x: 1.5, y: 12 }, roomOf(rows, [1.5, 12]));
+    const walkTo = (x: number): void => {
+      const dir = x > g.hero.x ? "moveRight" : "moveLeft";
+      runUntil(g, (h) => Math.abs(h.x - x) < 0.15, [dir], 3);
+      run(g, 0.3);
+    };
+    for (let row = 11; row >= 4; row--) {
+      walkTo(rows[row + 1] === left ? 2.5 : 6.5);
+      walkTo(4.5);
+      tick(g, [], ["up"]);
+      runUntil(g, (h) => h.onGround, [], 2);
+      expect(g.hero.y, `step row ${row}`).toBe(row);
+    }
+  });
+
   it("run jumps up through a one-way ledge and lands on it", () => {
-    const shelf = { ...objectLevel, rows: ["#........#", "#........#", "#........#", "#........#", "#........#", "#..====..#", "##########"], spawn: [1.5, 6], props: [], tasks: { tasks: [] } };
+    const shelf = roomOf(["#........#", "#........#", "#........#", "#........#", "#........#", "#..====..#", "##########"], [1.5, 6]);
     const g = game({ x: 1.5, y: 6 }, shelf);
     const held = ["moveRight", RUNNING];
     tick(g, held);

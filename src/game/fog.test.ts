@@ -65,6 +65,16 @@ describe("reveal", () => {
     expect(revealedAt(fog, 10, 2)).toBe(false);
   });
 
+  it("sees from an eye inside a one-way floor and along its row", () => {
+    const rows = ROOM.map((r, i) => (i === 6 ? "#.......#====#" : r));
+    const g = fogged(game({ x: 10.5, y: 8 }, { ...sandbox, rows, lifts: [], enemies: [], props: [] }));
+    const fog = g.world.fog!;
+    expect(Math.floor(8 - cfg.box.height * 0.85)).toBe(6);
+    expect(revealedAt(fog, 10, 2)).toBe(true);
+    expect(revealedAt(fog, 12, 6)).toBe(true);
+    expect(revealedAt(fog, 9, 7)).toBe(true);
+  });
+
   it("keeps uncovered cells uncovered after the hero walks away", () => {
     const g = fogged(game({ x: 10.5, y: 14 }));
     run(g, 5, ["moveRight"]);
