@@ -13,6 +13,7 @@
     "useItem": ["Enter"],
     "inventory": ["KeyI"],
     "map": ["KeyM"],
+    "cheat": ["Semicolon"],
     "menu": ["Escape"],
     "weapon1": ["Digit1"],
     "weapon2": ["Digit2"],

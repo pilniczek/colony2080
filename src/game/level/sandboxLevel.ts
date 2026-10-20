@@ -133,6 +133,7 @@ export interface SandboxWorld {
   subtitle: Subtitle | null;
   cutscene: { id: CutsceneId; prop: Prop | null; t: number } | null;
   complete: boolean;
+  immortal: boolean;
   source: SandboxJson;
 }
 
@@ -224,6 +225,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     subtitle: null,
     cutscene: null,
     complete: false,
+    immortal: false,
     source: data,
   };
   applyBlocks(world);
@@ -231,8 +233,8 @@ export function loadSandbox(json: unknown): SandboxWorld {
 }
 
 export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
-  const { fog } = world;
-  Object.assign(world, loadSandbox(world.source));
+  const { fog, immortal } = world;
+  Object.assign(world, loadSandbox(world.source), { immortal });
   const [x, y] = world.spawn;
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }

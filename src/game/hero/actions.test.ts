@@ -225,6 +225,19 @@ describe("projectiles", () => {
     expect(g.world.projectiles).toHaveLength(0);
   });
 
+  it("leave an immortal hero unhurt and running", () => {
+    const g = game({ x: 12, y: 14 });
+    g.world.immortal = true;
+    g.hero.running = true;
+    run(g, 0.3, ["moveRight"]);
+    fire(g, g.hero.x + 0.5);
+    run(g, 0.2, ["moveRight"]);
+    expect(g.world.projectiles).toHaveLength(0);
+    expect(g.hero.energy).toBe(cfg.energy.max);
+    expect(g.hero.hitAge).toBeNull();
+    expect(g.hero.state).toBe("run");
+  });
+
   it("hit a ducked hero", () => {
     const g = game();
     run(g, 0.3, ["down"]);

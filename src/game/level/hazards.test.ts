@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { isDead } from "../hero/hero";
 import { cfg, game, run, runUntil, tick } from "../hero/testWorld";
-import { loadSandbox } from "./sandboxLevel";
+import { loadSandbox, resetWorld } from "./sandboxLevel";
 import { conveyorVx, fallLimit } from "./hazards";
 
 const WIDTH = 20;
@@ -127,5 +127,46 @@ describe("conveyors", () => {
     const g = game({ x: 5.5, y: 8 }, level({ conveyors: [{ ...belt, col: 10, w: 5 }] }));
     run(g, 1);
     expect(g.hero.x).toBe(5.5);
+  });
+});
+
+describe("immortal hero", () => {
+  const lava = { id: "lava", kind: "death", col: 8, row: 7, w: 4, h: 1 };
+  const immortal = (g: ReturnType<typeof game>) => Object.assign(g, { world: Object.assign(g.world, { immortal: true }) });
+
+  it("walks over a death rect at its top", () => {
+    const g = immortal(game({ x: 2.5, y: 7 }, level({ hazards: [{ ...lava, col: 4, w: 12 }] }, [...Array<string>(7).fill(open), `####${".".repeat(WIDTH - 5)}#`, solid, solid])));
+    runUntil(g, (h) => h.x > 13, ["moveRight"], 10);
+    expect(g.hero.y).toBe(7);
+    expect(isDead(g.hero.state)).toBe(false);
+  });
+
+  it("takes nothing from a damage rect", () => {
+    const acid = { id: "acid", kind: "damage", col: 2, row: 7, w: 16, h: 1, perSecond: 30, push: 2 };
+    const g = immortal(game({ x: 6.5, y: 8 }, level({ hazards: [acid] })));
+    run(g, 1);
+    expect(g.hero.energy).toBe(cfg.energy.max);
+    expect(g.hero.x).toBe(6.5);
+  });
+
+  it("survives any fall height", () => {
+    const g = immortal(game({ x: 4.5, y: 4 }, level({}, tower)));
+    runUntil(g, (h) => h.x > 6, ["moveRight"]);
+    runUntil(g, (h) => h.onGround);
+    expect(isDead(g.hero.state)).toBe(false);
+  });
+
+  it("walks on the map bottom over a bottomless pit", () => {
+    const g = immortal(game({ x: 4.5, y: 4 }, level({}, [...Array<string>(4).fill(open), ledge, open, open])));
+    runUntil(g, (h) => h.x > 6, ["moveRight"]);
+    runUntil(g, (h) => h.onGround, [], 3);
+    expect(g.hero.y).toBe(7);
+    expect(isDead(g.hero.state)).toBe(false);
+  });
+
+  it("stays immortal after a world reset", () => {
+    const g = immortal(game());
+    resetWorld(g.world, cfg);
+    expect(g.world.immortal).toBe(true);
   });
 });

@@ -4,7 +4,7 @@ import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
 import { callLift, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
-import { fallLimit } from "../level/hazards";
+import { fallLimit, floorsOf } from "../level/hazards";
 import { openTask, runUse, say } from "../level/tasks";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
@@ -630,7 +630,7 @@ function physics(s: Step): void {
   if (carrier) box.y = moveBox(box, 0, carrier.vy * dt, world.grid, world.lifts, { ignoreOneWay: true }).y;
   const vy = Math.min(h.vy + cfg.gravity * dt, cfg.maxFallSpeed);
   const dx = carrier?.target != null ? keepOnDeck(h.x, h.x + h.vx * dt, carrier, cfg) - h.x : h.vx * dt;
-  const r = moveBox(box, dx, ((h.vy + vy) / 2) * dt, world.grid, world.lifts);
+  const r = moveBox(box, dx, ((h.vy + vy) / 2) * dt, world.grid, floorsOf(world));
   h.x = r.x;
   h.y = r.y;
   h.vy = (r.hitY && vy < 0) || (r.onGround && vy > 0) ? 0 : vy;
@@ -651,7 +651,7 @@ function settle(s: Step, startY: number): void {
     return;
   }
   if (!isAirborne(h.state)) return;
-  if (h.y - h.fallFrom > fallLimit(world, cfg)) return die(h, "fallDeath", s.events);
+  if (!world.immortal && h.y - h.fallFrom > fallLimit(world, cfg)) return die(h, "fallDeath", s.events);
   const landing = { from: h.state, time: h.time, age: 0 };
   if (h.fireTime !== null && s.input.held.has("down")) return enter(h, "duckAttack");
   if (h.fireTime !== null && s.input.dir === 0) return enter(h, "attack");
@@ -703,7 +703,7 @@ function projectileHits(s: Step): void {
   const box = boxOf(h, cfg);
   world.projectiles = world.projectiles.filter((p) => {
     if (p.tag === HERO_SHOT || h.hidden || isDead(h.state) || !overlaps(p, box, dt)) return true;
-    s.events.push(...damage(h, cfg));
+    if (!world.immortal) s.events.push(...damage(h, cfg));
     return false;
   });
 }

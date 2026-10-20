@@ -2,18 +2,20 @@ import "@fontsource/orbitron/900.css";
 import "@fontsource/share-tech-mono/400.css";
 import controls from "@config/controls.json";
 import cameraJson from "@config/camera.json";
-import type { ReactNode } from "react";
+import { createElement, Fragment, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
+import { CheatInput } from "../sandbox/ui/CheatInput";
 import { whenIdle } from "../engine/idle";
 import { filmOf, loadFilms, type Cutscene, type CutsceneId } from "./cutscene";
 import { lookAt } from "./cutscene/looks";
 import { drawRobotView } from "./cutscene/robotView";
 import { playFilm } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
+import { cheatOf } from "./cheats";
 import { createFog, loadFog } from "./fog";
 import { createSaveMenu, type SaveMenuOptions } from "./save/saveMenu";
 import type { Rect } from "./geometry";
@@ -265,10 +267,14 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         afterStep?.();
         return;
       }
-      if (tuning().inventory.open || tuning().mapOpen) return;
+      if (tuning().inventory.open || tuning().mapOpen || tuning().cheatOpen) return;
       const frame = input.frame();
       if (saveMenu?.step(dt)) return;
       const canOpen = canOpenScreen(hero.state, tuning().recording || tuning().playing);
+      if (input.consume("cheat") && canOpen) {
+        useSandbox.setState({ cheatOpen: true });
+        return;
+      }
       if (input.consume("inventory") && canOpen) {
         useSandbox.setState({ inventory: { open: true, cursor: openCursor(world.inventory.items, world.inventory.shown) } });
         return;
@@ -321,7 +327,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
 
   const applyTime = ({ paused, timeScale }: { paused: boolean; timeScale: number }): void => {
-    loop.paused = paused || tuning().inventory.open || tuning().mapOpen || tuning().menu !== null;
+    loop.paused = paused || tuning().inventory.open || tuning().mapOpen || tuning().cheatOpen || tuning().menu !== null;
     loop.timeScale = timeScale;
   };
 
@@ -355,6 +361,26 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
   window.addEventListener("keydown", mapKeys, { capture: true });
 
+  const closeCheat = (): void => {
+    input.clearPresses();
+    useSandbox.setState({ cheatOpen: false });
+  };
+
+  const enterCheat = (code: string): void => {
+    closeCheat();
+    const cheat = cheatOf(code);
+    if (cheat === "immortal") {
+      world.immortal = !world.immortal;
+      say(world, world.immortal ? "Immortality on" : "Immortality off");
+    }
+    if (cheat === "noFog") {
+      const fogOn = world.fog === null;
+      applyFog(fogOn);
+      useSandbox.setState({ fogOn });
+      say(world, fogOn ? "Fog of war on" : "Fog of war off");
+    }
+  };
+
   startFilm(world, intro);
   setTimeout(() => void loadFilms().then(warmFilms), FILM_PRELOAD_MS);
   fit();
@@ -363,6 +389,6 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   watchPixelRatio();
   loop.start();
 
-  createRoot(ui).render(tree);
+  createRoot(ui).render(createElement(Fragment, null, tree, createElement(CheatInput, { onCode: enterCheat, onClose: closeCheat })));
   return { world, hero, input, loop, restart, applyFog };
 }

@@ -26,6 +26,7 @@ export interface SandboxState {
   items: ItemId[];
   inventory: { open: boolean; cursor: number };
   mapOpen: boolean;
+  cheatOpen: boolean;
   cutscene: boolean;
   menu: MenuState | null;
   slots: Slots;
@@ -115,6 +116,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   items: [],
   inventory: { open: false, cursor: 0 },
   mapOpen: false,
+  cheatOpen: false,
   cutscene: false,
   menu: null,
   slots: [],
