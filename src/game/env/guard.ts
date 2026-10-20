@@ -115,9 +115,10 @@ export interface KneeOptions {
   forward?: boolean;
   pad?: number;
   trim?: number;
+  padAt?: Pt;
 }
 
-export const sideLegArmor = (ctx: CanvasRenderingContext2D, knee: Pt, ankle: Pt, { forward = false, pad = KNEE_PAD, trim = 0 }: KneeOptions = {}): void => {
+export const sideLegArmor = (ctx: CanvasRenderingContext2D, knee: Pt, ankle: Pt, { forward = false, pad = KNEE_PAD, trim = 0, padAt = knee }: KneeOptions = {}): void => {
   const len = Math.hypot(ankle[0] - knee[0], ankle[1] - knee[1]);
   ctx.save();
   ctx.translate(knee[0], knee[1]);
@@ -137,7 +138,7 @@ export const sideLegArmor = (ctx: CanvasRenderingContext2D, knee: Pt, ankle: Pt,
     poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
     poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
   });
-  inRigUnits(ctx, knee, (forward ? -1 : 1) * LEG * pad, LEG * pad, SIDE_LEG.joint, () => {
+  inRigUnits(ctx, padAt, (forward ? -1 : 1) * LEG * pad, LEG * pad, SIDE_LEG.joint, () => {
     disc(ctx, 300, 486, 30, "gm1", "gmLine");
     poly(ctx, SIDE_LEG.cap, "guardChrome", 1);
     if (trim) line(ctx, [[309.5, 488], [362, 488]], "trim", trim / (LEG * pad), "butt");

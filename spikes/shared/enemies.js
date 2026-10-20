@@ -280,7 +280,7 @@ function inRigUnits(ctx, at, sx, sy, origin, draw) {
   ctx.restore();
 }
 
-function sideLegArmor(ctx, knee, ankle, { forward = false, pad = KNEE_PAD, trim = 0 } = {}) {
+function sideLegArmor(ctx, knee, ankle, { forward = false, pad = KNEE_PAD, trim = 0, padAt = knee } = {}) {
   const len = Math.hypot(ankle[0] - knee[0], ankle[1] - knee[1]);
   ctx.save();
   ctx.translate(...knee);
@@ -299,7 +299,7 @@ function sideLegArmor(ctx, knee, ankle, { forward = false, pad = KNEE_PAD, trim 
     P.poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
     P.poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
   });
-  inRigUnits(ctx, knee, (forward ? -1 : 1) * LEG * pad, LEG * pad, SIDE_LEG.joint, () => {
+  inRigUnits(ctx, padAt, (forward ? -1 : 1) * LEG * pad, LEG * pad, SIDE_LEG.joint, () => {
     P.disc(ctx, 300, 486, 30, "gm1", "gmLine");
     P.poly(ctx, SIDE_LEG.cap, "guardChrome", 1);
     if (trim) P.line(ctx, [[309.5, 488], [362, 488]], "trim", trim / (LEG * pad), "butt");
@@ -634,10 +634,10 @@ function across(a, b, t, half) {
 }
 
 function trooperLeg(ctx, [hip, knee, ankle]) {
-  P.beam(ctx, hip, knee, 4.2, "guardMetal");
+  P.beam(ctx, hip, knee, 6.5, "guardMetal");
   const w = TROOPER_TRIM / GUARD_SIZE;
-  sideLegArmor(ctx, knee, ankle, { forward: true, pad: 1.15, trim: w });
-  P.line(ctx, across(hip, knee, 0.5, 2.1), "trim", w, "butt");
+  sideLegArmor(ctx, knee, ankle, { forward: true, pad: 1.15, trim: w, padAt: along(knee, hip, 0.22) });
+  P.line(ctx, across(hip, knee, 0.5, 3.25), "trim", w, "butt");
   P.line(ctx, across(knee, ankle, 0.55, (7 + 2.5 * 0.55) / 2), "trim", w, "butt");
 }
 
@@ -651,8 +651,15 @@ function trooperLegs(ctx) {
   trooperTail(ctx);
   ctx.save();
   ctx.translate(0, -TROOPER_RAISE);
-  P.poly(ctx, [[18, 42], [31, 42], [33, 47], [28, 51], [20, 51], [17, 47]], "guardChrome", 1, { dir: [1, 0] });
-  P.line(ctx, [[17.3, 46], [32.6, 46]], "trim", TROOPER_TRIM, "butt");
+  fillPath(ctx, c => {
+    c.moveTo(18, 42);
+    c.lineTo(31, 42);
+    c.quadraticCurveTo(34.5, 44, 33, 48);
+    c.quadraticCurveTo(31, 51.5, 25, 51.5);
+    c.quadraticCurveTo(18.5, 51.5, 17, 47.5);
+    c.quadraticCurveTo(16, 43.5, 18, 42);
+  }, grad(ctx, 16, 0, 34, 0, [[0, "gc0"], [0.4, "gc1"], [0.8, "gc2"], [1, "gc1"]]));
+  P.line(ctx, [[16.8, 46], [33.4, 46]], "trim", TROOPER_TRIM, "butt");
   ctx.restore();
   inGuardLegUnits(ctx, () => trooperLeg(ctx, TROOPER_LEGS.front));
 }
@@ -666,12 +673,33 @@ function trooperTorso(ctx) {
   if (!ENV.simple) P.line(ctx, [[23, 24], [29, 25.2]], "gc2", 0.5);
 }
 
+const DOME = { at: [38.5, 14.4], tilt: 0.17, length: 26, r: 4.6 };
+
+function trooperDome(ctx) {
+  const { length: l, r } = DOME;
+  ctx.save();
+  ctx.translate(...DOME.at);
+  ctx.rotate(DOME.tilt);
+  fillPath(ctx, c => {
+    c.moveTo(0, -r);
+    c.lineTo(-l, -r);
+    c.arc(-l, 0, r, -Math.PI / 2, Math.PI / 2, true);
+    c.lineTo(0, r);
+  }, grad(ctx, 0, -r, 0, r, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]), "gmLine");
+  P.line(ctx, [[-l + 2, -r], [-l - 1.5, -r - 4]], "gm2", 1, "butt");
+  P.line(ctx, [[-3, -r + 1], [-l + 1, -r + 1]], "gc1", 0.6, "butt");
+  if (!ENV.simple) {
+    for (const x of [-9, -14, -19, -24]) P.line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
+    P.line(ctx, [[-4, 1.8], [-l, 1.8]], "fc0", 0.5, "butt");
+    for (const x of [-11.5, -16.5, -21.5]) P.disc(ctx, x, 3, 0.6, "gc1");
+  }
+  P.line(ctx, [[-6, -r], [-6, r]], "trim", TROOPER_TRIM, "butt");
+  ctx.restore();
+}
+
 function trooperHead(ctx) {
   P.poly(ctx, [[30, 27], [29, 22], [34, 21], [35, 26]], "guardMetal", 0);
-  fillPath(ctx, c => {
-    c.ellipse(24.5, 14.2, 15.5, 5.4, 0.17, 0, Math.PI * 2);
-  }, grad(ctx, 0, 9, 0, 20, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]), "gmLine");
-  if (!ENV.simple) P.curve(ctx, [[13, 10.6], [23, 9.4], [34, 11.2]], "gc1", 0.7);
+  trooperDome(ctx);
   fillPath(ctx, c => {
     c.moveTo(34, 15.2);
     c.lineTo(40, 15.4);
@@ -693,10 +721,11 @@ function trooperHead(ctx) {
     c.moveTo(33, 21.6);
     c.lineTo(36, 22.6);
     c.lineTo(42.5, 23);
-    c.quadraticCurveTo(46.4, 23.2, 46.6, 25);
-    c.quadraticCurveTo(46.6, 27.4, 44, 28.2);
+    c.lineTo(46.8, 23.4);
+    c.lineTo(46.8, 26.4);
+    c.lineTo(44.4, 28.4);
     c.lineTo(36.5, 28.4);
-    c.quadraticCurveTo(32.6, 27.4, 33, 21.6);
+    c.lineTo(33, 26.6);
   }, grad(ctx, 0, 22.6, 0, 28.4, [[0, "gc2"], [0.3, "gc1"], [0.7, "gm3"], [1, "gm1"]]));
   P.line(ctx, [[38, 23.2], [45.6, 23.6]], "gmLine", 0.6, "butt");
   if (!ENV.simple) {
@@ -779,7 +808,7 @@ function trooperBody(ctx, fire) {
 
 const TROOPER = {
   id: "trooper",
-  box: { x: -29, y: -72, w: 72, h: 72 },
+  box: { x: -29, y: -80, w: 72, h: 80 },
   draw(ctx, state, t) {
     if (state !== 2) return trooperBody(ctx, state === 1 ? fireFrame(t % TROOPER_FIRE_LOOP) : -1);
     const age = t % BLAST.loop;
@@ -794,7 +823,7 @@ const TROOPER = {
 
 ENV.define({
   id: "shootGuard",
-  box: [-29, -72, 72, 72],
+  box: [-29, -80, 72, 80],
   anim: true,
   draw(ctx, state, t) {
     TROOPER.draw(ctx, state, t);

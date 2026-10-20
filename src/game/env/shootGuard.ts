@@ -11,7 +11,7 @@ import { P, TILE, type EnvAsset, type EnvPalette } from "./paint";
 
 type Pt = [number, number];
 
-const { poly, box, flat, disc, line, glow, beam, curve } = P;
+const { poly, box, flat, disc, line, glow, beam } = P;
 
 const ORIGIN: Pt = [24, 68];
 const ARM_PX = ((1.9 * TILE) / (ROBOT.FOOT_Y - robotJson.levels.head)) * 1.35;
@@ -98,10 +98,10 @@ const across = (a: Pt, b: Pt, t: number, half: number): Pt[] => {
 };
 
 const leg = (ctx: CanvasRenderingContext2D, [hip, knee, ankle]: [Pt, Pt, Pt]): void => {
-  beam(ctx, hip, knee, 4.2, "guardMetal");
+  beam(ctx, hip, knee, 6.5, "guardMetal");
   const w = TRIM / GUARD_SIZE;
-  sideLegArmor(ctx, knee, ankle, { forward: true, pad: KNEE_PAD, trim: w });
-  line(ctx, across(hip, knee, 0.5, 2.1), "trim", w, "butt");
+  sideLegArmor(ctx, knee, ankle, { forward: true, pad: KNEE_PAD, trim: w, padAt: along(knee, hip, 0.22) });
+  line(ctx, across(hip, knee, 0.5, 3.25), "trim", w, "butt");
   line(ctx, across(knee, ankle, 0.55, (7 + 2.5 * 0.55) / 2), "trim", w, "butt");
 };
 
@@ -115,8 +115,19 @@ const legs = (ctx: CanvasRenderingContext2D): void => {
   tail(ctx);
   ctx.save();
   ctx.translate(0, -RAISE);
-  poly(ctx, [[18, 42], [31, 42], [33, 47], [28, 51], [20, 51], [17, 47]], "guardChrome", 1, { dir: [1, 0] });
-  line(ctx, [[17.3, 46], [32.6, 46]], "trim", TRIM, "butt");
+  fillPath(
+    ctx,
+    (c) => {
+      c.moveTo(18, 42);
+      c.lineTo(31, 42);
+      c.quadraticCurveTo(34.5, 44, 33, 48);
+      c.quadraticCurveTo(31, 51.5, 25, 51.5);
+      c.quadraticCurveTo(18.5, 51.5, 17, 47.5);
+      c.quadraticCurveTo(16, 43.5, 18, 42);
+    },
+    grad(ctx, 16, 0, 34, 0, [[0, "gc0"], [0.4, "gc1"], [0.8, "gc2"], [1, "gc1"]]),
+  );
+  line(ctx, [[16.8, 46], [33.4, 46]], "trim", TRIM, "butt");
   ctx.restore();
   inGuardLegUnits(ctx, () => leg(ctx, LEGS.front));
 };
@@ -130,17 +141,38 @@ const torso = (ctx: CanvasRenderingContext2D): void => {
   if (!P.simple()) line(ctx, [[23, 24], [29, 25.2]], "gc2", 0.5);
 };
 
-const head = (ctx: CanvasRenderingContext2D): void => {
-  poly(ctx, [[30, 27], [29, 22], [34, 21], [35, 26]], "guardMetal", 0);
+const DOME = { at: [38.5, 14.4] as Pt, tilt: 0.17, length: 26, r: 4.6 };
+
+const dome = (ctx: CanvasRenderingContext2D): void => {
+  const { length: l, r } = DOME;
+  ctx.save();
+  ctx.translate(DOME.at[0], DOME.at[1]);
+  ctx.rotate(DOME.tilt);
   fillPath(
     ctx,
     (c) => {
-      c.ellipse(24.5, 14.2, 15.5, 5.4, 0.17, 0, Math.PI * 2);
+      c.moveTo(0, -r);
+      c.lineTo(-l, -r);
+      c.arc(-l, 0, r, -Math.PI / 2, Math.PI / 2, true);
+      c.lineTo(0, r);
     },
-    grad(ctx, 0, 9, 0, 20, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]),
+    grad(ctx, 0, -r, 0, r, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]),
     "gmLine",
   );
-  if (!P.simple()) curve(ctx, [[13, 10.6], [23, 9.4], [34, 11.2]], "gc1", 0.7);
+  line(ctx, [[-l + 2, -r], [-l - 1.5, -r - 4]], "gm2", 1, "butt");
+  line(ctx, [[-3, -r + 1], [-l + 1, -r + 1]], "gc1", 0.6, "butt");
+  if (!P.simple()) {
+    for (const x of [-9, -14, -19, -24]) line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
+    line(ctx, [[-4, 1.8], [-l, 1.8]], "fc0", 0.5, "butt");
+    for (const x of [-11.5, -16.5, -21.5]) disc(ctx, x, 3, 0.6, "gc1");
+  }
+  line(ctx, [[-6, -r], [-6, r]], "trim", TRIM, "butt");
+  ctx.restore();
+};
+
+const head = (ctx: CanvasRenderingContext2D): void => {
+  poly(ctx, [[30, 27], [29, 22], [34, 21], [35, 26]], "guardMetal", 0);
+  dome(ctx);
   fillPath(
     ctx,
     (c) => {
@@ -173,10 +205,11 @@ const head = (ctx: CanvasRenderingContext2D): void => {
       c.moveTo(33, 21.6);
       c.lineTo(36, 22.6);
       c.lineTo(42.5, 23);
-      c.quadraticCurveTo(46.4, 23.2, 46.6, 25);
-      c.quadraticCurveTo(46.6, 27.4, 44, 28.2);
+      c.lineTo(46.8, 23.4);
+      c.lineTo(46.8, 26.4);
+      c.lineTo(44.4, 28.4);
       c.lineTo(36.5, 28.4);
-      c.quadraticCurveTo(32.6, 27.4, 33, 21.6);
+      c.lineTo(33, 26.6);
     },
     grad(ctx, 0, 22.6, 0, 28.4, [[0, "gc2"], [0.3, "gc1"], [0.7, "gm3"], [1, "gm1"]]),
   );
@@ -226,7 +259,7 @@ const body = (ctx: CanvasRenderingContext2D, fire: number): void => {
 
 export const shootGuard: EnvAsset = {
   id: "shootGuard",
-  box: [-29, -72, 72, 72],
+  box: [-29, -80, 72, 80],
   anim: true,
   draw(ctx, state, t) {
     if (state !== SHOOT_GUARD_EXPLODE) return body(ctx, state === SHOOT_GUARD_FIRING ? fireFrame(t % FIRE_LOOP) : -1);
