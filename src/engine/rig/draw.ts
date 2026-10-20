@@ -1,5 +1,5 @@
 import { joint, type Pose, type Tint } from "./pose";
-import { clipHalf, clipPoly, flatten, roundedPath, type FlatNode, type Material, type PartNode, type Pt, type RigNode } from "./tree";
+import { clipHalf, clipPoly, flatten, roundedPath, type FlatNode, type Material, type PartNode, type PartSpec, type Pt, type RigNode, type Tone, type ToneBand } from "./tree";
 
 export type Palette = Record<string, string>;
 export type HookDraw = (ctx: CanvasRenderingContext2D, palette: Palette) => void;
@@ -25,50 +25,50 @@ const MAT: Record<Material, [string, string, string, string, string]> = {
   chrome: ["c0", "c1", "c2", "c3", "mLine"],
 };
 
-const bands = (g: CanvasGradient, colors: string[], stops: number[]): CanvasGradient => {
-  g.addColorStop(0, colors[0] as string);
-  stops.forEach((s, i) => {
-    g.addColorStop(s, colors[i] as string);
-    g.addColorStop(s, colors[i + 1] as string);
-  });
-  g.addColorStop(1, colors[colors.length - 1] as string);
-  return g;
-};
-
 const partPath = (node: PartNode | FlatNode): Path2D => {
   if (!node.path) node.path = new Path2D(roundedPath(node.k === "part" ? node.spec.pts : node.pts, node.r));
   return node.path;
 };
 
-const baseFill = (ctx: CanvasRenderingContext2D, node: PartNode, simple: boolean, c0: string, c1: string, c2: string, c3: string): string | CanvasGradient => {
-  const key = (simple ? "s" : "f") + c0 + c1 + c2 + c3;
-  if (node.fillKey === key && node.fill !== undefined) return node.fill;
-  const shade = node.spec.shade ?? "box";
-  const [x0, y0, x1, y1] = node.box;
-  const w = x1 - x0;
-  const h = y1 - y0;
-  let fill: string | CanvasGradient = c1;
-  if (shade === "box") {
-    const a = (0.09 * w) / h;
-    const c = w / (1 + a * a);
-    fill = bands(ctx.createLinearGradient(x0, y0, x0 + c, y0 + c * a), [c2, c1, c0], [0.355, 0.805]);
-  } else if (shade === "cyl") {
-    const g = ctx.createLinearGradient(x0, 0, x1, 0);
-    fill = simple ? bands(g, [c2, c1, c0], [0.3, 0.75]) : bands(g, [c2, c3, c2, c1, c0], [0.12, 0.2, 0.3, 0.75]);
-  } else if (shade === "hcyl") {
-    const g = ctx.createLinearGradient(0, y0, 0, y1);
-    fill = simple ? bands(g, [c2, c1, c0], [0.32, 0.72]) : bands(g, [c2, c3, c2, c1, c0], [0.14, 0.22, 0.32, 0.72]);
-  } else if (shade === "dome") fill = bands(ctx.createRadialGradient(0.36, 0.34, 0.29, 0.44, 0.44, 0.5), [c2, c1, c0], [0, 1]);
-  node.fill = fill;
-  node.fillKey = key;
-  return fill;
+type Stripe = [Tone, number, number];
+type Shaded = Exclude<PartSpec["shade"], "none" | "dome" | undefined>;
+
+const BOX_STRIPES: Stripe[] = [[2, -Infinity, 0.355], [0, 0.805, Infinity]];
+
+const STRIPES: Record<Shaded, Record<"full" | "simple", Stripe[]>> = {
+  box: { full: BOX_STRIPES, simple: BOX_STRIPES },
+  cyl: {
+    full: [[2, -Infinity, 0.3], [3, 0.12, 0.2], [0, 0.75, Infinity]],
+    simple: [[2, -Infinity, 0.3], [0, 0.75, Infinity]],
+  },
+  hcyl: {
+    full: [[2, -Infinity, 0.32], [3, 0.14, 0.22], [0, 0.72, Infinity]],
+    simple: [[2, -Infinity, 0.32], [0, 0.72, Infinity]],
+  },
 };
 
-const polyPath = (pts: Pt[]): Path2D | null => (pts.length > 2 ? new Path2D("M" + pts.map((p) => p.join(",")).join("L") + "Z") : null);
+const DOME_STEPS = 48;
 
-const bottomBand = (node: PartNode): Path2D | null => {
-  if (node.band !== undefined) return node.band;
-  const [x0, y0, x1, y1] = node.box;
+const ring = (cx: number, cy: number, rx: number, ry: number, steps: number): Pt[] =>
+  Array.from({ length: steps }, (_, i): Pt => [cx + rx * Math.cos((i * 2 * Math.PI) / steps), cy + ry * Math.sin((i * 2 * Math.PI) / steps)]);
+
+const along = (shade: Shaded, [x0, y0, x1, y1]: PartNode["box"]): ((p: Pt) => number) => {
+  const w = x1 - x0;
+  const h = y1 - y0;
+  if (shade === "cyl") return (p) => (p[0] - x0) / w;
+  if (shade === "hcyl") return (p) => (p[1] - y0) / h;
+  const a = (0.09 * w) / h;
+  const c = w / (1 + a * a);
+  const len = c * c * (1 + a * a);
+  return (p) => ((p[0] - x0) * c + (p[1] - y0) * c * a) / len;
+};
+
+const stripe = (poly: Pt[], t: (p: Pt) => number, lo: number, hi: number): Pt[] => {
+  const above = lo === -Infinity ? poly : clipHalf(poly, (p) => t(p) - lo);
+  return hi === Infinity ? above : clipHalf(above, (p) => hi - t(p));
+};
+
+const bottomBand = (poly: Pt[], [x0, y0, x1, y1]: PartNode["box"]): Pt[] => {
   const w = x1 - x0;
   const h = y1 - y0;
   const b = (0.04 * h) / w;
@@ -76,81 +76,76 @@ const bottomBand = (node: PartNode): Path2D | null => {
   const dx = -c * b;
   const dy = c;
   const cut = 0.88 * (dx * dx + dy * dy);
-  node.band = polyPath(clipHalf(flatten(node.spec.pts, node.r), (p) => (p[0] - x0) * dx + (p[1] - y0) * dy - cut));
-  return node.band;
+  return clipHalf(poly, (p) => (p[0] - x0) * dx + (p[1] - y0) * dy - cut);
 };
 
-const lineWidth = (ctx: CanvasRenderingContext2D, lineW: number): number => {
-  const t = ctx.getTransform();
-  return lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+const highlight = (shade: PartSpec["shade"], [x0, y0, x1, y1]: PartNode["box"]): Pt[] | null => {
+  const w = x1 - x0;
+  const h = y1 - y0;
+  if (shade === "dome") return ring(x0 + w * 0.3, y0 + h * 0.26, w * 0.09, h * 0.06, 24);
+  if (shade !== "box" || w <= 24 || h <= 24) return null;
+  return [
+    [x0 + w * 0.1, y0 + h * 0.08],
+    [x0 + w * 0.22, y0 + h * 0.08],
+    [x0 + w * 0.15, y0 + h * 0.4],
+    [x0 + w * 0.06, y0 + h * 0.4],
+  ];
 };
 
-const unitPath = (node: PartNode): Path2D => {
-  const [x0, y0, x1, y1] = node.box;
-  const p = new Path2D();
-  p.addPath(partPath(node), new DOMMatrix().scale(1 / (x1 - x0), 1 / (y1 - y0)).translate(-x0, -y0));
-  return p;
-};
-
-const fillUnit = (ctx: CanvasRenderingContext2D, node: PartNode): void => {
-  const [x0, y0, x1, y1] = node.box;
-  node.unitPath ||= unitPath(node);
-  ctx.save();
-  ctx.translate(x0, y0);
-  ctx.scale(x1 - x0, y1 - y0);
-  ctx.fill(node.unitPath);
-  ctx.restore();
-};
-
-const highlight = (node: PartNode): Path2D | null => {
+const toneShapes = (node: PartNode, simple: boolean): [Tone, Pt[]][] => {
+  const shade = node.spec.shade ?? "box";
+  if (shade === "none") return [];
+  const poly = flatten(node.spec.pts, node.r);
   const [x0, y0, x1, y1] = node.box;
   const w = x1 - x0;
   const h = y1 - y0;
-  const shade = node.spec.shade ?? "box";
-  let shape: Pt[] | null = null;
-  if (shade === "box" && w > 24 && h > 24)
-    shape = [
-      [x0 + w * 0.1, y0 + h * 0.08],
-      [x0 + w * 0.22, y0 + h * 0.08],
-      [x0 + w * 0.15, y0 + h * 0.4],
-      [x0 + w * 0.06, y0 + h * 0.4],
-    ];
-  if (shade === "dome") {
-    const cx = x0 + w * 0.3;
-    const cy = y0 + h * 0.26;
-    const rx = w * 0.09;
-    const ry = h * 0.06;
-    shape = Array.from({ length: 24 }, (_, i): Pt => [cx + rx * Math.cos((i * Math.PI) / 12), cy + ry * Math.sin((i * Math.PI) / 12)]);
-  }
-  return shape && polyPath(clipPoly(flatten(node.spec.pts, node.r), shape));
+  const shapes: [Tone, Pt[]][] =
+    shade === "dome"
+      ? [
+          [1, clipPoly(poly, ring(x0 + w * 0.44, y0 + h * 0.44, w * 0.5, h * 0.5, DOME_STEPS))],
+          [2, clipPoly(poly, ring(x0 + w * 0.36, y0 + h * 0.34, w * 0.29, h * 0.29, DOME_STEPS))],
+        ]
+      : STRIPES[shade][simple ? "simple" : "full"].map(([tone, lo, hi]): [Tone, Pt[]] => [tone, stripe(poly, along(shade, node.box), lo, hi)]);
+  if (simple) return shapes;
+  if (shade === "box") shapes.push([0, bottomBand(poly, node.box)]);
+  const hl = highlight(shade, node.box);
+  if (hl) shapes.push([3, clipPoly(poly, hl)]);
+  return shapes;
 };
 
-const drawHighlight = (ctx: CanvasRenderingContext2D, node: PartNode, c3: string): void => {
-  if (node.hl === undefined) node.hl = highlight(node);
-  if (!node.hl) return;
-  ctx.fillStyle = c3;
-  ctx.fill(node.hl);
+const tonePaths = (shapes: [Tone, Pt[]][]): ToneBand[] => {
+  const merged: [Tone, Pt[][]][] = [];
+  for (const [tone, pts] of shapes) {
+    if (pts.length < 3) continue;
+    const last = merged[merged.length - 1];
+    if (last && last[0] === tone) last[1].push(pts);
+    else merged.push([tone, [pts]]);
+  }
+  return merged.map(([tone, polys]): ToneBand => [tone, new Path2D(polys.map((pts) => "M" + pts.map((p) => p.join(",")).join("L") + "Z").join(""))]);
 };
+
+const shadeBands = (node: PartNode, simple: boolean): ToneBand[] => {
+  node.tones ??= {};
+  return (node.tones[simple ? "simple" : "full"] ??= tonePaths(toneShapes(node, simple)));
+};
+
+const unitScale = ({ a, b, c, d }: { a: number; b: number; c: number; d: number }): number => Math.sqrt(Math.abs(a * d - b * c));
 
 const drawPart = (ctx: CanvasRenderingContext2D, node: PartNode, pal: Palette, lineW: number, simple: boolean): void => {
   const { mat = "armor", shade = "box", line = true, lw = 1 } = node.spec;
   const [c0, c1, c2, c3, cl] = MAT[mat].map((k) => pal[k] as string) as [string, string, string, string, string];
+  const tones = [c0, c1, c2, c3];
   const path = partPath(node);
-  ctx.fillStyle = baseFill(ctx, node, simple, c0, c1, c2, c3);
-  if (shade === "dome") fillUnit(ctx, node);
-  else ctx.fill(path);
-  if (!simple) {
-    const band = shade === "box" && bottomBand(node);
-    if (band) {
-      ctx.fillStyle = c0;
-      ctx.fill(band);
-    }
-    drawHighlight(ctx, node, c3);
+  ctx.fillStyle = shade === "dome" ? c0 : c1;
+  ctx.fill(path);
+  for (const [tone, band] of shadeBands(node, simple)) {
+    ctx.fillStyle = tones[tone] as string;
+    ctx.fill(band);
   }
   if (line && lineW) {
     ctx.strokeStyle = cl;
     ctx.lineJoin = "round";
-    ctx.lineWidth = lineWidth(ctx, lineW * lw);
+    ctx.lineWidth = lineW * lw;
     ctx.stroke(path);
   }
 };
@@ -162,7 +157,7 @@ const drawTrefoil = (ctx: CanvasRenderingContext2D, r: number, pal: Palette, lin
   ctx.fill();
   if (lineW) {
     ctx.strokeStyle = pal.aLine as string;
-    ctx.lineWidth = lineWidth(ctx, lineW);
+    ctx.lineWidth = lineW;
     ctx.stroke();
   }
   ctx.fillStyle = pal.trefoil as string;
@@ -213,7 +208,7 @@ export const shade = (palette: Palette, { brightness = 1, saturate = 1 }: Tint =
   return out;
 };
 
-const drawNode = (ctx: CanvasRenderingContext2D, node: RigNode, pal: Palette, st: DrawState): void => {
+const drawNode = (ctx: CanvasRenderingContext2D, node: RigNode, pal: Palette, st: DrawState, unit: number): void => {
   if (node.k === "g") {
     ctx.save();
     if (node.m) ctx.transform(node.m.a, node.m.b, node.m.c, node.m.d, node.m.e, node.m.f);
@@ -226,10 +221,11 @@ const drawNode = (ctx: CanvasRenderingContext2D, node: RigNode, pal: Palette, st
       ctx.scale(j.sx, j.sy);
       ctx.translate(-j.pivot[0], -j.pivot[1]);
     }
-    for (const kid of node.kids) drawNode(ctx, kid, p, st);
+    const inner = unit * (node.m ? unitScale(node.m) : 1) * (j ? Math.sqrt(Math.abs(j.sx * j.sy)) : 1);
+    for (const kid of node.kids) drawNode(ctx, kid, p, st, inner);
     ctx.restore();
   } else if (node.k === "part") {
-    drawPart(ctx, node, pal, st.lineW, st.simple);
+    drawPart(ctx, node, pal, st.lineW / unit, st.simple);
   } else if (node.k === "flat") {
     ctx.fillStyle = pal[node.fill] || node.fill;
     ctx.fill(partPath(node));
@@ -242,11 +238,11 @@ const drawNode = (ctx: CanvasRenderingContext2D, node: RigNode, pal: Palette, st
     ctx.fill();
     ctx.restore();
   } else if (node.k === "trefoil") {
-    drawTrefoil(ctx, node.r, pal, st.lineW, node.outer);
+    drawTrefoil(ctx, node.r, pal, st.lineW / unit, node.outer);
   } else {
     st.hooks[node.name]?.(ctx, pal);
   }
 };
 
 export const drawRig = (ctx: CanvasRenderingContext2D, root: RigNode, { palette, pose = {}, hooks = {}, lineW = 1.4, simple = false }: DrawOptions): void =>
-  drawNode(ctx, root, palette, { pose, hooks, lineW, simple });
+  drawNode(ctx, root, palette, { pose, hooks, lineW, simple }, unitScale(ctx.getTransform()));

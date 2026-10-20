@@ -52,11 +52,69 @@ const locateFrom = (node: RigNode, name: string, pose: Pose, m: Mat2D): Mat2D | 
 export const locate = (root: RigNode, hook: string, pose: Pose, base: Mat2D = identity()): Mat2D | null => locateFrom(root, hook, pose, base);
 
 type Best = [number, number, number];
+type Link = { m: Mat2D; key: 0 | 1 };
 
 const SEEDED_PASSES: [number, number][] = [[12, 3], [3, 1], [1, 0.25]];
 const FULL_PASSES: [number, number][] = [[4, 1], [1, 0.25]];
 const FULL_STEP = 4;
 const SEED_TOLERANCE = 0.5;
+
+const hookPaths = new WeakMap<RigNode, Map<string, GroupNode[] | null>>();
+
+const findPath = (node: RigNode, hook: string, path: GroupNode[]): GroupNode[] | null => {
+  if (node.k === "hook") return node.name === hook ? path : null;
+  if (node.k !== "g") return null;
+  for (const kid of node.kids) {
+    const found = findPath(kid, hook, [...path, node]);
+    if (found) return found;
+  }
+  return null;
+};
+
+const hookPath = (root: RigNode, hook: string): GroupNode[] | null => {
+  let paths = hookPaths.get(root);
+  if (!paths) hookPaths.set(root, (paths = new Map()));
+  if (!paths.has(hook)) paths.set(hook, findPath(root, hook, []));
+  return paths.get(hook) ?? null;
+};
+
+const armReach = (root: RigNode, hook: string, pose: Pose, keys: [string, string]): ((a: number, b: number) => Pt) | null => {
+  const path = hookPath(root, hook);
+  if (!path) return null;
+  const links: Link[] = [];
+  let m = identity();
+  for (const node of path) {
+    if (node.m) m = multiply(m, node.m);
+    const key = keys.indexOf(node.name ?? "");
+    const pivot = node.pivot ?? [0, 0];
+    if (key >= 0) {
+      links.push({ m: translate(m, pivot[0], pivot[1]), key: key as 0 | 1 });
+      m = translate(identity(), -pivot[0], -pivot[1]);
+      continue;
+    }
+    const j = joint(node, pose);
+    if (j) m = jointOnto(m, j);
+  }
+  const [tx, ty] = apply(m, [0, 0]);
+  return (a, b) => {
+    const ra = (a * Math.PI) / 180;
+    const rb = (b * Math.PI) / 180;
+    const cos = [Math.cos(ra), Math.cos(rb)];
+    const sin = [Math.sin(ra), Math.sin(rb)];
+    let x = tx;
+    let y = ty;
+    for (let i = links.length - 1; i >= 0; i--) {
+      const { m: l, key } = links[i] as Link;
+      const c = cos[key] as number;
+      const s = sin[key] as number;
+      const rx = c * x - s * y;
+      const ry = s * x + c * y;
+      x = l.a * rx + l.c * ry + l.e;
+      y = l.b * rx + l.d * ry + l.f;
+    }
+    return [x, y];
+  };
+};
 
 export const solve = (
   root: RigNode,
@@ -68,10 +126,10 @@ export const solve = (
   seed: Record<string, number> | null = null,
 ): Record<string, number> => {
   const [ka, kb] = keys;
+  const reach = armReach(root, hook, pose, keys);
   const hit = (a: number, b: number): number => {
-    const m = locate(root, hook, { ...pose, [ka]: a, [kb]: b });
-    if (!m) return Infinity;
-    const [x, y] = apply(m, [0, 0]);
+    if (!reach) return Infinity;
+    const [x, y] = reach(a, b);
     return Math.hypot(x - target[0], y - target[1]);
   };
   const refine = (start: Best, passes: [number, number][]): Best => {

@@ -23,17 +23,16 @@ export interface GroupNode {
   kids: RigNode[];
 }
 
+export type Tone = 0 | 1 | 2 | 3;
+export type ToneBand = [Tone, Path2D];
+
 export interface PartNode {
   k: "part";
   spec: PartSpec;
   box: Box;
   r: number;
   path?: Path2D;
-  unitPath?: Path2D;
-  fill?: string | CanvasGradient;
-  fillKey?: string;
-  band?: Path2D | null;
-  hl?: Path2D | null;
+  tones?: Partial<Record<"full" | "simple", ToneBand[]>>;
 }
 
 export interface FlatNode {

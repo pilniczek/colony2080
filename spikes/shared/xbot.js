@@ -82,10 +82,6 @@ function clipPoly(poly, convex) {
   return poly;
 }
 
-function polyPath(pts) {
-  return pts.length > 2 ? new Path2D("M" + pts.map(p => p.join(",")).join("L") + "Z") : null;
-}
-
 function bbox(pts) {
   const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
@@ -475,105 +471,108 @@ function sideTree({ farLimbs, badge, propBehindArm, enemy }) {
   return root;
 }
 
-function bands(g, colors, stops) {
-  g.addColorStop(0, colors[0]);
-  stops.forEach((s, i) => { g.addColorStop(s, colors[i]); g.addColorStop(s, colors[i + 1]); });
-  g.addColorStop(1, colors[colors.length - 1]);
-  return g;
+const BOX_STRIPES = [[2, -Infinity, 0.355], [0, 0.805, Infinity]];
+
+const STRIPES = {
+  box: { full: BOX_STRIPES, simple: BOX_STRIPES },
+  cyl: {
+    full: [[2, -Infinity, 0.3], [3, 0.12, 0.2], [0, 0.75, Infinity]],
+    simple: [[2, -Infinity, 0.3], [0, 0.75, Infinity]]
+  },
+  hcyl: {
+    full: [[2, -Infinity, 0.32], [3, 0.14, 0.22], [0, 0.72, Infinity]],
+    simple: [[2, -Infinity, 0.32], [0, 0.72, Infinity]]
+  }
+};
+
+const DOME_STEPS = 48;
+
+function ring(cx, cy, rx, ry, steps) {
+  return Array.from({ length: steps }, (_, i) => [cx + rx * Math.cos(i * 2 * Math.PI / steps), cy + ry * Math.sin(i * 2 * Math.PI / steps)]);
 }
 
-function baseFill(ctx, node, simple, c0, c1, c2, c3) {
-  const key = (simple ? "s" : "f") + c0 + c1 + c2 + c3;
-  if (node.fillKey === key) return node.fill;
-  const { spec: { shade = "box" }, box: [x0, y0, x1, y1] } = node;
+function along(shade, [x0, y0, x1, y1]) {
   const w = x1 - x0, h = y1 - y0;
-  let fill = c1;
-  if (shade === "box") {
-    const a = 0.09 * w / h, c = w / (1 + a * a);
-    fill = bands(ctx.createLinearGradient(x0, y0, x0 + c, y0 + c * a), [c2, c1, c0], [0.355, 0.805]);
-  } else if (shade === "cyl") {
-    const g = ctx.createLinearGradient(x0, 0, x1, 0);
-    fill = simple ? bands(g, [c2, c1, c0], [0.3, 0.75]) : bands(g, [c2, c3, c2, c1, c0], [0.12, 0.2, 0.3, 0.75]);
-  } else if (shade === "hcyl") {
-    const g = ctx.createLinearGradient(0, y0, 0, y1);
-    fill = simple ? bands(g, [c2, c1, c0], [0.32, 0.72]) : bands(g, [c2, c3, c2, c1, c0], [0.14, 0.22, 0.32, 0.72]);
-  } else if (shade === "dome") fill = bands(ctx.createRadialGradient(0.36, 0.34, 0.29, 0.44, 0.44, 0.5), [c2, c1, c0], [0, 1]);
-  node.fill = fill;
-  node.fillKey = key;
-  return fill;
+  if (shade === "cyl") return p => (p[0] - x0) / w;
+  if (shade === "hcyl") return p => (p[1] - y0) / h;
+  const a = 0.09 * w / h, c = w / (1 + a * a);
+  const len = c * c * (1 + a * a);
+  return p => ((p[0] - x0) * c + (p[1] - y0) * c * a) / len;
 }
 
-function bottomBand(node) {
-  if (node.band !== undefined) return node.band;
-  const [x0, y0, x1, y1] = node.box;
+function stripe(poly, t, lo, hi) {
+  const above = lo === -Infinity ? poly : clipHalf(poly, p => t(p) - lo);
+  return hi === Infinity ? above : clipHalf(above, p => hi - t(p));
+}
+
+function bottomBand(poly, [x0, y0, x1, y1]) {
   const w = x1 - x0, h = y1 - y0;
   const b = 0.04 * h / w, c = h / (1 + b * b);
   const dx = -c * b, dy = c, cut = 0.88 * (dx * dx + dy * dy);
-  node.band = polyPath(clipHalf(flatten(node.spec.pts, node.r), p => (p[0] - x0) * dx + (p[1] - y0) * dy - cut));
-  return node.band;
+  return clipHalf(poly, p => (p[0] - x0) * dx + (p[1] - y0) * dy - cut);
 }
 
-function lineWidth(ctx, lineW) {
-  const t = ctx.getTransform();
-  return lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
-}
-
-function unitPath(node) {
-  const [x0, y0, x1, y1] = node.box;
-  const p = new Path2D();
-  p.addPath(node.path, new DOMMatrix().scale(1 / (x1 - x0), 1 / (y1 - y0)).translate(-x0, -y0));
-  return p;
-}
-
-function fillUnit(ctx, node) {
-  const [x0, y0, x1, y1] = node.box;
-  node.unitPath ||= unitPath(node);
-  ctx.save();
-  ctx.translate(x0, y0);
-  ctx.scale(x1 - x0, y1 - y0);
-  ctx.fill(node.unitPath);
-  ctx.restore();
-}
-
-function highlight(node) {
-  const [x0, y0, x1, y1] = node.box;
+function highlight(shade, [x0, y0, x1, y1]) {
   const w = x1 - x0, h = y1 - y0;
-  const { shade = "box" } = node.spec;
-  let shape = null;
-  if (shade === "box" && w > 24 && h > 24) shape = [[x0 + w * 0.1, y0 + h * 0.08], [x0 + w * 0.22, y0 + h * 0.08], [x0 + w * 0.15, y0 + h * 0.4], [x0 + w * 0.06, y0 + h * 0.4]];
-  if (shade === "dome") {
-    const cx = x0 + w * 0.3, cy = y0 + h * 0.26, rx = w * 0.09, ry = h * 0.06;
-    shape = Array.from({ length: 24 }, (_, i) => [cx + rx * Math.cos(i * Math.PI / 12), cy + ry * Math.sin(i * Math.PI / 12)]);
-  }
-  return shape && polyPath(clipPoly(flatten(node.spec.pts, node.r), shape));
+  if (shade === "dome") return ring(x0 + w * 0.3, y0 + h * 0.26, w * 0.09, h * 0.06, 24);
+  if (shade !== "box" || w <= 24 || h <= 24) return null;
+  return [[x0 + w * 0.1, y0 + h * 0.08], [x0 + w * 0.22, y0 + h * 0.08], [x0 + w * 0.15, y0 + h * 0.4], [x0 + w * 0.06, y0 + h * 0.4]];
 }
 
-function drawHighlight(ctx, node, c3) {
-  if (node.hl === undefined) node.hl = highlight(node);
-  if (!node.hl) return;
-  ctx.fillStyle = c3;
-  ctx.fill(node.hl);
+function toneShapes(node, simple) {
+  const { spec: { shade = "box" }, box } = node;
+  if (shade === "none") return [];
+  const poly = flatten(node.spec.pts, node.r);
+  const [x0, y0, x1, y1] = box;
+  const w = x1 - x0, h = y1 - y0;
+  const shapes = shade === "dome"
+    ? [
+      [1, clipPoly(poly, ring(x0 + w * 0.44, y0 + h * 0.44, w * 0.5, h * 0.5, DOME_STEPS))],
+      [2, clipPoly(poly, ring(x0 + w * 0.36, y0 + h * 0.34, w * 0.29, h * 0.29, DOME_STEPS))]
+    ]
+    : STRIPES[shade][simple ? "simple" : "full"].map(([tone, lo, hi]) => [tone, stripe(poly, along(shade, box), lo, hi)]);
+  if (simple) return shapes;
+  if (shade === "box") shapes.push([0, bottomBand(poly, box)]);
+  const hl = highlight(shade, box);
+  if (hl) shapes.push([3, clipPoly(poly, hl)]);
+  return shapes;
+}
+
+function tonePaths(shapes) {
+  const merged = [];
+  for (const [tone, pts] of shapes) {
+    if (pts.length < 3) continue;
+    const last = merged[merged.length - 1];
+    if (last && last[0] === tone) last[1].push(pts);
+    else merged.push([tone, [pts]]);
+  }
+  return merged.map(([tone, polys]) => [tone, new Path2D(polys.map(pts => "M" + pts.map(p => p.join(",")).join("L") + "Z").join(""))]);
+}
+
+function shadeBands(node, simple) {
+  node.tones ??= {};
+  return node.tones[simple ? "simple" : "full"] ??= tonePaths(toneShapes(node, simple));
+}
+
+function unitScale({ a, b, c, d }) {
+  return Math.sqrt(Math.abs(a * d - b * c));
 }
 
 function drawPart(ctx, node, pal, lineW, simple) {
   const { spec, path } = node;
   const { mat = "armor", shade = "box", line = true, lw = 1 } = spec;
   const [c0, c1, c2, c3, cl] = MAT[mat].map(k => pal[k]);
-  ctx.fillStyle = baseFill(ctx, node, simple, c0, c1, c2, c3);
-  if (shade === "dome") fillUnit(ctx, node);
-  else ctx.fill(path);
-  if (!simple) {
-    const band = shade === "box" && bottomBand(node);
-    if (band) {
-      ctx.fillStyle = c0;
-      ctx.fill(band);
-    }
-    drawHighlight(ctx, node, c3);
+  const tones = [c0, c1, c2, c3];
+  ctx.fillStyle = shade === "dome" ? c0 : c1;
+  ctx.fill(path);
+  for (const [tone, band] of shadeBands(node, simple)) {
+    ctx.fillStyle = tones[tone];
+    ctx.fill(band);
   }
   if (line && lineW) {
     ctx.strokeStyle = cl;
     ctx.lineJoin = "round";
-    ctx.lineWidth = lineWidth(ctx, lineW * lw);
+    ctx.lineWidth = lineW * lw;
     ctx.stroke(path);
   }
 }
@@ -583,7 +582,7 @@ function drawTrefoil(ctx, r, pal, lineW, outer = 0.84) {
   ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
   if (lineW) {
     ctx.strokeStyle = pal.aLine;
-    ctx.lineWidth = lineWidth(ctx, lineW);
+    ctx.lineWidth = lineW;
     ctx.stroke();
   }
   ctx.fillStyle = pal.trefoil;
@@ -631,11 +630,15 @@ function joint(v) {
 }
 
 function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 1.4, simple = false } = {}) {
+  drawNode(ctx, node, pal, { pose, hooks, lineW, simple }, unitScale(ctx.getTransform()));
+}
+
+function drawNode(ctx, node, pal, st, unit) {
   if (node.k === "g") {
     ctx.save();
     if (node.m) ctx.transform(node.m.a, node.m.b, node.m.c, node.m.d, node.m.e, node.m.f);
     if (node.dim) pal = shade(pal, { brightness: node.dim });
-    const j = node.name != null ? joint(pose[node.name]) : null;
+    const j = node.name != null ? joint(st.pose[node.name]) : null;
     if (j?.tint) pal = shade(pal, j.tint);
     if (j) {
       ctx.translate(j.dx + node.pivot[0], j.dy + node.pivot[1]);
@@ -643,10 +646,11 @@ function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 1.4, 
       ctx.scale(j.sx, j.sy);
       ctx.translate(-node.pivot[0], -node.pivot[1]);
     }
-    for (const kid of node.kids) render(ctx, kid, { pal, pose, hooks, lineW, simple });
+    const inner = unit * (node.m ? unitScale(node.m) : 1) * (j ? Math.sqrt(Math.abs(j.sx * j.sy)) : 1);
+    for (const kid of node.kids) drawNode(ctx, kid, pal, st, inner);
     ctx.restore();
   } else if (node.k === "part") {
-    drawPart(ctx, node, pal, lineW, simple);
+    drawPart(ctx, node, pal, st.lineW / unit, st.simple);
   } else if (node.k === "flat") {
     ctx.fillStyle = pal[node.fill] || node.fill;
     ctx.fill(node.path);
@@ -657,9 +661,9 @@ function render(ctx, node, { pal = PALETTE, pose = {}, hooks = {}, lineW = 1.4, 
     ctx.beginPath(); ctx.ellipse(node.cx, node.cy, node.rx, node.ry, 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   } else if (node.k === "trefoil") {
-    drawTrefoil(ctx, node.r, pal, lineW, node.outer);
-  } else if (node.k === "hook" && hooks[node.name]) {
-    hooks[node.name](ctx, pal);
+    drawTrefoil(ctx, node.r, pal, st.lineW / unit, node.outer);
+  } else if (node.k === "hook" && st.hooks[node.name]) {
+    st.hooks[node.name](ctx, pal);
   }
 }
 
@@ -680,10 +684,62 @@ const SEEDED_PASSES = [[12, 3], [3, 1], [1, 0.25]];
 const FULL_PASSES = [[4, 1], [1, 0.25]];
 const SEED_TOLERANCE = 0.5;
 
+const hookPaths = new WeakMap();
+
+function findPath(node, hook, path) {
+  if (node.k === "hook") return node.name === hook ? path : null;
+  if (node.k !== "g") return null;
+  for (const kid of node.kids) {
+    const found = findPath(kid, hook, [...path, node]);
+    if (found) return found;
+  }
+  return null;
+}
+
+function hookPath(root, hook) {
+  let paths = hookPaths.get(root);
+  if (!paths) hookPaths.set(root, paths = new Map());
+  if (!paths.has(hook)) paths.set(hook, findPath(root, hook, []));
+  return paths.get(hook);
+}
+
+function armReach(root, hook, pose, keys) {
+  const path = hookPath(root, hook);
+  if (!path) return null;
+  const links = [];
+  let m = new DOMMatrix();
+  for (const node of path) {
+    if (node.m) m = m.multiply(node.m);
+    const key = keys.indexOf(node.name);
+    if (key >= 0) {
+      links.push({ m: m.translate(node.pivot[0], node.pivot[1]), key });
+      m = new DOMMatrix().translate(-node.pivot[0], -node.pivot[1]);
+      continue;
+    }
+    const j = node.name != null ? joint(pose[node.name]) : null;
+    if (j) m = m.translate(j.dx + node.pivot[0], j.dy + node.pivot[1]).rotate(j.rot).scale(j.sx, j.sy).translate(-node.pivot[0], -node.pivot[1]);
+  }
+  const tip = m.transformPoint(new DOMPoint(0, 0));
+  return (a, b) => {
+    const ra = a * Math.PI / 180, rb = b * Math.PI / 180;
+    const cos = [Math.cos(ra), Math.cos(rb)], sin = [Math.sin(ra), Math.sin(rb)];
+    let x = tip.x, y = tip.y;
+    for (let i = links.length - 1; i >= 0; i--) {
+      const { m: l, key } = links[i];
+      const rx = cos[key] * x - sin[key] * y, ry = sin[key] * x + cos[key] * y;
+      x = l.a * rx + l.c * ry + l.e;
+      y = l.b * rx + l.d * ry + l.f;
+    }
+    return [x, y];
+  };
+}
+
 function solve(root, hook, pose, keys, ranges, target, seed = null) {
+  const reach = armReach(root, hook, pose, keys);
   const hit = (a, b) => {
-    const pt = locate(root, hook, { ...pose, [keys[0]]: a, [keys[1]]: b }).transformPoint(new DOMPoint(0, 0));
-    return Math.hypot(pt.x - target.x, pt.y - target.y);
+    if (!reach) return Infinity;
+    const [x, y] = reach(a, b);
+    return Math.hypot(x - target.x, y - target.y);
   };
   const refine = (best, passes) => {
     for (const [range, step] of passes) {
