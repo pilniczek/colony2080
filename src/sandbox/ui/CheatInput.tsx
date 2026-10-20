@@ -18,6 +18,7 @@ export function CheatInput({ onCode, onClose }: { onCode: (code: string) => void
       autoComplete="off"
       onBlur={onClose}
       onKeyDown={(e) => {
+        e.stopPropagation();
         if (e.key === "Enter") onCode(e.currentTarget.value);
         else if (e.key === "Escape") onClose();
         else return;
