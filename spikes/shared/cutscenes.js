@@ -264,6 +264,8 @@ const CAM = {
   fps: 24,
   inset: 80,
   grains: 12000,
+  grainFrames: 12,
+  grainTile: 256,
   deadPixels: 12,
   deadSeed: 2080,
   dead: ["#000000", "#ffffff", "#ff3b30", "#3bff6a"],
@@ -296,6 +298,31 @@ function grainRandom(seed) {
     r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
     return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+const grainTiles = { key: "", tiles: [] };
+
+function grainTile(index, u, r) {
+  const key = `${r.w}x${r.h}`;
+  if (grainTiles.key !== key) {
+    grainTiles.key = key;
+    grainTiles.tiles = [];
+  }
+  if (grainTiles.tiles[index]) return grainTiles.tiles[index];
+  const size = CAM.grainTile;
+  const tile = document.createElement("canvas");
+  tile.width = tile.height = size;
+  const c = tile.getContext("2d");
+  const random = grainRandom(index + 1);
+  const grain = Math.max(1, 2 * u);
+  const count = Math.round(CAM.grains * size * size / (r.w * r.h));
+  for (let i = 0; i < count; i++) {
+    const speck = grain * (1 + Math.floor(random() * 2));
+    c.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.1 + random() * 0.25})`;
+    c.fillRect(Math.floor(random() * size), Math.floor(random() * size), speck, speck);
+  }
+  grainTiles.tiles[index] = tile;
+  return tile;
 }
 
 function corners(ctx, r, u) {
@@ -333,13 +360,13 @@ function securityCam(ctx, w, h, t, label) {
   ctx.fillStyle = CAM.lift;
   ctx.fillRect(r.x, r.y, r.w, r.h);
   ctx.globalCompositeOperation = "source-over";
-  const random = grainRandom(Math.floor(t * CAM.fps));
-  const grain = Math.max(1, 2 * u);
-  for (let i = 0; i < CAM.grains; i++) {
-    const size = grain * (1 + Math.floor(random() * 2));
-    ctx.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.1 + random() * 0.25})`;
-    ctx.fillRect(r.x + random() * r.w, r.y + random() * r.h, size, size);
-  }
+  const frame = Math.floor(t * CAM.fps);
+  const tile = grainTile(frame % CAM.grainFrames, u, r);
+  const shift = grainRandom(frame);
+  const pattern = ctx.createPattern(tile, "repeat");
+  pattern.setTransform(new DOMMatrix().translate(r.x + Math.floor(shift() * CAM.grainTile), r.y + Math.floor(shift() * CAM.grainTile)));
+  ctx.fillStyle = pattern;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
   ctx.fillStyle = CAM.scanline;
   const line = Math.max(2, 6 * u);
   for (let y = r.y; y < r.y + r.h; y += line) ctx.fillRect(r.x, y, r.w, line / 2);

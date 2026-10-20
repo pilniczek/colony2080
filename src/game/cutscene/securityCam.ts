@@ -8,6 +8,8 @@ const CAM = {
   inset: 80,
   arm: 70,
   grains: 12000,
+  grainFrames: 12,
+  grainTile: 256,
   deadPixels: 12,
   deadSeed: 2080,
   dead: ["#000000", "#ffffff", "#ff3b30", "#3bff6a"],
@@ -57,14 +59,40 @@ function grade(ctx: CanvasRenderingContext2D, r: Rect): void {
   ctx.globalCompositeOperation = "source-over";
 }
 
-function grain(ctx: CanvasRenderingContext2D, r: Rect, u: number, t: number): void {
-  const random = grainRandom(Math.floor(t * CAM.fps));
-  const speck = Math.max(1, 2 * u);
-  for (let i = 0; i < CAM.grains; i++) {
-    const size = speck * (1 + Math.floor(random() * 2));
-    ctx.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.1 + random() * 0.25})`;
-    ctx.fillRect(r.x + random() * r.w, r.y + random() * r.h, size, size);
+const grainTiles: { key: string; tiles: HTMLCanvasElement[] } = { key: "", tiles: [] };
+
+function grainTile(index: number, u: number, r: Rect): HTMLCanvasElement {
+  const key = `${r.w}x${r.h}`;
+  if (grainTiles.key !== key) {
+    grainTiles.key = key;
+    grainTiles.tiles = [];
   }
+  const cached = grainTiles.tiles[index];
+  if (cached) return cached;
+  const size = CAM.grainTile;
+  const tile = document.createElement("canvas");
+  tile.width = tile.height = size;
+  const c = tile.getContext("2d")!;
+  const random = grainRandom(index + 1);
+  const speck = Math.max(1, 2 * u);
+  const count = Math.round((CAM.grains * size * size) / (r.w * r.h));
+  for (let i = 0; i < count; i++) {
+    const side = speck * (1 + Math.floor(random() * 2));
+    c.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.1 + random() * 0.25})`;
+    c.fillRect(Math.floor(random() * size), Math.floor(random() * size), side, side);
+  }
+  grainTiles.tiles[index] = tile;
+  return tile;
+}
+
+function grain(ctx: CanvasRenderingContext2D, r: Rect, u: number, t: number): void {
+  const frame = Math.floor(t * CAM.fps);
+  const shift = grainRandom(frame);
+  const pattern = ctx.createPattern(grainTile(frame % CAM.grainFrames, u, r), "repeat");
+  if (!pattern) return;
+  pattern.setTransform(new DOMMatrix().translate(r.x + Math.floor(shift() * CAM.grainTile), r.y + Math.floor(shift() * CAM.grainTile)));
+  ctx.fillStyle = pattern;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
 }
 
 function scanlines(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
