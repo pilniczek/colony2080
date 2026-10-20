@@ -13,11 +13,14 @@ import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
 import { createHero, type Hero } from "./hero/hero";
 import { createRigs, heroLook } from "./hero/look";
-import { canOpenInventory, inventoryKey, openCursor } from "./hud/inventoryKeys";
+import { canOpenScreen, closesMap, inventoryKey, openCursor } from "./hud/inventoryKeys";
 import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
+import type { ItemId } from "./items";
 import { resetWorld, showItem, type SandboxWorld } from "./level/sandboxLevel";
+import { say } from "./level/tasks";
 import { drawFog, seenPath } from "./render/fog";
+import { drawMap } from "./render/map";
 import { drawOverlays } from "./render/overlays";
 import { drawScene, viewCells, visibleEnemies } from "./render/scene";
 import { snapView } from "./render/snapView";
@@ -30,6 +33,7 @@ const ENEMY_MARGIN_CELLS = 2;
 const LOG_SIZE = 8;
 const FPS_SMOOTHING = 0.1;
 const MAX_PANEL_SHARE = 0.5;
+const MAP_HINT = "You have no map.";
 
 export interface RunStart {
   weapon: Weapon;
@@ -49,6 +53,7 @@ export interface Run {
 export interface RunOptions {
   world: SandboxWorld;
   ui: ReactNode;
+  mapItem?: ItemId;
   afterStep?: () => void;
   drawOver?: (ctx: CanvasRenderingContext2D, view: ViewTransform, cellPx: number) => void;
 }
@@ -57,7 +62,7 @@ const sameItems = (a: readonly string[], b: readonly string[]): boolean => a.len
 
 const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
-export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): Run {
+export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunOptions): Run {
   const canvas = document.getElementById("game");
   const ui = document.getElementById("ui");
   if (!(canvas instanceof HTMLCanvasElement) || !ui) throw new Error("missing #game or #ui");
@@ -164,11 +169,19 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
       const { movement: cfg, clips } = tuning();
       prev = { x: hero.x, y: hero.y };
       input.bufferMs = cfg.inputBufferMs;
-      if (tuning().inventory.open) return;
+      if (tuning().inventory.open || tuning().mapOpen) return;
       const frame = input.frame();
-      if (input.consume("inventory") && canOpenInventory(hero.state, tuning().recording || tuning().playing)) {
+      const canOpen = canOpenScreen(hero.state, tuning().recording || tuning().playing);
+      if (input.consume("inventory") && canOpen) {
         useSandbox.setState({ inventory: { open: true, cursor: openCursor(world.inventory.items, world.inventory.shown) } });
         return;
+      }
+      if (input.consume("map") && canOpen) {
+        if (!mapItem || world.inventory.items.includes(mapItem)) {
+          useSandbox.setState({ mapOpen: true });
+          return;
+        }
+        say(world, MAP_HINT);
       }
       logInput(frame.held);
       stepWorld(world, hero, frame, cfg, clips, dt, (action) => input.consume(action));
@@ -191,6 +204,7 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
       if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow);
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
       drawOver?.(ctx, view, cfg.cellPx);
+      if (tuning().mapOpen) drawMap(ctx, world, shown, cfg.box.height, gameWindow);
       ctx.restore();
       push();
     },
@@ -204,7 +218,7 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
   };
 
   const applyTime = ({ paused, timeScale }: { paused: boolean; timeScale: number }): void => {
-    loop.paused = paused || tuning().inventory.open;
+    loop.paused = paused || tuning().inventory.open || tuning().mapOpen;
     loop.timeScale = timeScale;
   };
 
@@ -227,6 +241,16 @@ export function startRun({ world, ui: tree, afterStep, drawOver }: RunOptions): 
     useSandbox.setState({ inventory: { open: !close, cursor }, item: world.inventory.shown });
   };
   window.addEventListener("keydown", inventoryKeys, { capture: true });
+
+  const mapKeys = (e: KeyboardEvent): void => {
+    if (!tuning().mapOpen) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (e.repeat || !closesMap(e.code, controls.keyboard)) return;
+    input.clearPresses();
+    useSandbox.setState({ mapOpen: false });
+  };
+  window.addEventListener("keydown", mapKeys, { capture: true });
 
   fit();
   window.addEventListener("resize", fit);

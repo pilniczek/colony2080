@@ -1,6 +1,6 @@
 import controls from "@config/controls.json";
 import { describe, expect, it } from "vitest";
-import { canOpenInventory, inventoryKey, openCursor } from "./inventoryKeys";
+import { canOpenScreen, inventoryKey, openCursor } from "./inventoryKeys";
 
 const keys = controls.keyboard;
 
@@ -35,13 +35,13 @@ describe("inventory keys", () => {
   });
 
   it("opens only in live states", () => {
-    expect(canOpenInventory("death", false)).toBe(false);
-    expect(canOpenInventory("jumpDeath", false)).toBe(false);
-    expect(canOpenInventory("fallDeath", false)).toBe(false);
-    expect(canOpenInventory("ladder", false)).toBe(true);
+    expect(canOpenScreen("death", false)).toBe(false);
+    expect(canOpenScreen("jumpDeath", false)).toBe(false);
+    expect(canOpenScreen("fallDeath", false)).toBe(false);
+    expect(canOpenScreen("ladder", false)).toBe(true);
   });
 
   it("stays shut while input is recorded or replayed", () => {
-    expect(canOpenInventory("idle", true)).toBe(false);
+    expect(canOpenScreen("idle", true)).toBe(false);
   });
 });

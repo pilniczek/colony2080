@@ -12,6 +12,7 @@ let drawOver: RunOptions["drawOver"];
 
 const run = startRun({
   world: loadMesto(),
+  mapItem: "holoPlan",
   drawOver: (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx),
   ui: (
     <>

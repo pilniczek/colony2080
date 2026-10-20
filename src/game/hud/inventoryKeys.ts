@@ -11,9 +11,11 @@ export interface InventoryKeyResult {
 
 const DEAD: ReadonlySet<HeroState> = new Set(["death", "jumpDeath", "fallDeath"]);
 
-export const canOpenInventory = (state: HeroState, replaying: boolean): boolean => !replaying && !DEAD.has(state);
+export const canOpenScreen = (state: HeroState, replaying: boolean): boolean => !replaying && !DEAD.has(state);
 
 export const openCursor = (items: ItemId[], shown: ItemId | null): number => Math.max(0, newestFirst(items).indexOf(shown ?? ""));
+
+export const closesMap = (code: string, keys: Bindings): boolean => ["map", "menu"].some((action) => keys[action]?.includes(code));
 
 export function inventoryKey(code: string, cursor: number, count: number, keys: Bindings): InventoryKeyResult {
   const is = (action: string): boolean => keys[action]?.includes(code) ?? false;
