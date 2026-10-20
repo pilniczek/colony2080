@@ -29,7 +29,7 @@ const LEGS: Record<"front" | "rear", [Pt, Pt, Pt]> = {
   front: [[42.5, 30], [36, 39], [39.5, 49.5]],
   rear: [[45, 30], [52, 40], [59.5, 49.5]],
 };
-const BACK_TUBES: [number, number, number][] = [[18, 24, 5.5], [15, 28, 6], [13, 33, 5]];
+const BACK_TUBES: [number, number, number][] = [[16.5, 29.5, 5.5], [14.5, 34, 6], [15, 38.5, 5]];
 
 const findNode = (node: RigNode, name: string): GroupNode | null => {
   if (node.k !== "g") return null;
@@ -98,10 +98,12 @@ const across = (a: Pt, b: Pt, t: number, half: number): Pt[] => {
 };
 
 const leg = (ctx: CanvasRenderingContext2D, [hip, knee, ankle]: [Pt, Pt, Pt]): void => {
-  beam(ctx, hip, knee, 6.5, "guardMetal");
+  beam(ctx, hip, knee, 5.2, "guardMetal");
   const w = TRIM / GUARD_SIZE;
   sideLegArmor(ctx, knee, ankle, { forward: true, pad: KNEE_PAD, trim: w, padAt: along(knee, hip, 0.22) });
-  line(ctx, across(hip, knee, 0.5, 3.25), "trim", w, "butt");
+  line(ctx, across(hip, knee, 0.5, 2.6), "trim", w, "butt");
+  disc(ctx, hip[0], hip[1], 3.4, "gm2", "gmLine");
+  disc(ctx, hip[0], hip[1], 1.5, "gc1", "gmLine");
   line(ctx, across(knee, ankle, 0.55, (7 + 2.5 * 0.55) / 2), "trim", w, "butt");
 };
 
@@ -201,22 +203,22 @@ const head = (ctx: CanvasRenderingContext2D): void => {
   fillPath(
     ctx,
     (c) => {
-      c.moveTo(33, 21.6);
+      c.moveTo(33.4, 21.8);
       c.lineTo(36, 22.6);
       c.lineTo(42.5, 23);
-      c.lineTo(44.8, 23.3);
-      c.lineTo(44.8, 26.4);
-      c.lineTo(42.6, 28.4);
-      c.lineTo(36.5, 28.4);
-      c.lineTo(33, 26.6);
+      c.lineTo(44, 23.3);
+      c.lineTo(44, 25.4);
+      c.lineTo(42.2, 26.8);
+      c.lineTo(36.5, 26.8);
+      c.lineTo(33.6, 25.6);
     },
-    grad(ctx, 0, 22.6, 0, 28.4, [[0, "gc2"], [0.3, "gc1"], [0.7, "gm3"], [1, "gm1"]]),
+    grad(ctx, 0, 22.6, 0, 26.8, [[0, "gc2"], [0.3, "gc1"], [0.7, "gm3"], [1, "gm1"]]),
   );
-  line(ctx, [[38, 23.2], [44.2, 23.5]], "gmLine", 0.6, "butt");
+  line(ctx, [[38, 23.2], [43.4, 23.4]], "gmLine", 0.6, "butt");
   if (!P.simple()) {
     glow(ctx, 41, 18.3, 3.6, "visorGlow", 0.45);
     disc(ctx, 35.4, 24, 1.1, "gm1", "gmLine");
-    line(ctx, [[37, 26.6], [43.2, 26.5]], "gm2", 0.5, "butt");
+    line(ctx, [[37, 25.6], [42.4, 25.5]], "gm2", 0.5, "butt");
   }
 };
 

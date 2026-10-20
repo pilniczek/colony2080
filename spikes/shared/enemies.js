@@ -634,10 +634,12 @@ function across(a, b, t, half) {
 }
 
 function trooperLeg(ctx, [hip, knee, ankle]) {
-  P.beam(ctx, hip, knee, 6.5, "guardMetal");
+  P.beam(ctx, hip, knee, 5.2, "guardMetal");
   const w = TROOPER_TRIM / GUARD_SIZE;
   sideLegArmor(ctx, knee, ankle, { forward: true, pad: 1.15, trim: w, padAt: along(knee, hip, 0.22) });
-  P.line(ctx, across(hip, knee, 0.5, 3.25), "trim", w, "butt");
+  P.line(ctx, across(hip, knee, 0.5, 2.6), "trim", w, "butt");
+  P.disc(ctx, hip[0], hip[1], 3.4, "gm2", "gmLine");
+  P.disc(ctx, hip[0], hip[1], 1.5, "gc1", "gmLine");
   P.line(ctx, across(knee, ankle, 0.55, (7 + 2.5 * 0.55) / 2), "trim", w, "butt");
 }
 
@@ -665,7 +667,7 @@ function trooperLegs(ctx) {
 }
 
 function trooperTorso(ctx) {
-  for (const [x, y, len] of [[18, 24, 5.5], [15, 28, 6], [13, 33, 5]]) P.beam(ctx, [x, y], [x - len * 0.55, y - len * 0.8], 4.2, "guardMetal");
+  for (const [x, y, len] of [[16.5, 29.5, 5.5], [14.5, 34, 6], [15, 38.5, 5]]) P.beam(ctx, [x, y], [x - len * 0.55, y - len * 0.8], 4.2, "guardMetal");
   P.poly(ctx, [[15, 25], [26, 21], [33, 26], [34, 34], [30, 42], [18, 43], [13, 35]], "flyerShell", 1, { dir: [1, 0] });
   P.poly(ctx, [[22, 23], [30, 24.5], [33.5, 30], [24, 31]], "guardMetal", 2);
   P.poly(ctx, [[24, 32], [33.6, 31], [33, 36], [25, 37]], "guardChrome", 1);
@@ -717,20 +719,20 @@ function trooperHead(ctx) {
     c.lineTo(35, 18.8);
   }, grad(ctx, 34.8, 0, 42.5, 0, [[0, "visor0"], [0.35, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]), "gmLine");
   fillPath(ctx, c => {
-    c.moveTo(33, 21.6);
+    c.moveTo(33.4, 21.8);
     c.lineTo(36, 22.6);
     c.lineTo(42.5, 23);
-    c.lineTo(44.8, 23.3);
-    c.lineTo(44.8, 26.4);
-    c.lineTo(42.6, 28.4);
-    c.lineTo(36.5, 28.4);
-    c.lineTo(33, 26.6);
-  }, grad(ctx, 0, 22.6, 0, 28.4, [[0, "gc2"], [0.3, "gc1"], [0.7, "gm3"], [1, "gm1"]]));
-  P.line(ctx, [[38, 23.2], [44.2, 23.5]], "gmLine", 0.6, "butt");
+    c.lineTo(44, 23.3);
+    c.lineTo(44, 25.4);
+    c.lineTo(42.2, 26.8);
+    c.lineTo(36.5, 26.8);
+    c.lineTo(33.6, 25.6);
+  }, grad(ctx, 0, 22.6, 0, 26.8, [[0, "gc2"], [0.3, "gc1"], [0.7, "gm3"], [1, "gm1"]]));
+  P.line(ctx, [[38, 23.2], [43.4, 23.4]], "gmLine", 0.6, "butt");
   if (!ENV.simple) {
     P.glow(ctx, 41, 18.3, 3.6, "visorGlow", 0.45);
     P.disc(ctx, 35.4, 24, 1.1, "gm1", "gmLine");
-    P.line(ctx, [[37, 26.6], [43.2, 26.5]], "gm2", 0.5, "butt");
+    P.line(ctx, [[37, 25.6], [42.4, 25.5]], "gm2", 0.5, "butt");
   }
 }
 
