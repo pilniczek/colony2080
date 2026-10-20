@@ -21,6 +21,16 @@ describe("assertNoOriginalGame", () => {
     }
   });
 
+  it("rejects every distinctive stem of a mapped SND", () => {
+    for (const text of ["LASER2", "laser3", "UDER", "KROK3", "IKONA", "DVERE", "DVERE2", "MRIZ2", "HROM", "ZKRAT", "HYDRA", "ZAZEH", "PRULET2", "PRELET", "VRATA1", "VRATA2", "ODLET", "VYBUCH2"]) {
+      expect(() => assertNoOriginalGame(distWith(`play("${text}")`)), text).toThrow();
+    }
+  });
+
+  it("passes words that only contain a stem", () => {
+    expect(() => assertNoOriginalGame(distWith("dehydrated hydrant chrome laser lasers elevator krokodyl powder prelude shroom vratarna signal gate teleport"))).not.toThrow();
+  });
+
   it("passes English sound ids", () => {
     expect(() => assertNoOriginalGame(distWith("gunShot cannon explosion liftStart siren inventory"))).not.toThrow();
   });
