@@ -1,9 +1,10 @@
 import { ARC, bolt, LAYERS } from "../arcLook";
 
-const ICON = { body: 34, arcEnd: 57, frame: 2, scale: 0.5 };
+const ICON = { body: 34, arcEnd: 45.5, frame: 2, scale: 0.5 };
 const ICON_Y = 2;
 
 export const BLASTER_BODY_W = ICON.body;
+export const BLASTER_MID_Y = 9.5;
 
 const num = (n: number): number => +n.toFixed(2);
 

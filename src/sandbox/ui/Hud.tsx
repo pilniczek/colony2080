@@ -11,7 +11,7 @@ const KEYS: HudKeys = {
   weapons: [keyboard.weapon1, keyboard.weapon2, keyboard.weapon3].map(([code]) => keyLabel(code ?? "")),
   run: keyLabel(keyboard.runToggle[0] ?? ""),
   sound: keyLabel(keyboard.soundToggle[0] ?? ""),
-  item: keyLabel(keyboard.useItem[0] ?? ""),
+  item: `${keyLabel(keyboard.useItem[0] ?? "")}\u00a0\u00a0/\u00a0\u00a0${keyLabel(keyboard.inventory[0] ?? "")}`,
 };
 
 const WEAPON_SLOTS: Record<Weapon, number> = { gun: 0, fists: 1, blaster: 2 };

@@ -161,15 +161,30 @@ const HI = "#d8c8ae", LO = "#0e0b08";
 const screw = (x, y) => `<use href="#screw" x="${x}" y="${y}"/>`;
 const bevel = (x, y, w, h, r, raised = true, lw = .45) =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
-const SIDE = 11, BAR_H = 20.4;
-const counter = (x, n) => `<text x="${x}" y="16" text-anchor="end" font-family="${MONO}" font-size="4.6" fill="${READOUT}">${n}</text>`;
+const SIDE_ART = { w: 11, bottom: 192, scale: 2 / 3 }, SIDE = SIDE_ART.w * SIDE_ART.scale, K = .75, BAR_H = 20.4 * .8 * .9, EDGE = .9, PANEL_H = BAR_H - 2 * EDGE, PAD = EDGE - .4;
+const TAB = { y: BAR_H - EDGE / 2, half: 2.47, r: 1, font: 3.4, pad: 2.2 };
+const MID = (EDGE + TAB.y - TAB.half) / 2, WEAPON_MID = MID + .5;
+const counter = (x, n) => `<text x="${x}" y="${BAR_H - EDGE - .7}" text-anchor="end" font-family="${MONO}" font-size="${4.6 * K}" fill="${READOUT}">${n}</text>`;
 
-const gridPanel = (x, w) => `<rect x="${x + .4}" y="1.8" width="${w - .8}" height="16.2" rx="1.4" fill="#0b0806"/>
-  <rect x="${x + 1}" y="2.4" width="${w - 2}" height="15" rx="1" fill="url(#grid)"/>
-  <rect x="${x + 1}" y="2.4" width="${w - 2}" height="15" rx="1" fill="url(#insetTop)"/>
-  <rect x="${x + 1}" y="2.4" width="${w - 2}" height="15" rx="1" fill="url(#insetSide)"/>
-  <rect x="${x + 1}" y="2.4" width="${w - 2}" height="15" rx="1" fill="url(#glare)"/>
-  ${bevel(x + .4, 1.8, w - .8, 16.2, 1.4, false, .35)}`;
+function notchedBox(x, y, w, h, r, notches, level) {
+  const bottom = y + h, s = Math.sign(level - bottom), q = TAB.r;
+  const steps = [...notches].sort(([a], [b]) => b - a).map(([a, b]) =>
+    `H${b + q}Q${b} ${bottom} ${b} ${bottom + s * q}V${level - s * q}Q${b} ${level} ${b - q} ${level}H${a + q}Q${a} ${level} ${a} ${level - s * q}V${bottom + s * q}Q${a} ${bottom} ${a - q} ${bottom}`).join("");
+  return `M${x + r} ${y}H${x + w - r}Q${x + w} ${y} ${x + w} ${y + r}V${bottom - r}Q${x + w} ${bottom} ${x + w - r} ${bottom}${steps}H${x + r}Q${x} ${bottom} ${x} ${bottom - r}V${y + r}Q${x} ${y} ${x + r} ${y}Z`;
+}
+
+const bevelPath = (d, raised, lw) => `<path d="${d}" fill="none" stroke="url(#${raised ? "bevelUp" : "bevelDown"})" stroke-width="${lw}"/>`;
+const within = (spans, x, w) => spans.filter(([a, b]) => a > x && b < x + w);
+const INSET = .6;
+
+function gridPanel(x, w, tabs) {
+  const notches = within(tabs, x, w), level = TAB.y - TAB.half;
+  const outer = notchedBox(x + .4, EDGE, w - .8, PANEL_H, 1.4, notches, level);
+  const inner = notchedBox(x + 1, EDGE + INSET, w - 2, PANEL_H - 2 * INSET, 1, notches.map(([a, b]) => [a - INSET, b + INSET]), level - INSET);
+  return `<path d="${outer}" fill="#0b0806"/>
+  ${["grid", "insetTop", "insetSide", "glare"].map((f) => `<path d="${inner}" fill="url(#${f})"/>`).join("")}
+  ${bevelPath(outer, false, .35)}`;
+}
 
 const R = 12;
 function icon(w, h, paint) {
@@ -190,15 +205,15 @@ function findNode(node, name) {
   return null;
 }
 
-const GUN_ICON = { w: 35, h: 14, url: icon(35, 14, (ctx) => {
-  ctx.scale(0.1, 0.1);
+const GUN_ICON = { w: 35 * K, h: 14 * K, url: icon(35 * K, 14 * K, (ctx) => {
+  ctx.scale(0.1 * K, 0.1 * K);
   ctx.translate(84, 98);
   window.GUN.draw(ctx);
 }) };
 
-const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
+const FIST_ICON = { w: 20 * K, h: 15 * K, url: icon(20 * K, 15 * K, (ctx) => {
   const fore = findNode(window.XBOT.buildSide(), "fore");
-  ctx.scale(15 / 146, 15 / 146);
+  ctx.scale(15 * K / 146, 15 * K / 146);
   ctx.translate(-290, 386);
   ctx.beginPath();
   ctx.rect(290, -386, 194, 146);
@@ -207,10 +222,11 @@ const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
   window.XBOT.render(ctx, { ...fore, m: null, name: null });
 }) };
 
-const ITEM_SCALE = .8, HAND_DRAWN = { w: 12, h: 13 };
+const ITEM_SCALE = .8 * K, HAND_DRAWN = { w: 12, h: 13 };
 const HAND_BOX = { w: HAND_DRAWN.w * ITEM_SCALE, h: HAND_DRAWN.h * ITEM_SCALE };
 const ICON_H = 13.3 * ITEM_SCALE * .9;
-const HAND_SCALE = ICON_H / 13.3, RUN_SCALE = ICON_H / 11.55, SPEAKER_SCALE = ICON_H / 8.9;
+const HAND_SCALE = ICON_H / 13.3, SPEAKER_SCALE = ICON_H * .7 / 8.2;
+const SPEAKER_INK = { left: 4.4, right: 4.65 }, SPEAKER_W = (SPEAKER_INK.left + SPEAKER_INK.right) * SPEAKER_SCALE;
 const ITEMS = window.C28_CONFIG.items;
 const itemIcon = ({ asset, state = 0, tilt, scale }) => {
   const w = HAND_BOX.w * scale, h = HAND_BOX.h * scale;
@@ -229,19 +245,20 @@ for (const [id, item] of Object.entries(ITEMS)) {
   $("item").add(new Option(item.name, id));
   $("held").add(new Option(item.name, id, false, ["crowbar", "holoPlan", "shipPlan", "card"].includes(id)));
 }
-const READOUT_SIZE = 5.6, MONO_ADVANCE = .54, SLOT = { pad: 3.5, gap: 2, iconW: Math.max(HAND_BOX.w, ...Object.values(ITEMS).map((i) => HAND_BOX.w * i.icon.scale)) };
+const READOUT_SIZE = 5.6 * K, MONO_ADVANCE = .54, SLOT = { pad: 12 * K, gap: 12 * K, iconW: Math.max(HAND_BOX.w, ...Object.values(ITEMS).map((i) => HAND_BOX.w * i.icon.scale)) };
 const INV_W = 2 * SLOT.pad + SLOT.iconW + SLOT.gap + Math.max(...Object.values(ITEMS).map((i) => i.name.length)) * READOUT_SIZE * MONO_ADVANCE;
 
-const GUN = (x) => `<image href="${GUN_ICON.url}" x="${x}" y="2.9" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
-const FIST = (x) => `<image href="${FIST_ICON.url}" x="${x}" y="2.4" width="${FIST_ICON.w}" height="${FIST_ICON.h}"/>`;
-const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" stroke-width=".3">
+const GUN = (x) => `<image href="${GUN_ICON.url}" x="${x}" y="${WEAPON_MID - GUN_ICON.h / 2}" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
+const FIST_SCALE = 0.6;
+const FIST = (x) => `<image href="${FIST_ICON.url}" x="${x + FIST_ICON.w * (1 - FIST_SCALE) / 2}" y="${WEAPON_MID - FIST_ICON.h / 2 + FIST_ICON.h * (1 - FIST_SCALE) / 2}" width="${FIST_ICON.w * FIST_SCALE}" height="${FIST_ICON.h * FIST_SCALE}"/>`;
+const HAND = `<g transform="translate(0 2.6)" fill="${READOUT}" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
-function plate(a, b) {
-  const w = b - a;
-  return `<rect x="${a}" y="0" width="${w}" height="${BAR_H}" rx="1.6" fill="url(#barMetal)"/>
+function plate(a, b, tabs) {
+  const outline = notchedBox(a, 0, b - a, BAR_H, 1.6, within(tabs, a, b - a), TAB.y + TAB.half);
+  return `<path d="${outline}" fill="url(#barMetal)"/>
   <path d="M${a + 1.6} .4H${b - 1.6}" stroke="#e8d8bc" stroke-width=".5"/>
-  ${bevel(a, 0, w, BAR_H, 1.6, true, .45)}`;
+  ${bevelPath(outline, true, .45)}`;
 }
 
 function rod(a, b, y) {
@@ -250,42 +267,63 @@ function rod(a, b, y) {
   <rect x="${b + .4}" y="${y - 1.9}" width="1.4" height="3.8" rx=".4" fill="url(#plate)" stroke="${LO}" stroke-width=".25"/>`;
 }
 
+const BADGE_TEXT = `<text x="24" y="13.9" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
+  <text x="24" y="13.3" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>`;
+const BADGE_SCREW = 1.6;
+
+function badgeArt(x, [a, b]) {
+  const l = a + EDGE, r = b - EDGE, t = EDGE, d = BAR_H - EDGE;
+  const screws = [l + BADGE_SCREW, r - BADGE_SCREW].flatMap((sx) => [t + BADGE_SCREW, d - BADGE_SCREW].map((sy) => screw(sx, sy)));
+  return `<rect x="${l}" y="${t}" width="${r - l}" height="${PANEL_H}" rx="1.4" fill="#16110d"/>
+  <rect x="${l}" y="${t}" width="${r - l}" height="${PANEL_H}" rx="1.4" fill="url(#insetTop)"/>
+  ${bevel(l, t, r - l, PANEL_H, 1.4, false, .35)}
+  <g transform="translate(${x} ${(BAR_H - 20.4 * K) / 2}) scale(${K})">${BADGE_TEXT}</g>
+  ${screws.join("")}`;
+}
+
 function topBar(W, s) {
-  const edge = 0, gap = 2, pad = 3.5, invW = INV_W, inv = W - edge - pad - invW;
-  const togglesW = 2 * TOGGLE_W + 3 * TOGGLE_GAP, togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + TOGGLE_W + TOGGLE_GAP;
-  const held = s.item ? ITEM_ICONS[s.item] : null, label = held ? ITEMS[s.item].name : "nothing", centre = inv + SLOT.pad + SLOT.iconW / 2;
-  const hand = `<g transform="translate(${centre} 9.1) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} -9.1)">${HAND}</g>`;
-  const art = held ? `<image href="${held.url}" x="${centre - held.w / 2}" y="${9.1 - held.h / 2}" width="${held.w}" height="${held.h}"/>` : hand;
-  const item = art + readout((inv + SLOT.pad + SLOT.iconW + SLOT.gap + inv + invW - SLOT.pad) / 2, label);
-  const gridX = edge + 4.4, gridW = WEAPON_W.reduce((x, y) => x + y, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
-  const weaponsEnd = gridX + gridW + 4.4, togglesStart = togglesX - pad, badgeEnd = togglesStart - gap;
-  const badge = (weaponsEnd + gap + badgeEnd) / 2 - 24;
+  const edge = 0, gap = 2, pad = PAD, invW = INV_W, inv = W - edge - pad - invW;
+  const togglesW = SPEAKER_W + TOGGLE_W + 3 * TOGGLE_GAP, togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + SPEAKER_W + TOGGLE_GAP;
+  const held = s.item ? ITEM_ICONS[s.item] : null, label = held ? ITEMS[s.item].name : "nothing";
+  const iconW = held ? held.w : HAND_BOX.w, textW = label.length * READOUT_SIZE * MONO_ADVANCE;
+  const start = inv + (invW - iconW - SLOT.gap - textW) / 2, centre = start + iconW / 2;
+  const hand = `<g transform="translate(${centre} ${MID}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-MID})">${HAND}</g>`;
+  const art = held ? `<image href="${held.url}" x="${centre - held.w / 2}" y="${MID - held.h / 2}" width="${held.w}" height="${held.h}"/>` : hand;
+  const nameCentre = start + iconW + SLOT.gap + textW / 2;
+  const item = art + readout(nameCentre, label);
+  const gridX = edge + PAD, gridW = WEAPON_W.reduce((x, y) => x + y, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
+  const weaponsEnd = gridX + gridW + PAD, togglesStart = togglesX - pad, badgeEnd = togglesStart - gap;
+  const badge = (weaponsEnd + gap + badgeEnd) / 2 - 24 * K;
   const gaps = [[0, edge], [weaponsEnd, weaponsEnd + gap], [badgeEnd, togglesStart], [togglesX + togglesW + pad, inv - pad], [W - edge, W]];
   const plates = gaps.slice(1).map(([a], i) => [gaps[i][1], a]);
   const wx = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((x, y) => x + y, 0));
-  return `<rect x="${edge}" width="${W - 2 * edge}" height="${BAR_H}" fill="#060504"/>
-  ${gaps.filter(([a, b]) => b > a).map(([a, b]) => [3.4, 7.8, 12.2, 16.6].map((y) => rod(a, b, y)).join("")).join("")}
-  ${plates.map(([a, b]) => plate(a, b)).join("")}
-  ${gridPanel(gridX, gridW)}
+  const tabs = [
+    ...WEAPON_KEYS.slice(0, s.bonus ? 3 : 2).map((label, i) => ({ cx: wx[i] + (i === 2 ? 17 * K : WEAPON_W[i] / 2), label, active: s.weapon === i })),
+    { cx: sound + SPEAKER_W / 2, label: "S", active: s.soundOn },
+    { cx: run + TOGGLE_W / 2, label: "ALT", active: s.running },
+    { cx: inv + invW / 2, label: "ENTER\u00a0\u00a0/\u00a0\u00a0I", active: false },
+  ];
+  const spans = tabs.map(tabSpan);
+  return `<rect width="${W}" height="${BAR_H}" fill="url(#circuit)"/>
+  ${gaps.filter(([a, b]) => b > a).map(([a, b]) => [3.4, 7.8, 12.2, 16.6].map((y) => rod(a, b, y * BAR_H / 20.4)).join("")).join("")}
+  ${plates.map(([a, b]) => plate(a, b, spans)).join("")}
+  ${gridPanel(gridX, gridW, spans)}
   ${weapon(GUN(wx[0]), s.weapon === 0)}${counter(wx[0] + WEAPON_W[0], s.ammo)}
   ${weapon(FIST(wx[1]), s.weapon === 1)}
-  ${s.bonus ? weapon(window.EBLASTER.icon(wx[2]), s.weapon === 2) + counter(wx[2] + WEAPON_W[2], s.bonusAmmo) : ""}
-  ${WEAPON_KEYS.slice(0, s.bonus ? 3 : 2).map((label, i) => keyTab(wx[i] + WEAPON_W[i] / 2 - (i === 2 ? 11.5 : 0), label, s.weapon === i)).join("")}
-  <rect x="${badge + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="#16110d"/>
-  <rect x="${badge + 3.4}" y="3.8" width="41.2" height="12.8" rx="1.8" fill="url(#insetTop)"/>
-  ${bevel(badge + 3.4, 3.8, 41.2, 12.8, 1.8, false, .45)}
-  <text x="${badge + 24}" y="13.9" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="#000" opacity=".7">C2080</text>
-  <text x="${badge + 24}" y="13.3" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="7.6" fill="url(#chrome)" stroke="#1a140f" stroke-width=".2">C2080</text>
-  ${screw(badge + 2.4, 3.2)}${screw(badge + 45.6, 3.2)}${screw(badge + 2.4, 17.2)}${screw(badge + 45.6, 17.2)}
-  ${gridPanel(togglesX, togglesW)}
-  ${soundIcon(sound + TOGGLE_W / 2, s.soundOn)}${keyTab(sound + TOGGLE_W / 2, "S", s.soundOn)}
-  ${runIcon(run + TOGGLE_W / 2, s.running)}${keyTab(run + TOGGLE_W / 2, "ALT", s.running)}
-  ${gridPanel(inv, invW)}${item}${keyTab(inv + invW / 2, "ENTER")}`;
+  ${s.bonus ? weapon(`<g transform="translate(${wx[2]} ${WEAPON_MID}) scale(${K}) translate(0 -9.5)">${window.EBLASTER.icon(0)}</g>`, s.weapon === 2) + counter(wx[2] + WEAPON_W[2], s.bonusAmmo) : ""}
+  ${badgeArt(badge, plates[1])}
+  ${gridPanel(togglesX, togglesW, spans)}
+  ${soundIcon(sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
+  ${runIcon(run + TOGGLE_W / 2, s.running)}
+  ${gridPanel(inv, invW, spans)}${item}
+  ${tabs.map(keyTab).join("")}`;
 }
+
+const BOTTOM = 1.5;
 
 function view(W, H) {
   const vw = W - 2 * SIDE, hx = SIDE + vw * 0.43;
-  return `<rect x="${SIDE}" y="${BAR_H}" width="${vw}" height="${H - 8 - BAR_H}" fill="url(#sky)"/>
+  return `<rect x="${SIDE}" y="${BAR_H}" width="${vw}" height="${H - BOTTOM - BAR_H}" fill="url(#sky)"/>
   <g transform="translate(0 ${H - HUD_H})">
   <g transform="scale(${vw / 288} 1) translate(-16 0)" transform-origin="${SIDE} 0">
     <path d="M32 150V112h22v-26h14v34h18v-50h10v40h30v-22h16v58h40v-36h24v-18h12v54h30v-30h20v42h32V150z" fill="#0d0907"/></g>
@@ -301,26 +339,20 @@ function view(W, H) {
 
 const weapon = (content, active) => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
 
-const RUN_LIMBS = "M.9 -2.4L-.5 1.1M.6 -1.7L2.4 -.5L3.9 -1.9M.6 -1.7L-1.4 -1.4L-2.6 .2M-.5 1.1L1.9 2L1.7 4.8M-.5 1.1L-1.5 3.2L-3.8 4";
-const RUN_FIGURE = `<path d="${RUN_LIMBS}" fill="none" stroke="#6a4206" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="1.8" cy="-4.1" r="1.6" fill="#6a4206"/>
-  <path d="${RUN_LIMBS}" fill="none" stroke="#f0a818" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="1.8" cy="-4.1" r="1.25" fill="#f0a818"/>`;
 const runIcon = (x, running) =>
-  `<g filter="url(#${running ? "iconGlow" : "iconDim"})" data-icon="run"><g transform="translate(${x} ${(1.8 + TAB.top) / 2}) scale(${RUN_SCALE})">${RUN_FIGURE}</g></g>`;
+  `<g filter="url(#${running ? "iconGlow" : "iconDim"})" data-icon="run">${robotImage(running ? RUN_ICON : WALK_ICON, x)}</g>`;
+const robotImage = ({ url, w, h }, x) => `<image href="${url}" x="${x - w / 2}" y="${MID - h / 2}" width="${w}" height="${h}"/>`;
 
 const SPEAKER_CONE = "M-4.4 -1.5H-2.6L.1 -3.9V3.9L-2.6 1.5H-4.4Z";
 const SPEAKER_WAVES = "M1.6 -1.7Q2.6 0 1.6 1.7M3 -3.4Q4.9 0 3 3.4";
 const SPEAKER_CROSS = "M1.7 -1.7L4.5 1.7M1.7 1.7L4.5 -1.7";
-const amberStroke = (d) => `<path d="${d}" fill="none" stroke="#6a4206" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="${d}" fill="none" stroke="#f0a818" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>`;
-const speaker = (on) => `<path d="${SPEAKER_CONE}" fill="#f0a818" stroke="#6a4206" stroke-width=".7" stroke-linejoin="round"/>
-  ${amberStroke(on ? SPEAKER_WAVES : SPEAKER_CROSS)}`;
+const speaker = (on) => `<path d="${SPEAKER_CONE}" fill="${READOUT}"/>
+  <path d="${on ? SPEAKER_WAVES : SPEAKER_CROSS}" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>`;
 const soundIcon = (x, on) =>
-  `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${(1.8 + TAB.top) / 2}) scale(${SPEAKER_SCALE})">${speaker(on)}</g></g>`;
+  `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${speaker(on)}</g></g>`;
 
 const readout = (x, label) =>
-  `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">${label}</text>`;
+  `<text x="${x}" y="${MID + READOUT_SIZE * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="${READOUT_SIZE}" fill="${READOUT}">${label}</text>`;
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 
@@ -333,13 +365,12 @@ function keyBox(x, letter) {
   <text x="${x + size / 2}" y="${base}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="#1a140f">${letter}</text>`;
 }
 
-const WEAPON_W = [35, 20, 57], WEAPON_GAP = 12, TOGGLE_W = 12.5, TOGGLE_GAP = 2;
+const WEAPON_W = [35, 20, 45.5].map((w) => w * K), WEAPON_GAP = 12 * K, TOGGLE_W = ICON_H * .9, TOGGLE_GAP = WEAPON_GAP;
 const WEAPON_KEYS = ["1", "2", "3"];
-const TAB = { top: 15.2, bottom: 18.2, r: 0.8, font: 3.4, pad: 1.2 };
-const GLYPH_W = TAB.font * 0.7;
-const TAB_MIN_W = 1.6 * (GLYPH_W + 2 * TAB.pad);
-const TAB_SIDE = (TAB_MIN_W - GLYPH_W) / 2;
-const tabWidth = (label) => Math.max(TAB_MIN_W, label.length * GLYPH_W + 2 * TAB_SIDE);
+const ADVANCE = { "1": .39, "4": .73, "7": .66, " ": .32, "\u00a0": .32, "/": .52, E: .77, F: .72, I: .21, J: .78, K: .8, L: .78, M: .93, P: .79, Q: .88, T: .76, V: 1, W: 1.18, X: .81, Y: .81 };
+const ADVANCE_DEFAULT = .83;
+const textWidth = (label) => [...label].reduce((w, ch) => w + (ADVANCE[ch] ?? ADVANCE_DEFAULT), 0) * TAB.font;
+const tabWidth = (label) => textWidth(label) + 2 * TAB.pad;
 
 const letter = (x, y, attrs, label) =>
   `<text x="${x}" y="${y}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${TAB.font}" ${attrs}>${label}</text>`;
@@ -349,13 +380,11 @@ const plainLetter = (x, y, label) => letter(x + 0.2, y + 0.2, `fill="${HI}" opac
 const litLetter = (x, y, label) => letter(x, y, 'fill="#ff2a10" opacity=".55" filter="url(#keyHalo)"', label) +
   letter(x, y, 'fill="#ff4a26" stroke="#7a0a02" stroke-width=".3" paint-order="stroke"', label);
 
-function keyTab(cx, label, active = false) {
-  const { top, bottom, r } = TAB;
-  const w = tabWidth(label), a = cx - w / 2, b = cx + w / 2, base = (top + BAR_H) / 2 + TAB.font * 0.36;
-  const edge = `M${a} ${bottom}V${top + r}Q${a} ${top} ${a + r} ${top}H${b - r}Q${b} ${top} ${b} ${top + r}V${bottom}`;
-  return `<path d="${edge}Z" fill="url(#plate)"/>
-  <path d="${edge}" fill="none" stroke="${HI}" stroke-opacity=".55" stroke-width=".35"/>
-  ${active ? litLetter(cx, base, label) : plainLetter(cx, base, label)}`;
+const tabSpan = ({ cx, label }) => [cx - tabWidth(label) / 2, cx + tabWidth(label) / 2];
+
+function keyTab({ cx, label, active }) {
+  const base = TAB.y + TAB.font * 0.36;
+  return active ? litLetter(cx, base, label) : plainLetter(cx, base, label);
 }
 function tube(x, top, w, h, fillH, inner = w - 2.6, paint = "url(#amberFill)") {
   const r = 0;
@@ -379,8 +408,8 @@ function leftColumn(s) {
 
 const LAMP = { x: 3, y: 132.6, w: 5, h: 8.6, pitch: 9.6 };
 
-function shieldLight(x, i, on) {
-  const lx = x + LAMP.x, ly = LAMP.y + i * LAMP.pitch, { w, h } = LAMP;
+function shieldLight(i, on) {
+  const lx = LAMP.x, ly = LAMP.y + i * LAMP.pitch, { w, h } = LAMP;
   const body = `<rect x="${lx}" y="${ly}" width="${w}" height="${h}" fill="url(#${on ? "shieldOn" : "shieldOff"})"${on ? ' filter="url(#glow)"' : ""}/>`;
   if (!on) {
     return `${body}
@@ -395,51 +424,52 @@ function shieldLight(x, i, on) {
   <rect x="${cx - 0.5}" y="${mid + 0.4}" width="1" height="1" fill="#fffbe8"/>`;
 }
 
-function shieldHalo(x, i) {
-  const lx = x + LAMP.x, ly = LAMP.y + i * LAMP.pitch, { w, h } = LAMP;
+function shieldHalo(i) {
+  const lx = LAMP.x, ly = LAMP.y + i * LAMP.pitch, { w, h } = LAMP;
   return `<rect x="${lx - 0.6}" y="${ly - 0.6}" width="${w + 1.2}" height="${h + 1.2}" rx="1.5" fill="#ffb21c" opacity=".75" filter="url(#lampHalo)" style="mix-blend-mode:screen"/>
   <rect x="${lx + w / 2 - 1}" y="${ly + 1.5}" width="2" height="${h - 3}" fill="#fff6c0" opacity=".6" filter="url(#soft)" style="mix-blend-mode:screen"/>`;
 }
 
-function shieldChannel(x) {
+function shieldChannel() {
   const top = LAMP.y - 1, h = 5 * LAMP.pitch + 1, rail = (rx) =>
     `<rect x="${rx}" y="${top}" width="1" height="${h}" fill="url(#lampRail)"/>`;
-  return `<rect x="${x + LAMP.x - 1}" y="${top}" width="${LAMP.w + 2}" height="${h}" fill="#050403"/>
-  ${rail(x + LAMP.x - 1)}${rail(x + LAMP.x + LAMP.w)}`;
+  return `<rect x="${LAMP.x - 1}" y="${top}" width="${LAMP.w + 2}" height="${h}" fill="#050403"/>
+  ${rail(LAMP.x - 1)}${rail(LAMP.x + LAMP.w)}`;
 }
 
-function rightColumn(W, s) {
-  const x = W - SIDE, top = 75.6, h = 50, fill = h - 2.6;
+function rightColumn(s) {
+  const top = 75.6, h = 50, fill = h - 2.6;
   const lit = (i) => 4 - i < s.shields;
   const lamps = [0, 1, 2, 3, 4];
-  const lights = lamps.map((i) => shieldLight(x, i, lit(i))).join("");
-  const halos = lamps.filter(lit).map((i) => shieldHalo(x, i)).join("");
-  return `${tube(x + 3.8, top, 3.4, h, fill, 1.2)}
-  <rect x="${x + 1}" y="130.2" width="9" height="51.8" rx="1" fill="url(#plate)"/>
-  ${bevel(x + 1, 130.2, 9, 51.8, 1, true, .4)}
-  ${shieldChannel(x)}
+  const lights = lamps.map((i) => shieldLight(i, lit(i))).join("");
+  const halos = lamps.filter(lit).map((i) => shieldHalo(i)).join("");
+  return `${tube(3.8, top, 3.4, h, fill, 1.2)}
+  <rect x="1" y="130.2" width="9" height="51.8" rx="1" fill="url(#plate)"/>
+  ${bevel(1, 130.2, 9, 51.8, 1, true, .4)}
+  ${shieldChannel()}
   ${lights}
   ${halos}
-  ${keyBox(x + 1, "S")}`;
+  ${keyBox(1, "S")}`;
 }
 
 
+function sideArt(x, art) {
+  return `<g transform="translate(${x} ${HUD_H - BOTTOM}) scale(${SIDE_ART.scale}) translate(0 ${-SIDE_ART.bottom})">${art}</g>`;
+}
+
 function sidePlates(W, H) {
-  return `<rect width="${SIDE}" height="${H - 8}" fill="url(#circuit)"/>
-  <rect transform="translate(${W - SIDE} 0)" width="${SIDE}" height="${H - 8}" fill="url(#circuit)"/>`;
+  return `<rect width="${SIDE}" height="${H - BOTTOM}" fill="url(#circuit)"/>
+  <rect transform="translate(${W - SIDE} 0)" width="${SIDE}" height="${H - BOTTOM}" fill="url(#circuit)"/>`;
 }
 
 function hud(W, H, s) {
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${DEFS}
   <rect width="${W}" height="${H}" fill="url(#metalV)"/>
   ${sidePlates(W, H)}
-  ${view(W, H)}${topBar(W, s)}<g transform="translate(0 ${H - HUD_H})">${leftColumn(s)}${rightColumn(W, s)}
-  <rect y="191.8" width="${W}" height="8.2" fill="url(#metal)"/>
-  <path d="M0 192.2H${W}" stroke="${HI}" stroke-opacity=".6" stroke-width=".4"/>
-  <path d="M0 199.6H${W}" stroke="${LO}" stroke-width=".8"/>
-  <path d="M20 196H${W / 2 - 20}M${W / 2 + 20} 196H${W - 20}" stroke="${LO}" stroke-width=".7"/>
-  <path d="M20 196.6H${W / 2 - 20}M${W / 2 + 20} 196.6H${W - 20}" stroke="${HI}" stroke-opacity=".35" stroke-width=".3"/>
-  ${screw(W / 2 - 14, 196)}${screw(W / 2 + 14, 196)}</g></svg>`;
+  ${view(W, H)}${topBar(W, s)}<g transform="translate(0 ${H - HUD_H})">${sideArt(0, leftColumn(s))}${sideArt(W - SIDE, rightColumn(s))}
+  <rect y="${HUD_H - BOTTOM}" width="${W}" height="${BOTTOM}" fill="url(#metal)"/>
+  <path d="M0 ${HUD_H - BOTTOM + 0.2}H${W}" stroke="${HI}" stroke-opacity=".6" stroke-width=".3"/>
+  <path d="M0 ${HUD_H - 0.2}H${W}" stroke="${LO}" stroke-width=".4"/></g></svg>`;
 }
 
 
@@ -499,6 +529,20 @@ function outline(paint, w, h, color) {
     ctx.drawImage(c, 0, 0);
   }, w, h);
 }
+const RUN_POSE = { body: 27, hipNear: { rot: -70, sx: 0.6 }, kneeNear: 80, ankleNear: -10, hipFar: { rot: 0, sx: 0.6 }, kneeFar: 30, ankleFar: 0, arm: -40, armFar: 40, fore: -78, foreFar: -78 };
+const WALK_POSE = { body: 4, hipNear: { rot: -25, sx: 0.6 }, kneeNear: 20, ankleNear: 0, hipFar: { rot: 18, sx: 0.6 }, kneeFar: 12, ankleFar: -8, arm: 20, armFar: -20, fore: -25, foreFar: -25 };
+const robotIcon = (pose) => trimmed((ctx) => {
+  ctx.save();
+  ctx.scale(1.5, 1.5);
+  ctx.translate(-350, -350);
+  window.XBOT.render(ctx, window.XBOT.buildSide({ farLimbs: true, lod: true }), { pose, simple: true });
+  ctx.restore();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = "source-in";
+  ctx.fillStyle = READOUT;
+  ctx.fillRect(0, 0, 2400, 2400);
+}, TOGGLE_W, ICON_H);
+const RUN_ICON = robotIcon(RUN_POSE), WALK_ICON = robotIcon(WALK_POSE);
 const BODY_ART = outline((ctx) => { window.XBOT.render(ctx, FRONT); }, 30, 56, INV.stat);
 
 const BIG_ITEMS = Object.fromEntries(Object.entries(ITEMS).map(([id, { icon: { asset, state = 0, tilt } }]) => {

@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ITEMS } from "../items";
-import { hudFit, READOUT_SIZE, SLOT, TOGGLE_W, topBar, viewRect, WEAPON_W } from "./layout";
-
-const OLD_INV_W = 46.5;
-
+import { BADGE_W, BAR_H, hudFit, PANEL_EDGE, READOUT_SIZE, SLOT, SPEAKER_W, TOGGLE_W, topBar, viewRect, VIEW_BOX, WEAPON_GAP, WEAPON_W } from "./layout";
 
 describe("hudFit", () => {
   it("uses the original 320 x 200 frame on a 16:10 screen", () => {
@@ -24,7 +21,15 @@ describe("hudFit", () => {
 
 describe("viewRect", () => {
   it("is the frame window in screen pixels", () => {
-    expect(viewRect({ W: 320, H: 250, unit: 2 })).toEqual({ x: 22, y: 40.8, w: 596, h: 443.2 });
+    const rect = viewRect({ W: 320, H: 250, unit: 2 });
+    expect(rect.x).toBeCloseTo(2 * 11 * (2 / 3), 9);
+    expect(rect.w).toBeCloseTo(2 * (320 - 2 * 11 * (2 / 3)), 9);
+    expect(rect.y).toBeCloseTo(2 * BAR_H, 9);
+    expect(rect.h).toBeCloseTo(2 * (250 - BAR_H - VIEW_BOX.bottom), 9);
+  });
+
+  it("starts the window at 72% of the old 20.4 top bar", () => {
+    expect(BAR_H).toBeCloseTo(0.72 * 20.4, 9);
   });
 });
 
@@ -33,7 +38,7 @@ describe("topBar", () => {
     const bar = topBar(320);
     expect(bar.plates).toHaveLength(4);
     expect(bar.gaps).toHaveLength(5);
-    expect(bar.gridW).toBeCloseTo(WEAPON_W.reduce((a, b) => a + b, 0) + 4 * 12, 9);
+    expect(bar.gridW).toBeCloseTo(WEAPON_W.reduce((a, b) => a + b, 0) + 4 * WEAPON_GAP, 9);
   });
 
   it("fits every item name in the inventory plate with equal side padding", () => {
@@ -41,22 +46,24 @@ describe("topBar", () => {
     const longest = Math.max(...Object.values(ITEMS).map((item) => item.name.length));
     const textArea = invW - 2 * SLOT.pad - SLOT.iconW - SLOT.gap;
     expect(textArea).toBeCloseTo(longest * READOUT_SIZE * 0.54, 9);
-    expect(invW).toBeGreaterThan(OLD_INV_W);
   });
 
-  it("gives the toggles and inventory plates equal 3.5 margins around their grids", () => {
+  it("frames every grid panel with the panel edge on its sides, like on top", () => {
     const bar = topBar(320);
-    const [, , toggles, inventory] = bar.plates;
-    expect(toggles![0]).toBeCloseTo(bar.togglesX - 3.5, 9);
-    expect(toggles![1]).toBeCloseTo(bar.togglesX + bar.togglesW + 3.5, 9);
-    expect(inventory![0]).toBeCloseTo(bar.inv - 3.5, 9);
-    expect(inventory![1]).toBeCloseTo(bar.inv + bar.invW + 3.5, 9);
+    const [weapons, , toggles, inventory] = bar.plates;
+    const side = PANEL_EDGE - 0.4;
+    expect(weapons![0]).toBeCloseTo(bar.gridX - side, 9);
+    expect(weapons![1]).toBeCloseTo(bar.gridX + bar.gridW + side, 9);
+    expect(toggles![0]).toBeCloseTo(bar.togglesX - side, 9);
+    expect(toggles![1]).toBeCloseTo(bar.togglesX + bar.togglesW + side, 9);
+    expect(inventory![0]).toBeCloseTo(bar.inv - side, 9);
+    expect(inventory![1]).toBeCloseTo(bar.inv + bar.invW + side, 9);
   });
 
   it("holds the sound slot left of the run slot in one toggles grid with equal gaps and ends", () => {
     for (const W of [320, 520]) {
       const { togglesX, togglesW, sound, run } = topBar(W);
-      const gaps = [sound - togglesX, run - (sound + TOGGLE_W), togglesX + togglesW - (run + TOGGLE_W)];
+      const gaps = [sound - togglesX, run - (sound + SPEAKER_W), togglesX + togglesW - (run + TOGGLE_W)];
       for (const g of gaps) expect(g).toBeCloseTo(gaps[0]!, 9);
       expect(gaps[0]).toBeGreaterThan(0);
     }
@@ -66,7 +73,7 @@ describe("topBar", () => {
     for (const W of [320, 520]) {
       const { plates, badge } = topBar(W);
       expect(badge).toBeGreaterThanOrEqual(plates[1]![0]);
-      expect(badge + 48).toBeLessThanOrEqual(plates[1]![1]);
+      expect(badge + BADGE_W).toBeLessThanOrEqual(plates[1]![1]);
       plates.forEach(([a, b], i) => {
         expect(b).toBeGreaterThan(a);
         if (i > 0) expect(a).toBeGreaterThan(plates[i - 1]![1]);
@@ -87,7 +94,7 @@ describe("topBar", () => {
   it("centres the badge window in its plate", () => {
     for (const W of [320, 467]) {
       const { badge, plates } = topBar(W);
-      expect(badge + 24).toBeCloseTo((plates[1]![0] + plates[1]![1]) / 2, 9);
+      expect(badge + BADGE_W / 2).toBeCloseTo((plates[1]![0] + plates[1]![1]) / 2, 9);
     }
   });
 

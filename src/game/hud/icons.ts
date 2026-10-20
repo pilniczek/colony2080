@@ -1,4 +1,5 @@
 import { drawRig } from "../../engine/rig/draw";
+import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, RigNode } from "../../engine/rig/tree";
 import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset } from "../env/paint";
@@ -6,8 +7,8 @@ import { drawGun } from "../robot/gun";
 import { buildFront, buildSide, ROBOT } from "../robot/xbot";
 import { ITEMS, type Item } from "../items";
 import { BODY_BOX, GUN_SCALE, INVENTORY_BOXES, ITEM_FILL, STAT_COLOR, type InventoryArt } from "./inventory";
-import { HAND_BOX } from "./layout";
-import type { HudIcon, HudIcons } from "./svg";
+import { CONTENT_SCALE, HAND_BOX, ICON_H, TOGGLE_W } from "./layout";
+import { READOUT, type HudIcon, type HudIcons } from "./svg";
 
 const PX_PER_UNIT = 12;
 const FIST_BOX = { x: 290, y: -386, w: 194, h: 146 };
@@ -15,8 +16,10 @@ const STAGE = 2400;
 const ITEM_ZOOM = 8;
 const OUTLINE_STEPS = [[-6, 0], [6, 0], [0, -6], [0, 6], [-4, -4], [4, 4], [-4, 4], [4, -4]] as const;
 const DIAGRAM_FILL = 0.18;
+const RUN_POSE = { body: 27, hipNear: { rot: -70, sx: 0.6 }, kneeNear: 80, ankleNear: -10, hipFar: { rot: 0, sx: 0.6 }, kneeFar: 30, ankleFar: 0, arm: -40, armFar: 40, fore: -78, foreFar: -78 };
+const WALK_POSE = { body: 4, hipNear: { rot: -25, sx: 0.6 }, kneeNear: 20, ankleNear: 0, hipFar: { rot: 18, sx: 0.6 }, kneeFar: 12, ankleFar: -8, arm: 20, armFar: -20, fore: -25, foreFar: -25 };
 
-function icon(w: number, h: number, paint: (ctx: CanvasRenderingContext2D) => void): HudIcon {
+function icon(w: number, h: number, paint: (ctx: CanvasRenderingContext2D) => void, cropToInk = false): HudIcon {
   const canvas = document.createElement("canvas");
   canvas.width = w * PX_PER_UNIT;
   canvas.height = h * PX_PER_UNIT;
@@ -24,7 +27,20 @@ function icon(w: number, h: number, paint: (ctx: CanvasRenderingContext2D) => vo
   if (!ctx) throw new Error("no 2d context");
   ctx.scale(PX_PER_UNIT, PX_PER_UNIT);
   paint(ctx);
-  return { url: canvas.toDataURL(), w, h };
+  return cropToInk ? inkColumns(canvas, h) : { url: canvas.toDataURL(), w, h };
+}
+
+function inkColumns(canvas: HTMLCanvasElement, h: number): HudIcon {
+  const { width, height } = canvas;
+  const alpha = canvas.getContext("2d")!.getImageData(0, 0, width, height).data;
+  const inked = (x: number): boolean => Array.from({ length: height }, (_, y) => alpha[(y * width + x) * 4 + 3]!).some((a) => a > 0);
+  const columns = Array.from({ length: width }, (_, x) => x).filter(inked);
+  if (columns.length === 0) return { url: canvas.toDataURL(), w: width / PX_PER_UNIT, h };
+  const left = columns[0]!, cropped = document.createElement("canvas");
+  cropped.width = columns[columns.length - 1]! - left + 1;
+  cropped.height = height;
+  cropped.getContext("2d")!.drawImage(canvas, -left, 0);
+  return { url: cropped.toDataURL(), w: cropped.width / PX_PER_UNIT, h };
 }
 
 export function findGroup(node: RigNode, name: string): GroupNode | null {
@@ -53,7 +69,7 @@ function assetIcon(ctx: CanvasRenderingContext2D, asset: AssetId, state: number,
 function itemIcon({ icon: { asset, state, tilt, scale } }: Item): HudIcon {
   const w = HAND_BOX.w * scale;
   const h = HAND_BOX.h * scale;
-  return icon(w, h, (ctx) => assetIcon(ctx, asset, state, tilt, w, h));
+  return icon(w, h, (ctx) => assetIcon(ctx, asset, state, tilt, w, h), true);
 }
 
 const gunIcon = (scale = 1): HudIcon =>
@@ -64,11 +80,11 @@ const gunIcon = (scale = 1): HudIcon =>
   });
 
 export function hudIcons(): HudIcons {
-  const gun = gunIcon();
-  const fist = icon(20, 15, (ctx) => {
+  const gun = gunIcon(CONTENT_SCALE);
+  const fist = icon(20 * CONTENT_SCALE, 15 * CONTENT_SCALE, (ctx) => {
     const fore = findGroup(buildSide(), "fore");
     if (!fore) throw new Error("side rig has no fore joint");
-    const s = 15 / FIST_BOX.h;
+    const s = (15 * CONTENT_SCALE) / FIST_BOX.h;
     ctx.scale(s, s);
     ctx.translate(-FIST_BOX.x, -FIST_BOX.y);
     ctx.beginPath();
@@ -77,7 +93,20 @@ export function hudIcons(): HudIcons {
     ctx.rotate(-Math.PI / 2);
     drawRig(ctx, { ...fore, m: null, name: undefined }, { palette: ROBOT.palette });
   });
-  return { gun, fist, items: Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, itemIcon(item)])) };
+  return { gun, fist, run: robotIcon(RUN_POSE), walk: robotIcon(WALK_POSE), items: Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, itemIcon(item)])) };
+}
+
+function robotIcon(pose: Pose): HudIcon {
+  const robot = stage((ctx) => {
+    ctx.scale(1.5, 1.5);
+    ctx.translate(-350, -350);
+    drawRig(ctx, buildSide({ farLimbs: true, lod: true }), { palette: ROBOT.palette, pose, simple: true });
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = "source-in";
+    ctx.fillStyle = READOUT;
+    ctx.fillRect(0, 0, STAGE, STAGE);
+  });
+  return trimmed(robot, TOGGLE_W, ICON_H);
 }
 
 function stage(paint: (ctx: CanvasRenderingContext2D) => void): HTMLCanvasElement {

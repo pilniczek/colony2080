@@ -114,7 +114,7 @@ function beam(ctx, length, frame, seed) {
   ctx.restore();
 }
 
-const ICON = { body: 34, arcEnd: 57, frame: 2, scale: 0.5 };
+const ICON = { body: 34, arcEnd: 45.5, frame: 2, scale: 0.5 };
 const ICON_Y = 2;
 const svgNum = n => +n.toFixed(2);
 const ICON_STRANDS = bolt((ICON.arcEnd - ICON.body) / ICON.scale, ICON.frame)

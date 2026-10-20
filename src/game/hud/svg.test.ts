@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { HAND_BOX, HAND_INK_H, ICON_H, RUN_INK_H, SLOT, SPEAKER_INK_H, TOGGLE_W, topBar, WEAPON_W } from "./layout";
+import { BLASTER_BODY_W } from "./blasterIcon";
+import { CONTENT_SCALE, HAND_BOX, HAND_INK_H, ICON_H, MONO_ADVANCE, READOUT_SIZE, SLOT, SPEAKER_H, SPEAKER_INK, SPEAKER_INK_H, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, WEAPON_W } from "./layout";
 import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
-const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
+const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, run: { url: "run.png", w: 4, h: ICON_H }, walk: { url: "walk.png", w: 4, h: ICON_H }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
 const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, soundOn: true, item: null };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", sound: "S", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
@@ -31,19 +32,32 @@ describe("hudSvg", () => {
     expect(runIcon(hudSvg(320, 200, { ...base, running: false }, icons))).toBe("iconDim");
   });
 
+  it("shows the walking figure when not in run mode", () => {
+    expect(hudSvg(320, 200, base, icons)).toContain('data-icon="run"><image href="run.png"');
+    expect(hudSvg(320, 200, { ...base, running: false }, icons)).toContain('data-icon="run"><image href="walk.png"');
+  });
+
   it("centres the running figure on the run slot", () => {
     const { run } = topBar(320);
-    const m = /<g filter="url\(#icon\w+\)" data-icon="run"><g transform="translate\(([\d.]+) /.exec(hudSvg(320, 200, base, icons))!;
-    expect(Number(m[1])).toBeCloseTo(run + TOGGLE_W / 2, 9);
+    const m = /data-icon="run"><image href="run.png" x="([\d.]+)"/.exec(hudSvg(320, 200, base, icons))!;
+    expect(Number(m[1]) + 2).toBeCloseTo(run + TOGGLE_W / 2, 9);
   });
 
   it("draws one grid panel for both the sound and run slots", () => {
     const svg = hudSvg(320, 200, base, icons);
-    const panels = [...svg.matchAll(/<rect x="([\d.]+)" y="1\.8" width="([\d.]+)" height="16\.2" rx="1\.4" fill="#0b0806"\/>/g)].map((m) => [Number(m[1]), Number(m[1]) + Number(m[2])]);
+    const panels = [...svg.matchAll(/<path d="M([\d.]+) 0\.9H([\d.]+)[^"]*" fill="#0b0806"\/>/g)].map((m) => [Number(m[1]), Number(m[2])]);
     expect(panels).toHaveLength(3);
     const { sound, run } = topBar(320);
     const holding = panels.filter(([a, b]) => a! <= sound && run + TOGGLE_W <= b!);
     expect(holding).toHaveLength(1);
+  });
+
+  it("bends the panel and plate edges around each key label", () => {
+    const svg = hudSvg(320, 200, base, icons);
+    const panelNotches = svg.match(/<path d="M[\d.]+ 0\.9H[^"]*" fill="#0b0806"\/>/g)!.join("").match(/ 11\.768\d*H/g) ?? [];
+    const plateBulges = svg.match(/<path d="M[\d.]+ 0H[^"]*" fill="url\(#barMetal\)"\/>/g)!.join("").match(/ 16\.708\d*H/g) ?? [];
+    expect(panelNotches).toHaveLength(5);
+    expect(plateBulges).toHaveLength(5);
   });
 
   it("lights the S and ALT key tabs under their own icons per state", () => {
@@ -54,7 +68,7 @@ describe("hudSvg", () => {
     };
     for (const [soundOn, running] of [[true, false], [false, true]] as const) {
       const svg = hudSvg(320, 200, { ...base, soundOn, running }, icons);
-      expect(tab(svg, "S")).toEqual({ x: expect.closeTo(sound + TOGGLE_W / 2, 9), lit: soundOn });
+      expect(tab(svg, "S")).toEqual({ x: expect.closeTo(sound + SPEAKER_W / 2, 9), lit: soundOn });
       expect(tab(svg, "ALT")).toEqual({ x: expect.closeTo(run + TOGGLE_W / 2, 9), lit: running });
     }
   });
@@ -69,7 +83,7 @@ describe("hudSvg", () => {
       const m = soundIcon(hudSvg(320, 200, base, icons))!;
       expect(m[1]).toBe("iconGlow");
       expect(m[2]).toBeUndefined();
-      expect(Number(m[3])).toBeCloseTo(sound + TOGGLE_W / 2, 9);
+      expect(Number(m[3])).toBeCloseTo(sound + SPEAKER_INK.left * SPEAKER_SCALE, 9);
     });
 
     it("draws a dimmed crossed speaker when sound is off", () => {
@@ -82,8 +96,8 @@ describe("hudSvg", () => {
       const { sound } = topBar(320);
       const on = soundTab(hudSvg(320, 200, base, icons));
       const off = soundTab(hudSvg(320, 200, { ...base, soundOn: false }, icons));
-      expect(on.find((t) => t.fill === "#ff4a26")?.x).toBeCloseTo(sound + TOGGLE_W / 2, 9);
-      expect(off.find((t) => t.fill === "#1a140f")?.x).toBeCloseTo(sound + TOGGLE_W / 2, 9);
+      expect(on.find((t) => t.fill === "#ff4a26")?.x).toBeCloseTo(sound + SPEAKER_W / 2, 9);
+      expect(off.find((t) => t.fill === "#1a140f")?.x).toBeCloseTo(sound + SPEAKER_W / 2, 9);
       expect(off.some((t) => t.fill === "#ff4a26")).toBe(false);
     });
   });
@@ -94,7 +108,7 @@ describe("hudSvg", () => {
 
   it("right-aligns the ammo counter at the icon edge without leading zeros", () => {
     const { weapons } = topBar(320);
-    const counter = (ammo: number): RegExpExecArray | null => new RegExp(`<text x="([\\d.]+)" y="16" text-anchor="end"[^>]*>(\\d+)</text>`).exec(hudSvg(320, 200, { ...base, ammo }, icons));
+    const counter = (ammo: number): RegExpExecArray | null => new RegExp(`<text x="([\\d.]+)" y="[\\d.]+" text-anchor="end"[^>]*>(\\d+)</text>`).exec(hudSvg(320, 200, { ...base, ammo }, icons));
     for (const [ammo, text] of [[0, "0"], [99, "99"], [350, "350"], [109999, "109999"]] as const) {
       const m = counter(ammo)!;
       expect(m[2]).toBe(text);
@@ -107,11 +121,11 @@ describe("hudSvg", () => {
       [...svg.matchAll(/<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#[0-9a-f]+)"[^>]*>([^<]*)<\/text>/g)].map((m) => ({ x: Number(m[1]), label: m[3]!, lit: m[2] === "#ff4a26" }));
     const slotKey = (svg: string): { x: number; label: string; lit: boolean } | undefined => {
       const { weapons } = topBar(320);
-      return tabLetters(svg).find((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + 17)) < 1e-6 && t.lit);
+      return tabLetters(svg).find((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + (BLASTER_BODY_W * CONTENT_SCALE) / 2)) < 1e-6 && t.lit);
     };
     const slotKeyAny = (svg: string): boolean => {
       const { weapons } = topBar(320);
-      return tabLetters(svg).some((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + 17)) < 1e-6);
+      return tabLetters(svg).some((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + (BLASTER_BODY_W * CONTENT_SCALE) / 2)) < 1e-6);
     };
 
     it("renders the icon, counter and lit key 3 when the bonus weapon is active", () => {
@@ -138,7 +152,7 @@ describe("hudSvg", () => {
   it("right-aligns the bonus counter at the blaster edge", () => {
     const { weapons } = topBar(320);
     const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 7 }, icons);
-    expect(svg).toContain(`<text x="${weapons[2]! + WEAPON_W[2]!}" y="16" text-anchor="end"`);
+    expect(svg).toMatch(new RegExp(`<text x="${weapons[2]! + WEAPON_W[2]!}" y="[\\d.]+" text-anchor="end"`));
   });
 
   it("shows the ammo counter and badge", () => {
@@ -151,22 +165,17 @@ describe("hudSvg", () => {
     const svg = hudSvg(320, 200, base, icons);
     const scaleOf = (re: RegExp): number => Number(re.exec(svg)![1]);
     const hand = scaleOf(/translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\) translate\([-\d.]+ [-\d.]+\)"><g transform="translate\(0 2\.6\)"/);
-    const run = scaleOf(/data-icon="run"><g transform="translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\)"/);
     const sound = scaleOf(/data-icon="sound"[^>]*><g transform="translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\)"/);
 
-    it("draws the empty hand 10% smaller than before", () => {
-      expect(hand * HAND_INK_H).toBeCloseTo(0.9 * 0.8 * HAND_INK_H, 6);
-    });
-
-    it("draws the speaker, running figure and hand at one height", () => {
-      expect(ICON_H).toBeCloseTo(0.9 * 0.8 * HAND_INK_H, 6);
+    it("draws the hand at icon height and the speaker smaller", () => {
+      expect(ICON_H).toBeCloseTo(0.9 * 0.8 * CONTENT_SCALE * HAND_INK_H, 6);
       expect(hand * HAND_INK_H).toBeCloseTo(ICON_H, 6);
-      expect(run * RUN_INK_H).toBeCloseTo(ICON_H, 6);
-      expect(sound * SPEAKER_INK_H).toBeCloseTo(ICON_H, 6);
+      expect(sound * SPEAKER_INK_H).toBeCloseTo(SPEAKER_H, 6);
+      expect(SPEAKER_H).toBeLessThan(ICON_H);
     });
 
-    it("keeps picked item icons at their size", () => {
-      expect(HAND_BOX.h).toBeCloseTo(13 * 0.8, 6);
+    it("scales picked item icons with the panel content", () => {
+      expect(HAND_BOX.h).toBeCloseTo(13 * 0.8 * CONTENT_SCALE, 6);
     });
   });
 
@@ -180,17 +189,20 @@ describe("hudSvg", () => {
 
     it("replaces the hand with the shown item and labels it with its name", () => {
       const svg = hudSvg(320, 200, { ...base, item: "craneKey" }, icons);
-      expect(imageX(svg, "craneKey.png") + ICON.w / 2).toBeCloseTo(handX(bar)! + HAND_BOX.w / 2, 6);
+      expect(imageX(svg, "craneKey.png")).toBeGreaterThan(0);
       expect(handX(svg)).toBeNull();
       expect(svg).toContain(">crane key</text>");
       expect(svg).not.toContain(">nothing</text>");
     });
 
-    it("centres the label in the free space right of the icon column", () => {
+    it("centres the icon, one slot gap and the name together in the item panel", () => {
       const { inv, invW } = topBar(320);
       const svg = hudSvg(320, 200, { ...base, item: "craneKey" }, icons);
       const x = Number(/<text x="([\d.]+)"[^>]*>crane key<\/text>/.exec(svg)![1]);
-      expect(x).toBeCloseTo((inv + SLOT.pad + SLOT.iconW + SLOT.gap + inv + invW - SLOT.pad) / 2, 6);
+      const [, iconX, iconW] = /<image href="craneKey.png" x="([\d.]+)" y="[\d.]+" width="([\d.]+)"/.exec(svg)!.map(Number);
+      const half = ("crane key".length * READOUT_SIZE * MONO_ADVANCE) / 2;
+      expect(x - half - (iconX! + iconW!)).toBeCloseTo(SLOT.gap, 6);
+      expect(iconX! - inv).toBeCloseTo(inv + invW - (x + half), 6);
     });
 
     it("shows the icon and name of a newly drawn item", () => {
@@ -215,6 +227,13 @@ describe("hudSvg", () => {
     expect(svg).toContain(keyText("ALT"));
     expect(svg).toContain(keyText("ENTER"));
     expect(hudSvg(320, 200, { ...base, bonus: true }, icons)).toContain(keyText("3"));
+  });
+
+  it("centres one ENTER tab on the item panel", () => {
+    const { inv, invW } = topBar(320);
+    const svg = hudSvg(320, 200, { ...base, item: "craneKey" }, icons);
+    const at = (label: string): number => Number([...svg.matchAll(new RegExp(`<text x="([\\d.]+)"[^>]*font-size="3\\.4"[^>]*>${label}</text>`, "g"))].at(-1)![1]);
+    expect(at("ENTER")).toBeCloseTo(inv + invW / 2, 6);
   });
 
   it("glows red only the key of the selected weapon", () => {
