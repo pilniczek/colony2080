@@ -76,7 +76,7 @@ Unconfirmed: whether door 17 must come before acid tank 14, and whether the ship
 
 - Player and enemy sprite sizes and offsets (likely a table inside `KLEV1.EXE`).
 - Object and trigger placement for levels 5-9. `KLEV1.EXE` runs every level (`-levelN`, level number `[0xDC78]`, init dispatch `4:0x80D6`); levels 1-4 are decoded (reports 10, 13-16).
-- Level 1 floor tile list (`7:0xC9C8`): levels 2-4 fall when the tile under the hero is not a floor tile, so report 13's "no floor collision" needs a recheck.
+- Level 1 floors (report 13, Floor tiles): the floor test, fall and jump run in level 1, but M11 has no hole or ledge a reached floor meets, so the hero never falls. Open: what an empty lift stop shows (its deck tiles stay floor).
 - Physics values (jump distance, speeds), animation frame counts. No jump, ladder or melee seen in level 1 footage.
 - Invasion year: 2013 vs 2018 vs 2028 across sources.
 

@@ -6,7 +6,7 @@ Status: draft. Machine-readable copy (local only): `gamedata/disasm/level1_layou
 
 - **15 lifts**, one 24-byte slot each at `ds:0x4C90 + 0x18 * (n - 1)`. 14 have two stops, lift 14 has three. Lift 10 is the damaged lift: no travel until repaired. Every stop row shows the lift deck tiles `(9,2) (9,3) (9,4)` at exactly the lift columns: 15 of 15 lifts, 31 of 31 stops. **[code] [map]**
 - **Items** sit in an 11-record table (`0x111` bytes per record). Five lie on the map: crowbar, controller, crane key, the corpse card and the E-blaster. The other six are given by tasks. **[code]**
-- **No floor collision and no ladders.** The hero moves along floor bands only. The row changes only by lifts and two scripted teleports (the metro tunnel). **[code]** Recheck: the engine has a per-level floor tile list with falling (level 1 list at `7:0xC9C8`, reports 14-16). **[open]**
+- **Floor tiles and falling run in level 1 too, but M11 gives them nothing to do.** The floor test, the fall and the jump are shared by every level; level 1 has its own floor tile list. In M11 every floor tile lies on the ten plank rows or the ship deck (row 41), with no hole inside any walk segment, and every lift stop row is floor. The hero never falls in normal play and the one-row ledge climb has no ledge to use. No ladders. See [Floor tiles](#floor-tiles). **[code] [map]**
 - **Horizontal blocking** comes from three sources: a per-level list of wall tiles checked in the hero stand row, two small wall tables (the two "unknown" tables of report 10), and a code zone for the acid guard. **[code]**
 
 ## Coordinate frame
@@ -95,6 +95,35 @@ The water and plasma columns match the M13 and M15 diffs (columns 20 and 103). *
 - **Card door.** Map tile wall: the stand-row tile at column 49, row 22 is `(10,32)` (solid) in M11 and `(10,31)` (open) in M14. **[map]**
 - **Train door.** It does not block walking. It gates the tunnel teleport. **[code]**
 
+## Floor tiles
+
+- **Test.** Each frame `7:0xB06C` clears the support pair `[0xDB42]`/`[0xDB43]`. At a whole row (`[0xDB48]` = 0) the scan stores the plank-row tile (row engine y + 6) inside a window of about -28..+14 px (facing right) or -26..+16 px (facing left) of the hero centre, when the tile is in the level list. Level 1 is the branch at `7:0xC9C8` (`[0xDC78]` = 1). **[code]**
+- **Level 1 list:** sheet 7 tiles 1, 3-8, 14-23; sheet 9 tiles 2-5, 7, 12-14. The lift deck `(9,2-4)` is in it. Plank end tile `(7,2)` is not. **[code]** M11 uses 20 of these 25 pairs, 978 cells; M12-M16 do not change any floor cell. **[map]**
+- **Fall.** `7:0x8A2E-0x8AFD` has no level check: not on a moving lift (`[0x3BD9]`), no support and not jumping, the hero enters the fall state and drops 6 px per tick; `3:0x67D0` turns each 24 px into a row. A riding lift sets support itself (`7:0x58EF`). Nothing in the fall touches energy, so there is no fall damage (report 16). **[code]**
+- **Jump.** `7:0x85D2-0x8625` starts the 32 px jump (states 0x43-0x5A) with no level check, so it exists in level 1. It lands one row up only on a floor tile there, and no floor tile in M11 sits one row above a reachable floor, so the ledge climb never applies. **[code] [map]**
+- **Map tiles are static.** Nothing writes the map buffer (`ds:0x7610`) during play, so the deck tiles at every stop row count as floor whether the lift is there or not. **[code] [map]** What an empty stop shows on screen is **[open]**.
+
+Floor runs in M11 (columns, lift stop shafts included):
+
+| Row | Floor cells | Reached segments (report above) |
+|---|---|---|
+| 10 | 7-21, 31-68 | 39-64 |
+| 16 | 19-126 | 19-126 |
+| 23 | 11-126 | 19-48, 50-91, 101-112, 117-126 |
+| 30 | 29-140 | 29-67, 75-126 |
+| 37 | 23-140 | 29-140 |
+| 41 | 8-19 | 8-13 |
+| 44 | 23-40, 78-140 | 22-37, 78-101, 103-140 |
+| 51 | 23-139 | 22-70, 78-113 |
+| 59 | 0-140 | 8-131 |
+| 70 | 10-84 | 10-16, 21-39, 57-84 |
+| 75 | 10-54 | 10-19, 21-46 |
+
+- Every reached segment lies on floor except column 22 on rows 44 and 51 (tiles `(7,2)` and `(9,47)`). The ship hull wall table stops the hero centre 3 px short of column 23, inside the support window, so he does not fall there. **[inferred]** (the window's tile reference point is not traced).
+- The only gap in a plank row next to a segment is row 10, columns 22-30, west of the crane floor behind its wall. **[map]**
+- Lifts 5 and 7 pass rows 44 (columns 8-10, 67-69) and 51 (8-10) without floor tiles, but no segment reaches those cells. **[map]**
+- The lift graph is a tree and lifts never move without the hero, so he always finds the deck at his stop. **[inferred]**
+
 ## Map variants
 
 Order follows the task chain: M11 start, M12 train door, M13 valve, M15 plasma, M14 card door, M16 acid guard dead. Each variant keeps the earlier changes. **[map]**
@@ -160,7 +189,7 @@ Lift 14 also stops on floor 23 (columns 117-126).
 
 ## Notes for the port
 
-- The original has no holes in floors: the plank row inside every walk segment counts as solid, whatever tile it shows. Shaft cells (lift columns from top stop to bottom stop) are open. Lifts 5 and 7 pass floors 44 and 51 only inside segments no lift reaches, so no reached floor has an open shaft.
+- The original has no holes in reached floors (see [Floor tiles](#floor-tiles)). Shaft cells are open only between stops: every stop row is floor in the original, with or without the deck. `map.json` agrees on every reached plank cell and differs only there: it leaves all 31 stop cells open (`.`, 3 columns each, at the lift columns and stop rows of the lift table).
 - The task web in `config/levels/mesto/tasks.json` lists "openDoor vs acidGuard ordering" as unconfirmed. Reach settles it: the card door comes first (the acid tank is reached through it).
 - The original lifts cannot be called. The clone may differ, but start stops then decide which routes exist.
 
@@ -173,7 +202,7 @@ Our hero falls, and floors sit 7 rows apart, the same as `fallDeathCells`: a hol
 | 52-54, 17 | 15 (crane floor, bottom 16) | floor 16 to floor 23, past lifts 12 and 14 |
 | 33-35, 31 | 11 (bottom 30) | floor 30 to floor 37, past the damaged lift 10 |
 
-With the deck away the hero drops one row into a 3-wide pit. A walk or standing jump does not get out, a running jump does from any pit cell, both ways (tested in `reach.test.ts`). The deck cannot come down on him: lifts move only with the hero on them. Drops down a lift's own shaft count as riding it. Drops of more than `fallDeathCells` kill the hero and reset the map, so they stay open. The route test (`src/game/level/route.test.ts`) runs the whole task web from the spawn with lift positions tracked (no remote call).
+The original has no such pit: the stop row stays floor (see [Floor tiles](#floor-tiles)). With the deck away our hero drops one row into a 3-wide pit. A walk or standing jump does not get out, a running jump does from any pit cell, both ways (tested in `reach.test.ts`). The deck cannot come down on him: lifts move only with the hero on them. Drops down a lift's own shaft count as riding it. Drops of more than `fallDeathCells` kill the hero and reset the map, so they stay open. The route test (`src/game/level/route.test.ts`) runs the whole task web from the spawn with lift positions tracked (no remote call).
 
 ## Confidence
 
@@ -182,4 +211,4 @@ With the deck away the hero drops one row into a 3-wide pit. A walk or standing 
 - Wall tile list and stand-row rule: HIGH (code). Exact stopping distance in px: MEDIUM.
 - Wall-table column equivalents: MEDIUM (whole-cell rounding of pixel offsets).
 - Acid guard zone: HIGH for the range, LOW for its effect on energy.
-- No ladders or stairs: HIGH (the hero row changes only in lift and teleport code).
+- Floor list, fall and jump code running in level 1: HIGH (code, no level check). No ladders, stairs or ledges: HIGH (every M11 floor tile is on a plank row or the ship deck). No fall in normal play: MEDIUM (column 22 support window inferred).
