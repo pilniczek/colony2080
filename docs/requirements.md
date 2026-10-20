@@ -125,6 +125,8 @@ flowchart LR
 | Stack inventory | Every picked item stays; the newest picked is shown. The inventory screen on `I` shows any held item. A use needs the shown item and keeps it, as in the original, unless the task consumes it; only the bar trade of the ship part for the decoder does, then the newest remaining is shown (2026-10-19) | user |
 | Inventory screen | `I` opens a full-screen inventory after the original layout (item list, X-BOT statistics, big robot, static item picture), English labels, game paused; Up / Down move, ENTER shows the item in the HUD and closes, `I` / Esc close. Spec: `docs/superpowers/specs/2026-10-19-inventory-screen-design.md` (2026-10-19) | user |
 | Shootable props | A prop with `shootable` takes hero bullets and beams; after `hits` hits it changes state and gives its flags (the crashed ship hull). Other props block neither the hero nor bullets (2026-10-19) | user (rule), Claude's call (hit count) |
+| Crane level | No roof over the crane: plank row 10 stays open over it (cols 22-30) and its chain runs up to the map top. No mast wall at cols 36-38: a control panel marks the winch use spot (x 40, floor 10) and does not stop the hero, who can walk west and drop through the gap to floor 16 past lift 14 (2026-10-20) | user |
+| Debug cheats | The `;` cheat box also takes `moveto(x,y)` (hero to that cell, world.json coordinates) and `c2080ispowerful` (the mission's special weapon at full ammo, its pickup gone, no film). `cheats.html`, linked from the home Dev list, lists every code (2026-10-20) | user |
 
 ## Config drafts
 
