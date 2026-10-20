@@ -1,3 +1,4 @@
+import type { CutsceneId } from "../cutscene";
 import type { Platform } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
@@ -90,6 +91,7 @@ export interface SandboxWorld {
   flags: Set<string>;
   tasks: Task[];
   subtitle: Subtitle | null;
+  cutscene: { id: CutsceneId; prop: Prop; t: number } | null;
   complete: boolean;
   source: SandboxJson;
 }
@@ -169,6 +171,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     flags: new Set(),
     tasks: data.tasks === undefined ? [] : loadTasks(data.tasks),
     subtitle: null,
+    cutscene: null,
     complete: false,
     source: data,
   };

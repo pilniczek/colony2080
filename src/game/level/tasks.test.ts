@@ -176,3 +176,15 @@ describe("loadTasks", () => {
     expect(tasks.find((t) => t.id === "tradeShipPart")!.requires).toEqual(["item:shipPart", "flag:partWanted"]);
   });
 });
+
+describe("task cutscene", () => {
+  const task = { id: "t", object: "door", requires: ["item:crowbar"], gives: [], subtitle: "Open." };
+
+  it("keeps a known cutscene id", () => {
+    expect(loadTasks({ tasks: [{ ...task, cutscene: "crowbarDoor" }] })[0]!.cutscene).toBe("crowbarDoor");
+  });
+
+  it("rejects an unknown cutscene id", () => {
+    expect(() => loadTasks({ tasks: [{ ...task, cutscene: "nope" }] })).toThrow("task t: unknown cutscene: nope");
+  });
+});

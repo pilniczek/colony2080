@@ -4,7 +4,7 @@ import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
 import { callLift, liftAt, liftGoes, onGround, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
-import { runUse, say } from "../level/tasks";
+import { openTask, runUse, say } from "../level/tasks";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
@@ -298,8 +298,11 @@ function startAttack(s: Step, state: "attack" | "duckAttack"): void {
 }
 
 function use(s: Step): boolean {
-  if (!touching(s, ...USABLE) || !s.consume("useItem")) return false;
-  enter(s.h, "use");
+  const prop = touching(s, ...USABLE);
+  if (!prop || !s.consume("useItem")) return false;
+  const cutscene = prop.kind === "panel" ? undefined : openTask(s.world, prop)?.cutscene;
+  if (cutscene) s.world.cutscene = { id: cutscene, prop, t: 0 };
+  else enter(s.h, "use");
   return true;
 }
 

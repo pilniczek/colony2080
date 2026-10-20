@@ -1,3 +1,4 @@
+import { CUTSCENES, type CutsceneId } from "../cutscene";
 import { ITEMS, type ItemId } from "../items";
 import { pickUp, useShown, type Prop, type SandboxWorld } from "./sandboxLevel";
 
@@ -9,6 +10,7 @@ export interface Task {
   gives: string[];
   state?: number;
   sets?: Record<string, number>;
+  cutscene?: CutsceneId;
   subtitle: string;
 }
 
@@ -57,6 +59,10 @@ function loadTask(json: unknown): Task {
   if (task.consumes.some((token) => itemOf(token) !== null && !used.includes(token))) throw new Error(`task ${id}: consumes an item it does not use`);
   if (typeof t.state === "number") task.state = t.state;
   if (t.sets) task.sets = { ...(t.sets as Record<string, number>) };
+  if (t.cutscene !== undefined) {
+    if (typeof t.cutscene !== "string" || !(t.cutscene in CUTSCENES)) throw new Error(`task ${id}: unknown cutscene: ${String(t.cutscene)}`);
+    task.cutscene = t.cutscene as CutsceneId;
+  }
   return task;
 }
 
@@ -97,8 +103,10 @@ function setState(world: SandboxWorld, id: string, state: number): void {
   for (const prop of world.props) if (prop.id === id) prop.state = state;
 }
 
+export const openTask = (world: SandboxWorld, prop: Prop): Task | undefined => open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
+
 export function runUse(world: SandboxWorld, prop: Prop): void {
-  const task = open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
+  const task = openTask(world, prop);
   if (!task) {
     say(world, hintFor(prop, world));
     return;
