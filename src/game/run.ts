@@ -14,7 +14,7 @@ import { whenIdle } from "../engine/idle";
 import { filmOf, loadFilms, type Cutscene, type CutsceneId } from "./cutscene";
 import { lookAt } from "./cutscene/looks";
 import { drawRobotView } from "./cutscene/robotView";
-import { playFilm } from "./cutscene/play";
+import { playFilm, stepCutscene } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
 import { cheatOf, isCheatKey } from "./cheats";
 import { createFog, loadFog } from "./fog";
@@ -147,6 +147,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   let lastRender = 0;
   let fps = 0;
   let cheatPressed = false;
+  let filmsOff = false;
 
   const freeWidth = (dpr: number): number => {
     const panel = ui.querySelector("[data-panel]");
@@ -328,6 +329,10 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       }
       logInput(frame.held);
       stepWorld(world, hero, frame, cfg, clips, dt, (action) => input.consume(action));
+      if (filmsOff && world.cutscene) {
+        stepCutscene(world, 0, true);
+        input.clearPresses();
+      }
       drainSounds();
       afterStep?.();
     },
@@ -429,26 +434,38 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     }
     if (cheat === "noFog") {
       const fogOn = world.fog === null;
-      applyFog(fogOn);
-      useSandbox.setState({ fogOn });
+      setFog(fogOn);
       say(world, fogOn ? "Fog of war on" : "Fog of war off");
     }
-    if (cheat === "weapon") giveWeapon();
-    if (cheat === "items") giveItems();
+    if (cheat === "weapon") say(world, giveWeapon());
+    if (cheat === "items") say(world, giveItems());
+    if (cheat === "debug") debug();
     if (typeof cheat === "object" && cheat !== null) moveTo(...cheat.moveTo);
   };
 
-  const giveWeapon = (): void => {
-    const props = world.props.filter((p) => p.kind === "weapon");
-    if (!props.length) return say(world, "No special weapon in this mission");
-    for (const p of props) p.taken = true;
-    hero.blaster = tuning().movement.blaster.ammo;
-    say(world, "Picked up E-Blaster");
+  const setFog = (fogOn: boolean): void => {
+    applyFog(fogOn);
+    useSandbox.setState({ fogOn });
   };
 
-  const giveItems = (): void => {
+  const giveWeapon = (): string => {
+    const props = world.props.filter((p) => p.kind === "weapon");
+    if (!props.length) return "No special weapon in this mission";
+    for (const p of props) p.taken = true;
+    hero.blaster = tuning().movement.blaster.ammo;
+    return "Picked up E-Blaster";
+  };
+
+  const giveItems = (): string => {
     const count = pickAll(world);
-    say(world, count ? `Picked up ${count} items` : "Every item already held");
+    return count ? `Picked up ${count} items` : "Every item already held";
+  };
+
+  const debug = (): void => {
+    filmsOff = true;
+    world.immortal = true;
+    if (world.fog !== null) setFog(false);
+    say(world, `Debugging: immortal, no fog, no films. ${giveWeapon()}. ${giveItems()}`);
   };
 
   const moveTo = (x: number, y: number): void => {
