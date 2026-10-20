@@ -70,11 +70,11 @@
   "props": [
     { "kind": "crate", "x": 5 },
     { "kind": "barrel", "x": 24 },
-    { "kind": "item", "item": "crowbar", "x": 9.5 },
-    { "kind": "item", "item": "craneKey", "x": 13.5 },
+    { "kind": "item", "item": "crowbar", "x": 9.5 , "cutscene": "pickCrowbar"},
+    { "kind": "item", "item": "craneKey", "x": 13.5 , "cutscene": "pickCraneKey"},
     { "kind": "object", "id": "trainDoor", "asset": "trainDoor", "x": 15.5, "y": 14, "width": 2, "state": 0 },
     { "kind": "panel", "x": 21.5, "y": 14 },
-    { "kind": "weapon", "weapon": "blaster", "x": 30.5 }
+    { "kind": "weapon", "weapon": "blaster", "x": 30.5 , "cutscene": "pickEBlaster"}
   ],
   "enemies": [
     { "x": 6.5, "y": 4, "facing": 1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400 },

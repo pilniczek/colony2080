@@ -2,8 +2,8 @@ import controls from "@config/controls.json";
 import sandboxJson from "@config/levels/sandbox.json";
 import { SHIELDS_MAX } from "../game/hud/svg";
 import type { Weapon } from "../game/hero/config";
-import { damage, kill } from "../game/hero/hero";
-import { loadSandbox } from "../game/level/sandboxLevel";
+import { damage, halt, kill } from "../game/hero/hero";
+import { loadSandbox, startFilm } from "../game/level/sandboxLevel";
 import { startRun, type Run, type RunStart } from "../game/run";
 import { blasterAmmo, useSandbox } from "./store";
 import { Subtitle } from "../play/Subtitle";
@@ -69,6 +69,10 @@ const commands: SandboxCommands = {
   setFog(on) {
     run.applyFog(on);
     useSandbox.setState({ fogOn: on });
+  },
+  playFilm(id) {
+    startFilm(run.world, id);
+    halt(run.hero);
   },
 };
 
