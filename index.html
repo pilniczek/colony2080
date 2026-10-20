@@ -21,6 +21,14 @@
       li a { color: var(--text); text-decoration: none; }
       li a:hover, li a:focus-visible { color: var(--amber); }
       li small { display: block; color: var(--muted); font-size: 12px; }
+      .options { display: grid; gap: 2px; margin-top: -11px; padding: 6px; background: var(--panel); border: 1px solid var(--amber); border-top: 0; border-radius: 0 0 4px 4px; }
+      .options[hidden] { display: none; }
+      .mission[aria-expanded="true"] { border-color: var(--amber); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+      .option { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding: 6px 10px; min-height: 40px; color: var(--text); text-decoration: none; border-radius: 3px; }
+      .option:hover, .option:focus-visible { background: #2a1d12; color: var(--amber); outline: none; }
+      .option img { width: 48px; height: 30px; object-fit: cover; border: 1px solid var(--edge); grid-column: 1; }
+      .option b { grid-column: 2; font-weight: 400; min-width: 0; overflow-wrap: anywhere; }
+      .option span { color: var(--muted); font-size: 12px; white-space: nowrap; }
       .dev { margin-top: 48px; padding-top: 8px; border-top: 1px dashed var(--edge); }
     </style>
   </head>
@@ -31,7 +39,7 @@
 
       <h2>Mission select</h2>
       <div class="missions">
-        <a class="mission" href="game.html"><b>MISSION 1</b><span>City</span></a>
+        <a class="mission" href="game.html" data-mission="mesto"><b>MISSION 1</b><span>City</span></a>
       </div>
 
       <section class="dev">

@@ -20,6 +20,7 @@ export const PROBLEMS: Record<SaveProblem, string> = {
 export interface SaveMenuOptions {
   mission: string;
   storage: Storage | null;
+  startSlot?: number | null;
 }
 
 export interface SaveMenuDeps extends SaveMenuOptions {
@@ -121,6 +122,12 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     act(menuKey(state, { code: e.code, key: e.key }, slots(), d.mission, d.keys));
   };
   (d.target ?? window).addEventListener("keydown", onKey as EventListener, { capture: true });
+
+  if (d.startSlot != null) {
+    refresh();
+    const entry = slots()[d.startSlot];
+    if (entry?.mission === d.mission) load(entry, { screen: "load", cursor: d.startSlot, typing: null, confirm: false, message: null });
+  }
 
   return {
     step(dt) {

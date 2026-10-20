@@ -1,6 +1,7 @@
 import { loadMesto } from "../game/level/mesto";
 import { startRun, type RunOptions } from "../game/run";
 import { browserStorage } from "../game/save/saveMenu";
+import { slotFromQuery } from "../game/save/slots";
 import { useSandbox } from "../sandbox/store";
 import { Hud } from "../sandbox/ui/Hud";
 import { InventoryScreen } from "../sandbox/ui/InventoryScreen";
@@ -16,7 +17,7 @@ const MISSION = "mesto";
 
 const run = startRun({
   world: loadMesto(),
-  saves: { mission: MISSION, storage: browserStorage() },
+  saves: { mission: MISSION, storage: browserStorage(), startSlot: slotFromQuery(location.search) },
   mapItem: "holoPlan",
   drawOver: (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx),
   ui: (

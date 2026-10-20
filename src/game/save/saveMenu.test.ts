@@ -36,7 +36,7 @@ interface Rig {
   menu: ReturnType<typeof createSaveMenu>;
 }
 
-function rig(storage: Storage = memory()): Rig {
+function rig(storage: Storage = memory(), startSlot: number | null = null): Rig {
   const world = loadMesto();
   const hero = createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
   const input = new Input(controls.keyboard, () => 0, 150);
@@ -45,6 +45,7 @@ function rig(storage: Storage = memory()): Rig {
   const deps: SaveMenuDeps = {
     mission: "mesto",
     storage,
+    startSlot,
     world,
     hero,
     input,
@@ -184,5 +185,28 @@ describe("save menu", () => {
     expect(r.left).toEqual([]);
     r.press("Enter");
     expect(r.left).toEqual(["index.html"]);
+  });
+
+  it("loads the slot the page opened with", () => {
+    const storage = memory();
+    writeSlot(storage, 3, saveOf(rig(storage), 5, (h) => Object.assign(h, { x: 30, ammo: 7 })));
+    const r = rig(storage, 3);
+    expect(useSandbox.getState().menu).toBeNull();
+    expect(r.hero).toMatchObject({ x: 30, ammo: 7 });
+  });
+
+  it("opens the load list with the reason when the opened slot cannot load", () => {
+    const storage = memory();
+    const entry = saveOf(rig(storage), 5, (h) => (h.x = 30));
+    writeSlot(storage, 1, { ...entry, snapshot: { ...entry.snapshot, counts: { ...entry.snapshot.counts, props: 1 } } });
+    const r = rig(storage, 1);
+    expect(useSandbox.getState().menu).toMatchObject({ screen: "load", cursor: 1, message: PROBLEMS.misfit });
+    expect(r.hero.x).toBe(r.world.spawn[0]);
+  });
+
+  it("starts a new game when the opened slot is empty", () => {
+    const r = rig(memory(), 2);
+    expect(useSandbox.getState().menu).toBeNull();
+    expect(r.hero.x).toBe(r.world.spawn[0]);
   });
 });

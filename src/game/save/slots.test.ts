@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Snapshot } from "./snapshot";
-import { readSlots, slotName, writeSlot, type SlotEntry } from "./slots";
+import { readSlots, slotFromQuery, slotHref, slotName, writeSlot, type SlotEntry } from "./slots";
 
 const memory = (): Storage => {
   const data = new Map<string, string>();
@@ -44,5 +44,12 @@ describe("slots", () => {
     junk.setItem("c2080.save.C", JSON.stringify({ ...entry("mesto", 1), savedAt: "now" }));
     junk.setItem("c2080.save.D", JSON.stringify({ ...entry("mesto", 1), snapshot: null }));
     expect(readSlots(junk)).toEqual([null, null, null, null, null]);
+  });
+
+  it("links a slot by its letter and reads it back from the query", () => {
+    expect(slotHref("game.html", 2)).toBe("game.html?slot=C");
+    expect(slotFromQuery("?slot=C")).toBe(2);
+    expect(slotFromQuery("?slot=Z")).toBeNull();
+    expect(slotFromQuery("")).toBeNull();
   });
 });

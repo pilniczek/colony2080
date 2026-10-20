@@ -18,6 +18,20 @@ export const missionName = (mission: string): string => MISSION_NAMES[mission] ?
 
 export const slotName = (mission: string, typed: string): string => (typed ? `${missionName(mission)} - ${typed}` : missionName(mission));
 
+const two = (n: number): string => String(n).padStart(2, "0");
+
+export const savedStamp = (ms: number): string => {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())} ${two(d.getHours())}:${two(d.getMinutes())}`;
+};
+
+export const slotHref = (page: string, i: number): string => `${page}?slot=${SLOT_IDS[i]}`;
+
+export const slotFromQuery = (search: string): number | null => {
+  const i = SLOT_IDS.indexOf(new URLSearchParams(search).get("slot") as (typeof SLOT_IDS)[number]);
+  return i < 0 ? null : i;
+};
+
 const key = (prefix: string, i: number): string => `${prefix}${SLOT_IDS[i]}`;
 
 const PICTURE_PREFIX = "data:image/";

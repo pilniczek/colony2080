@@ -1,5 +1,5 @@
 import type { Rect } from "../geometry";
-import type { Slots } from "../save/slots";
+import { savedStamp, type Slots } from "../save/slots";
 import { BOLD, box, image, INV, INVENTORY_BOXES, INVENTORY_DEFS, label, MONO } from "./inventory";
 import { HUD_H, HUD_MIN_W } from "./layout";
 import type { MenuState } from "./menuKeys";
@@ -27,13 +27,6 @@ const text = (x: number, y: number, size: number, fill: string, value: string, a
   `<text x="${x}" y="${y}" font-family="${MONO}" font-size="${size}" fill="${fill}" ${attrs}>${escaped(value)}</text>`;
 
 const pick = (x: number, y: number, w: number, h: number): string => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${INV.pick}"/>`;
-
-const two = (n: number): string => String(n).padStart(2, "0");
-
-const stamp = (ms: number): string => {
-  const d = new Date(ms);
-  return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())} ${two(d.getHours())}:${two(d.getMinutes())}`;
-};
 
 function backdrop(W: number, H: number, robot: HudIcon): string {
   const r = INVENTORY_BOXES.robot;
@@ -74,7 +67,7 @@ function slotList(s: Extract<MenuState, { screen: "save" | "load" }>, slots: Slo
       (on ? pick(b.x + 2, y, b.w - 4, SLOT_ROW - 2) : "") +
       text(b.x + 6, y + 11, 7.2, on ? "#fff" : INV.label, String.fromCharCode(65 + i)) +
       text(b.x + 18, y + 11, 6, on ? "#fff" : slot || typing ? INV.name : INV.frame, name.toUpperCase()) +
-      (slot ? text(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, stamp(slot.savedAt)) : "") +
+      (slot ? text(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, savedStamp(slot.savedAt)) : "") +
       picture
     );
   }).join("");
