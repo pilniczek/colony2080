@@ -111,7 +111,7 @@ describe("blaster ammo", () => {
 });
 
 describe("hud state", () => {
-  const base = { energy: 50, shields: 2, ammo: 30, running: true, item: null, max: 100 } as const;
+  const base = { energy: 50, shields: 2, ammo: 30, running: true, soundOn: true, item: null, max: 100 } as const;
 
   it("hides slot 3 until the hero owns the E-Blaster", () => {
     expect(hudState({ ...base, weapon: "gun", blaster: null })).toMatchObject({ bonus: false, weapon: 0 });
@@ -121,5 +121,10 @@ describe("hud state", () => {
   it("shows slot 3 with the E-Blaster ammo once owned, active while armed", () => {
     expect(hudState({ ...base, weapon: "gun", blaster: 0 })).toMatchObject({ bonus: true, bonusAmmo: 0, weapon: 0 });
     expect(hudState({ ...base, weapon: "blaster", blaster: 321 })).toMatchObject({ bonus: true, bonusAmmo: 321, weapon: 2, life: 50 });
+  });
+
+  it("passes the sound switch to the sound plate", () => {
+    expect(hudState({ ...base, weapon: "gun", blaster: null })).toMatchObject({ soundOn: true });
+    expect(hudState({ ...base, soundOn: false, weapon: "gun", blaster: null })).toMatchObject({ soundOn: false });
   });
 });

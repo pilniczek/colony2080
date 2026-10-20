@@ -10,6 +10,7 @@ export interface HudState {
   life: number;
   shields: number;
   running: boolean;
+  soundOn: boolean;
   item: ItemId | null;
 }
 
@@ -28,6 +29,7 @@ export interface HudIcons {
 export interface HudKeys {
   weapons: string[];
   run: string;
+  sound: string;
   item: string;
 }
 
@@ -86,6 +88,16 @@ const RUN_FIGURE = `<path d="${RUN_LIMBS}" fill="none" stroke="#6a4206" stroke-w
   <circle cx="1.8" cy="-4.1" r="1.6" fill="#6a4206"/>
   <path d="${RUN_LIMBS}" fill="none" stroke="#f0a818" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="1.8" cy="-4.1" r="1.25" fill="#f0a818"/>`;
+
+const SPEAKER_CONE = "M-4.4 -1.5H-2.6L.1 -3.9V3.9L-2.6 1.5H-4.4Z";
+const SPEAKER_WAVES = "M1.6 -1.7Q2.6 0 1.6 1.7M3 -3.4Q4.9 0 3 3.4";
+const SPEAKER_CROSS = "M1.7 -1.7L4.5 1.7M1.7 1.7L4.5 -1.7";
+
+const amberStroke = (d: string): string => `<path d="${d}" fill="none" stroke="#6a4206" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="${d}" fill="none" stroke="#f0a818" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+const speaker = (on: boolean): string => `<path d="${SPEAKER_CONE}" fill="#f0a818" stroke="#6a4206" stroke-width=".7" stroke-linejoin="round"/>
+  ${amberStroke(on ? SPEAKER_WAVES : SPEAKER_CROSS)}`;
 
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
 
@@ -146,6 +158,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${s.bonus ? weapon(blasterIcon(wx[2]!), s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo) : ""}
   ${wx.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x + keyCentre(i), keys.weapons[i] ?? "", s.weapon === i)).join("")}
   ${badge(bar.badge)}
+  ${gridPanel(bar.sound, bar.soundW)}${soundIcon(bar.sound + bar.soundW / 2, s.soundOn)}${keyTab(bar.sound + bar.soundW / 2, keys.sound, s.soundOn)}
   ${gridPanel(bar.run, bar.runW)}${runIcon(bar.run + bar.runW / 2, s.running)}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}
   ${gridPanel(bar.inv, bar.invW)}${item}${keyTab(bar.inv + bar.invW / 2, keys.item)}`;
 }
@@ -177,6 +190,9 @@ const weapon = (content: string, active: boolean): string => `<g filter="url(#${
 
 const runIcon = (x: number, running: boolean): string =>
   `<g filter="url(#${running ? "iconGlow" : "iconDim"})" data-icon="run"><g transform="translate(${x} ${(1.8 + TAB.top) / 2})">${RUN_FIGURE}</g></g>`;
+
+const soundIcon = (x: number, on: boolean): string =>
+  `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${(1.8 + TAB.top) / 2})">${speaker(on)}</g></g>`;
 
 const readout = (x: number, label: string): string =>
   `<text x="${x}" y="${(1.8 + TAB.top) / 2 + READOUT_SIZE * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="${READOUT_SIZE}" fill="${READOUT}">${label}</text>`;

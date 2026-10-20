@@ -29,11 +29,11 @@ describe("viewRect", () => {
 });
 
 describe("topBar", () => {
-  it("has 4 plates and 5 rod gaps at 320", () => {
+  it("has 5 plates and 6 rod gaps at 320", () => {
     const bar = topBar(320);
-    expect(bar.plates).toHaveLength(4);
-    expect(bar.gaps).toHaveLength(5);
-    expect(bar.gridW).toBeCloseTo(WEAPON_W.reduce((a, b) => a + b, 0) + 4 * 12, 9);
+    expect(bar.plates).toHaveLength(5);
+    expect(bar.gaps).toHaveLength(6);
+    expect(bar.gridW).toBeCloseTo(WEAPON_W.reduce((a, b) => a + b, 0) + 4 * 8, 9);
   });
 
   it("fits every item name in the inventory plate with equal side padding", () => {
@@ -44,19 +44,38 @@ describe("topBar", () => {
     expect(invW).toBeGreaterThan(OLD_INV_W);
   });
 
-  it("gives the run plate and the inventory plate equal 3.5 margins around their grids", () => {
+  it("gives the sound, run and inventory plates equal 3.5 margins around their grids", () => {
     const bar = topBar(320);
-    const [, , run, inventory] = bar.plates;
+    const [, , sound, run, inventory] = bar.plates;
+    expect(sound).toEqual([bar.sound - 3.5, bar.sound + bar.soundW + 3.5]);
     expect(run).toEqual([bar.run - 3.5, bar.run + bar.runW + 3.5]);
     expect(inventory![0]).toBeCloseTo(bar.inv - 3.5, 9);
     expect(inventory![1]).toBeCloseTo(bar.inv + bar.invW + 3.5, 9);
   });
 
-  it("has 4 plates and no empty plate on a wide screen, the badge plate takes the leftover width", () => {
+  it("puts the sound plate left of the run plate, as wide as the run plate, one rod gap apart", () => {
+    for (const W of [320, 520]) {
+      const { sound, soundW, run, runW } = topBar(W);
+      expect(soundW).toBe(runW);
+      expect(sound + soundW + 3.5 + 2 + 3.5).toBeCloseTo(run, 9);
+    }
+  });
+
+  it("keeps every plate apart and the badge window inside its plate at 320", () => {
+    const { plates, badge } = topBar(320);
+    expect(badge).toBeGreaterThanOrEqual(plates[1]![0]);
+    expect(badge + 48).toBeLessThanOrEqual(plates[1]![1]);
+    plates.forEach(([a, b], i) => {
+      expect(b).toBeGreaterThan(a);
+      if (i > 0) expect(a).toBeGreaterThan(plates[i - 1]![1]);
+    });
+  });
+
+  it("has 5 plates and no empty plate on a wide screen, the badge plate takes the leftover width", () => {
     const narrow = topBar(320);
     const wide = topBar(467);
-    expect(wide.plates).toHaveLength(4);
-    expect(wide.gaps).toHaveLength(5);
+    expect(wide.plates).toHaveLength(5);
+    expect(wide.gaps).toHaveLength(6);
     expect(wide.plates[0]).toEqual(narrow.plates[0]);
     const width = (bar: ReturnType<typeof topBar>): number => bar.plates[1]![1] - bar.plates[1]![0];
     expect(width(wide) - width(narrow)).toBeCloseTo(467 - 320, 9);

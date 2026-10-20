@@ -10,6 +10,7 @@ const { keyboard } = controls;
 const KEYS: HudKeys = {
   weapons: [keyboard.weapon1, keyboard.weapon2, keyboard.weapon3].map(([code]) => keyLabel(code ?? "")),
   run: keyLabel(keyboard.runToggle[0] ?? ""),
+  sound: keyLabel(keyboard.soundToggle[0] ?? ""),
   item: keyLabel(keyboard.useItem[0] ?? ""),
 };
 
@@ -23,16 +24,18 @@ export interface HudValues {
   blaster: number | null;
   weapon: Weapon;
   running: boolean;
+  soundOn: boolean;
   item: ItemId | null;
 }
 
-export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, item }: HudValues): HudState => ({
+export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, soundOn, item }: HudValues): HudState => ({
   weapon: WEAPON_SLOTS[weapon],
   bonus: blaster !== null,
   bonusAmmo: blaster ?? 0,
   life: (100 * energy) / max,
   shields,
   running,
+  soundOn,
   ammo,
   item,
 });
@@ -47,11 +50,12 @@ export function Hud() {
   const max = useSandbox((s) => s.movement.energy.max);
   const weapon = useSandbox((s) => s.weapon);
   const running = useSandbox((s) => s.running);
+  const soundOn = useSandbox((s) => s.soundOn);
   const item = useSandbox((s) => s.item);
   const filming = useSandbox((s) => s.cutscene);
   const svg = useMemo(
-    () => hudSvg(fit.W, fit.H, hudState({ energy, max, shields, ammo, blaster, weapon, running, item }), icons, KEYS),
-    [fit.W, fit.H, energy, shields, ammo, blaster, max, weapon, running, item, icons],
+    () => hudSvg(fit.W, fit.H, hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, item }), icons, KEYS),
+    [fit.W, fit.H, energy, shields, ammo, blaster, max, weapon, running, soundOn, item, icons],
   );
   return (
     <div

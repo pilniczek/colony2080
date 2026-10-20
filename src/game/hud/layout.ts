@@ -22,7 +22,7 @@ export const SLOT = { pad: PLATE_PAD, iconW: ICON_W, gap: 2 };
 const INVENTORY_W = 2 * SLOT.pad + SLOT.iconW + SLOT.gap + LONGEST_NAME * READOUT_SIZE * MONO_ADVANCE;
 export const WEAPON_W = [35, 20, 57];
 const GRID_MARGIN = 4.4;
-const WEAPON_GAP = 12;
+const WEAPON_GAP = 8;
 const BADGE_WINDOW_HALF = 24;
 
 export interface HudFit {
@@ -36,6 +36,8 @@ export interface TopBar {
   invW: number;
   run: number;
   runW: number;
+  sound: number;
+  soundW: number;
   gridX: number;
   badge: number;
   gridW: number;
@@ -60,21 +62,23 @@ export function viewRect({ W, H, unit }: HudFit): Rect {
 }
 
 const invAt = (W: number): number => W - EDGE - PLATE_PAD - INVENTORY_W;
-const runAt = (W: number): number => invAt(W) - 2 * PLATE_PAD - GAP - RUN_W;
+const leftOf = (x: number): number => x - 2 * PLATE_PAD - GAP - RUN_W;
 const WEAPONS_GRID_W = WEAPON_W.reduce((a, b) => a + b, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
 
 export function topBar(W: number): TopBar {
   const inv = invAt(W);
-  const run = runAt(W);
+  const run = leftOf(inv);
+  const sound = leftOf(run);
   const gridX = EDGE + GRID_MARGIN;
   const gridW = WEAPONS_GRID_W;
   const weaponsEnd = gridX + gridW + GRID_MARGIN;
-  const runPlateStart = run - PLATE_PAD;
-  const badgeEnd = runPlateStart - GAP;
+  const soundPlateStart = sound - PLATE_PAD;
+  const badgeEnd = soundPlateStart - GAP;
   const badge = (weaponsEnd + GAP + badgeEnd) / 2 - BADGE_WINDOW_HALF;
+  const soundGap: Span = [sound + RUN_W + PLATE_PAD, run - PLATE_PAD];
   const runGap: Span = [run + RUN_W + PLATE_PAD, inv - PLATE_PAD];
-  const gaps: Span[] = [[0, EDGE], [weaponsEnd, weaponsEnd + GAP], [badgeEnd, runPlateStart], runGap, [W - EDGE, W]];
+  const gaps: Span[] = [[0, EDGE], [weaponsEnd, weaponsEnd + GAP], [badgeEnd, soundPlateStart], soundGap, runGap, [W - EDGE, W]];
   const plates = gaps.slice(1).map(([a], i): Span => [gaps[i]![1], a]);
   const weapons = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((a, b) => a + b, 0));
-  return { inv, invW: INVENTORY_W, run, runW: RUN_W, gridX, badge, gridW, weapons, gaps, plates };
+  return { inv, invW: INVENTORY_W, run, runW: RUN_W, sound, soundW: RUN_W, gridX, badge, gridW, weapons, gaps, plates };
 }

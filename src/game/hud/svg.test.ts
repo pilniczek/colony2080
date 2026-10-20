@@ -4,8 +4,8 @@ import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState 
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
-const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, item: null };
-const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", item: "ENTER" };
+const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, soundOn: true, item: null };
+const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", sound: "S", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
 const count = (svg: string, text: string): number => svg.split(text).length - 1;
 
@@ -41,6 +41,35 @@ describe("hudSvg", () => {
     const { run, runW } = topBar(320);
     const m = /<g filter="url\(#icon\w+\)" data-icon="run"><g transform="translate\(([\d.]+) /.exec(hudSvg(320, 200, base, icons))!;
     expect(Number(m[1])).toBeCloseTo(run + runW / 2, 9);
+  });
+
+  describe("sound plate", () => {
+    const soundIcon = (svg: string): RegExpExecArray | null => /<g filter="url\(#(icon\w+)\)" data-icon="sound"( data-sound="off")?><g transform="translate\(([\d.]+) /.exec(svg);
+    const soundTab = (svg: string): { x: number; fill: string }[] =>
+      [...svg.matchAll(/<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#[0-9a-f]+)"[^>]*>S<\/text>/g)].map((m) => ({ x: Number(m[1]), fill: m[2]! }));
+
+    it("draws a glowing speaker centred on the sound panel when sound is on", () => {
+      const { sound, soundW } = topBar(320);
+      const m = soundIcon(hudSvg(320, 200, base, icons))!;
+      expect(m[1]).toBe("iconGlow");
+      expect(m[2]).toBeUndefined();
+      expect(Number(m[3])).toBeCloseTo(sound + soundW / 2, 9);
+    });
+
+    it("draws a dimmed crossed speaker when sound is off", () => {
+      const m = soundIcon(hudSvg(320, 200, { ...base, soundOn: false }, icons))!;
+      expect(m[1]).toBe("iconDim");
+      expect(m[2]).toBe(' data-sound="off"');
+    });
+
+    it("lights the S key tab only while sound is on", () => {
+      const { sound, soundW } = topBar(320);
+      const on = soundTab(hudSvg(320, 200, base, icons));
+      const off = soundTab(hudSvg(320, 200, { ...base, soundOn: false }, icons));
+      expect(on.find((t) => t.fill === "#ff4a26")?.x).toBeCloseTo(sound + soundW / 2, 9);
+      expect(off.find((t) => t.fill === "#1a140f")?.x).toBeCloseTo(sound + soundW / 2, 9);
+      expect(off.some((t) => t.fill === "#ff4a26")).toBe(false);
+    });
   });
 
   it("lights one shield light per shield", () => {
@@ -86,7 +115,7 @@ describe("hudSvg", () => {
       const svg = hudSvg(320, 200, base, icons);
       expect(svg).not.toContain('fill="#7ae0ff"');
       expect(slotKeyAny(svg)).toBe(false);
-      expect([...new Set(tabLetters(svg).map((t) => t.label))]).toEqual(["1", "2", "ALT", "ENTER"]);
+      expect([...new Set(tabLetters(svg).map((t) => t.label))]).toEqual(["1", "2", "S", "ALT", "ENTER"]);
     });
   });
 
@@ -151,7 +180,7 @@ describe("hudSvg", () => {
 
   it("glows red only the key of the selected weapon", () => {
     const glowing = (svg: string): string[] => [...svg.matchAll(/fill="#ff4a26"[^>]*>([^<]+)</g)].map((m) => m[1]!);
-    const walking = { ...base, running: false };
+    const walking = { ...base, running: false, soundOn: false };
     expect(glowing(hudSvg(320, 200, walking, icons))).toEqual(["1"]);
     expect(glowing(hudSvg(320, 200, { ...walking, weapon: 1 }, icons))).toEqual(["2"]);
   });
