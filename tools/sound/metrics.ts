@@ -3,8 +3,8 @@ import { BASE_RATE } from "../../src/engine/audio/synth";
 
 const FRAME = 512;
 const HOP = 128;
-const FLOOR_DB = -60;
-const SND_UNITS = 128;
+const BAND_BINS = 16;
+const QUANTIZATION_FLOOR_DB = -50;
 
 export function readSnd(path: string): Float32Array {
   const bytes = readFileSync(path);
@@ -18,7 +18,7 @@ export function envelope(samples: Float32Array, windowMs = 10): Float32Array {
     const end = Math.min(samples.length, (w + 1) * size);
     let sum = 0;
     for (let i = w * size; i < end; i++) sum += samples[i]! * samples[i]!;
-    out[w] = Math.sqrt(sum / size);
+    out[w] = Math.sqrt(sum / (end - w * size));
   }
   return out;
 }
@@ -87,33 +87,53 @@ export function spectrogram(samples: Float32Array): Float32Array[] {
     const im = new Float64Array(FRAME);
     for (let i = 0; i < FRAME; i++) {
       const hann = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (FRAME - 1));
-      re[i] = (samples[f * HOP + i] ?? 0) * SND_UNITS * hann;
+      re[i] = (samples[f * HOP + i] ?? 0) * hann;
     }
     fft(re, im);
-    const bins = new Float32Array(FRAME / 2);
-    for (let k = 0; k < bins.length; k++) {
-      const magnitude = Math.hypot(re[k]!, im[k]!);
-      bins[k] = Math.max(FLOOR_DB, 20 * Math.log10(magnitude + 1e-12));
+    const power = new Float32Array(FRAME / 2);
+    for (let k = 0; k < power.length; k++) {
+      const magnitude = (2 * Math.hypot(re[k]!, im[k]!)) / FRAME;
+      power[k] = magnitude * magnitude;
     }
-    frames.push(bins);
+    frames.push(power);
   }
   return frames;
+}
+
+const toDb = (power: number) => 10 * Math.log10(Math.max(power, 10 ** (QUANTIZATION_FLOOR_DB / 10)));
+
+function bandDb(power: Float32Array): Float32Array {
+  const bands = new Float32Array(power.length / BAND_BINS);
+  for (let b = 0; b < bands.length; b++) {
+    let sum = 0;
+    for (let k = b * BAND_BINS; k < (b + 1) * BAND_BINS; k++) sum += power[k]!;
+    bands[b] = toDb(sum / BAND_BINS);
+  }
+  return bands;
 }
 
 export function spectralDistance(a: Float32Array, b: Float32Array): number {
   const sa = spectrogram(a);
   const sb = spectrogram(b);
-  const n = Math.max(sa.length, sb.length);
-  const silent = new Float32Array(FRAME / 2).fill(FLOOR_DB);
+  const frames = Math.min(sa.length, sb.length);
   let total = 0;
-  for (let f = 0; f < n; f++) {
-    const fa = sa[f] ?? silent;
-    const fb = sb[f] ?? silent;
-    let frame = 0;
-    for (let k = 0; k < fa.length; k++) frame += Math.abs(fa[k]! - fb[k]!);
-    total += frame / fa.length;
+  let counted = 0;
+  for (let f = 0; f < frames; f++) {
+    const fa = bandDb(sa[f]!);
+    const fb = bandDb(sb[f]!);
+    for (let k = 0; k < fa.length; k++) {
+      if (fa[k] === QUANTIZATION_FLOOR_DB && fb[k] === QUANTIZATION_FLOOR_DB) continue;
+      total += Math.abs(fa[k]! - fb[k]!);
+      counted++;
+    }
   }
-  return total / n;
+  return counted === 0 ? 0 : total / counted;
+}
+
+export function rms(samples: Float32Array): number {
+  let sum = 0;
+  for (const v of samples) sum += v * v;
+  return samples.length === 0 ? 0 : Math.sqrt(sum / samples.length);
 }
 
 export function centroids(samples: Float32Array): Float32Array {
@@ -121,7 +141,7 @@ export function centroids(samples: Float32Array): Float32Array {
     let weight = 0;
     let moment = 0;
     for (let k = 0; k < bins.length; k++) {
-      const power = 10 ** (bins[k]! / 10);
+      const power = bins[k]!;
       weight += power;
       moment += power * ((k * BASE_RATE) / FRAME);
     }

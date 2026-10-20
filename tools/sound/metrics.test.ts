@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { BASE_RATE, seeded } from "../../src/engine/audio/synth";
-import { centroids, envelopeCorrelation, readSnd, spectralDistance } from "./metrics";
+import { BASE_RATE, onePole, seeded } from "../../src/engine/audio/synth";
+import { centroids, envelope, envelopeCorrelation, readSnd, spectralDistance } from "./metrics";
 
 const burst = (length: number, offset: number, total: number): Float32Array => {
   const rand = seeded(7);
@@ -34,6 +34,29 @@ describe("metrics", () => {
 
   it("spectralDistance 440 vs 880 sine > 10", () => {
     expect(spectralDistance(sine(440, 0.2), sine(880, 0.2))).toBeGreaterThan(10);
+  });
+
+  it("same-shape noise with different seeds < 3", () => {
+    const lowpassed = (seed: number) => {
+      const rand = seeded(seed);
+      const filter = onePole(1500, "low");
+      return Float32Array.from({ length: 8000 }, () => filter(rand() * 2 - 1));
+    };
+    expect(spectralDistance(lowpassed(1), lowpassed(2))).toBeLessThan(3);
+  });
+
+  it("unequal lengths compare overlap only", () => {
+    const a = sine(440, 0.2);
+    const padded = new Float32Array(Math.round(a.length * 1.2));
+    padded.set(a);
+    expect(spectralDistance(a, padded)).toBeLessThan(0.5);
+  });
+
+  it("envelope gives RMS per window with a true partial window", () => {
+    const out = envelope(new Float32Array(150).fill(0.5), 10);
+    expect(out.length).toBe(2);
+    expect(out[0]).toBeCloseTo(0.5, 6);
+    expect(out[1]).toBeCloseTo(0.5, 6);
   });
 
   it("centroids rise with frequency", () => {
