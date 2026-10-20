@@ -667,12 +667,15 @@ function trooperLegs(ctx) {
 }
 
 function trooperTorso(ctx) {
-  for (const [x, y, len] of [[16.5, 29.5, 5.5], [14.5, 34, 6], [15, 38.5, 5]]) P.beam(ctx, [x, y], [x - len * 0.55, y - len * 0.8], 4.2, "guardMetal");
   P.poly(ctx, [[15, 25], [26, 21], [33, 26], [34, 34], [30, 42], [18, 43], [13, 35]], "flyerShell", 1, { dir: [1, 0] });
   P.poly(ctx, [[22, 23], [30, 24.5], [33.5, 30], [24, 31]], "guardMetal", 2);
   P.poly(ctx, [[24, 32], [33.6, 31], [33, 36], [25, 37]], "guardChrome", 1);
   P.poly(ctx, [[19, 38.5], [31.5, 38], [29.5, 42], [19, 42.5]], "guardMetal", 1);
   if (!ENV.simple) P.line(ctx, [[23, 24], [29, 25.2]], "gc2", 0.5);
+  for (const [x, y, len] of [[16.5, 29.5, 5.5], [14.5, 34, 6], [15, 38.5, 5]]) {
+    P.disc(ctx, x, y, 2.1, "gm1", "gmLine");
+    P.beam(ctx, [x, y], [x - len * 0.55, y - len * 0.8], 4.2, "guardMetal");
+  }
 }
 
 const DOME = { at: [38.5, 20.4], tilt: 0.17, length: 26, r: 4.6 };

@@ -135,12 +135,15 @@ const legs = (ctx: CanvasRenderingContext2D): void => {
 };
 
 const torso = (ctx: CanvasRenderingContext2D): void => {
-  for (const [x, y, len] of BACK_TUBES) beam(ctx, [x, y], [x - len * 0.55, y - len * 0.8], 4.2, "guardMetal");
   poly(ctx, [[15, 25], [26, 21], [33, 26], [34, 34], [30, 42], [18, 43], [13, 35]], "flyerShell", 1, { dir: [1, 0] });
   poly(ctx, [[22, 23], [30, 24.5], [33.5, 30], [24, 31]], "guardMetal", 2);
   poly(ctx, [[24, 32], [33.6, 31], [33, 36], [25, 37]], "guardChrome", 1);
   poly(ctx, [[19, 38.5], [31.5, 38], [29.5, 42], [19, 42.5]], "guardMetal", 1);
   if (!P.simple()) line(ctx, [[23, 24], [29, 25.2]], "gc2", 0.5);
+  for (const [x, y, len] of BACK_TUBES) {
+    disc(ctx, x, y, 2.1, "gm1", "gmLine");
+    beam(ctx, [x, y], [x - len * 0.55, y - len * 0.8], 4.2, "guardMetal");
+  }
 };
 
 const DOME = { at: [38.5, 20.4] as Pt, tilt: 0.17, length: 26, r: 4.6 };
