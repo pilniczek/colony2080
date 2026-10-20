@@ -121,7 +121,7 @@ flowchart LR
 ### Tests
 
 - Recipe render: deterministic, length within 5% of original duration, peak in range, 8-bit levels.
-- Cue emission: unit tests per trigger (shot, punch, steps alternate rates, land, lift start/stop, low energy cadence, inventory stops all, mesto droid silent, film cue on crossing and not after skip).
+- Cue emission: unit tests per trigger (shot, punch, steps alternate rates, land, lift start/stop, low energy cadence, inventory stops all, droid and guard shots cue cannon, film cue on crossing and not after skip).
 - Mute and voice limit in mixer with fake `AudioContext`.
 - Build check: no original SND names or bytes in `dist/` (extend `ORIGINAL_GAME` patterns with SND file names).
 
@@ -129,7 +129,7 @@ flowchart LR
 
 - Key `S`; sound slot left of run slot on the toggles plate; default on.
 - Synth at 11025 Hz base, 8-bit quantize, per-call playback rate.
-- Mission 1 droids stay silent, as original.
+- Mission 1 droids and guards sound on every shot, unlike original (user request: enemy fire must be heard).
 - Voice lines silent.
 - Pause screens stop world voices, UI bus plays on; inventory open stops all, then plays its sound (original order).
 - Electric spark only on hazards marked `sound: "spark"`.
