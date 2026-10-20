@@ -298,7 +298,7 @@ function grainRandom(seed) {
 }
 
 function corners(ctx, r, u) {
-  const inset = 18 * u;
+  const inset = 80 * u;
   const arm = 70 * u;
   const x0 = r.x + inset, y0 = r.y + inset, x1 = r.x + r.w - inset, y1 = r.y + r.h - inset;
   ctx.strokeStyle = CAM.text;
@@ -354,7 +354,7 @@ function securityCam(ctx, w, h, t, label) {
     ctx.fillRect(Math.round(r.x + stuck() * r.w), Math.round(r.y + stuck() * r.h), dot, dot);
   }
   const size = 34 * u;
-  const pad = 40 * u;
+  const pad = 24 * u;
   ctx.font = `${size}px ${CAM.font}`;
   ctx.textBaseline = "top";
   ctx.fillStyle = CAM.text;
