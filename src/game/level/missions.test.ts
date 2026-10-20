@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 import { createHero } from "../hero/hero";
 import { cfg } from "../hero/testWorld";
 import { checkSnapshot, takeSnapshot } from "../save/snapshot";
-import { enemyKinds, loadMission, mapItemOf, missionFromQuery, missionJson, MISSIONS } from "./missions";
+import { mapItemOf, missionFromQuery, MISSIONS } from "./missionIds";
+import { enemyKinds, loadMission, missionJson } from "./missions";
 import type { SandboxWorld } from "./sandboxLevel";
 
 const footRow = (y: number): number => Math.floor(y - 0.001);
@@ -27,6 +28,10 @@ describe("missions", () => {
     expect(missionFromQuery("?mission=jeskyne&slot=B")).toBe("jeskyne");
     expect(missionFromQuery("")).toBe("mesto");
     expect(missionFromQuery("?mission=vezeni")).toBe("mesto");
+  });
+
+  it("falls back to mesto for a mission outside the open list", () => {
+    expect(missionFromQuery("?mission=jungle", ["mesto"])).toBe("mesto");
   });
 
   it("opens the map with the holo plan, from the start in vesnice", () => {

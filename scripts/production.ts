@@ -1,6 +1,7 @@
 import { cpSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
+const DEV_ONLY = /\n?[ \t]*<(\w+) [^>]*\bdata-dev\b[^>]*>[\s\S]*?<\/\1>/g;
 const ORIGINALS_BLOCK = /\n?<!-- originals -->[\s\S]*?<!-- \/originals -->/g;
 const ORIGINALS_OFF = "window.ORIGINALS = { on: false, src: () => null, cutscenes: {} };\n";
 const CONFIG_PREFIX = "window.C28_CONFIG = ";
@@ -13,6 +14,8 @@ const files = (dir: string): string[] => readdirSync(dir).flatMap((name) => {
   const path = join(dir, name);
   return statSync(path).isDirectory() ? files(path) : [path];
 });
+
+export const stripDevOnly = (html: string): string => html.replace(DEV_ONLY, "");
 
 export const stripOriginals = (html: string): string => html.replace(ORIGINALS_BLOCK, "");
 

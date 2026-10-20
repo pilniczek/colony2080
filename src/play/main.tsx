@@ -1,4 +1,5 @@
-import { loadMission, mapItemOf, missionFromQuery } from "../game/level/missions";
+import { mapItemOf, missionFromQuery, MISSIONS } from "../game/level/missionIds";
+import { loadMesto } from "../game/level/mesto";
 import { startRun, type RunOptions } from "../game/run";
 import { browserStorage } from "../game/save/saveMenu";
 import { slotFromQuery } from "../game/save/slots";
@@ -13,12 +14,12 @@ useSandbox.setState({ fogOn: true });
 
 let drawOver: RunOptions["drawOver"];
 
-const MISSION = missionFromQuery(location.search);
+const MISSION = missionFromQuery(location.search, import.meta.env.DEV ? MISSIONS : ["mesto"]);
 
 const startSlot = slotFromQuery(location.search);
 
 const run = startRun({
-  world: loadMission(MISSION),
+  world: import.meta.env.DEV ? (await import("../game/level/missions")).loadMission(MISSION) : loadMesto(),
   saves: { mission: MISSION, storage: browserStorage(), startSlot },
   intro: startSlot === null && MISSION === "mesto" ? "missionStart" : undefined,
   mapItem: mapItemOf(MISSION),

@@ -1,7 +1,7 @@
 import type { ViewTransform } from "../engine/render/view";
 import { kill } from "../game/hero/hero";
 import type { ItemId } from "../game/items";
-import type { MissionId } from "../game/level/missions";
+import type { MissionId } from "../game/level/missionIds";
 import { pickUp } from "../game/level/sandboxLevel";
 import type { Run } from "../game/run";
 import { useSandbox } from "../sandbox/store";
