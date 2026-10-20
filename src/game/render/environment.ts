@@ -1,6 +1,7 @@
 import { FIXED_STEP } from "../../engine/loop";
 import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset, TILE, type Size } from "../env/paint";
+import { ACID_GUARD_FIRING } from "../env/guard";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { RUNG, spikeUnit } from "../hero/look";
@@ -100,18 +101,18 @@ const columns = (e: Env, step: number, count: number): [number, number] => {
   return [Math.max(0, Math.floor((clip.x - pad) / step)), Math.min(count, Math.ceil((clip.x + clip.w + pad) / step))];
 };
 
-function place(e: Env, id: AssetId, x: number, y: number, scale: number, state = 0, size?: Size): void {
+function place(e: Env, id: AssetId, x: number, y: number, scale: number, state = 0, size?: Size, t = 0): void {
   const { ctx } = e;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(scale, scale);
-  drawAsset(ctx, ASSETS[id], { state, t: 0, lod: true, lines: e.lines, size });
+  drawAsset(ctx, ASSETS[id], { state, t, lod: true, lines: e.lines, size });
   ctx.restore();
 }
 
 const k = (e: Env): number => e.cell / TILE;
 
-const put = (e: Env, id: AssetId, x: number, y: number, state = 0, size?: Size): void => place(e, id, x, y, k(e), state, size);
+const put = (e: Env, id: AssetId, x: number, y: number, state = 0, size?: Size, t = 0): void => place(e, id, x, y, k(e), state, size, t);
 
 const px = (e: Env, size: number): number => size / k(e);
 
@@ -250,7 +251,9 @@ export function prop(e: Env, p: Prop): void {
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
   const { dx = 0, dy = 0 } = p.art ?? {};
-  put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0)));
+  const firing = typeof p.fireTime === "number";
+  const state = firing ? ACID_GUARD_FIRING : (icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0)));
+  put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, state, undefined, firing ? p.fireTime! : 0);
 }
 
 export function drawEnvironment(

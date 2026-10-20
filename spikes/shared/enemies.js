@@ -591,8 +591,9 @@ const GUARD_LEVELS = [["top", -38.5], ["visor", -32.5], ["hip", -23.5], ["knee",
 ENV.define({
   id: "acidGuard",
   box: [-56, -56, 54, 56],
-  draw(ctx, state) {
-    GUARD.draw(ctx, state === 1 ? 3 : 0, 0);
+  anim: true,
+  draw(ctx, state, t) {
+    GUARD.draw(ctx, [0, 3, 1][state], t);
   }
 });
 

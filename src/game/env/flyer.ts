@@ -21,7 +21,7 @@ const MUZZLE_UP = 40 * GUN_PX;
 export const FLYER_HULL = { w: 49, h: 18 };
 export const FLYER_MUZZLE: Pt = [MOUNT[0] + MOUNT_MUZZLE - HULL_CENTER[0], MOUNT[1] - MUZZLE_UP - HULL_CENTER[1]];
 
-const fireFrame = (t: number): number => {
+export const fireFrame = (t: number): number => {
   const k = Math.floor(t * TICK_HZ);
   return k < FIRE_TICKS ? k : -1;
 };
@@ -34,7 +34,7 @@ const ellipse = (ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: numb
   if (outline) P.stroke(ctx, outline);
 };
 
-const flash = (ctx: CanvasRenderingContext2D, x: number, y: number, dir: number, k: number, size: number): void => {
+export const flash = (ctx: CanvasRenderingContext2D, x: number, y: number, dir: number, k: number, size: number): void => {
   const heat = k === 0 ? 1 : Math.max(0, 1 - k / 5);
   if (heat <= 0) return;
   const len = size * (1.2 + heat);

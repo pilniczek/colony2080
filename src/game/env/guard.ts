@@ -1,4 +1,4 @@
-import { flyerHull } from "./flyer";
+import { fireFrame, flash, flyerHull } from "./flyer";
 import { P, type EnvAsset } from "./paint";
 
 type Pt = [number, number];
@@ -11,6 +11,12 @@ const GUARD_SIZE = 1.4;
 const SQUASH = 0.5;
 const BROW = 22;
 const GUN_BACK = 2;
+const FIRE_LOOP = 1.4;
+const MUZZLE: Pt = [20 + GUN_BACK, 33.7];
+const ORIGIN: Pt = [58.5, 53.5];
+
+export const ACID_GUARD_MUZZLE: Pt = [(MUZZLE[0] - ORIGIN[0]) * GUARD_SIZE, (MUZZLE[1] - ORIGIN[1]) * GUARD_SIZE];
+export const ACID_GUARD_FIRING = 2;
 const HULL = { nose: 21, rear: 54, top: 9, sx: 33 / 45.8, sy: 24 / 15.2 };
 const LEG = 1 / 12;
 const KNEE_PAD = 0.75;
@@ -160,7 +166,7 @@ const shoulder = (ctx: CanvasRenderingContext2D): void => {
   );
 };
 
-const guardBody = (ctx: CanvasRenderingContext2D): void => {
+const guardBody = (ctx: CanvasRenderingContext2D, fire: number): void => {
   farLeg(ctx);
   box(ctx, 26, 30, 14, 3, "guardMetal", 0);
   sideHead(ctx);
@@ -172,6 +178,7 @@ const guardBody = (ctx: CanvasRenderingContext2D): void => {
     line(ctx, [[22 + g, 32.2], [42 + g, 32.2]], "gm3", 0.5, "butt");
   }
   box(ctx, 20 + g, 31.5, 1.8, 4.5, "guardChrome", 2, { vertical: true });
+  if (fire >= 0) flash(ctx, MUZZLE[0], MUZZLE[1], -1, fire, 4.2);
   shoulder(ctx);
 };
 
@@ -193,7 +200,8 @@ const guardWreck = (ctx: CanvasRenderingContext2D): void => {
 export const acidGuard: EnvAsset = {
   id: "acidGuard",
   box: [-56, -56, 54, 56],
-  draw(ctx, state) {
+  anim: true,
+  draw(ctx, state, t) {
     ctx.scale(GUARD_SIZE, GUARD_SIZE);
     if (state === 1) {
       ctx.translate(-21, 0);
@@ -202,8 +210,8 @@ export const acidGuard: EnvAsset = {
       guardWreck(ctx);
       return;
     }
-    ctx.translate(-58.5, -53.5);
-    guardBody(ctx);
+    ctx.translate(-ORIGIN[0], -ORIGIN[1]);
+    guardBody(ctx, state === ACID_GUARD_FIRING ? fireFrame(t % FIRE_LOOP) : -1);
   },
 };
 

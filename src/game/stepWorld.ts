@@ -4,7 +4,7 @@ import type { ClipSet, MovementConfig } from "./hero/config";
 import { updateHero, type Hero, type HeroEvent } from "./hero/hero";
 import { resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
-import { fireBeam, fireEnemy, fireShots, landPunches, stepShots } from "./shots";
+import { fireBeam, fireEnemy, fireGuards, fireShots, landPunches, stepShots } from "./shots";
 
 export const SUBTITLE_MS = 3500;
 
@@ -27,6 +27,7 @@ export function stepWorld(
   ageSubtitle(world, dt);
   if (world.fog) updateFog(world.fog, hero, cfg, dt);
   for (const enemy of world.enemies) fireEnemy(world, cfg, clips, enemy, updateEnemy(enemy, world.grid, world.fog, hero, clips, cfg, dt));
+  fireGuards(world, hero, cfg, dt);
   stepShots(world, cfg, dt);
   for (const lift of world.lifts) updateLift(lift, cfg.liftSpeed, dt);
   const events = updateHero(hero, input, world, cfg, clips, dt, consume);

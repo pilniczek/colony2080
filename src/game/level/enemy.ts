@@ -161,16 +161,32 @@ export function hitEnemy(e: Enemy, damage = 1, react = true): boolean {
   return true;
 }
 
-function sees(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean {
-  const { body } = e;
-  const dx = hero.x - body.x;
-  if (hero.hidden || hero.energy <= 0 || Math.abs(hero.y - ground(e)) > SAME_FLOOR) return false;
-  if (Math.sign(dx) !== body.facing || Math.abs(dx) > sightCells) return false;
-  const row = Math.floor(ground(e) - 1);
-  for (let col = Math.floor(Math.min(body.x, hero.x)); col <= Math.floor(Math.max(body.x, hero.x)); col++) {
+export interface Watch {
+  x: number;
+  ground: number;
+  facing: -1 | 1;
+}
+
+export function seesHero({ x, ground, facing }: Watch, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean {
+  const dx = hero.x - x;
+  if (hero.hidden || hero.energy <= 0 || Math.abs(hero.y - ground) > SAME_FLOOR) return false;
+  if (Math.sign(dx) !== facing || Math.abs(dx) > sightCells) return false;
+  const row = Math.floor(ground - 1);
+  for (let col = Math.floor(Math.min(x, hero.x)); col <= Math.floor(Math.max(x, hero.x)); col++) {
     if (grid.solid(col, row) || (fog && !seenAt(fog, col, row))) return false;
   }
   return true;
+}
+
+const sees = (e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean =>
+  seesHero({ x: e.body.x, ground: ground(e), facing: e.body.facing }, grid, hero, fog, sightCells);
+
+export function burstStep(time: number, dt: number, burst: Burst): { time: number; fired: number; done: boolean } {
+  const rate = (burst.shots - 1) / (burst.ms / 1000);
+  const before = Math.floor(time * rate + 1e-9);
+  const after = time + dt;
+  const total = Math.min(burst.shots - 1, Math.floor(after * rate + 1e-9));
+  return { time: after, fired: total - before, done: total === burst.shots - 1 };
 }
 
 function patrol(e: Enemy, clips: ClipSet, dt: number, scale = 1): void {
@@ -195,15 +211,13 @@ function shoot(e: Enemy, dt: number): number {
     Object.assign(body, { state: "attack", time: 0, fireTime: 0 });
     return 1;
   }
-  const rate = (burst.shots - 1) / (burst.ms / 1000);
-  const before = Math.floor((body.fireTime ?? 0) * rate + 1e-9);
-  body.fireTime = (body.fireTime ?? 0) + dt;
-  const fired = Math.min(burst.shots - 1, Math.floor(body.fireTime * rate + 1e-9));
-  if (fired === burst.shots - 1) {
+  const step = burstStep(body.fireTime ?? 0, dt, burst);
+  body.fireTime = step.time;
+  if (step.done) {
     Object.assign(body, { state: "idle", time: 0, fireTime: null });
     e.pauseLeft = e.pauseMs / 1000;
   }
-  return fired - before;
+  return step.fired;
 }
 
 function fly(e: Enemy, f: Flight, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, sightCells: number, dt: number): number {

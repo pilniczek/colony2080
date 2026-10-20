@@ -8,6 +8,7 @@ import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
 import { bodyBox, ENEMY_SHOT, FLYER_GUN, hitEnemy, isDead, type Enemy } from "./level/enemy";
 import type { Prop, SandboxWorld } from "./level/sandboxLevel";
+import { gunOf, updateGuard } from "./level/guards";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { ROBOT } from "./robot/xbot";
@@ -218,12 +219,21 @@ export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], c
 const enemyMuzzle = ({ body, flight }: Enemy, clips: ClipSet, cfg: MovementConfig): Pt =>
   flight ? [body.x + body.facing * FLYER_GUN[0], body.y + FLYER_GUN[1]] : heroMuzzle(body, clips, cfg);
 
+function enemyShot(world: SandboxWorld, cfg: MovementConfig, from: number, [x, y]: Pt, facing: number): void {
+  if (!seen(world, x, y)) return;
+  launch(world, cfg, from, { x: from, y, vx: facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x, endX: from + facing * cfg.sightCells });
+}
+
 export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, enemy: Enemy, count: number): void {
-  const { body } = enemy;
-  for (let i = 0; i < count; i++) {
-    const [x, y] = enemyMuzzle(enemy, clips, cfg);
-    if (!seen(world, x, y)) continue;
-    launch(world, cfg, body.x, { x: body.x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x, endX: body.x + body.facing * cfg.sightCells });
+  for (let i = 0; i < count; i++) enemyShot(world, cfg, enemy.body.x, enemyMuzzle(enemy, clips, cfg), enemy.body.facing);
+}
+
+export function fireGuards(world: SandboxWorld, hero: Hero, cfg: MovementConfig, dt: number): void {
+  for (const prop of world.props) {
+    if (!prop.fires) continue;
+    const gun = gunOf(prop);
+    const count = updateGuard(prop, world.grid, world.fog, hero, cfg.sightCells, dt);
+    for (let i = 0; i < count; i++) enemyShot(world, cfg, gun[0], gun, prop.fires.facing);
   }
 }
 

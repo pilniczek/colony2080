@@ -7,6 +7,7 @@ import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { ITEMS, type ItemId } from "../items";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
+import type { PropFire } from "./guards";
 import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
 import { terrain } from "./terrain";
 
@@ -29,6 +30,9 @@ export interface Prop {
   cells?: { col: number; row: number; w: number; h: number };
   shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string };
   hitsTaken?: number;
+  fires?: PropFire;
+  fireTime?: number | null;
+  pauseLeft?: number;
 }
 
 export interface Scenery {

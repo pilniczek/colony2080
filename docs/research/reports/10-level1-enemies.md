@@ -230,3 +230,11 @@ Addresses are in `docs/research/gamedata/disasm/verify/`.
 
 - `config/levels/mesto/enemies.json`: cells and types unchanged. g15 confidence goes from low to medium (code confirms the offset, but he was never seen in play), and its behaviour text now names the weapon id 3 condition.
 - Confidence lines above: "Type names: HIGH from behaviour; draw code not traced" is superseded. Type names are now HIGH from the draw code. The shoot-only guard position is now MEDIUM.
+
+### Guards drawn and firing (2026-10-20, static analysis)
+
+Corrects the guard rows above: "no draw code reads" the marker-15 table is wrong, and the acid guard does more than block.
+
+- **Marker 15 guard is a sprite.** The per-tick routine `5:0x24A4` (called from `7:0x8812`) draws it with `6:0xA237(frame, x, y)` from the buffer `ds:0xDF44`, selector entry 26 = `LEV1.GRA` frame 25. That frame holds 8 frames of 3x3 tiles (72 x 72 px), never mirrored, so the guard always faces right. Content is about 60 x 54 px (2.5 x 2.25 cells): a hunched armoured trooper with a long flat helmet jutting forward, a red eye at its tip and a short antenna at the back, a segmented torso with gold trim, one arm holding a long olive rifle forward at chest height, segmented hips and a wide wedge front foot with a diagonal rear leg. Idle loops frames 1, 2, 3, 2 (3 ticks each). A burst (states 0x14-0x24, 17 ticks) shows frames 6-8, frame 1 for 8 ticks, frame 4 (big muzzle fireball) and frame 5 (small spark). Death runs 11 ticks of explosion effects and leaves no wreck.
+- **Marker 15 guard fires.** When idle, with `Random(15) == 1`, the hero on its row 1-6 cells to its right and `[0xDB48] == 0` (`5:0x24DA-0x2547`), it starts a burst that takes `(6 - shields) / 6 * 6.0` energy on 3 ticks (`5:0x2A65`, `5:0x2D03`, constant at `5:0x24A0`): 18 per burst with 0 shields, plus a hit stagger. Hiding on its row protects the hero. The range is checked only when the burst starts.
+- **Acid guard fires.** `3:0xDF10-0xE429`: on level 1, hero on floor 30 (engine y 24) at x 103-119 and map not `m16`, the game plays `ZABIJ.ANM` (the front-view guard firing both gun pods at the camera), puts 3 blasts on the hero, takes 5 energy and pushes the hero back one cell. Death only through the normal energy check.

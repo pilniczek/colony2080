@@ -3,7 +3,9 @@ import enemies from "@config/levels/mesto/enemies.json";
 import map from "@config/levels/mesto/map.json";
 import tasks from "@config/levels/mesto/tasks.json";
 import { ITEMS } from "../items";
-import { loadMesto } from "./mesto";
+import { cfg, game, run, tick, type Game } from "../hero/testWorld";
+import { ENEMY_SHOT } from "./enemy";
+import { loadMesto, mestoJson } from "./mesto";
 import { terrain } from "./terrain";
 
 const world = loadMesto();
@@ -185,5 +187,48 @@ describe("mesto props", () => {
     const ship = props.find((p) => p.id === "crashedShip")!;
     expect(ship.shootable).toMatchObject({ hits: 7, state: 1, gives: ["flag:hullOpen"] });
     expect(typeof ship.shootable!.subtitle).toBe("string");
+  });
+});
+
+describe("mesto acid guard", () => {
+  const shots = (g: Game) => g.world.projectiles.filter((p) => p.tag === ENEMY_SHOT);
+  const guardOf = (g: Game) => g.world.props.find((p) => p.id === "acidGuard")!;
+
+  it("fires bursts at a hero it sees on its floor and hurts him", () => {
+    const g = game({ x: 101.5, y: 30 }, mestoJson());
+    run(g, 1);
+    expect(g.hero.energy).toBeLessThan(cfg.energy.max);
+  });
+
+  it("starts its burst at once with a bullet from its cannon", () => {
+    const g = game({ x: 101.5, y: 30 }, mestoJson());
+    tick(g);
+    expect(shots(g).length + g.world.sparks.length).toBeGreaterThan(0);
+    expect(guardOf(g).fireTime).toBe(0);
+  });
+
+  it("ignores a hidden hero, a hero out of sight and fires no more once wrecked", () => {
+    const hidden = game({ x: 101.5, y: 30, state: "hide" }, mestoJson());
+    hidden.hero.hidden = true;
+    const far = game({ x: 108.5 - cfg.sightCells - 1.5, y: 30 }, mestoJson());
+    const wrecked = game({ x: 101.5, y: 30 }, mestoJson());
+    guardOf(wrecked).state = 1;
+    for (let i = 0; i < 30; i++) {
+      tick(hidden, ["hide"]);
+      tick(far);
+      tick(wrecked);
+    }
+    for (const g of [hidden, far, wrecked]) {
+      expect(shots(g)).toHaveLength(0);
+      expect(g.hero.energy).toBe(cfg.energy.max);
+    }
+  });
+
+  it("takes no damage from hero bullets", () => {
+    const g = game({ x: 104.5, y: 30, weapon: "gun" }, mestoJson());
+    g.hero.facing = 1;
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.5, ["shoot"]);
+    expect(guardOf(g).state).toBe(0);
   });
 });
