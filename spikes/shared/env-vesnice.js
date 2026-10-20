@@ -715,6 +715,268 @@ define({
   }
 });
 
+function blob(cx, cy, rx, ry, seed, n = 14) {
+  const r = rng(seed);
+  return Array.from({ length: n }, (_, i) => {
+    const a = i / n * 2 * PI, k = 0.65 + r() * 0.5;
+    return [cx + cos(a) * rx * k, cy + sin(a) * ry * k];
+  });
+}
+
+const JUNGLE = ["#0c1410", "#16241a", "#24382a", "#3c5440", "#5e7660"];
+
+function canopy(ctx, cx, cy, w, seed) {
+  const r = rng(seed);
+  for (let i = 0; i < (simple() ? 4 : 8); i++) {
+    const x = cx + (r() - 0.5) * w, y = cy + (r() - 0.5) * w * 0.3;
+    shape(ctx, blob(x, y, w * 0.32, w * 0.16, seed * 10 + i), JUNGLE[1 + (i % 2)]);
+    if (!simple()) shape(ctx, blob(x - w * 0.06, y - w * 0.05, w * 0.18, w * 0.07, seed * 20 + i), JUNGLE[3]);
+  }
+}
+
+function palm(ctx, x, h, lean, seed) {
+  curve(ctx, [[x, 0], [x + lean * 0.4, -h * 0.5], [x + lean, -h]], JUNGLE[0], 4);
+  const r = rng(seed);
+  for (let i = 0; i < 7; i++) {
+    const a = PI + i / 6 * PI + (r() - 0.5) * 0.3, l = 22 + r() * 12;
+    const tip = [x + lean + cos(a) * l, -h + sin(a) * l * 0.5 + l * 0.25];
+    curve(ctx, [[x + lean, -h], [x + lean + cos(a) * l * 0.5, -h + sin(a) * l * 0.5 - 4], tip], JUNGLE[2], 2.4);
+  }
+}
+
+function fern(ctx, x, h, seed) {
+  const r = rng(seed);
+  for (let i = 0; i < (simple() ? 5 : 9); i++) {
+    const a = -PI / 2 + (i / 8 - 0.5) * 2.4, l = h * (0.7 + r() * 0.4);
+    const tip = [x + cos(a) * l, -h * 0.05 + sin(a) * l];
+    shape(ctx, [[x - 1.5, 0], [x + cos(a) * l * 0.5 - 2, sin(a) * l * 0.5], tip, [x + cos(a) * l * 0.5 + 2, sin(a) * l * 0.5], [x + 1.5, 0]], i % 2 ? JUNGLE[3] : JUNGLE[2]);
+  }
+}
+
+function ruinWall(ctx, x, w, h, seed) {
+  const r = rng(seed);
+  const top = [[x, -h * (0.7 + r() * 0.3)]];
+  for (let i = 1; i < 6; i++) top.push([x + w * i / 6, -h * (0.55 + r() * 0.45)]);
+  top.push([x + w, -h * (0.6 + r() * 0.4)]);
+  shape(ctx, [[x, 0], ...top, [x + w, 0]], "#7c8270");
+  ctx.save();
+  path(ctx, [[x, 0], ...top, [x + w, 0]]);
+  ctx.clip();
+  flat(ctx, x, -h, w, h * 0.3, "#949a86");
+  flat(ctx, x + w * 0.7, -h, w * 0.3, h, "#5e6454");
+  flat(ctx, x, -14, w, 2, "#a08a40");
+  ctx.restore();
+}
+
+define({
+  id: "villageBackdrop",
+  box: [0, -170, 320, 0],
+  draw(ctx) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, -170, 320, 170);
+    ctx.clip();
+    flat(ctx, 0, -170, 320, 170, "#1c1a12");
+    for (const [x, w] of [[30, 30], [110, 22], [200, 34], [270, 26]]) flat(ctx, x, -150, w * 0.18, 150, JUNGLE[0]);
+    canopy(ctx, 50, -150, 150, 1);
+    canopy(ctx, 230, -150, 170, 2);
+    canopy(ctx, 150, -175, 120, 3);
+    palm(ctx, 90, 120, 14, 4);
+    palm(ctx, 250, 130, -10, 5);
+    ruinWall(ctx, 0, 130, 75, 6);
+    ruinWall(ctx, 200, 90, 70, 7);
+    ruinWall(ctx, 296, 30, 80, 8);
+    shape(ctx, blob(158, -44, 36, 20, 9), JUNGLE[1]);
+    for (const [x, h, seed] of [[60, 34, 10], [140, 28, 11], [170, 40, 12], [240, 30, 13], [300, 26, 14], [20, 24, 15]]) {
+      ctx.save();
+      ctx.translate(0, -24);
+      fern(ctx, x, h, seed);
+      ctx.restore();
+    }
+    flat(ctx, 0, -26, 320, 18, JUNGLE[1]);
+    if (!simple()) for (let x = 0; x < 320; x += 6) flat(ctx, x, -27 - (x * 7 % 5), 2, 4, JUNGLE[2]);
+    flat(ctx, 0, -8, 320, 8, "#1a1008");
+    for (let x = 4; x < 320; x += 14) flat(ctx, x, -6, 8, 3, "a0");
+    ctx.restore();
+  }
+});
+
+function windows(ctx, x, y, cols, rows, w, h, gap, seed) {
+  const r = rng(seed);
+  for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+    const wx = x + i * (w + gap), wy = y + j * (h + gap);
+    flat(ctx, wx, wy, w, h, "glass", "kLine");
+    if (!simple()) {
+      flat(ctx, wx + w / 2 - 0.5, wy, 1, h, "c1");
+      flat(ctx, wx, wy + h / 2 - 0.5, w, 1, "c1");
+    }
+    if (r() < 0.3) shape(ctx, [[wx + 1, wy + 1], [wx + w * 0.7, wy + 1], [wx + w * 0.3, wy + h * 0.6], [wx + 1, wy + h * 0.8]], "hole");
+  }
+}
+
+define({
+  id: "villageHouse",
+  box: [-4, -126, 220, 0],
+  draw(ctx) {
+    const top = [[0, -96], [10, -104], [22, -100], [30, -112], [130, -112]];
+    shape(ctx, [[0, 0], ...top, [130, -116], [212, -116], [212, 0]], "k2", "kLine");
+    flat(ctx, 128, -120, 86, 5, "k3", "kLine");
+    flat(ctx, 0, -6, 212, 6, "k1", "kLine");
+    for (const x of [0, 66, 128, 198]) {
+      box(ctx, x, -110, 14, 110, "concrete", 2, { vertical: true });
+    }
+    windows(ctx, 18, -94, 4, 3, 9, 9, 3, 1);
+    windows(ctx, 84, -94, 3, 3, 9, 9, 3, 2);
+    windows(ctx, 146, -100, 4, 4, 9, 9, 3, 3);
+    shape(ctx, [[82, -112], [90, -120], [100, -114], [112, -124], [122, -112]], "k2", "kLine");
+    shape(ctx, [[86, -112], [94, -100], [104, -108], [114, -98], [120, -112]], "hole");
+    if (!simple()) {
+      for (const [x, y] of [[96, -112], [104, -116], [110, -110]]) line(ctx, [[x, y], [x + 2, y - 6]], "r2", 0.7);
+      for (const y of [-58, -32]) flat(ctx, 14, y, 52, 1, "k1");
+    }
+    box(ctx, 88, -40, 26, 40, "steel", 0);
+    flat(ctx, 92, -36, 18, 32, "hole", "mLine");
+    for (let x = 146; x < 196; x += 12) box(ctx, x, -24, 8, 18, "concrete", 1, { vertical: true });
+  }
+});
+
+function plankWall(ctx, x, y, w, h) {
+  box(ctx, x, y, w, h, "rust", 1);
+  if (!simple()) for (let yy = y + 4; yy < y + h; yy += 4) flat(ctx, x, yy, w, 0.6, "r0");
+}
+
+define({
+  id: "stiltBuilding",
+  box: [-4, -212, 244, 0],
+  draw(ctx) {
+    for (const x of [24, 108, 192]) {
+      box(ctx, x, -112, 20, 112, "rust", 1, { vertical: true });
+      box(ctx, x - 2, -8, 24, 8, "concrete", 1);
+    }
+    if (!simple()) {
+      line(ctx, [[44, -100], [108, -40]], "rLine", 3);
+      line(ctx, [[44, -100], [108, -40]], "r1", 1.8);
+    }
+    box(ctx, 0, -120, 240, 10, "rust", 2);
+    plankWall(ctx, 6, -192, 228, 72);
+    for (const y of [-182, -150]) {
+      flat(ctx, 6, y - 4, 228, 3, "r3", "rLine");
+      for (let x = 14; x < 226; x += 24) {
+        flat(ctx, x, y, 18, 20, "hole", "rLine");
+        flat(ctx, x + 1, y + 1, 16, 2, "r0");
+        if (!simple()) for (let k = 0; k < 4; k++) flat(ctx, x + 2 + k * 4, y + 17, 1, 3, "r2");
+      }
+    }
+    box(ctx, 0, -196, 240, 6, "rust", 3);
+    for (const x of [16, 52, 96, 140, 176, 220]) {
+      box(ctx, x, -210, 3, 14, "rust", 2, { vertical: true });
+      poly(ctx, [[x - 1, -210], [x + 1.5, -214], [x + 4, -210]], "rust", 2);
+    }
+    for (const x of [0, 236]) box(ctx, x, -196, 4, 86, "rust", 2, { vertical: true });
+  }
+});
+
+const GUARD_PAL = {
+  a0: "#3a3418", a1: "#5c5428", a2: "#7e7440", a3: "#b0a468", aLine: "#141008",
+  m0: "#1c2018", m1: "#30362a", m2: "#4a5040", m3: "#6e7460", mLine: "#0a0c08",
+  c0: "#5a5c50", c1: "#8a8c7c", c2: "#b4b4a2", c3: "#e0e0cc",
+  badge: "#7e7440", trefoil: "#141008", visor: "#e0281e", screen: "#3fa34a", hole: "#120e08"
+};
+const GUARD_H = 60;
+const GUARD_WIDE = 1.18;
+const GUARD_POSE = { hipNear: -14, kneeNear: 18, ankleNear: -4, hipFar: 12, kneeFar: 6, ankleFar: -16, body: 3 };
+const RIFLE_SUPPORT = [40, -14];
+const RIFLE_MUZZLE = [262, -44];
+const guardRigs = {};
+let rifleModel = null;
+
+function rifleParts() {
+  return [
+    { name: "stock", x: -96, y: -60, w: 70, h: 30, mat: "m", tone: 1 },
+    { name: "grip", x: -14, y: -24, w: 22, h: 50, mat: "m", tone: 0 },
+    { name: "receiver", x: -40, y: -66, w: 130, h: 40, mat: "m", tone: 2 },
+    { name: "mag", x: 30, y: -30, w: 26, h: 54, mat: "m", tone: 0 },
+    { name: "scope", x: -10, y: -88, w: 70, h: 18, mat: "c", tone: 1 },
+    { name: "barrel", x: 90, y: -56, w: 160, h: 18, mat: "c", tone: 1 },
+    { name: "guard", x: 90, y: -62, w: 70, h: 30, mat: "m", tone: 1 },
+    { name: "brake", x: 240, y: -60, w: 22, h: 26, mat: "m", tone: 0 }
+  ];
+}
+
+function guardRig() {
+  const key = simple() ? "lod" : "full";
+  if (guardRigs[key]) return guardRigs[key];
+  const { buildSide, locate, solve } = window.XBOT;
+  rifleModel ||= window.GUN.model({ buildParts: rifleParts });
+  const root = buildSide({ enemy: true, lod: simple(), farLimbs: true });
+  const carry = { ...GUARD_POSE, arm: -8, fore: -76 };
+  const grip = window.GUN.toHook(RIFLE_SUPPORT);
+  const far = solve(root, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(root, "hand", carry).transformPoint(new DOMPoint(...grip)));
+  return (guardRigs[key] = { root, pose: { ...carry, ...far } });
+}
+
+function muzzleFlash(ctx, x, y, k) {
+  if (!simple()) glow(ctx, x + 20, y, 70 * k + 20, "a2", 0.7);
+  poly(ctx, [[x, y - 14], [x + 50 * k + 20, y - 26], [x + 30, y - 6], [x + 80 * k + 30, y], [x + 30, y + 6], [x + 50 * k + 20, y + 26], [x, y + 14]], "a1", 2, { line: false });
+  poly(ctx, [[x, y - 8], [x + 40 * k + 14, y], [x, y + 8]], "y3", 2, { line: false });
+}
+
+function backpack(ctx) {
+  ctx.save();
+  ctx.transform(0, 1, -1, 0, 0, 0);
+  box(ctx, -40, -10, 150, 80, "olive", 1);
+  box(ctx, -30, 60, 130, 24, "olive", 0);
+  ctx.restore();
+}
+
+function guardFigure(ctx, fire, tint) {
+  const { root, pose } = guardRig();
+  const { render, FOOT_Y, SIDE_AX, shade } = window.XBOT;
+  const k = GUARD_H / (FOOT_Y - 2);
+  const pal = tint ? shade(GUARD_PAL, tint) : GUARD_PAL;
+  ctx.save();
+  ctx.scale(k * GUARD_WIDE, k);
+  ctx.translate(-SIDE_AX, -FOOT_Y);
+  const t = ctx.getTransform();
+  const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+  const hand = c => {
+    c.save();
+    c.transform(0, 1, -1, 0, 0, 0);
+    rifleModel.draw(c, { pal, lineW, simple: simple() });
+    if (fire >= 0) {
+      c.translate(RIFLE_MUZZLE[0], RIFLE_MUZZLE[1]);
+      c.scale(1.6, 1.6);
+      muzzleFlash(c, 0, 0, fire);
+    }
+    c.restore();
+  };
+  render(ctx, root, { pal, pose, hooks: { hand, back: backpack }, lineW, simple: simple() });
+  ctx.restore();
+}
+
+define({
+  id: "bridgeGuard",
+  box: [-30, -64, 60, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    shadow(ctx, 0, 34, 0.45);
+    if (state === 2) {
+      ctx.save();
+      ctx.translate(30, -9);
+      ctx.rotate(-PI / 2);
+      guardFigure(ctx, -1, { brightness: 0.55, saturate: 0.5 });
+      ctx.restore();
+      if (!simple()) {
+        smoke(ctx, -4, -10, t, 3, 24);
+        spark(ctx, 6, -6, t, 4);
+      }
+      return;
+    }
+    const ph = (t * 4) % 1;
+    guardFigure(ctx, state === 1 && ph < 0.4 ? 1 - ph / 0.4 : -1);
+  }
+});
+
 define({
   id: "smoulderingRemains",
   box: [-4, -30, 52, 0],
