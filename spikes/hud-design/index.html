@@ -36,6 +36,11 @@
   <label>Item <select id="item"><option value="">none</option></select></label>
   <label>Held <select id="held" multiple size="3"></select></label>
   <label>Cursor <input id="cursor" type="number" min="0" max="9" value="0"></label>
+  <label>Menu <select id="menu"><option value="pause">pause</option><option value="save">save</option><option value="load">load</option><option value="gameOver">game over</option></select></label>
+  <label>Menu cursor <input id="menuCursor" type="number" min="0" max="4" value="1"></label>
+  <label><input id="typing" type="checkbox"> Typing</label>
+  <label><input id="confirm" type="checkbox"> Confirm</label>
+  <label><input id="canLoad" type="checkbox" checked> Save exists</label>
 </header>
 <main class="full">
   <figure><figcaption>Vector HUD</figcaption><div id="big"></div></figure>
@@ -44,6 +49,17 @@
 <main class="full">
   <figure><figcaption>Vector inventory screen</figcaption><div id="inventory"></div></figure>
 </main>
+<h2>Pause menu and game over</h2>
+<main class="full">
+  <figure><figcaption>Vector pause menu, save slots, game over</figcaption><div id="menuScreen"></div></figure>
+</main>
+<!-- originals -->
+<main>
+  <figure><figcaption>Original pause screen</figcaption><img src="../../docs/research/video/frames-best/L1_t0276_pause_menu_screen.png" alt="original pause"></figure>
+  <figure><figcaption>Original menu background</figcaption><img src="../../docs/research/gamedata/png/MENU2_f0.png" alt="original menu background"></figure>
+  <figure><figcaption>Original game over</figcaption><img src="../../docs/research/video/frames-best/L1_t0610_KONEC_HRY_after_missile_hit.png" alt="original game over"></figure>
+</main>
+<!-- /originals -->
 <!-- originals -->
 <main>
   <figure><figcaption>Original inventory screen</figcaption><img src="../../docs/research/video/frames-best/L1_KkPeK_t0901_inventory_energy10pct_ammo501_extra324.png" alt="original inventory"></figure>
@@ -500,6 +516,79 @@ function inventoryScreen(W, H, s) {
   ${statsBox(s)}${ammoBox(s)}</g></svg>`;
 }
 
+const MENU = { back: "#0a1f14", grid: "#5a1a14", over: "#ffffff", overEdge: "#2438d0" };
+const MENU_ENTRIES = ["SAVE GAME", "LOAD GAME", "MISSION SELECT"];
+const MENU_BOX = { x: 22, y: 60, w: 128, h: 56 };
+const SLOT_BOX = { x: 10, y: 8, w: 210, h: 184 };
+const SLOT_ROW = 30;
+const PICTURE = { w: 40, h: 24 };
+const GAME_OVER_CHOICES = [["LOAD LAST SAVE", "RESTART MISSION"], ["END", "END"]];
+const SAMPLE_SLOTS = [
+  { name: "City - door open", time: "2026-10-20 21:14" },
+  null,
+  { name: "City - before lift", time: "2026-10-20 21:40" },
+  { name: "City", time: "2026-10-19 18:02" },
+  null
+];
+
+const menuDefs = `<defs><pattern id="menuGrid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="${MENU.grid}" stroke-width=".6"/></pattern>
+  <linearGradient id="shot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a2a1c"/><stop offset=".6" stop-color="#1c2420"/><stop offset="1" stop-color="#0d1210"/></linearGradient></defs>`;
+
+function menuBackdrop(W, H) {
+  const r = INV_BOXES.robot;
+  return `<rect width="${W}" height="${H}" fill="${MENU.back}"/>
+  <g transform="translate(${(W - 320) / 2} ${(H - 200) / 2})" style="opacity:.3">${img(ROBOT_ART, r.x + (r.w - ROBOT_ART.w) / 2, r.y + r.h - ROBOT_ART.h)}</g>
+  <rect width="${W}" height="${H}" fill="url(#menuGrid)"/>`;
+}
+
+const pickRow = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${INV.pick}"/>`;
+
+function pauseMenu(m) {
+  const b = MENU_BOX, row = 12;
+  const rows = MENU_ENTRIES.map((label, i) => {
+    const y = b.y + 16 + i * row, on = i === m.cursor;
+    return (on ? pickRow(b.x + 2, y, b.w - 4, row - 1) : "") + invText(b.x + 8, y + row * .66, 6.4, on ? "#fff" : INV.name, label);
+  }).join("");
+  return invBox(b) + invLabel(b.x + b.w / 2, b.y + 10, 7.6, "MENU") + rows;
+}
+
+function slotList(m) {
+  const b = SLOT_BOX;
+  const rows = SAMPLE_SLOTS.map((slot, i) => {
+    const y = b.y + 16 + i * SLOT_ROW, on = i === m.cursor;
+    const typing = on && m.typing && m.screen === "save";
+    const name = typing ? "City - before li|" : slot ? slot.name : "EMPTY";
+    const picture = slot ? `<rect x="${b.x + b.w - PICTURE.w - 6}" y="${y + 3}" width="${PICTURE.w}" height="${PICTURE.h}" fill="url(#shot)" stroke="${INV.frame}" stroke-width=".5"/>` : "";
+    return (on ? pickRow(b.x + 2, y, b.w - 4, SLOT_ROW - 2) : "") +
+      invText(b.x + 6, y + 11, 7.2, on ? "#fff" : INV.label, String.fromCharCode(65 + i)) +
+      invText(b.x + 18, y + 11, 6, on ? "#fff" : slot ? INV.name : INV.frame, name.toUpperCase()) +
+      (slot ? invText(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, slot.time) : "") + picture;
+  }).join("");
+  const footer = m.confirm ? "OVERWRITE?  ENTER / ESC" : m.typing ? "TYPE A NAME  ENTER SAVES  ESC BACK" : "ENTER SELECTS  ESC BACK";
+  return invBox(b) + invLabel(b.x + b.w / 2, b.y + 10, 7.6, m.screen === "save" ? "SAVE GAME" : "LOAD GAME") + rows +
+    invText(b.x + b.w / 2, b.y + b.h - 4, 5.2, m.confirm ? INV.stat : INV.frame, footer, 'text-anchor="middle"');
+}
+
+function gameOver(W, H, m) {
+  const choices = [GAME_OVER_CHOICES[0][m.canLoad ? 0 : 1], "END"];
+  const rows = choices.map((label, i) => {
+    const y = 128 + i * 13, on = i === m.cursor;
+    return (on ? pickRow(110, y, 100, 12) : "") + invText(160, y + 8.4, 6.4, on ? "#fff" : INV.name, label, 'text-anchor="middle"');
+  }).join("");
+  return `<rect width="${W}" height="${H}" fill="url(#shot)"/><rect width="${W}" height="${H}" fill="#000" opacity=".45"/>
+  <g transform="translate(${(W - 320) / 2} ${(H - 200) / 2})">
+  <text x="160" y="104" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="26" letter-spacing="3" fill="${MENU.over}" stroke="${MENU.overEdge}" stroke-width="2.4" stroke-linejoin="miter" paint-order="stroke">GAME OVER</text>
+  ${invBox({ x: 106, y: 124, w: 108, h: 32 })}${rows}</g>`;
+}
+
+function menuScreen(W, H, m) {
+  const ox = (W - 320) / 2, oy = (H - 200) / 2;
+  if (m.screen === "gameOver") return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${DEFS}${INV_DEFS}${menuDefs}${gameOver(W, H, m)}</svg>`;
+  const body = m.screen === "pause" ? pauseMenu(m) : slotList(m);
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${DEFS}${INV_DEFS}${menuDefs}${menuBackdrop(W, H)}
+  <g transform="translate(${ox} ${oy})">${body}</g></svg>`;
+}
+
 window.INV_BOXES = INV_BOXES;
 
 function state() {
@@ -525,6 +614,9 @@ function draw() {
   $("small").innerHTML = hud(320, HUD_H, s);
   s.cursor = Math.max(0, Math.min(s.cursor, s.held.length - 1));
   $("inventory").innerHTML = inventoryScreen(W, H, s);
+  const screen = $("menu").value;
+  const limit = screen === "pause" ? 2 : screen === "gameOver" ? 1 : 4;
+  $("menuScreen").innerHTML = menuScreen(W, H, { screen, cursor: Math.max(0, Math.min(limit, +$("menuCursor").value)), typing: $("typing").checked, confirm: $("confirm").checked, canLoad: $("canLoad").checked });
 }
 
 document.querySelectorAll("header input, header select").forEach((el) => el.addEventListener("input", draw));
