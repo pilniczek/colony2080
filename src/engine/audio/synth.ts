@@ -19,28 +19,37 @@ export function buffer(seconds: number): Float32Array {
   return new Float32Array(Math.round(seconds * BASE_RATE));
 }
 
+function firstEndingAfter(times: number[], t: number): number {
+  let [lo, hi] = [1, times.length];
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (times[mid]! < t) lo = mid + 1;
+    else hi = mid;
+  }
+  return lo;
+}
+
 export function envelope(points: [number, number][]): (t: number) => number {
+  const times = points.map(([at]) => at);
+  const values = points.map(([, v]) => v);
   return (t) => {
-    for (let i = 1; i < points.length; i++) {
-      const [t0, v0] = points[i - 1] as [number, number];
-      const [t1, v1] = points[i] as [number, number];
-      if (t >= t0 && t <= t1) return t1 === t0 ? v1 : v0 + ((v1 - v0) * (t - t0)) / (t1 - t0);
-    }
-    return 0;
+    const i = firstEndingAfter(times, t);
+    if (i >= times.length) return 0;
+    const [t0, v0, t1, v1] = [times[i - 1]!, values[i - 1]!, times[i]!, values[i]!];
+    if (t < t0) return 0;
+    return t1 === t0 ? v1 : v0 + ((v1 - v0) * (t - t0)) / (t1 - t0);
   };
 }
 
 export function sweep(points: [number, number][]): (t: number) => number {
-  const [first] = points as [[number, number]];
-  const last = points[points.length - 1] as [number, number];
+  const times = points.map(([at]) => at);
+  const values = points.map(([, v]) => v);
   return (t) => {
-    if (t <= first[0]) return first[1];
-    for (let i = 1; i < points.length; i++) {
-      const [t0, v0] = points[i - 1] as [number, number];
-      const [t1, v1] = points[i] as [number, number];
-      if (t <= t1) return t1 === t0 ? v1 : v0 * (v1 / v0) ** ((t - t0) / (t1 - t0));
-    }
-    return last[1];
+    if (t <= times[0]!) return values[0]!;
+    const i = firstEndingAfter(times, t);
+    if (i >= times.length) return values[values.length - 1]!;
+    const [t0, v0, t1, v1] = [times[i - 1]!, values[i - 1]!, times[i]!, values[i]!];
+    return t1 === t0 ? v1 : v0 * (v1 / v0) ** ((t - t0) / (t1 - t0));
   };
 }
 
