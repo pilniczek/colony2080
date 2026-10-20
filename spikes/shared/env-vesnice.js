@@ -1,6 +1,6 @@
 (() => {
 const { define, P } = window.ENV;
-const { rng, path, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, tones, shape, line, curve, beam, slab, mesh, truss, hazard } = P;
+const { rng, path, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, tones, shape, line, curve, beam, slab, mesh, truss, hazard, text } = P;
 const { PI, sin, cos, min, max, abs } = Math;
 
 const simple = () => window.ENV.simple;
@@ -399,6 +399,319 @@ define({
     if (!simple()) for (let i = 0; i < 4; i++) flat(ctx, 126 + i * 6, -33 - abs(sin(t * 3 + i)) * 3, 3, 1 + abs(sin(t * 3 + i)) * 3, "screen");
     lamp(ctx, 128, -20, "screen", Math.floor(t * 2) % 2 === 0);
     lamp(ctx, 136, -20, "a1");
+  }
+});
+
+const LIGHT = [-0.6, -0.8];
+const ROCK = ["#2a2620", "#4a4436", "#6e6450", "#9a8e74"];
+
+function facets(ctx, pts, cx, cy, t, edge) {
+  pts.forEach((a, i) => {
+    const b = pts[(i + 1) % pts.length];
+    const nx = b[1] - a[1], ny = a[0] - b[0], n = Math.hypot(nx, ny) || 1;
+    const d = (nx * LIGHT[0] + ny * LIGHT[1]) / n;
+    ctx.fillStyle = color(d > 0.6 ? t[3] : d > 0.05 ? t[2] : d > -0.55 ? t[1] : t[0]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy); ctx.lineTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = ctx.fillStyle;
+    ctx.lineWidth = P.lw(ctx, 0.6);
+    ctx.stroke();
+  });
+  path(ctx, pts);
+  stroke(ctx, edge);
+}
+
+function boulder(ctx, cx, cy, r, seed, t = ROCK) {
+  const rnd = rng(seed);
+  const n = simple() ? 6 : 7 + Math.floor(rnd() * 3);
+  const a0 = rnd() * PI;
+  const pts = Array.from({ length: n }, (_, i) => {
+    const a = a0 + i * 2 * PI / n + (rnd() - 0.5) * 0.4;
+    const k = r * (0.8 + rnd() * 0.25);
+    return [cx + cos(a) * k * 1.15, cy + sin(a) * k * 0.8];
+  });
+  facets(ctx, pts, cx + r * 0.25, cy + r * 0.2, t, "kLine");
+}
+
+function braced(ctx, x, y, w, h) {
+  box(ctx, x, y, w, h, "steel", 1);
+  if (!simple()) {
+    line(ctx, [[x + 3, y + 3], [x + w - 3, y + h - 3]], "m2", 2.2);
+    line(ctx, [[x + w - 3, y + 3], [x + 3, y + h - 3]], "m0", 2.2);
+  }
+  flat(ctx, x + 1, y + 1, w - 2, 1, "m3");
+  if (!simple()) for (const [dx, dy] of [[2.5, 2.5], [w - 2.5, 2.5], [2.5, h - 2.5], [w - 2.5, h - 2.5]]) disc(ctx, x + dx, y + dy, 0.6, "m3");
+}
+
+function blockWall(ctx, x, y, w, h) {
+  for (let yy = y; yy < y + h; yy += TILE) {
+    for (let xx = x; xx < x + w; xx += TILE / 2) braced(ctx, xx, yy, TILE / 2, TILE - 3);
+    flat(ctx, x, yy + TILE - 3, w, 3, "y1", "yLine");
+  }
+}
+
+const { TILE } = window.ENV;
+
+function grass(ctx, x, w, seed) {
+  const r = rng(seed);
+  flat(ctx, x, -3, w, 4, "r1");
+  const pts = [[x, 1]];
+  for (let i = x; i <= x + w; i += simple() ? 3 : 1.5) pts.push([i, -3 - r() * (simple() ? 2 : 4)], [i + 0.75, -2]);
+  pts.push([x + w, 1]);
+  shape(ctx, pts, "o1");
+  if (simple()) return;
+  for (let i = 0; i < w / 3; i++) {
+    const gx = x + r() * w;
+    line(ctx, [[gx, -1], [gx + (r() - 0.5) * 3, -4 - r() * 3]], r() > 0.5 ? "o3" : "g2", 0.5);
+  }
+}
+
+define({
+  id: "grassyWalkway",
+  box: [0, -8, 144, 25],
+  draw(ctx, state, t, { w = 144 } = {}) {
+    box(ctx, 0, 0, w, 24, "steel", 0);
+    for (let x = 0; x < w; x += TILE) {
+      line(ctx, [[x + 2, 5], [x + TILE - 2, 19]], "mLine", 3);
+      line(ctx, [[x + 2, 5], [x + TILE - 2, 19]], "m2", 2);
+      line(ctx, [[x + TILE - 2, 5], [x + 2, 19]], "mLine", 3);
+      line(ctx, [[x + TILE - 2, 5], [x + 2, 19]], "m1", 2);
+      flat(ctx, x, 3, 1.5, 18, "m3");
+    }
+    box(ctx, 0, 0, w, 4, "rust", 1);
+    box(ctx, 0, 19, w, 5, "steel", 2);
+    rivets(ctx, 0, 21.5, w, 6, "m3");
+    grass(ctx, 0, w, 7);
+  }
+});
+
+function post(ctx, x, h, broken = false) {
+  if (broken) {
+    poly(ctx, [[x, 0], [x, -14], [x + 5, -20], [x + 9, -13], [x + 15, -22], [x + 20, -15], [x + 24, -18], [x + 24, 0]], "concrete", 1);
+    for (const [cx, r, s] of [[x - 6, 4, 3], [x + 30, 5, 4], [x + 12, 3, 5]]) boulder(ctx, cx, -r * 0.7, r, s, ["k0", "k1", "k2", "k3"]);
+    flat(ctx, x + 2, -12, 20, 2, "#2a1a10");
+    return;
+  }
+  box(ctx, x, -h, TILE, h, "steel", 1, { vertical: true });
+  box(ctx, x + 2, -h + 2, TILE - 4, 20, "steel", 0);
+  flat(ctx, x + 4, -h + 4, TILE - 8, 16, "glass", "mLine");
+  hazard(ctx, x, -h + 24, TILE, 3, 3);
+  for (let y = -h + 32; y < -6; y += 6) flat(ctx, x + 2, y, TILE - 4, 3, "c1", "mLine");
+}
+
+function brazier(ctx, x, t, seed) {
+  box(ctx, x + 2, -26, 20, 26, "concrete", 1, { vertical: true });
+  flat(ctx, x + 2, -26, 20, 2, "k3");
+  box(ctx, x, -48, 24, 22, "rust", 0);
+  flat(ctx, x + 2, -46, 20, 14, "#2a0c04");
+  if (!simple()) glow(ctx, x + 12, -40, 16, "a1", 0.45);
+  flame(ctx, x + 2, -32, 9, 18, t, seed);
+  flame(ctx, x + 11, -32, 10, 22, t, seed + 1);
+  flat(ctx, x, -34, 24, 3, "rust");
+  flat(ctx, x - 1, -49, 26, 2.4, "r2", "rLine");
+}
+
+function sandbags(ctx, x, w) {
+  for (let i = 0; i < w / 10 - 0.5; i++) {
+    const bx = x + 1 + i * 10;
+    poly(ctx, [[bx, 0], [bx + 0.6, -5], [bx + 2, -6], [bx + 8, -6], [bx + 9.4, -5], [bx + 10, 0]], "olive", 1);
+  }
+}
+
+function fireRow(ctx, x, n, t, pair = 1) {
+  let cx = x;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < pair; j++) { brazier(ctx, cx, t, i * 3 + j); cx += TILE; }
+    if (i < n - 1) {
+      box(ctx, cx, -36, TILE, 8, "concrete", 2);
+      flat(ctx, cx + 3, -34.4, TILE - 6, 4.8, "k1", "kLine");
+      if (!simple()) for (let k = 0; k < 4; k++) flat(ctx, cx + 5 + k * 3.8, -33.4, 2, 2.8, "c2");
+      sandbags(ctx, cx, TILE);
+      cx += TILE;
+    }
+  }
+}
+
+define({
+  id: "fireBarricade",
+  box: [-8, -80, 196, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    fireRow(ctx, 24, 3, t, 1);
+    post(ctx, 0, 72, state === 1);
+    if (state === 1 && !simple()) smoke(ctx, 12, -18, t, 3, 30);
+  }
+});
+
+define({
+  id: "dynamiteWall",
+  box: [-4, -80, 220, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    fireRow(ctx, 24, 3, t, 2);
+    post(ctx, 0, 72);
+    if (state === 1) {
+      for (const x of [6, 9, 12]) stick(ctx, x, -14, 3, 14);
+      for (const y of [-11, -4]) flat(ctx, 5.6, y, 9.8, 1.4, "k1", "kLine");
+      box(ctx, 7.6, -9, 5.2, 3.6, "steel", 1);
+      lamp(ctx, 11.4, -7.2, "neon", Math.floor(t * 3) % 2 === 0);
+      wire(ctx, [[10, -9], [11, -16], [16, -12], [20, -2], [30, -0.6]], "y2");
+    }
+  }
+});
+
+function anchor(ctx, x, flip) {
+  ctx.save();
+  ctx.translate(x, 0);
+  if (flip) ctx.scale(-1, 1);
+  box(ctx, 0, 0, TILE, 7, "steel", 2);
+  poly(ctx, [[0, 7], [TILE, 7], [TILE - 4, 12], [8, 12]], "steel", 0);
+  box(ctx, 2, -3, 8, 3, "steel", 1);
+  if (!simple()) rivets(ctx, 0, 3.5, TILE, 6, "m3");
+  ctx.restore();
+}
+
+define({
+  id: "powerBridge",
+  box: [-4, -6, 292, 14],
+  draw(ctx, state) {
+    anchor(ctx, 0, false);
+    anchor(ctx, 288, true);
+    if (state === 0) {
+      box(ctx, TILE, 0.4, 240, 2.6, "chrome", 2);
+      if (!simple()) for (let x = TILE + 12; x < 264; x += 24) flat(ctx, x, 0.8, 1, 1.6, "c0");
+      return;
+    }
+    poly(ctx, [[TILE, 0.4], [TILE + 10, 1.6], [TILE + 9, 3.4], [TILE, 3]], "chrome", 1);
+    poly(ctx, [[264, 0.4], [254, 2.8], [255, 4.2], [264, 3]], "chrome", 1);
+  }
+});
+
+define({
+  id: "rockCliff",
+  box: [0, -218, 128, 0],
+  draw(ctx) {
+    blockWall(ctx, 0, -216, 72, 216);
+    shape(ctx, [[66, 0], [66, -216], [90, -216], [100, -150], [104, -80], [112, -30], [116, 0]], "#1a1612", "kLine");
+    const rocks = [];
+    const r = rng(21);
+    for (let y = -206; y < 0; y += 13) {
+      const reach = 96 + (216 + y) / 216 * 22;
+      for (let x = 70 + r() * 8; x < reach; x += 18 + r() * 6) rocks.push([x, y + r() * 6, 11 + r() * 5, rocks.length + 1]);
+    }
+    for (const [cx, cy, r, seed] of rocks) boulder(ctx, cx, cy, r, seed);
+  }
+});
+
+define({
+  id: "overheadPipeline",
+  box: [-4, -22, 292, 4],
+  draw(ctx, state, t, { w = 288 } = {}) {
+    for (let x = 24; x < w; x += 96) {
+      slab(ctx, x, -20, 24, 10, "concrete", 2);
+      for (const dx of [8, 16]) line(ctx, [[x + dx, -10], [x + dx, -3]], "m2", 1.6);
+    }
+    cylH(ctx, 0, -8, w, 2.4, "chrome", 1);
+    cylH(ctx, 0, -4, w, 2.4, "chrome", 1);
+    for (let x = 6; x < w; x += 48) {
+      hazard(ctx, x, -9.4, 14, 2, 2.4, { fill: "a1", line: "aLine" });
+      hazard(ctx, x, -5.4, 14, 2, 2.4, { fill: "a1", line: "aLine" });
+      for (const dx of [0, 13]) disc(ctx, x + dx, -6.8, 0.8, "c2", "mLine");
+    }
+  }
+});
+
+function tank(ctx, x, w, h) {
+  cylV(ctx, x, -h, w, h, "rust", 1);
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(x + w / 2, -h, w / 2, 8, 0, PI, 0);
+  ctx.closePath();
+  const g = ctx.createLinearGradient(x, 0, x + w, 0);
+  const [r0, r1, r2, r3] = tones("rust");
+  g.addColorStop(0, r3); g.addColorStop(0.4, r2); g.addColorStop(1, r0);
+  ctx.fillStyle = g;
+  ctx.fill();
+  stroke(ctx, "rust");
+  ctx.restore();
+  for (const y of [-h + 6, -h / 2, -6]) {
+    flat(ctx, x, y - 1, w, 2, "r0", "rLine");
+    rivets(ctx, x, y - 3, w, 4, "r3");
+  }
+  box(ctx, x + w / 2 - 6, -h - 11, 12, 4, "steel", 1);
+  box(ctx, x + w / 2 - 4, -h - 14, 8, 3, "steel", 2);
+  flat(ctx, x + 6, -h + 14, 12, 8, "y2", "yLine");
+  if (!simple()) text(ctx, "T", x + 12, -h + 18, 6, "hazardDark");
+}
+
+define({
+  id: "storageTank",
+  box: [-2, -88, 126, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    tank(ctx, 0, 48, 64);
+    for (const [x, w] of [[52, 6], [62, 6]]) cylV(ctx, x, -84, w, 84, "steel", 1);
+    for (const y of [-70, -40]) {
+      box(ctx, 50, y, 20, 4, "steel", 2);
+      hazard(ctx, 51, y + 5, 18, 2.4, 3);
+    }
+    lamp(ctx, 60, -76, "a1", sin(t * 3) > 0);
+    lamp(ctx, 60, -46, "screen", sin(t * 3 + 1.5) > 0);
+    tank(ctx, 74, 48, 64);
+  }
+});
+
+define({
+  id: "watchtower",
+  box: [-6, -176, 82, 0],
+  draw(ctx) {
+    const leg = (a, b) => { line(ctx, [a, b], "rLine", 5); line(ctx, [a, b], "r2", 3.4); };
+    const brace = (a, b) => { line(ctx, [a, b], "rLine", 3); line(ctx, [a, b], "r1", 1.8); };
+    for (let i = 0; i < 4; i++) {
+      const y0 = -i * 32, y1 = y0 - 32;
+      const xl = k => 4 + (-k / 136) * 14, xr = k => 68 - (-k / 136) * 14;
+      brace([xl(y0), y0 - 2], [xr(y1), y1 + 2]);
+      if (!simple()) brace([xr(y0), y0 - 2], [xl(y1), y1 + 2]);
+      line(ctx, [[xl(y1), y1], [xr(y1), y1]], "rLine", 3);
+      line(ctx, [[xl(y1), y1], [xr(y1), y1]], "r2", 1.8);
+    }
+    leg([4, 0], [18, -136]);
+    leg([68, 0], [54, -136]);
+    leg([36, 0], [36, -136]);
+    box(ctx, 8, -140, 56, 5, "rust", 2);
+    box(ctx, 12, -170, 48, 30, "rust", 1);
+    if (!simple()) for (let x = 16; x < 60; x += 5) flat(ctx, x, -168, 0.8, 27, "r0");
+    flat(ctx, 18, -164, 36, 8, "hole", "rLine");
+    box(ctx, 8, -174, 56, 5, "rust", 3);
+    line(ctx, [[60, -142], [72, -142]], "rLine", 3);
+    line(ctx, [[60, -142], [72, -142]], "r2", 1.8);
+  }
+});
+
+define({
+  id: "bridgeGuardPost",
+  box: [-12, -78, 56, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    sandbags(ctx, 0, 30);
+    poly(ctx, [[3, -6], [4, -11], [6, -12], [12, -12], [13.4, -11], [14, -6]], "olive", 2);
+    poly(ctx, [[15, -6], [16, -11], [18, -12], [24, -12], [25.4, -11], [26, -6]], "olive", 1);
+    box(ctx, 32, -40, 8, 40, "steel", 1, { vertical: true });
+    box(ctx, 30, -42, 12, 4, "steel", 2);
+    const away = state === 1;
+    box(ctx, 34, -50, 10, 7, "steel", 0);
+    lamp(ctx, 39, -46.5, away ? "screen" : "neon", away || Math.floor(t * 2) % 2 === 0);
+    ctx.save();
+    ctx.translate(30, -34);
+    ctx.rotate(away ? PI / 2.2 : 0);
+    box(ctx, -40, -2, 40, 4, "chrome", 2);
+    for (let x = -36; x < -2; x += 8) flat(ctx, x, -2, 4, 4, "neon");
+    ctx.restore();
+    flat(ctx, 42, -30, 8, 10, "k3", "kLine");
+    flat(ctx, 43.4, -27, 5.2, 1.2, "neon");
+    flat(ctx, 43.4, -24.4, 5.2, 1.2, "neon");
   }
 });
 
