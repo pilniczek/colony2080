@@ -60,6 +60,348 @@ function flame(ctx, x, base, w, h, t, seed = 0) {
   if (!simple()) shape(ctx, pts(0.3, 0.24), "y3");
 }
 
+function hash(a, b) {
+  const s = sin(a * 127.1 + b * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+function ring(ctx, cx, cy, rx, ry, c, w = 1) {
+  ctx.save();
+  ctx.lineWidth = w;
+  ctx.strokeStyle = color(c);
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function lamp(ctx, x, y, c, lit = true) {
+  if (lit && !simple()) glow(ctx, x, y, 4, c, 0.6);
+  disc(ctx, x, y, 1.2, lit ? c : "k0", "mLine");
+}
+
+function spark(ctx, x, y, t, seed = 0) {
+  if (Math.floor(t * 7 + seed) % 4) return;
+  const r = rng(Math.floor(t * 7) + seed * 13);
+  if (!simple()) glow(ctx, x, y, 5, "y3", 0.8);
+  for (let i = 0; i < 4; i++) {
+    const a = r() * PI * 2, l = 2 + r() * 3;
+    line(ctx, [[x, y], [x + cos(a) * l, y + sin(a) * l]], "y3", 0.5);
+  }
+}
+
+function arcBolt(ctx, x, y0, y1, w, t, seed, c = "plasma", k = 1) {
+  const r = rng(Math.floor(t * 18) + seed * 101);
+  const pts = [];
+  const n = Math.max(4, Math.round((y1 - y0) / 6));
+  for (let i = 0; i <= n; i++) pts.push([x + (i === 0 || i === n ? 0 : (r() - 0.5) * w), y0 + (y1 - y0) * i / n]);
+  line(ctx, pts, c, 1.8 * k);
+  line(ctx, pts, "plasmaCore", 0.7 * k);
+}
+
+function beamColumn(ctx, x, y0, y1, w, t) {
+  if (!simple()) glow(ctx, x, (y0 + y1) / 2, (y1 - y0) * 0.6, "plasma", 0.35);
+  ctx.save();
+  ctx.globalAlpha = 0.55;
+  const g = ctx.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
+  g.addColorStop(0, "rgba(122,224,255,0)");
+  g.addColorStop(0.5, color("plasma"));
+  g.addColorStop(1, "rgba(122,224,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(x - w / 2, y0, w, y1 - y0);
+  ctx.restore();
+  for (let i = 0; i < 3; i++) {
+    const k = (t * 0.8 + i / 3) % 1;
+    ring(ctx, x, y1 + (y0 - y1) * k, w * 0.45, 1.2, "plasmaCore", 0.5);
+  }
+}
+
+const POD_TOP = -72;
+
+function podFrame(ctx) {
+  box(ctx, 0, -6, 48, 6, "steel", 1);
+  box(ctx, 2, -8, 44, 2.4, "steel", 2);
+  box(ctx, 9, -56, 30, 48, "rust", 0);
+  if (!simple()) for (let y = -50; y < -10; y += 8) flat(ctx, 10, y, 28, 0.6, "r1");
+  for (const x of [3, 39]) {
+    box(ctx, x, -58, 6, 50, "steel", 2, { vertical: true });
+    for (const y of [-46, -32, -18]) cylV(ctx, x - 1, y, 8, 3, "chrome", 2);
+  }
+  ellipse(ctx, 24, -8.6, 13, 2, "m1", "mLine");
+}
+
+function podHood(ctx, lampColor, lit) {
+  poly(ctx, [[0, POD_TOP], [48, POD_TOP], [40, -58], [8, -58]], "steel", 2);
+  flat(ctx, 0, POD_TOP, 48, 2.2, "m3", "mLine");
+  if (!simple()) {
+    rivets(ctx, 4, -68, 40, 6, "m3");
+    flat(ctx, 12, -63, 24, 0.6, "m0");
+  }
+  box(ctx, 18, -58, 12, 3, "chrome", 1);
+  box(ctx, 41, -54, 6, 7, "steel", 0);
+  if (!simple()) for (let y = -53; y < -48; y += 1.4) flat(ctx, 41.6, y, 4.8, 0.6, "c2");
+  lamp(ctx, 24, POD_TOP - 1.5, lampColor, lit);
+}
+
+function pod(ctx, mode, t) {
+  podFrame(ctx);
+  if (mode === "working") beamColumn(ctx, 24, -55, -9, 24, t);
+  if (mode === "idle" && !simple()) {
+    ctx.save();
+    ctx.globalAlpha = 0.25 + sin(t * 2) * 0.1;
+    flat(ctx, 12, -55, 24, 46, "plasma");
+    ctx.restore();
+  }
+  if (mode === "damaged") {
+    poly(ctx, [[14, -40], [20, -46], [26, -38], [22, -30], [16, -32]], "hole", 2);
+    line(ctx, [[30, -55], [32, -46], [29, -40], [31, -34]], "a1", 0.8);
+    spark(ctx, 31, -34, t, 1);
+    spark(ctx, 20, -56, t, 3);
+  }
+  podHood(ctx, mode === "working" ? "screen" : mode === "off" ? "k1" : mode === "idle" ? "a1" : "neon", mode !== "off");
+}
+
+define({
+  id: "sourceTeleport",
+  box: [-2, -76, 50, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    pod(ctx, ["idle", "off", "working"][state], t);
+  }
+});
+
+define({
+  id: "targetTeleport",
+  box: [-2, -76, 50, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    pod(ctx, state ? "working" : "damaged", t);
+  }
+});
+
+define({
+  id: "brokenTeleport",
+  box: [-4, -42, 54, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    box(ctx, 0, -6, 48, 6, "steel", 1);
+    ellipse(ctx, 24, -6.6, 13, 1.6, "m0", "mLine");
+    poly(ctx, [[9, -6], [9, -26], [14, -31], [18, -24], [23, -33], [28, -22], [33, -28], [39, -20], [39, -6]], "rust", 0);
+    for (const [x, top] of [[3, -38], [39, -34]]) {
+      poly(ctx, [[x, -6], [x, top + 3], [x + 2, top], [x + 4, top + 4], [x + 6, top + 1], [x + 6, -6]], "steel", 2, { dir: [1, 0] });
+      cylV(ctx, x - 1, -20, 8, 3, "chrome", 2);
+    }
+    poly(ctx, [[-2, 0], [4, -7], [12, -9], [10, -3], [14, 0]], "steel", 1);
+    poly(ctx, [[38, 0], [41, -5], [49, -6], [52, 0]], "steel", 0);
+    box(ctx, 16, -16, 16, 9, "steel", 0);
+    if (state === 0) {
+      flat(ctx, 18, -15, 12, 7, "g1", "gLine");
+      for (let x = 19.5; x < 29; x += simple() ? 3 : 1.5) flat(ctx, x, -9.4, 0.5, 1.2, "y2");
+      flat(ctx, 21, -13.6, 5, 3, "m0");
+      if (!simple()) glow(ctx, 24, -11, 6, "screen", 0.25 + sin(t * 3) * 0.15);
+    } else flat(ctx, 18, -15, 12, 7, "hole", "mLine");
+    line(ctx, [[30, -24], [33, -18], [30, -14]], "a1", 0.8);
+    spark(ctx, 30, -14, t, 5);
+  }
+});
+
+define({
+  id: "teleportPad",
+  box: [-2, -40, 50, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    box(ctx, 0, -5, 48, 5, "steel", 1);
+    poly(ctx, [[4, -5], [8, -9], [40, -9], [44, -5]], "steel", 2);
+    ellipse(ctx, 24, -9, 15, 2.2, "m0", "mLine");
+    ellipse(ctx, 24, -9, 11, 1.6, "plasma");
+    for (const x of [6, 38]) {
+      box(ctx, x, -18, 4, 9, "steel", 2, { vertical: true });
+      lamp(ctx, x + 2, -19.5, "plasma", sin(t * 4 + x) > -0.3);
+    }
+    beamColumn(ctx, 24, -38, -9, 20, t);
+  }
+});
+
+function fuseScreen(ctx, x, y, state, t) {
+  flat(ctx, x, y, 9, 4, state === 1 ? "screenOff" : "hole", "gLine");
+  if (state === 1) return;
+  const blink = Math.floor(t * 2) % 2;
+  for (let i = 0; i < 3; i++) flat(ctx, x + 1 + i * 2.7, y + 0.8, 1.8, 2.4, i === 2 && blink ? "g1" : "screen");
+}
+
+define({
+  id: "fuseBox",
+  box: [-6, -76, 30, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    box(ctx, 0, -72, 24, 72, "concrete", 1, { vertical: true });
+    box(ctx, -2, -74, 28, 4, "concrete", 2);
+    box(ctx, -2, -4, 28, 4, "concrete", 1);
+    if (!simple()) for (const y of [-60, -24]) flat(ctx, 1, y, 22, 0.6, "k0");
+    cylV(ctx, 10, -30, 4, 28, "steel", 1);
+    box(ctx, 3, -46, 18, 17, "green", 1);
+    flat(ctx, 3, -46, 18, 1.2, "g3");
+    box(ctx, 4.6, -44.6, 14.8, 14.2, "green", state === 1 ? 0 : 2);
+    fuseScreen(ctx, 7.6, -43, state, t);
+    if (state === 1) {
+      poly(ctx, [[5, -37], [10, -38], [12, -34], [9, -31], [5, -32]], "hole", 2);
+      for (const [x, y] of [[13.6, -36], [16, -34]]) flat(ctx, x, y, 1.4, 3, "c1", "mLine");
+      poly(ctx, [[19, -45], [24, -47], [24.4, -32], [19.6, -31]], "green", 1);
+      line(ctx, [[10, -33], [12, -28], [10, -24]], "a1", 0.7);
+      spark(ctx, 10, -24, t, 2);
+    } else {
+      for (const x of [7, 11, 15]) {
+        box(ctx, x, -37.4, 2.6, 5.4, state === 2 && x === 11 ? "yellow" : "chrome", 2, { vertical: true });
+        if (state === 2 && x === 11 && !simple()) glow(ctx, x + 1.3, -34.6, 4, "y3", 0.4);
+      }
+    }
+    lamp(ctx, 19, -48.6, state === 1 ? "neon" : "screen", state !== 1 || Math.floor(t * 3) % 2 === 0);
+  }
+});
+
+define({
+  id: "electricCabinet",
+  box: [-2, -78, 100, 0],
+  draw(ctx, state) {
+    slab(ctx, 0, -72, 96, 72, "concrete", 2);
+    flat(ctx, -1, -75, 98, 4, "k3", "kLine");
+    flat(ctx, 0, -3, 96, 3, "k0", "kLine");
+    for (const x of [6, 70]) {
+      box(ctx, x, -60, 20, 50, "steel", 1);
+      for (let y = -56; y < -12; y += simple() ? 8 : 4) flat(ctx, x + 2, y, 16, 1.8, "m3");
+    }
+    for (const x of [10, 74]) {
+      poly(ctx, [[x + 4, -70], [x, -64], [x + 4, -64], [x + 1, -58], [x + 8, -66], [x + 4, -66], [x + 7, -70]], "water", 2);
+    }
+    box(ctx, 32, -58, 32, 56, "steel", 0);
+    if (state === 0) {
+      box(ctx, 34, -56, 28, 54, "chrome", 1);
+      flat(ctx, 34, -56, 28, 1.4, "c3");
+      flat(ctx, 44, -44, 8, 8, "hazard", "yLine");
+      poly(ctx, [[48.6, -43], [45.6, -39.6], [48, -39.6], [47, -37], [50.4, -40.6], [48, -40.6], [49.4, -43]], "hazardDark", 2, { line: false });
+      box(ctx, 56, -30, 3, 7, "steel", 2);
+      lamp(ctx, 57.5, -33, "neon");
+    } else {
+      flat(ctx, 34, -56, 28, 54, "hole", "mLine");
+      for (const y of [-46, -34, -22]) flat(ctx, 36, y, 24, 1.4, "m2", "mLine");
+      for (const [x, y] of [[40, -45], [50, -45], [40, -33], [50, -21]]) box(ctx, x, y - 5, 2.6, 5, "chrome", 2, { vertical: true });
+      flat(ctx, 50, -38.4, 2.6, 5, "m0");
+      poly(ctx, [[34, -56], [26, -60], [26, 2], [34, -2]], "chrome", 0, { dir: [1, 0] });
+      lamp(ctx, 57.5, -60, "screen");
+    }
+  }
+});
+
+define({
+  id: "cannon",
+  box: [-14, -78, 150, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    const age = t % 1.6;
+    const kick = state === 1 ? max(0, 1 - age * 3) * 6 : 0;
+    box(ctx, 56, -14, 80, 10, "steel", 1);
+    for (const x of [64, 84, 104, 124]) {
+      ellipse(ctx, x, -6, 6, 6, "m0", "mLine");
+      ellipse(ctx, x, -6, 2.6, 2.6, "m2", "mLine");
+    }
+    flat(ctx, 58, -16, 76, 2.4, "m3", "mLine");
+    poly(ctx, [[96, -16], [130, -16], [138, -2], [128, -2]], "chrome", 0);
+    ctx.save();
+    ctx.translate(kick, 0);
+    cylH(ctx, 6, -45, 66, 7, "chrome", 1);
+    cylH(ctx, 0, -46.6, 9, 10.2, "chrome", 0);
+    if (!simple()) for (const x of [2, 5]) flat(ctx, x, -45.4, 1.2, 7.8, "hole");
+    cylH(ctx, 40, -47, 8, 11, "chrome", 2);
+    cylH(ctx, 50, -36, 30, 4, "steel", 2);
+    ctx.restore();
+    poly(ctx, [[66, -16], [70, -52], [84, -62], [118, -62], [126, -50], [124, -16]], "chrome", 1);
+    poly(ctx, [[84, -62], [118, -62], [116, -56], [88, -56]], "chrome", 2, { line: false });
+    poly(ctx, [[70, -52], [84, -62], [88, -56], [76, -48]], "c3", 2, { line: false });
+    box(ctx, 92, -50, 22, 14, "chrome", 0);
+    if (!simple()) {
+      rivets(ctx, 72, -20, 50, 6, "c3");
+      for (let x = 95; x < 112; x += 3) flat(ctx, x, -48, 1.2, 10, "m1");
+      flat(ctx, 100, -32, 14, 3, "hazard", "yLine");
+    }
+    poly(ctx, [[118, -50], [130, -46], [130, -24], [124, -20]], "steel", 1, { dir: [1, 0] });
+    if (state === 1 && age < 0.5) {
+      const k = 1 - age * 2;
+      glow(ctx, -6, -42, 18 * k + 6, "a2", 0.8 * k);
+      poly(ctx, [[1, -48], [-10 * k - 4, -52], [-6, -44], [-14 * k - 6, -41], [-6, -38], [-10 * k - 4, -32], [1, -36]], "a1", 2);
+      poly(ctx, [[1, -45], [-6 * k - 2, -44], [-8 * k - 3, -41], [-6 * k - 2, -38], [1, -38]], "y3", 2, { line: false });
+    }
+    if (state === 1 && !simple()) {
+      ctx.save();
+      for (let i = 0; i < 3; i++) {
+        const k = min(1, age * 1.2 + i * 0.12);
+        ctx.globalAlpha = 0.45 * (1 - k);
+        ellipse(ctx, -4 - k * 10 + i * 3, -42 - k * 18 - i * 4, 4 + k * 8, 3 + k * 5, "k2");
+      }
+      ctx.restore();
+    }
+  }
+});
+
+define({
+  id: "energyBarrier",
+  box: [-4, -98, 28, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    const on = state === 0;
+    if (on && !simple()) glow(ctx, 12, -48, 30, "plasma", 0.25 + sin(t * 13) * 0.06);
+    if (on) {
+      arcBolt(ctx, 12, -86, -4, 10, t, 1);
+      arcBolt(ctx, 12, -86, -4, 8, t + 0.37, 2, "plasma", 0.6);
+    }
+    box(ctx, 0, -96, 24, 10, "steel", 1);
+    box(ctx, 6, -86, 12, 3, "chrome", 1);
+    flat(ctx, 2, -94, 20, 2, "hazard", "yLine");
+    box(ctx, 4, -4, 16, 4, "steel", 1);
+    box(ctx, 8, -6, 8, 2.4, "chrome", 1);
+    lamp(ctx, 12, -84, "plasma", on);
+  }
+});
+
+function coilStack(ctx, x, y, w, n) {
+  cylV(ctx, x + w * 0.3, y - 4, w * 0.4, n * 7 + 8, "steel", 0);
+  for (let i = 0; i < n; i++) cylV(ctx, x, y + i * 7, w, 5, "chrome", 2);
+  for (let i = 0; i < 3; i++) {
+    const cy = y - 6 - i * 4;
+    poly(ctx, [[x + w * 0.2, cy], [x + w * 0.8, cy], [x + w * 0.7, cy - 3], [x + w * 0.3, cy - 3]], "c1", 2);
+  }
+}
+
+define({
+  id: "transformer",
+  box: [-4, -170, 172, 0],
+  anim: true,
+  draw(ctx, state, t) {
+    slab(ctx, 0, -120, 168, 120, "concrete", 1);
+    flat(ctx, -2, -124, 172, 5, "k3", "kLine");
+    for (const [x, w] of [[8, 46], [62, 46], [116, 44]]) {
+      box(ctx, x, -110, w, 56, "green", 1);
+      box(ctx, x + 4, -106, w - 8, 48, "green", 0);
+      if (!simple()) for (let y = -100; y < -60; y += 6) flat(ctx, x + 6, y, w - 12, 1, "g2");
+    }
+    coilStack(ctx, 16, -160, 26, 5);
+    coilStack(ctx, 70, -160, 26, 5);
+    for (const x of [124, 140, 156]) {
+      cylV(ctx, x - 3, -138, 6, 14, "chrome", 1);
+      for (let i = 0; i < 3; i++) cylV(ctx, x - 4.4, -138 + i * 4.4, 8.8, 2.2, "chrome", 2);
+    }
+    line(ctx, [[124, -138], [104, -150], [83, -162]], "mLine", 1.2);
+    line(ctx, [[140, -138], [124, -158], [83, -164]], "mLine", 1.2);
+    box(ctx, 8, -48, 152, 6, "steel", 1);
+    for (const x of [14, 46, 80, 114, 148]) cylV(ctx, x, -42, 6, 42, "chrome", 1);
+    hazard(ctx, 0, -8, 168, 4, 5);
+    box(ctx, 120, -40, 34, 26, "steel", 0);
+    flat(ctx, 124, -36, 26, 8, "screenOff", "gLine");
+    if (!simple()) for (let i = 0; i < 4; i++) flat(ctx, 126 + i * 6, -33 - abs(sin(t * 3 + i)) * 3, 3, 1 + abs(sin(t * 3 + i)) * 3, "screen");
+    lamp(ctx, 128, -20, "screen", Math.floor(t * 2) % 2 === 0);
+    lamp(ctx, 136, -20, "a1");
+  }
+});
+
 define({
   id: "smoulderingRemains",
   box: [-4, -30, 52, 0],
