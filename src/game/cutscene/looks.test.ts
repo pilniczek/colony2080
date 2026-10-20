@@ -9,5 +9,6 @@ describe("lookAt", () => {
     expect(lookAt("takeTapHandle", 3.714)).toBe("robot");
     expect(lookAt("useAcidTank", 2.5)).toBe("camera");
     expect(lookAt("missionStart", 33)).toBe("robot");
+    expect(lookAt("talkRebel", 5)).toBe("robot");
   });
 });

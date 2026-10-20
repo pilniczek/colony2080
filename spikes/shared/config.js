@@ -5983,6 +5983,12 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/REBMRT.ANM; trigger: talkRebel task",
    "title": "Dying rebel speaks",
    "camera": "CAM 02 STREET",
+   "views": [
+    [
+     0,
+     "robot"
+    ]
+   ],
    "duration": 12.93,
    "stage": {
     "width": 1600,
