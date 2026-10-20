@@ -40,8 +40,8 @@ Research (`docs/research/reports/17-sound.md`, to write from this session's find
 | Event | Original SND @ rate (vol) | Our trigger |
 |---|---|---|
 | Hero gun shot | `STRELBA` @15000 | each hero `shot` event |
-| Droid shot, mission 1 | none (code skips level 1) | silent |
-| Droid shot, missions 2-4 | `P1_CANN` @15000 | droid fire frame |
+| Droid shot | `P1_CANN` @15000 (original: missions 2-4 only, code skips level 1; mission 1 too on user request) | droid fire frame |
+| Guard shot | none | `P1_CANN` @15000 per guard bullet (user request) |
 | Flyer shot | `LASER2` @15000 | flyer fire |
 | E-Blaster beam | `LASER3` @8000, every firing tick | each `beam` event |
 | Punch (hit or miss) | `UDER` @13000 | each punch frame |
@@ -90,7 +90,7 @@ flowchart LR
 
 - One `AudioContext`, created and resumed on first key or pointer gesture (browser autoplay rule).
 - `play(id, { rate, vol })`: buffer source, gain `sqrt(vol / 63)` times sound level, into master compressor (threshold -12 dB, ratio 4) that tames stacked voices.
-- Sound level: each sound plays at same short-term loudness `LEVEL` (0.15): gain `LEVEL / loudness`, where loudness is RMS of loudest 50 ms window. Never boosts. Square root of `vol` halves original volume spread in dB.
+- Sound level: each sound plays at same short-term loudness `LEVEL` (0.08): gain `LEVEL / loudness`, where loudness is RMS of loudest 50 ms window. Never boosts. Square root of `vol` halves original volume spread in dB.
 - Voice limit 8 (MIDAS channel count, builder confirms); oldest voice drops.
 - `stopAll()` for inventory open.
 - Master mute from sound toggle. Muted: nothing starts.

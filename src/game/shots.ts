@@ -234,13 +234,10 @@ function enemyShot(world: SandboxWorld, cfg: MovementConfig, from: number, [x, y
   return true;
 }
 
-const shotSound = (world: SandboxWorld, enemy: Enemy): "laser" | "cannon" | null =>
-  enemy.flight ? "laser" : world.mission === "mesto" ? null : "cannon";
-
 export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, enemy: Enemy, count: number): void {
-  const sound = shotSound(world, enemy);
+  const sound = enemy.flight ? "laser" : "cannon";
   for (let i = 0; i < count; i++) {
-    if (enemyShot(world, cfg, enemy.body.x, enemyMuzzle(enemy, clips, cfg), enemy.body.facing) && sound) cue(world, sound, 15000);
+    if (enemyShot(world, cfg, enemy.body.x, enemyMuzzle(enemy, clips, cfg), enemy.body.facing)) cue(world, sound, 15000);
   }
 }
 
@@ -248,7 +245,7 @@ export function fireGuards(world: SandboxWorld, hero: Hero, cfg: MovementConfig,
   for (const prop of world.props) {
     if (!prop.fires) continue;
     const count = updateGuard(prop, world.grid, world.fog, hero, cfg.sightCells, dt);
-    for (let i = 0; i < count; i++) enemyShot(world, cfg, watchX(prop), gunOf(prop), prop.fires.facing);
+    for (let i = 0; i < count; i++) if (enemyShot(world, cfg, watchX(prop), gunOf(prop), prop.fires.facing)) cue(world, "cannon", 15000);
   }
 }
 

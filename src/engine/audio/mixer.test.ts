@@ -137,7 +137,7 @@ describe("mixer", () => {
   });
 
   it("never boosts a sound under the level", () => {
-    const { mixer, sources } = setup(() => new Float32Array(2000).fill(0.1));
+    const { mixer, sources } = setup(() => new Float32Array(2000).fill(LEVEL / 2));
     mixer.unlock();
     mixer.play({ id: "a", rate: BASE_RATE });
     expect(at(sources, 0).gainNode!.gain.value).toBe(1);

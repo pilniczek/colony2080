@@ -54,11 +54,10 @@ describe("hero weapon cues", () => {
 });
 
 describe("enemy fire cues", () => {
-  it("mesto droid shot is silent", () => {
+  it("mesto droid shot cues cannon 15000", () => {
     const g = game({ x: 5.5, y: 8 }, arena({ mission: "mesto", enemies: [droid(9.5)] }));
-    run(g, 1);
-    expect(g.world.projectiles.some((p) => p.tag === ENEMY_SHOT) || g.hero.energy < cfg.energy.max).toBe(true);
-    expect(cues(g, "cannon")).toHaveLength(0);
+    tick(g);
+    expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
   });
 
   it("vesnice droid shot cues cannon 15000, one per bullet", () => {
@@ -69,11 +68,10 @@ describe("enemy fire cues", () => {
     expect(cues(g, "cannon").length).toBe(9);
   });
 
-  it("missions carry their id so droids know to stay silent in mesto", () => {
-    expect(missionJson("mesto").mission).toBe("mesto");
-    expect(missionJson("vesnice").mission).toBe("vesnice");
-    expect(loadSandbox(missionJson("jeskyne")).mission).toBe("jeskyne");
-    expect(loadSandbox(arena()).mission).toBeNull();
+  it("guard shot cues cannon 15000", () => {
+    const g = game({ x: 101.5, y: 30 }, missionJson("mesto"));
+    tick(g);
+    expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
   });
 
   it("flyer shot cues laser 15000, in mesto too", () => {
