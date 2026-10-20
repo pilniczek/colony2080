@@ -1,4 +1,6 @@
 import type { TileGrid } from "../../engine/world/tiles";
+import { FLYER_HULL, FLYER_MUZZLE } from "../env/flyer";
+import { TILE } from "../env/paint";
 import { seenAt, type Fog } from "../fog";
 import type { ClipSet, MovementConfig } from "../hero/config";
 import { createHero, type Hero } from "../hero/hero";
@@ -7,6 +9,10 @@ export const ENEMY_SHOT = "enemy";
 
 export const SAME_FLOOR = 0.5;
 const HALF_WIDTH = 0.35;
+const AIM_EPS = 0.02;
+
+export const FLYER_HALF: [number, number] = [FLYER_HULL.w / 2 / TILE, FLYER_HULL.h / 2 / TILE];
+export const FLYER_GUN: [number, number] = [FLYER_MUZZLE[0] / TILE, FLYER_MUZZLE[1] / TILE];
 
 export interface EnemyJson {
   x: number;
@@ -18,6 +24,31 @@ export interface EnemyJson {
   burst: Burst;
   pauseMs: number;
   patrol?: [number, number];
+  flight?: FlightJson;
+}
+
+export interface FlightJson {
+  hoverLift: number;
+  aimLift: number;
+  speedScale: number;
+  climb: number;
+  closeCells: number;
+  turnMs: number;
+  wave: { cells: number; hz: number };
+}
+
+export interface Flight {
+  cfg: FlightJson;
+  lift: number;
+  clock: number;
+  behindAge: number;
+}
+
+export interface BodyBox {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
 }
 
 export interface Burst {
@@ -46,39 +77,71 @@ export interface Enemy {
   deadAge: number | null;
   alertAge: number | null;
   pauseLeft: number;
+  flight: Flight | null;
 }
 
 const walking = (body: Hero): Hero => ({ ...body, state: "walk" });
 
-const spawnBody = (e: Pick<Enemy, "spot" | "facing" | "hits">): Hero => walking({ ...createHero(e.spot, "gun", e.hits), facing: e.facing });
+const setState = (body: Hero, state: "walk" | "idle"): void => {
+  if (body.state !== state) Object.assign(body, { state, time: 0, fireTime: null });
+};
+
+const spawnFlight = (cfg: FlightJson | undefined): Flight | null => (cfg ? { cfg, lift: cfg.hoverLift, clock: 0, behindAge: 0 } : null);
+
+const spawnBody = (e: Pick<Enemy, "spot" | "facing" | "hits" | "flight">): Hero => {
+  const body = walking({ ...createHero(e.spot, "gun", e.hits), facing: e.facing });
+  if (e.flight) body.y = e.spot[1] - e.flight.lift;
+  return body;
+};
+
+const ground = (e: Enemy): number => (e.flight ? e.spot[1] : e.body.y);
+
+export function bodyBox(e: Enemy, box: { width: number; height: number }): BodyBox {
+  const { x, y } = e.body;
+  if (!e.flight) return { left: x - box.width / 2, right: x + box.width / 2, top: y - box.height, bottom: y };
+  const [halfW, halfH] = FLYER_HALF;
+  return { left: x - halfW, right: x + halfW, top: y - halfH, bottom: y + halfH };
+}
 
 const floorAt = (grid: TileGrid, col: number, row: number): boolean =>
   (grid.solid(col, row) || grid.ladderTop(col, row)) && !grid.solid(col, row - 1);
+
+function spanOf(x: number, open: (col: number) => boolean, half: number): [number, number] {
+  let [left, right] = [Math.floor(x), Math.floor(x)];
+  while (open(left - 1)) left--;
+  while (open(right + 1)) right++;
+  return [left + half, right + 1 - half];
+}
 
 function patrolOf(grid: TileGrid, shafts: Shaft[], [x, y]: [number, number]): [number, number] {
   const row = Math.round(y);
   const walkable = (col: number): boolean =>
     floorAt(grid, col, row) && !shafts.some((s) => (s.stops ?? [s.top, s.bottom]).includes(row) && col >= s.x && col < s.x + s.w);
-  let [left, right] = [Math.floor(x), Math.floor(x)];
-  while (walkable(left - 1)) left--;
-  while (walkable(right + 1)) right++;
-  return [left + HALF_WIDTH, right + 1 - HALF_WIDTH];
+  return spanOf(x, walkable, HALF_WIDTH);
 }
 
-function configuredPatrol(walkable: [number, number], cells: [number, number] | undefined): [number, number] {
-  if (!cells) return walkable;
-  return [Math.max(walkable[0], cells[0] + HALF_WIDTH), Math.min(walkable[1], cells[1] - HALF_WIDTH)];
+function airOf(grid: TileGrid, [x, y]: [number, number], cfg: FlightJson): [number, number] {
+  const rows = [Math.round(y) - 1, Math.floor(y - cfg.hoverLift)];
+  const open = (col: number): boolean => col >= 0 && col < grid.width && rows.every((row) => !grid.solid(col, row));
+  return spanOf(x, open, FLYER_HALF[0]);
+}
+
+function configuredPatrol(free: [number, number], cells: [number, number] | undefined, half: number): [number, number] {
+  if (!cells) return free;
+  return [Math.max(free[0], cells[0] + half), Math.min(free[1], cells[1] - half)];
 }
 
 export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = []): Enemy {
-  const base = { spot: [json.x, json.y] as [number, number], facing: json.facing, hits: json.hits };
+  const flight = spawnFlight(json.flight);
+  const base = { spot: [json.x, json.y] as [number, number], facing: json.facing, hits: json.hits, flight };
+  const free = json.flight ? airOf(grid, base.spot, json.flight) : patrolOf(grid, shafts, base.spot);
   return {
     ...base,
     respawnMs: json.respawnMs,
     reactMs: json.reactMs,
     burst: json.burst,
     pauseMs: json.pauseMs,
-    patrol: configuredPatrol(patrolOf(grid, shafts, base.spot), json.patrol),
+    patrol: configuredPatrol(free, json.patrol, json.flight ? FLYER_HALF[0] : HALF_WIDTH),
     body: spawnBody(base),
     deadAge: null,
     alertAge: null,
@@ -99,22 +162,24 @@ export function hitEnemy(e: Enemy, damage = 1, react = true): boolean {
   return true;
 }
 
-function sees(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean {
+function inSight(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number, dir: number): boolean {
   const { body } = e;
   const dx = hero.x - body.x;
-  if (hero.hidden || hero.energy <= 0 || Math.abs(hero.y - body.y) > SAME_FLOOR) return false;
-  if (Math.sign(dx) !== body.facing || Math.abs(dx) > sightCells) return false;
-  const row = Math.floor(body.y - 1);
+  if (hero.hidden || hero.energy <= 0 || Math.abs(hero.y - ground(e)) > SAME_FLOOR) return false;
+  if (Math.sign(dx) !== dir || Math.abs(dx) > sightCells) return false;
+  const row = Math.floor(ground(e) - 1);
   for (let col = Math.floor(Math.min(body.x, hero.x)); col <= Math.floor(Math.max(body.x, hero.x)); col++) {
     if (grid.solid(col, row) || (fog && !seenAt(fog, col, row))) return false;
   }
   return true;
 }
 
-function patrol(e: Enemy, clips: ClipSet, dt: number): void {
+const sees = (e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean => inSight(e, grid, hero, fog, sightCells, e.body.facing);
+
+function patrol(e: Enemy, clips: ClipSet, dt: number, scale = 1): void {
   const { body } = e;
   const walk = clips.walk;
-  const speed = walk ? (walk.travel ?? 0) / walk.duration : 0;
+  const speed = walk ? ((walk.travel ?? 0) / walk.duration) * scale : 0;
   const [left, right] = e.patrol;
   body.x += body.facing * speed * dt;
   if (body.x <= left || body.x >= right) {
@@ -127,7 +192,7 @@ function shoot(e: Enemy, dt: number): number {
   const { body, burst } = e;
   if (body.state !== "attack") {
     if (e.pauseLeft > 0) {
-      if (body.state !== "idle") Object.assign(body, { state: "idle", time: 0, fireTime: null });
+      setState(body, "idle");
       return 0;
     }
     Object.assign(body, { state: "attack", time: 0, fireTime: 0 });
@@ -144,6 +209,30 @@ function shoot(e: Enemy, dt: number): number {
   return fired - before;
 }
 
+function turnToHeroBehind(e: Enemy, f: Flight, grid: TileGrid, fog: Fog | null, hero: Hero, sightCells: number, dt: number): void {
+  const behind = inSight(e, grid, hero, fog, sightCells, -e.body.facing);
+  f.behindAge = behind ? f.behindAge + dt : 0;
+  if (f.behindAge * 1000 < f.cfg.turnMs - 1e-6) return;
+  e.body.facing = e.body.facing === 1 ? -1 : 1;
+  f.behindAge = 0;
+}
+
+function fly(e: Enemy, f: Flight, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, sightCells: number, dt: number): number {
+  const { body } = e;
+  const { cfg } = f;
+  f.clock += dt;
+  turnToHeroBehind(e, f, grid, fog, hero, sightCells, dt);
+  const seen = sees(e, grid, hero, fog, sightCells);
+  const target = seen ? cfg.aimLift : cfg.hoverLift + cfg.wave.cells * Math.sin(2 * Math.PI * cfg.wave.hz * f.clock);
+  const step = cfg.climb * dt;
+  f.lift += Math.max(-step, Math.min(step, target - f.lift));
+  body.y = e.spot[1] - f.lift;
+  if (seen && Math.abs(f.lift - cfg.aimLift) < AIM_EPS) return shoot(e, dt);
+  setState(body, "walk");
+  if (!seen || Math.abs(hero.x - body.x) > cfg.closeCells) patrol(e, clips, dt, cfg.speedScale);
+  return 0;
+}
+
 export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, cfg: Pick<MovementConfig, "sightCells">, dt: number): number {
   e.body.time += dt;
   e.pauseLeft = Math.max(0, e.pauseLeft - dt);
@@ -151,6 +240,7 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
   if (e.deadAge !== null) {
     e.deadAge += dt;
     if (e.respawnMs === null || e.deadAge * 1000 < e.respawnMs - 1e-6) return 0;
+    e.flight = spawnFlight(e.flight?.cfg);
     e.body = spawnBody(e);
     e.deadAge = null;
     e.alertAge = null;
@@ -161,8 +251,9 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
     if (hero.x !== e.body.x) e.body.facing = hero.x > e.body.x ? 1 : -1;
     e.alertAge = null;
   }
+  if (e.flight) return fly(e, e.flight, grid, fog, hero, clips, cfg.sightCells, dt);
   if (sees(e, grid, hero, fog, cfg.sightCells)) return shoot(e, dt);
-  if (e.body.state !== "walk") Object.assign(e.body, { state: "walk", time: 0, fireTime: null });
+  setState(e.body, "walk");
   patrol(e, clips, dt);
   return 0;
 }

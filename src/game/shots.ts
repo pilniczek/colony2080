@@ -6,7 +6,7 @@ import { fogEdge, visible } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
-import { ENEMY_SHOT, hitEnemy, isDead, type Enemy } from "./level/enemy";
+import { bodyBox, ENEMY_SHOT, FLYER_GUN, hitEnemy, isDead, type Enemy } from "./level/enemy";
 import type { Prop, SandboxWorld } from "./level/sandboxLevel";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
@@ -61,12 +61,11 @@ function wallBetween(world: SandboxWorld, from: number, p: Projectile): number |
 
 function enemyFace(enemy: Enemy, cfg: MovementConfig, from: number, p: Projectile): number | null {
   if (p.tag !== HERO_SHOT || isDead(enemy)) return null;
-  const { x, y } = enemy.body;
-  const half = cfg.box.width / 2 + p.r;
-  if (p.y < y - cfg.box.height - p.r || p.y > y + p.r) return null;
+  const { left, right, top, bottom } = bodyBox(enemy, cfg.box);
+  if (p.y < top - p.r || p.y > bottom + p.r) return null;
   const [lo, hi] = [Math.min(from, p.x), Math.max(from, p.x)];
-  if (hi < x - half || lo > x + half) return null;
-  return p.vx > 0 ? Math.max(from, x - half) : Math.min(from, x + half);
+  if (hi < left - p.r || lo > right + p.r) return null;
+  return p.vx > 0 ? Math.max(from, left - p.r) : Math.min(from, right + p.r);
 }
 
 const shootable = (prop: Prop): boolean => !!prop.shootable && (prop.hitsTaken ?? 0) < prop.shootable.hits;
@@ -213,10 +212,13 @@ export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], c
   }
 }
 
+const enemyMuzzle = ({ body, flight }: Enemy, clips: ClipSet, cfg: MovementConfig): Pt =>
+  flight ? [body.x + body.facing * FLYER_GUN[0], body.y + FLYER_GUN[1]] : heroMuzzle(body, clips, cfg);
+
 export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, enemy: Enemy, count: number): void {
   const { body } = enemy;
   for (let i = 0; i < count; i++) {
-    const [x, y] = heroMuzzle(body, clips, cfg);
+    const [x, y] = enemyMuzzle(enemy, clips, cfg);
     if (!seen(world, x, y)) continue;
     launch(world, cfg, body.x, { x: body.x, y, vx: body.facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x, endX: body.x + body.facing * cfg.sightCells });
   }

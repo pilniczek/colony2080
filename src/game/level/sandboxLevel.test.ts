@@ -175,11 +175,12 @@ describe("moving lift", () => {
     expect(g.hero.onLift).toBe(true);
   });
 
-  it("loads four enemies, the three new ones without respawn", () => {
+  it("loads four droids, the three new ones without respawn, and a respawning flyer", () => {
     const { enemies } = loadSandbox(sandbox);
-    expect(enemies).toHaveLength(4);
+    expect(enemies).toHaveLength(5);
     expect(enemies[0]!.respawnMs).toBe(5000);
-    expect(enemies.slice(1).every((e) => e.respawnMs === null)).toBe(true);
+    expect(enemies.slice(1, 4).every((e) => e.respawnMs === null && !e.flight)).toBe(true);
+    expect(enemies[4]!).toMatchObject({ respawnMs: 5000, flight: { lift: sandbox.enemies[4]!.flight!.hoverLift } });
   });
 
   it("damages only the enemy a hero bullet reaches", () => {

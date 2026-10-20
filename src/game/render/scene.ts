@@ -11,7 +11,8 @@ import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type 
 import type { Rect } from "../geometry";
 import type { Enemy } from "../level/enemy";
 import type { SandboxWorld } from "../level/sandboxLevel";
-import { TILE } from "../env/paint";
+import { ASSETS } from "../env/assets";
+import { drawAsset, TILE } from "../env/paint";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
@@ -43,6 +44,7 @@ const MODELS = {
   gun: { draw: drawGun, hook: gunHook, slung: gunSlung },
   blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
 } satisfies Record<GunModel, unknown>;
+const FLYER_HIT = { flash: 0.25, glow: 0.6 };
 const SCRAP: [number, number][] = [[-34, 0], [-26, -8], [-14, -10], [-8, -18], [2, -12], [10, -22], [18, -12], [28, -10], [36, 0]];
 
 const COLORS = {
@@ -63,6 +65,7 @@ interface Frame {
   cell: number;
   unit: number;
   lineW: number;
+  lines: number;
 }
 
 function projectiles(f: Frame, alpha: number): void {
@@ -172,9 +175,9 @@ function vortexRing(f: Frame, x: number, y: number, age: number): void {
   ctx.restore();
 }
 
-function blast(f: Frame, body: Hero, age: number): void {
+function blast(f: Frame, body: Hero, age: number, centered = false): void {
   const { cell, unit } = f;
-  const [cx, cy] = [body.x * cell, body.y * cell + BLAST.center * unit];
+  const [cx, cy] = [body.x * cell, body.y * cell + (centered ? 0 : BLAST.center * unit)];
   const angle = body.facing * BLAST.spin * age;
   const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
   const pull = 1 - 0.85 * span(age, BLAST.pull[0], BLAST.pull[1]);
@@ -201,7 +204,24 @@ function scrap(f: Frame, body: Hero): void {
   for (const [dx, dy, w] of [[-12, -9, 6], [8, -18, 4], [20, -10, 5]] as const) ctx.fillRect(x + body.facing * dx * unit, y + dy * unit, w * unit, 2 * unit);
 }
 
+function flyerFigure(f: Frame, { body, flight, deadAge }: Enemy): void {
+  const { ctx, cell, lines } = f;
+  if (deadAge === null || deadAge < BLAST.hideBody) {
+    const k = cell / TILE;
+    ctx.save();
+    ctx.translate(body.x * cell, body.y * cell);
+    ctx.scale(body.facing * k, k);
+    const flash = body.hitAge === null ? 0 : 1 - span(body.hitAge, 0, FLYER_HIT.flash);
+    if (flash > 0) ctx.filter = `brightness(${1 + flash * FLYER_HIT.glow}) saturate(${1 + flash})`;
+    const fire = body.fireTime;
+    drawAsset(ctx, ASSETS.flyer, { state: fire === null ? 0 : 1, t: fire ?? flight?.clock ?? 0, lod: true, lines });
+    ctx.restore();
+  }
+  if (deadAge !== null) blast(f, body, deadAge, true);
+}
+
 function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: number, fireRate: number): void {
+  if (enemy.flight) return flyerFigure(f, enemy);
   const age = enemy.deadAge;
   if (age === null || age < BLAST.hideBody) {
     shadow(f, enemy.body, look);
@@ -315,7 +335,7 @@ export function drawScene(
 ): void {
   const scale = heroScale(cfg);
   const unit = spikeUnit(cfg);
-  const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale };
+  const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale, lines };
   ctx.save();
   ctx.setTransform(view.scale, 0, 0, view.scale, view.offsetX, view.offsetY);
   ctx.beginPath();

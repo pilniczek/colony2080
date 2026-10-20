@@ -1,3 +1,4 @@
+import { flyerHull } from "./flyer";
 import { P, type EnvAsset } from "./paint";
 
 type Pt = [number, number];
@@ -44,22 +45,6 @@ const slit = (ctx: CanvasRenderingContext2D, x0: number, x1: number, y: number, 
   ctx.fillRect(x0, y, x1 - x0, h);
 };
 
-const flyerHull = (ctx: CanvasRenderingContext2D): void => {
-  poly(ctx, [[4, 14.2], [38, 14.2], [46.5, 13], [38, 15.8], [26, 17.2], [12, 17.4], [4, 16.6], [3.2, 15]], "flyerHull", 0);
-  poly(ctx, [[4, 11], [26, 11], [47.5, 11.2], [49, 11.8], [46.5, 13], [38, 14.2], [4, 14.2]], "flyerHull", 2);
-  poly(ctx, [[4, 8], [19, 8.2], [26, 8.4], [26, 11], [4, 11]], "flyerHull", 2);
-  poly(ctx, [[26, 8.4], [38, 9.2], [47.5, 11.2], [26, 11]], "flyerStripe", 1, { dir: [1, 0] });
-  poly(ctx, [[19, 3.6], [26, 3.4], [34, 4.6], [40, 6.4], [44, 8.4], [47.5, 11.2], [38, 9.2], [26, 8.4], [19, 8.2]], "flyerShell", 1);
-  poly(ctx, [[3.5, 5.2], [10.5, 4.8], [10.5, 8], [4, 8]], "flyerHull", 0);
-  poly(ctx, [[3.5, 5.2], [10.5, 4.4], [19.4, 3.5], [19, 8.2], [4, 8]], "flyerHull", 1);
-  if (!P.simple()) {
-    for (const x of [10.5, 19, 26]) line(ctx, [[x, 11.2], [x, 14]], "fh0", 0.4, "butt");
-    line(ctx, [[5, 9.5], [9, 9.5]], "fh3", 0.4, "butt");
-    line(ctx, [[20, 3.8], [33, 5]], "fc3", 0.4);
-  }
-  for (const x of [9, 11.5, 14, 16.5, 19, 21.5, 24]) flat(ctx, x, 11.1, 1.2, 1, "fLight");
-};
-
 const squashAbove = (ctx: CanvasRenderingContext2D, y: number, draw: (top: boolean) => void): void => {
   ctx.save();
   ctx.beginPath();
@@ -91,7 +76,7 @@ const sideHull = (ctx: CanvasRenderingContext2D, front: number): void => {
   ctx.clip();
   ctx.translate(HULL.rear + 3.2 * HULL.sx, HULL.top - 2.2 * HULL.sy);
   ctx.scale(-HULL.sx, HULL.sy);
-  flyerHull(ctx);
+  flyerHull(ctx, { hump: false, patch: false });
   ctx.restore();
 };
 

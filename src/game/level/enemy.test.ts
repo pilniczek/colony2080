@@ -2,7 +2,7 @@ import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { cfg, clips, dt, game, run, tick, type Game } from "../hero/testWorld";
 import { TileGrid } from "../../engine/world/tiles";
-import { createEnemy, ENEMY_SHOT, hitEnemy, isDead, updateEnemy, type Enemy } from "./enemy";
+import { createEnemy, ENEMY_SHOT, FLYER_HALF, hitEnemy, isDead, updateEnemy, type Enemy, type EnemyJson } from "./enemy";
 
 const PATROL = { left: 1 + cfg.box.width / 2, right: 11 - cfg.box.width / 2 };
 
@@ -229,7 +229,7 @@ describe("sandbox enemy", () => {
 
   it("keeps patrols off lift shafts and out of the right strip", () => {
     const { enemies, lifts } = game().world;
-    for (const e of enemies.slice(1)) {
+    for (const e of enemies.slice(1).filter((e) => !e.flight)) {
       const [left, right] = e.patrol;
       expect(right).toBeLessThan(40);
       for (const l of lifts.filter((l) => l.top === e.spot[1] || l.bottom === e.spot[1])) {
@@ -241,7 +241,7 @@ describe("sandbox enemy", () => {
   it("stops its patrol at a middle lift stop", () => {
     const grid = new TileGrid(["..........", "##########"]);
     const shaft = { x: 6, w: 2, top: 0, bottom: 2, stops: [0, 1, 2] };
-    const enemy = createEnemy({ ...sandbox.enemies[0]!, x: 1.5, y: 1, facing: 1 }, grid, [shaft]);
+    const enemy = createEnemy({ ...(sandbox.enemies[0] as EnemyJson), x: 1.5, y: 1, facing: 1 }, grid, [shaft]);
     expect(enemy.patrol[1]).toBeCloseTo(6 - 0.35, 9);
   });
 
@@ -256,5 +256,109 @@ describe("sandbox enemy", () => {
     const g = game();
     run(g, 0.1);
     expect(g.world.enemies.every((e) => e.body.state === "walk")).toBe(true);
+  });
+});
+
+describe("sandbox flyer", () => {
+  const json = sandbox.enemies[4]!;
+  const flight = json.flight!;
+  const floor = json.y;
+  const flyerOf = (g: Game): Enemy => g.world.enemies[4]!;
+  const liftOf = (e: Enemy): number => floor - e.body.y;
+  const shotsAt = (g: Game) => enemyShots(g);
+
+  it("hovers at the right end of the spawn floor, patrolling right of the lift shaft", () => {
+    const e = flyerOf(game());
+    expect(e.flight).not.toBeNull();
+    expect(e.body).toMatchObject({ x: json.x, facing: -1, state: "walk" });
+    expect(liftOf(e)).toBeCloseTo(flight.hoverLift, 9);
+    expect(e.patrol[0]).toBeCloseTo(37 + FLYER_HALF[0], 9);
+    expect(e.patrol[1]).toBeCloseTo(47 - FLYER_HALF[0], 9);
+  });
+
+  it("cruises edge to edge at speedScale times the walk speed on its hover wave", () => {
+    const g = game();
+    const e = flyerOf(g);
+    const walk = clips.walk!;
+    const speed = ((walk.travel ?? 0) / walk.duration) * flight.speedScale;
+    const x = e.body.x;
+    tick(g);
+    expect(x - e.body.x).toBeCloseTo(speed * dt, 9);
+    let [min, max] = [Infinity, -Infinity];
+    for (let i = 0; i < 30 / dt; i++) {
+      tick(g);
+      [min, max] = [Math.min(min, e.body.x), Math.max(max, e.body.x)];
+      expect(Math.abs(liftOf(e) - flight.hoverLift)).toBeLessThanOrEqual(flight.wave.cells + 1e-9);
+    }
+    expect(min).toBeLessThan(e.patrol[0] + 0.1);
+    expect(max).toBeGreaterThan(e.patrol[1] - 0.1);
+    expect(shotsAt(g)).toHaveLength(0);
+  });
+
+  it("dives to aimLift when it sees the hero and fires bursts that hit a standing hero", () => {
+    const g = game({ x: 39.5, y: floor });
+    const e = flyerOf(g);
+    tick(g);
+    expect(liftOf(e)).toBeLessThan(flight.hoverLift);
+    expect(shotsAt(g)).toHaveLength(0);
+    const dive = (flight.hoverLift - flight.aimLift) / flight.climb;
+    run(g, dive + 0.05);
+    expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
+    expect(e.body.state).toBe("attack");
+    run(g, 1);
+    expect(g.hero.energy).toBeLessThan(cfg.energy.max);
+  });
+
+  it("stops closeCells from the hero while it dives", () => {
+    const g = game({ x: 37.5, y: floor });
+    const e = flyerOf(g);
+    e.body.x = 41.5;
+    run(g, 1);
+    expect(e.body.x - g.hero.x).toBeGreaterThanOrEqual(flight.closeCells - 0.1);
+    expect(e.body.x - g.hero.x).toBeLessThanOrEqual(flight.closeCells + 0.1);
+  });
+
+  it("climbs back to its hover and flies on when the hero hides", () => {
+    const g = game({ x: 39.5, y: floor });
+    const e = flyerOf(g);
+    run(g, 0.6);
+    expect(e.body.state).toBe("attack");
+    run(g, 1.5, ["hide"]);
+    expect(e.body.state).toBe("walk");
+    expect(Math.abs(liftOf(e) - flight.hoverLift)).toBeLessThanOrEqual(flight.wave.cells + 1e-9);
+  });
+
+  it("turns to a hero behind it on its floor after turnMs", () => {
+    const g = game({ x: 46.5, y: floor });
+    const e = flyerOf(g);
+    e.body.x = 42.5;
+    run(g, flight.turnMs / 1000 - 2 * dt);
+    expect(e.body.facing).toBe(-1);
+    run(g, 3 * dt);
+    expect(e.body.facing).toBe(1);
+  });
+
+  it("flies over hero bullets while it hovers and takes them once it dives", () => {
+    const g = game({ x: 37.5, y: floor, weapon: "gun" });
+    const e = flyerOf(g);
+    Object.assign(e.body, { x: 45.5, facing: 1 });
+    e.flight!.cfg = { ...flight, turnMs: Infinity };
+    g.hero.facing = 1;
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.4, ["shoot"]);
+    expect(e.body.energy).toBe(json.hits);
+    run(g, 1.5, ["shoot"]);
+    expect(e.body.energy).toBeLessThan(json.hits);
+  });
+
+  it("comes back hovering at its spot after respawnMs", () => {
+    const g = game({ x: 39.5, y: floor });
+    const e = flyerOf(g);
+    run(g, 1);
+    for (let i = 0; i < json.hits; i++) hitEnemy(e);
+    expect(isDead(e)).toBe(true);
+    for (let i = 0; i < (json.respawnMs! + 50) / 1000 / dt; i++) updateEnemy(e, g.world.grid, null, game().hero, clips, cfg, dt);
+    expect(isDead(e)).toBe(false);
+    expect(liftOf(e)).toBeCloseTo(flight.hoverLift, 1);
   });
 });

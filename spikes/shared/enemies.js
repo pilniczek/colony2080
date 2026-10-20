@@ -596,6 +596,15 @@ ENV.define({
   }
 });
 
+ENV.define({
+  id: "flyer",
+  box: [-32, -10, 60, 20],
+  anim: true,
+  draw(ctx, state, t) {
+    flyerBody(ctx, state, t);
+  }
+});
+
 window.ENEMIES = {
   FLYER, GUARD, GUARD_FRONT, GUARD_LEVELS, FLYER_PALETTE, GUARD_PALETTE,
   BLAST, BLAST_PX, blast, scrap, inBlastUnits,
