@@ -318,13 +318,38 @@ describe("sandbox flyer", () => {
     expect(e.body.x - g.hero.x).toBeLessThanOrEqual(flight.closeCells + 0.1);
   });
 
-  it("climbs back to its hover and flies on when the hero hides", () => {
+  it("stays at gun height and flies on when the hero hides or leaves", () => {
     const g = game({ x: 39.5, y: floor });
     const e = flyerOf(g);
     run(g, 0.6);
     expect(e.body.state).toBe("attack");
     run(g, 1.5, ["hide"]);
     expect(e.body.state).toBe("walk");
+    expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
+    Object.assign(g.hero, { x: 7.5, hidden: false, state: "idle" });
+    for (let i = 0; i < 10 / dt; i++) {
+      tick(g);
+      expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
+    }
+  });
+
+  it("climbs back to its hover when the hero hides during the dive", () => {
+    const g = game({ x: 39.5, y: floor });
+    const e = flyerOf(g);
+    run(g, 0.2);
+    expect(liftOf(e)).toBeGreaterThan(flight.aimLift);
+    run(g, 1.5, ["hide"]);
+    expect(Math.abs(liftOf(e) - flight.hoverLift)).toBeLessThanOrEqual(flight.wave.cells + 1e-9);
+  });
+
+  it("hovers again after it respawns", () => {
+    const g = game({ x: 39.5, y: floor });
+    const e = flyerOf(g);
+    run(g, 0.6);
+    for (let i = 0; i < json.hits; i++) hitEnemy(e);
+    g.hero.x = 7.5;
+    run(g, json.respawnMs! / 1000 + 1);
+    expect(isDead(e)).toBe(false);
     expect(Math.abs(liftOf(e) - flight.hoverLift)).toBeLessThanOrEqual(flight.wave.cells + 1e-9);
   });
 
