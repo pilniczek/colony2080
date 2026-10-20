@@ -1,14 +1,11 @@
 import { useEffect, useMemo } from "react";
+import { whenIdle } from "../../engine/idle";
 import { inventoryArt } from "../../game/hud/icons";
 import { inventorySvg, type InventoryArt } from "../../game/hud/inventory";
 import { useSandbox } from "../store";
 
 let cached: InventoryArt | null = null;
 export const art = (): InventoryArt => (cached ??= inventoryArt());
-const whenIdle = (task: () => void): void => {
-  if (typeof requestIdleCallback === "function") requestIdleCallback(task);
-  else setTimeout(task);
-};
 
 export function InventoryScreen() {
   const { open, cursor } = useSandbox((s) => s.inventory);

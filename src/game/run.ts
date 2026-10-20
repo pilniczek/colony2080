@@ -8,7 +8,8 @@ import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
-import { filmOf, loadFilms, type CutsceneId } from "./cutscene";
+import { whenIdle } from "../engine/idle";
+import { filmOf, loadFilms, type Cutscene, type CutsceneId } from "./cutscene";
 import { lookAt } from "./cutscene/looks";
 import { drawRobotView } from "./cutscene/robotView";
 import { playFilm } from "./cutscene/play";
@@ -199,6 +200,24 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     push();
   };
 
+  const warmFilms = (films: Cutscene[]): void => {
+    const scratch = document.createElement("canvas");
+    scratch.width = Math.max(1, Math.round(filmWidth));
+    scratch.height = canvas.height;
+    const warm = scratch.getContext("2d");
+    if (!warm) return;
+    const next = (i: number): void => {
+      const film = films[i];
+      if (!film) return;
+      if (world.cutscene) return whenIdle(() => next(i));
+      film.render(warm, scratch.width, scratch.height, 0);
+      whenIdle(() => next(i + 1));
+    };
+    drawSecurityCam(warm, scratch.width, scratch.height, 0, "");
+    drawRobotView(warm, scratch.width, scratch.height, 0);
+    whenIdle(() => next(0));
+  };
+
   const picture = (): string => {
     const shot = document.createElement("canvas");
     shot.width = PICTURE_W;
@@ -337,7 +356,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   window.addEventListener("keydown", mapKeys, { capture: true });
 
   startFilm(world, intro);
-  setTimeout(() => void loadFilms(), FILM_PRELOAD_MS);
+  setTimeout(() => void loadFilms().then(warmFilms), FILM_PRELOAD_MS);
   fit();
   window.addEventListener("resize", fit);
   new MutationObserver(fit).observe(ui, { childList: true });
