@@ -30,9 +30,9 @@ describe("menuSvg", () => {
     for (const entry of [">GAME OVER<", "LOAD LAST SAVE", "RESTART MISSION", "EXIT", "THIS SAVE IS DAMAGED."]) expect(svg).toContain(entry);
   });
 
-  it("puts game over over the dead hero", () => {
+  it("puts game over at the dead hero height, centred on the screen", () => {
     const svg = menuSvg(320, 200, { screen: "gameOver", cursor: 1, canLoad: false, at: { x: 100, y: 80 } }, slots, robot);
-    expect(svg).toMatch(/<text x="100" y="80" text-anchor="middle"[^>]*>GAME OVER</);
+    expect(svg).toMatch(/<text x="160" y="80" text-anchor="middle"[^>]*>GAME OVER</);
   });
 
   it("asks before leaving to mission select", () => {
