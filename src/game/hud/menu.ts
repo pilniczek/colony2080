@@ -17,7 +17,7 @@ const PICTURE = { w: 40, h: 24 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.45;
 
-const DEFS = `<defs><pattern id="menuGrid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="${MENU.grid}" stroke-width=".6"/></pattern></defs>`;
+const DEFS = `<defs><pattern id="menuGrid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M0 16V0H16" fill="none" stroke="${MENU.grid}" stroke-width=".6"/></pattern></defs>`;
 
 const escaped = (value: string): string => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
