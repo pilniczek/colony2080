@@ -114,6 +114,15 @@ function setState(world: SandboxWorld, id: string, state: number): void {
 
 export const openTask = (world: SandboxWorld, prop: Prop): Task | undefined => open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
 
+export function pickAll(world: SandboxWorld): number {
+  const ground = world.props.filter((p) => p.kind === "item");
+  for (const prop of ground) prop.taken = true;
+  const given = world.tasks.flatMap((t) => t.gives.map(itemOf));
+  const fresh = [...new Set([...ground.map((p) => p.item!), ...given])].filter((id): id is ItemId => id !== null && !world.inventory.items.includes(id));
+  for (const id of fresh) pickUp(world, id);
+  return fresh.length;
+}
+
 export function runUse(world: SandboxWorld, prop: Prop, { filmed = false } = {}): void {
   const task = openTask(world, prop);
   if (!task) {

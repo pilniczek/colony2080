@@ -6,6 +6,7 @@ describe("cheat codes", () => {
     expect(cheatOf("c2080isforever")).toBe("immortal");
     expect(cheatOf(" C2080IsEverywhere ")).toBe("noFog");
     expect(cheatOf("c2080ispowerful")).toBe("weapon");
+    expect(cheatOf("c2080isrich")).toBe("items");
   });
 
   it("reads the moveto target cell", () => {

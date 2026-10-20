@@ -28,7 +28,7 @@ import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
 import type { ItemId } from "./items";
 import { resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
-import { say } from "./level/tasks";
+import { pickAll, say } from "./level/tasks";
 import { drawFog, seenPath } from "./render/fog";
 import { drawMap } from "./render/map";
 import { drawOverlays } from "./render/overlays";
@@ -434,6 +434,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       say(world, fogOn ? "Fog of war on" : "Fog of war off");
     }
     if (cheat === "weapon") giveWeapon();
+    if (cheat === "items") giveItems();
     if (typeof cheat === "object" && cheat !== null) moveTo(...cheat.moveTo);
   };
 
@@ -443,6 +444,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     for (const p of props) p.taken = true;
     hero.blaster = tuning().movement.blaster.ammo;
     say(world, "Picked up E-Blaster");
+  };
+
+  const giveItems = (): void => {
+    const count = pickAll(world);
+    say(world, count ? `Picked up ${count} items` : "Every item already held");
   };
 
   const moveTo = (x: number, y: number): void => {

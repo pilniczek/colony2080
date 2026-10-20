@@ -1,4 +1,4 @@
-export type Cheat = "immortal" | "noFog" | "weapon" | { moveTo: [number, number] };
+export type Cheat = "immortal" | "noFog" | "weapon" | "items" | { moveTo: [number, number] };
 
 type Toggle = Exclude<Cheat, { moveTo: [number, number] }>;
 
@@ -6,6 +6,7 @@ export const CHEATS: { code: string; effect: string; cheat?: Toggle }[] = [
   { code: "c2080isforever", cheat: "immortal", effect: "Immortality: shots, hazards and falls do nothing, pits hold the hero. Enter again to turn off." },
   { code: "c2080iseverywhere", cheat: "noFog", effect: "No fog of war. Enter again to turn fog back on." },
   { code: "c2080ispowerful", cheat: "weapon", effect: "Gives the mission's special weapon with full ammo and removes its pickup from the map." },
+  { code: "c2080isrich", cheat: "items", effect: "Gives every item of the mission: items on the map (hidden ones too) and items tasks hand out, each once. Weapons stay. No films." },
   { code: "moveto(x,y)", effect: "Moves the hero to map cell x, y (y is the floor row, as in world.json), e.g. moveto(40,10)." },
 ];
 

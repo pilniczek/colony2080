@@ -283,7 +283,7 @@ export function approachFilms(world: SandboxWorld, hero: Pick<Hero, "x" | "y">):
 }
 
 export function pickUp(world: SandboxWorld, id: ItemId): void {
-  world.inventory.items.push(id);
+  if (!world.inventory.items.includes(id)) world.inventory.items.push(id);
   world.inventory.shown = id;
 }
 

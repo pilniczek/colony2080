@@ -2,7 +2,8 @@ import tasksJson from "@config/levels/mesto/tasks.json";
 import { describe, expect, it } from "vitest";
 import { cfg, objectLevel } from "../hero/testWorld";
 import { loadSandbox, pickUp, resetWorld, showItem, useShown, type SandboxWorld } from "./sandboxLevel";
-import { loadTasks, runUse } from "./tasks";
+import { loadMesto } from "./mesto";
+import { loadTasks, pickAll, runUse } from "./tasks";
 
 const world = (): SandboxWorld => loadSandbox(objectLevel);
 const prop = (w: SandboxWorld, id: string) => w.props.find((p) => p.id === id)!;
@@ -28,6 +29,29 @@ describe("inventory", () => {
     showItem(w, "wires");
     expect(useShown(w)).toBe("wires");
     expect(w.inventory).toEqual({ items: ["crowbar", "card"], shown: "card" });
+  });
+
+  it("never holds an item twice", () => {
+    const w = world();
+    pickUp(w, "wires");
+    pickUp(w, "crowbar");
+    pickUp(w, "wires");
+    expect(w.inventory).toEqual({ items: ["wires", "crowbar"], shown: "wires" });
+  });
+
+  it("picks every item of the mission once: ground, hidden and task items", () => {
+    const w = loadMesto();
+    const expected = [
+      ...w.props.filter((p) => p.kind === "item").map((p) => p.item!),
+      ...w.tasks.flatMap((t) => t.gives).filter((t) => t.startsWith("item:")).map((t) => t.slice(5)),
+    ];
+    expect(pickAll(w)).toBe(new Set(expected).size);
+    expect(new Set(w.inventory.items)).toEqual(new Set(expected));
+    expect(w.inventory.items).toContain("wires");
+    expect(w.props.filter((p) => p.kind === "item").every((p) => p.taken)).toBe(true);
+    expect(w.props.filter((p) => p.kind === "weapon").some((p) => p.taken)).toBe(false);
+    expect(pickAll(w)).toBe(0);
+    expect(w.inventory.items).toHaveLength(new Set(expected).size);
   });
 
   it("shows any held item without reordering", () => {
