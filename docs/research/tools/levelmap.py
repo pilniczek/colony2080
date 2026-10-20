@@ -19,7 +19,8 @@ EXTRAS = {
             "(map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, "
             "dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; "
             "lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors fill every bottom stop row so no pit "
-            "opens under a lift (report 13, Our blockers); the crane mast gap (floor 10, cols 36-38) stays a plank with no wall so the hero walks west "
+            "opens under a lift (report 13, Our blockers); a floor beside a shaft on a row where its lift does not stop gets a wall up to the floor above, "
+            "so it does not read as a landing (user);the crane mast gap (floor 10, cols 36-38) stays a plank with no wall so the hero walks west "
             "past the crane panel, and the plank row 10 gap over the crane (cols 22-30) stays open; the never reached floors over the crashed ship "
             "(cols 7-22, rows 11-38, around the col 18 and row 23 edges of the reached runs) and the planks under its pad (rows 44 and 51, cols 11-20) "
             "are cleared to open sky, the pad (row 41, on to col 21 under the rear strut) is the roof of a building drawn by world.json down to the street (row 59), "
@@ -170,6 +171,21 @@ def lift_json(lift, extra):
     return out
 
 
+def wall_passed_floors(grid, lifts):
+    for lift in lifts:
+        stops = lift.get("stops", [lift["top"], lift["bottom"]])
+        for row in range(stops[0] + 1, stops[-1]):
+            if row in stops:
+                continue
+            for col in (lift["x"] - 1, lift["x"] + lift["width"]):
+                if grid[row][col] not in "#=":
+                    continue
+                top = row - 1
+                while top > 0 and grid[top - 1][col] not in "#=":
+                    top -= 1
+                paint(grid, col, top, col, row - 1, "#")
+
+
 def droids(enemies):
     return [{"cell": e["cell"], "patrol": e["patrol"]} for e in enemies["enemies"] if e["type"] == "chromeDroid"]
 
@@ -226,6 +242,8 @@ def build(data, layout, enemies, cfg):
     for lift in lifts:
         for col in range(lift["x"], lift["x"] + lift["width"]):
             grid[lift["bottom"]][col] = "|"
+    wall_passed_floors(grid, lifts)
+    for lift in lifts:
         for row in range(lift["top"] - 2, lift["bottom"]):
             for col in range(lift["x"], lift["x"] + lift["width"]):
                 if grid[row][col] != ".":
