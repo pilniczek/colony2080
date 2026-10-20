@@ -27,7 +27,13 @@ describe("menuSvg", () => {
 
   it("shows game over with load, restart and exit, and a message", () => {
     const svg = menuSvg(320, 200, { screen: "gameOver", cursor: 1, canLoad: false, message: "This save is damaged." }, slots, robot);
-    for (const entry of ["GAME OVER", "LOAD LAST SAVE", "RESTART MISSION", "EXIT", "THIS SAVE IS DAMAGED."]) expect(svg).toContain(entry);
+    for (const entry of [">GAME<", ">OVER<", "LOAD LAST SAVE", "RESTART MISSION", "EXIT", "THIS SAVE IS DAMAGED."]) expect(svg).toContain(entry);
+  });
+
+  it("puts game over beside the dead hero", () => {
+    const svg = menuSvg(320, 200, { screen: "gameOver", cursor: 1, canLoad: false, at: { x: 100, y: 80 } }, slots, robot);
+    expect(svg).toMatch(/<text x="86" y="80" text-anchor="end"[^>]*>GAME</);
+    expect(svg).toMatch(/<text x="114" y="80" text-anchor="start"[^>]*>OVER</);
   });
 
   it("asks before leaving to mission select", () => {

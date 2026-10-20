@@ -53,6 +53,7 @@ function rig(storage: Storage = memory()): Rig {
     movement: () => cfg,
     moved: () => {},
     leave: (href) => void left.push(href),
+    bodyAt: () => ({ x: 40, y: 50 }),
     target: { addEventListener: ((_: string, h: (e: KeyboardEvent) => void) => (handler = h)) as Window["addEventListener"] },
   };
   const menu = createSaveMenu(deps);
@@ -119,7 +120,7 @@ describe("save menu", () => {
     const r = rig();
     die(r);
     expect(r.menu.step(DT)).toBe(true);
-    expect(useSandbox.getState().menu).toMatchObject({ screen: "gameOver", canLoad: false, cursor: 1 });
+    expect(useSandbox.getState().menu).toMatchObject({ screen: "gameOver", canLoad: false, cursor: 1, at: { x: 40, y: 50 } });
     r.press("Enter");
     expect(useSandbox.getState().menu).toBeNull();
     expect(r.menu.step(DT)).toBe(false);

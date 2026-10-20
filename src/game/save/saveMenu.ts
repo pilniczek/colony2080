@@ -31,6 +31,7 @@ export interface SaveMenuDeps extends SaveMenuOptions {
   movement: () => MovementConfig;
   moved: () => void;
   leave: (href: string) => void;
+  bodyAt: () => { x: number; y: number } | null;
   target?: Pick<Window, "addEventListener">;
 }
 
@@ -70,7 +71,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
 
   const withMessage = (state: MenuState | null, message: string): MenuState | null => {
     if (!state || state.screen === "pause") return state;
-    if (state.screen === "gameOver") return gameOverState(loadableNow(), message);
+    if (state.screen === "gameOver") return gameOverState(loadableNow(), message, state.at ?? null);
     return { ...state, message };
   };
 
@@ -128,7 +129,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
       if (!isDead(hero.state)) respawnAllowed = false;
       else if (gameOverDue(hero, dt, d.movement().respawnMs, respawnAllowed)) {
         refresh();
-        show(gameOverState(loadableNow()));
+        show(gameOverState(loadableNow(), null, d.bodyAt()));
         return true;
       }
       if (isDead(hero.state) || !d.input.consume("menu")) return false;

@@ -40,6 +40,7 @@ const MAX_PANEL_SHARE = 0.5;
 const MAP_HINT = "You have no map.";
 const PICTURE_W = 96;
 const PICTURE_QUALITY = 0.6;
+const BODY_LIFT = 0.35;
 
 export interface RunStart {
   weapon: Weapon;
@@ -99,6 +100,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves 
   let prev = { x: hero.x, y: hero.y };
   let gameWindow: Rect = { x: 0, y: 0, w: 1, h: 1 };
   let filmWidth = 1;
+  let lastView: ViewTransform | null = null;
   let inputLog: string[] = [];
   let lastHeld = "";
   let lastRender = 0;
@@ -210,6 +212,16 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves 
         prev = { x: hero.x, y: hero.y };
       },
       leave: (href) => location.assign(href),
+      bodyAt: () => {
+        if (!lastView) return null;
+        const { cellPx } = tuning().movement;
+        const { unit } = tuning().hud;
+        const dpr = devicePixelRatio || 1;
+        return {
+          x: (lastView.offsetX + hero.x * cellPx * lastView.scale) / dpr / unit,
+          y: (lastView.offsetY + (hero.y - BODY_LIFT) * cellPx * lastView.scale) / dpr / unit,
+        };
+      },
     });
 
   const loop = new FixedLoop({
@@ -253,6 +265,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves 
       const shown = { ...hero, x: lerp(prev.x, hero.x, alpha), y: lerp(prev.y, hero.y, alpha) };
       const look = heroLook(hero, clips, rigs, hold, cfg);
       const view = cameraView(shown, cfg);
+      lastView = view;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, canvas.width, canvas.height);

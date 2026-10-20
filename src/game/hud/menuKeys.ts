@@ -11,9 +11,15 @@ type ListScreen = { screen: "save" | "load"; cursor: number; typing: string | nu
 export type MenuState =
   | { screen: "pause"; cursor: number; confirm?: boolean }
   | ListScreen
-  | { screen: "gameOver"; cursor: number; canLoad: boolean; message?: string | null };
+  | { screen: "gameOver"; cursor: number; canLoad: boolean; message?: string | null; at?: { x: number; y: number } | null };
 
-export const gameOverState = (canLoad: boolean, message: string | null = null): MenuState => ({ screen: "gameOver", cursor: canLoad ? 0 : 1, canLoad, message });
+export const gameOverState = (canLoad: boolean, message: string | null = null, at: { x: number; y: number } | null = null): MenuState => ({
+  screen: "gameOver",
+  cursor: canLoad ? 0 : 1,
+  canLoad,
+  message,
+  at,
+});
 
 export type MenuAction = "save" | "load" | "restart" | "end" | "home";
 
