@@ -1,36 +1,19 @@
 (() => {
 const { kit } = window.CUTSCENES;
-const { buildFront, render: renderBot, FOOT_Y, AX, GAME_LINE } = window.XBOT;
+const { random, LINE_W } = kit;
+const { buildFront, render: renderBot, AX } = window.XBOT;
 const CFG = window.C28_CONFIG.cutscenes.pickEBlaster;
 const S = CFG.stage;
 const W = S.width, H = S.height, FLOOR = S.floorY, K = S.robotScale;
 const palette = { ...CFG.palette };
-const at = (name, t) => kit.sample(CFG.tracks, name, t);
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
+const at = kit.track(CFG.tracks);
 const root = buildFront({});
-
-function random(seed) {
-  let a = seed | 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let r = Math.imul(a ^ (a >>> 15), 1 | a);
-    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 const pick = random(S.seed);
 const blots = [];
 for (let i = 0; i < S.blots; i++) blots.push({ x: -300 + pick() * 2200, y: 100 + pick() * 520, rx: 30 + pick() * 120, ry: 12 + pick() * 40, dark: pick() < 0.5 });
 
 let ctx;
-
-function lineFor() {
-  const m = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * K * FOOT_Y;
-  return Math.min(LINE_W, Math.max(GAME_LINE, LINE_W * robotPx / FULL_LINE_PX));
-}
 
 function drawWall() {
   ctx.fillStyle = palette.wallDark;
@@ -84,34 +67,19 @@ function drawRobot(t) {
     armR: at("armR", t),
     foreR: { rot: at("foreR", t), sx: grow, sy: grow }
   };
-  ctx.globalAlpha = 0.4;
-  ctx.fillStyle = palette.shadow;
-  ctx.beginPath();
-  ctx.ellipse(S.robotX, FLOOR, 260 * K, 22 * K, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  kit.shadow(ctx, S.robotX, FLOOR, 260 * K, 22 * K, 0.4, palette.shadow);
   ctx.save();
-  ctx.translate(S.robotX, FLOOR);
-  ctx.scale(K, K);
-  ctx.translate(-AX, -FOOT_Y);
-  renderBot(ctx, root, { pose, hooks: { handR: blasterHook }, lineW: lineFor() });
+  kit.feet(ctx, S.robotX, FLOOR, K, K, AX);
+  renderBot(ctx, root, { pose, hooks: { handR: blasterHook }, lineW: kit.lineFor(ctx, K) });
   ctx.restore();
 }
 
 function render(c, w, h, t) {
   ctx = c;
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  kit.fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
-  ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-  ctx.scale(z, z);
+  kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
   drawWall();
   drawRobot(t);
   ctx.restore();

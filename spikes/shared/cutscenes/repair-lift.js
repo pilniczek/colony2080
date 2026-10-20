@@ -1,5 +1,6 @@
 (() => {
 const { kit } = window.CUTSCENES;
+const { asset } = kit;
 const { XBOT, ENV } = window;
 const CFG = window.C28_CONFIG.cutscenes.repairLift;
 const W = CFG.stage.width, H = CFG.stage.height;
@@ -11,36 +12,11 @@ const BOX = [[-60, 510], [1012, 426], [1028, 432], [1072, 960], [-60, 960]];
 const BOX_SIDE = [[1012, 426], [1028, 432], [1072, 960], [1046, 960]];
 const LAMP = [962, 600, 18, 26];
 const palette = { ...CFG.palette };
-const at = (name, t) => kit.sample(CFG.tracks, name, t);
-const asset = (id) => ENV.ASSETS.find((a) => a.id === id);
+const at = kit.track(CFG.tracks);
 
-function cloudBank(seed, n, top, depth) {
-  let s = seed;
-  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  const list = [];
-  for (let i = 0; i < n; i++) list.push([rnd() * 1900 - 150, top + rnd() * depth, 160 + rnd() * 340, 18 + rnd() * 34]);
-  return list;
-}
-
-const CLOUDS = cloudBank(7, 26, -40, 620);
+const CLOUDS = kit.bank(7, 26, -150, 1900, -40, 620, 160, 340, 18, 34);
 let rig = null;
 let ctx;
-
-function poly(pts, color) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-  ctx.closePath();
-  ctx.fill();
-}
-
-function oval(x, y, rx, ry, color) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-  ctx.fill();
-}
 
 function sky() {
   const g = ctx.createLinearGradient(0, 0, 0, H);
@@ -58,13 +34,7 @@ function sky() {
   sun.addColorStop(1, palette.glow + "00");
   ctx.fillStyle = sun;
   ctx.fillRect(sx - sr, sy - sr, sr * 2, sr * 2);
-  for (const [x, y, w, h] of CLOUDS) {
-    ctx.globalAlpha = Math.min(1, 0.3 + y / 700);
-    oval(x + w * 0.08, y + h * 0.35, w * 0.5, h * 0.6, palette.cloudLit);
-    ctx.globalAlpha = 1;
-    oval(x, y, w * 0.5, h * 0.5, palette.cloud);
-    oval(x - w * 0.22, y - h * 0.3, w * 0.28, h * 0.45, palette.cloud);
-  }
+  for (const [x, y, w, h] of CLOUDS) kit.cloud(ctx, x, y, w, h, Math.min(1, 0.3 + y / 700), palette.cloudLit, palette.cloud);
 }
 
 function controllerHook(t, lineW) {
@@ -99,8 +69,8 @@ function drawRobot(t, lineW) {
 }
 
 function drawBox(t, lineW) {
-  poly(BOX, palette.box);
-  poly(BOX_SIDE, palette.boxSide);
+  kit.poly(ctx, BOX, palette.box);
+  kit.poly(ctx, BOX_SIDE, palette.boxSide);
   ctx.strokeStyle = palette.boxRim;
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -123,7 +93,7 @@ function drawBox(t, lineW) {
   ctx.fillRect(lx, ly, lw, lh);
   if (on) {
     ctx.globalAlpha = lit ? 0.35 : 0.2;
-    oval(lx + lw / 2, ly + lh / 2, lw * 1.6, lh * 1.1, lit ? palette.lampOn : palette.lampOff);
+    kit.oval(ctx, lx + lw / 2, ly + lh / 2, lw * 1.6, lh * 1.1, lit ? palette.lampOn : palette.lampOff);
     ctx.globalAlpha = 1;
   }
   ctx.strokeStyle = palette.boxRim;
@@ -134,17 +104,9 @@ function drawBox(t, lineW) {
 function render(c, w, h, t) {
   ctx = c;
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  const s = kit.fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
-  ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-  ctx.scale(z, z);
+  kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
   const lineW = Math.max(MIN_LINE, LINE * s * z);
   sky();
   drawRobot(t, lineW);

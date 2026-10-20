@@ -1,47 +1,23 @@
 import metro from "@config/cutscenes/crowbar-door.json";
 import config from "@config/cutscenes/wire-switchboard.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import { drawRig, type HookDraw } from "../../engine/rig/draw";
-import type { GroupNode, Pt } from "../../engine/rig/tree";
+import type { GroupNode } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
+import { camera, fitStage, LINE_W, lineFor, poly, rect, shadow, STAND, tracks } from "./kit";
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const { width: W, height: H, floorY: FLOOR, platformY: PLATFORM, pillarX: PILLAR_X } = config.stage;
 const K = config.robot.scale;
 const ENV_K = config.robot.envScale;
 const PILLAR_S = K * ENV_K;
 const LUNGE: Record<string, number> = config.lunge;
-const STAND: Record<string, number> = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 const palette = { ...metro.palette, ...config.palette };
 let lineW = LINE_W;
 let side: GroupNode | null = null;
 
-const at = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
-
-const lineFor = (ctx: CanvasRenderingContext2D): number => {
-  const m = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * K * ROBOT.FOOT_Y;
-  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-};
-
-function rect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string): void {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
-}
-
-function poly(ctx: CanvasRenderingContext2D, pts: Pt[], color: string): void {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(pts[0]![0], pts[0]![1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i]![0], pts[i]![1]);
-  ctx.closePath();
-  ctx.fill();
-}
+const { num: at } = tracks(config.tracks);
 
 function drawTunnel(ctx: CanvasRenderingContext2D): void {
   rect(ctx, -400, -400, 2400, 1600, palette.tunnel);
@@ -77,12 +53,7 @@ function drawPlatform(ctx: CanvasRenderingContext2D): void {
 function drawPillar(ctx: CanvasRenderingContext2D, t: number): void {
   const base = FLOOR - 30;
   rect(ctx, PILLAR_X, -400, 26 * PILLAR_S, base - 70 * PILLAR_S + 400, palette.pillarTop);
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = palette.shadow;
-  ctx.beginPath();
-  ctx.ellipse(PILLAR_X + 13 * PILLAR_S, base + 4, 16 * PILLAR_S, 10, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  shadow(ctx, PILLAR_X + 13 * PILLAR_S, base + 4, 16 * PILLAR_S, 10, 0.35, palette.shadow);
   ctx.save();
   ctx.translate(PILLAR_X, base);
   ctx.scale(PILLAR_S, PILLAR_S);
@@ -106,12 +77,7 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
         }
       : undefined;
   const x = at("x", t);
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = palette.shadow;
-  ctx.beginPath();
-  ctx.ellipse(x, FLOOR + 4, 150, 12, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  shadow(ctx, x, FLOOR + 4, 150, 12, 0.35, palette.shadow);
   ctx.save();
   ctx.translate(x, FLOOR);
   ctx.rotate((-at("lean", t) * Math.PI) / 180);
@@ -123,18 +89,10 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
 
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
-  ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-  ctx.scale(z, z);
-  lineW = lineFor(ctx);
+  camera(ctx, W, H, at("camX", t), at("camY", t), z);
+  lineW = lineFor(ctx, K);
   drawTunnel(ctx);
   drawWagon(ctx);
   drawPlatform(ctx);

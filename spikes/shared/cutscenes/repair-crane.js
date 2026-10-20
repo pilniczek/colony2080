@@ -1,5 +1,6 @@
 (() => {
 const { kit } = window.CUTSCENES;
+const { poly, stroke, oval, asset } = kit;
 const { XBOT, ENV } = window;
 const CFG = window.C28_CONFIG.cutscenes.repairCrane;
 const ST = CFG.stage;
@@ -12,20 +13,11 @@ const DUSK = { brightness: 0.85, saturate: 0.95 };
 const BEAM_MID = 84, CHAIN_TOP = -100;
 const HANG = [BEAM_MID, CHAIN_TOP - CR.hang];
 const palette = { ...CFG.palette };
-const at = (name, t) => kit.sample(CFG.tracks, name, t);
-const asset = (id) => ENV.ASSETS.find((a) => a.id === id);
+const at = kit.track(CFG.tracks);
 
-function bank(seed, n, x0, span, top, depth, w0, wSpan, h0, hSpan) {
-  let s = seed;
-  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  const list = [];
-  for (let i = 0; i < n; i++) list.push([x0 + rnd() * span, top + rnd() * depth, w0 + rnd() * wSpan, h0 + rnd() * hSpan]);
-  return list;
-}
-
-const ROOF_CLOUDS = bank(13, 30, 600, 2400, -360, 640, 200, 380, 18, 32);
-const HILL_CLOUDS = bank(17, 24, -150, 1900, -40, ST.horizon - 80, 180, 360, 16, 30);
-const STREAKS = bank(19, 10, -200, 2200, 120, 500, 160, 320, 6, 10);
+const ROOF_CLOUDS = kit.bank(13, 30, 600, 2400, -360, 640, 200, 380, 18, 32);
+const HILL_CLOUDS = kit.bank(17, 24, -150, 1900, -40, ST.horizon - 80, 180, 360, 16, 30);
+const STREAKS = kit.bank(19, 10, -200, 2200, 120, 500, 160, 320, 6, 10);
 const HILL = [[-100, 900], [-100, 640], [300, 560], [650, 522], [900, 516], [1200, 546], [1700, 620], [1700, 900]];
 const RIDGE = [[-100, 600], [400, 540], [800, 560], [1200, 498], [1700, 560], [1700, 700], [-100, 700]];
 const FACETS = [[[300, 560], [650, 522], [560, 600], [260, 640]], [[650, 522], [900, 516], [820, 570]], [[-100, 680], [260, 640], [180, 760], [-100, 800]]];
@@ -36,31 +28,6 @@ let rigs = null;
 let ctx;
 
 const robots = () => (rigs ??= { side: XBOT.buildSide({ farLimbs: true }), front: XBOT.buildFront({}), back: XBOT.buildBack({}) });
-
-function poly(pts, color) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-  ctx.closePath();
-  ctx.fill();
-}
-
-function stroke(pts, color, width) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.beginPath();
-  ctx.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-  ctx.stroke();
-}
-
-function oval(x, y, rx, ry, color, rot = 0) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
-  ctx.fill();
-}
 
 function sky(horizon, clouds) {
   const g = ctx.createLinearGradient(0, horizon - 900, 0, horizon);
@@ -82,25 +49,11 @@ function sky(horizon, clouds) {
   ctx.fillStyle = sun;
   ctx.fillRect(-sr, -sr, sr * 2, sr * 2);
   ctx.restore();
-  for (const [x, y, w, h] of clouds) {
-    ctx.globalAlpha = Math.min(1, 0.25 + (y - horizon + 900) / 900);
-    oval(x + w * 0.08, y + h * 0.35, w * 0.5, h * 0.6, palette.cloudLit);
-    ctx.globalAlpha = 1;
-    oval(x, y, w * 0.5, h * 0.5, palette.cloud);
-    oval(x - w * 0.22, y - h * 0.3, w * 0.28, h * 0.45, palette.cloud);
-  }
+  for (const [x, y, w, h] of clouds) kit.cloud(ctx, x, y, w, h, Math.min(1, 0.25 + (y - horizon + 900) / 900), palette.cloudLit, palette.cloud);
 }
 
 function lineFor(c) {
-  const m = c.getTransform();
-  return Math.max(MIN_LINE, LINE * Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)));
-}
-
-function placeRobot(x, y, k, rot, ax, flip) {
-  ctx.translate(x, y);
-  ctx.rotate(rot);
-  ctx.scale(flip ? -k : k, k);
-  ctx.translate(-ax, -XBOT.FOOT_Y);
+  return Math.max(MIN_LINE, LINE * kit.unitScale(c));
 }
 
 function walkPose(base, t, stride) {
@@ -152,8 +105,8 @@ function drawCrane(f) {
   ctx.scale(f.k, f.k);
   ctx.translate(-HANG[0], -HANG[1]);
   const lineW = lineFor(ctx);
-  stroke([[BEAM_MID, HANG[1] - 400], [BEAM_MID, CHAIN_TOP]], ENV.PALETTE.c0, 2.4);
-  stroke([[BEAM_MID, HANG[1] - 400], [BEAM_MID, CHAIN_TOP]], ENV.PALETTE.c1, 1.2);
+  stroke(ctx, [[BEAM_MID, HANG[1] - 400], [BEAM_MID, CHAIN_TOP]], ENV.PALETTE.c0, 2.4);
+  stroke(ctx, [[BEAM_MID, HANG[1] - 400], [BEAM_MID, CHAIN_TOP]], ENV.PALETTE.c1, 1.2);
   ENV.draw(ctx, asset("crane"), { state: 1, lines: lineW });
   ctx.restore();
 }
@@ -188,10 +141,10 @@ function drawTowers() {
     ctx.fillRect(x + w - 10, -600, 10, 1170);
   }
   for (const y of [-300, 60]) {
-    stroke([[-250, y], [60, y + 340]], palette.wood, 30);
-    stroke([[60, y], [-250, y + 340]], palette.wood, 30);
-    stroke([[110, y], [380, y + 340]], palette.wood, 26);
-    stroke([[380, y], [110, y + 340]], palette.wood, 26);
+    stroke(ctx, [[-250, y], [60, y + 340]], palette.wood, 30);
+    stroke(ctx, [[60, y], [-250, y + 340]], palette.wood, 30);
+    stroke(ctx, [[110, y], [380, y + 340]], palette.wood, 26);
+    stroke(ctx, [[380, y], [110, y + 340]], palette.wood, 26);
   }
   ctx.fillStyle = palette.woodLit;
   ctx.fillRect(-420, -60, 900, 40);
@@ -200,11 +153,11 @@ function drawTowers() {
 
 function drawDeck() {
   const top = ST.deckTop, front = ST.deckFront, right = ST.deckRight;
-  poly([[-600, top], [right, top], [right - 90, front], [-600, front]], palette.deck);
-  for (const [x, y, w, h] of STREAKS) if (y > 0 && x - 400 + w < right - 90) oval(x - 400, top + (y - 120) * 0.38, w, h * 0.6, palette.deckStreak);
-  poly([[-600, top], [right, top], [right - 4, top + 10], [-600, top + 10]], palette.deckLit);
-  poly([[-600, front], [right - 90, front], [right - 90, 1200], [-600, 1200]], palette.deckFront);
-  poly([[right - 90, front], [right, top], [right, top + 60], [right - 90, 1200]], palette.deckSide);
+  poly(ctx, [[-600, top], [right, top], [right - 90, front], [-600, front]], palette.deck);
+  for (const [x, y, w, h] of STREAKS) if (y > 0 && x - 400 + w < right - 90) oval(ctx, x - 400, top + (y - 120) * 0.38, w, h * 0.6, palette.deckStreak);
+  poly(ctx, [[-600, top], [right, top], [right - 4, top + 10], [-600, top + 10]], palette.deckLit);
+  poly(ctx, [[-600, front], [right - 90, front], [right - 90, 1200], [-600, 1200]], palette.deckFront);
+  poly(ctx, [[right - 90, front], [right, top], [right, top + 60], [right - 90, 1200]], palette.deckSide);
 }
 
 function roofHero(t, f) {
@@ -213,7 +166,7 @@ function roofHero(t, f) {
   const k = at("heroK", t);
   ctx.save();
   if (kind === "side") {
-    placeRobot(RB.x, RB.y, k, 0, XBOT.SIDE_AX, true);
+    kit.feet(ctx, RB.x, RB.y, -k, k, XBOT.SIDE_AX);
     const pose = { arm: at("armB", t), fore: at("foreB", t) };
     const turn = (at("keyTurn", t) * Math.PI) / 180;
     const hand = (c) => {
@@ -228,13 +181,14 @@ function roofHero(t, f) {
   } else if (kind === "front") {
     const [bx, by] = cranePoint(craneFrame(5.8), RB.aboardX, 0);
     const w = at("walk", t);
-    placeRobot(RB.x + (bx - RB.x) * w, RB.y + (by - RB.y) * w, k, 0, XBOT.AX, false);
+    kit.feet(ctx, RB.x + (bx - RB.x) * w, RB.y + (by - RB.y) * w, k, k, XBOT.AX);
     const base = { armL: at("armL", t), foreL: at("foreL", t), armR: at("armR", t), foreR: at("foreR", t) };
     const { lift, pose } = walkPose(base, t, at("stride", t));
     walker(front, pose, XBOT.shade(XBOT.PALETTE, LIT), lineFor(ctx), lift);
   } else {
     const [x, y] = cranePoint(f, RB.aboardX, 0);
-    placeRobot(x, y, (k * f.k) / CFG.tracks.craneK[0][1], f.a, XBOT.AX, false);
+    const aboard = (k * f.k) / CFG.tracks.craneK[0][1];
+    kit.feet(ctx, x, y, aboard, aboard, XBOT.AX, f.a);
     XBOT.render(ctx, back, { pal: XBOT.shade(XBOT.PALETTE, LIT), pose: { armL: 10, armR: -10 }, lineW: lineFor(ctx) });
   }
   ctx.restore();
@@ -278,19 +232,19 @@ function frond(x, y, len, rise, leaves, k) {
     const side = i % 2 ? 1 : -1;
     const size = (1 - u * 0.6) * 46 * k;
     const a = dir + side * 0.9;
-    oval(px + Math.cos(a) * size, py + Math.sin(a) * size, size, size * 0.32, i % 3 ? palette.leaf : palette.leafLit, a);
+    oval(ctx, px + Math.cos(a) * size, py + Math.sin(a) * size, size, size * 0.32, i % 3 ? palette.leaf : palette.leafLit, a);
   }
 }
 
 function hillShot(t) {
   sky(ST.horizon, HILL_CLOUDS);
-  poly(RIDGE, palette.ridge);
-  poly(HILL, palette.rock);
-  for (const f of FACETS) poly(f, palette.rockLit);
-  for (const c of CRACKS) stroke(c, palette.rockDark, 6);
+  poly(ctx, RIDGE, palette.ridge);
+  poly(ctx, HILL, palette.rock);
+  for (const f of FACETS) poly(ctx, f, palette.rockLit);
+  for (const c of CRACKS) stroke(ctx, c, palette.rockDark, 6);
   const { front } = robots();
   ctx.save();
-  placeRobot(at("walkerX", t), at("walkerY", t), at("walkerK", t), 0, XBOT.AX, false);
+  kit.feet(ctx, at("walkerX", t), at("walkerY", t), at("walkerK", t), at("walkerK", t), XBOT.AX);
   const base = { armL: at("armL", t), foreL: at("foreL", t), armR: at("armR", t), foreR: at("foreR", t) };
   const { lift, pose } = walkPose(base, t, at("stride", t));
   walker(front, pose, XBOT.shade(XBOT.PALETTE, DUSK), lineFor(ctx), lift);
@@ -304,19 +258,11 @@ function hillShot(t) {
 function render(c, w, h, t) {
   ctx = c;
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  kit.fitStage(ctx, w, h, W, H);
   if (String(at("shot", t)) === "hill") hillShot(t);
   else {
     const z = at("camZ", t);
-    ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-    ctx.scale(z, z);
+    kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
     roofShot(t);
   }
   ctx.restore();

@@ -1,24 +1,20 @@
 import config from "@config/cutscenes/pick-e-blaster.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import { drawRig, type HookDraw } from "../../engine/rig/draw";
 import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode } from "../../engine/rig/tree";
 import { eblasterHook } from "../robot/eblaster";
 import { buildFront, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { random } from "./pickController";
+import { camera, feet, fitStage, LINE_W, lineFor, random, shadow, tracks } from "./kit";
 
 type Blot = { x: number; y: number; rx: number; ry: number; dark: boolean };
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const S = config.stage;
 const { width: W, height: H, floorY: FLOOR, robotScale: K } = S;
 const [RAIL_TOP, RAIL_BOTTOM] = S.railY as [number, number];
 const palette = { ...config.palette };
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 
-const at = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
+const { num: at } = tracks(config.tracks);
 
 const pick = random(S.seed);
 const blots: Blot[] = [];
@@ -26,12 +22,6 @@ for (let i = 0; i < S.blots; i++) blots.push({ x: -300 + pick() * 2200, y: 100 +
 
 let rig: GroupNode | null = null;
 const robot = (): GroupNode => (rig ??= buildFront({}));
-
-const lineFor = (ctx: CanvasRenderingContext2D): number => {
-  const m = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * K * ROBOT.FOOT_Y;
-  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-};
 
 function drawWall(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = palette.wallDark;
@@ -84,33 +74,18 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
     armR: at("armR", t),
     foreR: { rot: at("foreR", t), sx: grow, sy: grow },
   };
-  ctx.globalAlpha = 0.4;
-  ctx.fillStyle = palette.shadow;
-  ctx.beginPath();
-  ctx.ellipse(S.robotX, FLOOR, 260 * K, 22 * K, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  shadow(ctx, S.robotX, FLOOR, 260 * K, 22 * K, 0.4, palette.shadow);
   ctx.save();
-  ctx.translate(S.robotX, FLOOR);
-  ctx.scale(K, K);
-  ctx.translate(-ROBOT.AX, -ROBOT.FOOT_Y);
-  drawRig(ctx, robot(), { palette: ROBOT.palette, pose, hooks: { handR: blasterHook }, lineW: lineFor(ctx) });
+  feet(ctx, S.robotX, FLOOR, K, K, ROBOT.AX);
+  drawRig(ctx, robot(), { palette: ROBOT.palette, pose, hooks: { handR: blasterHook }, lineW: lineFor(ctx, K) });
   ctx.restore();
 }
 
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
-  ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-  ctx.scale(z, z);
+  camera(ctx, W, H, at("camX", t), at("camY", t), z);
   drawWall(ctx);
   drawRobot(ctx, t);
   ctx.restore();

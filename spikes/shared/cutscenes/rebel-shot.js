@@ -1,16 +1,15 @@
 (() => {
 const { kit } = window.CUTSCENES;
+const { rect, poly, oval } = kit;
 const CFG = window.C28_CONFIG.cutscenes.rebelShot;
-const { buildFront, buildSide, buildBack, render: renderBot, locate, shade, AX, SIDE_AX, FOOT_Y, PALETTE: BOT_PALETTE, GAME_LINE } = window.XBOT;
+const { buildFront, buildSide, buildBack, render: renderBot, locate, shade, AX, SIDE_AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
 const SKIN = window.ENV.PALETTE;
 const W = CFG.stage.width, H = CFG.stage.height;
 const palette = { ...CFG.palette };
-const at = (name, t) => kit.sample(CFG.tracks, name, t);
+const at = kit.track(CFG.tracks);
 const ENEMY_PALETTE = { ...shade(BOT_PALETTE, { brightness: 1.1, saturate: 0 }), visor: BOT_PALETTE.visor };
 const PI = Math.PI;
 const DEG = PI / 180;
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 const HUMAN_LINE = 1.2;
 
 function rng(seed) {
@@ -18,54 +17,13 @@ function rng(seed) {
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
 }
 
-function scatter(seed, count, x0, x1, y0, y1) {
-  const r = rng(seed);
-  const out = [];
-  for (let i = 0; i < count; i++) out.push([x0 + r() * (x1 - x0), y0 + r() * (y1 - y0), r(), r()]);
-  return out;
-}
-
-function unitLine(ctx, px) {
-  const m = ctx.getTransform();
-  return px / Math.sqrt(Math.abs(m.a * m.d - m.b * m.c));
-}
-
-function robotLine(ctx, k) {
-  const m = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k * FOOT_Y;
-  return Math.min(LINE_W, Math.max(GAME_LINE, LINE_W * robotPx / FULL_LINE_PX));
-}
-
-function path(ctx, pts) {
-  ctx.beginPath();
-  ctx.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-  ctx.closePath();
-}
-
-function poly(ctx, pts, color) {
-  ctx.fillStyle = color;
-  path(ctx, pts);
-  ctx.fill();
-}
+const unitLine = (ctx, px) => px / kit.unitScale(ctx);
 
 function cel(ctx, pts, color) {
   poly(ctx, pts, color);
   ctx.strokeStyle = SKIN.kLine;
   ctx.lineWidth = unitLine(ctx, HUMAN_LINE);
   ctx.stroke();
-}
-
-function rect(ctx, x, y, w, h, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
-}
-
-function oval(ctx, x, y, rx, ry, color) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.ellipse(x, y, rx, ry, 0, 0, PI * 2);
-  ctx.fill();
 }
 
 function capsule(ctx, [ax, ay], [bx, by], r0, r1, color) {
@@ -236,8 +194,8 @@ function drawFace(ctx, x, y, k, rot, f) {
   ctx.restore();
 }
 
-const SKY_STREAKS = scatter(11, 60, -400, 2000, 0, 1);
-const GROUND_STREAKS = scatter(12, 70, -400, 2000, 0, 1);
+const SKY_STREAKS = kit.scatter(rng(11), 60, -400, 0, 2400, 1);
+const GROUND_STREAKS = kit.scatter(rng(12), 70, -400, 0, 2400, 1);
 
 function wasteland(ctx, t, horizon, colors) {
   const sky = ctx.createLinearGradient(0, -600, 0, horizon);
@@ -293,10 +251,8 @@ const rigs = () => ROBOT_TREES.front ? ROBOT_TREES : Object.assign(ROBOT_TREES, 
 
 function placeBot(ctx, root, x, y, k, ax, sx, pose, hooks, pal) {
   ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(k * sx, k);
-  ctx.translate(-ax, -FOOT_Y);
-  const lineW = robotLine(ctx, 1);
+  kit.feet(ctx, x, y, k * sx, k, ax);
+  const lineW = kit.lineFor(ctx, 1);
   renderBot(ctx, root, { pal, pose, hooks, lineW });
   ctx.restore();
 }
@@ -344,7 +300,7 @@ function droid(ctx, x, y, k, rot, t) {
   ctx.translate(x, y);
   ctx.rotate(rot * DEG);
   const pose = { body: Math.sin(t * 5) * 2, armL: -24, foreL: -66, armR: 30, foreR: -50 };
-  placeBot(ctx, root, 0, 0, k, AX, 1, pose, { handL: (c, pal) => window.GUN.hook(c, { pal, lineW: robotLine(c, k), simple: false }) }, ENEMY_PALETTE);
+  placeBot(ctx, root, 0, 0, k, AX, 1, pose, { handL: (c, pal) => window.GUN.hook(c, { pal, lineW: kit.lineFor(c, k), simple: false }) }, ENEMY_PALETTE);
   ctx.restore();
 }
 
@@ -401,7 +357,7 @@ function shotHit(ctx, t) {
   }
 }
 
-const SPRAY = scatter(31, 14, 0, 140, -60, 60);
+const SPRAY = kit.scatter(rng(31), 14, 0, -60, 140, 120);
 
 function bricks(ctx) {
   rect(ctx, 1460, -400, 600, 1500, palette.brick);
@@ -428,7 +384,7 @@ function battlefield(ctx, t) {
 }
 
 const GUN_HOOK = (k, flash) => (c, pal) => {
-  window.GUN.hook(c, { pal, lineW: robotLine(c, k), simple: false });
+  window.GUN.hook(c, { pal, lineW: kit.lineFor(c, k), simple: false });
   if (flash > 0) {
     c.save();
     c.transform(0, 1, -1, 0, 0, 0);
@@ -475,21 +431,14 @@ function shotFire(ctx, t) {
   }
 }
 
-const SPARKS = scatter(41, 16, -60, 60, -60, 60);
-const TRACERS = scatter(43, 6, 0, 1, -1, 1);
+const SPARKS = kit.scatter(rng(41), 16, -60, -60, 120, 120);
+const TRACERS = kit.scatter(rng(43), 6, 0, -1, 1, 2);
 
 function render(ctx, w, h, t) {
   ctx.save();
-  rect(ctx, 0, 0, w, h, "#000");
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  kit.fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
-  ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-  ctx.scale(z, z);
+  kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
   const shot = at("shot", t);
   if (shot === "A") shotTurn(ctx, t);
   else if (shot === "B") shotRun(ctx, t);
@@ -505,6 +454,6 @@ window.CUTSCENES.rebelShot = {
   palette,
   render,
   ref: kit.filmRef("rebelShot", CFG.duration),
-  art: { drawFace, scatter, poly, rect }
+  art: { drawFace, rng }
 };
 })();

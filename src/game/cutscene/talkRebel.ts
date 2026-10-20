@@ -1,19 +1,18 @@
 import config from "@config/cutscenes/talk-rebel.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import type { Pt } from "../../engine/rig/tree";
 import type { Cutscene } from "./index";
-import { drawFace, poly, rect, scatter } from "./rebelShot";
+import { camera, fitStage, poly, rect, scatter, tracks } from "./kit";
+import { drawFace, rng } from "./rebelShot";
 
 type Ctx = CanvasRenderingContext2D;
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const { width: W, height: H } = config.stage;
 const palette = config.palette;
-const BLADES = scatter(51, 900, -300, 1900, -300, 1200);
+const BLADES = scatter(rng(51), 900, -300, -300, 2200, 1500);
 const POOL: Pt[] = [[880, 300], [1010, 250], [1180, 290], [1330, 380], [1420, 520], [1380, 700], [1460, 860], [1300, 1000], [1060, 980], [900, 860], [820, 640]];
 const POOL_WET: Pt[] = [[960, 380], [1100, 340], [1260, 420], [1320, 560], [1240, 700], [1290, 840], [1120, 900], [980, 760], [930, 560]];
 
-const num = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
+const { num } = tracks(config.tracks);
 
 function grass(ctx: Ctx): void {
   rect(ctx, -400, -400, 2400, 1700, palette.grass);
@@ -44,16 +43,9 @@ function pool(ctx: Ctx, spread: number): void {
 
 function render(ctx: Ctx, w: number, h: number, t: number): void {
   ctx.save();
-  rect(ctx, 0, 0, w, h, "#000");
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   const z = num("camZ", t);
-  ctx.translate(W / 2 - num("camX", t) * z, H / 2 - num("camY", t) * z);
-  ctx.scale(z, z);
+  camera(ctx, W, H, num("camX", t), num("camY", t), z);
   grass(ctx);
   pool(ctx, num("spread", t));
   const cough = num("cough", t);

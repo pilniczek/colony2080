@@ -1,5 +1,4 @@
 import config from "@config/cutscenes/repair-crane.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
 import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
@@ -7,12 +6,11 @@ import { ASSETS } from "../env/assets";
 import { drawAsset, PALETTE as ENV_PALETTE } from "../env/paint";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
+import { bank, camera, cloud, feet, fitStage, oval, poly, type Spot, stroke, tracks, unitScale } from "./kit";
 
-type Blot = [number, number, number, number];
 type Frame = { x: number; y: number; a: number; k: number };
 type Arms = { armL: number; foreL: number; armR: number; foreR: number };
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const ST = config.stage;
 const { width: W, height: H } = ST;
 const [SUN_X, SUN_Y, SUN_R] = ST.sun as [number, number, number];
@@ -27,19 +25,10 @@ const DUSK = { brightness: 0.85, saturate: 0.95 };
 const BEAM_MID = 84;
 const CHAIN_TOP = -100;
 const HANG: Pt = [BEAM_MID, CHAIN_TOP - CR.hang];
-const CRANE_K0 = TRACKS.craneK![0]![1] as number;
+const CRANE_K0 = config.tracks.craneK[0]![1] as number;
 const palette = { ...config.palette };
 
-const num = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
-const text = (name: string, t: number): string => String(sampleTrack(TRACKS[name]!, t));
-
-const bank = (seed: number, n: number, x0: number, span: number, top: number, depth: number, w0: number, wSpan: number, h0: number, hSpan: number): Blot[] => {
-  let s = seed;
-  const rnd = (): number => (s = (s * 16807) % 2147483647) / 2147483647;
-  const list: Blot[] = [];
-  for (let i = 0; i < n; i++) list.push([x0 + rnd() * span, top + rnd() * depth, w0 + rnd() * wSpan, h0 + rnd() * hSpan]);
-  return list;
-};
+const { num, text } = tracks(config.tracks);
 
 const ROOF_CLOUDS = bank(13, 30, 600, 2400, -360, 640, 200, 380, 18, 32);
 const HILL_CLOUDS = bank(17, 24, -150, 1900, -40, ST.horizon - 80, 180, 360, 16, 30);
@@ -54,32 +43,7 @@ let rigs: { side: GroupNode; front: GroupNode; back: GroupNode } | null = null;
 
 const robots = () => (rigs ??= { side: buildSide({ farLimbs: true }), front: buildFront({}), back: buildBack({}) });
 
-function poly(ctx: CanvasRenderingContext2D, pts: Pt[], color: string): void {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(pts[0]![0], pts[0]![1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i]![0], pts[i]![1]);
-  ctx.closePath();
-  ctx.fill();
-}
-
-function stroke(ctx: CanvasRenderingContext2D, pts: Pt[], color: string, width: number): void {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.beginPath();
-  ctx.moveTo(pts[0]![0], pts[0]![1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i]![0], pts[i]![1]);
-  ctx.stroke();
-}
-
-function oval(ctx: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, color: string, rot = 0): void {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function sky(ctx: CanvasRenderingContext2D, horizon: number, clouds: Blot[]): void {
+function sky(ctx: CanvasRenderingContext2D, horizon: number, clouds: Spot[]): void {
   const g = ctx.createLinearGradient(0, horizon - 900, 0, horizon);
   g.addColorStop(0, palette.sky0);
   g.addColorStop(0.4, palette.sky1);
@@ -99,25 +63,13 @@ function sky(ctx: CanvasRenderingContext2D, horizon: number, clouds: Blot[]): vo
   ctx.fillRect(-SUN_R, -SUN_R, SUN_R * 2, SUN_R * 2);
   ctx.restore();
   for (const [x, y, w, h] of clouds) {
-    ctx.globalAlpha = Math.min(1, 0.25 + (y - horizon + 900) / 900);
-    oval(ctx, x + w * 0.08, y + h * 0.35, w * 0.5, h * 0.6, palette.cloudLit);
-    ctx.globalAlpha = 1;
-    oval(ctx, x, y, w * 0.5, h * 0.5, palette.cloud);
-    oval(ctx, x - w * 0.22, y - h * 0.3, w * 0.28, h * 0.45, palette.cloud);
+    cloud(ctx, x, y, w, h, Math.min(1, 0.25 + (y - horizon + 900) / 900), palette.cloudLit, palette.cloud);
   }
 }
 
 const lineFor = (c: CanvasRenderingContext2D): number => {
-  const m = c.getTransform();
-  return Math.max(MIN_LINE, LINE * Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)));
+  return Math.max(MIN_LINE, LINE * unitScale(c));
 };
-
-function placeRobot(ctx: CanvasRenderingContext2D, x: number, y: number, k: number, rot: number, ax: number, flip: boolean): void {
-  ctx.translate(x, y);
-  ctx.rotate(rot);
-  ctx.scale(flip ? -k : k, k);
-  ctx.translate(-ax, -ROBOT.FOOT_Y);
-}
 
 const walkPose = (base: Arms, t: number, stride: number): { lift: number; pose: Pose } => {
   const lift = Math.sin(t * Math.PI * 2 * WALK.rate) * stride;
@@ -228,7 +180,7 @@ function roofHero(ctx: CanvasRenderingContext2D, t: number, f: Frame): void {
   const k = num("heroK", t);
   ctx.save();
   if (kind === "side") {
-    placeRobot(ctx, RB.x, RB.y, k, 0, ROBOT.SIDE_AX, true);
+    feet(ctx, RB.x, RB.y, -k, k, ROBOT.SIDE_AX);
     const pose: Pose = { arm: num("armB", t), fore: num("foreB", t) };
     const turn = (num("keyTurn", t) * Math.PI) / 180;
     const hand: HookDraw = (c) => {
@@ -243,12 +195,13 @@ function roofHero(ctx: CanvasRenderingContext2D, t: number, f: Frame): void {
   } else if (kind === "front") {
     const [bx, by] = cranePoint(craneFrame(5.8), RB.aboardX, 0);
     const w = num("walk", t);
-    placeRobot(ctx, RB.x + (bx - RB.x) * w, RB.y + (by - RB.y) * w, k, 0, ROBOT.AX, false);
+    feet(ctx, RB.x + (bx - RB.x) * w, RB.y + (by - RB.y) * w, k, k, ROBOT.AX);
     const { lift, pose } = walkPose(arms(t), t, num("stride", t));
     walker(ctx, front, pose, shade(ROBOT.palette, LIT), lineFor(ctx), lift);
   } else {
     const [x, y] = cranePoint(f, RB.aboardX, 0);
-    placeRobot(ctx, x, y, (k * f.k) / CRANE_K0, f.a, ROBOT.AX, false);
+    const kf = (k * f.k) / CRANE_K0;
+    feet(ctx, x, y, kf, kf, ROBOT.AX, f.a);
     drawRig(ctx, back, { palette: shade(ROBOT.palette, LIT), pose: { armL: 10, armR: -10 }, lineW: lineFor(ctx) });
   }
   ctx.restore();
@@ -304,7 +257,7 @@ function hillShot(ctx: CanvasRenderingContext2D, t: number): void {
   for (const c of CRACKS) stroke(ctx, c, palette.rockDark, 6);
   const { front } = robots();
   ctx.save();
-  placeRobot(ctx, num("walkerX", t), num("walkerY", t), num("walkerK", t), 0, ROBOT.AX, false);
+  feet(ctx, num("walkerX", t), num("walkerY", t), num("walkerK", t), num("walkerK", t), ROBOT.AX);
   const { lift, pose } = walkPose(arms(t), t, num("stride", t));
   walker(ctx, front, pose, shade(ROBOT.palette, DUSK), lineFor(ctx), lift);
   ctx.restore();
@@ -316,19 +269,11 @@ function hillShot(ctx: CanvasRenderingContext2D, t: number): void {
 
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   if (text("shot", t) === "hill") hillShot(ctx, t);
   else {
     const z = num("camZ", t);
-    ctx.translate(W / 2 - num("camX", t) * z, H / 2 - num("camY", t) * z);
-    ctx.scale(z, z);
+    camera(ctx, W, H, num("camX", t), num("camY", t), z);
     roofShot(ctx, t);
   }
   ctx.restore();

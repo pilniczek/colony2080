@@ -1,29 +1,20 @@
 import config from "@config/cutscenes/take-tap-handle.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
-import { apply } from "../../engine/math/mat2d";
-import { drawRig } from "../../engine/rig/draw";
-import { locate, type Pose } from "../../engine/rig/pose";
+import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
-import { drawAsset, P, PALETTE, type EnvAsset, type EnvPalette } from "../env/paint";
+import { drawAsset, P, PALETTE, type EnvPalette } from "../env/paint";
 import { buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
+import { armChain, fitStage, layer, LINE_W, lineFor, placeRobot, pool, RAD, reach, recolor, STAND, toModel, tracks } from "./kit";
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const { width: W, height: H, floorY: FLOOR, robot: RB, pipe: PIPE, wheel: WHEEL, close: CLOSE } = config.stage;
 const palette: Record<string, string> = { ...config.palette };
-const RAD = Math.PI / 180;
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
-const STAND = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
-const TAP_CENTER = { x: 6, y: -5, r: 5.6 };
+export const TAP_CENTER = { x: 6, y: -5, r: 5.6 };
 const STREAM_W = 46;
-const recolor = (color: string): EnvPalette => Object.fromEntries(Object.keys(PALETTE).map((k) => [k, color]));
 const FLASH_PALETTE = recolor(palette.flash!);
 const SHADOW_PALETTE = recolor("#000000");
 
-const num = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
-const text = (name: string, t: number): string => String(sampleTrack(TRACKS[name]!, t));
+const { num, text } = tracks(config.tracks);
 
 type Pebble = [number, number, number, number, boolean];
 
@@ -40,111 +31,16 @@ function gravelBed(seed: number, count: number, y0: number, y1: number, size: nu
 const FAR_GRAVEL = gravelBed(28, 520, 560, 900, 14);
 const NEAR_GRAVEL = gravelBed(29, 420, -20, 920, 34);
 
-export interface ArmChain {
-  h: Pt;
-  s: Pt;
-  e: Pt;
-}
-
-const circleCenter = (a: Pt, b: Pt, c: Pt): Pt => {
-  const d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]));
-  const q = (p: Pt): number => p[0] * p[0] + p[1] * p[1];
-  return [
-    (q(a) * (b[1] - c[1]) + q(b) * (c[1] - a[1]) + q(c) * (a[1] - b[1])) / d,
-    (q(a) * (c[0] - b[0]) + q(b) * (a[0] - c[0]) + q(c) * (b[0] - a[0])) / d,
-  ];
-};
-
-const chains = new Map<GroupNode, Record<string, ArmChain>>();
-
-export function armChain(root: GroupNode, hook: string, keys: [string, string], stand: Pose): ArmChain {
-  const key = `${keys[0]} ${hook}`;
-  const known = chains.get(root)?.[key];
-  if (known) return known;
-  const hand = (a: number, b: number): Pt => {
-    const m = locate(root, hook, { ...stand, [keys[0]]: a, [keys[1]]: b });
-    if (!m) throw new Error(`no ${hook} hook`);
-    return apply(m, [0, 0]);
-  };
-  const h = hand(0, 0);
-  const chain = { h, s: circleCenter(h, hand(60, 0), hand(-60, 0)), e: circleCenter(h, hand(0, 60), hand(0, -60)) };
-  chains.set(root, { ...chains.get(root), [key]: chain });
-  return chain;
-}
-
-const wrap = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
-
-export function reach(root: GroupNode, hook: string, keys: [string, string], stand: Pose, target: Pt, bend: number): Record<string, number> {
-  const { h, s, e } = armChain(root, hook, keys, stand);
-  const l1 = Math.hypot(e[0] - s[0], e[1] - s[1]);
-  const l2 = Math.hypot(h[0] - e[0], h[1] - e[1]);
-  const d = Math.min(l1 + l2 - 1, Math.max(Math.abs(l1 - l2) + 1, Math.hypot(target[0] - s[0], target[1] - s[1])));
-  const rest = Math.atan2(e[1] - s[1], e[0] - s[0]);
-  const bent = Math.atan2(h[1] - e[1], h[0] - e[0]) - rest;
-  const upper = Math.atan2(target[1] - s[1], target[0] - s[0]) + bend * Math.acos((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d));
-  const elbow: Pt = [s[0] + l1 * Math.cos(upper), s[1] + l1 * Math.sin(upper)];
-  const lower = Math.atan2(target[1] - elbow[1], target[0] - elbow[0]);
-  return { [keys[0]]: wrap(upper - rest) / RAD, [keys[1]]: wrap(lower - upper - bent) / RAD };
-}
-
-export const toModel = (m: DOMMatrix, [x, y]: Pt): Pt => {
-  const p = m.inverse().transformPoint(new DOMPoint(x, y));
-  return [p.x, p.y];
-};
-
 let lineW = LINE_W;
-
-const lineFor = (c: CanvasRenderingContext2D, k: number): number => {
-  const m = c.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k * ROBOT.FOOT_Y;
-  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-};
-
-const scene = (draw: (c: CanvasRenderingContext2D) => void): EnvAsset => ({ id: "scene", box: [0, 0, 0, 0], draw: (c) => draw(c) });
-
-function layer(c: CanvasRenderingContext2D, t: number, draw: (c: CanvasRenderingContext2D) => void, pal: EnvPalette = PALETTE): void {
-  drawAsset(c, scene(draw), { t, lines: lineW, palette: pal });
-}
-
-function placeRobot(c: CanvasRenderingContext2D, root: GroupNode, m: DOMMatrix, pose: Pose): void {
-  c.save();
-  c.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-  drawRig(c, root, { palette: ROBOT.palette, pose, hooks: {}, lineW });
-  c.restore();
-}
 
 let rigs: { full: GroupNode; arm: GroupNode } | null = null;
 const robots = () => (rigs ??= { full: buildSide({ farLimbs: true }), arm: buildSide({}) });
-
-export function fitStage(c: CanvasRenderingContext2D, w: number, h: number): void {
-  c.fillStyle = "#000";
-  c.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  c.translate((w - W * s) / 2, (h - H * s) / 2);
-  c.scale(s, s);
-  c.beginPath();
-  c.rect(0, 0, W, H);
-  c.clip();
-}
 
 function gravel(c: CanvasRenderingContext2D, bed: Pebble[], lit: string): void {
   for (const [x, y, w, h, bright] of bed) {
     c.fillStyle = bright ? lit : palette.gravel!;
     c.fillRect(x, y, w, h);
   }
-}
-
-export function pool(c: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, color: string, alpha: number): void {
-  c.save();
-  c.translate(x, y);
-  c.scale(1, ry / rx);
-  const g = c.createRadialGradient(0, 0, 0, 0, 0, rx);
-  g.addColorStop(0, color);
-  g.addColorStop(1, "rgba(0,0,0,0)");
-  c.globalAlpha = alpha;
-  c.fillStyle = g;
-  c.fillRect(-rx, -rx, 2 * rx, 2 * rx);
-  c.restore();
 }
 
 function drawRoom(c: CanvasRenderingContext2D): void {
@@ -249,15 +145,15 @@ function drawHero(c: CanvasRenderingContext2D, t: number): void {
   const blend = num("reach", t);
   const grip = num("grip", t);
   const hold = (hook: string, keys: [string, string], deg: number): void => {
-    const rest = armChain(full, hook, keys, STAND).h;
+    const rest = armChain(full, hook, keys).h;
     const rim = toModel(m, rimPoint(deg));
     const target: Pt = [rest[0] + (rim[0] - rest[0]) * blend, rest[1] + (rim[1] - rest[1]) * blend];
-    Object.assign(pose, reach(full, hook, keys, STAND, target, 1));
+    Object.assign(pose, reach(full, hook, keys, target, 1));
   };
   hold("hand", ["arm", "fore"], grip);
   hold("handFar", ["armFar", "foreFar"], grip + 180);
   pool(c, RB.x - 20, FLOOR + 4, 170, 18, "#000000", 0.6);
-  placeRobot(c, full, m, pose);
+  placeRobot(c, full, m, { pose, hooks: {}, lineW });
 }
 
 function drawPumpRoom(c: CanvasRenderingContext2D, t: number): void {
@@ -270,17 +166,17 @@ function drawPumpRoom(c: CanvasRenderingContext2D, t: number): void {
     drawRoom(cc);
     drawPipe(cc, t);
     drawWheel(cc, t);
-  });
+  }, lineW);
   drawHero(c, t);
 }
 
-function drawTap(c: CanvasRenderingContext2D, t: number, x: number, y: number, scale: number, tilt: number, spin: number, pal: EnvPalette): void {
+export function drawTap(c: CanvasRenderingContext2D, t: number, x: number, y: number, scale: number, tilt: number, spin: number, pal: EnvPalette, lines: number): void {
   c.save();
   c.translate(x, y);
   c.scale(scale, scale * tilt);
   c.rotate(spin * RAD);
   c.translate(-TAP_CENTER.x, -TAP_CENTER.y);
-  drawAsset(c, ASSETS.tapHandle, { t, lines: lineW, palette: pal });
+  drawAsset(c, ASSETS.tapHandle, { t, lines, palette: pal });
   c.restore();
 }
 
@@ -288,21 +184,21 @@ function closeArm(c: CanvasRenderingContext2D, side: number, target: Pt, blend: 
   const { arm } = robots();
   const k = CLOSE.arm;
   const shoulder: Pt = side < 0 ? [-260, 1120] : [W + 260, 1120];
-  const { s } = armChain(arm, "hand", ["arm", "fore"], STAND);
+  const { s } = armChain(arm, "hand", ["arm", "fore"]);
   const m = new DOMMatrix().translate(shoulder[0], shoulder[1]).rotate(side * 58).scale(-side * k, k).translate(-s[0], -s[1]);
   const off: Pt = [shoulder[0] - side * 120, shoulder[1] + 200];
   const goal: Pt = [off[0] + (target[0] - off[0]) * blend, off[1] + (target[1] - off[1]) * blend];
-  const pose: Pose = { ...STAND, ...reach(arm, "hand", ["arm", "fore"], STAND, toModel(m, goal), -side) };
-  placeRobot(c, arm, m, pose);
+  const pose: Pose = { ...STAND, ...reach(arm, "hand", ["arm", "fore"], toModel(m, goal), -side) };
+  placeRobot(c, arm, m, { pose, hooks: {}, lineW });
 }
 
-function drawGrid(c: CanvasRenderingContext2D, g: number): void {
+export function drawGrid(c: CanvasRenderingContext2D, g: number, color: string): void {
   if (g <= 0) return;
   const x0 = 60, y0 = 50, x1 = W - 60, y1 = H - 50, step = 64;
   const reachY = y0 + (y1 - y0) * g;
   c.save();
   c.globalAlpha = 0.85;
-  c.strokeStyle = palette.grid!;
+  c.strokeStyle = color;
   c.lineWidth = 2;
   c.beginPath();
   for (let x = x0; x <= x1; x += step) {
@@ -336,17 +232,17 @@ function drawCloseUp(c: CanvasRenderingContext2D, t: number): void {
     P.box(cc, 720, 360, 160, 60, "steel", 2, { vertical: true });
     P.cylV(cc, x - 18, 400, 36, y - 400, "chrome", 1);
     P.box(cc, x - 30, y - 16, 60, 26, "steel", 1, { vertical: true });
-  });
-  drawTap(c, t, x, cy + 22 * (1 + lift), scale, squash, spin, SHADOW_PALETTE);
-  drawTap(c, t, x, cy, scale, squash, spin, num("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE);
+  }, lineW);
+  drawTap(c, t, x, cy + 22 * (1 + lift), scale, squash, spin, SHADOW_PALETTE, lineW);
+  drawTap(c, t, x, cy, scale, squash, spin, num("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE, lineW);
   const hands = num("hands", t);
   if (hands > 0) for (const side of [-1, 1]) closeArm(c, side, [x + side * (scale * TAP_CENTER.r - 10), cy + 10], hands);
-  drawGrid(c, num("grid", t));
+  drawGrid(c, num("grid", t), palette.grid!);
 }
 
 function render(c: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   c.save();
-  fitStage(c, w, h);
+  fitStage(c, w, h, W, H);
   if (text("shot", t) === "A") drawPumpRoom(c, t);
   else drawCloseUp(c, t);
   c.restore();

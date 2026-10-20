@@ -1,24 +1,12 @@
 (() => {
 const { kit } = window.CUTSCENES;
-const { buildSide, render: renderBot, locate, FOOT_Y, GAME_LINE } = window.XBOT;
+const { buildSide, render: renderBot, locate } = window.XBOT;
+const { random, LINE_W } = kit;
 const FW = kit.FILM.w, FH = kit.FILM.h;
-
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 const SHOULDER = [300, 150];
 const NEAR = 18;
 const FAR = 46;
 const GLYPH = [3, 5];
-
-function random(seed) {
-  let a = seed | 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let r = Math.imul(a ^ (a >>> 15), 1 | a);
-    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 const mul = (m, n) => ({
   a: m.a * n.a + m.c * n.b, b: m.b * n.a + m.d * n.b,
@@ -42,9 +30,9 @@ const plain = ({ a, b, c, d, e, f }) => ({ a, b, c, d, e, f });
 function pickupFilm(id, CFG) {
   const S = CFG.stage;
   const palette = { ...CFG.palette };
-  const at = (name, t) => kit.sample(CFG.tracks, name, t);
-  const item = window.ENV.ASSETS.find(a => a.id === S.item);
-  const flashPalette = Object.fromEntries(Object.keys(window.ENV.PALETTE).map(k => [k, palette.flash]));
+  const at = kit.track(CFG.tracks);
+  const item = kit.asset(S.item);
+  const flashPalette = kit.recolor(palette.flash);
   const scanPalette = Object.fromEntries(Object.keys(window.ENV.PALETTE).map(k => [k, k.endsWith("Line") ? palette.panelLine : palette.panelItem]));
   const root = buildSide({ propBehindArm: true });
   const blades = [];
@@ -65,12 +53,6 @@ function pickupFilm(id, CFG) {
     }
   }
   let ctx;
-
-  function lineFor(k) {
-    const m = ctx.getTransform();
-    const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k * FOOT_Y;
-    return Math.min(LINE_W, Math.max(GAME_LINE, LINE_W * robotPx / FULL_LINE_PX));
-  }
 
   function camera(t) {
     const yaw = (S.yaw + at("yaw", t)) * Math.PI / 180;
@@ -159,12 +141,7 @@ function pickupFilm(id, CFG) {
     const lift = at("shadow", t);
     if (lift > 0) {
       const grip = itemMatrix(S.gripAt);
-      ctx.globalAlpha = 0.45 * lift;
-      ctx.fillStyle = palette.shadow;
-      ctx.beginPath();
-      ctx.ellipse(grip.e + S.shadow[0], grip.f + S.shadow[1], S.shadow[2], S.shadow[3], 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      kit.shadow(ctx, grip.e + S.shadow[0], grip.f + S.shadow[1], S.shadow[2], S.shadow[3], 0.45 * lift, palette.shadow);
     }
     ctx.save();
     ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
@@ -176,7 +153,7 @@ function pickupFilm(id, CFG) {
     const robot = robotAt(t);
     ctx.save();
     ctx.transform(robot.m.a, robot.m.b, robot.m.c, robot.m.d, robot.m.e, robot.m.f);
-    renderBot(ctx, root, { pose: robot.pose, lineW: lineFor(robot.k) });
+    renderBot(ctx, root, { pose: robot.pose, lineW: kit.lineFor(ctx, robot.k) });
     ctx.restore();
   }
 
@@ -266,14 +243,7 @@ function pickupFilm(id, CFG) {
   function render(c, w, h, t) {
     ctx = c;
     ctx.save();
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, w, h);
-    const s = Math.min(w / FW, h / FH);
-    ctx.translate((w - FW * s) / 2, (h - FH * s) / 2);
-    ctx.scale(s, s);
-    ctx.beginPath();
-    ctx.rect(0, 0, FW, FH);
-    ctx.clip();
+    kit.fitStage(ctx, w, h, FW, FH);
     drawGround(t);
     drawItem(t);
     drawRobot(t);

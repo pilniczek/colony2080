@@ -1,37 +1,23 @@
 import config from "@config/cutscenes/search-corpse.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import { drawRig, type HookDraw } from "../../engine/rig/draw";
 import type { GroupNode } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { buildFront, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
+import { camera, feet, fitStage, LINE_W, lineFor, rect, shadow, tracks } from "./kit";
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const ST = config.stage;
 const W = ST.width;
 const H = ST.height;
 const palette = { ...config.palette };
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 const BLOCK_WIDTHS = [150, 210, 120, 180, 240, 140, 200, 170];
 const BLOCK_H = 74;
 const ITEM_GAP = 9;
 let robot: GroupNode | null = null;
 let lineW = LINE_W;
 
-const at = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
-
-function rect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string): void {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
-}
-
-const lineFor = (ctx: CanvasRenderingContext2D, k: number): number => {
-  const m = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k * ROBOT.FOOT_Y;
-  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-};
+const { num: at } = tracks(config.tracks);
 
 function drawWall(ctx: CanvasRenderingContext2D): void {
   rect(ctx, -400, -400, W + 800, ST.wallBase + 400, palette.wall);
@@ -83,12 +69,7 @@ function drawFloor(ctx: CanvasRenderingContext2D): void {
 
 function drawShadow(ctx: CanvasRenderingContext2D, t: number): void {
   const lean = at("lean", t);
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = palette.shadow;
-  ctx.beginPath();
-  ctx.ellipse(ST.robotX + 360 + lean * 12, ST.wallBase - 120 + at("crouch", t) * 120, 170, 260, 0.2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  shadow(ctx, ST.robotX + 360 + lean * 12, ST.wallBase - 120 + at("crouch", t) * 120, 170, 260, 0.35, palette.shadow, 0.2);
 }
 
 const drawItems: HookDraw = (c) => {
@@ -124,9 +105,7 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number, front: boolean): vo
     ctx.rect(x, y, w, h);
     ctx.clip();
   }
-  ctx.translate(ST.robotX + crouch * ST.crouchX, ST.floorY + crouch * ST.crouchY);
-  ctx.scale(k, k);
-  ctx.translate(-ROBOT.AX, -ROBOT.FOOT_Y);
+  feet(ctx, ST.robotX + crouch * ST.crouchX, ST.floorY + crouch * ST.crouchY, k, k, ROBOT.AX);
   drawRig(ctx, robot, { palette: ROBOT.palette, pose, hooks: { handR: holding ? drawItems : undefined }, lineW });
   ctx.restore();
 }
@@ -141,17 +120,9 @@ function drawCorpse(ctx: CanvasRenderingContext2D, t: number): void {
 
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
-  ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-  ctx.scale(z, z);
+  camera(ctx, W, H, at("camX", t), at("camY", t), z);
   lineW = lineFor(ctx, ST.robotScale);
   drawWall(ctx);
   drawFloor(ctx);

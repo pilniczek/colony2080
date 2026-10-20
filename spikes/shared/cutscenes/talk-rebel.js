@@ -1,11 +1,12 @@
 (() => {
 const { kit } = window.CUTSCENES;
 const CFG = window.C28_CONFIG.cutscenes.talkRebel;
-const { drawFace, scatter, poly, rect } = window.CUTSCENES.rebelShot.art;
+const { rect, poly } = kit;
+const { drawFace, rng } = window.CUTSCENES.rebelShot.art;
 const W = CFG.stage.width, H = CFG.stage.height;
 const palette = { ...CFG.palette };
-const at = (name, t) => kit.sample(CFG.tracks, name, t);
-const BLADES = scatter(51, 900, -300, 1900, -300, 1200);
+const at = kit.track(CFG.tracks);
+const BLADES = kit.scatter(rng(51), 900, -300, -300, 2200, 1500);
 const POOL = [[880, 300], [1010, 250], [1180, 290], [1330, 380], [1420, 520], [1380, 700], [1460, 860], [1300, 1000], [1060, 980], [900, 860], [820, 640]];
 const POOL_WET = [[960, 380], [1100, 340], [1260, 420], [1320, 560], [1240, 700], [1290, 840], [1120, 900], [980, 760], [930, 560]];
 
@@ -38,16 +39,9 @@ function pool(ctx, spread) {
 
 function render(ctx, w, h, t) {
   ctx.save();
-  rect(ctx, 0, 0, w, h, "#000");
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  kit.fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
-  ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-  ctx.scale(z, z);
+  kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
   grass(ctx);
   pool(ctx, at("spread", t));
   const cough = at("cough", t);

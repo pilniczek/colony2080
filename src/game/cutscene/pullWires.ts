@@ -1,13 +1,12 @@
 import config from "@config/cutscenes/pull-wires.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import { drawRig, type HookDraw } from "../../engine/rig/draw";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset, PALETTE as ENV_PALETTE } from "../env/paint";
 import { buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
+import { camera, feet, fitStage, LINE_W, lineFor, poly, random, rect, STAND, tracks } from "./kit";
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const { width: W, height: H, floorY: FLOOR, brick: BRICK, pipeX: PIPE_X } = config.stage;
 const K = config.robot.scale;
 const X = config.robot.x;
@@ -15,44 +14,11 @@ const BOX = config.box;
 const INSET = 22 * 0.22;
 const INNER = 22 - INSET * 2;
 const PANEL_TOP = -40;
-const STAND = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 const palette = { ...config.palette };
 let lineW = LINE_W;
 let side: GroupNode | null = null;
 
-const at = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
-
-const lineFor = (ctx: CanvasRenderingContext2D): number => {
-  const m = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * K * ROBOT.FOOT_Y;
-  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-};
-
-function rect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string): void {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
-}
-
-function poly(ctx: CanvasRenderingContext2D, pts: Pt[], color: string): void {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(pts[0]![0], pts[0]![1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i]![0], pts[i]![1]);
-  ctx.closePath();
-  ctx.fill();
-}
-
-const random = (seed: number): (() => number) => {
-  let a = (seed * 2654435761) >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let r = Math.imul(a ^ (a >>> 15), 1 | a);
-    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-  };
-};
+const { num: at } = tracks(config.tracks);
 
 function drawWall(ctx: CanvasRenderingContext2D): void {
   rect(ctx, -200, -200, 2000, 1400, palette.wall);
@@ -123,7 +89,7 @@ function drawSparks(ctx: CanvasRenderingContext2D, t: number): void {
     ctx.globalAlpha = 1;
   }
   if (arcs <= 0) return;
-  const rnd = random(frame + 1);
+  const rnd = random(((frame + 1) * 2654435761) >>> 0);
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   for (let i = 0; i < 4; i++) {
@@ -159,31 +125,20 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
         }
       : undefined;
   ctx.save();
-  ctx.translate(X, FLOOR);
-  ctx.rotate((-at("lean", t) * Math.PI) / 180);
-  ctx.scale(-K, K);
-  ctx.translate(-ROBOT.SIDE_AX, -ROBOT.FOOT_Y);
+  feet(ctx, X, FLOOR, -K, K, ROBOT.SIDE_AX, (-at("lean", t) * Math.PI) / 180);
   drawRig(ctx, side, { palette: ROBOT.palette, pose, hooks: { hand }, lineW });
   ctx.restore();
 }
 
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
   const sh = at("shake", t);
   const cx = at("camX", t) + Math.sin(t * 90) * sh;
   const cy = at("camY", t) + Math.cos(t * 77) * sh;
-  ctx.translate(W / 2 - cx * z, H / 2 - cy * z);
-  ctx.scale(z, z);
-  lineW = lineFor(ctx);
+  camera(ctx, W, H, cx, cy, z);
+  lineW = lineFor(ctx, K);
   drawWall(ctx);
   drawBox(ctx, t);
   drawRobot(ctx, t);

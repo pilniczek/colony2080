@@ -9,27 +9,12 @@ const MIN_LINE = 0.6;
 const DUSK = { brightness: 0.82, saturate: 0.9 };
 const EDGE = 16;
 const palette = { ...CFG.palette };
-const at = (name, t) => kit.sample(CFG.tracks, name, t);
+const at = kit.track(CFG.tracks);
 
-function bank(seed, n, x0, span, top, depth, w0, wSpan, h0, hSpan) {
-  let s = seed;
-  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  const list = [];
-  for (let i = 0; i < n; i++) list.push([x0 + rnd() * span, top + rnd() * depth, w0 + rnd() * wSpan, h0 + rnd() * hSpan]);
-  return list;
-}
-
-const CLOUDS = bank(11, 24, -150, 1900, -40, HORIZON - 60, 180, 360, 16, 30);
-const STREAKS = bank(5, 9, 0, 1600, HORIZON + 20, 200, 120, 300, 2, 4);
+const CLOUDS = kit.bank(11, 24, -150, 1900, -40, HORIZON - 60, 180, 360, 16, 30);
+const STREAKS = kit.bank(5, 9, 0, 1600, HORIZON + 20, 200, 120, 300, 2, 4);
 let rig = null;
 let ctx;
-
-function oval(x, y, rx, ry, color) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-  ctx.fill();
-}
 
 function sky() {
   const g = ctx.createLinearGradient(0, 0, 0, HORIZON);
@@ -59,15 +44,9 @@ function sky() {
   ctx.restore();
   for (const [x, y, w, h] of STREAKS) {
     ctx.globalAlpha = 0.45;
-    oval(x, y, w, h, palette.sun);
+    kit.oval(ctx, x, y, w, h, palette.sun);
   }
-  for (const [x, y, w, h] of CLOUDS) {
-    ctx.globalAlpha = Math.min(1, 0.25 + y / HORIZON);
-    oval(x + w * 0.08, y + h * 0.35, w * 0.5, h * 0.6, palette.cloudLit);
-    ctx.globalAlpha = 1;
-    oval(x, y, w * 0.5, h * 0.5, palette.cloud);
-    oval(x - w * 0.22, y - h * 0.3, w * 0.28, h * 0.45, palette.cloud);
-  }
+  for (const [x, y, w, h] of CLOUDS) kit.cloud(ctx, x, y, w, h, Math.min(1, 0.25 + y / HORIZON), palette.cloudLit, palette.cloud);
 }
 
 function drawRobot(t, lineW) {
@@ -106,17 +85,9 @@ function drawDoor(t) {
 function render(c, w, h, t) {
   ctx = c;
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  const s = kit.fitStage(ctx, w, h, W, H);
   const z = at("camZ", t);
-  ctx.translate(W / 2 - (W / 2) * z, H / 2 - (H / 2) * z);
-  ctx.scale(z, z);
+  kit.camera(ctx, W, H, W / 2, H / 2, z);
   const lineW = Math.max(MIN_LINE, LINE * s * z);
   sky();
   drawRobot(t, lineW);

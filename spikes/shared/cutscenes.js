@@ -33,53 +33,39 @@ function crowbarDoor(CFG) {
   const DOOR_HALF = CFG.stage.doorHalfWidth;
   const DOOR = { x: SEAM - DOOR_HALF, w: 2 * DOOR_HALF, top: 322, bottom: 705 };
   const palette = { ...CFG.palette };
-  const at = (name, t) => sample(CFG.tracks, name, t);
+  const at = track(CFG.tracks);
   let ctx;
 
-  function poly(pts, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  function rect(x, y, w, h, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, h);
-  }
-
   function drawWorld(t) {
-    rect(-2000, -1000, 6000, 3000, palette.tunnel);
-    rect(-2000, 120, 6000, 600, palette.wall);
-    rect(-2000, -1000, 6000, 1120, palette.ceiling);
+    rect(ctx, -2000, -1000, 6000, 3000, palette.tunnel);
+    rect(ctx, -2000, 120, 6000, 600, palette.wall);
+    rect(ctx, -2000, -1000, 6000, 1120, palette.ceiling);
     ctx.globalAlpha = 0.07;
-    for (let x = 100; x < 1800; x += 420) poly([[x - 18, 118], [x + 18, 118], [x + 130, 720], [x - 130, 720]], palette.lampCone);
+    for (let x = 100; x < 1800; x += 420) poly(ctx, [[x - 18, 118], [x + 18, 118], [x + 130, 720], [x - 130, 720]], palette.lampCone);
     ctx.globalAlpha = 1;
-    for (let x = 100; x < 1800; x += 420) rect(x - 22, 104, 44, 12, palette.lamp);
+    for (let x = 100; x < 1800; x += 420) rect(ctx, x - 22, 104, 44, 12, palette.lamp);
 
     const gap = at("gap", t);
     const glow = at("glow", t);
-    poly([[180, 250], [1620, 250], [1650, 280], [1650, 705], [150, 705], [150, 280]], palette.wagon);
-    rect(150, 640, 1500, 65, palette.wagonShade);
-    rect(150, 560, 1500, 24, palette.stripe);
-    poly([[180, 250], [1620, 250], [1650, 280], [150, 280]], palette.wagonShade);
+    poly(ctx, [[180, 250], [1620, 250], [1650, 280], [1650, 705], [150, 705], [150, 280]], palette.wagon);
+    rect(ctx, 150, 640, 1500, 65, palette.wagonShade);
+    rect(ctx, 150, 560, 1500, 24, palette.stripe);
+    poly(ctx, [[180, 250], [1620, 250], [1650, 280], [150, 280]], palette.wagonShade);
     for (const x of [260, 470, 1110, 1320]) {
-      rect(x, 340, 150, 150, palette.window);
+      rect(ctx, x, 340, 150, 150, palette.window);
       ctx.globalAlpha = 0.6;
-      poly([[x + 20, 340], [x + 70, 340], [x + 10, 490], [x - 0, 490]], palette.windowGlint);
+      poly(ctx, [[x + 20, 340], [x + 70, 340], [x + 10, 490], [x - 0, 490]], palette.windowGlint);
       ctx.globalAlpha = 1;
     }
 
     const { x: dx, w: dw, top, bottom } = DOOR, dh = bottom - top;
-    rect(dx, top, dw, dh, palette.interior);
+    rect(ctx, dx, top, dw, dh, palette.interior);
     if (glow > 0) {
       ctx.globalAlpha = 0.55 * glow;
-      poly([[dx + 25, top + 8], [dx + dw - 25, top + 8], [dx + dw - 5, bottom], [dx + 5, bottom]], palette.interiorLight);
+      poly(ctx, [[dx + 25, top + 8], [dx + dw - 25, top + 8], [dx + dw - 5, bottom], [dx + 5, bottom]], palette.interiorLight);
       ctx.globalAlpha = 0.9 * glow;
-      rect(SEAM - 5, top + 8, 8, dh - 8, palette.interior);
-      rect(dx + 35, 520, dw - 70, 10, palette.interior);
+      rect(ctx, SEAM - 5, top + 8, 8, dh - 8, palette.interior);
+      rect(ctx, dx + 35, 520, dw - 70, 10, palette.interior);
       ctx.globalAlpha = 1;
     }
     ctx.save();
@@ -90,32 +76,23 @@ function crowbarDoor(CFG) {
     drawDoorHalf(dx - half, true);
     drawDoorHalf(SEAM + half, false);
     ctx.restore();
-    rect(dx - 10, top - 10, dw + 20, 12, palette.doorFrame);
-    rect(dx - 10, top - 10, 10, dh + 10, palette.doorFrame);
-    rect(dx + dw, top - 10, 10, dh + 10, palette.doorFrame);
+    rect(ctx, dx - 10, top - 10, dw + 20, 12, palette.doorFrame);
+    rect(ctx, dx - 10, top - 10, 10, dh + 10, palette.doorFrame);
+    rect(ctx, dx + dw, top - 10, 10, dh + 10, palette.doorFrame);
 
-    rect(-2000, 705, 6000, 900, palette.platform);
-    rect(-2000, 712, 6000, 12, palette.safety);
-    for (let x = -2000; x < 4000; x += 160) rect(x, 724, 4, 900, palette.platformLine);
-    rect(-2000, 800, 6000, 3, palette.platformLine);
+    rect(ctx, -2000, 705, 6000, 900, palette.platform);
+    rect(ctx, -2000, 712, 6000, 12, palette.safety);
+    for (let x = -2000; x < 4000; x += 160) rect(ctx, x, 724, 4, 900, palette.platformLine);
+    rect(ctx, -2000, 800, 6000, 3, palette.platformLine);
   }
 
   function drawDoorHalf(x, left) {
     const { top, bottom } = DOOR;
-    rect(x, top, DOOR_HALF, bottom - top, palette.door);
-    rect(left ? x : x + DOOR_HALF - 20, top, 20, bottom - top, palette.doorShade);
-    rect(x + 20, top + 38, DOOR_HALF - 40, 120, palette.window);
+    rect(ctx, x, top, DOOR_HALF, bottom - top, palette.door);
+    rect(ctx, left ? x : x + DOOR_HALF - 20, top, 20, bottom - top, palette.doorShade);
+    rect(ctx, x + 20, top + 38, DOOR_HALF - 40, 120, palette.window);
     ctx.globalAlpha = 0.6;
-    poly([[x + 30, top + 38], [x + 50, top + 38], [x + 28, top + 158], [x + 20, top + 158]], palette.windowGlint);
-    ctx.globalAlpha = 1;
-  }
-
-  function floorShadow(x, w) {
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = palette.shadow;
-    ctx.beginPath();
-    ctx.ellipse(x, FLOOR + 4, w, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
+    poly(ctx, [[x + 30, top + 38], [x + 50, top + 38], [x + 28, top + 158], [x + 20, top + 158]], palette.windowGlint);
     ctx.globalAlpha = 1;
   }
 
@@ -123,22 +100,13 @@ function crowbarDoor(CFG) {
   const K = RB.scale;
   const X = RB.x;
   const BAR = CFG.crowbar;
-  const LINE_W = 1.4;
-  const FULL_LINE_PX = 500;
   let lineW = LINE_W;
 
-  function lineFor(c) {
-    const t = c.getTransform();
-    const robotPx = Math.sqrt(Math.abs(t.a * t.d - t.b * t.c)) * K * FOOT_Y;
-    return Math.min(LINE_W, Math.max(window.XBOT.GAME_LINE, LINE_W * robotPx / FULL_LINE_PX));
-  }
-  const STAND = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
   const sideRoot = buildSide({ farLimbs: true, propBehindArm: true });
   const backRoot = buildBack({ leftArmBehind: true, rightForeBehind: true });
 
   function drawCrowbar(c, reach, w, butt) {
-    const t = c.getTransform();
-    const lw = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+    const lw = lineW / unitScale(c);
     const len = reach + butt - w * 0.2;
     c.strokeStyle = BOT_PALETTE.mLine;
     c.lineWidth = lw;
@@ -160,16 +128,8 @@ function crowbarDoor(CFG) {
     return new DOMMatrix().translate(X, FLOOR).rotate(lean).scale(K).translate(-ax, -FOOT_Y);
   }
 
-  function placeRobot(root, m, pose, hooks) {
-    ctx.save();
-    ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-    renderBot(ctx, root, { pose, hooks, lineW });
-    ctx.restore();
-  }
-
   const BAR_TILT = RB.barTilt;
   const FAR_GRIP = RB.farGripOffset;
-  const ORIGIN = new DOMPoint(0, 0);
 
   let farSeed = null;
 
@@ -193,8 +153,8 @@ function crowbarDoor(CFG) {
         c.restore();
       } : null
     };
-    floorShadow(X, 70);
-    placeRobot(sideRoot, robotMatrix(SIDE_AX), pose, hooks);
+    shadow(ctx, X, FLOOR + 4, 70, 12, 0.35, palette.shadow);
+    placeRobot(ctx, sideRoot, robotMatrix(SIDE_AX), { pose, hooks, lineW });
   }
 
   const PULL_ARM = RB.pullArmDeg;
@@ -216,28 +176,20 @@ function crowbarDoor(CFG) {
     ctx.scale(K, K);
     drawCrowbar(ctx, BAR.reach, BAR.width, BAR.butt);
     ctx.restore();
-    floorShadow(X, 90);
-    placeRobot(backRoot, m, pose, {});
+    shadow(ctx, X, FLOOR + 4, 90, 12, 0.35, palette.shadow);
+    placeRobot(ctx, backRoot, m, { pose, hooks: {}, lineW });
   }
 
   function render(c, w, h, t) {
     ctx = c;
     ctx.save();
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, w, h);
-    const s = Math.min(w / W, h / H);
-    ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-    ctx.scale(s, s);
-    ctx.beginPath();
-    ctx.rect(0, 0, W, H);
-    ctx.clip();
+    fitStage(ctx, w, h, W, H);
     const z = at("camZ", t);
     const sh = at("shake", t);
     const cx = at("camX", t) + Math.sin(t * 90) * sh * 0.4;
     const cy = at("camY", t) + Math.cos(t * 77) * sh * 0.4;
-    ctx.translate(W / 2 - cx * z, H / 2 - cy * z);
-    ctx.scale(z, z);
-    lineW = lineFor(ctx);
+    camera(ctx, W, H, cx, cy, z);
+    lineW = lineFor(ctx, K);
     drawWorld(t);
     if (at("shot", t) === "C") drawBack(t); else drawProfile(t);
     ctx.restore();
@@ -439,5 +391,194 @@ function placeholder(id, CFG) {
   };
 }
 
-window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor), securityCam, filmRect, camClock, kit: { ease, sample, filmRef, placeholder, FILM } };
+const LINE_W = 1.4;
+const FULL_LINE_PX = 500;
+const RAD = Math.PI / 180;
+const ORIGIN = new DOMPoint(0, 0);
+const STAND = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
+
+const track = tracks => (name, t) => sample(tracks, name, t);
+const asset = id => window.ENV.ASSETS.find(a => a.id === id);
+const recolor = color => Object.fromEntries(Object.keys(window.ENV.PALETTE).map(k => [k, color]));
+
+function unitScale(c) {
+  const m = c.getTransform();
+  return Math.sqrt(Math.abs(m.a * m.d - m.b * m.c));
+}
+
+function lineFor(c, k, len = FOOT_Y) {
+  const robotPx = unitScale(c) * k * len;
+  return Math.min(LINE_W, Math.max(window.XBOT.GAME_LINE, LINE_W * robotPx / FULL_LINE_PX));
+}
+
+function rect(c, x, y, w, h, color) {
+  c.fillStyle = color;
+  c.fillRect(x, y, w, h);
+}
+
+function trace(c, pts) {
+  c.beginPath();
+  c.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]);
+}
+
+function poly(c, pts, color) {
+  c.fillStyle = color;
+  trace(c, pts);
+  c.closePath();
+  c.fill();
+}
+
+function stroke(c, pts, color, width) {
+  c.strokeStyle = color;
+  c.lineWidth = width;
+  trace(c, pts);
+  c.stroke();
+}
+
+function oval(c, x, y, rx, ry, color, rot = 0) {
+  c.fillStyle = color;
+  c.beginPath();
+  c.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
+  c.fill();
+}
+
+function cloud(c, x, y, w, h, alpha, lit, color) {
+  c.globalAlpha = alpha;
+  oval(c, x + w * 0.08, y + h * 0.35, w * 0.5, h * 0.6, lit);
+  c.globalAlpha = 1;
+  oval(c, x, y, w * 0.5, h * 0.5, color);
+  oval(c, x - w * 0.22, y - h * 0.3, w * 0.28, h * 0.45, color);
+}
+
+function shadow(c, x, y, rx, ry, alpha, color, rot = 0) {
+  c.globalAlpha = alpha;
+  oval(c, x, y, rx, ry, color, rot);
+  c.globalAlpha = 1;
+}
+
+function pool(c, x, y, rx, ry, color, alpha) {
+  c.save();
+  c.translate(x, y);
+  c.scale(1, ry / rx);
+  const g = c.createRadialGradient(0, 0, 0, 0, 0, rx);
+  g.addColorStop(0, color);
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  c.globalAlpha = alpha;
+  c.fillStyle = g;
+  c.fillRect(-rx, -rx, 2 * rx, 2 * rx);
+  c.restore();
+}
+
+function random(seed) {
+  let a = seed | 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let r = Math.imul(a ^ (a >>> 15), 1 | a);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function bank(seed, n, x0, span, top, depth, w0, wSpan, h0, hSpan) {
+  let s = seed;
+  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const list = [];
+  for (let i = 0; i < n; i++) list.push([x0 + rnd() * span, top + rnd() * depth, w0 + rnd() * wSpan, h0 + rnd() * hSpan]);
+  return list;
+}
+
+function scatter(r, n, x0, y0, w, h) {
+  const pts = [];
+  for (let i = 0; i < n; i++) pts.push([x0 + r() * w, y0 + r() * h, r(), r()]);
+  return pts;
+}
+
+function fitStage(c, w, h, W, H) {
+  c.fillStyle = "#000";
+  c.fillRect(0, 0, w, h);
+  const s = Math.min(w / W, h / H);
+  c.translate((w - W * s) / 2, (h - H * s) / 2);
+  c.scale(s, s);
+  c.beginPath();
+  c.rect(0, 0, W, H);
+  c.clip();
+  return s;
+}
+
+function camera(c, W, H, x, y, z) {
+  c.translate(W / 2 - x * z, H / 2 - y * z);
+  c.scale(z, z);
+}
+
+function feet(c, x, y, sx, sy, ax, rot = 0) {
+  c.translate(x, y);
+  if (rot) c.rotate(rot);
+  c.scale(sx, sy);
+  c.translate(-ax, -FOOT_Y);
+}
+
+function placeRobot(c, root, m, opts) {
+  c.save();
+  c.transform(m.a, m.b, m.c, m.d, m.e, m.f);
+  renderBot(c, root, opts);
+  c.restore();
+}
+
+function layer(c, t, draw, lines, palette = window.ENV.PALETTE) {
+  window.ENV.draw(c, { draw: cc => draw(cc) }, { t, lines, palette });
+}
+
+function toModel(m, x, y) {
+  const p = m.inverse().transformPoint(new DOMPoint(x, y));
+  return [p.x, p.y];
+}
+
+function circleCenter(a, b, c) {
+  const d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]));
+  const q = p => p[0] * p[0] + p[1] * p[1];
+  return [
+    (q(a) * (b[1] - c[1]) + q(b) * (c[1] - a[1]) + q(c) * (a[1] - b[1])) / d,
+    (q(a) * (c[0] - b[0]) + q(b) * (a[0] - c[0]) + q(c) * (b[0] - a[0])) / d
+  ];
+}
+
+const chains = new Map();
+
+function armChain(root, hook, keys, stand = STAND) {
+  const key = `${keys[0]} ${hook}`;
+  const known = chains.get(root)?.[key];
+  if (known) return known;
+  const hand = (a, b) => {
+    const p = locate(root, hook, { ...stand, [keys[0]]: a, [keys[1]]: b }).transformPoint(ORIGIN);
+    return [p.x, p.y];
+  };
+  const h = hand(0, 0);
+  const chain = { h, s: circleCenter(h, hand(60, 0), hand(-60, 0)), e: circleCenter(h, hand(0, 60), hand(0, -60)) };
+  chains.set(root, { ...chains.get(root), [key]: chain });
+  return chain;
+}
+
+const wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+
+function reach(root, hook, keys, target, bend, stand = STAND) {
+  const { h, s, e } = armChain(root, hook, keys, stand);
+  const l1 = Math.hypot(e[0] - s[0], e[1] - s[1]);
+  const l2 = Math.hypot(h[0] - e[0], h[1] - e[1]);
+  const d = Math.min(l1 + l2 - 1, Math.max(Math.abs(l1 - l2) + 1, Math.hypot(target[0] - s[0], target[1] - s[1])));
+  const rest = Math.atan2(e[1] - s[1], e[0] - s[0]);
+  const bent = Math.atan2(h[1] - e[1], h[0] - e[0]) - rest;
+  const upper = Math.atan2(target[1] - s[1], target[0] - s[0]) + bend * Math.acos((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d));
+  const elbow = [s[0] + l1 * Math.cos(upper), s[1] + l1 * Math.sin(upper)];
+  const lower = Math.atan2(target[1] - elbow[1], target[0] - elbow[0]);
+  return { [keys[0]]: wrap(upper - rest) / RAD, [keys[1]]: wrap(lower - upper - bent) / RAD };
+}
+
+const kit = {
+  ease, sample, track, asset, recolor, filmRef, placeholder, FILM, LINE_W, RAD, ORIGIN, STAND,
+  unitScale, lineFor, rect, poly, stroke, oval, cloud, shadow, pool, random, scatter, bank,
+  fitStage, camera, feet, placeRobot, layer, toModel, armChain, reach
+};
+
+window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor), securityCam, filmRect, camClock, kit };
 })();

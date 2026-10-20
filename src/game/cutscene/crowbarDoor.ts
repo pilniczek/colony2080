@@ -1,56 +1,31 @@
 import config from "@config/cutscenes/crowbar-door.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
-import { apply, rotate, type Mat2D } from "../../engine/math/mat2d";
-import { drawRig, type HookDraw } from "../../engine/rig/draw";
-import { locate, solve, type Pose } from "../../engine/rig/pose";
+import { apply, rotate } from "../../engine/math/mat2d";
+import type { HookDraw } from "../../engine/rig/draw";
+import { solve } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { buildBack, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
+import { camera, fitStage, fromDom, hookAt, LINE_W, lineFor, ORIGIN, placeRobot, poly, rect, shadow, STAND, tracks, unitScale } from "./kit";
 
 type Palette = typeof config.palette;
 type Stage = { ctx: CanvasRenderingContext2D; t: number };
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const { width: W, height: H, floorY: FLOOR, doorSeamX: SEAM, doorHalfWidth: DOOR_HALF } = config.stage;
 const DOOR = { x: SEAM - DOOR_HALF, w: 2 * DOOR_HALF, top: 322, bottom: 705 };
 const RB = config.robot;
 const K = RB.scale;
 const BAR = config.crowbar;
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 let lineW = LINE_W;
 
-const lineFor = (ctx: CanvasRenderingContext2D): number => {
-  const t = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(t.a * t.d - t.b * t.c)) * K * ROBOT.FOOT_Y;
-  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-};
-const STAND = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
 const FAR_RANGES: [[number, number], [number, number]] = [[-150, 90], [-140, 10]];
-const ORIGIN: Pt = [0, 0];
 const DEG = 180 / Math.PI;
 const palette: Palette = { ...config.palette };
 
-const num = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
-const text = (name: string, t: number): string => String(sampleTrack(TRACKS[name]!, t));
+const { num, text } = tracks(config.tracks);
 
 let rigs: { side: GroupNode; back: GroupNode } | null = null;
 const robots = () => (rigs ??= { side: buildSide({ farLimbs: true, propBehindArm: true }), back: buildBack({ leftArmBehind: true, rightForeBehind: true }) });
 let farSeed: Record<string, number> | null = null;
-
-function poly(ctx: CanvasRenderingContext2D, pts: Pt[], color: string): void {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(pts[0]![0], pts[0]![1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i]![0], pts[i]![1]);
-  ctx.closePath();
-  ctx.fill();
-}
-
-function rect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string): void {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
-}
 
 function drawDoorHalf(ctx: CanvasRenderingContext2D, x: number, left: boolean): void {
   const { top, bottom } = DOOR;
@@ -112,18 +87,8 @@ function drawWorld({ ctx, t }: Stage): void {
   rect(ctx, -2000, 800, 6000, 3, palette.platformLine);
 }
 
-function floorShadow(ctx: CanvasRenderingContext2D, x: number, w: number): void {
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = palette.shadow;
-  ctx.beginPath();
-  ctx.ellipse(x, FLOOR + 4, w, 12, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
-}
-
 function drawCrowbar(c: CanvasRenderingContext2D, reach: number, w: number, butt: number): void {
-  const t = c.getTransform();
-  const lw = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+  const lw = lineW / unitScale(c);
   const len = reach + butt - w * 0.2;
   c.strokeStyle = ROBOT.palette.mLine!;
   c.lineWidth = lw;
@@ -142,21 +107,6 @@ function drawCrowbar(c: CanvasRenderingContext2D, reach: number, w: number, butt
 }
 
 const robotMatrix = (ax: number, lean = 0): DOMMatrix => new DOMMatrix().translate(RB.x, FLOOR).rotate(lean).scale(K).translate(-ax, -ROBOT.FOOT_Y);
-
-const fromDom = ({ a, b, c, d, e, f }: DOMMatrix): Mat2D => ({ a, b, c, d, e, f });
-
-const hookAt = (root: GroupNode, hook: string, pose: Pose, base?: Mat2D): Mat2D => {
-  const m = locate(root, hook, pose, base);
-  if (!m) throw new Error(`no ${hook} hook`);
-  return m;
-};
-
-function placeRobot(ctx: CanvasRenderingContext2D, root: GroupNode, m: DOMMatrix, pose: Pose, hooks: Record<string, HookDraw | undefined>): void {
-  ctx.save();
-  ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-  drawRig(ctx, root, { palette: ROBOT.palette, pose, hooks, lineW });
-  ctx.restore();
-}
 
 function drawProfile({ ctx, t }: Stage): void {
   const { side } = robots();
@@ -181,8 +131,8 @@ function drawProfile({ ctx, t }: Stage): void {
           c.restore();
         }
       : undefined;
-  floorShadow(ctx, RB.x, 70);
-  placeRobot(ctx, side, robotMatrix(ROBOT.SIDE_AX), pose, { hand });
+  shadow(ctx, RB.x, FLOOR + 4, 70, 12, 0.35, palette.shadow);
+  placeRobot(ctx, side, robotMatrix(ROBOT.SIDE_AX), { pose, hooks: { hand }, lineW });
 }
 
 function drawBack({ ctx, t }: Stage): void {
@@ -199,28 +149,20 @@ function drawBack({ ctx, t }: Stage): void {
   ctx.scale(K, K);
   drawCrowbar(ctx, BAR.reach, BAR.width, BAR.butt);
   ctx.restore();
-  floorShadow(ctx, RB.x, 90);
-  placeRobot(ctx, back, m, pose, {});
+  shadow(ctx, RB.x, FLOOR + 4, 90, 12, 0.35, palette.shadow);
+  placeRobot(ctx, back, m, { pose, hooks: {}, lineW });
 }
 
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, clipT: number): void {
   const t = clipT + config.clip.start;
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   const z = num("camZ", t);
   const sh = num("shake", t);
   const cx = num("camX", t) + Math.sin(t * 90) * sh * 0.4;
   const cy = num("camY", t) + Math.cos(t * 77) * sh * 0.4;
-  ctx.translate(W / 2 - cx * z, H / 2 - cy * z);
-  ctx.scale(z, z);
-  lineW = lineFor(ctx);
+  camera(ctx, W, H, cx, cy, z);
+  lineW = lineFor(ctx, K);
   const stage = { ctx, t };
   drawWorld(stage);
   if (text("shot", t) === "C") drawBack(stage);

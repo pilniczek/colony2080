@@ -1,12 +1,12 @@
 import config from "@config/cutscenes/pick-controller.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import { multiply as mul, type Mat2D } from "../../engine/math/mat2d";
 import { drawRig } from "../../engine/rig/draw";
-import { locate, type Pose } from "../../engine/rig/pose";
+import type { Pose } from "../../engine/rig/pose";
 import { ASSETS, isAssetId } from "../env/assets";
 import { drawAsset, PALETTE, type EnvPalette } from "../env/paint";
 import { buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene, CutsceneId } from "./index";
+import { fitStage, hookAt, LINE_W, lineFor, random, recolor, shadow, tracks } from "./kit";
 
 export interface PickupConfig {
   title: string;
@@ -52,23 +52,11 @@ type Robot = { k: number; m: Mat2D; pose: Pose };
 
 const FW = 1600;
 const FH = 900;
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 const SHOULDER = [300, 150] as const;
 const NEAR = 18;
 const FAR = 46;
 const GLYPH = [3, 5] as const;
 const GRASS_TONES = ["grass0", "grass1", "grass2"] as const;
-
-export const random = (seed: number): (() => number) => {
-  let a = seed | 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let r = Math.imul(a ^ (a >>> 15), 1 | a);
-    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-  };
-};
 
 const invert = ({ a, b, c, d, e, f }: Mat2D): Mat2D => {
   const k = a * d - b * c;
@@ -88,11 +76,10 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
   const S = CFG.stage;
   const palette: Record<string, string> = { ...CFG.palette };
   const color = (key: string): string => palette[key] as string;
-  const tracks = CFG.tracks as Record<string, TrackKey[]>;
-  const at = (name: string, t: number): number => sampleTrack(tracks[name]!, t) as number;
+  const { num: at } = tracks(CFG.tracks);
   if (!isAssetId(S.item)) throw new Error(`no asset ${S.item}`);
   const item = ASSETS[S.item];
-  const flashPalette = tinted(() => color("flash"));
+  const flashPalette = recolor(color("flash"));
   const scanPalette = tinted((k) => (k.endsWith("Line") ? color("panelLine") : color("panelItem")));
   const root = buildSide({ propBehindArm: true });
   const blades: Blade[] = [];
@@ -114,12 +101,6 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
       glyphs.push({ row, col, dots });
     }
   }
-
-  const lineFor = (ctx: CanvasRenderingContext2D, k: number): number => {
-    const m = ctx.getTransform();
-    const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k * ROBOT.FOOT_Y;
-    return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-  };
 
   const camera = (t: number): Camera => {
     const yaw = ((S.yaw + at("yaw", t)) * Math.PI) / 180;
@@ -198,9 +179,7 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
   };
 
   const handAt = (robot: Robot): Mat2D => {
-    const m = locate(root, "hand", robot.pose);
-    if (!m) throw new Error("no hand hook");
-    return mul(robot.m, m);
+    return mul(robot.m, hookAt(root, "hand", robot.pose));
   };
 
   const itemMatrix = (t: number): Mat2D => {
@@ -217,12 +196,7 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     if (lift > 0) {
       const grip = itemMatrix(S.gripAt);
       const [dx, dy, rx, ry] = S.shadow as [number, number, number, number];
-      ctx.globalAlpha = 0.45 * lift;
-      ctx.fillStyle = color("shadow");
-      ctx.beginPath();
-      ctx.ellipse(grip.e + dx, grip.f + dy, rx, ry, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      shadow(ctx, grip.e + dx, grip.f + dy, rx, ry, 0.45 * lift, color("shadow"));
     }
     ctx.save();
     ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
@@ -338,14 +312,7 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
 
   function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
     ctx.save();
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, w, h);
-    const s = Math.min(w / FW, h / FH);
-    ctx.translate((w - FW * s) / 2, (h - FH * s) / 2);
-    ctx.scale(s, s);
-    ctx.beginPath();
-    ctx.rect(0, 0, FW, FH);
-    ctx.clip();
+    fitStage(ctx, w, h, FW, FH);
     const cam = camera(t);
     if (S.ground === "tiles") drawTiles(ctx, cam);
     else drawGrass(ctx, cam);

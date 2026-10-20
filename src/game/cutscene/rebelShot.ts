@@ -1,17 +1,15 @@
 import config from "@config/cutscenes/rebel-shot.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import { apply } from "../../engine/math/mat2d";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
-import { locate, type Pose } from "../../engine/rig/pose";
+import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { PALETTE as SKIN } from "../env/paint";
 import { gunHook, MUZZLE, MUZZLE_IN_HOOK } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
+import { camera, feet, fitStage, hookAt, lineFor, oval, poly, rect, scatter, tracks, unitScale } from "./kit";
 
 type Ctx = CanvasRenderingContext2D;
-type Seed = [number, number, number, number];
-type Fill = string | CanvasGradient;
 
 export interface RebelFace {
   turn: number;
@@ -36,74 +34,31 @@ interface RebelPose {
   elbowFar: number;
 }
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const { width: W, height: H } = config.stage;
 const palette = config.palette;
 const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
 const { AX, SIDE_AX, FOOT_Y } = ROBOT;
 const PI = Math.PI;
 const DEG = PI / 180;
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
 const HUMAN_LINE = 1.2;
 
-const num = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
-const text = (name: string, t: number): string => String(sampleTrack(TRACKS[name]!, t));
+const { num, text } = tracks(config.tracks);
 const skin = (key: string): string => SKIN[key]!;
 
-const rng = (seed: number): (() => number) => {
+export const rng = (seed: number): (() => number) => {
   let s = (seed * 2654435761) >>> 0 || 1;
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
 };
 
-export const scatter = (seed: number, count: number, x0: number, x1: number, y0: number, y1: number): Seed[] => {
-  const r = rng(seed);
-  const out: Seed[] = [];
-  for (let i = 0; i < count; i++) out.push([x0 + r() * (x1 - x0), y0 + r() * (y1 - y0), r(), r()]);
-  return out;
-};
-
 const unitLine = (ctx: Ctx, px: number): number => {
-  const m = ctx.getTransform();
-  return px / Math.sqrt(Math.abs(m.a * m.d - m.b * m.c));
+  return px / unitScale(ctx);
 };
-
-const robotLine = (ctx: Ctx, k: number): number => {
-  const m = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k * FOOT_Y;
-  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-};
-
-function path(ctx: Ctx, pts: Pt[]): void {
-  ctx.beginPath();
-  ctx.moveTo(pts[0]![0], pts[0]![1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i]![0], pts[i]![1]);
-  ctx.closePath();
-}
-
-export function poly(ctx: Ctx, pts: Pt[], color: string): void {
-  ctx.fillStyle = color;
-  path(ctx, pts);
-  ctx.fill();
-}
 
 function cel(ctx: Ctx, pts: Pt[], color: string): void {
   poly(ctx, pts, color);
   ctx.strokeStyle = skin("kLine");
   ctx.lineWidth = unitLine(ctx, HUMAN_LINE);
   ctx.stroke();
-}
-
-export function rect(ctx: Ctx, x: number, y: number, w: number, h: number, color: Fill): void {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
-}
-
-function oval(ctx: Ctx, x: number, y: number, rx: number, ry: number, color: string): void {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.ellipse(x, y, rx, ry, 0, 0, PI * 2);
-  ctx.fill();
 }
 
 function capsule(ctx: Ctx, [ax, ay]: Pt, [bx, by]: Pt, r0: number, r1: number, color: string): void {
@@ -286,11 +241,11 @@ export function drawFace(ctx: Ctx, x: number, y: number, k: number, rot: number,
   ctx.restore();
 }
 
-const SKY_STREAKS = scatter(11, 60, -400, 2000, 0, 1);
-const GROUND_STREAKS = scatter(12, 70, -400, 2000, 0, 1);
-const SPRAY = scatter(31, 14, 0, 140, -60, 60);
-const SPARKS = scatter(41, 16, -60, 60, -60, 60);
-const TRACERS = scatter(43, 6, 0, 1, -1, 1);
+const SKY_STREAKS = scatter(rng(11), 60, -400, 0, 2400, 1);
+const GROUND_STREAKS = scatter(rng(12), 70, -400, 0, 2400, 1);
+const SPRAY = scatter(rng(31), 14, 0, -60, 140, 120);
+const SPARKS = scatter(rng(41), 16, -60, -60, 120, 120);
+const TRACERS = scatter(rng(43), 6, 0, -1, 1, 2);
 
 type Waste = [string, string, string, string, string, string, string, string, string];
 
@@ -356,10 +311,8 @@ const rigs = () =>
 
 function placeBot(ctx: Ctx, root: GroupNode, x: number, y: number, k: number, ax: number, sx: number, pose: Pose, hooks: Record<string, HookDraw | undefined>, pal: Palette): void {
   ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(k * sx, k);
-  ctx.translate(-ax, -FOOT_Y);
-  const lineW = robotLine(ctx, 1);
+  feet(ctx, x, y, k * sx, k, ax);
+  const lineW = lineFor(ctx, 1);
   drawRig(ctx, root, { palette: pal, pose, hooks, lineW });
   ctx.restore();
 }
@@ -416,7 +369,7 @@ function droid(ctx: Ctx, x: number, y: number, k: number, rot: number, t: number
   ctx.translate(x, y);
   ctx.rotate(rot * DEG);
   const pose = { body: Math.sin(t * 5) * 2, armL: -24, foreL: -66, armR: 30, foreR: -50 };
-  placeBot(ctx, root, 0, 0, k, AX, 1, pose, { handL: (c, pal) => gunHook(c, pal, { lineW: robotLine(c, k), simple: false }) }, ENEMY_PALETTE);
+  placeBot(ctx, root, 0, 0, k, AX, 1, pose, { handL: (c, pal) => gunHook(c, pal, { lineW: lineFor(c, k), simple: false }) }, ENEMY_PALETTE);
   ctx.restore();
 }
 
@@ -512,7 +465,7 @@ function battlefield(ctx: Ctx, t: number): void {
 const gunWithFlash =
   (k: number, flash: number): HookDraw =>
   (c, pal) => {
-    gunHook(c, pal, { lineW: robotLine(c, k), simple: false });
+    gunHook(c, pal, { lineW: lineFor(c, k), simple: false });
     if (flash > 0) {
       c.save();
       c.transform(0, 1, -1, 0, 0, 0);
@@ -546,9 +499,7 @@ function shotFire(ctx: Ctx, t: number): void {
   const k = 0.95;
   placeBot(ctx, heroBack, bx, by, k, AX, 1, pose, { handR: gunWithFlash(k, flash) }, ROBOT.palette);
   if (firing) {
-    const hookAt = locate(heroBack, "handR", pose);
-    if (!hookAt) throw new Error("no handR hook");
-    const [px, py] = apply(hookAt, MUZZLE_IN_HOOK);
+    const [px, py] = apply(hookAt(heroBack, "handR", pose), MUZZLE_IN_HOOK);
     const mx = bx + (px - AX) * k;
     const my = by + (py - FOOT_Y) * k;
     ctx.strokeStyle = palette.flash;
@@ -570,16 +521,9 @@ const SHOTS: Record<string, (ctx: Ctx, t: number) => void> = { A: shotTurn, B: s
 
 function render(ctx: Ctx, w: number, h: number, t: number): void {
   ctx.save();
-  rect(ctx, 0, 0, w, h, "#000");
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   const z = num("camZ", t);
-  ctx.translate(W / 2 - num("camX", t) * z, H / 2 - num("camY", t) * z);
-  ctx.scale(z, z);
+  camera(ctx, W, H, num("camX", t), num("camY", t), z);
   SHOTS[text("shot", t)]!(ctx, t);
   ctx.restore();
 }

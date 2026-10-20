@@ -1,32 +1,27 @@
 import config from "@config/cutscenes/hull-cover.json";
-import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
 import { drawRig, shade } from "../../engine/rig/draw";
-import { locate, type Pose } from "../../engine/rig/pose";
+import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset, P, PALETTE, type EnvAsset } from "../env/paint";
 import { gunHook, gunSlung, holdPoses, MUZZLE_IN_HOOK } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { random } from "./pickController";
+import { camera, feet, fitStage, hookAt, LINE_W, lineFor, poly, random, shadow, tracks } from "./kit";
 
 type View = { horizon: number; shipX: number; shipY: number; shipScale: number };
 type Rock = { pts: Pt[]; tone: number };
 
-const TRACKS = config.tracks as unknown as Record<string, TrackKey[]>;
 const S = config.stage;
 const { width: W, height: H } = S;
 const palette: Record<string, string> = { ...config.palette };
-const LINE_W = 1.4;
-const FULL_LINE_PX = 500;
-const FIRE_AT = TRACKS.fire![1]![0];
+const FIRE_AT = config.tracks.fire[1]![0] as number;
 const COVER = [8, -38, 20, 12] as const;
 const [FLY_X, FLY_Y, FLY_G] = S.coverFly as [number, number, number];
 const shipPalette = shade(PALETTE, { brightness: S.shipShade });
 const plate: EnvAsset = { id: "hullPlate", box: [0, 0, 0, 0], draw: (c) => P.box(c, -COVER[2] / 2, -COVER[3] / 2, COVER[2], COVER[3], "steel", 2) };
 
-const at = (name: string, t: number): number => sampleTrack(TRACKS[name]!, t) as number;
-const text = (name: string, t: number): string => String(sampleTrack(TRACKS[name]!, t));
+const { num: at, text } = tracks(config.tracks);
 
 const pick = random(S.seed);
 const rocks: Rock[] = [];
@@ -44,21 +39,6 @@ const robots = () => {
   const side = buildSide({ farLimbs: true, propBehindArm: true });
   return (rigs = { side, back: buildBack({}), carry: holdPoses(side, buildFront({})) });
 };
-
-const lineFor = (ctx: CanvasRenderingContext2D, k: number): number => {
-  const m = ctx.getTransform();
-  const robotPx = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k * ROBOT.FOOT_Y;
-  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
-};
-
-function poly(ctx: CanvasRenderingContext2D, pts: Pt[], color: string): void {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(pts[0]![0], pts[0]![1]);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i]![0], pts[i]![1]);
-  ctx.closePath();
-  ctx.fill();
-}
 
 function drawHangar(ctx: CanvasRenderingContext2D, view: View, shift: number): void {
   ctx.fillStyle = palette.dark!;
@@ -93,15 +73,6 @@ function drawShip(ctx: CanvasRenderingContext2D, view: View, state: number): voi
   ctx.restore();
 }
 
-function shadow(ctx: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number): void {
-  ctx.globalAlpha = 0.4;
-  ctx.fillStyle = palette.shadow!;
-  ctx.beginPath();
-  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
-}
-
 const legUp = (r: number): [Pose[string], Pose[string]] => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
 
 function drawWalk(ctx: CanvasRenderingContext2D, t: number): void {
@@ -115,11 +86,9 @@ function drawWalk(ctx: CanvasRenderingContext2D, t: number): void {
   const [thighL, shinL] = legUp(V.lift * Math.max(0, swing));
   const [thighR, shinR] = legUp(V.lift * Math.max(0, -swing));
   const pose: Pose = { body: { dy: -V.bob * Math.abs(swing) }, thighL: thighL!, shinL: shinL!, thighR: thighR!, shinR: shinR!, armL: -V.swing * swing, armR: -V.swing * swing };
-  shadow(ctx, x, y, 230 * k, 26 * k);
+  shadow(ctx, x, y, 230 * k, 26 * k, 0.4, palette.shadow!);
   ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(k, k);
-  ctx.translate(-ROBOT.AX, -ROBOT.FOOT_Y);
+  feet(ctx, x, y, k, k, ROBOT.AX);
   const lineW = lineFor(ctx, k);
   drawRig(ctx, robots().back, { palette: ROBOT.palette, pose, lineW });
   gunSlung(ctx, ROBOT.palette, { lineW });
@@ -206,8 +175,7 @@ function drawAim(ctx: CanvasRenderingContext2D, t: number): void {
   const V = S.aim;
   const { side, carry } = robots();
   const z = at("camZ", t);
-  ctx.translate(W / 2 - at("camX", t) * z, H / 2 - at("camY", t) * z);
-  ctx.scale(z, z);
+  camera(ctx, W, H, at("camX", t), at("camY", t), z);
   drawHangar(ctx, V, 420);
   drawShip(ctx, V, at("cover", t) >= 0.5 ? 1 : 0);
   drawDebris(ctx, V, t);
@@ -218,28 +186,20 @@ function drawAim(ctx: CanvasRenderingContext2D, t: number): void {
   const kick = on ? -3 : 0;
   const pose: Pose = { arm: carry.CARRY.arm * raise + kick, fore: carry.CARRY.fore * raise, armFar: carry.CARRY_FAR.armFar * raise + kick, foreFar: carry.CARRY_FAR.foreFar * raise };
   const m = new DOMMatrix().translate(V.x, V.floorY).scale(V.scale).translate(-ROBOT.SIDE_AX, -ROBOT.FOOT_Y);
-  shadow(ctx, V.x, V.floorY, 200 * V.scale, 22 * V.scale);
+  shadow(ctx, V.x, V.floorY, 200 * V.scale, 22 * V.scale, 0.4, palette.shadow!);
   ctx.save();
   ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
   const lineW = lineFor(ctx, V.scale);
   drawRig(ctx, side, { palette: ROBOT.palette, pose, hooks: { hand: (c) => gunHook(c, ROBOT.palette, { lineW }) }, lineW });
   ctx.restore();
-  const hand = locate(side, "hand", pose);
-  if (!hand) throw new Error("no hand hook");
+  const hand = hookAt(side, "hand", pose);
   drawFlash(ctx, m.multiply(new DOMMatrix([hand.a, hand.b, hand.c, hand.d, hand.e, hand.f])), on);
   if (firing) drawHits(ctx, V, t, frame);
 }
 
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, w, h);
-  const s = Math.min(w / W, h / H);
-  ctx.translate((w - W * s) / 2, (h - H * s) / 2);
-  ctx.scale(s, s);
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.clip();
+  fitStage(ctx, w, h, W, H);
   if (text("shot", t) === "A") drawWalk(ctx, t);
   else drawAim(ctx, t);
   ctx.restore();
