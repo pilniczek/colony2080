@@ -5,7 +5,7 @@ import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { buildFront, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, feet, fitStage, LINE_W, lineFor, rect, shadow, tracks } from "./kit";
+import { camera, feet, fitStage, LINE_W, lineFor, rect, shadow, sheetBlit, sheetDraw, tracks } from "./kit";
 
 const ST = config.stage;
 const W = ST.width;
@@ -19,18 +19,27 @@ let lineW = LINE_W;
 
 const { num: at } = tracks(config.tracks);
 
-function drawWall(ctx: CanvasRenderingContext2D): void {
-  rect(ctx, -400, -400, W + 800, ST.wallBase + 400, palette.wall);
+function drawBlocks(ctx: CanvasRenderingContext2D, lit: boolean | null, color: string): void {
+  ctx.fillStyle = color;
+  ctx.beginPath();
   for (let row = 0; row * BLOCK_H < ST.wallBase + 400; row++) {
     const y = -400 + row * BLOCK_H;
     let x = -400 - (row % 3) * 60;
     for (let i = row; x < W + 400; i++) {
       const w = BLOCK_WIDTHS[i % BLOCK_WIDTHS.length]!;
-      rect(ctx, x + 4, y + 4, w - 8, BLOCK_H - 8, i % 3 === 0 ? palette.wallLit : palette.block);
-      rect(ctx, x + 4, y + BLOCK_H - 14, w - 8, 10, palette.wallDark);
+      if (lit === null) ctx.rect(x + 4, y + BLOCK_H - 14, w - 8, 10);
+      else if ((i % 3 === 0) === lit) ctx.rect(x + 4, y + 4, w - 8, BLOCK_H - 8);
       x += w;
     }
   }
+  ctx.fill();
+}
+
+function drawWall(ctx: CanvasRenderingContext2D): void {
+  rect(ctx, -400, -400, W + 800, ST.wallBase + 400, palette.wall);
+  drawBlocks(ctx, true, palette.wallLit);
+  drawBlocks(ctx, false, palette.block);
+  drawBlocks(ctx, null, palette.wallDark);
   rect(ctx, -400, 300, W + 800, 42, palette.pipeDark);
   rect(ctx, -400, 300, W + 800, 16, palette.pipe);
   rect(ctx, -400, 304, W + 800, 5, palette.pipeLit);
@@ -85,7 +94,7 @@ const drawItems: HookDraw = (c) => {
   c.restore();
 };
 
-function drawRobot(ctx: CanvasRenderingContext2D, t: number, front: boolean): void {
+function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
   robot ??= buildFront({ rightArmFirst: true });
   const crouch = at("crouch", t);
   const k = ST.robotScale;
@@ -99,12 +108,6 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number, front: boolean): vo
   };
   const holding = at("taken", t) >= 1;
   ctx.save();
-  if (front) {
-    const [x, y, w, h] = ST.handFront as [number, number, number, number];
-    ctx.beginPath();
-    ctx.rect(x, y, w, h);
-    ctx.clip();
-  }
   feet(ctx, ST.robotX + crouch * ST.crouchX, ST.floorY + crouch * ST.crouchY, k, k, ROBOT.AX);
   drawRig(ctx, robot, { palette: ROBOT.palette, pose, hooks: { handR: holding ? drawItems : undefined }, lineW });
   ctx.restore();
@@ -118,6 +121,19 @@ function drawCorpse(ctx: CanvasRenderingContext2D, t: number): void {
   ctx.restore();
 }
 
+function drawHandFront(ctx: CanvasRenderingContext2D, t: number): void {
+  const sheet = sheetDraw(ctx, "searchCorpse", (c) => drawRobot(c, t));
+  sheetBlit(ctx, sheet);
+  drawCorpse(ctx, t);
+  const [x, y, w, h] = ST.handFront as [number, number, number, number];
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  sheetBlit(ctx, sheet);
+  ctx.restore();
+}
+
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
   fitStage(ctx, w, h, W, H);
@@ -127,9 +143,11 @@ function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number):
   drawWall(ctx);
   drawFloor(ctx);
   drawShadow(ctx, t);
-  drawRobot(ctx, t, false);
-  drawCorpse(ctx, t);
-  if (at("handFront", t) >= 1) drawRobot(ctx, t, true);
+  if (at("handFront", t) >= 1) drawHandFront(ctx, t);
+  else {
+    drawRobot(ctx, t);
+    drawCorpse(ctx, t);
+  }
   ctx.restore();
 }
 

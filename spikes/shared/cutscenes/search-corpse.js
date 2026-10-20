@@ -14,18 +14,27 @@ let robot = null;
 let ctx;
 let lineW = LINE_W;
 
-function drawWall() {
-  rect(ctx, -400, -400, W + 800, ST.wallBase + 400, palette.wall);
+function drawBlocks(lit, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
   for (let row = 0; row * BLOCK_H < ST.wallBase + 400; row++) {
     const y = -400 + row * BLOCK_H;
     let x = -400 - (row % 3) * 60;
     for (let i = row; x < W + 400; i++) {
       const w = BLOCK_WIDTHS[i % BLOCK_WIDTHS.length];
-      rect(ctx, x + 4, y + 4, w - 8, BLOCK_H - 8, i % 3 === 0 ? palette.wallLit : palette.block);
-      rect(ctx, x + 4, y + BLOCK_H - 14, w - 8, 10, palette.wallDark);
+      if (lit === null) ctx.rect(x + 4, y + BLOCK_H - 14, w - 8, 10);
+      else if ((i % 3 === 0) === lit) ctx.rect(x + 4, y + 4, w - 8, BLOCK_H - 8);
       x += w;
     }
   }
+  ctx.fill();
+}
+
+function drawWall() {
+  rect(ctx, -400, -400, W + 800, ST.wallBase + 400, palette.wall);
+  drawBlocks(true, palette.wallLit);
+  drawBlocks(false, palette.block);
+  drawBlocks(null, palette.wallDark);
   rect(ctx, -400, 300, W + 800, 42, palette.pipeDark);
   rect(ctx, -400, 300, W + 800, 16, palette.pipe);
   rect(ctx, -400, 304, W + 800, 5, palette.pipeLit);
@@ -79,7 +88,7 @@ function drawItems(c) {
   c.restore();
 }
 
-function drawRobot(t, front) {
+function drawRobot(c, t) {
   robot ??= buildFront({ rightArmFirst: true });
   const crouch = at("crouch", t);
   const k = ST.robotScale;
@@ -90,15 +99,22 @@ function drawRobot(t, front) {
     face: at("head", t)
   };
   const holding = at("taken", t) >= 1;
+  c.save();
+  kit.feet(c, ST.robotX + crouch * ST.crouchX, ST.floorY + crouch * ST.crouchY, k, k, AX);
+  renderBot(c, robot, { pose, hooks: { handR: holding ? drawItems : null }, lineW });
+  c.restore();
+}
+
+function drawHandFront(t) {
+  const sheet = kit.sheetDraw(ctx, "searchCorpse", c => drawRobot(c, t));
+  kit.sheetBlit(ctx, sheet);
+  drawCorpse(t);
+  const [x, y, w, h] = ST.handFront;
   ctx.save();
-  if (front) {
-    const [x, y, w, h] = ST.handFront;
-    ctx.beginPath();
-    ctx.rect(x, y, w, h);
-    ctx.clip();
-  }
-  kit.feet(ctx, ST.robotX + crouch * ST.crouchX, ST.floorY + crouch * ST.crouchY, k, k, AX);
-  renderBot(ctx, robot, { pose, hooks: { handR: holding ? drawItems : null }, lineW });
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  kit.sheetBlit(ctx, sheet);
   ctx.restore();
 }
 
@@ -120,9 +136,11 @@ function render(c, w, h, t) {
   drawWall();
   drawFloor();
   drawShadow(t);
-  drawRobot(t, false);
-  drawCorpse(t);
-  if (at("handFront", t) >= 1) drawRobot(t, true);
+  if (at("handFront", t) >= 1) drawHandFront(t);
+  else {
+    drawRobot(ctx, t);
+    drawCorpse(t);
+  }
   ctx.restore();
 }
 

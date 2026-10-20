@@ -57,6 +57,19 @@ function grade(ctx: CanvasRenderingContext2D, r: Rect): void {
   ctx.globalCompositeOperation = "source-over";
 }
 
+const bands: { key: number; glow: CanvasGradient | null } = { key: 0, glow: null };
+
+function bandGlow(ctx: CanvasRenderingContext2D, band: number): CanvasGradient {
+  if (bands.glow && bands.key === band) return bands.glow;
+  const glow = ctx.createLinearGradient(0, 0, 0, band);
+  glow.addColorStop(0, "rgba(255, 70, 40, 0)");
+  glow.addColorStop(0.5, VIEW.band);
+  glow.addColorStop(1, "rgba(255, 70, 40, 0)");
+  bands.key = band;
+  bands.glow = glow;
+  return glow;
+}
+
 function flicker(ctx: CanvasRenderingContext2D, r: Rect, u: number, t: number): void {
   const rnd = random(Math.floor(t * VIEW.fps));
   const [lo, hi] = VIEW.flicker;
@@ -64,13 +77,11 @@ function flicker(ctx: CanvasRenderingContext2D, r: Rect, u: number, t: number): 
   ctx.fillRect(r.x, r.y, r.w, r.h);
   const band = 120 * u;
   const y = r.y - band + ((t * VIEW.bandSpeed) % 1) * (r.h + band);
-  const glow = ctx.createLinearGradient(0, y, 0, y + band);
-  glow.addColorStop(0, "rgba(255, 70, 40, 0)");
-  glow.addColorStop(0.5, VIEW.band);
-  glow.addColorStop(1, "rgba(255, 70, 40, 0)");
   ctx.globalCompositeOperation = "screen";
-  ctx.fillStyle = glow;
-  ctx.fillRect(r.x, y, r.w, band);
+  ctx.fillStyle = bandGlow(ctx, band);
+  ctx.translate(0, y);
+  ctx.fillRect(r.x, 0, r.w, band);
+  ctx.translate(0, -y);
   ctx.globalCompositeOperation = "source-over";
 }
 
@@ -86,6 +97,31 @@ function vignette(ctx: CanvasRenderingContext2D, r: Rect): void {
   glow.addColorStop(1, VIEW.vignette);
   ctx.fillStyle = glow;
   ctx.fillRect(r.x, r.y, r.w, r.h);
+}
+
+function paintScreen(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
+  scanlines(ctx, r, u);
+  vignette(ctx, r);
+}
+
+const screens: { key: string; canvas: HTMLCanvasElement | null } = { key: "", canvas: null };
+
+function screen(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
+  const key = `${r.w}x${r.h}`;
+  if (screens.key !== key) {
+    screens.key = key;
+    screens.canvas = null;
+    paintScreen(ctx, r, u);
+    return;
+  }
+  if (!screens.canvas) {
+    const canvas = document.createElement("canvas");
+    canvas.width = r.w;
+    canvas.height = r.h;
+    paintScreen(canvas.getContext("2d")!, r, u);
+    screens.canvas = canvas;
+  }
+  ctx.drawImage(screens.canvas, 0, 0);
 }
 
 function tape(ctx: CanvasRenderingContext2D, r: Rect, u: number, t: number): void {
@@ -206,8 +242,7 @@ export function drawRobotView(ctx: CanvasRenderingContext2D, w: number, h: numbe
   ctx.save();
   grade(ctx, r);
   flicker(ctx, r, u, t);
-  scanlines(ctx, r, u);
-  vignette(ctx, r);
+  screen(ctx, r, u);
   tape(ctx, stage, u, t);
   readout(ctx, stage, u, t);
   target(ctx, stage, u, t);

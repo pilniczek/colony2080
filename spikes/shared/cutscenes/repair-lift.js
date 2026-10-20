@@ -19,14 +19,16 @@ let rig = null;
 let ctx;
 
 function sky() {
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, palette.sky0);
-  g.addColorStop(0.35, palette.sky1);
-  g.addColorStop(0.62, palette.sky2);
-  g.addColorStop(0.82, palette.glow);
-  g.addColorStop(1, palette.sun);
-  ctx.fillStyle = g;
-  ctx.fillRect(-200, -200, W + 400, H + 400);
+  kit.rowFill(ctx, c => {
+    const g = c.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, palette.sky0);
+    g.addColorStop(0.35, palette.sky1);
+    g.addColorStop(0.62, palette.sky2);
+    g.addColorStop(0.82, palette.glow);
+    g.addColorStop(1, palette.sun);
+    c.fillStyle = g;
+    c.fillRect(-200, -200, W + 400, H + 400);
+  });
   const [sx, sy, sr] = CFG.stage.sun;
   const sun = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
   sun.addColorStop(0, palette.sun);

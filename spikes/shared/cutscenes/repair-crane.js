@@ -26,18 +26,28 @@ const FRONDS = [[-40, 960, 520, 520, 18, 1], [180, 960, 300, 700, 12, 0.7]];
 const POSTS = [[-300, 50], [60, 50], [380, 40]];
 let rigs = null;
 let ctx;
+const backdrop = kit.stillLayer();
+
+function onto(c, draw) {
+  const prev = ctx;
+  ctx = c;
+  draw();
+  ctx = prev;
+}
 
 const robots = () => (rigs ??= { side: XBOT.buildSide({ farLimbs: true }), front: XBOT.buildFront({}), back: XBOT.buildBack({}) });
 
 function sky(horizon, clouds) {
-  const g = ctx.createLinearGradient(0, horizon - 900, 0, horizon);
-  g.addColorStop(0, palette.sky0);
-  g.addColorStop(0.4, palette.sky1);
-  g.addColorStop(0.75, palette.sky2);
-  g.addColorStop(0.92, palette.glow);
-  g.addColorStop(1, palette.sun);
-  ctx.fillStyle = g;
-  ctx.fillRect(-1000, -1000, 4600, horizon + 1000);
+  kit.rowFill(ctx, c => {
+    const g = c.createLinearGradient(0, horizon - 900, 0, horizon);
+    g.addColorStop(0, palette.sky0);
+    g.addColorStop(0.4, palette.sky1);
+    g.addColorStop(0.75, palette.sky2);
+    g.addColorStop(0.92, palette.glow);
+    g.addColorStop(1, palette.sun);
+    c.fillStyle = g;
+    c.fillRect(-1000, -1000, 4600, horizon + 1000);
+  });
   const [sx, sy, sr] = ST.sun;
   ctx.save();
   ctx.translate(sx, sy);
@@ -204,11 +214,13 @@ function drawPanel() {
 
 function roofShot(t) {
   const f = craneFrame(t);
-  sky(ST.deckTop, ROOF_CLOUDS);
-  drawCity();
-  drawTowers();
-  drawDeck();
-  drawPanel();
+  backdrop(ctx, ["roof"], c => onto(c, () => {
+    sky(ST.deckTop, ROOF_CLOUDS);
+    drawCity();
+    drawTowers();
+    drawDeck();
+    drawPanel();
+  }));
   const aboard = String(at("pose", t)) === "back";
   if (!aboard) roofHero(t, f);
   drawCrane(f);
@@ -237,11 +249,13 @@ function frond(x, y, len, rise, leaves, k) {
 }
 
 function hillShot(t) {
-  sky(ST.horizon, HILL_CLOUDS);
-  poly(ctx, RIDGE, palette.ridge);
-  poly(ctx, HILL, palette.rock);
-  for (const f of FACETS) poly(ctx, f, palette.rockLit);
-  for (const c of CRACKS) stroke(ctx, c, palette.rockDark, 6);
+  backdrop(ctx, ["hill"], c => onto(c, () => {
+    sky(ST.horizon, HILL_CLOUDS);
+    poly(ctx, RIDGE, palette.ridge);
+    poly(ctx, HILL, palette.rock);
+    for (const f of FACETS) poly(ctx, f, palette.rockLit);
+    for (const k of CRACKS) stroke(ctx, k, palette.rockDark, 6);
+  }));
   const { front } = robots();
   ctx.save();
   kit.feet(ctx, at("walkerX", t), at("walkerY", t), at("walkerK", t), at("walkerK", t), XBOT.AX);

@@ -14,7 +14,7 @@ const CAM = {
   deadPixels: 12,
   deadSeed: 2080,
   dead: ["#000000", "#ffffff", "#ff3b30", "#3bff6a"],
-  tint: "#b4c4ac",
+  tint: "#aab6a2",
   lift: "rgba(40, 52, 44, 0.35)",
   scanline: "rgba(0, 0, 0, 0.22)",
   vignette: "rgba(0, 0, 0, 0.6)",
@@ -46,7 +46,7 @@ function grainRandom(seed: number): () => number {
 }
 
 function grade(ctx: CanvasRenderingContext2D, r: Rect): void {
-  ctx.globalCompositeOperation = "saturation";
+  ctx.globalCompositeOperation = "color";
   ctx.globalAlpha = 0.8;
   ctx.fillStyle = "#808080";
   ctx.fillRect(r.x, r.y, r.w, r.h);
@@ -54,7 +54,7 @@ function grade(ctx: CanvasRenderingContext2D, r: Rect): void {
   ctx.globalCompositeOperation = "multiply";
   ctx.fillStyle = CAM.tint;
   ctx.fillRect(r.x, r.y, r.w, r.h);
-  ctx.globalCompositeOperation = "screen";
+  ctx.globalCompositeOperation = "lighter";
   ctx.fillStyle = CAM.lift;
   ctx.fillRect(r.x, r.y, r.w, r.h);
   ctx.globalCompositeOperation = "source-over";
@@ -166,6 +166,33 @@ function corners(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
   ctx.stroke();
 }
 
+function paintScreen(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
+  scanlines(ctx, r, u);
+  vignette(ctx, r);
+  deadPixels(ctx, r, u);
+  corners(ctx, r, u);
+}
+
+const screens: { key: string; canvas: HTMLCanvasElement | null } = { key: "", canvas: null };
+
+function screen(ctx: CanvasRenderingContext2D, w: number, h: number, r: Rect, u: number): void {
+  const key = `${w}x${h}`;
+  if (screens.key !== key) {
+    screens.key = key;
+    screens.canvas = null;
+    paintScreen(ctx, r, u);
+    return;
+  }
+  if (!screens.canvas) {
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    paintScreen(canvas.getContext("2d")!, r, u);
+    screens.canvas = canvas;
+  }
+  ctx.drawImage(screens.canvas, 0, 0);
+}
+
 export function drawSecurityCam(ctx: CanvasRenderingContext2D, w: number, h: number, t: number, label: string): void {
   const r = filmRect(w, h);
   const u = r.h / FILM.h;
@@ -175,10 +202,7 @@ export function drawSecurityCam(ctx: CanvasRenderingContext2D, w: number, h: num
   ctx.clip();
   grade(ctx, r);
   grain(ctx, r, u, t);
-  scanlines(ctx, r, u);
-  vignette(ctx, r);
-  deadPixels(ctx, r, u);
+  screen(ctx, w, h, r, u);
   captions(ctx, r, u, t, label);
-  corners(ctx, r, u);
   ctx.restore();
 }

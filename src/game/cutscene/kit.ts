@@ -1,8 +1,8 @@
 import { sampleTrack, type TrackKey } from "../../engine/anim/keyed";
-import { apply, type Mat2D } from "../../engine/math/mat2d";
+import { apply, identity, multiply, rotate, scale, translate, type Mat2D } from "../../engine/math/mat2d";
 import { drawRig, type DrawOptions } from "../../engine/rig/draw";
-import { locate, type Pose } from "../../engine/rig/pose";
-import type { GroupNode, Pt } from "../../engine/rig/tree";
+import { joint, locate, type Pose } from "../../engine/rig/pose";
+import type { GroupNode, Pt, RigNode } from "../../engine/rig/tree";
 import { drawAsset, PALETTE, type EnvAsset, type EnvPalette } from "../env/paint";
 import { ROBOT } from "../robot/xbot";
 import type { Cutscene, CutsceneId } from "./index";
@@ -226,4 +226,165 @@ export function reach(root: GroupNode, hook: string, keys: [string, string], tar
   const elbow: Pt = [s[0] + l1 * Math.cos(upper), s[1] + l1 * Math.sin(upper)];
   const lower = Math.atan2(target[1] - elbow[1], target[0] - elbow[0]);
   return { [keys[0]]: wrap(upper - rest) / RAD, [keys[1]]: wrap(lower - upper - bent) / RAD };
+}
+
+export type StillLayer = (c: Ctx, parts: readonly (number | string)[], draw: (c: Ctx) => void) => void;
+
+export function stillLayer(): StillLayer {
+  const held: { key: string; canvas: HTMLCanvasElement | null } = { key: "", canvas: null };
+  return (c, parts, draw) => {
+    const m = c.getTransform();
+    const key = [c.canvas.width, c.canvas.height, m.a, m.b, m.c, m.d, m.e, m.f, ...parts].join(" ");
+    if (held.key !== key) {
+      held.key = key;
+      held.canvas = null;
+      draw(c);
+      return;
+    }
+    if (!held.canvas) {
+      const canvas = document.createElement("canvas");
+      canvas.width = c.canvas.width;
+      canvas.height = c.canvas.height;
+      const cc = canvas.getContext("2d")!;
+      cc.setTransform(m);
+      draw(cc);
+      held.canvas = canvas;
+    }
+    c.save();
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.drawImage(held.canvas, 0, 0);
+    c.restore();
+  };
+}
+
+const solvePaths = new Map<GroupNode, Record<string, GroupNode[]>>();
+
+function hookPath(root: GroupNode, hook: string): GroupNode[] {
+  const known = solvePaths.get(root)?.[hook];
+  if (known) return known;
+  const walk = (node: RigNode, path: GroupNode[]): GroupNode[] | null => {
+    if (node.k === "hook") return node.name === hook ? path : null;
+    if (node.k !== "g") return null;
+    for (const kid of node.kids) {
+      const found = walk(kid, [...path, node]);
+      if (found) return found;
+    }
+    return null;
+  };
+  const path = walk(root, []);
+  if (!path) throw new Error(`no ${hook} hook`);
+  solvePaths.set(root, { ...solvePaths.get(root), [hook]: path });
+  return path;
+}
+
+const SOLVE_SEEDED: [number, number][] = [[12, 3], [3, 1], [1, 0.25]];
+const SOLVE_FULL: [number, number][] = [[4, 1], [1, 0.25]];
+
+type Best = [number, number, number];
+
+export function fastSolve(
+  root: GroupNode,
+  hook: string,
+  pose: Pose,
+  keys: [string, string],
+  ranges: [[number, number], [number, number]],
+  target: Pt,
+  seed: Record<string, number> | null = null,
+): Record<string, number> {
+  const links: Record<string, Mat2D> = {};
+  let m = identity();
+  for (const node of hookPath(root, hook)) {
+    if (node.m) m = multiply(m, node.m);
+    const pivot = node.pivot ?? ORIGIN;
+    if (node.name === keys[0] || node.name === keys[1]) {
+      links[node.name] = translate(m, pivot[0], pivot[1]);
+      m = translate(identity(), -pivot[0], -pivot[1]);
+      continue;
+    }
+    const j = joint(node, pose);
+    if (j) m = translate(scale(rotate(translate(m, j.dx + pivot[0], j.dy + pivot[1]), j.rot), j.sx, j.sy), -pivot[0], -pivot[1]);
+  }
+  const outer = links[keys[0]]!;
+  const inner = links[keys[1]]!;
+  const [tx, ty] = apply(m, ORIGIN);
+  const hit = (a: number, b: number): number => {
+    const cb = Math.cos(b * RAD), sb = Math.sin(b * RAD), ca = Math.cos(a * RAD), sa = Math.sin(a * RAD);
+    const x1 = tx * cb - ty * sb, y1 = tx * sb + ty * cb;
+    const x2 = inner.a * x1 + inner.c * y1 + inner.e, y2 = inner.b * x1 + inner.d * y1 + inner.f;
+    const x3 = x2 * ca - y2 * sa, y3 = x2 * sa + y2 * ca;
+    return Math.hypot(outer.a * x3 + outer.c * y3 + outer.e - target[0], outer.b * x3 + outer.d * y3 + outer.f - target[1]);
+  };
+  const refine = (start: Best, passes: [number, number][]): Best => {
+    let best = start;
+    for (const [range, step] of passes) {
+      const [, a0, b0] = best;
+      for (let a = a0 - range; a <= a0 + range; a += step)
+        for (let b = b0 - range; b <= b0 + range; b += step) {
+          const d = hit(a, b);
+          if (d < best[0]) best = [d, a, b];
+        }
+    }
+    return best;
+  };
+  const full = (): Best => {
+    let best: Best = [Infinity, 0, 0];
+    for (let a = ranges[0][0]; a <= ranges[0][1]; a += 4)
+      for (let b = ranges[1][0]; b <= ranges[1][1]; b += 4) {
+        const d = hit(a, b);
+        if (d < best[0]) best = [d, a, b];
+      }
+    return refine(best, SOLVE_FULL);
+  };
+  const a0 = seed?.[keys[0]] ?? 0;
+  const b0 = seed?.[keys[1]] ?? 0;
+  let best = seed ? refine([hit(a0, b0), a0, b0], SOLVE_SEEDED) : null;
+  if (!best || best[0] > 0.5) best = full();
+  return { [keys[0]]: best[1], [keys[1]]: best[2] };
+}
+
+const rowStrip: { canvas: HTMLCanvasElement | null } = { canvas: null };
+
+export function rowFill(c: Ctx, draw: (c: Ctx) => void): void {
+  const m = c.getTransform();
+  const w = c.canvas.width;
+  const h = c.canvas.height;
+  rowStrip.canvas ??= document.createElement("canvas");
+  const strip = rowStrip.canvas;
+  strip.width = 1;
+  strip.height = h;
+  const g = strip.getContext("2d")!;
+  g.setTransform(m.a, 0, 0, m.d, m.e - Math.floor(w / 2), m.f);
+  draw(g);
+  c.save();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.drawImage(strip, 0, 0, w, h);
+  c.restore();
+}
+
+const sheets = new Map<string, HTMLCanvasElement>();
+
+export function sheetDraw(c: Ctx, slot: string, draw: (c: Ctx) => void): HTMLCanvasElement {
+  let canvas = sheets.get(slot);
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+    sheets.set(slot, canvas);
+  }
+  if (canvas.width !== c.canvas.width || canvas.height !== c.canvas.height) {
+    canvas.width = c.canvas.width;
+    canvas.height = c.canvas.height;
+  }
+  const s = canvas.getContext("2d")!;
+  s.clearRect(0, 0, canvas.width, canvas.height);
+  s.save();
+  s.setTransform(c.getTransform());
+  draw(s);
+  s.restore();
+  return canvas;
+}
+
+export function sheetBlit(c: Ctx, canvas: HTMLCanvasElement): void {
+  c.save();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.drawImage(canvas, 0, 0);
+  c.restore();
 }

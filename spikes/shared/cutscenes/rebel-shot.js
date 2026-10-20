@@ -202,7 +202,7 @@ function wasteland(ctx, t, horizon, colors) {
   sky.addColorStop(0, colors[0]);
   sky.addColorStop(0.7, colors[1]);
   sky.addColorStop(1, colors[2]);
-  rect(ctx, -1200, -600, 4000, horizon + 600, sky);
+  kit.rowFill(ctx, c => rect(c, -1200, -600, 4000, horizon + 600, sky));
   for (const [x, f, a, b] of SKY_STREAKS) {
     const y = -500 + f * (horizon + 480);
     const drift = (x + t * (20 + b * 30)) % 2400 - 400;
@@ -213,7 +213,7 @@ function wasteland(ctx, t, horizon, colors) {
   const ground = ctx.createLinearGradient(0, horizon, 0, horizon + 700);
   ground.addColorStop(0, colors[5]);
   ground.addColorStop(1, colors[6]);
-  rect(ctx, -1200, horizon, 4000, 1600, ground);
+  kit.rowFill(ctx, c => rect(c, -1200, horizon, 4000, 1600, ground));
   for (const [x, f, a, b] of GROUND_STREAKS) {
     const y = horizon + 6 + f * f * 900;
     ctx.globalAlpha = 0.2 + a * 0.3;
@@ -332,7 +332,7 @@ function ruin(ctx) {
   const ground = ctx.createLinearGradient(0, 560, 0, 1100);
   ground.addColorStop(0, palette.sandFar);
   ground.addColorStop(1, palette.sandNear);
-  rect(ctx, -400, 560, 2400, 700, ground);
+  kit.rowFill(ctx, c => rect(c, -400, 560, 2400, 700, ground));
   for (const [x, f, a, b] of GROUND_STREAKS) {
     ctx.globalAlpha = 0.25 + a * 0.3;
     oval(ctx, x, 570 + f * f * 500, 30 + a * 120 * (0.3 + f), 2 + f * 7, b < 0.5 ? palette.sandDark : palette.sandLight);

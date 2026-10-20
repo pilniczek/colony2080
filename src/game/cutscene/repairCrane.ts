@@ -6,7 +6,7 @@ import { ASSETS } from "../env/assets";
 import { drawAsset, PALETTE as ENV_PALETTE } from "../env/paint";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { bank, camera, cloud, feet, fitStage, oval, poly, type Spot, stroke, tracks, unitScale } from "./kit";
+import { bank, camera, cloud, feet, fitStage, oval, poly, rowFill, type Spot, stillLayer, stroke, tracks, unitScale } from "./kit";
 
 type Frame = { x: number; y: number; a: number; k: number };
 type Arms = { armL: number; foreL: number; armR: number; foreR: number };
@@ -41,17 +41,21 @@ const FRONDS: [number, number, number, number, number, number][] = [[-40, 960, 5
 const POSTS: [number, number][] = [[-300, 50], [60, 50], [380, 40]];
 let rigs: { side: GroupNode; front: GroupNode; back: GroupNode } | null = null;
 
+const backdrop = stillLayer();
+
 const robots = () => (rigs ??= { side: buildSide({ farLimbs: true }), front: buildFront({}), back: buildBack({}) });
 
 function sky(ctx: CanvasRenderingContext2D, horizon: number, clouds: Spot[]): void {
-  const g = ctx.createLinearGradient(0, horizon - 900, 0, horizon);
-  g.addColorStop(0, palette.sky0);
-  g.addColorStop(0.4, palette.sky1);
-  g.addColorStop(0.75, palette.sky2);
-  g.addColorStop(0.92, palette.glow);
-  g.addColorStop(1, palette.sun);
-  ctx.fillStyle = g;
-  ctx.fillRect(-1000, -1000, 4600, horizon + 1000);
+  rowFill(ctx, (c) => {
+    const g = c.createLinearGradient(0, horizon - 900, 0, horizon);
+    g.addColorStop(0, palette.sky0);
+    g.addColorStop(0.4, palette.sky1);
+    g.addColorStop(0.75, palette.sky2);
+    g.addColorStop(0.92, palette.glow);
+    g.addColorStop(1, palette.sun);
+    c.fillStyle = g;
+    c.fillRect(-1000, -1000, 4600, horizon + 1000);
+  });
   ctx.save();
   ctx.translate(SUN_X, SUN_Y);
   ctx.scale(1, 0.4);
@@ -217,11 +221,13 @@ function drawPanel(ctx: CanvasRenderingContext2D): void {
 
 function roofShot(ctx: CanvasRenderingContext2D, t: number): void {
   const f = craneFrame(t);
-  sky(ctx, ST.deckTop, ROOF_CLOUDS);
-  drawCity(ctx);
-  drawTowers(ctx);
-  drawDeck(ctx);
-  drawPanel(ctx);
+  backdrop(ctx, ["roof"], (c) => {
+    sky(c, ST.deckTop, ROOF_CLOUDS);
+    drawCity(c);
+    drawTowers(c);
+    drawDeck(c);
+    drawPanel(c);
+  });
   const aboard = text("pose", t) === "back";
   if (!aboard) roofHero(ctx, t, f);
   drawCrane(ctx, f);
@@ -250,11 +256,13 @@ function frond(ctx: CanvasRenderingContext2D, x: number, y: number, len: number,
 }
 
 function hillShot(ctx: CanvasRenderingContext2D, t: number): void {
-  sky(ctx, ST.horizon, HILL_CLOUDS);
-  poly(ctx, RIDGE, palette.ridge);
-  poly(ctx, HILL, palette.rock);
-  for (const f of FACETS) poly(ctx, f, palette.rockLit);
-  for (const c of CRACKS) stroke(ctx, c, palette.rockDark, 6);
+  backdrop(ctx, ["hill"], (c) => {
+    sky(c, ST.horizon, HILL_CLOUDS);
+    poly(c, RIDGE, palette.ridge);
+    poly(c, HILL, palette.rock);
+    for (const f of FACETS) poly(c, f, palette.rockLit);
+    for (const k of CRACKS) stroke(c, k, palette.rockDark, 6);
+  });
   const { front } = robots();
   ctx.save();
   feet(ctx, num("walkerX", t), num("walkerY", t), num("walkerK", t), num("walkerK", t), ROBOT.AX);

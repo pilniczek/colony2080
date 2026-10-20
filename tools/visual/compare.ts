@@ -477,11 +477,14 @@ const runRobotView = (t: number, size: { w: number; h: number }, out: HTMLElemen
     canvas.height = size.h;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) throw new Error("no 2d context");
-    window.CUTSCENES.pickCrowbar.render(ctx, size.w, size.h, 1.2);
     return ctx;
   };
+  const base = make();
+  window.CUTSCENES.pickCrowbar.render(base, size.w, size.h, 1.2);
   const spike = make();
   const own = make();
+  spike.drawImage(base.canvas, 0, 0);
+  own.drawImage(base.canvas, 0, 0);
   spikeView.draw(spike, size.w, size.h, t);
   drawRobotView(own, size.w, size.h, t);
   const a = spike.getImageData(0, 0, size.w, size.h).data;

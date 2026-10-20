@@ -4,7 +4,7 @@ import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode } from "../../engine/rig/tree";
 import { buildFront, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { bank, camera, cloud, fitStage, oval, tracks } from "./kit";
+import { bank, camera, cloud, fitStage, oval, rowFill, tracks } from "./kit";
 
 const { width: W, height: H, horizon: HORIZON } = config.stage;
 const [SUN_X, SUN_Y, SUN_R] = config.stage.sun as [number, number, number];
@@ -22,20 +22,22 @@ const STREAKS = bank(5, 9, 0, 1600, HORIZON + 20, 200, 120, 300, 2, 4);
 let rig: GroupNode | null = null;
 
 function sky(ctx: CanvasRenderingContext2D): void {
-  const g = ctx.createLinearGradient(0, 0, 0, HORIZON);
-  g.addColorStop(0, palette.sky0);
-  g.addColorStop(0.4, palette.sky1);
-  g.addColorStop(0.75, palette.sky2);
-  g.addColorStop(0.92, palette.glow);
-  g.addColorStop(1, palette.sun);
-  ctx.fillStyle = g;
-  ctx.fillRect(-200, -200, W + 400, HORIZON + 200);
-  const ground = ctx.createLinearGradient(0, HORIZON, 0, H);
-  ground.addColorStop(0, palette.glow);
-  ground.addColorStop(0.35, palette.ground);
-  ground.addColorStop(1, palette.groundFar);
-  ctx.fillStyle = ground;
-  ctx.fillRect(-200, HORIZON, W + 400, H - HORIZON + 200);
+  rowFill(ctx, (c) => {
+    const g = c.createLinearGradient(0, 0, 0, HORIZON);
+    g.addColorStop(0, palette.sky0);
+    g.addColorStop(0.4, palette.sky1);
+    g.addColorStop(0.75, palette.sky2);
+    g.addColorStop(0.92, palette.glow);
+    g.addColorStop(1, palette.sun);
+    c.fillStyle = g;
+    c.fillRect(-200, -200, W + 400, HORIZON + 200);
+    const ground = c.createLinearGradient(0, HORIZON, 0, H);
+    ground.addColorStop(0, palette.glow);
+    ground.addColorStop(0.35, palette.ground);
+    ground.addColorStop(1, palette.groundFar);
+    c.fillStyle = ground;
+    c.fillRect(-200, HORIZON, W + 400, H - HORIZON + 200);
+  });
   ctx.save();
   ctx.translate(SUN_X, SUN_Y);
   ctx.scale(1, 0.32);

@@ -1,11 +1,10 @@
 import config from "@config/cutscenes/crowbar-door.json";
 import { apply, rotate } from "../../engine/math/mat2d";
 import type { HookDraw } from "../../engine/rig/draw";
-import { solve } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { buildBack, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, fitStage, fromDom, hookAt, LINE_W, lineFor, ORIGIN, placeRobot, poly, rect, shadow, STAND, tracks, unitScale } from "./kit";
+import { camera, fastSolve, fitStage, fromDom, hookAt, LINE_W, lineFor, ORIGIN, placeRobot, poly, rect, shadow, STAND, tracks, unitScale } from "./kit";
 
 type Palette = typeof config.palette;
 type Stage = { ctx: CanvasRenderingContext2D; t: number };
@@ -117,7 +116,7 @@ function drawProfile({ ctx, t }: Stage): void {
     const rest = apply(hookAt(side, "handFar", pose), ORIGIN);
     const grip = apply(rotate(hookAt(side, "hand", pose), RB.barTilt * DEG + turn), [RB.farGripOffset, 0]);
     const target: Pt = [rest[0] + (grip[0] - rest[0]) * blend, rest[1] + (grip[1] - rest[1]) * blend];
-    farSeed = solve(side, "handFar", pose, ["armFar", "foreFar"], FAR_RANGES, target, farSeed);
+    farSeed = fastSolve(side, "handFar", pose, ["armFar", "foreFar"], FAR_RANGES, target, farSeed);
     Object.assign(pose, farSeed);
   }
   const k = num("barLen", t);

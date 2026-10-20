@@ -52,6 +52,8 @@ function pickupFilm(id, CFG) {
       glyphs.push({ row, col, dots });
     }
   }
+  const ground = kit.stillLayer();
+  const grid = kit.stillLayer();
   let ctx;
 
   function camera(t) {
@@ -70,55 +72,60 @@ function pickupFilm(id, CFG) {
     return [Math.max(lo, Math.min(a, b)), Math.min(hi, Math.max(a, b))];
   }
 
-  function tileLines(cam, path, shift) {
+  function tileLines(cam, across, along, shift) {
     for (let k = -30; k <= 30; k++) {
       const [v0, v1] = span((k + shift) * cam.sin, cam.cos, -10, 60);
       if (v0 >= v1) continue;
       const a = project(cam, k + shift, v0), b = project(cam, k + shift, v1);
-      path.moveTo(a[0], a[1]); path.lineTo(b[0], b[1]);
+      across.moveTo(a[0], a[1]); across.lineTo(b[0], b[1]);
     }
     for (let k = -10; k <= 60; k++) {
       const [u0, u1] = span((k + shift) * cam.cos, cam.sin, -30, 30);
       if (u0 >= u1) continue;
       const a = project(cam, u0, k + shift), b = project(cam, u1, k + shift);
-      path.moveTo(a[0], a[1]); path.lineTo(b[0], b[1]);
+      along.moveTo(a[0], a[1]); along.lineTo(b[0], b[1]);
     }
   }
 
-  function drawTiles(cam) {
-    ctx.fillStyle = palette.tile;
-    ctx.fillRect(0, 0, FW, FH);
+  function drawTiles(c, cam) {
+    c.fillStyle = palette.tile;
+    c.fillRect(0, 0, FW, FH);
     const strokes = [["tileShade", S.inset, S.edge], ["tileLight", -S.inset, S.edge], ["grout", 0, S.grout]];
     for (const [tone, shift, width] of strokes) {
-      const path = new Path2D();
-      tileLines(cam, path, shift);
-      ctx.strokeStyle = palette[tone];
-      ctx.lineWidth = width;
-      ctx.stroke(path);
+      const across = new Path2D(), along = new Path2D();
+      tileLines(cam, across, along, shift);
+      c.strokeStyle = palette[tone];
+      c.lineWidth = width;
+      c.stroke(across);
+      c.stroke(along);
     }
   }
 
-  function drawGrass(cam) {
-    ctx.fillStyle = palette.soil;
-    ctx.fillRect(0, 0, FW, FH);
-    const paths = [new Path2D(), new Path2D(), new Path2D()];
+  function drawGrass(c, cam) {
+    c.fillStyle = palette.soil;
+    c.fillRect(0, 0, FW, FH);
+    const tris = [];
     for (const b of blades) {
       const [x, y, z] = project(cam, b.u, b.v);
       if (z < NEAR || x < -40 || x > FW + 40 || y < -40 || y > FH + 80) continue;
       const k = S.focal / z;
       const h = b.h * k, w = 0.035 * k;
-      const p = paths[b.tone];
-      p.moveTo(x - w, y); p.lineTo(x + w, y); p.lineTo(x + b.lean * h, y - h); p.closePath();
+      tris.push([b.tone, x - w, x + w, y, x + b.lean * h, y - h]);
     }
     ["grass0", "grass1", "grass2"].forEach((tone, i) => {
-      ctx.fillStyle = palette[tone];
-      ctx.fill(paths[i]);
+      c.fillStyle = palette[tone];
+      for (const [k, x0, x1, y, tx, ty] of tris) {
+        if (k !== i) continue;
+        c.beginPath();
+        c.moveTo(x0, y); c.lineTo(x1, y); c.lineTo(tx, ty); c.closePath();
+        c.fill();
+      }
     });
   }
 
   function drawGround(t) {
     const cam = camera(t);
-    if (S.ground === "tiles") drawTiles(cam); else drawGrass(cam);
+    ground(ctx, [cam.cos, cam.sin, cam.pan], c => (S.ground === "tiles" ? drawTiles : drawGrass)(c, cam));
   }
 
   function robotAt(t) {
@@ -168,12 +175,14 @@ function pickupFilm(id, CFG) {
     ctx.lineTo(x0, y0 + 2 * (y1 - y0) * wipe);
     ctx.closePath();
     ctx.clip();
-    ctx.beginPath();
-    for (let x = x0; x <= x1 + 0.5; x += S.gridCell) { ctx.moveTo(x, y0); ctx.lineTo(x, y1); }
-    for (let y = y0; y <= y1 + 0.5; y += S.gridCell) { ctx.moveTo(x0, y); ctx.lineTo(x1, y); }
-    ctx.strokeStyle = palette.scan;
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    grid(ctx, [], c => {
+      c.beginPath();
+      for (let x = x0; x <= x1 + 0.5; x += S.gridCell) { c.moveTo(x, y0); c.lineTo(x, y1); }
+      for (let y = y0; y <= y1 + 0.5; y += S.gridCell) { c.moveTo(x0, y); c.lineTo(x1, y); }
+      c.strokeStyle = palette.scan;
+      c.lineWidth = 3;
+      c.stroke();
+    });
     ctx.restore();
   }
 

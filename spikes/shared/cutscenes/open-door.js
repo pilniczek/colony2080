@@ -17,20 +17,22 @@ let rig = null;
 let ctx;
 
 function sky() {
-  const g = ctx.createLinearGradient(0, 0, 0, HORIZON);
-  g.addColorStop(0, palette.sky0);
-  g.addColorStop(0.4, palette.sky1);
-  g.addColorStop(0.75, palette.sky2);
-  g.addColorStop(0.92, palette.glow);
-  g.addColorStop(1, palette.sun);
-  ctx.fillStyle = g;
-  ctx.fillRect(-200, -200, W + 400, HORIZON + 200);
-  const ground = ctx.createLinearGradient(0, HORIZON, 0, H);
-  ground.addColorStop(0, palette.glow);
-  ground.addColorStop(0.35, palette.ground);
-  ground.addColorStop(1, palette.groundFar);
-  ctx.fillStyle = ground;
-  ctx.fillRect(-200, HORIZON, W + 400, H - HORIZON + 200);
+  kit.rowFill(ctx, c => {
+    const g = c.createLinearGradient(0, 0, 0, HORIZON);
+    g.addColorStop(0, palette.sky0);
+    g.addColorStop(0.4, palette.sky1);
+    g.addColorStop(0.75, palette.sky2);
+    g.addColorStop(0.92, palette.glow);
+    g.addColorStop(1, palette.sun);
+    c.fillStyle = g;
+    c.fillRect(-200, -200, W + 400, HORIZON + 200);
+    const ground = c.createLinearGradient(0, HORIZON, 0, H);
+    ground.addColorStop(0, palette.glow);
+    ground.addColorStop(0.35, palette.ground);
+    ground.addColorStop(1, palette.groundFar);
+    c.fillStyle = ground;
+    c.fillRect(-200, HORIZON, W + 400, H - HORIZON + 200);
+  });
   const [sx, sy, sr] = CFG.stage.sun;
   ctx.save();
   ctx.translate(sx, sy);

@@ -22,6 +22,7 @@ const RIMS = [[-5, -6]];
 const rotted = k => Object.fromEntries(Object.entries(LIFTED).map(([name, hex]) => [name, mixHex(hex, palette.rot, k)]));
 
 let lineW = LINE_W;
+const valveBack = kit.stillLayer();
 
 let armRig = null;
 const robotArm = () => armRig || (armRig = buildSide({}));
@@ -57,6 +58,21 @@ function closeArm(c, side, target) {
   kit.placeRobot(c, arm, m, { pose, hooks: {}, lineW });
 }
 
+function valveBackdrop(cc) {
+  const { x, y } = CLOSE;
+  cc.fillStyle = palette.back;
+  cc.fillRect(0, 0, W, H);
+  P.shape(cc, [[-10, -10], [W + 10, -10], [W + 10, 70], [-10, 140]], palette.under);
+  P.poly(cc, [[560, -20], [1040, -20], [905, 250], [695, 250]], "concrete", 2, { dir: [1, 0] });
+  P.poly(cc, [[600, 70], [1000, 70], [985, 104], [615, 104]], "concrete", 1, { dir: [1, 0] });
+  P.box(cc, 700, 240, 200, 80, "steel", 2, { vertical: true });
+  P.cylV(cc, x - 24, 320, 48, y - 320, "chrome", 1);
+  P.box(cc, x - 34, y - 22, 68, 28, "steel", 1, { vertical: true });
+  P.beam(cc, [-60, 780], [W + 60, 650], 80, "rust");
+  P.beam(cc, [-60, 900], [W + 60, 830], 90, "rust");
+  P.poly(cc, [[1290, 560], [1450, 520], [1500, H + 10], [1270, H + 10]], "rust", 1);
+}
+
 function drawValve(c, t) {
   lineW = LINE_W;
   const { x, y, rx, tilt } = CLOSE;
@@ -64,19 +80,7 @@ function drawValve(c, t) {
   const scale = rx / TAP_CENTER.r * (1 + bring * 0.7);
   const cy = y + bring * 420;
   const spin = at("spin", t);
-  kit.layer(c, t, cc => {
-    cc.fillStyle = palette.back;
-    cc.fillRect(0, 0, W, H);
-    P.shape(cc, [[-10, -10], [W + 10, -10], [W + 10, 70], [-10, 140]], palette.under);
-    P.poly(cc, [[560, -20], [1040, -20], [905, 250], [695, 250]], "concrete", 2, { dir: [1, 0] });
-    P.poly(cc, [[600, 70], [1000, 70], [985, 104], [615, 104]], "concrete", 1, { dir: [1, 0] });
-    P.box(cc, 700, 240, 200, 80, "steel", 2, { vertical: true });
-    P.cylV(cc, x - 24, 320, 48, y - 320, "chrome", 1);
-    P.box(cc, x - 34, y - 22, 68, 28, "steel", 1, { vertical: true });
-    P.beam(cc, [-60, 780], [W + 60, 650], 80, "rust");
-    P.beam(cc, [-60, 900], [W + 60, 830], 90, "rust");
-    P.poly(cc, [[1290, 560], [1450, 520], [1500, H + 10], [1270, H + 10]], "rust", 1);
-  }, lineW);
+  valveBack(c, [], b => kit.layer(b, t, valveBackdrop, lineW));
   c.save();
   c.globalAlpha = 0.6;
   drawTap(c, t, x, cy - 16 * (1 + bring), scale, tilt, spin, SHADOW_PALETTE, lineW);

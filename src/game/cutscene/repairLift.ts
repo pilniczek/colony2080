@@ -6,7 +6,7 @@ import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { buildFront, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { bank, camera, cloud, fitStage, oval, poly, stroke, tracks } from "./kit";
+import { bank, camera, cloud, fitStage, oval, poly, rowFill, stroke, tracks } from "./kit";
 
 const { width: W, height: H } = config.stage;
 const [SUN_X, SUN_Y, SUN_R] = config.stage.sun as [number, number, number];
@@ -25,14 +25,16 @@ const CLOUDS = bank(7, 26, -150, 1900, -40, 620, 160, 340, 18, 34);
 let rig: GroupNode | null = null;
 
 function sky(ctx: CanvasRenderingContext2D): void {
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, palette.sky0);
-  g.addColorStop(0.35, palette.sky1);
-  g.addColorStop(0.62, palette.sky2);
-  g.addColorStop(0.82, palette.glow);
-  g.addColorStop(1, palette.sun);
-  ctx.fillStyle = g;
-  ctx.fillRect(-200, -200, W + 400, H + 400);
+  rowFill(ctx, (c) => {
+    const g = c.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, palette.sky0);
+    g.addColorStop(0.35, palette.sky1);
+    g.addColorStop(0.62, palette.sky2);
+    g.addColorStop(0.82, palette.glow);
+    g.addColorStop(1, palette.sun);
+    c.fillStyle = g;
+    c.fillRect(-200, -200, W + 400, H + 400);
+  });
   const sun = ctx.createRadialGradient(SUN_X, SUN_Y, 0, SUN_X, SUN_Y, SUN_R);
   sun.addColorStop(0, palette.sun);
   sun.addColorStop(0.3, palette.glow);

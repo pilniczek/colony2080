@@ -5,7 +5,7 @@ import { ASSETS } from "../env/assets";
 import { drawAsset, P, PALETTE, type EnvPalette } from "../env/paint";
 import { buildSide } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { armChain, fitStage, layer, LINE_W, placeRobot, pool, RAD, reach, recolor, STAND, toModel, tracks } from "./kit";
+import { armChain, fitStage, layer, LINE_W, placeRobot, pool, RAD, reach, recolor, STAND, stillLayer, toModel, tracks } from "./kit";
 import { drawGrid, drawTap, TAP_CENTER } from "./takeTapHandle";
 
 const { width: W, height: H, close: CLOSE, melt: MELT } = config.stage;
@@ -22,6 +22,7 @@ const RIMS: Pt[] = [[-5, -6]];
 const rotted = (k: number): EnvPalette => Object.fromEntries(Object.entries(LIFTED).map(([name, hex]) => [name, mixHex(hex, palette.rot!, k)]));
 
 const { num, text } = tracks(config.tracks);
+const valveBack = stillLayer();
 
 let armRig: GroupNode | null = null;
 const robotArm = (): GroupNode => (armRig ??= buildSide({}));
@@ -57,25 +58,28 @@ function closeArm(c: CanvasRenderingContext2D, side: number, target: Pt): void {
   placeRobot(c, arm, m, { pose, hooks: {}, lineW: LINE_W });
 }
 
+function valveBackdrop(cc: CanvasRenderingContext2D): void {
+  const { x, y } = CLOSE;
+  cc.fillStyle = palette.back!;
+  cc.fillRect(0, 0, W, H);
+  P.shape(cc, [[-10, -10], [W + 10, -10], [W + 10, 70], [-10, 140]], palette.under!);
+  P.poly(cc, [[560, -20], [1040, -20], [905, 250], [695, 250]], "concrete", 2, { dir: [1, 0] });
+  P.poly(cc, [[600, 70], [1000, 70], [985, 104], [615, 104]], "concrete", 1, { dir: [1, 0] });
+  P.box(cc, 700, 240, 200, 80, "steel", 2, { vertical: true });
+  P.cylV(cc, x - 24, 320, 48, y - 320, "chrome", 1);
+  P.box(cc, x - 34, y - 22, 68, 28, "steel", 1, { vertical: true });
+  P.beam(cc, [-60, 780], [W + 60, 650], 80, "rust");
+  P.beam(cc, [-60, 900], [W + 60, 830], 90, "rust");
+  P.poly(cc, [[1290, 560], [1450, 520], [1500, H + 10], [1270, H + 10]], "rust", 1);
+}
+
 function drawValve(c: CanvasRenderingContext2D, t: number): void {
   const { x, y, rx, tilt } = CLOSE;
   const bring = num("bring", t);
   const scale = (rx / TAP_CENTER.r) * (1 + bring * 0.7);
   const cy = y + bring * 420;
   const spin = num("spin", t);
-  layer(c, t, (cc) => {
-    cc.fillStyle = palette.back!;
-    cc.fillRect(0, 0, W, H);
-    P.shape(cc, [[-10, -10], [W + 10, -10], [W + 10, 70], [-10, 140]], palette.under!);
-    P.poly(cc, [[560, -20], [1040, -20], [905, 250], [695, 250]], "concrete", 2, { dir: [1, 0] });
-    P.poly(cc, [[600, 70], [1000, 70], [985, 104], [615, 104]], "concrete", 1, { dir: [1, 0] });
-    P.box(cc, 700, 240, 200, 80, "steel", 2, { vertical: true });
-    P.cylV(cc, x - 24, 320, 48, y - 320, "chrome", 1);
-    P.box(cc, x - 34, y - 22, 68, 28, "steel", 1, { vertical: true });
-    P.beam(cc, [-60, 780], [W + 60, 650], 80, "rust");
-    P.beam(cc, [-60, 900], [W + 60, 830], 90, "rust");
-    P.poly(cc, [[1290, 560], [1450, 520], [1500, H + 10], [1270, H + 10]], "rust", 1);
-  }, LINE_W);
+  valveBack(c, [], (b) => layer(b, t, valveBackdrop, LINE_W));
   c.save();
   c.globalAlpha = 0.6;
   drawTap(c, t, x, cy - 16 * (1 + bring), scale, tilt, spin, SHADOW_PALETTE, LINE_W);

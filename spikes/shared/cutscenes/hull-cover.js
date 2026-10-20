@@ -25,6 +25,14 @@ for (let i = 0; i < 26; i++) {
 }
 
 let ctx;
+const backdrop = kit.stillLayer();
+
+function onto(c, draw) {
+  const prev = ctx;
+  ctx = c;
+  draw();
+  ctx = prev;
+}
 
 function drawHangar(view, shift) {
   ctx.fillStyle = palette.dark;
@@ -63,8 +71,10 @@ const legUp = r => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
 
 function drawWalk(t) {
   const V = S.walk;
-  drawHangar(V, 0);
-  drawShip(V, 0);
+  backdrop(ctx, [], c => onto(c, () => {
+    drawHangar(V, 0);
+    drawShip(V, 0);
+  }));
   const k = at("walkScale", t);
   const x = at("walkX", t), y = at("walkY", t);
   const swing = Math.sin(2 * Math.PI * t / V.stepSeconds);

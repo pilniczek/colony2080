@@ -6,7 +6,7 @@ import { ASSETS, isAssetId } from "../env/assets";
 import { drawAsset, PALETTE, type EnvPalette } from "../env/paint";
 import { buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene, CutsceneId } from "./index";
-import { fitStage, hookAt, LINE_W, lineFor, random, recolor, shadow, tracks } from "./kit";
+import { fitStage, hookAt, LINE_W, lineFor, random, recolor, shadow, stillLayer, tracks } from "./kit";
 
 export interface PickupConfig {
   title: string;
@@ -102,6 +102,9 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     }
   }
 
+  const ground = stillLayer();
+  const grid = stillLayer();
+
   const camera = (t: number): Camera => {
     const yaw = ((S.yaw + at("yaw", t)) * Math.PI) / 180;
     return { cos: Math.cos(yaw), sin: Math.sin(yaw), pan: at("pan", t) };
@@ -119,22 +122,22 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     return [Math.max(lo, Math.min(a, b)), Math.min(hi, Math.max(a, b))];
   };
 
-  function tileLines(cam: Camera, path: Path2D, shift: number): void {
+  function tileLines(cam: Camera, across: Path2D, along: Path2D, shift: number): void {
     for (let k = -30; k <= 30; k++) {
       const [v0, v1] = span((k + shift) * cam.sin, cam.cos, -10, 60);
       if (v0 >= v1) continue;
       const a = project(cam, k + shift, v0);
       const b = project(cam, k + shift, v1);
-      path.moveTo(a[0], a[1]);
-      path.lineTo(b[0], b[1]);
+      across.moveTo(a[0], a[1]);
+      across.lineTo(b[0], b[1]);
     }
     for (let k = -10; k <= 60; k++) {
       const [u0, u1] = span((k + shift) * cam.cos, cam.sin, -30, 30);
       if (u0 >= u1) continue;
       const a = project(cam, u0, k + shift);
       const b = project(cam, u1, k + shift);
-      path.moveTo(a[0], a[1]);
-      path.lineTo(b[0], b[1]);
+      along.moveTo(a[0], a[1]);
+      along.lineTo(b[0], b[1]);
     }
   }
 
@@ -143,33 +146,39 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     ctx.fillRect(0, 0, FW, FH);
     const strokes: [string, number, number][] = [["tileShade", S.inset, S.edge], ["tileLight", -S.inset, S.edge], ["grout", 0, S.grout]];
     for (const [tone, shift, width] of strokes) {
-      const path = new Path2D();
-      tileLines(cam, path, shift);
+      const across = new Path2D();
+      const along = new Path2D();
+      tileLines(cam, across, along, shift);
       ctx.strokeStyle = color(tone);
       ctx.lineWidth = width;
-      ctx.stroke(path);
+      ctx.stroke(across);
+      ctx.stroke(along);
     }
   }
 
   function drawGrass(ctx: CanvasRenderingContext2D, cam: Camera): void {
     ctx.fillStyle = color("soil");
     ctx.fillRect(0, 0, FW, FH);
-    const paths = [new Path2D(), new Path2D(), new Path2D()];
+    const tris: [number, number, number, number, number, number][] = [];
     for (const b of blades) {
       const [x, y, z] = project(cam, b.u, b.v);
       if (z < NEAR || x < -40 || x > FW + 40 || y < -40 || y > FH + 80) continue;
       const k = S.focal / z;
       const h = b.h * k;
       const w = 0.035 * k;
-      const p = paths[b.tone]!;
-      p.moveTo(x - w, y);
-      p.lineTo(x + w, y);
-      p.lineTo(x + b.lean * h, y - h);
-      p.closePath();
+      tris.push([b.tone, x - w, x + w, y, x + b.lean * h, y - h]);
     }
     GRASS_TONES.forEach((tone, i) => {
       ctx.fillStyle = color(tone);
-      ctx.fill(paths[i]!);
+      for (const [k, x0, x1, y, tx, ty] of tris) {
+        if (k !== i) continue;
+        ctx.beginPath();
+        ctx.moveTo(x0, y);
+        ctx.lineTo(x1, y);
+        ctx.lineTo(tx, ty);
+        ctx.closePath();
+        ctx.fill();
+      }
     });
   }
 
@@ -223,18 +232,20 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     ctx.lineTo(x0, y0 + 2 * (y1 - y0) * wipe);
     ctx.closePath();
     ctx.clip();
-    ctx.beginPath();
-    for (let x = x0; x <= x1 + 0.5; x += S.gridCell) {
-      ctx.moveTo(x, y0);
-      ctx.lineTo(x, y1);
-    }
-    for (let y = y0; y <= y1 + 0.5; y += S.gridCell) {
-      ctx.moveTo(x0, y);
-      ctx.lineTo(x1, y);
-    }
-    ctx.strokeStyle = color("scan");
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    grid(ctx, [], (c) => {
+      c.beginPath();
+      for (let x = x0; x <= x1 + 0.5; x += S.gridCell) {
+        c.moveTo(x, y0);
+        c.lineTo(x, y1);
+      }
+      for (let y = y0; y <= y1 + 0.5; y += S.gridCell) {
+        c.moveTo(x0, y);
+        c.lineTo(x1, y);
+      }
+      c.strokeStyle = color("scan");
+      c.lineWidth = 3;
+      c.stroke();
+    });
     ctx.restore();
   }
 
@@ -314,8 +325,7 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     ctx.save();
     fitStage(ctx, w, h, FW, FH);
     const cam = camera(t);
-    if (S.ground === "tiles") drawTiles(ctx, cam);
-    else drawGrass(ctx, cam);
+    ground(ctx, [cam.cos, cam.sin, cam.pan], (c) => (S.ground === "tiles" ? drawTiles : drawGrass)(c, cam));
     drawItem(ctx, t);
     drawRobot(ctx, t);
     drawGrid(ctx, t);

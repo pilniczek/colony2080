@@ -28,6 +28,7 @@ const FAR_GRAVEL = gravelBed(28, 520, 560, 900, 14);
 const NEAR_GRAVEL = gravelBed(29, 420, -20, 920, 34);
 
 let lineW = LINE_W;
+const closeBack = kit.stillLayer();
 
 let rigs = null;
 const robots = () => rigs || (rigs = { full: buildSide({ farLimbs: true }), arm: buildSide({}) });
@@ -214,6 +215,20 @@ function drawGrid(c, g) {
   c.restore();
 }
 
+function closeBackdrop(cc) {
+  const { x, y } = CLOSE;
+  cc.fillStyle = palette.floor;
+  cc.fillRect(0, 0, W, H);
+  kit.pool(cc, 820, 520, 900, 520, palette.floorLit, 0.75);
+  gravel(cc, NEAR_GRAVEL, palette.gravelLit);
+  P.shape(cc, [[1120, -10], [W + 10, -10], [W + 10, 330], [1300, 170]], palette.wall);
+  P.poly(cc, [[500, -20], [1100, -20], [920, 400], [680, 400]], "concrete", 2, { dir: [1, 0] });
+  P.poly(cc, [[560, 120], [1040, 120], [1024, 160], [576, 160]], "concrete", 1, { dir: [1, 0] });
+  P.box(cc, 720, 360, 160, 60, "steel", 2, { vertical: true });
+  P.cylV(cc, x - 18, 400, 36, y - 400, "chrome", 1);
+  P.box(cc, x - 30, y - 16, 60, 26, "steel", 1, { vertical: true });
+}
+
 function drawCloseUp(c, t) {
   lineW = LINE_W;
   const { x, y, rx, tilt } = CLOSE;
@@ -222,18 +237,7 @@ function drawCloseUp(c, t) {
   const cy = y + lift * 360;
   const squash = tilt * (1 - lift * 0.2);
   const spin = at("spin", t);
-  kit.layer(c, t, cc => {
-    cc.fillStyle = palette.floor;
-    cc.fillRect(0, 0, W, H);
-    kit.pool(cc, 820, 520, 900, 520, palette.floorLit, 0.75);
-    gravel(cc, NEAR_GRAVEL, palette.gravelLit);
-    P.shape(cc, [[1120, -10], [W + 10, -10], [W + 10, 330], [1300, 170]], palette.wall);
-    P.poly(cc, [[500, -20], [1100, -20], [920, 400], [680, 400]], "concrete", 2, { dir: [1, 0] });
-    P.poly(cc, [[560, 120], [1040, 120], [1024, 160], [576, 160]], "concrete", 1, { dir: [1, 0] });
-    P.box(cc, 720, 360, 160, 60, "steel", 2, { vertical: true });
-    P.cylV(cc, x - 18, 400, 36, y - 400, "chrome", 1);
-    P.box(cc, x - 30, y - 16, 60, 26, "steel", 1, { vertical: true });
-  }, lineW);
+  closeBack(c, [], b => kit.layer(b, t, closeBackdrop, lineW));
   drawTap(c, t, x, cy + 22 * (1 + lift), scale, squash, spin, SHADOW_PALETTE, lineW);
   drawTap(c, t, x, cy, scale, squash, spin, at("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE, lineW);
   const hands = at("hands", t);

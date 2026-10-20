@@ -7,7 +7,7 @@ import { drawAsset, P, PALETTE, type EnvAsset } from "../env/paint";
 import { gunHook, gunSlung, holdPoses, MUZZLE_IN_HOOK } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, feet, fitStage, hookAt, LINE_W, lineFor, poly, random, shadow, tracks } from "./kit";
+import { camera, feet, fitStage, hookAt, LINE_W, lineFor, poly, random, shadow, stillLayer, tracks } from "./kit";
 
 type View = { horizon: number; shipX: number; shipY: number; shipScale: number };
 type Rock = { pts: Pt[]; tone: number };
@@ -73,12 +73,16 @@ function drawShip(ctx: CanvasRenderingContext2D, view: View, state: number): voi
   ctx.restore();
 }
 
+const backdrop = stillLayer();
+
 const legUp = (r: number): [Pose[string], Pose[string]] => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
 
 function drawWalk(ctx: CanvasRenderingContext2D, t: number): void {
   const V = S.walk;
-  drawHangar(ctx, V, 0);
-  drawShip(ctx, V, 0);
+  backdrop(ctx, [], (c) => {
+    drawHangar(c, V, 0);
+    drawShip(c, V, 0);
+  });
   const k = at("walkScale", t);
   const x = at("walkX", t);
   const y = at("walkY", t);

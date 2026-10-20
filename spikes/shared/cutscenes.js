@@ -1,5 +1,5 @@
 (() => {
-const { buildSide, buildBack, render: renderBot, locate, solve, AX, SIDE_AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
+const { buildSide, buildBack, render: renderBot, locate, AX, SIDE_AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
 
 const ease = {
   linear: t => t,
@@ -139,8 +139,8 @@ function crowbarDoor(CFG) {
     if (blend > 0) {
       const rest = locate(sideRoot, "handFar", pose).transformPoint(ORIGIN);
       const grip = locate(sideRoot, "hand", pose).rotate(BAR_TILT * 180 / Math.PI + at("barTurnB", t)).transformPoint(new DOMPoint(FAR_GRIP, 0));
-      const target = new DOMPoint(rest.x + (grip.x - rest.x) * blend, rest.y + (grip.y - rest.y) * blend);
-      farSeed = solve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 90], [-140, 10]], target, farSeed);
+      const target = [rest.x + (grip.x - rest.x) * blend, rest.y + (grip.y - rest.y) * blend];
+      farSeed = fastSolve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 90], [-140, 10]], target, farSeed);
       Object.assign(pose, farSeed);
     }
     const k = at("barLen", t);
@@ -231,7 +231,7 @@ const CAM = {
   deadPixels: 12,
   deadSeed: 2080,
   dead: ["#000000", "#ffffff", "#ff3b30", "#3bff6a"],
-  tint: "#b4c4ac",
+  tint: "#aab6a2",
   lift: "rgba(40, 52, 44, 0.35)",
   scanline: "rgba(0, 0, 0, 0.22)",
   vignette: "rgba(0, 0, 0, 0.6)",
@@ -305,32 +305,7 @@ function corners(ctx, r, u) {
   ctx.stroke();
 }
 
-function securityCam(ctx, w, h, t, label) {
-  const r = filmRect(w, h);
-  const u = r.h / FILM.h;
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(r.x, r.y, r.w, r.h);
-  ctx.clip();
-  ctx.globalCompositeOperation = "saturation";
-  ctx.globalAlpha = 0.8;
-  ctx.fillStyle = "#808080";
-  ctx.fillRect(r.x, r.y, r.w, r.h);
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "multiply";
-  ctx.fillStyle = CAM.tint;
-  ctx.fillRect(r.x, r.y, r.w, r.h);
-  ctx.globalCompositeOperation = "screen";
-  ctx.fillStyle = CAM.lift;
-  ctx.fillRect(r.x, r.y, r.w, r.h);
-  ctx.globalCompositeOperation = "source-over";
-  const frame = Math.floor(t * CAM.fps);
-  const tile = grainTile(frame % CAM.grainFrames, u, r);
-  const shift = grainRandom(frame);
-  const pattern = ctx.createPattern(tile, "repeat");
-  pattern.setTransform(new DOMMatrix().translate(r.x + Math.floor(shift() * CAM.grainTile), r.y + Math.floor(shift() * CAM.grainTile)));
-  ctx.fillStyle = pattern;
-  ctx.fillRect(r.x, r.y, r.w, r.h);
+function camScreenPaint(ctx, r, u) {
   ctx.fillStyle = CAM.scanline;
   const line = Math.max(2, 6 * u);
   for (let y = r.y; y < r.y + r.h; y += line) ctx.fillRect(r.x, y, r.w, line / 2);
@@ -345,6 +320,56 @@ function securityCam(ctx, w, h, t, label) {
     ctx.fillStyle = CAM.dead[Math.floor(stuck() * CAM.dead.length)];
     ctx.fillRect(Math.round(r.x + stuck() * r.w), Math.round(r.y + stuck() * r.h), dot, dot);
   }
+  corners(ctx, r, u);
+}
+
+const camScreens = { key: "", canvas: null };
+
+function camScreen(ctx, w, h, r, u) {
+  const key = `${w}x${h}`;
+  if (camScreens.key !== key) {
+    camScreens.key = key;
+    camScreens.canvas = null;
+    camScreenPaint(ctx, r, u);
+    return;
+  }
+  if (!camScreens.canvas) {
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    camScreenPaint(canvas.getContext("2d"), r, u);
+    camScreens.canvas = canvas;
+  }
+  ctx.drawImage(camScreens.canvas, 0, 0);
+}
+
+function securityCam(ctx, w, h, t, label) {
+  const r = filmRect(w, h);
+  const u = r.h / FILM.h;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(r.x, r.y, r.w, r.h);
+  ctx.clip();
+  ctx.globalCompositeOperation = "color";
+  ctx.globalAlpha = 0.8;
+  ctx.fillStyle = "#808080";
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "multiply";
+  ctx.fillStyle = CAM.tint;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.globalCompositeOperation = "lighter";
+  ctx.fillStyle = CAM.lift;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.globalCompositeOperation = "source-over";
+  const frame = Math.floor(t * CAM.fps);
+  const tile = grainTile(frame % CAM.grainFrames, u, r);
+  const shift = grainRandom(frame);
+  const pattern = ctx.createPattern(tile, "repeat");
+  pattern.setTransform(new DOMMatrix().translate(r.x + Math.floor(shift() * CAM.grainTile), r.y + Math.floor(shift() * CAM.grainTile)));
+  ctx.fillStyle = pattern;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  camScreen(ctx, w, h, r, u);
   const size = 34 * u;
   const inset = CAM.inset * u;
   const left = r.x + inset, right = r.x + r.w - inset;
@@ -366,7 +391,6 @@ function securityCam(ctx, w, h, t, label) {
   ctx.textAlign = "right";
   ctx.fillText("REC", right, top + lift);
   ctx.fillText(camClock(t), right, bottom + lift);
-  corners(ctx, r, u);
   ctx.restore();
 }
 
@@ -574,10 +598,153 @@ function reach(root, hook, keys, target, bend, stand = STAND) {
   return { [keys[0]]: wrap(upper - rest) / RAD, [keys[1]]: wrap(lower - upper - bent) / RAD };
 }
 
+function stillLayer() {
+  const held = { key: "", canvas: null };
+  return (c, parts, draw) => {
+    const m = c.getTransform();
+    const key = [c.canvas.width, c.canvas.height, m.a, m.b, m.c, m.d, m.e, m.f, ...parts].join(" ");
+    if (held.key !== key) {
+      held.key = key;
+      held.canvas = null;
+      draw(c);
+      return;
+    }
+    if (!held.canvas) {
+      const canvas = document.createElement("canvas");
+      canvas.width = c.canvas.width;
+      canvas.height = c.canvas.height;
+      const cc = canvas.getContext("2d");
+      cc.setTransform(m);
+      draw(cc);
+      held.canvas = canvas;
+    }
+    c.save();
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.drawImage(held.canvas, 0, 0);
+    c.restore();
+  };
+}
+
+const solvePaths = new WeakMap();
+
+function hookPath(root, hook) {
+  const known = solvePaths.get(root)?.[hook];
+  if (known) return known;
+  const walk = (node, path) => {
+    if (node.k === "hook") return node.name === hook ? path : null;
+    if (node.k !== "g") return null;
+    for (const kid of node.kids) {
+      const found = walk(kid, [...path, node]);
+      if (found) return found;
+    }
+    return null;
+  };
+  const path = walk(root, []);
+  solvePaths.set(root, { ...solvePaths.get(root), [hook]: path });
+  return path;
+}
+
+function poseJoint(m, node, v) {
+  if (node.name == null || !v) return m;
+  const j = typeof v === "number" ? { dx: 0, dy: 0, rot: v, sx: 1, sy: 1 } : { dx: 0, dy: 0, rot: 0, sx: 1, sy: 1, ...v };
+  return m.translate(j.dx + node.pivot[0], j.dy + node.pivot[1]).rotate(j.rot).scale(j.sx, j.sy).translate(-node.pivot[0], -node.pivot[1]);
+}
+
+const SOLVE_SEEDED = [[12, 3], [3, 1], [1, 0.25]];
+const SOLVE_FULL = [[4, 1], [1, 0.25]];
+
+function fastSolve(root, hook, pose, keys, ranges, target, seed = null) {
+  const links = {};
+  let m = new DOMMatrix();
+  for (const node of hookPath(root, hook)) {
+    if (node.m) m = m.multiply(node.m);
+    if (node.name === keys[0] || node.name === keys[1]) {
+      links[node.name] = m.translate(node.pivot[0], node.pivot[1]);
+      m = new DOMMatrix().translate(-node.pivot[0], -node.pivot[1]);
+    } else m = poseJoint(m, node, pose[node.name]);
+  }
+  const outer = links[keys[0]], inner = links[keys[1]];
+  const tip = m.transformPoint(ORIGIN);
+  const hit = (a, b) => {
+    const cb = Math.cos(b * RAD), sb = Math.sin(b * RAD), ca = Math.cos(a * RAD), sa = Math.sin(a * RAD);
+    const x1 = tip.x * cb - tip.y * sb, y1 = tip.x * sb + tip.y * cb;
+    const x2 = inner.a * x1 + inner.c * y1 + inner.e, y2 = inner.b * x1 + inner.d * y1 + inner.f;
+    const x3 = x2 * ca - y2 * sa, y3 = x2 * sa + y2 * ca;
+    return Math.hypot(outer.a * x3 + outer.c * y3 + outer.e - target[0], outer.b * x3 + outer.d * y3 + outer.f - target[1]);
+  };
+  const refine = (best, passes) => {
+    for (const [range, step] of passes) {
+      const [, a0, b0] = best;
+      for (let a = a0 - range; a <= a0 + range; a += step) for (let b = b0 - range; b <= b0 + range; b += step) {
+        const d = hit(a, b);
+        if (d < best[0]) best = [d, a, b];
+      }
+    }
+    return best;
+  };
+  const full = () => {
+    let best = [Infinity, 0, 0];
+    for (let a = ranges[0][0]; a <= ranges[0][1]; a += 4) for (let b = ranges[1][0]; b <= ranges[1][1]; b += 4) {
+      const d = hit(a, b);
+      if (d < best[0]) best = [d, a, b];
+    }
+    return refine(best, SOLVE_FULL);
+  };
+  let best = seed ? refine([hit(seed[keys[0]], seed[keys[1]]), seed[keys[0]], seed[keys[1]]], SOLVE_SEEDED) : null;
+  if (!best || best[0] > 0.5) best = full();
+  return { [keys[0]]: best[1], [keys[1]]: best[2] };
+}
+
+const rowStrip = { canvas: null };
+
+function rowFill(c, draw) {
+  const m = c.getTransform();
+  const w = c.canvas.width, h = c.canvas.height;
+  rowStrip.canvas ??= document.createElement("canvas");
+  const strip = rowStrip.canvas;
+  strip.width = 1;
+  strip.height = h;
+  const g = strip.getContext("2d");
+  g.setTransform(m.a, 0, 0, m.d, m.e - Math.floor(w / 2), m.f);
+  draw(g);
+  c.save();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.drawImage(strip, 0, 0, w, h);
+  c.restore();
+}
+
+const sheets = new Map();
+
+function sheetDraw(c, slot, draw) {
+  let canvas = sheets.get(slot);
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+    sheets.set(slot, canvas);
+  }
+  if (canvas.width !== c.canvas.width || canvas.height !== c.canvas.height) {
+    canvas.width = c.canvas.width;
+    canvas.height = c.canvas.height;
+  }
+  const s = canvas.getContext("2d");
+  s.clearRect(0, 0, canvas.width, canvas.height);
+  s.save();
+  s.setTransform(c.getTransform());
+  draw(s);
+  s.restore();
+  return canvas;
+}
+
+function sheetBlit(c, canvas) {
+  c.save();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.drawImage(canvas, 0, 0);
+  c.restore();
+}
+
 const kit = {
   ease, sample, track, asset, recolor, filmRef, placeholder, FILM, LINE_W, RAD, ORIGIN, STAND,
   unitScale, lineFor, rect, poly, stroke, oval, cloud, shadow, pool, random, scatter, bank,
-  fitStage, camera, feet, placeRobot, layer, toModel, armChain, reach
+  fitStage, camera, feet, placeRobot, layer, toModel, armChain, reach, stillLayer, fastSolve, rowFill, sheetDraw, sheetBlit
 };
 
 window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor), securityCam, filmRect, camClock, kit };

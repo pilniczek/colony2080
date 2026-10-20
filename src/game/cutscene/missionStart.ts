@@ -7,7 +7,7 @@ import { drawAsset } from "../env/paint";
 import { FRONT_BARREL, gunHook, holdPoses } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, feet, fitStage, hookAt, lineFor, oval, poly, random, rect, scatter, stroke, tracks } from "./kit";
+import { camera, feet, fitStage, hookAt, lineFor, oval, poly, random, rect, rowFill, scatter, sheetBlit, sheetDraw, stillLayer, stroke, tracks } from "./kit";
 
 type Shot = (t: number) => void;
 type MarchFile = (typeof config.march.files)[number];
@@ -58,6 +58,9 @@ function veil(color: string, alpha: number): void {
   rect(ctx, 0, 0, W, H, color);
   ctx.globalAlpha = 1;
 }
+
+const planetLayer = stillLayer();
+const fieldLayer = stillLayer();
 
 interface Rigs {
   side: GroupNode;
@@ -194,8 +197,10 @@ function march(t: number): void {
   for (const g of M.guards) guard(g.x, g.floorY, g.k, dimmed(ENEMY, "enemy", g.dim));
   marchFile(M.files[1]!, 1, t);
   ctx.restore();
-  ctx.fillStyle = vertical(0, H, [[0, "rgba(0,0,0,0.55)"], [0.45, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0.35)"]]);
-  ctx.fillRect(0, 0, W, H);
+  rowFill(ctx, (c) => {
+    c.fillStyle = vertical(0, H, [[0, "rgba(0,0,0,0.55)"], [0.45, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0.35)"]]);
+    c.fillRect(0, 0, W, H);
+  });
 }
 
 function shipThrust(x: number, y: number, len: number, alpha: number): void {
@@ -244,8 +249,10 @@ function hangar(t: number): void {
   rect(ctx, -1200, 120, 2450, 12, palette.bayPanel);
   rect(ctx, 1230, -170, 20, 810, palette.railShade);
   rect(ctx, 2600, -170, 20, 810, palette.railShade);
-  ctx.fillStyle = vertical(640, 1300, [[0, palette.bayFloorFar], [1, palette.bayFloor]]);
-  ctx.fillRect(-1200, 640, 4800, 700);
+  rowFill(ctx, (c) => {
+    c.fillStyle = vertical(640, 1300, [[0, palette.bayFloorFar], [1, palette.bayFloor]]);
+    c.fillRect(-1200, 640, 4800, 700);
+  });
   const lift = num("shipLift", t);
   const go = num("shipGo", t);
   ctx.globalAlpha = 0.35 * Math.max(0, 1 - lift / 160);
@@ -310,21 +317,21 @@ function station(x: number, z: number): void {
   ctx.restore();
 }
 
-function planetDisc(x: number, y: number, r: number): void {
-  const g = ctx.createRadialGradient(x + r * 0.5, y - r * 0.2, r * 0.1, x, y, r);
+function planetDisc(c: CanvasRenderingContext2D, x: number, y: number, r: number): void {
+  const g = c.createRadialGradient(x + r * 0.5, y - r * 0.2, r * 0.1, x, y, r);
   g.addColorStop(0, palette.planetLit);
   g.addColorStop(0.5, palette.planet);
   g.addColorStop(1, palette.planetDark);
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fill();
+  c.fillStyle = g;
+  c.beginPath();
+  c.arc(x, y, r, 0, Math.PI * 2);
+  c.fill();
 }
 
 function orbit(t: number): void {
   rect(ctx, 0, 0, W, H, palette.space);
   stars(num("stationX", t) * 0.05, 0);
-  planetDisc(330, 470, 520);
+  planetLayer(ctx, [], (c) => planetDisc(c, 330, 470, 520));
   if (t >= 16.6) rearShip(num("orbitShipX", t), num("orbitShipY", t), num("orbitShip", t) * 0.4);
   station(num("stationX", t), num("stationZ", t));
 }
@@ -345,21 +352,25 @@ function frontShip(x: number, y: number, k: number, roll: number): void {
 
 const shipAt = (t: number): [number, number, number] => [num("sdX", t), num("sdY", t), num("sdZ", t)];
 
+function field(c: CanvasRenderingContext2D): void {
+  c.fillStyle = vertical(0, 540, [[0, palette.skyHigh], [0.5, palette.skyMid], [0.88, palette.skyLow], [1, palette.skyGlow]]);
+  c.fillRect(0, 0, W, 540);
+  poly(c, [[0, 540], [0, 520], [200, 512], [420, 522], [700, 508], [960, 520], [1200, 510], [1600, 522], [1600, 540]], palette.hills);
+  c.fillStyle = vertical(540, H, [[0, palette.grassFar], [1, palette.grassNear]]);
+  c.fillRect(0, 540, W, H - 540);
+  for (const [x, y, a, b] of GRASS) {
+    c.globalAlpha = 0.35;
+    const d = (y - 540) / 360;
+    oval(c, x, y, 30 + d * 160 * a, 3 + d * 18 * b, palette.grassSpot);
+  }
+  c.globalAlpha = 1;
+}
+
 function shotDown(t: number): void {
-  ctx.fillStyle = vertical(0, 540, [[0, palette.skyHigh], [0.5, palette.skyMid], [0.88, palette.skyLow], [1, palette.skyGlow]]);
-  ctx.fillRect(0, 0, W, 540);
+  fieldLayer(ctx, [], field);
   for (const [x, y, a, b] of SKY_PUFFS) {
     ctx.globalAlpha = 0.18 + a * 0.2;
     oval(ctx, ((x + t * 12) % 2200) - 300, y * 0.7, 160 + b * 260, 14 + a * 22, b < 0.5 ? palette.cloud : palette.cloudDark);
-  }
-  ctx.globalAlpha = 1;
-  poly(ctx, [[0, 540], [0, 520], [200, 512], [420, 522], [700, 508], [960, 520], [1200, 510], [1600, 522], [1600, 540]], palette.hills);
-  ctx.fillStyle = vertical(540, H, [[0, palette.grassFar], [1, palette.grassNear]]);
-  ctx.fillRect(0, 540, W, H - 540);
-  for (const [x, y, a, b] of GRASS) {
-    ctx.globalAlpha = 0.35;
-    const d = (y - 540) / 360;
-    oval(ctx, x, y, 30 + d * 160 * a, 3 + d * 18 * b, palette.grassSpot);
   }
   ctx.globalAlpha = 1;
   const hit = num("sdHit", t);
@@ -495,6 +506,10 @@ function hand(t: number): void {
   for (let d = -1400; d < 1400; d += 64) {
     ctx.moveTo(d, -1400);
     ctx.lineTo(d, 1400);
+  }
+  ctx.stroke();
+  ctx.beginPath();
+  for (let d = -1400; d < 1400; d += 64) {
     ctx.moveTo(-1400, d);
     ctx.lineTo(1400, d);
   }
@@ -594,6 +609,19 @@ function wireMap(t: number): void {
   ctx.globalAlpha = 1;
 }
 
+function screenGlow(t: number, mode: string): void {
+  if (mode === "robot") wireRobot(t);
+  if (mode === "map") wireMap(t);
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = palette.black;
+  ctx.beginPath();
+  for (let y = 150; y < 760; y += 8) ctx.rect(300, y, 1000, 3);
+  ctx.fill();
+  ctx.globalAlpha = 0.07;
+  oval(ctx, 640, 300, 260, 110, palette.white);
+  ctx.globalAlpha = 1;
+}
+
 function monitor(t: number): void {
   const mode = text("monitorMode", t);
   ctx.save();
@@ -620,14 +648,14 @@ function monitor(t: number): void {
   glass.addColorStop(1, palette.crtDark);
   ctx.fillStyle = glass;
   ctx.fill();
+  const main = ctx;
+  const inside = sheetDraw(main, "missionStartScreen", (c) => {
+    ctx = c;
+    screenGlow(t, mode);
+  });
+  ctx = main;
   ctx.clip();
-  if (mode === "robot") wireRobot(t);
-  if (mode === "map") wireMap(t);
-  ctx.globalAlpha = 0.18;
-  for (let y = 150; y < 760; y += 8) rect(ctx, 300, y, 1000, 3, palette.black);
-  ctx.globalAlpha = 0.07;
-  oval(ctx, 640, 300, 260, 110, palette.white);
-  ctx.globalAlpha = 1;
+  sheetBlit(ctx, inside);
   ctx.restore();
   ctx.restore();
 }
@@ -648,16 +676,20 @@ function overShip(x: number, y: number, k: number): void {
 function crash(t: number): void {
   ctx.save();
   camera(ctx, W, H, num("crashCamX", t), num("crashCamY", t), 1);
-  ctx.fillStyle = vertical(-200, 360, [[0, palette.duskHigh], [1, palette.duskLow]]);
-  ctx.fillRect(-600, -200, 3200, 560);
+  rowFill(ctx, (c) => {
+    c.fillStyle = vertical(-200, 360, [[0, palette.duskHigh], [1, palette.duskLow]]);
+    c.fillRect(-600, -200, 3200, 560);
+  });
   for (const [x, y, a, b] of SKY_PUFFS) {
     ctx.globalAlpha = 0.25 + a * 0.25;
     oval(ctx, x, y * 0.6 - 120, 200 + b * 300, 16 + a * 26, palette.dustCloud);
   }
   ctx.globalAlpha = 1;
   poly(ctx, [[-600, 360], [-600, 330], [-200, 316], [100, 336], [500, 300], [700, 330], [1300, 322], [1900, 300], [2600, 330], [2600, 360]], palette.mesa);
-  ctx.fillStyle = vertical(360, 1100, [[0, palette.desertFar], [1, palette.desertNear]]);
-  ctx.fillRect(-600, 360, 3200, 740);
+  rowFill(ctx, (c) => {
+    c.fillStyle = vertical(360, 1100, [[0, palette.desertFar], [1, palette.desertNear]]);
+    c.fillRect(-600, 360, 3200, 740);
+  });
   ctx.strokeStyle = palette.crack;
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -701,8 +733,10 @@ function ruin(x: number, w: number, h: number, seed: number, color: string): voi
 function city(t: number): void {
   ctx.save();
   camera(ctx, W, H, num("cityCamX", t), 450, 1);
-  ctx.fillStyle = vertical(-200, 640, [[0, palette.ruinSkyHigh], [1, palette.ruinSkyLow]]);
-  ctx.fillRect(-600, -200, 3200, 860);
+  rowFill(ctx, (c) => {
+    c.fillStyle = vertical(-200, 640, [[0, palette.ruinSkyHigh], [1, palette.ruinSkyLow]]);
+    c.fillRect(-600, -200, 3200, 860);
+  });
   for (const [x, y, a, b] of SKY_PUFFS) {
     ctx.globalAlpha = 0.3 + a * 0.3;
     oval(ctx, x + t * 8, y, 140 + b * 220, 40 + a * 40, b < 0.5 ? palette.ruinCloud : palette.ruinCloudDark);
