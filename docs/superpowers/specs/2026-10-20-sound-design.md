@@ -56,7 +56,7 @@ Research (`docs/research/reports/17-sound.md`, to write from this session's find
 | Weapon switch | `IKONA` @20000 (45) | weapon key or auto switch |
 | Inventory open | `INVEND` @8000, stops all sounds first | inventory screen opens |
 | Dialog keys | `IKONA` @5500 (33) | pause menu and game over move and confirm |
-| Thunder ambience, mission 1 | `HROM` @9000, random interval | not used in game |
+| Thunder ambience, mission 1 | `HROM` @9000, random interval | not used in game; `thunder` recipe kept for the sound sheet and `sound:compare` |
 | Teleport | `TELEPORT` @13000 | teleport pad use |
 | Electric hazard | `ZKRAT` @12000, every 10th tick | hero in hazard with `sound: "spark"` (original: one jeskyne zone only; field set through `levelmap.py` EXTRAS, other `damage` hazards stay silent) |
 | Item pickup, item use | film sound cues (`HYDRA` @11000 servo at frame 1 ...) | film cues |
