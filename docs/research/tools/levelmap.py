@@ -1,9 +1,16 @@
 import json
+import os
 import sys
 
 W, H = 160, 80
 BAND = 6
 EMPTY = (0, 0)
+ZONES_NOTE = (
+    "hazards are the layout zones as cell rects on the stand row (engine y + 5, the cell over the feet), the damage rate "
+    "spread over the clip length; conveyors are the carry tile runs at 5.5 px per tick and 32 ticks per s; teleports go from "
+    "the pad centre to the target foot cell; each variant is the cell patch from the base map to that map file (variantSources), "
+    "blocking cells only, a whole-map state, not cumulative; enemies stand at their original foot cells"
+)
 EXTRAS = {
     1: {
         "source": (
@@ -28,34 +35,54 @@ EXTRAS = {
     2: {
         "source": (
             "docs/research/reports/14-level2-layout.md, built by docs/research/tools/levelmap.py from MAPY/M21.MAP "
-            "and gamedata/disasm/level2_layout.json: '#' floor support tiles and wall tiles (walls filled over the hero stand height), "
+            "and gamedata/disasm/level2_layout.json: '=' one-way floor support tiles, '#' wall tiles (walls filled over the hero stand height), "
             "'|' map clamp (columns 6 and 158) and the bridge guard post code wall, lift shafts open from two rows over the top stop "
-            "to the bottom stop; spawn dropped from engine (146, 33) to the floor below"
-        ),
+            "to the bottom stop; spawn dropped from engine (146, 33) to the floor below; "
+        )
+        + ZONES_NOTE,
         "fallDeathCells": None,
+        "hazardZones": {0: ("bridgeGap", "death")},
+        "teleportZones": {1: "padUp", 2: "padDown", 3: "sourceTeleport", 4: "targetTeleport"},
+        "variants": {"powerOff": "M22", "powerOn": "M23", "barricadeGone": "M24"},
+        "enemyKinds": ("rocketRobot", "greyTrooper"),
     },
     3: {
         "source": (
             "docs/research/reports/15-level3-layout.md, built by docs/research/tools/levelmap.py from MAPY/M31.MAP "
-            "and gamedata/disasm/level3_layout.json: '#' floor tiles, wall tiles and wall table columns (west x+4, east x+7, "
+            "and gamedata/disasm/level3_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
             "filled over the hero stand height), '|' map clamp (columns 6 and 158); no lifts (the tower lift is a scripted teleport); "
-            "spawn on the spawn ledge"
-        ),
+            "spawn on the spawn ledge; "
+        )
+        + ZONES_NOTE,
         "fallDeathCells": None,
+        "hazardZones": {0: ("cannonTurret", "damage"), 2: ("chasm", "death"), 3: ("spikes", "death"), 4: ("tripwire", "death")},
+        "damage": {"cannonTurret": {"hit": 30, "push": 1, "clipFrames": 51, "clipJiffies": 3}},
+        "variants": {"cabinetShot": "M32", "grenadeRubble": "M33", "puzzleSteps": "M34"},
+        "enemyKinds": ("rocketDroid", "crawler"),
+        "variantRects": {"M32": [(90, 31, 90, 31), (97, 46, 98, 46)]},
     },
     4: {
         "source": (
             "docs/research/reports/16-level4-layout.md, built by docs/research/tools/levelmap.py from MAPY/M41.MAP "
-            "and gamedata/disasm/level4_layout.json: '#' floor tiles, wall tiles and wall table columns (west x+4, east x+7, "
+            "and gamedata/disasm/level4_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
             "filled over the hero stand height), '|' map clamp (columns 6 and 158), lift shafts open from two rows over the top stop "
-            "to the bottom stop; lift 1 uses its stops after the rod (enabledBy); spawn dropped from engine (28, 8) to floor 20"
-        ),
+            "to the bottom stop; lift 1 uses its stops after the rod (enabledBy); spawn dropped from engine (28, 8) to floor 20; "
+        )
+        + ZONES_NOTE,
         "liftEnabled": {49: ("flag:liftLock", [29, 44, 55])},
         "fallDeathCells": None,
+        "hazardZones": {0: ("stalactiteChasm", "death"), 1: ("middleChasm", "death"), 2: ("cartCrush", "death"), 3: ("lava", "death")},
+        "conveyorPxPerTick": 5.5,
+        "variants": {"stalactiteShot": "M42", "tankShot": "M43"},
+        "enemyKinds": ("spiderWalker", "podWalker", "trooper"),
+        "variantDrops": {"M42": ["crystal"], "M43": ["crystal"]},
     },
 }
 CLAMP_COLS = (6, 158)
 STAND = 5
+TICKS_PER_S = 32
+CELL_PX = 24
+FLI_JIFFY_S = 1 / 70
 
 
 def tile_at(data, col, row):
@@ -230,6 +257,7 @@ def layout_of(level, data):
         "floors": pairs(data["floorTiles"]["tiles"]),
         "walls": pairs(blocking["solidTiles"]) | pairs(blocking["solidTilesB"]),
         "wallCells": [(table_col(w), w["engine"][1]) for w in blocking["wallTables"]],
+        "namedWalls": {w["object"]: (table_col(w), w["engine"][1]) for w in blocking["wallTables"] if "object" in w},
         "codeCells": [],
         "lifts": data["lifts"],
         "spawn": tuple(data["spawn"]["engine"]),
@@ -291,11 +319,116 @@ def drop_spawn(grid, engine):
     return [col + 0.5, row]
 
 
-def build_tiles(data, layout, cfg):
+def span(v):
+    return (v, v) if isinstance(v, int) else (v[0], v[1])
+
+
+def zone_rect(engine):
+    y = engine["y"]
+    if isinstance(y, str):
+        y0, y1 = int(y.lstrip("> ")) + 1, H - 1 - STAND
+    else:
+        y0, y1 = span(y)
+    x0, x1 = span(engine["x"]) if "x" in engine else (-6, W - 7)
+    col, last = x0 + 6, min(x1 + 6, W - 1)
+    row, bottom = y0 + STAND, min(y1 + STAND, H - 1)
+    return {"col": col, "row": row, "w": last - col + 1, "h": bottom - row + 1}
+
+
+def damage_rates(spec):
+    period = spec["clipFrames"] * spec["clipJiffies"] * FLI_JIFFY_S
+    return {"perSecond": round(spec["hit"] / period, 1), "push": round(spec["push"] / period, 2)}
+
+
+def hazards(zones, cfg):
+    out = []
+    for index, (name, kind) in cfg["hazardZones"].items():
+        hazard = {"id": name, "kind": kind, **zone_rect(zones[index]["engine"])}
+        if kind == "damage":
+            hazard.update(damage_rates(cfg["damage"][name]))
+        out.append(hazard)
+    return out
+
+
+def runs(cells):
+    out = []
+    for row, col in sorted((r, c) for c, r in cells):
+        if out and out[-1]["row"] == row and out[-1]["col"] + out[-1]["w"] == col:
+            out[-1]["w"] += 1
+        else:
+            out.append({"col": col, "row": row, "w": 1})
+    return out
+
+
+def conveyors(data, zones, cfg):
+    carry = [z for z in zones if z.get("kind") == "carry"]
+    if not carry:
+        return []
+    tiles = pairs(carry[0]["tiles"])
+    vx = round(cfg["conveyorPxPerTick"] * TICKS_PER_S / CELL_PX, 2)
+    cells = [(col, row) for row in range(H) for col in range(W) if tile_at(data, col, row) in tiles]
+    return [{**run, "vx": vx} for run in runs(cells)]
+
+
+def foot(grid, col, row):
+    if grid[row][col] not in ".=" or grid[row + 1][col] not in "#=":
+        raise SystemExit(f"no floor under foot cell {col},{row}")
+    return [col, row]
+
+
+def pad(grid, cols, floor):
+    return foot(grid, (cols[0] + cols[1]) // 2, floor - 1)
+
+
+def teleports(grid, layout, cfg):
+    out = []
+    for index, name in cfg.get("teleportZones", {}).items():
+        zone = layout["zones"][index]
+        out.append({"id": name, "from": pad(grid, zone["from"]["cols"], zone["from"]["floor"]), "to": foot(grid, zone["to"]["col"], zone["to"]["floor"] - 1)})
+    for lift in layout.get("scriptedLifts", []):
+        for end, other, way in (("bottom", "top", "Up"), ("top", "bottom", "Down")):
+            col, floor = lift[end]["to"]
+            out.append({"id": lift["id"] + way, "from": pad(grid, lift[end]["cols"], lift[end]["floor"]), "to": foot(grid, col, floor - 1)})
+    return out
+
+
+def enemies_of(grid, enemies, kinds):
+    return [{"kind": e["type"], "cell": foot(grid, *e["cell"]), "patrol": e["patrol"]} for e in enemies["enemies"] if e["type"] in kinds]
+
+
+def variant_grid(data, layout, cfg, name):
+    drops = {layout.get("namedWalls", {})[wall] for wall in cfg.get("variantDrops", {}).get(name, [])}
+    grid = tile_rows(data, {**layout, "wallCells": [w for w in layout["wallCells"] if w not in drops]})
+    open_shafts(grid, plain_lifts(layout["lifts"], cfg))
+    return grid
+
+
+def inside(rects, col, row):
+    return any(c0 <= col <= c1 and r0 <= row <= r1 for c0, r0, c1, r1 in rects)
+
+
+def variants(base, map_path, layout, cfg):
+    out, sources = {}, {}
+    for vid, name in cfg["variants"].items():
+        with open(os.path.join(os.path.dirname(map_path), name + ".MAP"), "rb") as f:
+            grid = variant_grid(f.read(), layout, cfg, name)
+        rects = cfg.get("variantRects", {}).get(name)
+        out[vid] = [
+            {"col": col, "row": row, "ch": grid[row][col]}
+            for row in range(H)
+            for col in range(W)
+            if grid[row][col] != base[row][col] and (rects is None or inside(rects, col, row))
+        ]
+        sources[vid] = name
+    return out, sources
+
+
+def build_tiles(data, layout, cfg, raw, enemies, map_path):
     grid = tile_rows(data, layout)
     lifts = plain_lifts(layout["lifts"], cfg)
     for col, row, was, now in open_shafts(grid, lifts):
         print(f"shaft cell {col},{row} {was} -> {now}", file=sys.stderr)
+    found, sources = variants(grid, map_path, layout, cfg)
     return {
         "status": "draft",
         "source": cfg["source"],
@@ -303,6 +436,12 @@ def build_tiles(data, layout, cfg):
         "lifts": [lift_json(lift, cfg) for lift in lifts],
         "spawn": drop_spawn(grid, layout["spawn"]),
         "fallDeathCells": cfg["fallDeathCells"],
+        "hazards": hazards(raw["zones"], cfg),
+        "conveyors": conveyors(data, raw["zones"], cfg),
+        "teleports": teleports(grid, raw, cfg),
+        "variants": found,
+        "variantSources": sources,
+        "enemies": enemies_of(grid, enemies, cfg["enemyKinds"]),
     }
 
 
@@ -317,6 +456,10 @@ def write(out, path):
             lines.append(f'  "{key}": [')
             lines.append(",\n".join(f"    {d(v)}" for v in value))
             lines.append(f"  ]{end}")
+        elif isinstance(value, dict) and any(isinstance(v, list) for v in value.values()):
+            lines.append(f'  "{key}": {{')
+            lines.append(",\n".join(f'    {d(k)}: {d(v)}' for k, v in value.items()))
+            lines.append(f"  }}{end}")
         else:
             lines.append(f'  "{key}": {d(value)}{end}')
     lines.append("}")
@@ -336,7 +479,7 @@ def main():
     if level == 1:
         write(build(data, layout, enemies, EXTRAS[level]), out_path)
     else:
-        write(build_tiles(data, layout_of(level, layout), EXTRAS[level]), out_path)
+        write(build_tiles(data, layout_of(level, layout), EXTRAS[level], layout, enemies, map_path), out_path)
 
 
 main()

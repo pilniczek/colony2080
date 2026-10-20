@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/research/reports/16-level4-layout.md, built by docs/research/tools/levelmap.py from MAPY/M41.MAP and gamedata/disasm/level4_layout.json: '#' floor tiles, wall tiles and wall table columns (west x+4, east x+7, filled over the hero stand height), '|' map clamp (columns 6 and 158), lift shafts open from two rows over the top stop to the bottom stop; lift 1 uses its stops after the rod (enabledBy); spawn dropped from engine (28, 8) to floor 20",
+  "source": "docs/research/reports/16-level4-layout.md, built by docs/research/tools/levelmap.py from MAPY/M41.MAP and gamedata/disasm/level4_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, filled over the hero stand height), '|' map clamp (columns 6 and 158), lift shafts open from two rows over the top stop to the bottom stop; lift 1 uses its stops after the rod (enabledBy); spawn dropped from engine (28, 8) to floor 20; hazards are the layout zones as cell rects on the stand row (engine y + 5, the cell over the feet), the damage rate spread over the clip length; conveyors are the carry tile runs at 5.5 px per tick and 32 ticks per s; teleports go from the pad centre to the target foot cell; each variant is the cell patch from the base map to that map file (variantSources), blocking cells only, a whole-map state, not cumulative; enemies stand at their original foot cells",
   "rows": [
     "......|.......................................................................................................................................................|.",
     "......|.......................................................................................................................................................|.",
@@ -92,5 +92,47 @@
     {"x": 127, "width": 3, "top": 56, "bottom": 74, "start": "bottom"}
   ],
   "spawn": [34.5, 20],
-  "fallDeathCells": null
+  "fallDeathCells": null,
+  "hazards": [
+    {"id": "stalactiteChasm", "kind": "death", "col": 60, "row": 20, "w": 8, "h": 3},
+    {"id": "middleChasm", "kind": "death", "col": 91, "row": 21, "w": 14, "h": 1},
+    {"id": "cartCrush", "kind": "death", "col": 123, "row": 36, "w": 3, "h": 5},
+    {"id": "lava", "kind": "death", "col": 0, "row": 74, "w": 160, "h": 6}
+  ],
+  "conveyors": [
+    {"col": 97, "row": 39, "w": 34, "vx": 7.33}
+  ],
+  "teleports": [],
+  "variants": {
+    "stalactiteShot": [{"col": 103, "row": 16, "ch": "#"}, {"col": 104, "row": 16, "ch": "#"}, {"col": 103, "row": 17, "ch": "#"}, {"col": 104, "row": 17, "ch": "#"}, {"col": 103, "row": 18, "ch": "#"}, {"col": 104, "row": 18, "ch": "#"}, {"col": 103, "row": 19, "ch": "#"}, {"col": 104, "row": 19, "ch": "#"}, {"col": 103, "row": 20, "ch": "#"}, {"col": 104, "row": 20, "ch": "#"}, {"col": 63, "row": 24, "ch": "."}, {"col": 63, "row": 25, "ch": "."}, {"col": 63, "row": 26, "ch": "."}, {"col": 63, "row": 27, "ch": "."}, {"col": 63, "row": 28, "ch": "."}],
+    "tankShot": [{"col": 63, "row": 24, "ch": "."}, {"col": 63, "row": 25, "ch": "."}, {"col": 63, "row": 26, "ch": "."}, {"col": 63, "row": 27, "ch": "."}, {"col": 63, "row": 28, "ch": "."}]
+  },
+  "variantSources": {"stalactiteShot": "M42", "tankShot": "M43"},
+  "enemies": [
+    {"kind": "podWalker", "cell": [27, 27], "patrol": [22, 30]},
+    {"kind": "podWalker", "cell": [95, 28], "patrol": [89, 102]},
+    {"kind": "podWalker", "cell": [99, 14], "patrol": [93, 123]},
+    {"kind": "podWalker", "cell": [116, 14], "patrol": [93, 123]},
+    {"kind": "spiderWalker", "cell": [108, 14], "patrol": [93, 123]},
+    {"kind": "podWalker", "cell": [65, 36], "patrol": [61, 70]},
+    {"kind": "spiderWalker", "cell": [46, 54], "patrol": [39, 48]},
+    {"kind": "podWalker", "cell": [65, 43], "patrol": [63, 69]},
+    {"kind": "spiderWalker", "cell": [70, 63], "patrol": [65, 76]},
+    {"kind": "podWalker", "cell": [52, 62], "patrol": [19, 57]},
+    {"kind": "spiderWalker", "cell": [47, 62], "patrol": [19, 57]},
+    {"kind": "podWalker", "cell": [37, 62], "patrol": [19, 57]},
+    {"kind": "spiderWalker", "cell": [24, 62], "patrol": [19, 57]},
+    {"kind": "podWalker", "cell": [35, 73], "patrol": [21, 41]},
+    {"kind": "podWalker", "cell": [83, 73], "patrol": [78, 89]},
+    {"kind": "spiderWalker", "cell": [102, 57], "patrol": [92, 105]},
+    {"kind": "spiderWalker", "cell": [121, 73], "patrol": [112, 125]},
+    {"kind": "trooper", "cell": [29, 35], "patrol": [24, 34]},
+    {"kind": "trooper", "cell": [29, 42], "patrol": [21, 32]},
+    {"kind": "trooper", "cell": [60, 28], "patrol": [52, 60]},
+    {"kind": "trooper", "cell": [128, 30], "patrol": [122, 134]},
+    {"kind": "trooper", "cell": [115, 20], "patrol": [108, 120]},
+    {"kind": "trooper", "cell": [70, 63], "patrol": [65, 78]},
+    {"kind": "trooper", "cell": [103, 65], "patrol": [99, 110]},
+    {"kind": "trooper", "cell": [119, 55], "patrol": [117, 124]}
+  ]
 }

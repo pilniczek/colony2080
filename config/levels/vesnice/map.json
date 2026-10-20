@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/research/reports/14-level2-layout.md, built by docs/research/tools/levelmap.py from MAPY/M21.MAP and gamedata/disasm/level2_layout.json: '#' floor support tiles and wall tiles (walls filled over the hero stand height), '|' map clamp (columns 6 and 158) and the bridge guard post code wall, lift shafts open from two rows over the top stop to the bottom stop; spawn dropped from engine (146, 33) to the floor below",
+  "source": "docs/research/reports/14-level2-layout.md, built by docs/research/tools/levelmap.py from MAPY/M21.MAP and gamedata/disasm/level2_layout.json: '=' one-way floor support tiles, '#' wall tiles (walls filled over the hero stand height), '|' map clamp (columns 6 and 158) and the bridge guard post code wall, lift shafts open from two rows over the top stop to the bottom stop; spawn dropped from engine (146, 33) to the floor below; hazards are the layout zones as cell rects on the stand row (engine y + 5, the cell over the feet), the damage rate spread over the clip length; conveyors are the carry tile runs at 5.5 px per tick and 32 ticks per s; teleports go from the pad centre to the target foot cell; each variant is the cell patch from the base map to that map file (variantSources), blocking cells only, a whole-map state, not cumulative; enemies stand at their original foot cells",
   "rows": [
     "......|.......................................................................................................................................................|.",
     "......|.......................................................................................................................................................|.",
@@ -95,5 +95,51 @@
     {"x": 18, "width": 3, "top": 41, "bottom": 50, "start": "top"}
   ],
   "spawn": [152.5, 41],
-  "fallDeathCells": null
+  "fallDeathCells": null,
+  "hazards": [
+    {"id": "bridgeGap", "kind": "death", "col": 47, "row": 41, "w": 10, "h": 1}
+  ],
+  "conveyors": [],
+  "teleports": [
+    {"id": "padUp", "from": [52, 49], "to": [42, 31]},
+    {"id": "padDown", "from": [42, 31], "to": [52, 49]},
+    {"id": "sourceTeleport", "from": [128, 22], "to": [65, 31]},
+    {"id": "targetTeleport", "from": [65, 31], "to": [128, 22]}
+  ],
+  "variants": {
+    "powerOff": [{"col": 99, "row": 36, "ch": "."}, {"col": 99, "row": 37, "ch": "."}, {"col": 99, "row": 38, "ch": "."}, {"col": 99, "row": 39, "ch": "."}, {"col": 99, "row": 40, "ch": "."}, {"col": 45, "row": 41, "ch": "."}, {"col": 46, "row": 41, "ch": "."}, {"col": 47, "row": 41, "ch": "."}, {"col": 48, "row": 41, "ch": "."}, {"col": 49, "row": 41, "ch": "."}, {"col": 50, "row": 41, "ch": "."}, {"col": 51, "row": 41, "ch": "."}, {"col": 52, "row": 41, "ch": "."}, {"col": 53, "row": 41, "ch": "."}, {"col": 54, "row": 41, "ch": "."}, {"col": 55, "row": 41, "ch": "."}, {"col": 56, "row": 41, "ch": "."}],
+    "powerOn": [],
+    "barricadeGone": [{"col": 22, "row": 36, "ch": "."}, {"col": 22, "row": 37, "ch": "."}, {"col": 22, "row": 38, "ch": "."}, {"col": 22, "row": 39, "ch": "."}, {"col": 22, "row": 40, "ch": "."}]
+  },
+  "variantSources": {"powerOff": "M22", "powerOn": "M23", "barricadeGone": "M24"},
+  "enemies": [
+    {"kind": "greyTrooper", "cell": [125, 40], "patrol": [119, 152]},
+    {"kind": "rocketRobot", "cell": [120, 40], "patrol": [119, 152]},
+    {"kind": "greyTrooper", "cell": [104, 40], "patrol": [101, 114]},
+    {"kind": "rocketRobot", "cell": [122, 31], "patrol": [119, 141]},
+    {"kind": "greyTrooper", "cell": [131, 31], "patrol": [119, 141]},
+    {"kind": "rocketRobot", "cell": [134, 31], "patrol": [119, 141]},
+    {"kind": "greyTrooper", "cell": [137, 22], "patrol": [127, 142]},
+    {"kind": "rocketRobot", "cell": [82, 49], "patrol": [73, 87]},
+    {"kind": "greyTrooper", "cell": [74, 49], "patrol": [73, 87]},
+    {"kind": "rocketRobot", "cell": [106, 49], "patrol": [93, 130]},
+    {"kind": "greyTrooper", "cell": [112, 49], "patrol": [93, 130]},
+    {"kind": "rocketRobot", "cell": [125, 49], "patrol": [93, 130]},
+    {"kind": "greyTrooper", "cell": [126, 58], "patrol": [121, 132]},
+    {"kind": "rocketRobot", "cell": [110, 67], "patrol": [88, 115]},
+    {"kind": "greyTrooper", "cell": [99, 67], "patrol": [88, 115]},
+    {"kind": "rocketRobot", "cell": [96, 67], "patrol": [88, 115]},
+    {"kind": "greyTrooper", "cell": [88, 67], "patrol": [88, 115]},
+    {"kind": "rocketRobot", "cell": [79, 58], "patrol": [79, 83]},
+    {"kind": "rocketRobot", "cell": [65, 40], "patrol": [59, 79]},
+    {"kind": "rocketRobot", "cell": [72, 40], "patrol": [59, 79]},
+    {"kind": "greyTrooper", "cell": [74, 40], "patrol": [59, 79]},
+    {"kind": "rocketRobot", "cell": [77, 22], "patrol": [73, 85]},
+    {"kind": "greyTrooper", "cell": [24, 49], "patrol": [22, 57]},
+    {"kind": "rocketRobot", "cell": [33, 49], "patrol": [22, 57]},
+    {"kind": "greyTrooper", "cell": [36, 49], "patrol": [22, 57]},
+    {"kind": "rocketRobot", "cell": [50, 49], "patrol": [22, 57]},
+    {"kind": "greyTrooper", "cell": [30, 31], "patrol": [30, 44]},
+    {"kind": "rocketRobot", "cell": [36, 31], "patrol": [30, 44]}
+  ]
 }
