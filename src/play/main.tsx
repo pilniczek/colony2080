@@ -1,4 +1,4 @@
-import { loadMission, type MissionId } from "../game/level/missions";
+import { loadMission, mapItemOf, missionFromQuery } from "../game/level/missions";
 import { startRun, type RunOptions } from "../game/run";
 import { browserStorage } from "../game/save/saveMenu";
 import { slotFromQuery } from "../game/save/slots";
@@ -13,15 +13,15 @@ useSandbox.setState({ fogOn: true });
 
 let drawOver: RunOptions["drawOver"];
 
-const MISSION: MissionId = "mesto";
+const MISSION = missionFromQuery(location.search);
 
 const startSlot = slotFromQuery(location.search);
 
 const run = startRun({
   world: loadMission(MISSION),
   saves: { mission: MISSION, storage: browserStorage(), startSlot },
-  intro: startSlot === null ? "missionStart" : undefined,
-  mapItem: "holoPlan",
+  intro: startSlot === null && MISSION === "mesto" ? "missionStart" : undefined,
+  mapItem: mapItemOf(MISSION),
   drawOver: (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx),
   ui: (
     <>
@@ -36,6 +36,6 @@ const run = startRun({
 
 if (import.meta.env.DEV) {
   void import("./originalOverlay").then((m) => {
-    drawOver = m.originalOverlay(run);
+    drawOver = m.originalOverlay(run, MISSION);
   });
 }

@@ -1,20 +1,21 @@
 import type { ViewTransform } from "../engine/render/view";
 import { kill } from "../game/hero/hero";
 import type { ItemId } from "../game/items";
+import type { MissionId } from "../game/level/missions";
 import { pickUp } from "../game/level/sandboxLevel";
 import type { Run } from "../game/run";
 import { useSandbox } from "../sandbox/store";
 
-const MAP_URL = "/docs/research/gamedata/png/maps/map_M11.png";
+const MAP_FILES: Record<MissionId, string> = { mesto: "M11", vesnice: "M21", jungle: "M31", jeskyne: "M41" };
 const MAP_CELL_PX = 24;
 const ALPHA = 0.5;
 const TOGGLE = "KeyO";
 
 export type DrawOver = (ctx: CanvasRenderingContext2D, view: ViewTransform, cellPx: number) => void;
 
-export function originalOverlay(run: Run): DrawOver {
+export function originalOverlay(run: Run, mission: MissionId): DrawOver {
   const image = new Image();
-  image.src = MAP_URL;
+  image.src = `/docs/research/gamedata/png/maps/map_${MAP_FILES[mission]}.png`;
   let on = false;
   addEventListener("keydown", (e) => {
     if (e.code === TOGGLE) on = !on;

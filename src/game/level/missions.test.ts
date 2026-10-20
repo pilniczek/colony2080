@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createHero } from "../hero/hero";
 import { cfg } from "../hero/testWorld";
 import { checkSnapshot, takeSnapshot } from "../save/snapshot";
-import { enemyKinds, loadMission, missionJson, MISSIONS } from "./missions";
+import { enemyKinds, loadMission, mapItemOf, missionFromQuery, missionJson, MISSIONS } from "./missions";
 import type { SandboxWorld } from "./sandboxLevel";
 
 const footRow = (y: number): number => Math.floor(y - 0.001);
@@ -20,6 +20,20 @@ const inDeath = (world: SandboxWorld, col: number, row: number): string | null =
 describe("missions", () => {
   it("lists the four missions in order", () => {
     expect(MISSIONS).toEqual(["mesto", "vesnice", "jungle", "jeskyne"]);
+  });
+
+  it("reads the mission from the query, mesto when missing or unknown", () => {
+    expect(missionFromQuery("?mission=jungle")).toBe("jungle");
+    expect(missionFromQuery("?mission=jeskyne&slot=B")).toBe("jeskyne");
+    expect(missionFromQuery("")).toBe("mesto");
+    expect(missionFromQuery("?mission=vezeni")).toBe("mesto");
+  });
+
+  it("opens the map with the holo plan, from the start in vesnice", () => {
+    expect(mapItemOf("mesto")).toBe("holoPlan");
+    expect(mapItemOf("vesnice")).toBeUndefined();
+    expect(mapItemOf("jungle")).toBe("holoPlan");
+    expect(mapItemOf("jeskyne")).toBe("holoPlan");
   });
 
   it.each(MISSIONS)("%s loads", (id) => {

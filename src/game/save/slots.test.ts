@@ -1,6 +1,10 @@
+import jeskyneLevel from "@config/levels/jeskyne/level.json";
+import jungleLevel from "@config/levels/jungle/level.json";
+import mestoLevel from "@config/levels/mesto/level.json";
+import vesniceLevel from "@config/levels/vesnice/level.json";
 import { describe, expect, it } from "vitest";
 import type { Snapshot } from "./snapshot";
-import { readSlots, slotFromQuery, slotHref, slotName, writeSlot, type SlotEntry } from "./slots";
+import { missionName, readSlots, slotFromQuery, slotHref, slotName, writeSlot, type SlotEntry } from "./slots";
 
 const memory = (): Storage => {
   const data = new Map<string, string>();
@@ -22,6 +26,13 @@ describe("slots", () => {
   it("names a slot by its mission and the typed text", () => {
     expect(slotName("mesto", "")).toBe("City");
     expect(slotName("mesto", "door")).toBe("City - door");
+    expect(slotName("vesnice", "lift")).toBe("Suburb - lift");
+    expect(slotName("jungle", "")).toBe("Jungle");
+    expect(slotName("jeskyne", "lava")).toBe("Caves - lava");
+  });
+
+  it.each([mestoLevel, vesniceLevel, jungleLevel, jeskyneLevel])("names $id as its level.json English name", (level) => {
+    expect(missionName(level.id)).toBe(level.name.en);
   });
 
   it("reads back what it wrote, five slots", () => {
@@ -46,8 +57,9 @@ describe("slots", () => {
     expect(readSlots(junk)).toEqual([null, null, null, null, null]);
   });
 
-  it("links a slot by its letter and reads it back from the query", () => {
-    expect(slotHref("game.html", 2)).toBe("game.html?slot=C");
+  it("links a slot by its mission and letter and reads the letter back from the query", () => {
+    expect(slotHref("jungle", 2)).toBe("game.html?mission=jungle&slot=C");
+    expect(slotFromQuery("?mission=jungle&slot=C")).toBe(2);
     expect(slotFromQuery("?slot=C")).toBe(2);
     expect(slotFromQuery("?slot=Z")).toBeNull();
     expect(slotFromQuery("")).toBeNull();

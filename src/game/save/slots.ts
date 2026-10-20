@@ -2,7 +2,7 @@ import type { Snapshot } from "./snapshot";
 
 export const SLOT_IDS = ["A", "B", "C", "D", "E"] as const;
 
-const MISSION_NAMES: Record<string, string> = { mesto: "City" };
+const MISSION_NAMES: Record<string, string> = { mesto: "City", vesnice: "Suburb", jungle: "Jungle", jeskyne: "Caves" };
 
 export interface SlotEntry {
   mission: string;
@@ -25,7 +25,7 @@ export const savedStamp = (ms: number): string => {
   return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())} ${two(d.getHours())}:${two(d.getMinutes())}`;
 };
 
-export const slotHref = (page: string, i: number): string => `${page}?slot=${SLOT_IDS[i]}`;
+export const slotHref = (mission: string, i: number): string => `game.html?mission=${mission}&slot=${SLOT_IDS[i]}`;
 
 export const slotFromQuery = (search: string): number | null => {
   const i = SLOT_IDS.indexOf(new URLSearchParams(search).get("slot") as (typeof SLOT_IDS)[number]);

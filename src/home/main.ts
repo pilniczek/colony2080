@@ -34,7 +34,7 @@ function offerSaves(bar: HTMLAnchorElement, saves: { entry: SlotEntry; slot: num
   menu.className = "options";
   menu.id = `${bar.dataset.mission}-options`;
   menu.hidden = true;
-  menu.append(option(page, "New game"), ...saves.map(({ entry, slot }) => option(slotHref(page, slot), entry.name, `${SLOT_IDS[slot]} · ${savedStamp(entry.savedAt)}`, entry.picture)));
+  menu.append(option(page, "New game"), ...saves.map(({ entry, slot }) => option(slotHref(bar.dataset.mission!, slot), entry.name, `${SLOT_IDS[slot]} · ${savedStamp(entry.savedAt)}`, entry.picture)));
   bar.after(menu);
   bar.setAttribute("aria-haspopup", "true");
   bar.setAttribute("aria-controls", menu.id);

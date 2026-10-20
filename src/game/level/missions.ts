@@ -2,6 +2,7 @@ import jeskyneMap from "@config/levels/jeskyne/map.json";
 import jungleMap from "@config/levels/jungle/map.json";
 import mestoWorld from "@config/levels/mesto/world.json";
 import vesniceMap from "@config/levels/vesnice/map.json";
+import type { ItemId } from "../items";
 import type { EnemyJson } from "./enemy";
 import { DROID, droidsOf, FLYER, mestoJson, type DroidTuning } from "./mesto";
 import { loadSandbox, type SandboxJson, type SandboxWorld } from "./sandboxLevel";
@@ -9,6 +10,10 @@ import { loadSandbox, type SandboxJson, type SandboxWorld } from "./sandboxLevel
 export type MissionId = "mesto" | "vesnice" | "jungle" | "jeskyne";
 
 export const MISSIONS: MissionId[] = ["mesto", "vesnice", "jungle", "jeskyne"];
+
+export const missionFromQuery = (search: string): MissionId => MISSIONS.find((id) => id === new URLSearchParams(search).get("mission")) ?? "mesto";
+
+export const mapItemOf = (id: MissionId): ItemId | undefined => (id === "vesnice" ? undefined : "holoPlan");
 
 interface MapEnemy {
   kind: string;
