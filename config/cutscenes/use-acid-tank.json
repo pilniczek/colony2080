@@ -1,0 +1,9 @@
+{
+  "status": "draft",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/KYSELINA.ANM; trigger: useAcidTank task",
+  "title": "Acid poured on the guard",
+  "camera": "CAM 11 TANK",
+  "duration": 2.23,
+  "palette": {},
+  "tracks": {}
+}

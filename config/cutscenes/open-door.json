@@ -1,0 +1,9 @@
+{
+  "status": "draft",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTDVER1.ANM; trigger: openDoor task",
+  "title": "Card door opens",
+  "camera": "CAM 10 ROOF",
+  "duration": 7.29,
+  "palette": {},
+  "tracks": {}
+}

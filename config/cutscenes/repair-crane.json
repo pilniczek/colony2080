@@ -1,0 +1,9 @@
+{
+  "status": "draft",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/MESTOKO.ANM, SKALA3.ANM; trigger: repairCrane task, level end",
+  "title": "Crane ride out of the city",
+  "camera": "CAM 13 CRANE",
+  "duration": 13.03,
+  "palette": {},
+  "tracks": {}
+}

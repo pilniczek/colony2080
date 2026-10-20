@@ -1,4 +1,4 @@
-import type { CutsceneId } from "../cutscene";
+import { CUTSCENES, type CutsceneId } from "../cutscene";
 import type { Platform } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
@@ -29,7 +29,9 @@ export interface Prop {
   state?: number;
   solidStates?: number[];
   cells?: { col: number; row: number; w: number; h: number };
-  shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string; by?: "beam" };
+  shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string; by?: "beam"; cutscene?: CutsceneId };
+  cutscene?: CutsceneId;
+  approach?: { cells: number; cutscene: CutsceneId; gives: string };
   hitsTaken?: number;
   fires?: PropFire;
   fireTime?: number | null;
@@ -91,7 +93,7 @@ export interface SandboxWorld {
   flags: Set<string>;
   tasks: Task[];
   subtitle: Subtitle | null;
-  cutscene: { id: CutsceneId; prop: Prop; t: number } | null;
+  cutscene: { id: CutsceneId; prop: Prop | null; t: number } | null;
   complete: boolean;
   source: SandboxJson;
 }
@@ -127,6 +129,7 @@ function checkedProp(prop: Prop): Prop {
   if (prop.kind === "weapon" && prop.weapon !== "blaster") throw new Error(`unknown weapon: ${prop.weapon}`);
   if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
   if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
+  for (const id of [prop.cutscene, prop.shootable?.cutscene, prop.approach?.cutscene]) if (id !== undefined && !(id in CUTSCENES)) throw new Error(`unknown cutscene: ${id}`);
   return structuredClone(prop);
 }
 
@@ -188,6 +191,21 @@ export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
 
 export const onGround = (prop: Prop, hero: Pick<Hero, "blaster">, flags: ReadonlySet<string> = new Set()): boolean =>
   !prop.taken && (prop.kind !== "weapon" || hero.blaster === null) && (prop.shownBy === undefined || flags.has(prop.shownBy));
+
+export function startFilm(world: SandboxWorld, id: CutsceneId | undefined, prop: Prop | null = null): void {
+  if (id && !world.cutscene) world.cutscene = { id, prop, t: 0 };
+}
+
+const FLOOR_EPS = 0.01;
+
+export function approachFilms(world: SandboxWorld, hero: Pick<Hero, "x" | "y">): void {
+  for (const prop of world.props) {
+    const near = prop.approach;
+    if (!near || world.flags.has(near.gives) || Math.abs(hero.y - (prop.y ?? 0)) > FLOOR_EPS || Math.abs(hero.x - prop.x) > near.cells) continue;
+    world.flags.add(near.gives);
+    startFilm(world, near.cutscene);
+  }
+}
 
 export function pickUp(world: SandboxWorld, id: ItemId): void {
   world.inventory.items.push(id);

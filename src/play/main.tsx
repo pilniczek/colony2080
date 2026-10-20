@@ -15,9 +15,12 @@ let drawOver: RunOptions["drawOver"];
 
 const MISSION = "mesto";
 
+const startSlot = slotFromQuery(location.search);
+
 const run = startRun({
   world: loadMesto(),
-  saves: { mission: MISSION, storage: browserStorage(), startSlot: slotFromQuery(location.search) },
+  saves: { mission: MISSION, storage: browserStorage(), startSlot },
+  intro: startSlot === null ? "missionStart" : undefined,
   mapItem: "holoPlan",
   drawOver: (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx),
   ui: (

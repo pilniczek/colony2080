@@ -420,5 +420,24 @@ function securityCam(ctx, w, h, t, label) {
 
 const REF = window.ORIGINALS.cutscenes.crowbarDoor;
 
-window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor), securityCam, filmRect, camClock };
+function filmRef(id, duration) {
+  const r = window.ORIGINALS.cutscenes[id];
+  return r && { label: r.label, frame: t => r.frame(Math.min(1, Math.max(0, t / duration))) };
+}
+
+function placeholder(id, CFG) {
+  return {
+    name: CFG.title,
+    camera: CFG.camera,
+    duration: CFG.duration,
+    palette: { ...CFG.palette },
+    render(ctx, w, h) {
+      ctx.fillStyle = "#101418";
+      ctx.fillRect(0, 0, w, h);
+    },
+    ref: filmRef(id, CFG.duration)
+  };
+}
+
+window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor), securityCam, filmRect, camClock, kit: { ease, sample, filmRef, placeholder, FILM } };
 })();

@@ -184,7 +184,7 @@
     {"asset": "tunnelFloor", "x": 49, "y": 75}
   ],
   "props": [
-    {"kind": "object", "id": "dyingRebel", "asset": "dyingRebel", "x": 34, "y": 59, "width": 2, "state": 0},
+    {"kind": "object", "id": "dyingRebel", "asset": "dyingRebel", "x": 34, "y": 59, "width": 2, "state": 0, "approach": {"cells": 6, "cutscene": "rebelShot", "gives": "flag:rebelShot"}},
     {"kind": "object", "id": "wireBox", "asset": "wireBox", "x": 127.5, "y": 59, "width": 1, "state": 0},
     {"kind": "object", "id": "switchboard", "asset": "switchboard", "x": 69.5, "y": 70, "width": 1, "state": 0},
     {"kind": "object", "id": "trainDoor", "asset": "trainDoor", "x": 61, "y": 70, "width": 2, "state": 0},
@@ -192,9 +192,9 @@
     {"kind": "object", "id": "tapValveWheel", "asset": "tapValveWheel", "art": {"dx": -0.7}, "x": 43.5, "y": 75, "width": 1, "state": 0},
     {"kind": "gate", "id": "waterPipe", "asset": "waterPipe", "x": 20.5, "y": 75, "width": 1, "solidStates": [0], "cells": {"col": 20, "row": 71, "w": 1, "h": 4}, "state": 0},
     {"kind": "object", "id": "corpse", "asset": "corpse", "x": 15.5, "y": 70, "width": 2, "state": 0},
-    {"kind": "item", "item": "shipPart", "x": 12, "y": 41, "shownBy": "flag:hullOpen"},
-    {"kind": "weapon", "weapon": "blaster", "x": 40.5, "y": 75},
-    {"kind": "object", "id": "crashedShip", "asset": "crashedShip", "art": {"dx": 1.4}, "x": 12.5, "y": 41, "width": 3, "height": 2, "shootable": {"hits": 7, "state": 1, "gives": ["flag:hullOpen"], "subtitle": "The hull cover falls off."}, "state": 0},
+    {"kind": "item", "item": "shipPart", "x": 12, "y": 41, "shownBy": "flag:hullOpen", "cutscene": "pickShipPart"},
+    {"kind": "weapon", "weapon": "blaster", "x": 40.5, "y": 75, "cutscene": "pickEBlaster"},
+    {"kind": "object", "id": "crashedShip", "asset": "crashedShip", "art": {"dx": 1.4}, "x": 12.5, "y": 41, "width": 3, "height": 2, "shootable": {"hits": 7, "state": 1, "gives": ["flag:hullOpen"], "subtitle": "The hull cover falls off.", "cutscene": "hullCover"}, "state": 0},
     {"kind": "object", "id": "barDoor", "asset": "barDoor", "x": 39.5, "y": 37, "width": 2, "state": 0},
     {"kind": "object", "id": "damagedLift", "asset": "liftPanel", "x": 58.5, "y": 37, "width": 2, "state": 1},
     {"kind": "gate", "id": "plasmaBarrier", "asset": "plasmaBarrier", "x": 102.5, "y": 44, "width": 1, "solidStates": [0], "cells": {"col": 102, "row": 38, "w": 1, "h": 6}, "state": 0},
@@ -203,9 +203,9 @@
     {"kind": "object", "id": "acidTank", "asset": "acidTank", "art": {"dx": 2.67}, "x": 111.5, "y": 23, "width": 2, "state": 0},
     {"kind": "gate", "id": "acidGuard", "asset": "acidGuard", "x": 111, "y": 30, "width": 3, "solidStates": [0], "cells": {"col": 109, "row": 24, "w": 3, "h": 6}, "state": 0, "fires": {"facing": -1, "burst": {"shots": 9, "ms": 280}, "pauseMs": 400, "states": [0]}},
     {"kind": "object", "id": "crane", "asset": "crane", "art": {"dx": -12.7, "dy": 3}, "x": 40, "y": 10, "width": 2, "state": 0},
-    {"kind": "item", "item": "crowbar", "x": 24.5, "y": 44},
-    {"kind": "item", "item": "controller", "x": 111.5, "y": 51},
+    {"kind": "item", "item": "crowbar", "x": 24.5, "y": 44, "cutscene": "pickCrowbar"},
+    {"kind": "item", "item": "controller", "x": 111.5, "y": 51, "cutscene": "pickController"},
     {"kind": "gate", "id": "shootGuard", "asset": "shootGuard", "art": {"dx": 0.875}, "x": 26, "y": 16, "width": 2, "height": 2.2, "solidStates": [0], "cells": {"col": 25, "row": 10, "w": 2, "h": 6}, "state": 0, "fires": {"facing": 1, "burst": {"shots": 18, "ms": 560}, "pauseMs": 600, "states": [0]}, "shootable": {"hits": 60, "state": 1, "by": "beam", "gives": ["flag:shootGuardDown"], "subtitle": "The guard blows apart. The crane key lies behind it."}},
-    {"kind": "item", "item": "craneKey", "x": 20.5, "y": 16}
+    {"kind": "item", "item": "craneKey", "x": 20.5, "y": 16, "cutscene": "pickCraneKey"}
   ]
 }

@@ -562,6 +562,186 @@ window.C28_CONFIG = {
      ]
     ]
    }
+  },
+  "hullCover": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBSOUC.ANM; trigger: hull cover shot off",
+   "title": "Hull cover shot off",
+   "camera": "CAM 12 HANGAR",
+   "duration": 3.71,
+   "palette": {},
+   "tracks": {}
+  },
+  "missionStart": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/ODNAK.ANM, NAKLAD.ANM, RAKOD1.ANM, SESTREL.ANM, ROBBLIK.ANM, UPAD.ANM, RUCE.ANM, MONITOR.ANM, PRILET1.ANM, PRILET2.ANM; trigger: new game start",
+   "title": "Mission start",
+   "camera": "CAM 01 TRANSPORT",
+   "duration": 72.5,
+   "palette": {},
+   "tracks": {}
+  },
+  "openDoor": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTDVER1.ANM; trigger: openDoor task",
+   "title": "Card door opens",
+   "camera": "CAM 10 ROOF",
+   "duration": 7.29,
+   "palette": {},
+   "tracks": {}
+  },
+  "pickController": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBOVL.ANM; trigger: controller pickup",
+   "title": "Lift controller picked up",
+   "camera": "CAM 08 PLASMA",
+   "duration": 1.76,
+   "palette": {},
+   "tracks": {}
+  },
+  "pickCraneKey": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBKL1.ANM; trigger: craneKey pickup",
+   "title": "Crane key picked up",
+   "camera": "CAM 13 CRANE",
+   "duration": 1.76,
+   "palette": {},
+   "tracks": {}
+  },
+  "pickCrowbar": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPACID.ANM; trigger: crowbar pickup",
+   "title": "Crowbar picked up",
+   "camera": "CAM 04 STREET",
+   "duration": 1.76,
+   "palette": {},
+   "tracks": {}
+  },
+  "pickEBlaster": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/EBLAST.ANM; trigger: E-Blaster pickup",
+   "title": "E-Blaster picked up",
+   "camera": "CAM 03 METRO",
+   "duration": 2.4,
+   "palette": {},
+   "tracks": {}
+  },
+  "pickShipPart": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBSOU.ANM; trigger: shipPart pickup",
+   "title": "Ship part picked up",
+   "camera": "CAM 12 HANGAR",
+   "duration": 1.76,
+   "palette": {},
+   "tracks": {}
+  },
+  "pullWires": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/VYTDRAT.ANM; trigger: pullWires task",
+   "title": "Wires torn out",
+   "camera": "CAM 04 STREET",
+   "duration": 2.61,
+   "palette": {},
+   "tracks": {}
+  },
+  "rebelShot": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTOC.ANM, POSTREL.ANM, POSTREL2.ANM, POSTREL3.ANM; trigger: hero reaches the rebel",
+   "title": "Rebel shot down",
+   "camera": "CAM 02 STREET",
+   "duration": 8.07,
+   "palette": {},
+   "tracks": {}
+  },
+  "repairCrane": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/MESTOKO.ANM, SKALA3.ANM; trigger: repairCrane task, level end",
+   "title": "Crane ride out of the city",
+   "camera": "CAM 13 CRANE",
+   "duration": 13.03,
+   "palette": {},
+   "tracks": {}
+  },
+  "repairLift": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/VYTAHOP.ANM; trigger: repairLift task",
+   "title": "Lift repaired",
+   "camera": "CAM 09 ROOF",
+   "duration": 4.43,
+   "palette": {},
+   "tracks": {}
+  },
+  "searchCorpse": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPLAN.ANM; trigger: searchCorpse task",
+   "title": "Corpse searched",
+   "camera": "CAM 06 RUBBLE",
+   "duration": 4.43,
+   "palette": {},
+   "tracks": {}
+  },
+  "takeTapHandle": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTOCKOH.ANM, SEBKOH.ANM; trigger: takeTapHandle task",
+   "title": "Water off, tap handle taken",
+   "camera": "CAM 05 PUMP ROOM",
+   "duration": 5.69,
+   "palette": {},
+   "tracks": {}
+  },
+  "talkRebel": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/REBMRT.ANM; trigger: talkRebel task",
+   "title": "Dying rebel speaks",
+   "camera": "CAM 02 STREET",
+   "duration": 12.93,
+   "palette": {},
+   "tracks": {}
+  },
+  "tradeHoloPlan": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTEVRID.ANM, UKAZHOLO.ANM, DEJSOU1.ANM; trigger: tradeHoloPlan task",
+   "title": "Holo plan shown at the bar",
+   "camera": "CAM 07 BAR",
+   "duration": 11.99,
+   "palette": {},
+   "tracks": {}
+  },
+  "tradeShipPart": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DEJSOU1.ANM; trigger: tradeShipPart task",
+   "title": "Ship part handed in",
+   "camera": "CAM 07 BAR",
+   "duration": 2.83,
+   "palette": {},
+   "tracks": {}
+  },
+  "unlockPlasma": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DEKOD1.ANM; trigger: unlockPlasma task",
+   "title": "Code lock decoded",
+   "camera": "CAM 08 PLASMA",
+   "duration": 5.14,
+   "palette": {},
+   "tracks": {}
+  },
+  "useAcidTank": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/KYSELINA.ANM; trigger: useAcidTank task",
+   "title": "Acid poured on the guard",
+   "camera": "CAM 11 TANK",
+   "duration": 2.23,
+   "palette": {},
+   "tracks": {}
+  },
+  "wireSwitchboard": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DRATVLOZ.ANM; trigger: wireSwitchboard task",
+   "title": "Switchboard wired",
+   "camera": "CAM 03 METRO",
+   "duration": 2.64,
+   "palette": {},
+   "tracks": {}
   }
  },
  "levels": {

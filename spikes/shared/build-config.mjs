@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -7,7 +7,11 @@ const read = p => JSON.parse(readFileSync(join(root, p), "utf8"));
 const config = {
   items: read("config/items.json").items,
   robots: { xbot: read("config/robots/xbot.json") },
-  cutscenes: { crowbarDoor: read("config/cutscenes/crowbar-door.json") },
+  cutscenes: Object.fromEntries(
+    readdirSync(join(root, "config/cutscenes"))
+      .filter(f => f.endsWith(".json"))
+      .map(f => [f.slice(0, -5).replace(/-(\w)/g, (_, c) => c.toUpperCase()), read(`config/cutscenes/${f}`)])
+  ),
   levels: { mesto: { objects: read("config/levels/mesto/objects.json") } }
 };
 const out = join(root, "spikes/shared/config.js");

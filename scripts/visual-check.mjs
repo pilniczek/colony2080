@@ -21,7 +21,8 @@ try {
   browser = await chromium.launch();
   const page = await browser.newPage();
   page.on("pageerror", (e) => console.error("page error:", e.message));
-  await page.goto(`http://127.0.0.1:${port}/tools/visual/compare.html`);
+  const only = process.env.VISUAL_ONLY ? `?only=${encodeURIComponent(process.env.VISUAL_ONLY)}` : "";
+  await page.goto(`http://127.0.0.1:${port}/tools/visual/compare.html${only}`);
   const results = await page.waitForFunction(() => window.__visual, null, { timeout: 60000 }).then((h) => h.jsonValue());
   const expected = await page.evaluate(() => window.__visualCount);
   if (results.length !== expected) {

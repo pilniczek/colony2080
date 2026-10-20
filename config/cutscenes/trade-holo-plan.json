@@ -1,0 +1,9 @@
+{
+  "status": "draft",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTEVRID.ANM, UKAZHOLO.ANM, DEJSOU1.ANM; trigger: tradeHoloPlan task",
+  "title": "Holo plan shown at the bar",
+  "camera": "CAM 07 BAR",
+  "duration": 11.99,
+  "palette": {},
+  "tracks": {}
+}

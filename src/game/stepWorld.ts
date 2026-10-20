@@ -1,8 +1,8 @@
 import type { InputFrame } from "../engine/input";
 import { updateFog } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
-import { updateHero, type Hero, type HeroEvent } from "./hero/hero";
-import { resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
+import { isDead, updateHero, type Hero, type HeroEvent } from "./hero/hero";
+import { approachFilms, resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
 import { fireBeam, fireEnemy, fireGuards, fireShots, landPunches, stepShots } from "./shots";
 
@@ -31,6 +31,7 @@ export function stepWorld(
   stepShots(world, cfg, dt);
   for (const lift of world.lifts) updateLift(lift, cfg.liftSpeed, dt);
   const events = updateHero(hero, input, world, cfg, clips, dt, consume);
+  if (!isDead(hero.state) && hero.onGround) approachFilms(world, hero);
   fireShots(world, hero, events, clips, cfg);
   fireBeam(world, hero, events, clips, cfg);
   landPunches(world, hero, events, cfg);

@@ -1,0 +1,9 @@
+{
+  "status": "draft",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBOVL.ANM; trigger: controller pickup",
+  "title": "Lift controller picked up",
+  "camera": "CAM 08 PLASMA",
+  "duration": 1.76,
+  "palette": {},
+  "tracks": {}
+}

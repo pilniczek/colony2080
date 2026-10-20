@@ -19,7 +19,7 @@ export function stepCutscene(world: SandboxWorld, dt: number, skip: boolean): bo
   world.projectiles.length = 0;
   world.sparks.length = 0;
   world.beam = null;
-  runUse(world, film.prop);
+  if (film.prop) runUse(world, film.prop);
   return false;
 }
 

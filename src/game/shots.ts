@@ -7,7 +7,7 @@ import type { ClipSet, MovementConfig } from "./hero/config";
 import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
 import { bodyBox, ENEMY_SHOT, FLYER_GUN, hitEnemy, isDead, type Enemy } from "./level/enemy";
-import type { Prop, SandboxWorld } from "./level/sandboxLevel";
+import { startFilm, type Prop, type SandboxWorld } from "./level/sandboxLevel";
 import { gunOf, updateGuard, watchX } from "./level/guards";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
@@ -93,6 +93,7 @@ export function hitShootable(world: SandboxWorld, prop: Prop): void {
   for (const flag of spec.gives ?? []) world.flags.add(flag);
   applyBlocks(world);
   if (spec.subtitle) say(world, spec.subtitle);
+  startFilm(world, spec.cutscene);
 }
 
 function sightEdge(world: SandboxWorld, x: number, p: Projectile): number {

@@ -1,0 +1,9 @@
+{
+  "status": "draft",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPLAN.ANM; trigger: searchCorpse task",
+  "title": "Corpse searched",
+  "camera": "CAM 06 RUBBLE",
+  "duration": 4.43,
+  "palette": {},
+  "tracks": {}
+}

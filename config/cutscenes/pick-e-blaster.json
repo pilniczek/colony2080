@@ -1,0 +1,9 @@
+{
+  "status": "draft",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/EBLAST.ANM; trigger: E-Blaster pickup",
+  "title": "E-Blaster picked up",
+  "camera": "CAM 03 METRO",
+  "duration": 2.4,
+  "palette": {},
+  "tracks": {}
+}

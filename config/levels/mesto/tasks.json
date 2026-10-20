@@ -2,18 +2,18 @@
   "status": "draft",
   "source": "docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md, docs/research/reports/06-cz-walkthroughs.md level 1 task order, docs/research/reports/13-level1-layout.md blocking and map variants; object ids from config/levels/mesto/objects.json, metroTunnel is the dark tunnel gate; crowbar, craneKey and controller are item props (no task row; the plasma wall gates the controller); the valve is used once with no item: it closes the water (M13 drops the water wall) and hands over the tap handle, which the item table lists at the valve spot",
   "tasks": [
-    { "id": "talkRebel", "object": "dyingRebel", "requires": [], "gives": ["flag:rebelTalked"], "state": 1, "subtitle": "Find the bar man. He knows the way out." },
-    { "id": "pullWires", "object": "wireBox", "requires": [], "gives": ["item:wires"], "state": 1, "subtitle": "Wires torn out." },
-    { "id": "wireSwitchboard", "object": "switchboard", "requires": ["item:wires"], "gives": ["flag:metroPowered"], "state": 1, "sets": { "metroTunnel": 1 }, "subtitle": "The metro lights come on." },
+    { "id": "talkRebel", "object": "dyingRebel", "requires": [], "gives": ["flag:rebelTalked"], "state": 1, "cutscene": "talkRebel", "subtitle": "Find the bar man. He knows the way out." },
+    { "id": "pullWires", "object": "wireBox", "requires": [], "gives": ["item:wires"], "state": 1, "cutscene": "pullWires", "subtitle": "Wires torn out." },
+    { "id": "wireSwitchboard", "object": "switchboard", "requires": ["item:wires"], "gives": ["flag:metroPowered"], "state": 1, "sets": { "metroTunnel": 1 }, "cutscene": "wireSwitchboard", "subtitle": "The metro lights come on." },
     { "id": "openTrainDoor", "object": "trainDoor", "requires": ["item:crowbar", "flag:metroPowered"], "gives": ["flag:metroOpen"], "state": 2, "cutscene": "crowbarDoor", "subtitle": "The train door gives way." },
-    { "id": "takeTapHandle", "object": "tapValveWheel", "requires": [], "gives": ["flag:waterOff", "item:tapHandle"], "state": 1, "sets": { "waterPipe": 1 }, "subtitle": "Water off. The tap handle comes loose." },
-    { "id": "searchCorpse", "object": "corpse", "requires": [], "gives": ["item:card", "item:holoPlan"], "state": 1, "subtitle": "A card and a holo plan." },
-    { "id": "tradeHoloPlan", "object": "barDoor", "requires": ["item:holoPlan"], "gives": ["item:shipPlan", "flag:partWanted"], "subtitle": "The bar man draws you a ship plan and wants the part." },
-    { "id": "tradeShipPart", "object": "barDoor", "requires": ["item:shipPart", "flag:partWanted"], "consumes": ["item:shipPart"], "gives": ["item:decoder"], "subtitle": "A decoder for the part." },
-    { "id": "unlockPlasma", "object": "codeLock", "requires": ["item:decoder"], "gives": ["flag:plasmaOff"], "state": 1, "sets": { "plasmaBarrier": 1 }, "subtitle": "Code accepted. The plasma dies down." },
-    { "id": "repairLift", "object": "damagedLift", "requires": ["item:controller"], "gives": ["flag:upperFloorsOpen"], "state": 0, "subtitle": "The lift screen clears. It runs again." },
-    { "id": "openDoor", "object": "cardDoor", "requires": ["item:card"], "gives": ["flag:doorOpen"], "state": 1, "subtitle": "Card accepted. The door opens." },
-    { "id": "useAcidTank", "object": "acidTank", "requires": ["item:tapHandle"], "gives": ["flag:acidPoured"], "state": 2, "sets": { "acidGuard": 1 }, "subtitle": "Acid pours out of the tank. The guard below melts down." },
-    { "id": "repairCrane", "object": "crane", "requires": ["item:craneKey"], "gives": ["flag:levelComplete"], "state": 1, "subtitle": "Level complete" }
+    { "id": "takeTapHandle", "object": "tapValveWheel", "requires": [], "gives": ["flag:waterOff", "item:tapHandle"], "state": 1, "sets": { "waterPipe": 1 }, "cutscene": "takeTapHandle", "subtitle": "Water off. The tap handle comes loose." },
+    { "id": "searchCorpse", "object": "corpse", "requires": [], "gives": ["item:card", "item:holoPlan"], "state": 1, "cutscene": "searchCorpse", "subtitle": "A card and a holo plan." },
+    { "id": "tradeHoloPlan", "object": "barDoor", "requires": ["item:holoPlan"], "gives": ["item:shipPlan", "flag:partWanted"], "cutscene": "tradeHoloPlan", "subtitle": "The bar man draws you a ship plan and wants the part." },
+    { "id": "tradeShipPart", "object": "barDoor", "requires": ["item:shipPart", "flag:partWanted"], "consumes": ["item:shipPart"], "gives": ["item:decoder"], "cutscene": "tradeShipPart", "subtitle": "A decoder for the part." },
+    { "id": "unlockPlasma", "object": "codeLock", "requires": ["item:decoder"], "gives": ["flag:plasmaOff"], "state": 1, "sets": { "plasmaBarrier": 1 }, "cutscene": "unlockPlasma", "subtitle": "Code accepted. The plasma dies down." },
+    { "id": "repairLift", "object": "damagedLift", "requires": ["item:controller"], "gives": ["flag:upperFloorsOpen"], "state": 0, "cutscene": "repairLift", "subtitle": "The lift screen clears. It runs again." },
+    { "id": "openDoor", "object": "cardDoor", "requires": ["item:card"], "gives": ["flag:doorOpen"], "state": 1, "cutscene": "openDoor", "subtitle": "Card accepted. The door opens." },
+    { "id": "useAcidTank", "object": "acidTank", "requires": ["item:tapHandle"], "gives": ["flag:acidPoured"], "state": 2, "sets": { "acidGuard": 1 }, "cutscene": "useAcidTank", "subtitle": "Acid pours out of the tank. The guard below melts down." },
+    { "id": "repairCrane", "object": "crane", "requires": ["item:craneKey"], "gives": ["flag:levelComplete"], "state": 1, "cutscene": "repairCrane", "subtitle": "Level complete" }
   ]
 }

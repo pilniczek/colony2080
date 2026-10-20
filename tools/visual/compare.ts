@@ -8,7 +8,7 @@ import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
 import { drawAsset, type EnvAsset, type Size } from "../../src/game/env/paint";
 import { assetList } from "../../src/game/env/assets";
 import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
-import { crowbarDoor } from "../../src/game/cutscene/crowbarDoor";
+import { CUTSCENES, type CutsceneId } from "../../src/game/cutscene";
 import { drawSecurityCam } from "../../src/game/cutscene/securityCam";
 
 interface SpikeNode {
@@ -84,8 +84,7 @@ declare global {
     GUN: SpikeGun;
     EBLASTER: SpikeEBlaster;
     ENV: SpikeEnv;
-    CUTSCENES: {
-      crowbarDoor: { duration: number; camera: string; render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void };
+    CUTSCENES: Record<CutsceneId, { duration: number; camera: string; render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void }> & {
       securityCam(ctx: CanvasRenderingContext2D, w: number, h: number, t: number, label: string): void;
     };
     __visualCount?: number;
@@ -378,9 +377,11 @@ const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefi
 };
 
 const CUTSCENE_SIZES = [{ w: 480, h: 270 }, { w: 300, h: 300 }];
-const CUTSCENE_TS = [0, 0.5, 1.0, 1.1, 1.8, 2.6, 3.2, crowbarDoor.duration];
+const CROWBAR_TS = [0, 0.5, 1.0, 1.1, 1.8, 2.6, 3.2, CUTSCENES.crowbarDoor.duration];
+const FILM_SHARES = [0, 0.1, 0.25, 0.4, 0.55, 0.7, 0.85, 1];
+const cutsceneTimes = (id: CutsceneId): number[] => (id === "crowbarDoor" ? CROWBAR_TS : FILM_SHARES.map((k) => k * CUTSCENES[id].duration));
 
-const runCutscene = (t: number, size: { w: number; h: number }, filmed: boolean, out: HTMLElement): VisualResult => {
+const runCutscene = (id: CutsceneId, t: number, size: { w: number; h: number }, filmed: boolean, out: HTMLElement): VisualResult => {
   const make = (): CanvasRenderingContext2D => {
     const canvas = document.createElement("canvas");
     canvas.width = size.w;
@@ -391,17 +392,18 @@ const runCutscene = (t: number, size: { w: number; h: number }, filmed: boolean,
   };
   const spike = make();
   const own = make();
-  window.CUTSCENES.crowbarDoor.render(spike, size.w, size.h, t);
-  crowbarDoor.render(own, size.w, size.h, t);
+  const film = CUTSCENES[id];
+  window.CUTSCENES[id].render(spike, size.w, size.h, t);
+  film.render(own, size.w, size.h, t);
   if (filmed) {
-    window.CUTSCENES.securityCam(spike, size.w, size.h, t, window.CUTSCENES.crowbarDoor.camera);
-    drawSecurityCam(own, size.w, size.h, t, crowbarDoor.camera);
+    window.CUTSCENES.securityCam(spike, size.w, size.h, t, window.CUTSCENES[id].camera);
+    drawSecurityCam(own, size.w, size.h, t, film.camera);
   }
   const a = spike.getImageData(0, 0, size.w, size.h).data;
   const b = own.getImageData(0, 0, size.w, size.h).data;
   let diff = 0;
   for (let i = 0; i < a.length; i += 4) if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2] || a[i + 3] !== b[i + 3]) diff++;
-  const name = `cutscene crowbarDoor ${JSON.stringify({ t, size, filmed })}`;
+  const name = `cutscene ${id} ${JSON.stringify({ t, size, filmed })}`;
   const box = document.createElement("div");
   box.className = "case";
   box.append(spike.canvas, own.canvas, document.createElement("br"), `${name} diff ${diff}`);
@@ -452,10 +454,18 @@ const envCases = [
   ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
   ...envAssets.filter((a) => a.anim).flatMap((a) => (envStates[a.id] ?? [0]).map((state) => (o: HTMLElement) => runEnvCase(a.id, state, false, undefined, o, ENV_ANIM_T))),
 ];
-const cutsceneCases = [
-  ...CUTSCENE_TS.map((t) => (o: HTMLElement) => runCutscene(t, CUTSCENE_SIZES[0]!, false, o)),
-  ...CUTSCENE_SIZES.flatMap((size) => CUTSCENE_TS.map((t) => (o: HTMLElement) => runCutscene(t, size, true, o))),
-];
-const cases = [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases];
+const filmParity = (id: CutsceneId): VisualResult => {
+  const spike = window.CUTSCENES[id];
+  const own = CUTSCENES[id];
+  const pass = Math.abs(spike.duration - own.duration) < 1e-9 && spike.camera === own.camera;
+  return { name: `cutscene ${id} duration and camera`, mismatches: pass ? 0 : 1, copiedDiff: 0, diff: 0, matrixDelta: 0, pass };
+};
+const only = new URLSearchParams(location.search).get("only")?.split(",") ?? null;
+const cutsceneCases = (Object.keys(CUTSCENES) as CutsceneId[]).filter((id) => !only || only.includes(id)).flatMap((id) => [
+  () => filmParity(id),
+  ...cutsceneTimes(id).map((t) => (o: HTMLElement) => runCutscene(id, t, CUTSCENE_SIZES[0]!, false, o)),
+  ...CUTSCENE_SIZES.flatMap((size) => cutsceneTimes(id).map((t) => (o: HTMLElement) => runCutscene(id, t, size, true, o))),
+]);
+const cases = only ? cutsceneCases : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

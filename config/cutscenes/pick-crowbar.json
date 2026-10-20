@@ -1,0 +1,9 @@
+{
+  "status": "draft",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPACID.ANM; trigger: crowbar pickup",
+  "title": "Crowbar picked up",
+  "camera": "CAM 04 STREET",
+  "duration": 1.76,
+  "palette": {},
+  "tracks": {}
+}

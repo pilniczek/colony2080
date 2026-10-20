@@ -3,7 +3,7 @@ import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
-import { callLift, liftAt, liftGoes, onGround, pickUp, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { callLift, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { openTask, runUse, say } from "../level/tasks";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
@@ -307,7 +307,7 @@ function use(s: Step): boolean {
     enter(s.h, "use");
     return true;
   }
-  s.world.cutscene = { id: cutscene, prop, t: 0 };
+  startFilm(s.world, cutscene, prop);
   s.consume("menu");
   enter(s.h, "idle");
   s.h.vx = 0;
@@ -573,6 +573,7 @@ function pickup(s: Step): void {
     pickUp(s.world, prop.item!);
     say(s.world, `Picked up ${ITEMS[prop.item!]!.name}`);
   }
+  startFilm(s.world, prop.cutscene);
   emit(s, "pickup");
 }
 

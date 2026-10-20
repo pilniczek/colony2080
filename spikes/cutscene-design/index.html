@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cutscene Sheet</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="../movement/style.css">
+<style>
+figure canvas { aspect-ratio: 16 / 9; background: #000; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cutscene sheet</h1>
+  <p>Every mission 1 film loops in its cell, in play order. Click a cell to open its player.</p>
+</header>
+<main id="grid"></main>
+<dialog id="player">
+  <header><h2></h2><button id="close">Close</button></header>
+  <div class="stage">
+    <div><span class="label">Clone (vector)</span><canvas></canvas></div>
+<!-- originals -->
+    <div class="refWrap"><span class="label" id="refLabel"></span><img id="ref" alt="original frame"></div>
+<!-- /originals -->
+  </div>
+  <div class="bar">
+    <button id="play">Pause</button>
+    <button id="restart">Restart</button>
+    <input id="scrub" type="range" min="0" max="1000" value="0">
+    <span id="time"></span>
+    <label>Speed <select id="speed"><option>0.25</option><option>0.5</option><option selected>1</option></select></label>
+    <label><input id="loop" type="checkbox" checked> Loop</label>
+<!-- originals -->
+    <button id="refToggle">Show original</button>
+<!-- /originals -->
+    <button id="palToggle">Palette</button>
+    <button id="copyPal">Copy palette JSON</button>
+  </div>
+  <div id="palette"></div>
+</dialog>
+<script src="../shared/clock.js"></script>
+<script src="../shared/config.js"></script>
+<script src="../shared/originals.js"></script>
+<script src="../shared/xbot.js"></script>
+<script src="../shared/gun.js"></script>
+<script src="../shared/eblaster.js"></script>
+<script src="../shared/env.js"></script>
+<script src="../shared/env-props.js"></script>
+<script src="../shared/env-machines.js"></script>
+<script src="../shared/env-structures.js"></script>
+<script src="../shared/env-buildings.js"></script>
+<script src="../shared/enemies.js"></script>
+<script src="../shared/cutscenes.js"></script>
+<script src="../shared/cutscenes/mission-start.js"></script>
+<script src="../shared/cutscenes/rebel-shot.js"></script>
+<script src="../shared/cutscenes/talk-rebel.js"></script>
+<script src="../shared/cutscenes/pull-wires.js"></script>
+<script src="../shared/cutscenes/wire-switchboard.js"></script>
+<script src="../shared/cutscenes/take-tap-handle.js"></script>
+<script src="../shared/cutscenes/search-corpse.js"></script>
+<script src="../shared/cutscenes/trade-holo-plan.js"></script>
+<script src="../shared/cutscenes/trade-ship-part.js"></script>
+<script src="../shared/cutscenes/unlock-plasma.js"></script>
+<script src="../shared/cutscenes/repair-lift.js"></script>
+<script src="../shared/cutscenes/open-door.js"></script>
+<script src="../shared/cutscenes/use-acid-tank.js"></script>
+<script src="../shared/cutscenes/hull-cover.js"></script>
+<script src="../shared/cutscenes/pick-ship-part.js"></script>
+<script src="../shared/cutscenes/pick-crane-key.js"></script>
+<script src="../shared/cutscenes/pick-crowbar.js"></script>
+<script src="../shared/cutscenes/pick-controller.js"></script>
+<script src="../shared/cutscenes/pick-e-blaster.js"></script>
+<script src="../shared/cutscenes/repair-crane.js"></script>
+<script src="../movement/player.js"></script>
+<script>
+(() => {
+const ORDER = ["missionStart", "rebelShot", "talkRebel", "pickCrowbar", "pullWires", "wireSwitchboard", "crowbarDoor", "pickEBlaster", "takeTapHandle", "searchCorpse", "tradeHoloPlan", "hullCover", "pickShipPart", "tradeShipPart", "unlockPlasma", "pickController", "repairLift", "openDoor", "useAcidTank", "pickCraneKey", "repairCrane"];
+const FPS = 12;
+const grid = document.getElementById("grid");
+const cells = ORDER.map(id => {
+  const scene = window.CUTSCENES[id];
+  const figure = document.createElement("figure");
+  figure.className = "scene";
+  const canvas = document.createElement("canvas");
+  const caption = document.createElement("figcaption");
+  const name = document.createElement("b");
+  name.textContent = scene.name;
+  const info = document.createElement("span");
+  info.textContent = `${id} · ${scene.duration.toFixed(1)}s`;
+  caption.append(name, info);
+  figure.append(canvas, caption);
+  figure.onclick = () => window.openCutscene(scene);
+  grid.append(figure);
+  return { scene, canvas, ctx: canvas.getContext("2d"), shown: false, figure };
+});
+const seen = new IntersectionObserver(entries => {
+  for (const e of entries) cells.find(c => c.figure === e.target).shown = e.isIntersecting;
+});
+for (const c of cells) seen.observe(c.figure);
+let last = 0;
+function tick(now) {
+  requestAnimationFrame(tick);
+  if (now - last < 1000 / FPS || document.getElementById("player").open) return;
+  last = now;
+  const s = window.SPIKE_CLOCK.seconds();
+  const dpr = devicePixelRatio || 1;
+  for (const c of cells) {
+    if (!c.shown) continue;
+    const w = Math.round(c.canvas.clientWidth * dpr), h = Math.round(c.canvas.clientHeight * dpr);
+    if (c.canvas.width !== w || c.canvas.height !== h) { c.canvas.width = w; c.canvas.height = h; }
+    const t = s % c.scene.duration;
+    c.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    c.scene.render(c.ctx, w, h, t);
+    window.CUTSCENES.securityCam(c.ctx, w, h, t, c.scene.camera);
+  }
+}
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

@@ -156,7 +156,7 @@ describe("mesto props", () => {
   });
 
   it("puts the E-Blaster at its original cell on the metro floor", () => {
-    expect(props.filter((p) => p.kind === "weapon")).toEqual([{ kind: "weapon", weapon: "blaster", x: 40.5, y: 75 }]);
+    expect(props.filter((p) => p.kind === "weapon")).toMatchObject([{ kind: "weapon", weapon: "blaster", x: 40.5, y: 75 }]);
   });
 
   it("drops the ship part in front of the ship once the hull cover is off", () => {

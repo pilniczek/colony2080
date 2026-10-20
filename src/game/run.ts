@@ -8,7 +8,7 @@ import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
-import { CUTSCENES } from "./cutscene";
+import { CUTSCENES, type CutsceneId } from "./cutscene";
 import { playFilm } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
 import { createFog, loadFog } from "./fog";
@@ -21,7 +21,7 @@ import { canOpenScreen, closesMap, inventoryKey, openCursor, repeatsOnScreen, sc
 import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
 import type { ItemId } from "./items";
-import { resetWorld, showItem, type SandboxWorld } from "./level/sandboxLevel";
+import { resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
 import { say } from "./level/tasks";
 import { drawFog, seenPath } from "./render/fog";
 import { drawMap } from "./render/map";
@@ -65,6 +65,7 @@ export interface RunOptions {
   afterStep?: () => void;
   drawOver?: (ctx: CanvasRenderingContext2D, view: ViewTransform, cellPx: number) => void;
   saves?: SaveMenuOptions;
+  intro?: CutsceneId;
 }
 
 const typingTarget = (target: EventTarget | null): boolean =>
@@ -76,7 +77,7 @@ const sameItems = (a: readonly string[], b: readonly string[]): boolean => a.len
 
 const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
-export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves }: RunOptions): Run {
+export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves, intro }: RunOptions): Run {
   const canvas = document.getElementById("game");
   const ui = document.getElementById("ui");
   if (!(canvas instanceof HTMLCanvasElement) || !ui) throw new Error("missing #game or #ui");
@@ -327,6 +328,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves 
   };
   window.addEventListener("keydown", mapKeys, { capture: true });
 
+  startFilm(world, intro);
   fit();
   window.addEventListener("resize", fit);
   new MutationObserver(fit).observe(ui, { childList: true });
