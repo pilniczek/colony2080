@@ -4,6 +4,7 @@ import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
 import { callLift, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { fallLimit } from "../level/hazards";
 import { openTask, runUse, say } from "../level/tasks";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
@@ -41,7 +42,9 @@ export interface Landing {
   age: number;
 }
 
-export type HeroEvent = { kind: "pickup" | "use" | "shot" | "beam" | "punch" | "died" | "respawned"; x: number; y: number };
+export type HeroEvent = { kind: "pickup" | "use" | "shot" | "beam" | "punch" | "died" | "respawned"; x: number; y: number; reason?: DeathReason };
+
+export type DeathReason = "hazard";
 
 interface Step {
   h: Hero;
@@ -203,7 +206,7 @@ type Death = "fallDeath" | "death" | "jumpDeath";
 
 const deathOf = (h: Hero): Death => (isAirborne(h.state) ? "jumpDeath" : "death");
 
-function die(h: Hero, state: Death, events: HeroEvent[]): void {
+function die(h: Hero, state: Death, events: HeroEvent[], reason?: DeathReason): void {
   enter(h, state);
   if (state !== "jumpDeath") {
     h.vx = 0;
@@ -211,27 +214,37 @@ function die(h: Hero, state: Death, events: HeroEvent[]): void {
   }
   h.hidden = false;
   h.fireTime = null;
-  events.push({ kind: "died", x: h.x, y: h.y });
+  events.push({ kind: "died", x: h.x, y: h.y, ...(reason ? { reason } : {}) });
 }
 
-export function kill(h: Hero): HeroEvent[] {
+export function kill(h: Hero, reason?: DeathReason): HeroEvent[] {
   const events: HeroEvent[] = [];
   if (isDead(h.state)) return events;
   h.energy = 0;
-  die(h, deathOf(h), events);
+  die(h, deathOf(h), events, reason);
   return events;
+}
+
+function spend(h: Hero, cfg: MovementConfig, amount: number, events: HeroEvent[], reason?: DeathReason): void {
+  h.energy = Math.max(0, h.energy - amount);
+  if (h.energy > 0) return;
+  if (h.shields > 0) {
+    h.shields -= 1;
+    h.energy = cfg.energy.max;
+  } else die(h, deathOf(h), events, reason);
 }
 
 export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   const events: HeroEvent[] = [];
   if (h.hidden || isDead(h.state)) return events;
-  h.energy = Math.max(0, h.energy - cfg.energy.hit);
   h.hitAge = 0;
-  if (h.energy > 0) return events;
-  if (h.shields > 0) {
-    h.shields -= 1;
-    h.energy = cfg.energy.max;
-  } else die(h, deathOf(h), events);
+  spend(h, cfg, cfg.energy.hit, events);
+  return events;
+}
+
+export function drain(h: Hero, cfg: MovementConfig, amount: number, reason: DeathReason): HeroEvent[] {
+  const events: HeroEvent[] = [];
+  if (!isDead(h.state)) spend(h, cfg, amount, events, reason);
   return events;
 }
 
@@ -638,7 +651,7 @@ function settle(s: Step, startY: number): void {
     return;
   }
   if (!isAirborne(h.state)) return;
-  if (h.y - h.fallFrom > cfg.fallDeathCells) return die(h, "fallDeath", s.events);
+  if (h.y - h.fallFrom > fallLimit(world, cfg)) return die(h, "fallDeath", s.events);
   const landing = { from: h.state, time: h.time, age: 0 };
   if (h.fireTime !== null && s.input.held.has("down")) return enter(h, "duckAttack");
   if (h.fireTime !== null && s.input.dir === 0) return enter(h, "attack");

@@ -1,4 +1,5 @@
 import type { MovementConfig } from "../hero/config";
+import { fallLimit } from "./hazards";
 import type { Lift, Prop, SandboxWorld } from "./sandboxLevel";
 import type { Run } from "./terrain";
 
@@ -55,7 +56,7 @@ function standable(run: Run, ok: (col: number) => boolean): Run[] {
 
 export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
   const { grid, lifts } = world;
-  const { fallDeathCells } = cfg;
+  const fallDeathCells = fallLimit(world, cfg);
   const runs: Run[] = [...world.terrain.ledges, ...world.terrain.girders].flatMap((r) =>
     standable(r, (col) => !grid.solid(col, r.row - 1)),
   );
