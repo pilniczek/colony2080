@@ -68,7 +68,7 @@ describe("enemy fire cues", () => {
   });
 
   it("acid guard repel cues one cannon 15000", () => {
-    const g = game({ x: 108.65, y: 30 }, missionJson("mesto"));
+    const g = game({ x: 106.7, y: 30 }, missionJson("mesto"));
     tick(g);
     expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
   });

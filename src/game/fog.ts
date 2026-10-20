@@ -63,7 +63,7 @@ function clearLine(grid: TileGrid, [ax, ay]: [number, number], [bx, by]: [number
   let ty = dy > 0 ? (row + 1 - ay) / dy : dy < 0 ? (ay - row) / -dy : Infinity;
   let enteredRow = false;
   while (col !== endCol || row !== endRow) {
-    if (grid.solid(col, row) || (enteredRow && grid.floor(col, row))) return false;
+    if (grid.opaque(col, row) || (enteredRow && grid.floor(col, row))) return false;
     enteredRow = tx >= ty;
     if (enteredRow) [ty, row] = [ty + deltaY, row + stepY];
     else [tx, col] = [tx + deltaX, col + stepX];

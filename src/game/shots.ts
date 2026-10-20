@@ -8,7 +8,7 @@ import type { Hero, HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
 import { bodyBox, hitEnemy, isDead, shotBox, type Enemy } from "./level/enemy";
 import { startFilm, type Prop, type SandboxWorld } from "./level/sandboxLevel";
-import { updateGuard } from "./level/guards";
+import { repelHero, updateGuard } from "./level/guards";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { cue } from "./sound/cues";
@@ -237,9 +237,16 @@ export function fireEnemy(world: SandboxWorld, enemy: Enemy, count: number): voi
   enemyFire(world, enemy.flight ? "laser" : "cannon", count);
 }
 
+function repelled(world: SandboxWorld, hits: number): void {
+  if (!hits) return;
+  world.heroHits += hits;
+  cue(world, "cannon", 15000);
+}
+
 export function fireGuards(world: SandboxWorld, hero: Hero, cfg: MovementConfig, dt: number): void {
   for (const prop of world.props) {
     if (prop.fires) enemyFire(world, "cannon", updateGuard(prop, world.grid, world.fog, hero, cfg.sightCells, dt));
+    if (prop.repels) repelled(world, repelHero(prop, world, hero, cfg, dt));
   }
 }
 

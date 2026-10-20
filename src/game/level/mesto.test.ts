@@ -1,4 +1,6 @@
+import cameraJson from "@config/camera.json";
 import { describe, expect, it } from "vitest";
+import { createFog, loadFog, seenAt } from "../fog";
 import enemies from "@config/levels/mesto/enemies.json";
 import map from "@config/levels/mesto/map.json";
 import tasks from "@config/levels/mesto/tasks.json";
@@ -6,6 +8,7 @@ import { ITEMS } from "../items";
 import { cfg, game, run, runUntil, tick, type Game } from "../hero/testWorld";
 import { loadMesto, mestoJson } from "./mesto";
 import { coverClips } from "./cover";
+import { guardHidden } from "./guards";
 import { applyBlocks } from "./tasks";
 import { terrain } from "./terrain";
 
@@ -247,33 +250,62 @@ describe("mesto train passage", () => {
 describe("mesto acid guard", () => {
   const guardOf = (g: Game) => g.world.props.find((p) => p.id === "acidGuard")!;
 
-  it("fires bursts at a hero it sees on its floor and hurts him", () => {
-    const g = game({ x: 101.5, y: 30 }, mestoJson());
+  const onDeckEdge = 107 - cfg.box.width / 2;
+  const offLift = onDeckEdge + 0.05;
+  const atWall = 109 - cfg.box.width / 2;
+
+  it("leaves a hero on the lift deck alone", () => {
+    const g = game({ x: onDeckEdge, y: 30 }, mestoJson());
     run(g, 1);
+    expect(g.hero.energy).toBe(cfg.energy.max);
+  });
+
+  it("hits a hero stepping off the lift once for 5 energy and pushes him back a cell", () => {
+    const g = game({ x: offLift, y: 30 }, mestoJson());
+    tick(g);
+    expect(g.hero.energy).toBe(cfg.energy.max - 5 * cfg.energy.hit);
+    expect(g.hero.x).toBeCloseTo(offLift - 1);
+    expect(guardOf(g).fireTime).toBeGreaterThanOrEqual(0);
+    run(g, 1);
+    expect(g.hero.energy).toBe(cfg.energy.max - 5 * cfg.energy.hit);
+  });
+
+  it("keeps a hero walking into it out", () => {
+    const g = game({ x: 105.5, y: 30 }, mestoJson());
+    run(g, 3, ["moveRight"]);
+    expect(g.hero.x).toBeLessThanOrEqual(atWall);
     expect(g.hero.energy).toBeLessThan(cfg.energy.max);
   });
 
-  it("starts its burst at once with a hit from its cannon", () => {
-    const g = game({ x: 101.5, y: 30 }, mestoJson());
+  it("hides until the hero first steps off the lift, then comes in a film once", () => {
+    const g = game({ x: offLift, y: 30 }, mestoJson());
+    expect(guardHidden(guardOf(g), g.world.flags)).toBe(true);
     tick(g);
-    expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
-    expect(guardOf(g).fireTime).toBe(0);
+    expect(g.world.cutscene?.id).toBe("acidGuardComes");
+    expect(guardHidden(guardOf(g), g.world.flags)).toBe(false);
+    g.world.cutscene = null;
+    run(g, 1.5);
+    g.hero.x = offLift;
+    tick(g);
+    expect(g.world.cutscene).toBeNull();
+    expect(g.hero.energy).toBe(cfg.energy.max - 10 * cfg.energy.hit);
   });
 
-  it("ignores a hidden hero, a hero out of sight and fires no more once wrecked", () => {
-    const hidden = game({ x: 101.5, y: 30, state: "hide" }, mestoJson());
-    hidden.hero.hidden = true;
-    const far = game({ x: 108.5 - cfg.sightCells - 1.5, y: 30 }, mestoJson());
-    const wrecked = game({ x: 101.5, y: 30 }, mestoJson());
-    guardOf(wrecked).state = 1;
-    for (let i = 0; i < 30; i++) {
-      tick(hidden, ["hide"]);
-      tick(far);
-      tick(wrecked);
+  it("lets the hero see past it from the lift deck, hidden or not", () => {
+    for (const shown of [false, true]) {
+      const g = game({ x: onDeckEdge, y: 30 }, mestoJson());
+      if (shown) g.world.flags.add(guardOf(g).shownBy!);
+      g.world.fog = createFog(loadFog(cameraJson), cfg, g.hero, g.world.grid);
+      expect(seenAt(g.world.fog, 113, 28)).toBe(true);
     }
-    for (const g of [hidden, far, wrecked]) {
-      expect(g.hero.energy).toBe(cfg.energy.max);
-    }
+  });
+
+  it("does nothing once wrecked", () => {
+    const g = game({ x: offLift, y: 30 }, mestoJson());
+    guardOf(g).state = 1;
+    tick(g);
+    expect(g.hero.energy).toBe(cfg.energy.max);
+    expect(g.hero.x).toBe(offLift);
   });
 
   it("takes no damage from hero shots", () => {

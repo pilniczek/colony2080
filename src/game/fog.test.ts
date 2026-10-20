@@ -57,6 +57,14 @@ describe("reveal", () => {
     expect(revealedAt(fog, 4, 2)).toBe(false);
   });
 
+  it("stops at prop blockers unless they are see-through", () => {
+    const gate = { kind: "gate", id: "gate", x: 6.5, y: 8, solidStates: [0], cells: { col: 6, row: 4, w: 1, h: 4 }, state: 0 };
+    const room = (seeThrough: boolean) => fogged(game({ x: 4.5, y: 8 }, { ...sandbox, rows: ROOM, lifts: [], enemies: [], props: [{ ...gate, seeThrough }] }));
+    expect(revealedAt(room(false).world.fog!, 7, 6)).toBe(false);
+    expect(revealedAt(room(true).world.fog!, 7, 6)).toBe(true);
+    expect(room(true).world.grid.solid(6, 6)).toBe(true);
+  });
+
   it("stops at one-way floors like floors", () => {
     const rows = ROOM.map((r, i) => (i === 3 ? "#........====#" : r));
     const g = fogged(game({ x: 10.5, y: 8 }, { ...sandbox, rows, lifts: [], enemies: [], props: [] }));

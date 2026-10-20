@@ -48,6 +48,7 @@ window.ORIGINALS = {
     unlockPlasma: film("Original DEKOD1.ANM", [["DEKOD1", 72]]),
     repairLift: film("Original VYTAHOP.ANM", [["VYTAHOP", 62]]),
     openDoor: film("Original OTDVER1.ANM", [["OTDVER1", 102]]),
+    acidGuardComes: film("Original ZABIJ.ANM", [["ZABIJ", 61]]),
     useAcidTank: film("Original KYSELINA.ANM", [["KYSELINA", 52, 0, 2.23]]),
     hullCover: film("Original SEBSOUC.ANM", [["SEBSOUC", 52]]),
     pickShipPart: film("Original SEBSOU.ANM", [["SEBSOU", 41]]),

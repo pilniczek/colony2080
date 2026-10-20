@@ -1,7 +1,7 @@
 import { FIXED_STEP } from "../../engine/loop";
 import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset, TILE, type Size } from "../env/paint";
-import { guardLook } from "../level/guards";
+import { guardHidden, guardLook } from "../level/guards";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { RUNG, spikeUnit } from "../hero/look";
@@ -337,7 +337,7 @@ export function prop(e: Env, p: Prop): void {
   const [left, , right] = ASSETS[id].box;
   const { dx = 0, dy = 0, top } = p.art ?? {};
   const look = guardLook(p);
-  if (look === "gone") return;
+  if (look === "gone" || guardHidden(p, e.world.flags)) return;
   const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
   const size = top === undefined ? undefined : { top: -px(e, top * e.cell) };
   put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, state, size, look?.t ?? 0);

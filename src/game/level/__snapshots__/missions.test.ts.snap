@@ -2200,19 +2200,22 @@ exports[`missions > mesto json is unchanged 1`] = `
         "row": 24,
         "w": 3,
       },
-      "fires": {
-        "burst": {
-          "ms": 280,
-          "shots": 9,
-        },
+      "id": "acidGuard",
+      "kind": "gate",
+      "repels": {
+        "col": 107,
+        "cutscene": "acidGuardComes",
         "facing": -1,
-        "pauseMs": 400,
+        "hits": 5,
+        "ms": 1400,
+        "push": 1,
         "states": [
           0,
         ],
+        "w": 19,
       },
-      "id": "acidGuard",
-      "kind": "gate",
+      "seeThrough": true,
+      "shownBy": "flag:acidGuardCame",
       "solidStates": [
         0,
       ],

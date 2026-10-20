@@ -1,4 +1,4 @@
-export const CUTSCENE_IDS = ["crowbarDoor", "missionStart", "rebelShot", "talkRebel", "pullWires", "wireSwitchboard", "takeTapHandle", "searchCorpse", "tradeHoloPlan", "tradeShipPart", "unlockPlasma", "repairLift", "openDoor", "useAcidTank", "hullCover", "pickShipPart", "pickCraneKey", "pickCrowbar", "pickController", "pickEBlaster", "repairCrane"] as const;
+export const CUTSCENE_IDS = ["crowbarDoor", "missionStart", "rebelShot", "talkRebel", "pullWires", "wireSwitchboard", "takeTapHandle", "searchCorpse", "tradeHoloPlan", "tradeShipPart", "unlockPlasma", "repairLift", "openDoor", "acidGuardComes", "useAcidTank", "hullCover", "pickShipPart", "pickCraneKey", "pickCrowbar", "pickController", "pickEBlaster", "repairCrane"] as const;
 
 export type CutsceneId = (typeof CUTSCENE_IDS)[number];
 
@@ -23,6 +23,7 @@ const LOADERS: Record<CutsceneId, () => Promise<Cutscene>> = {
   unlockPlasma: () => import("./unlockPlasma").then((m) => m.unlockPlasma),
   repairLift: () => import("./repairLift").then((m) => m.repairLift),
   openDoor: () => import("./openDoor").then((m) => m.openDoor),
+  acidGuardComes: () => import("./acidGuardComes").then((m) => m.acidGuardComes),
   useAcidTank: () => import("./useAcidTank").then((m) => m.useAcidTank),
   hullCover: () => import("./hullCover").then((m) => m.hullCover),
   pickShipPart: () => import("./pickShipPart").then((m) => m.pickShipPart),

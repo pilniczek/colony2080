@@ -230,6 +230,220 @@ window.C28_CONFIG = {
   }
  },
  "cutscenes": {
+  "acidGuardComes": {
+   "status": "draft",
+   "source": "docs/research/gamedata/raw/C28/ZABIJ.ANM (docs/research/reports/10-level1-enemies.md, acid guard fires); trigger: first step off lift 104 onto floor 30 (user)",
+   "title": "Acid guard comes",
+   "camera": "CAM 14 GUARD",
+   "views": [
+    [
+     0,
+     "robot"
+    ]
+   ],
+   "duration": 4.2,
+   "sounds": [
+    [
+     0.25,
+     "step",
+     7000,
+     40
+    ],
+    [
+     0.65,
+     "step",
+     6600,
+     40
+    ],
+    [
+     1.05,
+     "step",
+     7000,
+     40
+    ],
+    [
+     1.45,
+     "step",
+     6600,
+     40
+    ],
+    [
+     1.9,
+     "servo",
+     9000
+    ],
+    [
+     2.4,
+     "cannon",
+     15000
+    ],
+    [
+     2.75,
+     "cannon",
+     15000
+    ],
+    [
+     3.1,
+     "cannon",
+     15000
+    ],
+    [
+     3.45,
+     "cannon",
+     15000
+    ]
+   ],
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "horizon": 600,
+    "seed": 14,
+    "clouds": 26,
+    "tower": {
+     "x": 120,
+     "w": 210,
+     "top": -40,
+     "rungs": 7,
+     "bar": 16
+    },
+    "building": [
+     [
+      1230,
+      130
+     ],
+     [
+      1300,
+      70
+     ],
+     [
+      1700,
+      70
+     ],
+     [
+      1700,
+      640
+     ],
+     [
+      1230,
+      640
+     ]
+    ],
+    "guard": {
+     "burst": 0.35,
+     "fireFrom": 2.4,
+     "bursts": 4
+    }
+   },
+   "palette": {
+    "skyTop": "#1a2230",
+    "skyMid": "#5a5048",
+    "skyGlow": "#d89a38",
+    "skyHot": "#f4c858",
+    "skyLow": "#a85a20",
+    "cloud": "#2a2a32",
+    "cloudLit": "#c87a38",
+    "floorFar": "#3a1a08",
+    "floorNear": "#8a3a12",
+    "streak": "#a85a24",
+    "silhouette": "#060606",
+    "edge": "#3a2a1c",
+    "shadow": "#000000",
+    "flash": "#e03a10"
+   },
+   "tracks": {
+    "flash": [
+     [
+      0,
+      1
+     ],
+     [
+      0.1,
+      1
+     ],
+     [
+      0.18,
+      0,
+      "out"
+     ]
+    ],
+    "guardX": [
+     [
+      0,
+      1420
+     ],
+     [
+      1.9,
+      830,
+      "out"
+     ]
+    ],
+    "guardY": [
+     [
+      0,
+      650
+     ],
+     [
+      1.9,
+      760,
+      "out"
+     ]
+    ],
+    "guardScale": [
+     [
+      0,
+      5
+     ],
+     [
+      1.9,
+      8.4,
+      "out"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      1.9,
+      1.04,
+      "inOut"
+     ],
+     [
+      4.2,
+      1.1,
+      "inOut"
+     ]
+    ],
+    "camX": [
+     [
+      0,
+      800
+     ],
+     [
+      1.9,
+      820,
+      "inOut"
+     ],
+     [
+      4.2,
+      840,
+      "inOut"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      450
+     ],
+     [
+      4.2,
+      460,
+      "inOut"
+     ]
+    ]
+   }
+  },
   "crowbarDoor": {
    "status": "draft",
    "source": "docs/requirements.md",

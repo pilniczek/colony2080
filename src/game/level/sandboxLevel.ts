@@ -10,7 +10,7 @@ import type { Hero } from "../hero/hero";
 import { ITEMS, type ItemId } from "../items";
 import { keepOutOf, type Cover } from "./cover";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
-import type { PropFire } from "./guards";
+import type { PropFire, PropRepel } from "./guards";
 import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
 import { terrain, type Rect as CellRect } from "./terrain";
 
@@ -30,6 +30,7 @@ export interface Prop {
   art?: { dx?: number; dy?: number; top?: number };
   state?: number;
   solidStates?: number[];
+  seeThrough?: boolean;
   cells?: { col: number; row: number; w: number; h: number };
   cover?: Cover;
   shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string; by?: "beam"; cutscene?: CutsceneId };
@@ -37,6 +38,7 @@ export interface Prop {
   approach?: { cells: number; cutscene: CutsceneId; gives: string };
   hitsTaken?: number;
   fires?: PropFire;
+  repels?: PropRepel;
   fireTime?: number | null;
   pauseLeft?: number;
   brokenAge?: number;
@@ -183,7 +185,7 @@ function checkedProp(prop: Prop): Prop {
   if (prop.kind === "weapon" && prop.weapon !== "blaster") throw new Error(`unknown weapon: ${prop.weapon}`);
   if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
   if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
-  for (const id of [prop.cutscene, prop.shootable?.cutscene, prop.approach?.cutscene]) if (id !== undefined && !isCutsceneId(id)) throw new Error(`unknown cutscene: ${id}`);
+  for (const id of [prop.cutscene, prop.shootable?.cutscene, prop.approach?.cutscene, prop.repels?.cutscene]) if (id !== undefined && !isCutsceneId(id)) throw new Error(`unknown cutscene: ${id}`);
   return structuredClone(prop);
 }
 

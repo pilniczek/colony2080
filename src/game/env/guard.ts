@@ -5,7 +5,7 @@ type Pt = [number, number];
 type Trace = (ctx: CanvasRenderingContext2D) => void;
 type Stops = [number, string][];
 
-const { box, flat, poly, disc, line, beam, stroke } = P;
+const { box, flat, poly, disc, line, beam, stroke, shape, glow, curve } = P;
 
 export const GUARD_SIZE = 1.4;
 const SQUASH = 0.5;
@@ -19,6 +19,10 @@ export const ACID_GUARD_FIRING = 2;
 const HULL = { nose: 21, rear: 54, top: 9, sx: 33 / 45.8, sy: 24 / 15.2 };
 const LEG = 1 / 12;
 const KNEE_PAD = 0.75;
+const FRONT_BROW = -32.5;
+const FRONT_KNEE = 53.5 - 38.5;
+const FRONT_STEP = { period: 0.8, lift: 3, bob: 0.8 };
+export const ACID_GUARD_FRONT = { idle: 0, firing: 1, walk: 2 } as const;
 const FOOT_AHEAD = 2;
 const PLATE = { up: 1.2, ahead: 2 };
 export const FAR_LEG = { dx: 2.5, shade: { brightness: 0.6, saturate: 0.8 } };
@@ -28,6 +32,13 @@ const SIDE_LEG = {
   shin: [[256, 500], [340, 500], [354, 690], [240, 690]] as Pt[],
   foot: [[204, 688], [384, 688], [402, 712], [398, 744], [202, 744]] as Pt[],
   toe: [[300, 688], [384, 688], [396, 706], [300, 706]] as Pt[],
+};
+
+const FRONT_LEG = {
+  axis: 211,
+  shin: [[164, 508], [262, 508], [278, 690], [150, 690]] as Pt[],
+  foot: [[146, 688], [282, 688], [290, 714], [286, 744], [142, 744], [136, 714]] as Pt[],
+  toe: [[152, 688], [276, 688], [282, 706], [146, 706]] as Pt[],
 };
 
 export const grad = (ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number, stops: Stops): CanvasGradient => {
@@ -219,4 +230,114 @@ export const acidGuard: EnvAsset = {
   },
 };
 
-export const guardAssets: EnvAsset[] = [acidGuard];
+const canopy = (ctx: CanvasRenderingContext2D, trace: Trace, top: number, bottom: number, shine: Pt[]): void => {
+  fillPath(ctx, trace, grad(ctx, 0, top, 0, bottom, [[0, "fc3"], [0.2, "fc2"], [1, "fc1"]]), "fc0");
+  if (!P.simple()) curve(ctx, shine, "fc3", 0.5);
+};
+
+const frontShell = (ctx: CanvasRenderingContext2D): void => {
+  const shell: Trace = (c) => {
+    c.moveTo(-9.6, -34);
+    c.quadraticCurveTo(0, -42, 9.6, -34);
+    c.quadraticCurveTo(11.2, -29, 9.4, -23.5);
+    c.quadraticCurveTo(0, -20, -9.4, -23.5);
+    c.quadraticCurveTo(-11.2, -29, -9.6, -34);
+  };
+  fillPath(ctx, shell, grad(ctx, 0, -39, 0, -21, [[0, "shell2"], [0.35, "shell1"], [0.7, "gm1"], [1, "shell0"]]));
+  ctx.save();
+  ctx.beginPath();
+  shell(ctx);
+  ctx.clip();
+  if (!P.simple()) for (const x of [-7.5, 7.5]) line(ctx, [[x, -28.4], [x, -20]], "shell0", 0.4, "butt");
+  canopy(
+    ctx,
+    (c) => {
+      c.moveTo(-12, FRONT_BROW);
+      c.lineTo(-12, -44);
+      c.lineTo(12, -44);
+      c.lineTo(12, FRONT_BROW);
+      c.quadraticCurveTo(0, FRONT_BROW - 1.5, -12, FRONT_BROW);
+    },
+    -41,
+    FRONT_BROW,
+    [[-7, -37.2], [-2, -39.6], [4, -39.2]],
+  );
+  ctx.fillStyle = P.pal().groove as string;
+  ctx.fillRect(-8, -32.5, 16, 1.1);
+  slit(ctx, -8, 8, -31.4, 1.1, [[0, "visor0"], [0.25, "visor1"], [0.5, "visor3"], [0.75, "visor2"], [1, "visor0"]]);
+  ctx.fillStyle = P.pal().band as string;
+  ctx.fillRect(-8, -30.3, 16, 1);
+  slit(ctx, -11, 11, -29.3, 0.9, [[0, "lip0"], [0.3, "lip1"], [0.45, "glint"], [0.55, "glint"], [0.7, "lip1"], [1, "lip0"]]);
+  ctx.fillStyle = P.pal().shell0 as string;
+  ctx.fillRect(-11, -28.4, 22, 1.2);
+  ctx.restore();
+  line(ctx, [[-11, FRONT_BROW], [11, FRONT_BROW]], "gmLine", 0.5, "butt");
+  for (const x of [-8, 8]) line(ctx, [[x, -32.5], [x, -29.3]], "gmLine", 0.4, "butt");
+};
+
+const burst = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number, k: number): void => {
+  const heat = k === 0 ? 1 : Math.max(0, 1 - k / 5);
+  if (heat <= 0) return;
+  if (!P.simple()) glow(ctx, x, y, r * 2.4 * heat, "fire1", 0.6 * heat);
+  const spikes = 7;
+  const pts = Array.from({ length: spikes * 2 }, (_, i): Pt => {
+    const a = (i / (spikes * 2)) * Math.PI * 2 + k;
+    const rr = (i % 2 ? 0.55 : 1) * r * (0.5 + heat * 0.5);
+    return [x + Math.cos(a) * rr, y + Math.sin(a) * rr];
+  });
+  shape(ctx, pts, "fire1");
+  disc(ctx, x, y, r * 0.45 * heat + 0.3, heat > 0.5 ? "fire3" : "fire2");
+};
+
+const frontLeg = (ctx: CanvasRenderingContext2D, side: number, lift: number): void => {
+  const x = side * 7;
+  poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.6, -FRONT_KNEE + 0.5 - lift], [x - 2.6, -FRONT_KNEE + 0.5 - lift]], "guardMetal", 1, { dir: [1, 0] });
+  inRigUnits(ctx, [x, -lift], side * LEG, FRONT_KNEE / (744 - (FRONT_LEG.shin[0] as Pt)[1]), [FRONT_LEG.axis, 744], () => {
+    poly(ctx, FRONT_LEG.shin, "guardMetal", 2, { dir: [1, 0] });
+    poly(ctx, FRONT_LEG.foot, "guardMetal", 1);
+    poly(ctx, FRONT_LEG.toe, "guardChrome", 2);
+  });
+};
+
+const frontGun = (ctx: CanvasRenderingContext2D, side: number, fire: number): void => {
+  const x = side * 14;
+  box(ctx, x - 3.5, -22.5, 7, 6.5, "guardMetal", 2);
+  fillPath(
+    ctx,
+    (c) => {
+      c.moveTo(side * 9.4, -25.4);
+      c.lineTo(side * 11.4, -25.4);
+      c.lineTo(x + side * 0.5, -22.5);
+      c.lineTo(side * 10, -22.5);
+      c.quadraticCurveTo(side * 9.2, -23.8, side * 9.4, -25.4);
+    },
+    grad(ctx, side * 9.4, 0, x, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]),
+  );
+  disc(ctx, x, -19.2, 2.1, "gm0", "gmLine");
+  if (!P.simple()) disc(ctx, x, -19.2, 1, "gc0");
+  if (fire >= 0) burst(ctx, x, -19.2, 5, fire);
+};
+
+const frontStep = (t: number): { left: number; right: number; bob: number } => {
+  const s = Math.sin((t / FRONT_STEP.period) * Math.PI * 2);
+  return { left: Math.max(0, s) * FRONT_STEP.lift, right: Math.max(0, -s) * FRONT_STEP.lift, bob: Math.abs(s) * FRONT_STEP.bob };
+};
+
+export const acidGuardFront: EnvAsset = {
+  id: "acidGuardFront",
+  box: [-35, -70, 70, 70],
+  anim: true,
+  draw(ctx, state, t) {
+    const fire = state === ACID_GUARD_FRONT.firing ? fireFrame(t % FIRE_LOOP) : -1;
+    const step = state === ACID_GUARD_FRONT.walk ? frontStep(t) : { left: 0, right: 0, bob: 0 };
+    ctx.scale(GUARD_SIZE, GUARD_SIZE);
+    frontLeg(ctx, -1, step.left);
+    frontLeg(ctx, 1, step.right);
+    ctx.translate(0, -step.bob);
+    squashAbove(ctx, FRONT_BROW, () => frontShell(ctx));
+    frontGun(ctx, -1, fire < 0 ? -1 : Math.max(0, fire - 2));
+    frontGun(ctx, 1, fire);
+  },
+};
+
+export const guardAssets: EnvAsset[] = [acidGuard, acidGuardFront];

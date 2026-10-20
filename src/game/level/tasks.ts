@@ -96,7 +96,7 @@ export function applyBlocks(world: SandboxWorld): void {
     const { cells, solidStates } = prop;
     if (!cells || !solidStates?.includes(prop.state ?? 0)) continue;
     for (let row = cells.row; row < cells.row + cells.h; row++) {
-      for (let col = cells.col; col < cells.col + cells.w; col++) world.grid.block(col, row, true);
+      for (let col = cells.col; col < cells.col + cells.w; col++) world.grid.block(col, row, true, prop.seeThrough);
     }
   }
 }

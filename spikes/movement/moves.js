@@ -670,6 +670,7 @@ if (CATEGORY === "interaction") {
     ["Pick up controller", "Down on item, plays cutscene", "pickController", pickLead("controller", 0)],
     ["Repair lift", "Enter at lift panel, plays cutscene", "repairLift", useLead("liftPanel", 1, 0)],
     ["Open card door", "Enter at door, plays cutscene", "openDoor", useLead("cardDoor", 0, 1)],
+    ["Step off lift by the guard", "Walk off the lift deck, plays cutscene once", "acidGuardComes", standLead("lift", 0, 0, "STEPS OFF LIFT")],
     ["Use acid tank", "Enter at tank, plays cutscene", "useAcidTank", useLead("acidTank", 0, 2)],
     ["Pick up crane key", "Down on item, plays cutscene", "pickCraneKey", pickLead("craneKey", 0)],
     ["Repair crane", "Enter at crane, plays cutscene", "repairCrane", useLead("crane", 0, 1)]

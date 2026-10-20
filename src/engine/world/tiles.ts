@@ -2,6 +2,7 @@ export class TileGrid {
   readonly width: number;
   readonly height: number;
   private readonly blocks = new Set<number>();
+  private readonly seeThrough = new Set<number>();
 
   constructor(private readonly rows: string[]) {
     this.height = rows.length;
@@ -19,13 +20,21 @@ export class TileGrid {
     return tile === "#" || tile === "|" || this.blocks.has(this.key(col, row));
   }
 
-  block(col: number, row: number, on: boolean): void {
-    if (on) this.blocks.add(this.key(col, row));
-    else this.blocks.delete(this.key(col, row));
+  opaque(col: number, row: number): boolean {
+    return this.solid(col, row) && !this.seeThrough.has(this.key(col, row));
+  }
+
+  block(col: number, row: number, on: boolean, seeThrough = false): void {
+    const key = this.key(col, row);
+    if (on) this.blocks.add(key);
+    else this.blocks.delete(key);
+    if (on && seeThrough) this.seeThrough.add(key);
+    else this.seeThrough.delete(key);
   }
 
   clearBlocks(): void {
     this.blocks.clear();
+    this.seeThrough.clear();
   }
 
   private key(col: number, row: number): number {

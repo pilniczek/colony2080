@@ -283,7 +283,7 @@ const VIEWS = {
   guard: {
     guardFire: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 1, t, pal, lineW: lw }),
     guardAcid: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 2, t, pal, lineW: lw }),
-    guardFront: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD_FRONT, { x: w / 2, y: h - 50, state: Math.floor(t / 2.8) % 2, t, pal, lineW: lw }),
+    guardFront: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD_FRONT, { x: w / 2, y: h - 50, state: Math.floor(t / 2.8) % 3, t, pal, lineW: lw }),
     guardWreck: (ctx, lw, pal, w, h, t) => enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 3, t, pal, lineW: lw }),
     guardScale: (ctx, lw, pal, w, h, t) => {
       const floor = h - 50;

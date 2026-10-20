@@ -549,10 +549,10 @@ function burst(ctx, x, y, r, k) {
 
 const FRONT_KNEE = 53.5 - 38.5;
 
-function frontLeg(ctx, side) {
+function frontLeg(ctx, side, lift = 0) {
   const x = side * 7;
-  P.poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.6, -FRONT_KNEE + 0.5], [x - 2.6, -FRONT_KNEE + 0.5]], "guardMetal", 1, { dir: [1, 0] });
-  inRigUnits(ctx, [x, 0], side * LEG, FRONT_KNEE / (744 - FRONT_LEG.shin[0][1]), [FRONT_LEG.axis, 744], () => {
+  P.poly(ctx, [[x - 3, -24], [x + 3, -24], [x + 2.6, -FRONT_KNEE + 0.5 - lift], [x - 2.6, -FRONT_KNEE + 0.5 - lift]], "guardMetal", 1, { dir: [1, 0] });
+  inRigUnits(ctx, [x, -lift], side * LEG, FRONT_KNEE / (744 - FRONT_LEG.shin[0][1]), [FRONT_LEG.axis, 744], () => {
     P.poly(ctx, FRONT_LEG.shin, "guardMetal", 2, { dir: [1, 0] });
     P.poly(ctx, FRONT_LEG.foot, "guardMetal", 1);
     P.poly(ctx, FRONT_LEG.toe, "guardChrome", 2);
@@ -574,14 +574,23 @@ function frontGun(ctx, side, fire) {
   if (fire >= 0) burst(ctx, x, -19.2, 5, fire);
 }
 
+const FRONT_STEP = { period: 0.8, lift: 3, bob: 0.8 };
+
+function frontStep(t) {
+  const s = Math.sin((t / FRONT_STEP.period) * Math.PI * 2);
+  return { left: Math.max(0, s) * FRONT_STEP.lift, right: Math.max(0, -s) * FRONT_STEP.lift, bob: Math.abs(s) * FRONT_STEP.bob };
+}
+
 const GUARD_FRONT = {
   id: "guardFront",
   box: { x: -25, y: -50, w: 50, h: 50 },
   draw(ctx, state, t) {
     const fire = state === 1 ? fireFrame(t % 1.4) : -1;
+    const step = state === 2 ? frontStep(t) : { left: 0, right: 0, bob: 0 };
     ctx.scale(GUARD_SIZE, GUARD_SIZE);
-    frontLeg(ctx, -1);
-    frontLeg(ctx, 1);
+    frontLeg(ctx, -1, step.left);
+    frontLeg(ctx, 1, step.right);
+    ctx.translate(0, -step.bob);
     frontHead(ctx);
     frontGun(ctx, -1, fire < 0 ? -1 : Math.max(0, fire - 2));
     frontGun(ctx, 1, fire);
@@ -828,6 +837,15 @@ ENV.define({
   anim: true,
   draw(ctx, state, t) {
     GUARD.draw(ctx, [0, 3, 1][state], t);
+  }
+});
+
+ENV.define({
+  id: "acidGuardFront",
+  box: [-35, -70, 70, 70],
+  anim: true,
+  draw(ctx, state, t) {
+    GUARD_FRONT.draw(ctx, state, t);
   }
 });
 
