@@ -680,7 +680,6 @@ function settle(s: Step, startY: number): void {
   }
   if (!isAirborne(h.state)) return;
   if (!world.immortal && h.y - h.fallFrom > fallLimit(world, cfg)) return die(h, "fallDeath", s.events);
-  cue(world, "land", 8500, 44);
   const landing = { from: h.state, time: h.time, age: 0 };
   if (h.fireTime !== null && s.input.held.has("down")) return enter(h, "duckAttack");
   if (h.fireTime !== null && s.input.dir === 0) return enter(h, "attack");

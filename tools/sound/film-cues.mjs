@@ -5,7 +5,7 @@ const REPORT = "docs/research/reports/17-sound.md";
 const ORIGINALS = "spikes/shared/originals.js";
 const CONFIG_DIR = "config/cutscenes";
 const FORCED_RATE = { VYBUCH6: 9000 };
-const SILENT = new Set(["NIC"]);
+const SILENT = new Set(["NIC", "SIGNAL"]);
 const ID_OF = {
   STRELBA: "gunShot", P1_CANN: "cannon", LASER2: "laser", LASER3: "beam", UDER: "punch", VYBUCH6: "explosion", KROK3: "step",
   SIGNAL: "land", IKONA: "click", INVEND: "inventory", GATE: "power", SIRENA3: "siren", VYTAH1: "liftStart", VYTAH2: "liftStop",
