@@ -30,7 +30,7 @@ Research base for the colony2080 clone. Collected 2026-10-16 by parallel researc
 | Map screen | Automap needs the holo-plan item | 08 |
 | Saves | Manual, any time, 5 slots | 07, 09 |
 | Carry-over | Ammo, energy, shield carry between levels. Bonus weapons do not | 07 |
-| Audio | Dark ambient soundtrack | 04 |
+| Audio | Dark ambient soundtrack (S3M). Sound effects: raw 8-bit mono `ZVUKY/*.SND`, `play(id, vol 1-63, rateHz)` with its own rate per call, 31 ids, slots 12-19 swapped per film; films carry per-frame cue tables. Event and film cue tables in report 17 | 04, 17 |
 
 ## Level 1 (mesto) task graph
 
@@ -100,7 +100,8 @@ Binary and media folders are local only (copyrighted, large); the list lives in 
 | `reports/14-level2-layout.md` | Level 2 (vesnice) layout, tasks, guard and enemies, decoded from `KLEV1.EXE` and `M21..M24` |
 | `reports/15-level3-layout.md` | Level 3 (jungle) layout, tasks, stone puzzle, hazards and enemies, decoded from `KLEV1.EXE` and `M31..M34` |
 | `reports/16-level4-layout.md` | Level 4 (jeskyne) layout, doors and levers, death zones, dead ends and enemies, decoded from `KLEV1.EXE` and `M41..M43` |
-| `tools/` | Python decoders: FLI (`fli.py`), map renderer (`rendermap.py`), tiles, strings |
+| `reports/17-sound.md` | Sound effects: play model, slot loads, event table, mission 1 film cues, acoustics, decoded from `KLEV1.EXE` and matched to footage |
+| `tools/` | Python decoders: FLI (`fli.py`), map renderer (`rendermap.py`), tiles, strings; `tools/sound/` SND extract, play-call and film-table dumps, video audio match |
 | `sources/steam/` | Steam API and store page snapshots |
 | `sources/cz-walkthroughs/` | Walkthrough pages and level map images |
 | `sources/manual/` | Pages fetched while searching for the manual and magazines |
