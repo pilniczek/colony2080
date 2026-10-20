@@ -46,9 +46,9 @@ describe("hero muzzle", () => {
   });
 
   it("drops when ducked", () => {
-    const stand = armed(10.5);
+    const stand = armed(11.5);
     tick(stand, ["shoot"], ["shoot"]);
-    const duck = armed(10.5);
+    const duck = armed(11.5);
     run(duck, 0.5, ["down"]);
     tick(duck, ["down", "shoot"], ["shoot"]);
     expect(duck.hero.state).toBe("duckAttack");

@@ -147,7 +147,7 @@ function touching(s: Step, ...kinds: string[]): Prop | undefined {
   const { h, world, cfg } = s;
   const inReach = world.props.filter((p) => {
     const y = p.y ?? world.spawn[1];
-    const reach = (cfg.box.width + (p.width ?? 0)) / 2;
+    const reach = PICKABLE.includes(p.kind) ? Math.max(cfg.pickReach, (cfg.box.width + (p.width ?? 0)) / 2) : (cfg.box.width + (p.width ?? 0)) / 2;
     return kinds.includes(p.kind) && onGround(p, h, world.flags) && Math.abs(p.x - h.x) <= reach && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
   });
   return inReach.reduce<Prop | undefined>((best, p) => (best && Math.abs(best.x - h.x) <= Math.abs(p.x - h.x) ? best : p), undefined);

@@ -33,6 +33,15 @@ describe("kneel and duck", () => {
     expect(kinds(g, "pickup")).toHaveLength(1);
   });
 
+  it("kneels for an item up to one tile away and ducks past that", () => {
+    const near = game({ x: 8.6, y: 14 });
+    tick(near, ["down"]);
+    expect(near.hero.state).toBe("kneel");
+    const far = game({ x: 8.4, y: 14 });
+    tick(far, ["down"]);
+    expect(far.hero.state).toBe("duck");
+  });
+
   it("calls the lift instead of ducking on it", () => {
     const g = game({ x: 18.5, y: 4 });
     g.world.lifts[0]!.y = 4;
@@ -464,11 +473,11 @@ describe("attack", () => {
   });
 
   it("turns in place while duck shooting", () => {
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    const g = game({ x: 11.5, y: 14, weapon: "gun" });
     run(g, 0.5, ["down"]);
     tick(g, ["down", "shoot"], ["shoot"]);
     tick(g, ["down", "shoot", "moveLeft"]);
-    expect(g.hero).toMatchObject({ state: "duckAttack", facing: -1, x: 10.5 });
+    expect(g.hero).toMatchObject({ state: "duckAttack", facing: -1, x: 11.5 });
   });
 
   it("jumps on Up while shooting and keeps the fire cadence in the air and after landing", () => {
@@ -518,7 +527,7 @@ describe("attack", () => {
   });
 
   it("duck jumps on Up while duck shooting", () => {
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    const g = game({ x: 11.5, y: 14, weapon: "gun" });
     run(g, 0.5, ["down"]);
     tick(g, ["down", "shoot"], ["shoot"]);
     tick(g, ["down", "shoot"], ["up"]);
