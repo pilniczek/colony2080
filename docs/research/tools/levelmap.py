@@ -36,7 +36,7 @@ EXTRAS = {
         "source": (
             "docs/research/reports/14-level2-layout.md, built by docs/research/tools/levelmap.py from MAPY/M21.MAP "
             "and gamedata/disasm/level2_layout.json: '=' one-way floor support tiles, '#' wall tiles (walls filled over the hero stand height), "
-            "'|' map clamp (columns 6 and 158) and the bridge guard post code wall, lift shafts open from two rows over the top stop "
+            "'|' map clamp (columns 6 and 158), the bridge guard post code wall and a cap over each bare wall top (wall tiles hold no hero), lift shafts open from two rows over the top stop "
             "to the bottom stop; spawn dropped from engine (146, 33) to the floor below; "
         )
         + ZONES_NOTE,
@@ -50,7 +50,7 @@ EXTRAS = {
         "source": (
             "docs/research/reports/15-level3-layout.md, built by docs/research/tools/levelmap.py from MAPY/M31.MAP "
             "and gamedata/disasm/level3_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
-            "filled over the hero stand height), '|' map clamp (columns 6 and 158); no lifts (the tower lift is a scripted teleport); "
+            "filled over the hero stand height), '|' map clamp (columns 6 and 158) and a cap over each bare wall top (wall tiles hold no hero); no lifts (the tower lift is a scripted teleport); "
             "spawn on the spawn ledge; "
         )
         + ZONES_NOTE,
@@ -65,7 +65,7 @@ EXTRAS = {
         "source": (
             "docs/research/reports/16-level4-layout.md, built by docs/research/tools/levelmap.py from MAPY/M41.MAP "
             "and gamedata/disasm/level4_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
-            "filled over the hero stand height), '|' map clamp (columns 6 and 158), lift shafts open from two rows over the top stop "
+            "filled over the hero stand height), '|' map clamp (columns 6 and 158) and a cap over each bare wall top (wall tiles hold no hero), lift shafts open from two rows over the top stop "
             "to the bottom stop; lift 1 uses its stops after the rod (enabledBy); spawn dropped from engine (28, 8) to floor 20; "
         )
         + ZONES_NOTE,
@@ -275,6 +275,16 @@ def raise_wall(grid, floors, col, plank):
         grid[row][col] = "#"
 
 
+def bare_wall_top(grid, col, row):
+    beside = [grid[row][c] for c in (col - 1, col + 1) if 0 <= c < W]
+    return grid[row][col] == "#" and row > 0 and grid[row - 1][col] == "." and "=" not in beside
+
+
+def cap_walls(grid):
+    for col, row in [(c, r) for r in range(H) for c in range(W) if bare_wall_top(grid, c, r)]:
+        grid[row - 1][col] = "|"
+
+
 def tile_rows(data, layout):
     floors = [[tile_at(data, col, row) in layout["floors"] for col in range(W)] for row in range(H)]
     grid = [["=" if floors[row][col] else "." for col in range(W)] for row in range(H)]
@@ -286,6 +296,7 @@ def tile_rows(data, layout):
     for col, y in layout["wallCells"]:
         for plank in [p for p in range(y + 4, y + 7) if floor_near(floors, col, p, 3)] or [y + 6]:
             raise_wall(grid, floors, col, plank)
+    cap_walls(grid)
     for col, row in layout["codeCells"]:
         if grid[row][col] == ".":
             grid[row][col] = "|"
