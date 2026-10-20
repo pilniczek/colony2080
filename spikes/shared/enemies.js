@@ -673,7 +673,7 @@ function trooperTorso(ctx) {
   if (!ENV.simple) P.line(ctx, [[23, 24], [29, 25.2]], "gc2", 0.5);
 }
 
-const DOME = { at: [38.5, 14.4], tilt: 0.17, length: 26, r: 4.6 };
+const DOME = { at: [38.5, 17.2], tilt: 0.17, length: 26, r: 4.6 };
 
 function trooperDome(ctx) {
   const { length: l, r } = DOME;
@@ -686,7 +686,6 @@ function trooperDome(ctx) {
     c.arc(-l, 0, r, -Math.PI / 2, Math.PI / 2, true);
     c.lineTo(0, r);
   }, grad(ctx, 0, -r, 0, r, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]), "gmLine");
-  P.line(ctx, [[-l + 2, -r], [-l - 1.5, -r - 4]], "gm2", 1, "butt");
   P.line(ctx, [[-3, -r + 1], [-l + 1, -r + 1]], "gc1", 0.6, "butt");
   if (!ENV.simple) {
     for (const x of [-9, -14, -19, -24]) P.line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
@@ -808,7 +807,7 @@ function trooperBody(ctx, fire) {
 
 const TROOPER = {
   id: "trooper",
-  box: { x: -29, y: -80, w: 72, h: 80 },
+  box: { x: -29, y: -74, w: 72, h: 74 },
   draw(ctx, state, t) {
     if (state !== 2) return trooperBody(ctx, state === 1 ? fireFrame(t % TROOPER_FIRE_LOOP) : -1);
     const age = t % BLAST.loop;
@@ -823,7 +822,7 @@ const TROOPER = {
 
 ENV.define({
   id: "shootGuard",
-  box: [-29, -80, 72, 80],
+  box: [-29, -74, 72, 74],
   anim: true,
   draw(ctx, state, t) {
     TROOPER.draw(ctx, state, t);

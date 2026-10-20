@@ -141,7 +141,7 @@ const torso = (ctx: CanvasRenderingContext2D): void => {
   if (!P.simple()) line(ctx, [[23, 24], [29, 25.2]], "gc2", 0.5);
 };
 
-const DOME = { at: [38.5, 14.4] as Pt, tilt: 0.17, length: 26, r: 4.6 };
+const DOME = { at: [38.5, 17.2] as Pt, tilt: 0.17, length: 26, r: 4.6 };
 
 const dome = (ctx: CanvasRenderingContext2D): void => {
   const { length: l, r } = DOME;
@@ -159,7 +159,6 @@ const dome = (ctx: CanvasRenderingContext2D): void => {
     grad(ctx, 0, -r, 0, r, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]),
     "gmLine",
   );
-  line(ctx, [[-l + 2, -r], [-l - 1.5, -r - 4]], "gm2", 1, "butt");
   line(ctx, [[-3, -r + 1], [-l + 1, -r + 1]], "gc1", 0.6, "butt");
   if (!P.simple()) {
     for (const x of [-9, -14, -19, -24]) line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
@@ -259,7 +258,7 @@ const body = (ctx: CanvasRenderingContext2D, fire: number): void => {
 
 export const shootGuard: EnvAsset = {
   id: "shootGuard",
-  box: [-29, -80, 72, 80],
+  box: [-29, -74, 72, 74],
   anim: true,
   draw(ctx, state, t) {
     if (state !== SHOOT_GUARD_EXPLODE) return body(ctx, state === SHOOT_GUARD_FIRING ? fireFrame(t % FIRE_LOOP) : -1);
