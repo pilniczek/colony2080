@@ -505,14 +505,15 @@ describe("lift", () => {
     expect(g.seen.has("walkJump")).toBe(false);
   });
 
-  it("still run jumps across the lift", () => {
+  it("stops a run and calls the lift on up without jumping", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
     tick(g, ["moveRight", RUNNING]);
     expect(g.hero).toMatchObject({ state: "run", onLift: true });
     tick(g, ["moveRight", RUNNING], ["up"]);
-    expect(g.hero.state).toBe("runJump");
-    expect(g.world.lifts[0]!.target).toBeNull();
+    expect(g.hero).toMatchObject({ state: "idle", onGround: true });
+    expect(g.world.lifts[0]!.target).toBe(4);
+    expect(g.seen.has("runJump")).toBe(false);
   });
 
   it("rides to the top on one up press without jumping", () => {

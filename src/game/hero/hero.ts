@@ -433,7 +433,7 @@ function onDeck(x: number, lift: Lift, cfg: MovementConfig): boolean {
 function moving(s: Step): void {
   const { h, world } = s;
   if (takeCover(s)) return;
-  if (h.state === "walk" && liftPress(s)) return enter(h, "idle");
+  if (liftPress(s)) return enter(h, "idle");
   if (padPress(s)) return;
   if (s.consume("up")) {
     if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(s);
