@@ -4,7 +4,8 @@ import { createHero, type Hero } from "../hero/hero";
 import { createRigs, heroLook } from "../hero/look";
 import { cfg, clips } from "../hero/testWorld";
 import type { Enemy } from "../level/enemy";
-import { castsShadow, heroBehindEnemies, visibleEnemies, viewCells, weaponHooks } from "./scene";
+import type { Fog } from "../fog";
+import { castsShadow, feetSeen, heroBehindEnemies, visibleEnemies, viewCells, weaponHooks } from "./scene";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -25,6 +26,15 @@ describe("shadow", () => {
 
   it("is not cast on the ladder", () => {
     expect(shadowed({ state: "ladder", climb: 2, onGround: false })).toBe(false);
+  });
+
+  it("shows for an enemy only when the cell above its feet is seen", () => {
+    const seen = new Uint8Array(4 * 4);
+    seen[3 * 4 + 1] = 1;
+    const fog = { width: 4, height: 4, seen } as unknown as Fog;
+    expect(feetSeen(null, { x: 1.5, y: 3 })).toBe(true);
+    expect(feetSeen(fog, { x: 1.5, y: 3 })).toBe(false);
+    expect(feetSeen(fog, { x: 1.5, y: 4 })).toBe(true);
   });
 });
 

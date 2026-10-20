@@ -10,6 +10,7 @@ import { SPIKE_K } from "../hero/gait";
 import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Rect } from "../geometry";
 import type { Enemy } from "../level/enemy";
+import { visible, type Fog } from "../fog";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
@@ -92,6 +93,8 @@ function impacts(f: Frame): void {
 
 export const castsShadow = (hero: Hero, look: HeroLook): boolean => hero.onGround && look.view !== "back";
 
+export const feetSeen = (fog: Fog | null, body: Pick<Hero, "x" | "y">): boolean => !fog || visible(fog, body.x, body.y - 0.001);
+
 function shadow(f: Frame, hero: Hero, look: HeroLook): void {
   if (!castsShadow(hero, look)) return;
   const { ctx, cell, unit } = f;
@@ -134,7 +137,7 @@ function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: 
   if (enemy.flight) return flyerFigure(f, enemy);
   const age = enemy.deadAge;
   if (age === null || age < BLAST.hideBody) {
-    shadow(f, enemy.body, look);
+    if (feetSeen(f.world.fog, enemy.body)) shadow(f, enemy.body, look);
     heroFigure(f, enemy.body, look, rigs, scale, firing(enemy.body, fireRate), ENEMY_PALETTE);
   } else scrap(f, enemy.body);
   if (age !== null) blast(f, enemy.body, age);
