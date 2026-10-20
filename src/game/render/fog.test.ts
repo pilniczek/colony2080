@@ -8,14 +8,15 @@ interface FakeCanvas {
   getContext: () => CanvasRenderingContext2D;
 }
 
-const fakeContext = (calls: string[]): CanvasRenderingContext2D =>
+const fakeContext = (calls: string[], args: unknown[][] = []): CanvasRenderingContext2D =>
   new Proxy({} as Record<string, unknown>, {
     get: (target, key: string) => {
       if (key in target) return target[key];
       if (key === "createImageData") return (w: number, h: number) => ({ width: w, height: h, data: new Uint8ClampedArray(w * h * 4) });
       if (key === "createPattern") return () => ({});
-      return () => {
+      return (...given: unknown[]) => {
         calls.push(key);
+        args.push(given);
       };
     },
     set: (target, key: string, value) => {
@@ -31,19 +32,22 @@ const fog = (width: number, height: number): Fog =>
     height,
     revealed: new Uint8Array(width * height),
     seen: new Uint8Array(width * height),
+    seenCells: [],
     version: 0,
   }) as unknown as Fog;
 
 describe("drawFog", () => {
   let canvases: FakeCanvas[];
   let calls: string[];
+  let args: unknown[][];
 
   beforeEach(() => {
     canvases = [];
     calls = [];
+    args = [];
     vi.stubGlobal("document", {
       createElement: () => {
-        const canvas: FakeCanvas = { width: 300, height: 150, getContext: () => fakeContext(calls) };
+        const canvas: FakeCanvas = { width: 300, height: 150, getContext: () => fakeContext(calls, args) };
         canvases.push(canvas);
         return canvas;
       },
@@ -70,9 +74,22 @@ describe("drawFog", () => {
     drawFog(main, f, view, 24, window);
     drawFog(main, f, { ...view, offsetX: -3100 }, 24, window);
     expect(calls.filter((c) => c === "putImageData")).toHaveLength(1);
+    f.seenCells = [5];
     f.version++;
     drawFog(main, f, view, 24, window);
     expect(calls.filter((c) => c === "putImageData")).toHaveLength(2);
+  });
+
+  it("repaints only the cells the sight left or entered", () => {
+    const main = fakeContext([]);
+    const f = fog(160, 80);
+    f.seenCells = [50 * 160 + 40];
+    drawFog(main, f, view, 24, window);
+    f.seenCells = [51 * 160 + 42];
+    f.version++;
+    drawFog(main, f, view, 24, window);
+    const puts = args.filter((_, i) => calls[i] === "putImageData");
+    expect(puts.at(-1)!.slice(1)).toEqual([0, 0, 40, 50, 3, 2]);
   });
 
   it("keeps one window canvas across frames of the same size", () => {
@@ -89,9 +106,10 @@ describe("drawFog", () => {
     const main = fakeContext([]);
     const f = fog(160, 80);
     drawFog(main, f, view, 24, window);
+    const clears = calls.filter((c) => c === "clearRect").length;
     drawFog(main, f, view, 24, window);
-    expect(calls.filter((c) => c === "clearRect")).toHaveLength(1);
+    expect(calls.filter((c) => c === "clearRect")).toHaveLength(clears);
     drawFog(main, f, { ...view, offsetX: -3001 }, 24, window);
-    expect(calls.filter((c) => c === "clearRect")).toHaveLength(2);
+    expect(calls.filter((c) => c === "clearRect")).toHaveLength(clears + 1);
   });
 });
