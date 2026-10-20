@@ -97,7 +97,7 @@ const across = (a: Pt, b: Pt, t: number, half: number): Pt[] => {
 
 const leg = (ctx: CanvasRenderingContext2D, [hip, knee, ankle]: [Pt, Pt, Pt]): void => {
   beam(ctx, hip, knee, 4.2, "guardMetal");
-  sideLegArmor(ctx, knee, ankle);
+  sideLegArmor(ctx, knee, ankle, true);
   line(ctx, across(hip, knee, 0.5, 2), "trim", 0.8, "butt");
   line(ctx, across(knee, ankle, 0.55, 3.4), "trim", 0.8, "butt");
 };

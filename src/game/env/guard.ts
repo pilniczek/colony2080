@@ -111,7 +111,7 @@ const inRigUnits = (ctx: CanvasRenderingContext2D, at: Pt, sx: number, sy: numbe
   ctx.restore();
 };
 
-export const sideLegArmor = (ctx: CanvasRenderingContext2D, knee: Pt, ankle: Pt): void => {
+export const sideLegArmor = (ctx: CanvasRenderingContext2D, knee: Pt, ankle: Pt, kneeForward = false): void => {
   const len = Math.hypot(ankle[0] - knee[0], ankle[1] - knee[1]);
   ctx.save();
   ctx.translate(knee[0], knee[1]);
@@ -131,7 +131,7 @@ export const sideLegArmor = (ctx: CanvasRenderingContext2D, knee: Pt, ankle: Pt)
     poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
     poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
   });
-  inRigUnits(ctx, knee, LEG * KNEE_PAD, LEG * KNEE_PAD, SIDE_LEG.joint, () => {
+  inRigUnits(ctx, knee, (kneeForward ? -1 : 1) * LEG * KNEE_PAD, LEG * KNEE_PAD, SIDE_LEG.joint, () => {
     disc(ctx, 300, 486, 30, "gm1", "gmLine");
     poly(ctx, SIDE_LEG.cap, "guardChrome", 1);
   });

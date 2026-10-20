@@ -280,7 +280,7 @@ function inRigUnits(ctx, at, sx, sy, origin, draw) {
   ctx.restore();
 }
 
-function sideLegArmor(ctx, knee, ankle) {
+function sideLegArmor(ctx, knee, ankle, kneeForward = false) {
   const len = Math.hypot(ankle[0] - knee[0], ankle[1] - knee[1]);
   ctx.save();
   ctx.translate(...knee);
@@ -299,7 +299,7 @@ function sideLegArmor(ctx, knee, ankle) {
     P.poly(ctx, SIDE_LEG.foot, "guardMetal", 1);
     P.poly(ctx, SIDE_LEG.toe, "guardChrome", 2);
   });
-  inRigUnits(ctx, knee, LEG * KNEE_PAD, LEG * KNEE_PAD, SIDE_LEG.joint, () => {
+  inRigUnits(ctx, knee, (kneeForward ? -1 : 1) * LEG * KNEE_PAD, LEG * KNEE_PAD, SIDE_LEG.joint, () => {
     P.disc(ctx, 300, 486, 30, "gm1", "gmLine");
     P.poly(ctx, SIDE_LEG.cap, "guardChrome", 1);
   });
@@ -633,7 +633,7 @@ function across(a, b, t, half) {
 
 function trooperLeg(ctx, [hip, knee, ankle]) {
   P.beam(ctx, hip, knee, 4.2, "guardMetal");
-  sideLegArmor(ctx, knee, ankle);
+  sideLegArmor(ctx, knee, ankle, true);
   P.line(ctx, across(hip, knee, 0.5, 2), "trim", 0.8, "butt");
   P.line(ctx, across(knee, ankle, 0.55, 3.4), "trim", 0.8, "butt");
 }
