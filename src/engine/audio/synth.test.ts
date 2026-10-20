@@ -30,14 +30,14 @@ describe("synth", () => {
     const o = osc("sine", () => 441);
     const out = fill(buffer(1), (t) => o(t));
     let crossings = 0;
-    for (let i = 1; i < out.length; i++) if (out[i - 1] < 0 !== out[i] < 0) crossings++;
+    for (let i = 1; i < out.length; i++) if ((out[i - 1] as number) < 0 !== (out[i] as number) < 0) crossings++;
     expect(Math.abs(crossings - 882)).toBeLessThanOrEqual(2);
   });
 
   it("lowpass attenuates high tone", () => {
     const input = fill(buffer(0.5), (t) => Math.sin(2 * Math.PI * 4000 * t));
     const f = onePole(200, "low");
-    const out = fill(buffer(0.5), (_t, i) => f(input[i]));
+    const out = fill(buffer(0.5), (_t, i) => f(input[i] as number));
     expect(rms(out)).toBeLessThan(0.1 * rms(input));
   });
 
