@@ -27,7 +27,6 @@ const LEGS: Record<"front" | "rear", [Pt, Pt, Pt]> = {
   front: [[42.5, 30], [36, 39], [39.5, 49.5]],
   rear: [[45, 30], [52, 40], [59.5, 49.5]],
 };
-const SPINE: Pt[] = [[19, 46], [12, 49], [6, 54], [2, 60], [-1, 65]];
 const BACK_TUBES: [number, number, number][] = [[18, 24, 5.5], [15, 28, 6], [13, 33, 5]];
 
 const findNode = (node: RigNode, name: string): GroupNode | null => {
@@ -72,9 +71,9 @@ export const SHOOT_GUARD_FIRING = 1;
 export const SHOOT_GUARD_EXPLODE = 2;
 
 const tail = (ctx: CanvasRenderingContext2D): void => {
-  const spine = SPINE.map(([x, y], i): Pt => [x, y - RAISE * (1 - i / 4)]);
+  const spine: Pt[] = [[19, 46 - RAISE], [15, 44], [11, 51.5], [5, 57.5], [-3, 61.5]];
   spine.slice(1).forEach((b, i) => beam(ctx, spine[i]!, b, 5.2 - i * 1.1, "guardMetal"));
-  poly(ctx, [[0, 63], [-4, 68], [-1, 64.5]], "guardMetal", 2);
+  poly(ctx, [[-2.5, 60.6], [-8, 63], [-2.5, 62.6]], "guardMetal", 2);
   if (!P.simple()) spine.slice(1, 4).forEach(([x, y], i) => line(ctx, [[x - 1.6 + i * 0.3, y - 1.8 + i * 0.3], [x + 1.6 - i * 0.3, y + 1.8 - i * 0.3]], "gm0", 0.6, "butt"));
 };
 
@@ -89,11 +88,18 @@ const inGuardLegUnits = (ctx: CanvasRenderingContext2D, draw: () => void): void 
 
 const along = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 
+const across = (a: Pt, b: Pt, t: number, half: number): Pt[] => {
+  const [x, y] = along(a, b, t);
+  const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const [nx, ny] = [((a[1] - b[1]) / len) * half, ((b[0] - a[0]) / len) * half];
+  return [[x - nx, y - ny], [x + nx, y + ny]];
+};
+
 const leg = (ctx: CanvasRenderingContext2D, [hip, knee, ankle]: [Pt, Pt, Pt]): void => {
   beam(ctx, hip, knee, 4.2, "guardMetal");
   sideLegArmor(ctx, knee, ankle);
-  line(ctx, [along(hip, knee, 0.2), along(hip, knee, 0.75)], "trim", 0.8, "butt");
-  line(ctx, [along(knee, ankle, 0.3), along(knee, ankle, 0.85)], "trim", 0.7, "butt");
+  line(ctx, across(hip, knee, 0.5, 2), "trim", 0.8, "butt");
+  line(ctx, across(knee, ankle, 0.55, 3.4), "trim", 0.8, "butt");
 };
 
 const legs = (ctx: CanvasRenderingContext2D): void => {
@@ -127,10 +133,10 @@ const head = (ctx: CanvasRenderingContext2D): void => {
     ctx,
     (c) => {
       c.moveTo(36, 18);
-      c.quadraticCurveTo(28, 20, 20, 18);
-      c.quadraticCurveTo(10, 14.5, 4, 10);
-      c.quadraticCurveTo(14, 9.5, 24, 11);
-      c.quadraticCurveTo(36, 12.5, 40.5, 15.5);
+      c.quadraticCurveTo(28, 20, 19, 18.6);
+      c.bezierCurveTo(11, 17.6, 5, 15.6, 4.5, 12.4);
+      c.bezierCurveTo(4.2, 9.4, 9, 8.8, 16, 9.6);
+      c.quadraticCurveTo(34, 11.6, 40.5, 15.5);
       c.lineTo(38, 18);
     },
     grad(ctx, 0, 9, 0, 20, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]),
@@ -208,7 +214,7 @@ const arm = (ctx: CanvasRenderingContext2D, fire: number): void => {
   ctx.translate(-ARM_PIVOT[0], -ARM_PIVOT[1]);
   drawRig(ctx, armNode(P.simple()), { palette: armPalette(P.pal()), pose: ARM_POSE, hooks: { hand }, lineW, simple: P.simple() });
   ctx.restore();
-  curve(ctx, [[23.4, 30.4], [28.2, 32.6], [33.2, 30.2]], "trim", 0.9);
+  line(ctx, [[23.4, 31.2], [33.2, 31.2]], "trim", 0.9, "butt");
 };
 
 const body = (ctx: CanvasRenderingContext2D, fire: number): void => {

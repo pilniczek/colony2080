@@ -602,9 +602,9 @@ const TROOPER_HIP = [26, 47];
 const TROOPER_RAISE = 23.5 * GUARD_SIZE - (68 - TROOPER_HIP[1]);
 
 function trooperTail(ctx) {
-  const spine = [[19, 46], [12, 49], [6, 54], [2, 60], [-1, 65]].map(([x, y], i) => [x, y - TROOPER_RAISE * (1 - i / 4)]);
+  const spine = [[19, 46 - TROOPER_RAISE], [15, 44], [11, 51.5], [5, 57.5], [-3, 61.5]];
   spine.slice(1).forEach((b, i) => P.beam(ctx, spine[i], b, 5.2 - i * 1.1, "guardMetal"));
-  P.poly(ctx, [[0, 63], [-4, 68], [-1, 64.5]], "guardMetal", 2);
+  P.poly(ctx, [[-2.5, 60.6], [-8, 63], [-2.5, 62.6]], "guardMetal", 2);
   if (!ENV.simple) spine.slice(1, 4).forEach(([x, y], i) => P.line(ctx, [[x - 1.6 + i * 0.3, y - 1.8 + i * 0.3], [x + 1.6 - i * 0.3, y + 1.8 - i * 0.3]], "gm0", 0.6, "butt"));
 }
 
@@ -624,11 +624,18 @@ const TROOPER_LEGS = {
 
 const along = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 
+function across(a, b, t, half) {
+  const [x, y] = along(a, b, t);
+  const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const [nx, ny] = [(a[1] - b[1]) / len * half, (b[0] - a[0]) / len * half];
+  return [[x - nx, y - ny], [x + nx, y + ny]];
+}
+
 function trooperLeg(ctx, [hip, knee, ankle]) {
   P.beam(ctx, hip, knee, 4.2, "guardMetal");
   sideLegArmor(ctx, knee, ankle);
-  P.line(ctx, [along(hip, knee, 0.2), along(hip, knee, 0.75)], "trim", 0.8, "butt");
-  P.line(ctx, [along(knee, ankle, 0.3), along(knee, ankle, 0.85)], "trim", 0.7, "butt");
+  P.line(ctx, across(hip, knee, 0.5, 2), "trim", 0.8, "butt");
+  P.line(ctx, across(knee, ankle, 0.55, 3.4), "trim", 0.8, "butt");
 }
 
 function trooperLegs(ctx) {
@@ -660,10 +667,10 @@ function trooperHead(ctx) {
   P.poly(ctx, [[30, 27], [29, 22], [34, 21], [35, 26]], "guardMetal", 0);
   fillPath(ctx, c => {
     c.moveTo(36, 18);
-    c.quadraticCurveTo(28, 20, 20, 18);
-    c.quadraticCurveTo(10, 14.5, 4, 10);
-    c.quadraticCurveTo(14, 9.5, 24, 11);
-    c.quadraticCurveTo(36, 12.5, 40.5, 15.5);
+    c.quadraticCurveTo(28, 20, 19, 18.6);
+    c.bezierCurveTo(11, 17.6, 5, 15.6, 4.5, 12.4);
+    c.bezierCurveTo(4.2, 9.4, 9, 8.8, 16, 9.6);
+    c.quadraticCurveTo(34, 11.6, 40.5, 15.5);
     c.lineTo(38, 18);
   }, grad(ctx, 0, 9, 0, 20, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]), "gmLine");
   if (!ENV.simple) P.curve(ctx, [[8, 10.6], [20, 11.2], [34, 13.4]], "gc1", 0.7);
@@ -754,7 +761,7 @@ function trooperArm(ctx, fire) {
     c.restore();
   };
   inArmUnits(ctx, () => XBOT.render(ctx, armNode(ENV.simple), { pal: ARM_PALETTE(ENV.pal), pose: ARM_POSE, hooks: { hand }, lineW, simple: ENV.simple }));
-  P.curve(ctx, [[23.4, 30.4], [28.2, 32.6], [33.2, 30.2]], "trim", 0.9);
+  P.line(ctx, [[23.4, 31.2], [33.2, 31.2]], "trim", 0.9, "butt");
 }
 
 function trooperMuzzle() {
