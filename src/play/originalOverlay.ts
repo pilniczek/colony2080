@@ -1,4 +1,5 @@
 import type { ViewTransform } from "../engine/render/view";
+import { kill } from "../game/hero/hero";
 import type { ItemId } from "../game/items";
 import { pickUp } from "../game/level/sandboxLevel";
 import type { Run } from "../game/run";
@@ -25,6 +26,7 @@ export function originalOverlay(run: Run): DrawOver {
     __pause: (paused: boolean) => useSandbox.setState({ paused }),
     __flag: (name: string) => run.world.flags.add(`flag:${name}`),
     __give: (item: ItemId) => pickUp(run.world, item),
+    __kill: () => kill(run.hero),
     __state: () => ({ x: run.hero.x, y: run.hero.y, state: run.hero.state, flags: [...run.world.flags], shown: run.world.inventory.shown }),
   });
   return (ctx, view, cellPx) => {

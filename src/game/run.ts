@@ -12,6 +12,7 @@ import { CUTSCENES } from "./cutscene";
 import { playFilm } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
 import { createFog, loadFog } from "./fog";
+import { createSaveMenu, type SaveMenuOptions } from "./save/saveMenu";
 import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
 import { createHero, type Hero } from "./hero/hero";
@@ -60,6 +61,7 @@ export interface RunOptions {
   mapItem?: ItemId;
   afterStep?: () => void;
   drawOver?: (ctx: CanvasRenderingContext2D, view: ViewTransform, cellPx: number) => void;
+  saves?: SaveMenuOptions;
 }
 
 const typingTarget = (target: EventTarget | null): boolean =>
@@ -71,7 +73,7 @@ const sameItems = (a: readonly string[], b: readonly string[]): boolean => a.len
 
 const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
-export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunOptions): Run {
+export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves }: RunOptions): Run {
   const canvas = document.getElementById("game");
   const ui = document.getElementById("ui");
   if (!(canvas instanceof HTMLCanvasElement) || !ui) throw new Error("missing #game or #ui");
@@ -184,6 +186,22 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
     push();
   };
 
+  const saveMenu =
+    saves &&
+    createSaveMenu({
+      ...saves,
+      world,
+      hero,
+      input,
+      canvas,
+      keys: controls.keyboard,
+      gameWindow: () => gameWindow,
+      movement: () => tuning().movement,
+      moved: () => {
+        prev = { x: hero.x, y: hero.y };
+      },
+    });
+
   const loop = new FixedLoop({
     step: FIXED_STEP,
     maxSteps: MAX_STEPS,
@@ -199,6 +217,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
       }
       if (tuning().inventory.open || tuning().mapOpen) return;
       const frame = input.frame();
+      if (saveMenu?.step(dt)) return;
       const canOpen = canOpenScreen(hero.state, tuning().recording || tuning().playing);
       if (input.consume("inventory") && canOpen) {
         useSandbox.setState({ inventory: { open: true, cursor: openCursor(world.inventory.items, world.inventory.shown) } });
@@ -251,7 +270,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
   };
 
   const applyTime = ({ paused, timeScale }: { paused: boolean; timeScale: number }): void => {
-    loop.paused = paused || tuning().inventory.open || tuning().mapOpen;
+    loop.paused = paused || tuning().inventory.open || tuning().mapOpen || tuning().menu !== null;
     loop.timeScale = timeScale;
   };
 

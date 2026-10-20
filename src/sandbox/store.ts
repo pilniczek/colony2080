@@ -7,6 +7,8 @@ import { loadFog } from "../game/fog";
 import { hudFit, type HudFit } from "../game/hud/layout";
 import { loadClips, loadMovement, type ClipSet, type HeroState, type MovementConfig, type Weapon } from "../game/hero/config";
 import type { ItemId } from "../game/items";
+import type { MenuState } from "../game/hud/menuKeys";
+import type { Slots } from "../game/save/slots";
 
 export type OverlayName = "hitbox" | "tiles" | "joints" | "info";
 export type ClipField = "duration" | "travel";
@@ -25,6 +27,8 @@ export interface SandboxState {
   inventory: { open: boolean; cursor: number };
   mapOpen: boolean;
   cutscene: boolean;
+  menu: MenuState | null;
+  slots: Slots;
   subtitle: string | null;
   complete: boolean;
   weapon: Weapon;
@@ -112,6 +116,8 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   inventory: { open: false, cursor: 0 },
   mapOpen: false,
   cutscene: false,
+  menu: null,
+  slots: [],
   subtitle: null,
   complete: false,
   weapon: "gun",

@@ -4,7 +4,7 @@ import { inventorySvg, type InventoryArt } from "../../game/hud/inventory";
 import { useSandbox } from "../store";
 
 let cached: InventoryArt | null = null;
-const art = (): InventoryArt => (cached ??= inventoryArt());
+export const art = (): InventoryArt => (cached ??= inventoryArt());
 const whenIdle = (task: () => void): void => {
   if (typeof requestIdleCallback === "function") requestIdleCallback(task);
   else setTimeout(task);

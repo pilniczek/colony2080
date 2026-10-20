@@ -129,7 +129,7 @@ const isAirborne = (state: HeroState): boolean =>
 
 const isGait = (state: HeroState): state is GaitName => state === "walk" || state === "run";
 
-const isDead = (state: HeroState): boolean => state === "death" || state === "fallDeath" || state === "jumpDeath";
+export const isDead = (state: HeroState): boolean => state === "death" || state === "fallDeath" || state === "jumpDeath";
 
 export const isDucked = (state: HeroState): boolean => state === "duck" || state === "duckAttack";
 

@@ -1,17 +1,22 @@
 import { loadMesto } from "../game/level/mesto";
 import { startRun, type RunOptions } from "../game/run";
+import { browserStorage } from "../game/save/saveMenu";
 import { useSandbox } from "../sandbox/store";
 import { Hud } from "../sandbox/ui/Hud";
 import { InventoryScreen } from "../sandbox/ui/InventoryScreen";
 import { LevelEnd } from "./LevelEnd";
+import { MenuScreen } from "./MenuScreen";
 import { Subtitle } from "./Subtitle";
 
 useSandbox.setState({ fogOn: true });
 
 let drawOver: RunOptions["drawOver"];
 
+const MISSION = "mesto";
+
 const run = startRun({
   world: loadMesto(),
+  saves: { mission: MISSION, storage: browserStorage() },
   mapItem: "holoPlan",
   drawOver: (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx),
   ui: (
@@ -20,6 +25,7 @@ const run = startRun({
       <Subtitle />
       <LevelEnd />
       <InventoryScreen />
+      <MenuScreen mission={MISSION} />
     </>
   ),
 });
