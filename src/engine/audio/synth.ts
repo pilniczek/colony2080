@@ -21,13 +21,10 @@ export function buffer(seconds: number): Float32Array {
 
 export function envelope(points: [number, number][]): (t: number) => number {
   return (t) => {
-    if (t < points[0][0]) return 0;
     for (let i = 1; i < points.length; i++) {
-      const [t1, v1] = points[i];
-      if (t <= t1) {
-        const [t0, v0] = points[i - 1];
-        return t1 === t0 ? v1 : v0 + ((v1 - v0) * (t - t0)) / (t1 - t0);
-      }
+      const [t0, v0] = points[i - 1] as [number, number];
+      const [t1, v1] = points[i] as [number, number];
+      if (t >= t0 && t <= t1) return t1 === t0 ? v1 : v0 + ((v1 - v0) * (t - t0)) / (t1 - t0);
     }
     return 0;
   };
