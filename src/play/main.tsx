@@ -1,4 +1,4 @@
-import { loadMesto } from "../game/level/mesto";
+import { loadMission, type MissionId } from "../game/level/missions";
 import { startRun, type RunOptions } from "../game/run";
 import { browserStorage } from "../game/save/saveMenu";
 import { slotFromQuery } from "../game/save/slots";
@@ -13,12 +13,12 @@ useSandbox.setState({ fogOn: true });
 
 let drawOver: RunOptions["drawOver"];
 
-const MISSION = "mesto";
+const MISSION: MissionId = "mesto";
 
 const startSlot = slotFromQuery(location.search);
 
 const run = startRun({
-  world: loadMesto(),
+  world: loadMission(MISSION),
   saves: { mission: MISSION, storage: browserStorage(), startSlot },
   intro: startSlot === null ? "missionStart" : undefined,
   mapItem: "holoPlan",

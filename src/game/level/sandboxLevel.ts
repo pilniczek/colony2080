@@ -74,8 +74,45 @@ export interface Inventory {
   shown: ItemId | null;
 }
 
+export interface Hazard {
+  id: string;
+  kind: "death" | "damage";
+  col: number;
+  row: number;
+  w: number;
+  h: number;
+  perSecond?: number;
+  push?: number;
+}
+
+export interface Conveyor {
+  col: number;
+  row: number;
+  w: number;
+  vx: number;
+}
+
+export interface Teleport {
+  id: string;
+  from: [number, number];
+  to: [number, number];
+  col: number;
+  w: number;
+}
+
+export interface CellPatch {
+  col: number;
+  row: number;
+  ch: string;
+}
+
 export interface SandboxWorld {
   grid: TileGrid;
+  fallDeathCells: number | null | undefined;
+  hazards: Hazard[];
+  conveyors: Conveyor[];
+  teleports: Teleport[];
+  variants: Record<string, CellPatch[]>;
   lifts: Lift[];
   props: Prop[];
   inventory: Inventory;
@@ -122,6 +159,11 @@ export interface SandboxJson {
   props: Prop[];
   enemies: EnemyJson[];
   tasks?: unknown;
+  fallDeathCells?: number | null;
+  hazards?: Hazard[];
+  conveyors?: Conveyor[];
+  teleports?: Teleport[];
+  variants?: Record<string, CellPatch[]>;
 }
 
 function checkedProp(prop: Prop): Prop {
@@ -157,6 +199,11 @@ export function loadSandbox(json: unknown): SandboxWorld {
   }));
   const world: SandboxWorld = {
     grid,
+    fallDeathCells: data.fallDeathCells,
+    hazards: structuredClone(data.hazards ?? []),
+    conveyors: structuredClone(data.conveyors ?? []),
+    teleports: structuredClone(data.teleports ?? []),
+    variants: structuredClone(data.variants ?? {}),
     lifts,
     props: data.props.map(checkedProp),
     inventory: { items: [], shown: null },

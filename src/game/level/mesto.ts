@@ -5,7 +5,7 @@ import world from "@config/levels/mesto/world.json";
 import type { EnemyJson } from "./enemy";
 import { loadSandbox, type SandboxJson, type SandboxWorld } from "./sandboxLevel";
 
-type DroidTuning = Omit<EnemyJson, "x" | "y" | "facing" | "patrol">;
+export type DroidTuning = Omit<EnemyJson, "x" | "y" | "facing" | "patrol">;
 
 interface DroidEntry {
   cell: number[];
