@@ -67,6 +67,15 @@ describe("missions", () => {
     expect(missionJson("mesto")).toMatchSnapshot();
   });
 
+  it("draws vesnice with its own sky and scenery, the other missions with none", () => {
+    const vesnice = loadMission("vesnice");
+    expect(vesnice.sky).toBe("villageBackdrop");
+    expect(vesnice.backdrop.length).toBeGreaterThan(0);
+    expect(vesnice.dressing.map((s) => s.asset)).toContain("grassyWalkway");
+    expect(vesnice.props).toEqual([]);
+    for (const id of ["jungle", "jeskyne"] as const) expect(missionJson(id).dressing).toEqual([]);
+  });
+
   it("refuses a vesnice snapshot in mesto", () => {
     const vesnice = loadMission("vesnice");
     const hero = createHero(vesnice.spawn, "gun", cfg.energy.max, cfg.energy.shields, cfg.ammo);

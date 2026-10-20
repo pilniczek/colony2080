@@ -2,6 +2,7 @@ import jeskyneMap from "@config/levels/jeskyne/map.json";
 import jungleMap from "@config/levels/jungle/map.json";
 import mestoWorld from "@config/levels/mesto/world.json";
 import vesniceMap from "@config/levels/vesnice/map.json";
+import vesniceWorld from "@config/levels/vesnice/world.json";
 import type { ItemId } from "../items";
 import type { EnemyJson } from "./enemy";
 import { DROID, droidsOf, FLYER, mestoJson, type DroidTuning } from "./mesto";
@@ -38,6 +39,16 @@ type OtherMission = Exclude<MissionId, "mesto">;
 
 const MAPS: Record<OtherMission, MissionMap> = { vesnice: vesniceMap, jungle: jungleMap, jeskyne: jeskyneMap };
 
+interface MissionWorld {
+  sky: string;
+  backdrop: SandboxJson["backdrop"];
+  dressing: SandboxJson["dressing"];
+}
+
+const NO_WORLD: MissionWorld = { sky: mestoWorld.sky, backdrop: [], dressing: [] };
+
+const WORLDS: Record<OtherMission, MissionWorld> = { vesnice: vesniceWorld, jungle: NO_WORLD, jeskyne: NO_WORLD };
+
 const MESTO_KINDS: Record<string, DroidTuning> = { chromeDroid: DROID, flyer: FLYER };
 
 export const enemyKinds = (id: MissionId): Record<string, DroidTuning> =>
@@ -56,9 +67,9 @@ export function missionJson(id: MissionId): SandboxJson {
   return {
     rows: map.rows,
     spawn: [map.spawn[0]!, map.spawn[1]!],
-    sky: mestoWorld.sky,
-    backdrop: [],
-    dressing: [],
+    sky: WORLDS[id].sky,
+    backdrop: WORLDS[id].backdrop,
+    dressing: WORLDS[id].dressing,
     lifts: map.lifts as SandboxJson["lifts"],
     props: [],
     enemies: mapEnemies(id),

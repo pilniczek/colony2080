@@ -44,6 +44,8 @@ export interface Scenery {
   x: number;
   y?: number;
   state?: number;
+  w?: number;
+  flip?: boolean;
 }
 
 export interface Lift extends Platform {

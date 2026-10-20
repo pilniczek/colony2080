@@ -172,6 +172,6 @@ flowchart LR
 
 - Environment sheet: all 52 objects and the `ladder` drawn, first pass kept, revisit a look only on new evidence from the original (2026-10-20, user). The sandbox uses a subset (ported to `src/game/env/`). Guessed looks (no original sprite or unclear): code lock, E-Blaster pickup on the ground, hazard plate purpose, staircase treads. Marker 6 is either the valve wheel near the E-Blaster or the water pipe; both are drawn.
 - Sandbox HUD shows live life, shields, weapon and ammo (see Ammo). Shields start at `energy.shields` in `config/hero/movement.json`.
-- Missions 2-4 (`vesnice`, `jungle`, `jeskyne`): items, props, tasks, films and own art (sky, backdrop, hazard looks such as spikes and lava) are not built; each loads only its map, enemies, hazards and conveyors. Map `variants` are not applied in game yet.
+- Missions 2-4 (`vesnice`, `jungle`, `jeskyne`): items, props, tasks and films are not built; each loads its map, enemies, hazards and conveyors. Vesnice has its own art (sky, backdrop, dressing); its interactive objects stand as non-interactive dressing in state 0 until the tasks phase (2026-10-20). Jungle and jeskyne have no own art yet (sky, backdrop, hazard looks such as spikes and lava). Map `variants` are not applied in game yet.
 - Vesnice tasks phase: teleport 3 must send lift 3 back to its top stop and set `flag:teleportLinked` (report 14).
 - Vesnice `bridgeGap` death hazard is a guess: whether falling through the M22 bridge gap kills or lands on floor 50 is open (report 14).
