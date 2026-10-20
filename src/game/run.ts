@@ -20,7 +20,7 @@ import { createFog, loadFog } from "./fog";
 import { createSaveMenu, type SaveMenuOptions } from "./save/saveMenu";
 import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
-import { createHero, type Hero } from "./hero/hero";
+import { createHero, halt, type Hero } from "./hero/hero";
 import { createRigs, heroLook } from "./hero/look";
 import { canOpenScreen, closesMap, inventoryKey, openCursor, repeatsOnScreen, screenKey } from "./hud/inventoryKeys";
 import { newestFirst } from "./hud/inventory";
@@ -389,6 +389,24 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       useSandbox.setState({ fogOn });
       say(world, fogOn ? "Fog of war on" : "Fog of war off");
     }
+    if (cheat === "weapon") giveWeapon();
+    if (typeof cheat === "object" && cheat !== null) moveTo(...cheat.moveTo);
+  };
+
+  const giveWeapon = (): void => {
+    const props = world.props.filter((p) => p.kind === "weapon");
+    if (!props.length) return say(world, "No special weapon in this mission");
+    for (const p of props) p.taken = true;
+    hero.blaster = tuning().movement.blaster.ammo;
+    say(world, "Picked up E-Blaster");
+  };
+
+  const moveTo = (x: number, y: number): void => {
+    if (x < 0 || x > world.grid.width || y <= 0 || y > world.grid.height) return say(world, "Off the map");
+    Object.assign(hero, { x, y, vx: 0, vy: 0, fallFrom: y, onGround: false, onLift: false });
+    halt(hero);
+    prev = { x, y };
+    say(world, `Moved to ${x}, ${y}`);
   };
 
   startFilm(world, intro);
