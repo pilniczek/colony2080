@@ -132,7 +132,7 @@ describe("mesto map", () => {
 describe("mesto props", () => {
   const { props } = world;
   const objects = ["dyingRebel", "wireBox", "switchboard", "trainDoor", "tapValveWheel", "corpse", "barDoor", "crashedShip", "codeLock", "damagedLift", "acidTank", "cardDoor", "crane"];
-  const gates = ["metroTunnel", "waterPipe", "plasmaBarrier", "acidGuard"];
+  const gates = ["metroTunnel", "waterPipe", "plasmaBarrier", "acidGuard", "shootGuard"];
 
   it("places every interactive object once", () => {
     const ids = props.filter((p) => p.kind === "object").map((p) => p.id).sort();
@@ -230,5 +230,47 @@ describe("mesto acid guard", () => {
     tick(g, ["shoot"], ["shoot"]);
     run(g, 0.5, ["shoot"]);
     expect(guardOf(g).state).toBe(0);
+  });
+});
+
+describe("mesto shoot guard", () => {
+  const shots = (g: Game) => g.world.projectiles.filter((p) => p.tag === ENEMY_SHOT);
+  const guardOf = (g: Game) => g.world.props.find((p) => p.id === "shootGuard")!;
+
+  it("blocks the way to the crane key while it stands", () => {
+    expect(grid.solid(25, 14)).toBe(true);
+    expect(grid.solid(26, 14)).toBe(true);
+  });
+
+  it("fires bursts at a hero on its right and hurts him", () => {
+    const g = game({ x: 30.5, y: 16 }, mestoJson());
+    tick(g);
+    expect(shots(g).length + g.world.sparks.length).toBeGreaterThan(0);
+    run(g, 1);
+    expect(g.hero.energy).toBeLessThan(cfg.energy.max);
+  });
+
+  it("shrugs off hero bullets", () => {
+    const g = game({ x: 30.5, y: 16, weapon: "gun", state: "hide" }, mestoJson());
+    g.hero.facing = -1;
+    g.hero.hidden = false;
+    Object.assign(g.hero, { state: "idle" });
+    guardOf(g).fires!.states = [];
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 1, ["shoot"]);
+    expect(guardOf(g).hitsTaken ?? 0).toBe(0);
+    expect(guardOf(g).state).toBe(0);
+  });
+
+  it("falls to the E-Blaster beam, explodes and frees the way", () => {
+    const g = game({ x: 28.5, y: 16, weapon: "blaster" }, mestoJson());
+    g.hero.blaster = 400;
+    g.hero.facing = -1;
+    guardOf(g).fires!.states = [];
+    tick(g, ["shoot"], ["shoot"]);
+    for (let i = 0; i < 4 / (1 / 60) && guardOf(g).state === 0; i++) tick(g, ["shoot"]);
+    expect(guardOf(g).state).toBe(1);
+    expect(g.world.grid.solid(25, 14)).toBe(false);
+    expect(guardOf(g).brokenAge).toBeGreaterThanOrEqual(0);
   });
 });

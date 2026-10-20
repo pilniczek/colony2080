@@ -1,7 +1,7 @@
 import { FIXED_STEP } from "../../engine/loop";
 import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset, TILE, type Size } from "../env/paint";
-import { ACID_GUARD_FIRING } from "../env/guard";
+import { guardLook } from "../level/guards";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { RUNG, spikeUnit } from "../hero/look";
@@ -251,9 +251,10 @@ export function prop(e: Env, p: Prop): void {
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
   const { dx = 0, dy = 0 } = p.art ?? {};
-  const firing = typeof p.fireTime === "number";
-  const state = firing ? ACID_GUARD_FIRING : (icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0)));
-  put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, state, undefined, firing ? p.fireTime! : 0);
+  const look = guardLook(p);
+  if (look === "gone") return;
+  const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
+  put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, state, undefined, look?.t ?? 0);
 }
 
 export function drawEnvironment(

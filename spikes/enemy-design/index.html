@@ -39,6 +39,7 @@
     <label><input type="radio" name="kind" value="walker" checked>Gun walker</label>
     <label><input type="radio" name="kind" value="flyer">Flyer</label>
     <label><input type="radio" name="kind" value="guard">Acid guard</label>
+    <label><input type="radio" name="kind" value="shooter">Shoot guard</label>
   </div>
   <label class="walkerOnly">Brightness <input id="brightness" type="range" min="0.4" max="1.6" step="0.01"><output id="brightnessOut"></output></label>
   <label class="walkerOnly">Saturation <input id="saturate" type="range" min="0" max="1" step="0.01"><output id="saturateOut"></output></label>
@@ -120,6 +121,26 @@
 </main>
 <!-- /originals -->
 </section>
+<section data-kind="shooter" hidden>
+<main>
+  <figure><figcaption>Shoot guard, idle</figcaption><canvas id="shooterIdle" data-w="1300" data-h="1000"></canvas></figure>
+  <figure><figcaption>Shoot guard, firing</figcaption><canvas id="shooterFire" data-w="1300" data-h="1000"></canvas></figure>
+  <figure><figcaption>Shoot guard, explosion</figcaption><canvas id="shooterBlast" data-w="1300" data-h="1000"></canvas></figure>
+  <figure class="heroOnly"><figcaption>Scale, guard and hero</figcaption><canvas id="shooterScale" data-w="2300" data-h="1000"></canvas></figure>
+</main>
+<h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
+<main class="game">
+  <figure><figcaption>Face-off</figcaption><canvas id="gShooter" data-w="2300" data-h="1000"></canvas></figure>
+</main>
+<!-- originals -->
+<h2>References</h2>
+<main>
+  <figure><figcaption>Shoot guard, LEV1.GRA f25 frame 1 (idle)</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/shoot_guard_idle.png" alt="shoot guard idle"></figure>
+  <figure><figcaption>Shoot guard, LEV1.GRA f25 frame 4 (muzzle fire)</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/shoot_guard_fire.png" alt="shoot guard firing"></figure>
+  <figure><figcaption>Shoot guard, LEV1.GRA f25 frames 1-8</figcaption><img src="../../docs/research/gamedata/png/enemy-sprites/shoot_guard_f25_frames.png" alt="shoot guard frames"></figure>
+</main>
+<!-- /originals -->
+</section>
 <script src="../shared/clock.js"></script>
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
@@ -128,14 +149,14 @@
 <script src="../shared/enemies.js"></script>
 <script>
 const { PALETTE, shade, buildFront, buildSide, buildBack, render, FOOT_Y, LEVELS } = window.XBOT;
-const { FLYER, GUARD, GUARD_FRONT, FLYER_PALETTE, GUARD_PALETTE } = window.ENEMIES;
+const { FLYER, GUARD, GUARD_FRONT, TROOPER, FLYER_PALETTE, GUARD_PALETTE, TROOPER_PALETTE } = window.ENEMIES;
 
 const SKY = ["#1b2629", "#0f1517"];
 const HERO_CELLS = 1.9;
 const K = (FOOT_Y - Object.fromEntries(LEVELS).head) / (HERO_CELLS * ENV.TILE);
 const LOW_FLYER = 32;
 const tint = { brightness: 1.1, saturate: 0 };
-const overrides = { walker: {}, flyer: {}, guard: {} };
+const overrides = { walker: {}, flyer: {}, guard: {}, shooter: {} };
 const opts = { lines: true, hero: true, guides: true, kind: "walker" };
 const GUIDED = new Set(["guardFront", "guardFire", "guardAcid", "guardWreck", "guardScale"]);
 
@@ -162,9 +183,10 @@ const SIDE_SHIFT = -150;
 const PALETTES = {
   walker: () => ({ ...shade(PALETTE, tint), visor: PALETTE.visor, ...overrides.walker }),
   flyer: () => ({ ...ENV.PALETTE, ...FLYER_PALETTE, ...overrides.flyer }),
-  guard: () => ({ ...ENV.PALETTE, ...GUARD_PALETTE, ...overrides.guard })
+  guard: () => ({ ...ENV.PALETTE, ...GUARD_PALETTE, ...overrides.guard }),
+  shooter: () => ({ ...ENV.PALETTE, ...TROOPER_PALETTE, ...overrides.shooter })
 };
-const OWN_KEYS = { walker: Object.keys(PALETTE), flyer: Object.keys(FLYER_PALETTE), guard: Object.keys(GUARD_PALETTE) };
+const OWN_KEYS = { walker: Object.keys(PALETTE), flyer: Object.keys(FLYER_PALETTE), guard: Object.keys(GUARD_PALETTE), shooter: ["gm0", "gm1", "gm2", "gm3", "gmLine", "gc0", "gc1", "gc2", "gc3", "tg0", "tg1", "tg2", "tg3", "trim", "eye", "eyeGlow"] };
 
 function robot(ctx, { root, pose, hook, barrel, pal, simple, lineW }) {
   render(ctx, root, { pal, pose, lineW, simple, hooks: { [hook]: c => GUN.hook(c, { pal, lineW, simple, barrel }) } });
@@ -276,6 +298,23 @@ const VIEWS = {
       enemy(ctx, GUARD, { x: w - 150, y: floor, state: 1, t, pal, lineW: lw, lod: true });
     },
     gGuardWreck: (ctx, lw, pal, w, h, t) => { backdrop(ctx, w, h); enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 3, t, pal, lineW: lw, lod: true }); }
+  },
+  shooter: {
+    shooterIdle: (ctx, lw, pal, w, h, t) => enemy(ctx, TROOPER, { x: 450, y: h - 50, t, pal, lineW: lw }),
+    shooterFire: (ctx, lw, pal, w, h, t) => enemy(ctx, TROOPER, { x: 450, y: h - 50, state: 1, t, pal, lineW: lw }),
+    shooterBlast: (ctx, lw, pal, w, h, t) => enemy(ctx, TROOPER, { x: 450, y: h - 50, state: 2, t, pal, lineW: lw }),
+    shooterScale: (ctx, lw, pal, w, h, t) => {
+      const floor = h - 50;
+      floorLine(ctx, w, floor);
+      enemy(ctx, TROOPER, { x: 450, y: floor, t, pal, lineW: lw });
+      facingLeft(ctx, w, () => hero(ctx, { x: 360, floor, lineW: lw * 1.4 }));
+    },
+    gShooter: (ctx, lw, pal, w, h, t) => {
+      backdrop(ctx, w, h);
+      const floor = h - 50;
+      enemy(ctx, TROOPER, { x: 450, y: floor, state: 1, t, pal, lineW: lw, lod: true });
+      if (opts.hero) facingLeft(ctx, w, () => hero(ctx, { x: 360, floor, lineW: lw, simple: true }));
+    }
   }
 };
 

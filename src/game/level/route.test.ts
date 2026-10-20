@@ -28,6 +28,7 @@ const ORDER: Step[] = [
   { use: "damagedLift", with: "controller" },
   { use: "cardDoor", with: "card" },
   { use: "acidTank", with: "tapHandle" },
+  { shoot: "shootGuard" },
   { pick: "craneKey" },
   { use: "crane", with: "craneKey" },
 ];

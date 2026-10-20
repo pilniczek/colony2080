@@ -28,11 +28,12 @@ export interface Prop {
   state?: number;
   solidStates?: number[];
   cells?: { col: number; row: number; w: number; h: number };
-  shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string };
+  shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string; by?: "beam" };
   hitsTaken?: number;
   fires?: PropFire;
   fireTime?: number | null;
   pauseLeft?: number;
+  brokenAge?: number;
 }
 
 export interface Scenery {

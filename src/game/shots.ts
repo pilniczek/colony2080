@@ -8,7 +8,7 @@ import { HERO_SHOT, type Hero, type HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
 import { bodyBox, ENEMY_SHOT, FLYER_GUN, hitEnemy, isDead, type Enemy } from "./level/enemy";
 import type { Prop, SandboxWorld } from "./level/sandboxLevel";
-import { gunOf, updateGuard } from "./level/guards";
+import { gunOf, updateGuard, watchX } from "./level/guards";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { ROBOT } from "./robot/xbot";
@@ -73,8 +73,8 @@ function enemyFace(enemy: Enemy, cfg: MovementConfig, from: number, p: Projectil
 
 const shootable = (prop: Prop): boolean => !!prop.shootable && (prop.hitsTaken ?? 0) < prop.shootable.hits;
 
-function propFace(prop: Prop, from: number, p: Projectile): number | null {
-  if (p.tag !== HERO_SHOT || !shootable(prop)) return null;
+function propFace(prop: Prop, from: number, p: Projectile, beam: boolean): number | null {
+  if (p.tag !== HERO_SHOT || !shootable(prop) || (prop.shootable!.by === "beam" && !beam)) return null;
   const half = (prop.width ?? 1) / 2;
   const floor = prop.y ?? 0;
   if (p.y < floor - (prop.height ?? 1) || p.y > floor) return null;
@@ -89,6 +89,7 @@ export function hitShootable(world: SandboxWorld, prop: Prop): void {
   prop.hitsTaken = (prop.hitsTaken ?? 0) + 1;
   if (prop.hitsTaken < spec.hits) return;
   prop.state = spec.state;
+  prop.brokenAge = 0;
   for (const flag of spec.gives ?? []) world.flags.add(flag);
   applyBlocks(world);
   if (spec.subtitle) say(world, spec.subtitle);
@@ -104,10 +105,10 @@ const beyond = (p: Projectile, x: number, edge: number): boolean => (x - edge) *
 
 const seen = (world: SandboxWorld, x: number, y: number): boolean => !world.fog || visible(world.fog, x, y);
 
-function nearestProp(world: SandboxWorld, from: number, p: Projectile, edge: number): { prop: Prop; face: number } | null {
+function nearestProp(world: SandboxWorld, from: number, p: Projectile, edge: number, beam = false): { prop: Prop; face: number } | null {
   let best: { prop: Prop; face: number } | null = null;
   for (const prop of world.props) {
-    const face = propFace(prop, from, p);
+    const face = propFace(prop, from, p, beam);
     if (face === null || beyond(p, face, edge)) continue;
     if (!best || Math.abs(face - from) < Math.abs(best.face - from)) best = { prop, face };
   }
@@ -169,7 +170,7 @@ function beamLine(world: SandboxWorld, h: Hero, clips: ClipSet, cfg: MovementCon
   const ray = { x: reach, y, vx: h.facing, r: 0, tag: HERO_SHOT, endX: reach };
   const open = nearer(h.facing, sightEdge(world, x, ray), wallBetween(world, h.x, ray) ?? reach);
   const end = ahead(h.facing, x, open);
-  const prop = nearestProp(world, h.x, { ...ray, x: end }, end);
+  const prop = nearestProp(world, h.x, { ...ray, x: end }, end, true);
   return prop ? { x, y, end: ahead(h.facing, x, prop.face), prop: prop.prop } : { x, y, end, prop: null };
 }
 
@@ -231,9 +232,8 @@ export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipS
 export function fireGuards(world: SandboxWorld, hero: Hero, cfg: MovementConfig, dt: number): void {
   for (const prop of world.props) {
     if (!prop.fires) continue;
-    const gun = gunOf(prop);
     const count = updateGuard(prop, world.grid, world.fog, hero, cfg.sightCells, dt);
-    for (let i = 0; i < count; i++) enemyShot(world, cfg, gun[0], gun, prop.fires.facing);
+    for (let i = 0; i < count; i++) enemyShot(world, cfg, watchX(prop), gunOf(prop), prop.fires.facing);
   }
 }
 

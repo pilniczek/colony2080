@@ -26,7 +26,13 @@ const GUARD_PALETTE = {
   fire0: "#b04010", fire1: "#e88a28", fire2: "#f8d070", fire3: "#ffffff"
 };
 
-Object.assign(ENV.PALETTE, GUARD_PALETTE);
+const TROOPER_PALETTE = {
+  ...GUARD_PALETTE,
+  tg0: "#241e0c", tg1: "#3c341c", tg2: "#585020", tg3: "#7c7434",
+  trim: "#c89a30", eye: "#d8401c", eyeGlow: "#ff5a30"
+};
+
+Object.assign(ENV.PALETTE, TROOPER_PALETTE);
 
 Object.assign(MAT, {
   flyerHull: ["fh0", "fh1", "fh2", "fh3", "fhLine"],
@@ -34,7 +40,8 @@ Object.assign(MAT, {
   flyerStripe: ["fs0", "fs1", "fs2", "fs3", "fhLine"],
   flyerHump: ["fk0", "fk1", "fk2", "fk3", "fhLine"],
   guardMetal: ["gm0", "gm1", "gm2", "gm3", "gmLine"],
-  guardChrome: ["gc0", "gc1", "gc2", "gc3", "gmLine"]
+  guardChrome: ["gc0", "gc1", "gc2", "gc3", "gmLine"],
+  trooperGun: ["tg0", "tg1", "tg2", "tg3", "gmLine"]
 });
 
 const FIRE_TICKS = 9;
@@ -588,6 +595,92 @@ const GUARD_FRONT = {
 
 const GUARD_LEVELS = [["top", -38.5], ["visor", -32.5], ["hip", -23.5], ["knee", -FRONT_KNEE], ["foot", 0]].map(([name, y]) => [name, y * GUARD_SIZE]);
 
+const TROOPER_ORIGIN = [24, 68];
+const TROOPER_MUZZLE = [60, 33];
+const TROOPER_FIRE_LOOP = 1.2;
+
+function trooperLegs(ctx) {
+  P.poly(ctx, [[22, 50], [27, 53], [13, 66], [6, 66]], "guardMetal", 1, { dir: [1, 0] });
+  P.poly(ctx, [[2, 64], [16, 63], [18, 68], [1, 68]], "guardMetal", 1);
+  P.poly(ctx, [[25, 52], [33, 52], [32, 63], [26, 63]], "guardMetal", 2, { dir: [1, 0] });
+  P.disc(ctx, 29, 53, 4.2, "gm1", "gmLine");
+  P.poly(ctx, [[21, 62], [37, 62], [44, 66], [44, 68], [20, 68]], "guardMetal", 1);
+  P.poly(ctx, [[30, 62], [37, 62], [42, 65], [30, 65]], "guardChrome", 2);
+}
+
+function trooperHips(ctx) {
+  P.poly(ctx, [[15, 42], [33, 42], [35, 50], [30, 56], [18, 56], [14, 50]], "guardMetal", 2, { dir: [1, 0] });
+  P.poly(ctx, [[16, 43], [32, 43], [33, 46], [15, 46]], "guardChrome", 1);
+  if (!ENV.simple) {
+    P.line(ctx, [[15, 49], [34, 49]], "gm0", 0.6, "butt");
+    P.line(ctx, [[18, 53], [31, 53]], "trim", 0.6, "butt");
+  }
+}
+
+function trooperTorso(ctx) {
+  P.poly(ctx, [[10, 22], [18, 18], [20, 32], [14, 34]], "guardMetal", 0);
+  P.poly(ctx, [[15, 24], [24, 22], [31, 25], [33, 33], [31, 41], [16, 43], [12, 34]], "guardMetal", 2, { dir: [1, 0] });
+  P.poly(ctx, [[22, 24], [29, 25], [32, 32], [30, 39], [23, 40]], "guardChrome", 1, { dir: [1, 0] });
+  P.line(ctx, [[15, 25], [30, 25]], "trim", 0.8, "butt");
+  if (!ENV.simple) for (const y of [30, 35]) P.line(ctx, [[13, y], [32, y]], "gm0", 0.5, "butt");
+}
+
+function trooperHead(ctx) {
+  P.line(ctx, [[16, 19], [12, 13]], "gm2", 1, "butt");
+  P.poly(ctx, [[20, 24], [26, 24], [26, 20], [20, 20]], "guardMetal", 0);
+  P.poly(ctx, [[18, 18], [22, 15.5], [38, 15.5], [46, 17], [46, 19], [38, 20], [26, 21], [19, 21]], "guardMetal", 2);
+  P.poly(ctx, [[26, 21], [38, 20], [46, 19], [45, 22.5], [36, 22.5], [28, 23]], "guardChrome", 1);
+  P.flat(ctx, 39, 17.2, 2.4, 1.4, "eye");
+  if (!ENV.simple) {
+    P.glow(ctx, 40.2, 17.9, 3, "eyeGlow", 0.4);
+    P.line(ctx, [[23, 16.5], [37, 16.5]], "gc3", 0.4);
+  }
+}
+
+function trooperArm(ctx, fire) {
+  P.disc(ctx, 26, 31, 3.6, "gm2", "gmLine");
+  P.box(ctx, 26, 31, 13, 5, "guardChrome", 1);
+  P.box(ctx, 38, 31.5, 4, 4.5, "guardMetal", 1);
+  P.box(ctx, 41, 31.4, 19, 3, "trooperGun", 2);
+  P.box(ctx, 47, 30, 6, 1.4, "trooperGun", 1);
+  P.box(ctx, 42, 34.4, 2.2, 3.6, "trooperGun", 1, { vertical: true });
+  if (!ENV.simple) for (const x of [50, 54]) P.flat(ctx, x, 31.4, 0.6, 3, "tg0");
+  if (fire >= 0) flash(ctx, TROOPER_MUZZLE[0], TROOPER_MUZZLE[1], 1, fire, 3.8);
+}
+
+function trooperBody(ctx, fire) {
+  ctx.translate(-TROOPER_ORIGIN[0], -TROOPER_ORIGIN[1]);
+  trooperLegs(ctx);
+  trooperHips(ctx);
+  trooperTorso(ctx);
+  trooperHead(ctx);
+  trooperArm(ctx, fire);
+}
+
+const TROOPER = {
+  id: "trooper",
+  box: { x: -24, y: -54, w: 66, h: 54 },
+  draw(ctx, state, t) {
+    if (state !== 2) return trooperBody(ctx, state === 1 ? fireFrame(t % TROOPER_FIRE_LOOP) : -1);
+    const age = t % BLAST.loop;
+    if (age < BLAST.hideBody) {
+      ctx.save();
+      trooperBody(ctx, -1);
+      ctx.restore();
+    }
+    inBlastUnits(ctx, 0, 0, () => blast(ctx, age));
+  }
+};
+
+ENV.define({
+  id: "shootGuard",
+  box: [-24, -54, 66, 54],
+  anim: true,
+  draw(ctx, state, t) {
+    TROOPER.draw(ctx, state, t);
+  }
+});
+
 ENV.define({
   id: "acidGuard",
   box: [-56, -56, 54, 56],
@@ -607,9 +700,10 @@ ENV.define({
 });
 
 window.ENEMIES = {
-  FLYER, GUARD, GUARD_FRONT, GUARD_LEVELS, FLYER_PALETTE, GUARD_PALETTE,
+  FLYER, GUARD, GUARD_FRONT, GUARD_LEVELS, TROOPER, FLYER_PALETTE, GUARD_PALETTE, TROOPER_PALETTE,
   BLAST, BLAST_PX, blast, scrap, inBlastUnits,
   FLYER_STATES: ["hover", "firing", "explode"],
-  GUARD_STATES: ["idle", "firing", "acid (guess)", "wreck"]
+  GUARD_STATES: ["idle", "firing", "acid (guess)", "wreck"],
+  TROOPER_STATES: ["idle", "firing", "explode"]
 };
 })();

@@ -1,11 +1,13 @@
-import { ASSETS } from "../env/assets";
-import { ACID_GUARD_MUZZLE } from "../env/guard";
+import type { TileGrid } from "../../engine/world/tiles";
+import { ASSETS, type AssetId } from "../env/assets";
+import { BLAST } from "../env/blast";
+import { ACID_GUARD_FIRING, ACID_GUARD_MUZZLE } from "../env/guard";
 import { TILE } from "../env/paint";
+import { SHOOT_GUARD_EXPLODE, SHOOT_GUARD_FIRING, SHOOT_GUARD_MUZZLE } from "../env/shootGuard";
 import type { Fog } from "../fog";
 import type { Hero } from "../hero/hero";
 import { burstStep, seesHero, type Burst } from "./enemy";
 import type { Prop } from "./sandboxLevel";
-import type { TileGrid } from "../../engine/world/tiles";
 
 export interface PropFire {
   facing: -1 | 1;
@@ -14,18 +16,58 @@ export interface PropFire {
   states: number[];
 }
 
-const [left, , right] = ASSETS.acidGuard.box;
-const ART_SHIFT = -(left + right) / 2;
+interface GuardArt {
+  muzzle: [number, number];
+  firing: number;
+  explode?: number;
+}
 
-export const gunOf = (prop: Prop): [number, number] => [prop.x + (ACID_GUARD_MUZZLE[0] + ART_SHIFT) / TILE, (prop.y ?? 0) + ACID_GUARD_MUZZLE[1] / TILE];
+const EDGE = 1e-6;
+
+const ART: Partial<Record<AssetId, GuardArt>> = {
+  acidGuard: { muzzle: ACID_GUARD_MUZZLE, firing: ACID_GUARD_FIRING },
+  shootGuard: { muzzle: SHOOT_GUARD_MUZZLE, firing: SHOOT_GUARD_FIRING, explode: SHOOT_GUARD_EXPLODE },
+};
+
+const artOf = (prop: Prop): GuardArt => {
+  const art = prop.asset && ART[prop.asset];
+  if (!art) throw new Error(`no guard art for ${prop.asset}`);
+  return art;
+};
+
+function originX(prop: Prop): number {
+  const [left, , right] = ASSETS[prop.asset!].box;
+  return prop.x + (prop.art?.dx ?? 0) - (left + right) / 2 / TILE;
+}
+
+export const gunOf = (prop: Prop): [number, number] => {
+  const { muzzle } = artOf(prop);
+  return [originX(prop) + muzzle[0] / TILE, (prop.y ?? 0) + (prop.art?.dy ?? 0) + muzzle[1] / TILE];
+};
+
+export function watchX(prop: Prop): number {
+  const { cells, fires } = prop;
+  if (!cells || !fires) throw new Error(`guard ${prop.id} needs cells and fires`);
+  return fires.facing > 0 ? cells.col + cells.w : cells.col - EDGE;
+}
+
+const alive = (prop: Prop): boolean => !!prop.fires && prop.fires.states.includes(prop.state ?? 0);
+
+export function guardLook(prop: Prop): { state: number; t: number } | "gone" | null {
+  if (!prop.fires) return null;
+  const art = artOf(prop);
+  if (alive(prop)) return typeof prop.fireTime === "number" ? { state: art.firing, t: prop.fireTime } : null;
+  if (art.explode === undefined) return null;
+  const age = prop.brokenAge ?? Infinity;
+  return age < BLAST.loop ? { state: art.explode, t: age } : "gone";
+}
 
 export function updateGuard(prop: Prop, grid: TileGrid, fog: Fog | null, hero: Hero, sightCells: number, dt: number): number {
   const fire = prop.fires;
   if (!fire) return 0;
+  if (prop.brokenAge !== undefined) prop.brokenAge += dt;
   prop.pauseLeft = Math.max(0, (prop.pauseLeft ?? 0) - dt);
-  const alive = fire.states.includes(prop.state ?? 0);
-  const [x] = gunOf(prop);
-  if (!alive || !seesHero({ x, ground: prop.y ?? 0, facing: fire.facing }, grid, hero, fog, sightCells)) {
+  if (!alive(prop) || !seesHero({ x: watchX(prop), ground: prop.y ?? 0, facing: fire.facing }, grid, hero, fog, sightCells)) {
     prop.fireTime = null;
     return 0;
   }

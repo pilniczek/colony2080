@@ -12,6 +12,7 @@ import type { Rect } from "../geometry";
 import type { Enemy } from "../level/enemy";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
+import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, TILE } from "../env/paint";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
@@ -28,35 +29,15 @@ const TRACER = { length: 14, width: 2 };
 const DUST = { back: 30, up: 6, radius: 18 };
 const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
 const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
-const BLAST = { grow: 0.25, hideBody: 0.45, center: -84, spin: 3.2, pull: [0.75, 1.1], fade: [0.9, 1.2], ring: [0.95, 1.45], ringRadius: 72, ringWidth: 11, swirl: 0.16, size: 1.6 } as const;
-const FIREBALLS: [number, number, number, number][] = [
-  [6, -96, 0, 22],
-  [-14, -72, 0.08, 26],
-  [22, -60, 0.16, 24],
-  [-4, -116, 0.24, 30],
-  [-26, -100, 0.3, 24],
-  [18, -128, 0.36, 28],
-  [0, -84, 0.4, 36],
-  [-18, -40, 0.46, 22],
-  [24, -36, 0.5, 20],
-];
 const MODELS = {
   gun: { draw: drawGun, hook: gunHook, slung: gunSlung },
   blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
 } satisfies Record<GunModel, unknown>;
 const FLYER_HIT = { flash: 0.25, glow: 0.6 };
-const SCRAP: [number, number][] = [[-34, 0], [-26, -8], [-14, -10], [-8, -18], [2, -12], [10, -22], [18, -12], [28, -10], [36, 0]];
 
 const COLORS = {
   shot: "#ff6a3a",
   spark: "#ffd76a",
-  blastCore: "#fff3b0",
-  blastMid: "#ffb030",
-  blastEdge: "#e8641a",
-  blastOut: "rgba(150,40,10,0)",
-  vortex: "#d8301c",
-  scrap: "#5d6668",
-  scrapLight: "#a9b3b5",
 };
 
 interface Frame {
@@ -123,85 +104,14 @@ function shadow(f: Frame, hero: Hero, look: HeroLook): void {
 export const rigFor = (look: HeroLook, rigs: Rigs): GroupNode =>
   look.view === "side" ? rigs.side : look.view === "front" ? rigs.front : rigs.climber;
 
-function fireball(f: Frame, x: number, y: number, radius: number, alpha: number): void {
-  const { ctx } = f;
-  const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
-  g.addColorStop(0, COLORS.blastCore);
-  g.addColorStop(0.45, COLORS.blastMid);
-  g.addColorStop(0.8, COLORS.blastEdge);
-  g.addColorStop(1, COLORS.blastOut);
-  ctx.save();
-  ctx.globalAlpha *= alpha;
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-function swirlBall(f: Frame, x: number, y: number, radius: number, angle: number, alpha: number): void {
-  const { ctx } = f;
-  fireball(f, x, y, radius, alpha);
-  ctx.save();
-  ctx.globalAlpha *= alpha;
-  ctx.strokeStyle = COLORS.blastEdge;
-  ctx.lineWidth = radius * BLAST.swirl;
-  ctx.lineCap = "round";
-  for (const [k, from, sweep] of [[0.62, 0, 1.3], [0.34, Math.PI, 1.1]] as const) {
-    ctx.beginPath();
-    ctx.arc(x, y, radius * k, angle + from, angle + from + Math.PI * sweep);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function vortexRing(f: Frame, x: number, y: number, age: number): void {
-  const { ctx, unit } = f;
-  const u = span(age, BLAST.ring[0], BLAST.ring[1]);
-  if (u <= 0 || u >= 1) return;
-  const angle = BLAST.spin * 1.5 * age;
-  ctx.save();
-  ctx.globalAlpha *= 1 - u;
-  ctx.strokeStyle = COLORS.vortex;
-  ctx.lineWidth = BLAST.ringWidth * (1 - u * 0.8) * unit;
-  ctx.lineCap = "round";
-  const radius = BLAST.ringRadius * (0.7 + 0.5 * u) * unit;
-  for (let i = 0; i < 3; i++) {
-    const from = angle + (i * 2 * Math.PI) / 3;
-    ctx.beginPath();
-    ctx.arc(x, y, radius * (1 - 0.08 * i), from, from + Math.PI * (0.55 - 0.25 * u));
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
 function blast(f: Frame, body: Hero, age: number, centered = false): void {
-  const { cell, unit } = f;
-  const [cx, cy] = [body.x * cell, body.y * cell + (centered ? 0 : BLAST.center * unit)];
-  const angle = body.facing * BLAST.spin * age;
-  const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
-  const pull = 1 - 0.85 * span(age, BLAST.pull[0], BLAST.pull[1]);
-  const alpha = 1 - span(age, BLAST.fade[0], BLAST.fade[1]);
-  FIREBALLS.forEach(([dx, dy, start, r], i) => {
-    const t = age - start;
-    if (t < 0 || alpha <= 0) return;
-    const [ox, oy] = [body.facing * dx * BLAST.size * unit, (dy - BLAST.center) * BLAST.size * unit];
-    const [x, y] = [cx + (ox * cos - oy * sin) * pull, cy + (ox * sin + oy * cos) * pull];
-    const grow = Math.min(1, t / BLAST.grow) * (1 + 0.4 * (1 - pull));
-    swirlBall(f, x, y, r * BLAST.size * unit * (0.3 + 0.7 * grow), angle * 1.6 + i, alpha);
-  });
-  vortexRing(f, cx, cy, age);
+  const { ctx, cell, unit } = f;
+  inBlastUnits(ctx, body.x * cell, body.y * cell - (centered ? BLAST.center * unit : 0), unit, () => drawBlast(ctx, age, body.facing));
 }
 
 function scrap(f: Frame, body: Hero): void {
   const { ctx, cell, unit } = f;
-  const [x, y] = [body.x * cell, body.y * cell];
-  ctx.fillStyle = COLORS.scrap;
-  ctx.beginPath();
-  for (const [dx, dy] of SCRAP) ctx.lineTo(x + body.facing * dx * unit, y + dy * unit);
-  ctx.fill();
-  ctx.fillStyle = COLORS.scrapLight;
-  for (const [dx, dy, w] of [[-12, -9, 6], [8, -18, 4], [20, -10, 5]] as const) ctx.fillRect(x + body.facing * dx * unit, y + dy * unit, w * unit, 2 * unit);
+  inBlastUnits(ctx, body.x * cell, body.y * cell, unit, () => drawScrap(ctx, body.facing));
 }
 
 function flyerFigure(f: Frame, { body, flight, deadAge }: Enemy): void {

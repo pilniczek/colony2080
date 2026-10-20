@@ -2,7 +2,7 @@ export const TILE = 24;
 
 export type EnvPalette = Record<string, string>;
 
-export type Material = "rust" | "concrete" | "brick" | "steel" | "chrome" | "green" | "armor" | "yellow" | "olive" | "denim" | "jacket" | "skin" | "hair" | "boot" | "flyerHull" | "flyerShell" | "flyerStripe" | "flyerHump" | "guardMetal" | "guardChrome";
+export type Material = "rust" | "concrete" | "brick" | "steel" | "chrome" | "green" | "armor" | "yellow" | "olive" | "denim" | "jacket" | "skin" | "hair" | "boot" | "flyerHull" | "flyerShell" | "flyerStripe" | "flyerHump" | "guardMetal" | "guardChrome" | "trooperGun";
 
 type Tones = [string, string, string, string, string];
 
@@ -67,6 +67,8 @@ export const PALETTE: EnvPalette = {
   visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
   lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
   visor: "#ac2c0c", visorGlow: "#ff5a30", fume: "#a8c890",
+  tg0: "#241e0c", tg1: "#3c341c", tg2: "#585020", tg3: "#7c7434",
+  trim: "#c89a30", eye: "#d8401c", eyeGlow: "#ff5a30",
 };
 
 export const MAT: Record<Material, Tones> = {
@@ -90,6 +92,7 @@ export const MAT: Record<Material, Tones> = {
   flyerHump: ["fk0", "fk1", "fk2", "fk3", "fhLine"],
   guardMetal: ["gm0", "gm1", "gm2", "gm3", "gmLine"],
   guardChrome: ["gc0", "gc1", "gc2", "gc3", "gmLine"],
+  trooperGun: ["tg0", "tg1", "tg2", "tg3", "gmLine"],
 };
 
 let pal = PALETTE;
