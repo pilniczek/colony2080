@@ -29,3 +29,34 @@ export const keyed = (keys: Keys, t: number, fn: Easing = ease): Record<string, 
 
 export const num = (keys: [number, number][], t: number, fn: Easing = ease): number =>
   keyed(keys.map(([a, v]): [number, Record<string, number>] => [a, { v }]), t, fn).v ?? 0;
+
+export type TrackEasing = "linear" | "in" | "out" | "inOut";
+export type TrackKey = [number, number | string, TrackEasing?];
+
+const TRACK_EASINGS: Record<TrackEasing, Easing> = {
+  linear: (k) => k,
+  in: easeIn,
+  out: easeOut,
+  inOut: (k) => (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2),
+};
+
+const switched = (keys: TrackKey[], t: number): string => {
+  let value = String(keys[0]![1]);
+  for (const [at, v] of keys) if (t >= at) value = String(v);
+  return value;
+};
+
+export function sampleTrack(keys: TrackKey[], t: number): number | string {
+  const [first] = keys;
+  if (!first) throw new Error("empty track");
+  if (typeof first[1] === "string") return switched(keys, t);
+  if (t <= first[0]) return first[1];
+  for (let i = 1; i < keys.length; i++) {
+    const [t1, v1, easing = "linear"] = keys[i]!;
+    const [t0, v0] = keys[i - 1]!;
+    if (t >= t1) continue;
+    if (t1 === t0) return v1;
+    return (v0 as number) + ((v1 as number) - (v0 as number)) * TRACK_EASINGS[easing]((t - t0) / (t1 - t0));
+  }
+  return keys[keys.length - 1]![1];
+}

@@ -49,7 +49,7 @@ const locateFrom = (node: RigNode, name: string, pose: Pose, m: Mat2D): Mat2D | 
   return null;
 };
 
-export const locate = (root: RigNode, hook: string, pose: Pose): Mat2D | null => locateFrom(root, hook, pose, identity());
+export const locate = (root: RigNode, hook: string, pose: Pose, base: Mat2D = identity()): Mat2D | null => locateFrom(root, hook, pose, base);
 
 type Best = [number, number, number];
 
