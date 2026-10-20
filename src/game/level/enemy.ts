@@ -40,7 +40,7 @@ export interface Flight {
   cfg: FlightJson;
   lift: number;
   clock: number;
-  diving: boolean;
+  engaged: boolean;
 }
 
 export interface BodyBox {
@@ -85,7 +85,7 @@ const setState = (body: Hero, state: "walk" | "idle"): void => {
   if (body.state !== state) Object.assign(body, { state, time: 0, fireTime: null });
 };
 
-const spawnFlight = (cfg: FlightJson | undefined): Flight | null => (cfg ? { cfg, lift: cfg.hoverLift, clock: 0, diving: false } : null);
+const spawnFlight = (cfg: FlightJson | undefined): Flight | null => (cfg ? { cfg, lift: cfg.hoverLift, clock: 0, engaged: false } : null);
 
 const spawnBody = (e: Pick<Enemy, "spot" | "facing" | "hits" | "flight">): Hero => {
   const body = walking({ ...createHero(e.spot, "gun", e.hits), facing: e.facing });
@@ -211,11 +211,11 @@ function fly(e: Enemy, f: Flight, grid: TileGrid, fog: Fog | null, hero: Hero, c
   const { cfg } = f;
   f.clock += dt;
   const seen = sees(e, grid, hero, fog, sightCells);
-  f.diving ||= seen;
-  const target = seen ? cfg.aimLift : f.diving ? f.lift : cfg.hoverLift + cfg.wave.cells * Math.sin(2 * Math.PI * cfg.wave.hz * f.clock);
+  const target = seen || f.engaged ? cfg.aimLift : cfg.hoverLift + cfg.wave.cells * Math.sin(2 * Math.PI * cfg.wave.hz * f.clock);
   const step = cfg.climb * dt;
   f.lift += Math.max(-step, Math.min(step, target - f.lift));
   body.y = e.spot[1] - f.lift;
+  f.engaged ||= seen && Math.abs(f.lift - cfg.aimLift) < AIM_EPS;
   if (seen && Math.abs(f.lift - cfg.aimLift) < AIM_EPS) return shoot(e, dt);
   setState(body, "walk");
   if (!seen || Math.abs(hero.x - body.x) > cfg.closeCells) patrol(e, clips, dt, cfg.speedScale);
