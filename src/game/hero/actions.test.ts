@@ -334,6 +334,30 @@ describe("kill", () => {
 });
 
 describe("damage", () => {
+  it("slows a running hero to a walk while hits land, then runs again", () => {
+    const g = game({ x: 12, y: 14 });
+    g.hero.running = true;
+    run(g, 0.3, ["moveRight"]);
+    expect(g.hero.state).toBe("run");
+    damage(g.hero, cfg);
+    tick(g, ["moveRight"]);
+    expect(g.hero.state).toBe("walk");
+    run(g, cfg.hitSlowMs / 1000 - 0.1, ["moveRight"]);
+    expect(g.hero.state).toBe("walk");
+    run(g, 0.2, ["moveRight"]);
+    expect(g.hero.state).toBe("run");
+  });
+
+  it("jumps a walking jump while hits land", () => {
+    const g = game({ x: 12, y: 14 });
+    g.hero.running = true;
+    run(g, 0.3, ["moveRight"]);
+    damage(g.hero, cfg);
+    tick(g, ["moveRight"]);
+    tick(g, ["moveRight", "up"], ["up"]);
+    expect(g.hero.state).toBe("walkJump");
+  });
+
   it("is ignored while hidden", () => {
     const g = hidden();
     expect(damage(g.hero, cfg)).toEqual([]);

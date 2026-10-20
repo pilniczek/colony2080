@@ -235,6 +235,8 @@ export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   return events;
 }
 
+const runs = (h: Hero, cfg: MovementConfig): boolean => h.running && !(h.hitAge !== null && h.hitAge * 1000 < cfg.hitSlowMs);
+
 function gait(s: Step): void {
   const { h, input } = s;
   if (input.dir === 0) return h.state === "idle" ? undefined : enter(h, "idle");
@@ -242,7 +244,7 @@ function gait(s: Step): void {
     h.facing = input.dir;
     if (h.state === "idle") return;
   }
-  const next = h.running ? "run" : "walk";
+  const next = runs(h, s.cfg) ? "run" : "walk";
   if (h.state !== next) enter(h, next);
 }
 
@@ -636,7 +638,7 @@ function settle(s: Step, startY: number): void {
   const landing = { from: h.state, time: h.time, age: 0 };
   if (h.fireTime !== null && s.input.held.has("down")) return enter(h, "duckAttack");
   if (h.fireTime !== null && s.input.dir === 0) return enter(h, "attack");
-  enter(h, s.input.dir === 0 ? "idle" : h.running ? "run" : "walk");
+  enter(h, s.input.dir === 0 ? "idle" : runs(h, cfg) ? "run" : "walk");
   h.landing = landing;
   resumeGait(s, landing);
   if (h.state === "idle") idle(s);
