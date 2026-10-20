@@ -3,6 +3,7 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBKL1.ANM; trigger: craneKey pickup",
   "title": "Crane key picked up",
   "camera": "CAM 13 CRANE",
+  "views": [[0, "robot"]],
   "duration": 1.76,
   "stage": {
     "item": "craneKey",

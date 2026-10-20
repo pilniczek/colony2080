@@ -10,6 +10,7 @@ import { assetList } from "../../src/game/env/assets";
 import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
 import { CUTSCENE_IDS, loadFilms, type Cutscene, type CutsceneId } from "../../src/game/cutscene";
 import { drawSecurityCam } from "../../src/game/cutscene/securityCam";
+import { drawRobotView } from "../../src/game/cutscene/robotView";
 
 interface SpikeNode {
   k: string;
@@ -467,6 +468,34 @@ const cutsceneCases = [...CUTSCENE_IDS].filter((id) => !only || only.includes(id
   ...cutsceneTimes(id).map((t) => (o: HTMLElement) => runCutscene(id, t, CUTSCENE_SIZES[0]!, false, o)),
   ...CUTSCENE_SIZES.flatMap((size) => cutsceneTimes(id).map((t) => (o: HTMLElement) => runCutscene(id, t, size, true, o))),
 ]);
-const cases = only ? cutsceneCases : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases];
+const ROBOT_VIEW_TS = [0.3, 1.0, 2.5];
+const runRobotView = (t: number, size: { w: number; h: number }, out: HTMLElement): VisualResult => {
+  const spikeView = (window as unknown as { ROBOT_VIEW: { draw(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void } }).ROBOT_VIEW;
+  const make = (): CanvasRenderingContext2D => {
+    const canvas = document.createElement("canvas");
+    canvas.width = size.w;
+    canvas.height = size.h;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) throw new Error("no 2d context");
+    window.CUTSCENES.pickCrowbar.render(ctx, size.w, size.h, 1.2);
+    return ctx;
+  };
+  const spike = make();
+  const own = make();
+  spikeView.draw(spike, size.w, size.h, t);
+  drawRobotView(own, size.w, size.h, t);
+  const a = spike.getImageData(0, 0, size.w, size.h).data;
+  const b = own.getImageData(0, 0, size.w, size.h).data;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 4) if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2] || a[i + 3] !== b[i + 3]) diff++;
+  const name = `robot view ${JSON.stringify({ t, size })}`;
+  const box = document.createElement("div");
+  box.className = "case";
+  box.append(spike.canvas, own.canvas, document.createElement("br"), `${name} diff ${diff}`);
+  out.append(box);
+  return { name, mismatches: 0, copiedDiff: 0, diff, matrixDelta: 0, pass: diff === 0 };
+};
+const robotViewCases = CUTSCENE_SIZES.flatMap((size) => ROBOT_VIEW_TS.map((t) => (o: HTMLElement) => runRobotView(t, size, o)));
+const cases = only ? [...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases, ...robotViewCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

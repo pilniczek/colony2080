@@ -333,7 +333,7 @@ function triggering(scene, lead, draw, tail, after) {
   const end = lead + scene.duration;
   const film = (c, t) => {
     scene.render(c, W, H, t);
-    CUTSCENES.securityCam(c, W, H, t, scene.camera);
+    FILM_LOOK.overlay(c, W, H, t, scene);
   };
   const play = (c, t) => t < lead ? draw(c, t) : t < end ? film(c, t - lead) : after(c, t - end);
   return [end + tail, play, scene, [lead, end]];

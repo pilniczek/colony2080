@@ -9,6 +9,8 @@ import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
 import { filmOf, loadFilms, type CutsceneId } from "./cutscene";
+import { lookAt } from "./cutscene/looks";
+import { drawRobotView } from "./cutscene/robotView";
 import { playFilm } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
 import { createFog, loadFog } from "./fog";
@@ -192,7 +194,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       return;
     }
     film.render(ctx, filmWidth, canvas.height, t);
-    drawSecurityCam(ctx, filmWidth, canvas.height, t, film.camera);
+    if (lookAt(id, t) === "robot") drawRobotView(ctx, filmWidth, canvas.height, t);
+    else drawSecurityCam(ctx, filmWidth, canvas.height, t, film.camera);
     push();
   };
 

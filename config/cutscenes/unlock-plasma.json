@@ -3,6 +3,7 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DEKOD1.ANM; trigger: unlockPlasma task",
   "title": "Code lock decoded",
   "camera": "CAM 08 PLASMA",
+  "views": [[0, "robot"]],
   "duration": 5.14,
   "stage": { "width": 1600, "height": 900, "grid": 72, "speckles": 520 },
   "lock": { "x": 700, "y": 450, "scale": 22, "decoderAt": [4, -27] },

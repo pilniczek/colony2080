@@ -3,6 +3,7 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/ODNAK.ANM, NAKLAD.ANM, RAKOD1.ANM, SESTREL.ANM, ROBBLIK.ANM, UPAD.ANM, RUCE.ANM, MONITOR.ANM, PRILET1.ANM, PRILET2.ANM; trigger: new game start",
   "title": "Mission start",
   "camera": "CAM 01 TRANSPORT",
+  "views": [[0, "camera"], [31, "robot"], [37.5, "camera"]],
   "duration": 61.5,
   "note": "One shot per original clip, static lead-ins trimmed. Track keys are film seconds. Stage units: 1600 x 900. Robot k is the rig scale; march speeds are stage px per second.",
   "stage": { "width": 1600, "height": 900 },

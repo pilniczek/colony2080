@@ -775,6 +775,20 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/ODNAK.ANM, NAKLAD.ANM, RAKOD1.ANM, SESTREL.ANM, ROBBLIK.ANM, UPAD.ANM, RUCE.ANM, MONITOR.ANM, PRILET1.ANM, PRILET2.ANM; trigger: new game start",
    "title": "Mission start",
    "camera": "CAM 01 TRANSPORT",
+   "views": [
+    [
+     0,
+     "camera"
+    ],
+    [
+     31,
+     "robot"
+    ],
+    [
+     37.5,
+     "camera"
+    ]
+   ],
    "duration": 61.5,
    "note": "One shot per original clip, static lead-ins trimmed. Track keys are film seconds. Stage units: 1600 x 900. Robot k is the rig scale; march speeds are stage px per second.",
    "stage": {
@@ -1981,6 +1995,12 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBOVL.ANM; trigger: controller pickup",
    "title": "Lift controller picked up",
    "camera": "CAM 08 PLASMA",
+   "views": [
+    [
+     0,
+     "robot"
+    ]
+   ],
    "duration": 1.76,
    "stage": {
     "item": "controller",
@@ -2251,6 +2271,12 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBKL1.ANM; trigger: craneKey pickup",
    "title": "Crane key picked up",
    "camera": "CAM 13 CRANE",
+   "views": [
+    [
+     0,
+     "robot"
+    ]
+   ],
    "duration": 1.76,
    "stage": {
     "item": "craneKey",
@@ -2521,6 +2547,12 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPACID.ANM; trigger: crowbar pickup",
    "title": "Crowbar picked up",
    "camera": "CAM 04 STREET",
+   "views": [
+    [
+     0,
+     "robot"
+    ]
+   ],
    "duration": 1.76,
    "stage": {
     "item": "crowbar",
@@ -2997,6 +3029,12 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBSOU.ANM; trigger: shipPart pickup",
    "title": "Ship part picked up",
    "camera": "CAM 12 HANGAR",
+   "views": [
+    [
+     0,
+     "robot"
+    ]
+   ],
    "duration": 1.76,
    "stage": {
     "item": "shipPart",
@@ -5637,6 +5675,16 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTOCKOH.ANM, SEBKOH.ANM; trigger: takeTapHandle task",
    "title": "Water off, tap handle taken",
    "camera": "CAM 05 PUMP ROOM",
+   "views": [
+    [
+     0,
+     "camera"
+    ],
+    [
+     3.714,
+     "robot"
+    ]
+   ],
    "duration": 5.686,
    "stage": {
     "width": 1600,
@@ -6607,6 +6655,12 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DEKOD1.ANM; trigger: unlockPlasma task",
    "title": "Code lock decoded",
    "camera": "CAM 08 PLASMA",
+   "views": [
+    [
+     0,
+     "robot"
+    ]
+   ],
    "duration": 5.14,
    "stage": {
     "width": 1600,
@@ -6870,6 +6924,16 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/KYSELINA.ANM; trigger: useAcidTank task",
    "title": "Acid poured on the guard",
    "camera": "CAM 11 TANK",
+   "views": [
+    [
+     0,
+     "robot"
+    ],
+    [
+     2.23,
+     "camera"
+    ]
+   ],
    "duration": 4.73,
    "stage": {
     "width": 1600,

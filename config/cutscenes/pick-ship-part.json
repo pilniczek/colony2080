@@ -3,6 +3,7 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBSOU.ANM; trigger: shipPart pickup",
   "title": "Ship part picked up",
   "camera": "CAM 12 HANGAR",
+  "views": [[0, "robot"]],
   "duration": 1.76,
   "stage": {
     "item": "shipPart",

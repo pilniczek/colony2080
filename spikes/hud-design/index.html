@@ -20,6 +20,9 @@
   figcaption { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
   figure svg { width: 100%; height: auto; display: block; background: #000; }
   figure img { width: 100%; height: auto; display: block; border-radius: 4px; image-rendering: pixelated; }
+  .bar { margin: 8px 16px 0; display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
+  .bar label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+  figure canvas { width: 100%; height: auto; display: block; background: #000; }
 </style>
 </head>
 <body>
@@ -73,6 +76,21 @@
 <!-- /originals -->
   <figure><figcaption>Vector HUD</figcaption><div id="small"></div></figure>
 </main>
+<h2>Film looks</h2>
+<div class="bar">
+  <label><input id="filmScrub" type="checkbox"> Scrub</label>
+  <label>Film time <input id="filmTime" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+</div>
+<main>
+  <figure><figcaption>Third person: security camera</figcaption><canvas id="camFilm" width="800" height="450"></canvas><figcaption>Grey-green grade, grain, dead pixels, REC dot and date clock. For shots that watch the robot from outside.</figcaption></figure>
+  <figure><figcaption>First person: robot vision</figcaption><canvas id="visionFilm" width="800" height="450"></canvas><figcaption>Full frame, no camera marks: red monochrome, flicker band, fine scanlines, heading tape, scrolling readout, target lock. For shots that show what the robot sees.</figcaption></figure>
+</main>
+<!-- originals -->
+<main>
+  <figure><figcaption>Original first person shot, crowbar pickup</figcaption><img src="../../docs/research/gamedata/png/SEBPACID/f011.png" alt="original crowbar pickup"></figure>
+  <figure><figcaption>Original first person shot, acid valve</figcaption><img src="../../docs/research/gamedata/png/KYSELINA/f031.png" alt="original acid valve"></figure>
+</main>
+<!-- /originals -->
 <!-- originals -->
 <h2>References</h2>
 <main>
@@ -82,12 +100,22 @@
   <figure><figcaption>Steam screenshot s6</figcaption><img src="../../docs/research/images/steam-screens/s6.jpg" alt="s6"></figure>
 </main>
 <!-- /originals -->
+<script src="../shared/clock.js"></script>
 <script src="../shared/config.js"></script>
+<script src="../shared/originals.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
 <script src="../shared/eblaster.js"></script>
 <script src="../shared/env.js"></script>
 <script src="../shared/env-props.js"></script>
+<script src="../shared/env-machines.js"></script>
+<script src="../shared/env-structures.js"></script>
+<script src="../shared/env-buildings.js"></script>
+<script src="../shared/enemies.js"></script>
+<script src="../shared/cutscenes.js"></script>
+<script src="../shared/cutscenes/pick-controller.js"></script>
+<script src="../shared/cutscenes/pick-crowbar.js"></script>
+<script src="../shared/robot-view.js"></script>
 <script>
 (() => {
 const HUD_H = 200;
@@ -625,6 +653,35 @@ function draw() {
 
 document.querySelectorAll("header input, header select").forEach((el) => el.addEventListener("input", draw));
 draw();
+})();
+</script>
+<script>
+(() => {
+const HOLD = 0.8;
+const $ = (id) => document.getElementById(id);
+const { crowbarDoor, pickCrowbar, securityCam } = window.CUTSCENES;
+const looks = [
+  { canvas: $("camFilm"), film: crowbarDoor, over: (ctx, w, h, t) => securityCam(ctx, w, h, t, crowbarDoor.camera) },
+  { canvas: $("visionFilm"), film: pickCrowbar, over: (ctx, w, h, t) => window.ROBOT_VIEW.draw(ctx, w, h, t) }
+];
+
+function filmTime(film, seconds) {
+  if ($("filmScrub").checked) return +$("filmTime").value * film.duration;
+  return Math.min(film.duration, seconds % (film.duration + HOLD));
+}
+
+function frame() {
+  const seconds = window.SPIKE_CLOCK.seconds();
+  for (const { canvas, film, over } of looks) {
+    const ctx = canvas.getContext("2d");
+    const t = filmTime(film, seconds);
+    film.render(ctx, canvas.width, canvas.height, t);
+    over(ctx, canvas.width, canvas.height, t);
+  }
+  requestAnimationFrame(frame);
+}
+
+document.fonts.ready.then(() => requestAnimationFrame(frame));
 })();
 </script>
 </body>

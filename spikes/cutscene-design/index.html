@@ -72,6 +72,8 @@ figure canvas { aspect-ratio: 16 / 9; background: #000; }
 <script src="../shared/cutscenes/unlock-plasma.js"></script>
 <script src="../shared/cutscenes/use-acid-tank.js"></script>
 <script src="../shared/cutscenes/wire-switchboard.js"></script>
+<script src="../shared/robot-view.js"></script>
+<script src="../shared/film-look.js"></script>
 <script src="../movement/player.js"></script>
 <script>
 (() => {
@@ -112,7 +114,7 @@ function tick(now) {
     const t = s % c.scene.duration;
     c.ctx.setTransform(1, 0, 0, 1, 0, 0);
     c.scene.render(c.ctx, w, h, t);
-    window.CUTSCENES.securityCam(c.ctx, w, h, t, c.scene.camera);
+    window.FILM_LOOK.overlay(c.ctx, w, h, t, c.scene);
   }
 }
 requestAnimationFrame(tick);
