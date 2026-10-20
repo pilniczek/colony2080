@@ -183,7 +183,7 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
       both(l.stops.map((row) => stopId(i, row)), i);
       for (const row of l.stops) both([stopId(i, row), ...touching(row, l.x, l.x + l.w - 1).map(node)]);
     });
-    for (const t of world.teleports) {
+    for (const t of world.teleports.filter((pad) => pad.enabledBy === undefined || world.flags.has(pad.enabledBy))) {
       const pads = runs.filter((r) => r.row === t.from[1] + 1 && r.col < t.col + t.w && r.col + r.w > t.col);
       const target = runAt(t.to[1] + 1, t.to[0]);
       if (target) link(pads.map(id), [id(target)]);

@@ -98,6 +98,7 @@ export interface Teleport {
   to: [number, number];
   col: number;
   w: number;
+  enabledBy?: string;
 }
 
 export interface CellPatch {

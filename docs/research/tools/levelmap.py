@@ -8,7 +8,7 @@ EMPTY = (0, 0)
 ZONES_NOTE = (
     "hazards are the layout zones as cell rects on the stand row (engine y + 5, the cell over the feet), the damage rate "
     "spread over the clip length; conveyors are the carry tile runs at 5.5 px per tick and 32 ticks per s; teleports go from "
-    "the pad centre to the target foot cell; each variant is the cell patch from the base map to that map file (variantSources), "
+    "the pad centre to the target foot cell, enabledBy names the flag a conditioned pad needs; each variant is the cell patch from the base map to that map file (variantSources), "
     "blocking cells only, a whole-map state, not cumulative; enemies stand at their original foot cells"
 )
 EXTRAS = {
@@ -43,6 +43,7 @@ EXTRAS = {
         "fallDeathCells": None,
         "hazardZones": {0: ("bridgeGap", "death")},
         "teleportZones": {1: "padUp", 2: "padDown", 3: "sourceTeleport", 4: "targetTeleport"},
+        "teleportFlags": {"sourceTeleport": "flag:teleportLinked", "targetTeleport": "flag:teleportLinked"},
         "variants": {"powerOff": "M22", "powerOn": "M23", "barricadeGone": "M24"},
         "enemyKinds": ("rocketRobot", "greyTrooper"),
     },
@@ -395,7 +396,11 @@ def teleports(grid, layout, cfg):
     out = []
     for index, name in cfg.get("teleportZones", {}).items():
         zone = layout["zones"][index]
-        out.append({"id": name, **pad(grid, zone["from"]["cols"], zone["from"]["floor"]), "to": foot(grid, zone["to"]["col"], zone["to"]["floor"] - 1)})
+        flag = cfg.get("teleportFlags", {}).get(name)
+        out.append(
+            {"id": name, **pad(grid, zone["from"]["cols"], zone["from"]["floor"]), "to": foot(grid, zone["to"]["col"], zone["to"]["floor"] - 1)}
+            | ({"enabledBy": flag} if flag else {})
+        )
     for lift in layout.get("scriptedLifts", []):
         for end, other, way in (("bottom", "top", "Up"), ("top", "bottom", "Down")):
             col, floor = lift[end]["to"]
