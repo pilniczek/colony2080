@@ -15,7 +15,7 @@ import { lookAt } from "./cutscene/looks";
 import { drawRobotView } from "./cutscene/robotView";
 import { playFilm } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
-import { cheatOf } from "./cheats";
+import { cheatOf, isCheatKey } from "./cheats";
 import { createFog, loadFog } from "./fog";
 import { createSaveMenu, type SaveMenuOptions } from "./save/saveMenu";
 import type { Rect } from "./geometry";
@@ -112,6 +112,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   let lastHeld = "";
   let lastRender = 0;
   let fps = 0;
+  let cheatPressed = false;
 
   const freeWidth = (dpr: number): number => {
     const panel = ui.querySelector("[data-panel]");
@@ -269,9 +270,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       }
       if (tuning().inventory.open || tuning().mapOpen || tuning().cheatOpen) return;
       const frame = input.frame();
+      const cheat = cheatPressed;
+      cheatPressed = false;
       if (saveMenu?.step(dt)) return;
       const canOpen = canOpenScreen(hero.state, tuning().recording || tuning().playing);
-      if (input.consume("cheat") && canOpen) {
+      if (cheat && canOpen) {
         useSandbox.setState({ cheatOpen: true });
         return;
       }
@@ -360,6 +363,13 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     useSandbox.setState({ mapOpen: false });
   };
   window.addEventListener("keydown", mapKeys, { capture: true });
+
+  const cheatKeys = (e: KeyboardEvent): void => {
+    if (!isCheatKey(e) || typingTarget(e.target)) return;
+    e.preventDefault();
+    cheatPressed = !loop.paused && !world.cutscene;
+  };
+  window.addEventListener("keydown", cheatKeys);
 
   const closeCheat = (): void => {
     input.clearPresses();
