@@ -33,7 +33,6 @@ export interface FlightJson {
   speedScale: number;
   climb: number;
   closeCells: number;
-  turnMs: number;
   wave: { cells: number; hz: number };
 }
 
@@ -41,7 +40,6 @@ export interface Flight {
   cfg: FlightJson;
   lift: number;
   clock: number;
-  behindAge: number;
   diving: boolean;
 }
 
@@ -87,7 +85,7 @@ const setState = (body: Hero, state: "walk" | "idle"): void => {
   if (body.state !== state) Object.assign(body, { state, time: 0, fireTime: null });
 };
 
-const spawnFlight = (cfg: FlightJson | undefined): Flight | null => (cfg ? { cfg, lift: cfg.hoverLift, clock: 0, behindAge: 0, diving: false } : null);
+const spawnFlight = (cfg: FlightJson | undefined): Flight | null => (cfg ? { cfg, lift: cfg.hoverLift, clock: 0, diving: false } : null);
 
 const spawnBody = (e: Pick<Enemy, "spot" | "facing" | "hits" | "flight">): Hero => {
   const body = walking({ ...createHero(e.spot, "gun", e.hits), facing: e.facing });
@@ -163,19 +161,17 @@ export function hitEnemy(e: Enemy, damage = 1, react = true): boolean {
   return true;
 }
 
-function inSight(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number, dir: number): boolean {
+function sees(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean {
   const { body } = e;
   const dx = hero.x - body.x;
   if (hero.hidden || hero.energy <= 0 || Math.abs(hero.y - ground(e)) > SAME_FLOOR) return false;
-  if (Math.sign(dx) !== dir || Math.abs(dx) > sightCells) return false;
+  if (Math.sign(dx) !== body.facing || Math.abs(dx) > sightCells) return false;
   const row = Math.floor(ground(e) - 1);
   for (let col = Math.floor(Math.min(body.x, hero.x)); col <= Math.floor(Math.max(body.x, hero.x)); col++) {
     if (grid.solid(col, row) || (fog && !seenAt(fog, col, row))) return false;
   }
   return true;
 }
-
-const sees = (e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean => inSight(e, grid, hero, fog, sightCells, e.body.facing);
 
 function patrol(e: Enemy, clips: ClipSet, dt: number, scale = 1): void {
   const { body } = e;
@@ -210,22 +206,13 @@ function shoot(e: Enemy, dt: number): number {
   return fired - before;
 }
 
-function turnToHeroBehind(e: Enemy, f: Flight, grid: TileGrid, fog: Fog | null, hero: Hero, sightCells: number, dt: number): void {
-  const behind = inSight(e, grid, hero, fog, sightCells, -e.body.facing);
-  f.behindAge = behind ? f.behindAge + dt : 0;
-  if (f.behindAge * 1000 < f.cfg.turnMs - 1e-6) return;
-  e.body.facing = e.body.facing === 1 ? -1 : 1;
-  f.behindAge = 0;
-}
-
 function fly(e: Enemy, f: Flight, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, sightCells: number, dt: number): number {
   const { body } = e;
   const { cfg } = f;
   f.clock += dt;
-  turnToHeroBehind(e, f, grid, fog, hero, sightCells, dt);
   const seen = sees(e, grid, hero, fog, sightCells);
   f.diving ||= seen;
-  const target = f.diving ? cfg.aimLift : cfg.hoverLift + cfg.wave.cells * Math.sin(2 * Math.PI * cfg.wave.hz * f.clock);
+  const target = seen ? cfg.aimLift : f.diving ? f.lift : cfg.hoverLift + cfg.wave.cells * Math.sin(2 * Math.PI * cfg.wave.hz * f.clock);
   const step = cfg.climb * dt;
   f.lift += Math.max(-step, Math.min(step, target - f.lift));
   body.y = e.spot[1] - f.lift;

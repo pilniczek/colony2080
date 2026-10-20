@@ -333,18 +333,17 @@ describe("sandbox flyer", () => {
     }
   });
 
-  it("dives on to gun height when the hero hides during the dive", () => {
+  it("holds its height when it loses the hero during the dive", () => {
     const g = game({ x: 39.5, y: floor });
     const e = flyerOf(g);
     run(g, 0.2);
-    expect(liftOf(e)).toBeGreaterThan(flight.aimLift);
-    let last = liftOf(e);
-    for (let i = 0; i < 1.5 / dt; i++) {
-      tick(g, ["hide"]);
-      expect(liftOf(e)).toBeLessThanOrEqual(last + 1e-9);
-      last = liftOf(e);
-    }
-    expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
+    const held = liftOf(e);
+    expect(held).toBeGreaterThan(flight.aimLift);
+    run(g, 0.05, ["hide"]);
+    const at = liftOf(e);
+    run(g, 1.5, ["hide"]);
+    expect(liftOf(e)).toBeCloseTo(at, 9);
+    expect(at).toBeLessThanOrEqual(held);
   });
 
   it("hovers again after it respawns", () => {
@@ -358,21 +357,20 @@ describe("sandbox flyer", () => {
     expect(Math.abs(liftOf(e) - flight.hoverLift)).toBeLessThanOrEqual(flight.wave.cells + 1e-9);
   });
 
-  it("turns to a hero behind it on its floor after turnMs", () => {
+  it("never turns to a hero behind it", () => {
     const g = game({ x: 46.5, y: floor });
     const e = flyerOf(g);
     e.body.x = 42.5;
-    run(g, flight.turnMs / 1000 - 2 * dt);
+    run(g, 0.5);
     expect(e.body.facing).toBe(-1);
-    run(g, 3 * dt);
-    expect(e.body.facing).toBe(1);
+    expect(Math.abs(liftOf(e) - flight.hoverLift)).toBeLessThanOrEqual(flight.wave.cells + 1e-9);
+    expect(enemyShots(g)).toHaveLength(0);
   });
 
   it("flies over hero bullets while it hovers and takes them once it dives", () => {
     const g = game({ x: 37.5, y: floor, weapon: "gun" });
     const e = flyerOf(g);
     Object.assign(e.body, { x: 45.5, facing: 1 });
-    e.flight!.cfg = { ...flight, turnMs: Infinity };
     g.hero.facing = 1;
     tick(g, ["shoot"], ["shoot"]);
     run(g, 0.4, ["shoot"]);
@@ -386,7 +384,7 @@ describe("sandbox flyer", () => {
     const e = flyerOf(g);
     Object.assign(e.body, { x: 40.5 + cfg.punch.reach, facing: -1 });
     e.patrol = [e.body.x, e.body.x];
-    e.flight!.cfg = { ...flight, hoverLift: lift, aimLift: lift, wave: { cells: 0, hz: 0 }, turnMs: Infinity };
+    e.flight!.cfg = { ...flight, hoverLift: lift, aimLift: lift, wave: { cells: 0, hz: 0 } };
     e.flight!.lift = lift;
     e.body.y = floor - lift;
     g.hero.facing = 1;
