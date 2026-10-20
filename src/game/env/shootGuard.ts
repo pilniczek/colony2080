@@ -23,6 +23,8 @@ const FIRE_LOOP = 1.2;
 const HIP: Pt = [26, 47];
 const RAISE = 23.5 * GUARD_SIZE - (68 - HIP[1]);
 const GUARD_HIP: Pt = [42.5, 53.5];
+const KNEE_PAD = 1.15;
+const TRIM = 0.9;
 const LEGS: Record<"front" | "rear", [Pt, Pt, Pt]> = {
   front: [[42.5, 30], [36, 39], [39.5, 49.5]],
   rear: [[45, 30], [52, 40], [59.5, 49.5]],
@@ -97,9 +99,10 @@ const across = (a: Pt, b: Pt, t: number, half: number): Pt[] => {
 
 const leg = (ctx: CanvasRenderingContext2D, [hip, knee, ankle]: [Pt, Pt, Pt]): void => {
   beam(ctx, hip, knee, 4.2, "guardMetal");
-  sideLegArmor(ctx, knee, ankle, true);
-  line(ctx, across(hip, knee, 0.5, 2), "trim", 0.8, "butt");
-  line(ctx, across(knee, ankle, 0.55, 3.4), "trim", 0.8, "butt");
+  const w = TRIM / GUARD_SIZE;
+  sideLegArmor(ctx, knee, ankle, { forward: true, pad: KNEE_PAD, trim: w });
+  line(ctx, across(hip, knee, 0.5, 2.1), "trim", w, "butt");
+  line(ctx, across(knee, ankle, 0.55, (7 + 2.5 * 0.55) / 2), "trim", w, "butt");
 };
 
 const legs = (ctx: CanvasRenderingContext2D): void => {
@@ -113,7 +116,7 @@ const legs = (ctx: CanvasRenderingContext2D): void => {
   ctx.save();
   ctx.translate(0, -RAISE);
   poly(ctx, [[18, 42], [31, 42], [33, 47], [28, 51], [20, 51], [17, 47]], "guardChrome", 1, { dir: [1, 0] });
-  if (!P.simple()) line(ctx, [[19, 46], [32, 46]], "trim", 0.6, "butt");
+  line(ctx, [[17.3, 46], [32.6, 46]], "trim", TRIM, "butt");
   ctx.restore();
   inGuardLegUnits(ctx, () => leg(ctx, LEGS.front));
 };
@@ -132,17 +135,12 @@ const head = (ctx: CanvasRenderingContext2D): void => {
   fillPath(
     ctx,
     (c) => {
-      c.moveTo(36, 18);
-      c.quadraticCurveTo(28, 20, 19, 18.6);
-      c.bezierCurveTo(11, 17.6, 5, 15.6, 4.5, 12.4);
-      c.bezierCurveTo(4.2, 9.4, 9, 8.8, 16, 9.6);
-      c.quadraticCurveTo(34, 11.6, 40.5, 15.5);
-      c.lineTo(38, 18);
+      c.ellipse(24.5, 14.2, 15.5, 5.4, 0.17, 0, Math.PI * 2);
     },
     grad(ctx, 0, 9, 0, 20, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]),
     "gmLine",
   );
-  if (!P.simple()) curve(ctx, [[8, 10.6], [20, 11.2], [34, 13.4]], "gc1", 0.7);
+  if (!P.simple()) curve(ctx, [[13, 10.6], [23, 9.4], [34, 11.2]], "gc1", 0.7);
   fillPath(
     ctx,
     (c) => {
@@ -214,7 +212,7 @@ const arm = (ctx: CanvasRenderingContext2D, fire: number): void => {
   ctx.translate(-ARM_PIVOT[0], -ARM_PIVOT[1]);
   drawRig(ctx, armNode(P.simple()), { palette: armPalette(P.pal()), pose: ARM_POSE, hooks: { hand }, lineW, simple: P.simple() });
   ctx.restore();
-  line(ctx, [[23.4, 31.2], [33.2, 31.2]], "trim", 0.9, "butt");
+  line(ctx, [[23.3, 28.6], [32.5, 28.6]], "trim", TRIM, "butt");
 };
 
 const body = (ctx: CanvasRenderingContext2D, fire: number): void => {
