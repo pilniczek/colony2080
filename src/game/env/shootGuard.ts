@@ -146,7 +146,7 @@ const torso = (ctx: CanvasRenderingContext2D): void => {
   }
 };
 
-const DOME = { at: [38.5, 20.4] as Pt, tilt: 0.17, length: 26, r: 4.6 };
+const DOME = { at: [38.5, 20.4] as Pt, tilt: 0.17, length: 18.2, r: 4.6 };
 
 const dome = (ctx: CanvasRenderingContext2D): void => {
   const { length: l, r } = DOME;
@@ -166,9 +166,9 @@ const dome = (ctx: CanvasRenderingContext2D): void => {
   );
   line(ctx, [[-3, -r + 1], [-l + 1, -r + 1]], "gc1", 0.6, "butt");
   if (!P.simple()) {
-    for (const x of [-9, -14, -19, -24]) line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
+    for (const x of [-6.5, -9.5, -12.5, -15.5]) line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
     line(ctx, [[-4, 1.8], [-l, 1.8]], "fc0", 0.5, "butt");
-    for (const x of [-11.5, -16.5, -21.5]) disc(ctx, x, 3, 0.6, "gc1");
+    for (const x of [-8, -11, -14]) disc(ctx, x, 3, 0.6, "gc1");
   }
   ctx.restore();
 };

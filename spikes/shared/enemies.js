@@ -678,7 +678,7 @@ function trooperTorso(ctx) {
   }
 }
 
-const DOME = { at: [38.5, 20.4], tilt: 0.17, length: 26, r: 4.6 };
+const DOME = { at: [38.5, 20.4], tilt: 0.17, length: 18.2, r: 4.6 };
 
 function trooperDome(ctx) {
   const { length: l, r } = DOME;
@@ -693,9 +693,9 @@ function trooperDome(ctx) {
   }, grad(ctx, 0, -r, 0, r, [[0, "fc3"], [0.35, "fc2"], [0.75, "fc1"], [1, "fc0"]]), "gmLine");
   P.line(ctx, [[-3, -r + 1], [-l + 1, -r + 1]], "gc1", 0.6, "butt");
   if (!ENV.simple) {
-    for (const x of [-9, -14, -19, -24]) P.line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
+    for (const x of [-6.5, -9.5, -12.5, -15.5]) P.line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
     P.line(ctx, [[-4, 1.8], [-l, 1.8]], "fc0", 0.5, "butt");
-    for (const x of [-11.5, -16.5, -21.5]) P.disc(ctx, x, 3, 0.6, "gc1");
+    for (const x of [-8, -11, -14]) P.disc(ctx, x, 3, 0.6, "gc1");
   }
   ctx.restore();
 }
