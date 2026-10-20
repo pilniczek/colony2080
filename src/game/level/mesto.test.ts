@@ -3,10 +3,11 @@ import enemies from "@config/levels/mesto/enemies.json";
 import map from "@config/levels/mesto/map.json";
 import tasks from "@config/levels/mesto/tasks.json";
 import { ITEMS } from "../items";
-import { cfg, game, run, tick, type Game } from "../hero/testWorld";
+import { cfg, game, run, runUntil, tick, type Game } from "../hero/testWorld";
 import { ENEMY_SHOT } from "./enemy";
 import { loadMesto, mestoJson } from "./mesto";
-import { insideProp } from "./sandboxLevel";
+import { coverClips } from "./cover";
+import { applyBlocks } from "./tasks";
 import { terrain } from "./terrain";
 
 const world = loadMesto();
@@ -192,18 +193,55 @@ describe("mesto props", () => {
     expect(typeof ship.shootable!.subtitle).toBe("string");
   });
 
-  it("opens the tunnel wall and the far carriage door with the train door", () => {
-    expect(world.tasks.find((t) => t.id === "openTrainDoor")!.sets).toEqual({ metroTunnel: 1, trainCarriage: 1 });
+  it("opens the tunnel wall with the train door only", () => {
+    expect(world.tasks.find((t) => t.id === "openTrainDoor")!.sets).toEqual({ metroTunnel: 1 });
     expect(world.tasks.find((t) => t.id === "wireSwitchboard")!.sets).toBeUndefined();
   });
+});
 
-  it("hides the hero inside the open carriage only", () => {
-    const w = loadMesto();
-    const carriage = w.props.find((p) => p.id === "trainCarriage")!;
-    expect(insideProp(w, { x: 57.5, y: 70 })).toBe(false);
-    carriage.state = 1;
-    expect([54.9, 55, 57.5, 60.9, 61].map((x) => insideProp(w, { x, y: 70 }))).toEqual([false, true, true, true, false]);
-    expect(insideProp(w, { x: 57.5, y: 69 })).toBe(false);
+describe("mesto train passage", () => {
+  const opened = (at: { x: number; y: number }): Game => {
+    const g = game(at, mestoJson());
+    g.world.immortal = true;
+    for (const p of g.world.props) if (p.id === "trainDoor") p.state = 2;
+    for (const p of g.world.props) if (p.id === "metroTunnel") p.state = 1;
+    applyBlocks(g.world);
+    return g;
+  };
+
+  it("covers the hero in the always open far door, at the train door only once it is open", () => {
+    const g = game(undefined, mestoJson());
+    expect(coverClips(g.world.props, 54, 70)).toHaveLength(1);
+    expect(coverClips(g.world.props, 61, 70)).toHaveLength(0);
+    expect(coverClips(opened({ x: 63, y: 70 }).world.props, 61, 70)).toHaveLength(1);
+    expect(coverClips(g.world.props, 52, 70)).toHaveLength(0);
+  });
+
+  it("walks the hero through the wall inside the open train", () => {
+    const g = opened({ x: 63, y: 70 });
+    runUntil(g, (h) => h.x < 53, ["moveLeft"]);
+    expect(g.hero.x).toBeLessThan(53);
+    expect(g.hero.y).toBe(70);
+  });
+
+  it("stops a jumping hero at the train body and keeps a hero inside from jumping", () => {
+    const g = opened({ x: 62.5, y: 70 });
+    tick(g, ["moveLeft"], ["up"]);
+    runUntil(g, (h) => h.onGround && h.state !== "walkJump" && h.state !== "runJump", ["moveLeft"], 3);
+    expect([...g.seen].some((state) => state.endsWith("Jump"))).toBe(true);
+    expect(g.hero.x).toBeGreaterThan(59.9);
+    const inside = opened({ x: 57.5, y: 70 });
+    tick(inside, [], ["up"]);
+    expect(inside.hero.onGround).toBe(true);
+  });
+
+  it("keeps the metro droids out of the train", () => {
+    const metro = world.enemies.filter((e) => Math.abs(e.spot[1] - 70) < 1.5 && e.spot[0] > 50 && e.spot[0] < 80);
+    expect(metro.length).toBeGreaterThan(0);
+    for (const e of metro) {
+      expect(e.patrol[0], String(e.spot)).toBeGreaterThan(62.083);
+      expect(e.spot[0]).toBeGreaterThanOrEqual(e.patrol[0]);
+    }
   });
 });
 

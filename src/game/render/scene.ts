@@ -11,7 +11,8 @@ import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type 
 import type { Rect } from "../geometry";
 import type { Enemy } from "../level/enemy";
 import { visible, type Fog } from "../fog";
-import { insideProp, type SandboxWorld } from "../level/sandboxLevel";
+import { coverClips } from "../level/cover";
+import type { SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, TILE } from "../env/paint";
@@ -213,6 +214,8 @@ function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: num
   if (look.dust !== null) landingDust(f, hero, look.dust);
 }
 
+const SHADOW_ROW = 0.2;
+
 export const heroBehindEnemies = (hero: Hero): boolean => hero.hidden;
 
 export const viewCells = (view: ViewTransform, screen: Rect, cell: number): Rect => {
@@ -256,9 +259,17 @@ export function drawScene(
   ctx.clip();
   drawEnvironment(ctx, world, hero, cfg, alpha, lines, screen);
   const drawHero = (): void => {
-    if (insideProp(world, hero)) return;
+    const clips = coverClips(world.props, hero.x, hero.y);
+    ctx.save();
+    if (clips.length) {
+      ctx.beginPath();
+      ctx.rect(0, 0, world.grid.width * f.cell, world.grid.height * f.cell);
+      for (const c of clips) ctx.rect(c.x[0] * f.cell, c.top * f.cell, (c.x[1] - c.x[0]) * f.cell, (c.floor + SHADOW_ROW - c.top) * f.cell);
+      ctx.clip("evenodd");
+    }
     shadow(f, hero, look);
     heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
+    ctx.restore();
   };
   const behind = heroBehindEnemies(hero);
   if (behind) drawHero();

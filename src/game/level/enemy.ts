@@ -4,6 +4,7 @@ import { TILE } from "../env/paint";
 import { seenAt, type Fog } from "../fog";
 import type { ClipSet, MovementConfig } from "../hero/config";
 import { createHero, type Hero } from "../hero/hero";
+import type { KeepOut } from "./cover";
 
 export const ENEMY_SHOT = "enemy";
 
@@ -131,17 +132,30 @@ function configuredPatrol(free: [number, number], cells: [number, number] | unde
   return [Math.max(free[0], cells[0] + half), Math.min(free[1], cells[1] - half)];
 }
 
-export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = []): Enemy {
+function keptOut(patrol: [number, number], [x, y]: [number, number], keepOut: KeepOut[], half: number): [number, number] {
+  let [left, right] = patrol;
+  for (const { y: floor, span } of keepOut) {
+    if (Math.abs(floor - y) > 1 || span[1] + half <= left || span[0] - half >= right) continue;
+    if (x < (span[0] + span[1]) / 2) right = Math.min(right, span[0] - half);
+    else left = Math.max(left, span[1] + half);
+  }
+  return [left, right];
+}
+
+export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [], keepOut: KeepOut[] = []): Enemy {
   const flight = spawnFlight(json.flight);
-  const base = { spot: [json.x, json.y] as [number, number], facing: json.facing, hits: json.hits, flight };
-  const free = json.flight ? airOf(grid, base.spot, json.flight) : patrolOf(grid, shafts, base.spot);
+  const half = json.flight ? FLYER_HALF[0] : HALF_WIDTH;
+  const spot: [number, number] = [json.x, json.y];
+  const free = json.flight ? airOf(grid, spot, json.flight) : patrolOf(grid, shafts, spot);
+  const patrol = keptOut(configuredPatrol(free, json.patrol, half), spot, keepOut, half);
+  const base = { spot: [Math.min(patrol[1], Math.max(patrol[0], json.x)), json.y] as [number, number], facing: json.facing, hits: json.hits, flight };
   return {
     ...base,
     respawnMs: json.respawnMs,
     reactMs: json.reactMs,
     burst: json.burst,
     pauseMs: json.pauseMs,
-    patrol: configuredPatrol(free, json.patrol, json.flight ? FLYER_HALF[0] : HALF_WIDTH),
+    patrol,
     body: spawnBody(base),
     deadAge: null,
     alertAge: null,

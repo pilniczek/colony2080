@@ -229,14 +229,14 @@ export const trainDoor: EnvAsset = {
   },
 };
 
-const CARRIAGE = { left: -95, right: 135 };
+const CARRIAGE = { left: -172, right: 146, farDoor: -158 };
 
 export const trainCarriage: EnvAsset = {
   id: "trainCarriage",
-  box: [-97, -66, 145, 0],
-  draw(ctx, state) {
+  box: [-174, -66, 222, 0],
+  draw(ctx) {
     const { y, h } = TD;
-    const { left, right } = CARRIAGE;
+    const { left, right, farDoor } = CARRIAGE;
     const w = right - left;
     flat(ctx, left, y - 4, w, h + 4, DOOR.wagon, "mLine");
     flat(ctx, left, y - 4, w, 3, "c2");
@@ -244,17 +244,21 @@ export const trainCarriage: EnvAsset = {
     flat(ctx, left, y + h - 9, w, 1.5, DOOR.wagonShade);
     flat(ctx, left, y + h, w, 7, "m0", "mLine");
     flat(ctx, left, y - 4, 4, h + 4, DOOR.wagonShade, "mLine");
-    for (const wx of [left + 14, left + 52]) {
+    for (const wx of [-94, -50]) {
       flat(ctx, wx, y + 6, 22, 22, DOOR.window, "mLine");
       ctx.save();
       ctx.globalAlpha = 0.6;
       poly(ctx, [[wx + 2, y + 6], [wx + 5, y + 6], [wx + 2, y + 28], [wx + 0.5, y + 28]], DOOR.windowGlint, 2, { line: false });
       ctx.restore();
     }
-    doorway(ctx, state === 1 ? TD.w / 2 : 0, state === 1);
+    ctx.save();
+    ctx.translate(farDoor, 0);
+    doorway(ctx, 0, false);
+    ctx.restore();
+    doorway(ctx, TD.w / 2, true);
     if (P.simple()) return;
-    for (const bx of [left + 16, left + 46]) flat(ctx, bx, y + h + 2, 4, 3, "m2", "mLine");
-    for (const [bx, by, bh] of [[left + 40, 8, 7], [left + 78, 30, 5]] as [number, number, number][]) {
+    for (const bx of [left + 30, -120, -30]) flat(ctx, bx, y + h + 2, 4, 3, "m2", "mLine");
+    for (const [bx, by, bh] of [[-104, 8, 7], [-62, 30, 5]] as [number, number, number][]) {
       flat(ctx, bx, y + by, 3, 2, "blood");
       flat(ctx, bx + 1, y + by + 2, 1, bh, "blood");
     }

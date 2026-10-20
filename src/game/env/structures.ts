@@ -322,14 +322,11 @@ export const stripLight: EnvAsset = {
 export const tunnelGate: EnvAsset = {
   id: "tunnelGate",
   box: [-4, -240, 88, 0],
-  draw(ctx, state) {
+  draw(ctx) {
     slab(ctx, 1, -240, 82, 240, "concrete", 1);
     if (!P.simple()) for (let y = -228; y < -4; y += 24) flat(ctx, 1, y, 82, 1, "k0");
     for (const x of [-3, 83]) box(ctx, x, -240, 4, 240, "steel", 1, { vertical: true });
     box(ctx, -3, -72, 90, 4, "steel", 2);
-    const lit = state === 1;
-    if (lit) glow(ctx, 42, -86, 6, "screen", 0.6);
-    disc(ctx, 42, -86, 1.6, lit ? "screen" : "screenOff", "mLine");
   },
 };
 

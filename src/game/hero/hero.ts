@@ -4,6 +4,7 @@ import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
 import { callLift, fallLimit, floorsOf, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { inCover } from "../level/cover";
 import { openTask, runUse, say } from "../level/tasks";
 import { padUnder, ridePad } from "../level/teleports";
 import { cue } from "../sound/cues";
@@ -192,7 +193,7 @@ function launch(s: Step, state: Jump): { height: number; speed: number } {
 
 function jump(s: Step, state: Jump): void {
   const { h, cfg } = s;
-  if (onMovingLift(s)) return;
+  if (onMovingLift(s) || inCover(s.world.props, h.x, cfg.box.width / 2, h.y)) return;
   const { height, speed } = launch(s, state);
   h.gaitTime = isGait(h.state) ? h.time : 0;
   enter(h, state);
@@ -651,6 +652,9 @@ function keepOnDeck(from: number, to: number, lift: Lift, cfg: MovementConfig): 
   return Math.min(Math.max(to, Math.min(from, lift.x + half)), Math.max(from, lift.x + lift.w - half));
 }
 
+const enters = (props: Prop[], h: Hero, to: { x: number; y: number }, half: number): boolean =>
+  !inCover(props, h.x, half, h.y) && inCover(props, to.x, half, to.y);
+
 function physics(s: Step): void {
   const { h, world, cfg, dt } = s;
   const box = boxOf(h, cfg);
@@ -659,6 +663,10 @@ function physics(s: Step): void {
   const vy = Math.min(h.vy + cfg.gravity * dt, cfg.maxFallSpeed);
   const dx = carrier?.target != null ? keepOnDeck(h.x, h.x + h.vx * dt, carrier, cfg) - h.x : h.vx * dt;
   const r = moveBox(box, dx, ((h.vy + vy) / 2) * dt, world.grid, floorsOf(world));
+  if (!h.onGround && enters(world.props, h, r, cfg.box.width / 2)) {
+    r.x = h.x;
+    h.vx = 0;
+  }
   h.x = r.x;
   h.y = r.y;
   h.vy = (r.hitY && vy < 0) || (r.onGround && vy > 0) ? 0 : vy;
