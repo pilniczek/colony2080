@@ -28,6 +28,7 @@ export interface SandboxState {
   inventory: { open: boolean; cursor: number };
   mapOpen: boolean;
   cheatOpen: boolean;
+  debugPanel: boolean;
   soundOn: boolean;
   cutscene: boolean;
   menu: MenuState | null;
@@ -119,6 +120,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   inventory: { open: false, cursor: 0 },
   mapOpen: false,
   cheatOpen: false,
+  debugPanel: false,
   soundOn: loadSoundOn(),
   cutscene: false,
   menu: null,

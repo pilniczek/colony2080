@@ -465,8 +465,9 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const debug = (): void => {
     filmsOff = true;
     world.immortal = true;
+    useSandbox.setState({ debugPanel: true });
     if (world.fog !== null) setFog(false);
-    say(world, `Debugging: immortal, no fog, no films. ${giveWeapon()}. ${giveItems()}`);
+    say(world, `Debugging: immortal, no fog, no films, debug panel. ${giveWeapon()}. ${giveItems()}`);
   };
 
   const moveTo = (x: number, y: number): void => {

@@ -7,7 +7,7 @@ export const CHEATS: { code: string; effect: string; cheat?: Toggle }[] = [
   { code: "c2080iseverywhere", cheat: "noFog", effect: "No fog of war. Enter again to turn fog back on." },
   { code: "c2080ispowerful", cheat: "weapon", effect: "Gives the mission's special weapon with full ammo and removes its pickup from the map." },
   { code: "c2080isrich", cheat: "items", effect: "Gives every item of the mission: items on the map (hidden ones too) and items tasks hand out, each once. Weapons stay. No films." },
-  { code: "c2080isdebugging", cheat: "debug", effect: "Turns on immortality, turns off fog of war, gives the special weapon and every item, and skips every film from then on (tasks still run). Stays on when entered again." },
+  { code: "c2080isdebugging", cheat: "debug", effect: "Turns on immortality, turns off fog of war, gives the special weapon and every item, opens the sandbox debug panel, and skips every film from then on (tasks still run). Stays on when entered again." },
   { code: "moveto(x,y)", effect: "Moves the hero to map cell x, y (y is the floor row, as in world.json), e.g. moveto(40,10)." },
 ];
 
