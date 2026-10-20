@@ -58,6 +58,40 @@ function color(c) {
   return pal[c] || c;
 }
 
+const HEX = /^#[0-9a-f]{6}$/i;
+const SHADES_KEPT = 64;
+
+function shadeHex(hex, { brightness, saturate: s }) {
+  if (!HEX.test(hex)) return hex;
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) * brightness);
+  return "#" + [
+    (0.213 + 0.787 * s) * r + (0.715 - 0.715 * s) * g + (0.072 - 0.072 * s) * b,
+    (0.213 - 0.213 * s) * r + (0.715 + 0.285 * s) * g + (0.072 - 0.072 * s) * b,
+    (0.213 - 0.213 * s) * r + (0.715 - 0.715 * s) * g + (0.072 + 0.928 * s) * b
+  ].map(v => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0")).join("");
+}
+
+const shadedPalettes = new WeakMap();
+
+function shadePalette(base, shade) {
+  const key = `${shade.brightness} ${shade.saturate}`;
+  let known = shadedPalettes.get(base);
+  if (!known || known.size > SHADES_KEPT) shadedPalettes.set(base, known = new Map());
+  let shaded = known.get(key);
+  if (!shaded) known.set(key, shaded = Object.fromEntries(Object.entries(base).map(([name, c]) => [name, shadeHex(c, shade)])));
+  return shaded;
+}
+
+function inShade(shade, draw) {
+  const base = pal;
+  pal = shadePalette(base, shade);
+  try {
+    draw();
+  } finally {
+    pal = base;
+  }
+}
+
 function lw(ctx, k = 1) {
   const t = ctx.getTransform();
   return lineW * k / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
@@ -305,7 +339,8 @@ function draw(ctx, asset, { state, t = 0, palette = PALETTE, lines = 1, lod = fa
 
 window.ENV = {
   TILE, PALETTE, MAT, ASSETS, define, draw,
-  P: { rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw, shape, line, curve, beam, slab },
+  P: { rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw, shape, line, curve, beam, slab, inShade },
+  shadeHex,
   get pal() { return pal; },
   get simple() { return simple; }
 };

@@ -108,12 +108,7 @@ const leg = (ctx: CanvasRenderingContext2D, [hip, knee, ankle]: [Pt, Pt, Pt]): v
 };
 
 const legs = (ctx: CanvasRenderingContext2D): void => {
-  inGuardLegUnits(ctx, () => {
-    ctx.save();
-    ctx.filter = FAR_LEG.shade;
-    leg(ctx, LEGS.rear);
-    ctx.restore();
-  });
+  inGuardLegUnits(ctx, () => P.inShade(FAR_LEG.shade, () => leg(ctx, LEGS.rear)));
   tail(ctx);
   ctx.save();
   ctx.translate(0, -RAISE);

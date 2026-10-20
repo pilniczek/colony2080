@@ -256,7 +256,7 @@ const LEG = 1 / 12;
 const KNEE_PAD = 0.75;
 const FOOT_AHEAD = 2;
 const PLATE = { up: 1.2, ahead: 2 };
-const FAR_LEG = { dx: 2.5, shade: "brightness(0.6) saturate(0.8)" };
+const FAR_LEG = { dx: 2.5, shade: { brightness: 0.6, saturate: 0.8 } };
 const SIDE_LEG = {
   joint: [300, 486],
   cap: [[300, 448], [340, 452], [362, 478], [362, 510], [344, 534], [318, 532], [310, 500]],
@@ -313,10 +313,7 @@ function guardLeg(ctx, dx) {
 }
 
 function farLeg(ctx) {
-  ctx.save();
-  ctx.filter = FAR_LEG.shade;
-  guardLeg(ctx, FAR_LEG.dx);
-  ctx.restore();
+  P.inShade(FAR_LEG.shade, () => guardLeg(ctx, FAR_LEG.dx));
 }
 
 function grad(ctx, x0, y0, x1, y1, stops) {
@@ -531,10 +528,7 @@ const GUARD = {
     const fire = state === 1 ? fireFrame(t % 1.4) : -1;
     if (state !== 2) return guardBody(ctx, fire);
     const p = (t % 3) / 3;
-    ctx.save();
-    ctx.filter = `brightness(${1 - p * 0.45}) saturate(${1 - p * 0.6})`;
-    guardBody(ctx, -1);
-    ctx.restore();
+    P.inShade({ brightness: 1 - p * 0.45, saturate: 1 - p * 0.6 }, () => guardBody(ctx, -1));
     acidDrips(ctx, t, p);
   }
 };
@@ -644,12 +638,7 @@ function trooperLeg(ctx, [hip, knee, ankle]) {
 }
 
 function trooperLegs(ctx) {
-  inGuardLegUnits(ctx, () => {
-    ctx.save();
-    ctx.filter = FAR_LEG.shade;
-    trooperLeg(ctx, TROOPER_LEGS.rear);
-    ctx.restore();
-  });
+  inGuardLegUnits(ctx, () => P.inShade(FAR_LEG.shade, () => trooperLeg(ctx, TROOPER_LEGS.rear)));
   trooperTail(ctx);
   ctx.save();
   ctx.translate(0, -TROOPER_RAISE);

@@ -378,7 +378,7 @@ const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefi
 
 const CUTSCENE_SIZES = [{ w: 480, h: 270 }, { w: 300, h: 300 }];
 const CROWBAR_TS = [0, 0.5, 1.0, 1.1, 1.8, 2.6, 3.2, CUTSCENES.crowbarDoor.duration];
-const FILM_SHARES = [0, 0.1, 0.25, 0.4, 0.55, 0.7, 0.85, 1];
+const FILM_SHARES = [0, 0.1, 0.25, 0.4, 0.55, 0.7, 0.85, 0.93, 1];
 const cutsceneTimes = (id: CutsceneId): number[] => (id === "crowbarDoor" ? CROWBAR_TS : FILM_SHARES.map((k) => k * CUTSCENES[id].duration));
 
 const runCutscene = (id: CutsceneId, t: number, size: { w: number; h: number }, filmed: boolean, out: HTMLElement): VisualResult => {

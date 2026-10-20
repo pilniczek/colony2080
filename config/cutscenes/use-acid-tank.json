@@ -3,7 +3,40 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/KYSELINA.ANM; trigger: useAcidTank task",
   "title": "Acid poured on the guard",
   "camera": "CAM 11 TANK",
-  "duration": 2.23,
-  "palette": {},
-  "tracks": {}
+  "duration": 4.73,
+  "stage": {
+    "width": 1600,
+    "height": 900,
+    "close": { "x": 800, "y": 430, "rx": 380, "tilt": 0.34, "arm": 3.2 },
+    "melt": { "x": 800, "guardX": 975, "floorY": 800, "guardScale": 7.4, "pipeX": 772, "pipeW": 70, "outlet": 330 }
+  },
+  "palette": {
+    "back": "#050606",
+    "under": "#0c0f0c",
+    "wall": "#141c18",
+    "seam": "#070a08",
+    "floor": "#262a24",
+    "floorEdge": "#3a4036",
+    "flash": "#e03a10",
+    "grid": "#e04018",
+    "rot": "#22301a",
+    "lift": "#a0b0a4",
+    "rim": "#d8ff90",
+    "acidBright": "#a6ff3c"
+  },
+  "tracks": {
+    "shot": [[0, "A"], [2.23, "B"]],
+    "bring": [[0, 1], [0.6, 0, "out"]],
+    "grid": [[0, 0], [0.35, 1, "out"], [0.68, 1], [0.69, 0]],
+    "flash": [[0.68, 0], [0.685, 1], [0.765, 1], [0.77, 0]],
+    "spin": [[0, -20], [0.6, 0, "out"], [0.85, 0], [1.9, 75, "inOut"], [2.23, 80, "out"]],
+    "pour": [[0, 0], [1.75, 0], [2.1, 1, "out"], [2.23, 1], [3.95, 1], [4.4, 0, "in"]],
+    "camX": [[2.23, 790], [4.73, 800, "inOut"]],
+    "camY": [[2.23, 600], [2.95, 605], [4.73, 660, "inOut"]],
+    "camZ": [[2.23, 1.42], [2.95, 1.46], [4.73, 1.7, "inOut"]],
+    "sizzle": [[2.23, 0], [2.35, 0], [3.4, 1, "inOut"]],
+    "sag": [[2.23, 0], [2.95, 0], [3.85, 1, "in"]],
+    "wreck": [[3.75, 0], [4.0, 1, "inOut"]],
+    "puddle": [[2.23, 0], [2.4, 0], [4.5, 1, "out"]]
+  }
 }

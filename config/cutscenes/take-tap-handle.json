@@ -3,7 +3,43 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTOCKOH.ANM, SEBKOH.ANM; trigger: takeTapHandle task",
   "title": "Water off, tap handle taken",
   "camera": "CAM 05 PUMP ROOM",
-  "duration": 5.69,
-  "palette": {},
-  "tracks": {}
+  "duration": 5.686,
+  "stage": {
+    "width": 1600,
+    "height": 900,
+    "floorY": 820,
+    "robot": { "scale": 0.92, "x": 905 },
+    "pipe": { "x": 560, "w": 150, "sleeveTop": 280, "bottom": 580, "floor": 715 },
+    "wheel": { "x": 732, "y": 380, "r": 66, "depth": 0.5 },
+    "close": { "x": 800, "y": 470, "rx": 360, "tilt": 0.38, "arm": 3.2 }
+  },
+  "palette": {
+    "back": "#040606",
+    "floor": "#2a2016",
+    "floorLit": "#7a5a34",
+    "gravel": "#140e08",
+    "gravelLit": "#a88050",
+    "wall": "#1a2a22",
+    "wallLit": "#2c4232",
+    "seam": "#0a120e",
+    "stain": "#4e3218",
+    "water": "#86a8a0",
+    "waterDark": "#3e5a58",
+    "flash": "#e03a10",
+    "grid": "#e04018"
+  },
+  "tracks": {
+    "shot": [[0, "A"], [3.714, "B"]],
+    "camZ": [[0, 1], [3.714, 1.05, "inOut"]],
+    "reach": [[0, 0], [0.45, 1, "inOut"]],
+    "grip": [[0, -40], [0.45, -40], [1.15, 50, "inOut"], [1.45, -40, "inOut"], [2.15, 50, "inOut"], [2.45, -40, "inOut"], [3.15, 50, "inOut"]],
+    "wheel": [[0, 0], [0.45, 0], [1.15, 90, "inOut"], [1.45, 90], [2.15, 180, "inOut"], [2.45, 180], [3.15, 270, "inOut"]],
+    "lean": [[0, 0], [0.45, 2, "inOut"], [1.15, -2, "inOut"], [1.45, 2, "inOut"], [2.15, -2, "inOut"], [2.45, 2, "inOut"], [3.15, -2, "inOut"], [3.714, 0, "inOut"]],
+    "flow": [[0, 1], [1.2, 1], [2.9, 0.15, "inOut"], [3.2, 0, "in"]],
+    "grid": [[3.714, 0], [3.95, 1, "out"], [4.44, 1], [4.53, 0]],
+    "flash": [[4.44, 0], [4.445, 1], [4.525, 1], [4.53, 0]],
+    "spin": [[3.714, 270], [4.44, 285, "out"], [4.6, 285], [5.0, 330, "inOut"], [5.686, 345, "out"]],
+    "hands": [[4.53, 0], [4.85, 1, "out"]],
+    "lift": [[4.95, 0], [5.686, 1, "inOut"]]
+  }
 }

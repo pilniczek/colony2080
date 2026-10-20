@@ -4,6 +4,43 @@
   "title": "Holo plan shown at the bar",
   "camera": "CAM 07 BAR",
   "duration": 11.99,
-  "palette": {},
-  "tracks": {}
+  "items": {"robotBefore": null, "robotAfter": "shipPlan", "manBefore": "shipPlan", "manAfter": null},
+  "stage": {"width": 1600, "height": 900, "holoStart": 3.07, "doorStart": 9.16, "hatch": [170, 90, 1190, 600], "robotScale": 1, "itemScale": 14},
+  "palette": {
+    "wall": "#5a5040", "wallLit": "#867a62", "wallDark": "#2e2820", "grit": "#100e0a", "hole": "#0c0806", "holeLight": "#3a2a18",
+    "panel": "#3c5458", "panelLit": "#6f878b", "panelDark": "#25393d", "rivet": "#142427",
+    "skin": "#c98a5a", "skinLit": "#e8b88a", "skinDark": "#9a5a32", "skinDeep": "#5a2e16", "hair": "#c0ab6d", "hairDark": "#7b6834",
+    "glassRim": "#a3adb1", "glass": "#ffffff", "lip": "#7a3e22", "collar": "#414b3c", "collarDark": "#232a22",
+    "sky": "#5a2a14", "skyLit": "#8a4a28", "skyDark": "#2a1008", "cloud": "#b8744a", "cloudDark": "#3e1a0c",
+    "holo": "#7ae0ff", "holoCore": "#ffffff", "lamp": "#ffd2a0",
+    "plaster": "#867a62", "plasterLit": "#a89c80", "plasterDark": "#5a5040", "door": "#4e3218", "doorLit": "#7c5228", "doorDark": "#24160c", "doorEdge": "#3c5458",
+    "sleeve": "#414b3c", "sleeveDark": "#232a22", "shadow": "#000000"
+  },
+  "tracks": {
+    "slide": [[0.15, 0], [0.75, 1, "inOut"]],
+    "manX": [[0.45, 1700], [0.95, 1020, "out"], [1.6, 1060, "inOut"], [2.1, 820, "inOut"], [3.07, 800]],
+    "manY": [[0.45, 470], [2.1, 470], [3.07, 500, "inOut"]],
+    "manScale": [[0.45, 1], [2.3, 1], [3.07, 1.18, "inOut"]],
+    "manTurn": [[0.45, -0.5], [1.0, -0.35, "inOut"], [1.5, 0.25, "inOut"], [2.1, 0, "inOut"], [3.07, 0]],
+    "glare": [[0.9, 1], [1.5, 1], [1.9, 0.25, "inOut"], [3.07, 0.2]],
+    "camY": [[3.07, 1010], [5.3, 990], [7.6, 830, "inOut"], [9.16, 815]],
+    "camZ": [[3.07, 3.0], [9.16, 2.8, "inOut"]],
+    "armL": [[3.07, 8.75], [5.1, 8.75], [5.9, 0, "inOut"], [9.16, 0]],
+    "foreL": [[3.07, -91.75], [5.1, -91.75], [5.9, 0, "inOut"], [9.16, 0]],
+    "holo": [[3.2, 0], [3.6, 1, "out"], [5.0, 1], [5.4, 0, "in"]],
+    "lamp": [[3.07, 0.6], [3.5, 1, "inOut"], [6.5, 1], [7.2, 0.5, "inOut"], [9.16, 0.4]]
+  },
+  "door": {
+    "duration": 2.83,
+    "robotX": 1250, "robotY": 1020, "robotScale": 1.4, "hinge": 520, "leafWidth": 600, "top": 200, "itemScale": 11, "manReach": 230, "itemStates": {"shipPart": 1},
+    "tracks": {
+      "camX": [[0, 820], [1.4, 820], [2.83, 760, "inOut"]],
+      "swing": [[0.7, 0], [1.5, 1, "inOut"]],
+      "reach": [[1.05, 0], [1.5, 1, "out"], [1.95, 1], [2.35, 0, "inOut"]],
+      "armL": [[0, 5.5], [1.3, 5.5], [1.7, 29, "inOut"], [1.95, 29], [2.4, 5.5, "inOut"], [2.83, 6]],
+      "foreL": [[0, -75.5], [1.3, -75.5], [1.7, -36, "inOut"], [1.95, -36], [2.4, -75.5, "inOut"], [2.83, -78]],
+      "robotShift": [[0, 0], [1.3, 0], [1.7, -30, "inOut"], [2.3, 40, "inOut"], [2.83, 50]],
+      "swap": [[1.84, 0], [1.85, 1]]
+    }
+  }
 }

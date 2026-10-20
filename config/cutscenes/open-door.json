@@ -4,6 +4,21 @@
   "title": "Card door opens",
   "camera": "CAM 10 ROOF",
   "duration": 7.29,
-  "palette": {},
-  "tracks": {}
+  "stage": { "width": 1600, "height": 900, "horizon": 470, "sun": [640, 470, 700] },
+  "robot": { "scale": 1.6, "x": 820, "y": 58 },
+  "palette": {
+    "sky0": "#2a1008", "sky1": "#5a2a14", "sky2": "#8a4a28", "sky3": "#b8744a", "glow": "#e8a040", "sun": "#fff1a8",
+    "cloud": "#3a2418", "cloudLit": "#c87a40", "ground": "#6a4020", "groundFar": "#2a1408",
+    "door": "#070808", "doorEdge": "#1c2628", "doorTube": "#3a8ea0"
+  },
+  "tracks": {
+    "door": [[0, 0], [0.07, 0], [5.4, 1480], [5.79, 1600, "out"], [7.29, 1600]],
+    "camZ": [[0, 1], [7.29, 1.03, "inOut"]],
+    "breathe": [[0, 0], [1.8, 4, "inOut"], [3.6, 0, "inOut"], [5.4, 4, "inOut"], [7.29, 0, "inOut"]],
+    "head": [[0, 0], [5.8, 0], [6.4, -4, "inOut"], [7.29, -4]],
+    "armL": [[0, 14], [7.29, 14]],
+    "foreL": [[0, -10], [1.8, -14, "inOut"], [3.6, -10, "inOut"], [5.4, -14, "inOut"], [7.29, -10, "inOut"]],
+    "armR": [[0, -14], [7.29, -14]],
+    "foreR": [[0, 10], [1.8, 14, "inOut"], [3.6, 10, "inOut"], [5.4, 14, "inOut"], [7.29, 10, "inOut"]]
+  }
 }

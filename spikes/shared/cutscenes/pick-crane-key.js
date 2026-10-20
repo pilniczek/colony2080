@@ -1,4 +1,3 @@
 (() => {
-const { kit } = window.CUTSCENES;
-window.CUTSCENES.pickCraneKey = kit.placeholder("pickCraneKey", window.C28_CONFIG.cutscenes.pickCraneKey);
+window.CUTSCENES.pickCraneKey = window.CUTSCENES.pickupFilm("pickCraneKey", window.C28_CONFIG.cutscenes.pickCraneKey);
 })();

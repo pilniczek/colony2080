@@ -114,6 +114,50 @@ const path = (ctx: CanvasRenderingContext2D, pts: Pt[]): void => {
 
 const color = (c: string): string => pal[c] || c;
 
+export interface Shade {
+  brightness: number;
+  saturate: number;
+}
+
+const HEX = /^#[0-9a-f]{6}$/i;
+const SHADES_KEPT = 64;
+
+export const shadeHex = (hex: string, { brightness, saturate: s }: Shade): string => {
+  if (!HEX.test(hex)) return hex;
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) * brightness) as [number, number, number];
+  return (
+    "#" +
+    [
+      (0.213 + 0.787 * s) * r + (0.715 - 0.715 * s) * g + (0.072 - 0.072 * s) * b,
+      (0.213 - 0.213 * s) * r + (0.715 + 0.285 * s) * g + (0.072 - 0.072 * s) * b,
+      (0.213 - 0.213 * s) * r + (0.715 - 0.715 * s) * g + (0.072 + 0.928 * s) * b,
+    ]
+      .map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0"))
+      .join("")
+  );
+};
+
+const shadedPalettes = new WeakMap<EnvPalette, Map<string, EnvPalette>>();
+
+const shadePalette = (base: EnvPalette, shade: Shade): EnvPalette => {
+  const key = `${shade.brightness} ${shade.saturate}`;
+  let known = shadedPalettes.get(base);
+  if (!known || known.size > SHADES_KEPT) shadedPalettes.set(base, (known = new Map()));
+  let shaded = known.get(key);
+  if (!shaded) known.set(key, (shaded = Object.fromEntries(Object.entries(base).map(([name, c]) => [name, shadeHex(c, shade)]))));
+  return shaded;
+};
+
+const inShade = (shade: Shade, draw: () => void): void => {
+  const base = pal;
+  pal = shadePalette(base, shade);
+  try {
+    draw();
+  } finally {
+    pal = base;
+  }
+};
+
 const lw = (ctx: CanvasRenderingContext2D, k = 1): number => {
   const t = ctx.getTransform();
   return (lineW * k) / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
@@ -396,7 +440,7 @@ export const drawAsset = (ctx: CanvasRenderingContext2D, asset: EnvAsset, { stat
 };
 
 export const P = {
-  rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw, shape, line, curve, beam, slab,
+  rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw, shape, line, curve, beam, slab, inShade,
   simple: (): boolean => simple,
   pal: (): EnvPalette => pal,
 };

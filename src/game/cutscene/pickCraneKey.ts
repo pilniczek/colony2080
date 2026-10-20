@@ -1,5 +1,5 @@
 import config from "@config/cutscenes/pick-crane-key.json";
-import { placeholder } from "./kit";
+import { pickupFilm } from "./pickController";
 import type { Cutscene } from "./index";
 
-export const pickCraneKey: Cutscene = placeholder("pickCraneKey", config);
+export const pickCraneKey: Cutscene = pickupFilm("pickCraneKey", config);

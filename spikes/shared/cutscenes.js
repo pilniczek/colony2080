@@ -422,7 +422,7 @@ const REF = window.ORIGINALS.cutscenes.crowbarDoor;
 
 function filmRef(id, duration) {
   const r = window.ORIGINALS.cutscenes[id];
-  return r && { label: r.label, frame: t => r.frame(Math.min(1, Math.max(0, t / duration))) };
+  return r && { label: r.label, frame: t => r.frame(Math.min(duration, Math.max(0, t)), duration) };
 }
 
 function placeholder(id, CFG) {

@@ -22,8 +22,8 @@ try {
   const page = await browser.newPage();
   page.on("pageerror", (e) => console.error("page error:", e.message));
   const only = process.env.VISUAL_ONLY ? `?only=${encodeURIComponent(process.env.VISUAL_ONLY)}` : "";
-  await page.goto(`http://127.0.0.1:${port}/tools/visual/compare.html${only}`);
-  const results = await page.waitForFunction(() => window.__visual, null, { timeout: 60000 }).then((h) => h.jsonValue());
+  await page.goto(`http://127.0.0.1:${port}/tools/visual/compare.html${only}`, { timeout: 180000 });
+  const results = await page.waitForFunction(() => window.__visual, null, { timeout: 180000 }).then((h) => h.jsonValue());
   const expected = await page.evaluate(() => window.__visualCount);
   if (results.length !== expected) {
     failed = true;

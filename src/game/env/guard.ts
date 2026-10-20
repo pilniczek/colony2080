@@ -22,7 +22,7 @@ const LEG = 1 / 12;
 const KNEE_PAD = 0.75;
 const FOOT_AHEAD = 2;
 const PLATE = { up: 1.2, ahead: 2 };
-export const FAR_LEG = { dx: 2.5, shade: "brightness(0.6) saturate(0.8)" };
+export const FAR_LEG = { dx: 2.5, shade: { brightness: 0.6, saturate: 0.8 } };
 const SIDE_LEG = {
   joint: [300, 486] as Pt,
   cap: [[300, 448], [340, 452], [362, 478], [362, 510], [344, 534], [318, 532], [310, 500]] as Pt[],
@@ -154,10 +154,7 @@ const guardLeg = (ctx: CanvasRenderingContext2D, dx: number): void => {
 };
 
 const farLeg = (ctx: CanvasRenderingContext2D): void => {
-  ctx.save();
-  ctx.filter = FAR_LEG.shade;
-  guardLeg(ctx, FAR_LEG.dx);
-  ctx.restore();
+  P.inShade(FAR_LEG.shade, () => guardLeg(ctx, FAR_LEG.dx));
 };
 
 const shoulder = (ctx: CanvasRenderingContext2D): void => {

@@ -569,17 +569,1222 @@ window.C28_CONFIG = {
    "title": "Hull cover shot off",
    "camera": "CAM 12 HANGAR",
    "duration": 3.71,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "seed": 52,
+    "walk": {
+     "horizon": 560,
+     "stepSeconds": 0.62,
+     "lift": 0.45,
+     "swing": 9,
+     "bob": 12,
+     "shipX": 120,
+     "shipY": 590,
+     "shipScale": 6.4
+    },
+    "aim": {
+     "horizon": 640,
+     "floorY": 1120,
+     "x": 300,
+     "scale": 1.45,
+     "shipX": 1120,
+     "shipY": 680,
+     "shipScale": 6.4
+    },
+    "flashSeconds": 0.107,
+    "tracer": 260,
+    "coverFly": [
+     520,
+     -420,
+     1500
+    ],
+    "partDrop": 250,
+    "partScale": 4,
+    "shipShade": 0.5
+   },
+   "palette": {
+    "dark": "#0d0a09",
+    "rock0": "#2a140c",
+    "rock1": "#4a2414",
+    "rock2": "#6e3a1e",
+    "rock3": "#93562c",
+    "floor": "#26313a",
+    "floorLine": "#3f525c",
+    "floorFar": "#1a2229",
+    "shadow": "#000000",
+    "flash": "#fff2b0",
+    "flashCore": "#ffffff",
+    "flashEdge": "#ff9a2a",
+    "spark": "#ffd060"
+   },
+   "tracks": {
+    "shot": [
+     [
+      0,
+      "A"
+     ],
+     [
+      2.21,
+      "B"
+     ]
+    ],
+    "walkScale": [
+     [
+      0,
+      3
+     ],
+     [
+      2.21,
+      1.05,
+      "out"
+     ]
+    ],
+    "walkY": [
+     [
+      0,
+      990
+     ],
+     [
+      2.21,
+      860,
+      "out"
+     ]
+    ],
+    "walkX": [
+     [
+      0,
+      830
+     ],
+     [
+      2.21,
+      770
+     ]
+    ],
+    "camZ": [
+     [
+      2.21,
+      1
+     ],
+     [
+      3.71,
+      1.14,
+      "out"
+     ]
+    ],
+    "camX": [
+     [
+      2.21,
+      800
+     ],
+     [
+      3.71,
+      770,
+      "out"
+     ]
+    ],
+    "camY": [
+     [
+      2.21,
+      450
+     ],
+     [
+      3.71,
+      440,
+      "out"
+     ]
+    ],
+    "raise": [
+     [
+      2.21,
+      0
+     ],
+     [
+      2.36,
+      0
+     ],
+     [
+      2.86,
+      1,
+      "inOut"
+     ]
+    ],
+    "fire": [
+     [
+      2.93,
+      0
+     ],
+     [
+      2.94,
+      1
+     ],
+     [
+      3.71,
+      1
+     ]
+    ],
+    "hits": [
+     [
+      2.98,
+      0
+     ],
+     [
+      2.99,
+      1
+     ],
+     [
+      3.71,
+      1
+     ]
+    ],
+    "cover": [
+     [
+      3.3,
+      0
+     ],
+     [
+      3.31,
+      1
+     ]
+    ],
+    "coverFly": [
+     [
+      3.3,
+      0
+     ],
+     [
+      3.71,
+      1
+     ]
+    ],
+    "partDrop": [
+     [
+      3.4,
+      0
+     ],
+     [
+      3.71,
+      1,
+      "in"
+     ]
+    ]
+   }
   },
   "missionStart": {
    "status": "draft",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/ODNAK.ANM, NAKLAD.ANM, RAKOD1.ANM, SESTREL.ANM, ROBBLIK.ANM, UPAD.ANM, RUCE.ANM, MONITOR.ANM, PRILET1.ANM, PRILET2.ANM; trigger: new game start",
    "title": "Mission start",
    "camera": "CAM 01 TRANSPORT",
-   "duration": 72.5,
-   "palette": {},
-   "tracks": {}
+   "duration": 61.5,
+   "note": "One shot per original clip, static lead-ins trimmed. Track keys are film seconds. Stage units: 1600 x 900. Robot k is the rig scale; march speeds are stage px per second.",
+   "stage": {
+    "width": 1600,
+    "height": 900
+   },
+   "march": {
+    "cadence": 1.1,
+    "files": [
+     {
+      "n": 8,
+      "x0": -1700,
+      "gap": 380,
+      "floorY": 610,
+      "k": 0.32,
+      "speed": 215,
+      "dim": 0.45,
+      "lod": true
+     },
+     {
+      "n": 5,
+      "x0": -1900,
+      "gap": 620,
+      "floorY": 860,
+      "k": 0.66,
+      "speed": 440,
+      "dim": 0.7,
+      "lod": false
+     }
+    ],
+    "guards": [
+     {
+      "x": 1330,
+      "floorY": 700,
+      "k": 0.42,
+      "dim": 0.55
+     }
+    ]
+   },
+   "hold": {
+    "robots": [
+     {
+      "x": 330,
+      "floorY": 900,
+      "k": 0.8,
+      "enemy": false
+     },
+     {
+      "x": 650,
+      "floorY": 870,
+      "k": 0.74,
+      "enemy": false
+     },
+     {
+      "x": 960,
+      "floorY": 845,
+      "k": 0.69,
+      "enemy": true
+     }
+    ]
+   },
+   "diagnostic": [
+    "MEMORY BLOCKS DAMAGED",
+    "MISSION PROGRAM LOST",
+    "",
+    "SYSTEM OUTPUT 89%"
+   ],
+   "palette": {
+    "black": "#000000",
+    "white": "#ffffff",
+    "space": "#04050a",
+    "star": "#d8dcf0",
+    "hangarWall": "#2b2c1e",
+    "hangarPillar": "#3c3d28",
+    "hangarPillarLit": "#56563a",
+    "hangarBeam": "#17180f",
+    "hatch": "#d9c58a",
+    "hatchGlow": "#f0e2b0",
+    "plate": "#4a4c4a",
+    "plateLine": "#383a38",
+    "plateShine": "#5e605c",
+    "bayWall": "#55585a",
+    "bayPanel": "#45484a",
+    "bayFloor": "#6a6c6a",
+    "bayFloorFar": "#575958",
+    "rail": "#8d9090",
+    "railShade": "#5a5d5e",
+    "planetLit": "#9aa0e0",
+    "planet": "#4a52a0",
+    "planetDark": "#121634",
+    "thrust": "#ffffff",
+    "thrustGlow": "#c8d8ff",
+    "hull": "#867a62",
+    "hullTop": "#bcb092",
+    "hullDark": "#5a5040",
+    "hullLine": "#100e0a",
+    "wing": "#2e2820",
+    "glassLit": "#c8d0c8",
+    "station": "#57523e",
+    "stationTop": "#7a745a",
+    "stationDark": "#2e2b20",
+    "stationLight": "#b8d4d0",
+    "pod": "#9aa04a",
+    "podDark": "#3c4018",
+    "lens": "#c8ccd0",
+    "skyHigh": "#56636e",
+    "skyMid": "#7a7c80",
+    "skyLow": "#c86a44",
+    "skyGlow": "#e48a56",
+    "cloud": "#94a0aa",
+    "cloudDark": "#4a525a",
+    "hills": "#2c4428",
+    "grassFar": "#3c6232",
+    "grassNear": "#5a8a42",
+    "grassSpot": "#2e5228",
+    "smoke": "#3c3a36",
+    "fire": "#ffb040",
+    "fireHot": "#fff2c0",
+    "holdWall": "#16160f",
+    "holdRib": "#25251b",
+    "holdPipe": "#30302a",
+    "crate": "#25352e",
+    "crateLine": "#3e6a4a",
+    "crateTop": "#33463c",
+    "fallWall": "#4a3020",
+    "fallLine": "#2a1a10",
+    "spark": "#fff4c0",
+    "sparkHot": "#ffffff",
+    "deck": "#1a1c1c",
+    "deckLine": "#2e3232",
+    "deckBump": "#262a2a",
+    "diag": "#c8d0c0",
+    "wave": "#e8c21a",
+    "staticBase": "#6e6252",
+    "staticLight": "#d8ccb4",
+    "staticDark": "#2a241c",
+    "panel": "#6a6630",
+    "panelDark": "#4a4620",
+    "panelLine": "#3a3818",
+    "lampOff": "#4a3a1c",
+    "lampOn": "#f0a040",
+    "keyOff": "#1e4a22",
+    "keyOn": "#4ad25a",
+    "bezel": "#2c2c22",
+    "bezelLit": "#4a4a38",
+    "crtLit": "#5e6666",
+    "crtDark": "#22282a",
+    "wire": "#b4ff96",
+    "wireFill": "#3cb83c",
+    "mapMark": "#e8e050",
+    "duskHigh": "#2a1008",
+    "duskLow": "#7a3a1a",
+    "dustCloud": "#5a2a14",
+    "desertFar": "#8a4420",
+    "desertNear": "#b05c2a",
+    "crack": "#4a2410",
+    "mesa": "#3a1c0e",
+    "scaffold": "#4a3a30",
+    "scaffoldLit": "#7a6450",
+    "shadow": "#000000",
+    "ruinSkyHigh": "#3a1a10",
+    "ruinSkyLow": "#b0602e",
+    "ruinCloud": "#c47a48",
+    "ruinCloudDark": "#5a2a18",
+    "ruinFar": "#4a2414",
+    "ruinMid": "#2e160c",
+    "brick": "#6a3020",
+    "brickDark": "#3a1a10",
+    "rubble": "#24120a",
+    "dust": "#c09070"
+   },
+   "tracks": {
+    "shot": [
+     [
+      0,
+      "march"
+     ],
+     [
+      6.5,
+      "hangar"
+     ],
+     [
+      12.5,
+      "orbit"
+     ],
+     [
+      20.5,
+      "shotDown"
+     ],
+     [
+      25,
+      "hold"
+     ],
+     [
+      27.2,
+      "fall"
+     ],
+     [
+      31,
+      "hand"
+     ],
+     [
+      37.5,
+      "monitor"
+     ],
+     [
+      47.5,
+      "crash"
+     ],
+     [
+      54.5,
+      "city"
+     ]
+    ],
+    "marchCamX": [
+     [
+      0,
+      640
+     ],
+     [
+      6.5,
+      900,
+      "inOut"
+     ]
+    ],
+    "marchZ": [
+     [
+      0,
+      1
+     ],
+     [
+      6.5,
+      1.22,
+      "inOut"
+     ]
+    ],
+    "hangCamX": [
+     [
+      6.5,
+      560
+     ],
+     [
+      9.6,
+      760,
+      "inOut"
+     ],
+     [
+      12.5,
+      1500,
+      "in"
+     ]
+    ],
+    "hangZ": [
+     [
+      6.5,
+      1.15
+     ],
+     [
+      12.5,
+      0.95,
+      "inOut"
+     ]
+    ],
+    "shipLift": [
+     [
+      6.5,
+      0
+     ],
+     [
+      7.8,
+      0
+     ],
+     [
+      9.4,
+      130,
+      "inOut"
+     ]
+    ],
+    "shipGo": [
+     [
+      6.5,
+      0
+     ],
+     [
+      9.4,
+      0
+     ],
+     [
+      12.3,
+      2600,
+      "in"
+     ]
+    ],
+    "thrust": [
+     [
+      6.5,
+      0
+     ],
+     [
+      7.6,
+      0
+     ],
+     [
+      8,
+      0.6,
+      "out"
+     ],
+     [
+      9.4,
+      0.6
+     ],
+     [
+      10,
+      1
+     ]
+    ],
+    "hangFlash": [
+     [
+      10.6,
+      0
+     ],
+     [
+      10.9,
+      0.85,
+      "out"
+     ],
+     [
+      11.9,
+      0,
+      "in"
+     ]
+    ],
+    "stationX": [
+     [
+      12.5,
+      180
+     ],
+     [
+      16.2,
+      -260,
+      "inOut"
+     ],
+     [
+      17.4,
+      -2300,
+      "in"
+     ]
+    ],
+    "stationZ": [
+     [
+      12.5,
+      1
+     ],
+     [
+      16.2,
+      1.12
+     ]
+    ],
+    "orbitShip": [
+     [
+      16.6,
+      1.5
+     ],
+     [
+      20.5,
+      0.04,
+      "out"
+     ]
+    ],
+    "orbitShipX": [
+     [
+      16.6,
+      1120
+     ],
+     [
+      20.5,
+      760,
+      "out"
+     ]
+    ],
+    "orbitShipY": [
+     [
+      16.6,
+      560
+     ],
+     [
+      20.5,
+      450,
+      "out"
+     ]
+    ],
+    "sdZ": [
+     [
+      20.5,
+      0.05
+     ],
+     [
+      23.1,
+      0.16,
+      "in"
+     ],
+     [
+      25,
+      1.7,
+      "in"
+     ]
+    ],
+    "sdX": [
+     [
+      20.5,
+      760
+     ],
+     [
+      23.1,
+      800
+     ],
+     [
+      25,
+      1180,
+      "in"
+     ]
+    ],
+    "sdY": [
+     [
+      20.5,
+      430
+     ],
+     [
+      23.1,
+      415
+     ],
+     [
+      25,
+      140,
+      "in"
+     ]
+    ],
+    "sdRoll": [
+     [
+      23.1,
+      0
+     ],
+     [
+      25,
+      -16,
+      "in"
+     ]
+    ],
+    "sdFlash": [
+     [
+      23.05,
+      0
+     ],
+     [
+      23.12,
+      1
+     ],
+     [
+      23.9,
+      0,
+      "out"
+     ]
+    ],
+    "sdHit": [
+     [
+      23.1,
+      0
+     ],
+     [
+      23.12,
+      1
+     ]
+    ],
+    "sdBoom": [
+     [
+      23.1,
+      0
+     ],
+     [
+      23.9,
+      1,
+      "out"
+     ]
+    ],
+    "holdFlash": [
+     [
+      25,
+      0.7
+     ],
+     [
+      25.35,
+      0,
+      "out"
+     ],
+     [
+      26.8,
+      0
+     ],
+     [
+      27.2,
+      1,
+      "in"
+     ]
+    ],
+    "holdCamX": [
+     [
+      25,
+      760
+     ],
+     [
+      27.2,
+      840
+     ]
+    ],
+    "fallFlash": [
+     [
+      27.2,
+      1
+     ],
+     [
+      27.8,
+      0,
+      "out"
+     ]
+    ],
+    "fallAngle": [
+     [
+      27.2,
+      -40
+     ],
+     [
+      28.7,
+      -74,
+      "in"
+     ],
+     [
+      28.85,
+      -70,
+      "out"
+     ],
+     [
+      29.1,
+      -73
+     ],
+     [
+      31,
+      -73
+     ]
+    ],
+    "fallDrop": [
+     [
+      27.2,
+      -80
+     ],
+     [
+      28.7,
+      60,
+      "in"
+     ],
+     [
+      31,
+      60
+     ]
+    ],
+    "fallShake": [
+     [
+      28.7,
+      0
+     ],
+     [
+      28.72,
+      14
+     ],
+     [
+      29.3,
+      0
+     ]
+    ],
+    "fallHead": [
+     [
+      27.2,
+      0
+     ],
+     [
+      28.7,
+      10
+     ],
+     [
+      29,
+      26,
+      "out"
+     ],
+     [
+      31,
+      22
+     ]
+    ],
+    "fallArm": [
+     [
+      27.2,
+      -10
+     ],
+     [
+      28.7,
+      -40,
+      "in"
+     ],
+     [
+      29.1,
+      -5,
+      "out"
+     ],
+     [
+      31,
+      -12
+     ]
+    ],
+    "sparks": [
+     [
+      27.2,
+      0
+     ],
+     [
+      27.85,
+      0
+     ],
+     [
+      27.9,
+      1
+     ],
+     [
+      28.3,
+      1
+     ],
+     [
+      28.35,
+      0
+     ],
+     [
+      28.7,
+      0
+     ],
+     [
+      28.75,
+      1
+     ],
+     [
+      29.6,
+      1
+     ],
+     [
+      29.65,
+      0
+     ],
+     [
+      30.2,
+      0
+     ],
+     [
+      30.25,
+      1
+     ],
+     [
+      30.6,
+      1
+     ],
+     [
+      30.65,
+      0
+     ]
+    ],
+    "handStatic": [
+     [
+      31,
+      1
+     ],
+     [
+      31.4,
+      1
+     ],
+     [
+      31.41,
+      0
+     ],
+     [
+      32.4,
+      0
+     ],
+     [
+      32.41,
+      1
+     ],
+     [
+      32.9,
+      1
+     ],
+     [
+      32.91,
+      0
+     ],
+     [
+      35.5,
+      0
+     ],
+     [
+      35.51,
+      1
+     ],
+     [
+      35.8,
+      1
+     ],
+     [
+      35.81,
+      0
+     ]
+    ],
+    "handText": [
+     [
+      31,
+      0
+     ],
+     [
+      33.2,
+      0
+     ],
+     [
+      35.4,
+      58
+     ],
+     [
+      37.5,
+      58
+     ]
+    ],
+    "handFore": [
+     [
+      31,
+      0
+     ],
+     [
+      34,
+      0
+     ],
+     [
+      34.3,
+      -12,
+      "inOut"
+     ],
+     [
+      34.6,
+      0,
+      "inOut"
+     ],
+     [
+      36.4,
+      0
+     ],
+     [
+      36.7,
+      -8,
+      "inOut"
+     ],
+     [
+      37,
+      0,
+      "inOut"
+     ]
+    ],
+    "handCamZ": [
+     [
+      31,
+      1
+     ],
+     [
+      37.5,
+      1.12,
+      "inOut"
+     ]
+    ],
+    "monitorMode": [
+     [
+      37.5,
+      "panel"
+     ],
+     [
+      39.6,
+      "robot"
+     ],
+     [
+      43.8,
+      "map"
+     ]
+    ],
+    "monCamY": [
+     [
+      37.5,
+      -330
+     ],
+     [
+      38.6,
+      -330
+     ],
+     [
+      39.6,
+      450,
+      "inOut"
+     ]
+    ],
+    "monZ": [
+     [
+      37.5,
+      2.2
+     ],
+     [
+      38.6,
+      2.2
+     ],
+     [
+      39.6,
+      1,
+      "inOut"
+     ],
+     [
+      47.5,
+      1.12
+     ]
+    ],
+    "monTurn": [
+     [
+      39.6,
+      0
+     ],
+     [
+      43.8,
+      300
+     ]
+    ],
+    "mapTurn": [
+     [
+      43.8,
+      -30
+     ],
+     [
+      47.5,
+      20
+     ]
+    ],
+    "mapZoom": [
+     [
+      43.8,
+      0.7
+     ],
+     [
+      47.5,
+      1,
+      "out"
+     ]
+    ],
+    "crashCamX": [
+     [
+      47.5,
+      520
+     ],
+     [
+      51.5,
+      820,
+      "inOut"
+     ],
+     [
+      54.5,
+      880
+     ]
+    ],
+    "crashCamY": [
+     [
+      47.5,
+      420
+     ],
+     [
+      54.5,
+      470
+     ]
+    ],
+    "flyZ": [
+     [
+      51.4,
+      0.3
+     ],
+     [
+      54.5,
+      2.6,
+      "in"
+     ]
+    ],
+    "flyX": [
+     [
+      51.4,
+      860
+     ],
+     [
+      54.5,
+      820
+     ]
+    ],
+    "flyY": [
+     [
+      51.4,
+      -200
+     ],
+     [
+      54.5,
+      640,
+      "in"
+     ]
+    ],
+    "flyShadow": [
+     [
+      50.4,
+      -600
+     ],
+     [
+      52.6,
+      1600
+     ]
+    ],
+    "cityCamX": [
+     [
+      54.5,
+      700
+     ],
+     [
+      61.5,
+      860,
+      "inOut"
+     ]
+    ],
+    "cityShipX": [
+     [
+      54.5,
+      -260
+     ],
+     [
+      58.5,
+      640,
+      "out"
+     ],
+     [
+      61,
+      1060,
+      "inOut"
+     ]
+    ],
+    "cityShipY": [
+     [
+      54.5,
+      120
+     ],
+     [
+      58.5,
+      330,
+      "inOut"
+     ],
+     [
+      61,
+      600,
+      "inOut"
+     ]
+    ],
+    "cityShipZ": [
+     [
+      54.5,
+      2.6
+     ],
+     [
+      61,
+      1.7,
+      "inOut"
+     ]
+    ],
+    "cityShipRot": [
+     [
+      54.5,
+      16
+     ],
+     [
+      58.5,
+      6
+     ],
+     [
+      61,
+      -2,
+      "inOut"
+     ],
+     [
+      61.5,
+      0
+     ]
+    ],
+    "cityDust": [
+     [
+      60.6,
+      0
+     ],
+     [
+      61.5,
+      1
+     ]
+    ]
+   }
   },
   "openDoor": {
    "status": "draft",
@@ -587,8 +1792,189 @@ window.C28_CONFIG = {
    "title": "Card door opens",
    "camera": "CAM 10 ROOF",
    "duration": 7.29,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "horizon": 470,
+    "sun": [
+     640,
+     470,
+     700
+    ]
+   },
+   "robot": {
+    "scale": 1.6,
+    "x": 820,
+    "y": 58
+   },
+   "palette": {
+    "sky0": "#2a1008",
+    "sky1": "#5a2a14",
+    "sky2": "#8a4a28",
+    "sky3": "#b8744a",
+    "glow": "#e8a040",
+    "sun": "#fff1a8",
+    "cloud": "#3a2418",
+    "cloudLit": "#c87a40",
+    "ground": "#6a4020",
+    "groundFar": "#2a1408",
+    "door": "#070808",
+    "doorEdge": "#1c2628",
+    "doorTube": "#3a8ea0"
+   },
+   "tracks": {
+    "door": [
+     [
+      0,
+      0
+     ],
+     [
+      0.07,
+      0
+     ],
+     [
+      5.4,
+      1480
+     ],
+     [
+      5.79,
+      1600,
+      "out"
+     ],
+     [
+      7.29,
+      1600
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      7.29,
+      1.03,
+      "inOut"
+     ]
+    ],
+    "breathe": [
+     [
+      0,
+      0
+     ],
+     [
+      1.8,
+      4,
+      "inOut"
+     ],
+     [
+      3.6,
+      0,
+      "inOut"
+     ],
+     [
+      5.4,
+      4,
+      "inOut"
+     ],
+     [
+      7.29,
+      0,
+      "inOut"
+     ]
+    ],
+    "head": [
+     [
+      0,
+      0
+     ],
+     [
+      5.8,
+      0
+     ],
+     [
+      6.4,
+      -4,
+      "inOut"
+     ],
+     [
+      7.29,
+      -4
+     ]
+    ],
+    "armL": [
+     [
+      0,
+      14
+     ],
+     [
+      7.29,
+      14
+     ]
+    ],
+    "foreL": [
+     [
+      0,
+      -10
+     ],
+     [
+      1.8,
+      -14,
+      "inOut"
+     ],
+     [
+      3.6,
+      -10,
+      "inOut"
+     ],
+     [
+      5.4,
+      -14,
+      "inOut"
+     ],
+     [
+      7.29,
+      -10,
+      "inOut"
+     ]
+    ],
+    "armR": [
+     [
+      0,
+      -14
+     ],
+     [
+      7.29,
+      -14
+     ]
+    ],
+    "foreR": [
+     [
+      0,
+      10
+     ],
+     [
+      1.8,
+      14,
+      "inOut"
+     ],
+     [
+      3.6,
+      10,
+      "inOut"
+     ],
+     [
+      5.4,
+      14,
+      "inOut"
+     ],
+     [
+      7.29,
+      10,
+      "inOut"
+     ]
+    ]
+   }
   },
   "pickController": {
    "status": "draft",
@@ -596,8 +1982,269 @@ window.C28_CONFIG = {
    "title": "Lift controller picked up",
    "camera": "CAM 08 PLASMA",
    "duration": 1.76,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "item": "controller",
+    "itemState": 0,
+    "itemFlip": false,
+    "ground": "grass",
+    "seed": 7,
+    "blades": 2200,
+    "yaw": 20,
+    "horizon": -918,
+    "height": 20,
+    "inset": 0.1,
+    "edge": 4,
+    "grout": 8,
+    "gripAt": 0.6,
+    "itemOffset": [
+     -220,
+     25
+    ],
+    "itemTilt": -4,
+    "itemScale": 20,
+    "shadow": [
+     0,
+     40,
+     230,
+     36
+    ],
+    "gridBox": [
+     33,
+     22,
+     1567,
+     862
+    ],
+    "gridCell": 64,
+    "panel": [
+     56,
+     43,
+     400,
+     228
+    ],
+    "panelScan": 1.3,
+    "wave": [
+     1189,
+     33,
+     361,
+     108
+    ],
+    "waveRate": 14,
+    "glyphRows": 10,
+    "glyphBox": [
+     40,
+     330,
+     9,
+     50,
+     40
+    ],
+    "focal": 2000
+   },
+   "palette": {
+    "soil": "#3a1a0c",
+    "grass0": "#5a2c14",
+    "grass1": "#7c4020",
+    "grass2": "#9a5a2c",
+    "grout": "#24140c",
+    "tile": "#6e4429",
+    "tileLight": "#a8744c",
+    "tileShade": "#3a2214",
+    "haze": "rgba(0, 0, 0, 0.45)",
+    "shadow": "#000000",
+    "scan": "#e2401a",
+    "flash": "#e5381a",
+    "panel": "#bfeaea",
+    "panelLine": "#4fa3a8",
+    "panelItem": "#6cc4c6"
+   },
+   "tracks": {
+    "grid": [
+     [
+      0.04,
+      0
+     ],
+     [
+      0.34,
+      1
+     ],
+     [
+      0.72,
+      1
+     ],
+     [
+      0.73,
+      0
+     ]
+    ],
+    "flash": [
+     [
+      0.72,
+      0
+     ],
+     [
+      0.73,
+      1
+     ],
+     [
+      0.81,
+      1
+     ],
+     [
+      0.82,
+      0
+     ]
+    ],
+    "glyphs": [
+     [
+      0,
+      2
+     ],
+     [
+      0.73,
+      2
+     ],
+     [
+      1,
+      10
+     ]
+    ],
+    "shadow": [
+     [
+      0.6,
+      1
+     ],
+     [
+      0.85,
+      0
+     ]
+    ],
+    "yaw": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      0
+     ],
+     [
+      1.76,
+      -6,
+      "inOut"
+     ]
+    ],
+    "pan": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      0
+     ],
+     [
+      1.76,
+      1,
+      "inOut"
+     ]
+    ],
+    "panelSpin": [
+     [
+      0,
+      0
+     ],
+     [
+      1.76,
+      40
+     ]
+    ],
+    "robotX": [
+     [
+      0,
+      2200
+     ],
+     [
+      0.6,
+      1868,
+      "out"
+     ],
+     [
+      1.76,
+      1830,
+      "inOut"
+     ]
+    ],
+    "robotY": [
+     [
+      0,
+      1250
+     ],
+     [
+      0.6,
+      986,
+      "out"
+     ],
+     [
+      1.76,
+      1010,
+      "inOut"
+     ]
+    ],
+    "robotK": [
+     [
+      0,
+      3
+     ],
+     [
+      0.6,
+      3
+     ],
+     [
+      1.76,
+      3.4,
+      "inOut"
+     ]
+    ],
+    "arm": [
+     [
+      0,
+      -104
+     ],
+     [
+      0.6,
+      -110,
+      "out"
+     ],
+     [
+      0.85,
+      -110
+     ],
+     [
+      1.76,
+      -118,
+      "inOut"
+     ]
+    ],
+    "fore": [
+     [
+      0,
+      4
+     ],
+     [
+      0.6,
+      10,
+      "out"
+     ],
+     [
+      0.85,
+      10
+     ],
+     [
+      1.76,
+      24,
+      "inOut"
+     ]
+    ]
+   }
   },
   "pickCraneKey": {
    "status": "draft",
@@ -605,8 +2252,269 @@ window.C28_CONFIG = {
    "title": "Crane key picked up",
    "camera": "CAM 13 CRANE",
    "duration": 1.76,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "item": "craneKey",
+    "itemState": 0,
+    "itemFlip": true,
+    "ground": "grass",
+    "seed": 7,
+    "blades": 2200,
+    "yaw": 20,
+    "horizon": -918,
+    "height": 20,
+    "inset": 0.1,
+    "edge": 4,
+    "grout": 8,
+    "gripAt": 0.6,
+    "itemOffset": [
+     -120,
+     20
+    ],
+    "itemTilt": -6,
+    "itemScale": 14,
+    "shadow": [
+     0,
+     30,
+     110,
+     18
+    ],
+    "gridBox": [
+     33,
+     22,
+     1567,
+     862
+    ],
+    "gridCell": 64,
+    "panel": [
+     56,
+     43,
+     400,
+     228
+    ],
+    "panelScan": 1.3,
+    "wave": [
+     1189,
+     33,
+     361,
+     108
+    ],
+    "waveRate": 14,
+    "glyphRows": 10,
+    "glyphBox": [
+     40,
+     330,
+     9,
+     50,
+     40
+    ],
+    "focal": 2000
+   },
+   "palette": {
+    "soil": "#3a1a0c",
+    "grass0": "#5a2c14",
+    "grass1": "#7c4020",
+    "grass2": "#9a5a2c",
+    "grout": "#24140c",
+    "tile": "#6e4429",
+    "tileLight": "#a8744c",
+    "tileShade": "#3a2214",
+    "haze": "rgba(0, 0, 0, 0.45)",
+    "shadow": "#000000",
+    "scan": "#e2401a",
+    "flash": "#e5381a",
+    "panel": "#bfeaea",
+    "panelLine": "#4fa3a8",
+    "panelItem": "#6cc4c6"
+   },
+   "tracks": {
+    "grid": [
+     [
+      0.04,
+      0
+     ],
+     [
+      0.34,
+      1
+     ],
+     [
+      0.72,
+      1
+     ],
+     [
+      0.73,
+      0
+     ]
+    ],
+    "flash": [
+     [
+      0.72,
+      0
+     ],
+     [
+      0.73,
+      1
+     ],
+     [
+      0.81,
+      1
+     ],
+     [
+      0.82,
+      0
+     ]
+    ],
+    "glyphs": [
+     [
+      0,
+      2
+     ],
+     [
+      0.73,
+      2
+     ],
+     [
+      1,
+      10
+     ]
+    ],
+    "shadow": [
+     [
+      0.6,
+      1
+     ],
+     [
+      0.85,
+      0
+     ]
+    ],
+    "yaw": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      0
+     ],
+     [
+      1.76,
+      -6,
+      "inOut"
+     ]
+    ],
+    "pan": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      0
+     ],
+     [
+      1.76,
+      1,
+      "inOut"
+     ]
+    ],
+    "panelSpin": [
+     [
+      0,
+      0
+     ],
+     [
+      1.76,
+      40
+     ]
+    ],
+    "robotX": [
+     [
+      0,
+      2200
+     ],
+     [
+      0.6,
+      1868,
+      "out"
+     ],
+     [
+      1.76,
+      1830,
+      "inOut"
+     ]
+    ],
+    "robotY": [
+     [
+      0,
+      1250
+     ],
+     [
+      0.6,
+      986,
+      "out"
+     ],
+     [
+      1.76,
+      1010,
+      "inOut"
+     ]
+    ],
+    "robotK": [
+     [
+      0,
+      3
+     ],
+     [
+      0.6,
+      3
+     ],
+     [
+      1.76,
+      3.4,
+      "inOut"
+     ]
+    ],
+    "arm": [
+     [
+      0,
+      -104
+     ],
+     [
+      0.6,
+      -110,
+      "out"
+     ],
+     [
+      0.85,
+      -110
+     ],
+     [
+      1.76,
+      -118,
+      "inOut"
+     ]
+    ],
+    "fore": [
+     [
+      0,
+      4
+     ],
+     [
+      0.6,
+      10,
+      "out"
+     ],
+     [
+      0.85,
+      10
+     ],
+     [
+      1.76,
+      24,
+      "inOut"
+     ]
+    ]
+   }
   },
   "pickCrowbar": {
    "status": "draft",
@@ -614,8 +2522,269 @@ window.C28_CONFIG = {
    "title": "Crowbar picked up",
    "camera": "CAM 04 STREET",
    "duration": 1.76,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "item": "crowbar",
+    "itemState": 0,
+    "itemFlip": true,
+    "ground": "grass",
+    "seed": 7,
+    "blades": 2200,
+    "yaw": 20,
+    "horizon": -918,
+    "height": 20,
+    "inset": 0.1,
+    "edge": 4,
+    "grout": 8,
+    "gripAt": 0.6,
+    "itemOffset": [
+     -290,
+     20
+    ],
+    "itemTilt": -4,
+    "itemScale": 20,
+    "shadow": [
+     0,
+     40,
+     280,
+     26
+    ],
+    "gridBox": [
+     33,
+     22,
+     1567,
+     862
+    ],
+    "gridCell": 64,
+    "panel": [
+     56,
+     43,
+     400,
+     228
+    ],
+    "panelScan": 1.3,
+    "wave": [
+     1189,
+     33,
+     361,
+     108
+    ],
+    "waveRate": 14,
+    "glyphRows": 10,
+    "glyphBox": [
+     40,
+     330,
+     9,
+     50,
+     40
+    ],
+    "focal": 2000
+   },
+   "palette": {
+    "soil": "#3a1a0c",
+    "grass0": "#5a2c14",
+    "grass1": "#7c4020",
+    "grass2": "#9a5a2c",
+    "grout": "#24140c",
+    "tile": "#6e4429",
+    "tileLight": "#a8744c",
+    "tileShade": "#3a2214",
+    "haze": "rgba(0, 0, 0, 0.45)",
+    "shadow": "#000000",
+    "scan": "#e2401a",
+    "flash": "#e5381a",
+    "panel": "#bfeaea",
+    "panelLine": "#4fa3a8",
+    "panelItem": "#6cc4c6"
+   },
+   "tracks": {
+    "grid": [
+     [
+      0.04,
+      0
+     ],
+     [
+      0.34,
+      1
+     ],
+     [
+      0.72,
+      1
+     ],
+     [
+      0.73,
+      0
+     ]
+    ],
+    "flash": [
+     [
+      0.72,
+      0
+     ],
+     [
+      0.73,
+      1
+     ],
+     [
+      0.81,
+      1
+     ],
+     [
+      0.82,
+      0
+     ]
+    ],
+    "glyphs": [
+     [
+      0,
+      2
+     ],
+     [
+      0.73,
+      2
+     ],
+     [
+      1,
+      10
+     ]
+    ],
+    "shadow": [
+     [
+      0.6,
+      1
+     ],
+     [
+      0.85,
+      0
+     ]
+    ],
+    "yaw": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      0
+     ],
+     [
+      1.76,
+      -6,
+      "inOut"
+     ]
+    ],
+    "pan": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      0
+     ],
+     [
+      1.76,
+      1,
+      "inOut"
+     ]
+    ],
+    "panelSpin": [
+     [
+      0,
+      0
+     ],
+     [
+      1.76,
+      40
+     ]
+    ],
+    "robotX": [
+     [
+      0,
+      2200
+     ],
+     [
+      0.6,
+      1868,
+      "out"
+     ],
+     [
+      1.76,
+      1830,
+      "inOut"
+     ]
+    ],
+    "robotY": [
+     [
+      0,
+      1250
+     ],
+     [
+      0.6,
+      986,
+      "out"
+     ],
+     [
+      1.76,
+      1010,
+      "inOut"
+     ]
+    ],
+    "robotK": [
+     [
+      0,
+      3
+     ],
+     [
+      0.6,
+      3
+     ],
+     [
+      1.76,
+      3.4,
+      "inOut"
+     ]
+    ],
+    "arm": [
+     [
+      0,
+      -104
+     ],
+     [
+      0.6,
+      -110,
+      "out"
+     ],
+     [
+      0.85,
+      -110
+     ],
+     [
+      1.76,
+      -118,
+      "inOut"
+     ]
+    ],
+    "fore": [
+     [
+      0,
+      4
+     ],
+     [
+      0.6,
+      10,
+      "out"
+     ],
+     [
+      0.85,
+      10
+     ],
+     [
+      1.76,
+      24,
+      "inOut"
+     ]
+    ]
+   }
   },
   "pickEBlaster": {
    "status": "draft",
@@ -623,8 +2792,205 @@ window.C28_CONFIG = {
    "title": "E-Blaster picked up",
    "camera": "CAM 03 METRO",
    "duration": 2.4,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "floorY": 870,
+    "robotX": 800,
+    "robotScale": 1.02,
+    "lightY": 200,
+    "railY": [
+     650,
+     710
+    ],
+    "seed": 31,
+    "blots": 70
+   },
+   "palette": {
+    "wall": "#46423b",
+    "wallDark": "#2a2723",
+    "blot": "#524d45",
+    "blotDark": "#3c3833",
+    "light": "#f2f2ea",
+    "rail": "#2f2820",
+    "railLight": "#76664e",
+    "floor": "#1a1815",
+    "shadow": "#000000",
+    "lightGlow": "#fffbe0"
+   },
+   "tracks": {
+    "camX": [
+     [
+      0,
+      800
+     ],
+     [
+      0.46,
+      812
+     ],
+     [
+      1.14,
+      860,
+      "inOut"
+     ],
+     [
+      2.4,
+      895,
+      "out"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      470
+     ],
+     [
+      0.46,
+      462
+     ],
+     [
+      1.14,
+      445,
+      "inOut"
+     ],
+     [
+      2.4,
+      440,
+      "out"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1.5
+     ],
+     [
+      0.46,
+      1.62
+     ],
+     [
+      1.14,
+      2,
+      "inOut"
+     ],
+     [
+      2.4,
+      2.7,
+      "out"
+     ]
+    ],
+    "bob": [
+     [
+      0,
+      0
+     ],
+     [
+      0.2,
+      -10,
+      "out"
+     ],
+     [
+      0.4,
+      0,
+      "in"
+     ],
+     [
+      0.6,
+      -10,
+      "out"
+     ],
+     [
+      0.8,
+      0,
+      "in"
+     ],
+     [
+      2.4,
+      0
+     ]
+    ],
+    "armL": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      5,
+      "inOut"
+     ],
+     [
+      1.6,
+      -2,
+      "inOut"
+     ],
+     [
+      2.4,
+      0,
+      "inOut"
+     ]
+    ],
+    "armR": [
+     [
+      0,
+      0
+     ],
+     [
+      0.46,
+      0
+     ],
+     [
+      1.14,
+      -30,
+      "inOut"
+     ],
+     [
+      2.4,
+      -34,
+      "out"
+     ]
+    ],
+    "foreR": [
+     [
+      0,
+      0
+     ],
+     [
+      0.46,
+      0
+     ],
+     [
+      1.14,
+      58,
+      "inOut"
+     ],
+     [
+      2.4,
+      64,
+      "out"
+     ]
+    ],
+    "foreGrow": [
+     [
+      0,
+      1
+     ],
+     [
+      0.46,
+      1
+     ],
+     [
+      1.14,
+      1.4,
+      "inOut"
+     ],
+     [
+      2.4,
+      1.85,
+      "out"
+     ]
+    ]
+   }
   },
   "pickShipPart": {
    "status": "draft",
@@ -632,8 +2998,269 @@ window.C28_CONFIG = {
    "title": "Ship part picked up",
    "camera": "CAM 12 HANGAR",
    "duration": 1.76,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "item": "shipPart",
+    "itemState": 1,
+    "itemFlip": false,
+    "ground": "tiles",
+    "seed": 7,
+    "blades": 2200,
+    "yaw": 20,
+    "horizon": -918,
+    "height": 20,
+    "inset": 0.1,
+    "edge": 4,
+    "grout": 8,
+    "gripAt": 0.6,
+    "itemOffset": [
+     -230,
+     10
+    ],
+    "itemTilt": -8,
+    "itemScale": 22,
+    "shadow": [
+     10,
+     70,
+     260,
+     46
+    ],
+    "gridBox": [
+     33,
+     22,
+     1567,
+     862
+    ],
+    "gridCell": 64,
+    "panel": [
+     56,
+     43,
+     400,
+     228
+    ],
+    "panelScan": 1.3,
+    "wave": [
+     1189,
+     33,
+     361,
+     108
+    ],
+    "waveRate": 14,
+    "glyphRows": 10,
+    "glyphBox": [
+     40,
+     330,
+     9,
+     50,
+     40
+    ],
+    "focal": 2000
+   },
+   "palette": {
+    "soil": "#3a1a0c",
+    "grass0": "#5a2c14",
+    "grass1": "#7c4020",
+    "grass2": "#9a5a2c",
+    "grout": "#24140c",
+    "tile": "#6e4429",
+    "tileLight": "#a8744c",
+    "tileShade": "#3a2214",
+    "haze": "rgba(0, 0, 0, 0.45)",
+    "shadow": "#000000",
+    "scan": "#e2401a",
+    "flash": "#e5381a",
+    "panel": "#bfeaea",
+    "panelLine": "#4fa3a8",
+    "panelItem": "#6cc4c6"
+   },
+   "tracks": {
+    "grid": [
+     [
+      0.04,
+      0
+     ],
+     [
+      0.34,
+      1
+     ],
+     [
+      0.72,
+      1
+     ],
+     [
+      0.73,
+      0
+     ]
+    ],
+    "flash": [
+     [
+      0.72,
+      0
+     ],
+     [
+      0.73,
+      1
+     ],
+     [
+      0.81,
+      1
+     ],
+     [
+      0.82,
+      0
+     ]
+    ],
+    "glyphs": [
+     [
+      0,
+      2
+     ],
+     [
+      0.73,
+      2
+     ],
+     [
+      1,
+      10
+     ]
+    ],
+    "shadow": [
+     [
+      0.6,
+      1
+     ],
+     [
+      0.85,
+      0
+     ]
+    ],
+    "yaw": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      0
+     ],
+     [
+      1.76,
+      -6,
+      "inOut"
+     ]
+    ],
+    "pan": [
+     [
+      0,
+      0
+     ],
+     [
+      0.8,
+      0
+     ],
+     [
+      1.76,
+      1,
+      "inOut"
+     ]
+    ],
+    "panelSpin": [
+     [
+      0,
+      0
+     ],
+     [
+      1.76,
+      40
+     ]
+    ],
+    "robotX": [
+     [
+      0,
+      2200
+     ],
+     [
+      0.6,
+      1868,
+      "out"
+     ],
+     [
+      1.76,
+      1830,
+      "inOut"
+     ]
+    ],
+    "robotY": [
+     [
+      0,
+      1250
+     ],
+     [
+      0.6,
+      986,
+      "out"
+     ],
+     [
+      1.76,
+      1010,
+      "inOut"
+     ]
+    ],
+    "robotK": [
+     [
+      0,
+      3
+     ],
+     [
+      0.6,
+      3
+     ],
+     [
+      1.76,
+      3.4,
+      "inOut"
+     ]
+    ],
+    "arm": [
+     [
+      0,
+      -104
+     ],
+     [
+      0.6,
+      -110,
+      "out"
+     ],
+     [
+      0.85,
+      -110
+     ],
+     [
+      1.76,
+      -118,
+      "inOut"
+     ]
+    ],
+    "fore": [
+     [
+      0,
+      4
+     ],
+     [
+      0.6,
+      10,
+      "out"
+     ],
+     [
+      0.85,
+      10
+     ],
+     [
+      1.76,
+      24,
+      "inOut"
+     ]
+    ]
+   }
   },
   "pullWires": {
    "status": "draft",
@@ -641,8 +3268,359 @@ window.C28_CONFIG = {
    "title": "Wires torn out",
    "camera": "CAM 04 STREET",
    "duration": 2.61,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "floorY": 1330,
+    "pipeX": 150,
+    "brick": {
+     "w": 96,
+     "h": 34
+    }
+   },
+   "robot": {
+    "scale": 1.45,
+    "x": 1000
+   },
+   "box": {
+    "x": 280,
+    "y": 250,
+    "scale": 18,
+    "envScale": 16
+   },
+   "palette": {
+    "wall": "#5a3020",
+    "brickLine": "#2e170e",
+    "brickLight": "#734030",
+    "shadow": "#000000",
+    "pipe": "#6d6656",
+    "pipeLight": "#a59c84",
+    "pipeDark": "#2e2a22",
+    "doorBack": "#14200f",
+    "spark": "#ffffff",
+    "sparkGlow": "#fff2a8",
+    "arc": "#cfe8ff"
+   },
+   "tracks": {
+    "camX": [
+     [
+      0,
+      800
+     ],
+     [
+      2.2,
+      790
+     ],
+     [
+      2.61,
+      900,
+      "inOut"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      450
+     ],
+     [
+      2.2,
+      450
+     ],
+     [
+      2.61,
+      470,
+      "inOut"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      2.2,
+      1.04
+     ],
+     [
+      2.61,
+      1.16,
+      "inOut"
+     ]
+    ],
+    "door": [
+     [
+      0,
+      0
+     ],
+     [
+      0.12,
+      6,
+      "in"
+     ],
+     [
+      0.62,
+      118,
+      "out"
+     ],
+     [
+      0.75,
+      112,
+      "inOut"
+     ],
+     [
+      2.61,
+      112
+     ]
+    ],
+    "arm": [
+     [
+      0,
+      -86
+     ],
+     [
+      0.12,
+      -84
+     ],
+     [
+      0.45,
+      -62,
+      "inOut"
+     ],
+     [
+      0.68,
+      -60
+     ],
+     [
+      1,
+      -94,
+      "inOut"
+     ],
+     [
+      1.2,
+      -97,
+      "inOut"
+     ],
+     [
+      1.4,
+      -93,
+      "inOut"
+     ],
+     [
+      1.6,
+      -97,
+      "inOut"
+     ],
+     [
+      1.85,
+      -96
+     ],
+     [
+      2.2,
+      -52,
+      "out"
+     ],
+     [
+      2.61,
+      -48
+     ]
+    ],
+    "fore": [
+     [
+      0,
+      -8
+     ],
+     [
+      0.12,
+      -10
+     ],
+     [
+      0.45,
+      -50,
+      "inOut"
+     ],
+     [
+      0.68,
+      -52
+     ],
+     [
+      1,
+      2,
+      "inOut"
+     ],
+     [
+      1.2,
+      6,
+      "inOut"
+     ],
+     [
+      1.4,
+      0,
+      "inOut"
+     ],
+     [
+      1.6,
+      6,
+      "inOut"
+     ],
+     [
+      1.85,
+      4
+     ],
+     [
+      2.2,
+      -78,
+      "out"
+     ],
+     [
+      2.61,
+      -82
+     ]
+    ],
+    "lean": [
+     [
+      0,
+      1
+     ],
+     [
+      0.68,
+      -2
+     ],
+     [
+      1,
+      6,
+      "inOut"
+     ],
+     [
+      1.85,
+      7
+     ],
+     [
+      2.2,
+      1,
+      "out"
+     ],
+     [
+      2.61,
+      2
+     ]
+    ],
+    "head": [
+     [
+      0,
+      6
+     ],
+     [
+      1,
+      10,
+      "inOut"
+     ],
+     [
+      1.85,
+      10
+     ],
+     [
+      2.2,
+      4,
+      "out"
+     ],
+     [
+      2.61,
+      6
+     ]
+    ],
+    "wire": [
+     [
+      0,
+      0
+     ],
+     [
+      1.86,
+      0
+     ],
+     [
+      1.86,
+      1
+     ]
+    ],
+    "torn": [
+     [
+      0,
+      0
+     ],
+     [
+      1.7,
+      0
+     ],
+     [
+      1.7,
+      1
+     ]
+    ],
+    "flash": [
+     [
+      0,
+      0
+     ],
+     [
+      1.6,
+      0
+     ],
+     [
+      1.66,
+      1,
+      "out"
+     ],
+     [
+      1.8,
+      0.7
+     ],
+     [
+      1.95,
+      0,
+      "in"
+     ]
+    ],
+    "arcs": [
+     [
+      0,
+      0
+     ],
+     [
+      1.6,
+      0
+     ],
+     [
+      1.62,
+      1
+     ],
+     [
+      2.3,
+      1
+     ],
+     [
+      2.45,
+      0
+     ]
+    ],
+    "shake": [
+     [
+      0,
+      0
+     ],
+     [
+      1.62,
+      0
+     ],
+     [
+      1.66,
+      8
+     ],
+     [
+      1.9,
+      0
+     ]
+    ]
+   }
   },
   "rebelShot": {
    "status": "draft",
@@ -650,8 +3628,825 @@ window.C28_CONFIG = {
    "title": "Rebel shot down",
    "camera": "CAM 02 STREET",
    "duration": 8.07,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900
+   },
+   "light": {
+    "dusk": 0.72
+   },
+   "palette": {
+    "skyTop": "#120e0c",
+    "skyMid": "#3a2a22",
+    "skyLow": "#8a6a52",
+    "cloudDark": "#0c0a08",
+    "cloudLight": "#d0b89a",
+    "dirtFar": "#4a3a2c",
+    "dirtNear": "#1e1610",
+    "dirtDark": "#100c08",
+    "dirtLight": "#6a5a48",
+    "rustFar": "#6a3a24",
+    "rustNear": "#3a1a10",
+    "rustLight": "#a8683e",
+    "girder": "#3e6a5e",
+    "rust": "#7c4a2a",
+    "rustDark": "#4e2a16",
+    "rod": "#2a2a2c",
+    "wreck": "#4a5a6a",
+    "wreckLight": "#7a8a9a",
+    "ruinSky": "#3a2a30",
+    "glass": "#1c2a40",
+    "glassLit": "#7a5060",
+    "beam": "#8a8a8a",
+    "brick": "#8a3e26",
+    "brickDark": "#4a1e10",
+    "block": "#a8a088",
+    "blockDark": "#6a6454",
+    "sandFar": "#8a5a30",
+    "sandNear": "#5a3418",
+    "sandDark": "#3a2210",
+    "sandLight": "#b07a48",
+    "flash": "#ffb040",
+    "flashCore": "#fff4c0"
+   },
+   "tracks": {
+    "shot": [
+     [
+      0,
+      "A"
+     ],
+     [
+      2.29,
+      "B"
+     ],
+     [
+      4.09,
+      "C"
+     ],
+     [
+      5.85,
+      "D"
+     ]
+    ],
+    "camX": [
+     [
+      0,
+      800
+     ],
+     [
+      1,
+      790,
+      "inOut"
+     ],
+     [
+      2.29,
+      780,
+      "in"
+     ],
+     [
+      2.29,
+      900
+     ],
+     [
+      3.55,
+      760
+     ],
+     [
+      4.09,
+      700,
+      "out"
+     ],
+     [
+      4.09,
+      900
+     ],
+     [
+      5.85,
+      640,
+      "inOut"
+     ],
+     [
+      5.85,
+      800
+     ],
+     [
+      6.6,
+      800,
+      "inOut"
+     ],
+     [
+      8.07,
+      900,
+      "inOut"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      450
+     ],
+     [
+      1,
+      440,
+      "inOut"
+     ],
+     [
+      2.29,
+      350,
+      "in"
+     ],
+     [
+      2.29,
+      450
+     ],
+     [
+      3.55,
+      450
+     ],
+     [
+      4.09,
+      450
+     ],
+     [
+      4.09,
+      450
+     ],
+     [
+      5.85,
+      450
+     ],
+     [
+      5.85,
+      450
+     ],
+     [
+      6.6,
+      440,
+      "inOut"
+     ],
+     [
+      8.07,
+      430,
+      "inOut"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      1.15,
+      "inOut"
+     ],
+     [
+      2.29,
+      3,
+      "in"
+     ],
+     [
+      2.29,
+      1
+     ],
+     [
+      3.55,
+      1.12
+     ],
+     [
+      4.09,
+      1.35,
+      "out"
+     ],
+     [
+      4.09,
+      1
+     ],
+     [
+      5.85,
+      1.05
+     ],
+     [
+      5.85,
+      1
+     ],
+     [
+      6.6,
+      1.3,
+      "inOut"
+     ],
+     [
+      8.07,
+      1.45,
+      "out"
+     ]
+    ],
+    "turn": [
+     [
+      0,
+      0
+     ],
+     [
+      0.35,
+      0
+     ],
+     [
+      1.15,
+      180,
+      "inOut"
+     ]
+    ],
+    "botX": [
+     [
+      0,
+      720
+     ]
+    ],
+    "botY": [
+     [
+      0,
+      2380
+     ]
+    ],
+    "botK": [
+     [
+      0,
+      3
+     ]
+    ],
+    "runX": [
+     [
+      2.29,
+      700
+     ],
+     [
+      2.8,
+      540
+     ],
+     [
+      3.2,
+      420
+     ],
+     [
+      3.55,
+      250
+     ]
+    ],
+    "runY": [
+     [
+      2.29,
+      480
+     ],
+     [
+      2.8,
+      500
+     ],
+     [
+      3.2,
+      540
+     ],
+     [
+      3.55,
+      600
+     ]
+    ],
+    "runK": [
+     [
+      2.29,
+      2
+     ],
+     [
+      2.8,
+      3.2
+     ],
+     [
+      3.2,
+      4.4
+     ],
+     [
+      3.55,
+      5.6
+     ]
+    ],
+    "phase": [
+     [
+      2.29,
+      0
+     ],
+     [
+      3.55,
+      2.9
+     ]
+    ],
+    "bust": [
+     [
+      2.29,
+      "run"
+     ],
+     [
+      3.55,
+      "face"
+     ]
+    ],
+    "faceX": [
+     [
+      3.55,
+      600
+     ],
+     [
+      4.09,
+      620
+     ]
+    ],
+    "faceY": [
+     [
+      3.55,
+      440
+     ],
+     [
+      4.09,
+      500
+     ]
+    ],
+    "faceK": [
+     [
+      3.55,
+      2.2
+     ],
+     [
+      4.09,
+      3.4,
+      "out"
+     ]
+    ],
+    "faceTurn": [
+     [
+      3.55,
+      0.9
+     ],
+     [
+      3.8,
+      0.4,
+      "inOut"
+     ],
+     [
+      4.09,
+      0.3
+     ]
+    ],
+    "hitX": [
+     [
+      4.09,
+      1500
+     ],
+     [
+      4.5,
+      1250,
+      "out"
+     ],
+     [
+      4.65,
+      1180
+     ],
+     [
+      5,
+      1060,
+      "out"
+     ],
+     [
+      5.4,
+      820
+     ],
+     [
+      5.85,
+      600,
+      "in"
+     ]
+    ],
+    "hitY": [
+     [
+      4.09,
+      750
+     ],
+     [
+      4.65,
+      740
+     ],
+     [
+      5,
+      740
+     ],
+     [
+      5.3,
+      900,
+      "in"
+     ],
+     [
+      5.85,
+      1300,
+      "in"
+     ]
+    ],
+    "lean": [
+     [
+      4.09,
+      16
+     ],
+     [
+      4.5,
+      16
+     ],
+     [
+      4.65,
+      -22,
+      "out"
+     ],
+     [
+      4.95,
+      -30
+     ],
+     [
+      5.2,
+      10,
+      "inOut"
+     ],
+     [
+      5.85,
+      40
+     ]
+    ],
+    "headTilt": [
+     [
+      4.09,
+      6
+     ],
+     [
+      4.5,
+      6
+     ],
+     [
+      4.65,
+      -30,
+      "out"
+     ],
+     [
+      5,
+      -34
+     ],
+     [
+      5.3,
+      20,
+      "inOut"
+     ],
+     [
+      5.85,
+      30
+     ]
+    ],
+    "fall": [
+     [
+      4.09,
+      0
+     ],
+     [
+      4.95,
+      0
+     ],
+     [
+      5.85,
+      70,
+      "in"
+     ]
+    ],
+    "legNear": [
+     [
+      4.09,
+      30
+     ],
+     [
+      4.3,
+      -20
+     ],
+     [
+      4.5,
+      30
+     ],
+     [
+      4.65,
+      10
+     ],
+     [
+      5,
+      20
+     ],
+     [
+      5.3,
+      -10
+     ],
+     [
+      5.85,
+      10
+     ]
+    ],
+    "kneeNear": [
+     [
+      4.09,
+      -30
+     ],
+     [
+      4.3,
+      -70
+     ],
+     [
+      4.5,
+      -30
+     ],
+     [
+      4.65,
+      -10
+     ],
+     [
+      5,
+      -50
+     ],
+     [
+      5.3,
+      -90
+     ],
+     [
+      5.85,
+      -60
+     ]
+    ],
+    "legFar": [
+     [
+      4.09,
+      -20
+     ],
+     [
+      4.3,
+      30
+     ],
+     [
+      4.5,
+      -20
+     ],
+     [
+      4.65,
+      -10
+     ],
+     [
+      5,
+      30
+     ],
+     [
+      5.3,
+      40
+     ],
+     [
+      5.85,
+      20
+     ]
+    ],
+    "kneeFar": [
+     [
+      4.09,
+      -70
+     ],
+     [
+      4.3,
+      -30
+     ],
+     [
+      4.5,
+      -70
+     ],
+     [
+      4.65,
+      -20
+     ],
+     [
+      5,
+      -40
+     ],
+     [
+      5.3,
+      -80
+     ],
+     [
+      5.85,
+      -40
+     ]
+    ],
+    "armNear": [
+     [
+      4.09,
+      60
+     ],
+     [
+      4.5,
+      40
+     ],
+     [
+      4.65,
+      -70,
+      "out"
+     ],
+     [
+      5,
+      -110
+     ],
+     [
+      5.4,
+      60,
+      "inOut"
+     ],
+     [
+      5.85,
+      120
+     ]
+    ],
+    "elbowNear": [
+     [
+      4.09,
+      50
+     ],
+     [
+      4.5,
+      60
+     ],
+     [
+      4.65,
+      10
+     ],
+     [
+      5,
+      20
+     ],
+     [
+      5.85,
+      30
+     ]
+    ],
+    "armFar": [
+     [
+      4.09,
+      -30
+     ],
+     [
+      4.5,
+      -20
+     ],
+     [
+      4.65,
+      -100,
+      "out"
+     ],
+     [
+      5,
+      -130
+     ],
+     [
+      5.4,
+      40,
+      "inOut"
+     ],
+     [
+      5.85,
+      100
+     ]
+    ],
+    "elbowFar": [
+     [
+      4.09,
+      70
+     ],
+     [
+      4.5,
+      70
+     ],
+     [
+      4.65,
+      20
+     ],
+     [
+      5.85,
+      40
+     ]
+    ],
+    "spray": [
+     [
+      4.09,
+      0
+     ],
+     [
+      4.55,
+      0
+     ],
+     [
+      4.6,
+      1
+     ],
+     [
+      4.95,
+      0,
+      "out"
+     ]
+    ],
+    "aim": [
+     [
+      5.85,
+      0
+     ],
+     [
+      6.3,
+      0
+     ],
+     [
+      7.2,
+      1,
+      "inOut"
+     ]
+    ],
+    "fire": [
+     [
+      5.85,
+      0
+     ],
+     [
+      7.3,
+      0
+     ],
+     [
+      7.31,
+      1
+     ],
+     [
+      7.75,
+      1
+     ],
+     [
+      7.76,
+      0
+     ]
+    ],
+    "recoil": [
+     [
+      5.85,
+      0
+     ],
+     [
+      7.3,
+      0
+     ],
+     [
+      7.31,
+      1
+     ],
+     [
+      7.75,
+      1
+     ],
+     [
+      7.76,
+      0
+     ]
+    ],
+    "droidHit": [
+     [
+      5.85,
+      0
+     ],
+     [
+      7.45,
+      0
+     ],
+     [
+      7.5,
+      1
+     ],
+     [
+      7.8,
+      0,
+      "out"
+     ]
+    ],
+    "droidFall": [
+     [
+      5.85,
+      0
+     ],
+     [
+      7.5,
+      0
+     ],
+     [
+      8.07,
+      1,
+      "in"
+     ]
+    ]
+   }
   },
   "repairCrane": {
    "status": "draft",
@@ -659,8 +4454,577 @@ window.C28_CONFIG = {
    "title": "Crane ride out of the city",
    "camera": "CAM 13 CRANE",
    "duration": 13.03,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "deckTop": 560,
+    "deckFront": 760,
+    "deckRight": 1420,
+    "horizon": 560,
+    "sun": [
+     1150,
+     560,
+     760
+    ],
+    "cityX": 700,
+    "cityY": 640,
+    "cityScale": 5.6
+   },
+   "robot": {
+    "x": 720,
+    "y": 640,
+    "keyScale": 14,
+    "aboardX": 92
+   },
+   "crane": {
+    "hang": 120,
+    "panelX": 590,
+    "panelScale": 4
+   },
+   "walk": {
+    "rate": 0.9,
+    "cut": 420,
+    "legs": [
+     [
+      140,
+      180
+     ],
+     [
+      320,
+      180
+     ]
+    ]
+   },
+   "palette": {
+    "sky0": "#2a1008",
+    "sky1": "#5a2a14",
+    "sky2": "#8a4a28",
+    "sky3": "#b8744a",
+    "glow": "#e8a040",
+    "sun": "#fff1a8",
+    "cloud": "#3a2418",
+    "cloudLit": "#c87a40",
+    "void": "#140c08",
+    "deck": "#6a3416",
+    "deckLit": "#8a4a22",
+    "deckStreak": "#4e260f",
+    "deckFront": "#2a1810",
+    "deckSide": "#1c100a",
+    "wood": "#3a2a1a",
+    "woodLit": "#5a4228",
+    "woodDark": "#1e150c",
+    "brick": "#3a2a22",
+    "brickLit": "#4a382c",
+    "mortar": "#241a14",
+    "ridge": "#3a2028",
+    "rock": "#5a3a2a",
+    "rockLit": "#9a6a4a",
+    "rockDark": "#2a1810",
+    "leaf": "#2a3a18",
+    "leafLit": "#5a6a2a"
+   },
+   "tracks": {
+    "shot": [
+     [
+      0,
+      "roof"
+     ],
+     [
+      8.66,
+      "hill"
+     ]
+    ],
+    "pose": [
+     [
+      0,
+      "side"
+     ],
+     [
+      1.3,
+      "front"
+     ],
+     [
+      5.8,
+      "back"
+     ]
+    ],
+    "camX": [
+     [
+      0,
+      760
+     ],
+     [
+      2.6,
+      760
+     ],
+     [
+      4.4,
+      900,
+      "inOut"
+     ],
+     [
+      6.2,
+      900
+     ],
+     [
+      8.66,
+      1450,
+      "inOut"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      470
+     ],
+     [
+      8.66,
+      470
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      6.2,
+      1
+     ],
+     [
+      8.66,
+      1.08,
+      "inOut"
+     ]
+    ],
+    "craneX": [
+     [
+      0,
+      -1300
+     ],
+     [
+      1,
+      -1300
+     ],
+     [
+      2.6,
+      400,
+      "out"
+     ],
+     [
+      6.2,
+      400
+     ],
+     [
+      8.66,
+      1350,
+      "inOut"
+     ]
+    ],
+    "craneY": [
+     [
+      0,
+      -140
+     ],
+     [
+      6.2,
+      -140
+     ],
+     [
+      8.66,
+      -330,
+      "inOut"
+     ]
+    ],
+    "craneSwing": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1.6,
+      16,
+      "out"
+     ],
+     [
+      2.6,
+      10
+     ],
+     [
+      3.1,
+      -7,
+      "inOut"
+     ],
+     [
+      3.7,
+      4,
+      "inOut"
+     ],
+     [
+      4.3,
+      -1.5,
+      "inOut"
+     ],
+     [
+      4.9,
+      0,
+      "inOut"
+     ],
+     [
+      6.2,
+      0
+     ],
+     [
+      6.8,
+      7,
+      "inOut"
+     ],
+     [
+      8,
+      5
+     ],
+     [
+      8.66,
+      -2,
+      "inOut"
+     ]
+    ],
+    "craneK": [
+     [
+      0,
+      4
+     ],
+     [
+      6.2,
+      4
+     ],
+     [
+      8.66,
+      4.6,
+      "inOut"
+     ]
+    ],
+    "armB": [
+     [
+      0,
+      -55
+     ],
+     [
+      0.4,
+      -72,
+      "inOut"
+     ],
+     [
+      0.8,
+      -62,
+      "inOut"
+     ],
+     [
+      1.3,
+      -62
+     ]
+    ],
+    "foreB": [
+     [
+      0,
+      -30
+     ],
+     [
+      1.3,
+      -30
+     ]
+    ],
+    "keyTurn": [
+     [
+      0,
+      0
+     ],
+     [
+      0.4,
+      0
+     ],
+     [
+      0.8,
+      70,
+      "inOut"
+     ],
+     [
+      1.3,
+      70
+     ]
+    ],
+    "armL": [
+     [
+      0,
+      10
+     ],
+     [
+      1.3,
+      10
+     ],
+     [
+      1.7,
+      150,
+      "inOut"
+     ],
+     [
+      2,
+      130,
+      "inOut"
+     ],
+     [
+      2.3,
+      150,
+      "inOut"
+     ],
+     [
+      2.6,
+      140,
+      "inOut"
+     ],
+     [
+      3.2,
+      12,
+      "inOut"
+     ],
+     [
+      13.03,
+      12
+     ]
+    ],
+    "foreL": [
+     [
+      0,
+      -8
+     ],
+     [
+      1.3,
+      -8
+     ],
+     [
+      1.7,
+      -20,
+      "inOut"
+     ],
+     [
+      3.2,
+      -8,
+      "inOut"
+     ],
+     [
+      13.03,
+      -8
+     ]
+    ],
+    "armR": [
+     [
+      0,
+      -10
+     ],
+     [
+      1.3,
+      -10
+     ],
+     [
+      1.7,
+      -150,
+      "inOut"
+     ],
+     [
+      2,
+      -130,
+      "inOut"
+     ],
+     [
+      2.3,
+      -150,
+      "inOut"
+     ],
+     [
+      2.6,
+      -140,
+      "inOut"
+     ],
+     [
+      3.2,
+      -12,
+      "inOut"
+     ],
+     [
+      13.03,
+      -12
+     ]
+    ],
+    "foreR": [
+     [
+      0,
+      8
+     ],
+     [
+      1.3,
+      8
+     ],
+     [
+      1.7,
+      20,
+      "inOut"
+     ],
+     [
+      3.2,
+      8,
+      "inOut"
+     ],
+     [
+      13.03,
+      8
+     ]
+    ],
+    "walk": [
+     [
+      0,
+      0
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      5.8,
+      1
+     ],
+     [
+      8.66,
+      1
+     ]
+    ],
+    "stride": [
+     [
+      0,
+      0
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4.2,
+      26
+     ],
+     [
+      5.6,
+      26
+     ],
+     [
+      5.8,
+      0
+     ],
+     [
+      8.66,
+      0
+     ],
+     [
+      8.66,
+      30
+     ],
+     [
+      13.03,
+      30
+     ]
+    ],
+    "heroK": [
+     [
+      0,
+      0.3
+     ],
+     [
+      4,
+      0.3
+     ],
+     [
+      5.8,
+      0.34
+     ],
+     [
+      13.03,
+      0.34
+     ]
+    ],
+    "walkerX": [
+     [
+      8.66,
+      800
+     ],
+     [
+      13.03,
+      800
+     ]
+    ],
+    "walkerK": [
+     [
+      8.66,
+      0.32
+     ],
+     [
+      10.5,
+      0.7,
+      "in"
+     ],
+     [
+      12.2,
+      1.8,
+      "in"
+     ],
+     [
+      13.03,
+      2.9,
+      "in"
+     ]
+    ],
+    "walkerY": [
+     [
+      8.66,
+      600
+     ],
+     [
+      10.5,
+      700,
+      "in"
+     ],
+     [
+      12.2,
+      960,
+      "in"
+     ],
+     [
+      13.03,
+      1100,
+      "in"
+     ]
+    ],
+    "plantShift": [
+     [
+      8.66,
+      0
+     ],
+     [
+      11,
+      0
+     ],
+     [
+      12.4,
+      -700,
+      "in"
+     ],
+     [
+      13.03,
+      -700
+     ]
+    ]
+   }
   },
   "repairLift": {
    "status": "draft",
@@ -668,8 +5032,285 @@ window.C28_CONFIG = {
    "title": "Lift repaired",
    "camera": "CAM 09 ROOF",
    "duration": 4.43,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "sun": [
+     1380,
+     840,
+     520
+    ]
+   },
+   "robot": {
+    "scale": 1.35,
+    "x": 860,
+    "y": 190,
+    "controllerScale": 11
+   },
+   "palette": {
+    "sky0": "#2a1008",
+    "sky1": "#5a2a14",
+    "sky2": "#8a4a28",
+    "sky3": "#b8744a",
+    "glow": "#e8a040",
+    "sun": "#fff1a8",
+    "cloud": "#3a2418",
+    "cloudLit": "#c87a40",
+    "box": "#0b0705",
+    "boxSide": "#140b07",
+    "boxRim": "#8a4520",
+    "boxGlow": "#f0b050",
+    "lampOff": "#ff3020",
+    "lampOn": "#8cf060"
+   },
+   "tracks": {
+    "camX": [
+     [
+      0,
+      790
+     ],
+     [
+      4.43,
+      818,
+      "inOut"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      450
+     ],
+     [
+      4.43,
+      438,
+      "inOut"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      4.43,
+      1.04,
+      "inOut"
+     ]
+    ],
+    "crouch": [
+     [
+      0,
+      0
+     ],
+     [
+      0.55,
+      0
+     ],
+     [
+      1.1,
+      85,
+      "inOut"
+     ],
+     [
+      2.85,
+      85
+     ],
+     [
+      3.55,
+      0,
+      "inOut"
+     ],
+     [
+      4.43,
+      0
+     ]
+    ],
+    "head": [
+     [
+      0,
+      0
+     ],
+     [
+      0.6,
+      0
+     ],
+     [
+      1.1,
+      9,
+      "inOut"
+     ],
+     [
+      2.9,
+      9
+     ],
+     [
+      3.5,
+      -3,
+      "inOut"
+     ],
+     [
+      4.43,
+      -3
+     ]
+    ],
+    "armR": [
+     [
+      0,
+      -56
+     ],
+     [
+      0.6,
+      -60,
+      "inOut"
+     ],
+     [
+      1.1,
+      -68,
+      "inOut"
+     ],
+     [
+      2.9,
+      -68
+     ],
+     [
+      3.5,
+      -58,
+      "inOut"
+     ],
+     [
+      4.43,
+      -58
+     ]
+    ],
+    "foreR": [
+     [
+      0,
+      50
+     ],
+     [
+      0.6,
+      60,
+      "inOut"
+     ],
+     [
+      1.3,
+      78,
+      "inOut"
+     ],
+     [
+      1.6,
+      66,
+      "inOut"
+     ],
+     [
+      1.9,
+      80,
+      "inOut"
+     ],
+     [
+      2.2,
+      68,
+      "inOut"
+     ],
+     [
+      2.5,
+      78,
+      "inOut"
+     ],
+     [
+      2.9,
+      70,
+      "inOut"
+     ],
+     [
+      3.5,
+      48,
+      "inOut"
+     ],
+     [
+      4.43,
+      50
+     ]
+    ],
+    "wrist": [
+     [
+      0,
+      -8
+     ],
+     [
+      1.3,
+      8,
+      "inOut"
+     ],
+     [
+      1.6,
+      -6,
+      "inOut"
+     ],
+     [
+      1.9,
+      10,
+      "inOut"
+     ],
+     [
+      2.2,
+      -4,
+      "inOut"
+     ],
+     [
+      2.5,
+      8,
+      "inOut"
+     ],
+     [
+      3.5,
+      -8,
+      "inOut"
+     ],
+     [
+      4.43,
+      -8
+     ]
+    ],
+    "armL": [
+     [
+      0,
+      32
+     ],
+     [
+      4.43,
+      30
+     ]
+    ],
+    "foreL": [
+     [
+      0,
+      -40
+     ],
+     [
+      4.43,
+      -42
+     ]
+    ],
+    "lit": [
+     [
+      0,
+      0
+     ],
+     [
+      2.2,
+      0
+     ],
+     [
+      2.3,
+      1
+     ],
+     [
+      4.43,
+      1
+     ]
+    ]
+   }
   },
   "searchCorpse": {
    "status": "draft",
@@ -677,17 +5318,617 @@ window.C28_CONFIG = {
    "title": "Corpse searched",
    "camera": "CAM 06 RUBBLE",
    "duration": 4.43,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "wallBase": 560,
+    "floorY": 780,
+    "robotX": 720,
+    "robotScale": 1.8,
+    "corpseX": 1380,
+    "corpseY": 890,
+    "corpseScale": 29,
+    "itemScale": 10,
+    "squash": 0.1,
+    "crouchX": -60,
+    "crouchY": 620,
+    "handFront": [
+     880,
+     590,
+     320,
+     200
+    ]
+   },
+   "palette": {
+    "wall": "#3e2a1a",
+    "wallLit": "#5a3e26",
+    "wallDark": "#24170e",
+    "block": "#4a3220",
+    "pipe": "#8a8272",
+    "pipeLit": "#c4bba4",
+    "pipeDark": "#4a4438",
+    "panel": "#6a6052",
+    "panelDark": "#3a342a",
+    "rivet": "#a49a84",
+    "skirt": "#2a2018",
+    "floor": "#2e2418",
+    "floorLit": "#4a3a26",
+    "grate": "#18120c",
+    "shadow": "#000000"
+   },
+   "tracks": {
+    "camX": [
+     [
+      0,
+      800
+     ],
+     [
+      4.43,
+      790
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      450
+     ],
+     [
+      4.43,
+      455
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      4.43,
+      1.04,
+      "inOut"
+     ]
+    ],
+    "crouch": [
+     [
+      0.45,
+      0
+     ],
+     [
+      1.3,
+      1,
+      "inOut"
+     ],
+     [
+      4.43,
+      1
+     ]
+    ],
+    "lean": [
+     [
+      0.45,
+      0
+     ],
+     [
+      1.3,
+      -16,
+      "inOut"
+     ],
+     [
+      2.3,
+      -20,
+      "inOut"
+     ],
+     [
+      3,
+      -20
+     ],
+     [
+      3.6,
+      -12,
+      "inOut"
+     ],
+     [
+      4.43,
+      -11
+     ]
+    ],
+    "taken": [
+     [
+      2.99,
+      0
+     ],
+     [
+      3,
+      1
+     ]
+    ],
+    "head": [
+     [
+      0,
+      0
+     ],
+     [
+      1.3,
+      0
+     ],
+     [
+      2,
+      12,
+      "inOut"
+     ],
+     [
+      3.3,
+      12
+     ],
+     [
+      3.8,
+      4,
+      "inOut"
+     ],
+     [
+      4.43,
+      4
+     ]
+    ],
+    "armL": [
+     [
+      0,
+      8
+     ],
+     [
+      0.6,
+      8
+     ],
+     [
+      1.3,
+      20,
+      "inOut"
+     ],
+     [
+      4.43,
+      20
+     ]
+    ],
+    "foreL": [
+     [
+      0,
+      0
+     ],
+     [
+      0.6,
+      0
+     ],
+     [
+      1.3,
+      -10,
+      "inOut"
+     ],
+     [
+      4.43,
+      -10
+     ]
+    ],
+    "armR": [
+     [
+      0,
+      -8
+     ],
+     [
+      0.6,
+      -8
+     ],
+     [
+      1.3,
+      -28,
+      "inOut"
+     ],
+     [
+      1.8,
+      -28
+     ],
+     [
+      2.3,
+      6,
+      "inOut"
+     ],
+     [
+      2.5,
+      3,
+      "inOut"
+     ],
+     [
+      2.7,
+      8,
+      "inOut"
+     ],
+     [
+      2.9,
+      4,
+      "inOut"
+     ],
+     [
+      3,
+      6
+     ],
+     [
+      3.6,
+      -14.5,
+      "inOut"
+     ],
+     [
+      4.43,
+      -15
+     ]
+    ],
+    "foreR": [
+     [
+      0,
+      0
+     ],
+     [
+      0.6,
+      0
+     ],
+     [
+      1.3,
+      100,
+      "inOut"
+     ],
+     [
+      1.8,
+      100
+     ],
+     [
+      2.3,
+      0.5,
+      "inOut"
+     ],
+     [
+      2.5,
+      10,
+      "inOut"
+     ],
+     [
+      2.7,
+      -4,
+      "inOut"
+     ],
+     [
+      2.9,
+      6,
+      "inOut"
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      3.6,
+      159,
+      "inOut"
+     ],
+     [
+      4.43,
+      158
+     ]
+    ],
+    "handFront": [
+     [
+      2,
+      0
+     ],
+     [
+      2.01,
+      1
+     ],
+     [
+      3.15,
+      1
+     ],
+     [
+      3.16,
+      0
+     ]
+    ]
+   }
   },
   "takeTapHandle": {
    "status": "draft",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTOCKOH.ANM, SEBKOH.ANM; trigger: takeTapHandle task",
    "title": "Water off, tap handle taken",
    "camera": "CAM 05 PUMP ROOM",
-   "duration": 5.69,
-   "palette": {},
-   "tracks": {}
+   "duration": 5.686,
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "floorY": 820,
+    "robot": {
+     "scale": 0.92,
+     "x": 905
+    },
+    "pipe": {
+     "x": 560,
+     "w": 150,
+     "sleeveTop": 280,
+     "bottom": 580,
+     "floor": 715
+    },
+    "wheel": {
+     "x": 732,
+     "y": 380,
+     "r": 66,
+     "depth": 0.5
+    },
+    "close": {
+     "x": 800,
+     "y": 470,
+     "rx": 360,
+     "tilt": 0.38,
+     "arm": 3.2
+    }
+   },
+   "palette": {
+    "back": "#040606",
+    "floor": "#2a2016",
+    "floorLit": "#7a5a34",
+    "gravel": "#140e08",
+    "gravelLit": "#a88050",
+    "wall": "#1a2a22",
+    "wallLit": "#2c4232",
+    "seam": "#0a120e",
+    "stain": "#4e3218",
+    "water": "#86a8a0",
+    "waterDark": "#3e5a58",
+    "flash": "#e03a10",
+    "grid": "#e04018"
+   },
+   "tracks": {
+    "shot": [
+     [
+      0,
+      "A"
+     ],
+     [
+      3.714,
+      "B"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      3.714,
+      1.05,
+      "inOut"
+     ]
+    ],
+    "reach": [
+     [
+      0,
+      0
+     ],
+     [
+      0.45,
+      1,
+      "inOut"
+     ]
+    ],
+    "grip": [
+     [
+      0,
+      -40
+     ],
+     [
+      0.45,
+      -40
+     ],
+     [
+      1.15,
+      50,
+      "inOut"
+     ],
+     [
+      1.45,
+      -40,
+      "inOut"
+     ],
+     [
+      2.15,
+      50,
+      "inOut"
+     ],
+     [
+      2.45,
+      -40,
+      "inOut"
+     ],
+     [
+      3.15,
+      50,
+      "inOut"
+     ]
+    ],
+    "wheel": [
+     [
+      0,
+      0
+     ],
+     [
+      0.45,
+      0
+     ],
+     [
+      1.15,
+      90,
+      "inOut"
+     ],
+     [
+      1.45,
+      90
+     ],
+     [
+      2.15,
+      180,
+      "inOut"
+     ],
+     [
+      2.45,
+      180
+     ],
+     [
+      3.15,
+      270,
+      "inOut"
+     ]
+    ],
+    "lean": [
+     [
+      0,
+      0
+     ],
+     [
+      0.45,
+      2,
+      "inOut"
+     ],
+     [
+      1.15,
+      -2,
+      "inOut"
+     ],
+     [
+      1.45,
+      2,
+      "inOut"
+     ],
+     [
+      2.15,
+      -2,
+      "inOut"
+     ],
+     [
+      2.45,
+      2,
+      "inOut"
+     ],
+     [
+      3.15,
+      -2,
+      "inOut"
+     ],
+     [
+      3.714,
+      0,
+      "inOut"
+     ]
+    ],
+    "flow": [
+     [
+      0,
+      1
+     ],
+     [
+      1.2,
+      1
+     ],
+     [
+      2.9,
+      0.15,
+      "inOut"
+     ],
+     [
+      3.2,
+      0,
+      "in"
+     ]
+    ],
+    "grid": [
+     [
+      3.714,
+      0
+     ],
+     [
+      3.95,
+      1,
+      "out"
+     ],
+     [
+      4.44,
+      1
+     ],
+     [
+      4.53,
+      0
+     ]
+    ],
+    "flash": [
+     [
+      4.44,
+      0
+     ],
+     [
+      4.445,
+      1
+     ],
+     [
+      4.525,
+      1
+     ],
+     [
+      4.53,
+      0
+     ]
+    ],
+    "spin": [
+     [
+      3.714,
+      270
+     ],
+     [
+      4.44,
+      285,
+      "out"
+     ],
+     [
+      4.6,
+      285
+     ],
+     [
+      5,
+      330,
+      "inOut"
+     ],
+     [
+      5.686,
+      345,
+      "out"
+     ]
+    ],
+    "hands": [
+     [
+      4.53,
+      0
+     ],
+     [
+      4.85,
+      1,
+      "out"
+     ]
+    ],
+    "lift": [
+     [
+      4.95,
+      0
+     ],
+     [
+      5.686,
+      1,
+      "inOut"
+     ]
+    ]
+   }
   },
   "talkRebel": {
    "status": "draft",
@@ -695,8 +5936,211 @@ window.C28_CONFIG = {
    "title": "Dying rebel speaks",
    "camera": "CAM 02 STREET",
    "duration": 12.93,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900
+   },
+   "palette": {
+    "grass": "#5a5a22",
+    "grassDark": "#34361a",
+    "grassLight": "#7a7a34",
+    "straw": "#6a4a22",
+    "blood": "#5a0a08",
+    "bloodWet": "#8a1a10"
+   },
+   "tracks": {
+    "camX": [
+     [
+      0,
+      800
+     ],
+     [
+      9.5,
+      780,
+      "inOut"
+     ],
+     [
+      12.93,
+      760,
+      "in"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      450
+     ],
+     [
+      9.5,
+      470,
+      "inOut"
+     ],
+     [
+      12.93,
+      540,
+      "in"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      9.5,
+      1.12,
+      "inOut"
+     ],
+     [
+      12.93,
+      1.7,
+      "in"
+     ]
+    ],
+    "tilt": [
+     [
+      0,
+      28
+     ],
+     [
+      11.4,
+      28
+     ],
+     [
+      12.6,
+      34,
+      "inOut"
+     ]
+    ],
+    "talk": [
+     [
+      0,
+      0
+     ],
+     [
+      0.6,
+      0
+     ],
+     [
+      0.8,
+      1
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      3.2,
+      0
+     ],
+     [
+      4.2,
+      0
+     ],
+     [
+      4.4,
+      1
+     ],
+     [
+      6.8,
+      1
+     ],
+     [
+      7,
+      0
+     ],
+     [
+      8.4,
+      0
+     ],
+     [
+      8.6,
+      1
+     ],
+     [
+      10.6,
+      1
+     ],
+     [
+      10.9,
+      0
+     ]
+    ],
+    "cough": [
+     [
+      0,
+      0
+     ],
+     [
+      7.3,
+      0
+     ],
+     [
+      7.4,
+      1,
+      "out"
+     ],
+     [
+      7.6,
+      0.3
+     ],
+     [
+      7.7,
+      0.9,
+      "out"
+     ],
+     [
+      8,
+      0,
+      "inOut"
+     ]
+    ],
+    "lids": [
+     [
+      0,
+      0.45
+     ],
+     [
+      9,
+      0.5
+     ],
+     [
+      11,
+      0.6
+     ],
+     [
+      12.4,
+      1,
+      "inOut"
+     ]
+    ],
+    "look": [
+     [
+      0,
+      0.4
+     ],
+     [
+      5,
+      0.6,
+      "inOut"
+     ],
+     [
+      9,
+      0.3,
+      "inOut"
+     ]
+    ],
+    "spread": [
+     [
+      0,
+      0.92
+     ],
+     [
+      12.93,
+      1.05
+     ]
+    ]
+   }
   },
   "tradeHoloPlan": {
    "status": "draft",
@@ -704,8 +6148,443 @@ window.C28_CONFIG = {
    "title": "Holo plan shown at the bar",
    "camera": "CAM 07 BAR",
    "duration": 11.99,
-   "palette": {},
-   "tracks": {}
+   "items": {
+    "robotBefore": null,
+    "robotAfter": "shipPlan",
+    "manBefore": "shipPlan",
+    "manAfter": null
+   },
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "holoStart": 3.07,
+    "doorStart": 9.16,
+    "hatch": [
+     170,
+     90,
+     1190,
+     600
+    ],
+    "robotScale": 1,
+    "itemScale": 14
+   },
+   "palette": {
+    "wall": "#5a5040",
+    "wallLit": "#867a62",
+    "wallDark": "#2e2820",
+    "grit": "#100e0a",
+    "hole": "#0c0806",
+    "holeLight": "#3a2a18",
+    "panel": "#3c5458",
+    "panelLit": "#6f878b",
+    "panelDark": "#25393d",
+    "rivet": "#142427",
+    "skin": "#c98a5a",
+    "skinLit": "#e8b88a",
+    "skinDark": "#9a5a32",
+    "skinDeep": "#5a2e16",
+    "hair": "#c0ab6d",
+    "hairDark": "#7b6834",
+    "glassRim": "#a3adb1",
+    "glass": "#ffffff",
+    "lip": "#7a3e22",
+    "collar": "#414b3c",
+    "collarDark": "#232a22",
+    "sky": "#5a2a14",
+    "skyLit": "#8a4a28",
+    "skyDark": "#2a1008",
+    "cloud": "#b8744a",
+    "cloudDark": "#3e1a0c",
+    "holo": "#7ae0ff",
+    "holoCore": "#ffffff",
+    "lamp": "#ffd2a0",
+    "plaster": "#867a62",
+    "plasterLit": "#a89c80",
+    "plasterDark": "#5a5040",
+    "door": "#4e3218",
+    "doorLit": "#7c5228",
+    "doorDark": "#24160c",
+    "doorEdge": "#3c5458",
+    "sleeve": "#414b3c",
+    "sleeveDark": "#232a22",
+    "shadow": "#000000"
+   },
+   "tracks": {
+    "slide": [
+     [
+      0.15,
+      0
+     ],
+     [
+      0.75,
+      1,
+      "inOut"
+     ]
+    ],
+    "manX": [
+     [
+      0.45,
+      1700
+     ],
+     [
+      0.95,
+      1020,
+      "out"
+     ],
+     [
+      1.6,
+      1060,
+      "inOut"
+     ],
+     [
+      2.1,
+      820,
+      "inOut"
+     ],
+     [
+      3.07,
+      800
+     ]
+    ],
+    "manY": [
+     [
+      0.45,
+      470
+     ],
+     [
+      2.1,
+      470
+     ],
+     [
+      3.07,
+      500,
+      "inOut"
+     ]
+    ],
+    "manScale": [
+     [
+      0.45,
+      1
+     ],
+     [
+      2.3,
+      1
+     ],
+     [
+      3.07,
+      1.18,
+      "inOut"
+     ]
+    ],
+    "manTurn": [
+     [
+      0.45,
+      -0.5
+     ],
+     [
+      1,
+      -0.35,
+      "inOut"
+     ],
+     [
+      1.5,
+      0.25,
+      "inOut"
+     ],
+     [
+      2.1,
+      0,
+      "inOut"
+     ],
+     [
+      3.07,
+      0
+     ]
+    ],
+    "glare": [
+     [
+      0.9,
+      1
+     ],
+     [
+      1.5,
+      1
+     ],
+     [
+      1.9,
+      0.25,
+      "inOut"
+     ],
+     [
+      3.07,
+      0.2
+     ]
+    ],
+    "camY": [
+     [
+      3.07,
+      1010
+     ],
+     [
+      5.3,
+      990
+     ],
+     [
+      7.6,
+      830,
+      "inOut"
+     ],
+     [
+      9.16,
+      815
+     ]
+    ],
+    "camZ": [
+     [
+      3.07,
+      3
+     ],
+     [
+      9.16,
+      2.8,
+      "inOut"
+     ]
+    ],
+    "armL": [
+     [
+      3.07,
+      8.75
+     ],
+     [
+      5.1,
+      8.75
+     ],
+     [
+      5.9,
+      0,
+      "inOut"
+     ],
+     [
+      9.16,
+      0
+     ]
+    ],
+    "foreL": [
+     [
+      3.07,
+      -91.75
+     ],
+     [
+      5.1,
+      -91.75
+     ],
+     [
+      5.9,
+      0,
+      "inOut"
+     ],
+     [
+      9.16,
+      0
+     ]
+    ],
+    "holo": [
+     [
+      3.2,
+      0
+     ],
+     [
+      3.6,
+      1,
+      "out"
+     ],
+     [
+      5,
+      1
+     ],
+     [
+      5.4,
+      0,
+      "in"
+     ]
+    ],
+    "lamp": [
+     [
+      3.07,
+      0.6
+     ],
+     [
+      3.5,
+      1,
+      "inOut"
+     ],
+     [
+      6.5,
+      1
+     ],
+     [
+      7.2,
+      0.5,
+      "inOut"
+     ],
+     [
+      9.16,
+      0.4
+     ]
+    ]
+   },
+   "door": {
+    "duration": 2.83,
+    "robotX": 1250,
+    "robotY": 1020,
+    "robotScale": 1.4,
+    "hinge": 520,
+    "leafWidth": 600,
+    "top": 200,
+    "itemScale": 11,
+    "manReach": 230,
+    "itemStates": {
+     "shipPart": 1
+    },
+    "tracks": {
+     "camX": [
+      [
+       0,
+       820
+      ],
+      [
+       1.4,
+       820
+      ],
+      [
+       2.83,
+       760,
+       "inOut"
+      ]
+     ],
+     "swing": [
+      [
+       0.7,
+       0
+      ],
+      [
+       1.5,
+       1,
+       "inOut"
+      ]
+     ],
+     "reach": [
+      [
+       1.05,
+       0
+      ],
+      [
+       1.5,
+       1,
+       "out"
+      ],
+      [
+       1.95,
+       1
+      ],
+      [
+       2.35,
+       0,
+       "inOut"
+      ]
+     ],
+     "armL": [
+      [
+       0,
+       5.5
+      ],
+      [
+       1.3,
+       5.5
+      ],
+      [
+       1.7,
+       29,
+       "inOut"
+      ],
+      [
+       1.95,
+       29
+      ],
+      [
+       2.4,
+       5.5,
+       "inOut"
+      ],
+      [
+       2.83,
+       6
+      ]
+     ],
+     "foreL": [
+      [
+       0,
+       -75.5
+      ],
+      [
+       1.3,
+       -75.5
+      ],
+      [
+       1.7,
+       -36,
+       "inOut"
+      ],
+      [
+       1.95,
+       -36
+      ],
+      [
+       2.4,
+       -75.5,
+       "inOut"
+      ],
+      [
+       2.83,
+       -78
+      ]
+     ],
+     "robotShift": [
+      [
+       0,
+       0
+      ],
+      [
+       1.3,
+       0
+      ],
+      [
+       1.7,
+       -30,
+       "inOut"
+      ],
+      [
+       2.3,
+       40,
+       "inOut"
+      ],
+      [
+       2.83,
+       50
+      ]
+     ],
+     "swap": [
+      [
+       1.84,
+       0
+      ],
+      [
+       1.85,
+       1
+      ]
+     ]
+    }
+   }
   },
   "tradeShipPart": {
    "status": "draft",
@@ -713,6 +6592,13 @@ window.C28_CONFIG = {
    "title": "Ship part handed in",
    "camera": "CAM 07 BAR",
    "duration": 2.83,
+   "note": "Same bar door shot as trade-holo-plan (its door block holds stage and tracks); only the handed items differ.",
+   "items": {
+    "robotBefore": "shipPart",
+    "robotAfter": "decoder",
+    "manBefore": null,
+    "manAfter": "shipPart"
+   },
    "palette": {},
    "tracks": {}
   },
@@ -722,17 +6608,513 @@ window.C28_CONFIG = {
    "title": "Code lock decoded",
    "camera": "CAM 08 PLASMA",
    "duration": 5.14,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "grid": 72,
+    "speckles": 520
+   },
+   "lock": {
+    "x": 700,
+    "y": 450,
+    "scale": 22,
+    "decoderAt": [
+     4,
+     -27
+    ]
+   },
+   "hand": {
+    "scale": 5.4,
+    "grip": [
+     170,
+     90
+    ]
+   },
+   "palette": {
+    "wall": "#8c857a",
+    "speckDark": "#6e675c",
+    "speckLight": "#aaa397",
+    "shadow": "#0f1c14",
+    "grid": "#e2481c",
+    "readout": "#d83a1e",
+    "monitor": "#c9d6d2",
+    "monitorEdge": "#55635f",
+    "monitorInk": "#2a3634",
+    "monitorGlow": "#5fd8d0"
+   },
+   "tracks": {
+    "camX": [
+     [
+      0,
+      800
+     ],
+     [
+      5.14,
+      790,
+      "inOut"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      450
+     ],
+     [
+      5.14,
+      460,
+      "inOut"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      5.14,
+      1.04,
+      "inOut"
+     ]
+    ],
+    "grid": [
+     [
+      0,
+      1
+     ],
+     [
+      0.7,
+      1
+     ],
+     [
+      1.15,
+      0,
+      "in"
+     ]
+    ],
+    "carryX": [
+     [
+      0,
+      520
+     ],
+     [
+      1,
+      520
+     ],
+     [
+      2,
+      160,
+      "out"
+     ],
+     [
+      2.7,
+      40,
+      "inOut"
+     ],
+     [
+      3.3,
+      0,
+      "inOut"
+     ]
+    ],
+    "carryY": [
+     [
+      0,
+      640
+     ],
+     [
+      1,
+      640
+     ],
+     [
+      2,
+      120,
+      "out"
+     ],
+     [
+      2.7,
+      -30,
+      "inOut"
+     ],
+     [
+      3.3,
+      0,
+      "inOut"
+     ]
+    ],
+    "rot": [
+     [
+      0,
+      155
+     ],
+     [
+      1,
+      155
+     ],
+     [
+      2,
+      146,
+      "out"
+     ],
+     [
+      2.7,
+      136,
+      "inOut"
+     ],
+     [
+      3.3,
+      140,
+      "inOut"
+     ],
+     [
+      4.4,
+      158,
+      "inOut"
+     ]
+    ],
+    "handX": [
+     [
+      0,
+      0
+     ],
+     [
+      3.45,
+      0
+     ],
+     [
+      4.4,
+      520,
+      "inOut"
+     ]
+    ],
+    "handY": [
+     [
+      0,
+      0
+     ],
+     [
+      3.45,
+      0
+     ],
+     [
+      3.6,
+      30,
+      "out"
+     ],
+     [
+      4.4,
+      560,
+      "in"
+     ]
+    ],
+    "placed": [
+     [
+      0,
+      0
+     ],
+     [
+      3.3,
+      0
+     ],
+     [
+      3.3,
+      1
+     ]
+    ],
+    "led": [
+     [
+      0,
+      0
+     ],
+     [
+      3.4,
+      0
+     ],
+     [
+      3.5,
+      1,
+      "out"
+     ],
+     [
+      4.6,
+      1
+     ],
+     [
+      4.75,
+      0,
+      "in"
+     ],
+     [
+      4.85,
+      1,
+      "out"
+     ]
+    ],
+    "open": [
+     [
+      0,
+      0
+     ],
+     [
+      4.75,
+      0
+     ],
+     [
+      4.75,
+      1
+     ]
+    ]
+   }
   },
   "useAcidTank": {
    "status": "draft",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/KYSELINA.ANM; trigger: useAcidTank task",
    "title": "Acid poured on the guard",
    "camera": "CAM 11 TANK",
-   "duration": 2.23,
-   "palette": {},
-   "tracks": {}
+   "duration": 4.73,
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "close": {
+     "x": 800,
+     "y": 430,
+     "rx": 380,
+     "tilt": 0.34,
+     "arm": 3.2
+    },
+    "melt": {
+     "x": 800,
+     "guardX": 975,
+     "floorY": 800,
+     "guardScale": 7.4,
+     "pipeX": 772,
+     "pipeW": 70,
+     "outlet": 330
+    }
+   },
+   "palette": {
+    "back": "#050606",
+    "under": "#0c0f0c",
+    "wall": "#141c18",
+    "seam": "#070a08",
+    "floor": "#262a24",
+    "floorEdge": "#3a4036",
+    "flash": "#e03a10",
+    "grid": "#e04018",
+    "rot": "#22301a",
+    "lift": "#a0b0a4",
+    "rim": "#d8ff90",
+    "acidBright": "#a6ff3c"
+   },
+   "tracks": {
+    "shot": [
+     [
+      0,
+      "A"
+     ],
+     [
+      2.23,
+      "B"
+     ]
+    ],
+    "bring": [
+     [
+      0,
+      1
+     ],
+     [
+      0.6,
+      0,
+      "out"
+     ]
+    ],
+    "grid": [
+     [
+      0,
+      0
+     ],
+     [
+      0.35,
+      1,
+      "out"
+     ],
+     [
+      0.68,
+      1
+     ],
+     [
+      0.69,
+      0
+     ]
+    ],
+    "flash": [
+     [
+      0.68,
+      0
+     ],
+     [
+      0.685,
+      1
+     ],
+     [
+      0.765,
+      1
+     ],
+     [
+      0.77,
+      0
+     ]
+    ],
+    "spin": [
+     [
+      0,
+      -20
+     ],
+     [
+      0.6,
+      0,
+      "out"
+     ],
+     [
+      0.85,
+      0
+     ],
+     [
+      1.9,
+      75,
+      "inOut"
+     ],
+     [
+      2.23,
+      80,
+      "out"
+     ]
+    ],
+    "pour": [
+     [
+      0,
+      0
+     ],
+     [
+      1.75,
+      0
+     ],
+     [
+      2.1,
+      1,
+      "out"
+     ],
+     [
+      2.23,
+      1
+     ],
+     [
+      3.95,
+      1
+     ],
+     [
+      4.4,
+      0,
+      "in"
+     ]
+    ],
+    "camX": [
+     [
+      2.23,
+      790
+     ],
+     [
+      4.73,
+      800,
+      "inOut"
+     ]
+    ],
+    "camY": [
+     [
+      2.23,
+      600
+     ],
+     [
+      2.95,
+      605
+     ],
+     [
+      4.73,
+      660,
+      "inOut"
+     ]
+    ],
+    "camZ": [
+     [
+      2.23,
+      1.42
+     ],
+     [
+      2.95,
+      1.46
+     ],
+     [
+      4.73,
+      1.7,
+      "inOut"
+     ]
+    ],
+    "sizzle": [
+     [
+      2.23,
+      0
+     ],
+     [
+      2.35,
+      0
+     ],
+     [
+      3.4,
+      1,
+      "inOut"
+     ]
+    ],
+    "sag": [
+     [
+      2.23,
+      0
+     ],
+     [
+      2.95,
+      0
+     ],
+     [
+      3.85,
+      1,
+      "in"
+     ]
+    ],
+    "wreck": [
+     [
+      3.75,
+      0
+     ],
+     [
+      4,
+      1,
+      "inOut"
+     ]
+    ],
+    "puddle": [
+     [
+      2.23,
+      0
+     ],
+     [
+      2.4,
+      0
+     ],
+     [
+      4.5,
+      1,
+      "out"
+     ]
+    ]
+   }
   },
   "wireSwitchboard": {
    "status": "draft",
@@ -740,8 +7122,312 @@ window.C28_CONFIG = {
    "title": "Switchboard wired",
    "camera": "CAM 03 METRO",
    "duration": 2.64,
-   "palette": {},
-   "tracks": {}
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "floorY": 790,
+    "platformY": 700,
+    "pillarX": 700
+   },
+   "robot": {
+    "scale": 0.74,
+    "envScale": 13.2,
+    "lungeDrop": 27
+   },
+   "lunge": {
+    "hipNear": -32,
+    "kneeNear": 34,
+    "ankleNear": -2,
+    "hipFar": 22,
+    "kneeFar": 6,
+    "ankleFar": -28
+   },
+   "palette": {
+    "pillarTop": "#3a342a"
+   },
+   "tracks": {
+    "camX": [
+     [
+      0,
+      760
+     ],
+     [
+      2.64,
+      830,
+      "inOut"
+     ]
+    ],
+    "camY": [
+     [
+      0,
+      450
+     ],
+     [
+      2.64,
+      440,
+      "inOut"
+     ]
+    ],
+    "camZ": [
+     [
+      0,
+      1
+     ],
+     [
+      2.64,
+      1.06,
+      "inOut"
+     ]
+    ],
+    "x": [
+     [
+      0,
+      1150
+     ],
+     [
+      0.5,
+      1105,
+      "out"
+     ],
+     [
+      1.9,
+      1100
+     ],
+     [
+      2.64,
+      1135,
+      "inOut"
+     ]
+    ],
+    "lunge": [
+     [
+      0,
+      0.6
+     ],
+     [
+      0.5,
+      1,
+      "out"
+     ],
+     [
+      1.9,
+      1
+     ],
+     [
+      2.64,
+      0.45,
+      "inOut"
+     ]
+    ],
+    "lean": [
+     [
+      0,
+      2
+     ],
+     [
+      0.5,
+      6,
+      "out"
+     ],
+     [
+      1.9,
+      6
+     ],
+     [
+      2.64,
+      1,
+      "inOut"
+     ]
+    ],
+    "arm": [
+     [
+      0,
+      -55
+     ],
+     [
+      0.5,
+      -84,
+      "inOut"
+     ],
+     [
+      0.8,
+      -88,
+      "inOut"
+     ],
+     [
+      1.1,
+      -82,
+      "inOut"
+     ],
+     [
+      1.4,
+      -88,
+      "inOut"
+     ],
+     [
+      1.7,
+      -84,
+      "inOut"
+     ],
+     [
+      1.95,
+      -84
+     ],
+     [
+      2.4,
+      -25,
+      "inOut"
+     ],
+     [
+      2.64,
+      -18
+     ]
+    ],
+    "fore": [
+     [
+      0,
+      -50
+     ],
+     [
+      0.5,
+      -16,
+      "inOut"
+     ],
+     [
+      0.8,
+      -8,
+      "inOut"
+     ],
+     [
+      1.1,
+      -20,
+      "inOut"
+     ],
+     [
+      1.4,
+      -10,
+      "inOut"
+     ],
+     [
+      1.7,
+      -16,
+      "inOut"
+     ],
+     [
+      1.95,
+      -16
+     ],
+     [
+      2.4,
+      -40,
+      "inOut"
+     ],
+     [
+      2.64,
+      -34
+     ]
+    ],
+    "armFar": [
+     [
+      0,
+      -45
+     ],
+     [
+      0.5,
+      -76,
+      "inOut"
+     ],
+     [
+      1.95,
+      -76
+     ],
+     [
+      2.4,
+      -18,
+      "inOut"
+     ],
+     [
+      2.64,
+      -12
+     ]
+    ],
+    "foreFar": [
+     [
+      0,
+      -40
+     ],
+     [
+      0.5,
+      -20,
+      "inOut"
+     ],
+     [
+      1.95,
+      -20
+     ],
+     [
+      2.4,
+      -30,
+      "inOut"
+     ],
+     [
+      2.64,
+      -24
+     ]
+    ],
+    "head": [
+     [
+      0,
+      4
+     ],
+     [
+      0.5,
+      8,
+      "out"
+     ],
+     [
+      1.9,
+      8
+     ],
+     [
+      2.4,
+      -2,
+      "inOut"
+     ],
+     [
+      2.64,
+      0
+     ]
+    ],
+    "wire": [
+     [
+      0,
+      1
+     ],
+     [
+      1.05,
+      1
+     ],
+     [
+      1.05,
+      0
+     ]
+    ],
+    "lit": [
+     [
+      0,
+      0
+     ],
+     [
+      1.9,
+      0
+     ],
+     [
+      1.9,
+      1
+     ]
+    ]
+   }
   }
  },
  "levels": {

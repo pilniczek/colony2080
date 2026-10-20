@@ -1,5 +1,5 @@
 import config from "@config/cutscenes/pick-ship-part.json";
-import { placeholder } from "./kit";
+import { pickupFilm } from "./pickController";
 import type { Cutscene } from "./index";
 
-export const pickShipPart: Cutscene = placeholder("pickShipPart", config);
+export const pickShipPart: Cutscene = pickupFilm("pickShipPart", config);
