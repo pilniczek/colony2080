@@ -9,6 +9,7 @@ import { drawAsset, type EnvAsset, type Size } from "../../src/game/env/paint";
 import { assetList } from "../../src/game/env/assets";
 import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
 import { crowbarDoor } from "../../src/game/cutscene/crowbarDoor";
+import { drawSecurityCam } from "../../src/game/cutscene/securityCam";
 
 interface SpikeNode {
   k: string;
@@ -83,7 +84,10 @@ declare global {
     GUN: SpikeGun;
     EBLASTER: SpikeEBlaster;
     ENV: SpikeEnv;
-    CUTSCENES: { crowbarDoor: { duration: number; render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void } };
+    CUTSCENES: {
+      crowbarDoor: { duration: number; camera: string; render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void };
+      securityCam(ctx: CanvasRenderingContext2D, w: number, h: number, t: number, label: string): void;
+    };
     __visualCount?: number;
     __visual?: VisualResult[];
   }
@@ -373,27 +377,31 @@ const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefi
   return result;
 };
 
-const CUTSCENE_SIZE = { w: 480, h: 270 };
+const CUTSCENE_SIZES = [{ w: 480, h: 270 }, { w: 300, h: 300 }];
 const CUTSCENE_TS = [0, 0.5, 1.0, 1.1, 1.8, 2.6, 3.2, crowbarDoor.duration];
 
-const runCutscene = (t: number, out: HTMLElement): VisualResult => {
+const runCutscene = (t: number, size: { w: number; h: number }, filmed: boolean, out: HTMLElement): VisualResult => {
   const make = (): CanvasRenderingContext2D => {
     const canvas = document.createElement("canvas");
-    canvas.width = CUTSCENE_SIZE.w;
-    canvas.height = CUTSCENE_SIZE.h;
+    canvas.width = size.w;
+    canvas.height = size.h;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) throw new Error("no 2d context");
     return ctx;
   };
   const spike = make();
   const own = make();
-  window.CUTSCENES.crowbarDoor.render(spike, CUTSCENE_SIZE.w, CUTSCENE_SIZE.h, t);
-  crowbarDoor.render(own, CUTSCENE_SIZE.w, CUTSCENE_SIZE.h, t);
-  const a = spike.getImageData(0, 0, CUTSCENE_SIZE.w, CUTSCENE_SIZE.h).data;
-  const b = own.getImageData(0, 0, CUTSCENE_SIZE.w, CUTSCENE_SIZE.h).data;
+  window.CUTSCENES.crowbarDoor.render(spike, size.w, size.h, t);
+  crowbarDoor.render(own, size.w, size.h, t);
+  if (filmed) {
+    window.CUTSCENES.securityCam(spike, size.w, size.h, t, window.CUTSCENES.crowbarDoor.camera);
+    drawSecurityCam(own, size.w, size.h, t, crowbarDoor.camera);
+  }
+  const a = spike.getImageData(0, 0, size.w, size.h).data;
+  const b = own.getImageData(0, 0, size.w, size.h).data;
   let diff = 0;
   for (let i = 0; i < a.length; i += 4) if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2] || a[i + 3] !== b[i + 3]) diff++;
-  const name = `cutscene crowbarDoor ${JSON.stringify({ t })}`;
+  const name = `cutscene crowbarDoor ${JSON.stringify({ t, size, filmed })}`;
   const box = document.createElement("div");
   box.className = "case";
   box.append(spike.canvas, own.canvas, document.createElement("br"), `${name} diff ${diff}`);
@@ -444,7 +452,10 @@ const envCases = [
   ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
   ...envAssets.filter((a) => a.anim).flatMap((a) => (envStates[a.id] ?? [0]).map((state) => (o: HTMLElement) => runEnvCase(a.id, state, false, undefined, o, ENV_ANIM_T))),
 ];
-const cutsceneCases = CUTSCENE_TS.map((t) => (o: HTMLElement) => runCutscene(t, o));
+const cutsceneCases = [
+  ...CUTSCENE_TS.map((t) => (o: HTMLElement) => runCutscene(t, CUTSCENE_SIZES[0]!, false, o)),
+  ...CUTSCENE_SIZES.flatMap((size) => CUTSCENE_TS.map((t) => (o: HTMLElement) => runCutscene(t, size, true, o))),
+];
 const cases = [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));
