@@ -1,3 +1,4 @@
+import type { SoundCue } from "../../engine/audio/mixer";
 import { isCutsceneId, type CutsceneId } from "../cutscene";
 import type { Platform } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
@@ -137,6 +138,7 @@ export interface SandboxWorld {
   cutscene: { id: CutsceneId; prop: Prop | null; t: number } | null;
   complete: boolean;
   immortal: boolean;
+  sounds: SoundCue[];
   source: SandboxJson;
 }
 
@@ -240,6 +242,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     cutscene: null,
     complete: false,
     immortal: false,
+    sounds: [],
     source: data,
   };
   applyBlocks(world);
@@ -247,8 +250,8 @@ export function loadSandbox(json: unknown): SandboxWorld {
 }
 
 export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
-  const { fog, immortal } = world;
-  Object.assign(world, loadSandbox(world.source), { immortal });
+  const { fog, immortal, sounds } = world;
+  Object.assign(world, loadSandbox(world.source), { immortal, sounds });
   const [x, y] = world.spawn;
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }

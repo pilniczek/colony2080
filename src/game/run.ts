@@ -4,6 +4,7 @@ import controls from "@config/controls.json";
 import cameraJson from "@config/camera.json";
 import { createElement, Fragment, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
+import { createMixer } from "../engine/audio/mixer";
 import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
@@ -33,6 +34,8 @@ import { drawMap } from "./render/map";
 import { drawOverlays } from "./render/overlays";
 import { drawScene, viewCells, visibleEnemies } from "./render/scene";
 import { snapView } from "./render/snapView";
+import { samplesOf } from "./sound";
+import { saveSoundOn } from "./sound/settings";
 import { holdPoses } from "./robot/gun";
 import { stepWorld } from "./stepWorld";
 
@@ -103,6 +106,27 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const hold = holdPoses(rigs.side, rigs.front);
   const input = new Input(controls.keyboard, () => performance.now(), tuning().movement.inputBufferMs);
   input.attach(window);
+
+  const mixer = createMixer(samplesOf);
+  mixer.setMuted(!tuning().soundOn);
+  const unlockAudio = (): void => mixer.unlock();
+  window.addEventListener("keydown", unlockAudio, { capture: true });
+  window.addEventListener("pointerdown", unlockAudio, { capture: true });
+
+  const soundKey = (e: KeyboardEvent): void => {
+    const menu = tuning().menu;
+    const nameTyping = menu !== null && (menu.screen === "save" || menu.screen === "load") && menu.typing !== null;
+    if (e.repeat || modified(e) || typingTarget(e.target) || nameTyping || !controls.keyboard.soundToggle.includes(e.code)) return;
+    const soundOn = !tuning().soundOn;
+    useSandbox.setState({ soundOn });
+    saveSoundOn(soundOn);
+    mixer.setMuted(!soundOn);
+  };
+  window.addEventListener("keydown", soundKey, { capture: true });
+
+  const drainSounds = (): void => {
+    for (const sound of world.sounds.splice(0)) mixer.play(sound);
+  };
 
   let prev = { x: hero.x, y: hero.y };
   let gameWindow: Rect = { x: 0, y: 0, w: 1, h: 1 };
@@ -265,6 +289,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       if (world.cutscene) {
         logInput(input.frame().held);
         playFilm(world, input, dt);
+        drainSounds();
         afterStep?.();
         return;
       }
@@ -291,6 +316,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       }
       logInput(frame.held);
       stepWorld(world, hero, frame, cfg, clips, dt, (action) => input.consume(action));
+      drainSounds();
       afterStep?.();
     },
     render(alpha) {
@@ -330,9 +356,15 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
 
   const applyTime = ({ paused, timeScale }: { paused: boolean; timeScale: number }): void => {
+    const wasPaused = loop.paused;
     loop.paused = paused || tuning().inventory.open || tuning().mapOpen || tuning().cheatOpen || tuning().menu !== null;
     loop.timeScale = timeScale;
+    if (loop.paused && !wasPaused) mixer.stopAll("world");
   };
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) mixer.stopAll("world");
+  });
 
   applyTime(tuning());
   useSandbox.subscribe((s, before) => {

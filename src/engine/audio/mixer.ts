@@ -56,6 +56,10 @@ export function createMixer(
     voices = voices.filter((other) => other !== voice);
   }
 
+  function stopAll(bus?: Bus): void {
+    for (const voice of voices.filter((other) => !bus || other.bus === bus)) stopVoice(voice);
+  }
+
   return {
     unlock() {
       if (!graph) {
@@ -68,7 +72,7 @@ export function createMixer(
         ui.connect(master);
         graph = { context, buses: { world, ui } };
       }
-      void graph.context.resume();
+      graph.context.resume().catch(() => {});
     },
     play(cue) {
       if (!graph || muted) return;
@@ -90,12 +94,10 @@ export function createMixer(
       if (voices.length > MAX_VOICES && oldest) stopVoice(oldest);
       source.start();
     },
-    stopAll(bus) {
-      for (const voice of voices.filter((other) => !bus || other.bus === bus)) stopVoice(voice);
-    },
+    stopAll,
     setMuted(value) {
       muted = value;
-      if (muted) this.stopAll();
+      if (muted) stopAll();
     },
     get muted() {
       return muted;

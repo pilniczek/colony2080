@@ -187,4 +187,21 @@ describe("mixer", () => {
     mixer.unlock();
     expect(makeContext).toHaveBeenCalledTimes(1);
   });
+
+  it("unlock handles a rejected resume", () => {
+    const { mixer, resume } = setup();
+    const caught = vi.fn();
+    resume.mockImplementation(() => ({ catch: caught }) as unknown as Promise<void>);
+    mixer.unlock();
+    expect(caught).toHaveBeenCalledOnce();
+  });
+
+  it("setMuted works detached from the mixer", () => {
+    const { mixer, sources } = setup();
+    mixer.unlock();
+    mixer.play({ id: "a", rate: BASE_RATE });
+    const { setMuted } = mixer;
+    setMuted(true);
+    expect(at(sources, 0).stopped).toBe(1);
+  });
 });
