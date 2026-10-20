@@ -152,6 +152,7 @@ window.C28_CONFIG = {
     }
    },
    "gameLod": {
+    "lineW": 0.6,
     "minThickness": 8,
     "minArea": 400,
     "minRadius": 8,

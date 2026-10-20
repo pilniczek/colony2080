@@ -85,7 +85,7 @@ function draw() {
     ctx.clearRect(0, 0, 640, 780);
     ctx.save();
     if (mirrored.has(id)) { ctx.translate(640, 0); ctx.scale(-1, 1); }
-    render(ctx, root, { pal, lineW: opts.lines ? (simple.has(id) ? 1 : 1.4) * dpr : 0, simple: simple.has(id) });
+    render(ctx, root, { pal, lineW: opts.lines ? (simple.has(id) ? window.XBOT.GAME_LINE : 1.4) * dpr : 0, simple: simple.has(id) });
     ctx.restore();
     if (opts.guides) {
       ctx.setLineDash([6, 6]);

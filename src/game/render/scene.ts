@@ -245,7 +245,7 @@ export function drawScene(
 ): void {
   const scale = heroScale(cfg);
   const unit = spikeUnit(cfg);
-  const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale, lines };
+  const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale * ROBOT.gameLine, lines };
   ctx.save();
   ctx.setTransform(view.scale, 0, 0, view.scale, view.offsetX, view.offsetY);
   ctx.beginPath();

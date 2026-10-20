@@ -18,7 +18,7 @@ function hidingHero(ctx, x) {
   ctx.translate(x, 0);
   ctx.scale(k, k);
   ctx.translate(-window.XBOT.AX, -window.XBOT.FOOT_Y);
-  window.XBOT.render(ctx, hider, { pal: window.XBOT.shade(window.XBOT.PALETTE, HIDE_TINT), lineW: 1, simple: true });
+  window.XBOT.render(ctx, hider, { pal: window.XBOT.shade(window.XBOT.PALETTE, HIDE_TINT), lineW: window.XBOT.GAME_LINE, simple: true });
   ctx.restore();
 }
 

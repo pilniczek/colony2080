@@ -11,10 +11,11 @@ const SIDE_AX = config.frame.sideAxis;
 const FOOT_Y = config.frame.footY;
 const FINGER_LW = 0.4;
 
-export const ROBOT: { AX: number; SIDE_AX: number; FOOT_Y: number; palette: Palette } = {
+export const ROBOT: { AX: number; SIDE_AX: number; FOOT_Y: number; gameLine: number; palette: Palette } = {
   AX,
   SIDE_AX,
   FOOT_Y,
+  gameLine: config.gameLod.lineW,
   palette: { ...config.palette },
 };
 

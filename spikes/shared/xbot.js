@@ -712,5 +712,5 @@ function solve(root, hook, pose, keys, ranges, target, seed = null) {
 
 const LEVELS = Object.entries(CFG.levels);
 
-window.XBOT = { locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, mirrorPts, buildFront, buildBack, buildSide, render, LEVELS };
+window.XBOT = { GAME_LINE: CFG.gameLod.lineW, locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, mirrorPts, buildFront, buildBack, buildSide, render, LEVELS };
 })();

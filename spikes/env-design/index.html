@@ -83,7 +83,7 @@ function drawHero(ctx, x) {
   ctx.translate(x, 0);
   ctx.scale(k, k);
   ctx.translate(-XBOT.SIDE_AX, -XBOT.FOOT_Y);
-  XBOT.render(ctx, hero, { lineW: opts.lines ? 1 : 0, simple: true });
+  XBOT.render(ctx, hero, { lineW: opts.lines ? XBOT.GAME_LINE : 0, simple: true });
   ctx.restore();
 }
 

@@ -256,11 +256,11 @@ const VIEWS = {
     gDuel: (ctx, lw, pal, w, h) => {
       backdrop(ctx, w, h);
       ctx.translate(SIDE_SHIFT, 0);
-      if (opts.hero) robot(ctx, { root: roots.gHeroSide, pose: POSES.gSide, hook: "hand", pal: PALETTE, simple: true, lineW: lw });
-      facingLeft(ctx, w - 2 * SIDE_SHIFT, () => robot(ctx, { root: roots.gSide, pose: POSES.gSide, hook: "hand", pal, simple: true, lineW: lw }));
+      if (opts.hero) robot(ctx, { root: roots.gHeroSide, pose: POSES.gSide, hook: "hand", pal: PALETTE, simple: true, lineW: lw * XBOT.GAME_LINE });
+      facingLeft(ctx, w - 2 * SIDE_SHIFT, () => robot(ctx, { root: roots.gSide, pose: POSES.gSide, hook: "hand", pal, simple: true, lineW: lw * XBOT.GAME_LINE }));
     },
-    gFront: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); robot(ctx, { root: roots.gFront, pose: POSES.gFront, hook: "handL", barrel: gHold.FRONT_BARREL, pal, simple: true, lineW: lw }); },
-    gBack: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); render(ctx, roots.gBack, { pal, lineW: lw, simple: true }); GUN.slung(ctx, { pal, lineW: lw, simple: true }); }
+    gFront: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); robot(ctx, { root: roots.gFront, pose: POSES.gFront, hook: "handL", barrel: gHold.FRONT_BARREL, pal, simple: true, lineW: lw * XBOT.GAME_LINE }); },
+    gBack: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); render(ctx, roots.gBack, { pal, lineW: lw * XBOT.GAME_LINE, simple: true }); GUN.slung(ctx, { pal, lineW: lw * XBOT.GAME_LINE, simple: true }); }
   },
   flyer: {
     flyerHover: (ctx, lw, pal, w, h, t) => enemy(ctx, FLYER, { x: w / 2, y: h / 2, t, pal, lineW: lw }),
@@ -275,7 +275,7 @@ const VIEWS = {
     gFlyer: (ctx, lw, pal, w, h, t) => {
       backdrop(ctx, w, h);
       const floor = h - 100;
-      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw, simple: true });
+      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
       enemy(ctx, FLYER, { x: 1250, y: floor - LOW_FLYER * K, state: 1, t, pal, lineW: lw, lod: true, facing: -1 });
       enemy(ctx, FLYER, { x: 950, y: floor - (LOW_FLYER + 2 * ENV.TILE) * K, t: t + 0.7, pal, lineW: lw, lod: true, facing: -1 });
     }
@@ -294,7 +294,7 @@ const VIEWS = {
     gGuard: (ctx, lw, pal, w, h, t) => {
       backdrop(ctx, w, h);
       const floor = h - 50;
-      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw, simple: true });
+      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
       enemy(ctx, GUARD, { x: w - 150, y: floor, state: 1, t, pal, lineW: lw, lod: true });
     },
     gGuardWreck: (ctx, lw, pal, w, h, t) => { backdrop(ctx, w, h); enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 3, t, pal, lineW: lw, lod: true }); }
@@ -313,7 +313,7 @@ const VIEWS = {
       backdrop(ctx, w, h);
       const floor = h - 50;
       enemy(ctx, TROOPER, { x: 450, y: floor, state: 1, t, pal, lineW: lw, lod: true });
-      if (opts.hero) facingLeft(ctx, w, () => hero(ctx, { x: 360, floor, lineW: lw, simple: true }));
+      if (opts.hero) facingLeft(ctx, w, () => hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true }));
     }
   }
 };

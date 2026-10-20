@@ -940,7 +940,7 @@ setWeapon(WEAPON);
 function frame() {
   const now = SPIKE_CLOCK.now();
   const dpr = devicePixelRatio || 1;
-  LINE = dpr;
+  LINE = dpr * XBOT.GAME_LINE;
   for (const { m, canvas, ctx, progress, visible } of cells) {
     if (!visible) continue;
     const t = (now / 1000) % (typeof m.period === "number" ? m.period : m.period[WEAPON]);

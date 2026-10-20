@@ -211,11 +211,11 @@ const VIEWS = {
   heldFront: (ctx, lw) => robot(ctx, roots.front, frontPose, "handL", false, lw * 1.4, hold.FRONT_BARREL),
   slungBack: (ctx, lw) => climber(ctx, roots.back, false, lw * 1.4),
   slungSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); render(ctx, roots.side, { lineW: lw * 1.4, hooks: held("back", lw * 1.4, false) }); },
-  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, gSidePose, "hand", true, lw); },
-  gFront: (ctx, lw) => robot(ctx, roots.gFront, gFrontPose, "handL", true, lw, gHold.FRONT_BARREL),
-  gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw),
+  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, gSidePose, "hand", true, lw * XBOT.GAME_LINE); },
+  gFront: (ctx, lw) => robot(ctx, roots.gFront, gFrontPose, "handL", true, lw * XBOT.GAME_LINE, gHold.FRONT_BARREL),
+  gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw * XBOT.GAME_LINE),
   beamFull: (ctx, lw, t) => beamRows(ctx, roots.side, hold, false, lw * 1.4, t),
-  beamGame: (ctx, lw, t) => beamRows(ctx, roots.gSide, gHold, true, lw, t),
+  beamGame: (ctx, lw, t) => beamRows(ctx, roots.gSide, gHold, true, lw * XBOT.GAME_LINE, t),
   groundFull: ctx => ground(ctx, false),
   groundGame: ctx => ground(ctx, true)
 };
