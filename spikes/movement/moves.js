@@ -582,18 +582,13 @@ move("interaction", "Use", "Enter at target", 1.6, (c, t) => {
 
 const CROWBAR_LEAD = 1;
 const CROWBAR_TAIL = 1;
-const CROWBAR_IDLE = CROWBAR_LEAD - ACTION_TIME.in;
 const crowbarRest = () => armed() ? { ...STAND, ...GUN_REST } : STAND;
 function crowbarScene(c, doorT, pose) {
   CUTSCENES.crowbarDoor.backdrop(c, 140, FLOOR, K, doorT);
   shadow(c, 140, FLOOR, 30);
   bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
 }
-move("interaction", "Use crowbar", "Enter at door, plays cutscene", ...triggering(CUTSCENES.crowbarDoor, CROWBAR_LEAD, (c, t) => {
-  const rest = crowbarRest();
-  const reach = armed() ? { ...rest, armFar: REACH.arm, foreFar: REACH.fore } : REACH;
-  crowbarScene(c, 0, keyed([[CROWBAR_IDLE, rest], [CROWBAR_LEAD, reach]], t));
-}, CROWBAR_TAIL, c => crowbarScene(c, CUTSCENES.crowbarDoor.duration, crowbarRest())));
+move("interaction", "Use crowbar", "Enter at door, plays cutscene", ...triggering(CUTSCENES.crowbarDoor, CROWBAR_LEAD, c => crowbarScene(c, 0, crowbarRest()), CROWBAR_TAIL, c => crowbarScene(c, CUTSCENES.crowbarDoor.duration, crowbarRest())));
 
 move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
   backdrop(c);
