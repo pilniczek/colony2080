@@ -262,8 +262,8 @@ const CAM = {
   date: "2080-03-14",
   start: 23 * 3600 + 41 * 60 + 7,
   fps: 24,
-  grains: 4000,
-  deadPixels: 40,
+  grains: 12000,
+  deadPixels: 12,
   deadSeed: 2080,
   dead: ["#000000", "#ffffff", "#ff3b30", "#3bff6a"],
   tint: "#b4c4ac",
@@ -320,7 +320,7 @@ function securityCam(ctx, w, h, t, label) {
   const grain = Math.max(1, 2 * u);
   for (let i = 0; i < CAM.grains; i++) {
     const size = grain * (1 + Math.floor(random() * 2));
-    ctx.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.08 + random() * 0.22})`;
+    ctx.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.1 + random() * 0.25})`;
     ctx.fillRect(r.x + random() * r.w, r.y + random() * r.h, size, size);
   }
   ctx.fillStyle = CAM.scanline;
