@@ -170,7 +170,6 @@ const dome = (ctx: CanvasRenderingContext2D): void => {
     line(ctx, [[-4, 1.8], [-l, 1.8]], "fc0", 0.5, "butt");
     for (const x of [-11.5, -16.5, -21.5]) disc(ctx, x, 3, 0.6, "gc1");
   }
-  line(ctx, [[-6, -r], [-6, r]], "trim", TRIM, "butt");
   ctx.restore();
 };
 

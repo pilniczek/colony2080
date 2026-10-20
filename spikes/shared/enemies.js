@@ -697,7 +697,6 @@ function trooperDome(ctx) {
     P.line(ctx, [[-4, 1.8], [-l, 1.8]], "fc0", 0.5, "butt");
     for (const x of [-11.5, -16.5, -21.5]) P.disc(ctx, x, 3, 0.6, "gc1");
   }
-  P.line(ctx, [[-6, -r], [-6, r]], "trim", TROOPER_TRIM, "butt");
   ctx.restore();
 }
 
