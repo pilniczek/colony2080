@@ -108,8 +108,8 @@ function moveProp(world: SandboxWorld, prop: Prop, state: number, filmed: boolea
   if (sound) cue(world, sound.id, sound.rate);
 }
 
-function setState(world: SandboxWorld, id: string, state: number, filmed: boolean): void {
-  for (const prop of world.props) if (prop.id === id) moveProp(world, prop, state, filmed);
+function setState(world: SandboxWorld, id: string, state: number): void {
+  for (const prop of world.props) if (prop.id === id) moveProp(world, prop, state, false);
 }
 
 export const openTask = (world: SandboxWorld, prop: Prop): Task | undefined => open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
@@ -131,7 +131,7 @@ export function runUse(world: SandboxWorld, prop: Prop, { filmed = false } = {})
   }
   world.flags.add(doneToken(task));
   if (task.state !== undefined) moveProp(world, prop, task.state, filmed);
-  for (const [id, state] of Object.entries(task.sets ?? {})) setState(world, id, state, filmed);
+  for (const [id, state] of Object.entries(task.sets ?? {})) setState(world, id, state);
   applyBlocks(world);
   say(world, task.subtitle);
   if (world.flags.has(COMPLETE)) world.complete = true;

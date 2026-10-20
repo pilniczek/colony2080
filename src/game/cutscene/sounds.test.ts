@@ -72,4 +72,15 @@ describe("film cues", () => {
     expect(door.state).toBe(2);
     expect(cued(w)).not.toContain("door");
   });
+
+  it("finishing the wireSwitchboard film cues the grate it opens", () => {
+    const w = loadSandbox(objectLevel);
+    pickUp(w, "wires");
+    const gate = w.props.find((p) => p.id === "gate")!;
+    gate.asset = "tunnelGate";
+    w.cutscene = { id: "wireSwitchboard", prop: w.props.find((p) => p.id === "switchboard")!, t: 0 };
+    while (stepCutscene(w, FIXED_STEP, false));
+    expect(gate.state).toBe(1);
+    expect(w.sounds.at(-1)).toEqual({ id: "grate", rate: 18000, vol: 63, bus: "world" });
+  });
 });

@@ -85,7 +85,7 @@ function cueTime({ duration, at }, cue) {
 }
 
 function writeSounds(path, sounds) {
-  const line = `  "sounds": ${JSON.stringify(sounds).replace(/\],\[/g, "], [").replace(/,"/g, ", \"").replace(/",/g, "\", ")}`;
+  const line = `  "sounds": [${sounds.map((cue) => `[${cue.map((v) => JSON.stringify(v)).join(", ")}]`).join(", ")}]`;
   const lines = readFileSync(path, "utf8").split("\n").filter((l) => !l.startsWith('  "sounds": '));
   const after = lines.findIndex((l) => l.startsWith('  "duration": ') || l.startsWith('  "clip": '));
   lines.splice(after + 1, 0, `${line},`);
