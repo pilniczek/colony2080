@@ -52,8 +52,9 @@ flowchart LR
 
 ## Behaviour
 
-- `I` opens the screen in any live hero state; the game loop pauses.
-- Up / Down move the cursor through the list. The cursor starts on the item shown in the HUD.
+- `I` opens the screen in any live hero state except during a use; the game loop pauses.
+- Up / Down move the cursor through the list and repeat while held. The cursor starts on the item shown in the HUD.
+- The screen takes only its own keys; browser shortcuts and typing in the sandbox panel still work.
 - ENTER picks the item under the cursor: it becomes the HUD item and the screen closes (user).
 - `I` or Esc closes without change.
 - Empty inventory: the list is empty, no item picture; ENTER closes.

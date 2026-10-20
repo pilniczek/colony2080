@@ -9,13 +9,21 @@ export interface InventoryKeyResult {
   close: boolean;
 }
 
-const DEAD: ReadonlySet<HeroState> = new Set(["death", "jumpDeath", "fallDeath"]);
+const NO_SCREEN: ReadonlySet<HeroState> = new Set(["death", "jumpDeath", "fallDeath", "use"]);
+const SCREEN_ACTIONS = ["useItem", "inventory", "menu", "up", "down"];
+const REPEATING_ACTIONS = ["up", "down"];
 
-export const canOpenScreen = (state: HeroState, replaying: boolean): boolean => !replaying && !DEAD.has(state);
+const bound = (code: string, keys: Bindings, actions: string[]): boolean => actions.some((action) => keys[action]?.includes(code));
+
+export const canOpenScreen = (state: HeroState, replaying: boolean): boolean => !replaying && !NO_SCREEN.has(state);
+
+export const screenKey = (code: string, keys: Bindings): boolean => bound(code, keys, SCREEN_ACTIONS);
+
+export const repeatsOnScreen = (code: string, keys: Bindings): boolean => bound(code, keys, REPEATING_ACTIONS);
 
 export const openCursor = (items: ItemId[], shown: ItemId | null): number => Math.max(0, newestFirst(items).indexOf(shown ?? ""));
 
-export const closesMap = (code: string, keys: Bindings): boolean => ["map", "menu"].some((action) => keys[action]?.includes(code));
+export const closesMap = (code: string, keys: Bindings): boolean => bound(code, keys, ["map", "menu"]);
 
 export function inventoryKey(code: string, cursor: number, count: number, keys: Bindings): InventoryKeyResult {
   const is = (action: string): boolean => keys[action]?.includes(code) ?? false;

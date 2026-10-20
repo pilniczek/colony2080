@@ -1,6 +1,6 @@
 import controls from "@config/controls.json";
 import { describe, expect, it } from "vitest";
-import { canOpenScreen, inventoryKey, openCursor } from "./inventoryKeys";
+import { canOpenScreen, inventoryKey, openCursor, repeatsOnScreen, screenKey } from "./inventoryKeys";
 
 const keys = controls.keyboard;
 
@@ -39,6 +39,22 @@ describe("inventory keys", () => {
     expect(canOpenScreen("jumpDeath", false)).toBe(false);
     expect(canOpenScreen("fallDeath", false)).toBe(false);
     expect(canOpenScreen("ladder", false)).toBe(true);
+  });
+
+  it("stays shut during a use so the used item cannot change", () => {
+    expect(canOpenScreen("use", false)).toBe(false);
+  });
+
+  it("takes only its own keys and lets the rest through", () => {
+    for (const code of ["ArrowUp", "ArrowDown", "Enter", "KeyI", "Escape"]) expect(screenKey(code, keys)).toBe(true);
+    for (const code of ["KeyR", "F5", "Tab", "ArrowLeft", "Digit1"]) expect(screenKey(code, keys)).toBe(false);
+  });
+
+  it("repeats only the cursor keys", () => {
+    expect(repeatsOnScreen("ArrowUp", keys)).toBe(true);
+    expect(repeatsOnScreen("ArrowDown", keys)).toBe(true);
+    expect(repeatsOnScreen("Enter", keys)).toBe(false);
+    expect(repeatsOnScreen("KeyI", keys)).toBe(false);
   });
 
   it("stays shut while input is recorded or replayed", () => {
