@@ -10,6 +10,7 @@ const CAM = {
   grains: 12000,
   grainFrames: 12,
   grainTile: 256,
+  grainCap: 40,
   deadPixels: 12,
   deadSeed: 2080,
   dead: ["#000000", "#ffffff", "#ff3b30", "#3bff6a"],
@@ -59,6 +60,9 @@ function grade(ctx: CanvasRenderingContext2D, r: Rect): void {
   ctx.globalCompositeOperation = "source-over";
 }
 
+export const grainCount = (r: Rect): number =>
+  Math.min(Math.round((CAM.grains * CAM.grainTile * CAM.grainTile) / (r.w * r.h)), Math.floor((CAM.grainTile * CAM.grainTile) / CAM.grainCap));
+
 const grainTiles: { key: string; tiles: HTMLCanvasElement[] } = { key: "", tiles: [] };
 
 function grainTile(index: number, u: number, r: Rect): HTMLCanvasElement {
@@ -75,7 +79,7 @@ function grainTile(index: number, u: number, r: Rect): HTMLCanvasElement {
   const c = tile.getContext("2d")!;
   const random = grainRandom(index + 1);
   const speck = Math.max(1, 2 * u);
-  const count = Math.round((CAM.grains * size * size) / (r.w * r.h));
+  const count = grainCount(r);
   for (let i = 0; i < count; i++) {
     const side = speck * (1 + Math.floor(random() * 2));
     c.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.1 + random() * 0.25})`;

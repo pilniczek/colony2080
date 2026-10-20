@@ -9,7 +9,7 @@ import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
 import { CUTSCENES } from "./cutscene";
-import { stepCutscene } from "./cutscene/play";
+import { playFilm } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
 import { createFog, loadFog } from "./fog";
 import type { Rect } from "./geometry";
@@ -174,16 +174,6 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
     });
   };
 
-  const playFilm = (dt: number): void => {
-    input.frame();
-    const fresh = !filming;
-    filming = true;
-    if (fresh) input.clearPresses();
-    const skip = !fresh && (input.consume("menu") || input.consume("useItem"));
-    if (!stepCutscene(world, dt, skip)) input.clearPresses();
-    afterStep?.();
-  };
-
   const drawFilm = (id: keyof typeof CUTSCENES, t: number): void => {
     const film = CUTSCENES[id];
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -202,7 +192,9 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
       prev = { x: hero.x, y: hero.y };
       input.bufferMs = cfg.inputBufferMs;
       if (world.cutscene) {
-        playFilm(dt);
+        playFilm(world, input, dt, !filming);
+        filming = true;
+        afterStep?.();
         return;
       }
       filming = false;
