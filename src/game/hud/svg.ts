@@ -80,6 +80,13 @@ const HAND = `<g transform="translate(0 2.6)" fill="#f0a818" stroke="#6a4206" st
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
 
+const RUN_LIMBS = "M.9 -2.4L-.5 1.1M.6 -1.7L2.4 -.5L3.9 -1.9M.6 -1.7L-1.4 -1.4L-2.6 .2M-.5 1.1L1.9 2L1.7 4.8M-.5 1.1L-1.5 3.2L-3.8 4";
+
+const RUN_FIGURE = `<path d="${RUN_LIMBS}" fill="none" stroke="#6a4206" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="1.8" cy="-4.1" r="1.6" fill="#6a4206"/>
+  <path d="${RUN_LIMBS}" fill="none" stroke="#f0a818" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="1.8" cy="-4.1" r="1.25" fill="#f0a818"/>`;
+
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
 
 const bevel = (x: number, y: number, w: number, h: number, r: number, raised = true, lw = 0.45): string =>
@@ -139,7 +146,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${s.bonus ? weapon(blasterIcon(wx[2]!), s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo) : ""}
   ${wx.slice(0, s.bonus ? 3 : 2).map((x, i) => keyTab(x + keyCentre(i), keys.weapons[i] ?? "", s.weapon === i)).join("")}
   ${badge(bar.badge)}
-  ${gridPanel(bar.run, bar.runW)}${readout(bar.run + bar.runW / 2, "RUN")}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}
+  ${gridPanel(bar.run, bar.runW)}${runIcon(bar.run + bar.runW / 2, s.running)}${keyTab(bar.run + bar.runW / 2, keys.run, s.running)}
   ${gridPanel(bar.inv, bar.invW)}${item}${keyTab(bar.inv + bar.invW / 2, keys.item)}`;
 }
 
@@ -167,6 +174,9 @@ function keyTab(cx: number, label: string, active = false): string {
 }
 
 const weapon = (content: string, active: boolean): string => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
+
+const runIcon = (x: number, running: boolean): string =>
+  `<g filter="url(#${running ? "iconGlow" : "iconDim"})" data-icon="run"><g transform="translate(${x} ${(1.8 + TAB.top) / 2})">${RUN_FIGURE}</g></g>`;
 
 const readout = (x: number, label: string): string =>
   `<text x="${x}" y="${(1.8 + TAB.top) / 2 + READOUT_SIZE * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="${READOUT_SIZE}" fill="${READOUT}">${label}</text>`;

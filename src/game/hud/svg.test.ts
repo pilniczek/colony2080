@@ -23,12 +23,24 @@ describe("hudSvg", () => {
     expect(count(svg, 'filter="url(#iconDim)"')).toBe(2);
   });
 
-  it("lights the RUN key only in run mode and keeps the RUN text unlit", () => {
+  it("lights the run key only in run mode", () => {
     const litKey = /fill="#ff4a26"[^>]*>ALT</;
-    const running = hudSvg(320, 200, base, icons);
-    expect(running).toMatch(litKey);
-    expect(running).toContain(`fill="#a8844a">RUN</text>`);
+    expect(hudSvg(320, 200, base, icons)).toMatch(litKey);
     expect(hudSvg(320, 200, { ...base, running: false }, icons)).not.toMatch(litKey);
+  });
+
+  it("shows a running figure instead of the RUN text, glowing in run mode and dimmed when walking", () => {
+    const runIcon = (svg: string): string | undefined => /<g filter="url\(#(icon\w+)\)" data-icon="run"/.exec(svg)?.[1];
+    const running = hudSvg(320, 200, base, icons);
+    expect(running).not.toContain(">RUN</text>");
+    expect(runIcon(running)).toBe("iconGlow");
+    expect(runIcon(hudSvg(320, 200, { ...base, running: false }, icons))).toBe("iconDim");
+  });
+
+  it("centres the running figure on the run panel", () => {
+    const { run, runW } = topBar(320);
+    const m = /<g filter="url\(#icon\w+\)" data-icon="run"><g transform="translate\(([\d.]+) /.exec(hudSvg(320, 200, base, icons))!;
+    expect(Number(m[1])).toBeCloseTo(run + runW / 2, 9);
   });
 
   it("lights one shield light per shield", () => {
