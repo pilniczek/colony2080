@@ -59,10 +59,12 @@ function wallBetween(world: SandboxWorld, from: number, p: Projectile): number |
   return null;
 }
 
-function enemyFace(enemy: Enemy, cfg: MovementConfig, from: number, p: Projectile): number | null {
+type Span = [number, number];
+
+function enemyFace(enemy: Enemy, cfg: MovementConfig, from: number, p: Projectile, span: Span = [p.y, p.y]): number | null {
   if (p.tag !== HERO_SHOT || isDead(enemy)) return null;
   const { left, right, top, bottom } = bodyBox(enemy, cfg.box);
-  if (p.y < top - p.r || p.y > bottom + p.r) return null;
+  if (span[1] < top - p.r || span[0] > bottom + p.r) return null;
   const [lo, hi] = [Math.min(from, p.x), Math.max(from, p.x)];
   if (hi < left - p.r || lo > right + p.r) return null;
   return p.vx > 0 ? Math.max(from, left - p.r) : Math.min(from, right + p.r);
@@ -111,10 +113,10 @@ function nearestProp(world: SandboxWorld, from: number, p: Projectile, edge: num
   return best;
 }
 
-function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number, damage = 1, shots = false): boolean {
+function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number, damage = 1, shots = false, span?: Span): boolean {
   let struck: { enemy: Enemy; face: number } | null = null;
   for (const enemy of world.enemies) {
-    const face = enemyFace(enemy, cfg, from, p);
+    const face = enemyFace(enemy, cfg, from, p, span);
     if (face === null || beyond(p, face, edge)) continue;
     if (!struck || Math.abs(face - from) < Math.abs(struck.face - from)) struck = { enemy, face };
   }
@@ -208,7 +210,8 @@ export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], c
     if (e.kind !== "punch") continue;
     const x = h.x + h.facing * (cfg.punch.reach - cfg.box.width / 2);
     const fist = { x, y: h.y - cfg.box.duckHeight / 2, vx: h.facing, r: 0, tag: HERO_SHOT };
-    strike(world, cfg, h.x, fist, sightEdge(world, h.x, fist), cfg.punch.damage);
+    const height = h.state === "duckAttack" ? cfg.box.duckHeight : cfg.box.height;
+    strike(world, cfg, h.x, fist, sightEdge(world, h.x, fist), cfg.punch.damage, false, [h.y - height, h.y]);
   }
 }
 

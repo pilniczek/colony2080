@@ -351,6 +351,36 @@ describe("sandbox flyer", () => {
     expect(e.body.energy).toBeLessThan(json.hits);
   });
 
+  const punchReady = (lift: number): { g: Game; e: Enemy } => {
+    const g = game({ x: 40.5, y: floor });
+    const e = flyerOf(g);
+    Object.assign(e.body, { x: 40.5 + cfg.punch.reach, facing: -1 });
+    e.patrol = [e.body.x, e.body.x];
+    e.flight!.cfg = { ...flight, hoverLift: lift, aimLift: lift, wave: { cells: 0, hz: 0 }, turnMs: Infinity };
+    e.flight!.lift = lift;
+    e.body.y = floor - lift;
+    g.hero.facing = 1;
+    return { g, e };
+  };
+
+  it("takes punches once it dives and dies when they add up to its hits", () => {
+    const { g, e } = punchReady(flight.aimLift);
+    tick(g, ["shoot"], ["shoot"]);
+    while (!g.events.some((ev) => ev.kind === "punch")) tick(g, ["shoot"]);
+    expect(e.body.energy).toBe(json.hits - cfg.punch.damage);
+    expect(g.world.sparks.length).toBeGreaterThan(0);
+    while (!isDead(e)) tick(g, ["shoot"]);
+    expect(g.events.filter((ev) => ev.kind === "punch")).toHaveLength(Math.ceil(json.hits / cfg.punch.damage));
+  });
+
+  it("takes no punch while it cruises", () => {
+    const { g, e } = punchReady(flight.hoverLift);
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.6, ["shoot"]);
+    expect(g.events.some((ev) => ev.kind === "punch")).toBe(true);
+    expect(e.body.energy).toBe(json.hits);
+  });
+
   it("comes back hovering at its spot after respawnMs", () => {
     const g = game({ x: 39.5, y: floor });
     const e = flyerOf(g);
