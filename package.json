@@ -10,7 +10,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:visual": "node scripts/visual-check.mjs"
+    "test:visual": "node scripts/visual-check.mjs",
+    "sound:compare": "node scripts/sound-compare.mjs"
   },
   "dependencies": {
     "@fontsource/orbitron": "^5.3.0",
