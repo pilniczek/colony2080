@@ -43,6 +43,7 @@ interface MissionWorld {
   sky: string;
   backdrop: SandboxJson["backdrop"];
   dressing: SandboxJson["dressing"];
+  bare?: SandboxJson["bare"];
 }
 
 const NO_WORLD: MissionWorld = { sky: mestoWorld.sky, backdrop: [], dressing: [] };
@@ -79,6 +80,7 @@ export function missionJson(id: MissionId): SandboxJson {
     conveyors: (map.conveyors ?? []) as SandboxJson["conveyors"],
     teleports: (map.teleports ?? []) as SandboxJson["teleports"],
     variants: (map.variants ?? {}) as SandboxJson["variants"],
+    ...(WORLDS[id].bare === undefined ? {} : { bare: WORLDS[id].bare }),
   };
 }
 

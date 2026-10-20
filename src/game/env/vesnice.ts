@@ -222,18 +222,10 @@ const brokenTeleport: EnvAsset = {
 
 const teleportPad: EnvAsset = {
   id: "teleportPad",
-  box: [-2, -40, 50, 0],
+  box: [-2, -76, 50, 0],
   anim: true,
   draw(ctx, _state, t) {
-    box(ctx, 0, -5, 48, 5, "steel", 1);
-    poly(ctx, [[4, -5], [8, -9], [40, -9], [44, -5]], "steel", 2);
-    ellipse(ctx, 24, -9, 15, 2.2, "m0", "mLine");
-    ellipse(ctx, 24, -9, 11, 1.6, "plasma");
-    for (const x of [6, 38]) {
-      box(ctx, x, -18, 4, 9, "steel", 2, { vertical: true });
-      lamp(ctx, x + 2, -19.5, "plasma", sin(t * 4 + x) > -0.3);
-    }
-    beamColumn(ctx, 24, -38, -9, 20, t);
+    pod(ctx, "working", t);
   },
 };
 
@@ -446,6 +438,14 @@ const blockWall = (ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
     for (let xx = x; xx < x + w; xx += TILE / 2) braced(ctx, xx, yy, TILE / 2, TILE - 3);
     flat(ctx, x, yy + TILE - 3, w, 3, "y1", "yLine");
   }
+};
+
+const cliffBlocks: EnvAsset = {
+  id: "cliffBlocks",
+  box: [0, 0, 72, 24],
+  draw(ctx, _state, _t, { w = 72, h = TILE }) {
+    blockWall(ctx, 0, 0, w, h);
+  },
 };
 
 const grass = (ctx: CanvasRenderingContext2D, x: number, w: number, seed: number): void => {
@@ -895,6 +895,6 @@ const stiltBuilding: EnvAsset = {
 
 export const vesniceAssets: EnvAsset[] = [
   sourceTeleport, targetTeleport, brokenTeleport, teleportPad, fuseBox, electricCabinet, cannon, energyBarrier, transformer,
-  grassyWalkway, fireBarricade, dynamiteWall, powerBridge, rockCliff, overheadPipeline, storageTank, watchtower, bridgeGuardPost,
+  grassyWalkway, cliffBlocks, fireBarricade, dynamiteWall, powerBridge, rockCliff, overheadPipeline, storageTank, watchtower, bridgeGuardPost,
   villageBackdrop, villageHouse, stiltBuilding,
 ];

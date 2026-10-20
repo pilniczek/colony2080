@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { ITEMS } from "../items";
 import { loadMesto } from "../level/mesto";
 import { loadSandbox, type Prop } from "../level/sandboxLevel";
-import { above, below, bucketByTile, prop, type Env } from "./environment";
+import { loadMission } from "../level/missions";
+import { above, below, bucketByTile, drawnTerrain, prop, type Env } from "./environment";
 import type { Rect } from "../geometry";
 
 const CELL = 24;
@@ -163,5 +164,21 @@ describe("weapon props", () => {
   it("paints nothing once the hero owns it", () => {
     expect(painting(blaster, { blaster: 0 })).toBe(0);
     expect(painting(blaster, { blaster: 400 })).toBe(0);
+  });
+
+  it("leaves bare cells and lift stops out of the terrain runs and lands each = stop", () => {
+    const mesto = loadMesto();
+    expect(drawnTerrain(mesto)).toEqual({ ...mesto.terrain, landings: [] });
+    const vesnice = loadMission("vesnice");
+    const { walls, ledges, girders, landings } = drawnTerrain(vesnice);
+    const covers = (col: number, row: number): boolean =>
+      [...ledges.map((r) => ({ ...r, h: 1 })), ...girders.map((r) => ({ ...r, h: 1 })), ...walls].some((r) => row >= r.row && row < r.row + r.h && col >= r.col && col < r.col + r.w);
+    for (let col = 45; col < 57; col++) expect(covers(col, 41), String(col)).toBe(false);
+    expect(covers(44, 41)).toBe(true);
+    expect(covers(57, 41)).toBe(true);
+    for (const l of vesnice.lifts) for (const row of l.stops) {
+      expect(landings).toContainEqual({ row, col: l.x, w: l.w });
+      expect(covers(l.x, row)).toBe(false);
+    }
   });
 });

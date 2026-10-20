@@ -10,7 +10,7 @@ import { ITEMS, type ItemId } from "../items";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
 import type { PropFire } from "./guards";
 import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
-import { terrain } from "./terrain";
+import { terrain, type Rect as CellRect } from "./terrain";
 
 export interface Prop {
   kind: string;
@@ -124,6 +124,7 @@ export interface SandboxWorld {
   backdrop: Scenery[];
   dressing: Scenery[];
   terrain: ReturnType<typeof terrain>;
+  bare: CellRect[];
   fog: Fog | null;
   projectiles: Projectile[];
   sparks: Spark[];
@@ -168,6 +169,7 @@ export interface SandboxJson {
   conveyors?: Conveyor[];
   teleports?: Teleport[];
   variants?: Record<string, CellPatch[]>;
+  bare?: CellRect[];
 }
 
 function checkedProp(prop: Prop): Prop {
@@ -225,6 +227,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     backdrop: scenery(data.backdrop),
     dressing: scenery(data.dressing),
     terrain: terrain(grid),
+    bare: structuredClone(data.bare ?? []),
     fog: null,
     projectiles: [],
     sparks: [],

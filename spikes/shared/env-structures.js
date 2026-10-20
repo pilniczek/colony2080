@@ -189,6 +189,20 @@ define({
   }
 });
 
+define({
+  id: "liftLanding",
+  box: [0, -3, 72, 7],
+  draw(ctx, state, t, { w = 72 } = {}) {
+    flat(ctx, 5, 0, w - 10, 3, "hole");
+    mesh(ctx, 5, 0, w - 10, 3, "m2", 3);
+    flat(ctx, 5, 3, w - 10, 0.8, "mLine");
+    for (const x of [0, w - 5]) {
+      box(ctx, x, -2, 5, 8, "steel", 2);
+      if (!window.ENV.simple) flat(ctx, x + 1, -1.4, 3, 0.8, "m3");
+    }
+  }
+});
+
 function pipeRing(ctx, x, y, w, vertical) {
   if (vertical) box(ctx, x, y, w, 4, "chrome", 2, { vertical: true });
   else box(ctx, x, y, 4, w, "chrome", 2);

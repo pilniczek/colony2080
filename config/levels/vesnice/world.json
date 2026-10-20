@@ -1,5 +1,5 @@
 {
-  "source": "laid out over docs/research/gamedata/png/maps/map_M21.png (24 px per cell) and docs/research/reports/14-level2-layout.md; grassy walkways on every plank run except the lift stops and the power bridge, rock cliffs at each floor-end wall, interactive objects as non-interactive dressing in their first state until the tasks phase",
+  "source": "laid out over docs/research/gamedata/png/maps/map_M21.png (24 px per cell) and docs/research/reports/14-level2-layout.md; grassy walkways on every plank run except the lift stops and the power bridge, rock cliffs at each floor-end wall, interactive objects as non-interactive dressing in their first state until the tasks phase; bare keeps terrain art off the power bridge cells; cliffBlocks fill the floor row under cliffs where the original has blocks; the guard post pole stands on the code wall cell 52",
   "sky": "villageBackdrop",
   "backdrop": [
     {"asset": "stiltBuilding", "x": 63, "y": 41},
@@ -25,6 +25,23 @@
     {"asset": "overheadPipeline", "x": 142, "y": 35.7, "w": 13}
   ],
   "dressing": [
+    {"asset": "cliffBlocks", "x": 50, "y": 23, "w": 5},
+    {"asset": "cliffBlocks", "x": 90, "y": 23, "w": 7},
+    {"asset": "cliffBlocks", "x": 114, "y": 23, "w": 9},
+    {"asset": "cliffBlocks", "x": 151, "y": 23, "w": 7},
+    {"asset": "cliffBlocks", "x": 49, "y": 32, "w": 10},
+    {"asset": "cliffBlocks", "x": 90, "y": 32, "w": 7},
+    {"asset": "cliffBlocks", "x": 104, "y": 32, "w": 2},
+    {"asset": "cliffBlocks", "x": 156, "y": 32, "w": 4},
+    {"asset": "cliffBlocks", "x": 5, "y": 41, "w": 5},
+    {"asset": "cliffBlocks", "x": 156, "y": 41, "w": 4},
+    {"asset": "cliffBlocks", "x": 6, "y": 50, "w": 5},
+    {"asset": "cliffBlocks", "x": 62, "y": 50, "w": 7},
+    {"asset": "cliffBlocks", "x": 140, "y": 50, "w": 10},
+    {"asset": "cliffBlocks", "x": 106, "y": 59, "w": 7},
+    {"asset": "cliffBlocks", "x": 141, "y": 59, "w": 5},
+    {"asset": "cliffBlocks", "x": 69, "y": 68, "w": 8},
+    {"asset": "cliffBlocks", "x": 127, "y": 68, "w": 10},
     {"asset": "rockCliff", "x": 5, "y": 41},
     {"asset": "rockCliff", "x": 7, "y": 41},
     {"asset": "rockCliff", "x": 9, "y": 41},
@@ -149,7 +166,7 @@
     {"asset": "dynamiteWall", "x": 29, "y": 32},
     {"asset": "cannon", "x": 33, "y": 41},
     {"asset": "energyBarrier", "x": 99, "y": 41},
-    {"asset": "bridgeGuardPost", "x": 57, "y": 41},
+    {"asset": "bridgeGuardPost", "x": 51, "y": 41},
     {"asset": "bridgeGuard", "x": 62.5, "y": 23},
     {"asset": "sourceTeleport", "x": 128, "y": 23},
     {"asset": "targetTeleport", "x": 65, "y": 32},
@@ -160,5 +177,8 @@
     {"asset": "electricCabinet", "x": 122, "y": 59},
     {"asset": "brokenTeleport", "x": 95, "y": 59}
   ],
-  "props": []
+  "props": [],
+  "bare": [
+    {"col": 45, "row": 41, "w": 12, "h": 1}
+  ]
 }

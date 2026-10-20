@@ -451,6 +451,8 @@ const envSizes: [string, Size][] = [
   ["lift", { w: 72, top: -272, py: -120 }],
   ["grassyWalkway", { w: 96 }],
   ["overheadPipeline", { w: 192 }],
+  ["liftLanding", { w: 48 }],
+  ["cliffBlocks", { w: 120, h: 48 }],
 ];
 const envCases = [
   runEnvCoverage,

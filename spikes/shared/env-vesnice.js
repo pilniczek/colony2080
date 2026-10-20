@@ -4,6 +4,7 @@ const { rng, path, color, flat, box, poly, cylV, cylH, disc, rivets, glow, strok
 const { PI, sin, cos, min, max, abs } = Math;
 
 const simple = () => window.ENV.simple;
+const { TILE } = window.ENV;
 
 function scuff(ctx, x, w) {
   ctx.save();
@@ -207,18 +208,10 @@ define({
 
 define({
   id: "teleportPad",
-  box: [-2, -40, 50, 0],
+  box: [-2, -76, 50, 0],
   anim: true,
   draw(ctx, state, t) {
-    box(ctx, 0, -5, 48, 5, "steel", 1);
-    poly(ctx, [[4, -5], [8, -9], [40, -9], [44, -5]], "steel", 2);
-    ellipse(ctx, 24, -9, 15, 2.2, "m0", "mLine");
-    ellipse(ctx, 24, -9, 11, 1.6, "plasma");
-    for (const x of [6, 38]) {
-      box(ctx, x, -18, 4, 9, "steel", 2, { vertical: true });
-      lamp(ctx, x + 2, -19.5, "plasma", sin(t * 4 + x) > -0.3);
-    }
-    beamColumn(ctx, 24, -38, -9, 20, t);
+    pod(ctx, "working", t);
   }
 });
 
@@ -452,7 +445,14 @@ function blockWall(ctx, x, y, w, h) {
   }
 }
 
-const { TILE } = window.ENV;
+
+define({
+  id: "cliffBlocks",
+  box: [0, 0, 72, 24],
+  draw(ctx, state, t, { w = 72, h = TILE } = {}) {
+    blockWall(ctx, 0, 0, w, h);
+  }
+});
 
 function grass(ctx, x, w, seed) {
   const r = rng(seed);

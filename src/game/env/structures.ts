@@ -198,6 +198,20 @@ export const ladder: EnvAsset = {
   },
 };
 
+const liftLanding: EnvAsset = {
+  id: "liftLanding",
+  box: [0, -3, 72, 7],
+  draw(ctx, _state, _t, { w = 72 }) {
+    flat(ctx, 5, 0, w - 10, 3, "hole");
+    mesh(ctx, 5, 0, w - 10, 3, "m2", 3);
+    flat(ctx, 5, 3, w - 10, 0.8, "mLine");
+    for (const x of [0, w - 5]) {
+      box(ctx, x, -2, 5, 8, "steel", 2);
+      if (!P.simple()) flat(ctx, x + 1, -1.4, 3, 0.8, "m3");
+    }
+  },
+};
+
 export const pipeColumn: EnvAsset = {
   id: "pipeColumn",
   box: [-4, -168, 28, 0],
@@ -406,4 +420,4 @@ export const metroPlatformWall: EnvAsset = {
   },
 };
 
-export const structureAssets: EnvAsset[] = [streetWalkway, hazardPlate, girderBridge, ladder, pipeColumn, pipeBend, fuelTank, staircase, chainFence, latticePylon, stripLight, tunnelGate, tunnelFloor, tunnelWall, metroPlatformWall];
+export const structureAssets: EnvAsset[] = [streetWalkway, hazardPlate, girderBridge, ladder, liftLanding, pipeColumn, pipeBend, fuelTank, staircase, chainFence, latticePylon, stripLight, tunnelGate, tunnelFloor, tunnelWall, metroPlatformWall];
