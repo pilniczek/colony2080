@@ -247,9 +247,9 @@ window.C28_CONFIG = {
     "scale": 0.46,
     "x": 705,
     "barTilt": -0.15,
-    "farGripOffset": 78,
-    "pullArmDeg": -24,
-    "pullForeDeg": 32
+    "farGripOffset": -367,
+    "pullArmDeg": -34,
+    "pullForeDeg": 48
    },
    "crowbar": {
     "reach": 500,
@@ -363,12 +363,12 @@ window.C28_CONFIG = {
      ],
      [
       2.85,
-      -95,
+      -57,
       "inOut"
      ],
      [
       5.8,
-      -95
+      -57
      ]
     ],
     "foreB": [
@@ -387,12 +387,27 @@ window.C28_CONFIG = {
      ],
      [
       2.85,
-      -25,
+      13,
       "inOut"
      ],
      [
       5.8,
-      -25
+      13
+     ]
+    ],
+    "barTurnB": [
+     [
+      2.45,
+      0
+     ],
+     [
+      2.85,
+      63,
+      "inOut"
+     ],
+     [
+      5.8,
+      63
      ]
     ],
     "barShown": [

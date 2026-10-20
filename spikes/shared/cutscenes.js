@@ -170,16 +170,17 @@ function crowbarDoor(CFG) {
     const blend = at("farGrip", t);
     if (blend > 0) {
       const rest = locate(sideRoot, "handFar", pose).transformPoint(ORIGIN);
-      const grip = locate(sideRoot, "hand", pose).rotate(BAR_TILT * 180 / Math.PI).transformPoint(new DOMPoint(FAR_GRIP, 0));
+      const grip = locate(sideRoot, "hand", pose).rotate(BAR_TILT * 180 / Math.PI + at("barTurnB", t)).transformPoint(new DOMPoint(FAR_GRIP, 0));
       const target = new DOMPoint(rest.x + (grip.x - rest.x) * blend, rest.y + (grip.y - rest.y) * blend);
-      farSeed = solve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 40], [-120, 10]], target, farSeed);
+      farSeed = solve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 90], [-140, 10]], target, farSeed);
       Object.assign(pose, farSeed);
     }
     const k = at("barLen", t);
     const hooks = {
       hand: at("barShown", t) >= 0.5 ? c => {
         c.save();
-        c.rotate(BAR_TILT);
+        c.rotate(BAR_TILT + at("barTurnB", t) * Math.PI / 180);
+        c.translate(FAR_GRIP * blend, 0);
         drawCrowbar(c, BAR.reach * k, BAR.width, BAR.butt * k);
         c.restore();
       } : null
