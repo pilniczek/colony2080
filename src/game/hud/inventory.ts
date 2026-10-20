@@ -36,31 +36,31 @@ export const BODY_BOX = { w: 30, h: 56 };
 export const GUN_SCALE = 0.55;
 export const STAT_COLOR = "#e8c020";
 
-const INV = { frame: "#5aa9a0", back: "#0b1a17", line: "#1d4a3f", name: "#f2e7a0", label: "#8fd3c8", pick: "#2f6b63", stat: STAT_COLOR };
-const MONO = "Share Tech Mono, monospace";
-const BOLD = "Orbitron, sans-serif";
+export const INV = { frame: "#5aa9a0", back: "#0b1a17", line: "#1d4a3f", name: "#f2e7a0", label: "#8fd3c8", pick: "#2f6b63", stat: STAT_COLOR };
+export const MONO = "Share Tech Mono, monospace";
+export const BOLD = "Orbitron, sans-serif";
 const ROW = 7.2;
 const TEXT = 5.6;
 const PULSE_BARS = [6, 9, 5, 11, 8, 10];
 
-const DEFS = `<defs>
+export const INVENTORY_DEFS = `<defs>
   <pattern id="invGrid" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M4 0H0V4" fill="none" stroke="${INV.line}" stroke-width=".25"/></pattern>
   <pattern id="statGrid" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M4 0H0V4" fill="none" stroke="#5a4a10" stroke-width=".25"/></pattern>
   <linearGradient id="room" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15120f"/><stop offset=".55" stop-color="#2a241d"/><stop offset=".72" stop-color="#1a1714"/><stop offset="1" stop-color="#0c0d0c"/></linearGradient>
   <radialGradient id="lamp"><stop offset="0" stop-color="#fff"/><stop offset=".15" stop-color="#fff" stop-opacity=".85"/><stop offset=".4" stop-color="#cfe4ff" stop-opacity=".25"/><stop offset="1" stop-color="#cfe4ff" stop-opacity="0"/></radialGradient>
 </defs>`;
 
-const box = ({ x, y, w, h }: Rect): string => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${INV.back}" fill-opacity=".9"/>
+export const box = ({ x, y, w, h }: Rect): string => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${INV.back}" fill-opacity=".9"/>
   <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#invGrid)"/>
   <rect x="${x + 0.4}" y="${y + 0.4}" width="${w - 0.8}" height="${h - 0.8}" fill="none" stroke="${INV.frame}" stroke-width=".8"/>`;
 
 const text = (x: number, y: number, fill: string, label: string, attrs = ""): string =>
   `<text x="${x}" y="${y}" font-family="${MONO}" font-size="${TEXT}" fill="${fill}" ${attrs}>${label}</text>`;
 
-const label = (x: number, y: number, size: number, value: string): string =>
+export const label = (x: number, y: number, size: number, value: string): string =>
   `<text x="${x}" y="${y}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${size}" fill="${INV.label}" stroke="${INV.back}" stroke-width=".3" paint-order="stroke">${value}</text>`;
 
-const image = (art: HudIcon, x: number, y: number): string => `<image href="${art.url}" x="${x}" y="${y}" width="${art.w}" height="${art.h}"/>`;
+export const image = (art: HudIcon, x: number, y: number): string => `<image href="${art.url}" x="${x}" y="${y}" width="${art.w}" height="${art.h}"/>`;
 
 const centred = (art: HudIcon, r: Rect): string => image(art, r.x + (r.w - art.w) / 2, r.y + (r.h - art.h) / 2);
 
@@ -122,7 +122,7 @@ export function inventorySvg(W: number, H: number, s: InventoryState, art: Inven
   const { title, item, robot } = INVENTORY_BOXES;
   const shown = newestFirst(s.items)[s.cursor];
   const picture = shown === undefined ? "" : centred(art.items[shown]!, item);
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${DEFS}${room(W, H)}
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${INVENTORY_DEFS}${room(W, H)}
   <g transform="translate(${(W - HUD_MIN_W) / 2} ${(H - HUD_H) / 2})">
   ${image(art.robot, robot.x + (robot.w - art.robot.w) / 2, robot.y + robot.h - art.robot.h)}
   ${picture}${list(s)}
