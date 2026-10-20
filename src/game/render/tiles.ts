@@ -30,10 +30,12 @@ export class TileCache<T> {
   private key = "";
   private tiles = new Map<string, T>();
   private dropped = new Map<string, T>();
+  private home = new Set<string>();
 
   constructor(
     private readonly keep = 0,
     private readonly release: (tile: T) => void = () => {},
+    private readonly keepHome = false,
   ) {}
 
   get size(): number {
@@ -50,6 +52,7 @@ export class TileCache<T> {
       for (const tile of [...this.tiles.values(), ...this.dropped.values()]) this.release(tile);
       this.tiles.clear();
       this.dropped.clear();
+      this.home = new Set(this.keepHome ? coords.map(([col, row]) => id(col, row)) : []);
     }
     const kept = new Map<string, T>();
     let missed = false;
@@ -85,10 +88,13 @@ export class TileCache<T> {
 
   private drop(at: string, tile: T): void {
     this.dropped.set(at, tile);
+    let spare = [...this.dropped.keys()].filter((old) => !this.home.has(old)).length - this.keep;
     for (const [old, stale] of this.dropped) {
-      if (this.dropped.size <= this.keep) break;
+      if (spare <= 0) break;
+      if (this.home.has(old)) continue;
       this.dropped.delete(old);
       this.release(stale);
+      spare--;
     }
   }
 }

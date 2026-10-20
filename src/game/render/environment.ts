@@ -156,7 +156,7 @@ function cached(e: Env, name: string, paint: (off: Env) => void): void {
   const size = { w: Math.ceil(world.grid.width * cell * scale), h: Math.ceil(world.grid.height * cell * scale) };
   const own = layers.get(world) ?? {};
   layers.set(world, own);
-  const cache = (own[name] ??= new TileCache(DROPPED_KEPT, free));
+  const cache = (own[name] ??= new TileCache(DROPPED_KEPT, free, true));
   const view = { x: screen.x - x, y: screen.y - y, w: screen.w, h: screen.h };
   const ahead = { tiles: nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX), budget: PREFETCH_PER_FRAME };
   const key = `${scale}|${lines}|${cell}|${unit}`;

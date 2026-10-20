@@ -154,6 +154,18 @@ describe("TileCache", () => {
       expect(painted).toEqual([]);
     });
 
+    it("never evicts the tiles of the first view after a key change", () => {
+      freed.length = 0;
+      const cache = new TileCache<string>(1, (tile) => freed.push(tile), true);
+      const { painted, make } = counter();
+      cache.sync("a", view(0), make);
+      for (const x of [300, 500, 700]) cache.sync("a", view(x), make);
+      expect(freed.sort()).toEqual(["3,0", "4,0", "6,0"]);
+      painted.length = 0;
+      cache.sync("a", view(0), make);
+      expect(painted).toEqual([]);
+    });
+
     it("clears kept tiles on a key change", () => {
       freed.length = 0;
       const cache = keeper(3);
