@@ -2,7 +2,7 @@ import movementJson from "@config/hero/movement.json";
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { loadMovement } from "../hero/config";
-import { game, RUNNING, run, tick } from "../hero/testWorld";
+import { game, objectLevel, RUNNING, run, tick } from "../hero/testWorld";
 import { loadMesto, mestoJson } from "./mesto";
 import { id, inShaft, reachOf, stopId, stopsAt } from "./reach";
 import { loadSandbox, type SandboxWorld } from "./sandboxLevel";
@@ -142,5 +142,28 @@ describe("lift reach rule", () => {
         }
       }
     }
+  });
+});
+
+describe("one-way floors", () => {
+  const stair = {
+    ...objectLevel,
+    rows: ["#........#", "#........#", "#..===...#", "#....===.#", "#..===...#", "#....===.#", "#..===...#", "##########"],
+    spawn: [1.5, 7],
+    props: [],
+    tasks: { tasks: [] },
+  };
+
+  it("climbs a stack of one-way ledges one row apart", () => {
+    const w = loadSandbox(stair);
+    const r = reachOf(w, cfg);
+    const from = r.reach(r.graph(r.strict), id(r.runAt(7, 1)!));
+    expect(r.runs.map(id).filter((n) => !from.has(n))).toEqual([]);
+    expect(r.runs.map(id)).toEqual(expect.arrayContaining(["2,3", "3,5", "4,3", "5,5", "6,3", "7,1"]));
+  });
+
+  it("lands on a one-way ledge when dropping down", () => {
+    const w = loadSandbox(stair);
+    expect(reachOf(w, cfg).landings(4, 1, fallDeathCells)).toEqual(["2,3"]);
   });
 });

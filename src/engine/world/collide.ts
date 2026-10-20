@@ -64,7 +64,7 @@ function landingSurface(
   const [r0, r1] = cellRange(fromY, toY);
   for (let r = r0; r <= r1; r++) {
     for (let c = c0; c <= c1; c++) {
-      if (grid.ladderTop(c, r) && fromY <= r + EDGE && toY > r) best = Math.min(best, r);
+      if (grid.oneWay(c, r) && fromY <= r + EDGE && toY > r) best = Math.min(best, r);
     }
   }
   for (const p of platforms) {
@@ -92,7 +92,7 @@ function findSupport(box: Box, grid: TileGrid, platforms: Platform[], ignoreOneW
     const row = Math.round(box.y);
     if (Math.abs(row - box.y) <= SUPPORT) {
       const [c0, c1] = cellRange(left, right);
-      for (let c = c0; c <= c1; c++) if (grid.ladderTop(c, row)) return { y: box.y, platform: null };
+      for (let c = c0; c <= c1; c++) if (grid.oneWay(c, row)) return { y: box.y, platform: null };
     }
   }
   const underfoot = solidInRect(grid, left, right, box.y + SUPPORT, box.y + SUPPORT + EDGE * 2);

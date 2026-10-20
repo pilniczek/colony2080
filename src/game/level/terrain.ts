@@ -27,7 +27,12 @@ function runsOf(width: number, row: number, keep: (col: number) => boolean): Run
   return runs;
 }
 
-const attached = (grid: TileGrid, col: number, row: number): boolean => grid.wall(col, row) || grid.at(col, row) === "H";
+export const filled = (grid: TileGrid, col: number, row: number): boolean => grid.wall(col, row) || grid.floor(col, row);
+
+const covered = (grid: TileGrid, col: number, row: number): boolean =>
+  grid.wall(col, row - 1) || (grid.wall(col, row) && grid.floor(col, row - 1));
+
+const attached = (grid: TileGrid, col: number, row: number): boolean => filled(grid, col, row) || grid.at(col, row) === "H";
 
 export function terrain(grid: TileGrid): { walls: Rect[]; ledges: Run[]; girders: Run[] } {
   const ledges: Run[] = [];
@@ -35,11 +40,11 @@ export function terrain(grid: TileGrid): { walls: Rect[]; ledges: Run[]; girders
   const taken = new Set<string>();
   const key = (col: number, row: number): string => `${col},${row}`;
   for (let row = 1; row < grid.height; row++) {
-    const surface = runsOf(grid.width, row, (col) => grid.wall(col, row) && !grid.wall(col, row - 1));
+    const surface = runsOf(grid.width, row, (col) => filled(grid, col, row) && !covered(grid, col, row));
     for (const run of surface) {
       const last = run.col + run.w - 1;
       let free = !attached(grid, run.col - 1, row) && !attached(grid, last + 1, row);
-      for (let col = run.col; col <= last; col++) if (grid.wall(col, row + 1)) free = false;
+      for (let col = run.col; col <= last; col++) if (filled(grid, col, row + 1)) free = false;
       if (free) {
         girders.push(run);
         for (let col = run.col; col <= last; col++) taken.add(key(col, row));
@@ -49,11 +54,11 @@ export function terrain(grid: TileGrid): { walls: Rect[]; ledges: Run[]; girders
   const walls: Rect[] = [];
   const merged = new Set<string>();
   for (let row = 0; row < grid.height; row++) {
-    const rest = runsOf(grid.width, row, (col) => grid.wall(col, row) && !taken.has(key(col, row)));
+    const rest = runsOf(grid.width, row, (col) => filled(grid, col, row) && !taken.has(key(col, row)));
     for (const run of rest) {
       if (merged.has(key(run.col, row))) continue;
       let h = 1;
-      while (runsOf(grid.width, row + h, (col) => grid.wall(col, row + h) && !taken.has(key(col, row + h))).some((r) => r.col === run.col && r.w === run.w)) {
+      while (runsOf(grid.width, row + h, (col) => filled(grid, col, row + h) && !taken.has(key(col, row + h))).some((r) => r.col === run.col && r.w === run.w)) {
         merged.add(key(run.col, row + h));
         h++;
       }

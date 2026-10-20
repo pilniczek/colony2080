@@ -112,7 +112,7 @@ def lift_json(lift, extra):
         out["startRow"] = start
     if lift.get("enabledBy"):
         out["enabledBy"] = lift["enabledBy"]
-    if lift["x"] in extra["liftHints"]:
+    if lift["x"] in extra.get("liftHints", {}):
         out["hint"] = extra["liftHints"][lift["x"]]
     return out
 
@@ -249,7 +249,7 @@ def raise_wall(grid, floors, col, plank):
 
 def tile_rows(data, layout):
     floors = [[tile_at(data, col, row) in layout["floors"] for col in range(W)] for row in range(H)]
-    grid = [["#" if floors[row][col] else "." for col in range(W)] for row in range(H)]
+    grid = [["=" if floors[row][col] else "." for col in range(W)] for row in range(H)]
     walls = [(col, row) for row in range(H) for col in range(W) if tile_at(data, col, row) in layout["walls"]]
     for col, row in walls:
         grid[row][col] = "#"
@@ -269,20 +269,23 @@ def tile_rows(data, layout):
 
 
 def open_shafts(grid, lifts):
-    opened = []
+    changed = []
     for lift in lifts:
         for row in range(lift["stops"][0] - 2, lift["stops"][-1] + 1):
+            cell = "=" if row in lift["stops"] else "."
             for col in range(lift["x"], lift["x"] + lift["width"]):
-                if grid[row][col] != ".":
-                    opened.append((col, row, grid[row][col]))
-                    grid[row][col] = "."
-    return opened
+                if grid[row][col] != cell:
+                    changed.append((col, row, grid[row][col], cell))
+                    grid[row][col] = cell
+    return changed
 
 
 def drop_spawn(grid, engine):
     col, row = engine[0] + 6, engine[1] + 6
-    while grid[row][col] != "#":
+    while grid[row][col] not in "#=":
         row += 1
+        if row >= H:
+            raise SystemExit(f"no floor under spawn at {col}")
     if grid[row - 1][col] != "." or grid[row - 2][col] != ".":
         raise SystemExit(f"spawn not open at {col},{row}")
     return [col + 0.5, row]
@@ -291,13 +294,13 @@ def drop_spawn(grid, engine):
 def build_tiles(data, layout, cfg):
     grid = tile_rows(data, layout)
     lifts = plain_lifts(layout["lifts"], cfg)
-    for col, row, ch in open_shafts(grid, lifts):
-        print(f"shaft opened {col},{row} {ch}", file=sys.stderr)
+    for col, row, was, now in open_shafts(grid, lifts):
+        print(f"shaft cell {col},{row} {was} -> {now}", file=sys.stderr)
     return {
         "status": "draft",
         "source": cfg["source"],
         "rows": ["".join(r) for r in grid],
-        "lifts": [lift_json(lift, {"liftHints": {}}) for lift in lifts],
+        "lifts": [lift_json(lift, cfg) for lift in lifts],
         "spawn": drop_spawn(grid, layout["spawn"]),
         "fallDeathCells": cfg["fallDeathCells"],
     }

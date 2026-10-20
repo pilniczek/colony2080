@@ -6,6 +6,7 @@ import { TileGrid } from "./tiles";
 
 const grid = new TileGrid(sandbox.rows);
 const box = (x: number, y: number): Box => ({ x, y, w: 0.7, h: 1.9 });
+const shelf = new TileGrid(["........", "........", "........", "........", "..====..", "........", "........", "........", "########"]);
 
 describe("TileGrid", () => {
   it("is solid on the sides and top, empty below, one-way on ladder tops", () => {
@@ -19,6 +20,17 @@ describe("TileGrid", () => {
     expect(grid.ladderAt(5.5, 10)).toBe(false);
     expect(grid.ladderTop(3, 4)).toBe(true);
     expect(grid.ladderTop(3, 5)).toBe(false);
+  });
+
+  it("marks one-way floors and ladder tops as one-way but not solid", () => {
+    const g = new TileGrid(["=.#", ".H.", ".H."]);
+    expect(g.oneWay(0, 0)).toBe(true);
+    expect(g.solid(0, 0)).toBe(false);
+    expect(g.wall(0, 0)).toBe(false);
+    expect(g.oneWay(1, 1)).toBe(true);
+    expect(g.oneWay(1, 2)).toBe(false);
+    expect(g.oneWay(1, 0)).toBe(false);
+    expect(g.oneWay(2, 0)).toBe(false);
   });
 
   it("treats an invisible blocker as solid", () => {
@@ -94,6 +106,34 @@ describe("moveBox", () => {
 
   it("ignores one-way floors on request", () => {
     const r = moveBox(box(3.5, 4), 0, 1, grid, [], { ignoreOneWay: true });
+    expect(r.y).toBeCloseTo(5, 6);
+    expect(r.onGround).toBe(false);
+  });
+
+  it("lands on a one-way floor from above", () => {
+    const r = moveBox(box(3.5, 2), 0, 5, shelf, []);
+    expect(r.y).toBe(4);
+    expect(r.hitY).toBe(true);
+    expect(r.onGround).toBe(true);
+    const idle = moveBox(box(3.5, 4), 0, 0, shelf, []);
+    expect(idle.onGround).toBe(true);
+  });
+
+  it("jumps up through a one-way floor", () => {
+    const r = moveBox(box(3.5, 8), 0, -5, shelf, []);
+    expect(r.y).toBeCloseTo(3, 6);
+    expect(r.hitY).toBe(false);
+    expect(r.onGround).toBe(false);
+  });
+
+  it("walks under a one-way floor", () => {
+    const r = moveBox(box(0.5, 5), 6, 0, shelf, []);
+    expect(r.hitX).toBe(false);
+    expect(r.x).toBeCloseTo(6.5, 6);
+  });
+
+  it("drops through a one-way floor on request", () => {
+    const r = moveBox(box(3.5, 4), 0, 1, shelf, [], { ignoreOneWay: true });
     expect(r.y).toBeCloseTo(5, 6);
     expect(r.onGround).toBe(false);
   });

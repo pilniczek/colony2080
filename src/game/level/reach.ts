@@ -104,7 +104,7 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
   function landings(col: number, from: number, maxDrop: number): string[] {
     const out: string[] = [];
     let land = from + 1;
-    while (land < grid.height && !grid.solid(col, land) && !grid.ladderTop(col, land)) land++;
+    while (land < grid.height && !grid.solid(col, land) && !grid.oneWay(col, land)) land++;
     lifts.forEach((l, i) => {
       for (const row of l.stops) {
         if (inShaft(l, col) && row > from && row <= land && row - from <= maxDrop) out.push(stopId(i, row));
@@ -132,6 +132,14 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
       if (path.slice(0, -1).some((c) => m.blocked(c, r.row, t.row))) return [];
       if (t.row > r.row && !path.some((c) => clear(c, r.row, t.row - 1))) return [];
       return m.landing(near, t.row, r.row) ? [{ to: node(t), cols: path.slice(0, -1) }] : [];
+    });
+  }
+
+  function throughFloors(r: Run): Run[] {
+    return runs.filter((t) => {
+      if (t.row < r.row - JUMP_UP || t.row >= r.row) return false;
+      const cols = Array.from({ length: Math.min(r.col + r.w, t.col + t.w) - Math.max(r.col, t.col) }, (_, k) => Math.max(r.col, t.col) + k);
+      return cols.some((c) => grid.oneWay(c, t.row) && clear(c, t.row - 2, r.row - 1));
     });
   }
 
@@ -179,6 +187,7 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
       }
     }
     for (const { run: r, key } of origins) {
+      link([key], throughFloors(r).map(id));
       for (const side of [-1, 1] as const) {
         const c = side < 0 ? r.col - 1 : r.col + r.w;
         leap(key, r.row, jumps(r, side, m));
@@ -187,7 +196,7 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
           if (step && !grid.solid(c, r.row - 2)) link([key], [id(step)]);
           continue;
         }
-        if (grid.solid(c, r.row) || grid.ladderTop(c, r.row)) continue;
+        if (grid.solid(c, r.row) || grid.oneWay(c, r.row)) continue;
         const shaft = lifts.findIndex((l) => stopsAt(l, r.row) && inShaft(l, c));
         if (shaft < 0) leap(key, r.row, drop(c, r.row, m));
         else if (!decks.has(r)) leap(key, r.row, drop(c, r.row, m), { lift: shaft, row: r.row });

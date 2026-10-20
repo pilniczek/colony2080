@@ -104,7 +104,7 @@ export function bodyBox(e: Enemy, box: { width: number; height: number }): BodyB
 }
 
 const floorAt = (grid: TileGrid, col: number, row: number): boolean =>
-  (grid.solid(col, row) || grid.ladderTop(col, row)) && !grid.solid(col, row - 1);
+  (grid.solid(col, row) || grid.oneWay(col, row)) && !grid.solid(col, row - 1);
 
 function spanOf(x: number, open: (col: number) => boolean, half: number): [number, number] {
   let [left, right] = [Math.floor(x), Math.floor(x)];

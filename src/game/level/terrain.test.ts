@@ -41,4 +41,9 @@ describe("terrain", () => {
     const cells = [...blocked.walls.flatMap(cellsOfRect), ...blocked.ledges.flatMap(cellsOfRun), ...blocked.girders.flatMap(cellsOfRun)];
     expect([...new Set(cells)].sort()).toEqual(["0,2", "1,2", "2,2", "3,2", "4,2"]);
   });
+
+  it("classifies one-way floor runs like solid floor runs of the same shape", () => {
+    const rows = ["........", ".===....", "........", "#==...==", "########"];
+    expect(terrain(new TileGrid(rows))).toEqual(terrain(new TileGrid(rows.map((r) => r.replaceAll("=", "#")))));
+  });
 });

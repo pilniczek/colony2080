@@ -2,6 +2,7 @@ import { revealedAt } from "../fog";
 import type { Rect } from "../geometry";
 import type { Hero } from "../hero/hero";
 import type { Lift, SandboxWorld } from "../level/sandboxLevel";
+import { filled } from "../level/terrain";
 
 export const MAP_CELLS = ["unknown", "open", "wall", "ladder"] as const;
 export type MapCell = (typeof MAP_CELLS)[number];
@@ -35,7 +36,7 @@ export function mapCells({ grid, fog }: Pick<MapWorld, "grid" | "fog">): Uint8Ar
   for (let row = 0; row < grid.height; row++) {
     for (let col = 0; col < grid.width; col++) {
       if (fog && !revealedAt(fog, col, row)) continue;
-      cells[row * grid.width + col] = code(grid.wall(col, row) ? "wall" : grid.at(col, row) === "H" ? "ladder" : "open");
+      cells[row * grid.width + col] = code(filled(grid, col, row) ? "wall" : grid.at(col, row) === "H" ? "ladder" : "open");
     }
   }
   return cells;

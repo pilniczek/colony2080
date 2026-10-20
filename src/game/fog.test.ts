@@ -57,6 +57,14 @@ describe("reveal", () => {
     expect(revealedAt(fog, 4, 2)).toBe(false);
   });
 
+  it("stops at one-way floors like floors", () => {
+    const rows = ROOM.map((r, i) => (i === 3 ? "#........====#" : r));
+    const g = fogged(game({ x: 10.5, y: 8 }, { ...sandbox, rows, lifts: [], enemies: [], props: [] }));
+    const fog = g.world.fog!;
+    expect(revealedAt(fog, 10, 3)).toBe(true);
+    expect(revealedAt(fog, 10, 2)).toBe(false);
+  });
+
   it("keeps uncovered cells uncovered after the hero walks away", () => {
     const g = fogged(game({ x: 10.5, y: 14 }));
     run(g, 5, ["moveRight"]);

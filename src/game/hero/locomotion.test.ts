@@ -1,7 +1,7 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import type { Hero } from "./hero";
-import { bottomlessPits, cfg, clips, dt, game, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
+import { bottomlessPits, cfg, clips, dt, game, objectLevel, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
 
 const walkSpeed = clips.walk!.travel! / clips.walk!.duration;
 const runSpeed = clips.run!.travel! / clips.run!.duration;
@@ -20,6 +20,9 @@ const dropLevel = {
 };
 
 const highLedge = { x: 22, y: 4 };
+
+const floorInShaft = (row: string, at: number): string => (at === 4 || at === 9 ? `${row.slice(0, 17)}===${row.slice(20)}` : row);
+const flooredShaft = { ...sandbox, rows: sandbox.rows.map(floorInShaft) };
 
 describe("walk and run", () => {
   it("walks the walk clip travel per duration", () => {
@@ -100,6 +103,17 @@ const landsNextTick = (h: Hero): boolean => {
 };
 
 describe("jumps", () => {
+  it("run jumps up through a one-way ledge and lands on it", () => {
+    const shelf = { ...objectLevel, rows: ["#........#", "#........#", "#........#", "#........#", "#........#", "#..====..#", "##########"], spawn: [1.5, 6], props: [], tasks: { tasks: [] } };
+    const g = game({ x: 1.5, y: 6 }, shelf);
+    const held = ["moveRight", RUNNING];
+    tick(g, held);
+    tick(g, held, ["up"]);
+    expect(g.hero.state).toBe("runJump");
+    runUntil(g, (h) => h.onGround, held, 2);
+    expect(g.hero.y).toBe(5);
+  });
+
   for (const [jump, gait, held] of [["walkJump", "walk", ["moveRight"]], ["runJump", "run", ["moveRight", RUNNING]]] as const) {
     it(`${jump} lands back into ${gait} at take-off phase plus air time`, () => {
       const g = game();
@@ -478,6 +492,25 @@ describe("lift", () => {
     expect([...g.seen]).toEqual(["idle"]);
     expect(g.world.lifts[0]!.y).toBe(4);
     expect(g.hero.y).toBeCloseTo(4, 6);
+  });
+
+  it("rides up and down through one-way floor rows in its shaft", () => {
+    const g = game({ x: 18.5, y: 14 }, flooredShaft);
+    expect(g.world.grid.oneWay(18, 9)).toBe(true);
+    tick(g);
+    tick(g, [], ["up"]);
+    run(g, 5);
+    expect(g.world.lifts[0]!.y).toBe(4);
+    expect(g.hero).toMatchObject({ onLift: true });
+    expect(g.hero.y).toBeCloseTo(4, 6);
+    tick(g, ["down"], ["down"]);
+    run(g, 2);
+    expect(g.hero).toMatchObject({ onLift: true });
+    expect(g.hero.y).toBeCloseTo(g.world.lifts[0]!.y, 6);
+    run(g, 3);
+    expect(g.world.lifts[0]!.y).toBe(14);
+    expect(g.hero.y).toBeCloseTo(14, 6);
+    expect([...g.seen]).toEqual(["idle"]);
   });
 
   it("ducks instead of calling the lift from the floor edge next to its deck", () => {

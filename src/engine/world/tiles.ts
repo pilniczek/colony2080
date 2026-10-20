@@ -43,4 +43,12 @@ export class TileGrid {
   ladderTop(col: number, row: number): boolean {
     return this.at(col, row) === "H" && this.at(col, row - 1) !== "H";
   }
+
+  floor(col: number, row: number): boolean {
+    return this.at(col, row) === "=";
+  }
+
+  oneWay(col: number, row: number): boolean {
+    return this.floor(col, row) || this.ladderTop(col, row);
+  }
 }

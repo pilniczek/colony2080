@@ -13,6 +13,10 @@ describe("mapCells", () => {
     expect(kinds(mapCells({ grid: new TileGrid(ROWS), fog: null })).join("")).toBe("woooo" + "wlooo" + "wloow" + "wwwww");
   });
 
+  it("shows one-way floors as walls", () => {
+    expect(kinds(mapCells({ grid: new TileGrid([".==.", "...."]), fog: null })).join("")).toBe("owwo" + "oooo");
+  });
+
   it("hides cells the hero never uncovered", () => {
     const grid = new TileGrid(ROWS);
     const revealed = new Uint8Array(grid.width * grid.height);
