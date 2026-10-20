@@ -194,17 +194,16 @@ describe("hero state cues", () => {
     expect(cues(g, "step").length).toBe(before);
   });
 
-  it("landing cues land 8500 vol 44", () => {
+  it("landing cues no sound", () => {
     const g = game({ x: 3.5, y: 5, state: "fall" }, arena());
     g.hero.onGround = false;
     g.hero.fallFrom = 5;
     runUntil(g, (h) => h.onGround, [], 2);
-    expect(cues(g, "land")).toEqual([{ id: "land", rate: 8500, vol: 44, bus: "world" }]);
     const j = game({ x: 3.5, y: 8 }, arena());
     tick(j, [], ["up"]);
     runUntil(j, (h) => !h.onGround, [], 1);
     runUntil(j, (h) => h.onGround, [], 2);
-    expect(cues(j, "land")).toHaveLength(1);
+    expect([...cues(g, "land"), ...cues(j, "land")]).toEqual([]);
   });
 });
 
@@ -300,35 +299,10 @@ describe("world cues", () => {
     expect(cues(west, "spark")).toHaveLength(0);
   });
 
-  it("mesto thunders at seeded 8-20 s gaps while not filming", () => {
+  it("never thunders in game", () => {
     const g = game({ x: 3.5, y: 8 }, arena({ mission: "mesto" }));
-    const times: number[] = [];
-    for (let i = 0; i < 70 / dt; i++) {
-      const before = cues(g, "thunder").length;
-      tick(g);
-      if (cues(g, "thunder").length > before) times.push(i * dt);
-    }
-    expect(cues(g, "thunder")[0]).toEqual({ id: "thunder", rate: 9000, vol: 63, bus: "world" });
-    expect(times.length).toBeGreaterThanOrEqual(3);
-    expect(times[0]).toBeGreaterThanOrEqual(8 - dt);
-    expect(times[0]).toBeLessThanOrEqual(20 + dt);
-    times.slice(1).forEach((t, i) => {
-      expect(t - times[i]!).toBeGreaterThanOrEqual(8 - dt);
-      expect(t - times[i]!).toBeLessThanOrEqual(20 + dt);
-    });
-    const again = game({ x: 3.5, y: 8 }, arena({ mission: "mesto" }));
-    run(again, 70);
-    expect(cues(again, "thunder")).toHaveLength(times.length);
-  });
-
-  it("no thunder outside mesto or while filming", () => {
-    const other = game({ x: 3.5, y: 8 }, arena({ mission: "vesnice" }));
-    run(other, 25);
-    expect(cues(other, "thunder")).toHaveLength(0);
-    const filming = game({ x: 3.5, y: 8 }, arena({ mission: "mesto" }));
-    filming.world.cutscene = { id: "missionStart", prop: null, t: 0 };
-    run(filming, 25);
-    expect(cues(filming, "thunder")).toHaveLength(0);
+    run(g, 70);
+    expect(cues(g, "thunder")).toHaveLength(0);
   });
 });
 

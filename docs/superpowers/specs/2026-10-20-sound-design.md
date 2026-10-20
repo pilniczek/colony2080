@@ -49,7 +49,6 @@ Research (`docs/research/reports/17-sound.md`, to write from this session's find
 | Low energy (< 20) | `SIRENA3` @8500 (34), every 15 s (original: every 40 ticks, slowed on user request) | while live hero energy < 20 |
 | Shield spent, energy refilled | `GATE` @20000 | `damage` spends shield |
 | Footstep | `KROK3` alternating @10000 / @9400 (33) | gait foot contact, walk and run, not while firing |
-| Jump landing | `SIGNAL` @8500 (44) | landing |
 | Lift start | `VYTAH1` @8000 | lift starts moving |
 | Lift stop | `VYTAH2` @8000 | lift reaches stop |
 | Door object opens | `DVERE` @11000 | prop moves to open state (door kind) |
@@ -57,12 +56,14 @@ Research (`docs/research/reports/17-sound.md`, to write from this session's find
 | Weapon switch | `IKONA` @20000 (45) | weapon key or auto switch |
 | Inventory open | `INVEND` @8000, stops all sounds first | inventory screen opens |
 | Dialog keys | `IKONA` @5500 (33) | pause menu and game over move and confirm |
-| Thunder ambience, mission 1 | `HROM` @9000, random interval | mesto only, random gaps |
+| Thunder ambience, mission 1 | `HROM` @9000, random interval | not used in game |
 | Teleport | `TELEPORT` @13000 | teleport pad use |
 | Electric hazard | `ZKRAT` @12000, every 10th tick | hero in hazard with `sound: "spark"` (original: one jeskyne zone only; field set through `levelmap.py` EXTRAS, other `damage` hazards stay silent) |
 | Item pickup, item use | film sound cues (`HYDRA` @11000 servo at frame 1 ...) | film cues |
 
 No sound in original, so none here: bullet hits wall, enemy hit, hero hit, hero death, jump start, ladder, lift travel, flyer engine, map screen, subtitle, inventory cursor and close.
+
+No jump landing sound in game (original: `SIGNAL` @8500 (44)), removed on user request; `land` plays in films only.
 
 ## Design
 
@@ -136,5 +137,4 @@ flowchart LR
 
 - Exact recipe synthesis per sound.
 - Door vs grate split per prop asset.
-- Thunder interval range.
 - Bundling recipes for spike page.

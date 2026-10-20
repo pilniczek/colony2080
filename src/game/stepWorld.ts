@@ -6,7 +6,7 @@ import { inSparks, stepConveyors, stepHazards } from "./level/hazards";
 import { approachFilms, resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
 import { cue } from "./sound/cues";
-import { siren, spark, thunder } from "./sound/triggers";
+import { siren, spark } from "./sound/triggers";
 import { fireBeam, fireEnemy, fireGuards, fireShots, landPunches, stepShots } from "./shots";
 
 export const SUBTITLE_MS = 3500;
@@ -17,11 +17,10 @@ function ageSubtitle(world: SandboxWorld, dt: number): void {
   if (world.subtitle.age >= SUBTITLE_MS) world.subtitle = null;
 }
 
-function worldSounds(world: SandboxWorld, hero: Hero, events: HeroEvent[], filming: boolean, dt: number): void {
+function worldSounds(world: SandboxWorld, hero: Hero, events: HeroEvent[], dt: number): void {
   for (const e of events) if (e.kind === "shield") cue(world, "power", 20000);
   siren(world, hero.energy, !isDead(hero.state) && world.cutscene === null, dt);
   spark(world, inSparks(world, hero), dt);
-  if (world.mission === "mesto" && !filming) thunder(world, dt);
 }
 
 export function stepWorld(
@@ -52,7 +51,7 @@ export function stepWorld(
   fireShots(world, hero, events, clips, cfg);
   fireBeam(world, hero, events, clips, cfg);
   landPunches(world, hero, events, cfg);
-  worldSounds(world, hero, events, filming, dt);
+  worldSounds(world, hero, events, dt);
   if (events.some((e) => e.kind === "respawned")) resetWorld(world, cfg);
   if (!filming && world.cutscene) {
     halt(hero);

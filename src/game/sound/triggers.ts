@@ -6,7 +6,6 @@ const SEED = 28;
 const LOW_ENERGY = 20;
 const SIREN_EVERY = 15;
 const SPARK_EVERY = 0.3125;
-const THUNDER_GAP = [8, 20] as const;
 const STEP_RATES = [10000, 9400] as const;
 const STEP_VOL = 33;
 const EXPLOSION_RATE = 8000;
@@ -18,17 +17,14 @@ export interface SoundClock {
   foot: 0 | 1;
   siren: number | null;
   spark: number | null;
-  thunder: number;
 }
 
 type Cued = { sounds: SoundCue[]; sfx: SoundClock };
 
-const thunderGap = (random: () => number): number => THUNDER_GAP[0] + random() * (THUNDER_GAP[1] - THUNDER_GAP[0]);
-
 export function createSoundClock(): SoundClock {
   const next = seeded(SEED);
   const random = (): number => (next() + 1) / 2;
-  return { random, foot: 0, siren: null, spark: null, thunder: thunderGap(random) };
+  return { random, foot: 0, siren: null, spark: null };
 }
 
 export function explode(world: Cued): void {
@@ -60,11 +56,4 @@ export function spark(world: Cued, inside: boolean, dt: number): void {
   const [since, count] = pulses(world.sfx.spark, inside, SPARK_EVERY, dt);
   world.sfx.spark = since;
   for (let i = 0; i < count; i++) cue(world, "spark", 12000);
-}
-
-export function thunder(world: Cued, dt: number): void {
-  world.sfx.thunder -= dt;
-  if (world.sfx.thunder > EDGE) return;
-  cue(world, "thunder", 9000);
-  world.sfx.thunder += thunderGap(world.sfx.random);
 }
