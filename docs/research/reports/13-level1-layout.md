@@ -91,7 +91,7 @@ The water and plasma columns match the M13 and M15 diffs (columns 20 and 103). *
 ### Scripted blocks
 
 - **Metro tunnel.** Columns 41-55 of floor 70 have no walkable access. Use at engine x 53-57, row 64 (columns 59-63) teleports to engine x 31 (column 37) once the switchboard is wired and the train door is open. Otherwise the "no light" message plays. Use at columns 36-40 teleports back to column 60 (`5:0xDF05-0xE012`, `5:0xE369-0xE426`). **[code]**
-- **Acid guard.** While the map is not M16, a hero on floor 30 at engine x 103-119 (columns 109-125) triggers the kill clip and is pushed back one cell (`3:0xDF10-0xE429`). Lift 14 stands in that zone, so floors 16 and 10 open only after the acid. **[code]** Whether the clip kills or only hurts was not traced. **[inferred]**
+- **Acid guard.** While the map is not M16, a hero on floor 30 at engine x 103-119 (columns 109-125) triggers the kill clip and is pushed back one cell (`3:0xDF10-0xE429`). Lift 14 stands in that zone, so floors 16 and 10 open only after the acid. **[code]** The clip only hurts: a flat 5 energy per trigger (report 10, Guards drawn and firing). **[code]**
 - **Card door.** Map tile wall: the stand-row tile at column 49, row 22 is `(10,32)` (solid) in M11 and `(10,31)` (open) in M14. **[map]**
 - **Train door.** It does not block walking. It gates the tunnel teleport. **[code]**
 
@@ -203,5 +203,5 @@ Our hero falls, and floors sit 7 rows apart, the same as `fallDeathCells`: a hol
 - Item cells and record identities: HIGH. Record layout from the pickup and inventory code, identities from the use handlers.
 - Wall tile list and stand-row rule: HIGH (code). Exact stopping distance in px: MEDIUM.
 - Wall-table column equivalents: MEDIUM (whole-cell rounding of pixel offsets).
-- Acid guard zone: HIGH for the range, LOW for its effect on energy.
+- Acid guard zone: HIGH for the range and for its effect on energy (5 per trigger).
 - Floor list, fall and jump code running in level 1: HIGH (code, no level check). No ladders, stairs or ledges: HIGH (every M11 floor tile is on a plank row or the ship deck). No fall in normal play: MEDIUM (column 22 support window inferred).
