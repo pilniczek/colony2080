@@ -37,5 +37,6 @@ export function Caption({ children }: { children: ReactNode }) {
 export function Subtitle() {
   const text = useSandbox((s) => s.subtitle);
   const complete = useSandbox((s) => s.complete);
-  return text && !complete ? <Caption>{text}</Caption> : null;
+  const filming = useSandbox((s) => s.cutscene);
+  return text && !complete && !filming ? <Caption>{text}</Caption> : null;
 }

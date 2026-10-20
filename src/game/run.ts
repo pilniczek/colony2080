@@ -8,6 +8,9 @@ import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
+import { CUTSCENES } from "./cutscene";
+import { stepCutscene } from "./cutscene/play";
+import { drawSecurityCam } from "./cutscene/securityCam";
 import { createFog, loadFog } from "./fog";
 import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
@@ -90,6 +93,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
 
   let prev = { x: hero.x, y: hero.y };
   let gameWindow: Rect = { x: 0, y: 0, w: 1, h: 1 };
+  let filmWidth = 1;
+  let filming = false;
   let inputLog: string[] = [];
   let lastHeld = "";
   let lastRender = 0;
@@ -104,7 +109,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
   const fit = (): void => {
     const dpr = devicePixelRatio || 1;
     resizeCanvas(canvas, dpr);
-    const hud = hudFit(freeWidth(dpr) / dpr, canvas.height / dpr);
+    filmWidth = freeWidth(dpr);
+    const hud = hudFit(filmWidth / dpr, canvas.height / dpr);
     const r = viewRect(hud);
     gameWindow = { x: r.x * dpr, y: r.y * dpr, w: r.w * dpr, h: r.h * dpr };
     useSandbox.setState({ hud });
@@ -152,6 +158,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
       items: sameItems(tuning().items, world.inventory.items) ? tuning().items : [...world.inventory.items],
       subtitle: world.subtitle?.text ?? null,
       complete: world.complete,
+      cutscene: world.cutscene !== null,
       state: hero.state,
       time: hero.time,
       vx: hero.vx,
@@ -167,6 +174,26 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
     });
   };
 
+  const playFilm = (dt: number): void => {
+    input.frame();
+    const fresh = !filming;
+    filming = true;
+    if (fresh) input.clearPresses();
+    const skip = !fresh && (input.consume("menu") || input.consume("useItem"));
+    if (!stepCutscene(world, dt, skip)) input.clearPresses();
+    afterStep?.();
+  };
+
+  const drawFilm = (id: keyof typeof CUTSCENES, t: number): void => {
+    const film = CUTSCENES[id];
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    film.render(ctx, filmWidth, canvas.height, t);
+    drawSecurityCam(ctx, filmWidth, canvas.height, t, film.camera);
+    push();
+  };
+
   const loop = new FixedLoop({
     step: FIXED_STEP,
     maxSteps: MAX_STEPS,
@@ -174,6 +201,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
       const { movement: cfg, clips } = tuning();
       prev = { x: hero.x, y: hero.y };
       input.bufferMs = cfg.inputBufferMs;
+      if (world.cutscene) {
+        playFilm(dt);
+        return;
+      }
+      filming = false;
       if (tuning().inventory.open || tuning().mapOpen) return;
       const frame = input.frame();
       const canOpen = canOpenScreen(hero.state, tuning().recording || tuning().playing);
@@ -193,6 +225,10 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
       afterStep?.();
     },
     render(alpha) {
+      if (world.cutscene) {
+        drawFilm(world.cutscene.id, world.cutscene.t);
+        return;
+      }
       const { movement: cfg, clips, overlays } = tuning();
       const shown = { ...hero, x: lerp(prev.x, hero.x, alpha), y: lerp(prev.y, hero.y, alpha) };
       const look = heroLook(hero, clips, rigs, hold, cfg);

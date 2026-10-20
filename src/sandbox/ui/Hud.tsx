@@ -48,10 +48,12 @@ export function Hud() {
   const weapon = useSandbox((s) => s.weapon);
   const running = useSandbox((s) => s.running);
   const item = useSandbox((s) => s.item);
+  const filming = useSandbox((s) => s.cutscene);
   const svg = useMemo(
     () => hudSvg(fit.W, fit.H, hudState({ energy, max, shields, ammo, blaster, weapon, running, item }), icons, KEYS),
     [fit.W, fit.H, energy, shields, ammo, blaster, max, weapon, running, item, icons],
   );
+  if (filming) return null;
   return (
     <div
       style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none" }}
