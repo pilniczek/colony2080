@@ -363,16 +363,17 @@ function securityCam(ctx, w, h, t, label) {
   const caps = ctx.measureText("REC");
   const lift = (caps.actualBoundingBoxAscent - caps.actualBoundingBoxDescent) / 2;
   const radius = size * 0.32;
+  const recX = right - caps.width;
   if (Math.floor(t * 2) % 2 === 0) {
     ctx.fillStyle = CAM.rec;
     ctx.beginPath();
-    ctx.arc(left + radius, top, radius, 0, Math.PI * 2);
+    ctx.arc(recX - size * 0.3 - radius, top, radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = CAM.text;
   }
-  ctx.fillText("REC", left + radius * 2 + size * 0.3, top + lift);
+  ctx.fillText(label, left, top + lift);
   ctx.textAlign = "right";
-  ctx.fillText(label, right, top + lift);
+  ctx.fillText("REC", right, top + lift);
   ctx.fillText(camClock(t), right, bottom + lift);
   corners(ctx, r, u);
   ctx.restore();
