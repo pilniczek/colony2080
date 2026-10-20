@@ -1,5 +1,7 @@
 import { isCutsceneId, type CutsceneId } from "../cutscene";
 import { ITEMS, type ItemId } from "../items";
+import { cue } from "../sound/cues";
+import { OPEN_RATE, OPEN_SOUND } from "../sound/props";
 import { pickUp, useShown, type Prop, type SandboxWorld } from "./sandboxLevel";
 
 export interface Task {
@@ -99,8 +101,15 @@ export function applyBlocks(world: SandboxWorld): void {
   }
 }
 
+function moveProp(world: SandboxWorld, prop: Prop, state: number): void {
+  if ((prop.state ?? 0) === state) return;
+  prop.state = state;
+  const sound = prop.asset && OPEN_SOUND[prop.asset];
+  if (sound) cue(world, sound, OPEN_RATE[sound]!);
+}
+
 function setState(world: SandboxWorld, id: string, state: number): void {
-  for (const prop of world.props) if (prop.id === id) prop.state = state;
+  for (const prop of world.props) if (prop.id === id) moveProp(world, prop, state);
 }
 
 export const openTask = (world: SandboxWorld, prop: Prop): Task | undefined => open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
@@ -121,7 +130,7 @@ export function runUse(world: SandboxWorld, prop: Prop): void {
     else pickUp(world, item);
   }
   world.flags.add(doneToken(task));
-  if (task.state !== undefined) prop.state = task.state;
+  if (task.state !== undefined) moveProp(world, prop, task.state);
   for (const [id, state] of Object.entries(task.sets ?? {})) setState(world, id, state);
   applyBlocks(world);
   say(world, task.subtitle);

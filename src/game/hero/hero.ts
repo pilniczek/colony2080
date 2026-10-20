@@ -6,6 +6,9 @@ import { ITEMS } from "../items";
 import { callLift, fallLimit, floorsOf, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { openTask, runUse, say } from "../level/tasks";
 import { padUnder, ridePad } from "../level/teleports";
+import { cue } from "../sound/cues";
+import { step as footsteps } from "../sound/triggers";
+import { footContacts } from "./gait";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
@@ -42,7 +45,7 @@ export interface Landing {
   age: number;
 }
 
-export type HeroEvent = { kind: "pickup" | "use" | "shot" | "beam" | "punch" | "died" | "respawned"; x: number; y: number };
+export type HeroEvent = { kind: "pickup" | "use" | "shot" | "beam" | "punch" | "shield" | "died" | "respawned"; x: number; y: number };
 
 interface Step {
   h: Hero;
@@ -229,6 +232,7 @@ function spend(h: Hero, cfg: MovementConfig, amount: number, events: HeroEvent[]
   if (h.shields > 0) {
     h.shields -= 1;
     h.energy = cfg.energy.max;
+    events.push({ kind: "shield", x: h.x, y: h.y });
   } else die(h, deathOf(h), events);
 }
 
@@ -278,9 +282,11 @@ function shoot(s: Step): void {
   const { h } = s;
   if (h.weapon === "blaster") {
     h.blaster = ammoOf(h, "blaster") - 1;
+    cue(s.world, "beam", 8000);
     return emit(s, "beam");
   }
   h.ammo -= 1;
+  cue(s.world, "gunShot", 15000);
   emit(s, "shot");
 }
 
@@ -401,6 +407,7 @@ function padPress(s: Step): boolean {
   if (!pad) return false;
   s.consume("up");
   ridePad(s.h, pad);
+  cue(s.world, "teleport", 13000);
   halt(s.h);
   return true;
 }
@@ -408,7 +415,11 @@ function padPress(s: Step): boolean {
 function rideLift({ h, world, cfg }: Step, dir: -1 | 1): boolean {
   const lift = h.onLift ? liftAt(world, h, cfg) : null;
   if (!lift || !liftGoes(lift, dir) || !onDeck(h.x, lift, cfg)) return false;
-  if (callLift(lift, dir, world.flags)) return true;
+  const resting = lift.target === null;
+  if (callLift(lift, dir, world.flags)) {
+    if (resting) cue(world, "liftStart", 8000);
+    return true;
+  }
   if (lift.hint) say(world, lift.hint);
   return false;
 }
@@ -513,12 +524,18 @@ function weaponSwitch(s: Step): void {
 function quickSwitch(s: Step): void {
   const { h } = s;
   if (isDead(h.state) || h.state === "weaponSwitch") return;
-  if (emptyWeapon(h)) arm(h, fallbackWeapon(h));
+  if (emptyWeapon(h)) {
+    arm(h, fallbackWeapon(h));
+    click(s);
+  }
   const slot = weaponSlot(s);
   if (!slot || slot === h.weapon) return;
+  click(s);
   if (h.state === "hide") switchWeapon(s, slot);
   else arm(h, slot);
 }
+
+const click = (s: Step): void => cue(s.world, "click", 20000, 45, "ui");
 
 function arm(h: Hero, weapon: Weapon): void {
   h.weapon = weapon;
@@ -617,7 +634,9 @@ function clipEvents(s: Step): void {
     if (!(clip.loop ? crossedLoop(s, t, clip.duration) : crossed(s, t))) continue;
     if (name === "pickup") pickup(s);
     if (name === "use") press(s);
-    if (name === "punch") emit(s, "punch");
+    if (name !== "punch") continue;
+    cue(s.world, "punch", 13000);
+    emit(s, "punch");
   }
 }
 
@@ -662,6 +681,7 @@ function settle(s: Step, startY: number): void {
   }
   if (!isAirborne(h.state)) return;
   if (!world.immortal && h.y - h.fallFrom > fallLimit(world, cfg)) return die(h, "fallDeath", s.events);
+  cue(world, "land", 8500, 44);
   const landing = { from: h.state, time: h.time, age: 0 };
   if (h.fireTime !== null && s.input.held.has("down")) return enter(h, "duckAttack");
   if (h.fireTime !== null && s.input.dir === 0) return enter(h, "attack");
@@ -680,6 +700,13 @@ function resumeGait(s: Step, landing: Landing): void {
   if (!from || !isGait(h.state)) return;
   const u = (h.gaitTime + landing.time) / from.duration;
   h.time = (u - Math.floor(u)) * clipOf(s).duration;
+}
+
+function stepSounds(s: Step): void {
+  const { h } = s;
+  if (!isGait(h.state) || h.fireTime !== null) return;
+  const { duration } = clipOf(s);
+  footsteps(s.world, footContacts(s.prev / duration, h.time / duration));
 }
 
 function slide(s: Step): number {
@@ -728,6 +755,7 @@ export function updateHero(
   consume: (action: string) => boolean,
 ): HeroEvent[] {
   const s: Step = { h, input, world, cfg, clips, dt, consume, prev: h.time, events: [] };
+  const before = h.state;
   h.time += dt * h.rate;
   if (h.hitAge !== null) h.hitAge += dt;
   if (h.landing) h.landing.age += dt;
@@ -743,6 +771,7 @@ export function updateHero(
     physics(s);
     settle(s, startY);
   }
+  if (h.state === before) stepSounds(s);
   projectileHits(s);
   return s.events;
 }

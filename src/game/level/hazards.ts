@@ -29,6 +29,9 @@ export function stepHazards(world: SandboxWorld, h: Hero, cfg: MovementConfig, d
   }
 }
 
+export const inSparks = (world: SandboxWorld, h: Hero): boolean =>
+  live(world, h) && world.hazards.some((z) => z.sound === "spark" && inside(z, footCell(h)));
+
 export function conveyorVx(world: SandboxWorld, h: Hero): number {
   if (!live(world, h) || !h.onGround || h.onLift) return 0;
   const col = Math.floor(h.x);

@@ -51,6 +51,8 @@ export const WALK: Gait = {
   landing: { lead: 0.1, rise: 20 },
 };
 
+export const footContacts = (prev: number, next: number): number => Math.max(0, Math.floor(next * 2) - Math.floor(prev * 2));
+
 const cycle = (p: number): number => (((p / TAU) % 1) + 1) % 1;
 const stepPhase = (u: number): number => (u * 2) % 1;
 const lowPhase = (g: Gait): number => (2 * g.stance * g.reach) % 1;

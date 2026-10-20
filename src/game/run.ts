@@ -4,7 +4,7 @@ import controls from "@config/controls.json";
 import cameraJson from "@config/camera.json";
 import { createElement, Fragment, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import { createMixer } from "../engine/audio/mixer";
+import { createMixer, type SoundCue } from "../engine/audio/mixer";
 import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
@@ -36,6 +36,7 @@ import { drawScene, viewCells, visibleEnemies } from "./render/scene";
 import { snapView } from "./render/snapView";
 import { samplesOf } from "./sound";
 import { saveSoundOn } from "./sound/settings";
+import { openInventory } from "./sound/ui";
 import { holdPoses } from "./robot/gun";
 import { stepWorld } from "./stepWorld";
 
@@ -50,6 +51,7 @@ const PICTURE_W = 96;
 const PICTURE_QUALITY = 0.6;
 const HEAD_GAP = 0.25;
 const FILM_PRELOAD_MS = 1000;
+const SOUND_LOG_SIZE = 50;
 
 export interface RunStart {
   weapon: Weapon;
@@ -65,6 +67,7 @@ export interface Run {
   loop: FixedLoop;
   restart(start: RunStart): void;
   applyFog(on: boolean): void;
+  soundLog(): SoundCue[];
 }
 
 export interface RunOptions {
@@ -124,8 +127,14 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
   window.addEventListener("keydown", soundKey, { capture: true });
 
+  let soundLog: SoundCue[] = [];
+  const play = (sound: SoundCue): void => {
+    soundLog = [...soundLog, sound].slice(-SOUND_LOG_SIZE);
+    mixer.play(sound);
+  };
+
   const drainSounds = (): void => {
-    for (const sound of world.sounds.splice(0)) mixer.play(sound);
+    for (const sound of world.sounds.splice(0)) play(sound);
   };
 
   let prev = { x: hero.x, y: hero.y };
@@ -267,6 +276,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         prev = { x: hero.x, y: hero.y };
       },
       leave: (href) => location.assign(href),
+      playUi: play,
       bodyAt: () => {
         if (!lastView) return null;
         const { cellPx } = tuning().movement;
@@ -304,6 +314,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         return;
       }
       if (input.consume("inventory") && canOpen) {
+        openInventory({ stopAll: (bus) => mixer.stopAll(bus), play });
         useSandbox.setState({ inventory: { open: true, cursor: openCursor(world.inventory.items, world.inventory.shown) } });
         return;
       }
@@ -450,5 +461,5 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   loop.start();
 
   createRoot(ui).render(createElement(Fragment, null, tree, createElement(CheatInput, { onCode: enterCheat, onClose: closeCheat })));
-  return { world, hero, input, loop, restart, applyFog };
+  return { world, hero, input, loop, restart, applyFog, soundLog: () => soundLog };
 }

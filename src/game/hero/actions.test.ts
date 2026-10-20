@@ -381,7 +381,7 @@ describe("damage", () => {
     const g = game();
     g.hero.shields = 2;
     g.hero.energy = cfg.energy.hit;
-    expect(damage(g.hero, cfg)).toEqual([]);
+    expect(damage(g.hero, cfg).map((e) => e.kind)).toEqual(["shield"]);
     expect(g.hero).toMatchObject({ state: "idle", energy: cfg.energy.max, shields: 1 });
   });
 

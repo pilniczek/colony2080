@@ -58,6 +58,7 @@ export function missionJson(id: MissionId): SandboxJson {
   if (id === "mesto") return mestoJson();
   const map = MAPS[id];
   return {
+    mission: id,
     rows: map.rows,
     spawn: [map.spawn[0]!, map.spawn[1]!],
     sky: WORLDS[id].sky,

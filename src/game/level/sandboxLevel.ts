@@ -5,10 +5,12 @@ import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
 import { isAssetId, type AssetId } from "../env/assets";
 import { createFog, type Fog } from "../fog";
+import { createSoundClock, type SoundClock } from "../sound/triggers";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { ITEMS, type ItemId } from "../items";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
+import type { MissionId } from "./missionIds";
 import type { PropFire } from "./guards";
 import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
 import { terrain, type Rect as CellRect } from "./terrain";
@@ -86,6 +88,7 @@ export interface Hazard {
   h: number;
   perSecond?: number;
   push?: number;
+  sound?: "spark";
 }
 
 export interface Conveyor {
@@ -111,6 +114,7 @@ export interface CellPatch {
 }
 
 export interface SandboxWorld {
+  mission: MissionId | null;
   grid: TileGrid;
   fallDeathCells: number | null | undefined;
   hazards: Hazard[];
@@ -139,6 +143,7 @@ export interface SandboxWorld {
   complete: boolean;
   immortal: boolean;
   sounds: SoundCue[];
+  sfx: SoundClock;
   source: SandboxJson;
 }
 
@@ -157,6 +162,7 @@ export interface LiftJson {
 }
 
 export interface SandboxJson {
+  mission?: MissionId;
   rows: string[];
   spawn: [number, number];
   sky: string;
@@ -215,6 +221,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     ...(lift.hint === undefined ? {} : { hint: lift.hint }),
   }));
   const world: SandboxWorld = {
+    mission: data.mission ?? null,
     grid,
     fallDeathCells: data.fallDeathCells,
     hazards: structuredClone(data.hazards ?? []),
@@ -243,6 +250,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     complete: false,
     immortal: false,
     sounds: [],
+    sfx: createSoundClock(),
     source: data,
   };
   applyBlocks(world);

@@ -28,6 +28,7 @@ export function originalOverlay(run: Run, mission: MissionId): DrawOver {
     __flag: (name: string) => run.world.flags.add(`flag:${name}`),
     __give: (item: ItemId) => pickUp(run.world, item),
     __kill: () => kill(run.hero),
+    __sounds: () => run.soundLog(),
     __state: () => ({ x: run.hero.x, y: run.hero.y, state: run.hero.state, flags: [...run.world.flags], shown: run.world.inventory.shown }),
   });
   return (ctx, view, cellPx) => {

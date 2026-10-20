@@ -11,6 +11,8 @@ import { startFilm, type Prop, type SandboxWorld } from "./level/sandboxLevel";
 import { gunOf, updateGuard, watchX } from "./level/guards";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
+import { cue } from "./sound/cues";
+import { explode } from "./sound/triggers";
 import { ROBOT } from "./robot/xbot";
 
 const DEG = Math.PI / 180;
@@ -90,6 +92,7 @@ export function hitShootable(world: SandboxWorld, prop: Prop): void {
   if (prop.hitsTaken < spec.hits) return;
   prop.state = spec.state;
   prop.brokenAge = 0;
+  if (prop.fires) explode(world);
   for (const flag of spec.gives ?? []) world.flags.add(flag);
   applyBlocks(world);
   if (spec.subtitle) say(world, spec.subtitle);
@@ -116,6 +119,10 @@ function nearestProp(world: SandboxWorld, from: number, p: Projectile, edge: num
   return best;
 }
 
+function harm(world: SandboxWorld, enemy: Enemy, damage: number, react?: boolean): void {
+  if (hitEnemy(enemy, damage, react) && isDead(enemy)) explode(world);
+}
+
 function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Projectile, edge: number, damage = 1, shots = false, span?: Span): boolean {
   let struck: { enemy: Enemy; face: number } | null = null;
   for (const enemy of world.enemies) {
@@ -130,7 +137,7 @@ function strike(world: SandboxWorld, cfg: MovementConfig, from: number, p: Proje
     return true;
   }
   if (!struck) return false;
-  hitEnemy(struck.enemy, damage);
+  harm(world, struck.enemy, damage);
   world.sparks.push({ x: struck.face, y: p.y, age: 0 });
   return true;
 }
@@ -185,7 +192,7 @@ function burn(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig)
   for (const enemy of world.enemies) {
     const face = enemyFace(enemy, cfg, h.x, ray);
     if (face === null) continue;
-    hitEnemy(enemy, cfg.blaster.damage, !world.beamHits.has(enemy));
+    harm(world, enemy, cfg.blaster.damage, !world.beamHits.has(enemy));
     if (!isDead(enemy)) burned.add(enemy);
     world.sparks.push({ x: ahead(h.facing, line.x, face), y: line.y, age: 0 });
   }
@@ -221,13 +228,20 @@ export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], c
 const enemyMuzzle = ({ body, flight }: Enemy, clips: ClipSet, cfg: MovementConfig): Pt =>
   flight ? [body.x + body.facing * FLYER_GUN[0], body.y + FLYER_GUN[1]] : heroMuzzle(body, clips, cfg);
 
-function enemyShot(world: SandboxWorld, cfg: MovementConfig, from: number, [x, y]: Pt, facing: number): void {
-  if (!seen(world, x, y)) return;
+function enemyShot(world: SandboxWorld, cfg: MovementConfig, from: number, [x, y]: Pt, facing: number): boolean {
+  if (!seen(world, x, y)) return false;
   launch(world, cfg, from, { x: from, y, vx: facing * cfg.shot.speed, r: cfg.shot.radius, tag: ENEMY_SHOT, originX: x, endX: from + facing * cfg.sightCells });
+  return true;
 }
 
+const shotSound = (world: SandboxWorld, enemy: Enemy): "laser" | "cannon" | null =>
+  enemy.flight ? "laser" : world.mission === "mesto" ? null : "cannon";
+
 export function fireEnemy(world: SandboxWorld, cfg: MovementConfig, clips: ClipSet, enemy: Enemy, count: number): void {
-  for (let i = 0; i < count; i++) enemyShot(world, cfg, enemy.body.x, enemyMuzzle(enemy, clips, cfg), enemy.body.facing);
+  const sound = shotSound(world, enemy);
+  for (let i = 0; i < count; i++) {
+    if (enemyShot(world, cfg, enemy.body.x, enemyMuzzle(enemy, clips, cfg), enemy.body.facing) && sound) cue(world, sound, 15000);
+  }
 }
 
 export function fireGuards(world: SandboxWorld, hero: Hero, cfg: MovementConfig, dt: number): void {

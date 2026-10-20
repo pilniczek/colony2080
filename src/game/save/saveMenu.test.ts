@@ -1,5 +1,6 @@
 import controls from "@config/controls.json";
 import { beforeEach, describe, expect, it } from "vitest";
+import type { SoundCue } from "../../engine/audio/mixer";
 import { Input } from "../../engine/input";
 import { useSandbox } from "../../sandbox/store";
 import { createHero, kill, type Hero } from "../hero/hero";
@@ -9,6 +10,7 @@ import { pickUp, type SandboxWorld } from "../level/sandboxLevel";
 import { createSaveMenu, gameOverDue, latestLoadable, PROBLEMS, SAVE_FAILED, type SaveMenuDeps } from "./saveMenu";
 import { slotName, writeSlot, type SlotEntry } from "./slots";
 import { takeSnapshot } from "./snapshot";
+import { MENU_CUE } from "../sound/ui";
 
 const DT = 1 / 60;
 
@@ -32,6 +34,7 @@ interface Rig {
   input: Input;
   storage: Storage;
   left: string[];
+  played: SoundCue[];
   press(code: string, key?: string, extra?: Partial<KeyboardEvent>): { prevented: boolean };
   menu: ReturnType<typeof createSaveMenu>;
 }
@@ -42,6 +45,7 @@ function rig(storage: Storage = memory(), startSlot: number | null = null): Rig 
   const input = new Input(controls.keyboard, () => 0, 150);
   let handler: (e: KeyboardEvent) => void = () => {};
   const left: string[] = [];
+  const played: SoundCue[] = [];
   const deps: SaveMenuDeps = {
     mission: "mesto",
     storage,
@@ -55,6 +59,7 @@ function rig(storage: Storage = memory(), startSlot: number | null = null): Rig 
     moved: () => {},
     leave: (href) => void left.push(href),
     bodyAt: () => ({ x: 40, y: 50 }),
+    playUi: (cue) => void played.push(cue),
     target: { addEventListener: ((_: string, h: (e: KeyboardEvent) => void) => (handler = h)) as Window["addEventListener"] },
   };
   const menu = createSaveMenu(deps);
@@ -63,7 +68,7 @@ function rig(storage: Storage = memory(), startSlot: number | null = null): Rig 
     handler({ code, key, repeat: false, ctrlKey: false, metaKey: false, altKey: false, preventDefault: () => (prevented = true), stopImmediatePropagation: () => {}, ...extra } as KeyboardEvent);
     return { prevented };
   };
-  return { world, hero, input, storage, left, press, menu };
+  return { world, hero, input, storage, left, played, press, menu };
 }
 
 const saveOf = (r: Rig, savedAt: number, change: (h: Hero) => void = () => {}): SlotEntry => {
@@ -173,6 +178,27 @@ describe("save menu", () => {
     expect(r.press("ArrowLeft").prevented).toBe(false);
     expect(r.press("KeyC", "c", { ctrlKey: true }).prevented).toBe(false);
     expect(useSandbox.getState().menu).toMatchObject({ typing: "x" });
+  });
+
+  it("clicks on pause menu and game over moves and confirms, not on Esc or typing", () => {
+    const r = rig();
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    r.press("ArrowDown");
+    r.press("ArrowUp");
+    r.press("Enter");
+    expect(r.played).toEqual([MENU_CUE, MENU_CUE, MENU_CUE]);
+    expect(MENU_CUE).toEqual({ id: "click", rate: 5500, vol: 33, bus: "ui" });
+    r.press("Enter");
+    r.press("KeyX", "x");
+    r.press("Escape");
+    expect(r.played).toHaveLength(4);
+    const over = rig();
+    die(over);
+    over.menu.step(DT);
+    over.press("ArrowUp");
+    over.press("Enter");
+    expect(over.played).toEqual([MENU_CUE, MENU_CUE]);
   });
 
   it("asks before leaving for mission select", () => {

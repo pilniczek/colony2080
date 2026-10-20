@@ -1,15 +1,18 @@
+import type { SoundCue } from "../../engine/audio/mixer";
 import type { Bindings, Input } from "../../engine/input";
 import { useSandbox } from "../../sandbox/store";
 import type { MovementConfig } from "../hero/config";
 import { isDead, type Hero } from "../hero/hero";
 import { gameOverState, menuKey, type MenuResult, type MenuState } from "../hud/menuKeys";
 import type { SandboxWorld } from "../level/sandboxLevel";
+import { MENU_CUE } from "../sound/ui";
 import { readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
 import { checkSnapshot, loadSnapshot, takeSnapshot, type SaveProblem } from "./snapshot";
 
 const HOME = "index.html";
 const MENU_ACTIONS = ["up", "down", "useItem", "menu"];
 const REPEATING = ["up", "down"];
+const CLICKING = ["up", "down", "useItem"];
 export const SAVED = "Saved.";
 export const SAVE_FAILED = "Save failed.";
 export const PROBLEMS: Record<SaveProblem, string> = {
@@ -33,6 +36,7 @@ export interface SaveMenuDeps extends SaveMenuOptions {
   moved: () => void;
   leave: (href: string) => void;
   bodyAt: () => { x: number; y: number } | null;
+  playUi?: (cue: SoundCue) => void;
   target?: Pick<Window, "addEventListener">;
 }
 
@@ -119,6 +123,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     e.preventDefault();
     e.stopImmediatePropagation();
     if (e.repeat && !bound(e.code, REPEATING) && e.code !== "Backspace") return;
+    if (bound(e.code, CLICKING)) d.playUi?.(MENU_CUE);
     act(menuKey(state, { code: e.code, key: e.key }, slots(), d.mission, d.keys));
   };
   (d.target ?? window).addEventListener("keydown", onKey as EventListener, { capture: true });

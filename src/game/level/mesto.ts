@@ -36,6 +36,7 @@ export const FLYER: DroidTuning = { ...DROID, flight: (sandbox.enemies.find((e) 
 export function mestoJson(): SandboxJson {
   return {
     ...world,
+    mission: "mesto",
     props: world.props as SandboxJson["props"],
     rows: map.rows,
     lifts: map.lifts as SandboxJson["lifts"],
