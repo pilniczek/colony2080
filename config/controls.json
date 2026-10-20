@@ -8,7 +8,7 @@
     "down": ["ArrowDown"],
     "runToggle": ["AltLeft", "AltRight"],
     "shoot": ["ControlLeft", "ControlRight"],
-    "hide": ["ShiftLeft", "ShiftRight"],
+    "hide": ["KeyX"],
     "pickUp": ["ArrowDown", "Enter"],
     "useItem": ["Enter"],
     "inventory": ["KeyI"],

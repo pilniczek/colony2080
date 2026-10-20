@@ -590,7 +590,7 @@ function crowbarScene(c, doorT, pose) {
 }
 move("interaction", "Use crowbar", "Enter at door, plays cutscene", ...triggering(CUTSCENES.crowbarDoor, CROWBAR_LEAD, c => crowbarScene(c, 0, crowbarRest()), CROWBAR_TAIL, c => crowbarScene(c, CUTSCENES.crowbarDoor.duration, crowbarRest())));
 
-move("movement", "Hide", "Shift, front view + tint", 4, (c, t) => {
+move("movement", "Hide", "X, front view + tint", 4, (c, t) => {
   backdrop(c);
   barrel(c, 214, FLOOR, 40, 62);
   box(c, 96, FLOOR, 44, 44);
