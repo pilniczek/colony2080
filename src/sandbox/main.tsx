@@ -6,6 +6,7 @@ import { damage, kill } from "../game/hero/hero";
 import { loadSandbox } from "../game/level/sandboxLevel";
 import { startRun, type Run, type RunStart } from "../game/run";
 import { blasterAmmo, useSandbox } from "./store";
+import { Subtitle } from "../play/Subtitle";
 import { Hud } from "./ui/Hud";
 import { InventoryScreen } from "./ui/InventoryScreen";
 import { Panel, type SandboxCommands } from "./ui/Panel";
@@ -76,6 +77,7 @@ const run: Run = startRun({
   ui: (
     <>
       <Hud />
+      <Subtitle />
       <InventoryScreen />
       <Panel commands={commands} />
     </>
