@@ -333,13 +333,18 @@ describe("sandbox flyer", () => {
     }
   });
 
-  it("climbs back to its hover when the hero hides during the dive", () => {
+  it("dives on to gun height when the hero hides during the dive", () => {
     const g = game({ x: 39.5, y: floor });
     const e = flyerOf(g);
     run(g, 0.2);
     expect(liftOf(e)).toBeGreaterThan(flight.aimLift);
-    run(g, 1.5, ["hide"]);
-    expect(Math.abs(liftOf(e) - flight.hoverLift)).toBeLessThanOrEqual(flight.wave.cells + 1e-9);
+    let last = liftOf(e);
+    for (let i = 0; i < 1.5 / dt; i++) {
+      tick(g, ["hide"]);
+      expect(liftOf(e)).toBeLessThanOrEqual(last + 1e-9);
+      last = liftOf(e);
+    }
+    expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
   });
 
   it("hovers again after it respawns", () => {
