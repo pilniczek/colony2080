@@ -75,6 +75,7 @@ export interface Enemy {
   patrol: [number, number];
   deadAge: number | null;
   alertAge: number | null;
+  tracking: boolean;
   pauseLeft: number;
   flight: Flight | null;
 }
@@ -144,6 +145,7 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
     body: spawnBody(base),
     deadAge: null,
     alertAge: null,
+    tracking: false,
     pauseLeft: 0,
   };
 }
@@ -180,6 +182,15 @@ export function seesHero({ x, ground, facing }: Watch, grid: TileGrid, hero: Her
 
 const sees = (e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean =>
   seesHero({ x: e.body.x, ground: ground(e), facing: e.body.facing }, grid, hero, fog, sightCells);
+
+const inReach = (e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean =>
+  hero.x !== e.body.x && seesHero({ x: e.body.x, ground: ground(e), facing: hero.x > e.body.x ? 1 : -1 }, grid, hero, fog, sightCells);
+
+function track(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): void {
+  if (sees(e, grid, hero, fog, sightCells)) e.tracking = true;
+  else if (e.tracking && inReach(e, grid, hero, fog, sightCells)) e.alertAge ??= 0;
+  else e.tracking = false;
+}
 
 export function burstStep(time: number, dt: number, burst: Burst): { time: number; fired: number; done: boolean } {
   const rate = (burst.shots - 1) / (burst.ms / 1000);
@@ -247,9 +258,11 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
     e.body = spawnBody(e);
     e.deadAge = null;
     e.alertAge = null;
+    e.tracking = false;
     e.pauseLeft = 0;
     return 0;
   }
+  track(e, grid, hero, fog, cfg.sightCells);
   if (e.alertAge !== null && (e.alertAge += dt) * 1000 >= e.reactMs - 1e-6) {
     if (hero.x !== e.body.x) e.body.facing = hero.x > e.body.x ? 1 : -1;
     e.alertAge = null;

@@ -162,6 +162,40 @@ describe("sandbox enemy", () => {
     expect(enemyShots(g)).toHaveLength(1);
   });
 
+  const seenThenBehind = (behind: number, hide = false): { g: Game; enemy: Enemy } => {
+    const g = game({ x: 9.5, y: 4 });
+    facingRight(g, 5.5);
+    tick(g);
+    const [enemy] = g.world.enemies as [Enemy];
+    expect(enemy.body.state).toBe("attack");
+    Object.assign(g.hero, { x: behind, hidden: hide, state: hide ? "hide" : "idle" });
+    return { g, enemy };
+  };
+
+  it("turns after a hero it saw that runs past behind it and shoots again", () => {
+    const { g, enemy } = seenThenBehind(3.5);
+    run(g, sandbox.enemies[0]!.reactMs / 1000 + 2 * dt);
+    expect(enemy.body.facing).toBe(-1);
+    run(g, 0.1);
+    expect(enemyShots(g).some((p) => p.vx < 0)).toBe(true);
+  });
+
+  it("does not follow a hero that hides behind it", () => {
+    const { g, enemy } = seenThenBehind(3.5, true);
+    for (let i = 0; i < 0.5 / dt; i++) tick(g, ["hide"]);
+    expect(enemy.body.facing).toBe(1);
+  });
+
+  it("forgets a hero that leaves its range", () => {
+    const { g, enemy } = seenThenBehind(3.5);
+    Object.assign(g.hero, { x: 3.5, y: 14 });
+    tick(g);
+    expect(enemy.tracking).toBe(false);
+    Object.assign(g.hero, { x: 3.5, y: 4 });
+    for (let i = 0; i < 0.5 / dt; i++) updateEnemy(enemy, g.world.grid, null, g.hero, clips, cfg, dt);
+    expect(enemy.body.facing).toBe(1);
+  });
+
   it("walks on the way it turned when the hero is out of sight", () => {
     const g = game({ x: 3.5 + cfg.sightCells + 1, y: 4 });
     const [enemy] = g.world.enemies as [Enemy];

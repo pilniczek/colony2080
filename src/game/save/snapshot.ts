@@ -6,7 +6,7 @@ import type { Enemy } from "../level/enemy";
 import { resetWorld, type Inventory, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { applyBlocks } from "../level/tasks";
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 const PROP_TYPES = { taken: "boolean", on: "boolean", state: "number", hitsTaken: "number", fireTime: "number", pauseLeft: "number", brokenAge: "number" } as const;
 const PROP_FIELDS = Object.keys(PROP_TYPES) as (keyof typeof PROP_TYPES)[];
