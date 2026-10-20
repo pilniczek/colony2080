@@ -590,6 +590,93 @@ function crowbarScene(c, doorT, pose) {
 }
 move("interaction", "Use crowbar", "Enter at door, plays cutscene", ...triggering(CUTSCENES.crowbarDoor, CROWBAR_LEAD, c => crowbarScene(c, 0, crowbarRest()), CROWBAR_TAIL, c => crowbarScene(c, CUTSCENES.crowbarDoor.duration, crowbarRest())));
 
+if (CATEGORY === "interaction") {
+  const FILM_LEAD = 1.2;
+  const FILM_TAIL = 1;
+  const ENV_K = FOOT_Y * K / (1.9 * ENV.TILE);
+  const ASSET_X = 236;
+
+  function prop(c, id, state, x = ASSET_X, room = [170, 200]) {
+    const asset = ENV.ASSETS.find(a => a.id === id);
+    const [x0, y0, x1, y1] = asset.box;
+    const k = Math.min(ENV_K, room[0] / (x1 - x0), room[1] / (y1 - y0));
+    c.save();
+    c.translate(x - (x0 + x1) / 2 * k, FLOOR - Math.max(0, y1) * k);
+    c.scale(k, k);
+    ENV.draw(c, asset, { state, lod: true, lines: LINE / k });
+    c.restore();
+  }
+
+  function useLead(id, from, to) {
+    const scene = (c, t, state) => {
+      backdrop(c);
+      prop(c, id, state);
+      const rest = crowbarRest();
+      const reach = armed() ? { ...rest, armFar: REACH.arm, foreFar: REACH.fore } : REACH;
+      const pose = t === null ? rest : keyed([[0, rest], [ACTION_TIME.in, reach], [FILM_LEAD, reach]], t);
+      shadow(c, 140, FLOOR, 30);
+      bot(c, { x: 140, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
+    };
+    return [c => scene(c, null, to), (c, t) => scene(c, t, from)];
+  }
+
+  function pickLead(id, state) {
+    const scene = (c, t) => {
+      backdrop(c);
+      const [rest, kneel] = armed() ? [carry(STAND), KNEEL_ARMED] : [STAND, KNEEL];
+      const pose = t === null ? rest : keyed([[0, rest], [ACTION_TIME.in, kneel], [FILM_LEAD, kneel]], t);
+      shadow(c, KNEEL_X, FLOOR, 30);
+      if (t !== null) prop(c, id, state, kneelGrip()[0] + 18);
+      bot(c, { x: KNEEL_X, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
+    };
+    return [c => scene(c, null), scene];
+  }
+
+  function standLead(id, from, to, text) {
+    const scene = (c, state) => {
+      backdrop(c);
+      prop(c, id, state);
+      shadow(c, 120, FLOOR, 30);
+      bot(c, { x: 120, y: FLOOR, pose: crowbarRest(), hold: false, hooks: armed() ? { hand: gun } : {} });
+      label(c, text);
+    };
+    return [c => scene(c, to), c => scene(c, from)];
+  }
+
+  function blankLead(text) {
+    const scene = c => {
+      c.fillStyle = "#000";
+      c.fillRect(0, 0, W, H);
+      label(c, text);
+    };
+    return [scene, scene];
+  }
+
+  const FILMS = [
+    ["New game", "Mission start", "missionStart", blankLead("NEW GAME")],
+    ["Come near the rebel", "Walk up to him, plays cutscene", "rebelShot", standLead("dyingRebel", 0, 0, "COMES NEAR")],
+    ["Talk to the rebel", "Enter at the rebel, plays cutscene", "talkRebel", useLead("dyingRebel", 0, 1)],
+    ["Pick up crowbar", "Down on item, plays cutscene", "pickCrowbar", pickLead("crowbar", 0)],
+    ["Pull wires", "Enter at wire box, plays cutscene", "pullWires", useLead("wireBox", 0, 1)],
+    ["Wire switchboard", "Enter at switchboard, plays cutscene", "wireSwitchboard", useLead("switchboard", 0, 1)],
+    ["Pick up E-Blaster", "Down on item, plays cutscene", "pickEBlaster", pickLead("eBlaster", 0)],
+    ["Take tap handle", "Enter at valve, plays cutscene", "takeTapHandle", useLead("tapValveWheel", 0, 1)],
+    ["Search corpse", "Enter at corpse, plays cutscene", "searchCorpse", useLead("corpse", 0, 1)],
+    ["Show holo plan", "Enter at bar door, plays cutscene", "tradeHoloPlan", useLead("barDoor", 0, 0)],
+    ["Shoot hull cover", "Shoot the ship, plays cutscene", "hullCover", standLead("crashedShip", 0, 1, "HULL HIT")],
+    ["Pick up ship part", "Down on item, plays cutscene", "pickShipPart", pickLead("shipPart", 1)],
+    ["Hand in ship part", "Enter at bar door, plays cutscene", "tradeShipPart", useLead("barDoor", 0, 0)],
+    ["Decode plasma lock", "Enter at code lock, plays cutscene", "unlockPlasma", useLead("codeLock", 0, 1)],
+    ["Pick up controller", "Down on item, plays cutscene", "pickController", pickLead("controller", 0)],
+    ["Repair lift", "Enter at lift panel, plays cutscene", "repairLift", useLead("liftPanel", 1, 0)],
+    ["Open card door", "Enter at door, plays cutscene", "openDoor", useLead("cardDoor", 0, 1)],
+    ["Use acid tank", "Enter at tank, plays cutscene", "useAcidTank", useLead("acidTank", 0, 2)],
+    ["Pick up crane key", "Down on item, plays cutscene", "pickCraneKey", pickLead("craneKey", 0)],
+    ["Repair crane", "Enter at crane, plays cutscene", "repairCrane", useLead("crane", 0, 1)]
+  ];
+  for (const [name, keys, id, [after, lead]] of FILMS) move("interaction", name, keys, ...triggering(CUTSCENES[id], FILM_LEAD, lead, FILM_TAIL, after));
+}
+
 move("movement", "Hide", "X, front view + tint", 4, (c, t) => {
   backdrop(c);
   barrel(c, 214, FLOOR, 40, 62);
