@@ -171,6 +171,7 @@ const LEG_SHIFT = PR.legShift;
 const LEG_CX = PR.legCenterX;
 const BODY_SX = PR.bodyScaleX;
 const FORE_SHIFT = PR.forearmShift;
+const BACK_SHOULDER_IN = PR.backShoulderIn;
 const BADGE_R = PR.badgeRadius;
 const FOREARM_SX = PR.forearmScaleX;
 const SIDE_TORSO_SX = PR.sideTorsoScaleX;
@@ -223,6 +224,10 @@ function backLeg(s, right, enemy) {
 
 function bodyGroup(parent) {
   return G(parent, `translate(${AX} 0) scale(${BODY_SX} 1) translate(${-AX} 0)`);
+}
+
+function backArmGroup(parent, right) {
+  return G(bodyGroup(parent), `translate(${right ? -BACK_SHOULDER_IN : BACK_SHOULDER_IN} 0)`);
 }
 
 function headFront(body, back, enemy) {
@@ -355,20 +360,19 @@ function backDetail(b) {
 function backTree({ leftArmBehind, rightForeBehind, thumbsBehind, forearmsUnder, enemy }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [AX, 344]);
-  if (leftArmBehind) frontArm(bodyGroup(s), false, { arm: "armL", fore: "foreL", hand: "handL" }, !thumbsBehind);
-  const behindRight = rightForeBehind ? bodyGroup(s) : null;
+  if (leftArmBehind) frontArm(backArmGroup(s, false), false, { arm: "armL", fore: "foreL", hand: "handL" }, !thumbsBehind);
+  const behindRight = rightForeBehind ? backArmGroup(s, true) : null;
   P(bodyGroup(s), { pts: [[198, 318], [442, 318], [442, 372], [198, 372]], mat: "chrome", shade: "hcyl", r: 6 });
   backLeg(s, false, enemy);
   backLeg(s, true, enemy);
+  frontArm(backArmGroup(s, true), true, { arm: "armR", fore: "foreR", hand: "handR" }, !rightForeBehind && !thumbsBehind, behindRight, rightForeBehind, forearmsUnder);
   const b = bodyGroup(s);
   P(b, { pts: [[248, 316], [392, 316], [398, 352], [374, 392], [320, 404], [266, 392], [242, 352]], r: 18 });
   P(b, { pts: [[172, 196], [468, 196], [446, 300], [436, 322], [204, 322], [194, 300]], mat: "metal", r: 10 });
   P(b, { pts: [[148, 132], [178, 112], [250, 106], [320, 104], [390, 106], [462, 112], [492, 132], [502, 166], [478, 196], [446, 204], [418, 238], [394, 254], [356, 262], [320, 266], [284, 262], [246, 254], [222, 238], [194, 204], [162, 196], [138, 166]], r: 16 });
   if (!enemy) backDetail(b);
   headFront(s, true, enemy);
-  const arms = bodyGroup(s);
-  if (!leftArmBehind) frontArm(arms, false, { arm: "armL", fore: "foreL", hand: "handL" }, !thumbsBehind, null, false, forearmsUnder);
-  frontArm(arms, true, { arm: "armR", fore: "foreR", hand: "handR" }, !rightForeBehind && !thumbsBehind, behindRight, rightForeBehind, forearmsUnder);
+  if (!leftArmBehind) frontArm(backArmGroup(s, false), false, { arm: "armL", fore: "foreL", hand: "handL" }, !thumbsBehind, null, false, forearmsUnder);
   hook(G(s, `translate(330 236) rotate(${-0.95 * 180 / Math.PI}) translate(-40 -60)`), "back");
   return root;
 }
