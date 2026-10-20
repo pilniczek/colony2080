@@ -173,11 +173,30 @@ export function below(e: Env): void {
   scenery(e, "backdrop", e.world.backdrop);
   haze(e);
   terrain(e);
+  clipped(e, e.world.lifts.map((l) => baseBox(e, l)), false, () => scenery(e, "dressing", e.world.dressing));
 }
 
 export function above(e: Env): void {
   ladders(e);
-  scenery(e, "dressing", e.world.dressing);
+  clipped(e, e.world.lifts.map((l) => shaftBox(e, l)), true, () => scenery(e, "dressing", e.world.dressing));
+}
+
+const shaftBox = ({ cell }: Env, l: Lift): Rect => ({ x: l.x * cell, y: l.top * cell - LIFT_HEAD, w: l.w * cell, h: (l.bottom + 1 - l.top) * cell + LIFT_HEAD });
+
+const baseBox = ({ cell }: Env, l: Lift): Rect => ({ x: l.x * cell, y: l.bottom * cell, w: l.w * cell, h: cell });
+
+function clipped(e: Env, boxes: Rect[], outside: boolean, paint: () => void): void {
+  const { ctx, world, cell } = e;
+  const hit = boxes.filter((b) => near(e, b));
+  if (outside && !hit.length) return paint();
+  if (!hit.length) return;
+  ctx.save();
+  ctx.beginPath();
+  if (outside) ctx.rect(0, 0, world.grid.width * cell, world.grid.height * cell);
+  for (const { x, y, w, h } of hit) ctx.rect(x, y, w, h);
+  ctx.clip("evenodd");
+  paint();
+  ctx.restore();
 }
 
 const sceneryAt = (e: Env, s: Scenery): [number, number] => [s.x * e.cell, (s.y ?? e.world.spawn[1]) * e.cell];
@@ -217,6 +236,7 @@ interface DrawnTerrain {
   ledges: Run[];
   girders: Run[];
   landings: Run[];
+  bases: Run[];
 }
 
 const drawnTerrains = new WeakMap<SandboxWorld, DrawnTerrain>();
@@ -242,11 +262,13 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
   const skip = new Set<string>();
   for (const { col, row, w, h } of world.bare) for (let r = row; r < row + h; r++) for (let c = col; c < col + w; c++) skip.add(`${c},${r}`);
   const landings: Run[] = [];
+  const bases: Run[] = [];
   for (const l of world.lifts) {
     for (const row of l.stops) {
       const open = new Set<string>();
       for (let c = l.x; c < l.x + l.w; c++) (world.grid.at(c, row) === "=" ? skip : open).add(`${c},${row}`);
       landings.push(...cutRuns([{ row, col: l.x, w: l.w }], open));
+      if (row === l.bottom) bases.push(...cutRuns([{ row, col: l.x, w: l.w }], skip));
     }
   }
   const { walls, ledges, girders } = world.terrain;
@@ -254,17 +276,18 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
   const cutWalls = walls.flatMap((r) =>
     touched(r) ? cutRuns(Array.from({ length: r.h }, (_, i) => ({ row: r.row + i, col: r.col, w: r.w })), skip).map((run) => ({ ...run, h: 1 })) : [r],
   );
-  const drawn = { walls: cutWalls, ledges: cutRuns(ledges, skip), girders: cutRuns(girders, skip), landings };
+  const drawn = { walls: cutWalls, ledges: cutRuns(ledges, skip), girders: cutRuns(girders, skip), landings, bases };
   drawnTerrains.set(world, drawn);
   return drawn;
 }
 
 function terrain(e: Env): void {
   const { cell } = e;
-  const { walls, ledges, girders, landings } = drawnTerrain(e.world);
+  const { walls, ledges, girders, landings, bases } = drawnTerrain(e.world);
   for (const r of pick(e, "walls", walls, wallBox)) {
     if (near(e, wallBox(e, r))) put(e, "brickWall", r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   }
+  for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "ledges", ledges, runBox)) if (near(e, runBox(e, r))) put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "girders", girders, runBox)) if (near(e, runBox(e, r))) put(e, "girderBridge", r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "landings", landings, runBox)) if (near(e, runBox(e, r))) put(e, "liftLanding", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });

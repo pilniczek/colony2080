@@ -168,9 +168,10 @@ describe("weapon props", () => {
 
   it("leaves bare cells and lift stops out of the terrain runs and lands each = stop", () => {
     const mesto = loadMesto();
-    expect(drawnTerrain(mesto)).toEqual({ ...mesto.terrain, landings: [] });
+    expect(drawnTerrain(mesto)).toEqual({ ...mesto.terrain, landings: [], bases: mesto.lifts.map((l) => ({ row: l.bottom, col: l.x, w: l.w })) });
     const vesnice = loadMission("vesnice");
-    const { walls, ledges, girders, landings } = drawnTerrain(vesnice);
+    const { walls, ledges, girders, landings, bases } = drawnTerrain(vesnice);
+    expect(bases).toEqual([]);
     const covers = (col: number, row: number): boolean =>
       [...ledges.map((r) => ({ ...r, h: 1 })), ...girders.map((r) => ({ ...r, h: 1 })), ...walls].some((r) => row >= r.row && row < r.row + r.h && col >= r.col && col < r.col + r.w);
     for (let col = 45; col < 57; col++) expect(covers(col, 41), String(col)).toBe(false);
