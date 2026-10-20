@@ -8,7 +8,7 @@ import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
-import { CUTSCENES, type CutsceneId } from "./cutscene";
+import { filmOf, loadFilms, type CutsceneId } from "./cutscene";
 import { playFilm } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
 import { createFog, loadFog } from "./fog";
@@ -41,6 +41,7 @@ const MAP_HINT = "You have no map.";
 const PICTURE_W = 96;
 const PICTURE_QUALITY = 0.6;
 const HEAD_GAP = 0.25;
+const FILM_PRELOAD_MS = 1000;
 
 export interface RunStart {
   weapon: Weapon;
@@ -181,11 +182,15 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     });
   };
 
-  const drawFilm = (id: keyof typeof CUTSCENES, t: number): void => {
-    const film = CUTSCENES[id];
+  const drawFilm = (id: CutsceneId, t: number): void => {
+    const film = filmOf(id);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!film) {
+      push();
+      return;
+    }
     film.render(ctx, filmWidth, canvas.height, t);
     drawSecurityCam(ctx, filmWidth, canvas.height, t, film.camera);
     push();
@@ -329,6 +334,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   window.addEventListener("keydown", mapKeys, { capture: true });
 
   startFilm(world, intro);
+  setTimeout(() => void loadFilms(), FILM_PRELOAD_MS);
   fit();
   window.addEventListener("resize", fit);
   new MutationObserver(fit).observe(ui, { childList: true });

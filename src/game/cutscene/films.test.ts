@@ -1,12 +1,15 @@
 import sandbox from "@config/levels/sandbox.json";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { FIXED_STEP } from "../../engine/loop";
 import { game, objectLevel, run, tick } from "../hero/testWorld";
 import { approachFilms, loadSandbox, startFilm, type Prop } from "../level/sandboxLevel";
 import { hitShootable } from "../shots";
+import { loadFilms } from "./index";
 import { stepCutscene } from "./play";
 
 const withProps = (level: { props: unknown[] }, change: (p: Prop) => Prop): unknown => ({ ...level, props: (level.props as Prop[]).map(change) });
+
+beforeAll(() => loadFilms());
 
 describe("films without a task", () => {
   it("play to the end and change nothing", () => {

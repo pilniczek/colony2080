@@ -1,4 +1,4 @@
-import { CUTSCENES, type CutsceneId } from "../cutscene";
+import { isCutsceneId, type CutsceneId } from "../cutscene";
 import { ITEMS, type ItemId } from "../items";
 import { pickUp, useShown, type Prop, type SandboxWorld } from "./sandboxLevel";
 
@@ -60,7 +60,7 @@ function loadTask(json: unknown): Task {
   if (typeof t.state === "number") task.state = t.state;
   if (t.sets) task.sets = { ...(t.sets as Record<string, number>) };
   if (t.cutscene !== undefined) {
-    if (typeof t.cutscene !== "string" || !(t.cutscene in CUTSCENES)) throw new Error(`task ${id}: unknown cutscene: ${String(t.cutscene)}`);
+    if (typeof t.cutscene !== "string" || !isCutsceneId(t.cutscene)) throw new Error(`task ${id}: unknown cutscene: ${String(t.cutscene)}`);
     task.cutscene = t.cutscene as CutsceneId;
   }
   return task;

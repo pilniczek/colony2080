@@ -8,7 +8,7 @@ import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
 import { drawAsset, type EnvAsset, type Size } from "../../src/game/env/paint";
 import { assetList } from "../../src/game/env/assets";
 import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
-import { CUTSCENES, type CutsceneId } from "../../src/game/cutscene";
+import { CUTSCENE_IDS, loadFilms, type Cutscene, type CutsceneId } from "../../src/game/cutscene";
 import { drawSecurityCam } from "../../src/game/cutscene/securityCam";
 
 interface SpikeNode {
@@ -377,6 +377,7 @@ const runEnvCase = (id: string, state: number, lod: boolean, size: Size | undefi
 };
 
 const CUTSCENE_SIZES = [{ w: 480, h: 270 }, { w: 300, h: 300 }];
+const CUTSCENES = Object.fromEntries((await loadFilms()).map((film) => [film.id, film])) as Record<CutsceneId, Cutscene>;
 const CROWBAR_TS = [0, 0.5, 1.0, 1.1, 1.8, 2.6, 3.2, CUTSCENES.crowbarDoor.duration];
 const FILM_SHARES = [0, 0.1, 0.25, 0.4, 0.55, 0.7, 0.85, 0.93, 1];
 const cutsceneTimes = (id: CutsceneId): number[] => (id === "crowbarDoor" ? CROWBAR_TS : FILM_SHARES.map((k) => k * CUTSCENES[id].duration));
@@ -461,7 +462,7 @@ const filmParity = (id: CutsceneId): VisualResult => {
   return { name: `cutscene ${id} duration and camera`, mismatches: pass ? 0 : 1, copiedDiff: 0, diff: 0, matrixDelta: 0, pass };
 };
 const only = new URLSearchParams(location.search).get("only")?.split(",") ?? null;
-const cutsceneCases = (Object.keys(CUTSCENES) as CutsceneId[]).filter((id) => !only || only.includes(id)).flatMap((id) => [
+const cutsceneCases = [...CUTSCENE_IDS].filter((id) => !only || only.includes(id)).flatMap((id) => [
   () => filmParity(id),
   ...cutsceneTimes(id).map((t) => (o: HTMLElement) => runCutscene(id, t, CUTSCENE_SIZES[0]!, false, o)),
   ...CUTSCENE_SIZES.flatMap((size) => cutsceneTimes(id).map((t) => (o: HTMLElement) => runCutscene(id, t, size, true, o))),

@@ -1,10 +1,10 @@
 import controls from "@config/controls.json";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { Input } from "../../engine/input";
 import { FIXED_STEP } from "../../engine/loop";
 import { objectLevel } from "../hero/testWorld";
 import { loadSandbox, pickUp, type SandboxWorld } from "../level/sandboxLevel";
-import { CUTSCENES } from "./index";
+import { filmOf, loadFilms } from "./index";
 import { playFilm, stepCutscene } from "./play";
 
 const filmed = (): SandboxWorld => {
@@ -14,12 +14,14 @@ const filmed = (): SandboxWorld => {
   world.cutscene = { id: "crowbarDoor", prop: world.props.find((p) => p.id === "trainDoor")!, t: 0 };
   return world;
 };
+beforeAll(() => loadFilms());
+
 const door = (w: SandboxWorld) => w.props.find((p) => p.id === "trainDoor")!;
 
 describe("stepCutscene", () => {
   it("plays the whole film, then applies the task", () => {
     const w = filmed();
-    const steps = Math.ceil(CUTSCENES.crowbarDoor.duration / FIXED_STEP);
+    const steps = Math.ceil(filmOf("crowbarDoor")!.duration / FIXED_STEP);
     for (let i = 1; i < steps; i++) expect(stepCutscene(w, FIXED_STEP, false)).toBe(true);
     expect(w.flags.has("task:openTrainDoor")).toBe(false);
     expect(stepCutscene(w, FIXED_STEP, false)).toBe(false);

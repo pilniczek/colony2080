@@ -1,4 +1,4 @@
-import { CUTSCENES, type CutsceneId } from "../cutscene";
+import { isCutsceneId, type CutsceneId } from "../cutscene";
 import type { Platform } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { TileGrid } from "../../engine/world/tiles";
@@ -129,7 +129,7 @@ function checkedProp(prop: Prop): Prop {
   if (prop.kind === "weapon" && prop.weapon !== "blaster") throw new Error(`unknown weapon: ${prop.weapon}`);
   if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
   if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
-  for (const id of [prop.cutscene, prop.shootable?.cutscene, prop.approach?.cutscene]) if (id !== undefined && !(id in CUTSCENES)) throw new Error(`unknown cutscene: ${id}`);
+  for (const id of [prop.cutscene, prop.shootable?.cutscene, prop.approach?.cutscene]) if (id !== undefined && !isCutsceneId(id)) throw new Error(`unknown cutscene: ${id}`);
   return structuredClone(prop);
 }
 
