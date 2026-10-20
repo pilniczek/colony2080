@@ -19,12 +19,13 @@ export function InventoryScreen() {
   const shields = useSandbox((s) => s.shields);
   const ammo = useSandbox((s) => s.ammo);
   const blaster = useSandbox((s) => s.blaster);
+  const filming = useSandbox((s) => s.cutscene);
   useEffect(() => whenIdle(art), []);
   const svg = useMemo(
     () => open && inventorySvg(fit.W, fit.H, { items, cursor, energy: Math.round((100 * energy) / max), shields, ammo, blaster }, art()),
     [open, fit.W, fit.H, items, cursor, energy, max, shields, ammo, blaster],
   );
-  if (!svg) return null;
+  if (!svg || filming) return null;
   return (
     <div
       style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none" }}

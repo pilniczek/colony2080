@@ -1,4 +1,6 @@
 import type { ViewTransform } from "../engine/render/view";
+import type { ItemId } from "../game/items";
+import { pickUp } from "../game/level/sandboxLevel";
 import type { Run } from "../game/run";
 import { useSandbox } from "../sandbox/store";
 
@@ -21,6 +23,9 @@ export function originalOverlay(run: Run): DrawOver {
     __overlay: (show: boolean) => (on = show),
     __fog: (fog: boolean) => run.applyFog(fog),
     __pause: (paused: boolean) => useSandbox.setState({ paused }),
+    __flag: (name: string) => run.world.flags.add(`flag:${name}`),
+    __give: (item: ItemId) => pickUp(run.world, item),
+    __state: () => ({ x: run.hero.x, y: run.hero.y, state: run.hero.state, flags: [...run.world.flags], shown: run.world.inventory.shown }),
   });
   return (ctx, view, cellPx) => {
     if (!on || !image.complete || !image.naturalWidth) return;

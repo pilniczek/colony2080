@@ -301,8 +301,14 @@ function use(s: Step): boolean {
   const prop = touching(s, ...USABLE);
   if (!prop || !s.consume("useItem")) return false;
   const cutscene = prop.kind === "panel" ? undefined : openTask(s.world, prop)?.cutscene;
-  if (cutscene) s.world.cutscene = { id: cutscene, prop, t: 0 };
-  else enter(s.h, "use");
+  if (!cutscene) {
+    enter(s.h, "use");
+    return true;
+  }
+  s.world.cutscene = { id: cutscene, prop, t: 0 };
+  s.consume("menu");
+  enter(s.h, "idle");
+  s.h.vx = 0;
   return true;
 }
 

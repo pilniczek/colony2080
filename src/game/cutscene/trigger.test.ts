@@ -43,4 +43,14 @@ describe("cutscene trigger", () => {
     run(g, 1);
     expect(g.world.subtitle?.text).toBe("Nothing more to do here.");
   });
+
+  it("stops the hero and drops a skip pressed with the use", () => {
+    const g = atDoor();
+    g.world.flags.add("flag:metroPowered");
+    Object.assign(g.hero, { state: "walk", vx: 3 });
+    tick(g, [], ["useItem", "menu"]);
+    expect(g.world.cutscene).not.toBeNull();
+    expect(g.hero).toMatchObject({ state: "idle", vx: 0 });
+    expect(g.buffer.has("menu")).toBe(false);
+  });
 });

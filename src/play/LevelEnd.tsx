@@ -6,7 +6,8 @@ const LINK_SCALE = 0.7;
 export function LevelEnd() {
   const complete = useSandbox((s) => s.complete);
   const text = useSandbox((s) => s.subtitle);
-  if (!complete) return null;
+  const filming = useSandbox((s) => s.cutscene);
+  if (!complete || filming) return null;
   return (
     <Caption>
       {text && <div>{text}</div>}

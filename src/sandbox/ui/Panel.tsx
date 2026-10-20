@@ -1,5 +1,6 @@
 import { useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from "react";
 import type { Weapon } from "../../game/hero/config";
+import { useSandbox } from "../store";
 import { Environment } from "./Environment";
 import { Overlays } from "./Overlays";
 import { Recorder } from "./Recorder";
@@ -59,8 +60,11 @@ export function Section({ title, children }: { title: string; children: ReactNod
   );
 }
 
+const FILMING_OPACITY = 0.4;
+
 export function Panel({ commands }: { commands: SandboxCommands }) {
   const [open, setOpen] = useState(true);
+  const filming = useSandbox((s) => s.cutscene);
   if (!open)
     return (
       <div style={styles.toggle}>
@@ -69,14 +73,16 @@ export function Panel({ commands }: { commands: SandboxCommands }) {
     );
   return (
     <aside data-panel style={styles.panel}>
-      <div style={{ ...styles.row, justifyContent: "flex-end" }}>
-        <Button onClick={() => setOpen(false)}>Hide</Button>
-      </div>
-      <TimeControls step={commands.step} />
-      <Overlays />
-      <Recorder commands={commands} />
-      <Environment commands={commands} />
-      <Tuning />
+      <fieldset disabled={filming} style={{ border: 0, margin: 0, padding: 0, minWidth: 0, opacity: filming ? FILMING_OPACITY : 1 }}>
+        <div style={{ ...styles.row, justifyContent: "flex-end" }}>
+          <Button onClick={() => setOpen(false)}>Hide</Button>
+        </div>
+        <TimeControls step={commands.step} />
+        <Overlays />
+        <Recorder commands={commands} />
+        <Environment commands={commands} />
+        <Tuning />
+      </fieldset>
     </aside>
   );
 }

@@ -53,10 +53,9 @@ export function Hud() {
     () => hudSvg(fit.W, fit.H, hudState({ energy, max, shields, ammo, blaster, weapon, running, item }), icons, KEYS),
     [fit.W, fit.H, energy, shields, ammo, blaster, max, weapon, running, item, icons],
   );
-  if (filming) return null;
   return (
     <div
-      style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none" }}
+      style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none", display: filming ? "none" : undefined }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

@@ -46,6 +46,7 @@ export interface RunStart {
 }
 
 export interface Run {
+  world: SandboxWorld;
   hero: Hero;
   input: Input;
   loop: FixedLoop;
@@ -94,7 +95,6 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
   let prev = { x: hero.x, y: hero.y };
   let gameWindow: Rect = { x: 0, y: 0, w: 1, h: 1 };
   let filmWidth = 1;
-  let filming = false;
   let inputLog: string[] = [];
   let lastHeld = "";
   let lastRender = 0;
@@ -192,12 +192,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
       prev = { x: hero.x, y: hero.y };
       input.bufferMs = cfg.inputBufferMs;
       if (world.cutscene) {
-        playFilm(world, input, dt, !filming);
-        filming = true;
+        logInput(input.frame().held);
+        playFilm(world, input, dt);
         afterStep?.();
         return;
       }
-      filming = false;
       if (tuning().inventory.open || tuning().mapOpen) return;
       const frame = input.frame();
       const canOpen = canOpenScreen(hero.state, tuning().recording || tuning().playing);
@@ -293,5 +292,5 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver }: RunO
   loop.start();
 
   createRoot(ui).render(tree);
-  return { hero, input, loop, restart, applyFog };
+  return { world, hero, input, loop, restart, applyFog };
 }

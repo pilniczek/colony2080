@@ -41,23 +41,33 @@ describe("playFilm", () => {
   const clock = { now: 0 };
   const input = (): Input => new Input(controls.keyboard, () => clock.now, 150);
 
-  it("ignores a press from before the film and a key held into it", () => {
+  it("does not skip on a key held into the film", () => {
     const w = filmed();
     const keys = input();
     keys.keyDown("Enter");
-    expect(playFilm(w, keys, FIXED_STEP, true)).toBe(true);
-    expect(playFilm(w, keys, FIXED_STEP, false)).toBe(true);
-    expect(w.cutscene).not.toBeNull();
+    keys.consume("useItem");
+    expect(playFilm(w, keys, FIXED_STEP)).toBe(true);
+    expect(playFilm(w, keys, FIXED_STEP)).toBe(true);
   });
 
   it("skips on a press made during the film and drops presses at its end", () => {
     const w = filmed();
     const keys = input();
-    playFilm(w, keys, FIXED_STEP, true);
+    playFilm(w, keys, FIXED_STEP);
     keys.keyDown("KeyI");
     keys.keyDown("Escape");
-    expect(playFilm(w, keys, FIXED_STEP, false)).toBe(false);
+    expect(playFilm(w, keys, FIXED_STEP)).toBe(false);
     expect(door(w).state).toBe(2);
     expect(keys.consume("inventory")).toBe(false);
+  });
+
+  it("clears bullets, sparks and the beam when the film ends", () => {
+    const w = filmed();
+    w.projectiles.push({ x: 5, y: 7, vx: -8, r: 0.15 });
+    w.sparks.push({ x: 5, y: 7, age: 0 } as never);
+    stepCutscene(w, FIXED_STEP, true);
+    expect(w.projectiles).toEqual([]);
+    expect(w.sparks).toEqual([]);
+    expect(w.beam).toBeNull();
   });
 });
