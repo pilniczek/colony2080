@@ -1,13 +1,5 @@
-import { biquad, buffer, envelope, fill, onePole, osc, quantize8, seeded, sweep } from "../../../engine/audio/synth";
-
-const render = (seconds: number, sample: (t: number) => number): Float32Array => quantize8(fill(buffer(seconds), sample));
-
-const clip = (x: number, drive: number): number => Math.tanh(x * drive) / Math.tanh(drive);
-
-const grain = (level: number, until: number): ((t: number) => number) => {
-  const noise = seeded(99);
-  return (t) => (t < until ? level * noise() : 0);
-};
+import { biquad, envelope, onePole, osc, seeded, sweep } from "../../../engine/audio/synth";
+import { clip, grain, render } from "./shape";
 
 export function gunShot(): Float32Array {
   const noise = seeded(1);

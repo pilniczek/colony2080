@@ -1,6 +1,7 @@
 import { beam, cannon, explosion, gunShot, laser, punch } from "./recipes/combat";
+import { click, door, grate, inventory, land, liftStart, liftStop, power, siren, spark, step, teleport, thunder } from "./recipes/world";
 
-export const SOUNDS = { gunShot, cannon, laser, beam, punch, explosion } satisfies Record<string, () => Float32Array>;
+export const SOUNDS = { gunShot, cannon, laser, beam, punch, explosion, step, land, click, inventory, power, siren, liftStart, liftStop, door, grate, thunder, teleport, spark } satisfies Record<string, () => Float32Array>;
 
 export type SoundId = keyof typeof SOUNDS;
 
