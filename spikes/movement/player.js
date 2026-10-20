@@ -29,6 +29,7 @@ function frame(now) {
   if (ui.canvas.width !== w || ui.canvas.height !== h) { ui.canvas.width = w; ui.canvas.height = h; }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   scene.render(ctx, w, h, t);
+  CUTSCENES.securityCam(ctx, w, h, t, scene.camera);
   if (ui.ref && scene.ref && dialog.classList.contains("with-ref")) {
     const src = scene.ref.frame(t);
     if (src !== refSrc) { refSrc = src; ui.ref.src = src; }

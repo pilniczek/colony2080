@@ -236,6 +236,7 @@ function crowbarDoor(CFG) {
 
   return {
     name: "Crowbar opens train door",
+    camera: "CAM 03 METRO",
     start: CFG.clip.start,
     duration: CFG.clip.end - CFG.clip.start,
     palette,
@@ -256,7 +257,96 @@ function crowbarDoor(CFG) {
   };
 }
 
+const FILM = { w: 1600, h: 900 };
+const CAM = {
+  date: "2080-03-14",
+  start: 23 * 3600 + 41 * 60 + 7,
+  fps: 24,
+  grains: 500,
+  tint: "#b4c4ac",
+  lift: "rgba(40, 52, 44, 0.35)",
+  scanline: "rgba(0, 0, 0, 0.22)",
+  vignette: "rgba(0, 0, 0, 0.6)",
+  text: "#e4eedc",
+  rec: "#e23b2e",
+  font: "Share Tech Mono, monospace"
+};
+
+function filmRect(w, h) {
+  const s = Math.min(w / FILM.w, h / FILM.h);
+  return { x: (w - FILM.w * s) / 2, y: (h - FILM.h * s) / 2, w: FILM.w * s, h: FILM.h * s };
+}
+
+const two = n => String(n).padStart(2, "0");
+
+function camClock(t) {
+  const s = CAM.start + Math.floor(t);
+  return `${CAM.date} ${two(Math.floor(s / 3600) % 24)}:${two(Math.floor(s / 60) % 60)}:${two(s % 60)}`;
+}
+
+function grainRandom(seed) {
+  let a = seed + 0x6d2b79f5;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let r = Math.imul(a ^ (a >>> 15), 1 | a);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function securityCam(ctx, w, h, t, label) {
+  const r = filmRect(w, h);
+  const u = r.h / FILM.h;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(r.x, r.y, r.w, r.h);
+  ctx.clip();
+  ctx.globalCompositeOperation = "saturation";
+  ctx.globalAlpha = 0.8;
+  ctx.fillStyle = "#808080";
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "multiply";
+  ctx.fillStyle = CAM.tint;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.globalCompositeOperation = "screen";
+  ctx.fillStyle = CAM.lift;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.globalCompositeOperation = "source-over";
+  const random = grainRandom(Math.floor(t * CAM.fps));
+  const grain = Math.max(1, 3 * u);
+  for (let i = 0; i < CAM.grains; i++) {
+    ctx.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.05 + random() * 0.12})`;
+    ctx.fillRect(r.x + random() * r.w, r.y + random() * r.h, grain, grain);
+  }
+  ctx.fillStyle = CAM.scanline;
+  const line = Math.max(2, 6 * u);
+  for (let y = r.y; y < r.y + r.h; y += line) ctx.fillRect(r.x, y, r.w, line / 2);
+  const glow = ctx.createRadialGradient(r.x + r.w / 2, r.y + r.h / 2, r.h * 0.35, r.x + r.w / 2, r.y + r.h / 2, r.w * 0.62);
+  glow.addColorStop(0, "rgba(0, 0, 0, 0)");
+  glow.addColorStop(1, CAM.vignette);
+  ctx.fillStyle = glow;
+  ctx.fillRect(r.x, r.y, r.w, r.h);
+  const size = 34 * u;
+  const pad = 40 * u;
+  ctx.font = `${size}px ${CAM.font}`;
+  ctx.textBaseline = "top";
+  ctx.fillStyle = CAM.text;
+  if (Math.floor(t * 2) % 2 === 0) {
+    ctx.fillStyle = CAM.rec;
+    ctx.beginPath();
+    ctx.arc(r.x + pad + size * 0.35, r.y + pad + size * 0.5, size * 0.32, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = CAM.text;
+  }
+  ctx.fillText("REC", r.x + pad + size, r.y + pad);
+  ctx.fillText(camClock(t), r.x + pad, r.y + pad + size * 1.4);
+  ctx.textAlign = "right";
+  ctx.fillText(label, r.x + r.w - pad, r.y + pad);
+  ctx.restore();
+}
+
 const REF = window.ORIGINALS.cutscenes.crowbarDoor;
 
-window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor) };
+window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor), securityCam, filmRect, camClock };
 })();

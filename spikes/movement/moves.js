@@ -331,7 +331,11 @@ const move = (category, name, keys, period, draw, scene, clip) => MOVES.push({ c
 
 function triggering(scene, lead, draw, tail, after) {
   const end = lead + scene.duration;
-  const play = (c, t) => t < lead ? draw(c, t) : t < end ? scene.render(c, W, H, t - lead) : after(c, t - end);
+  const film = (c, t) => {
+    scene.render(c, W, H, t);
+    CUTSCENES.securityCam(c, W, H, t, scene.camera);
+  };
+  const play = (c, t) => t < lead ? draw(c, t) : t < end ? film(c, t - lead) : after(c, t - end);
   return [end + tail, play, scene, [lead, end]];
 }
 
