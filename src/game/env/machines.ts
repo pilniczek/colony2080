@@ -511,12 +511,11 @@ const chain = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: number,
   ctx.restore();
 };
 
-const craneBeam = (ctx: CanvasRenderingContext2D, snapped: boolean): void => {
+const craneBeam = (ctx: CanvasRenderingContext2D): void => {
   const { len, h, clampA, clampB, hub } = BEAM;
   const mid = (clampA + clampB) / 2;
   cable(ctx, [[mid, hub], [clampA + 2, 0]], "c1", 1);
-  if (snapped) cable(ctx, [[mid, hub], [mid + 9, hub + 9], [mid + 11, hub + 14]], "c1", 1);
-  else cable(ctx, [[mid, hub], [clampB + 2, 0]], "c1", 1);
+  cable(ctx, [[mid, hub], [clampB + 2, 0]], "c1", 1);
   cylV(ctx, mid - 1, hub, 2, -hub, "chrome", 2);
   disc(ctx, mid, hub, 2.2, "c2", "mLine");
   box(ctx, 0, 3, len, h - 6, "green", 0);
@@ -534,13 +533,13 @@ export const crane: EnvAsset = {
   draw(ctx, state, t, size) {
     const { clampA, clampB, hub } = BEAM;
     const mid = (clampA + clampB) / 2;
-    const ang = state === 0 ? 0.12 : state === 2 ? 0.035 * Math.sin(t * 1.6) : 0;
+    const ang = state === 2 ? 0.035 * Math.sin(t * 1.6) : 0;
     chain(ctx, mid, size.top ?? BEAM.top, hub, state === 2 ? t : 0);
     ctx.save();
     ctx.translate(mid, hub);
     ctx.rotate(ang);
     ctx.translate(-mid, -hub);
-    craneBeam(ctx, state === 0);
+    craneBeam(ctx);
     ctx.restore();
   },
 };

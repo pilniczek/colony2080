@@ -947,7 +947,7 @@
       "sheet": "machines",
       "description": "Long green riveted I-beam with orange clamp bands (about 7 x 1 tiles, map cells 23-31, row 13) hung from a single chain by a triangular bridle; a winch block and a small control box sit nearby. Repairing it with the key lets the player cross = level end.",
       "states": [
-        "broken / idle",
+        "idle",
         "repaired",
         "moving (crossing)"
       ],
