@@ -10,7 +10,7 @@ const ENTRIES = ["SAVE GAME", "LOAD GAME", "MISSION SELECT"];
 const MENU_BOX: Rect = { x: 22, y: 60, w: 128, h: 56 };
 const SLOT_BOX: Rect = { x: 10, y: 8, w: 210, h: 184 };
 const CHOICE_BOX: Rect = { x: 106, y: 146, w: 108, h: 45 };
-const OVER = { size: 9, gap: 14, stroke: 1.2, fallback: { x: 160, y: 100 } };
+const OVER = { size: 9, stroke: 1.2, fallback: { x: 160, y: 100 } };
 const SLOT_ROW = 30;
 const MENU_ROW = 12;
 const CHOICE_ROW = 13;
@@ -94,10 +94,9 @@ function gameOver(W: number, H: number, s: Extract<MenuState, { screen: "gameOve
   const ox = (W - HUD_MIN_W) / 2;
   const oy = (H - HUD_H) / 2;
   const at = s.at ?? { x: ox + OVER.fallback.x, y: oy + OVER.fallback.y };
-  const word = (x: number, anchor: string, value: string): string =>
-    `<text x="${x}" y="${at.y}" text-anchor="${anchor}" dominant-baseline="middle" font-family="${BOLD}" font-weight="900" font-size="${OVER.size}" letter-spacing="1" fill="${MENU.over}" stroke="${MENU.overEdge}" stroke-width="${OVER.stroke}" stroke-linejoin="miter" paint-order="stroke">${value}</text>`;
+  const title = `<text x="${at.x}" y="${at.y}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${OVER.size}" letter-spacing="1" fill="${MENU.over}" stroke="${MENU.overEdge}" stroke-width="${OVER.stroke}" stroke-linejoin="miter" paint-order="stroke">GAME OVER</text>`;
   return `<rect width="${W}" height="${H}" fill="#000" opacity="${DIM}"/>
-  ${word(at.x - OVER.gap, "end", "GAME")}${word(at.x + OVER.gap, "start", "OVER")}
+  ${title}
   <g transform="translate(${ox} ${oy})">${note}${box(CHOICE_BOX)}${rows}</g>`;
 }
 

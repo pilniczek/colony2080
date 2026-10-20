@@ -40,7 +40,7 @@ const MAX_PANEL_SHARE = 0.5;
 const MAP_HINT = "You have no map.";
 const PICTURE_W = 96;
 const PICTURE_QUALITY = 0.6;
-const BODY_LIFT = 0.35;
+const HEAD_GAP = 0.25;
 
 export interface RunStart {
   weapon: Weapon;
@@ -219,7 +219,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves 
         const dpr = devicePixelRatio || 1;
         return {
           x: (lastView.offsetX + hero.x * cellPx * lastView.scale) / dpr / unit,
-          y: (lastView.offsetY + (hero.y - BODY_LIFT) * cellPx * lastView.scale) / dpr / unit,
+          y: (lastView.offsetY + (hero.y - tuning().movement.box.height - HEAD_GAP) * cellPx * lastView.scale) / dpr / unit,
         };
       },
     });
