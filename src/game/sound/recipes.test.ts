@@ -70,7 +70,7 @@ describe.each(Object.keys(SOUNDS) as SoundId[])("%s", (id) => {
 describe.each(["hatch", "takeoff"] as SoundId[])("%s end", (id) => {
   it("fades out without a click", () => {
     const samples = SOUNDS[id]();
-    const last = samples.findLastIndex((x) => Math.abs(x) > 0.01);
+    const last = samples.length - 1 - Array.from(samples).reverse().findIndex((x) => Math.abs(x) > 0.01);
     expect(rms(samples.subarray(last - Math.round(BASE_RATE * 0.0005), last + 1))).toBeLessThan(0.1);
   });
 });
