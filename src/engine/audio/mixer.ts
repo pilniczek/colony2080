@@ -22,6 +22,30 @@ export const MAX_VOICES = 8;
 
 const MAX_VOL = 63;
 
+export const LEVEL = 0.3;
+
+const LOUDNESS_WINDOW = Math.round(BASE_RATE * 0.05);
+
+export function loudness(data: Float32Array): number {
+  const size = Math.min(LOUDNESS_WINDOW, data.length);
+  let sum = 0;
+  let loudest = 0;
+  data.forEach((x, i) => {
+    sum += x * x;
+    const old = data[i - size];
+    if (old !== undefined) sum -= old * old;
+    if (i >= size - 1) loudest = Math.max(loudest, sum / size);
+  });
+  return Math.sqrt(loudest);
+}
+
+export const volGain = (vol: number): number => Math.sqrt(vol / MAX_VOL);
+
+interface Sound {
+  buffer: AudioBuffer;
+  level: number;
+}
+
 interface Voice {
   source: AudioBufferSourceNode;
   bus: Bus;
@@ -39,16 +63,17 @@ export function createMixer(
   let graph: Graph | null = null;
   let muted = false;
   let voices: Voice[] = [];
-  const buffers = new Map<string, AudioBuffer>();
+  const sounds = new Map<string, Sound>();
 
-  function bufferOf(context: AudioContext, id: string): AudioBuffer {
-    const cached = buffers.get(id);
+  function soundOf(context: AudioContext, id: string): Sound {
+    const cached = sounds.get(id);
     if (cached) return cached;
     const data = samples(id);
     const buffer = context.createBuffer(1, data.length, BASE_RATE);
     buffer.getChannelData(0).set(data);
-    buffers.set(id, buffer);
-    return buffer;
+    const sound = { buffer, level: LEVEL / Math.max(loudness(data), LEVEL) };
+    sounds.set(id, sound);
+    return sound;
   }
 
   function stopVoice(voice: Voice): void {
@@ -65,7 +90,10 @@ export function createMixer(
     unlock() {
       if (!graph) {
         const context = makeContext();
-        const master = context.createGain();
+        const master = context.createDynamicsCompressor();
+        master.threshold.value = -12;
+        master.knee.value = 6;
+        master.ratio.value = 4;
         master.connect(context.destination);
         const world = context.createGain();
         const ui = context.createGain();
@@ -80,10 +108,11 @@ export function createMixer(
       const { context, buses } = graph;
       const bus = cue.bus ?? "world";
       const source = context.createBufferSource();
-      source.buffer = bufferOf(context, cue.id);
+      const sound = soundOf(context, cue.id);
+      source.buffer = sound.buffer;
       source.playbackRate.value = cue.rate / BASE_RATE;
       const gain = context.createGain();
-      gain.gain.value = (cue.vol ?? MAX_VOL) / MAX_VOL;
+      gain.gain.value = volGain(cue.vol ?? MAX_VOL) * sound.level;
       source.connect(gain);
       gain.connect(buses[bus]);
       const voice: Voice = { source, bus };
@@ -96,7 +125,7 @@ export function createMixer(
       source.start();
     },
     warm(id) {
-      if (graph) bufferOf(graph.context, id);
+      if (graph) soundOf(graph.context, id);
     },
     stopAll,
     setMuted(value) {

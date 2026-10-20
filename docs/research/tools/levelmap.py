@@ -18,8 +18,8 @@ EXTRAS = {
             "and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end "
             "(map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, "
             "dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; "
-            "lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors under two bottom stops stop a survivable "
-            "drop past a lift (report 13, Our blockers); the crane mast gap (floor 10, cols 36-38) stays a plank with no wall so the hero walks west "
+            "lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors fill every bottom stop row so no pit "
+            "opens under a lift (report 13, Our blockers); the crane mast gap (floor 10, cols 36-38) stays a plank with no wall so the hero walks west "
             "past the crane panel, and the plank row 10 gap over the crane (cols 22-30) stays open (user)"
         ),
         "spawn": [62.5, 59],
@@ -31,7 +31,6 @@ EXTRAS = {
             (23, 49): "cardDoor",
             (70, 56): "metroTunnel",
         },
-        "shaftFloors": [(col, 17) for col in range(52, 55)] + [(col, 31) for col in range(33, 36)],
         "plankGaps": {(10, col) for col in range(36, 39)},
         "holes": [(col, 10) for col in range(22, 31)],
     },
@@ -196,13 +195,11 @@ def build(data, layout, enemies, cfg):
         grid[row][col] = "."
     for col, row in shaft_cells(layout["lifts"], segments):
         grid[row][col] = "."
-    for col, row in cfg["shaftFloors"]:
-        if grid[row][col] != ".":
-            raise SystemExit(f"shaft floor not empty at {col},{row}")
-        grid[row][col] = "|"
     lifts = [lift_json(lift, cfg) for lift in layout["lifts"]]
     for lift in lifts:
-        for row in range(lift["top"] - 2, lift["bottom"] + 1):
+        for col in range(lift["x"], lift["x"] + lift["width"]):
+            grid[lift["bottom"]][col] = "|"
+        for row in range(lift["top"] - 2, lift["bottom"]):
             for col in range(lift["x"], lift["x"] + lift["width"]):
                 if grid[row][col] != ".":
                     raise SystemExit(f"lift shaft blocked at {col},{row}")

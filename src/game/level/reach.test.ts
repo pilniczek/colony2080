@@ -2,7 +2,7 @@ import movementJson from "@config/hero/movement.json";
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { loadMovement } from "../hero/config";
-import { game, objectLevel, RUNNING, run, tick } from "../hero/testWorld";
+import { game, objectLevel, run } from "../hero/testWorld";
 import { loadMesto, mestoJson } from "./mesto";
 import { MISSIONS, type MissionId } from "./missionIds";
 import { loadMission, missionJson } from "./missions";
@@ -127,23 +127,13 @@ describe("lift reach rule", () => {
     expect(liftBypasses(loadMesto())).toEqual(["lift 14 10 to 16"]);
   });
 
-  it("lets the hero out of each mesto shaft floor pit with a running jump while the deck is away", () => {
+  it("holds the hero on each mesto bottom stop while the deck is away", () => {
     const mesto = loadMesto();
-    const pits = mesto.lifts.filter((l) => Array.from({ length: l.w }, (_, k) => mesto.grid.at(l.x + k, l.bottom + 1)).every((c) => c === "|"));
-    expect(pits.map((l) => [l.x, l.bottom + 1])).toEqual([[33, 31], [52, 17]]);
-    for (const pit of pits) {
-      for (let k = 0; k < pit.w; k++) {
-        for (const dir of ["moveLeft", "moveRight"]) {
-          const g = game({ x: pit.x + k + 0.5, y: pit.bottom + 1 }, mestoJson());
-          g.world.lifts.find((l) => l.x === pit.x)!.y = pit.top;
-          run(g, 0.3);
-          const held = [dir, RUNNING];
-          for (let i = 0; i < 3; i++) tick(g, held);
-          tick(g, held, ["up"]);
-          run(g, 1.5, held);
-          expect(g.hero.y, `lift ${pit.x} col ${pit.x + k} ${dir}`).toBe(pit.bottom);
-        }
-      }
+    for (const lift of mesto.lifts) {
+      const g = game({ x: lift.x + lift.w / 2, y: lift.bottom }, mestoJson());
+      g.world.lifts.find((l) => l.x === lift.x)!.y = lift.top;
+      run(g, 0.5);
+      expect(g.hero.y, `lift ${lift.x}`).toBe(lift.bottom);
     }
   });
 });
@@ -259,7 +249,8 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
     never: {
       "outside every reached walk segment of report 13 (Floor tiles table)": [
         ...["3,127", "10,7", "10,66", "10,128", "16,7", "16,128", "23,7", "23,93", "23,128", "23,142", "30,7", "30,69", "30,128"],
-        ...["30,142", "37,8", "37,24", "37,142", "44,11", "44,142", "51,11", "51,72", "59,133", "70,7", "70,18", "70,86", "75,7"],
+        ...["30,142", "37,8", "37,24", "37,142", "44,11", "44,142", "51,11", "51,72", "51,115", "59,133", "70,7", "70,18", "70,86"],
+        ...["75,7", "75,48"],
       ],
     },
   },

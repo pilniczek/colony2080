@@ -189,20 +189,13 @@ Lift 14 also stops on floor 23 (columns 117-126).
 
 ## Notes for the port
 
-- The original has no holes in reached floors (see [Floor tiles](#floor-tiles)). Shaft cells are open only between stops: every stop row is floor in the original, with or without the deck. `map.json` agrees on every reached plank cell and differs only there: it leaves all 31 stop cells open (`.`, 3 columns each, at the lift columns and stop rows of the lift table).
+- The original has no holes in reached floors (see [Floor tiles](#floor-tiles)). Shaft cells are open only between stops: every stop row is floor in the original, with or without the deck. `map.json` agrees on every reached plank cell and differs only there: it leaves the upper stop cells open (`.`, 3 columns each, at the lift columns and stop rows of the lift table) and fills each bottom stop with `|` blockers (see [Our blockers](#our-blockers)).
 - The task web in `config/levels/mesto/tasks.json` lists "openDoor vs acidGuard ordering" as unconfirmed. Reach settles it: the card door comes first (the acid tank is reached through it).
 - The original lifts cannot be called. The clone may differ, but start stops then decide which routes exist.
 
 ## Our blockers
 
-Our hero falls, and floors sit 7 rows apart, the same as `fallDeathCells`: a hole in a floor is a survivable drop. The lift reach rule (`src/game/level/reach.test.ts`) finds two shaft holes that join floors past a lift. `docs/research/tools/levelmap.py` (`EXTRAS[1]["shaftFloors"]`) puts an invisible `|` row under each bottom stop:
-
-| Cells (col, row) | Lift | Drop it stops |
-|---|---|---|
-| 52-54, 17 | 15 (crane floor, bottom 16) | floor 16 to floor 23, past lifts 12 and 14 |
-| 33-35, 31 | 11 (bottom 30) | floor 30 to floor 37, past the damaged lift 10 |
-
-The original has no such pit: the stop row stays floor (see [Floor tiles](#floor-tiles)). With the deck away our hero drops one row into a 3-wide pit. A walk or standing jump does not get out, a running jump does from any pit cell, both ways (tested in `reach.test.ts`). The deck cannot come down on him: lifts move only with the hero on them. Drops down a lift's own shaft count as riding it. Drops of more than `fallDeathCells` kill the hero and reset the map, so they stay open. The route test (`src/game/level/route.test.ts`) runs the whole task web from the spawn with lift positions tracked (no remote call).
+Our hero falls, and floors sit 7 rows apart, the same as `fallDeathCells`: a hole in a floor is a survivable drop. `docs/research/tools/levelmap.py` fills the shaft cells of every bottom stop row with invisible `|` blockers, as in the original, where the stop row stays floor (see [Floor tiles](#floor-tiles)). With the deck away the hero stands on the stop row and no hole opens under a lift (tested in `reach.test.ts`). The lift reach rule (`src/game/level/reach.test.ts`) still checks that a lift's two stop floors join only through it. Drops down a lift's own shaft count as riding it. Drops of more than `fallDeathCells` kill the hero and reset the map, so they stay open. The route test (`src/game/level/route.test.ts`) runs the whole task web from the spawn with lift positions tracked (no remote call).
 
 ## Confidence
 

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { BASE_RATE } from "./synth";
-import { MAX_VOICES, createMixer } from "./mixer";
+import { LEVEL, MAX_VOICES, createMixer, loudness, volGain } from "./mixer";
 
 interface FakeSource {
   buffer: { length: number; data: Float32Array } | null;
@@ -68,6 +68,7 @@ function fakeContext() {
       return source;
     },
     createGain: makeGain,
+    createDynamicsCompressor: () => ({ ...makeGain(), threshold: { value: 0 }, knee: { value: 0 }, ratio: { value: 1 } }),
   };
   return { context: context as unknown as AudioContext, sources, buffers, resume };
 }
@@ -78,7 +79,7 @@ function at(sources: FakeSource[], index: number): FakeSource {
   return source;
 }
 
-function setup(samples = () => new Float32Array([0.5, -0.5, 0.25])) {
+function setup(samples: (id: string) => Float32Array = () => new Float32Array([0.5, -0.5, 0.25])) {
   const fake = fakeContext();
   const sampleFn = vi.fn(samples);
   const mixer = createMixer(sampleFn, () => fake.context);
@@ -116,13 +117,30 @@ describe("mixer", () => {
     expect(at(sources, 0).playbackRate.value).toBe(15000 / BASE_RATE);
   });
 
-  it("vol maps to gain", () => {
+  it("vol maps to gain on the sound level", () => {
     const { mixer, sources } = setup();
     mixer.unlock();
     mixer.play({ id: "a", rate: BASE_RATE, vol: 33 });
     mixer.play({ id: "a", rate: BASE_RATE });
-    expect(at(sources, 0).gainNode!.gain.value).toBe(33 / 63);
-    expect(at(sources, 1).gainNode!.gain.value).toBe(1);
+    const level = LEVEL / loudness(new Float32Array([0.5, -0.5, 0.25]));
+    expect(at(sources, 0).gainNode!.gain.value).toBeCloseTo(volGain(33) * level);
+    expect(at(sources, 1).gainNode!.gain.value).toBeCloseTo(level);
+  });
+
+  it("brings loud and quiet sounds to one level", () => {
+    const { mixer, sources } = setup((id) => new Float32Array(2000).fill(id === "loud" ? 0.9 : 0.4));
+    mixer.unlock();
+    mixer.play({ id: "loud", rate: BASE_RATE });
+    mixer.play({ id: "quiet", rate: BASE_RATE });
+    expect(0.9 * at(sources, 0).gainNode!.gain.value).toBeCloseTo(LEVEL);
+    expect(0.4 * at(sources, 1).gainNode!.gain.value).toBeCloseTo(LEVEL);
+  });
+
+  it("never boosts a sound under the level", () => {
+    const { mixer, sources } = setup(() => new Float32Array(2000).fill(0.1));
+    mixer.unlock();
+    mixer.play({ id: "a", rate: BASE_RATE });
+    expect(at(sources, 0).gainNode!.gain.value).toBe(1);
   });
 
   it("muted play drops cue", () => {
@@ -168,6 +186,13 @@ describe("mixer", () => {
     mixer.play({ id: "a", rate: BASE_RATE, bus: "ui" });
     mixer.stopAll();
     expect(sources.map((source) => source.stopped)).toEqual([1, 1]);
+  });
+
+  it("loudness is the loudest 50 ms window", () => {
+    const data = new Float32Array(BASE_RATE).fill(0.1);
+    data.fill(0.8, 2000, 2000 + Math.round(BASE_RATE * 0.05));
+    expect(loudness(data)).toBeCloseTo(0.8);
+    expect(loudness(new Float32Array([0.5, -0.5]))).toBeCloseTo(0.5);
   });
 
   it("samples rendered once per id", () => {

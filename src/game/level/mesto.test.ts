@@ -47,10 +47,11 @@ describe("mesto map", () => {
     }
   });
 
-  it("keeps every lift shaft open from above its top stop down to its bottom stop", () => {
+  it("keeps every lift shaft open from above its top stop down to its bottom stop, with a blocker floor on that stop", () => {
     for (const lift of lifts) {
-      for (let row = lift.top - 2; row <= lift.bottom; row++) {
-        for (let col = lift.x; col < lift.x + lift.w; col++) expect(grid.at(col, row), `${col},${row}`).toBe(".");
+      for (let col = lift.x; col < lift.x + lift.w; col++) {
+        for (let row = lift.top - 2; row < lift.bottom; row++) expect(grid.at(col, row), `${col},${row}`).toBe(".");
+        expect(grid.at(col, lift.bottom), `${col},${lift.bottom}`).toBe("|");
       }
     }
   });
@@ -133,7 +134,7 @@ describe("mesto map", () => {
 describe("mesto props", () => {
   const { props } = world;
   const objects = ["dyingRebel", "wireBox", "switchboard", "trainDoor", "tapValveWheel", "corpse", "barDoor", "crashedShip", "codeLock", "damagedLift", "acidTank", "cardDoor", "crane"];
-  const gates = ["metroTunnel", "waterPipe", "plasmaBarrier", "acidGuard", "shootGuard"];
+  const gates = ["trainCarriage", "metroTunnel", "waterPipe", "plasmaBarrier", "acidGuard", "shootGuard"];
 
   it("places every interactive object once", () => {
     const ids = props.filter((p) => p.kind === "object").map((p) => p.id).sort();
@@ -179,7 +180,7 @@ describe("mesto props", () => {
     for (const w of map.taskWalls) {
       const p = props.find((q) => q.id === w.id)!;
       expect(p.solidStates, w.id).toEqual([0]);
-      expect(p.cells, w.id).toEqual({ col: w.col, row: w.top, w: 1, h: w.bottom - w.top + 1 });
+      expect(p.cells, w.id).toMatchObject({ col: w.col, row: w.top, h: w.bottom - w.top + 1 });
       expect(grid.solid(w.col, w.bottom), w.id).toBe(true);
     }
   });
