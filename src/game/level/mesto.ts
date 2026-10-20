@@ -12,6 +12,10 @@ interface DroidEntry {
   patrol: number[];
 }
 
+interface FlyerEntry extends DroidEntry {
+  floor: number;
+}
+
 export function droidsOf(entries: DroidEntry[], tuning: DroidTuning): EnemyJson[] {
   return entries.map((e) => ({
     ...tuning,
@@ -22,7 +26,11 @@ export function droidsOf(entries: DroidEntry[], tuning: DroidTuning): EnemyJson[
   }));
 }
 
+export const flyersOf = (entries: FlyerEntry[], tuning: DroidTuning): EnemyJson[] =>
+  droidsOf(entries.map((e) => ({ ...e, cell: [e.cell[0]!, e.floor - 1] })), tuning);
+
 const { hits, reactMs, burst, pauseMs } = sandbox.enemies[0]!;
+const { flight } = sandbox.enemies.find((e) => "flight" in e) as EnemyJson;
 
 export function mestoJson(): SandboxJson {
   return {
@@ -32,7 +40,7 @@ export function mestoJson(): SandboxJson {
     lifts: map.lifts as SandboxJson["lifts"],
     tasks,
     spawn: [map.spawn[0]!, map.spawn[1]!],
-    enemies: droidsOf(map.droids, { hits, reactMs, burst, pauseMs, respawnMs: null }),
+    enemies: [...droidsOf(map.droids, { hits, reactMs, burst, pauseMs, respawnMs: null }), ...flyersOf(map.flyers, { hits, reactMs, burst, pauseMs, respawnMs: null, flight })],
   };
 }
 

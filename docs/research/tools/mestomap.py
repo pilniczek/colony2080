@@ -19,7 +19,7 @@ SOURCE = (
     "and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end "
     "(map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, "
     "dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; "
-    "lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; '|' shaft floors under two bottom stops stop a survivable "
+    "lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors under two bottom stops stop a survivable "
     "drop past a lift (report 13, Our blockers)"
 )
 
@@ -87,6 +87,10 @@ def droids(enemies):
     return [{"cell": e["cell"], "patrol": e["patrol"]} for e in enemies["enemies"] if e["type"] == "chromeDroid"]
 
 
+def flyers(enemies):
+    return [{"cell": e["cell"], "patrol": e["patrol"], "floor": e["engine"]["y"] + BAND} for e in enemies["enemies"] if e["type"] == "flyer"]
+
+
 def build(data, layout, enemies):
     blocking = layout["blocking"]
     floors = sorted(layout["floors"])
@@ -140,6 +144,7 @@ def build(data, layout, enemies):
         "lifts": lifts,
         "taskWalls": task_walls,
         "droids": droids(enemies),
+        "flyers": flyers(enemies),
         "spawn": SPAWN,
     }
 
@@ -152,7 +157,7 @@ def write(out, path):
     lines.append('  "rows": [')
     lines.append(",\n".join(f"    {d(r)}" for r in out["rows"]))
     lines.append("  ],")
-    for key in ("lifts", "taskWalls", "droids"):
+    for key in ("lifts", "taskWalls", "droids", "flyers"):
         lines.append(f'  "{key}": [')
         lines.append(",\n".join(f"    {d(v)}" for v in out[key]))
         lines.append("  ],")

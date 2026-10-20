@@ -10,6 +10,7 @@ const world = loadMesto();
 const { grid, spawn, lifts } = world;
 
 const droids = enemies.enemies.filter((e) => e.type === "chromeDroid");
+const flyers = enemies.enemies.filter((e) => e.type === "flyer");
 
 describe("mesto map", () => {
   it("loads 160 x 80", () => {
@@ -91,10 +92,29 @@ describe("mesto map", () => {
     }
   });
 
-  it("places 27 droids, no flyers", () => {
+  it("places 27 droids and 17 flyers that never respawn", () => {
     expect(droids).toHaveLength(27);
-    expect(world.enemies).toHaveLength(27);
+    expect(flyers).toHaveLength(17);
+    expect(world.enemies.filter((e) => !e.flight)).toHaveLength(27);
+    expect(world.enemies.filter((e) => e.flight)).toHaveLength(17);
     expect(world.enemies.every((e) => e.respawnMs === null)).toBe(true);
+  });
+
+  it("takes the flyer cells and patrols from the research list over the plank row of their floor", () => {
+    expect(map.flyers).toEqual(flyers.map((f) => ({ cell: f.cell, patrol: f.patrol, floor: f.engine.y! + 6 })));
+  });
+
+  it("hovers every flyer above a floor, in the air, at its column", () => {
+    const placed = world.enemies.filter((e) => e.flight);
+    map.flyers.forEach((f, i) => {
+      const e = placed[i]!;
+      expect(e.body.x).toBe(f.cell[0]! + 0.5);
+      expect(e.spot[1]).toBe(f.floor);
+      expect(grid.solid(f.cell[0]!, f.floor)).toBe(true);
+      expect(grid.solid(f.cell[0]!, Math.floor(e.body.y))).toBe(false);
+      expect(e.patrol[0]).toBeLessThanOrEqual(e.body.x);
+      expect(e.patrol[1]).toBeGreaterThanOrEqual(e.body.x);
+    });
   });
 
   it("takes the droid cells and patrols from the research list", () => {

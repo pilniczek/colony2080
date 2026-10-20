@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "docs/research/reports/13-level1-layout.md, built by docs/research/tools/mestomap.py from MAPY/M11.MAP and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end (map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; '|' shaft floors under two bottom stops stop a survivable drop past a lift (report 13, Our blockers)",
+  "source": "docs/research/reports/13-level1-layout.md, built by docs/research/tools/mestomap.py from MAPY/M11.MAP and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end (map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors under two bottom stops stop a survivable drop past a lift (report 13, Our blockers)",
   "rows": [
     "....................................###..........................#..............................................................................................",
     "....................................###..........................#..............................................................................................",
@@ -134,6 +134,25 @@
     {"cell": [64, 15], "patrol": [54, 121]},
     {"cell": [78, 15], "patrol": [54, 121]},
     {"cell": [103, 15], "patrol": [54, 121]}
+  ],
+  "flyers": [
+    {"cell": [87, 56], "patrol": [11, 131], "floor": 59},
+    {"cell": [113, 56], "patrol": [81, 131], "floor": 59},
+    {"cell": [26, 41], "patrol": [24, 33], "floor": 44},
+    {"cell": [54, 48], "patrol": [36, 67], "floor": 51},
+    {"cell": [38, 34], "patrol": [29, 53], "floor": 37},
+    {"cell": [78, 34], "patrol": [70, 130], "floor": 37},
+    {"cell": [104, 34], "patrol": [70, 130], "floor": 37},
+    {"cell": [135, 34], "patrol": [133, 140], "floor": 37},
+    {"cell": [103, 48], "patrol": [84, 113], "floor": 51},
+    {"cell": [42, 27], "patrol": [35, 54], "floor": 30},
+    {"cell": [52, 27], "patrol": [35, 54], "floor": 30},
+    {"cell": [45, 20], "patrol": [35, 47], "floor": 23},
+    {"cell": [72, 20], "patrol": [56, 84], "floor": 23},
+    {"cell": [81, 27], "patrol": [75, 84], "floor": 30},
+    {"cell": [66, 13], "patrol": [54, 121], "floor": 16},
+    {"cell": [95, 13], "patrol": [54, 121], "floor": 16},
+    {"cell": [112, 13], "patrol": [54, 121], "floor": 16}
   ],
   "spawn": [62.5, 59]
 }
