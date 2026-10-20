@@ -12375,7 +12375,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": "openTrainDoor",
       "sheet": "structures",
-      "description": "Concrete wall with a steel frame, 1 tile wide and as tall as the metro hall, at map col 56. The train runs behind it; it blocks the tunnel until the train door is open, then the hero passes through the train. A lamp over the train lights when it opens.",
+      "description": "Concrete wall with a steel frame, 4 tiles wide and as tall as the metro hall, at map cols 56-59, filling the gap between the two train doors. The train runs behind it; it blocks the tunnel until the train door is open, then the hero passes through the train. A lamp over the train lights when it opens.",
       "note": "Not an original object: the original blocks the dark tunnel with an invisible task wall (metroTunnel); this asset gives that gate a look.",
       "states": [
        "closed (lamp off)",
@@ -12389,11 +12389,14 @@ window.C28_CONFIG = {
       "csName": null,
       "interactive": false,
       "marker": null,
-      "task": null,
+      "task": "openTrainDoor",
       "sheet": "machines",
-      "description": "The train door carriage carried on to the left behind the tunnel wall, about 9.6 tiles long: windows, stripe, blood, end cap on the far side.",
+      "description": "The train door carriage carried on to the left behind the tunnel wall, about 9.6 tiles long: a second door at its far end next to the wall, windows, stripe, blood, end cap. The door opens with the train door; the hero walks inside between the two doors.",
       "note": "Not an original object: joins the train door carriage so the train reads as one body through the tunnel wall.",
-      "states": [],
+      "states": [
+       "closed",
+       "open"
+      ],
       "refs": []
      },
      {

@@ -6,6 +6,7 @@ import { ITEMS } from "../items";
 import { cfg, game, run, tick, type Game } from "../hero/testWorld";
 import { ENEMY_SHOT } from "./enemy";
 import { loadMesto, mestoJson } from "./mesto";
+import { insideProp } from "./sandboxLevel";
 import { terrain } from "./terrain";
 
 const world = loadMesto();
@@ -189,6 +190,20 @@ describe("mesto props", () => {
     const ship = props.find((p) => p.id === "crashedShip")!;
     expect(ship.shootable).toMatchObject({ hits: 7, state: 1, gives: ["flag:hullOpen"] });
     expect(typeof ship.shootable!.subtitle).toBe("string");
+  });
+
+  it("opens the tunnel wall and the far carriage door with the train door", () => {
+    expect(world.tasks.find((t) => t.id === "openTrainDoor")!.sets).toEqual({ metroTunnel: 1, trainCarriage: 1 });
+    expect(world.tasks.find((t) => t.id === "wireSwitchboard")!.sets).toBeUndefined();
+  });
+
+  it("hides the hero inside the open carriage only", () => {
+    const w = loadMesto();
+    const carriage = w.props.find((p) => p.id === "trainCarriage")!;
+    expect(insideProp(w, { x: 57.5, y: 70 })).toBe(false);
+    carriage.state = 1;
+    expect([54.9, 55, 57.5, 60.9, 61].map((x) => insideProp(w, { x, y: 70 }))).toEqual([false, true, true, true, false]);
+    expect(insideProp(w, { x: 57.5, y: 69 })).toBe(false);
   });
 });
 

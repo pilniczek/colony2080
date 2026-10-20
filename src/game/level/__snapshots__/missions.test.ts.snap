@@ -676,11 +676,6 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 75,
     },
     {
-      "asset": "trainCarriage",
-      "x": 50,
-      "y": 70,
-    },
-    {
       "asset": "stripLight",
       "x": 32.5,
       "y": 75,
@@ -2001,12 +1996,28 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 70,
     },
     {
+      "asset": "trainCarriage",
+      "id": "trainCarriage",
+      "inside": {
+        "col": 55,
+        "states": [
+          1,
+        ],
+        "w": 6,
+      },
+      "kind": "gate",
+      "state": 0,
+      "width": 2,
+      "x": 55,
+      "y": 70,
+    },
+    {
       "asset": "tunnelGate",
       "cells": {
         "col": 56,
         "h": 6,
         "row": 64,
-        "w": 1,
+        "w": 4,
       },
       "id": "metroTunnel",
       "kind": "gate",
@@ -2014,8 +2025,8 @@ exports[`missions > mesto json is unchanged 1`] = `
         0,
       ],
       "state": 0,
-      "width": 1,
-      "x": 56.5,
+      "width": 4,
+      "x": 58,
       "y": 70,
     },
     {
@@ -2362,7 +2373,7 @@ exports[`missions > mesto json is unchanged 1`] = `
     "................................................................................................................................................................",
   ],
   "sky": "skyBackground",
-  "source": "the shootGuard gate stands at the original cell [26, 15] facing right with the crane key behind it, blocks the hero until destroyed, fires 18-shot bursts (the original takes 18 energy per burst) and takes only E-Blaster beam ticks (shootable.by beam, 60 ticks: the original 20 hits against 5 per droid, here droids take 15) (docs/research/reports/10-level1-enemies.md, Guards drawn and firing); the acidGuard gate fires droid bursts (fires: facing, burst, pauseMs, states it fires in) at a hero it sees on its floor until the acid wrecks it; the original plays its firing clip, takes 5 energy and pushes the hero back one cell when the hero enters cols 103-119 on its floor (KLEV1.EXE 3:0xDF10-0xE429), here droid bullets instead (user); item props at the centre of the original pickup window (hero engine x X-2..X, map col X+6, so x = col - 0.5) from docs/research/reports/13-level1-layout.md; object cells from docs/research/reports/10-level1-enemies.md markers and the M12-M16 diffs, refined on docs/research/gamedata/png/maps/map_M11.png (bar door col 39, train door cols 60-61, switchboard on the pillar at col 69, valve wheel col 43 row 73, acid tank outlet cols 111-112, crane winch cols 39-40 on floor 10, code lock panel col 115 row 42); blocking cells equal map.json taskWalls; metroTunnel, waterPipe and plasmaBarrier are gates (no use, opened by sets); scenery laid out by Claude over map_M11.png with the closest env asset, x is the asset left edge, y the floor row; object art is centred on the use x, \`art\` (cells) moves it onto the original art (valve wheel, ship, card door, acid tank, and the crane beam over the gap at cols 23-31 row 13); damagedLift draws the liftPanel asset (state 1 damaged, 0 repaired) since the map lift draws the lift itself; metroTunnel draws tunnelGate (our own look, the original gate is an invisible task wall): a wall the train runs behind, the trainCarriage dressing carries the train on from the train door to its far side, and the open train door opens the gate, so the hero goes through the wall by the train (user); the crane chain runs \`art.top\` 13 cells up to the map top; a liftPanel dressing marks the crane winch use spot, where the original crane mast wall stood (user)",
+  "source": "the shootGuard gate stands at the original cell [26, 15] facing right with the crane key behind it, blocks the hero until destroyed, fires 18-shot bursts (the original takes 18 energy per burst) and takes only E-Blaster beam ticks (shootable.by beam, 60 ticks: the original 20 hits against 5 per droid, here droids take 15) (docs/research/reports/10-level1-enemies.md, Guards drawn and firing); the acidGuard gate fires droid bursts (fires: facing, burst, pauseMs, states it fires in) at a hero it sees on its floor until the acid wrecks it; the original plays its firing clip, takes 5 energy and pushes the hero back one cell when the hero enters cols 103-119 on its floor (KLEV1.EXE 3:0xDF10-0xE429), here droid bullets instead (user); item props at the centre of the original pickup window (hero engine x X-2..X, map col X+6, so x = col - 0.5) from docs/research/reports/13-level1-layout.md; object cells from docs/research/reports/10-level1-enemies.md markers and the M12-M16 diffs, refined on docs/research/gamedata/png/maps/map_M11.png (bar door col 39, train door cols 60-61, switchboard on the pillar at col 69, valve wheel col 43 row 73, acid tank outlet cols 111-112, crane winch cols 39-40 on floor 10, code lock panel col 115 row 42); blocking cells equal map.json taskWalls; metroTunnel, waterPipe and plasmaBarrier are gates (no use, opened by sets); scenery laid out by Claude over map_M11.png with the closest env asset, x is the asset left edge, y the floor row; object art is centred on the use x, \`art\` (cells) moves it onto the original art (valve wheel, ship, card door, acid tank, and the crane beam over the gap at cols 23-31 row 13); damagedLift draws the liftPanel asset (state 1 damaged, 0 repaired) since the map lift draws the lift itself; metroTunnel draws tunnelGate (our own look, the original gate is an invisible task wall): a wall the train runs behind, filling the gap between the train door and the trainCarriage door on its far side; the train door task opens the gate and the far door, and the hero is not drawn while inside (cols 55-60) the open carriage, so he passes the wall inside the train (user); the crane chain runs \`art.top\` 13 cells up to the map top; a liftPanel dressing marks the crane winch use spot, where the original crane mast wall stood (user)",
   "spawn": [
     62.5,
     59,
@@ -2419,6 +2430,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         ],
         "sets": {
           "metroTunnel": 1,
+          "trainCarriage": 1,
         },
         "state": 2,
         "subtitle": "The train door gives way.",

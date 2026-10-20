@@ -196,60 +196,65 @@ const wedgedBar = (ctx: CanvasRenderingContext2D, cx: number, cy: number): void 
   ctx.restore();
 };
 
+const doorway = (ctx: CanvasRenderingContext2D, gap: number, open: boolean): void => {
+  const { x, y, w, h } = TD;
+  const half = w / 2;
+  flat(ctx, x, y, w, h, DOOR.interior);
+  if (open) {
+    ctx.save();
+    ctx.globalAlpha = 0.16;
+    poly(ctx, [[x + 8, y + 2], [x + w - 8, y + 2], [x + w - 2, y + h], [x + 2, y + h]], DOOR.interiorLight, 2, { line: false });
+    ctx.restore();
+    flat(ctx, x + 10, y + 26, w - 20, 2, DOOR.interior);
+  }
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  leaf(ctx, x - gap / 2, half, true);
+  leaf(ctx, x + half + gap / 2, half, false);
+  ctx.restore();
+  flat(ctx, x - 2, y - 2, w + 4, 2, DOOR.doorFrame, "mLine");
+  flat(ctx, x - 2, y, 2, h, DOOR.doorFrame, "mLine");
+  flat(ctx, x + w, y, 2, h, DOOR.doorFrame, "mLine");
+};
+
 export const trainDoor: EnvAsset = {
   id: "trainDoor",
   box: [-12, -66, 60, 0],
   draw(ctx, state) {
     carriage(ctx);
-    const { x, y, w, h } = TD;
-    const half = w / 2;
-    const gap = [0, 3, half][state] as number;
-    flat(ctx, x, y, w, h, DOOR.interior);
-    if (state === 2) {
-      ctx.save();
-      ctx.globalAlpha = 0.16;
-      poly(ctx, [[x + 8, y + 2], [x + w - 8, y + 2], [x + w - 2, y + h], [x + 2, y + h]], DOOR.interiorLight, 2, { line: false });
-      ctx.restore();
-      flat(ctx, x + 10, y + 26, w - 20, 2, DOOR.interior);
-    }
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(x, y, w, h);
-    ctx.clip();
-    leaf(ctx, x - gap / 2, half, true);
-    leaf(ctx, x + half + gap / 2, half, false);
-    ctx.restore();
-    flat(ctx, x - 2, y - 2, w + 4, 2, DOOR.doorFrame, "mLine");
-    flat(ctx, x - 2, y, 2, h, DOOR.doorFrame, "mLine");
-    flat(ctx, x + w, y, 2, h, DOOR.doorFrame, "mLine");
-    if (state === 1) wedgedBar(ctx, half + 0.5, y + 30);
+    doorway(ctx, [0, 3, TD.w / 2][state] as number, state === 2);
+    if (state === 1) wedgedBar(ctx, TD.w / 2 + 0.5, TD.y + 30);
   },
 };
 
-const CARRIAGE_W = 230;
+const CARRIAGE = { left: -95, right: 135 };
 
 export const trainCarriage: EnvAsset = {
   id: "trainCarriage",
-  box: [0, -66, CARRIAGE_W, 0],
-  draw(ctx) {
+  box: [-97, -66, 145, 0],
+  draw(ctx, state) {
     const { y, h } = TD;
-    const w = CARRIAGE_W;
-    flat(ctx, 0, y - 4, w, h + 4, DOOR.wagon, "mLine");
-    flat(ctx, 0, y - 4, w, 3, "c2");
-    flat(ctx, 0, y + h - 14, w, 3, DOOR.stripe);
-    flat(ctx, 0, y + h - 9, w, 1.5, DOOR.wagonShade);
-    flat(ctx, 0, y + h, w, 7, "m0", "mLine");
-    flat(ctx, 0, y - 4, 4, h + 4, DOOR.wagonShade, "mLine");
-    for (const wx of [14, 52, 90, 186]) {
+    const { left, right } = CARRIAGE;
+    const w = right - left;
+    flat(ctx, left, y - 4, w, h + 4, DOOR.wagon, "mLine");
+    flat(ctx, left, y - 4, w, 3, "c2");
+    flat(ctx, left, y + h - 14, w, 3, DOOR.stripe);
+    flat(ctx, left, y + h - 9, w, 1.5, DOOR.wagonShade);
+    flat(ctx, left, y + h, w, 7, "m0", "mLine");
+    flat(ctx, left, y - 4, 4, h + 4, DOOR.wagonShade, "mLine");
+    for (const wx of [left + 14, left + 52]) {
       flat(ctx, wx, y + 6, 22, 22, DOOR.window, "mLine");
       ctx.save();
       ctx.globalAlpha = 0.6;
       poly(ctx, [[wx + 2, y + 6], [wx + 5, y + 6], [wx + 2, y + 28], [wx + 0.5, y + 28]], DOOR.windowGlint, 2, { line: false });
       ctx.restore();
     }
+    doorway(ctx, state === 1 ? TD.w / 2 : 0, state === 1);
     if (P.simple()) return;
-    for (const bx of [16, 46, 176, 206]) flat(ctx, bx, y + h + 2, 4, 3, "m2", "mLine");
-    for (const [bx, by, bh] of [[40, 8, 7], [120, 30, 5], [214, 4, 9]] as [number, number, number][]) {
+    for (const bx of [left + 16, left + 46]) flat(ctx, bx, y + h + 2, 4, 3, "m2", "mLine");
+    for (const [bx, by, bh] of [[left + 40, 8, 7], [left + 78, 30, 5]] as [number, number, number][]) {
       flat(ctx, bx, y + by, 3, 2, "blood");
       flat(ctx, bx + 1, y + by + 2, 1, bh, "blood");
     }

@@ -32,6 +32,7 @@ export interface Prop {
   state?: number;
   solidStates?: number[];
   cells?: { col: number; row: number; w: number; h: number };
+  inside?: { col: number; w: number; states: number[] };
   shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string; by?: "beam"; cutscene?: CutsceneId };
   cutscene?: CutsceneId;
   approach?: { cells: number; cutscene: CutsceneId; gives: string };
@@ -266,6 +267,9 @@ export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
 
 export const onGround = (prop: Prop, hero: Pick<Hero, "blaster">, flags: ReadonlySet<string> = new Set()): boolean =>
   !prop.taken && (prop.kind !== "weapon" || hero.blaster === null) && (prop.shownBy === undefined || flags.has(prop.shownBy));
+
+export const insideProp = (world: Pick<SandboxWorld, "props">, hero: Pick<Hero, "x" | "y">): boolean =>
+  world.props.some(({ inside, state = 0, y }) => !!inside && inside.states.includes(state) && Math.abs(hero.y - (y ?? 0)) < FLOOR_EPS && hero.x >= inside.col && hero.x < inside.col + inside.w);
 
 export function startFilm(world: SandboxWorld, id: CutsceneId | undefined, prop: Prop | null = null): void {
   if (id && !world.cutscene) world.cutscene = { id, prop, t: 0 };

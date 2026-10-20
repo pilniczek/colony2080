@@ -11,7 +11,7 @@ import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type 
 import type { Rect } from "../geometry";
 import type { Enemy } from "../level/enemy";
 import { visible, type Fog } from "../fog";
-import type { SandboxWorld } from "../level/sandboxLevel";
+import { insideProp, type SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, TILE } from "../env/paint";
@@ -256,6 +256,7 @@ export function drawScene(
   ctx.clip();
   drawEnvironment(ctx, world, hero, cfg, alpha, lines, screen);
   const drawHero = (): void => {
+    if (insideProp(world, hero)) return;
     shadow(f, hero, look);
     heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
   };

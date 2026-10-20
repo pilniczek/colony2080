@@ -5,7 +5,7 @@
     { "id": "talkRebel", "object": "dyingRebel", "requires": [], "gives": ["flag:rebelTalked"], "state": 1, "cutscene": "talkRebel", "subtitle": "Find the bar man. He knows the way out." },
     { "id": "pullWires", "object": "wireBox", "requires": [], "gives": ["item:wires"], "state": 1, "cutscene": "pullWires", "subtitle": "Wires torn out." },
     { "id": "wireSwitchboard", "object": "switchboard", "requires": ["item:wires"], "gives": ["flag:metroPowered"], "state": 1, "cutscene": "wireSwitchboard", "subtitle": "The metro lights come on." },
-    { "id": "openTrainDoor", "object": "trainDoor", "requires": ["item:crowbar", "flag:metroPowered"], "gives": ["flag:metroOpen"], "state": 2, "sets": { "metroTunnel": 1 }, "cutscene": "crowbarDoor", "subtitle": "The train door gives way." },
+    { "id": "openTrainDoor", "object": "trainDoor", "requires": ["item:crowbar", "flag:metroPowered"], "gives": ["flag:metroOpen"], "state": 2, "sets": { "metroTunnel": 1, "trainCarriage": 1 }, "cutscene": "crowbarDoor", "subtitle": "The train door gives way." },
     { "id": "takeTapHandle", "object": "tapValveWheel", "requires": [], "gives": ["flag:waterOff", "item:tapHandle"], "state": 1, "sets": { "waterPipe": 1 }, "cutscene": "takeTapHandle", "subtitle": "Water off. The tap handle comes loose." },
     { "id": "searchCorpse", "object": "corpse", "requires": [], "gives": ["item:card", "item:holoPlan"], "state": 1, "cutscene": "searchCorpse", "subtitle": "A card and a holo plan." },
     { "id": "tradeHoloPlan", "object": "barDoor", "requires": ["item:holoPlan"], "gives": ["item:shipPlan", "flag:partWanted"], "cutscene": "tradeHoloPlan", "subtitle": "The bar man draws you a ship plan and wants the part." },
