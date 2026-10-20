@@ -179,6 +179,25 @@ describe("mixer", () => {
     expect(sampleFn).toHaveBeenCalledTimes(2);
   });
 
+  it("warm before unlock renders nothing", () => {
+    const { mixer, sampleFn, buffers } = setup();
+    mixer.warm("a");
+    expect(sampleFn).not.toHaveBeenCalled();
+    expect(buffers).toHaveLength(0);
+  });
+
+  it("warm renders the buffer that play then reuses", () => {
+    const { mixer, sampleFn, buffers, sources } = setup();
+    mixer.unlock();
+    mixer.warm("a");
+    expect(sampleFn).toHaveBeenCalledWith("a");
+    expect(buffers).toHaveLength(1);
+    expect(sources).toHaveLength(0);
+    mixer.play({ id: "a", rate: BASE_RATE });
+    expect(sampleFn).toHaveBeenCalledTimes(1);
+    expect(buffers).toHaveLength(1);
+  });
+
   it("unlock creates the context once", () => {
     const fake = fakeContext();
     const makeContext = vi.fn(() => fake.context);

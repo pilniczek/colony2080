@@ -48,8 +48,8 @@ describe("playFilm", () => {
     const keys = input();
     keys.keyDown("Enter");
     keys.consume("useItem");
-    expect(playFilm(w, keys, FIXED_STEP)).toBe(true);
-    expect(playFilm(w, keys, FIXED_STEP)).toBe(true);
+    expect(playFilm(w, keys, FIXED_STEP)).toBe("playing");
+    expect(playFilm(w, keys, FIXED_STEP)).toBe("playing");
   });
 
   it("skips on a press made during the film and drops presses at its end", () => {
@@ -58,9 +58,17 @@ describe("playFilm", () => {
     playFilm(w, keys, FIXED_STEP);
     keys.keyDown("KeyI");
     keys.keyDown("Escape");
-    expect(playFilm(w, keys, FIXED_STEP)).toBe(false);
+    expect(playFilm(w, keys, FIXED_STEP)).toBe("skipped");
     expect(door(w).state).toBe(2);
     expect(keys.consume("inventory")).toBe(false);
+  });
+
+  it("reports a film played to its end as ended", () => {
+    const w = filmed();
+    const keys = input();
+    const steps = Math.ceil(filmOf("crowbarDoor")!.duration / FIXED_STEP);
+    for (let i = 1; i < steps; i++) playFilm(w, keys, FIXED_STEP);
+    expect(playFilm(w, keys, FIXED_STEP)).toBe("ended");
   });
 
   it("clears bullets, sparks and the beam when the film ends", () => {

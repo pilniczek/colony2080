@@ -36,9 +36,11 @@ function cueBetween(world: SandboxWorld, id: CutsceneId, from: number, to: numbe
   for (const [t, sound, rate, vol] of soundsOf(id)) if ((t > from || (from === 0 && t === 0)) && t <= to) cue(world, sound, rate, vol);
 }
 
-export function playFilm(world: SandboxWorld, input: FilmInput, dt: number): boolean {
+export type FilmStep = "playing" | "ended" | "skipped";
+
+export function playFilm(world: SandboxWorld, input: FilmInput, dt: number): FilmStep {
   const skip = SKIP_ACTIONS.some((action) => input.consume(action));
-  const playing = stepCutscene(world, dt, skip);
-  if (!playing) input.clearPresses();
-  return playing;
+  if (stepCutscene(world, dt, skip)) return "playing";
+  input.clearPresses();
+  return skip ? "skipped" : "ended";
 }

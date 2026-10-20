@@ -34,9 +34,10 @@ import { drawMap } from "./render/map";
 import { drawOverlays } from "./render/overlays";
 import { drawScene, viewCells, visibleEnemies } from "./render/scene";
 import { snapView } from "./render/snapView";
-import { samplesOf } from "./sound";
+import { SOUNDS, samplesOf } from "./sound";
 import { saveSoundOn } from "./sound/settings";
 import { openInventory } from "./sound/ui";
+import { stopOnPause, stopOnSkip, stopWhenHidden, warmOnUnlock } from "./sound/voices";
 import { holdPoses } from "./robot/gun";
 import { stepWorld } from "./stepWorld";
 
@@ -112,7 +113,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
 
   const mixer = createMixer(samplesOf);
   mixer.setMuted(!tuning().soundOn);
-  const unlockAudio = (): void => mixer.unlock();
+  const unlockAudio = warmOnUnlock(mixer, Object.keys(SOUNDS), whenIdle);
   window.addEventListener("keydown", unlockAudio, { capture: true });
   window.addEventListener("pointerdown", unlockAudio, { capture: true });
 
@@ -298,7 +299,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       input.bufferMs = cfg.inputBufferMs;
       if (world.cutscene) {
         logInput(input.frame().held);
-        playFilm(world, input, dt);
+        stopOnSkip(mixer, playFilm(world, input, dt));
         drainSounds();
         afterStep?.();
         return;
@@ -370,11 +371,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     const wasPaused = loop.paused;
     loop.paused = paused || tuning().inventory.open || tuning().mapOpen || tuning().cheatOpen || tuning().menu !== null;
     loop.timeScale = timeScale;
-    if (loop.paused && !wasPaused) mixer.stopAll("world");
+    stopOnPause(mixer, wasPaused, loop.paused);
   };
 
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) mixer.stopAll("world");
+    stopWhenHidden(mixer, document.hidden);
   });
 
   applyTime(tuning());

@@ -12,6 +12,7 @@ export interface SoundCue {
 export interface Mixer {
   unlock(): void;
   play(cue: SoundCue): void;
+  warm(id: string): void;
   stopAll(bus?: Bus): void;
   setMuted(muted: boolean): void;
   readonly muted: boolean;
@@ -93,6 +94,9 @@ export function createMixer(
       const oldest = voices[0];
       if (voices.length > MAX_VOICES && oldest) stopVoice(oldest);
       source.start();
+    },
+    warm(id) {
+      if (graph) bufferOf(graph.context, id);
     },
     stopAll,
     setMuted(value) {
