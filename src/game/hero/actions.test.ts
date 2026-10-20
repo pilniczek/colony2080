@@ -606,6 +606,27 @@ describe("attack", () => {
     expect(g.hero).toMatchObject({ state: "walk", facing: -1 });
   });
 
+  it("keeps punching and ignores direction while shoot is held", () => {
+    const g = game();
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 1.4, ["shoot", "moveLeft"]);
+    expect(g.hero).toMatchObject({ state: "attack", facing: 1, x: 7.5 });
+    expect(kinds(g, "punch")).toHaveLength(3);
+    run(g, 0.4, ["moveLeft"]);
+    expect(g.hero.state).toBe("walk");
+  });
+
+  it("does not punch while walking and punches once stopped with shoot held", () => {
+    const g = game();
+    run(g, 0.3, ["moveLeft"]);
+    tick(g, ["moveLeft", "shoot"], ["shoot"]);
+    run(g, 0.3, ["moveLeft", "shoot"]);
+    expect(g.hero.state).toBe("walk");
+    expect(kinds(g, "punch")).toHaveLength(0);
+    run(g, 0.05, ["shoot"]);
+    expect(g.hero.state).toBe("attack");
+  });
+
   it("punches again each loop while shoot is held", () => {
     const g = game();
     tick(g, ["shoot"], ["shoot"]);

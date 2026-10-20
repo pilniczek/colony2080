@@ -334,7 +334,7 @@ export function halt(h: Hero): void {
 
 function act(s: Step): boolean {
   if (use(s)) return true;
-  if (!s.consume("shoot")) return false;
+  if (!s.consume("shoot") && !(s.h.weapon === "fists" && s.input.held.has("shoot"))) return false;
   startAttack(s, "attack");
   return true;
 }
@@ -436,10 +436,8 @@ function moving(s: Step): void {
     if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(s);
     return jump(s, h.state === "run" ? "runJump" : "walkJump");
   }
-  if (holdsGun(h.weapon)) {
-    gunFire(s);
-    if (use(s)) return;
-  } else if (act(s)) return;
+  if (holdsGun(h.weapon)) gunFire(s);
+  if (use(s)) return;
   gait(s);
   if (h.fireTime !== null && h.state === "idle") enter(h, "attack");
 }
@@ -486,8 +484,7 @@ function attack(s: Step): void {
     return;
   }
   const clip = clipOf(s);
-  if (h.time < (clip.cancelAt ?? clip.duration)) return;
-  if (!input.held.has("shoot") || input.dir !== 0) leaveAttack(s);
+  if (!input.held.has("shoot") && h.time >= (clip.cancelAt ?? clip.duration)) leaveAttack(s);
 }
 
 function hide(s: Step): void {
