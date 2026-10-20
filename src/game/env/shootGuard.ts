@@ -166,7 +166,7 @@ const dome = (ctx: CanvasRenderingContext2D): void => {
   );
   line(ctx, [[-3, -r + 1], [-l + 1, -r + 1]], "gc1", 0.6, "butt");
   if (!P.simple()) {
-    for (const x of [-6.5, -9.5, -12.5, -15.5]) line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
+    for (const x of [-9.5, -15.5]) line(ctx, [[x, -r + 0.4], [x, r * 0.55]], "fc0", 0.5, "butt");
     line(ctx, [[-4, 1.8], [-l, 1.8]], "fc0", 0.5, "butt");
     for (const x of [-8, -11, -14]) disc(ctx, x, 3, 0.6, "gc1");
   }
