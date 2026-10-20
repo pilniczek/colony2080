@@ -262,7 +262,10 @@ const CAM = {
   date: "2080-03-14",
   start: 23 * 3600 + 41 * 60 + 7,
   fps: 24,
-  grains: 500,
+  grains: 4000,
+  deadPixels: 40,
+  deadSeed: 2080,
+  dead: ["#000000", "#ffffff", "#ff3b30", "#3bff6a"],
   tint: "#b4c4ac",
   lift: "rgba(40, 52, 44, 0.35)",
   scanline: "rgba(0, 0, 0, 0.22)",
@@ -314,10 +317,11 @@ function securityCam(ctx, w, h, t, label) {
   ctx.fillRect(r.x, r.y, r.w, r.h);
   ctx.globalCompositeOperation = "source-over";
   const random = grainRandom(Math.floor(t * CAM.fps));
-  const grain = Math.max(1, 3 * u);
+  const grain = Math.max(1, 2 * u);
   for (let i = 0; i < CAM.grains; i++) {
-    ctx.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.05 + random() * 0.12})`;
-    ctx.fillRect(r.x + random() * r.w, r.y + random() * r.h, grain, grain);
+    const size = grain * (1 + Math.floor(random() * 2));
+    ctx.fillStyle = `rgba(${random() < 0.5 ? "0, 0, 0" : "255, 255, 255"}, ${0.08 + random() * 0.22})`;
+    ctx.fillRect(r.x + random() * r.w, r.y + random() * r.h, size, size);
   }
   ctx.fillStyle = CAM.scanline;
   const line = Math.max(2, 6 * u);
@@ -327,6 +331,12 @@ function securityCam(ctx, w, h, t, label) {
   glow.addColorStop(1, CAM.vignette);
   ctx.fillStyle = glow;
   ctx.fillRect(r.x, r.y, r.w, r.h);
+  const stuck = grainRandom(CAM.deadSeed);
+  const dot = Math.max(1, 4 * u);
+  for (let i = 0; i < CAM.deadPixels; i++) {
+    ctx.fillStyle = CAM.dead[Math.floor(stuck() * CAM.dead.length)];
+    ctx.fillRect(Math.round(r.x + stuck() * r.w), Math.round(r.y + stuck() * r.h), dot, dot);
+  }
   const size = 34 * u;
   const pad = 40 * u;
   ctx.font = `${size}px ${CAM.font}`;
