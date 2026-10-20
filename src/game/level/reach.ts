@@ -57,8 +57,11 @@ function standable(run: Run, ok: (col: number) => boolean): Run[] {
 export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
   const { grid, lifts } = world;
   const fallDeathCells = fallLimit(world, cfg);
+  const deadlyFall = (col: number, from: number, land: number): boolean =>
+    world.hazards.some((z) => z.kind === "death" && col >= z.col && col < z.col + z.w && land - 1 >= z.row && from < z.row + z.h);
+  const deadly = (col: number, row: number): boolean => deadlyFall(col, row - 1, row);
   const runs: Run[] = [...world.terrain.ledges, ...world.terrain.girders].flatMap((r) =>
-    standable(r, (col) => !grid.solid(col, r.row - 1)),
+    standable(r, (col) => !grid.solid(col, r.row - 1) && !deadly(col, r.row)),
   );
   const decks = new Map<Run, string>(
     lifts.flatMap((l, i) => l.stops.map((row): [Run, string] => [{ row, col: l.x, w: l.w }, stopId(i, row)])),
@@ -72,6 +75,10 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
     floors.filter((r) => r.row === row && r.col <= c1 + 1 && r.col + r.w - 1 >= c0 - 1);
   const clear = (col: number, top: number, bottom: number): boolean => {
     for (let row = top; row <= bottom; row++) if (grid.solid(col, row)) return false;
+    return true;
+  };
+  const open = (col: number, top: number, bottom: number): boolean => {
+    for (let row = top; row <= bottom; row++) if (grid.solid(col, row) || grid.oneWay(col, row)) return false;
     return true;
   };
 
@@ -111,7 +118,7 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
         if (inShaft(l, col) && row > from && row <= land && row - from <= maxDrop) out.push(stopId(i, row));
       }
     });
-    if (land >= grid.height || land - from > maxDrop) return out;
+    if (land >= grid.height || land - from > maxDrop || deadlyFall(col, from, land)) return out;
     const under = runAt(land, col);
     return [...out, ...(under ? [id(under)] : touching(land, col, col).map(node))];
   }
@@ -131,7 +138,7 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
       if (empty < 0 || empty > m.jumpCells(t.row - r.row)) return [];
       const path = Array.from({ length: empty + 1 }, (_, k) => edge + side * (k + 1));
       if (path.slice(0, -1).some((c) => m.blocked(c, r.row, t.row))) return [];
-      if (t.row > r.row && !path.some((c) => clear(c, r.row, t.row - 1))) return [];
+      if (t.row > r.row && (!path.some((c) => open(c, r.row, t.row - 1)) || deadlyFall(near, r.row, t.row))) return [];
       return m.landing(near, t.row, r.row) ? [{ to: node(t), cols: path.slice(0, -1) }] : [];
     });
   }
@@ -176,6 +183,11 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
       both(l.stops.map((row) => stopId(i, row)), i);
       for (const row of l.stops) both([stopId(i, row), ...touching(row, l.x, l.x + l.w - 1).map(node)]);
     });
+    for (const t of world.teleports) {
+      const pads = runs.filter((r) => r.row === t.from[1] + 1 && r.col < t.col + t.w && r.col + r.w > t.col);
+      const target = runAt(t.to[1] + 1, t.to[0]);
+      if (target) link(pads.map(id), [id(target)]);
+    }
     for (const { col, top, end } of ladders()) {
       const group = [...touching(top, col, col), ...touching(end, col, col)].map(node);
       both(group);

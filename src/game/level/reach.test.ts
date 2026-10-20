@@ -4,8 +4,9 @@ import { describe, expect, it } from "vitest";
 import { loadMovement } from "../hero/config";
 import { game, objectLevel, RUNNING, run, tick } from "../hero/testWorld";
 import { loadMesto, mestoJson } from "./mesto";
+import { loadMission, missionJson, MISSIONS, type MissionId } from "./missions";
 import { id, inShaft, reachOf, stopId, stopsAt } from "./reach";
-import { loadSandbox, type SandboxWorld } from "./sandboxLevel";
+import { loadSandbox, type SandboxJson, type SandboxWorld } from "./sandboxLevel";
 
 const PROBED_JUMP_CELLS: [number, number][] = [[-1, 3], [0, 4], [3, 6], [7, 7]];
 const cfg = loadMovement(movementJson);
@@ -162,8 +163,170 @@ describe("one-way floors", () => {
     expect(r.runs.map(id)).toEqual(expect.arrayContaining(["2,3", "3,5", "4,3", "5,5", "6,3", "7,1"]));
   });
 
+  it("never jumps down through a one-way floor", () => {
+    const shelf = {
+      ...stair,
+      rows: ["#..........#", "#..........#", "#..|.......#", "#==========#", "#..........#", "#..........#", "#..........#", "#....###...#", "############"],
+      spawn: [1.5, 3],
+    };
+    const r = reachOf(loadSandbox(shelf), cfg);
+    const g = r.graph(r.generous);
+    expect(g.get("3,1")!.map((e) => e.to)).toContain("3,4");
+    expect(r.reach(g, "3,1").has("7,5")).toBe(false);
+  });
+
   it("lands on a one-way ledge when dropping down", () => {
     const w = loadSandbox(stair);
     expect(reachOf(w, cfg).landings(4, 1, fallDeathCells)).toEqual(["2,3"]);
+  });
+});
+
+describe("hazards and teleports", () => {
+  const pit = {
+    ...objectLevel,
+    rows: ["#..........#", "#..........#", "#..........#", "#..........#", "#..........#", "#..........#", "#.##...###.#", "############"],
+    spawn: [3.5, 6],
+    props: [],
+    tasks: { tasks: [] },
+  };
+  const ledge = {
+    ...pit,
+    rows: ["#..........#", "#..........#", "#..........#", "####.......#", "#..........#", "#..........#", "#.......####", "############"],
+    spawn: [1.5, 3],
+  };
+  const jumpsFrom = (w: SandboxWorld, run: string): string[] => {
+    const r = reachOf(w, cfg);
+    return r.graph(r.generous).get(run)!.map((e) => e.to);
+  };
+
+  it("never lands in a death hazard", () => {
+    const r = reachOf(loadSandbox({ ...pit, hazards: [{ id: "lava", kind: "death", col: 1, row: 6, w: 1, h: 1 }] }), cfg);
+    expect(r.landings(1, 3, fallDeathCells)).toEqual([]);
+    expect(r.runs.map(id)).not.toContain("7,1");
+  });
+
+  it("never drops through a death hazard", () => {
+    const r = reachOf(loadSandbox({ ...pit, hazards: [{ id: "gap", kind: "death", col: 1, row: 4, w: 1, h: 1 }] }), cfg);
+    expect(r.landings(1, 3, fallDeathCells)).toEqual([]);
+    expect(r.runs.map(id)).toContain("7,1");
+  });
+
+  it("never jumps down through a death hazard", () => {
+    expect(jumpsFrom(loadSandbox(ledge), "3,1")).toContain("6,8");
+    const chasm = loadSandbox({ ...ledge, hazards: [{ id: "chasm", kind: "death", col: 7, row: 4, w: 2, h: 1 }] });
+    expect(jumpsFrom(chasm, "3,1")).not.toContain("6,8");
+  });
+
+  it("keeps damage hazard floors walkable", () => {
+    const w = loadSandbox({ ...pit, hazards: [{ id: "fire", kind: "damage", col: 1, row: 6, w: 1, h: 1 }] });
+    expect(reachOf(w, cfg).landings(1, 3, fallDeathCells)).toEqual(["7,1"]);
+  });
+
+  it("links a teleport pad to its target floor", () => {
+    const rows = ["#......|...#", "#......|...#", "#......#####", ...pit.rows.slice(3)];
+    const w = loadSandbox({ ...pit, rows, teleports: [{ id: "pad", from: [3, 5], col: 2, w: 2, to: [9, 1] }] });
+    const r = reachOf(w, cfg);
+    const g = r.graph(r.generous);
+    expect(g.get("6,2")!.map((e) => e.to)).toContain("2,8");
+    expect(r.reach(g, "2,8").has("6,2")).toBe(false);
+  });
+});
+
+const GATED: Record<MissionId, Record<string, string[]>> = {
+  mesto: {
+    "metro tunnel gate, wireSwitchboard opens it (report 13: tunnel)": ["70,21", "70,28", "75,21", "75,28"],
+    "water pipe gate, takeTapHandle opens it (report 13: water)": ["70,13", "75,13"],
+    "plasma barrier, unlockPlasma opens it (report 13: plasma)": ["44,78", "44,85", "51,78", "51,85"],
+    "lift 9 needs flag:upperFloorsOpen from repairLift (report 13: lift 10 repaired)": ["23,19", "23,36", "30,24", "30,29", "30,36", "30,58"],
+    "card door, openDoor opens it (report 13: card door)": [
+      ...["10,39", "10,55", "16,27", "16,55", "16,125", "23,50", "23,87", "23,101", "23,107", "23,117", "23,125", "30,75", "30,87"],
+      ...["30,107", "30,112", "30,125"],
+    ],
+    "behind the shoot guard, the E-Blaster wrecks it (world.json shootGuard)": ["16,19"],
+    "outside every reached walk segment of report 13 (Floor tiles table)": [
+      ...["3,127", "10,7", "10,66", "10,128", "16,7", "16,128", "23,7", "23,93", "23,128", "23,142", "30,7", "30,69", "30,128"],
+      ...["30,142", "37,8", "37,24", "37,142", "44,11", "44,142", "51,11", "51,72", "59,133", "70,7", "70,18", "70,86", "75,7"],
+    ],
+  },
+  vesnice: {
+    "west of the guard post code wall col 52, the walkie-talkie removes it (report 14 code wall)": ["41,23"],
+    "west of the barricade col 22, the cannon shot loads M24; floor 50 west by lift 9, wall 14 floor by teleport 13 (report 14)": [
+      ...["41,15", "50,15", "32,30"],
+    ],
+    "past the marker 14 wall col 29 that the dynamite blows to end the level (report 14 tasks)": ["32,7"],
+    "plank stub past a floor-end wall, a report 14 walk segment off its route flowchart": [
+      ...["23,55", "23,87", "23,123", "23,149", "32,47", "32,59", "32,87", "32,106", "32,153", "41,10", "41,154", "50,11", "50,59"],
+      ...["50,69", "50,138", "59,74", "59,104", "59,113", "59,138", "68,77", "68,125"],
+    ],
+  },
+  jungle: {
+    "row 20 east of the spike pit and its stair to the puzzle ledge: grenade rubble, M33 (report 15 task 5)": [
+      ...["14,100", "15,101", "16,100", "17,104", "18,101", "19,103", "20,61"],
+    ],
+    "row 11 jeep ledge: waterfall steps after the stone puzzle, M34 (report 15 task 6)": ["11,76"],
+    "spike pit floor under row 20, entered only through the spikes (report 15 hazards)": ["21,45"],
+    "past the spawn ledge wall tables (112,19) col 116 and (124,19) col 131 (report 15 wall tables)": ["24,135", "25,104", "25,132"],
+    "past the east wall table (141,35) col 148 (report 15 wall tables)": ["41,149"],
+    "cabinet cells behind the cave step wall col 96, shot from column 93 on (report 15 task 1)": ["48,97"],
+    "floor tiles off every one-row jump chain: 2+ rows up or 8+ cells across from a reached floor (report 15 jump)": [
+      ...["13,37", "16,37", "16,39", "16,70", "17,42", "18,80", "18,82", "25,49", "28,65", "28,84", "28,107", "30,97", "37,122"],
+      ...["37,127", "38,120"],
+    ],
+  },
+  jeskyne: {
+    "behind lift 1, the rod unlocks it (report 16 lift lock)": [
+      ...["20,44", "29,49", "44,44", "48,122", "49,117", "50,118", "51,71", "51,116", "52,95", "52,120", "53,91", "53,117", "54,90"],
+      ...["54,120", "55,92", "55,116", "56,90", "56,116", "57,93", "58,92", "59,87", "59,110", "60,88", "60,108", "61,86", "61,110"],
+      ...["62,88", "62,109", "63,16", "63,87", "63,111", "64,64", "64,86", "64,110", "65,88", "65,105", "66,86", "66,97", "67,62"],
+      ...["74,21", "74,45", "74,50", "74,53", "74,56", "74,63", "74,66", "74,69", "74,76", "74,93"],
+    ],
+    "east of the crystal on floor 29, the stalactite shot loads M42 (report 16 shots)": [
+      ...["15,92", "16,126", "17,128", "18,126", "19,127", "20,125", "21,82", "21,99", "21,101", "22,133", "23,71", "23,135"],
+      ...["24,134", "25,133", "26,135", "27,133", "28,134", "29,64", "29,135", "30,131", "31,122", "32,119", "33,117", "34,119"],
+      ...["35,118", "36,117", "37,58", "37,120", "38,119", "39,92", "39,126", "40,88", "40,126"],
+    ],
+    "below chasm 8, entered only through the death zone (report 16 zones)": ["24,92"],
+    "marker 13 energy ledge under floor 63, an exact jump (report 16 dead end 2)": ["72,16"],
+    "floor tiles stacked in column 52, 5+ rows over floor 15 with no one-row step (report 16 jump)": ["7,52", "8,52", "9,52", "10,52"],
+  },
+};
+
+const START_CHAIN = ["28,15", "36,24", "43,20", "55,35"];
+
+function variant(json: SandboxJson, vid: string): SandboxJson {
+  const rows = json.rows.map((row) => row.split(""));
+  for (const { col, row, ch } of json.variants![vid]!) rows[row]![col] = ch;
+  return { ...json, rows: rows.map((row) => row.join("")) };
+}
+
+function openGraph(w: SandboxWorld) {
+  const r = reachOf(w, cfg);
+  const locked = new Set(w.lifts.flatMap((l, i) => (l.enabledBy === undefined || w.flags.has(l.enabledBy) ? [] : [i])));
+  const g = new Map([...r.graph(r.generous)].map(([k, edges]) => [k, edges.filter((e) => !locked.has(e.lift ?? -1) && !locked.has(e.deck ?? -1))]));
+  const spawn = id(r.runAt(w.spawn[1], Math.floor(w.spawn[0]))!);
+  return { r, g, spawn, from: r.reach(g, spawn) };
+}
+
+function oneWay(w: SandboxWorld, back: (spawn: string) => string): string[] {
+  const { r, g, spawn, from } = openGraph(w);
+  return r.runs.map(id).filter((n) => from.has(n) && !r.reach(g, n).has(back(spawn)));
+}
+
+describe("mission reach", () => {
+  it.each(MISSIONS)("%s reaches every floor from the spawn except gated runs", (mission) => {
+    const { r, from } = openGraph(loadMission(mission));
+    const gated = Object.values(GATED[mission]).flat();
+    expect(r.runs.map(id).filter((n) => !from.has(n) && !gated.includes(n))).toEqual([]);
+    expect(gated.filter((n) => from.has(n) || !r.runs.some((run) => id(run) === n))).toEqual([]);
+  });
+
+  it("jeskyne one-way drops match report 16", () => {
+    expect(oneWay(loadMission("jeskyne"), (spawn) => spawn)).toEqual(START_CHAIN);
+    const open = loadSandbox(variant(missionJson("jeskyne"), "tankShot"));
+    open.flags.add(open.lifts[0]!.enabledBy!);
+    const { r, from } = openGraph(open);
+    const lower = r.runs.filter((run) => run.row >= 48 && from.has(id(run))).map(id);
+    expect(lower.length).toBeGreaterThan(0);
+    expect(oneWay(open, () => stopId(0, open.lifts[0]!.top))).toEqual(lower.filter((n) => !START_CHAIN.includes(n)));
   });
 });
