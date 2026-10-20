@@ -9,8 +9,8 @@ export const grain = (level: number, until: number): ((t: number) => number) => 
   return (t) => (t < until ? level * noise() : 0);
 };
 
-export function steady(seconds: number, source: (t: number) => number, windowSeconds = 0.005): Float32Array {
-  const raw = fill(buffer(seconds), (t) => source(t));
+export function steady(seconds: number, source: (t: number, i: number) => number, windowSeconds = 0.005): Float32Array {
+  const raw = fill(buffer(seconds), source);
   const half = Math.max(1, Math.round((windowSeconds * BASE_RATE) / 2));
   const energy = new Float64Array(raw.length + 1);
   raw.forEach((x, i) => (energy[i + 1] = energy[i]! + x * x));
@@ -23,3 +23,17 @@ export function steady(seconds: number, source: (t: number) => number, windowSec
 }
 
 export const steps = (width: number, levels: number[]): ((t: number) => number) => (t) => levels[Math.floor(t / width)] ?? 0;
+
+export const driven = (carrier: Float32Array, drive: number, windowSeconds = 0.01): Float32Array =>
+  steady(carrier.length / BASE_RATE, (_, i) => clip(carrier[i]!, drive), windowSeconds);
+
+export function sweptLow(cutoff: (t: number) => number): (x: number, t: number) => number {
+  let first = 0;
+  let second = 0;
+  return (x, t) => {
+    const alpha = 1 - Math.exp((-2 * Math.PI * cutoff(t)) / BASE_RATE);
+    first += alpha * (x - first);
+    second += alpha * (first - second);
+    return second / Math.sqrt(alpha);
+  };
+}

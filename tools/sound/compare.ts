@@ -30,6 +30,16 @@ export const ORIGINAL_OF: Partial<Record<SoundId, string>> = {
   thunder: "HROM.SND",
   teleport: "TELEPORT.SND",
   spark: "ZKRAT.SND",
+  servo: "HYDRA.SND",
+  crackle: "EL.SND",
+  ignition: "ZAZEH.SND",
+  flyby: "PRULET2.SND",
+  flyover: "PRELET.SND",
+  hatch: "VRATA1.SND",
+  slam: "VRATA2.SND",
+  takeoff: "ODLET.SND",
+  blast: "VYBUCH2.SND",
+  heavyDoor: "DVERE2.SND",
 };
 
 function spectrogramRows(samples: Float32Array): Uint8Array[] {

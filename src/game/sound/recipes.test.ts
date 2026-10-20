@@ -22,6 +22,16 @@ const LENGTHS: Record<SoundId, number> = {
   thunder: 20930,
   teleport: 49957,
   spark: 1499,
+  servo: 6811,
+  crackle: 22151,
+  ignition: 45515,
+  flyby: 30160,
+  flyover: 62607,
+  hatch: 3535,
+  slam: 8598,
+  takeoff: 61740,
+  blast: 47650,
+  heavyDoor: 18155,
 };
 
 const rms = (xs: Float32Array) => Math.sqrt(xs.reduce((sum, x) => sum + x * x, 0) / xs.length);
