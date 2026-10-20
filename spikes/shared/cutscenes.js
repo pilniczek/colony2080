@@ -297,6 +297,22 @@ function grainRandom(seed) {
   };
 }
 
+function corners(ctx, r, u) {
+  const inset = 18 * u;
+  const arm = 70 * u;
+  const x0 = r.x + inset, y0 = r.y + inset, x1 = r.x + r.w - inset, y1 = r.y + r.h - inset;
+  ctx.strokeStyle = CAM.text;
+  ctx.lineWidth = Math.max(1, 4 * u);
+  ctx.lineCap = "square";
+  ctx.beginPath();
+  for (const [x, y, dx, dy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) {
+    ctx.moveTo(x + dx * arm, y);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x, y + dy * arm);
+  }
+  ctx.stroke();
+}
+
 function securityCam(ctx, w, h, t, label) {
   const r = filmRect(w, h);
   const u = r.h / FILM.h;
@@ -350,9 +366,11 @@ function securityCam(ctx, w, h, t, label) {
     ctx.fillStyle = CAM.text;
   }
   ctx.fillText("REC", r.x + pad + size, r.y + pad);
-  ctx.fillText(camClock(t), r.x + pad, r.y + pad + size * 1.4);
   ctx.textAlign = "right";
   ctx.fillText(label, r.x + r.w - pad, r.y + pad);
+  ctx.textBaseline = "bottom";
+  ctx.fillText(camClock(t), r.x + r.w - pad, r.y + r.h - pad);
+  corners(ctx, r, u);
   ctx.restore();
 }
 
