@@ -31,13 +31,13 @@ const SIDE_LEG = {
   toe: [[300, 688], [384, 688], [396, 706], [300, 706]] as Pt[],
 };
 
-const grad = (ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number, stops: Stops): CanvasGradient => {
+export const grad = (ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number, stops: Stops): CanvasGradient => {
   const g = ctx.createLinearGradient(x0, y0, x1, y1);
   for (const [at, c] of stops) g.addColorStop(at, P.pal()[c] || c);
   return g;
 };
 
-const fillPath = (ctx: CanvasRenderingContext2D, trace: Trace, fill: CanvasGradient, outline = "gmLine"): void => {
+export const fillPath = (ctx: CanvasRenderingContext2D, trace: Trace, fill: CanvasGradient, outline = "gmLine"): void => {
   ctx.beginPath();
   trace(ctx);
   ctx.closePath();
