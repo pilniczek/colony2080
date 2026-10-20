@@ -124,13 +124,21 @@ function crowbarDoor(CFG) {
   const X = RB.x;
   const BAR = CFG.crowbar;
   const LINE_W = 1.4;
+  const FULL_LINE_PX = 500;
+  let lineW = LINE_W;
+
+  function lineFor(c) {
+    const t = c.getTransform();
+    const robotPx = Math.sqrt(Math.abs(t.a * t.d - t.b * t.c)) * K * FOOT_Y;
+    return Math.min(LINE_W, Math.max(window.XBOT.GAME_LINE, LINE_W * robotPx / FULL_LINE_PX));
+  }
   const STAND = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
   const sideRoot = buildSide({ farLimbs: true, propBehindArm: true });
   const backRoot = buildBack({ leftArmBehind: true, rightForeBehind: true });
 
   function drawCrowbar(c, reach, w, butt) {
     const t = c.getTransform();
-    const lw = LINE_W / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+    const lw = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
     const len = reach + butt - w * 0.2;
     c.strokeStyle = BOT_PALETTE.mLine;
     c.lineWidth = lw;
@@ -155,7 +163,7 @@ function crowbarDoor(CFG) {
   function placeRobot(root, m, pose, hooks) {
     ctx.save();
     ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-    renderBot(ctx, root, { pose, hooks, lineW: LINE_W });
+    renderBot(ctx, root, { pose, hooks, lineW });
     ctx.restore();
   }
 
@@ -229,6 +237,7 @@ function crowbarDoor(CFG) {
     const cy = at("camY", t) + Math.cos(t * 77) * sh * 0.4;
     ctx.translate(W / 2 - cx * z, H / 2 - cy * z);
     ctx.scale(z, z);
+    lineW = lineFor(ctx);
     drawWorld(t);
     if (at("shot", t) === "C") drawBack(t); else drawProfile(t);
     ctx.restore();

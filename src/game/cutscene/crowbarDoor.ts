@@ -17,6 +17,14 @@ const RB = config.robot;
 const K = RB.scale;
 const BAR = config.crowbar;
 const LINE_W = 1.4;
+const FULL_LINE_PX = 500;
+let lineW = LINE_W;
+
+const lineFor = (ctx: CanvasRenderingContext2D): number => {
+  const t = ctx.getTransform();
+  const robotPx = Math.sqrt(Math.abs(t.a * t.d - t.b * t.c)) * K * ROBOT.FOOT_Y;
+  return Math.min(LINE_W, Math.max(ROBOT.gameLine, (LINE_W * robotPx) / FULL_LINE_PX));
+};
 const STAND = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
 const FAR_RANGES: [[number, number], [number, number]] = [[-150, 90], [-140, 10]];
 const ORIGIN: Pt = [0, 0];
@@ -115,7 +123,7 @@ function floorShadow(ctx: CanvasRenderingContext2D, x: number, w: number): void 
 
 function drawCrowbar(c: CanvasRenderingContext2D, reach: number, w: number, butt: number): void {
   const t = c.getTransform();
-  const lw = LINE_W / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+  const lw = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
   const len = reach + butt - w * 0.2;
   c.strokeStyle = ROBOT.palette.mLine!;
   c.lineWidth = lw;
@@ -146,7 +154,7 @@ const hookAt = (root: GroupNode, hook: string, pose: Pose, base?: Mat2D): Mat2D 
 function placeRobot(ctx: CanvasRenderingContext2D, root: GroupNode, m: DOMMatrix, pose: Pose, hooks: Record<string, HookDraw | undefined>): void {
   ctx.save();
   ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-  drawRig(ctx, root, { palette: ROBOT.palette, pose, hooks, lineW: LINE_W });
+  drawRig(ctx, root, { palette: ROBOT.palette, pose, hooks, lineW });
   ctx.restore();
 }
 
@@ -212,6 +220,7 @@ function render(ctx: CanvasRenderingContext2D, w: number, h: number, clipT: numb
   const cy = num("camY", t) + Math.cos(t * 77) * sh * 0.4;
   ctx.translate(W / 2 - cx * z, H / 2 - cy * z);
   ctx.scale(z, z);
+  lineW = lineFor(ctx);
   const stage = { ctx, t };
   drawWorld(stage);
   if (text("shot", t) === "C") drawBack(stage);
