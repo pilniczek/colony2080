@@ -101,10 +101,10 @@
   ],
   "conveyors": [],
   "teleports": [
-    {"id": "padUp", "from": [52, 49], "to": [42, 31]},
-    {"id": "padDown", "from": [42, 31], "to": [52, 49]},
-    {"id": "sourceTeleport", "from": [128, 22], "to": [65, 31]},
-    {"id": "targetTeleport", "from": [65, 31], "to": [128, 22]}
+    {"id": "padUp", "from": [52, 49], "col": 50, "w": 5, "to": [42, 31]},
+    {"id": "padDown", "from": [42, 31], "col": 40, "w": 5, "to": [52, 49]},
+    {"id": "sourceTeleport", "from": [128, 22], "col": 127, "w": 4, "to": [65, 31]},
+    {"id": "targetTeleport", "from": [65, 31], "col": 63, "w": 5, "to": [128, 22]}
   ],
   "variants": {
     "powerOff": [{"col": 99, "row": 36, "ch": "."}, {"col": 99, "row": 37, "ch": "."}, {"col": 99, "row": 38, "ch": "."}, {"col": 99, "row": 39, "ch": "."}, {"col": 99, "row": 40, "ch": "."}, {"col": 45, "row": 41, "ch": "."}, {"col": 46, "row": 41, "ch": "."}, {"col": 47, "row": 41, "ch": "."}, {"col": 48, "row": 41, "ch": "."}, {"col": 49, "row": 41, "ch": "."}, {"col": 50, "row": 41, "ch": "."}, {"col": 51, "row": 41, "ch": "."}, {"col": 52, "row": 41, "ch": "."}, {"col": 53, "row": 41, "ch": "."}, {"col": 54, "row": 41, "ch": "."}, {"col": 55, "row": 41, "ch": "."}, {"col": 56, "row": 41, "ch": "."}],

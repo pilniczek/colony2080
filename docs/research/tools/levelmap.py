@@ -371,29 +371,59 @@ def conveyors(data, zones, cfg):
 
 
 def foot(grid, col, row):
-    if grid[row][col] not in ".=" or grid[row + 1][col] not in "#=":
+    if grid[row][col] != "." or grid[row + 1][col] not in "#=":
         raise SystemExit(f"no floor under foot cell {col},{row}")
     return [col, row]
 
 
 def pad(grid, cols, floor):
-    return foot(grid, (cols[0] + cols[1]) // 2, floor - 1)
+    return {"from": foot(grid, (cols[0] + cols[1]) // 2, floor - 1), "col": cols[0], "w": cols[1] - cols[0] + 1}
 
 
 def teleports(grid, layout, cfg):
     out = []
     for index, name in cfg.get("teleportZones", {}).items():
         zone = layout["zones"][index]
-        out.append({"id": name, "from": pad(grid, zone["from"]["cols"], zone["from"]["floor"]), "to": foot(grid, zone["to"]["col"], zone["to"]["floor"] - 1)})
+        out.append({"id": name, **pad(grid, zone["from"]["cols"], zone["from"]["floor"]), "to": foot(grid, zone["to"]["col"], zone["to"]["floor"] - 1)})
     for lift in layout.get("scriptedLifts", []):
         for end, other, way in (("bottom", "top", "Up"), ("top", "bottom", "Down")):
             col, floor = lift[end]["to"]
-            out.append({"id": lift["id"] + way, "from": pad(grid, lift[end]["cols"], lift[end]["floor"]), "to": foot(grid, col, floor - 1)})
+            out.append({"id": lift["id"] + way, **pad(grid, lift[end]["cols"], lift[end]["floor"]), "to": foot(grid, col, floor - 1)})
     return out
 
 
-def enemies_of(grid, enemies, kinds):
-    return [{"kind": e["type"], "cell": foot(grid, *e["cell"]), "patrol": e["patrol"]} for e in enemies["enemies"] if e["type"] in kinds]
+def standable(grid, deaths, col, row):
+    return 0 <= col < W and grid[row][col] not in "#|" and grid[row + 1][col] in "#=" and not any(
+        h["col"] <= col < h["col"] + h["w"] and h["row"] <= row < h["row"] + h["h"] for h in deaths
+    )
+
+
+def walk_run(grid, deaths, col, row):
+    a = b = col
+    while standable(grid, deaths, a - 1, row):
+        a -= 1
+    while standable(grid, deaths, b + 1, row):
+        b += 1
+    return a, b
+
+
+def enemy(grid, deaths, e):
+    col, row = e["cell"]
+    if not standable(grid, deaths, col, row):
+        raise SystemExit(f"enemy {e['id']} off its floor at {col},{row}")
+    a, b = walk_run(grid, deaths, col, row)
+    lo, hi = max(e["patrol"][0], a), min(e["patrol"][1], b)
+    free = sorted((c for c in range(lo, hi + 1) if grid[row][c] == "."), key=lambda c: (abs(c - col), c))
+    if not free:
+        raise SystemExit(f"enemy {e['id']} has no open foot cell on its floor at row {row}")
+    if (free[0], lo, hi) != (col, *e["patrol"]):
+        print(f"enemy {e['id']} cell {col} -> {free[0]}, patrol {e['patrol']} -> {[lo, hi]}", file=sys.stderr)
+    return {"kind": e["type"], "cell": foot(grid, free[0], row), "patrol": [lo, hi]}
+
+
+def enemies_of(grid, enemies, kinds, hazards):
+    deaths = [h for h in hazards if h["kind"] == "death"]
+    return [enemy(grid, deaths, e) for e in enemies["enemies"] if e["type"] in kinds]
 
 
 def variant_grid(data, layout, cfg, name):
@@ -429,6 +459,7 @@ def build_tiles(data, layout, cfg, raw, enemies, map_path):
     for col, row, was, now in open_shafts(grid, lifts):
         print(f"shaft cell {col},{row} {was} -> {now}", file=sys.stderr)
     found, sources = variants(grid, map_path, layout, cfg)
+    zones = hazards(raw["zones"], cfg)
     return {
         "status": "draft",
         "source": cfg["source"],
@@ -436,12 +467,12 @@ def build_tiles(data, layout, cfg, raw, enemies, map_path):
         "lifts": [lift_json(lift, cfg) for lift in lifts],
         "spawn": drop_spawn(grid, layout["spawn"]),
         "fallDeathCells": cfg["fallDeathCells"],
-        "hazards": hazards(raw["zones"], cfg),
+        "hazards": zones,
         "conveyors": conveyors(data, raw["zones"], cfg),
         "teleports": teleports(grid, raw, cfg),
         "variants": found,
         "variantSources": sources,
-        "enemies": enemies_of(grid, enemies, cfg["enemyKinds"]),
+        "enemies": enemies_of(grid, enemies, cfg["enemyKinds"], zones),
     }
 
 
