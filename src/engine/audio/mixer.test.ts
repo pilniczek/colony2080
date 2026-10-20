@@ -68,7 +68,6 @@ function fakeContext() {
       return source;
     },
     createGain: makeGain,
-    createDynamicsCompressor: () => ({ ...makeGain(), threshold: { value: 0 }, knee: { value: 0 }, ratio: { value: 1 } }),
   };
   return { context: context as unknown as AudioContext, sources, buffers, resume };
 }

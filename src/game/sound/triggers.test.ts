@@ -54,14 +54,8 @@ describe("hero weapon cues", () => {
 });
 
 describe("enemy fire cues", () => {
-  it("mesto droid shot cues cannon 15000", () => {
-    const g = game({ x: 5.5, y: 8 }, arena({ mission: "mesto", enemies: [droid(9.5)] }));
-    tick(g);
-    expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
-  });
-
-  it("vesnice droid shot cues cannon 15000, one per bullet", () => {
-    const g = game({ x: 5.5, y: 8 }, arena({ mission: "vesnice", enemies: [droid(9.5)] }));
+  it("droid shot cues cannon 15000, one per bullet", () => {
+    const g = game({ x: 5.5, y: 8 }, arena({ enemies: [droid(9.5)] }));
     tick(g);
     expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
     run(g, 0.5);
@@ -74,8 +68,8 @@ describe("enemy fire cues", () => {
     expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
   });
 
-  it("flyer shot cues laser 15000, in mesto too", () => {
-    const g = game({ x: 5.5, y: 8 }, arena({ mission: "mesto", enemies: [droid(9.5, { flight: FLIGHT })] }));
+  it("flyer shot cues laser 15000", () => {
+    const g = game({ x: 5.5, y: 8 }, arena({ enemies: [droid(9.5, { flight: FLIGHT })] }));
     runUntil(g, () => cues(g, "laser").length > 0, [], 5);
     expect(cues(g, "laser")[0]).toEqual({ id: "laser", rate: 15000, vol: 63, bus: "world" });
     expect(cues(g, "cannon")).toHaveLength(0);
@@ -298,7 +292,7 @@ describe("world cues", () => {
   });
 
   it("never thunders in game", () => {
-    const g = game({ x: 3.5, y: 8 }, arena({ mission: "mesto" }));
+    const g = game({ x: 3.5, y: 8 }, arena());
     run(g, 70);
     expect(cues(g, "thunder")).toHaveLength(0);
   });

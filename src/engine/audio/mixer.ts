@@ -90,10 +90,7 @@ export function createMixer(
     unlock() {
       if (!graph) {
         const context = makeContext();
-        const master = context.createDynamicsCompressor();
-        master.threshold.value = -12;
-        master.knee.value = 6;
-        master.ratio.value = 4;
+        const master = context.createGain();
         master.connect(context.destination);
         const world = context.createGain();
         const ui = context.createGain();

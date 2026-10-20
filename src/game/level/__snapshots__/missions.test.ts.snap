@@ -1952,7 +1952,6 @@ exports[`missions > mesto json is unchanged 1`] = `
       "x": 52,
     },
   ],
-  "mission": "mesto",
   "props": [
     {
       "approach": {
