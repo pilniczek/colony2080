@@ -195,7 +195,7 @@ Lift 14 also stops on floor 23 (columns 117-126).
 
 ## Our blockers
 
-Our hero falls, and floors sit 7 rows apart, the same as `fallDeathCells`: a hole in a floor is a survivable drop. The lift reach rule (`src/game/level/reach.test.ts`) finds two shaft holes that join floors past a lift. `docs/research/tools/mestomap.py` (`SHAFT_FLOORS`) puts an invisible `|` row under each bottom stop:
+Our hero falls, and floors sit 7 rows apart, the same as `fallDeathCells`: a hole in a floor is a survivable drop. The lift reach rule (`src/game/level/reach.test.ts`) finds two shaft holes that join floors past a lift. `docs/research/tools/levelmap.py` (`EXTRAS[1]["shaftFloors"]`) puts an invisible `|` row under each bottom stop:
 
 | Cells (col, row) | Lift | Drop it stops |
 |---|---|---|

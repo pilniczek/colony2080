@@ -184,6 +184,15 @@ function scenery(items: SceneryJson[]): Scenery[] {
   });
 }
 
+export const fallLimit = (world: SandboxWorld, cfg: MovementConfig): number =>
+  world.fallDeathCells === undefined ? cfg.fallDeathCells : (world.fallDeathCells ?? Infinity);
+
+export function floorsOf(world: SandboxWorld): Platform[] {
+  if (!world.immortal) return world.lifts;
+  const pits = world.hazards.filter((z) => z.kind === "death").map((z) => ({ x: z.col, y: z.row, w: z.w, vy: 0 }));
+  return [...world.lifts, ...pits, { x: 0, y: world.grid.height, w: world.grid.width, vy: 0 }];
+}
+
 export function loadSandbox(json: unknown): SandboxWorld {
   const data = json as SandboxJson;
   const grid = new TileGrid(data.rows);

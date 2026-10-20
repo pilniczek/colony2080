@@ -3,9 +3,9 @@ import { clamp } from "../../engine/anim/keyed";
 import { moveBox, type Box } from "../../engine/world/collide";
 import type { Projectile } from "../../engine/world/projectiles";
 import { ITEMS } from "../items";
-import { callLift, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
-import { fallLimit, floorsOf } from "../level/hazards";
+import { callLift, fallLimit, floorsOf, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { openTask, runUse, say } from "../level/tasks";
+import { padUnder, ridePad } from "../level/teleports";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
@@ -42,9 +42,7 @@ export interface Landing {
   age: number;
 }
 
-export type HeroEvent = { kind: "pickup" | "use" | "shot" | "beam" | "punch" | "died" | "respawned"; x: number; y: number; reason?: DeathReason };
-
-export type DeathReason = "hazard";
+export type HeroEvent = { kind: "pickup" | "use" | "shot" | "beam" | "punch" | "died" | "respawned"; x: number; y: number };
 
 interface Step {
   h: Hero;
@@ -206,7 +204,7 @@ type Death = "fallDeath" | "death" | "jumpDeath";
 
 const deathOf = (h: Hero): Death => (isAirborne(h.state) ? "jumpDeath" : "death");
 
-function die(h: Hero, state: Death, events: HeroEvent[], reason?: DeathReason): void {
+function die(h: Hero, state: Death, events: HeroEvent[]): void {
   enter(h, state);
   if (state !== "jumpDeath") {
     h.vx = 0;
@@ -214,24 +212,24 @@ function die(h: Hero, state: Death, events: HeroEvent[], reason?: DeathReason): 
   }
   h.hidden = false;
   h.fireTime = null;
-  events.push({ kind: "died", x: h.x, y: h.y, ...(reason ? { reason } : {}) });
+  events.push({ kind: "died", x: h.x, y: h.y });
 }
 
-export function kill(h: Hero, reason?: DeathReason): HeroEvent[] {
+export function kill(h: Hero): HeroEvent[] {
   const events: HeroEvent[] = [];
   if (isDead(h.state)) return events;
   h.energy = 0;
-  die(h, deathOf(h), events, reason);
+  die(h, deathOf(h), events);
   return events;
 }
 
-function spend(h: Hero, cfg: MovementConfig, amount: number, events: HeroEvent[], reason?: DeathReason): void {
+function spend(h: Hero, cfg: MovementConfig, amount: number, events: HeroEvent[]): void {
   h.energy = Math.max(0, h.energy - amount);
   if (h.energy > 0) return;
   if (h.shields > 0) {
     h.shields -= 1;
     h.energy = cfg.energy.max;
-  } else die(h, deathOf(h), events, reason);
+  } else die(h, deathOf(h), events);
 }
 
 export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
@@ -242,9 +240,9 @@ export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   return events;
 }
 
-export function drain(h: Hero, cfg: MovementConfig, amount: number, reason: DeathReason): HeroEvent[] {
+export function drain(h: Hero, cfg: MovementConfig, amount: number): HeroEvent[] {
   const events: HeroEvent[] = [];
-  if (!isDead(h.state)) spend(h, cfg, amount, events, reason);
+  if (!isDead(h.state)) spend(h, cfg, amount, events);
   return events;
 }
 
@@ -375,7 +373,9 @@ function stance(s: Step): boolean {
 
 function standUp(s: Step, from: Jump): boolean {
   const { h, world } = s;
-  if (liftPress(s) || !s.consume("up")) return false;
+  if (liftPress(s)) return false;
+  if (padPress(s)) return true;
+  if (!s.consume("up")) return false;
   if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) enterLadder(s);
   else jump(s, from);
   return true;
@@ -396,6 +396,15 @@ function liftPress(s: Step): boolean {
   return true;
 }
 
+function padPress(s: Step): boolean {
+  const pad = s.input.pressed.has("up") ? padUnder(s.world, s.h) : null;
+  if (!pad) return false;
+  s.consume("up");
+  ridePad(s.h, pad);
+  halt(s.h);
+  return true;
+}
+
 function rideLift({ h, world, cfg }: Step, dir: -1 | 1): boolean {
   const lift = h.onLift ? liftAt(world, h, cfg) : null;
   if (!lift || !liftGoes(lift, dir) || !onDeck(h.x, lift, cfg)) return false;
@@ -413,6 +422,7 @@ function moving(s: Step): void {
   const { h, world } = s;
   if (takeCover(s)) return;
   if (h.state === "walk" && liftPress(s)) return enter(h, "idle");
+  if (padPress(s)) return;
   if (s.consume("up")) {
     if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(s);
     return jump(s, h.state === "run" ? "runJump" : "walkJump");

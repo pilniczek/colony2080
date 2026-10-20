@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { isDead } from "../hero/hero";
 import { cfg, game, run, runUntil, tick } from "../hero/testWorld";
-import { loadSandbox, resetWorld } from "./sandboxLevel";
-import { conveyorVx, fallLimit } from "./hazards";
+import { fallLimit, loadSandbox, resetWorld } from "./sandboxLevel";
+import { conveyorVx } from "./hazards";
 
 const WIDTH = 20;
 const open = `#${".".repeat(WIDTH - 2)}#`;
@@ -46,7 +46,7 @@ describe("hazards", () => {
     const g = game({ x: 9.5, y: 8 }, level({ hazards: [lava] }));
     tick(g);
     expect(isDead(g.hero.state)).toBe(true);
-    expect(g.events).toContainEqual({ kind: "died", x: 9.5, y: 8, reason: "hazard" });
+    expect(g.events).toContainEqual({ kind: "died", x: 9.5, y: 8 });
   });
 
   it("misses a hero whose centre is outside the rect", () => {
@@ -70,7 +70,7 @@ describe("hazards", () => {
     expect(isDead(g.hero.state)).toBe(false);
     runUntil(g, (h) => isDead(h.state), ["moveRight"], 2);
     expect(isDead(g.hero.state)).toBe(true);
-    expect(g.events.find((e) => e.kind === "died")).toMatchObject({ reason: "hazard" });
+    expect(g.events.filter((e) => e.kind === "died")).toHaveLength(1);
   });
 
   it("damage hazard takes perSecond energy and pushes by push cells per second", () => {
@@ -89,6 +89,14 @@ describe("hazards", () => {
     expect(isDead(g.hero.state)).toBe(false);
     run(g, 0.5);
     expect(isDead(g.hero.state)).toBe(true);
+  });
+
+  it("does not push a hero the drain just killed", () => {
+    const acid = { id: "acid", kind: "damage", col: 2, row: 7, w: 16, h: 1, perSecond: cfg.energy.max * 120, push: 60 };
+    const g = game({ x: 6.5, y: 8 }, level({ hazards: [acid] }));
+    tick(g);
+    expect(isDead(g.hero.state)).toBe(true);
+    expect(g.hero.x).toBe(6.5);
   });
 
   it("does nothing while a film plays", () => {
