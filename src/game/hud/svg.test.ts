@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HAND_BOX, SLOT, TOGGLE_W, topBar, WEAPON_W } from "./layout";
+import { HAND_BOX, HAND_INK_H, ICON_H, RUN_INK_H, SLOT, SPEAKER_INK_H, TOGGLE_W, topBar, WEAPON_W } from "./layout";
 import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
@@ -145,6 +145,29 @@ describe("hudSvg", () => {
     const svg = hudSvg(320, 200, base, icons);
     expect(svg).toContain(">350</text>");
     expect(svg).toContain("C2080");
+  });
+
+  describe("icon sizes", () => {
+    const svg = hudSvg(320, 200, base, icons);
+    const scaleOf = (re: RegExp): number => Number(re.exec(svg)![1]);
+    const hand = scaleOf(/translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\) translate\([-\d.]+ [-\d.]+\)"><g transform="translate\(0 2\.6\)"/);
+    const run = scaleOf(/data-icon="run"><g transform="translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\)"/);
+    const sound = scaleOf(/data-icon="sound"[^>]*><g transform="translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\)"/);
+
+    it("draws the empty hand 10% smaller than before", () => {
+      expect(hand * HAND_INK_H).toBeCloseTo(0.9 * 0.8 * HAND_INK_H, 6);
+    });
+
+    it("draws the speaker, running figure and hand at one height", () => {
+      expect(ICON_H).toBeCloseTo(0.9 * 0.8 * HAND_INK_H, 6);
+      expect(hand * HAND_INK_H).toBeCloseTo(ICON_H, 6);
+      expect(run * RUN_INK_H).toBeCloseTo(ICON_H, 6);
+      expect(sound * SPEAKER_INK_H).toBeCloseTo(ICON_H, 6);
+    });
+
+    it("keeps picked item icons at their size", () => {
+      expect(HAND_BOX.h).toBeCloseTo(13 * 0.8, 6);
+    });
   });
 
   describe("inventory slot", () => {

@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "../items";
 import { blasterIcon, BLASTER_BODY_W } from "./blasterIcon";
-import { HAND_DRAWN, HAND_SCALE, HUD_H, READOUT_SIZE, SLOT, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
+import { HAND_DRAWN, HAND_SCALE, HUD_H, READOUT_SIZE, RUN_SCALE, SLOT, SPEAKER_SCALE, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
   weapon: number;
@@ -190,10 +190,10 @@ function keyTab(cx: number, label: string, active = false): string {
 const weapon = (content: string, active: boolean): string => `<g filter="url(#${active ? "iconGlow" : "iconDim"})">${content}</g>`;
 
 const runIcon = (x: number, running: boolean): string =>
-  `<g filter="url(#${running ? "iconGlow" : "iconDim"})" data-icon="run"><g transform="translate(${x} ${(1.8 + TAB.top) / 2})">${RUN_FIGURE}</g></g>`;
+  `<g filter="url(#${running ? "iconGlow" : "iconDim"})" data-icon="run"><g transform="translate(${x} ${(1.8 + TAB.top) / 2}) scale(${RUN_SCALE})">${RUN_FIGURE}</g></g>`;
 
 const soundIcon = (x: number, on: boolean): string =>
-  `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${(1.8 + TAB.top) / 2})">${speaker(on)}</g></g>`;
+  `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${(1.8 + TAB.top) / 2}) scale(${SPEAKER_SCALE})">${speaker(on)}</g></g>`;
 
 const readout = (x: number, label: string): string =>
   `<text x="${x}" y="${(1.8 + TAB.top) / 2 + READOUT_SIZE * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="${READOUT_SIZE}" fill="${READOUT}">${label}</text>`;

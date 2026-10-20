@@ -207,8 +207,10 @@ const FIST_ICON = { w: 20, h: 15, url: icon(20, 15, (ctx) => {
   window.XBOT.render(ctx, { ...fore, m: null, name: null });
 }) };
 
-const HAND_SCALE = .8, HAND_DRAWN = { w: 12, h: 13 };
-const HAND_BOX = { w: HAND_DRAWN.w * HAND_SCALE, h: HAND_DRAWN.h * HAND_SCALE };
+const ITEM_SCALE = .8, HAND_DRAWN = { w: 12, h: 13 };
+const HAND_BOX = { w: HAND_DRAWN.w * ITEM_SCALE, h: HAND_DRAWN.h * ITEM_SCALE };
+const ICON_H = 13.3 * ITEM_SCALE * .9;
+const HAND_SCALE = ICON_H / 13.3, RUN_SCALE = ICON_H / 11.55, SPEAKER_SCALE = ICON_H / 8.9;
 const ITEMS = window.C28_CONFIG.items;
 const itemIcon = ({ asset, state = 0, tilt, scale }) => {
   const w = HAND_BOX.w * scale, h = HAND_BOX.h * scale;
@@ -305,7 +307,7 @@ const RUN_FIGURE = `<path d="${RUN_LIMBS}" fill="none" stroke="#6a4206" stroke-w
   <path d="${RUN_LIMBS}" fill="none" stroke="#f0a818" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="1.8" cy="-4.1" r="1.25" fill="#f0a818"/>`;
 const runIcon = (x, running) =>
-  `<g filter="url(#${running ? "iconGlow" : "iconDim"})" data-icon="run"><g transform="translate(${x} ${(1.8 + TAB.top) / 2})">${RUN_FIGURE}</g></g>`;
+  `<g filter="url(#${running ? "iconGlow" : "iconDim"})" data-icon="run"><g transform="translate(${x} ${(1.8 + TAB.top) / 2}) scale(${RUN_SCALE})">${RUN_FIGURE}</g></g>`;
 
 const SPEAKER_CONE = "M-4.4 -1.5H-2.6L.1 -3.9V3.9L-2.6 1.5H-4.4Z";
 const SPEAKER_WAVES = "M1.6 -1.7Q2.6 0 1.6 1.7M3 -3.4Q4.9 0 3 3.4";
@@ -315,7 +317,7 @@ const amberStroke = (d) => `<path d="${d}" fill="none" stroke="#6a4206" stroke-w
 const speaker = (on) => `<path d="${SPEAKER_CONE}" fill="#f0a818" stroke="#6a4206" stroke-width=".7" stroke-linejoin="round"/>
   ${amberStroke(on ? SPEAKER_WAVES : SPEAKER_CROSS)}`;
 const soundIcon = (x, on) =>
-  `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${(1.8 + TAB.top) / 2})">${speaker(on)}</g></g>`;
+  `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${(1.8 + TAB.top) / 2}) scale(${SPEAKER_SCALE})">${speaker(on)}</g></g>`;
 
 const readout = (x, label) =>
   `<text x="${x}" y="${(1.8 + TAB.top) / 2 + 5.6 * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="5.6" fill="${READOUT}">${label}</text>`;
