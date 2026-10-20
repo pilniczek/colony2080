@@ -10,7 +10,7 @@ Original files must never reach published site (see `scripts/production.ts`). So
 
 - Every original gameplay SFX event (table below) has synthesized sound that matches original in length, envelope, pitch and colour.
 - Mission 1 films play their original film sound cues at matching film times.
-- HUD: `RUN` text becomes icon; new sound plate next to it with speaker icon. `S` toggles sound.
+- HUD: `RUN` text becomes icon; speaker icon joins it on one toggles plate. `S` toggles sound.
 - Tuning loop runs without human ear: numeric comparison of synth against original, plus spike page for final listening.
 
 ## Non-goals
@@ -106,7 +106,7 @@ flowchart LR
 
 - `S` (`KeyS`) toggles sound: `soundToggle` in `config/controls.json`. Works in game, sandbox, during films.
 - State in `localStorage` (`c2080.sound`), default on. Store `soundOn`.
-- Top bar: run plate shows running-figure icon instead of `RUN` text. New sound plate left of run plate, same width, speaker icon with waves when on, speaker with cross when off. Each plate keeps key tab (`ALT`, `S`), lit when on, like run now. Badge plate shrinks to fit.
+- Top bar: one toggles plate holds sound and run side by side in one grid panel, like the weapons plate (user, after trying separate plates). Speaker with waves when on, with cross when off; running figure instead of `RUN` text. Each slot keeps its key tab (`S`, `ALT`), lit when on. Speaker, runner and empty hand share one icon height (hand 10% smaller than before, user). Inventory stays its own plate (user rejected merging it).
 - `spikes/hud-design/` gets same change (layout shared, change both).
 
 ### Tuning loop
@@ -125,7 +125,7 @@ flowchart LR
 
 ## Calls made by me
 
-- Key `S`; sound plate left of run plate; default on.
+- Key `S`; sound slot left of run slot on the toggles plate; default on.
 - Synth at 11025 Hz base, 8-bit quantize, per-call playback rate.
 - Mission 1 droids stay silent, as original.
 - Voice lines silent.
