@@ -28,6 +28,7 @@ flowchart LR
 | Topic | Decision |
 |---|---|
 | Converter | `docs/research/tools/levelmap.py <level> ...` replaces `mestomap.py`. Rows come from the floor tile list (`#` on floor cells), the wall tile lists and wall tables (`#` wall columns), code walls and map clamp (`|`). Level 1 runs through it too and must reproduce today's `config/levels/mesto/map.json` byte for byte (regression check); mesto-only extras (`SHAFT_FLOORS`, tunnel end, task walls, lift hints) move into a per-level extras dict |
+| One-way floors | Original floor tiles hold the hero only from above. Levels 2-4 floor cells are `=`: one-way, drawn like planks, the hero jumps up through them (ledge stairs). Wall cells stay `#` |
 | Fall damage | Original has none. `map.json` gets optional `fallDeathCells`; missing keeps the hero config value (7, mission 1). Levels 2-4 set `null`: no fall death. Deadly drops there are explicit `hazards` |
 | Hazards | `map.json` `hazards`: cell rects with `kind` `death` (game over, chasm, spikes, lava band, tripwire) or `damage` (energy per tick, optional `push`). Lava band is a rect over the whole map width. Mines and hidden bonuses wait for the items phase |
 | Conveyors | `map.json` `conveyors`: floor cell runs with `vx` (cells per s) that carry a standing hero |
