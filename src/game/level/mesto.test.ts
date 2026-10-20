@@ -63,11 +63,12 @@ describe("mesto map", () => {
 
   it("closes every floor end with a wall or an invisible blocker", () => {
     const shaft = (col: number, row: number): boolean => lifts.some((l) => l.top <= row && row <= l.bottom && col >= l.x && col < l.x + l.w);
+    const craneGap = (col: number, row: number): boolean => row === 10 && col >= 22 && col <= 30;
     for (const row of [10, 16, 23, 30, 37, 41, 44, 51, 59, 70, 75]) {
       for (let col = 1; col < grid.width - 1; col++) {
         if (!grid.wall(col, row) || grid.solid(col, row - 1)) continue;
         for (const next of [col - 1, col + 1]) {
-          if (grid.solid(next, row) || shaft(next, row)) continue;
+          if (grid.solid(next, row) || shaft(next, row) || craneGap(next, row)) continue;
           expect(grid.solid(next, row - 1), `${next},${row - 1}`).toBe(true);
         }
       }

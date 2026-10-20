@@ -19,7 +19,8 @@ EXTRAS = {
             "(map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, "
             "dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; "
             "lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors under two bottom stops stop a survivable "
-            "drop past a lift (report 13, Our blockers)"
+            "drop past a lift (report 13, Our blockers); the crane mast gap (floor 10, cols 36-38) stays a plank with no wall so the hero walks west "
+            "past the crane panel, and the plank row 10 gap over the crane (cols 22-30) stays open (user)"
         ),
         "spawn": [62.5, 59],
         "liftHints": {55: "The lift is broken."},
@@ -31,6 +32,8 @@ EXTRAS = {
             (70, 56): "metroTunnel",
         },
         "shaftFloors": [(col, 17) for col in range(52, 55)] + [(col, 31) for col in range(33, 36)],
+        "plankGaps": {(10, col) for col in range(36, 39)},
+        "holes": [(col, 10) for col in range(22, 31)],
     },
     2: {
         "source": (
@@ -175,7 +178,7 @@ def build(data, layout, enemies, cfg):
             grid[floor][col] = "#"
             if key in cfg["taskWalls"]:
                 task_walls.append({"id": cfg["taskWalls"][key], "col": col, "top": top, "bottom": floor - 1})
-            elif key != cfg["tunnelWestEnd"]:
+            elif key != cfg["tunnelWestEnd"] and key not in cfg["plankGaps"]:
                 walls.append((col, floor))
         for col in (segs[0][0] - 1, segs[-1][1] + 1):
             if (floor, col) in code_walls or tile_at(data, col, floor - 1) in solid_tiles:
@@ -186,6 +189,10 @@ def build(data, layout, enemies, cfg):
     planks = [row[:] for row in grid]
     for col, floor in walls:
         fill(grid, col, wall_top(data, planks, col, floor), floor, "#")
+    for col, row in cfg["holes"]:
+        if grid[row][col] != "#":
+            raise SystemExit(f"hole not a plank at {col},{row}")
+        grid[row][col] = "."
     for col, row in shaft_cells(layout["lifts"], segments):
         grid[row][col] = "."
     for col, row in cfg["shaftFloors"]:
