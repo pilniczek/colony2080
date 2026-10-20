@@ -262,6 +262,7 @@ const CAM = {
   date: "2080-03-14",
   start: 23 * 3600 + 41 * 60 + 7,
   fps: 24,
+  inset: 80,
   grains: 12000,
   deadPixels: 12,
   deadSeed: 2080,
@@ -298,7 +299,7 @@ function grainRandom(seed) {
 }
 
 function corners(ctx, r, u) {
-  const inset = 80 * u;
+  const inset = CAM.inset * u;
   const arm = 70 * u;
   const x0 = r.x + inset, y0 = r.y + inset, x1 = r.x + r.w - inset, y1 = r.y + r.h - inset;
   ctx.strokeStyle = CAM.text;
@@ -354,22 +355,25 @@ function securityCam(ctx, w, h, t, label) {
     ctx.fillRect(Math.round(r.x + stuck() * r.w), Math.round(r.y + stuck() * r.h), dot, dot);
   }
   const size = 34 * u;
-  const pad = 24 * u;
+  const inset = CAM.inset * u;
+  const left = r.x + inset, right = r.x + r.w - inset;
+  const top = r.y + inset / 2, bottom = r.y + r.h - inset / 2;
   ctx.font = `${size}px ${CAM.font}`;
-  ctx.textBaseline = "top";
   ctx.fillStyle = CAM.text;
+  const caps = ctx.measureText("REC");
+  const lift = (caps.actualBoundingBoxAscent - caps.actualBoundingBoxDescent) / 2;
+  const radius = size * 0.32;
   if (Math.floor(t * 2) % 2 === 0) {
     ctx.fillStyle = CAM.rec;
     ctx.beginPath();
-    ctx.arc(r.x + pad + size * 0.35, r.y + pad + size * 0.5, size * 0.32, 0, Math.PI * 2);
+    ctx.arc(left + radius, top, radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = CAM.text;
   }
-  ctx.fillText("REC", r.x + pad + size, r.y + pad);
+  ctx.fillText("REC", left + radius * 2 + size * 0.3, top + lift);
   ctx.textAlign = "right";
-  ctx.fillText(label, r.x + r.w - pad, r.y + pad);
-  ctx.textBaseline = "bottom";
-  ctx.fillText(camClock(t), r.x + r.w - pad, r.y + r.h - pad);
+  ctx.fillText(label, right, top + lift);
+  ctx.fillText(camClock(t), right, bottom + lift);
   corners(ctx, r, u);
   ctx.restore();
 }
