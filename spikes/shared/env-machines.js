@@ -182,6 +182,36 @@ define({
   }
 });
 
+const CARRIAGE_W = 230;
+
+define({
+  id: "trainCarriage",
+  box: [0, -66, CARRIAGE_W, 0],
+  draw(ctx) {
+    const { y, h } = TD;
+    const w = CARRIAGE_W;
+    flat(ctx, 0, y - 4, w, h + 4, DOOR.wagon || "c1", "mLine");
+    flat(ctx, 0, y - 4, w, 3, "c2");
+    flat(ctx, 0, y + h - 14, w, 3, DOOR.stripe || "b2");
+    flat(ctx, 0, y + h - 9, w, 1.5, DOOR.wagonShade || "c0");
+    flat(ctx, 0, y + h, w, 7, "m0", "mLine");
+    flat(ctx, 0, y - 4, 4, h + 4, DOOR.wagonShade || "c0", "mLine");
+    for (const wx of [14, 52, 90, 186]) {
+      flat(ctx, wx, y + 6, 22, 22, DOOR.window || "glass", "mLine");
+      ctx.save();
+      ctx.globalAlpha = 0.6;
+      poly(ctx, [[wx + 2, y + 6], [wx + 5, y + 6], [wx + 2, y + 28], [wx + 0.5, y + 28]], DOOR.windowGlint || "m3", 2, { line: false });
+      ctx.restore();
+    }
+    if (simple()) return;
+    for (const bx of [16, 46, 176, 206]) flat(ctx, bx, y + h + 2, 4, 3, "m2", "mLine");
+    for (const [bx, by, bh] of [[40, 8, 7], [120, 30, 5], [214, 4, 9]]) {
+      flat(ctx, bx, y + by, 3, 2, "blood");
+      flat(ctx, bx + 1, y + by + 2, 1, bh, "blood");
+    }
+  }
+});
+
 function pipeV(ctx, x, y, w, h, mat = "chrome", tone = 1) {
   cylV(ctx, x, y, w, h, mat, tone);
 }

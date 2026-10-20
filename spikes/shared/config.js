@@ -1046,41 +1046,6 @@ window.C28_CONFIG = {
      6000
     ],
     [
-     41.745,
-     "land",
-     13000
-    ],
-    [
-     43.821,
-     "land",
-     13000
-    ],
-    [
-     44.292,
-     "land",
-     13000
-    ],
-    [
-     45.519,
-     "land",
-     13000
-    ],
-    [
-     45.991,
-     "land",
-     13000
-    ],
-    [
-     46.604,
-     "land",
-     13000
-    ],
-    [
-     47.17,
-     "land",
-     13000
-    ],
-    [
      48.515,
      "flyover",
      10000
@@ -12404,18 +12369,31 @@ window.C28_CONFIG = {
      },
      {
       "id": "tunnelGate",
-      "name": "Dark metro tunnel mouth",
+      "name": "Metro tunnel wall",
       "csName": null,
       "interactive": false,
       "marker": null,
-      "task": "wireSwitchboard",
+      "task": "openTrainDoor",
       "sheet": "structures",
-      "description": "Steel-framed tunnel mouth, 1 tile wide and 6 tall, that blocks the metro tunnel at map col 56 until the switchboard powers the metro: dark and closed, then lit and open.",
+      "description": "Concrete wall with a steel frame, 1 tile wide and as tall as the metro hall, at map col 56. The train runs behind it; it blocks the tunnel until the train door is open, then the hero passes through the train. A lamp over the train lights when it opens.",
       "note": "Not an original object: the original blocks the dark tunnel with an invisible task wall (metroTunnel); this asset gives that gate a look.",
       "states": [
-       "dark (closed)",
-       "lit (open)"
+       "closed (lamp off)",
+       "open (lamp lit)"
       ],
+      "refs": []
+     },
+     {
+      "id": "trainCarriage",
+      "name": "Train carriage body",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "The train door carriage carried on to the left behind the tunnel wall, about 9.6 tiles long: windows, stripe, blood, end cap on the far side.",
+      "note": "Not an original object: joins the train door carriage so the train reads as one body through the tunnel wall.",
+      "states": [],
       "refs": []
      },
      {
