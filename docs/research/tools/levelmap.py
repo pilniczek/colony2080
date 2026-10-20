@@ -20,7 +20,12 @@ EXTRAS = {
             "dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; "
             "lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors fill every bottom stop row so no pit "
             "opens under a lift (report 13, Our blockers); the crane mast gap (floor 10, cols 36-38) stays a plank with no wall so the hero walks west "
-            "past the crane panel, and the plank row 10 gap over the crane (cols 22-30) stays open (user)"
+            "past the crane panel, and the plank row 10 gap over the crane (cols 22-30) stays open; the never reached floors over the crashed ship "
+            "(cols 7-22, rows 11-38, around the col 18 and row 23 edges of the reached runs) and the planks under its pad (rows 44 and 51, cols 11-20) "
+            "are cleared to open sky, the pad (row 41, on to col 21 under the rear strut) is the roof of a building drawn by world.json down to the street (row 59), "
+            "whose east side (col 21, rows 42-51) is an invisible blocker; its tail pillar (col 14, rows 39-40) turns into an invisible hull blocker and "
+            "the wall west of its lift (col 7) runs up to the lift rail tops (row 39); borderFills fill solid from the outer walls (col 7 from row 39, "
+            "col 9 from row 60, col 141 rows 17-44) on to the map edge over never reached cells, so the view there shows wall, not sky (user)"
         ),
         "spawn": [62.5, 59],
         "liftHints": {55: "The lift is broken."},
@@ -33,8 +38,12 @@ EXTRAS = {
         },
         "plankGaps": {(10, col) for col in range(36, 39)},
         "holes": [(col, 10) for col in range(22, 31)],
+        "sky": [(7, 11, 17, 29), (18, 24, 22, 29), (7, 30, 22, 38), (21, 39, 21, 40), (11, 42, 20, 51)],
+        "borderFills": [(0, 39, 7, 59), (0, 60, 8, 75), (141, 17, 159, 44)],
+        "patches": [ (14, 39, 14, 40, "|"), (15, 41, 20, 41, "#"), (21, 42, 21, 51, "|")],
     },
     2: {
+        "borderFills": [],
         "source": (
             "docs/research/reports/14-level2-layout.md, built by docs/research/tools/levelmap.py from MAPY/M21.MAP "
             "and gamedata/disasm/level2_layout.json: '=' one-way floor support tiles, '#' wall tiles (walls filled over the hero stand height), "
@@ -50,6 +59,7 @@ EXTRAS = {
         "enemyKinds": ("rocketRobot", "greyTrooper"),
     },
     3: {
+        "borderFills": [],
         "source": (
             "docs/research/reports/15-level3-layout.md, built by docs/research/tools/levelmap.py from MAPY/M31.MAP "
             "and gamedata/disasm/level3_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
@@ -65,6 +75,7 @@ EXTRAS = {
         "variantRects": {"M32": [(90, 31, 90, 31), (97, 46, 98, 46)]},
     },
     4: {
+        "borderFills": [],
         "source": (
             "docs/research/reports/16-level4-layout.md, built by docs/research/tools/levelmap.py from MAPY/M41.MAP "
             "and gamedata/disasm/level4_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
@@ -98,6 +109,17 @@ def fill(grid, col, top, bottom, char):
     for row in range(top, bottom + 1):
         if grid[row][col] != "#":
             grid[row][col] = char
+
+
+def paint(grid, left, top, right, bottom, char):
+    for row in range(top, bottom + 1):
+        for col in range(left, right + 1):
+            grid[row][col] = char
+
+
+def fill_borders(grid, cfg):
+    for left, top, right, bottom in cfg["borderFills"]:
+        paint(grid, left, top, right, bottom, "#")
 
 
 def band_top(floor, floors):
@@ -193,6 +215,11 @@ def build(data, layout, enemies, cfg):
         if grid[row][col] != "#":
             raise SystemExit(f"hole not a plank at {col},{row}")
         grid[row][col] = "."
+    for left, top, right, bottom in cfg["sky"]:
+        paint(grid, left, top, right, bottom, ".")
+    for left, top, right, bottom, char in cfg["patches"]:
+        paint(grid, left, top, right, bottom, char)
+    fill_borders(grid, cfg)
     for col, row in shaft_cells(layout["lifts"], segments):
         grid[row][col] = "."
     lifts = [lift_json(lift, cfg) for lift in layout["lifts"]]
@@ -453,6 +480,7 @@ def variant_grid(data, layout, cfg, name):
     drops = {layout.get("namedWalls", {})[wall] for wall in cfg.get("variantDrops", {}).get(name, [])}
     grid = tile_rows(data, {**layout, "wallCells": [w for w in layout["wallCells"] if w not in drops]})
     open_shafts(grid, plain_lifts(layout["lifts"], cfg))
+    fill_borders(grid, cfg)
     return grid
 
 
@@ -481,6 +509,7 @@ def build_tiles(data, layout, cfg, raw, enemies, map_path):
     lifts = plain_lifts(layout["lifts"], cfg)
     for col, row, was, now in open_shafts(grid, lifts):
         print(f"shaft cell {col},{row} {was} -> {now}", file=sys.stderr)
+    fill_borders(grid, cfg)
     found, sources = variants(grid, map_path, layout, cfg)
     zones = hazards(raw["zones"], cfg)
     return {

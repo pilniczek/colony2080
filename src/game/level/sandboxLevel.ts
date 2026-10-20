@@ -49,6 +49,7 @@ export interface Scenery {
   y?: number;
   state?: number;
   w?: number;
+  h?: number;
   flip?: boolean;
 }
 

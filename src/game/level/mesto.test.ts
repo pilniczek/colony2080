@@ -13,6 +13,8 @@ import { terrain } from "./terrain";
 const world = loadMesto();
 const { grid, spawn, lifts } = world;
 
+const shipSky = (col: number, row: number): boolean => col >= 6 && col <= 22 && row >= 11 && row <= 50;
+
 const droids = enemies.enemies.filter((e) => e.type === "chromeDroid");
 const flyers = enemies.enemies.filter((e) => e.type === "flyer");
 
@@ -71,7 +73,7 @@ describe("mesto map", () => {
       for (let col = 1; col < grid.width - 1; col++) {
         if (!grid.wall(col, row) || grid.solid(col, row - 1)) continue;
         for (const next of [col - 1, col + 1]) {
-          if (grid.solid(next, row) || shaft(next, row) || craneGap(next, row)) continue;
+          if (grid.solid(next, row) || shaft(next, row) || craneGap(next, row) || shipSky(next, row - 1)) continue;
           expect(grid.solid(next, row - 1), `${next},${row - 1}`).toBe(true);
         }
       }
@@ -84,7 +86,7 @@ describe("mesto map", () => {
     for (const wall of terrain(grid).walls.filter((w) => w.h > 1)) {
       for (let col = wall.col; col < wall.col + wall.w; col++) {
         const floorAbove = Array.from({ length: wall.row }, (_, row) => grid.wall(col, row)).some(Boolean);
-        if (floorAbove && !grid.wall(col, wall.row - 1) && !liftFloor(col, wall.row - 1)) short.push(`${col},${wall.row}`);
+        if (floorAbove && !grid.wall(col, wall.row - 1) && !liftFloor(col, wall.row - 1) && !shipSky(col, wall.row - 1)) short.push(`${col},${wall.row}`);
       }
     }
     expect(short).toEqual([]);

@@ -396,21 +396,23 @@ const bracePanel = (ctx: CanvasRenderingContext2D, x: number, y: number, w: numb
 export const facadeTower: EnvAsset = {
   id: "facadeTower",
   box: [0, -336, 216, 0],
-  draw(ctx) {
+  draw(ctx, _state, _t, { w = 216, h = 336 }: Size) {
+    const grow = (w - 216) / 2;
     let x = 0;
-    for (const [kind, w] of FACADE) {
-      if (kind === "pil") pillar(ctx, x, -336, w, 336, "concrete", 2);
-      if (kind === "brick") bricks(ctx, x, -336, w, 336, x + 1, 11, 5);
+    for (const [kind, base] of FACADE) {
+      const width = kind === "panel" ? base + grow : base;
+      if (kind === "pil") pillar(ctx, x, -h, width, h, "concrete", 2);
+      if (kind === "brick") bricks(ctx, x, -h, width, h, x + 1, 11, 5);
       if (kind === "panel") {
-        flat(ctx, x, -336, w, 336, "k1", "kLine");
-        for (let y = -STOREY; y > -336; y -= STOREY) bracePanel(ctx, x + 4, y + 6, w - 8, STOREY - 10);
-        grid(ctx, x + 6, -318, 4, 1, (w - 12) / 4 - 3, 18, 3, 0, "k0", "kLine");
+        flat(ctx, x, -h, width, h, "k1", "kLine");
+        for (let y = -STOREY; y > -h; y -= STOREY) bracePanel(ctx, x + 4, y + 6, width - 8, STOREY - 10);
+        grid(ctx, x + 6, -h + 18, 4, 1, (width - 12) / 4 - 3, 18, 3, 0, "k0", "kLine");
       }
-      x += w;
+      x += width;
     }
-    for (let y = 0; y > -336; y -= STOREY) slab(ctx, 0, y - 5, 216, 5, "concrete", 3);
-    slab(ctx, 0, -336, 216, 12, "concrete", 2);
-    flat(ctx, 0, -326, 216, 2, "k0");
+    for (let y = 0; y > -h; y -= STOREY) slab(ctx, 0, y - 5, w, 5, "concrete", 3);
+    slab(ctx, 0, -h, w, 12, "concrete", 2);
+    flat(ctx, 0, -h + 10, w, 2, "k0");
   },
 };
 

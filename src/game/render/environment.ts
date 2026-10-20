@@ -203,8 +203,9 @@ const sceneryAt = (e: Env, s: Scenery): [number, number] => [s.x * e.cell, (s.y 
 
 const sceneryBox = (e: Env, s: Scenery): Rect => {
   const [x, y] = sceneryAt(e, s);
-  const [left, top, box, bottom] = ASSETS[s.asset].box;
+  const [left, boxTop, box, bottom] = ASSETS[s.asset].box;
   const right = s.w === undefined ? box : Math.max(box, s.w * TILE);
+  const top = s.h === undefined ? boxTop : -s.h * TILE;
   const [l, r] = s.flip ? [-right, -left] : [left, right];
   return { x: x + l * k(e), y: y + top * k(e), w: (r - l) * k(e), h: (bottom - top) * k(e) };
 };
@@ -214,7 +215,7 @@ function scenery(e: Env, name: string, items: Scenery[]): void {
   for (const s of pick(e, name, items, sceneryBox)) {
     if (!near(e, sceneryBox(e, s))) continue;
     const [x, y] = sceneryAt(e, s);
-    const size = s.w === undefined ? undefined : { w: s.w * TILE };
+    const size = s.w === undefined && s.h === undefined ? undefined : { w: s.w && s.w * TILE, h: s.h && s.h * TILE };
     if (!s.flip) {
       put(e, s.asset, x, y, s.state ?? 0, size);
       continue;

@@ -248,10 +248,12 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
     },
     never: {
       "outside every reached walk segment of report 13 (Floor tiles table)": [
-        ...["3,127", "10,7", "10,66", "10,128", "16,7", "16,128", "23,7", "23,93", "23,128", "23,142", "30,7", "30,69", "30,128"],
-        ...["30,142", "37,8", "37,24", "37,142", "44,11", "44,142", "51,11", "51,72", "51,115", "59,133", "70,7", "70,18", "70,86"],
-        ...["75,7", "75,48"],
+        ...["3,127", "10,7", "10,66", "10,128", "16,128", "23,93", "23,128", "30,69", "30,128"],
+        ...["37,24", "51,72", "51,115", "59,133", "70,18", "70,86"],
+        ...["75,48"],
       ],
+      "crashed ship pad behind its hull blocker under the open sky (levelmap.py sky)": ["41,15"],
+      "border wall tops beside the map edge (levelmap.py borderFills)": ["17,158", "39,0"],
     },
   },
   vesnice: {
