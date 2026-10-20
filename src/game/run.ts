@@ -476,6 +476,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     say(world, `Moved to ${x}, ${y}`);
   };
 
+  if (import.meta.env.VITE_START_CHEAT) enterCheat(import.meta.env.VITE_START_CHEAT);
   startFilm(world, intro);
   setTimeout(() => void loadFilms().then(warmFilms), FILM_PRELOAD_MS);
   fit();

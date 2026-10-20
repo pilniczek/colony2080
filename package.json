@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --open /",
+    "dev:debug": "vite --open / --mode debugging",
     "build": "vite build",
     "preview": "vite build && vite preview --open /",
+    "preview:debug": "vite build --mode debugging && vite preview --open /",
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

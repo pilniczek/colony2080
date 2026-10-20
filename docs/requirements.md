@@ -133,6 +133,7 @@ flowchart LR
 | Crane level | No roof over the crane: plank row 10 stays open over it (cols 22-30) and its chain runs up to the map top. No mast wall at cols 36-38: a control panel marks the winch use spot (x 40, floor 10) and does not stop the hero, who can walk west and drop through the gap to floor 16 past lift 14 (2026-10-20) | user |
 | Switchboard | The repaired switchboard shows its wires inside the panel and the lit lamp only; no cable hangs from the box to the floor, in any state (2026-10-20) | user |
 | Debug cheats | The `;` cheat box also takes `moveto(x,y)` (hero to that cell, world.json coordinates) and `c2080ispowerful` (the mission's special weapon at full ammo, its pickup gone, no film) and `c2080isrich` (every item of the mission once: map items, hidden ones too, and task items; weapons not, no film; a task that gives a held item adds no second one) and `c2080isdebugging` (immortality on, fog off, special weapon and every item, every later film skipped with its task applied; entering it again keeps all on). `cheats.html`, linked from the home Dev list, lists every code; dev only, left out of the published site, while the cheat box itself works in the published game (2026-10-20) | user |
+| Debug start | `npm run dev:debug` and `npm run preview:debug` start every run with `c2080isdebugging` on (Vite mode `debugging`, `VITE_START_CHEAT` in `.env.debugging`); plain `dev`, `build` and `preview` start without a cheat (2026-10-20) | user |
 
 ## Config drafts
 
