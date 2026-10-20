@@ -5,7 +5,7 @@ import { createRigs, heroLook } from "../hero/look";
 import { cfg, clips } from "../hero/testWorld";
 import type { Enemy } from "../level/enemy";
 import type { Fog } from "../fog";
-import { castsShadow, feetSeen, heroBehindEnemies, visibleEnemies, viewCells, weaponHooks } from "./scene";
+import { boxSeen, castsShadow, feetSeen, heroBehindEnemies, visibleEnemies, viewCells, weaponHooks } from "./scene";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -35,6 +35,16 @@ describe("shadow", () => {
     expect(feetSeen(null, { x: 1.5, y: 3 })).toBe(true);
     expect(feetSeen(fog, { x: 1.5, y: 3 })).toBe(false);
     expect(feetSeen(fog, { x: 1.5, y: 4 })).toBe(true);
+  });
+
+  it("shows a whole enemy once any cell of its body box is seen", () => {
+    const seen = new Uint8Array(4 * 4);
+    seen[2 * 4 + 2] = 1;
+    const fog = { width: 4, height: 4, seen } as unknown as Fog;
+    expect(boxSeen(null, { left: 0, right: 1, top: 0, bottom: 1 })).toBe(true);
+    expect(boxSeen(fog, { left: 1.4, right: 2.2, top: 1, bottom: 3 })).toBe(true);
+    expect(boxSeen(fog, { left: 1, right: 2, top: 1, bottom: 3 })).toBe(false);
+    expect(boxSeen(fog, { left: 2.2, right: 3, top: 0, bottom: 2 })).toBe(false);
   });
 });
 

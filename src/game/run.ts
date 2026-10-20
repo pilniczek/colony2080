@@ -354,8 +354,9 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       ctx.rect(gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h);
       ctx.clip();
       const sight = world.fog && seenPath(world.fog, cfg.cellPx);
-      drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => ({ enemy, look: heroLook(enemy.body, clips, enemyRigs, hold, cfg) })), enemyRigs, sight, devicePixelRatio || 1, gameWindow);
-      if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow);
+      drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => ({ enemy, look: heroLook(enemy.body, clips, enemyRigs, hold, cfg) })), enemyRigs, sight, devicePixelRatio || 1, gameWindow, () => {
+        if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow);
+      });
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
       drawOver?.(ctx, view, cfg.cellPx);
       if (tuning().mapOpen) drawMap(ctx, world, shown, cfg.box.height, gameWindow);

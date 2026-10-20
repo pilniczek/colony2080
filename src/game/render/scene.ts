@@ -7,8 +7,8 @@ import type { Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Rect } from "../geometry";
-import type { Enemy } from "../level/enemy";
-import { visible, type Fog } from "../fog";
+import { bodyBox, type BodyBox, type Enemy } from "../level/enemy";
+import { seenAt, visible, type Fog } from "../fog";
 import { coverClips } from "../level/cover";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
@@ -67,6 +67,13 @@ function impacts(f: Frame): void {
 export const castsShadow = (hero: Hero, look: HeroLook): boolean => hero.onGround && look.view !== "back";
 
 export const feetSeen = (fog: Fog | null, body: Pick<Hero, "x" | "y">): boolean => !fog || visible(fog, body.x, body.y - 0.001);
+
+export function boxSeen(fog: Fog | null, box: BodyBox): boolean {
+  if (!fog) return true;
+  for (let row = Math.floor(box.top); row < box.bottom; row++)
+    for (let col = Math.floor(box.left); col < box.right; col++) if (seenAt(fog, col, row)) return true;
+  return false;
+}
 
 function shadow(f: Frame, hero: Hero, look: HeroLook): void {
   if (!castsShadow(hero, look)) return;
@@ -220,6 +227,7 @@ export function drawScene(
   sight: Path2D | null = null,
   lines = 1,
   screen?: Rect,
+  veil: () => void = () => {},
 ): void {
   const scale = heroScale(cfg);
   const unit = spikeUnit(cfg);
@@ -230,6 +238,7 @@ export function drawScene(
   ctx.rect(0, 0, world.grid.width * f.cell, world.grid.height * f.cell);
   ctx.clip();
   drawEnvironment(ctx, world, hero, cfg, alpha, lines, screen);
+  veil();
   const drawHero = (): void => {
     const clips = coverClips(world.props, hero.x, hero.y);
     ctx.save();
@@ -245,10 +254,9 @@ export function drawScene(
   };
   const behind = heroBehindEnemies(hero);
   if (behind) drawHero();
-  ctx.save();
-  if (sight) ctx.clip(sight);
-  enemyViews.forEach(({ enemy, look: enemyLook }) => enemyFigure(f, enemy, enemyLook, enemyRigs, scale, cfg.fireRate));
-  ctx.restore();
+  enemyViews
+    .filter(({ enemy }) => boxSeen(world.fog, bodyBox(enemy, cfg.box)))
+    .forEach(({ enemy, look: enemyLook }) => enemyFigure(f, enemy, enemyLook, enemyRigs, scale, cfg.fireRate));
   if (!behind) drawHero();
   if (sight) ctx.clip(sight);
   beam(f);
