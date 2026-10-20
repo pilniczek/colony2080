@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { TileGrid } from "../../engine/world/tiles";
 import type { Fog } from "../fog";
 import type { Lift } from "../level/sandboxLevel";
-import { MAP_CELLS, mapCells, mapFit } from "./map";
+import { MAP_CELLS, mapCells, mapFit, mapLifts } from "./map";
 
 const ROWS = ["#....", "#H...", "#H..#", "#####"];
 
@@ -10,8 +10,7 @@ const kinds = (cells: Uint8Array): string[] => [...cells].map((c) => MAP_CELLS[c
 
 describe("mapCells", () => {
   it("shows every cell without fog", () => {
-    const lift = { x: 3, w: 1, top: 0, bottom: 3 } as unknown as Lift;
-    expect(kinds(mapCells({ grid: new TileGrid(ROWS), lifts: [lift], fog: null })).join("")).toBe("wooso" + "wsoso" + "wsosw" + "wwwww");
+    expect(kinds(mapCells({ grid: new TileGrid(ROWS), fog: null })).join("")).toBe("woooo" + "wlooo" + "wloow" + "wwwww");
   });
 
   it("hides cells the hero never uncovered", () => {
@@ -19,7 +18,23 @@ describe("mapCells", () => {
     const revealed = new Uint8Array(grid.width * grid.height);
     revealed[6] = revealed[15] = 1;
     const fog = { width: grid.width, height: grid.height, revealed } as unknown as Fog;
-    expect(kinds(mapCells({ grid, lifts: [], fog })).join("")).toBe("uuuuu" + "usuuu" + "uuuuu" + "wuuuu");
+    expect(kinds(mapCells({ grid, fog })).join("")).toBe("uuuuu" + "uluuu" + "uuuuu" + "wuuuu");
+  });
+});
+
+describe("mapLifts", () => {
+  const lift = { x: 3, w: 1, top: 1, bottom: 3 } as unknown as Lift;
+  const fogAt = (cell: number): Fog => {
+    const revealed = new Uint8Array(20);
+    revealed[cell] = 1;
+    return { width: 5, height: 4, revealed } as unknown as Fog;
+  };
+
+  it("shows a lift once any cell of its shaft or the room over its top stop is uncovered", () => {
+    expect(mapLifts({ lifts: [lift], fog: null })).toEqual([lift]);
+    expect(mapLifts({ lifts: [lift], fog: fogAt(3) })).toEqual([lift]);
+    expect(mapLifts({ lifts: [lift], fog: fogAt(13) })).toEqual([lift]);
+    expect(mapLifts({ lifts: [lift], fog: fogAt(18) })).toEqual([]);
   });
 });
 

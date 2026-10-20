@@ -1,16 +1,16 @@
 import { revealedAt } from "../fog";
 import type { Rect } from "../geometry";
 import type { Hero } from "../hero/hero";
-import type { SandboxWorld } from "../level/sandboxLevel";
+import type { Lift, SandboxWorld } from "../level/sandboxLevel";
 
-export const MAP_CELLS = ["unknown", "open", "wall", "shaft"] as const;
+export const MAP_CELLS = ["unknown", "open", "wall", "ladder"] as const;
 export type MapCell = (typeof MAP_CELLS)[number];
 
 const COLORS: Record<MapCell, [number, number, number, number]> = {
   unknown: [0, 0, 0, 0],
   open: [0xc4, 0xc2, 0xbc, 255],
   wall: [0x2b, 0x29, 0x25, 255],
-  shaft: [0x55, 0x52, 0x4c, 255],
+  ladder: [0x55, 0x52, 0x4c, 255],
 };
 
 const code = (kind: MapCell): number => MAP_CELLS.indexOf(kind);
@@ -18,30 +18,48 @@ const code = (kind: MapCell): number => MAP_CELLS.indexOf(kind);
 const BACK = "#5a5248";
 const GRID = "#71695e";
 const GRID_DOT = "#d8d2c4";
+const LIFT = "#2b2925";
 const HERO = "#f0c020";
 const HERO_EDGE = "#1a1814";
 const GRID_CELLS = 8;
 const MARGIN_SHARE = 0.04;
 const MIN_MARKER_PX = 3;
+const SHAFT_SHARE = 0.3;
+const DECK_SHARE = 0.25;
+const MIN_LINE_PX = 2;
 
 type MapWorld = Pick<SandboxWorld, "grid" | "lifts" | "fog">;
 
-export function mapCells({ grid, lifts, fog }: MapWorld): Uint8Array {
+export function mapCells({ grid, fog }: Pick<MapWorld, "grid" | "fog">): Uint8Array {
   const cells = new Uint8Array(grid.width * grid.height);
-  const shafts = new Set<number>();
-  for (const lift of lifts) {
-    for (let row = Math.floor(lift.top); row < Math.ceil(lift.bottom); row++) {
-      for (let col = Math.floor(lift.x); col < Math.ceil(lift.x + lift.w); col++) shafts.add(row * grid.width + col);
-    }
-  }
   for (let row = 0; row < grid.height; row++) {
     for (let col = 0; col < grid.width; col++) {
       if (fog && !revealedAt(fog, col, row)) continue;
-      const i = row * grid.width + col;
-      cells[i] = code(grid.wall(col, row) ? "wall" : grid.at(col, row) === "H" || shafts.has(i) ? "shaft" : "open");
+      cells[row * grid.width + col] = code(grid.wall(col, row) ? "wall" : grid.at(col, row) === "H" ? "ladder" : "open");
     }
   }
   return cells;
+}
+
+const liftKnown = (fog: MapWorld["fog"], lift: Lift): boolean => {
+  if (!fog) return true;
+  for (let row = Math.floor(lift.top) - 1; row < Math.ceil(lift.bottom); row++) {
+    for (let col = Math.floor(lift.x); col < Math.ceil(lift.x + lift.w); col++) if (revealedAt(fog, col, row)) return true;
+  }
+  return false;
+};
+
+export const mapLifts = ({ lifts, fog }: Pick<MapWorld, "lifts" | "fog">): Lift[] => lifts.filter((lift) => liftKnown(fog, lift));
+
+function drawLift(ctx: CanvasRenderingContext2D, lift: Lift, fit: MapFit): void {
+  const at = (x: number, y: number): [number, number] => [fit.x + x * fit.cell, fit.y + y * fit.cell];
+  const shaft = Math.max(MIN_LINE_PX, SHAFT_SHARE * fit.cell);
+  const deck = Math.max(MIN_LINE_PX, DECK_SHARE * fit.cell);
+  const [left, top] = at(lift.x, lift.top);
+  const [, bottom] = at(lift.x, lift.bottom);
+  ctx.fillStyle = LIFT;
+  ctx.fillRect(left + (lift.w * fit.cell - shaft) / 2, top, shaft, bottom - top);
+  for (const stop of lift.stops) ctx.fillRect(left, at(0, stop)[1] - deck / 2, lift.w * fit.cell, deck);
 }
 
 export interface MapFit {
@@ -104,6 +122,7 @@ export function drawMap(ctx: CanvasRenderingContext2D, world: MapWorld, hero: Pi
   drawGrid(ctx, rect, fit);
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(mapImage(world), fit.x, fit.y, width * fit.cell, height * fit.cell);
+  for (const lift of mapLifts(world)) drawLift(ctx, lift, fit);
   const w = Math.max(MIN_MARKER_PX, fit.cell);
   const h = Math.max(MIN_MARKER_PX, heroHeight * fit.cell);
   ctx.fillStyle = HERO;
