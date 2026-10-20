@@ -453,10 +453,10 @@ define({
   id: "crane",
   box: [-8, -100, 176, 30],
   anim: true,
-  draw(ctx, state, t) {
-    const { clampA, clampB, hub, top } = BEAM, mid = (clampA + clampB) / 2;
+  draw(ctx, state, t, size = {}) {
+    const { clampA, clampB, hub } = BEAM, mid = (clampA + clampB) / 2;
     const ang = state === 0 ? 0.12 : state === 2 ? 0.035 * Math.sin(t * 1.6) : 0;
-    chain(ctx, mid, top, hub, state === 2 ? t : 0);
+    chain(ctx, mid, size.top ?? BEAM.top, hub, state === 2 ? t : 0);
     ctx.save();
     ctx.translate(mid, hub);
     ctx.rotate(ang);

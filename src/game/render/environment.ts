@@ -250,11 +250,12 @@ export function prop(e: Env, p: Prop): void {
   const id = p.kind === "item" ? icon?.asset : (p.asset ?? PROP_ASSETS[p.kind]);
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
-  const { dx = 0, dy = 0 } = p.art ?? {};
+  const { dx = 0, dy = 0, top } = p.art ?? {};
   const look = guardLook(p);
   if (look === "gone") return;
   const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
-  put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, state, undefined, look?.t ?? 0);
+  const size = top === undefined ? undefined : { top: -px(e, top * e.cell) };
+  put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, state, size, look?.t ?? 0);
 }
 
 export function drawEnvironment(

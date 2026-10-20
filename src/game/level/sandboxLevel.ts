@@ -25,7 +25,7 @@ export interface Prop {
   on?: boolean;
   id?: string;
   asset?: AssetId;
-  art?: { dx?: number; dy?: number };
+  art?: { dx?: number; dy?: number; top?: number };
   state?: number;
   solidStates?: number[];
   cells?: { col: number; row: number; w: number; h: number };
