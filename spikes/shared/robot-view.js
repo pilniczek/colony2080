@@ -216,16 +216,6 @@ function target(ctx, r, u, t) {
     ctx.arc(cx, cy, s * 0.7, a, a + 0.9);
   }
   ctx.stroke();
-  const match = Math.min(99.7, settle * 99.7);
-  ctx.font = `${18 * u}px ${VIEW.font}`;
-  ctx.textAlign = "left";
-  ctx.fillStyle = VIEW.hot;
-  ctx.fillText(settle < 1 ? "ANALYSIS" : "MATCH", cx + s + 14 * u, cy - s + 14 * u);
-  ctx.fillText(`${match.toFixed(1)}%`, cx + s + 14 * u, cy - s + 38 * u);
-  ctx.fillStyle = VIEW.dim;
-  ctx.fillRect(cx + s + 14 * u, cy - s + 48 * u, 90 * u, 3 * u);
-  ctx.fillStyle = VIEW.hot;
-  ctx.fillRect(cx + s + 14 * u, cy - s + 48 * u, 90 * u * settle, 3 * u);
 }
 
 function draw(ctx, w, h, t) {
