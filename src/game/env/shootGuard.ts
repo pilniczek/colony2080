@@ -6,7 +6,7 @@ import type { GroupNode, RigNode } from "../../engine/rig/tree";
 import { buildSide, ROBOT } from "../robot/xbot";
 import { BLAST, BLAST_PX, drawBlast, inBlastUnits } from "./blast";
 import { fireFrame, flash } from "./flyer";
-import { fillPath, grad } from "./guard";
+import { FAR_LEG, fillPath, grad, GUARD_SIZE, sideLegArmor } from "./guard";
 import { P, TILE, type EnvAsset, type EnvPalette } from "./paint";
 
 type Pt = [number, number];
@@ -20,7 +20,13 @@ const ARM_PIVOT: Pt = [300, 150];
 const ARM_POSE = { arm: 0, fore: -72 };
 const RIFLE_MUZZLE: Pt = [17.5, -2.1];
 const FIRE_LOOP = 1.2;
-const FAR_LEG = "brightness(0.6) saturate(0.8)";
+const HIP: Pt = [26, 47];
+const RAISE = 23.5 * GUARD_SIZE - (68 - HIP[1]);
+const GUARD_HIP: Pt = [42.5, 53.5];
+const LEGS: Record<"front" | "rear", [Pt, Pt, Pt]> = {
+  front: [[42.5, 30], [36, 39], [39.5, 49.5]],
+  rear: [[45, 30], [52, 40], [59.5, 49.5]],
+};
 const SPINE: Pt[] = [[19, 46], [12, 49], [6, 54], [2, 60], [-1, 65]];
 const BACK_TUBES: [number, number, number][] = [[18, 24, 5.5], [15, 28, 6], [13, 33, 5]];
 
@@ -56,7 +62,7 @@ const muzzle = (): Pt => {
   const hand = locate(armNode(false), "hand", ARM_POSE);
   if (!hand) throw new Error("robot arm has no hand hook");
   const [x, y] = apply(hand, [-RIFLE_MUZZLE[1] / ARM_PX, RIFLE_MUZZLE[0] / ARM_PX]);
-  return [ARM_SHOULDER[0] + (x - ARM_PIVOT[0]) * ARM_PX, ARM_SHOULDER[1] + (y - ARM_PIVOT[1]) * ARM_PX];
+  return [ARM_SHOULDER[0] + (x - ARM_PIVOT[0]) * ARM_PX, ARM_SHOULDER[1] + (y - ARM_PIVOT[1]) * ARM_PX - RAISE];
 };
 
 const MUZZLE = muzzle();
@@ -66,34 +72,44 @@ export const SHOOT_GUARD_FIRING = 1;
 export const SHOOT_GUARD_EXPLODE = 2;
 
 const tail = (ctx: CanvasRenderingContext2D): void => {
-  SPINE.slice(1).forEach((b, i) => beam(ctx, SPINE[i]!, b, 5.2 - i * 1.1, "guardMetal"));
+  const spine = SPINE.map(([x, y], i): Pt => [x, y - RAISE * (1 - i / 4)]);
+  spine.slice(1).forEach((b, i) => beam(ctx, spine[i]!, b, 5.2 - i * 1.1, "guardMetal"));
   poly(ctx, [[0, 63], [-4, 68], [-1, 64.5]], "guardMetal", 2);
-  if (!P.simple()) SPINE.slice(1, 4).forEach(([x, y], i) => line(ctx, [[x - 1.6 + i * 0.3, y - 1.8 + i * 0.3], [x + 1.6 - i * 0.3, y + 1.8 - i * 0.3]], "gm0", 0.6, "butt"));
+  if (!P.simple()) spine.slice(1, 4).forEach(([x, y], i) => line(ctx, [[x - 1.6 + i * 0.3, y - 1.8 + i * 0.3], [x + 1.6 - i * 0.3, y + 1.8 - i * 0.3]], "gm0", 0.6, "butt"));
 };
 
-const raptorLeg = (ctx: CanvasRenderingContext2D, dx: number, far: boolean): void => {
+const inGuardLegUnits = (ctx: CanvasRenderingContext2D, draw: () => void): void => {
   ctx.save();
-  if (far) ctx.filter = FAR_LEG;
-  const hip: Pt = [25 + dx, 47];
-  const knee: Pt = [33 + dx, 54];
-  const ankle: Pt = [26 + dx, 61.5];
-  beam(ctx, hip, knee, 6.5, "guardMetal");
-  beam(ctx, knee, ankle, 3.2, "guardChrome");
-  if (!P.simple()) line(ctx, [[knee[0] - 2, knee[1] + 1], [ankle[0] - 2, ankle[1] - 1]], "gm1", 0.8);
-  disc(ctx, knee[0], knee[1], 2.6, "gm2", "gmLine");
-  disc(ctx, ankle[0], ankle[1], 1.8, "gc1", "gmLine");
-  poly(ctx, [[ankle[0] - 1, 61], [ankle[0] + 2, 61], [ankle[0] + 15, 66.5], [ankle[0] + 15, 68], [ankle[0] - 2, 68]], "guardMetal", 1);
-  poly(ctx, [[ankle[0] + 2, 64], [ankle[0] + 1, 58.5], [ankle[0] + 4, 63]], "guardChrome", 2);
-  if (!P.simple()) for (const x of [7, 11]) line(ctx, [[ankle[0] + x, 66], [ankle[0] + x + 2.5, 68]], "gc2", 0.6, "butt");
+  ctx.translate(HIP[0], 68);
+  ctx.scale(-GUARD_SIZE, GUARD_SIZE);
+  ctx.translate(-GUARD_HIP[0], -GUARD_HIP[1]);
+  draw();
   ctx.restore();
 };
 
+const along = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+
+const leg = (ctx: CanvasRenderingContext2D, [hip, knee, ankle]: [Pt, Pt, Pt]): void => {
+  beam(ctx, hip, knee, 4.2, "guardMetal");
+  sideLegArmor(ctx, knee, ankle);
+  line(ctx, [along(hip, knee, 0.2), along(hip, knee, 0.75)], "trim", 0.8, "butt");
+  line(ctx, [along(knee, ankle, 0.3), along(knee, ankle, 0.85)], "trim", 0.7, "butt");
+};
+
 const legs = (ctx: CanvasRenderingContext2D): void => {
-  raptorLeg(ctx, -3, true);
+  inGuardLegUnits(ctx, () => {
+    ctx.save();
+    ctx.filter = FAR_LEG.shade;
+    leg(ctx, LEGS.rear);
+    ctx.restore();
+  });
   tail(ctx);
+  ctx.save();
+  ctx.translate(0, -RAISE);
   poly(ctx, [[18, 42], [31, 42], [33, 47], [28, 51], [20, 51], [17, 47]], "guardChrome", 1, { dir: [1, 0] });
   if (!P.simple()) line(ctx, [[19, 46], [32, 46]], "trim", 0.6, "butt");
-  raptorLeg(ctx, 0, false);
+  ctx.restore();
+  inGuardLegUnits(ctx, () => leg(ctx, LEGS.front));
 };
 
 const torso = (ctx: CanvasRenderingContext2D): void => {
@@ -192,11 +208,13 @@ const arm = (ctx: CanvasRenderingContext2D, fire: number): void => {
   ctx.translate(-ARM_PIVOT[0], -ARM_PIVOT[1]);
   drawRig(ctx, armNode(P.simple()), { palette: armPalette(P.pal()), pose: ARM_POSE, hooks: { hand }, lineW, simple: P.simple() });
   ctx.restore();
+  curve(ctx, [[23.4, 30.4], [28.2, 32.6], [33.2, 30.2]], "trim", 0.9);
 };
 
 const body = (ctx: CanvasRenderingContext2D, fire: number): void => {
   ctx.translate(-ORIGIN[0], -ORIGIN[1]);
   legs(ctx);
+  ctx.translate(0, -RAISE);
   torso(ctx);
   head(ctx);
   arm(ctx, fire);
@@ -204,7 +222,7 @@ const body = (ctx: CanvasRenderingContext2D, fire: number): void => {
 
 export const shootGuard: EnvAsset = {
   id: "shootGuard",
-  box: [-29, -60, 72, 60],
+  box: [-29, -72, 72, 72],
   anim: true,
   draw(ctx, state, t) {
     if (state !== SHOOT_GUARD_EXPLODE) return body(ctx, state === SHOOT_GUARD_FIRING ? fireFrame(t % FIRE_LOOP) : -1);

@@ -7,7 +7,7 @@ type Stops = [number, string][];
 
 const { box, flat, poly, disc, line, beam, stroke } = P;
 
-const GUARD_SIZE = 1.4;
+export const GUARD_SIZE = 1.4;
 const SQUASH = 0.5;
 const BROW = 22;
 const GUN_BACK = 2;
@@ -22,7 +22,7 @@ const LEG = 1 / 12;
 const KNEE_PAD = 0.75;
 const FOOT_AHEAD = 2;
 const PLATE = { up: 1.2, ahead: 2 };
-const FAR_LEG = { dx: 2.5, shade: "brightness(0.6) saturate(0.8)" };
+export const FAR_LEG = { dx: 2.5, shade: "brightness(0.6) saturate(0.8)" };
 const SIDE_LEG = {
   joint: [300, 486] as Pt,
   cap: [[300, 448], [340, 452], [362, 478], [362, 510], [344, 534], [318, 532], [310, 500]] as Pt[],
@@ -111,7 +111,7 @@ const inRigUnits = (ctx: CanvasRenderingContext2D, at: Pt, sx: number, sy: numbe
   ctx.restore();
 };
 
-const sideLegArmor = (ctx: CanvasRenderingContext2D, knee: Pt, ankle: Pt): void => {
+export const sideLegArmor = (ctx: CanvasRenderingContext2D, knee: Pt, ankle: Pt): void => {
   const len = Math.hypot(ankle[0] - knee[0], ankle[1] - knee[1]);
   ctx.save();
   ctx.translate(knee[0], knee[1]);

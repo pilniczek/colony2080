@@ -598,34 +598,53 @@ const GUARD_LEVELS = [["top", -38.5], ["visor", -32.5], ["hip", -23.5], ["knee",
 const TROOPER_ORIGIN = [24, 68];
 const TROOPER_FIRE_LOOP = 1.2;
 
+const TROOPER_HIP = [26, 47];
+const TROOPER_RAISE = 23.5 * GUARD_SIZE - (68 - TROOPER_HIP[1]);
+
 function trooperTail(ctx) {
-  const spine = [[19, 46], [12, 49], [6, 54], [2, 60], [-1, 65]];
+  const spine = [[19, 46], [12, 49], [6, 54], [2, 60], [-1, 65]].map(([x, y], i) => [x, y - TROOPER_RAISE * (1 - i / 4)]);
   spine.slice(1).forEach((b, i) => P.beam(ctx, spine[i], b, 5.2 - i * 1.1, "guardMetal"));
   P.poly(ctx, [[0, 63], [-4, 68], [-1, 64.5]], "guardMetal", 2);
   if (!ENV.simple) spine.slice(1, 4).forEach(([x, y], i) => P.line(ctx, [[x - 1.6 + i * 0.3, y - 1.8 + i * 0.3], [x + 1.6 - i * 0.3, y + 1.8 - i * 0.3]], "gm0", 0.6, "butt"));
 }
 
-function raptorLeg(ctx, dx, far) {
+function inGuardLegUnits(ctx, draw) {
   ctx.save();
-  if (far) ctx.filter = "brightness(0.6) saturate(0.8)";
-  const hip = [25 + dx, 47], knee = [33 + dx, 54], ankle = [26 + dx, 61.5];
-  P.beam(ctx, hip, knee, 6.5, "guardMetal");
-  P.beam(ctx, knee, ankle, 3.2, "guardChrome");
-  if (!ENV.simple) P.line(ctx, [[knee[0] - 2, knee[1] + 1], [ankle[0] - 2, ankle[1] - 1]], "gm1", 0.8);
-  P.disc(ctx, knee[0], knee[1], 2.6, "gm2", "gmLine");
-  P.disc(ctx, ankle[0], ankle[1], 1.8, "gc1", "gmLine");
-  P.poly(ctx, [[ankle[0] - 1, 61], [ankle[0] + 2, 61], [ankle[0] + 15, 66.5], [ankle[0] + 15, 68], [ankle[0] - 2, 68]], "guardMetal", 1);
-  P.poly(ctx, [[ankle[0] + 2, 64], [ankle[0] + 1, 58.5], [ankle[0] + 4, 63]], "guardChrome", 2);
-  if (!ENV.simple) for (const x of [7, 11]) P.line(ctx, [[ankle[0] + x, 66], [ankle[0] + x + 2.5, 68]], "gc2", 0.6, "butt");
+  ctx.translate(TROOPER_HIP[0], 68);
+  ctx.scale(-GUARD_SIZE, GUARD_SIZE);
+  ctx.translate(-42.5, -53.5);
+  draw();
   ctx.restore();
 }
 
+const TROOPER_LEGS = {
+  front: [[42.5, 30], [36, 39], [39.5, 49.5]],
+  rear: [[45, 30], [52, 40], [59.5, 49.5]]
+};
+
+const along = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+
+function trooperLeg(ctx, [hip, knee, ankle]) {
+  P.beam(ctx, hip, knee, 4.2, "guardMetal");
+  sideLegArmor(ctx, knee, ankle);
+  P.line(ctx, [along(hip, knee, 0.2), along(hip, knee, 0.75)], "trim", 0.8, "butt");
+  P.line(ctx, [along(knee, ankle, 0.3), along(knee, ankle, 0.85)], "trim", 0.7, "butt");
+}
+
 function trooperLegs(ctx) {
-  raptorLeg(ctx, -3, true);
+  inGuardLegUnits(ctx, () => {
+    ctx.save();
+    ctx.filter = FAR_LEG.shade;
+    trooperLeg(ctx, TROOPER_LEGS.rear);
+    ctx.restore();
+  });
   trooperTail(ctx);
+  ctx.save();
+  ctx.translate(0, -TROOPER_RAISE);
   P.poly(ctx, [[18, 42], [31, 42], [33, 47], [28, 51], [20, 51], [17, 47]], "guardChrome", 1, { dir: [1, 0] });
   if (!ENV.simple) P.line(ctx, [[19, 46], [32, 46]], "trim", 0.6, "butt");
-  raptorLeg(ctx, 0, false);
+  ctx.restore();
+  inGuardLegUnits(ctx, () => trooperLeg(ctx, TROOPER_LEGS.front));
 }
 
 function trooperTorso(ctx) {
@@ -735,17 +754,19 @@ function trooperArm(ctx, fire) {
     c.restore();
   };
   inArmUnits(ctx, () => XBOT.render(ctx, armNode(ENV.simple), { pal: ARM_PALETTE(ENV.pal), pose: ARM_POSE, hooks: { hand }, lineW, simple: ENV.simple }));
+  P.curve(ctx, [[23.4, 30.4], [28.2, 32.6], [33.2, 30.2]], "trim", 0.9);
 }
 
 function trooperMuzzle() {
   const m = XBOT.locate(armNode(false), "hand", ARM_POSE);
   const p = m.transformPoint(new DOMPoint(-RIFLE_MUZZLE[1] / ARM_PX, RIFLE_MUZZLE[0] / ARM_PX));
-  return [ARM_SHOULDER[0] + (p.x - ARM_PIVOT[0]) * ARM_PX, ARM_SHOULDER[1] + (p.y - ARM_PIVOT[1]) * ARM_PX];
+  return [ARM_SHOULDER[0] + (p.x - ARM_PIVOT[0]) * ARM_PX, ARM_SHOULDER[1] + (p.y - ARM_PIVOT[1]) * ARM_PX - TROOPER_RAISE];
 }
 
 function trooperBody(ctx, fire) {
   ctx.translate(-TROOPER_ORIGIN[0], -TROOPER_ORIGIN[1]);
   trooperLegs(ctx);
+  ctx.translate(0, -TROOPER_RAISE);
   trooperTorso(ctx);
   trooperHead(ctx);
   trooperArm(ctx, fire);
@@ -753,7 +774,7 @@ function trooperBody(ctx, fire) {
 
 const TROOPER = {
   id: "trooper",
-  box: { x: -29, y: -60, w: 72, h: 60 },
+  box: { x: -29, y: -72, w: 72, h: 72 },
   draw(ctx, state, t) {
     if (state !== 2) return trooperBody(ctx, state === 1 ? fireFrame(t % TROOPER_FIRE_LOOP) : -1);
     const age = t % BLAST.loop;
@@ -768,7 +789,7 @@ const TROOPER = {
 
 ENV.define({
   id: "shootGuard",
-  box: [-29, -60, 72, 60],
+  box: [-29, -72, 72, 72],
   anim: true,
   draw(ctx, state, t) {
     TROOPER.draw(ctx, state, t);
