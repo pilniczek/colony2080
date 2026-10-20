@@ -141,7 +141,7 @@ const torso = (ctx: CanvasRenderingContext2D): void => {
   if (!P.simple()) line(ctx, [[23, 24], [29, 25.2]], "gc2", 0.5);
 };
 
-const DOME = { at: [38.5, 17.2] as Pt, tilt: 0.17, length: 26, r: 4.6 };
+const DOME = { at: [38.5, 20.4] as Pt, tilt: 0.17, length: 26, r: 4.6 };
 
 const dome = (ctx: CanvasRenderingContext2D): void => {
   const { length: l, r } = DOME;

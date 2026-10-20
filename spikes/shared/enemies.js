@@ -673,7 +673,7 @@ function trooperTorso(ctx) {
   if (!ENV.simple) P.line(ctx, [[23, 24], [29, 25.2]], "gc2", 0.5);
 }
 
-const DOME = { at: [38.5, 17.2], tilt: 0.17, length: 26, r: 4.6 };
+const DOME = { at: [38.5, 20.4], tilt: 0.17, length: 26, r: 4.6 };
 
 function trooperDome(ctx) {
   const { length: l, r } = DOME;
