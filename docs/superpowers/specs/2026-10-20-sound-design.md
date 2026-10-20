@@ -90,7 +90,7 @@ flowchart LR
 
 - One `AudioContext`, created and resumed on first key or pointer gesture (browser autoplay rule).
 - `play(id, { rate, vol })`: buffer source, gain `sqrt(vol / 63)` times sound level, into master compressor (threshold -12 dB, ratio 4) that tames stacked voices.
-- Sound level: each sound plays at same short-term loudness `LEVEL` (0.04): gain `LEVEL / loudness`, where loudness is RMS of loudest 50 ms window. Never boosts. Square root of `vol` halves original volume spread in dB.
+- Sound level: each sound plays at same short-term loudness `LEVEL` (0.02): gain `LEVEL / loudness`, where loudness is RMS of loudest 50 ms window. Never boosts. Square root of `vol` halves original volume spread in dB.
 - Voice limit 8 (MIDAS channel count, builder confirms); oldest voice drops.
 - `stopAll()` for inventory open.
 - Master mute from sound toggle. Muted: nothing starts.
