@@ -6,17 +6,24 @@ import { machineAssets } from "./machines";
 import type { EnvAsset } from "./paint";
 import { propAssets } from "./props";
 import { structureAssets } from "./structures";
+import { vesniceAssets } from "./vesnice";
+import { bridgeGuard } from "./bridgeGuard";
+import { vesnicePropAssets } from "./vesniceProps";
 
 const ASSET_IDS = [
   "streetWalkway", "hazardPlate", "girderBridge", "ladder", "pipeColumn", "pipeBend", "fuelTank", "staircase", "chainFence", "latticePylon", "stripLight", "tunnelGate", "tunnelFloor", "tunnelWall", "metroPlatformWall",
   "skyBackground", "midgroundRuins", "windowBuilding", "ruinedBuilding", "colonnadeBuilding", "facadeTower", "brickWall", "graffitiWall", "gantryBuilding", "barSign", "barDoor", "crashedShip", "metroTrain",
   "wireBox", "switchboard", "trainDoor", "tapValveWheel", "waterPipe", "plasmaBarrier", "codeLock", "acidTank", "crane", "cardDoor", "lift", "liftPanel", "damagedLift", "acidGuard", "flyer", "shootGuard",
   "barrel", "dyingRebel", "corpse", "crowbar", "eBlaster", "craneKey", "shipPart", "controller", "wires", "tapHandle", "card", "holoPlan", "shipPlan", "decoder", "crate", "signPost", "floorVent", "rubblePile", "fallenGirders",
+  "sourceTeleport", "targetTeleport", "brokenTeleport", "teleportPad", "fuseBox", "electricCabinet", "cannon", "energyBarrier", "transformer",
+  "grassyWalkway", "fireBarricade", "dynamiteWall", "powerBridge", "rockCliff", "overheadPipeline", "storageTank", "watchtower", "bridgeGuardPost",
+  "villageBackdrop", "villageHouse", "stiltBuilding", "bridgeGuard", "smoulderingRemains", "smallKey", "walkieTalkie", "detonator", "projectile", "fuse", "dynamite",
+  "navCircuit", "toaster", "energyPickup", "ammoPickup", "shieldPickup", "projectileCrate",
 ] as const;
 
 export type AssetId = (typeof ASSET_IDS)[number];
 
-const list: EnvAsset[] = [...structureAssets, ...buildingAssets, ...machineAssets, ...propAssets, ...guardAssets, flyer, shootGuard];
+const list: EnvAsset[] = [...structureAssets, ...buildingAssets, ...machineAssets, ...propAssets, ...guardAssets, flyer, shootGuard, ...vesniceAssets, bridgeGuard, ...vesnicePropAssets];
 
 export const ASSETS = Object.fromEntries(list.map((a) => [a.id, a])) as Record<AssetId, EnvAsset>;
 

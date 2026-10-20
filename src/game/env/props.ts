@@ -9,7 +9,7 @@ type Tones = [string, string, string, string];
 const ROCK: Tones = ["k0", "k2", "c1", "c2"];
 const LIGHT: Pt = [-0.6, -0.8];
 
-const facets = (ctx: CanvasRenderingContext2D, pts: Pt[], cx: number, cy: number, tones: Tones, line: string): void => {
+export const facets = (ctx: CanvasRenderingContext2D, pts: Pt[], cx: number, cy: number, tones: Tones, line: string): void => {
   const t = tones.map(color) as Tones;
   pts.forEach((a, i) => {
     const b = pts[(i + 1) % pts.length] as Pt;

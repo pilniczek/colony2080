@@ -441,7 +441,7 @@ const eblasterCases = [
 ];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { stripLight: [0, 1], tunnelGate: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], acidGuard: [0, 1, 2], flyer: [0, 1], shootGuard: [0, 1, 2], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1] };
+const envStates: Record<string, number[]> = { stripLight: [0, 1], tunnelGate: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], acidGuard: [0, 1, 2], flyer: [0, 1], shootGuard: [0, 1, 2], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1], sourceTeleport: [0, 1, 2], targetTeleport: [0, 1], brokenTeleport: [0, 1], fuseBox: [0, 1, 2], electricCabinet: [0, 1], cannon: [0, 1], energyBarrier: [0, 1], fireBarricade: [0, 1], dynamiteWall: [0, 1], powerBridge: [0, 1], bridgeGuardPost: [0, 1], bridgeGuard: [0, 1, 2], smoulderingRemains: [0, 1], smallKey: [0, 1], walkieTalkie: [0, 1], detonator: [0, 1], projectile: [0, 1], fuse: [0, 1], dynamite: [0, 1, 2], navCircuit: [0, 1], toaster: [0, 1], energyPickup: [0, 1], ammoPickup: [0, 1], shieldPickup: [0, 1], projectileCrate: [0, 1] };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
@@ -449,6 +449,8 @@ const envSizes: [string, Size][] = [
   ["brickWall", { w: 24, h: 384 }],
   ["brickWall", { w: 960, h: 48 }],
   ["lift", { w: 72, top: -272, py: -120 }],
+  ["grassyWalkway", { w: 96 }],
+  ["overheadPipeline", { w: 192 }],
 ];
 const envCases = [
   runEnvCoverage,
