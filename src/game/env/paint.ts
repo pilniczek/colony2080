@@ -68,7 +68,7 @@ export const PALETTE: EnvPalette = {
   lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
   visor: "#ac2c0c", visorGlow: "#ff5a30", fume: "#a8c890",
   tg0: "#241e0c", tg1: "#3c341c", tg2: "#585020", tg3: "#7c7434",
-  trim: "#c89a30", eye: "#d8401c", eyeGlow: "#ff5a30",
+  trim: "#a08540", eye: "#d8401c", eyeGlow: "#ff5a30",
 };
 
 export const MAT: Record<Material, Tones> = {

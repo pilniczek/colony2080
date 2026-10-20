@@ -29,7 +29,7 @@ const GUARD_PALETTE = {
 const TROOPER_PALETTE = {
   ...GUARD_PALETTE,
   tg0: "#241e0c", tg1: "#3c341c", tg2: "#585020", tg3: "#7c7434",
-  trim: "#c89a30", eye: "#d8401c", eyeGlow: "#ff5a30"
+  trim: "#a08540", eye: "#d8401c", eyeGlow: "#ff5a30"
 };
 
 Object.assign(ENV.PALETTE, TROOPER_PALETTE);
