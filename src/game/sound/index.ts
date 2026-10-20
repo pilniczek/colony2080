@@ -1,8 +1,16 @@
-export type SoundId = never;
+import { beam, cannon, explosion, gunShot, laser, punch } from "./recipes/combat";
 
-export const SOUNDS: Record<SoundId, () => Float32Array> = {};
+export const SOUNDS = { gunShot, cannon, laser, beam, punch, explosion } satisfies Record<string, () => Float32Array>;
 
-export function samplesOf(id: SoundId): Float32Array {
-  const recipes: Record<string, () => Float32Array> = SOUNDS;
-  return recipes[id]!();
+export type SoundId = keyof typeof SOUNDS;
+
+const rendered = new Map<string, Float32Array>();
+
+export function samplesOf(id: string): Float32Array {
+  const cached = rendered.get(id);
+  if (cached) return cached;
+  if (!(id in SOUNDS)) throw new Error(`Unknown sound ${id}`);
+  const samples = SOUNDS[id as SoundId]();
+  rendered.set(id, samples);
+  return samples;
 }

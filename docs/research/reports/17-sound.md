@@ -374,6 +374,21 @@ Voices (silent in our port): `HEK`, `DEAD1`-`DEAD4`, `COTUCH`, `TOHLE`, `KDES`, 
 | `VRATA2` @8000 | 1.08 | 0.19 | 236 | .84 .13 .01 .02 | .71 .80 .84 .92 .86 .53 .33 .24 .09 .04 | heavy door shut |
 | `ODLET` @13000 | 4.75 | 3.60 | 246 | .82 .13 .04 .01 | .72 .75 .82 .80 .67 .79 .86 .70 .74 .08 | ship take-off rumble, abrupt end |
 
+## Synth scores
+
+Recipes in `src/game/sound/recipes/` against their original, both as sample streams at 11025 Hz (`npm run sound:compare`). `envCorr` = 10 ms RMS envelope correlation, `specDist` = mean band power distance (16 bands, floor -50 dBFS), `level` = RMS ratio synth / original. Targets: envCorr >= 0.9, specDist <= 8 dB, samples ratio 0.95-1.05.
+
+| Recipe | Original | Samples ratio | envCorr | specDist dB | Level |
+|---|---|---|---|---|---|
+| `gunShot` | `STRELBA` | 1.00 | 0.992 | 3.0 | 1.08 |
+| `cannon` | `P1_CANN` | 1.00 | 0.926 | 3.8 | 1.00 |
+| `laser` | `LASER2` | 1.00 | 0.967 | 3.7 | 1.03 |
+| `beam` | `LASER3` | 1.00 | 0.969 | 3.0 | 1.08 |
+| `punch` | `UDER` | 1.00 | 0.975 | 2.6 | 0.99 |
+| `explosion` | `VYBUCH6` | 1.00 | 0.944 | 2.8 | 1.03 |
+
+Noise recipes (`cannon`, `explosion`) keep the seed with the best envCorr of seeds 1-40; other seeds score 0.87-0.92 (`cannon`) and 0.92-0.94 (`explosion`). Recipes with a recorded hiss floor in the original (`punch`, `beam`, `cannon`, `laser`, about -55 to -70 dB per band) add white noise at that level; it sits under the -50 dB metric floor, so it shows only in the spectrogram pictures.
+
 ## Tools
 
 All in `docs/research/tools/sound/`. Run Python with `-I`.

@@ -10,7 +10,14 @@ const SND_DIR = "docs/research/gamedata/raw/CD/ZVUKY";
 const OUT_DIR = join(tmpdir(), "c2080-sound", "sound");
 const MAX_FRAMES = 400;
 
-export const ORIGINAL_OF: Partial<Record<SoundId, string>> = {};
+export const ORIGINAL_OF: Partial<Record<SoundId, string>> = {
+  gunShot: "STRELBA.SND",
+  cannon: "P1_CANN.SND",
+  laser: "LASER2.SND",
+  beam: "LASER3.SND",
+  punch: "UDER.SND",
+  explosion: "VYBUCH6.SND",
+};
 
 function spectrogramRows(samples: Float32Array): Uint8Array[] {
   const frames = spectrogram(samples).slice(0, MAX_FRAMES).map((power) => power.map((p) => 10 * Math.log10(p + 1e-12)));

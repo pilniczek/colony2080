@@ -1,0 +1,85 @@
+import { biquad, buffer, envelope, fill, onePole, osc, quantize8, seeded, sweep } from "../../../engine/audio/synth";
+
+const render = (seconds: number, sample: (t: number) => number): Float32Array => quantize8(fill(buffer(seconds), sample));
+
+const clip = (x: number, drive: number): number => Math.tanh(x * drive) / Math.tanh(drive);
+
+const grain = (level: number, until: number): ((t: number) => number) => {
+  const noise = seeded(99);
+  return (t) => (t < until ? level * noise() : 0);
+};
+
+export function gunShot(): Float32Array {
+  const noise = seeded(1);
+  const rumble = onePole(200, "low");
+  const hiss = biquad("band", 1200, 0.5);
+  const thump = osc("sine", sweep([[0.02, 110], [0.06, 60]]));
+  const kick = envelope([[0, 0], [0.019, 0], [0.022, 2], [0.055, 2], [0.065, 0]]);
+  const body = envelope([[0, 0], [0.019, 0], [0.022, 0.3], [0.05, 0.6], [0.06, 0.9], [0.19, 0.9], [0.2, 0.3], [0.23, 0.2], [0.245, 0.13], [0.27, 0.18], [0.29, 0.17], [0.3, 0.07], [0.35, 0.06], [0.5, 0.03], [0.6, 0.025], [0.8, 0.012], [0.86, 0]]);
+  const tail = envelope([[0, 0], [0.2, 0], [0.3, 0.3], [0.45, 0.25], [0.55, 0.18], [0.7, 0.13], [0.8, 0.08], [0.9, 0]]);
+  return render(1.187, (t) => {
+    const n = noise();
+    return clip(body(t) * 8 * rumble(n) + kick(t) * thump(t), 1.5) + tail(t) * hiss(n);
+  });
+}
+
+export function cannon(): Float32Array {
+  const noise = seeded(16);
+  const rumble = biquad("low", 160, 0.7);
+  const crackle = biquad("high", 500, 0.7);
+  const thump = osc("square", () => 80);
+  const kick = envelope([[0, -0.4], [0.01, -0.4], [0.012, 0], [0.023, 0], [0.024, 0.5], [0.045, 0.5], [0.047, 0]]);
+  const crack = envelope([[0, 0], [0.011, 0], [0.012, 0.4], [0.022, 0.4], [0.023, 0.05], [0.05, 0.05], [0.056, 0.5], [0.13, 0.45], [0.16, 0.4], [0.3, 0.32], [0.36, 0.18], [0.42, 0.06], [0.5, 0]]);
+  const boom = envelope([[0, 0], [0.13, 0], [0.15, 0.4], [0.175, 0.6], [0.29, 0.62], [0.31, 0.46], [0.33, 0.54], [0.36, 0.42], [0.4, 0.52], [0.425, 0.31], [0.45, 0.23], [0.495, 0.44], [0.515, 0.1], [0.54, 0.3], [0.565, 0.14], [0.59, 0.22], [0.61, 0.14], [0.69, 0.15], [0.725, 0.08], [0.77, 0.2], [0.84, 0.08], [0.885, 0.1], [0.9, 0.48], [0.92, 0.45], [0.94, 0.1], [1, 0.04], [1.06, 0.12], [1.12, 0.06], [1.21, 0.2], [1.24, 0.1], [1.3, 0.15], [1.33, 0.13], [1.37, 0.08], [1.5, 0.1], [1.6, 0.07], [1.71, 0.05], [1.722, 0]]);
+  const floor = grain(0.02, 1.72);
+  return render(1.733, (t) => {
+    const n = noise();
+    return clip(boom(t) * 8 * rumble(n) + kick(t) * thump(t), 1.2) + crack(t) * crackle(n) + floor(t);
+  });
+}
+
+export function laser(): Float32Array {
+  const noise = seeded(3);
+  const tone = osc("sine", sweep([[0.07, 2600], [0.082, 2150], [0.105, 1460], [0.128, 1077], [0.151, 689], [0.175, 517], [0.198, 388], [0.233, 258], [0.28, 175], [0.32, 125], [0.38, 88], [0.46, 63], [0.54, 47], [0.61, 38], [0.72, 32], [0.86, 27], [1.04, 24], [1.2, 21], [1.575, 18]]));
+  const level = envelope([[0, 0], [0.045, 0], [0.06, 0.2], [0.1, 0.3], [0.13, 0.5], [0.16, 1], [0.6, 1], [0.65, 0.8], [0.97, 0.8], [1.0, 0.45], [1.02, 0.3], [1.045, 0.23], [1.07, 0.17], [1.115, 0.12], [1.16, 0.1], [1.2, 0.06], [1.28, 0.045], [1.35, 0.035], [1.4, 0.015], [1.45, 0.025], [1.53, 0.015], [1.575, 0]]);
+  const smooth = biquad("low", 1800, 0.7);
+  const wobble = osc("sine", () => 40);
+  const zap = envelope([[0, 0.6], [0.004, 0.6], [0.005, 0], [0.008, 0.5], [0.04, 0.45], [0.06, 0]]);
+  const rumble = envelope([[0, 0.8], [0.06, 0.8], [0.12, 0]]);
+  const floor = grain(0.01, 1.565);
+  return render(1.575, (t) => smooth(clip(level(t) * tone(t), 3)) + zap(t) * noise() + rumble(t) * wobble(t) + floor(t));
+}
+
+export function beam(): Float32Array {
+  const noise = seeded(4);
+  const hiss = biquad("high", 3500, 0.7);
+  const tone = osc("sine", sweep([[0.012, 5200], [0.035, 3800], [0.046, 2600], [0.057, 1600], [0.069, 1150], [0.081, 820], [0.1, 660], [0.13, 540], [0.17, 410], [0.21, 300], [0.26, 230], [0.35, 200]]));
+  const level = envelope([[0, 0], [0.012, 0], [0.014, 0.04], [0.026, 0.06], [0.033, 0.55], [0.039, 0.68], [0.05, 0.56], [0.064, 0.44], [0.075, 0.29], [0.082, 0.2], [0.11, 0.16], [0.14, 0.12], [0.17, 0.085], [0.2, 0.06], [0.33, 0.05], [0.348, 0]]);
+  const chirp = osc("sine", sweep([[0.265, 4500], [0.29, 2400], [0.3, 1600], [0.32, 850], [0.35, 680]]));
+  const echo = envelope([[0, 0], [0.265, 0], [0.275, 0.1], [0.3, 0.1], [0.34, 0.05], [0.348, 0]]);
+  const click = envelope([[0, 1], [0.011, 1], [0.012, 0]]);
+  const floor = grain(0.035, 0.335);
+  return render(0.351, (t) => {
+    const crackle = hiss(noise());
+    return clip(level(t) * tone(t), 1.2) + echo(t) * chirp(t) + (click(t) + 0.03 * level(t)) * crackle + floor(t);
+  });
+}
+
+export function punch(): Float32Array {
+  const noise = seeded(5);
+  const hiss = biquad("high", 1500, 0.7);
+  const tone = osc("sine", sweep([[0.035, 250], [0.036, 100], [0.04, 100], [0.21, 40]]));
+  const swing = envelope([[0, 0.2], [0.008, 0.5], [0.012, 0.9], [0.02, 0.6], [0.05, 0.65], [0.09, 0.8], [0.12, 1], [0.214, 1], [0.222, 0]]);
+  const ring = osc("sine", () => 120);
+  const tail = envelope([[0, 0], [0.214, 0], [0.225, 1.1], [0.338, 1], [0.352, 0]]);
+  const grit = envelope([[0, 0.15], [0.01, 0], [0.205, 0], [0.215, 0.06], [0.25, 0]]);
+  const floor = grain(0.045, 0.35);
+  return render(0.363, (t) => clip(swing(t) * tone(t), 1.5) + tail(t) * (0.1 + 0.17 * ring(t)) + grit(t) * hiss(noise()) + floor(t));
+}
+
+export function explosion(): Float32Array {
+  const noise = seeded(17);
+  const rumble = onePole(200, "low");
+  const level = envelope([[0, 1.1], [0.05, 1.2], [0.065, 0.4], [0.085, 0.35], [0.105, 0.85], [0.135, 0.75], [0.195, 0.42], [0.24, 0.38], [0.285, 0.4], [0.375, 0.48], [0.435, 0.85], [0.47, 0.7], [0.5, 0.75], [0.555, 0.55], [0.6, 0.6], [0.625, 0.3], [0.645, 0.22], [0.706, 0.2], [0.766, 0.12], [0.946, 0.22], [1.066, 0.19], [1.126, 0.09], [1.306, 0.15], [1.366, 0.1], [1.606, 0.1], [1.696, 0.045], [1.756, 0.06], [1.816, 0.03], [2.1, 0.015], [2.6, 0.01], [2.68, 0]]);
+  return render(2.695, (t) => clip(level(t) * 6 * rumble(noise()), 1));
+}

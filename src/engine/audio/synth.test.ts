@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BASE_RATE, buffer, envelope, fill, onePole, osc, quantize8, seeded } from "./synth";
+import { BASE_RATE, buffer, envelope, fill, onePole, osc, quantize8, seeded, sweep } from "./synth";
 
 const rms = (xs: Float32Array) => Math.sqrt(xs.reduce((s, x) => s + x * x, 0) / xs.length);
 
@@ -24,6 +24,14 @@ describe("synth", () => {
     expect(e(0.05)).toBeCloseTo(0.5);
     expect(e(0.2)).toBeCloseTo(0.5);
     expect(e(1)).toBe(0);
+  });
+
+  it("sweep interpolates exponentially and holds its ends", () => {
+    const s = sweep([[0.1, 100], [0.3, 400], [0.5, 400]]);
+    expect(s(0)).toBe(100);
+    expect(s(0.2)).toBeCloseTo(200);
+    expect(s(0.4)).toBeCloseTo(400);
+    expect(s(1)).toBe(400);
   });
 
   it("osc sine frequency", () => {

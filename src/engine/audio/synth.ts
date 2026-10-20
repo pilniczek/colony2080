@@ -30,6 +30,20 @@ export function envelope(points: [number, number][]): (t: number) => number {
   };
 }
 
+export function sweep(points: [number, number][]): (t: number) => number {
+  const [first] = points as [[number, number]];
+  const last = points[points.length - 1] as [number, number];
+  return (t) => {
+    if (t <= first[0]) return first[1];
+    for (let i = 1; i < points.length; i++) {
+      const [t0, v0] = points[i - 1] as [number, number];
+      const [t1, v1] = points[i] as [number, number];
+      if (t <= t1) return t1 === t0 ? v1 : v0 * (v1 / v0) ** ((t - t0) / (t1 - t0));
+    }
+    return last[1];
+  };
+}
+
 function wave(shape: Shape, phase: number): number {
   switch (shape) {
     case "sine":
