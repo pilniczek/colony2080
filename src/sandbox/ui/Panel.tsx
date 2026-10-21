@@ -3,6 +3,7 @@ import type { CutsceneId } from "../../game/cutscene";
 import type { Weapon } from "../../game/hero/config";
 import { useSandbox } from "../store";
 import { Cheats } from "./Cheats";
+import { Tour } from "./Tour";
 import { Environment } from "./Environment";
 import { Films } from "./Films";
 import { Overlays } from "./Overlays";
@@ -88,6 +89,7 @@ export function Panel({ commands }: { commands: SandboxCommands }) {
         <Environment commands={commands} />
         <Films commands={commands} />
         <Cheats commands={commands} />
+        <Tour commands={commands} />
         <Tuning />
       </fieldset>
     </aside>
