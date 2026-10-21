@@ -436,7 +436,7 @@
       "marker": 9,
       "task": "tradeHoloPlan",
       "sheet": "buildings",
-      "description": "Ruined grey concrete building with a jagged broken roof line, two fluted pillars and a recessed blue-grey door with a small red-white sign above it (door about 1 x 3 tiles, building about 6 x 4). Using it opens the NPC face dialogue; used twice (tradeHoloPlan, tradeShipPart).",
+      "description": "Ruined grey concrete building with a jagged broken roof line, two fluted pillars and a recessed blue-grey double door filling the gap between them, the left leaf lit with a paper notice, the right one in shadow, with a small red-white sign above it (doorway about 2 x 3 tiles, building about 6 x 4). Using it opens the NPC face dialogue; used twice (tradeHoloPlan, tradeShipPart).",
       "states": [
         "closed",
         "talking (NPC face cutscene)"
