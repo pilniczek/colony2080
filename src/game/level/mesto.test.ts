@@ -82,10 +82,10 @@ describe("mesto map", () => {
     }
   });
 
-  it("runs every wall column up to the floor above", () => {
+  it("runs every wall column but the ground slab up to the floor above", () => {
     const liftFloor = (col: number, row: number): boolean => lifts.some((l) => l.bottom === row && col >= l.x && col < l.x + l.w);
     const short: string[] = [];
-    for (const wall of terrain(grid).walls.filter((w) => w.h > 1)) {
+    for (const wall of terrain(grid).walls.filter((w) => w.h > 1 && w.row !== world.ground)) {
       for (let col = wall.col; col < wall.col + wall.w; col++) {
         const floorAbove = Array.from({ length: wall.row }, (_, row) => grid.wall(col, row)).some(Boolean);
         if (floorAbove && !grid.wall(col, wall.row - 1) && !liftFloor(col, wall.row - 1) && !shipSky(col, wall.row - 1)) short.push(`${col},${wall.row}`);

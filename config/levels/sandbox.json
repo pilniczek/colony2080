@@ -56,7 +56,7 @@
   ],
   "dressing": [
     { "asset": "floorVent", "x": 7.5 },
-    { "asset": "stripLight", "x": 6.25, "y": 8 },
+    { "asset": "stripLight", "x": 6.25, "y": 9 },
     { "asset": "floorVent", "x": 9.5, "y": 28 },
     { "asset": "floorVent", "x": 43, "y": 21 }
   ],

@@ -132,6 +132,7 @@ export interface SandboxWorld {
   dressing: Scenery[];
   terrain: ReturnType<typeof terrain>;
   bare: CellRect[];
+  ground: number | null;
   fog: Fog | null;
   heroHits: number;
   sparks: Spark[];
@@ -179,6 +180,7 @@ export interface SandboxJson {
   teleports?: Teleport[];
   variants?: Record<string, CellPatch[]>;
   bare?: CellRect[];
+  ground?: number;
 }
 
 function checkedProp(prop: Prop): Prop {
@@ -237,6 +239,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     dressing: scenery(data.dressing),
     terrain: terrain(grid),
     bare: structuredClone(data.bare ?? []),
+    ground: data.ground ?? null,
     fog: null,
     heroHits: 0,
     sparks: [],

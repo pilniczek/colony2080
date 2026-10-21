@@ -17,6 +17,7 @@ const SKY_W = 320;
 const LIFT_HEAD = 32;
 const LADDER_W = 56;
 const HAZE = "rgba(26, 12, 8, 0.45)";
+const UNDERGROUND = "rgba(4, 6, 10, 0.55)";
 
 const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", panel: "switchboard", weapon: "eBlaster" };
 
@@ -138,6 +139,13 @@ function haze(e: Env): void {
   ctx.fillRect(0, 0, world.grid.width * cell, world.grid.height * cell);
 }
 
+function underground(e: Env): void {
+  const { ctx, world, cell } = e;
+  if (world.ground === null) return;
+  ctx.fillStyle = UNDERGROUND;
+  ctx.fillRect(0, (world.ground + 1) * cell, world.grid.width * cell, (world.grid.height - world.ground - 1) * cell);
+}
+
 function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: number; h: number }, col: number, row: number): HTMLCanvasElement | null {
   const canvas = document.createElement("canvas");
   canvas.width = Math.min(TILE_PX, size.w - col * TILE_PX);
@@ -187,6 +195,7 @@ export function below(e: Env): void {
   scenery(e, "backdrop", e.world.backdrop);
   haze(e);
   terrain(e);
+  underground(e);
   clipped(e, e.world.lifts.map((l) => baseBox(e, l)), false, () => scenery(e, "dressing", e.world.dressing));
   shafts(e);
 }

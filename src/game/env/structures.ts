@@ -313,19 +313,21 @@ const stripBar = (ctx: CanvasRenderingContext2D, x: number, y: number, lit: bool
 
 export const stripLight: EnvAsset = {
   id: "stripLight",
-  box: [-14, -72, 50, 0],
+  box: [-14, -96, 50, 0],
   draw(ctx, state) {
+    box(ctx, -2, -96, 40, 3, "steel", 1);
+    for (const x of [5, 29]) box(ctx, x, -93, 2, 23, "steel", 1, { vertical: true });
     stripBar(ctx, 0, -70, state === 0);
   },
 };
 
 export const tunnelGate: EnvAsset = {
   id: "tunnelGate",
-  box: [-4, -240, 88, 0],
+  box: [-4, -96, 88, 0],
   draw(ctx) {
-    slab(ctx, 1, -240, 82, 240, "concrete", 1);
-    if (!P.simple()) for (let y = -228; y < -4; y += 24) flat(ctx, 1, y, 82, 1, "k0");
-    for (const x of [-3, 83]) box(ctx, x, -240, 4, 240, "steel", 1, { vertical: true });
+    slab(ctx, 1, -96, 82, 96, "concrete", 1);
+    if (!P.simple()) for (let y = -84; y < -4; y += 24) flat(ctx, 1, y, 82, 1, "k0");
+    for (const x of [-3, 83]) box(ctx, x, -96, 4, 96, "steel", 1, { vertical: true });
     box(ctx, -3, -72, 90, 4, "steel", 2);
   },
 };
