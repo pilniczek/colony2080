@@ -714,6 +714,66 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 10,
     },
     {
+      "asset": "liftPanel",
+      "x": 65,
+      "y": 37,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 65,
+      "y": 51,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 86,
+      "y": 44,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 86,
+      "y": 51,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 13,
+      "y": 70,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 14,
+      "y": 75,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 23,
+      "y": 70,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 23,
+      "y": 75,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 12,
+      "y": 59,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 28,
+      "y": 59,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 81,
+      "y": 70,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 74,
+      "y": 59,
+    },
+    {
       "asset": "chainFence",
       "x": 41.5,
       "y": 16,
