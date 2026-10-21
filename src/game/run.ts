@@ -95,7 +95,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const canvas = document.getElementById("game");
   const ui = document.getElementById("ui");
   if (!(canvas instanceof HTMLCanvasElement) || !ui) throw new Error("missing #game or #ui");
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { alpha: false });
   if (!ctx) throw new Error("no 2d context");
 
   const tuning = () => useSandbox.getState();

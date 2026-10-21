@@ -180,6 +180,19 @@ describe("TileCache", () => {
     });
   });
 
+  it("keeps a null tile as painted", () => {
+    const cache = new TileCache<string | null>();
+    let made = 0;
+    const make = (): null => {
+      made++;
+      return null;
+    };
+    const need = visibleTiles({ x: 0, y: 0, w: 100, h: 100 }, 100, 0, { w: 1000, h: 100 });
+    cache.sync("a", need, make, { tiles: need, budget: 1 });
+    cache.sync("a", need, make, { tiles: need, budget: 1 });
+    expect(made).toBe(1);
+  });
+
   describe("prefetch", () => {
     const at = { x: 130, y: 0, w: 100, h: 100 };
     const ring = nearestFirst(visibleTiles(at, 100, 1, { w: 1000, h: 100 }), at, 100);

@@ -30,7 +30,7 @@ const LIFT_CULL_PAD_CELLS = 3;
 
 const grown = ({ x, y, w, h }: Rect, by: number): Rect => ({ x: x - by, y: y - by, w: w + 2 * by, h: h + 2 * by });
 
-const layers = new WeakMap<SandboxWorld, Record<string, TileCache<HTMLCanvasElement>>>();
+const layers = new WeakMap<SandboxWorld, Record<string, TileCache<HTMLCanvasElement | null>>>();
 
 type Lookup = (col: number, row: number) => readonly unknown[];
 
@@ -54,6 +54,7 @@ export interface Env {
   screen: Rect;
   clip?: Rect;
   tile?: { col: number; row: number; px: number };
+  drawn?: { count: number };
 }
 
 export function bucketByTile<T>(items: readonly T[], boxOf: (item: T) => Rect, tilePx: number): (col: number, row: number) => T[] {
@@ -108,6 +109,7 @@ const columns = (e: Env, step: number, count: number): [number, number] => {
 
 function place(e: Env, id: AssetId | EnvAsset, x: number, y: number, scale: number, state = 0, size?: Size, t = 0): void {
   const { ctx } = e;
+  if (e.drawn) e.drawn.count++;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(scale, scale);
@@ -136,7 +138,7 @@ function haze(e: Env): void {
   ctx.fillRect(0, 0, world.grid.width * cell, world.grid.height * cell);
 }
 
-function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: number; h: number }, col: number, row: number): HTMLCanvasElement {
+function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: number; h: number }, col: number, row: number): HTMLCanvasElement | null {
   const canvas = document.createElement("canvas");
   canvas.width = Math.min(TILE_PX, size.w - col * TILE_PX);
   canvas.height = Math.min(TILE_PX, size.h - row * TILE_PX);
@@ -144,12 +146,15 @@ function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: num
   ctx.translate(-col * TILE_PX, -row * TILE_PX);
   ctx.scale(scale, scale);
   const clip = { x: (col * TILE_PX) / scale, y: (row * TILE_PX) / scale, w: canvas.width / scale, h: canvas.height / scale };
-  paint({ ...e, ctx, clip, tile: { col, row, px: TILE_PX / scale } });
-  return canvas;
+  const drawn = { count: 0 };
+  paint({ ...e, ctx, clip, tile: { col, row, px: TILE_PX / scale }, drawn });
+  if (drawn.count > 0 || paint === below) return canvas;
+  free(canvas);
+  return null;
 }
 
-function free(canvas: HTMLCanvasElement): void {
-  canvas.width = canvas.height = 0;
+function free(canvas: HTMLCanvasElement | null): void {
+  if (canvas) canvas.width = canvas.height = 0;
 }
 
 function cached(e: Env, name: string, paint: (off: Env) => void): void {
@@ -166,11 +171,11 @@ function cached(e: Env, name: string, paint: (off: Env) => void): void {
   const until = performance.now() + PREFETCH_MS;
   const ahead = { tiles: nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX), budget: PREFETCH_PER_FRAME, more: () => performance.now() < until };
   const key = `${scale}|${lines}|${cell}|${unit}`;
-  const make = (col: number, row: number): HTMLCanvasElement => render(e, scale, paint, size, col, row);
+  const make = (col: number, row: number): HTMLCanvasElement | null => render(e, scale, paint, size, col, row);
   const tiles = cache.sync(key, visibleTiles(view, TILE_PX, 0, size), make, ahead);
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, x, y);
-  for (const [col, row, canvas] of tiles) ctx.drawImage(canvas, col * TILE_PX, row * TILE_PX);
+  for (const [col, row, canvas] of tiles) if (canvas) ctx.drawImage(canvas, col * TILE_PX, row * TILE_PX);
   ctx.restore();
 }
 

@@ -67,7 +67,8 @@ export class TileCache<T> {
     });
     let budget = missed ? 0 : (prefetch?.budget ?? 0);
     for (const [col, row] of prefetch?.tiles ?? []) {
-      const tile = kept.get(id(col, row)) ?? this.reuse(col, row);
+      if (kept.has(id(col, row))) continue;
+      const tile = this.reuse(col, row);
       if (tile !== undefined) kept.set(id(col, row), tile);
       else if (!missed && (budget > 0 || prefetch?.more?.())) {
         budget--;
@@ -81,7 +82,8 @@ export class TileCache<T> {
 
   private reuse(col: number, row: number): T | undefined {
     const at = id(col, row);
-    const tile = this.tiles.get(at) ?? this.dropped.get(at);
+    if (this.tiles.has(at)) return this.tiles.get(at);
+    const tile = this.dropped.get(at);
     this.dropped.delete(at);
     return tile;
   }
