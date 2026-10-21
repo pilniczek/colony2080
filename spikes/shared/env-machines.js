@@ -598,25 +598,26 @@ function screenNoise(ctx, x, y, w, h, t) {
 }
 
 function controlBox(ctx, x, damaged, t) {
-  box(ctx, x + 10, -32, 4, 32, "rust", 1, { vertical: true });
-  box(ctx, x + 6, -2, 12, 2, "rust", 1);
-  box(ctx, x, -44, 24, 13, "rust", 0);
-  flat(ctx, x, -44, 24, 1.2, "r3");
+  box(ctx, x, -24, 24, 24, "rust", 0);
+  flat(ctx, x, -24, 24, 1.2, "r3");
+  box(ctx, x - 1, -2, 26, 2, "rust", 1);
+  for (const [bx, c] of [[7, "a1"], [12, "y2"], [17, "c2"]]) disc(ctx, x + bx, -9.5, 1.8, c, "mLine");
+  if (!simple()) for (const y of [-5.5, -4]) flat(ctx, x + 4, y, 16, 0.8, "k0");
   if (damaged) {
-    screenNoise(ctx, x + 3, -41.5, 18, 8, t);
-    cable(ctx, [[x + 15, -41], [x + 13, -38], [x + 16, -36], [x + 14, -34]], "c3", 0.5, "c3");
-    cable(ctx, [[x + 20, -31], [x + 22, -26], [x + 21, -22]], "a1", 0.8);
-    if (Math.floor(t * 6) % 5 === 0) glow(ctx, x + 21, -22, 4, "y3", 0.9);
+    screenNoise(ctx, x + 3, -21.5, 18, 8, t);
+    cable(ctx, [[x + 15, -21], [x + 13, -18], [x + 16, -16], [x + 14, -14]], "c3", 0.5, "c3");
+    cable(ctx, [[x + 20, -12], [x + 22, -7], [x + 21, -3]], "a1", 0.8);
+    if (Math.floor(t * 6) % 5 === 0) glow(ctx, x + 21, -3, 4, "y3", 0.9);
     return;
   }
-  flat(ctx, x + 3, -41.5, 18, 8, "hole", "mLine");
-  poly(ctx, [[x + 7.5, -40.5], [x + 11, -34.5], [x + 4, -34.5]], "a1", 2);
-  if (!simple()) for (const y of [-40, -37.5, -35]) flat(ctx, x + 12.5, y, 7, 1, "y1");
+  flat(ctx, x + 3, -21.5, 18, 8, "hole", "mLine");
+  poly(ctx, [[x + 7.5, -20.5], [x + 11, -14.5], [x + 4, -14.5]], "a1", 2);
+  if (!simple()) for (const y of [-20, -17.5, -15]) flat(ctx, x + 12.5, y, 7, 1, "y1");
 }
 
 define({
   id: "liftPanel",
-  box: [-2, -46, 26, 0],
+  box: [-2, -26, 26, 0],
   anim: true,
   draw(ctx, state, t) {
     controlBox(ctx, 0, state === 1, t);
