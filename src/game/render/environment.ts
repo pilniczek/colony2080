@@ -288,9 +288,7 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
   for (const { col, row, w, h } of world.bare) for (let r = row; r < row + h; r++) for (let c = col; c < col + w; c++) skip.add(`${c},${r}`);
   const landings: Run[] = [];
   const bases: Run[] = [];
-  const underLifts = new Set(skip);
   for (const l of world.lifts) {
-    for (let c = l.x; c < l.x + l.w; c++) underLifts.add(`${c},${l.bottom + 1}`);
     for (const row of l.stops) {
       const open = new Set<string>();
       for (let c = l.x; c < l.x + l.w; c++) (world.grid.at(c, row) === "=" ? skip : open).add(`${c},${row}`);
@@ -298,6 +296,8 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
       if (row === l.bottom) bases.push(...cutRuns([{ row, col: l.x, w: l.w }], skip));
     }
   }
+  const underLifts = new Set(skip);
+  for (const l of world.lifts) for (let c = l.x; c < l.x + l.w; c++) underLifts.add(`${c},${l.bottom + 1}`);
   const { walls, ledges, girders } = world.terrain;
   const touched = (r: CellRect): boolean => Array.from({ length: r.h }, (_, i) => r.row + i).some((row) => Array.from({ length: r.w }, (_, i) => r.col + i).some((col) => skip.has(`${col},${row}`)));
   const cutWalls = walls.flatMap((r) =>
