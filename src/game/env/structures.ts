@@ -212,12 +212,18 @@ const liftLanding: EnvAsset = {
   },
 };
 
+export const pipeRings = (h: number): number[] => {
+  const ys: number[] = [];
+  for (let y = -h + 18; y < -24; y += 72) ys.push(y);
+  return ys;
+};
+
 export const pipeColumn: EnvAsset = {
   id: "pipeColumn",
   box: [-4, -168, 28, 0],
-  draw(ctx) {
-    cylV(ctx, 0, -168, 24, 168, "concrete", 2);
-    for (const y of [-150, -78]) {
+  draw(ctx, _state, _t, { h = 168 }: Size) {
+    cylV(ctx, 0, -h, 24, h, "concrete", 2);
+    for (const y of pipeRings(h)) {
       cylV(ctx, -1.5, y, 27, 4, "concrete", 1);
       flat(ctx, -1.5, y + 1.5, 27, 0.8, "k3");
     }

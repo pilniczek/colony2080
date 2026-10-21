@@ -208,12 +208,19 @@ function pipeRing(ctx, x, y, w, vertical) {
   else box(ctx, x, y, 4, w, "chrome", 2);
 }
 
+function pipeRings(h) {
+  const ys = [];
+  for (let y = -h + 18; y < -24; y += 72) ys.push(y);
+  return ys;
+}
+
 define({
   id: "pipeColumn",
   box: [-4, -168, 28, 0],
-  draw(ctx) {
-    cylV(ctx, 0, -168, 24, 168, "concrete", 2);
-    for (const y of [-150, -78]) {
+  draw(ctx, state, t, size = {}) {
+    const h = size.h ?? 168;
+    cylV(ctx, 0, -h, 24, h, "concrete", 2);
+    for (const y of pipeRings(h)) {
       cylV(ctx, -1.5, y, 27, 4, "concrete", 1);
       flat(ctx, -1.5, y + 1.5, 27, 0.8, "k3");
     }

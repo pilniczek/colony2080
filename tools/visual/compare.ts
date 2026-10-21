@@ -456,6 +456,7 @@ const envSizes: [string, Size][] = [
   ["switchboard", { top: -96 }],
   ["plasmaBarrier", { top: -144 }],
   ["cardDoor", { top: -144 }],
+  ["pipeColumn", { h: 312 }],
 ];
 const envCases = [
   runEnvCoverage,
