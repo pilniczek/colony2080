@@ -23,7 +23,7 @@ interface KeyLikeEvent {
 
 const NON_TEXT_INPUTS = new Set(["checkbox", "radio", "button", "submit", "reset", "range", "color", "file", "image"]);
 
-const isTextField = (target: unknown): boolean => {
+export const isTextField = (target: unknown): boolean => {
   const el = target as { tagName?: unknown; type?: unknown } | null | undefined;
   if (el?.tagName === "TEXTAREA" || el?.tagName === "SELECT") return true;
   return el?.tagName === "INPUT" && !NON_TEXT_INPUTS.has(String(el.type));

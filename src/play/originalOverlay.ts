@@ -1,3 +1,4 @@
+import { isTextField } from "../engine/input";
 import type { ViewTransform } from "../engine/render/view";
 import { kill } from "../game/hero/hero";
 import type { ItemId } from "../game/items";
@@ -18,7 +19,7 @@ export function originalOverlay(run: Run, mission: MissionId): DrawOver {
   image.src = `/docs/research/gamedata/png/maps/map_${MAP_FILES[mission]}.png`;
   let on = false;
   addEventListener("keydown", (e) => {
-    if (e.code === TOGGLE) on = !on;
+    if (e.code === TOGGLE && !isTextField(e.target)) on = !on;
   });
   Object.assign(window, {
     __teleport: (x: number, y: number) => Object.assign(run.hero, { x, y, vx: 0, vy: 0 }),
