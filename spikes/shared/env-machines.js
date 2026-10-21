@@ -598,21 +598,21 @@ function screenNoise(ctx, x, y, w, h, t) {
 }
 
 function controlBox(ctx, x, damaged, t) {
-  box(ctx, x, -24, 24, 24, "rust", 0);
-  flat(ctx, x, -24, 24, 1.2, "r3");
-  box(ctx, x - 1, -2, 26, 2, "rust", 1);
-  for (const [bx, c] of [[7, "a1"], [12, "y2"], [17, "c2"]]) disc(ctx, x + bx, -9.5, 1.8, c, "mLine");
-  if (!simple()) for (const y of [-5.5, -4]) flat(ctx, x + 4, y, 16, 0.8, "k0");
+  const l = x + 4;
+  box(ctx, l, -24, 16, 24, "rust", 0);
+  flat(ctx, l, -24, 16, 1.2, "r3");
+  box(ctx, l - 1, -2, 18, 2, "rust", 1);
   if (damaged) {
-    screenNoise(ctx, x + 3, -21.5, 18, 8, t);
-    cable(ctx, [[x + 15, -21], [x + 13, -18], [x + 16, -16], [x + 14, -14]], "c3", 0.5, "c3");
-    cable(ctx, [[x + 20, -12], [x + 22, -7], [x + 21, -3]], "a1", 0.8);
-    if (Math.floor(t * 6) % 5 === 0) glow(ctx, x + 21, -3, 4, "y3", 0.9);
+    screenNoise(ctx, l + 2, -21.5, 12, 14, t);
+    cable(ctx, [[l + 10, -21], [l + 8, -18], [l + 11, -16], [l + 9, -14]], "c3", 0.5, "c3");
+    cable(ctx, [[l + 13, -7], [l + 15, -4], [l + 14, -2]], "a1", 0.8);
+    if (Math.floor(t * 6) % 5 === 0) glow(ctx, l + 14, -2, 4, "y3", 0.9);
     return;
   }
-  flat(ctx, x + 3, -21.5, 18, 8, "hole", "mLine");
-  poly(ctx, [[x + 7.5, -20.5], [x + 11, -14.5], [x + 4, -14.5]], "a1", 2);
-  if (!simple()) for (const y of [-20, -17.5, -15]) flat(ctx, x + 12.5, y, 7, 1, "y1");
+  flat(ctx, l + 2, -21.5, 12, 14, "hole", "mLine");
+  poly(ctx, [[l + 5.5, -20.5], [l + 8.5, -15.5], [l + 2.5, -15.5]], "a1", 2);
+  if (!simple()) for (const y of [-20, -18, -16]) flat(ctx, l + 9.5, y, 3.5, 0.8, "y1");
+  for (const [bx, c] of [[5, "a1"], [8, "y2"], [11, "c2"]]) disc(ctx, l + bx, -10.5, 0.9, c);
 }
 
 define({
