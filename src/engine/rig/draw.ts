@@ -131,10 +131,20 @@ const shadeBands = (node: PartNode, simple: boolean): ToneBand[] => {
 
 const unitScale = ({ a, b, c, d }: { a: number; b: number; c: number; d: number }): number => Math.sqrt(Math.abs(a * d - b * c));
 
+const materials = new WeakMap<Palette, Map<string, readonly string[]>>();
+
+const colorsOf = (pal: Palette, mat: keyof typeof MAT): readonly string[] => {
+  let held = materials.get(pal);
+  if (!held) materials.set(pal, (held = new Map()));
+  let colors = held.get(mat);
+  if (!colors) held.set(mat, (colors = MAT[mat].map((k) => pal[k] as string)));
+  return colors;
+};
+
 const drawPart = (ctx: CanvasRenderingContext2D, node: PartNode, pal: Palette, lineW: number, simple: boolean): void => {
   const { mat = "armor", shade = "box", line = true, lw = 1 } = node.spec;
-  const [c0, c1, c2, c3, cl] = MAT[mat].map((k) => pal[k] as string) as [string, string, string, string, string];
-  const tones = [c0, c1, c2, c3];
+  const tones = colorsOf(pal, mat);
+  const [c0, c1, , , cl] = tones as [string, string, string, string, string];
   const path = partPath(node);
   ctx.fillStyle = shade === "dome" ? c0 : c1;
   ctx.fill(path);

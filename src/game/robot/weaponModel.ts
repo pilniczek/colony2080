@@ -35,12 +35,16 @@ export const toHook = ([x, y]: Pt): Pt => [-y, x];
 export const MUZZLE_IN_HOOK = toHook(MUZZLE);
 export const SUPPORT_IN_HOOK = toHook(SUPPORT);
 
-const fills = new WeakMap<WeaponPart, { key: string; fill: CanvasGradient }>();
+const FILLS_KEPT = 8;
+
+const fills = new WeakMap<WeaponPart, Map<string, CanvasGradient>>();
 
 const bandFill = (ctx: CanvasRenderingContext2D, p: WeaponPart, tones: string[], simple: boolean): CanvasGradient => {
   const key = tones.join() + simple;
-  const hit = fills.get(p);
-  if (hit && hit.key === key) return hit.fill;
+  let held = fills.get(p);
+  if (!held) fills.set(p, (held = new Map()));
+  const hit = held.get(key);
+  if (hit) return hit;
   const tone = (i: number): string => tones[i] as string;
   const top = tone(Math.min(3, p.tone + 1));
   const mid = tone(p.tone);
@@ -51,7 +55,8 @@ const bandFill = (ctx: CanvasRenderingContext2D, p: WeaponPart, tones: string[],
     : [[0, top], [0.1, top], [0.1, tone(3)], [shine, tone(3)], [shine, top], [0.28, top], [0.28, mid], [0.74, mid], [0.74, low], [1, low]];
   const fill = ctx.createLinearGradient(0, p.y, 0, p.y + p.h);
   for (const [at, color] of stops) fill.addColorStop(at, color);
-  fills.set(p, { key, fill });
+  if (held.size >= FILLS_KEPT) held.clear();
+  held.set(key, fill);
   return fill;
 };
 
