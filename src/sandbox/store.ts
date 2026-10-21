@@ -27,6 +27,7 @@ export interface SandboxState {
   items: ItemId[];
   inventory: { open: boolean; cursor: number };
   mapOpen: boolean;
+  mapOn: boolean;
   cheatOpen: boolean;
   debugPanel: boolean;
   soundOn: boolean;
@@ -119,6 +120,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   items: [],
   inventory: { open: false, cursor: 0 },
   mapOpen: false,
+  mapOn: true,
   cheatOpen: false,
   debugPanel: false,
   soundOn: loadSoundOn(),

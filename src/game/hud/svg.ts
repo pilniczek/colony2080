@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "../items";
 import { blasterIcon, BLASTER_BODY_W, BLASTER_MID_Y } from "./blasterIcon";
-import { BAR_H, CONTENT_SCALE, HAND_BOX, HAND_DRAWN, HAND_SCALE, HUD_H, MONO_ADVANCE, PANEL_EDGE, READOUT_SIZE, SIDE_ART, SLOT, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
+import { BAR_H, CONTENT_SCALE, HAND_BOX, HAND_DRAWN, HAND_SCALE, HUD_H, MAP_W, MONO_ADVANCE, PANEL_EDGE, READOUT_SIZE, SIDE_ART, SLOT, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
   weapon: number;
@@ -11,6 +11,8 @@ export interface HudState {
   shields: number;
   running: boolean;
   soundOn: boolean;
+  mapOn: boolean;
+  mapOpen: boolean;
   item: ItemId | null;
 }
 
@@ -32,6 +34,7 @@ export interface HudKeys {
   weapons: string[];
   run: string;
   sound: string;
+  map: string;
   item: string;
 }
 
@@ -90,6 +93,14 @@ const SPEAKER_CROSS = "M1.7 -1.7L4.5 1.7M1.7 1.7L4.5 -1.7";
 
 const speaker = (on: boolean): string => `<path d="${SPEAKER_CONE}" fill="${READOUT}"/>
   <path d="${on ? SPEAKER_WAVES : SPEAKER_CROSS}" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+const MAP_SHEET = "M-4.5 -3.1L-1.5 -4.1L1.5 -3.1L4.5 -4.1V3.1L1.5 4.1L-1.5 3.1L-4.5 4.1Z";
+const MAP_FOLDS = "M-1.5 -4.1V3.1M1.5 -3.1V4.1";
+
+const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0 .3V1.4" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
+const foldedMap = `<path d="${MAP_SHEET}" fill="${READOUT}"/>
+  <path d="${MAP_FOLDS}" stroke="${LO}" stroke-width=".6"/>`;
 
 const screw = (x: number, y: number): string => `<use href="#screw" x="${x}" y="${y}"/>`;
 
@@ -194,6 +205,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
     ...wx.slice(0, s.bonus ? 3 : 2).map((x, i) => ({ cx: x + keyCentre(i), label: keys.weapons[i] ?? "", active: s.weapon === i })),
     { cx: bar.sound + SPEAKER_W / 2, label: keys.sound, active: s.soundOn },
     { cx: bar.run + TOGGLE_W / 2, label: keys.run, active: s.running },
+    { cx: bar.map + MAP_W / 2, label: keys.map, active: s.mapOpen },
     { cx: bar.inv + bar.invW / 2, label: keys.item, active: false },
   ];
   const spans = tabs.map(tabSpan);
@@ -208,6 +220,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${gridPanel(bar.togglesX, bar.togglesW, spans)}
   ${soundIcon(bar.sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
   ${runIcon(s.running ? icons.run : icons.walk, bar.run + TOGGLE_W / 2, s.running)}
+  ${mapIcon(bar.map + MAP_W / 2, s.mapOn, s.mapOpen)}
   ${gridPanel(bar.inv, bar.invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -239,6 +252,9 @@ const runIcon = (icon: HudIcon, x: number, running: boolean): string =>
 
 const soundIcon = (x: number, on: boolean): string =>
   `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${speaker(on)}</g></g>`;
+
+const mapIcon = (x: number, held: boolean, open: boolean): string =>
+  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap : QUESTION}</g></g>`;
 
 const readout = (x: number, label: string): string =>
   `<text x="${x}" y="${CONTENT_MID + READOUT_SIZE * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="${READOUT_SIZE}" fill="${READOUT}">${label}</text>`;

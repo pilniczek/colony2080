@@ -98,6 +98,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   if (!ctx) throw new Error("no 2d context");
 
   const tuning = () => useSandbox.getState();
+  const mapOn = (): boolean => !mapItem || world.inventory.items.includes(mapItem);
   const fogConfig = loadFog(cameraJson);
   const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: number } };
   const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, true);
@@ -219,6 +220,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       blaster: hero.blaster,
       weapon: hero.weapon,
       running: hero.running,
+      mapOn: mapOn(),
       fps: Math.round(fps),
       inputLog,
     });
@@ -325,7 +327,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         return;
       }
       if (input.consume("map") && canOpen) {
-        if (!mapItem || world.inventory.items.includes(mapItem)) {
+        if (mapOn()) {
           useSandbox.setState({ mapOpen: true });
           return;
         }

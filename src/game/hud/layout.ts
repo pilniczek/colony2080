@@ -28,6 +28,8 @@ export const SPEAKER_H = ICON_H * 0.7;
 export const SPEAKER_SCALE = SPEAKER_H / SPEAKER_INK_H;
 export const SPEAKER_INK = { left: 4.4, right: 4.65 };
 export const SPEAKER_W = (SPEAKER_INK.left + SPEAKER_INK.right) * SPEAKER_SCALE;
+const MAP_INK_HALF = 4.5;
+export const MAP_W = 2 * MAP_INK_HALF * SPEAKER_SCALE;
 export const READOUT_SIZE = 5.6 * CONTENT_SCALE;
 export const MONO_ADVANCE = 0.54;
 const LONGEST_NAME = Math.max(...Object.values(ITEMS).map((item) => item.name.length));
@@ -53,6 +55,7 @@ export interface TopBar {
   togglesW: number;
   sound: number;
   run: number;
+  map: number;
   gridX: number;
   badge: number;
   gridW: number;
@@ -78,13 +81,14 @@ export function viewRect({ W, H, unit }: HudFit): Rect {
 
 const invAt = (W: number): number => W - EDGE - PLATE_PAD - INVENTORY_W;
 const WEAPONS_GRID_W = WEAPON_W.reduce((a, b) => a + b, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
-const TOGGLES_W = SPEAKER_W + TOGGLE_W + 3 * TOGGLE_GAP;
+const TOGGLES_W = SPEAKER_W + TOGGLE_W + MAP_W + 4 * TOGGLE_GAP;
 
 export function topBar(W: number): TopBar {
   const inv = invAt(W);
   const togglesX = inv - 2 * PLATE_PAD - GAP - TOGGLES_W;
   const sound = togglesX + TOGGLE_GAP;
   const run = sound + SPEAKER_W + TOGGLE_GAP;
+  const map = run + TOGGLE_W + TOGGLE_GAP;
   const gridX = EDGE + PLATE_PAD;
   const gridW = WEAPONS_GRID_W;
   const weaponsEnd = gridX + gridW + PLATE_PAD;
@@ -95,5 +99,5 @@ export function topBar(W: number): TopBar {
   const gaps: Span[] = [[0, EDGE], [weaponsEnd, weaponsEnd + GAP], [badgeEnd, togglesStart], togglesGap, [W - EDGE, W]];
   const plates = gaps.slice(1).map(([a], i): Span => [gaps[i]![1], a]);
   const weapons = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((a, b) => a + b, 0));
-  return { inv, invW: INVENTORY_W, togglesX, togglesW: TOGGLES_W, sound, run, gridX, badge, gridW, weapons, gaps, plates };
+  return { inv, invW: INVENTORY_W, togglesX, togglesW: TOGGLES_W, sound, run, map, gridX, badge, gridW, weapons, gaps, plates };
 }

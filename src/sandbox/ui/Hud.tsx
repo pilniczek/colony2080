@@ -11,6 +11,7 @@ const KEYS: HudKeys = {
   weapons: [keyboard.weapon1, keyboard.weapon2, keyboard.weapon3].map(([code]) => keyLabel(code ?? "")),
   run: keyLabel(keyboard.runToggle[0] ?? ""),
   sound: keyLabel(keyboard.soundToggle[0] ?? ""),
+  map: keyLabel(keyboard.map[0] ?? ""),
   item: `${keyLabel(keyboard.useItem[0] ?? "")}\u00a0\u00a0/\u00a0\u00a0${keyLabel(keyboard.inventory[0] ?? "")}`,
 };
 
@@ -25,10 +26,12 @@ export interface HudValues {
   weapon: Weapon;
   running: boolean;
   soundOn: boolean;
+  mapOn: boolean;
+  mapOpen: boolean;
   item: ItemId | null;
 }
 
-export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, soundOn, item }: HudValues): HudState => ({
+export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, item }: HudValues): HudState => ({
   weapon: WEAPON_SLOTS[weapon],
   bonus: blaster !== null,
   bonusAmmo: blaster ?? 0,
@@ -36,6 +39,8 @@ export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running,
   shields,
   running,
   soundOn,
+  mapOn,
+  mapOpen,
   ammo,
   item,
 });
@@ -52,15 +57,17 @@ export function Hud() {
   const weapon = useSandbox((s) => s.weapon);
   const running = useSandbox((s) => s.running);
   const soundOn = useSandbox((s) => s.soundOn);
+  const mapOn = useSandbox((s) => s.mapOn);
+  const mapOpen = useSandbox((s) => s.mapOpen);
   const item = useSandbox((s) => s.item);
   const filming = useSandbox((s) => s.cutscene);
-  const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, item });
+  const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, item });
   const live = useRef(state);
   live.current = state;
   const armed = blaster !== null;
   const svg = useMemo(
     () => hudSvg(fit.W, fit.H, live.current, icons, KEYS),
-    [fit.W, fit.H, shields, armed, max, weapon, running, soundOn, item, icons],
+    [fit.W, fit.H, shields, armed, max, weapon, running, soundOn, mapOn, mapOpen, item, icons],
   );
   const html = useMemo(() => ({ __html: svg }), [svg]);
   useLayoutEffect(() => {

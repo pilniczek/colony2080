@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ITEMS } from "../items";
-import { BADGE_W, BAR_H, hudFit, PANEL_EDGE, READOUT_SIZE, SLOT, SPEAKER_W, TOGGLE_W, topBar, viewRect, VIEW_BOX, WEAPON_GAP, WEAPON_W } from "./layout";
+import { BADGE_W, BAR_H, hudFit, PANEL_EDGE, READOUT_SIZE, SLOT, MAP_W, SPEAKER_W, TOGGLE_W, topBar, viewRect, VIEW_BOX, WEAPON_GAP, WEAPON_W } from "./layout";
 
 describe("hudFit", () => {
   it("uses the original 320 x 200 frame on a 16:10 screen", () => {
@@ -60,10 +60,10 @@ describe("topBar", () => {
     expect(inventory![1]).toBeCloseTo(bar.inv + bar.invW + side, 9);
   });
 
-  it("holds the sound slot left of the run slot in one toggles grid with equal gaps and ends", () => {
+  it("holds the sound, run and map slots in that order in one toggles grid with equal gaps and ends", () => {
     for (const W of [320, 520]) {
-      const { togglesX, togglesW, sound, run } = topBar(W);
-      const gaps = [sound - togglesX, run - (sound + SPEAKER_W), togglesX + togglesW - (run + TOGGLE_W)];
+      const { togglesX, togglesW, sound, run, map } = topBar(W);
+      const gaps = [sound - togglesX, run - (sound + SPEAKER_W), map - (run + TOGGLE_W), togglesX + togglesW - (map + MAP_W)];
       for (const g of gaps) expect(g).toBeCloseTo(gaps[0]!, 9);
       expect(gaps[0]).toBeGreaterThan(0);
     }
