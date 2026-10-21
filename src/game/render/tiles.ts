@@ -26,11 +26,15 @@ export function nearestFirst(tiles: TileCoord[], view: Rect, tile: number): Tile
 
 const id = (col: number, row: number): string => `${col},${row}`;
 
+const spanOf = (key: string, coords: TileCoord[]): string => `${key}|${coords.length}|${coords[0]?.join(",")}|${coords.at(-1)?.join(",")}`;
+
 export class TileCache<T> {
   private key = "";
   private tiles = new Map<string, T>();
   private dropped = new Map<string, T>();
   private home = new Set<string>();
+  private settledAt: string | null = null;
+  private shown: [number, number, T][] = [];
 
   constructor(
     private readonly keep = 0,
@@ -44,6 +48,10 @@ export class TileCache<T> {
 
   has(col: number, row: number): boolean {
     return this.tiles.has(id(col, row));
+  }
+
+  settled(key: string, coords: TileCoord[]): [number, number, T][] | null {
+    return this.settledAt === spanOf(key, coords) ? this.shown : null;
   }
 
   sync(key: string, coords: TileCoord[], make: (col: number, row: number) => T, prefetch?: { tiles: TileCoord[]; budget: number; more?: () => boolean }): [number, number, T][] {
@@ -77,6 +85,9 @@ export class TileCache<T> {
     }
     for (const [at, tile] of [...this.tiles].reverse()) if (!kept.has(at)) this.drop(at, tile);
     this.tiles = kept;
+    const complete = (prefetch?.tiles ?? []).every(([col, row]) => kept.has(id(col, row)));
+    this.settledAt = complete ? spanOf(key, coords) : null;
+    this.shown = shown;
     return shown;
   }
 

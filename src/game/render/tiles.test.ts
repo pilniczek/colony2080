@@ -193,6 +193,20 @@ describe("TileCache", () => {
     expect(made).toBe(1);
   });
 
+  it("is settled for the same span only once its margin ring is complete", () => {
+    const cache = new TileCache<string>();
+    const { make } = counter();
+    const at = { x: 130, y: 0, w: 100, h: 100 };
+    const ring = nearestFirst(visibleTiles(at, 100, 1, { w: 1000, h: 100 }), at, 100);
+    const need = visibleTiles(at, 100, 0, { w: 1000, h: 100 });
+    cache.sync("a", need, make, { tiles: ring, budget: 0 });
+    expect(cache.settled("a", need)).toBeNull();
+    cache.sync("a", need, make, { tiles: ring, budget: 4 });
+    expect(cache.settled("a", need)?.map(([c, r]) => `${c},${r}`)).toEqual(["1,0", "2,0"]);
+    expect(cache.settled("b", need)).toBeNull();
+    expect(cache.settled("a", visibleTiles({ ...at, x: 330 }, 100, 0, { w: 1000, h: 100 }))).toBeNull();
+  });
+
   describe("prefetch", () => {
     const at = { x: 130, y: 0, w: 100, h: 100 };
     const ring = nearestFirst(visibleTiles(at, 100, 1, { w: 1000, h: 100 }), at, 100);

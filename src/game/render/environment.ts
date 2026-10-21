@@ -10,7 +10,7 @@ import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
 import type { Rect as CellRect, Run } from "../level/terrain";
 import { onGround, type Lift, type Prop, type SandboxWorld, type Scenery } from "../level/sandboxLevel";
-import { nearestFirst, TileCache, TILE_PX, visibleTiles } from "./tiles";
+import { nearestFirst, TileCache, TILE_PX, visibleTiles, type TileCoord } from "./tiles";
 
 const SKY_H = 170;
 const SKY_W = 320;
@@ -168,11 +168,14 @@ function cached(e: Env, name: string, paint: (off: Env) => void): void {
   layers.set(world, own);
   const cache = (own[name] ??= new TileCache(DROPPED_KEPT, free, true));
   const view = { x: screen.x - x, y: screen.y - y, w: screen.w, h: screen.h };
-  const until = performance.now() + PREFETCH_MS;
-  const ahead = { tiles: nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX), budget: PREFETCH_PER_FRAME, more: () => performance.now() < until };
+  const need = visibleTiles(view, TILE_PX, 0, size);
+  const ahead = (): { tiles: TileCoord[]; budget: number; more: () => boolean } => {
+    const until = performance.now() + PREFETCH_MS;
+    return { tiles: nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX), budget: PREFETCH_PER_FRAME, more: () => performance.now() < until };
+  };
   const key = `${scale}|${lines}|${cell}|${unit}`;
   const make = (col: number, row: number): HTMLCanvasElement | null => render(e, scale, paint, size, col, row);
-  const tiles = cache.sync(key, visibleTiles(view, TILE_PX, 0, size), make, ahead);
+  const tiles = cache.settled(key, need) ?? cache.sync(key, need, make, ahead());
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, x, y);
   for (const [col, row, canvas] of tiles) if (canvas) ctx.drawImage(canvas, col * TILE_PX, row * TILE_PX);
