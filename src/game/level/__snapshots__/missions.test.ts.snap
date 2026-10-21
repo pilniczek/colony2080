@@ -1970,6 +1970,9 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 59,
     },
     {
+      "art": {
+        "top": 4,
+      },
       "asset": "switchboard",
       "id": "switchboard",
       "kind": "object",
@@ -2134,6 +2137,9 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 37,
     },
     {
+      "art": {
+        "top": 6,
+      },
       "asset": "plasmaBarrier",
       "cells": {
         "col": 102,
@@ -2163,6 +2169,7 @@ exports[`missions > mesto json is unchanged 1`] = `
     {
       "art": {
         "dx": -0.4,
+        "top": 6,
       },
       "asset": "cardDoor",
       "cells": {
