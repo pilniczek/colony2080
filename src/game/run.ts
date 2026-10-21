@@ -69,6 +69,7 @@ export interface Run {
   loop: FixedLoop;
   restart(start: RunStart): void;
   applyFog(on: boolean): void;
+  cheat(code: string): void;
   soundLog(): SoundCue[];
 }
 
@@ -503,5 +504,5 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   loop.start();
 
   createRoot(ui).render(createElement(Fragment, null, tree, createElement(CheatInput, { onCode: enterCheat, onClose: closeCheat })));
-  return { world, hero, input, loop, restart, applyFog, soundLog: () => soundLog };
+  return { world, hero, input, loop, restart, applyFog, cheat: enterCheat, soundLog: () => soundLog };
 }

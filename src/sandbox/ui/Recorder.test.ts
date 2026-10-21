@@ -19,6 +19,7 @@ const commands: SandboxCommands = {
   setShields: noop,
   setFog: noop,
   playFilm: noop,
+  cheat: noop,
 };
 
 const markup = (blaster: number | null): string => {

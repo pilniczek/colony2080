@@ -288,7 +288,9 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
   for (const { col, row, w, h } of world.bare) for (let r = row; r < row + h; r++) for (let c = col; c < col + w; c++) skip.add(`${c},${r}`);
   const landings: Run[] = [];
   const bases: Run[] = [];
+  const underLifts = new Set(skip);
   for (const l of world.lifts) {
+    for (let c = l.x; c < l.x + l.w; c++) underLifts.add(`${c},${l.bottom + 1}`);
     for (const row of l.stops) {
       const open = new Set<string>();
       for (let c = l.x; c < l.x + l.w; c++) (world.grid.at(c, row) === "=" ? skip : open).add(`${c},${row}`);
@@ -301,7 +303,7 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
   const cutWalls = walls.flatMap((r) =>
     touched(r) ? cutRuns(Array.from({ length: r.h }, (_, i) => ({ row: r.row + i, col: r.col, w: r.w })), skip).map((run) => ({ ...run, h: 1 })) : [r],
   );
-  const drawn = { walls: cutWalls, ledges: cutRuns(ledges, skip), girders: cutRuns(girders, skip), landings, bases };
+  const drawn = { walls: cutWalls, ledges: cutRuns(ledges, underLifts), girders: cutRuns(girders, skip), landings, bases };
   drawnTerrains.set(world, drawn);
   return drawn;
 }

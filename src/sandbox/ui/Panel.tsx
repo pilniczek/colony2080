@@ -2,6 +2,7 @@ import { useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode
 import type { CutsceneId } from "../../game/cutscene";
 import type { Weapon } from "../../game/hero/config";
 import { useSandbox } from "../store";
+import { Cheats } from "./Cheats";
 import { Environment } from "./Environment";
 import { Films } from "./Films";
 import { Overlays } from "./Overlays";
@@ -22,6 +23,7 @@ export interface SandboxCommands {
   setShields(shields: number): void;
   setFog(on: boolean): void;
   playFilm(id: CutsceneId): void;
+  cheat(code: string): void;
 }
 
 export const styles = {
@@ -85,6 +87,7 @@ export function Panel({ commands }: { commands: SandboxCommands }) {
         <Recorder commands={commands} />
         <Environment commands={commands} />
         <Films commands={commands} />
+        <Cheats commands={commands} />
         <Tuning />
       </fieldset>
     </aside>

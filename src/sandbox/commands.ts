@@ -72,6 +72,7 @@ export function panelCommands(runOf: () => Run): { commands: SandboxCommands; af
       startFilm(runOf().world, id);
       halt(runOf().hero);
     },
+    cheat: (code) => runOf().cheat(code),
   };
 
   return { commands, afterStep };
