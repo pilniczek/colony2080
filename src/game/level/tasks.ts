@@ -123,6 +123,25 @@ export function pickAll(world: SandboxWorld): number {
   return fresh.length;
 }
 
+function openState(world: SandboxWorld, prop: Prop): number {
+  const solid = prop.solidStates ?? [];
+  const known = [...world.tasks.flatMap((t) => (t.object === prop.id ? [t.state] : []).concat(prop.id === undefined ? [] : [t.sets?.[prop.id]])), prop.shootable?.state];
+  const opened = known.find((state): state is number => state !== undefined && !solid.includes(state));
+  if (opened !== undefined) return opened;
+  let state = 0;
+  while (solid.includes(state)) state++;
+  return state;
+}
+
+export function openBlockers(world: SandboxWorld): number {
+  const blockers = world.props.filter((p) => p.solidStates?.includes(p.state ?? 0));
+  for (const prop of blockers) prop.state = openState(world, prop);
+  const locks = [...new Set([...world.lifts, ...world.teleports].flatMap((l) => (l.enabledBy !== undefined && !world.flags.has(l.enabledBy) ? [l.enabledBy] : [])))];
+  for (const flag of locks) world.flags.add(flag);
+  applyBlocks(world);
+  return blockers.length + locks.length;
+}
+
 export function runUse(world: SandboxWorld, prop: Prop, { filmed = false } = {}): void {
   const task = openTask(world, prop);
   if (!task) {

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { cfg, objectLevel } from "../hero/testWorld";
 import { loadSandbox, pickUp, resetWorld, showItem, useShown, type SandboxWorld } from "./sandboxLevel";
 import { loadMesto } from "./mesto";
-import { loadTasks, pickAll, runUse } from "./tasks";
+import { loadTasks, openBlockers, pickAll, runUse } from "./tasks";
 
 const world = (): SandboxWorld => loadSandbox(objectLevel);
 const prop = (w: SandboxWorld, id: string) => w.props.find((p) => p.id === id)!;
@@ -52,6 +52,23 @@ describe("inventory", () => {
     expect(w.props.filter((p) => p.kind === "weapon").some((p) => p.taken)).toBe(false);
     expect(pickAll(w)).toBe(0);
     expect(w.inventory.items).toHaveLength(new Set(expected).size);
+  });
+
+  it("opens every movement blocker of the mission: gates, doors and locked lifts", () => {
+    const w = loadMesto();
+    const blockers = w.props.filter((p) => p.solidStates?.includes(p.state ?? 0));
+    const locked = w.lifts.filter((l) => l.enabledBy !== undefined && !w.flags.has(l.enabledBy));
+    expect(blockers.length).toBeGreaterThan(0);
+    expect(locked.length).toBeGreaterThan(0);
+    expect(openBlockers(w)).toBe(blockers.length + locked.length);
+    expect(prop(w, "cardDoor").state).toBe(1);
+    expect(prop(w, "metroTunnel").state).toBe(1);
+    for (const p of blockers) {
+      expect(p.solidStates).not.toContain(p.state);
+      expect(w.grid.solid(p.cells!.col, p.cells!.row)).toBe(false);
+    }
+    for (const l of locked) expect(w.flags.has(l.enabledBy!)).toBe(true);
+    expect(openBlockers(w)).toBe(0);
   });
 
   it("shows any held item without reordering", () => {

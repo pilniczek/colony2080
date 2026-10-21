@@ -28,7 +28,7 @@ import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
 import type { ItemId } from "./items";
 import { resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
-import { pickAll, say } from "./level/tasks";
+import { openBlockers, pickAll, say } from "./level/tasks";
 import { drawFog, seenPath } from "./render/fog";
 import { drawMap } from "./render/map";
 import { drawOverlays } from "./render/overlays";
@@ -366,7 +366,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       });
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
       drawOver?.(ctx, view, cfg.cellPx);
-      if (tuning().mapOpen) drawMap(ctx, world, shown, cfg.box.height, gameWindow);
+      if (tuning().mapOpen) drawMap(ctx, world, shown, cfg.box.height, gameWindow, tuning().debugPanel);
       ctx.restore();
       push();
     },
@@ -447,6 +447,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     }
     if (cheat === "weapon") say(world, giveWeapon());
     if (cheat === "items") say(world, giveItems());
+    if (cheat === "open") say(world, openAll());
     if (cheat === "debug") debug();
     if (typeof cheat === "object" && cheat !== null) moveTo(...cheat.moveTo);
   };
@@ -467,6 +468,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const giveItems = (): string => {
     const count = pickAll(world);
     return count ? `Picked up ${count} items` : "Every item already held";
+  };
+
+  const openAll = (): string => {
+    const count = openBlockers(world);
+    return count ? `Opened ${count} blockers` : "Nothing left to open";
   };
 
   const debug = (): void => {

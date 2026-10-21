@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { TileGrid } from "../../engine/world/tiles";
 import type { Fog } from "../fog";
 import type { Lift } from "../level/sandboxLevel";
-import { MAP_CELLS, mapCells, mapFit, mapLifts } from "./map";
+import { MAP_CELLS, coordMarks, mapCells, mapFit, mapLifts } from "./map";
 
 const ROWS = ["#....", "#H...", "#H..#", "#####"];
 
@@ -48,5 +48,12 @@ describe("mapFit", () => {
     expect(fit.cell).toBeCloseTo((400 - 32) / 80);
     expect(fit.y).toBeCloseTo(36);
     expect(fit.x).toBeCloseTo(10 + (1000 - 160 * fit.cell) / 2);
+  });
+});
+
+describe("coordMarks", () => {
+  it("marks every tenth cell from the map origin, inside the map", () => {
+    expect(coordMarks(35)).toEqual([0, 10, 20, 30]);
+    expect(coordMarks(30)).toEqual([0, 10, 20]);
   });
 });

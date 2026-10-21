@@ -23,6 +23,13 @@ const LIFT = "#2b2925";
 const HERO = "#f0c020";
 const HERO_EDGE = "#1a1814";
 const GRID_CELLS = 8;
+const COORD_CELLS = 10;
+const COORD_LINE = "rgba(240, 192, 32, 0.35)";
+const COORD_TEXT = "#f0c020";
+const COORD_EDGE = "#1a1814";
+const COORD_MIN_PX = 9;
+const COORD_MAX_PX = 14;
+const COORD_SHARE = 0.4;
 const MARGIN_SHARE = 0.04;
 const MIN_MARKER_PX = 3;
 const SHAFT_SHARE = 0.3;
@@ -115,7 +122,44 @@ function drawGrid(ctx: CanvasRenderingContext2D, rect: Rect, fit: MapFit): void 
   }
 }
 
-export function drawMap(ctx: CanvasRenderingContext2D, world: MapWorld, hero: Pick<Hero, "x" | "y">, heroHeight: number, rect: Rect): void {
+export const coordMarks = (cells: number): number[] => Array.from({ length: Math.ceil(cells / COORD_CELLS) }, (_, i) => i * COORD_CELLS);
+
+function drawCoords(ctx: CanvasRenderingContext2D, cols: number, rows: number, fit: MapFit): void {
+  const right = fit.x + cols * fit.cell;
+  const bottom = fit.y + rows * fit.cell;
+  ctx.strokeStyle = COORD_LINE;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const col of coordMarks(cols)) {
+    const x = Math.round(fit.x + col * fit.cell) + 0.5;
+    ctx.moveTo(x, fit.y);
+    ctx.lineTo(x, bottom);
+  }
+  for (const row of coordMarks(rows)) {
+    const y = Math.round(fit.y + row * fit.cell) + 0.5;
+    ctx.moveTo(fit.x, y);
+    ctx.lineTo(right, y);
+  }
+  ctx.stroke();
+  const px = Math.round(Math.min(COORD_MAX_PX, Math.max(COORD_MIN_PX, COORD_SHARE * COORD_CELLS * fit.cell)));
+  ctx.font = `${px}px monospace`;
+  ctx.lineWidth = Math.max(2, px / 4);
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = COORD_EDGE;
+  ctx.fillStyle = COORD_TEXT;
+  const label = (text: string, x: number, y: number): void => {
+    ctx.strokeText(text, x, y);
+    ctx.fillText(text, x, y);
+  };
+  ctx.textBaseline = "top";
+  ctx.textAlign = "left";
+  for (const col of coordMarks(cols)) label(String(col), fit.x + col * fit.cell + 2, fit.y + 2);
+  for (const row of coordMarks(rows)) if (row > 0) label(String(row), fit.x + 2, fit.y + row * fit.cell + 2);
+}
+
+const heroLabel = (hero: Pick<Hero, "x" | "y">): string => `moveto(${Math.round(hero.x * 10) / 10},${Math.round(hero.y * 10) / 10})`;
+
+export function drawMap(ctx: CanvasRenderingContext2D, world: MapWorld, hero: Pick<Hero, "x" | "y">, heroHeight: number, rect: Rect, coords = false): void {
   const { width, height } = world.grid;
   const fit = mapFit(width, height, rect);
   ctx.fillStyle = BACK;
@@ -131,4 +175,13 @@ export function drawMap(ctx: CanvasRenderingContext2D, world: MapWorld, hero: Pi
   ctx.lineWidth = 1;
   ctx.fillRect(fit.x + hero.x * fit.cell - w / 2, fit.y + hero.y * fit.cell - h, w, h);
   ctx.strokeRect(fit.x + hero.x * fit.cell - w / 2, fit.y + hero.y * fit.cell - h, w, h);
+  if (!coords) return;
+  ctx.save();
+  drawCoords(ctx, width, height, fit);
+  ctx.textAlign = "right";
+  ctx.textBaseline = "top";
+  const [x, y] = [fit.x + width * fit.cell, fit.y + height * fit.cell + 2];
+  ctx.strokeText(heroLabel(hero), x, y);
+  ctx.fillText(heroLabel(hero), x, y);
+  ctx.restore();
 }
