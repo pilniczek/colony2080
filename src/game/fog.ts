@@ -78,6 +78,18 @@ function inSight(grid: TileGrid, eye: [number, number], col: number, row: number
   return points.some(([px, py]) => clearLine(grid, eye, [col + px, row + py]));
 }
 
+export interface SightSpan {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+export function sightSpan(fog: Fog, sightCells: number, x: number): SightSpan {
+  const r = sightRect(fog.cfg, sightCells, x, fog.anchorY);
+  return { left: r.left, right: r.right, top: Math.ceil(r.top - 0.5), bottom: Math.floor(r.bottom + 0.5) };
+}
+
 const sameCells = (a: number[], b: number[]): boolean => a.length === b.length && a.every((v, i) => v === b[i]);
 
 function reveal(fog: Fog, r: SightRect, eye: [number, number]): void {

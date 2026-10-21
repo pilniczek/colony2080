@@ -17,7 +17,7 @@ import { drawRobotView } from "./cutscene/robotView";
 import { playFilm, stepCutscene } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
 import { cheatOf, isCheatKey } from "./cheats";
-import { createFog, loadFog } from "./fog";
+import { createFog, loadFog, sightSpan } from "./fog";
 import { createSaveMenu, type SaveMenuOptions } from "./save/saveMenu";
 import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
@@ -362,7 +362,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         const body = tween(prevEnemies.get(enemy.body) ?? momentOf(enemy.body), enemy.body, alpha);
         return { enemy: { ...enemy, body }, look: heroLook(body, clips, enemyRigs, hold, cfg) };
       }), enemyRigs, sight, devicePixelRatio || 1, gameWindow, () => {
-        if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow);
+        if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow, sightSpan(world.fog, cfg.sightCells, shown.x));
       });
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
       drawOver?.(ctx, view, cfg.cellPx);

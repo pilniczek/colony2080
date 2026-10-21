@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Fog } from "../fog";
-import { drawFog } from "./fog";
+import { drawFog, glideOf } from "./fog";
 
 interface FakeCanvas {
   width: number;
@@ -113,5 +113,20 @@ describe("drawFog", () => {
     expect(calls.filter((c) => c === "clearRect")).toHaveLength(clears);
     drawFog(main, f, { ...view, offsetX: -3200 }, 24, window);
     expect(calls.filter((c) => c === "clearRect")).toHaveLength(clears + 1);
+  });
+});
+
+describe("glideOf", () => {
+  it("clears the sight edge cells by how much of them is in sight", () => {
+    const f = fog(20, 4);
+    for (let col = 5; col < 14; col++) {
+      f.seen[20 + col] = 1;
+      f.revealed[20 + col] = 1;
+    }
+    const glide = glideOf(f, { left: 4.75, right: 13.25, top: 1, bottom: 2 });
+    expect(glide.get(20 + 4)).toBe(Math.round(0.75 * Math.round(0.97 * 255)));
+    expect(glide.get(20 + 13)).toBe(Math.round(0.75 * Math.round(0.6 * 255)));
+    expect(glide.size).toBe(2);
+    expect(glideOf(f, { left: 4.75, right: 13.25, top: 0, bottom: 1 }).size).toBe(0);
   });
 });
