@@ -147,8 +147,8 @@ function pylonTruss(ctx, x, y0, y1) {
 define({
   id: "latticePylon",
   box: [-10, -168, 34, 0],
-  draw(ctx) {
-    pylonTruss(ctx, 0, -168, -22);
+  draw(ctx, state, t, size = {}) {
+    pylonTruss(ctx, 0, -(size.h ?? 168), -22);
     box(ctx, -5, -22, 34, 6, "concrete", 2);
     poly(ctx, [[-9, 0], [33, 0], [28, -16], [-4, -16]], "concrete", 1, { dir: [1, 0] });
     for (const x of [2.5, 10, 17.5]) flat(ctx, x, -9, 4, 7, "hole", "kLine");

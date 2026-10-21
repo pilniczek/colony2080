@@ -149,8 +149,8 @@ const pylonTruss = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: nu
 export const latticePylon: EnvAsset = {
   id: "latticePylon",
   box: [-10, -168, 34, 0],
-  draw(ctx) {
-    pylonTruss(ctx, 0, -168, -22);
+  draw(ctx, _state, _t, { h = 168 }: Size) {
+    pylonTruss(ctx, 0, -h, -22);
     box(ctx, -5, -22, 34, 6, "concrete", 2);
     poly(ctx, [[-9, 0], [33, 0], [28, -16], [-4, -16]], "concrete", 1, { dir: [1, 0] });
     for (const x of [2.5, 10, 17.5]) flat(ctx, x, -9, 4, 7, "hole", "kLine");

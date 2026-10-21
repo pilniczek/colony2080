@@ -7,6 +7,7 @@ import tasks from "@config/levels/mesto/tasks.json";
 import { ITEMS } from "../items";
 import { cfg, game, run, runUntil, tick, type Game } from "../hero/testWorld";
 import { loadMesto, mestoJson } from "./mesto";
+import { id, reachOf } from "./reach";
 import { coverClips } from "./cover";
 import { guardHidden } from "./guards";
 import { applyBlocks } from "./tasks";
@@ -130,6 +131,19 @@ describe("mesto map", () => {
 
   it("takes the droid cells and patrols from the research list", () => {
     expect(map.droids).toEqual(droids.map((d) => ({ cell: d.cell, patrol: d.patrol })));
+  });
+
+  it("keeps tower dressing off reachable cells", () => {
+    const r = reachOf(world, cfg);
+    const from = r.reach(r.graph(r.generous), id(r.runAt(spawn[1], Math.floor(spawn[0]))!));
+    const body = new Set(r.runs.filter((run) => from.has(id(run))).flatMap((run) => Array.from({ length: run.w }, (_, i) => [`${run.col + i},${run.row - 1}`, `${run.col + i},${run.row - 2}`]).flat()));
+    const towers = world.dressing.filter((s) => (s.asset === "facadeTower" && s.x !== 11) || s.asset === "brickWall");
+    expect(towers.some((s) => s.asset === "facadeTower" && s.x === 127)).toBe(true);
+    for (const s of towers) {
+      for (let col = Math.floor(s.x); col < Math.ceil(s.x + s.w!); col++) {
+        for (let row = s.y! - s.h!; row < s.y!; row++) expect(body.has(`${col},${row}`), `${s.asset} ${s.x},${s.y} covers ${col},${row}`).toBe(false);
+      }
+    }
   });
 
   it("stands every droid on a floor", () => {
