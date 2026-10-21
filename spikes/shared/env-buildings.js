@@ -498,21 +498,23 @@ define({
     flat(ctx, 70, -60, 48, 3, "k1");
     flat(ctx, 72, -74, 14, 9, "c2", "kLine");
     flat(ctx, 72, -71, 14, 3, "neon");
-    const dx = 84, dw = 24, dy = -58;
-    flat(ctx, dx - 2, dy - 2, dw + 4, -dy + 2, "m1", "mLine");
+    flat(ctx, 68, -60, 52, 60, "m1", "mLine");
     if (state === 1) {
-      flat(ctx, dx, dy, dw, -dy, "hole");
-      shape(ctx, [[dx + 2, 0], [dx + 6, dy + 4], [dx + dw - 4, dy + 4], [dx + dw, 0]], "#c9a85a55");
-      disc(ctx, dx + 12, dy + 18, 5, "#1a1210");
-      shape(ctx, [[dx + 3, dy + 40], [dx + 6, dy + 26], [dx + 18, dy + 26], [dx + 21, dy + 40]], "#1a1210");
-      for (const ex of [10, 14]) flat(ctx, dx + ex - 0.6, dy + 17, 1.2, 0.8, "a2");
-      box(ctx, dx + dw - 3, dy, 3, -dy, "steel", 3, { vertical: true });
+      flat(ctx, 70, -58, 25, 58, "hole");
+      shape(ctx, [[72, 0], [76, -54], [89, -54], [93, 0]], "#c9a85a55");
+      disc(ctx, 82.5, -40, 5, "#1a1210");
+      shape(ctx, [[73.5, -18], [76.5, -32], [88.5, -32], [91.5, -18]], "#1a1210");
+      for (const ex of [80.5, 84.5]) flat(ctx, ex - 0.6, -41, 1.2, 0.8, "a2");
     } else {
-      box(ctx, dx, dy, dw, -dy, "steel", 3, { vertical: true });
-      flat(ctx, dx + 4, dy + 6, dw - 8, 16, "glass", "mLine");
-      flat(ctx, dx + dw - 6, dy + 30, 3, 6, "m1", "mLine");
-      flat(ctx, dx + 3, dy + 40, dw - 6, 1, "m1");
+      box(ctx, 70, -58, 25, 58, "steel", 3, { vertical: true });
+      flat(ctx, 76, -46, 9, 12, "c2", "mLine");
+      for (const y of [-43, -40, -37]) flat(ctx, 77.5, y, 6, 0.8, "m1");
+      flat(ctx, 89, -32, 3, 6, "m1", "mLine");
     }
+    box(ctx, 95, -58, 23, 58, "steel", 3, { vertical: true });
+    flat(ctx, 95, -58, 23, 58, "#0e2a2a88");
+    flat(ctx, 95, -58, 2.5, 58, "hole");
+    flat(ctx, 98, -32, 3, 6, "m1", "mLine");
     fluted(ctx, 56, -62, 12, 62);
     fluted(ctx, 120, -62, 12, 62);
   }
