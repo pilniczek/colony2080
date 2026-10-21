@@ -12,8 +12,6 @@
     {"asset": "brickWall", "x": 39, "y": 75},
     {"asset": "brickWall", "x": 42, "y": 75},
     {"asset": "brickWall", "x": 45, "y": 75},
-    {"asset": "brickWall", "x": 48, "y": 75},
-    {"asset": "brickWall", "x": 51, "y": 75},
     {"asset": "brickWall", "x": 10, "y": 75},
     {"asset": "brickWall", "x": 13, "y": 75},
     {"asset": "brickWall", "x": 21, "y": 70},
@@ -128,7 +126,6 @@
     {"asset": "tunnelWall", "x": 27, "y": 75},
     {"asset": "tunnelWall", "x": 34, "y": 75},
     {"asset": "tunnelWall", "x": 41, "y": 75},
-    {"asset": "tunnelWall", "x": 48, "y": 75},
     {"asset": "metroPlatformWall", "x": 81, "y": 70},
     {"asset": "metroTrain", "x": 59.6, "y": 70},
     {"asset": "metroTrain", "x": 65, "y": 70},
@@ -144,10 +141,7 @@
     {"asset": "stripLight", "x": 47, "y": 70},
     {"asset": "stripLight", "x": 64, "y": 70},
     {"asset": "stripLight", "x": 74, "y": 70},
-    {"asset": "stripLight", "x": 83, "y": 70},
-    {"asset": "stripLight", "x": 57.5, "y": 75},
-    {"asset": "stripLight", "x": 70.5, "y": 75},
-    {"asset": "stripLight", "x": 83.5, "y": 75},
+    {"asset": "stripLight", "x": 82, "y": 70},
     {"asset": "chainFence", "x": 43, "y": 10},
     {"asset": "liftPanel", "x": 39.5, "y": 10},
     {"asset": "chainFence", "x": 41.5, "y": 16},
@@ -187,8 +181,7 @@
     {"asset": "tunnelFloor", "x": 25, "y": 75},
     {"asset": "tunnelFloor", "x": 31, "y": 75},
     {"asset": "tunnelFloor", "x": 37, "y": 75},
-    {"asset": "tunnelFloor", "x": 43, "y": 75},
-    {"asset": "tunnelFloor", "x": 49, "y": 75}
+    {"asset": "tunnelFloor", "x": 43, "y": 75}
   ],
   "props": [
     {"kind": "object", "id": "dyingRebel", "asset": "dyingRebel", "x": 34, "y": 59, "width": 2, "state": 0, "approach": {"cells": 6, "cutscene": "rebelShot", "gives": "flag:rebelShot"}},

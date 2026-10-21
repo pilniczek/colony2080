@@ -27,7 +27,8 @@ EXTRAS = {
             "whose east side (col 21, rows 42-51) is an invisible blocker; its tail pillar (col 14, rows 39-40) turns into an invisible hull blocker and "
             "the wall west of its lift (col 7) runs up to the lift rail tops (row 39); borderFills fill solid from the outer walls (col 7 from row 39, "
             "col 9 from row 60, col 141 rows 17-44) on to the map edge over never reached cells, so the view there shows wall, not sky (user); "
-            "the street (row 59) is the ground floor and its slab runs down to row 65 around the lift 78 shaft, so the metro under it is 4 rows high like the original tunnel art (rows 66-69, user)"
+            "the street (row 59) is the ground floor and its slab runs down to row 65 around the lift 78 shaft, so the metro under it is 4 rows high like the original tunnel art (rows 66-69, user); "
+            "never reached cells under the street are solid too (cols 18-19 and 86-157 of the upper tunnel, cols 48-157 of the lower one, the map edge cols 158-159 from the street down and rows 76-79, user)"
         ),
         "spawn": [62.5, 59],
         "liftHints": {55: "The lift is broken."},
@@ -42,7 +43,8 @@ EXTRAS = {
         "holes": [(col, 10) for col in range(22, 31)],
         "sky": [(7, 11, 17, 29), (18, 24, 22, 29), (7, 30, 22, 38), (21, 39, 21, 40), (11, 42, 20, 51)],
         "borderFills": [(0, 39, 7, 59), (0, 60, 8, 75), (141, 17, 159, 44)],
-        "patches": [(14, 39, 14, 40, "|"), (15, 41, 20, 41, "#"), (21, 42, 21, 51, "|"), (9, 60, 77, 65, "#"), (81, 60, 157, 65, "#")],
+        "patches": [(14, 39, 14, 40, "|"), (15, 41, 20, 41, "#"), (21, 42, 21, 51, "|"), (9, 60, 77, 65, "#"), (81, 60, 157, 65, "#"),
+                    (18, 66, 19, 69, "#"), (86, 66, 157, 69, "#"), (48, 71, 157, 74, "#"), (158, 59, 159, 79, "#"), (0, 76, 157, 79, "#")],
     },
     2: {
         "borderFills": [],
