@@ -140,6 +140,7 @@ flowchart LR
 | Cheat buttons | The debug panel (sandbox, and game page after `c2080isdebugging`) has a Cheats section: one button per cheat code, a `moveto` x, y form and a `moveto(start)` button, run like a typed code; disabled while recording or replaying, since cheats bypass input (2026-10-21) | user |
 | Map borders | An outer wall at the map edge fills solid on to the edge over cells the hero never reaches, so the view there shows wall (bricks, the pipe may stay), not sky; every map, each with its own fills (`borderFills` in `levelmap.py`). Mission 1 crashed ship: open sky above it, on a building roof that reaches the street, no wall left of its lift and no walls around the building (2026-10-20) | user |
 | Lift shaft sides | A floor beside a lift shaft on a row where the lift does not stop gets a wall from that floor up to the floor above, so it does not look like a landing (`wall_passed_floors` in `levelmap.py`; today only mesto lift 67, row 44) |
+| Mesto map art | Art meets the ceiling where the structure does (pillars, gates, pipe columns run through floors); girders end on a leg, column or building; never reached sealed pockets are solid and drawn as the original towers; every edge the hero touches shows a wall. Spec: `docs/superpowers/specs/2026-10-21-mesto-map-fixes-design.md` | user |
 
 ## Config drafts
 
