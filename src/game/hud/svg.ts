@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "../items";
 import { blasterIcon, BLASTER_BODY_W, BLASTER_MID_Y } from "./blasterIcon";
-import { BAR_H, CONTENT_SCALE, HAND_BOX, HAND_DRAWN, HAND_SCALE, HUD_H, MAP_W, MONO_ADVANCE, PANEL_EDGE, READOUT_SIZE, SIDE_ART, SLOT, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
+import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HUD_H, inventoryW, MAP_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
   weapon: number;
@@ -70,7 +70,7 @@ const DEFS = `<defs>
   <pattern id="lampLines" width="1" height="2" patternUnits="userSpaceOnUse"><rect y="1" width="1" height="1" fill="#000" fill-opacity=".3"/></pattern>
   <pattern id="lampRail" width="1" height="2" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#3a2412"/></pattern>
   <radialGradient id="screwHead" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#e6d8c0"/><stop offset=".45" stop-color="#8a7a64"/><stop offset="1" stop-color="#2e261e"/></radialGradient>
-  <pattern id="grid" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><rect width="3.2" height="3.2" fill="#120b05"/><path d="M0 .1H3.2M.1 0V3.2" stroke="#5a360c" stroke-width=".2"/></pattern>
+  <pattern id="grid" width="${GRID_CELL}" height="${GRID_CELL}" patternUnits="userSpaceOnUse"><rect width="${GRID_CELL}" height="${GRID_CELL}" fill="#120b05"/><path d="M0 .1H${GRID_CELL}M.1 0V${GRID_CELL}" stroke="#5a360c" stroke-width=".2"/></pattern>
   <pattern id="circuit" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#111a17"/><path d="M1 1H8V5H12M3 13V8H6V11M10 8H13M1 6H4" fill="none" stroke="#24403a" stroke-width=".35"/><circle cx="12" cy="5" r=".55" fill="#2f5249"/><circle cx="6" cy="11" r=".55" fill="#2f5249"/></pattern>
   <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="lampHalo" x="-150%" y="-100%" width="400%" height="300%"><feGaussianBlur stdDeviation="1.6"/></filter>
@@ -183,8 +183,8 @@ function slot(x: number, w: number, item: ItemId | null, icons: HudIcons): strin
   const icon = item === null ? undefined : icons.items[item];
   const label = item === null ? "nothing" : (ITEMS[item]?.name ?? item);
   const iconW = icon ? icon.w : HAND_BOX.w;
-  const textW = label.length * READOUT_SIZE * MONO_ADVANCE;
-  const start = x + (w - iconW - SLOT.gap - textW) / 2;
+  const textW = readoutW(label);
+  const start = x + (w - slotW(iconW, label)) / 2;
   const centre = start + iconW / 2;
   const nameCentre = start + iconW + SLOT.gap + textW / 2;
   const art = icon ? image(icon, centre - icon.w / 2, SLOT_MID_Y - icon.h / 2) : handAt(centre);
@@ -197,8 +197,11 @@ interface KeyTab {
   active: boolean;
 }
 
+export const itemPlateW = (icons: HudIcons): number =>
+  inventoryW([slotW(HAND_BOX.w, "nothing"), ...Object.entries(ITEMS).map(([id, item]) => slotW(icons.items[id as ItemId]?.w ?? HAND_BOX.w, item.name))]);
+
 function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
-  const bar = topBar(W);
+  const bar = topBar(W, itemPlateW(icons));
   const wx = bar.weapons;
   const item = slot(bar.inv, bar.invW, s.item, icons);
   const tabs: KeyTab[] = [

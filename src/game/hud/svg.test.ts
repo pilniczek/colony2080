@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BLASTER_BODY_W } from "./blasterIcon";
 import { CONTENT_SCALE, HAND_BOX, HAND_INK_H, ICON_H, MAP_W, MONO_ADVANCE, READOUT_SIZE, SLOT, SPEAKER_H, SPEAKER_INK, SPEAKER_INK_H, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, WEAPON_W } from "./layout";
-import { applyLive, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
+import { applyLive, hudSvg as render, itemPlateW, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, run: { url: "run.png", w: 4, h: ICON_H }, walk: { url: "walk.png", w: 4, h: ICON_H }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
@@ -38,7 +38,7 @@ describe("hudSvg", () => {
   });
 
   it("centres the running figure on the run slot", () => {
-    const { run } = topBar(320);
+    const { run } = topBar(320, itemPlateW(icons));
     const m = /data-icon="run"><image href="run.png" x="([\d.]+)"/.exec(hudSvg(320, 200, base, icons))!;
     expect(Number(m[1]) + 2).toBeCloseTo(run + TOGGLE_W / 2, 9);
   });
@@ -47,7 +47,7 @@ describe("hudSvg", () => {
     const svg = hudSvg(320, 200, base, icons);
     const panels = [...svg.matchAll(/<path d="M([\d.]+) 0\.9H([\d.]+)[^"]*" fill="#0b0806"\/>/g)].map((m) => [Number(m[1]), Number(m[2])]);
     expect(panels).toHaveLength(3);
-    const { sound, map } = topBar(320);
+    const { sound, map } = topBar(320, itemPlateW(icons));
     const holding = panels.filter(([a, b]) => a! <= sound && map + MAP_W <= b!);
     expect(holding).toHaveLength(1);
   });
@@ -61,7 +61,7 @@ describe("hudSvg", () => {
   });
 
   it("lights the S, ALT and M key tabs under their own icons per state", () => {
-    const { sound, run, map } = topBar(320);
+    const { sound, run, map } = topBar(320, itemPlateW(icons));
     const tab = (svg: string, label: string): { x: number; lit: boolean } | undefined => {
       const m = new RegExp(`<text x="([\\d.]+)" y="[\\d.]+" text-anchor="middle"[^>]*font-size="3\\.4" fill="(#ff4a26|#1a140f)"[^>]*>${label}</text>`).exec(svg);
       return m ? { x: Number(m[1]), lit: m[2] === "#ff4a26" } : undefined;
@@ -78,7 +78,7 @@ describe("hudSvg", () => {
     const mapIcon = (svg: string): RegExpExecArray | null => /<g filter="url\(#(icon\w+)\)" data-icon="map"( data-map="none")?><g transform="translate\(([\d.]+) /.exec(svg);
 
     it("draws the folded map centred on the map slot, glowing only while the map screen is open", () => {
-      const { map } = topBar(320);
+      const { map } = topBar(320, itemPlateW(icons));
       const shut = mapIcon(hudSvg(320, 200, base, icons))!;
       expect(shut[1]).toBe("iconDim");
       expect(shut[2]).toBeUndefined();
@@ -99,7 +99,7 @@ describe("hudSvg", () => {
       [...svg.matchAll(/<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#[0-9a-f]+)"[^>]*>S<\/text>/g)].map((m) => ({ x: Number(m[1]), fill: m[2]! }));
 
     it("draws a glowing speaker centred on the sound slot when sound is on", () => {
-      const { sound } = topBar(320);
+      const { sound } = topBar(320, itemPlateW(icons));
       const m = soundIcon(hudSvg(320, 200, base, icons))!;
       expect(m[1]).toBe("iconGlow");
       expect(m[2]).toBeUndefined();
@@ -113,7 +113,7 @@ describe("hudSvg", () => {
     });
 
     it("lights the S key tab only while sound is on", () => {
-      const { sound } = topBar(320);
+      const { sound } = topBar(320, itemPlateW(icons));
       const on = soundTab(hudSvg(320, 200, base, icons));
       const off = soundTab(hudSvg(320, 200, { ...base, soundOn: false }, icons));
       expect(on.find((t) => t.fill === "#ff4a26")?.x).toBeCloseTo(sound + SPEAKER_W / 2, 9);
@@ -127,7 +127,7 @@ describe("hudSvg", () => {
   });
 
   it("right-aligns the ammo counter at the icon edge without leading zeros", () => {
-    const { weapons } = topBar(320);
+    const { weapons } = topBar(320, itemPlateW(icons));
     const counter = (ammo: number): RegExpExecArray | null => new RegExp(`<text x="([\\d.]+)" y="[\\d.]+" text-anchor="end"[^>]*>(\\d+)</text>`).exec(hudSvg(320, 200, { ...base, ammo }, icons));
     for (const [ammo, text] of [[0, "0"], [99, "99"], [350, "350"], [109999, "109999"]] as const) {
       const m = counter(ammo)!;
@@ -140,11 +140,11 @@ describe("hudSvg", () => {
     const tabLetters = (svg: string): { x: number; label: string; lit: boolean }[] =>
       [...svg.matchAll(/<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#[0-9a-f]+)"[^>]*>([^<]*)<\/text>/g)].map((m) => ({ x: Number(m[1]), label: m[3]!, lit: m[2] === "#ff4a26" }));
     const slotKey = (svg: string): { x: number; label: string; lit: boolean } | undefined => {
-      const { weapons } = topBar(320);
+      const { weapons } = topBar(320, itemPlateW(icons));
       return tabLetters(svg).find((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + (BLASTER_BODY_W * CONTENT_SCALE) / 2)) < 1e-6 && t.lit);
     };
     const slotKeyAny = (svg: string): boolean => {
-      const { weapons } = topBar(320);
+      const { weapons } = topBar(320, itemPlateW(icons));
       return tabLetters(svg).some((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + (BLASTER_BODY_W * CONTENT_SCALE) / 2)) < 1e-6);
     };
 
@@ -170,7 +170,7 @@ describe("hudSvg", () => {
   });
 
   it("right-aligns the bonus counter at the blaster edge", () => {
-    const { weapons } = topBar(320);
+    const { weapons } = topBar(320, itemPlateW(icons));
     const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 7 }, icons);
     expect(svg).toMatch(new RegExp(`<text x="${weapons[2]! + WEAPON_W[2]!}" y="[\\d.]+" text-anchor="end"`));
   });
@@ -216,7 +216,7 @@ describe("hudSvg", () => {
     });
 
     it("centres the icon, one slot gap and the name together in the item panel", () => {
-      const { inv, invW } = topBar(320);
+      const { inv, invW } = topBar(320, itemPlateW(icons));
       const svg = hudSvg(320, 200, { ...base, item: "craneKey" }, icons);
       const x = Number(/<text x="([\d.]+)"[^>]*>crane key<\/text>/.exec(svg)![1]);
       const [, iconX, iconW] = /<image href="craneKey.png" x="([\d.]+)" y="[\d.]+" width="([\d.]+)"/.exec(svg)!.map(Number);
@@ -250,7 +250,7 @@ describe("hudSvg", () => {
   });
 
   it("centres one ENTER tab on the item panel", () => {
-    const { inv, invW } = topBar(320);
+    const { inv, invW } = topBar(320, itemPlateW(icons));
     const svg = hudSvg(320, 200, { ...base, item: "craneKey" }, icons);
     const at = (label: string): number => Number([...svg.matchAll(new RegExp(`<text x="([\\d.]+)"[^>]*font-size="3\\.4"[^>]*>${label}</text>`, "g"))].at(-1)![1]);
     expect(at("ENTER")).toBeCloseTo(inv + invW / 2, 6);

@@ -1,5 +1,4 @@
 import type { Rect } from "../geometry";
-import { ITEMS } from "../items";
 
 export type Span = [number, number];
 
@@ -32,12 +31,13 @@ const MAP_INK_HALF = 4.5;
 export const MAP_W = 2 * MAP_INK_HALF * SPEAKER_SCALE;
 export const READOUT_SIZE = 5.6 * CONTENT_SCALE;
 export const MONO_ADVANCE = 0.54;
-const LONGEST_NAME = Math.max(...Object.values(ITEMS).map((item) => item.name.length));
-const ICON_W = Math.max(HAND_BOX.w, ...Object.values(ITEMS).map((item) => HAND_BOX.w * item.icon.scale));
 export const WEAPON_W = [35, 20, 45.5].map((w) => w * CONTENT_SCALE);
 export const WEAPON_GAP = 12 * CONTENT_SCALE;
-export const SLOT = { pad: 1.5 * WEAPON_GAP, iconW: ICON_W, gap: WEAPON_GAP };
-const INVENTORY_W = 2 * SLOT.pad + SLOT.iconW + SLOT.gap + LONGEST_NAME * READOUT_SIZE * MONO_ADVANCE;
+export const GRID_CELL = 3.2;
+export const SLOT = { pad: 2 * GRID_CELL, gap: WEAPON_GAP };
+export const readoutW = (label: string): number => label.length * READOUT_SIZE * MONO_ADVANCE;
+export const slotW = (iconW: number, label: string): number => iconW + SLOT.gap + readoutW(label);
+export const inventoryW = (slots: number[]): number => 2 * SLOT.pad + Math.max(...slots);
 export const TOGGLE_W = ICON_H * 0.9;
 const TOGGLE_GAP = WEAPON_GAP;
 export const BADGE_W = 48 * CONTENT_SCALE;
@@ -79,12 +79,11 @@ export function viewRect({ W, H, unit }: HudFit): Rect {
   };
 }
 
-const invAt = (W: number): number => W - EDGE - PLATE_PAD - INVENTORY_W;
 const WEAPONS_GRID_W = WEAPON_W.reduce((a, b) => a + b, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
 const TOGGLES_W = SPEAKER_W + TOGGLE_W + MAP_W + 4 * TOGGLE_GAP;
 
-export function topBar(W: number): TopBar {
-  const inv = invAt(W);
+export function topBar(W: number, invW: number): TopBar {
+  const inv = W - EDGE - PLATE_PAD - invW;
   const togglesX = inv - 2 * PLATE_PAD - GAP - TOGGLES_W;
   const sound = togglesX + TOGGLE_GAP;
   const run = sound + SPEAKER_W + TOGGLE_GAP;
@@ -99,5 +98,5 @@ export function topBar(W: number): TopBar {
   const gaps: Span[] = [[0, EDGE], [weaponsEnd, weaponsEnd + GAP], [badgeEnd, togglesStart], togglesGap, [W - EDGE, W]];
   const plates = gaps.slice(1).map(([a], i): Span => [gaps[i]![1], a]);
   const weapons = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((a, b) => a + b, 0));
-  return { inv, invW: INVENTORY_W, togglesX, togglesW: TOGGLES_W, sound, run, map, gridX, badge, gridW, weapons, gaps, plates };
+  return { inv, invW, togglesX, togglesW: TOGGLES_W, sound, run, map, gridX, badge, gridW, weapons, gaps, plates };
 }

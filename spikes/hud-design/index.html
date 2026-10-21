@@ -248,8 +248,9 @@ for (const [id, item] of Object.entries(ITEMS)) {
   $("item").add(new Option(item.name, id));
   $("held").add(new Option(item.name, id, false, ["crowbar", "holoPlan", "shipPlan", "card"].includes(id)));
 }
-const READOUT_SIZE = 5.6 * K, MONO_ADVANCE = .54, SLOT = { pad: 18 * K, gap: 12 * K, iconW: Math.max(HAND_BOX.w, ...Object.values(ITEMS).map((i) => HAND_BOX.w * i.icon.scale)) };
-const INV_W = 2 * SLOT.pad + SLOT.iconW + SLOT.gap + Math.max(...Object.values(ITEMS).map((i) => i.name.length)) * READOUT_SIZE * MONO_ADVANCE;
+const READOUT_SIZE = 5.6 * K, MONO_ADVANCE = .54, GRID_CELL = 3.2, SLOT = { pad: 2 * GRID_CELL, gap: 12 * K };
+const slotW = (iconW, label) => iconW + SLOT.gap + label.length * READOUT_SIZE * MONO_ADVANCE;
+const INV_W = 2 * SLOT.pad + Math.max(slotW(HAND_BOX.w, "nothing"), ...Object.entries(ITEMS).map(([id, i]) => slotW(ITEM_ICONS[id].w, i.name)));
 
 const GUN = (x) => `<image href="${GUN_ICON.url}" x="${x}" y="${WEAPON_MID - GUN_ICON.h / 2}" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
 const FIST_SCALE = 0.6;
