@@ -1,11 +1,26 @@
 import { useEffect, useMemo } from "react";
 import { whenIdle } from "../../engine/idle";
-import { inventoryArt } from "../../game/hud/icons";
+import { inventoryArtJobs } from "../../game/hud/icons";
 import { inventorySvg, type InventoryArt } from "../../game/hud/inventory";
 import { useSandbox } from "../store";
 
-let cached: InventoryArt | null = null;
-export const art = (): InventoryArt => (cached ??= inventoryArt());
+let build: ReturnType<typeof inventoryArtJobs> | null = null;
+let done = 0;
+
+const jobs = (): ReturnType<typeof inventoryArtJobs> => (build ??= inventoryArtJobs());
+
+export const art = (): InventoryArt => {
+  const { jobs: all, art: built } = jobs();
+  while (done < all.length) all[done++]!();
+  return built;
+};
+
+const buildWhenIdle = (): void => {
+  const { jobs: all } = jobs();
+  if (done >= all.length) return;
+  all[done++]!();
+  whenIdle(buildWhenIdle);
+};
 
 export function InventoryScreen() {
   const { open, cursor } = useSandbox((s) => s.inventory);
@@ -17,7 +32,7 @@ export function InventoryScreen() {
   const ammo = useSandbox((s) => s.ammo);
   const blaster = useSandbox((s) => s.blaster);
   const filming = useSandbox((s) => s.cutscene);
-  useEffect(() => whenIdle(art), []);
+  useEffect(() => whenIdle(buildWhenIdle), []);
   const svg = useMemo(
     () => open && inventorySvg(fit.W, fit.H, { items, cursor, energy: Math.round((100 * energy) / max), shields, ammo, blaster }, art()),
     [open, fit.W, fit.H, items, cursor, energy, max, shields, ammo, blaster],

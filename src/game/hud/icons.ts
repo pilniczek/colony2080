@@ -5,7 +5,7 @@ import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
 import { buildFront, buildSide, ROBOT } from "../robot/xbot";
-import { ITEMS, type Item } from "../items";
+import { ITEMS, type Item, type ItemId } from "../items";
 import { BODY_BOX, GUN_SCALE, INVENTORY_BOXES, ITEM_FILL, STAT_COLOR, type InventoryArt } from "./inventory";
 import { CONTENT_SCALE, HAND_BOX, ICON_H, TOGGLE_W } from "./layout";
 import { READOUT, type HudIcon, type HudIcons } from "./svg";
@@ -204,13 +204,25 @@ function bigItem({ icon: { asset, state, tilt } }: Item): HudIcon {
   return trimmed(canvas, w * ITEM_FILL, h * ITEM_FILL);
 }
 
-export function inventoryArt(): InventoryArt {
-  const robot = stage((ctx) => drawRig(ctx, buildFront(), { palette: ROBOT.palette }));
+export function inventoryArtJobs(): { jobs: (() => void)[]; art: InventoryArt } {
+  const art = { items: {} } as InventoryArt;
+  let robot: HTMLCanvasElement | null = null;
   const { w, h } = INVENTORY_BOXES.robot;
-  return {
-    robot: trimmed(robot, w, h),
-    body: trimmed(outline(robot, STAT_COLOR), BODY_BOX.w, BODY_BOX.h),
-    gun: gunIcon(GUN_SCALE),
-    items: Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, bigItem(item)])),
+  const robotJob = (): void => {
+    robot = stage((ctx) => drawRig(ctx, buildFront(), { palette: ROBOT.palette }));
+    art.robot = trimmed(robot, w, h);
   };
+  const bodyJob = (): void => {
+    art.body = trimmed(outline(robot!, STAT_COLOR), BODY_BOX.w, BODY_BOX.h);
+  };
+  const itemJobs = Object.entries(ITEMS).map(([id, item]) => (): void => {
+    art.items[id as ItemId] = bigItem(item);
+  });
+  return { jobs: [robotJob, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), ...itemJobs], art };
+}
+
+export function inventoryArt(): InventoryArt {
+  const { jobs, art } = inventoryArtJobs();
+  for (const job of jobs) job();
+  return art;
 }
