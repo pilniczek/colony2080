@@ -22,6 +22,7 @@ const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel",
 
 const TILE_MARGIN = 1;
 const PREFETCH_PER_FRAME = 1;
+const PREFETCH_MS = 4;
 const DROPPED_KEPT = 40;
 const CULL_PAD_CELLS = 1;
 
@@ -158,7 +159,8 @@ function cached(e: Env, name: string, paint: (off: Env) => void): void {
   layers.set(world, own);
   const cache = (own[name] ??= new TileCache(DROPPED_KEPT, free, true));
   const view = { x: screen.x - x, y: screen.y - y, w: screen.w, h: screen.h };
-  const ahead = { tiles: nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX), budget: PREFETCH_PER_FRAME };
+  const until = performance.now() + PREFETCH_MS;
+  const ahead = { tiles: nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX), budget: PREFETCH_PER_FRAME, more: () => performance.now() < until };
   const key = `${scale}|${lines}|${cell}|${unit}`;
   const make = (col: number, row: number): HTMLCanvasElement => render(e, scale, paint, size, col, row);
   const tiles = cache.sync(key, visibleTiles(view, TILE_PX, 0, size), make, ahead);

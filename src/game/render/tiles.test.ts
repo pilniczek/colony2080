@@ -207,6 +207,18 @@ describe("TileCache", () => {
       expect(cache.size).toBe(4);
     });
 
+    it("goes on past the budget while more allows, but never on a sync that painted a visible tile", () => {
+      const cache = new TileCache<string>();
+      const { painted, make } = counter();
+      let left = 1;
+      const more = (): boolean => left-- > 0;
+      cache.sync("a", need, make, { tiles: ring, budget: 0, more });
+      expect(painted.sort()).toEqual(["1,0", "2,0"]);
+      painted.length = 0;
+      cache.sync("a", need, make, { tiles: ring, budget: 1, more });
+      expect(painted).toEqual(["0,0", "3,0"]);
+    });
+
     it("drops tiles outside the visible and margin tiles", () => {
       const cache = new TileCache<string>();
       const { make } = counter();

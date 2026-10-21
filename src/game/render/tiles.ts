@@ -46,7 +46,7 @@ export class TileCache<T> {
     return this.tiles.has(id(col, row));
   }
 
-  sync(key: string, coords: TileCoord[], make: (col: number, row: number) => T, prefetch?: { tiles: TileCoord[]; budget: number }): [number, number, T][] {
+  sync(key: string, coords: TileCoord[], make: (col: number, row: number) => T, prefetch?: { tiles: TileCoord[]; budget: number; more?: () => boolean }): [number, number, T][] {
     if (key !== this.key) {
       this.key = key;
       for (const tile of [...this.tiles.values(), ...this.dropped.values()]) this.release(tile);
@@ -69,7 +69,7 @@ export class TileCache<T> {
     for (const [col, row] of prefetch?.tiles ?? []) {
       const tile = kept.get(id(col, row)) ?? this.reuse(col, row);
       if (tile !== undefined) kept.set(id(col, row), tile);
-      else if (budget > 0) {
+      else if (!missed && (budget > 0 || prefetch?.more?.())) {
         budget--;
         kept.set(id(col, row), make(col, row));
       }
