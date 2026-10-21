@@ -489,15 +489,9 @@ const outlet = (ctx: CanvasRenderingContext2D, state: number): void => {
   pipeH(ctx, x + w, y, -x - w + 2, w, "concrete", 1);
   cylV(ctx, x, y, w, w, "concrete", 2);
   collarH(ctx, -8, y, w, "concrete");
-  if (state === 0) {
-    pipeV(ctx, x, y + w, w, valve - 4 - y - w, "concrete");
-    pipeV(ctx, x, valve + 6, w, -valve - 10, "concrete");
-    for (const yy of [valve - 4, valve + 6]) flat(ctx, x + 2, yy - 0.5, w - 4, 1, "hole");
-  } else {
-    pipeV(ctx, x, y + w, w, -y - w - 4, "concrete");
-    box(ctx, x - 1.5, valve - 5, w + 3, 11, "steel", 2, { vertical: true });
-    handwheel(ctx, x + w / 2, valve, 5.5);
-  }
+  pipeV(ctx, x, y + w, w, -y - w - 4, "concrete");
+  box(ctx, x - 1.5, valve - 5, w + 3, 11, "steel", 2, { vertical: true });
+  if (state !== 0) handwheel(ctx, x + w / 2, valve, 5.5);
   cylV(ctx, x - 1, -5, w + 2, 3, "concrete", 1);
 };
 

@@ -740,7 +740,7 @@ exports[`missions > mesto json is unchanged 1`] = `
     },
     {
       "asset": "chainFence",
-      "x": 103,
+      "x": 102,
       "y": 23,
     },
     {
@@ -799,8 +799,8 @@ exports[`missions > mesto json is unchanged 1`] = `
     {
       "asset": "facadeTower",
       "h": 13,
-      "w": 6,
-      "x": 23,
+      "w": 7,
+      "x": 22,
       "y": 37,
     },
     {
@@ -2266,7 +2266,7 @@ exports[`missions > mesto json is unchanged 1`] = `
     },
     {
       "art": {
-        "dx": 2.67,
+        "dx": 1.57,
       },
       "asset": "acidTank",
       "id": "acidTank",
@@ -2277,6 +2277,9 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 23,
     },
     {
+      "art": {
+        "dx": 0.7,
+      },
       "asset": "acidGuard",
       "cells": {
         "col": 109,
