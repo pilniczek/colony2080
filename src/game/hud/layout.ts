@@ -36,7 +36,7 @@ const LONGEST_NAME = Math.max(...Object.values(ITEMS).map((item) => item.name.le
 const ICON_W = Math.max(HAND_BOX.w, ...Object.values(ITEMS).map((item) => HAND_BOX.w * item.icon.scale));
 export const WEAPON_W = [35, 20, 45.5].map((w) => w * CONTENT_SCALE);
 export const WEAPON_GAP = 12 * CONTENT_SCALE;
-export const SLOT = { pad: WEAPON_GAP, iconW: ICON_W, gap: WEAPON_GAP };
+export const SLOT = { pad: 1.5 * WEAPON_GAP, iconW: ICON_W, gap: WEAPON_GAP };
 const INVENTORY_W = 2 * SLOT.pad + SLOT.iconW + SLOT.gap + LONGEST_NAME * READOUT_SIZE * MONO_ADVANCE;
 export const TOGGLE_W = ICON_H * 0.9;
 const TOGGLE_GAP = WEAPON_GAP;

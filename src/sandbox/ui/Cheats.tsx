@@ -25,6 +25,9 @@ export function Cheats({ commands }: { commands: SandboxCommands }) {
         <Button disabled={locked} onClick={() => commands.cheat(`moveto(${x},${y})`)}>
           moveto
         </Button>
+        <Button disabled={locked} onClick={() => commands.cheat("moveto(start)")}>
+          moveto(start)
+        </Button>
       </div>
     </Section>
   );

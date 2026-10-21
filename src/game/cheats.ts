@@ -1,6 +1,8 @@
-export type Cheat = "immortal" | "noFog" | "weapon" | "items" | "open" | "debug" | { moveTo: [number, number] };
+type MoveTarget = [number, number] | "start";
 
-type Toggle = Exclude<Cheat, { moveTo: [number, number] }>;
+export type Cheat = "immortal" | "noFog" | "weapon" | "items" | "open" | "debug" | { moveTo: MoveTarget };
+
+type Toggle = Exclude<Cheat, { moveTo: MoveTarget }>;
 
 export const CHEATS: { code: string; effect: string; cheat?: Toggle }[] = [
   { code: "c2080isforever", cheat: "immortal", effect: "Immortality: shots, hazards and falls do nothing, pits hold the hero. Enter again to turn off." },
@@ -9,18 +11,20 @@ export const CHEATS: { code: string; effect: string; cheat?: Toggle }[] = [
   { code: "c2080isrich", cheat: "items", effect: "Gives every item of the mission: items on the map (hidden ones too) and items tasks hand out, each once. Weapons stay. No films." },
   { code: "c2080isunstoppable", cheat: "open", effect: "Opens every movement blocker of the mission: locked doors, gates, guards in the way and unpowered lifts. Tasks stay undone. No films." },
   { code: "c2080isdebugging", cheat: "debug", effect: "Turns on immortality, turns off fog of war, gives the special weapon and every item, opens the sandbox debug panel, and skips every film from then on (tasks still run). Stays on when entered again." },
-  { code: "moveto(x,y)", effect: "Moves the hero to map cell x, y (y is the floor row, as in world.json), e.g. moveto(40,10)." },
+  { code: "moveto(x,y)", effect: "Moves the hero to map cell x, y (y is the floor row, as in world.json), e.g. moveto(40,10). moveto(start) moves the hero to the mission start." },
 ];
 
 const CODES = new Map(CHEATS.flatMap(({ code, cheat }) => (cheat ? [[code, cheat] as const] : [])));
 
 const NUMBER = String.raw`\s*(-?\d+(?:\.\d+)?)\s*`;
 const MOVE_TO = new RegExp(`^moveto\\(${NUMBER},${NUMBER}\\)$`);
+const MOVE_TO_START = /^moveto\(\s*start\s*\)$/;
 
 export function cheatOf(code: string): Cheat | null {
   const typed = code.trim().toLowerCase();
   const move = MOVE_TO.exec(typed);
   if (move) return { moveTo: [Number(move[1]), Number(move[2])] };
+  if (MOVE_TO_START.test(typed)) return { moveTo: "start" };
   return CODES.get(typed) ?? null;
 }
 

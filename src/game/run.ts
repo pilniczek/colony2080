@@ -452,7 +452,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     if (cheat === "items") say(world, giveItems());
     if (cheat === "open") say(world, openAll());
     if (cheat === "debug") debug();
-    if (typeof cheat === "object" && cheat !== null) moveTo(...cheat.moveTo);
+    if (typeof cheat === "object" && cheat !== null) moveTo(...(cheat.moveTo === "start" ? world.spawn : cheat.moveTo));
   };
 
   const setFog = (fogOn: boolean): void => {

@@ -16,8 +16,13 @@ describe("cheat codes", () => {
     expect(cheatOf(" MoveTo( 39.5 , 16 ) ")).toEqual({ moveTo: [39.5, 16] });
   });
 
+  it("reads moveto(start) as the spawn cell", () => {
+    expect(cheatOf("moveto(start)")).toEqual({ moveTo: "start" });
+    expect(cheatOf(" MoveTo( Start ) ")).toEqual({ moveTo: "start" });
+  });
+
   it("rejects anything else", () => {
-    for (const code of ["", "c2080", "constructor", "c2080isforeverx", "moveto(40)", "moveto(a,10)", "moveto(1,2,3)", "moveto 40,10"]) expect(cheatOf(code)).toBeNull();
+    for (const code of ["", "c2080", "constructor", "c2080isforeverx", "moveto(40)", "moveto(a,10)", "moveto(1,2,3)", "moveto 40,10", "moveto(start,1)", "moveto()"]) expect(cheatOf(code)).toBeNull();
   });
 });
 
