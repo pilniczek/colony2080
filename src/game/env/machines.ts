@@ -157,6 +157,23 @@ export const lift: EnvAsset = {
   },
 };
 
+export const liftShaft: EnvAsset = {
+  id: "liftShaft",
+  box: lift.box,
+  draw(ctx, _state, _t, { w = LIFT.w, top = LIFT.top }) {
+    shaft(ctx, w, top);
+  },
+};
+
+export const liftDeck: EnvAsset = {
+  id: "liftDeck",
+  box: lift.box,
+  anim: true,
+  draw(ctx, _state, _t, { w = LIFT.w, py = 0 }) {
+    platform(ctx, py, w);
+  },
+};
+
 const TD = { x: 0, y: -60, w: 48, h: 53 };
 
 const carriage = (ctx: CanvasRenderingContext2D): void => {

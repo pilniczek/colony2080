@@ -1,6 +1,7 @@
 import { FIXED_STEP } from "../../engine/loop";
 import { ASSETS, type AssetId } from "../env/assets";
-import { drawAsset, TILE, type Size } from "../env/paint";
+import { liftDeck, liftShaft } from "../env/machines";
+import { drawAsset, TILE, type EnvAsset, type Size } from "../env/paint";
 import { guardHidden, guardLook } from "../level/guards";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
@@ -105,18 +106,18 @@ const columns = (e: Env, step: number, count: number): [number, number] => {
   return [Math.max(0, Math.floor((clip.x - pad) / step)), Math.min(count, Math.ceil((clip.x + clip.w + pad) / step))];
 };
 
-function place(e: Env, id: AssetId, x: number, y: number, scale: number, state = 0, size?: Size, t = 0): void {
+function place(e: Env, id: AssetId | EnvAsset, x: number, y: number, scale: number, state = 0, size?: Size, t = 0): void {
   const { ctx } = e;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(scale, scale);
-  drawAsset(ctx, ASSETS[id], { state, t, lod: true, lines: e.lines, size });
+  drawAsset(ctx, typeof id === "string" ? ASSETS[id] : id, { state, t, lod: true, lines: e.lines, size });
   ctx.restore();
 }
 
 const k = (e: Env): number => e.cell / TILE;
 
-const put = (e: Env, id: AssetId, x: number, y: number, state = 0, size?: Size, t = 0): void => place(e, id, x, y, k(e), state, size, t);
+const put = (e: Env, id: AssetId | EnvAsset, x: number, y: number, state = 0, size?: Size, t = 0): void => place(e, id, x, y, k(e), state, size, t);
 
 const px = (e: Env, size: number): number => size / k(e);
 
@@ -179,6 +180,7 @@ export function below(e: Env): void {
   haze(e);
   terrain(e);
   clipped(e, e.world.lifts.map((l) => baseBox(e, l)), false, () => scenery(e, "dressing", e.world.dressing));
+  shafts(e);
 }
 
 export function above(e: Env): void {
@@ -302,8 +304,14 @@ function terrain(e: Env): void {
 function lift(e: Env, l: Lift, alpha: number): void {
   const { cell } = e;
   const y = (l.y - l.vy * (1 - alpha) * FIXED_STEP) * cell;
-  const size = { w: px(e, l.w * cell), top: px(e, (l.top - l.bottom) * cell - LIFT_HEAD), py: px(e, y - l.bottom * cell) };
-  put(e, "lift", l.x * cell, l.bottom * cell, 0, size);
+  put(e, liftDeck, l.x * cell, l.bottom * cell, 0, { w: px(e, l.w * cell), py: px(e, y - l.bottom * cell) });
+}
+
+function shafts(e: Env): void {
+  const { cell } = e;
+  for (const l of e.world.lifts) {
+    if (near(e, shaftBox(e, l))) put(e, liftShaft, l.x * cell, l.bottom * cell, 0, { w: px(e, l.w * cell), top: px(e, (l.top - l.bottom) * cell - LIFT_HEAD) });
+  }
 }
 
 function runsOf(world: SandboxWorld): LadderRun[] {
