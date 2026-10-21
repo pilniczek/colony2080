@@ -100,9 +100,9 @@ export const wireBox: EnvAsset = {
 export const switchboard: EnvAsset = {
   id: "switchboard",
   box: [-3, -80, 30, 0],
-  draw(ctx, state) {
-    box(ctx, 0, -76, 26, 76, "concrete", 0, { vertical: true });
-    box(ctx, -2, -78, 30, 5, "concrete", 1);
+  draw(ctx, state, _t, { top = -80 }: Size) {
+    box(ctx, 0, top + 4, 26, -top - 4, "concrete", 0, { vertical: true });
+    box(ctx, -2, top + 2, 30, 5, "concrete", 1);
     box(ctx, -2, -5, 30, 5, "concrete", 1);
     if (!P.simple()) for (const y of [-62, -16]) flat(ctx, 2, y, 22, 0.8, "k0");
     greenPanel(ctx, 4, -54, 18, (x, y, n) => {
@@ -401,34 +401,48 @@ const tongue = (ctx: CanvasRenderingContext2D, x: number, base: number, w: numbe
   poly(ctx, fit(TONGUE, x + w * 0.35, base - h * 0.4, w * 0.3, h * 0.38), "y3", 2, { line: false });
 };
 
+const PLASMA_EMITTER = -100;
+
+const plasma = (ctx: CanvasRenderingContext2D, state: number, t: number): void => {
+  if (state === 0) {
+    glow(ctx, 12, -22, 30, "a1", 0.45);
+    for (const row of [0, 1]) {
+      const base = row ? -22 : 0;
+      for (let i = 0; i < 3; i++) {
+        const f = Math.sin(t * 9 + i * 2.1 + row * 1.3) * 0.5 + Math.sin(t * 15.7 + i) * 0.5;
+        const h = (row ? 25 : 22) * (0.85 + f * 0.15);
+        tongue(ctx, 1 + i * 7.3 - 0.5, base, 8, h);
+      }
+    }
+  } else if (!P.simple()) {
+    for (const [x, w] of [[2, 6], [10, 5], [17, 6]] as Pt[]) {
+      ctx.save();
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = P.pal().hole as string;
+      ctx.beginPath();
+      ctx.ellipse(x + w / 2, -0.8, w, 1.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+  box(ctx, -1, -2.5, 26, 2.5, "steel", 1);
+  for (let x = 2; x < 24; x += 4) flat(ctx, x, -2, 2, 1.2, state === 0 ? "y3" : "m0");
+};
+
 export const plasmaBarrier: EnvAsset = {
   id: "plasmaBarrier",
   box: [-6, -54, 30, 0],
   anim: true,
-  draw(ctx, state, t) {
-    if (state === 0) {
-      glow(ctx, 12, -22, 30, "a1", 0.45);
-      for (const row of [0, 1]) {
-        const base = row ? -22 : 0;
-        for (let i = 0; i < 3; i++) {
-          const f = Math.sin(t * 9 + i * 2.1 + row * 1.3) * 0.5 + Math.sin(t * 15.7 + i) * 0.5;
-          const h = (row ? 25 : 22) * (0.85 + f * 0.15);
-          tongue(ctx, 1 + i * 7.3 - 0.5, base, 8, h);
-        }
-      }
-    } else if (!P.simple()) {
-      for (const [x, w] of [[2, 6], [10, 5], [17, 6]] as Pt[]) {
-        ctx.save();
-        ctx.globalAlpha = 0.6;
-        ctx.fillStyle = P.pal().hole as string;
-        ctx.beginPath();
-        ctx.ellipse(x + w / 2, -0.8, w, 1.2, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
+  draw(ctx, state, t, { top }: Size) {
+    if (top !== undefined) {
+      box(ctx, -1, top, 26, PLASMA_EMITTER - top, "concrete", 0, { vertical: true });
+      ctx.save();
+      ctx.translate(0, PLASMA_EMITTER);
+      ctx.scale(1, -1);
+      plasma(ctx, state, t);
+      ctx.restore();
     }
-    box(ctx, -1, -2.5, 26, 2.5, "steel", 1);
-    for (let x = 2; x < 24; x += 4) flat(ctx, x, -2, 2, 1.2, state === 0 ? "y3" : "m0");
+    plasma(ctx, state, t);
   },
 };
 
@@ -570,7 +584,8 @@ const tube = (ctx: CanvasRenderingContext2D, x: number, y: number, h: number): v
 export const cardDoor: EnvAsset = {
   id: "cardDoor",
   box: [-24, -76, 28, 0],
-  draw(ctx, state) {
+  draw(ctx, state, _t, { top }: Size) {
+    if (top !== undefined) box(ctx, -3.5, top, 31, -76 - top, "concrete", 0, { vertical: true });
     greenPanel(ctx, -22, -52, 18, (x, y, n) => boltIcon(ctx, x, y, n));
     box(ctx, -2, -76, 28, 4, "steel", 2);
     flat(ctx, 0, -72, 24, 72, "hole");

@@ -148,6 +148,18 @@ describe("mesto props", () => {
     expect(props.filter((p) => p.kind === "gate").map((p) => p.id).sort()).toEqual([...gates].sort());
   });
 
+  it("draws gate and pillar art up to the ceiling", () => {
+    const ceiling = (col: number, floor: number): number => {
+      let row = floor - 1;
+      while (row >= 0 && map.rows[row]![col] !== "#") row--;
+      return row + 1;
+    };
+    for (const id of ["switchboard", "plasmaBarrier", "cardDoor"]) {
+      const p = props.find((q) => q.id === id)!;
+      expect(p.y! - (p.art?.top ?? 0), id).toBe(ceiling(Math.floor(p.x), p.y!));
+    }
+  });
+
   it("places the map items at their original cells", () => {
     const items = Object.fromEntries(props.filter((p) => p.kind === "item" && !p.shownBy).map((p) => [p.item, [p.x, p.y]]));
     expect(items).toEqual({ crowbar: [24.5, 44], controller: [111.5, 51], craneKey: [20.5, 16] });

@@ -453,6 +453,9 @@ const envSizes: [string, Size][] = [
   ["overheadPipeline", { w: 192 }],
   ["liftLanding", { w: 48 }],
   ["cliffBlocks", { w: 120, h: 48 }],
+  ["switchboard", { top: -96 }],
+  ["plasmaBarrier", { top: -144 }],
+  ["cardDoor", { top: -144 }],
 ];
 const envCases = [
   runEnvCoverage,
