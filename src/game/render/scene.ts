@@ -13,7 +13,7 @@ import { coverClips } from "../level/cover";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
-import { drawAsset, TILE } from "../env/paint";
+import { drawAsset, PALETTE, TILE } from "../env/paint";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { ROBOT } from "../robot/xbot";
@@ -32,7 +32,7 @@ const MODELS = {
   gun: { draw: drawGun, hook: gunHook, slung: gunSlung },
   blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
 } satisfies Record<GunModel, unknown>;
-const FLYER_HIT = { flash: 0.25, glow: 0.6 };
+const FLYER_HIT = { flash: 0.25, glow: 0.6, steps: 16 };
 
 const COLORS = {
   spark: "#ffd76a",
@@ -104,10 +104,10 @@ function flyerFigure(f: Frame, { body, flight, deadAge }: Enemy): void {
     ctx.save();
     ctx.translate(body.x * cell, body.y * cell);
     ctx.scale(body.facing * k, k);
-    const flash = body.hitAge === null ? 0 : 1 - span(body.hitAge, 0, FLYER_HIT.flash);
-    if (flash > 0) ctx.filter = `brightness(${1 + flash * FLYER_HIT.glow}) saturate(${1 + flash})`;
+    const flash = body.hitAge === null ? 0 : Math.round((1 - span(body.hitAge, 0, FLYER_HIT.flash)) * FLYER_HIT.steps) / FLYER_HIT.steps;
+    const palette = flash > 0 ? shade(PALETTE, { brightness: 1 + flash * FLYER_HIT.glow, saturate: 1 + flash }) : PALETTE;
     const fire = body.fireTime;
-    drawAsset(ctx, ASSETS.flyer, { state: fire === null ? 0 : 1, t: fire ?? flight?.clock ?? 0, lod: true, lines });
+    drawAsset(ctx, ASSETS.flyer, { state: fire === null ? 0 : 1, t: fire ?? flight?.clock ?? 0, lod: true, lines, palette });
     ctx.restore();
   }
   if (deadAge !== null) blast(f, body, deadAge, true);
