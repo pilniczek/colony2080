@@ -33,6 +33,7 @@ import { drawFog, seenPath } from "./render/fog";
 import { drawMap } from "./render/map";
 import { drawOverlays } from "./render/overlays";
 import { drawScene, viewCells, visibleEnemies } from "./render/scene";
+import { momentOf, tween, type Moment } from "./render/tween";
 import { snapView } from "./render/snapView";
 import { SOUNDS, samplesOf } from "./sound";
 import { saveSoundOn } from "./sound/settings";
@@ -42,7 +43,6 @@ import { holdPoses } from "./robot/gun";
 import { stepWorld } from "./stepWorld";
 
 const MAX_STEPS = 5;
-const SNAP_CELLS = 1;
 const ENEMY_MARGIN_CELLS = 2;
 const LOG_SIZE = 8;
 const FPS_SMOOTHING = 0.1;
@@ -89,7 +89,6 @@ const modified = (e: KeyboardEvent): boolean => e.ctrlKey || e.metaKey || e.altK
 
 const sameItems = (a: readonly string[], b: readonly string[]): boolean => a.length === b.length && a.every((id, i) => id === b[i]);
 
-const lerp = (a: number, b: number, k: number): number => (Math.abs(b - a) > SNAP_CELLS ? b : a + (b - a) * k);
 
 export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves, intro }: RunOptions): Run {
   const canvas = document.getElementById("game");
@@ -139,7 +138,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     for (const sound of world.sounds.splice(0)) play(sound);
   };
 
-  let prev = { x: hero.x, y: hero.y };
+  let prev = momentOf(hero);
+  const prevEnemies = new WeakMap<Hero, Moment>();
   let gameWindow: Rect = { x: 0, y: 0, w: 1, h: 1 };
   let filmWidth = 1;
   let lastView: ViewTransform | null = null;
@@ -278,7 +278,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       picture,
       movement: () => tuning().movement,
       moved: () => {
-        prev = { x: hero.x, y: hero.y };
+        prev = momentOf(hero);
       },
       leave: (href) => location.assign(href),
       playUi: play,
@@ -299,7 +299,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     maxSteps: MAX_STEPS,
     update(dt) {
       const { movement: cfg, clips } = tuning();
-      prev = { x: hero.x, y: hero.y };
+      prev = momentOf(hero);
+      for (const { body } of world.enemies) prevEnemies.set(body, momentOf(body));
       input.bufferMs = cfg.inputBufferMs;
       if (world.cutscene) {
         logInput(input.frame().held);
@@ -345,8 +346,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         return;
       }
       const { movement: cfg, clips, overlays } = tuning();
-      const shown = { ...hero, x: lerp(prev.x, hero.x, alpha), y: lerp(prev.y, hero.y, alpha) };
-      const look = heroLook(hero, clips, rigs, hold, cfg);
+      const shown = tween(prev, hero, alpha);
+      const look = heroLook(shown, clips, rigs, hold, cfg);
       const view = cameraView(shown, cfg);
       lastView = view;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -357,7 +358,10 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       ctx.rect(gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h);
       ctx.clip();
       const sight = world.fog && seenPath(world.fog, cfg.cellPx);
-      drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => ({ enemy, look: heroLook(enemy.body, clips, enemyRigs, hold, cfg) })), enemyRigs, sight, devicePixelRatio || 1, gameWindow, () => {
+      drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => {
+        const body = tween(prevEnemies.get(enemy.body) ?? momentOf(enemy.body), enemy.body, alpha);
+        return { enemy: { ...enemy, body }, look: heroLook(body, clips, enemyRigs, hold, cfg) };
+      }), enemyRigs, sight, devicePixelRatio || 1, gameWindow, () => {
         if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow);
       });
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
@@ -372,7 +376,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     resetWorld(world, tuning().movement);
     Object.assign(hero, createHero(world.spawn, weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, running, blaster));
     applyFog(fogOn);
-    prev = { x: hero.x, y: hero.y };
+    prev = momentOf(hero);
     useSandbox.setState({ inventory: { open: false, cursor: 0 }, mapOpen: false });
   };
 
@@ -477,7 +481,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     if (x < 0 || x > world.grid.width || y <= 0 || y > world.grid.height) return say(world, "Off the map");
     Object.assign(hero, { x, y, vx: 0, vy: 0, fallFrom: y, onGround: false, onLift: false });
     halt(hero);
-    prev = { x, y };
+    prev = momentOf(hero);
     say(world, `Moved to ${x}, ${y}`);
   };
 
