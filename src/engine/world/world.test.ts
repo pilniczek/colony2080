@@ -51,6 +51,28 @@ describe("TileGrid", () => {
     g.clearBlocks();
     expect(g.solid(2, 1)).toBe(false);
   });
+
+  it("lets see-through blocks stop movement but not sight", () => {
+    const g = new TileGrid(["...", "#.."]);
+    g.block(1, 0, true, true);
+    expect(g.solid(1, 0)).toBe(true);
+    expect(g.opaque(1, 0)).toBe(false);
+    expect(g.opaque(0, 1)).toBe(true);
+    g.block(1, 0, true);
+    expect(g.opaque(1, 0)).toBe(true);
+  });
+
+  it("counts a version only when blocks change", () => {
+    const g = new TileGrid(["...", "..."]);
+    const start = g.version;
+    g.block(1, 0, false);
+    expect(g.version).toBe(start);
+    g.block(1, 0, true);
+    g.block(1, 0, true);
+    expect(g.version).toBe(start + 1);
+    g.clearBlocks();
+    expect(g.version).toBe(start + 2);
+  });
 });
 
 describe("moveBox", () => {

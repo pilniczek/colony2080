@@ -31,6 +31,7 @@ export interface Fog {
   seen: Uint8Array;
   seenCells: number[];
   version: number;
+  sightKey: string;
 }
 
 export function loadFog(json: unknown): FogConfig {
@@ -93,11 +94,15 @@ function reveal(fog: Fog, r: SightRect, eye: [number, number]): void {
   fog.version++;
 }
 
-const revealAround = (fog: Fog, x: number, sight: Sight): void =>
+function revealAround(fog: Fog, x: number, sight: Sight): void {
+  const key = `${x}|${fog.anchorY}|${sight.sightCells}|${sight.box.height}|${fog.grid.version}`;
+  if (key === fog.sightKey) return;
+  fog.sightKey = key;
   reveal(fog, sightRect(fog.cfg, sight.sightCells, x, fog.anchorY), [x, fog.anchorY - sight.box.height * EYE_SHARE]);
+}
 
 export function createFog(cfg: FogConfig, sight: Sight, hero: Pick<Hero, "x" | "y">, grid: TileGrid): Fog {
-  const fog = { cfg, grid, anchorY: hero.y, width: grid.width, height: grid.height, revealed: new Uint8Array(grid.width * grid.height), seen: new Uint8Array(grid.width * grid.height), seenCells: [], version: 0 };
+  const fog = { cfg, grid, anchorY: hero.y, width: grid.width, height: grid.height, revealed: new Uint8Array(grid.width * grid.height), seen: new Uint8Array(grid.width * grid.height), seenCells: [], version: 0, sightKey: "" };
   revealAround(fog, hero.x, sight);
   return fog;
 }

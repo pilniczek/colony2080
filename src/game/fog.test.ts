@@ -108,6 +108,19 @@ describe("reveal", () => {
     updateFog(fog, g.hero, cfg, 1 / 60);
     expect(fog.version).toBe(before + 1);
   });
+
+  it("sees again when a block changes the grid under a standing hero", () => {
+    const g = fogged(game({ x: 10.5, y: 14 }));
+    const fog = g.world.fog!;
+    const col = Math.floor(g.hero.x) + 3;
+    const row = Math.floor(g.hero.y) - 1;
+    expect(seenAt(fog, col + 1, row)).toBe(true);
+    g.world.grid.block(col, row, true);
+    g.world.grid.block(col, row - 1, true);
+    g.world.grid.block(col, row - 2, true);
+    updateFog(fog, g.hero, cfg, 1 / 60);
+    expect(seenAt(fog, col + 1, row)).toBe(false);
+  });
 });
 
 describe("fog follow", () => {

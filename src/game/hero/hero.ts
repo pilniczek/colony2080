@@ -315,6 +315,7 @@ function startAttack(s: Step, state: "attack" | "duckAttack"): void {
 }
 
 function use(s: Step): boolean {
+  if (!s.input.pressed.has("useItem")) return false;
   const prop = touching(s, ...USABLE);
   if (!prop || !s.consume("useItem")) return false;
   const cutscene = prop.kind === "panel" ? undefined : openTask(s.world, prop)?.cutscene;
