@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BLASTER_BODY_W } from "./blasterIcon";
 import { CONTENT_SCALE, HAND_BOX, HAND_INK_H, ICON_H, MONO_ADVANCE, READOUT_SIZE, SLOT, SPEAKER_H, SPEAKER_INK, SPEAKER_INK_H, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, WEAPON_W } from "./layout";
-import { hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
+import { applyLive, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, run: { url: "run.png", w: 4, h: ICON_H }, walk: { url: "walk.png", w: 4, h: ICON_H }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
@@ -250,5 +250,41 @@ describe("keyLabel", () => {
     expect(keyLabel("AltLeft")).toBe("ALT");
     expect(keyLabel("KeyI")).toBe("I");
     expect(keyLabel("Escape")).toBe("ESCAPE");
+  });
+});
+
+describe("applyLive", () => {
+  const liveParts = (svg: string): Record<string, string> =>
+    Object.fromEntries([...svg.matchAll(/<(text|rect|g)\b([^>]*)data-hud="(\w+)"[^>]*>([^<]*)/g)].map(([, tag, attrs, id, body]) => {
+      const attr = (name: string): string => new RegExp(` ${name}="([^"]*)"`).exec(attrs!)?.[1] ?? "";
+      return [id!, tag === "text" ? body! : tag === "rect" ? `${attr("y")}|${attr("height")}` : attr("transform")];
+    }));
+
+  const fakeRoot = (parts: Record<string, string>): ParentNode & { parts: Record<string, string> } => {
+    const root = { parts: { ...parts } } as ParentNode & { parts: Record<string, string> };
+    root.querySelector = ((selector: string) => {
+      const id = /data-hud="(\w+)"/.exec(selector)![1]!;
+      if (!(id in root.parts)) return null;
+      const attrs: Record<string, string> = {};
+      return {
+        set textContent(v: string) {
+          root.parts[id] = v;
+        },
+        setAttribute(name: string, v: string) {
+          attrs[name] = v;
+          root.parts[id] = name === "transform" ? v : `${attrs.y ?? root.parts[id]!.split("|")[0]}|${attrs.height ?? root.parts[id]!.split("|")[1]}`;
+        },
+      };
+    }) as ParentNode["querySelector"];
+    return root;
+  };
+
+  it("leaves the live parts as a full rebuild would draw them", () => {
+    const armed = { ...base, bonus: true, bonusAmmo: 40 };
+    const next = { ...armed, ammo: 7, bonusAmmo: 12, life: 23.5 };
+    const root = fakeRoot(liveParts(hudSvg(320, 200, armed, icons)));
+    applyLive(root, next);
+    expect(Object.keys(root.parts).sort()).toEqual(["ammo", "bonusAmmo", "lifeArrow", "lifeFill"]);
+    expect(root.parts).toEqual(liveParts(hudSvg(320, 200, next, icons)));
   });
 });

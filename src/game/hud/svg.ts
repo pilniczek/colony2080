@@ -100,8 +100,8 @@ const TAB = { y: BAR_H - PANEL_EDGE / 2, half: 2.47, r: 1, font: 3.4, pad: 2.2 }
 
 const COUNTER_Y = BAR_H - PANEL_EDGE - 0.7;
 
-const counter = (x: number, n: number): string =>
-  `<text x="${x}" y="${COUNTER_Y}" text-anchor="end" font-family="${MONO}" font-size="${4.6 * CONTENT_SCALE}" fill="${READOUT}">${Math.round(n)}</text>`;
+const counter = (x: number, n: number, live: LiveCounter): string =>
+  `<text x="${x}" y="${COUNTER_Y}" text-anchor="end" font-family="${MONO}" font-size="${4.6 * CONTENT_SCALE}" fill="${READOUT}" data-hud="${live}">${Math.round(n)}</text>`;
 
 const image = ({ url, w, h }: HudIcon, x: number, y: number): string =>
   `<image href="${url}" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
@@ -201,9 +201,9 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map((p) => plate(p, spans)).join("")}
   ${gridPanel(bar.gridX, bar.gridW, spans)}
-  ${weapon(image(icons.gun, wx[0]!, WEAPON_MID - icons.gun.h / 2), s.weapon === 0)}${counter(wx[0]! + WEAPON_W[0]!, s.ammo)}
+  ${weapon(image(icons.gun, wx[0]!, WEAPON_MID - icons.gun.h / 2), s.weapon === 0)}${counter(wx[0]! + WEAPON_W[0]!, s.ammo, "ammo")}
   ${weapon(shrunk(icons.fist, FIST_SCALE, wx[1]!, WEAPON_MID - icons.fist.h / 2), s.weapon === 1)}
-  ${s.bonus ? weapon(`<g transform="translate(${wx[2]!} ${WEAPON_MID}) scale(${CONTENT_SCALE}) translate(0 ${-BLASTER_MID_Y})">${blasterIcon(0)}</g>`, s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo) : ""}
+  ${s.bonus ? weapon(`<g transform="translate(${wx[2]!} ${WEAPON_MID}) scale(${CONTENT_SCALE}) translate(0 ${-BLASTER_MID_Y})">${blasterIcon(0)}</g>`, s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo, "bonusAmmo") : ""}
   ${badge(bar.badge, bar.plates[1]!)}
   ${gridPanel(bar.togglesX, bar.togglesW, spans)}
   ${soundIcon(bar.sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
@@ -254,24 +254,31 @@ function keyBox(x: number, letter: string): string {
   <text x="${x + size / 2}" y="${base}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="#1a140f">${letter}</text>`;
 }
 
-function tube(x: number, y: number, w: number, h: number, fillH: number, inner: number, paint: string): string {
+function tube(x: number, y: number, w: number, h: number, fillH: number, inner: number, paint: string, live?: string): string {
   return `<rect x="${x - 0.9}" y="${y - 0.9}" width="${w + 1.8}" height="${h + 1.8}" fill="url(#plate)"/>
   ${bevel(x - 0.9, y - 0.9, w + 1.8, h + 1.8, 0, true, 0.4)}
   <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#050403"/>
-  ${fillH > 0 ? `<rect x="${x + (w - inner) / 2}" y="${y + h - 1.3 - fillH}" width="${inner}" height="${fillH}" fill="${paint}" filter="url(#glow)"/>` : ""}
+  ${fillH > 0 || live ? `<rect x="${x + (w - inner) / 2}" y="${y + h - 1.3 - fillH}" width="${inner}" height="${fillH}" fill="${paint}" filter="url(#glow)"${live ? ` data-hud="${live}"` : ""}/>` : ""}
   <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#glass)"/>
   ${bevel(x, y, w, h, 0, false, 0.4)}`;
 }
 
 const pct = (v: number): number => Math.min(100, Math.max(0, v)) / 100;
 
+const LIFE = { y: 77.1, h: 104 };
+
+export function lifeLevel(life: number): { fill: number; y: number } {
+  const fill = (LIFE.h - 2.6) * pct(life);
+  return { fill, y: LIFE.y + LIFE.h - 1.3 - fill };
+}
+
 function leftColumn(s: HudState): string {
-  const y0 = 77.1, h = 104, fill = (h - 2.6) * pct(s.life), y = y0 + h - 1.3 - fill;
-  return `${tube(3.5, y0, 4, h, fill, 1.2, "url(#lifeFill)")}
+  const { fill, y } = lifeLevel(s.life);
+  return `${tube(3.5, LIFE.y, 4, LIFE.h, fill, 1.2, "url(#lifeFill)", "lifeFill")}
   <path d="M8.7 97.1h1.4M8.7 117.1h1.4M8.7 137.1h1.4M8.7 157.1h1.4" stroke="${LO}" stroke-width=".6"/>
   <path d="M8.7 97.6h1.4M8.7 117.6h1.4M8.7 137.6h1.4M8.7 157.6h1.4" stroke="${HI}" stroke-opacity=".5" stroke-width=".3"/>
-  <path d="M0 ${y - 2.5}l3.4 2.5L0 ${y + 2.5}z" fill="#ff3018" filter="url(#glow)"/>
-  <path d="M0 ${y - 1.9}l2 1.4" stroke="#ffd0b0" stroke-width=".3"/>
+  <g transform="translate(0 ${y})" data-hud="lifeArrow"><path d="M0 -2.5l3.4 2.5L0 2.5z" fill="#ff3018" filter="url(#glow)"/>
+  <path d="M0 -1.9l2 1.4" stroke="#ffd0b0" stroke-width=".3"/></g>
   ${keyBox(1, "E")}`;
 }
 
@@ -340,6 +347,26 @@ function bottom(W: number): string {
 function frame(W: number, H: number): string {
   const { left, top: t, right, bottom: b } = VIEW_BOX;
   return `<path fill-rule="evenodd" fill="url(#metalV)" d="M0 0H${W}V${H}H0Z M${left} ${t}V${H - b}H${W - right}V${t}Z"/>`;
+}
+
+type LiveCounter = "ammo" | "bonusAmmo";
+
+export function applyLive(root: ParentNode, s: Pick<HudState, "ammo" | "bonusAmmo" | "life">): void {
+  const set = (live: string, apply: (el: Element) => void): void => {
+    const el = root.querySelector(`[data-hud="${live}"]`);
+    if (el) apply(el);
+  };
+  const text = (n: number) => (el: Element): void => {
+    el.textContent = String(Math.round(n));
+  };
+  set("ammo", text(s.ammo));
+  set("bonusAmmo", text(s.bonusAmmo));
+  const { fill, y } = lifeLevel(s.life);
+  set("lifeFill", (el) => {
+    el.setAttribute("y", String(y));
+    el.setAttribute("height", String(fill));
+  });
+  set("lifeArrow", (el) => el.setAttribute("transform", `translate(0 ${y})`));
 }
 
 export function hudSvg(W: number, H: number, s: HudState, icons: HudIcons, keys: HudKeys): string {

@@ -1,7 +1,7 @@
 import controls from "@config/controls.json";
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { hudIcons } from "../../game/hud/icons";
-import { hudSvg, keyLabel, type HudKeys, type HudState } from "../../game/hud/svg";
+import { applyLive, hudSvg, keyLabel, type HudKeys, type HudState } from "../../game/hud/svg";
 import type { Weapon } from "../../game/hero/config";
 import type { ItemId } from "../../game/items";
 import { useSandbox } from "../store";
@@ -42,6 +42,7 @@ export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running,
 
 export function Hud() {
   const icons = useMemo(hudIcons, []);
+  const root = useRef<HTMLDivElement>(null);
   const fit = useSandbox((s) => s.hud);
   const energy = useSandbox((s) => s.energy);
   const shields = useSandbox((s) => s.shields);
@@ -53,14 +54,23 @@ export function Hud() {
   const soundOn = useSandbox((s) => s.soundOn);
   const item = useSandbox((s) => s.item);
   const filming = useSandbox((s) => s.cutscene);
+  const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, item });
+  const live = useRef(state);
+  live.current = state;
+  const armed = blaster !== null;
   const svg = useMemo(
-    () => hudSvg(fit.W, fit.H, hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, item }), icons, KEYS),
-    [fit.W, fit.H, energy, shields, ammo, blaster, max, weapon, running, soundOn, item, icons],
+    () => hudSvg(fit.W, fit.H, live.current, icons, KEYS),
+    [fit.W, fit.H, shields, armed, max, weapon, running, soundOn, item, icons],
   );
+  const html = useMemo(() => ({ __html: svg }), [svg]);
+  useLayoutEffect(() => {
+    if (root.current) applyLive(root.current, live.current);
+  }, [svg, energy, ammo, blaster]);
   return (
     <div
+      ref={root}
       style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none", display: filming ? "none" : undefined }}
-      dangerouslySetInnerHTML={{ __html: svg }}
+      dangerouslySetInnerHTML={html}
     />
   );
 }
