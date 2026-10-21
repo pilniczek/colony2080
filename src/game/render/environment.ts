@@ -25,6 +25,9 @@ const PREFETCH_PER_FRAME = 1;
 const PREFETCH_MS = 4;
 const DROPPED_KEPT = 40;
 const CULL_PAD_CELLS = 1;
+const LIFT_CULL_PAD_CELLS = 3;
+
+const grown = ({ x, y, w, h }: Rect, by: number): Rect => ({ x: x - by, y: y - by, w: w + 2 * by, h: h + 2 * by });
 
 const layers = new WeakMap<SandboxWorld, Record<string, TileCache<HTMLCanvasElement>>>();
 
@@ -342,7 +345,17 @@ export function prop(e: Env, p: Prop): void {
   if (look === "gone" || guardHidden(p, e.world.flags)) return;
   const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
   const size = top === undefined ? undefined : { top: -px(e, top * e.cell) };
-  put(e, id, (p.x + dx) * e.cell - ((left + right) / 2) * k(e), ((p.y ?? e.world.spawn[1]) + dy) * e.cell, state, size, look?.t ?? 0);
+  const x = (p.x + dx) * e.cell - ((left + right) / 2) * k(e);
+  const y = ((p.y ?? e.world.spawn[1]) + dy) * e.cell;
+  if (!near(e, artBox(e, id, x, y, top === undefined ? 0 : top * e.cell))) return;
+  put(e, id, x, y, state, size, look?.t ?? 0);
+}
+
+function artBox(e: Env, id: AssetId, x: number, y: number, rise: number): Rect {
+  const [x0, y0, x1, y1] = ASSETS[id].box;
+  const reach = Math.max(x1 - x0, y1 - y0) * k(e);
+  const up = Math.min(y0 * k(e), -rise);
+  return { x: x + x0 * k(e) - reach, y: y + up - reach, w: (x1 - x0) * k(e) + 2 * reach, h: y1 * k(e) - up + 2 * reach };
 }
 
 export function drawEnvironment(
@@ -354,9 +367,12 @@ export function drawEnvironment(
   lines: number,
   screen: Rect = { x: 0, y: 0, w: ctx.canvas.width, h: ctx.canvas.height },
 ): void {
-  const e: Env = { ctx, world, hero, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen };
+  const t = ctx.getTransform();
+  const scale = Math.hypot(t.a, t.b);
+  const clip = { x: (screen.x - t.e) / scale, y: (screen.y - t.f) / scale, w: screen.w / scale, h: screen.h / scale };
+  const e: Env = { ctx, world, hero, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen, clip };
   cached(e, "below", below);
-  for (const l of e.world.lifts) lift(e, l, alpha);
+  for (const l of e.world.lifts) if (near(e, grown(shaftBox(e, l), LIFT_CULL_PAD_CELLS * e.cell))) lift(e, l, alpha);
   cached(e, "above", above);
   for (const p of world.props) prop(e, p);
 }
