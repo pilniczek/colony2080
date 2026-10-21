@@ -151,6 +151,12 @@ describe("mesto map", () => {
     }
   });
 
+  it("draws lift panels in front of all other dressing", () => {
+    const assets = world.dressing.map((s) => s.asset);
+    const first = assets.indexOf("liftPanel");
+    expect(assets.slice(first).every((a) => a === "liftPanel")).toBe(true);
+  });
+
   it("stands every droid on a floor", () => {
     const off = droids.filter((d) => !grid.solid(d.cell[0]!, d.cell[1]! + 1) || grid.solid(d.cell[0]!, d.cell[1]!)).map((d) => d.id);
     expect(off).toEqual([]);

@@ -709,161 +709,6 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 10,
     },
     {
-      "asset": "liftPanel",
-      "x": 39.5,
-      "y": 10,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 66,
-      "y": 37,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 66,
-      "y": 51,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 85,
-      "y": 44,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 85,
-      "y": 51,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 13,
-      "y": 70,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 13,
-      "y": 75,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 24,
-      "y": 70,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 24,
-      "y": 75,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 11,
-      "y": 59,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 27,
-      "y": 59,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 81,
-      "y": 70,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 77,
-      "y": 59,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 27,
-      "y": 51,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 11,
-      "y": 41,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 37,
-      "y": 44,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 37,
-      "y": 51,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 130,
-      "y": 37,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 130,
-      "y": 44,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 58,
-      "y": 30,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 32,
-      "y": 23,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 32,
-      "y": 30,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 83,
-      "y": 23,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 83,
-      "y": 30,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 103,
-      "y": 23,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 103,
-      "y": 30,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 121,
-      "y": 16,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 121,
-      "y": 23,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 121,
-      "y": 30,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 51,
-      "y": 10,
-    },
-    {
-      "asset": "liftPanel",
-      "x": 51,
-      "y": 16,
-    },
-    {
       "asset": "chainFence",
       "x": 41.5,
       "y": 16,
@@ -1118,6 +963,161 @@ exports[`missions > mesto json is unchanged 1`] = `
       "asset": "tunnelFloor",
       "x": 43,
       "y": 75,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 39.5,
+      "y": 10,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 66,
+      "y": 37,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 66,
+      "y": 51,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 85,
+      "y": 44,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 85,
+      "y": 51,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 13,
+      "y": 70,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 13,
+      "y": 75,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 24,
+      "y": 70,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 24,
+      "y": 75,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 11,
+      "y": 59,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 27,
+      "y": 59,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 81,
+      "y": 70,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 77,
+      "y": 59,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 27,
+      "y": 51,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 11,
+      "y": 41,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 37,
+      "y": 44,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 37,
+      "y": 51,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 130,
+      "y": 37,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 130,
+      "y": 44,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 58,
+      "y": 30,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 32,
+      "y": 23,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 32,
+      "y": 30,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 83,
+      "y": 23,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 83,
+      "y": 30,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 103,
+      "y": 23,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 103,
+      "y": 30,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 121,
+      "y": 16,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 121,
+      "y": 23,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 121,
+      "y": 30,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 51,
+      "y": 10,
+    },
+    {
+      "asset": "liftPanel",
+      "x": 51,
+      "y": 16,
     },
   ],
   "enemies": [
@@ -2623,7 +2623,7 @@ exports[`missions > mesto json is unchanged 1`] = `
     "################################################################################################################################################################",
   ],
   "sky": "skyBackground",
-  "source": "the shootGuard gate stands at the original cell [26, 15] facing right with the crane key behind it, blocks the hero until destroyed, fires 18-shot bursts (the original takes 18 energy per burst) and takes only E-Blaster beam ticks (shootable.by beam, 60 ticks: the original 20 hits against 5 per droid, here droids take 15) (docs/research/reports/10-level1-enemies.md, Guards drawn and firing); the acidGuard gate fires droid bursts (fires: facing, burst, pauseMs, states it fires in) at a hero it sees on its floor until the acid wrecks it; the original plays its firing clip, takes 5 energy and pushes the hero back one cell when the hero enters cols 103-119 on its floor (KLEV1.EXE 3:0xDF10-0xE429), here droid bullets instead (user); item props at the centre of the original pickup window (hero engine x X-2..X, map col X+6, so x = col - 0.5) from docs/research/reports/13-level1-layout.md; object cells from docs/research/reports/10-level1-enemies.md markers and the M12-M16 diffs, refined on docs/research/gamedata/png/maps/map_M11.png (bar door col 39, train door cols 60-61, switchboard on the pillar at col 69, valve wheel col 43 row 73, acid tank outlet cols 111-112, crane winch cols 39-40 on floor 10, code lock panel col 115 row 42); blocking cells equal map.json taskWalls; metroTunnel, waterPipe and plasmaBarrier are gates (no use, opened by sets); scenery laid out by Claude over map_M11.png with the closest env asset, x is the asset left edge, y the floor row; object art is centred on the use x, \`art\` (cells) moves it onto the original art (valve wheel, ship, card door, acid tank, and the crane beam over the gap at cols 23-31 row 13); damagedLift draws the liftPanel asset (state 1 damaged, 0 repaired) since the map lift draws the lift itself; metroTunnel draws tunnelGate (our own look, the original gate is an invisible task wall): a wall the train runs behind, between the train door and the always open middle door of the trainCarriage (a closed door at its far end); the crowbar opens only the train door and with it the gate; \`cover\` clips the hero out of the train body and the open door leaves between the doors (clip) while his centre is in a doorway or inside (reach, \`states\` gates it on the prop state), keeps enemy patrols out of reach, and stops an airborne hero from entering the train or a hero inside from jumping, so he passes the wall inside the train (user); the crane chain runs \`art.top\` 13 cells up to the map top; a liftPanel dressing marks the crane winch use spot, where the original crane mast wall stood (user); liftPanel dressings stand in the cell touching the lift shaft at every lift stop, on the side M11.MAP has its panel tile (10.47 / 10.48) where it has one, else on a side clear of other art (user); ground is the street floor row, the rows under it are underground and draw darker, with stripLight tubes mounted on the metro ceiling (user)",
+  "source": "the shootGuard gate stands at the original cell [26, 15] facing right with the crane key behind it, blocks the hero until destroyed, fires 18-shot bursts (the original takes 18 energy per burst) and takes only E-Blaster beam ticks (shootable.by beam, 60 ticks: the original 20 hits against 5 per droid, here droids take 15) (docs/research/reports/10-level1-enemies.md, Guards drawn and firing); the acidGuard gate fires droid bursts (fires: facing, burst, pauseMs, states it fires in) at a hero it sees on its floor until the acid wrecks it; the original plays its firing clip, takes 5 energy and pushes the hero back one cell when the hero enters cols 103-119 on its floor (KLEV1.EXE 3:0xDF10-0xE429), here droid bullets instead (user); item props at the centre of the original pickup window (hero engine x X-2..X, map col X+6, so x = col - 0.5) from docs/research/reports/13-level1-layout.md; object cells from docs/research/reports/10-level1-enemies.md markers and the M12-M16 diffs, refined on docs/research/gamedata/png/maps/map_M11.png (bar door col 39, train door cols 60-61, switchboard on the pillar at col 69, valve wheel col 43 row 73, acid tank outlet cols 111-112, crane winch cols 39-40 on floor 10, code lock panel col 115 row 42); blocking cells equal map.json taskWalls; metroTunnel, waterPipe and plasmaBarrier are gates (no use, opened by sets); scenery laid out by Claude over map_M11.png with the closest env asset, x is the asset left edge, y the floor row; object art is centred on the use x, \`art\` (cells) moves it onto the original art (valve wheel, ship, card door, acid tank, and the crane beam over the gap at cols 23-31 row 13); damagedLift draws the liftPanel asset (state 1 damaged, 0 repaired) since the map lift draws the lift itself; metroTunnel draws tunnelGate (our own look, the original gate is an invisible task wall): a wall the train runs behind, between the train door and the always open middle door of the trainCarriage (a closed door at its far end); the crowbar opens only the train door and with it the gate; \`cover\` clips the hero out of the train body and the open door leaves between the doors (clip) while his centre is in a doorway or inside (reach, \`states\` gates it on the prop state), keeps enemy patrols out of reach, and stops an airborne hero from entering the train or a hero inside from jumping, so he passes the wall inside the train (user); the crane chain runs \`art.top\` 13 cells up to the map top; a liftPanel dressing marks the crane winch use spot, where the original crane mast wall stood (user); liftPanel dressings stand in the cell touching the lift shaft at every lift stop, on the side M11.MAP has its panel tile (10.47 / 10.48) where it has one, else on a side clear of other art, and come last in dressing so they draw in front of walls and fences (user); ground is the street floor row, the rows under it are underground and draw darker, with stripLight tubes mounted on the metro ceiling (user)",
   "spawn": [
     62.5,
     59,
