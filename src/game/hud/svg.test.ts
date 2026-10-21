@@ -184,7 +184,7 @@ describe("hudSvg", () => {
   describe("icon sizes", () => {
     const svg = hudSvg(320, 200, base, icons);
     const scaleOf = (re: RegExp): number => Number(re.exec(svg)![1]);
-    const hand = scaleOf(/translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\) translate\([-\d.]+ [-\d.]+\)"><g transform="translate\(0 2\.6\)"/);
+    const hand = scaleOf(/translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\) translate\([-\d.]+ [-\d.]+\)"><g fill=/);
     const sound = scaleOf(/data-icon="sound"[^>]*><g transform="translate\([\d.]+ [\d.]+\) scale\(([\d.]+)\)"/);
 
     it("draws the hand at icon height and the speaker smaller", () => {
@@ -201,7 +201,7 @@ describe("hudSvg", () => {
 
   describe("inventory slot", () => {
     const handX = (svg: string): number | null => {
-      const m = /<g transform="translate\(([\d.]+) [\d.]+\) scale\([\d.]+\) translate\([-\d.]+ [-\d.]+\)"><g transform="translate\(0 2\.6\)"/.exec(svg);
+      const m = /<g transform="translate\(([\d.]+) [\d.]+\) scale\([\d.]+\) translate\([-\d.]+ [-\d.]+\)"><g fill=/.exec(svg);
       return m ? Number(m[1]) - HAND_BOX.w / 2 : null;
     };
     const imageX = (svg: string, file: string): number => Number(new RegExp(`<image href="${file}" x="([\\d.]+)"`).exec(svg)![1]);

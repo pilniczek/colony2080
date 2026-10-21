@@ -83,7 +83,7 @@ const DEFS = `<defs>
 
 const keyCentre = (i: number): number => (i === 2 ? BLASTER_BODY_W * CONTENT_SCALE : WEAPON_W[i]!) / 2;
 
-const HAND = `<g transform="translate(0 2.6)" fill="${READOUT}" stroke="#6a4206" stroke-width=".3">
+const HAND = `<g fill="${READOUT}" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
 
@@ -177,7 +177,7 @@ const WEAPON_MID = CONTENT_MID + 0.5;
 const SLOT_MID_Y = CONTENT_MID;
 
 const handAt = (centre: number): string =>
-  `<g transform="translate(${centre} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-SLOT_MID_Y})">${HAND}</g>`;
+  `<g transform="translate(${centre} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-HAND_DRAWN.h / 2})">${HAND}</g>`;
 
 function slot(x: number, w: number, item: ItemId | null, icons: HudIcons): string {
   const icon = item === null ? undefined : icons.items[item];

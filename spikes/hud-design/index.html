@@ -255,7 +255,7 @@ const INV_W = 2 * SLOT.pad + Math.max(slotW(HAND_BOX.w, "nothing"), ...Object.en
 const GUN = (x) => `<image href="${GUN_ICON.url}" x="${x}" y="${WEAPON_MID - GUN_ICON.h / 2}" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
 const FIST_SCALE = 0.6;
 const FIST = (x) => `<image href="${FIST_ICON.url}" x="${x + FIST_ICON.w * (1 - FIST_SCALE) / 2}" y="${WEAPON_MID - FIST_ICON.h / 2 + FIST_ICON.h * (1 - FIST_SCALE) / 2}" width="${FIST_ICON.w * FIST_SCALE}" height="${FIST_ICON.h * FIST_SCALE}"/>`;
-const HAND = `<g transform="translate(0 2.6)" fill="${READOUT}" stroke="#6a4206" stroke-width=".3">
+const HAND = `<g fill="${READOUT}" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
 
 function plate(a, b, tabs) {
@@ -291,7 +291,7 @@ function topBar(W, s) {
   const held = s.item ? ITEM_ICONS[s.item] : null, label = held ? ITEMS[s.item].name : "nothing";
   const iconW = held ? held.w : HAND_BOX.w, textW = label.length * READOUT_SIZE * MONO_ADVANCE;
   const start = inv + (invW - iconW - SLOT.gap - textW) / 2, centre = start + iconW / 2;
-  const hand = `<g transform="translate(${centre} ${MID}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-MID})">${HAND}</g>`;
+  const hand = `<g transform="translate(${centre} ${MID}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-HAND_DRAWN.h / 2})">${HAND}</g>`;
   const art = held ? `<image href="${held.url}" x="${centre - held.w / 2}" y="${MID - held.h / 2}" width="${held.w}" height="${held.h}"/>` : hand;
   const nameCentre = start + iconW + SLOT.gap + textW / 2;
   const item = art + readout(nameCentre, label);
