@@ -61,11 +61,11 @@ describe("drawFog", () => {
   const view = { scale: 2, offsetX: -3000, offsetY: -1000 };
   const window = { x: 40, y: 100, w: 1600, h: 900 };
 
-  it("never makes a canvas larger than the game window", () => {
+  it("never makes a canvas larger than the game window plus its pan margin", () => {
     const main = fakeContext([]);
     drawFog(main, fog(160, 80), view, 24, window);
     expect(canvases.length).toBeGreaterThan(0);
-    for (const canvas of canvases) expect(canvas.width * canvas.height).toBeLessThanOrEqual(window.w * window.h);
+    for (const canvas of canvases) expect(canvas.width * canvas.height).toBeLessThanOrEqual((window.w + 256) * (window.h + 256));
   });
 
   it("rebuilds the cell mask only when the fog version changes", () => {
@@ -102,14 +102,16 @@ describe("drawFog", () => {
     expect(canvases.length).toBe(made);
   });
 
-  it("repaints the window only when the fog or the view changes", () => {
+  it("repaints the window only when the fog changes or the view leaves its margin", () => {
     const main = fakeContext([]);
     const f = fog(160, 80);
     drawFog(main, f, view, 24, window);
     const clears = calls.filter((c) => c === "clearRect").length;
     drawFog(main, f, view, 24, window);
     expect(calls.filter((c) => c === "clearRect")).toHaveLength(clears);
-    drawFog(main, f, { ...view, offsetX: -3001 }, 24, window);
+    drawFog(main, f, { ...view, offsetX: -3100 }, 24, window);
+    expect(calls.filter((c) => c === "clearRect")).toHaveLength(clears);
+    drawFog(main, f, { ...view, offsetX: -3200 }, 24, window);
     expect(calls.filter((c) => c === "clearRect")).toHaveLength(clears + 1);
   });
 });

@@ -21,6 +21,7 @@ export function seenPath(fog: Fog, cell: number): Path2D {
 }
 
 const SOFT_CELL_PX = 8;
+const WINDOW_MARGIN_PX = 128;
 const SOFT_BLUR_CELLS = 2;
 const SOFT_PAD_CELLS = 2;
 
@@ -32,6 +33,8 @@ interface Layer {
   soft: HTMLCanvasElement;
   window: HTMLCanvasElement;
   windowKey: string;
+  left: number;
+  top: number;
 }
 
 interface CellBox {
@@ -92,7 +95,7 @@ function layer(fog: Fog): Layer {
   let cached = layers.get(fog);
   if (!cached) {
     const canvas = () => document.createElement("canvas");
-    cached = { version: NaN, shown: [], image: null, mask: canvas(), soft: canvas(), window: canvas(), windowKey: "" };
+    cached = { version: NaN, shown: [], image: null, mask: canvas(), soft: canvas(), window: canvas(), windowKey: "", left: 0, top: 0 };
     cached.mask.width = fog.width;
     cached.mask.height = fog.height;
     cached.soft.width = fog.width * SOFT_CELL_PX;
@@ -134,17 +137,20 @@ export function drawFog(ctx: CanvasRenderingContext2D, fog: Fog, view: ViewTrans
   const k = cell * view.scale;
   const left = Math.round(view.offsetX) - x;
   const top = Math.round(view.offsetY) - y;
-  const key = `${fog.version}:${w}:${h}:${left}:${top}:${k}`;
-  if (cached.windowKey !== key) {
-    if (cached.window.width !== w || cached.window.height !== h) {
-      cached.window.width = w;
-      cached.window.height = h;
+  const key = `${fog.version}:${w}:${h}:${k}`;
+  const margin = WINDOW_MARGIN_PX;
+  if (cached.windowKey !== key || Math.abs(left - cached.left) > margin || Math.abs(top - cached.top) > margin) {
+    if (cached.window.width !== w + 2 * margin || cached.window.height !== h + 2 * margin) {
+      cached.window.width = w + 2 * margin;
+      cached.window.height = h + 2 * margin;
     }
-    paintWindow(fog, cached, left, top, k);
+    paintWindow(fog, cached, left + margin, top + margin, k);
     cached.windowKey = key;
+    cached.left = left;
+    cached.top = top;
   }
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.drawImage(cached.window, x, y);
+  ctx.drawImage(cached.window, margin - (left - cached.left), margin - (top - cached.top), w, h, x, y, w, h);
   ctx.restore();
 }
