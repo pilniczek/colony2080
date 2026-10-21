@@ -51,6 +51,7 @@ const MAP_HINT = "You have no map.";
 const PICTURE_W = 96;
 const PICTURE_QUALITY = 0.6;
 const HEAD_GAP = 0.25;
+const CACHE_PASSES = 2;
 const FILM_PRELOAD_MS = 1000;
 const SOUND_LOG_SIZE = 50;
 
@@ -248,11 +249,13 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       const film = films[i];
       if (!film) return;
       if (world.cutscene) return whenIdle(() => next(i));
-      film.render(warm, scratch.width, scratch.height, 0);
+      for (let pass = 0; pass < CACHE_PASSES; pass++) film.render(warm, scratch.width, scratch.height, 0);
       whenIdle(() => next(i + 1));
     };
-    drawSecurityCam(warm, scratch.width, scratch.height, 0, "");
-    drawRobotView(warm, scratch.width, scratch.height, 0);
+    for (let pass = 0; pass < CACHE_PASSES; pass++) {
+      drawSecurityCam(warm, scratch.width, scratch.height, 0, "");
+      drawRobotView(warm, scratch.width, scratch.height, 0);
+    }
     whenIdle(() => next(0));
   };
 
