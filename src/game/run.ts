@@ -486,7 +486,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
 
   if (import.meta.env.VITE_START_CHEAT) enterCheat(import.meta.env.VITE_START_CHEAT);
-  startFilm(world, intro);
+  if (!filmsOff) startFilm(world, intro);
   setTimeout(() => void loadFilms().then(warmFilms), FILM_PRELOAD_MS);
   fit();
   window.addEventListener("resize", fit);
