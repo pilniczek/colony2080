@@ -112,25 +112,39 @@ const signPlate = (ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   box(ctx, x, y, w, h, mat, 1);
 };
 
+const toxicSign = (ctx: CanvasRenderingContext2D, x: number): void => {
+  signPlate(ctx, x, -42, 60, 13);
+  disc(ctx, x + 7, -35.5, 3.6, "a1", "aLine");
+  text(ctx, "TOXIC!!", x + 34, -35.5, 7, "a1");
+};
+
+const fencePosts = (ctx: CanvasRenderingContext2D, xs: number[]): void => {
+  for (const x of xs) {
+    cylV(ctx, x - 1.75, -50, 3.5, 50, "chrome", 1);
+    cylV(ctx, x - 2.25, -51, 4.5, 2, "chrome", 0);
+  }
+};
+
 const TEAR: Pt[] = [[0, -46], [30, -46], [26, -40], [31, -36], [22, -31], [25, -24], [14, -20], [16, -12], [6, -9], [0, -4]];
 
 export const chainFence: EnvAsset = {
   id: "chainFence",
   box: [-2, -52, 194, 0],
-  draw(ctx) {
+  draw(ctx, _state, _t, { w }: Size) {
+    if (w !== undefined && w < 192) {
+      fencePanel(ctx, 0, w);
+      toxicSign(ctx, (w - 60) / 2);
+      fencePosts(ctx, [0, w]);
+      return;
+    }
     fencePanel(ctx, 0, 96, TEAR);
     fencePanel(ctx, 96, 96);
     signPlate(ctx, 62, -40, 18, 8);
     if (!P.simple()) for (const y of [-38, -36, -34]) flat(ctx, 64, y, 12, 0.8, "c0");
-    signPlate(ctx, 102, -42, 60, 13);
-    disc(ctx, 109, -35.5, 3.6, "a1", "aLine");
-    text(ctx, "TOXIC!!", 136, -35.5, 7, "a1");
+    toxicSign(ctx, 102);
     signPlate(ctx, 168, -40, 16, 7);
     if (!P.simple()) for (const y of [-38, -35.5]) flat(ctx, 170, y, 12, 1, "neon");
-    for (const x of [0, 96, 192]) {
-      cylV(ctx, x - 1.75, -50, 3.5, 50, "chrome", 1);
-      cylV(ctx, x - 2.25, -51, 4.5, 2, "chrome", 0);
-    }
+    fencePosts(ctx, [0, 96, 192]);
   },
 };
 

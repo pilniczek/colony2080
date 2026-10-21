@@ -740,7 +740,8 @@ exports[`missions > mesto json is unchanged 1`] = `
     },
     {
       "asset": "chainFence",
-      "x": 102,
+      "w": 3,
+      "x": 107,
       "y": 23,
     },
     {

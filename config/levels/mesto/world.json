@@ -149,7 +149,7 @@
     {"asset": "chainFence", "x": 76, "y": 16},
     {"asset": "chainFence", "x": 36.2, "y": 23},
     {"asset": "chainFence", "x": 62.5, "y": 23},
-    {"asset": "chainFence", "x": 102, "y": 23},
+    {"asset": "chainFence", "x": 107, "y": 23, "w": 3},
     {"asset": "chainFence", "x": 39.5, "y": 30},
     {"asset": "chainFence", "x": 75, "y": 30},
     {"asset": "chainFence", "x": 114.5, "y": 30},
