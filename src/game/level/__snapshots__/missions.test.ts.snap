@@ -715,22 +715,22 @@ exports[`missions > mesto json is unchanged 1`] = `
     },
     {
       "asset": "liftPanel",
-      "x": 65,
+      "x": 66,
       "y": 37,
     },
     {
       "asset": "liftPanel",
-      "x": 65,
+      "x": 66,
       "y": 51,
     },
     {
       "asset": "liftPanel",
-      "x": 86,
+      "x": 85,
       "y": 44,
     },
     {
       "asset": "liftPanel",
-      "x": 86,
+      "x": 85,
       "y": 51,
     },
     {
@@ -740,27 +740,27 @@ exports[`missions > mesto json is unchanged 1`] = `
     },
     {
       "asset": "liftPanel",
-      "x": 14,
+      "x": 13,
       "y": 75,
     },
     {
       "asset": "liftPanel",
-      "x": 23,
+      "x": 24,
       "y": 70,
     },
     {
       "asset": "liftPanel",
-      "x": 23,
+      "x": 24,
       "y": 75,
     },
     {
       "asset": "liftPanel",
-      "x": 12,
+      "x": 11,
       "y": 59,
     },
     {
       "asset": "liftPanel",
-      "x": 28,
+      "x": 27,
       "y": 59,
     },
     {
@@ -770,7 +770,7 @@ exports[`missions > mesto json is unchanged 1`] = `
     },
     {
       "asset": "liftPanel",
-      "x": 74,
+      "x": 77,
       "y": 59,
     },
     {
