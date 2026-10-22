@@ -18,6 +18,7 @@ const LIFT_HEAD = 32;
 const LADDER_W = 56;
 const HAZE = "rgba(26, 12, 8, 0.45)";
 const UNDERGROUND = "rgba(4, 6, 10, 0.55)";
+const BEHIND_SHAFT = "rgba(6, 4, 2, 0.6)";
 
 const PROP_ASSETS: Record<string, AssetId> = { crate: "crate", barrel: "barrel", panel: "switchboard", weapon: "eBlaster" };
 
@@ -306,6 +307,7 @@ interface DrawnTerrain {
   girders: Run[];
   landings: Run[];
   bases: Run[];
+  behind: Run[];
 }
 
 const drawnTerrains = new WeakMap<SandboxWorld, DrawnTerrain>();
@@ -347,14 +349,22 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
   const cutWalls = walls.flatMap((r) =>
     touched(r) ? cutRuns(Array.from({ length: r.h }, (_, i) => ({ row: r.row + i, col: r.col, w: r.w })), skip).map((run) => ({ ...run, h: 1 })) : [r],
   );
-  const drawn = { walls: cutWalls, ledges: cutRuns(ledges, underLifts), girders: cutRuns(girders, skip), landings, bases };
+  const ends = new Set(ledges.flatMap((r) => [`${r.col - 1},${r.row}`, `${r.col + r.w},${r.row}`]));
+  const behind = world.lifts.flatMap((l) => {
+    const rows = Array.from({ length: l.bottom - l.top + 1 }, (_, i) => l.top + i);
+    return rows
+      .filter((row) => ends.has(`${l.x},${row}`) && ends.has(`${l.x + l.w - 1},${row}`))
+      .filter((row) => row !== l.bottom && Array.from({ length: l.w }, (_, i) => l.x + i).every((c) => world.grid.at(c, row) !== "=" && !world.grid.wall(c, row)))
+      .map((row) => ({ row, col: l.x, w: l.w }));
+  });
+  const drawn = { walls: cutWalls, ledges: cutRuns(ledges, underLifts), girders: cutRuns(girders, skip), landings, bases, behind };
   drawnTerrains.set(world, drawn);
   return drawn;
 }
 
 function terrain(e: Env): void {
   const { cell } = e;
-  const { walls, ledges, girders, landings, bases } = drawnTerrain(e.world);
+  const { walls, ledges, girders, landings, bases, behind } = drawnTerrain(e.world);
   for (const r of pick(e, "walls", walls, wallBox)) {
     if (near(e, wallBox(e, r))) put(e, "brickWall", r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   }
@@ -362,6 +372,12 @@ function terrain(e: Env): void {
   for (const r of pick(e, "ledges", ledges, runBox)) if (near(e, runBox(e, r))) put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "girders", girders, runBox)) if (near(e, runBox(e, r))) put(e, "girderBridge", r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "landings", landings, runBox)) if (near(e, runBox(e, r))) put(e, "liftLanding", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
+  for (const r of pick(e, "behind", behind, runBox)) {
+    if (!near(e, runBox(e, r))) continue;
+    put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
+    e.ctx.fillStyle = BEHIND_SHAFT;
+    e.ctx.fillRect(r.col * cell, r.row * cell, r.w * cell, cell);
+  }
 }
 
 function lift(e: Env, l: Lift, alpha: number): void {

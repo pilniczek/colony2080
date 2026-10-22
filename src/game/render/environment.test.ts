@@ -166,9 +166,23 @@ describe("weapon props", () => {
     expect(painting(blaster, { blaster: 400 })).toBe(0);
   });
 
+  it("puts a floor behind each lift shaft row a floor reaches from both sides, never at the bottom stop", () => {
+    const mesto = loadMesto();
+    const { behind } = drawnTerrain(mesto);
+    const ledges = mesto.terrain.ledges;
+    const ends = (col: number, row: number): boolean => ledges.some((r) => r.row === row && (r.col + r.w === col || r.col === col));
+    expect(behind.length).toBeGreaterThan(0);
+    for (const r of behind) {
+      const l = mesto.lifts.find((m) => m.x === r.col && m.w === r.w && r.row >= m.top && r.row < m.bottom);
+      expect(l, `${r.col},${r.row}`).toBeDefined();
+      expect(ends(r.col, r.row) && ends(r.col + r.w, r.row), `${r.col},${r.row}`).toBe(true);
+    }
+  });
+
   it("leaves bare cells, lift stops and the cells under bottom stops out of the terrain runs and lands each = stop", () => {
     const mesto = loadMesto();
-    const { ledges: mestoLedges, ...mestoRest } = drawnTerrain(mesto);
+    const { ledges: mestoLedges, behind, ...mestoRest } = drawnTerrain(mesto);
+    expect(behind.every((r) => mesto.lifts.some((l) => l.x === r.col))).toBe(true);
     expect(mestoRest).toEqual({ walls: mesto.terrain.walls, girders: mesto.terrain.girders, landings: [], bases: mesto.lifts.map((l) => ({ row: l.bottom, col: l.x, w: l.w })) });
     for (const l of mesto.lifts) {
       for (let col = l.x; col < l.x + l.w; col++) expect(mestoLedges.some((r) => r.row === l.bottom + 1 && col >= r.col && col < r.col + r.w), `${col},${l.bottom + 1}`).toBe(false);
