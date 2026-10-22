@@ -335,15 +335,17 @@ define({
   }
 });
 
+const GALLERY = [[0, 16], [35, 11], [65, 11], [94, 11], [124, 11], [154, 11], [184, 16]];
+
 define({
   id: "colonnadeBuilding",
   box: [0, -144, 200, 0],
   draw(ctx) {
     flat(ctx, 0, -140, 200, 32, "hole");
     flat(ctx, 0, -144, 200, 4, "k2", "kLine");
-    for (let x = 4; x < 200; x += 28) {
-      pillar(ctx, x, -140, 11, 32, "concrete", 3);
-      G.surface(ctx, x, -140, 11, 32, x + 230, { rise: 0.35, edge: false });
+    for (const [x, w] of GALLERY) {
+      pillar(ctx, x, -140, w, 32, "concrete", 3);
+      G.surface(ctx, x, -140, w, 32, x + 230, { rise: 0.35, edge: false });
     }
     G.chips(ctx, 0, -144, 200, 232, G.DIRT);
     slab(ctx, 0, -110, 200, 36, "concrete", 2);
