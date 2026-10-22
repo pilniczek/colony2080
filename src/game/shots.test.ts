@@ -202,6 +202,7 @@ describe("enemy shots", () => {
     const enemy = g.world.enemies[0]!;
     Object.assign(enemy.body, { x: enemyX, facing: heroX > enemyX ? 1 : -1 });
     enemy.patrol = [enemyX, enemyX];
+    enemy.tracking = true;
     return { g, enemy };
   };
 
@@ -318,7 +319,7 @@ describe("blaster beam", () => {
     dressing: [],
     lifts: [],
     props,
-    enemies: enemies.map(([x, y]) => ({ x, y, facing: -1, hits: 7, respawnMs: null, reactMs: 250, burst: { shots: 9, ms: 280 }, pauseMs: 400 })),
+    enemies: enemies.map(([x, y]) => ({ x, y, facing: -1, hits: 7, respawnMs: null, reactMs: 250, spotMs: 0, burst: { shots: 9, ms: 280 }, pauseMs: 400 })),
   });
   const blaster = (x: number, enemies: [number, number][] = [], facing: 1 | -1 = 1, props: unknown[] = []): Game => {
     const g = game({ x, y: 9, weapon: "blaster", state: "attack" }, beamLevel(enemies, props));

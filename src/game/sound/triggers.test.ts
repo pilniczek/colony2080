@@ -23,7 +23,7 @@ const arena = (extra: object = {}) => ({
   ...extra,
 });
 
-const droid = (x: number, extra: object = {}) => ({ x, y: 8, facing: -1, hits: 7, respawnMs: null, reactMs: 250, burst: { shots: 9, ms: 280 }, pauseMs: 400, patrol: [1.5, 28.5], ...extra });
+const droid = (x: number, extra: object = {}) => ({ x, y: 8, facing: -1, hits: 7, respawnMs: null, reactMs: 250, spotMs: 0, burst: { shots: 9, ms: 280 }, pauseMs: 400, patrol: [1.5, 28.5], ...extra });
 
 const FLIGHT = sandbox.enemies.find((e) => "flight" in e)!.flight;
 
