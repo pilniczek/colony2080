@@ -55,7 +55,6 @@ describe("hero weapon cues", () => {
 describe("enemy fire cues", () => {
   it("droid shot cues cannon 15000, one per bullet", () => {
     const g = game({ x: 5.5, y: 8 }, arena({ enemies: [droid(9.5)] }));
-    g.world.enemies[0]!.tracking = true;
     tick(g);
     expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
     run(g, 0.5);

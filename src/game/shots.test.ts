@@ -202,7 +202,6 @@ describe("enemy shots", () => {
     const enemy = g.world.enemies[0]!;
     Object.assign(enemy.body, { x: enemyX, facing: heroX > enemyX ? 1 : -1 });
     enemy.patrol = [enemyX, enemyX];
-    enemy.tracking = true;
     return { g, enemy };
   };
 

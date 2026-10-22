@@ -7,8 +7,8 @@ import { isDead, type Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Rect } from "../geometry";
-import { bodyBox, type BodyBox, type Enemy } from "../level/enemy";
-import { seenAt, visible, type Fog } from "../fog";
+import { bodyBox, boxSeen, type Enemy } from "../level/enemy";
+import { visible, type Fog } from "../fog";
 import { coverClips } from "../level/cover";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
@@ -67,13 +67,6 @@ function impacts(f: Frame): void {
 export const castsShadow = (hero: Hero, look: HeroLook): boolean => hero.onGround && look.view !== "back";
 
 export const feetSeen = (fog: Fog | null, body: Pick<Hero, "x" | "y">): boolean => !fog || visible(fog, body.x, body.y - 0.001);
-
-export function boxSeen(fog: Fog | null, box: BodyBox): boolean {
-  if (!fog) return true;
-  for (let row = Math.floor(box.top); row < box.bottom; row++)
-    for (let col = Math.floor(box.left); col < box.right; col++) if (seenAt(fog, col, row)) return true;
-  return false;
-}
 
 function shadow(f: Frame, hero: Hero, look: HeroLook): void {
   if (!castsShadow(hero, look)) return;

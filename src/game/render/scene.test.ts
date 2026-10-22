@@ -5,7 +5,8 @@ import { createRigs, heroLook } from "../hero/look";
 import { cfg, clips } from "../hero/testWorld";
 import type { Enemy } from "../level/enemy";
 import type { Fog } from "../fog";
-import { boxSeen, castsShadow, feetSeen, heroBehindEnemies, visibleEnemies, viewCells, weaponHooks } from "./scene";
+import { castsShadow, feetSeen, heroBehindEnemies, visibleEnemies, viewCells, weaponHooks } from "./scene";
+import { boxSeen } from "../level/enemy";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);

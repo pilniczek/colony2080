@@ -14,7 +14,6 @@ const hurt = (g: Game): number => cfg.energy.max - g.hero.energy;
 
 const facingRight = (g: Game, x: number): void => {
   Object.assign(g.world.enemies[0]!.body, { x, facing: 1 });
-  g.world.enemies[0]!.tracking = true;
 };
 
 describe("sandbox enemy", () => {
@@ -53,19 +52,6 @@ describe("sandbox enemy", () => {
     run(g, 1.1);
     expect(g.world.enemies[0]!.body.x).toBe(x);
     expect(g.hero.energy).toBeLessThan(cfg.energy.max);
-  });
-
-  it("stands reactMs after it first sees the hero before the first burst", () => {
-    const g = game({ x: 9.5, y: 4 });
-    const [enemy] = g.world.enemies as [Enemy];
-    Object.assign(enemy.body, { x: 5.5, facing: 1 });
-    const { reactMs } = sandbox.enemies[0]!;
-    let fired = 0;
-    for (let i = 0; i < reactMs / 1000 / dt - 2; i++) fired += updateEnemy(enemy, g.world.grid, null, g.hero, clips, cfg, dt);
-    expect(fired).toBe(0);
-    expect(enemy.body).toMatchObject({ x: 5.5, state: "idle" });
-    for (let i = 0; i < 4; i++) fired += updateEnemy(enemy, g.world.grid, null, g.hero, clips, cfg, dt);
-    expect(fired).toBeGreaterThan(0);
   });
 
   it("fires bursts of burst.shots in burst.ms with pauseMs standing between them", () => {

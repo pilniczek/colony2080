@@ -75,6 +75,7 @@ export interface Enemy {
   deadAge: number | null;
   alertAge: number | null;
   tracking: boolean;
+  unseen: boolean;
   pauseLeft: number;
   flight: Flight | null;
 }
@@ -92,6 +93,19 @@ const spawnBody = (e: Pick<Enemy, "spot" | "facing" | "hits" | "flight">): Hero 
   if (e.flight) body.y = e.spot[1] - e.flight.lift;
   return body;
 };
+
+export function boxSeen(fog: Fog | null, box: BodyBox): boolean {
+  if (!fog) return true;
+  for (let row = Math.floor(box.top); row < box.bottom; row++)
+    for (let col = Math.floor(box.left); col < box.right; col++) if (seenAt(fog, col, row)) return true;
+  return false;
+}
+
+function uncover(e: Enemy, fog: Fog | null, box: MovementConfig["box"]): void {
+  const unseen = !boxSeen(fog, bodyBox(e, box));
+  if (e.unseen && !unseen) e.pauseLeft = Math.max(e.pauseLeft, e.reactMs / 1000);
+  e.unseen = unseen;
+}
 
 const ground = (e: Enemy): number => (e.flight ? e.spot[1] : e.body.y);
 
@@ -163,6 +177,7 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
     deadAge: null,
     alertAge: null,
     tracking: false,
+    unseen: false,
     pauseLeft: 0,
   };
 }
@@ -207,10 +222,8 @@ const inReach = (e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCel
   hero.x !== e.body.x && seesHero({ x: e.body.x, ground: ground(e), facing: hero.x > e.body.x ? 1 : -1 }, grid, hero, fog, sightCells);
 
 function track(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): void {
-  if (sees(e, grid, hero, fog, sightCells)) {
-    if (!e.tracking) e.pauseLeft = Math.max(e.pauseLeft, e.reactMs / 1000);
-    e.tracking = true;
-  } else if (e.tracking && inReach(e, grid, hero, fog, sightCells)) e.alertAge ??= 0;
+  if (sees(e, grid, hero, fog, sightCells)) e.tracking = true;
+  else if (e.tracking && inReach(e, grid, hero, fog, sightCells)) e.alertAge ??= 0;
   else e.tracking = false;
 }
 
@@ -280,7 +293,7 @@ function fly(e: Enemy, f: Flight, grid: TileGrid, fog: Fog | null, hero: Hero, c
   return 0;
 }
 
-export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, cfg: Pick<MovementConfig, "sightCells">, dt: number): number {
+export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Hero, clips: ClipSet, cfg: Pick<MovementConfig, "sightCells" | "box">, dt: number): number {
   e.body.time += dt;
   e.pauseLeft = Math.max(0, e.pauseLeft - dt);
   if (e.body.hitAge !== null) e.body.hitAge += dt;
@@ -292,14 +305,15 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
     e.deadAge = null;
     e.alertAge = null;
     e.tracking = false;
+    e.unseen = false;
     e.pauseLeft = 0;
     return 0;
   }
+  uncover(e, fog, cfg.box);
   track(e, grid, hero, fog, cfg.sightCells);
   if (e.alertAge !== null && (e.alertAge += dt) * 1000 >= e.reactMs - 1e-6) {
     if (hero.x !== e.body.x) e.body.facing = hero.x > e.body.x ? 1 : -1;
     e.alertAge = null;
-    e.tracking = true;
   }
   if (e.flight) return fly(e, e.flight, grid, fog, hero, clips, cfg.sightCells, dt);
   if (sees(e, grid, hero, fog, cfg.sightCells)) return shoot(e, dt);
