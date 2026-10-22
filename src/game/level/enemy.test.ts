@@ -278,6 +278,26 @@ describe("sandbox enemy", () => {
     expect(enemy.patrol[1]).toBeCloseTo(6 - 0.35, 9);
   });
 
+  it("turns at a blocked cell and walks on once it opens", () => {
+    const grid = new TileGrid(["..........", "..........", "##########"]);
+    const g = game();
+    const enemy = createEnemy({ ...(sandbox.enemies[0] as EnemyJson), x: 4.5, y: 2, facing: 1 }, grid);
+    grid.block(6, 0, true);
+    grid.block(6, 1, true);
+    let max = 0;
+    for (let i = 0; i < 6 / dt; i++) {
+      updateEnemy(enemy, grid, null, g.hero, clips, cfg, dt);
+      max = Math.max(max, enemy.body.x);
+    }
+    expect(max).toBeLessThanOrEqual(6 - 0.35 + 1e-9);
+    grid.clearBlocks();
+    for (let i = 0; i < 12 / dt; i++) {
+      updateEnemy(enemy, grid, null, g.hero, clips, cfg, dt);
+      max = Math.max(max, enemy.body.x);
+    }
+    expect(max).toBeGreaterThan(7);
+  });
+
   it("keeps a configured patrol inside the walkable floor", () => {
     const grid = new TileGrid(["..........", "##########"]);
     const base = { ...sandbox.enemies[0]!, x: 3.5, y: 1, facing: 1 as const };

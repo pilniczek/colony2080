@@ -216,11 +216,22 @@ export function burstStep(time: number, dt: number, burst: Burst): { time: numbe
   return { time: after, fired: total - before, done: total === burst.shots - 1 };
 }
 
-function patrol(e: Enemy, clips: ClipSet, dt: number, scale = 1): void {
+function blockedSpan(e: Enemy, grid: TileGrid, [left, right]: [number, number]): [number, number] {
+  const half = e.flight ? FLYER_HALF[0] : HALF_WIDTH;
+  const { x, y } = e.body;
+  const row = Math.floor(y - 0.5);
+  let high = Math.floor(x) + 1;
+  while (high - half < right && !grid.solid(high, row)) high++;
+  let low = Math.floor(x) - 1;
+  while (low + 1 + half > left && !grid.solid(low, row)) low--;
+  return [Math.max(left, Math.min(low + 1 + half, x)), Math.min(right, Math.max(high - half, x))];
+}
+
+function patrol(e: Enemy, grid: TileGrid, clips: ClipSet, dt: number, scale = 1): void {
   const { body } = e;
   const walk = clips.walk;
   const speed = walk ? ((walk.travel ?? 0) / walk.duration) * scale : 0;
-  const [left, right] = e.patrol;
+  const [left, right] = blockedSpan(e, grid, e.patrol);
   body.x += body.facing * speed * dt;
   if (body.x <= left || body.x >= right) {
     body.x = Math.min(right, Math.max(left, body.x));
@@ -259,7 +270,7 @@ function fly(e: Enemy, f: Flight, grid: TileGrid, fog: Fog | null, hero: Hero, c
   f.engaged ||= seen && Math.abs(f.lift - cfg.aimLift) < AIM_EPS;
   if (seen && Math.abs(f.lift - cfg.aimLift) < AIM_EPS) return shoot(e, dt);
   setState(body, "walk");
-  if (!seen || Math.abs(hero.x - body.x) > cfg.closeCells) patrol(e, clips, dt, cfg.speedScale);
+  if (!seen || Math.abs(hero.x - body.x) > cfg.closeCells) patrol(e, grid, clips, dt, cfg.speedScale);
   return 0;
 }
 
@@ -286,6 +297,6 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
   if (e.flight) return fly(e, e.flight, grid, fog, hero, clips, cfg.sightCells, dt);
   if (sees(e, grid, hero, fog, cfg.sightCells)) return shoot(e, dt);
   setState(e.body, "walk");
-  patrol(e, clips, dt);
+  patrol(e, grid, clips, dt);
   return 0;
 }
