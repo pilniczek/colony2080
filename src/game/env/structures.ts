@@ -353,6 +353,28 @@ const dome = (ctx: CanvasRenderingContext2D, cx: number, a0: number, a1: number)
   poly(ctx, arcPts(cx, -48, 11, 24, a0, a1, 16), "chrome", 1);
 };
 
+const wornSign = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, seed: number): void => {
+  trefoil(ctx, cx, cy, r);
+  const rand = P.rng(seed);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 0.6, 0, Math.PI * 2);
+  ctx.clip();
+  G.grain(ctx, G.rectRegion(ctx, cx - r, cy - r, r * 2, r * 2), seed);
+  G.grain(ctx, G.rectRegion(ctx, cx - r, cy - r, r * 2, r * 2), seed + 1, 0.8);
+  for (let i = 0; i < 9; i++) {
+    const a = rand() * Math.PI * 2;
+    const d = r * (0.35 + rand() * 0.75);
+    const px = cx + Math.cos(a) * d;
+    const py = cy + Math.sin(a) * d;
+    const s = 0.6 + rand() * 1.8;
+    P.shape(ctx, [[px - s, py - s * 0.6], [px + s * 0.4, py - s], [px + s, py + s * 0.3], [px - s * 0.2, py + s * 0.8]], rand() < 0.6 ? "c1" : "r2");
+  }
+  G.dirt(ctx, cx - r, cy - r, r * 2, r * 2, seed + 2, 0.45);
+  ctx.restore();
+  G.drips(ctx, cx - r * 0.6, cy + r * 0.6, r * 1.2, r * 1.6, seed + 3, 2);
+};
+
 export const fuelTank: EnvAsset = {
   id: "fuelTank",
   box: [0, -74, 106, 0],
@@ -376,7 +398,7 @@ export const fuelTank: EnvAsset = {
     G.rustPatch(ctx, 96, -36, 3, 4, 187);
     G.dirt(ctx, 12, -72, 82, 48, 188, 0.3);
     G.chips(ctx, 12, -71.6, 82, 189);
-    trefoil(ctx, 78, -48, 7.5);
+    wornSign(ctx, 78, -48, 7.5, 190);
   },
 };
 

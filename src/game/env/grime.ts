@@ -144,7 +144,22 @@ const rim = (ctx: CanvasRenderingContext2D, pts: Pt[], seed: number, light: stri
   const [cx, cy] = centre(pts);
   pts.forEach(([x, y], i) => {
     const [nx, ny] = pts[(i + 1) % pts.length] as Pt;
-    if (r() < 0.65) line(ctx, [[x, y], [nx, ny]], y < cy ? dark : light, 1.1);
+    const lit = y >= cy;
+    if (r() < (lit ? 0.5 : 0.65)) {
+      const t0 = r() * 0.35;
+      const t1 = 0.6 + r() * 0.4;
+      const len = Math.hypot(nx - x, ny - y) || 1;
+      const px = -(ny - y) / len;
+      const py = (nx - x) / len;
+      const frag = [t0, (t0 * 2 + t1) / 3, (t0 + t1 * 2) / 3, t1].map((t, k): Pt => {
+        const j = k % 3 ? (r() - 0.5) * 1.2 : 0;
+        return [x + (nx - x) * t + px * j, y + (ny - y) * t + py * j];
+      });
+      ctx.save();
+      ctx.globalAlpha = lit ? 0.5 : 0.8;
+      line(ctx, frag, lit ? light : dark, lit ? 0.55 : 0.9);
+      ctx.restore();
+    }
     if (r() < 0.3) {
       const dx = x - cx;
       const dy = y - cy;
