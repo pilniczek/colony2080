@@ -11,6 +11,13 @@ const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => rende
 const count = (svg: string, text: string): number => svg.split(text).length - 1;
 
 describe("hudSvg", () => {
+  it("gives the dim and glow filters one region, so an icon keeps its outline when it lights", () => {
+    const region = (svg: string, id: string): string | undefined => new RegExp(`<filter id="${id}"( x="[^"]+" y="[^"]+" width="[^"]+" height="[^"]+")`).exec(svg)?.[1];
+    const svg = hudSvg(320, 200, base, icons);
+    expect(region(svg, "iconDim")).toBeDefined();
+    expect(region(svg, "iconDim")).toBe(region(svg, "iconGlow"));
+  });
+
   it("glows the active weapon and dims the others", () => {
     const svg = hudSvg(320, 200, base, icons);
     expect(count(svg, 'filter="url(#iconDim)"')).toBe(4);
