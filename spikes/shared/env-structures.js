@@ -140,18 +140,21 @@ function fencePanel(ctx, x, w, hole) {
   flat(ctx, x, -2, w, 2, "k0");
 }
 
-function signPlate(ctx, x, y, w, h, mat = "chrome") {
+function signPlate(ctx, x, y, w, h, mat = "chrome", wear = 1) {
   box(ctx, x, y, w, h, mat, 1);
   const s = 122 + Math.round(x * 3 + w);
-  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), s);
-  G.drips(ctx, x, y + h - 1, w, h * 0.8, s + 1, Math.ceil(w / 12));
+  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), s, wear);
+  G.drips(ctx, x, y + h - 1, w, h * 0.8 * wear, s + 1, Math.ceil((w * wear) / 12));
   G.chips(ctx, x, y + 0.3, w, s + 2);
 }
 
 function toxicSign(ctx, x) {
-  signPlate(ctx, x, -42, 60, 13);
-  disc(ctx, x + 7, -35.5, 3.6, "a1", "aLine");
-  text(ctx, "TOXIC!!", x + 34, -35.5, 7, "a1");
+  signPlate(ctx, x, -42, 60, 13, "chrome", 0.35);
+  disc(ctx, x + 7, -35.5, 3.6, "a0", "aLine");
+  ctx.save();
+  ctx.letterSpacing = "1.2px";
+  text(ctx, "TOXIC", x + 34.6, -35.5, 8, "a0");
+  ctx.restore();
 }
 
 function fencePosts(ctx, xs) {
