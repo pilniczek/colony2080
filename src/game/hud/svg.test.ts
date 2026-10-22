@@ -88,7 +88,7 @@ describe("hudSvg", () => {
     expect(tab(open)[2]).toBe("#ff4a26");
   });
 
-  it("draws the hide eye centred on the hide slot, glowing with X lit only while the hero hides", () => {
+  it("draws an open eye on the hide slot, crossed, glowing and with X lit only while the hero hides", () => {
     const { hide } = topBar(320, itemPlateW(icons));
     const icon = (svg: string): RegExpExecArray => /<g filter="url\(#(icon\w+)\)" data-icon="hide"><g transform="translate\(([\d.]+) /.exec(svg)!;
     const tab = (svg: string): RegExpExecArray => /<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#ff4a26|#1a140f)"[^>]*>X<\/text>/.exec(svg)!;
@@ -97,7 +97,10 @@ describe("hudSvg", () => {
     expect(Number(icon(open)[2])).toBeCloseTo(hide + HIDE_W / 2, 9);
     expect(Number(tab(open)[1])).toBeCloseTo(hide + HIDE_W / 2, 9);
     expect(tab(open)[2]).toBe("#1a140f");
+    const slash = (svg: string): boolean => /data-icon="hide">.*?M-3\.3 3\.3L3\.3 -3\.3.*?<\/g><\/g>/s.test(svg);
+    expect(slash(open)).toBe(false);
     const hidden = hudSvg(320, 200, { ...base, hidden: true }, icons);
+    expect(slash(hidden)).toBe(true);
     expect(icon(hidden)[1]).toBe("iconGlow");
     expect(tab(hidden)[2]).toBe("#ff4a26");
   });

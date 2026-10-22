@@ -104,9 +104,9 @@ const MAP_FOLDS = "M-1.5 -4.1V3.1M1.5 -3.1V4.1";
 const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0 .3V1.4" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
 const MENU_BARS = `<path d="M-2.8 -2.4H2.8M-2.8 0H2.8M-2.8 2.4H2.8" stroke="${READOUT}" stroke-width=".9" stroke-linecap="round"/>`;
-const SHUT_EYE = `<path d="M-4 0Q0 -3.6 4 0Q0 3.6 -4 0Z" fill="none" stroke="${READOUT}" stroke-width="1.1" stroke-linejoin="round"/>
-  <circle r="1.3" fill="${READOUT}"/>
-  <path d="M-3.3 3.3L3.3 -3.3" stroke="${LO}" stroke-width="2"/>
+const EYE = `<path d="M-4 0Q0 -3.6 4 0Q0 3.6 -4 0Z" fill="none" stroke="${READOUT}" stroke-width="1.1" stroke-linejoin="round"/>
+  <circle r="1.3" fill="${READOUT}"/>`;
+const EYE_SLASH = `<path d="M-3.3 3.3L3.3 -3.3" stroke="${LO}" stroke-width="2"/>
   <path d="M-3.3 3.3L3.3 -3.3" stroke="${READOUT}" stroke-width="1.1" stroke-linecap="round"/>`;
 const foldedMap = `<path d="${MAP_SHEET}" fill="${READOUT}"/>
   <path d="${MAP_FOLDS}" stroke="${LO}" stroke-width=".6"/>`;
@@ -270,7 +270,7 @@ const soundIcon = (x: number, on: boolean): string =>
   `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${speaker(on)}</g></g>`;
 
 const hideIcon = (x: number, hidden: boolean): string =>
-  `<g filter="url(#${hidden ? "iconGlow" : "iconDim"})" data-icon="hide"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${SHUT_EYE}</g></g>`;
+  `<g filter="url(#${hidden ? "iconGlow" : "iconDim"})" data-icon="hide"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${EYE}${hidden ? EYE_SLASH : ""}</g></g>`;
 
 const menuIcon = (x: number, open: boolean): string =>
   `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="menu"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
