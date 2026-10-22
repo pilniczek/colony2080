@@ -557,6 +557,11 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 59,
     },
     {
+      "asset": "pipeBend",
+      "x": 108,
+      "y": 59,
+    },
+    {
       "asset": "colonnadeBuilding",
       "x": 112.5,
       "y": 59,
@@ -579,11 +584,6 @@ exports[`missions > mesto json is unchanged 1`] = `
     {
       "asset": "fuelTank",
       "x": 101,
-      "y": 59,
-    },
-    {
-      "asset": "pipeBend",
-      "x": 108,
       "y": 59,
     },
     {
@@ -866,7 +866,7 @@ exports[`missions > mesto json is unchanged 1`] = `
     },
     {
       "asset": "floorVent",
-      "x": 120,
+      "x": 116,
       "y": 59,
     },
     {

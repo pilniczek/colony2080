@@ -516,10 +516,10 @@ export const floorVent: EnvAsset = {
   id: "floorVent",
   box: [-2, -10, 24, 0],
   draw(ctx) {
-    box(ctx, 0, -8, 22, 7, "chrome", 1);
+    box(ctx, 0, -8, 22, 7, "steel", 1);
     flat(ctx, 1.6, -6.6, 18.8, 4.6, "hole");
     const n = P.simple() ? 4 : 6;
-    for (let i = 0; i < n; i++) box(ctx, 2.6 + i * (17 / n), -6.6, 1.2, 4.6, "chrome", 2, { vertical: true, line: false });
+    for (let i = 0; i < n; i++) box(ctx, 2.6 + i * (17 / n), -6.6, 1.2, 4.6, "steel", 2, { vertical: true, line: false });
     G.surface(ctx, 0, -8, 22, 7, 72, { rise: 0.5 });
     G.rustPatch(ctx, 17, -5, 2.5, 1, 76);
   },
