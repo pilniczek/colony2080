@@ -196,6 +196,24 @@ describe("sandbox enemy", () => {
     expect(enemy.body.facing).toBe(1);
   });
 
+  const jumpPeak = { y: 4 - cfg.jump.runHeight, onGround: false, state: "jump" as const };
+
+  it("shoots a hero jumping ahead on its floor", () => {
+    const g = game({ x: 9.5, y: 4 });
+    facingRight(g, 5.5);
+    const [enemy] = g.world.enemies as [Enemy];
+    Object.assign(g.hero, jumpPeak);
+    expect(updateEnemy(enemy, g.world.grid, null, g.hero, clips, cfg, dt)).toBeGreaterThan(0);
+    expect(enemy.body.state).toBe("attack");
+  });
+
+  it("turns after a hero it saw that jumps past behind it", () => {
+    const { g, enemy } = seenThenBehind(3.5);
+    Object.assign(g.hero, jumpPeak);
+    for (let i = 0; i < sandbox.enemies[0]!.reactMs / 1000 / dt + 2; i++) updateEnemy(enemy, g.world.grid, null, g.hero, clips, cfg, dt);
+    expect(enemy.body.facing).toBe(-1);
+  });
+
   it("walks on the way it turned when the hero is out of sight", () => {
     const g = game({ x: 3.5 + cfg.sightCells + 1, y: 4 });
     const [enemy] = g.world.enemies as [Enemy];
@@ -359,6 +377,16 @@ describe("sandbox flyer", () => {
     expect(e.body.state).toBe("attack");
     run(g, 1);
     expect(g.hero.energy).toBeLessThan(cfg.energy.max);
+  });
+
+  it("dives on a jumping hero and fires", () => {
+    const g = game({ x: 39.5, y: floor });
+    const e = flyerOf(g);
+    Object.assign(g.hero, { y: floor - cfg.jump.runHeight, onGround: false, state: "jump" });
+    let fired = 0;
+    for (let i = 0; i < 1.5 / dt; i++) fired += updateEnemy(e, g.world.grid, null, g.hero, clips, cfg, dt);
+    expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
+    expect(fired).toBeGreaterThan(0);
   });
 
   it("stops closeCells from the hero while it dives", () => {

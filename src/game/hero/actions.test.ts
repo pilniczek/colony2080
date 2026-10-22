@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { damage, kill } from "./hero";
 import { pickUp } from "../level/sandboxLevel";
-import { bottomlessPits, cfg, game, objectLevel, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
+import { bottomlessPits, cfg, clips, game, objectLevel, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
 
 const kinds = (g: Game, kind: string) => g.events.filter((e) => e.kind === kind);
 
@@ -370,6 +370,17 @@ describe("damage", () => {
     tick(g, ["moveRight"]);
     tick(g, ["moveRight", "up"], ["up"]);
     expect(g.hero.state).toBe("walkJump");
+  });
+
+  it("drops a running jump to walk speed when a hit lands mid-air", () => {
+    const g = game({ x: 12, y: 14 });
+    g.hero.running = true;
+    run(g, 0.3, ["moveRight"]);
+    tick(g, ["moveRight", "up"], ["up"]);
+    expect(g.hero.state).toBe("runJump");
+    g.world.heroHits = 1;
+    tick(g, ["moveRight"]);
+    expect(g.hero.vx).toBeCloseTo((clips.walk!.travel ?? 0) / clips.walk!.duration, 9);
   });
 
   it("is ignored while hidden", () => {

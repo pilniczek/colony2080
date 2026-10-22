@@ -733,6 +733,7 @@ function enemyHits(s: Step): void {
   const hits = world.immortal ? 0 : world.heroHits;
   world.heroHits = 0;
   for (let i = 0; i < hits; i++) s.events.push(...damage(h, cfg));
+  if (hits > 0 && h.state === "runJump") h.vx = h.facing * launch(s, "walkJump").speed;
 }
 
 export function updateHero(

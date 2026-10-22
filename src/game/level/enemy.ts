@@ -7,6 +7,7 @@ import { createHero, type Hero } from "../hero/hero";
 import type { KeepOut } from "./cover";
 
 export const SAME_FLOOR = 0.5;
+export const JUMP_REACH = 1.5;
 const HALF_WIDTH = 0.35;
 const AIM_EPS = 0.02;
 
@@ -185,9 +186,12 @@ export interface Watch {
   facing: -1 | 1;
 }
 
+const onFloor = ({ y, onGround }: Hero, ground: number): boolean =>
+  y <= ground + SAME_FLOOR && y >= ground - (onGround ? SAME_FLOOR : JUMP_REACH);
+
 export function seesHero({ x, ground, facing }: Watch, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): boolean {
   const dx = hero.x - x;
-  if (hero.hidden || hero.energy <= 0 || Math.abs(hero.y - ground) > SAME_FLOOR) return false;
+  if (hero.hidden || hero.energy <= 0 || !onFloor(hero, ground)) return false;
   if (Math.sign(dx) !== facing || Math.abs(dx) > sightCells) return false;
   const row = Math.floor(ground - 1);
   for (let col = Math.floor(Math.min(x, hero.x)); col <= Math.floor(Math.max(x, hero.x)); col++) {
