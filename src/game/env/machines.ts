@@ -130,16 +130,23 @@ const shaft = (ctx: CanvasRenderingContext2D, w: number, top: number): void => {
   for (let y = top + 2; y < 6; y += simple ? 6 : 3.5) flat(ctx, rack - 3, y, 6, simple ? 2 : 1.2, "k2");
 };
 
-const platform = (ctx: CanvasRenderingContext2D, py: number, w: number): void => {
+const deck = (ctx: CanvasRenderingContext2D, w: number): void => {
   const { rail } = LIFT;
   const rack = w / 2;
-  poly(ctx, [[rack - 8, py + 7], [rack + 8, py + 7], [rack + 5, py + 13], [rack - 5, py + 13]], "steel", 1);
-  if (!P.simple()) disc(ctx, rack, py + 9.5, 2, "c1", "mLine");
-  hazard(ctx, 0, py + 3, w, 4, 3);
-  box(ctx, 0, py, w, 3, "concrete", 2);
-  for (const x of [1, w - 3]) box(ctx, x, py - rail, 2, rail, "concrete", 3, { vertical: true });
-  box(ctx, 1, py - rail - 1, w - 2, 2, "concrete", 3);
-  box(ctx, 1, py - rail / 2, w - 2, 1.5, "concrete", 2);
+  poly(ctx, [[rack - 8, 7], [rack + 8, 7], [rack + 5, 13], [rack - 5, 13]], "steel", 1);
+  if (!P.simple()) disc(ctx, rack, 9.5, 2, "c1", "mLine");
+  hazard(ctx, 0, 3, w, 4, 3);
+  box(ctx, 0, 0, w, 3, "concrete", 2);
+  for (const x of [1, w - 3]) box(ctx, x, -rail, 2, rail, "concrete", 3, { vertical: true });
+  box(ctx, 1, -rail - 1, w - 2, 2, "concrete", 3);
+  box(ctx, 1, -rail / 2, w - 2, 1.5, "concrete", 2);
+};
+
+const platform = (ctx: CanvasRenderingContext2D, py: number, w: number): void => {
+  ctx.save();
+  ctx.translate(0, py);
+  deck(ctx, w);
+  ctx.restore();
 };
 
 const liftAt = (ctx: CanvasRenderingContext2D, state: number, t: number, { w = LIFT.w, top = LIFT.top, py }: Size = {}): void => {
