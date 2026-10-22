@@ -5,7 +5,7 @@ import { applyLive, hudSvg as render, itemPlateW, keyLabel, type HudIcons, type 
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, run: { url: "run.png", w: 4, h: ICON_H }, walk: { url: "walk.png", w: 4, h: ICON_H }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
-const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, soundOn: true, mapOn: true, mapOpen: false, hidden: false, item: null };
+const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, soundOn: true, mapOn: true, mapOpen: false, hidden: false, menuOpen: false, item: null };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", sound: "S", hide: "X", map: "M", menu: "ESC", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
 const count = (svg: string, text: string): number => svg.split(text).length - 1;
@@ -74,15 +74,18 @@ describe("hudSvg", () => {
     }
   });
 
-  it("draws the menu bars centred on the menu slot over an unlit ESC tab", () => {
+  it("draws the menu bars centred on the menu slot, glowing with ESC lit only while the menu is open", () => {
     const { menu } = topBar(320, itemPlateW(icons));
-    const svg = hudSvg(320, 200, base, icons);
-    const icon = /<g filter="url\(#(icon\w+)\)" data-icon="menu"><g transform="translate\(([\d.]+) /.exec(svg)!;
-    expect(icon[1]).toBe("iconDim");
-    expect(Number(icon[2])).toBeCloseTo(menu + MENU_W / 2, 9);
-    const tab = /<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#ff4a26|#1a140f)"[^>]*>ESC<\/text>/.exec(svg)!;
-    expect(Number(tab[1])).toBeCloseTo(menu + MENU_W / 2, 9);
-    expect(tab[2]).toBe("#1a140f");
+    const icon = (svg: string): RegExpExecArray => /<g filter="url\(#(icon\w+)\)" data-icon="menu"><g transform="translate\(([\d.]+) /.exec(svg)!;
+    const tab = (svg: string): RegExpExecArray => /<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#ff4a26|#1a140f)"[^>]*>ESC<\/text>/.exec(svg)!;
+    const shut = hudSvg(320, 200, base, icons);
+    expect(icon(shut)[1]).toBe("iconDim");
+    expect(Number(icon(shut)[2])).toBeCloseTo(menu + MENU_W / 2, 9);
+    expect(Number(tab(shut)[1])).toBeCloseTo(menu + MENU_W / 2, 9);
+    expect(tab(shut)[2]).toBe("#1a140f");
+    const open = hudSvg(320, 200, { ...base, menuOpen: true }, icons);
+    expect(icon(open)[1]).toBe("iconGlow");
+    expect(tab(open)[2]).toBe("#ff4a26");
   });
 
   it("draws the hide eye centred on the hide slot, glowing with X lit only while the hero hides", () => {

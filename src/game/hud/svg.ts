@@ -14,6 +14,7 @@ export interface HudState {
   mapOn: boolean;
   mapOpen: boolean;
   hidden: boolean;
+  menuOpen: boolean;
   item: ItemId | null;
 }
 
@@ -218,7 +219,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
     { cx: bar.run + TOGGLE_W / 2, label: keys.run, active: s.running },
     { cx: bar.hide + HIDE_W / 2, label: keys.hide, active: s.hidden },
     { cx: bar.map + MAP_W / 2, label: keys.map, active: s.mapOpen },
-    { cx: bar.menu + MENU_W / 2, label: keys.menu, active: false },
+    { cx: bar.menu + MENU_W / 2, label: keys.menu, active: s.menuOpen },
     { cx: bar.inv + bar.invW / 2, label: keys.item, active: false },
   ];
   const spans = tabs.map(tabSpan);
@@ -235,7 +236,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${runIcon(s.running ? icons.run : icons.walk, bar.run + TOGGLE_W / 2, s.running)}
   ${hideIcon(bar.hide + HIDE_W / 2, s.hidden)}
   ${mapIcon(bar.map + MAP_W / 2, s.mapOn, s.mapOpen)}
-  ${menuIcon(bar.menu + MENU_W / 2)}
+  ${menuIcon(bar.menu + MENU_W / 2, s.menuOpen)}
   ${gridPanel(bar.inv, bar.invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -271,8 +272,8 @@ const soundIcon = (x: number, on: boolean): string =>
 const hideIcon = (x: number, hidden: boolean): string =>
   `<g filter="url(#${hidden ? "iconGlow" : "iconDim"})" data-icon="hide"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${SHUT_EYE}</g></g>`;
 
-const menuIcon = (x: number): string =>
-  `<g filter="url(#iconDim)" data-icon="menu"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
+const menuIcon = (x: number, open: boolean): string =>
+  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="menu"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
 
 const mapIcon = (x: number, held: boolean, open: boolean): string =>
   `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap : QUESTION}</g></g>`;

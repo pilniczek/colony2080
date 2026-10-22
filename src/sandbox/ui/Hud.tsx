@@ -31,10 +31,11 @@ export interface HudValues {
   mapOn: boolean;
   mapOpen: boolean;
   hidden: boolean;
+  menuOpen: boolean;
   item: ItemId | null;
 }
 
-export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, item }: HudValues): HudState => ({
+export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item }: HudValues): HudState => ({
   weapon: WEAPON_SLOTS[weapon],
   bonus: blaster !== null,
   bonusAmmo: blaster ?? 0,
@@ -45,6 +46,7 @@ export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running,
   mapOn,
   mapOpen,
   hidden,
+  menuOpen,
   ammo,
   item,
 });
@@ -64,15 +66,16 @@ export function Hud() {
   const mapOn = useSandbox((s) => s.mapOn);
   const mapOpen = useSandbox((s) => s.mapOpen);
   const hidden = useSandbox((s) => s.hidden);
+  const menuOpen = useSandbox((s) => s.menu !== null && s.menu.screen !== "gameOver");
   const item = useSandbox((s) => s.item);
   const filming = useSandbox((s) => s.cutscene);
-  const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, item });
+  const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item });
   const live = useRef(state);
   live.current = state;
   const armed = blaster !== null;
   const svg = useMemo(
     () => hudSvg(fit.W, fit.H, live.current, icons, KEYS),
-    [fit.W, fit.H, shields, armed, max, weapon, running, soundOn, mapOn, mapOpen, hidden, item, icons],
+    [fit.W, fit.H, shields, armed, max, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, icons],
   );
   const html = useMemo(() => ({ __html: svg }), [svg]);
   useLayoutEffect(() => {
@@ -81,7 +84,7 @@ export function Hud() {
   return (
     <div
       ref={root}
-      style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none", display: filming ? "none" : undefined }}
+      style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none", display: filming ? "none" : undefined, zIndex: menuOpen ? 1 : undefined }}
       dangerouslySetInnerHTML={html}
     />
   );

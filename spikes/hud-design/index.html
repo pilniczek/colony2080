@@ -310,7 +310,7 @@ function topBar(W, s) {
     { cx: run + TOGGLE_W / 2, label: "ALT", active: s.running },
     { cx: hide + HIDE_W / 2, label: "X", active: s.hidden },
     { cx: map + MAP_W / 2, label: "M", active: s.mapOpen },
-    { cx: menu + MENU_W / 2, label: "ESC", active: false },
+    { cx: menu + MENU_W / 2, label: "ESC", active: !!s.menuOpen },
     { cx: inv + invW / 2, label: "ENTER\u00a0\u00a0/\u00a0\u00a0I", active: false },
   ];
   const spans = tabs.map(tabSpan);
@@ -327,7 +327,7 @@ function topBar(W, s) {
   ${runIcon(run + TOGGLE_W / 2, s.running)}
   ${hideIcon(hide + HIDE_W / 2, s.hidden)}
   ${mapIcon(map + MAP_W / 2, s.mapOn, s.mapOpen)}
-  ${menuIcon(menu + MENU_W / 2)}
+  ${menuIcon(menu + MENU_W / 2, !!s.menuOpen)}
   ${gridPanel(inv, invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -377,8 +377,8 @@ const SHUT_EYE = `<path d="M-4 0Q0 -3.6 4 0Q0 3.6 -4 0Z" fill="none" stroke="${R
   <path d="M-3.3 3.3L3.3 -3.3" stroke="${READOUT}" stroke-width="1.1" stroke-linecap="round"/>`;
 const hideIcon = (x, hidden) =>
   `<g filter="url(#${hidden ? "iconGlow" : "iconDim"})" data-icon="hide"><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${SHUT_EYE}</g></g>`;
-const menuIcon = (x) =>
-  `<g filter="url(#iconDim)" data-icon="menu"><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
+const menuIcon = (x, open) =>
+  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="menu"><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
 const mapIcon = (x, held, open) =>
   `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap() : QUESTION}</g></g>`;
 
@@ -664,11 +664,18 @@ const SAMPLE_SLOTS = [
 const menuDefs = `<defs><pattern id="menuGrid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M0 16V0H16" fill="none" stroke="${MENU.grid}" stroke-width=".6"/></pattern>
   <linearGradient id="shot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a2a1c"/><stop offset=".6" stop-color="#1c2420"/><stop offset="1" stop-color="#0d1210"/></linearGradient></defs>`;
 
-function menuBackdrop(W, H) {
+const menuView = (W, H) => ({ x: SIDE, y: BAR_H, w: W - 2 * SIDE, h: H - BAR_H - BOTTOM });
+const fitIn = ({ x, y, w, h }) => {
+  const k = Math.min(w / 320, h / 200);
+  return `translate(${x + (w - 320 * k) / 2} ${y + (h - 200 * k) / 2}) scale(${k})`;
+};
+const area = ({ x, y, w, h }, fill) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
+
+function menuBackdrop(v) {
   const r = INV_BOXES.robot;
-  return `<rect width="${W}" height="${H}" fill="${MENU.back}"/>
-  <g transform="translate(${(W - 320) / 2} ${(H - 200) / 2})" style="opacity:.3">${img(ROBOT_ART, r.x + (r.w - ROBOT_ART.w) / 2, r.y + r.h - ROBOT_ART.h)}</g>
-  <rect width="${W}" height="${H}" fill="url(#menuGrid)"/>`;
+  return `${area(v, MENU.back)}
+  <g transform="${fitIn(v)}" style="opacity:.3">${img(ROBOT_ART, r.x + (r.w - ROBOT_ART.w) / 2, r.y + r.h - ROBOT_ART.h)}</g>
+  ${area(v, "url(#menuGrid)")}`;
 }
 
 const pickRow = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${INV.pick}"/>`;
@@ -712,12 +719,12 @@ function gameOver(W, H, m) {
   ${invBox(CHOICE_BOX)}${rows}</g>`;
 }
 
-function menuScreen(W, H, m) {
-  const ox = (W - 320) / 2, oy = (H - 200) / 2;
+function menuScreen(W, H, m, s) {
   if (m.screen === "gameOver") return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${DEFS}${INV_DEFS}${menuDefs}${gameOver(W, H, m)}</svg>`;
-  const body = m.screen === "pause" ? pauseMenu(m) : slotList(m);
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${DEFS}${INV_DEFS}${menuDefs}${menuBackdrop(W, H)}
-  <g transform="translate(${ox} ${oy})">${body}</g></svg>`;
+  const body = m.screen === "pause" ? pauseMenu(m) : slotList(m), v = menuView(W, H);
+  const lit = { ...s, menuOpen: true }, frame = hud(W, H, lit).replace("<svg ", `<svg width="${W}" height="${H}" `);
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${frame}${INV_DEFS}${menuDefs}${menuBackdrop(v)}
+  <g transform="${fitIn(v)}">${body}</g>${topBar(W, lit)}</svg>`;
 }
 
 window.INV_BOXES = INV_BOXES;
@@ -751,7 +758,7 @@ function draw() {
   $("inventory").innerHTML = inventoryScreen(W, H, s);
   const screen = $("menu").value;
   const limit = screen === "pause" || screen === "gameOver" ? 2 : 4;
-  $("menuScreen").innerHTML = menuScreen(W, H, { screen, cursor: Math.max(0, Math.min(limit, +$("menuCursor").value)), typing: $("typing").checked, confirm: $("confirm").checked, canLoad: $("canLoad").checked });
+  $("menuScreen").innerHTML = menuScreen(W, H, { screen, cursor: Math.max(0, Math.min(limit, +$("menuCursor").value)), typing: $("typing").checked, confirm: $("confirm").checked, canLoad: $("canLoad").checked }, s);
 }
 
 document.querySelectorAll("header input, header select").forEach((el) => el.addEventListener("input", draw));

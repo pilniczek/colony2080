@@ -1,7 +1,7 @@
 import type { Rect } from "../geometry";
 import { savedStamp, type Slots } from "../save/slots";
 import { BOLD, box, image, INV, INVENTORY_BOXES, INVENTORY_DEFS, label, MONO } from "./inventory";
-import { HUD_H, HUD_MIN_W } from "./layout";
+import { HUD_H, HUD_MIN_W, viewRect } from "./layout";
 import type { MenuState } from "./menuKeys";
 import type { HudIcon } from "./svg";
 
@@ -28,11 +28,18 @@ const text = (x: number, y: number, size: number, fill: string, value: string, a
 
 const pick = (x: number, y: number, w: number, h: number): string => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${INV.pick}"/>`;
 
-function backdrop(W: number, H: number, robot: HudIcon): string {
+const fitIn = ({ x, y, w, h }: Rect): string => {
+  const k = Math.min(w / HUD_MIN_W, h / HUD_H);
+  return `translate(${x + (w - HUD_MIN_W * k) / 2} ${y + (h - HUD_H * k) / 2}) scale(${k})`;
+};
+
+const area = ({ x, y, w, h }: Rect, fill: string): string => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
+
+function backdrop(view: Rect, robot: HudIcon): string {
   const r = INVENTORY_BOXES.robot;
-  return `<rect width="${W}" height="${H}" fill="${MENU.back}"/>
-  <g transform="translate(${(W - HUD_MIN_W) / 2} ${(H - HUD_H) / 2})" style="opacity:${ROBOT_OPACITY}">${image(robot, r.x + (r.w - robot.w) / 2, r.y + r.h - robot.h)}</g>
-  <rect width="${W}" height="${H}" fill="url(#menuGrid)"/>`;
+  return `${area(view, MENU.back)}
+  <g transform="${fitIn(view)}" style="opacity:${ROBOT_OPACITY}">${image(robot, r.x + (r.w - robot.w) / 2, r.y + r.h - robot.h)}</g>
+  ${area(view, "url(#menuGrid)")}`;
 }
 
 function pause(s: Extract<MenuState, { screen: "pause" }>): string {
@@ -97,5 +104,6 @@ export function menuSvg(W: number, H: number, state: MenuState, slots: Slots, ro
   const open = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${INVENTORY_DEFS}${DEFS}`;
   if (state.screen === "gameOver") return `${open}${gameOver(W, H, state)}</svg>`;
   const body = state.screen === "pause" ? pause(state) : slotList(state, slots, prefix);
-  return `${open}${backdrop(W, H, robot)}<g transform="translate(${(W - HUD_MIN_W) / 2} ${(H - HUD_H) / 2})">${body}</g></svg>`;
+  const view = viewRect({ W, H, unit: 1 });
+  return `${open}${backdrop(view, robot)}<g transform="${fitIn(view)}">${body}</g></svg>`;
 }

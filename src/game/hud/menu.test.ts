@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SlotEntry, Slots } from "../save/slots";
+import { VIEW_BOX } from "./layout";
 import { menuSvg } from "./menu";
 
 const robot = { url: "data:,", w: 10, h: 20 };
@@ -33,6 +34,18 @@ describe("menuSvg", () => {
   it("puts game over at the dead hero height, centred on the screen", () => {
     const svg = menuSvg(320, 200, { screen: "gameOver", cursor: 1, canLoad: false, at: { x: 100, y: 80 } }, slots, robot);
     expect(svg).toMatch(/<text x="160" y="80" text-anchor="middle"[^>]*>GAME OVER</);
+  });
+
+  it("fills only the game window, so the HUD frame stays in view, for pause, save and load", () => {
+    const W = 400, H = 200;
+    const w = W - VIEW_BOX.left - VIEW_BOX.right, h = H - VIEW_BOX.top - VIEW_BOX.bottom;
+    const k = Math.min(w / 320, h / 200);
+    for (const state of [{ screen: "pause", cursor: 0 }, { screen: "load", cursor: 0, typing: null, confirm: false, message: null }] as const) {
+      const svg = menuSvg(W, H, state, slots, robot);
+      expect(svg).not.toContain(`width="${W}" height="${H}"`);
+      expect(svg).toContain(`<rect x="${VIEW_BOX.left}" y="${VIEW_BOX.top}" width="${w}" height="${h}" fill="#0a1f14"/>`);
+      expect(svg).toContain(`transform="translate(${VIEW_BOX.left + (w - 320 * k) / 2} ${VIEW_BOX.top + (h - 200 * k) / 2}) scale(${k})"`);
+    }
   });
 
   it("asks before leaving to mission select", () => {
