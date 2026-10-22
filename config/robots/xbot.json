@@ -3,7 +3,7 @@
   "source": "docs/requirements.md",
   "note": "Tunable look and proportions of the hero robot. Part shapes (polygons) are drawn in spikes/shared/xbot.js; this file holds the agreed parameters.",
   "palette": {
-    "a0": "#8c3c0c", "a1": "#e2701a", "a2": "#f5973a", "a3": "#ffd2a0", "aLine": "#3a1806",
+    "a0": "#7c4c0c", "a1": "#cc8e1c", "a2": "#eab030", "a3": "#ffe4a0", "aLine": "#36220a",
     "m0": "#142427", "m1": "#25393d", "m2": "#3c5458", "m3": "#6f878b", "mLine": "#070d0e",
     "c0": "#5d686c", "c1": "#a3adb1", "c2": "#d4dbdd", "c3": "#ffffff",
     "badge": "#e8c21a", "trefoil": "#141414", "visor": "#e0281e", "screen": "#3fa34a", "hole": "#1a1210"

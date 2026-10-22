@@ -65,7 +65,7 @@ Unconfirmed: whether door 17 must come before acid tank 14, and whether the ship
 
 ## Hero robot references
 
-- Armour is orange (box cover, `SKALA3`, `METROPAC`). Gold in `VSTUP` comes from sky lighting.
+- Armour is golden ochre in game (`LEV1.GRA` hero sprite palette, hue 36-45°) and in `VSTUP`; orange in the box cover, `SKALA3` and `METROPAC` comes from their lighting.
 - The pale plate with 5 holes is a knee pad, not a foot sole (`SKALA3` frame 81 shows full legs).
 - `SKALA3.ANM` frame 81 is the user-supplied front reference, decoded natively from game data.
 - No original 3D model or large artwork exists: the CD image (`gamedata/raw/CD/Colony28.iso`) holds only game data, 37 S3M music tracks and sound effects. Best clean render is the box front (499x640).
