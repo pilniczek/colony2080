@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "../items";
 import { blasterIcon, BLASTER_BODY_W, BLASTER_MID_Y } from "./blasterIcon";
-import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HUD_H, inventoryW, MAP_W, MENU_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
+import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HIDE_W, HUD_H, inventoryW, MAP_W, MENU_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
   weapon: number;
@@ -13,6 +13,7 @@ export interface HudState {
   soundOn: boolean;
   mapOn: boolean;
   mapOpen: boolean;
+  hidden: boolean;
   item: ItemId | null;
 }
 
@@ -34,6 +35,7 @@ export interface HudKeys {
   weapons: string[];
   run: string;
   sound: string;
+  hide: string;
   map: string;
   menu: string;
   item: string;
@@ -100,7 +102,11 @@ const MAP_FOLDS = "M-1.5 -4.1V3.1M1.5 -3.1V4.1";
 
 const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0 .3V1.4" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
-const MENU_BARS = `<path d="M-3.6 -3H3.6M-3.6 0H3.6M-3.6 3H3.6" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round"/>`;
+const MENU_BARS = `<path d="M-2.8 -2.4H2.8M-2.8 0H2.8M-2.8 2.4H2.8" stroke="${READOUT}" stroke-width=".9" stroke-linecap="round"/>`;
+const SHUT_EYE = `<path d="M-4 0Q0 -3.6 4 0Q0 3.6 -4 0Z" fill="none" stroke="${READOUT}" stroke-width="1.1" stroke-linejoin="round"/>
+  <circle r="1.3" fill="${READOUT}"/>
+  <path d="M-3.3 3.3L3.3 -3.3" stroke="${LO}" stroke-width="2"/>
+  <path d="M-3.3 3.3L3.3 -3.3" stroke="${READOUT}" stroke-width="1.1" stroke-linecap="round"/>`;
 const foldedMap = `<path d="${MAP_SHEET}" fill="${READOUT}"/>
   <path d="${MAP_FOLDS}" stroke="${LO}" stroke-width=".6"/>`;
 
@@ -210,6 +216,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
     ...wx.slice(0, s.bonus ? 3 : 2).map((x, i) => ({ cx: x + keyCentre(i), label: keys.weapons[i] ?? "", active: s.weapon === i })),
     { cx: bar.sound + SPEAKER_W / 2, label: keys.sound, active: s.soundOn },
     { cx: bar.run + TOGGLE_W / 2, label: keys.run, active: s.running },
+    { cx: bar.hide + HIDE_W / 2, label: keys.hide, active: s.hidden },
     { cx: bar.map + MAP_W / 2, label: keys.map, active: s.mapOpen },
     { cx: bar.menu + MENU_W / 2, label: keys.menu, active: false },
     { cx: bar.inv + bar.invW / 2, label: keys.item, active: false },
@@ -226,6 +233,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${gridPanel(bar.togglesX, bar.togglesW, spans)}
   ${soundIcon(bar.sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
   ${runIcon(s.running ? icons.run : icons.walk, bar.run + TOGGLE_W / 2, s.running)}
+  ${hideIcon(bar.hide + HIDE_W / 2, s.hidden)}
   ${mapIcon(bar.map + MAP_W / 2, s.mapOn, s.mapOpen)}
   ${menuIcon(bar.menu + MENU_W / 2)}
   ${gridPanel(bar.inv, bar.invW, spans)}${item}
@@ -259,6 +267,9 @@ const runIcon = (icon: HudIcon, x: number, running: boolean): string =>
 
 const soundIcon = (x: number, on: boolean): string =>
   `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${speaker(on)}</g></g>`;
+
+const hideIcon = (x: number, hidden: boolean): string =>
+  `<g filter="url(#${hidden ? "iconGlow" : "iconDim"})" data-icon="hide"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${SHUT_EYE}</g></g>`;
 
 const menuIcon = (x: number): string =>
   `<g filter="url(#iconDim)" data-icon="menu"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;

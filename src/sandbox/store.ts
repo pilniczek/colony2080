@@ -38,6 +38,7 @@ export interface SandboxState {
   complete: boolean;
   weapon: Weapon;
   running: boolean;
+  hidden: boolean;
   fps: number;
   inputLog: string[];
   fogOn: boolean;
@@ -131,6 +132,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   complete: false,
   weapon: "gun",
   running: true,
+  hidden: false,
   fps: 0,
   inputLog: [],
   fogOn: fogConfig.enabled,
