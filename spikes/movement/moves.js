@@ -749,7 +749,7 @@ function bag(c, pose, x, y) {
 function punchOrShoot(c, t, look = {}) {
   backdrop(c);
   const x = PUNCH_X;
-  if (armed()) return shoot(c, t, PUNCH_STANCE, x, look);
+  if (armed()) return shoot(c, t, STAND, x, look);
   const pose = punchPose(t, PUNCH_STANCE);
   const y = FLOOR + lift(pose);
   bag(c, pose, x, y);

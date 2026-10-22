@@ -170,7 +170,7 @@
       "duration": 1.2,
       "loop": true,
       "pose": [
-        [0, {"body": 2, "hipNear": -16, "kneeNear": 10, "ankleNear": 2.8, "hipFar": 14, "kneeFar": 6, "ankleFar": -15.4}]
+        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}]
       ]
     },
     "duckShoot": {
