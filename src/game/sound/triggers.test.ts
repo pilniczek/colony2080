@@ -23,7 +23,7 @@ const arena = (extra: object = {}) => ({
   ...extra,
 });
 
-const droid = (x: number, extra: object = {}) => ({ x, y: 8, facing: -1, hits: 7, respawnMs: null, reactMs: 250, spotMs: 0, burst: { shots: 9, ms: 280 }, pauseMs: 400, patrol: [1.5, 28.5], ...extra });
+const droid = (x: number, extra: object = {}) => ({ x, y: 8, facing: -1, hits: 7, respawnMs: null, reactMs: 250, burst: { shots: 9, ms: 280 }, pauseMs: 400, patrol: [1.5, 28.5], ...extra });
 
 const FLIGHT = sandbox.enemies.find((e) => "flight" in e)!.flight;
 
@@ -55,6 +55,7 @@ describe("hero weapon cues", () => {
 describe("enemy fire cues", () => {
   it("droid shot cues cannon 15000, one per bullet", () => {
     const g = game({ x: 5.5, y: 8 }, arena({ enemies: [droid(9.5)] }));
+    g.world.enemies[0]!.tracking = true;
     tick(g);
     expect(cues(g, "cannon")).toEqual([{ id: "cannon", rate: 15000, vol: 63, bus: "world" }]);
     run(g, 0.5);

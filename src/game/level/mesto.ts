@@ -29,8 +29,8 @@ export function droidsOf(entries: DroidEntry[], tuning: DroidTuning): EnemyJson[
 export const flyersOf = (entries: FlyerEntry[], tuning: DroidTuning): EnemyJson[] =>
   droidsOf(entries.map((e) => ({ ...e, cell: [e.cell[0]!, e.floor - 1] })), tuning);
 
-const { hits, reactMs, spotMs, burst, pauseMs } = sandbox.enemies[0]!;
-export const DROID: DroidTuning = { hits, reactMs, spotMs, burst, pauseMs, respawnMs: null };
+const { hits, reactMs, burst, pauseMs } = sandbox.enemies[0]!;
+export const DROID: DroidTuning = { hits, reactMs, burst, pauseMs, respawnMs: null };
 export const FLYER: DroidTuning = { ...DROID, flight: (sandbox.enemies.find((e) => "flight" in e) as EnemyJson).flight! };
 
 export function mestoJson(): SandboxJson {

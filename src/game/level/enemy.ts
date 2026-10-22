@@ -20,7 +20,6 @@ export interface EnemyJson {
   hits: number;
   respawnMs: number | null;
   reactMs: number;
-  spotMs: number;
   burst: Burst;
   pauseMs: number;
   patrol?: [number, number];
@@ -70,7 +69,6 @@ export interface Enemy {
   hits: number;
   respawnMs: number | null;
   reactMs: number;
-  spotMs: number;
   burst: Burst;
   pauseMs: number;
   patrol: [number, number];
@@ -158,7 +156,6 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
     ...base,
     respawnMs: json.respawnMs,
     reactMs: json.reactMs,
-    spotMs: json.spotMs,
     burst: json.burst,
     pauseMs: json.pauseMs,
     patrol,
@@ -211,7 +208,7 @@ const inReach = (e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCel
 
 function track(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): void {
   if (sees(e, grid, hero, fog, sightCells)) {
-    if (!e.tracking) e.pauseLeft = Math.max(e.pauseLeft, e.spotMs / 1000);
+    if (!e.tracking) e.pauseLeft = Math.max(e.pauseLeft, e.reactMs / 1000);
     e.tracking = true;
   } else if (e.tracking && inReach(e, grid, hero, fog, sightCells)) e.alertAge ??= 0;
   else e.tracking = false;
