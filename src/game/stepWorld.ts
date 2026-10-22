@@ -6,7 +6,7 @@ import { inSparks, stepConveyors, stepHazards } from "./level/hazards";
 import { approachFilms, resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
 import { cue } from "./sound/cues";
-import { siren, spark } from "./sound/triggers";
+import { explode, siren, spark } from "./sound/triggers";
 import { ageSparks, fireBeam, fireEnemy, fireGuards, fireShots, landPunches } from "./shots";
 
 export const SUBTITLE_MS = 3500;
@@ -18,7 +18,10 @@ function ageSubtitle(world: SandboxWorld, dt: number): void {
 }
 
 function worldSounds(world: SandboxWorld, hero: Hero, events: HeroEvent[], dt: number): void {
-  for (const e of events) if (e.kind === "shield") cue(world, "power", 20000);
+  for (const e of events) {
+    if (e.kind === "shield") cue(world, "power", 20000);
+    if (e.kind === "died") explode(world);
+  }
   siren(world, hero.energy, !isDead(hero.state) && world.cutscene === null, dt);
   spark(world, inSparks(world, hero), dt);
 }

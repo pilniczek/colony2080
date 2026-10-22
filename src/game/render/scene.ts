@@ -3,7 +3,7 @@ import type { ViewTransform } from "../../engine/render/view";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import type { MovementConfig } from "../hero/config";
-import type { Hero } from "../hero/hero";
+import { isDead, type Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Rect } from "../geometry";
@@ -250,6 +250,7 @@ export function drawScene(
     }
     shadow(f, hero, look);
     heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
+    if (isDead(hero.state)) blast(f, hero, hero.time);
     ctx.restore();
   };
   const behind = heroBehindEnemies(hero);
