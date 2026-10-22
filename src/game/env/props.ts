@@ -1,3 +1,4 @@
+import { G } from "./grime";
 import { P, type EnvAsset } from "./paint";
 
 const { rng, path, color, flat, box, poly, cylV, disc, rivets, stroke, tones } = P;
@@ -42,6 +43,16 @@ const rock = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, 
     return [cx + cos(a) * k, cy + sin(a) * k * 0.82];
   });
   facets(ctx, pts, cx + r * 0.22, cy + r * 0.16, shades, "kLine");
+  G.grain(ctx, G.polyRegion(ctx, pts), seed + 200);
+  G.grain(ctx, G.polyRegion(ctx, pts), seed + 300, 0.7);
+};
+
+const clipped = (ctx: CanvasRenderingContext2D, pts: Pt[], draw: () => void): void => {
+  ctx.save();
+  path(ctx, pts);
+  ctx.clip();
+  draw();
+  ctx.restore();
 };
 
 const scuff = (ctx: CanvasRenderingContext2D, x: number, w: number): void => {
@@ -131,13 +142,16 @@ const lyingHuman = (ctx: CanvasRenderingContext2D, x: number, { flip = false, su
   ctx.restore();
 };
 
-const girder = (ctx: CanvasRenderingContext2D, ax: number, ay: number, bx: number, by: number, w: number): void => {
+const girder = (ctx: CanvasRenderingContext2D, ax: number, ay: number, bx: number, by: number, w: number, seed: number): void => {
   const len = hypot(bx - ax, by - ay);
   ctx.save();
   ctx.translate(ax, ay);
   ctx.rotate(atan2(by - ay, bx - ax));
   box(ctx, 0, -w / 2, len, w, "rust", 2);
   flat(ctx, w * 0.3, -w * 0.18, len - w * 0.6, w * 0.36, "r1");
+  G.grain(ctx, G.rectRegion(ctx, 0, -w / 2, len, w), seed);
+  G.rustPatch(ctx, len * 0.55, 0, w * 0.5, w * 0.25, seed + 1);
+  G.chips(ctx, 0, -w / 2, len, seed + 2, G.DIRT);
   rivets(ctx, 0, -w * 0.36, len, 4, "r3");
   poly(ctx, [[len, -w / 2], [len + w * 0.3, -w * 0.2], [len - w * 0.1, w * 0.1], [len + w * 0.2, w / 2], [len, w / 2]], "rust", 1);
   ctx.restore();
@@ -150,6 +164,13 @@ const drum = (ctx: CanvasRenderingContext2D, x: number, w: number, h: number): v
   for (let y = -h + step; y < -1; y += step) flat(ctx, x + 0.4, y - 0.6, w - 0.8, 1.2, "c0");
   for (const y of [-h + 1, -h * 0.5, -2]) cylV(ctx, x - 0.6, y - 1.2, w + 1.2, 2.4, "chrome", 2);
   poly(ctx, [[x, -h], [x + w, -h], [x + w - 1, -h - 2], [x + 1, -h - 2]], "chrome", 2);
+  G.grain(ctx, G.rectRegion(ctx, x - 0.6, -h - 2, w + 1.2, h + 2), 51);
+  G.grain(ctx, G.rectRegion(ctx, x - 0.6, -h - 2, w + 1.2, h + 2), 52, 0.8);
+  G.rustPatch(ctx, x + w * 0.65, -h * 0.3, 3.5, 2, 53);
+  G.rustPatch(ctx, x + w * 0.25, -h * 0.7, 2.2, 1.4, 54);
+  G.drips(ctx, x + 1, -h + 2, w - 2, h * 0.45, 55, 3);
+  G.dirt(ctx, x - 0.6, -h, w + 1.2, h, 56, 0.45);
+  G.chips(ctx, x - 0.6, -h * 0.5 - 1.2, w + 1.2, 57, G.DIRT);
 };
 
 export const barrel: EnvAsset = {
@@ -461,6 +482,10 @@ export const crate: EnvAsset = {
         flat(ctx, 4 + c * w + w * 0.2, -21.5 + r * 5, w * 0.6, 3.4, "hole");
       }
     }
+    G.surface(ctx, 1, -25, 26, 25, 58, { rise: 0.4, drip: 3, dripLen: 12 });
+    G.rustPatch(ctx, 22, -6, 3, 1.8, 62);
+    G.grain(ctx, G.rectRegion(ctx, 0, -27, 28, 2.6), 63);
+    G.chips(ctx, 0, -27, 28, 64, G.DIRT);
     flat(ctx, 1, -2, 26, 2, "b0", "bLine");
   },
 };
@@ -474,6 +499,13 @@ export const signPost: EnvAsset = {
     box(ctx, -1, -42, 4, 2.5, "chrome", 0);
     box(ctx, -4.5, -59, 11, 18, "chrome", 1, { vertical: true });
     flat(ctx, -3.5, -57, 5, 14, "screenOff", "gLine");
+    G.grain(ctx, G.rectRegion(ctx, -0.5, -40, 3, 38), 65);
+    G.dirt(ctx, -0.5, -40, 3, 38, 66, 0.3);
+    G.rustPatch(ctx, 1, -12, 1.4, 1.2, 67);
+    G.grain(ctx, G.rectRegion(ctx, -4.5, -59, 11, 18), 68, 0.8);
+    G.drips(ctx, -4, -59, 10, 10, 69, 2);
+    G.chips(ctx, -4.5, -59, 11, 70, G.DIRT);
+    G.grain(ctx, G.polyRegion(ctx, [[-4, 0], [-3, -2], [5, -2], [6, 0]]), 71);
     if (P.simple()) return;
     for (let y = -55; y < -45; y += 2.6) flat(ctx, -2.8, y, 3.4, 0.8, "screen");
     disc(ctx, 3.5, -55, 0.8, "neon");
@@ -488,9 +520,12 @@ export const floorVent: EnvAsset = {
     flat(ctx, 1.6, -6.6, 18.8, 4.6, "hole");
     const n = P.simple() ? 4 : 6;
     for (let i = 0; i < n; i++) box(ctx, 2.6 + i * (17 / n), -6.6, 1.2, 4.6, "chrome", 2, { vertical: true, line: false });
+    G.surface(ctx, 0, -8, 22, 7, 72, { rise: 0.5 });
+    G.rustPatch(ctx, 17, -5, 2.5, 1, 76);
   },
 };
 
+const PILE: Pt[] = [[-2, 0], [6, -22], [22, -46], [36, -66], [48, -86], [60, -96], [76, -96], [82, -74], [92, -48], [100, -16], [102, 0]];
 const BOULDERS: [number, number, number][] = [
   [10, -10, 12], [33, -11, 13], [58, -10, 12], [82, -11, 12],
   [21, -31, 11], [45, -32, 12], [70, -30, 11], [90, -26, 7],
@@ -504,7 +539,7 @@ export const rubblePile: EnvAsset = {
   id: "rubblePile",
   box: [-6, -100, 102, 0],
   draw(ctx) {
-    path(ctx, [[-2, 0], [6, -22], [22, -46], [36, -66], [48, -86], [60, -96], [76, -96], [82, -74], [92, -48], [100, -16], [102, 0]]);
+    path(ctx, PILE);
     ctx.fillStyle = color("hole");
     ctx.fill();
     const list = P.simple() ? BOULDERS.filter((b) => b[2] > 6) : BOULDERS;
@@ -512,6 +547,7 @@ export const rubblePile: EnvAsset = {
       .map((b, i): [number, number, number, number] => [b[0], b[1], b[2], i])
       .sort((a, b) => a[1] - b[1])
       .forEach(([x, y, r, i]) => rock(ctx, x, y, r * 1.3, i + 3));
+    clipped(ctx, PILE, () => G.dirt(ctx, -6, -100, 108, 100, 78, 0.6));
   },
 };
 
@@ -537,8 +573,10 @@ export const fallenGirders: EnvAsset = {
   box: [-2, -98, 124, 0],
   draw(ctx) {
     poly(ctx, MOUND, "rust", 1);
+    G.grain(ctx, G.polyRegion(ctx, MOUND), 81);
     chunks(P.simple() ? 10 : 26).forEach(([x, y, r], i) => rock(ctx, x, y, r, i + 40, DEBRIS));
-    for (const g of GIRDERS) girder(ctx, ...g);
+    clipped(ctx, MOUND, () => G.dirt(ctx, 0, -94, 122, 94, 82, 0.25));
+    GIRDERS.forEach((g, i) => girder(ctx, ...g, 90 + i * 4));
   },
 };
 

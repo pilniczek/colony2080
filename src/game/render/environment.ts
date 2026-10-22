@@ -126,12 +126,15 @@ const SPRITE_PAD = 8;
 const SPRITES_KEPT = 48;
 const sprites = new Map<string, HTMLCanvasElement | null>();
 
-function sprite(id: AssetId, state: number, scale: number, lines: number): HTMLCanvasElement | null {
-  const key = `${id}|${state}|${scale}|${lines}`;
+const spriteTop = (id: AssetId, size?: Size): number => Math.min(ASSETS[id].box[1], size?.top ?? 0);
+
+function sprite(id: AssetId, state: number, scale: number, lines: number, size?: Size): HTMLCanvasElement | null {
+  const key = `${id}|${state}|${scale}|${lines}|${size?.top ?? ""}`;
   const known = sprites.get(key);
   if (known !== undefined) return known;
   if (sprites.size >= SPRITES_KEPT) sprites.clear();
-  const [x0, y0, x1, y1] = ASSETS[id].box;
+  const [x0, , x1, y1] = ASSETS[id].box;
+  const y0 = spriteTop(id, size);
   const c = document.createElement("canvas");
   c.width = Math.ceil((x1 - x0 + 2 * SPRITE_PAD) * scale);
   c.height = Math.ceil((y1 - y0 + 2 * SPRITE_PAD) * scale);
@@ -139,22 +142,23 @@ function sprite(id: AssetId, state: number, scale: number, lines: number): HTMLC
   if (ctx) {
     ctx.scale(scale, scale);
     ctx.translate(SPRITE_PAD - x0, SPRITE_PAD - y0);
-    drawAsset(ctx, ASSETS[id], { state, lod: true, lines });
+    drawAsset(ctx, ASSETS[id], { state, lod: true, lines, size });
   }
   const made = ctx ? c : null;
   sprites.set(key, made);
   return made;
 }
 
-function putSprite(e: Env, id: AssetId, x: number, y: number, state: number): boolean {
+function putSprite(e: Env, id: AssetId, x: number, y: number, state: number, size?: Size): boolean {
   const { ctx } = e;
   const t = ctx.getTransform();
   if (t.b || t.c || typeof document === "undefined") return false;
   const scale = Math.round(t.a * k(e) * 1000) / 1000;
-  const image = sprite(id, state, scale, e.lines);
+  const image = sprite(id, state, scale, e.lines, size);
   if (!image) return false;
   if (e.drawn) e.drawn.count++;
-  const [x0, y0] = ASSETS[id].box;
+  const x0 = ASSETS[id].box[0];
+  const y0 = spriteTop(id, size);
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.drawImage(image, Math.round(t.a * x + t.e + (x0 - SPRITE_PAD) * scale), Math.round(t.d * y + t.f + (y0 - SPRITE_PAD) * scale));
@@ -415,7 +419,7 @@ export function prop(e: Env, p: Prop): void {
   const x = (p.x + dx) * e.cell - ((left + right) / 2) * k(e);
   const y = ((p.y ?? e.world.spawn[1]) + dy) * e.cell;
   if (!near(e, artBox(e, id, x, y, top === undefined ? 0 : top * e.cell))) return;
-  if (!size && !look && !ASSETS[id].anim && putSprite(e, id, x, y, state)) return;
+  if (!look && !ASSETS[id].anim && putSprite(e, id, x, y, state, size)) return;
   put(e, id, x, y, state, size, look?.t ?? 0);
 }
 

@@ -53,11 +53,25 @@ const hash = (a: number, b: number): number => {
   return s - Math.floor(s);
 };
 
+const rects = (ctx: CanvasRenderingContext2D, list: [number, number, number, number][]) => (): void => {
+  ctx.beginPath();
+  for (const [x, y, w, h] of list) ctx.rect(x, y, w, h);
+};
+
+const polys = (ctx: CanvasRenderingContext2D, list: Pt[][]) => (): void => {
+  ctx.beginPath();
+  for (const [first, ...rest] of list) {
+    ctx.moveTo(first![0], first![1]);
+    for (const p of rest) ctx.lineTo(p[0], p[1]);
+    ctx.closePath();
+  }
+};
+
 const fit = (pts: Pt[], x: number, y: number, w: number, h: number): Pt[] => pts.map(([px, py]) => [x + px * w, y + py * h]);
 
 const BOLT: Pt[] = [[0.58, 0], [0.18, 0.56], [0.46, 0.56], [0.34, 1], [0.82, 0.4], [0.54, 0.4], [0.72, 0]];
 
-const greenPanel = (ctx: CanvasRenderingContext2D, x: number, y: number, s: number, inner: PanelInner): void => {
+const greenPanel = (ctx: CanvasRenderingContext2D, x: number, y: number, s: number, seed: number, inner: PanelInner): void => {
   box(ctx, x, y, s, s, "green", 0);
   flat(ctx, x, y, s, 1.5, "c1");
   flat(ctx, x, y, 1.5, s, "c1");
@@ -70,6 +84,10 @@ const greenPanel = (ctx: CanvasRenderingContext2D, x: number, y: number, s: numb
   flat(ctx, x + i, y + i, 1, n, "g0");
   flat(ctx, x + i + 1, y + i + n - 1, n - 1, 1, "g3");
   flat(ctx, x + i + n - 1, y + i + 1, 1, n - 1, "g2");
+  G.grain(ctx, G.rectRegion(ctx, x, y, s, s), seed);
+  G.dirt(ctx, x, y, s, s, seed + 1, 0.3);
+  G.drips(ctx, x + i, y + i + n, n, i, seed + 2, 2);
+  G.chips(ctx, x, y + 0.2, s, seed + 3);
   if (!P.simple()) {
     for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]] as Pt[]) disc(ctx, x + 2.5 + a * (s - 5), y + 2.5 + b * (s - 5), 0.6, "g3");
   }
@@ -90,7 +108,7 @@ export const wireBox: EnvAsset = {
   id: "wireBox",
   box: [-3, -43, 25, 0],
   draw(ctx, state) {
-    greenPanel(ctx, 0, -40, 22, (x, y, n) => {
+    greenPanel(ctx, 0, -40, 22, 100, (x, y, n) => {
       if (state === 0) return wires(ctx, x, y, n);
       boltIcon(ctx, x, y, n);
       if (!P.simple()) for (const k of [0.3, 0.6]) cable(ctx, [[x + n * k, y + n], [x + n * k + 1, y + n + 2.5]], "a1", 0.8);
@@ -105,8 +123,12 @@ export const switchboard: EnvAsset = {
     box(ctx, 0, top + 4, 26, -top - 4, "concrete", 0, { vertical: true });
     box(ctx, -2, top + 2, 30, 5, "concrete", 1);
     box(ctx, -2, -5, 30, 5, "concrete", 1);
+    G.surface(ctx, 0, top + 7, 26, -top - 12, 110, { rise: 0.35, drip: 3, dripLen: 24 });
+    G.rustPatch(ctx, 7, -26, 3.5, 2, 114);
+    G.chips(ctx, -2, top + 2.2, 30, 115);
+    G.chips(ctx, -2, -4.8, 30, 116);
     if (!P.simple()) for (const y of [-62, -16]) flat(ctx, 2, y, 22, 0.8, "k0");
-    greenPanel(ctx, 4, -54, 18, (x, y, n) => {
+    greenPanel(ctx, 4, -54, 18, 117, (x, y, n) => {
       if (state === 0) {
         flat(ctx, x + 1.5, y + 1.5, n - 3, 2, "m1", "mLine");
         for (const k of [0.3, 0.7]) cable(ctx, [[x + n * k, y + 3.5], [x + n * k - 0.5, y + 6]], "a1", 0.8);
@@ -124,10 +146,17 @@ const LIFT = { w: 50, top: -104, travel: 72, rail: 18 };
 
 const shaft = (ctx: CanvasRenderingContext2D, w: number, top: number): void => {
   const rack = w / 2;
-  for (const x of [rack - 14, rack + 14]) box(ctx, x - 1.5, top, 3, -top + 6, "concrete", 1, { vertical: true });
+  const railA = rack - 14;
+  const railB = rack + 14;
+  for (const x of [railA, railB]) box(ctx, x - 1.5, top, 3, -top + 6, "concrete", 1, { vertical: true });
   box(ctx, rack - 2, top, 4, -top + 6, "concrete", 0, { vertical: true });
   const simple = P.simple();
   for (let y = top + 2; y < 6; y += simple ? 6 : 3.5) flat(ctx, rack - 3, y, 6, simple ? 2 : 1.2, "k2");
+  G.grain(ctx, rects(ctx, [[railA - 1.5, top, 3, -top + 6], [railB - 1.5, top, 3, -top + 6], [rack - 3, top, 6, -top + 6]]), 200);
+  for (let y = top + 12, i = 0; y < -8; y += 34, i++) {
+    G.streak(ctx, railA, y, 14 + (i % 3) * 4, 2.2, G.RUST[1], 0.6);
+    G.streak(ctx, railB, y + 17, 18 - (i % 3) * 4, 2.2, G.RUST[1], 0.6);
+  }
 };
 
 const deck = (ctx: CanvasRenderingContext2D, w: number): void => {
@@ -140,6 +169,8 @@ const deck = (ctx: CanvasRenderingContext2D, w: number): void => {
   for (const x of [1, w - 3]) box(ctx, x, -rail, 2, rail, "concrete", 3, { vertical: true });
   box(ctx, 1, -rail - 1, w - 2, 2, "concrete", 3);
   box(ctx, 1, -rail / 2, w - 2, 1.5, "concrete", 2);
+  G.grain(ctx, rects(ctx, [[0, 0, w, 7], [1, -rail - 1, w - 2, 2], [1, -rail, 2, rail], [w - 3, -rail, 2, rail]]), 210);
+  G.chips(ctx, 0, 0.2, w, 211);
 };
 
 const platform = (ctx: CanvasRenderingContext2D, py: number, w: number): void => {
@@ -333,6 +364,13 @@ export const tapValveWheel: EnvAsset = {
     poly(ctx, [[x + W, top], [x + W, 0], [x, 0], [x, top + W]], PIPE, 1, { dir: [1, 0] });
     flat(ctx, -40, top + 4, 40 + W - 4, 1, "c2");
     flat(ctx, x + 4, top + W - 4, 1, -top - W + 4, "c2");
+    G.grain(ctx, G.polyRegion(ctx, [[-40, top], [x + W, top], [x + W, 0], [x, 0], [x, top + W], [-40, top + W]]), 120);
+    G.drips(ctx, -38, top + 1, 34, W - 3, 121, 3);
+    G.drips(ctx, x + 1, top + W, W - 2, 34, 122, 2);
+    G.dirt(ctx, x, top + W, W, -top - W, 123, 0.25);
+    G.rustPatch(ctx, -27, top + W - 7, 3, 1.8, 124);
+    G.rustPatch(ctx, x + 6, -12, 3, 1.8, 125);
+    G.chips(ctx, -40, top + 0.3, 40 + W, 126);
     if (!P.simple()) {
       collarH(ctx, -28, top, W, PIPE);
       for (const cy of [-52, -10]) collarV(ctx, x, cy, W, PIPE);
@@ -388,6 +426,8 @@ export const waterPipe: EnvAsset = {
     collarV(ctx, 4, -60, 16, "rust");
     cylV(ctx, 2.5, -46, 19, 3, "rust", 2);
     flat(ctx, 7, -43, 10, 1.5, "hole");
+    G.grain(ctx, rects(ctx, [[-24, -70, 18, 8], [2.5, -72, 19, 29]]), 130);
+    G.drips(ctx, 5, -72, 14, 24, 131, 2);
     if (!P.simple()) {
       flat(ctx, 8, -66, 3, 5, "r3");
       flat(ctx, 14, -54, 2, 3, "r0");
@@ -442,6 +482,7 @@ const plasma = (ctx: CanvasRenderingContext2D, state: number, t: number): void =
     }
   }
   box(ctx, -1, -2.5, 26, 2.5, "steel", 1);
+  G.chips(ctx, -1, -2.3, 26, 143, G.DIRT);
   for (let x = 2; x < 24; x += 4) flat(ctx, x, -2, 2, 1.2, state === 0 ? "y3" : "m0");
 };
 
@@ -452,6 +493,8 @@ export const plasmaBarrier: EnvAsset = {
   draw(ctx, state, t, { top }: Size) {
     if (top !== undefined) {
       box(ctx, -1, top, 26, PLASMA_EMITTER - top, "concrete", 0, { vertical: true });
+      G.grain(ctx, G.rectRegion(ctx, -1, top, 26, PLASMA_EMITTER - top), 140);
+      G.drips(ctx, 1, top, 22, (PLASMA_EMITTER - top) * 0.5, 141, 2);
       ctx.save();
       ctx.translate(0, PLASMA_EMITTER);
       ctx.scale(1, -1);
@@ -468,12 +511,16 @@ export const codeLock: EnvAsset = {
   draw(ctx, state) {
     box(ctx, 0, -50, 22, 28, "rust", 1);
     flat(ctx, 0, -50, 22, 1.5, "r3");
+    G.surface(ctx, 0, -50, 22, 28, 150, { rise: 0.35, drip: 2, dripLen: 20 });
     flat(ctx, 3, -47, 16, 6, state ? "screenOff" : "hole", "mLine");
     if (state) {
       flat(ctx, 5, -45, 6, 2, "screen");
       disc(ctx, 15.5, -44, 1, "screen");
     } else for (let i = 0; i < 4; i++) flat(ctx, 4.5 + i * 3.5, -44.5, 2, 1, "neon");
     for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) box(ctx, 4 + c * 5, -39 + r * 4, 4, 3, "steel", r === 3 && c === 2 ? 3 : 2);
+    G.grain(ctx, G.rectRegion(ctx, 4, -39, 14, 15), 152);
+    G.drips(ctx, 4, -40, 14, 14, 153, 2, false);
+    G.rustPatch(ctx, 4, -26, 2.5, 1.4, 154);
     const led = state ? "screen" : "neon";
     glow(ctx, 19, -24.5, 4, led, 0.6);
     disc(ctx, 19, -24.5, 1, led, "mLine");
@@ -485,17 +532,26 @@ const TANK = { x: 0, w: 96, roof: -124, top: -100, base: -28 };
 
 const tank = (ctx: CanvasRenderingContext2D): void => {
   const { x, w, roof, top, base } = TANK;
-  for (const lx of [4, 28, 56, 80]) poly(ctx, [[x + lx, base], [x + lx + 14, base], [x + lx + 16, 0], [x + lx - 2, 0]], "concrete", 1);
+  const legs = [4, 28, 56, 80].map((lx): Pt[] => [[x + lx, base], [x + lx + 14, base], [x + lx + 16, 0], [x + lx - 2, 0]]);
+  for (const leg of legs) poly(ctx, leg, "concrete", 1);
   box(ctx, x, top, w, base - top, "concrete", 2, { vertical: true });
   for (let y = top + 3; y < base - 2; y += P.simple() ? 8 : 5) {
     flat(ctx, x + 1, y, w - 2, 1.4, "k3");
     flat(ctx, x + 1, y + 2.6, w - 2, 1.2, "k0");
   }
   box(ctx, x + 14, top, 8, base - top, "concrete", 0, { vertical: true });
+  G.dirt(ctx, x, top, w, base - top, 163, 0.35);
+  G.rustPatch(ctx, x + 36, base - 10, 5, 2.5, 164);
+  G.rustPatch(ctx, x + 84, top + 22, 3.5, 2, 165);
   for (const y of [top, base - 4]) box(ctx, x - 1, y, w + 2, 4, "concrete", 1);
-  poly(ctx, [[x - 2, top], [x + w / 2, roof], [x + w + 2, top]], "steel", 2, { dir: [1, 0] });
+  G.chips(ctx, x - 1, top + 0.2, w + 2, 166);
+  G.chips(ctx, x - 1, base - 3.8, w + 2, 167);
+  const roofPts: Pt[] = [[x - 2, top], [x + w / 2, roof], [x + w + 2, top]];
+  poly(ctx, roofPts, "steel", 2, { dir: [1, 0] });
   poly(ctx, [[x + w / 2 - 6, roof + 4], [x + w / 2, roof], [x + w / 2 + 6, roof + 4]], "m3", 2, { line: false });
+  G.grain(ctx, polys(ctx, [...legs, roofPts, [[x - 1, top], [x + w + 1, top], [x + w + 1, base], [x - 1, base]]]), 160);
   text(ctx, "ACID", x + 54, top + 32, 15, "y1");
+  G.drips(ctx, x + 2, top + 4, w - 4, 36, 170, 6);
 };
 
 const OUT = { x: -40, w: 14, y: -84, valve: -34 };
@@ -506,6 +562,9 @@ const outlet = (ctx: CanvasRenderingContext2D, state: number): void => {
   cylV(ctx, x, y, w, w, "concrete", 2);
   collarH(ctx, -8, y, w, "concrete");
   pipeV(ctx, x, y + w, w, -y - w - 4, "concrete");
+  G.grain(ctx, rects(ctx, [[x, y, -x + 2, w], [x, y + w, w, -y - w - 4]]), 171);
+  G.drips(ctx, x + 1, y + w, w - 2, 34, 172, 2);
+  G.drips(ctx, x + w + 2, y + 1, -x - w - 4, w - 3, 173, 2);
   box(ctx, x - 1.5, valve - 5, w + 3, 11, "steel", 2, { vertical: true });
   if (state !== 0) handwheel(ctx, x + w / 2, valve, 5.5);
   cylV(ctx, x - 1, -5, w + 2, 3, "concrete", 1);
@@ -562,6 +621,11 @@ const craneBeam = (ctx: CanvasRenderingContext2D): void => {
   box(ctx, 0, 3, len, h - 6, "green", 0);
   if (!P.simple()) rivets(ctx, 0, h / 2, len, 8, "g2");
   for (const y of [0, h - 3]) box(ctx, 0, y, len, 3, "chrome", 1);
+  G.grain(ctx, G.rectRegion(ctx, 0, 0, len, h), 175);
+  G.drips(ctx, 4, 3, len - 8, h - 5, 176, 6);
+  G.rustPatch(ctx, 30, h / 2, 5, 2.5, 177);
+  G.rustPatch(ctx, 140, h / 2 + 1, 4, 2, 178);
+  G.chips(ctx, 0, 0.2, len, 179);
   for (const cx of [clampA, clampB]) box(ctx, cx, -1, 4.5, h + 2, "armor", 0, { vertical: true });
   box(ctx, len - 2, -0.5, 3, h + 1, "chrome", 2, { vertical: true });
   box(ctx, -1, -0.5, 3, h + 1, "chrome", 2, { vertical: true });
@@ -595,9 +659,13 @@ export const cardDoor: EnvAsset = {
   id: "cardDoor",
   box: [-24, -76, 28, 0],
   draw(ctx, state, _t, { top }: Size) {
-    if (top !== undefined) box(ctx, -3.5, top, 31, -76 - top, "concrete", 0, { vertical: true });
-    greenPanel(ctx, -22, -52, 18, (x, y, n) => boltIcon(ctx, x, y, n));
+    if (top !== undefined) {
+      box(ctx, -3.5, top, 31, -76 - top, "concrete", 0, { vertical: true });
+      G.surface(ctx, -3.5, top, 31, -76 - top, 180, { rise: 0.3, drip: 3, dripLen: 30 });
+    }
+    greenPanel(ctx, -22, -52, 18, 181, (x, y, n) => boltIcon(ctx, x, y, n));
     box(ctx, -2, -76, 28, 4, "steel", 2);
+    G.chips(ctx, -2, -75.8, 28, 185);
     flat(ctx, 0, -72, 24, 72, "hole");
     ctx.save();
     ctx.beginPath();
@@ -607,6 +675,9 @@ export const cardDoor: EnvAsset = {
     box(ctx, 0, -72 + dy, 24, 72, "steel", 2, { vertical: true });
     for (let y = -66; y < -8; y += 14) flat(ctx, 1, y + dy, 22, 1, "m0");
     hazard(ctx, 0, -8 + dy, 24, 8, 3);
+    G.grain(ctx, G.rectRegion(ctx, 0, -72 + dy, 24, 72), 186);
+    G.dirt(ctx, 0, -72 + dy, 24, 72, 187, 0.25);
+    G.drips(ctx, 1, -72 + dy, 22, 40, 188, 4);
     ctx.restore();
     if (state) {
       ctx.save();
@@ -615,6 +686,7 @@ export const cardDoor: EnvAsset = {
       ctx.restore();
     }
     for (const x of [-3.5, 24.5]) box(ctx, x, -72, 3, 72, "steel", 1, { vertical: true });
+    G.grain(ctx, rects(ctx, [[-3.5, -72, 3, 72], [24.5, -72, 3, 72]]), 189);
     tube(ctx, 4, -72, 64);
     tube(ctx, 17, -72, 64);
     for (const y of [-56, -28]) for (const x of [4, 17]) box(ctx, x - 1, y, 5, 3, "chrome", 1);
@@ -640,6 +712,8 @@ const controlBox = (ctx: CanvasRenderingContext2D, x: number, damaged: boolean, 
   box(ctx, l, -24, 16, 24, "rust", 0);
   flat(ctx, l, -24, 16, 1.2, "r3");
   box(ctx, l - 1, -2, 18, 2, "rust", 1);
+  G.grain(ctx, G.rectRegion(ctx, l - 1, -24, 18, 24), 220);
+  G.drips(ctx, l + 1, -22.8, 14, 14, 221, 2);
   if (damaged) {
     screenNoise(ctx, l + 2, -21.5, 12, 14, t);
     cable(ctx, [[l + 10, -21], [l + 8, -18], [l + 11, -16], [l + 9, -14]], "c3", 0.5, "c3");

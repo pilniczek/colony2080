@@ -92,6 +92,8 @@ const bricks = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, 
       if (!P.simple()) flat(ctx, xx + 0.5, yy + 0.5, bw - 1, 0.7, k === 2 ? "#7a5634" : "#5c3e26");
     }
   }
+  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), seed + 60, 0.8);
+  G.dirt(ctx, x, y, w, h, seed + 61, min(0.3, 40 / h));
   ctx.restore();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
@@ -113,6 +115,8 @@ const pane = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h:
     }
   }
   flat(ctx, x, y, w, 4, "#00000066");
+  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), seed + 20, 0.6);
+  G.dirt(ctx, x, y, w, h, seed + 21, 0.3);
   if (!P.simple()) {
     for (let i = 1; i < cols; i++) {
       for (let j = 1; j < rows; j++) {
@@ -267,10 +271,15 @@ export const skyBackground: EnvAsset = {
 };
 
 const hut = (ctx: CanvasRenderingContext2D, x: number, w: number, h: number, cols: number, rows: number, seed: number): void => {
-  shape(ctx, [[x, 0], ...jagged(x, x + w, -h, 4, 6, seed), [x + w, 0]], "r1", "rLine");
+  const outline: Pt[] = [[x, 0], ...jagged(x, x + w, -h, 4, 6, seed), [x + w, 0]];
+  shape(ctx, outline, "r1", "rLine");
+  G.grain(ctx, G.polyRegion(ctx, outline), seed + 200);
   flat(ctx, x, -h + 1, w, 2, "r2");
+  G.chips(ctx, x, -h + 1, w, seed + 201, G.DIRT);
   const gw = (w - 4) / cols;
   grid(ctx, x + 3, -h + 6, cols, rows, gw - 3, (h - 10) / rows - 3, 3, 3, "hole", "rLine");
+  G.drips(ctx, x, -h + 3, w, h * 0.6, seed + 202, round(w / 12));
+  G.dirt(ctx, x, -h, w, h, seed + 203, 0.3);
   flat(ctx, x, -3, w, 3, "r0");
 };
 
@@ -281,12 +290,17 @@ export const midgroundRuins: EnvAsset = {
     hut(ctx, 0, 40, 60, 3, 5, 1);
     for (const [x, h] of [[48, 40], [58, 28], [72, 34]] as Pt[]) {
       pillar(ctx, x, -h, 4, h, "rust", 1);
+      G.surface(ctx, x, -h, 4, h, x + 204, { rise: 0.35, drip: 1, dripLen: h * 0.5, edge: false });
       shape(ctx, [[x, -h], [x + 2, -h - 3], [x + 4, -h + 1]], "r1", "rLine");
     }
     beam(ctx, [48, -24], [76, -30], 2, "rust");
+    G.drips(ctx, 50, -27, 24, 10, 205, 2);
     hut(ctx, 86, 44, 42, 4, 3, 2);
-    shape(ctx, [[132, 0], [132, -24], [146, -16], [150, -18], [150, 0]], "r1", "rLine");
+    const stub: Pt[] = [[132, 0], [132, -24], [146, -16], [150, -18], [150, 0]];
+    shape(ctx, stub, "r1", "rLine");
+    G.grain(ctx, G.polyRegion(ctx, stub), 206);
     grid(ctx, 135, -16, 2, 2, 4, 5, 3, 2, "hole", "rLine");
+    G.dirt(ctx, 132, -24, 18, 24, 207, 0.4);
   },
 };
 
@@ -295,16 +309,27 @@ export const windowBuilding: EnvAsset = {
   box: [0, -102, 232, 0],
   draw(ctx) {
     const top: Pt[] = [[0, -66], [4, -72], [10, -70], [14, -80], [22, -84], [26, -92], [36, -95]];
-    shape(ctx, [[0, 0], ...top, [190, -95], [190, 0]], "k2", "kLine");
+    const wall: Pt[] = [[0, 0], ...top, [190, -95], [190, 0]];
+    shape(ctx, wall, "k2", "kLine");
+    G.grain(ctx, G.polyRegion(ctx, wall), 210);
+    G.drips(ctx, 36, -94, 136, 36, 211, 7);
+    G.dirt(ctx, 0, -95, 190, 95, 212, 0.3);
+    G.rustPatch(ctx, 14, -44, 5, 3, 213);
+    G.rustPatch(ctx, 116, -84, 6, 3, 214);
     flat(ctx, 36, -98, 154, 4, "k3", "kLine");
+    G.chips(ctx, 36, -98, 154, 215, G.DIRT);
     flat(ctx, 30, -94, 160, 2, "k1");
     rebar(ctx, top, 4);
     pillar(ctx, 172, -94, 14, 94, "concrete", 2);
+    G.surface(ctx, 172, -94, 14, 94, 216, { rise: 0.3, drip: 2, dripLen: 40 });
     flat(ctx, 0, -6, 190, 6, "k1", "kLine");
+    G.chips(ctx, 0, -6, 190, 217);
     pane(ctx, 25, -70, 41, 41, 4, 4, 1);
     pane(ctx, 73, -70, 41, 41, 4, 4, 2, [92, -56, 15, 13]);
     pane(ctx, 120, -70, 41, 41, 4, 4, 3);
+    for (const [x, seed] of [[23, 218], [71, 219], [118, 220]] as Pt[]) G.drips(ctx, x, -26, 45, 18, seed, 3);
     slab(ctx, 190, -24, 40, 24, "concrete", 2);
+    G.surface(ctx, 190, -24, 40, 24, 221, { rise: 0.35, drip: 2, dripLen: 14 });
     flat(ctx, 190, -24, 40, 3, "k3", "kLine");
     for (let x = 200; x < 230; x += 10) flat(ctx, x, -20, 1, 20, "k1");
   },
@@ -367,14 +392,23 @@ export const colonnadeBuilding: EnvAsset = {
   draw(ctx) {
     flat(ctx, 0, -140, 200, 32, "hole");
     flat(ctx, 0, -144, 200, 4, "k2", "kLine");
-    for (let x = 4; x < 200; x += 28) pillar(ctx, x, -140, 11, 32, "concrete", 3);
+    for (let x = 4; x < 200; x += 28) {
+      pillar(ctx, x, -140, 11, 32, "concrete", 3);
+      G.surface(ctx, x, -140, 11, 32, x + 230, { rise: 0.35, edge: false });
+    }
+    G.chips(ctx, 0, -144, 200, 232, G.DIRT);
     slab(ctx, 0, -110, 200, 36, "concrete", 2);
+    G.surface(ctx, 0, -110, 200, 36, 233, { rise: 0.3, drip: 8, dripLen: 26 });
+    G.rustPatch(ctx, 38, -88, 6, 3, 234);
+    G.rustPatch(ctx, 150, -100, 5, 3, 235);
     flat(ctx, 0, -110, 200, 3, "k3", "kLine");
+    G.chips(ctx, 0, -110, 200, 236, G.DIRT);
     flat(ctx, 0, -96, 200, 1.5, "k1");
     flat(ctx, 0, -76, 200, 4, "k0");
     text(ctx, "05", 182, -86, 11, "k1");
     flat(ctx, 0, -72, 200, 72, "hole");
     slab(ctx, 70, -64, 50, 64, "concrete", 1);
+    G.surface(ctx, 70, -64, 50, 64, 237, { rise: 0.3, drip: 3, dripLen: 30 });
     if (!P.simple()) {
       flat(ctx, 80, -12, 20, 7, "m1", "mLine");
       for (let x = 82; x < 100; x += 3) flat(ctx, x, -11, 1.2, 5, "m0");
@@ -382,7 +416,9 @@ export const colonnadeBuilding: EnvAsset = {
     shape(ctx, [[0, -72], [200, -72], [200, -66], [0, -60]], "#00000088");
     for (const x of [0, 56, 120, 184]) {
       pillar(ctx, x, -72, 16, 72, "concrete", 2);
+      G.surface(ctx, x, -72, 16, 72, x + 238, { rise: 0.35, drip: 1, dripLen: 34, edge: false });
       flat(ctx, x - 2, -72, 20, 4, "k3", "kLine");
+      G.chips(ctx, x - 2, -72, 20, x + 239, G.DIRT);
     }
   },
 };
@@ -392,9 +428,14 @@ export const brickWall: EnvAsset = {
   box: [0, -168, 72, 0],
   draw(ctx, _state, _t, { w = 72, h = 168 }: Size) {
     bricks(ctx, 0, -h, w - 14, h, 7);
+    G.drips(ctx, 0, -h, w - 14, min(h * 0.5, 60), 250, round(w / 14));
     flat(ctx, w - 14, -h, 14, h, "r0", "rust");
     cylV(ctx, w - 11, -h, 7, h, "concrete", 2);
-    for (let y = -h + 18; y < 0; y += 36) box(ctx, w - 12.5, y, 10, 3, "concrete", 1);
+    G.surface(ctx, w - 14, -h, 14, h, 251, { rise: min(0.3, 40 / h), edge: false });
+    for (let y = -h + 18; y < 0; y += 36) {
+      box(ctx, w - 12.5, y, 10, 3, "concrete", 1);
+      G.drips(ctx, w - 12.5, y + 3, 10, min(16, -y - 3), 252 - y, 2);
+    }
   },
 };
 
@@ -421,18 +462,30 @@ export const facadeTower: EnvAsset = {
     let x = 0;
     for (const [kind, base] of FACADE) {
       const width = kind === "panel" ? base + grow : base;
-      if (kind === "pil") pillar(ctx, x, -h, width, h, "concrete", 2);
+      if (kind === "pil") {
+        pillar(ctx, x, -h, width, h, "concrete", 2);
+        G.surface(ctx, x, -h, width, h, x + 260, { rise: min(0.3, 40 / h), edge: false });
+      }
       if (kind === "brick") bricks(ctx, x, -h, width, h, x + 1, 11, 5);
       if (kind === "panel") {
         flat(ctx, x, -h, width, h, "k1", "kLine");
+        G.grain(ctx, G.rectRegion(ctx, x, -h, width, h), x + 261);
         for (let y = -STOREY; y > -h; y -= STOREY) bracePanel(ctx, x + 4, y + 6, width - 8, STOREY - 10);
         grid(ctx, x + 6, -h + 18, 4, 1, (width - 12) / 4 - 3, 18, 3, 0, "k0", "kLine");
       }
       x += width;
     }
-    for (let y = 0; y > -h; y -= STOREY) slab(ctx, 0, y - 5, w, 5, "concrete", 3);
+    const r = rng(262);
+    for (let y = 0; y > -h; y -= STOREY) {
+      slab(ctx, 0, y - 5, w, 5, "concrete", 3);
+      G.chips(ctx, 0, y - 5, w, 263 - y, G.DIRT);
+      if (y < 0) G.drips(ctx, 0, y, w, STOREY * 0.45, 264 - y, round(w / 36));
+      if (y < 0) G.rustPatch(ctx, 8 + r() * (w - 16), y + 4 + r() * 20, 4 + r() * 4, 2 + r() * 2, 265 - y);
+    }
     slab(ctx, 0, -h, w, 12, "concrete", 2);
+    G.surface(ctx, 0, -h, w, 12, 266, { rise: 0.4, drip: round(w / 30), dripLen: 30 });
     flat(ctx, 0, -h + 10, w, 2, "k0");
+    G.dirt(ctx, 0, -h, w, h, 267, min(0.25, 50 / h));
   },
 };
 
@@ -458,11 +511,19 @@ export const graffitiWall: EnvAsset = {
   id: "graffitiWall",
   box: [0, -74, 168, 0],
   draw(ctx) {
-    shape(ctx, [[0, 0], ...GRAFFITI_TOP, [54, -72], ...GRAFFITI_RIGHT], "k2", "kLine");
+    const wall: Pt[] = [[0, 0], ...GRAFFITI_TOP, [54, -72], ...GRAFFITI_RIGHT];
+    shape(ctx, wall, "k2", "kLine");
+    G.grain(ctx, G.polyRegion(ctx, wall), 280);
+    G.drips(ctx, 54, -68, 108, 30, 281, 6);
+    G.rustPatch(ctx, 120, -30, 5, 3, 282);
     flat(ctx, 54, -72, 112, 4, "k3", "kLine");
+    G.chips(ctx, 54, -72, 112, 283, G.DIRT);
     flat(ctx, 0, -4, 164, 4, "k1");
     for (const [cx, cy, rx, ry, sd] of STAINS) shape(ctx, blob(cx, cy, rx, ry, sd), "#5a504066");
-    shape(ctx, blob(16, -10, 4, 4, 4, 8), "hole");
+    const pit = blob(16, -10, 4, 4, 4, 8);
+    G.scorch(ctx, pit, 284);
+    shape(ctx, pit, "hole");
+    G.rim(ctx, pit, 285, "k3", "kLine");
     rebar(ctx, GRAFFITI_TOP, 8);
     rebar(ctx, GRAFFITI_RIGHT, 9);
     for (const [c, w, pts] of TAGS) {
@@ -470,6 +531,12 @@ export const graffitiWall: EnvAsset = {
       curve(ctx, pts, "#1a0a06", w + 1.2);
       curve(ctx, pts, c, w);
     }
+    ctx.save();
+    path(ctx, wall);
+    ctx.clip();
+    G.grain(ctx, G.rectRegion(ctx, 28, -64, 112, 64), 286, 0.5);
+    G.dirt(ctx, 0, -72, 168, 72, 287, 0.3);
+    ctx.restore();
     if (!P.simple()) for (const pts of CRACKS) line(ctx, pts, "k0", 0.6);
   },
 };
@@ -481,18 +548,21 @@ export const gantryBuilding: EnvAsset = {
     truss(ctx, 0, -120, 182, 20, "rust", 2.5);
     for (const x of [34, 150]) {
       box(ctx, x, -124, 20, 28, "steel", 2);
+      G.surface(ctx, x, -124, 20, 28, x + 300, { rise: 0.35, drip: 2, dripLen: 16 });
       if (!P.simple()) for (const y of [-121, -99]) rivets(ctx, x, y, 20, 5, "m3");
     }
     flat(ctx, 0, -72, 182, 4, "m1", "mLine");
     for (let x = 2; x < 182; x += 22) flat(ctx, x, -94, 1.6, 22, "m2", "mLine");
     for (const y of [-94, -84]) flat(ctx, 0, y, 182, 1.6, "m2", "mLine");
     box(ctx, 0, -68, 182, 10, "steel", 1);
+    G.surface(ctx, 0, -68, 182, 10, 302, { rise: 0.4 });
     for (let x = 6; x < 176; x += 26) {
       flat(ctx, x, -66, 16, 6, "water", "mLine");
       flat(ctx, x + 1, -65.5, 14, 1.5, "plasma");
       if (!P.simple()) glow(ctx, x + 8, -63, 10, "plasma", 0.25);
     }
     box(ctx, 0, -58, 182, 8, "rust", 2);
+    G.surface(ctx, 0, -58, 182, 8, 303, { rise: 0.4 });
     for (const [x0, x1] of [[15, 85], [107, 153]] as Pt[]) {
       flat(ctx, x0, -50, x1 - x0, 28, "hole");
       for (let x = x0; x < x1; x += 18) {
@@ -503,9 +573,16 @@ export const gantryBuilding: EnvAsset = {
         slab(ctx, x, -22, (x1 - x0) / 3, 22, "rust", 1);
         flat(ctx, x + 3, -18, (x1 - x0) / 3 - 6, 12, "r0", "rLine");
       }
+      G.surface(ctx, x0, -22, x1 - x0, 22, x0 + 304, { rise: 0.35, drip: 2, dripLen: 12 });
+      G.drips(ctx, x0, -50, x1 - x0, 24, x0 + 305, 3);
     }
-    for (const [x, w] of [[0, 15], [85, 7], [100, 7], [153, 29]] as Pt[]) pillar(ctx, x, -50, w, 50, "rust", 2);
+    for (const [x, w] of [[0, 15], [85, 7], [100, 7], [153, 29]] as Pt[]) {
+      pillar(ctx, x, -50, w, 50, "rust", 2);
+      G.surface(ctx, x, -50, w, 50, x + 306, { rise: 0.35, drip: 1, dripLen: 24 });
+    }
     flat(ctx, 159, -42, 16, 30, "r1", "rLine");
+    G.grain(ctx, G.rectRegion(ctx, 159, -42, 16, 30), 307);
+    G.rustPatch(ctx, 170, -24, 4, 3, 308);
   },
 };
 
@@ -578,7 +655,9 @@ export const barSign: EnvAsset = {
       beam(ctx, [l1, y1], [r1, y1], 1.4, "rust");
     }
     box(ctx, 24, -64, 48, 4, "rust", 2);
+    G.surface(ctx, 24, -64, 48, 4, 320, { rise: 0, drip: 2, dripLen: 12 });
     box(ctx, 2, -68, 92, 4, "rust", 1);
+    G.surface(ctx, 2, -68, 92, 4, 321, { rise: 0, drip: 3, dripLen: 10 });
     for (const [a, b] of SIGN_FRAME) beam(ctx, a, b, 1.4, "rust");
     const rOn = state === 0 || ((t * 1.7) % 1 < 0.35 && t % 2.3 > 0.4);
     glyph(ctx, "B", 6, -90, true);
@@ -589,7 +668,9 @@ export const barSign: EnvAsset = {
 
 const fluted = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
   pillar(ctx, x, y, w, h, "concrete", 2, 3);
+  G.surface(ctx, x, y, w, h, x + 340, { rise: 0.3, drip: 1, dripLen: 24, edge: false });
   flat(ctx, x - 1.5, y - 3, w + 3, 3, "k3", "kLine");
+  G.chips(ctx, x - 1.5, y - 3, w + 3, x + 341, G.DIRT);
   flat(ctx, x - 1.5, -3, w + 3, 3, "k1", "kLine");
 };
 
@@ -599,12 +680,19 @@ export const barDoor: EnvAsset = {
   id: "barDoor",
   box: [0, -100, 144, 0],
   draw(ctx, state) {
-    shape(ctx, [[0, 0], ...BAR_TOP, [144, 0]], "k2", "kLine");
+    const wall: Pt[] = [[0, 0], ...BAR_TOP, [144, 0]];
+    shape(ctx, wall, "k2", "kLine");
+    G.grain(ctx, G.polyRegion(ctx, wall), 330);
+    G.drips(ctx, 0, -63, 144, 24, 331, 7);
+    G.dirt(ctx, 0, -86, 144, 86, 332, 0.25);
+    G.rustPatch(ctx, 24, -74, 5, 3, 333);
     rebar(ctx, BAR_TOP, 3);
     flat(ctx, 0, -66, 144, 3, "k1");
     flat(ctx, 0, -5, 144, 5, "k1", "kLine");
+    G.chips(ctx, 0, -5, 144, 334);
     flat(ctx, 8, -58, 38, 26, "hole", "kLine");
     flat(ctx, 6, -32, 42, 2, "k3", "kLine");
+    G.drips(ctx, 6, -30, 42, 20, 335, 3);
     for (let x = 14; x < 46; x += 7) flat(ctx, x, -58, 1.4, 26 - (x % 3) * 4, "m2");
     flat(ctx, 68, -62, 52, 62, "k0", "kLine");
     flat(ctx, 70, -60, 48, 3, "k1");
@@ -619,12 +707,14 @@ export const barDoor: EnvAsset = {
       for (const ex of [80.5, 84.5]) flat(ctx, ex - 0.6, -41, 1.2, 0.8, "a2");
     } else {
       box(ctx, 70, -58, 25, 58, "steel", 3, { vertical: true });
+      G.surface(ctx, 70, -58, 25, 58, 337, { rise: 0.35, drip: 2, dripLen: 20 });
       flat(ctx, 76, -46, 9, 12, "c2", "mLine");
       for (const y of [-43, -40, -37]) flat(ctx, 77.5, y, 6, 0.8, "m1");
       flat(ctx, 89, -32, 3, 6, "m1", "mLine");
     }
     box(ctx, 95, -58, 23, 58, "steel", 3, { vertical: true });
     flat(ctx, 95, -58, 23, 58, "#0e2a2a88");
+    G.surface(ctx, 95, -58, 23, 58, 338, { rise: 0.35, drip: 2, dripLen: 20 });
     flat(ctx, 95, -58, 2.5, 58, "hole");
     flat(ctx, 98, -32, 3, 6, "m1", "mLine");
     fluted(ctx, 56, -62, 12, 62);
@@ -653,6 +743,17 @@ export const crashedShip: EnvAsset = {
     shape(ctx, HULL, "k2", "kLine");
     shape(ctx, HULL_TOP, "k3");
     shape(ctx, HULL_LOW, "k1");
+    ctx.save();
+    path(ctx, HULL);
+    ctx.clip();
+    G.grain(ctx, G.polyRegion(ctx, HULL), 350, 0.7);
+    G.drips(ctx, 20, -46, 140, 18, 351, 6);
+    G.drips(ctx, 8, -27, 180, 12, 352, 5);
+    G.dirt(ctx, 0, -40, 192, 28, 353, 0.4);
+    G.rustPatch(ctx, 58, -36, 6, 3, 354);
+    G.rustPatch(ctx, 160, -28, 5, 3, 355);
+    G.chips(ctx, 20, -58, 140, 356);
+    ctx.restore();
     path(ctx, HULL);
     stroke(ctx, "kLine");
     if (!P.simple()) for (const x of [60, 98, 140]) line(ctx, [[x, -58 + (x - 60) * 0.05], [x - 4, -13]], "k1", 0.5);
@@ -668,12 +769,15 @@ export const crashedShip: EnvAsset = {
     const [cx, cy, cw, ch] = COVER;
     if (state === 0) {
       box(ctx, cx, cy, cw, ch, "steel", 2);
+      G.surface(ctx, cx, cy, cw, ch, 357, { rise: 0.35, drip: 1, dripLen: 8 });
       if (!P.simple()) for (const y of [cy + 2, cy + ch - 2]) rivets(ctx, cx, y, cw, 5, "m3");
       return;
     }
     const torn = blob(cx + cw / 2, cy + ch / 2, cw * 0.62, ch * 0.7, 17, 16);
+    G.scorch(ctx, torn, 358);
     shape(ctx, blob(cx + cw / 2, cy + ch / 2, cw * 0.8, ch * 0.9, 18, 16), "k0");
     shape(ctx, torn, "hole", "kLine");
+    G.rim(ctx, torn, 359, "k3", "kLine");
     if (!P.simple()) for (let i = 0; i < 5; i++) line(ctx, [[cx + 3 + i * 3.5, cy + ch - 2], [cx + 4 + i * 3.5, cy + 3]], "m1", 0.6);
     if (state === 1) {
       if (!P.simple()) glow(ctx, cx + cw / 2, cy + ch / 2, 14, "a1", 0.45);
