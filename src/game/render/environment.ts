@@ -241,7 +241,8 @@ export function below(e: Env): void {
   haze(e);
   terrain(e);
   underground(e);
-  clipped(e, e.world.lifts.map((l) => baseBox(e, l)), false, () => scenery(e, "dressing", e.world.dressing));
+  clipped(e, [...e.world.lifts.map((l) => baseBox(e, l)), ...drawnTerrain(e.world).behind.map((r) => runBox(e, r))], false, () => scenery(e, "dressing", e.world.dressing));
+  shadeBehind(e);
   shafts(e);
 }
 
@@ -307,7 +308,12 @@ interface DrawnTerrain {
   girders: Run[];
   landings: Run[];
   bases: Run[];
-  behind: Run[];
+  behind: BehindRun[];
+}
+
+interface BehindRun extends Run {
+  asset: "streetWalkway" | "girderBridge";
+  from: Run;
 }
 
 const drawnTerrains = new WeakMap<SandboxWorld, DrawnTerrain>();
@@ -349,13 +355,11 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
   const cutWalls = walls.flatMap((r) =>
     touched(r) ? cutRuns(Array.from({ length: r.h }, (_, i) => ({ row: r.row + i, col: r.col, w: r.w })), skip).map((run) => ({ ...run, h: 1 })) : [r],
   );
-  const ends = new Set(ledges.flatMap((r) => [`${r.col - 1},${r.row}`, `${r.col + r.w},${r.row}`]));
   const behind = world.lifts.flatMap((l) => {
-    const rows = Array.from({ length: l.bottom - l.top + 1 }, (_, i) => l.top + i);
+    const rows = Array.from({ length: l.bottom - l.top }, (_, i) => l.top + i);
     return rows
-      .filter((row) => ends.has(`${l.x},${row}`) && ends.has(`${l.x + l.w - 1},${row}`))
-      .filter((row) => row !== l.bottom && Array.from({ length: l.w }, (_, i) => l.x + i).every((c) => world.grid.at(c, row) !== "=" && !world.grid.wall(c, row)))
-      .map((row) => ({ row, col: l.x, w: l.w }));
+      .filter((row) => Array.from({ length: l.w }, (_, i) => l.x + i).every((c) => world.grid.at(c, row) !== "=" && !world.grid.wall(c, row)))
+      .flatMap((row) => shaftFloor(world, l, row));
   });
   const drawn = { walls: cutWalls, ledges: cutRuns(ledges, underLifts), girders: cutRuns(girders, skip), landings, bases, behind };
   drawnTerrains.set(world, drawn);
@@ -374,10 +378,45 @@ function terrain(e: Env): void {
   for (const r of pick(e, "landings", landings, runBox)) if (near(e, runBox(e, r))) put(e, "liftLanding", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "behind", behind, runBox)) {
     if (!near(e, runBox(e, r))) continue;
-    put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
-    e.ctx.fillStyle = BEHIND_SHAFT;
-    e.ctx.fillRect(r.col * cell, r.row * cell, r.w * cell, cell);
+    const col = Math.min(r.col, r.from.col);
+    const end = Math.max(r.col + r.w, r.from.col + r.from.w);
+    e.ctx.save();
+    e.ctx.beginPath();
+    e.ctx.rect(r.col * cell, r.row * cell, r.w * cell, cell);
+    e.ctx.clip();
+    put(e, r.asset, col * cell, (r.asset === "girderBridge" ? r.row + 1 : r.row) * cell, 0, { w: px(e, (end - col) * cell) });
+    e.ctx.restore();
   }
+}
+
+function shadeBehind(e: Env): void {
+  const { ctx, cell } = e;
+  ctx.fillStyle = BEHIND_SHAFT;
+  for (const r of drawnTerrain(e.world).behind) if (near(e, runBox(e, r))) ctx.fillRect(r.col * cell, r.row * cell, r.w * cell, cell);
+}
+
+type Side = { asset: BehindRun["asset"]; from: Run } | "wall" | null;
+
+function shaftFloor(world: SandboxWorld, l: Lift, row: number): BehindRun[] {
+  const { walls, ledges, girders } = world.terrain;
+  const side = (col: number): Side => {
+    const on = (r: Run): boolean => r.row === row && col >= r.col && col < r.col + r.w;
+    const ledge = ledges.find(on);
+    if (ledge) return { asset: "streetWalkway", from: ledge };
+    const girder = girders.find(on);
+    if (girder) return { asset: "girderBridge", from: girder };
+    return walls.some((r) => row >= r.row && row < r.row + r.h && col >= r.col && col < r.col + r.w) ? "wall" : null;
+  };
+  const left = side(l.x - 1);
+  const right = side(l.x + l.w);
+  if (!left || !right || (left === "wall" && right === "wall")) return [];
+  const [a, b] = [left === "wall" ? right : left, right === "wall" ? left : right] as [Exclude<Side, "wall" | null>, Exclude<Side, "wall" | null>];
+  if (a.asset === b.asset && a.from === b.from) return [{ row, col: l.x, w: l.w, ...a }];
+  const half = Math.ceil(l.w / 2);
+  return [
+    { row, col: l.x, w: half, ...a },
+    { row, col: l.x + half, w: l.w - half, ...b },
+  ];
 }
 
 function lift(e: Env, l: Lift, alpha: number): void {
