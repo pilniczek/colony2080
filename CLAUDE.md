@@ -11,6 +11,7 @@ Phase 1b: engine core and movement sandbox built, feel signed off (2026-10-19). 
 - `docs/research/README.md` - research summary (mechanics, level 1 task graph, data formats, open gaps). Read before answering questions about the original game.
 - `config/` - draft JSON configs (`"status": "draft"`). Each cites its research or decision `source`.
 - `docs/blueprints/` - recipes for repeating a built mechanic (walk-through cover).
+- `docs/tours.md` - `moveto` check tours for the debug panel Tour box (mesto lift shafts).
 - `spikes/` - throwaway prototypes.
 
 ## Commands
