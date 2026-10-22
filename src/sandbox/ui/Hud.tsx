@@ -12,6 +12,7 @@ const KEYS: HudKeys = {
   run: keyLabel(keyboard.runToggle[0] ?? ""),
   sound: keyLabel(keyboard.soundToggle[0] ?? ""),
   map: keyLabel(keyboard.map[0] ?? ""),
+  menu: keyLabel(keyboard.menu[0] ?? ""),
   item: `${keyLabel(keyboard.useItem[0] ?? "")}\u00a0\u00a0/\u00a0\u00a0${keyLabel(keyboard.inventory[0] ?? "")}`,
 };
 

@@ -230,6 +230,7 @@ const ICON_H = 13.3 * ITEM_SCALE * .9;
 const HAND_SCALE = ICON_H / 13.3, SPEAKER_SCALE = ICON_H * .7 / 8.2;
 const SPEAKER_INK = { left: 4.4, right: 4.65 }, SPEAKER_W = (SPEAKER_INK.left + SPEAKER_INK.right) * SPEAKER_SCALE;
 const MAP_W = 2 * 4.5 * SPEAKER_SCALE;
+const MENU_W = 2 * 4.3 * SPEAKER_SCALE;
 const ITEMS = window.C28_CONFIG.items;
 const itemIcon = ({ asset, state = 0, tilt, scale }) => {
   const w = HAND_BOX.w * scale, h = HAND_BOX.h * scale;
@@ -287,7 +288,7 @@ function badgeArt(x, [a, b]) {
 
 function topBar(W, s) {
   const edge = 0, gap = 2, pad = PAD, invW = INV_W, inv = W - edge - pad - invW;
-  const togglesW = SPEAKER_W + TOGGLE_W + MAP_W + 4 * TOGGLE_GAP, togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + SPEAKER_W + TOGGLE_GAP, map = run + TOGGLE_W + TOGGLE_GAP;
+  const togglesW = SPEAKER_W + TOGGLE_W + MAP_W + MENU_W + 5 * TOGGLE_GAP, togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + SPEAKER_W + TOGGLE_GAP, map = run + TOGGLE_W + TOGGLE_GAP, menu = map + MAP_W + TOGGLE_GAP;
   const held = s.item ? ITEM_ICONS[s.item] : null, label = held ? ITEMS[s.item].name : "nothing";
   const iconW = held ? held.w : HAND_BOX.w, textW = label.length * READOUT_SIZE * MONO_ADVANCE;
   const start = inv + (invW - iconW - SLOT.gap - textW) / 2, centre = start + iconW / 2;
@@ -306,6 +307,7 @@ function topBar(W, s) {
     { cx: sound + SPEAKER_W / 2, label: "S", active: s.soundOn },
     { cx: run + TOGGLE_W / 2, label: "ALT", active: s.running },
     { cx: map + MAP_W / 2, label: "M", active: s.mapOpen },
+    { cx: menu + MENU_W / 2, label: "ESC", active: false },
     { cx: inv + invW / 2, label: "ENTER\u00a0\u00a0/\u00a0\u00a0I", active: false },
   ];
   const spans = tabs.map(tabSpan);
@@ -321,6 +323,7 @@ function topBar(W, s) {
   ${soundIcon(sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
   ${runIcon(run + TOGGLE_W / 2, s.running)}
   ${mapIcon(map + MAP_W / 2, s.mapOn, s.mapOpen)}
+  ${menuIcon(menu + MENU_W / 2)}
   ${gridPanel(inv, invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -363,6 +366,9 @@ const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0
   <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
 const foldedMap = () => `<path d="${MAP_SHEET}" fill="${READOUT}"/>
   <path d="${MAP_FOLDS}" stroke="${LO}" stroke-width=".6"/>`;
+const MENU_BARS = `<path d="M-3.6 -3H3.6M-3.6 0H3.6M-3.6 3H3.6" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round"/>`;
+const menuIcon = (x) =>
+  `<g filter="url(#iconDim)" data-icon="menu"><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
 const mapIcon = (x, held, open) =>
   `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap() : QUESTION}</g></g>`;
 

@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "../items";
 import { blasterIcon, BLASTER_BODY_W, BLASTER_MID_Y } from "./blasterIcon";
-import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HUD_H, inventoryW, MAP_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
+import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HUD_H, inventoryW, MAP_W, MENU_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
   weapon: number;
@@ -35,12 +35,13 @@ export interface HudKeys {
   run: string;
   sound: string;
   map: string;
+  menu: string;
   item: string;
 }
 
 export const SHIELDS_MAX = 5;
 
-export const keyLabel = (code: string): string => code.replace(/^(Digit|Key)/, "").replace(/(Left|Right)$/, "").toUpperCase();
+export const keyLabel = (code: string): string => code.replace(/^(Digit|Key)/, "").replace(/^Escape$/, "Esc").replace(/(Left|Right)$/, "").toUpperCase();
 
 export const READOUT = "#a8844a";
 const MONO = "Share Tech Mono, monospace";
@@ -99,6 +100,7 @@ const MAP_FOLDS = "M-1.5 -4.1V3.1M1.5 -3.1V4.1";
 
 const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0 .3V1.4" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
+const MENU_BARS = `<path d="M-3.6 -3H3.6M-3.6 0H3.6M-3.6 3H3.6" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round"/>`;
 const foldedMap = `<path d="${MAP_SHEET}" fill="${READOUT}"/>
   <path d="${MAP_FOLDS}" stroke="${LO}" stroke-width=".6"/>`;
 
@@ -209,6 +211,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
     { cx: bar.sound + SPEAKER_W / 2, label: keys.sound, active: s.soundOn },
     { cx: bar.run + TOGGLE_W / 2, label: keys.run, active: s.running },
     { cx: bar.map + MAP_W / 2, label: keys.map, active: s.mapOpen },
+    { cx: bar.menu + MENU_W / 2, label: keys.menu, active: false },
     { cx: bar.inv + bar.invW / 2, label: keys.item, active: false },
   ];
   const spans = tabs.map(tabSpan);
@@ -224,6 +227,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${soundIcon(bar.sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
   ${runIcon(s.running ? icons.run : icons.walk, bar.run + TOGGLE_W / 2, s.running)}
   ${mapIcon(bar.map + MAP_W / 2, s.mapOn, s.mapOpen)}
+  ${menuIcon(bar.menu + MENU_W / 2)}
   ${gridPanel(bar.inv, bar.invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -255,6 +259,9 @@ const runIcon = (icon: HudIcon, x: number, running: boolean): string =>
 
 const soundIcon = (x: number, on: boolean): string =>
   `<g filter="url(#${on ? "iconGlow" : "iconDim"})" data-icon="sound"${on ? "" : ' data-sound="off"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${speaker(on)}</g></g>`;
+
+const menuIcon = (x: number): string =>
+  `<g filter="url(#iconDim)" data-icon="menu"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
 
 const mapIcon = (x: number, held: boolean, open: boolean): string =>
   `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap : QUESTION}</g></g>`;

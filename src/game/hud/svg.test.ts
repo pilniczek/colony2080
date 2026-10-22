@@ -1,19 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { BLASTER_BODY_W } from "./blasterIcon";
-import { CONTENT_SCALE, HAND_BOX, HAND_INK_H, ICON_H, MAP_W, MONO_ADVANCE, READOUT_SIZE, SLOT, SPEAKER_H, SPEAKER_INK, SPEAKER_INK_H, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, WEAPON_W } from "./layout";
+import { CONTENT_SCALE, HAND_BOX, HAND_INK_H, ICON_H, MAP_W, MENU_W, MONO_ADVANCE, READOUT_SIZE, SLOT, SPEAKER_H, SPEAKER_INK, SPEAKER_INK_H, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, WEAPON_W } from "./layout";
 import { applyLive, hudSvg as render, itemPlateW, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, run: { url: "run.png", w: 4, h: ICON_H }, walk: { url: "walk.png", w: 4, h: ICON_H }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
 const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, soundOn: true, mapOn: true, mapOpen: false, item: null };
-const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", sound: "S", map: "M", item: "ENTER" };
+const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", sound: "S", map: "M", menu: "ESC", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
 const count = (svg: string, text: string): number => svg.split(text).length - 1;
 
 describe("hudSvg", () => {
   it("glows the active weapon and dims the others", () => {
     const svg = hudSvg(320, 200, base, icons);
-    expect(count(svg, 'filter="url(#iconDim)"')).toBe(2);
+    expect(count(svg, 'filter="url(#iconDim)"')).toBe(3);
     expect(svg).toContain('<g filter="url(#iconGlow)"><image href="gun.png"');
   });
 
@@ -21,7 +21,7 @@ describe("hudSvg", () => {
     expect(hudSvg(320, 200, base, icons)).not.toContain(">12</text>");
     const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 12, weapon: 2 }, icons);
     expect(svg).toContain(">12</text>");
-    expect(count(svg, 'filter="url(#iconDim)"')).toBe(3);
+    expect(count(svg, 'filter="url(#iconDim)"')).toBe(4);
   });
 
   it("shows a running figure instead of the RUN text, glowing in run mode and dimmed when walking", () => {
@@ -43,12 +43,12 @@ describe("hudSvg", () => {
     expect(Number(m[1]) + 2).toBeCloseTo(run + TOGGLE_W / 2, 9);
   });
 
-  it("draws one grid panel for the sound, run and map slots", () => {
+  it("draws one grid panel for the sound, run, map and menu slots", () => {
     const svg = hudSvg(320, 200, base, icons);
     const panels = [...svg.matchAll(/<path d="M([\d.]+) 0\.9H([\d.]+)[^"]*" fill="#0b0806"\/>/g)].map((m) => [Number(m[1]), Number(m[2])]);
     expect(panels).toHaveLength(3);
-    const { sound, map } = topBar(320, itemPlateW(icons));
-    const holding = panels.filter(([a, b]) => a! <= sound && map + MAP_W <= b!);
+    const { sound, menu } = topBar(320, itemPlateW(icons));
+    const holding = panels.filter(([a, b]) => a! <= sound && menu + MENU_W <= b!);
     expect(holding).toHaveLength(1);
   });
 
@@ -56,8 +56,8 @@ describe("hudSvg", () => {
     const svg = hudSvg(320, 200, base, icons);
     const panelNotches = svg.match(/<path d="M[\d.]+ 0\.9H[^"]*" fill="#0b0806"\/>/g)!.join("").match(/ 11\.768\d*H/g) ?? [];
     const plateBulges = svg.match(/<path d="M[\d.]+ 0H[^"]*" fill="url\(#barMetal\)"\/>/g)!.join("").match(/ 16\.708\d*H/g) ?? [];
-    expect(panelNotches).toHaveLength(6);
-    expect(plateBulges).toHaveLength(6);
+    expect(panelNotches).toHaveLength(7);
+    expect(plateBulges).toHaveLength(7);
   });
 
   it("lights the S, ALT and M key tabs under their own icons per state", () => {
@@ -72,6 +72,17 @@ describe("hudSvg", () => {
       expect(tab(svg, "ALT")).toEqual({ x: expect.closeTo(run + TOGGLE_W / 2, 9), lit: running });
       expect(tab(svg, "M")).toEqual({ x: expect.closeTo(map + MAP_W / 2, 9), lit: mapOpen });
     }
+  });
+
+  it("draws the menu bars centred on the menu slot over an unlit ESC tab", () => {
+    const { menu } = topBar(320, itemPlateW(icons));
+    const svg = hudSvg(320, 200, base, icons);
+    const icon = /<g filter="url\(#(icon\w+)\)" data-icon="menu"><g transform="translate\(([\d.]+) /.exec(svg)!;
+    expect(icon[1]).toBe("iconDim");
+    expect(Number(icon[2])).toBeCloseTo(menu + MENU_W / 2, 9);
+    const tab = /<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#ff4a26|#1a140f)"[^>]*>ESC<\/text>/.exec(svg)!;
+    expect(Number(tab[1])).toBeCloseTo(menu + MENU_W / 2, 9);
+    expect(tab[2]).toBe("#1a140f");
   });
 
   describe("map slot", () => {
@@ -165,7 +176,7 @@ describe("hudSvg", () => {
       const svg = hudSvg(320, 200, base, icons);
       expect(svg).not.toContain('fill="#7ae0ff"');
       expect(slotKeyAny(svg)).toBe(false);
-      expect([...new Set(tabLetters(svg).map((t) => t.label))]).toEqual(["1", "2", "S", "ALT", "M", "ENTER"]);
+      expect([...new Set(tabLetters(svg).map((t) => t.label))]).toEqual(["1", "2", "S", "ALT", "M", "ESC", "ENTER"]);
     });
   });
 
@@ -269,7 +280,7 @@ describe("keyLabel", () => {
     expect(keyLabel("Digit1")).toBe("1");
     expect(keyLabel("AltLeft")).toBe("ALT");
     expect(keyLabel("KeyI")).toBe("I");
-    expect(keyLabel("Escape")).toBe("ESCAPE");
+    expect(keyLabel("Escape")).toBe("ESC");
   });
 });
 

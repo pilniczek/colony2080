@@ -29,6 +29,8 @@ export const SPEAKER_INK = { left: 4.4, right: 4.65 };
 export const SPEAKER_W = (SPEAKER_INK.left + SPEAKER_INK.right) * SPEAKER_SCALE;
 const MAP_INK_HALF = 4.5;
 export const MAP_W = 2 * MAP_INK_HALF * SPEAKER_SCALE;
+const MENU_INK_HALF = 4.3;
+export const MENU_W = 2 * MENU_INK_HALF * SPEAKER_SCALE;
 export const READOUT_SIZE = 5.6 * CONTENT_SCALE;
 export const MONO_ADVANCE = 0.54;
 export const WEAPON_W = [35, 20, 45.5].map((w) => w * CONTENT_SCALE);
@@ -56,6 +58,7 @@ export interface TopBar {
   sound: number;
   run: number;
   map: number;
+  menu: number;
   gridX: number;
   badge: number;
   gridW: number;
@@ -80,7 +83,7 @@ export function viewRect({ W, H, unit }: HudFit): Rect {
 }
 
 const WEAPONS_GRID_W = WEAPON_W.reduce((a, b) => a + b, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
-const TOGGLES_W = SPEAKER_W + TOGGLE_W + MAP_W + 4 * TOGGLE_GAP;
+const TOGGLES_W = SPEAKER_W + TOGGLE_W + MAP_W + MENU_W + 5 * TOGGLE_GAP;
 
 export function topBar(W: number, invW: number): TopBar {
   const inv = W - EDGE - PLATE_PAD - invW;
@@ -88,6 +91,7 @@ export function topBar(W: number, invW: number): TopBar {
   const sound = togglesX + TOGGLE_GAP;
   const run = sound + SPEAKER_W + TOGGLE_GAP;
   const map = run + TOGGLE_W + TOGGLE_GAP;
+  const menu = map + MAP_W + TOGGLE_GAP;
   const gridX = EDGE + PLATE_PAD;
   const gridW = WEAPONS_GRID_W;
   const weaponsEnd = gridX + gridW + PLATE_PAD;
@@ -98,5 +102,5 @@ export function topBar(W: number, invW: number): TopBar {
   const gaps: Span[] = [[0, EDGE], [weaponsEnd, weaponsEnd + GAP], [badgeEnd, togglesStart], togglesGap, [W - EDGE, W]];
   const plates = gaps.slice(1).map(([a], i): Span => [gaps[i]![1], a]);
   const weapons = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((a, b) => a + b, 0));
-  return { inv, invW, togglesX, togglesW: TOGGLES_W, sound, run, map, gridX, badge, gridW, weapons, gaps, plates };
+  return { inv, invW, togglesX, togglesW: TOGGLES_W, sound, run, map, menu, gridX, badge, gridW, weapons, gaps, plates };
 }
