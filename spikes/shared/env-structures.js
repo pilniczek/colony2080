@@ -72,7 +72,6 @@ function walkway(ctx, x, w) {
   box(ctx, x, 15.5, w, 2.5, "rust", 2);
   rivets(ctx, x, 16.75, w, 6);
   for (let i = x; i < x + w; i += TILE) flat(ctx, i + 6, 19, 1, 4, "r0");
-  if (!window.ENV.simple) for (let i = x + TILE; i < x + w; i += TILE) wire(ctx, [[i, 3], [i, 9], [i + 0.6, 10.6], [i + 2.2, 10.6], [i + 2.6, 9]], "r3", 0.9);
   const s = 100 + Math.round(w) * 5;
   G.grain(ctx, G.rectRegion(ctx, x, 0, w, 24), s);
   grimeRun(ctx, x, w, s, (cx, cw, cs) => {
