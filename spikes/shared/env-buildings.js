@@ -1,5 +1,5 @@
 (() => {
-const { define, P } = window.ENV;
+const { define, P, G } = window.ENV;
 const { rng, path, color, flat, box, cylV, cylH, disc, rivets, mesh, truss, glow, text, stroke, tones, shape, line, curve, beam, slab } = P;
 const { PI, sin, cos, round, min, max } = Math;
 const TRAIN = window.C28_CONFIG.cutscenes.crowbarDoor.palette;
@@ -266,27 +266,46 @@ define({
   box: [0, -144, 178, 0],
   draw(ctx) {
     slab(ctx, 40, -138, 56, 16, "concrete", 2);
+    G.surface(ctx, 40, -138, 56, 16, 31, { rise: 0.4, drip: 2, dripLen: 10 });
     flat(ctx, 36, -142, 64, 4, "k3", "kLine");
+    G.chips(ctx, 36, -142, 64, 32, G.DIRT);
     slab(ctx, 18, -122, 100, 30, "concrete", 2);
+    G.surface(ctx, 18, -122, 100, 30, 33, { rise: 0.25 });
     flat(ctx, 22, -117, 92, 16, "k0", "kLine");
     for (let x = 22; x <= 110; x += 11) pillar(ctx, x, -117, 4, 16, "concrete", 2);
+    G.drips(ctx, 22, -101, 92, 8, 34, 5);
     flat(ctx, 14, -102, 108, 2, "k3", "kLine");
     flat(ctx, 0, -92, 178, 6, "k3", "kLine");
+    G.chips(ctx, 0, -92, 178, 35, G.DIRT);
     flat(ctx, 0, -87, 178, 2, "k1");
     const left = [[4, 0], [4, -40], [0, -48], [6, -58], [4, -86]];
-    shape(ctx, [...left, [176, -86], [176, 0]], "k2", "kLine");
+    const wall = [...left, [176, -86], [176, 0]];
+    shape(ctx, wall, "k2", "kLine");
+    G.grain(ctx, G.polyRegion(ctx, wall), 36);
+    G.drips(ctx, 4, -86, 172, 40, 37, 9);
+    G.dirt(ctx, 4, -86, 172, 86, 38, 0.28);
+    G.rustPatch(ctx, 40, -60, 7, 4, 39);
+    G.rustPatch(ctx, 160, -78, 5, 3, 40);
     flat(ctx, 4, -70, 172, 3, "k1");
     grid(ctx, 16, -82, 6, 1, 18, 9, 9, 0, "k0", "kLine");
+    G.drips(ctx, 16, -73, 160, 14, 41, 6, false);
     pillar(ctx, 66, -67, 10, 67, "concrete", 2);
     pillar(ctx, 108, -67, 10, 67, "concrete", 2);
+    for (const [x, seed] of [[66, 42], [108, 43]]) G.surface(ctx, x, -67, 10, 67, seed, { rise: 0.35, drip: 1, dripLen: 30 });
     const small = blob(90, -46, 11, 10, 9);
-    hole(ctx, small);
-    rebar(ctx, small, 2);
     const big = breach(146, 46, 46, 3);
-    hole(ctx, big);
-    rebar(ctx, big, 5);
     const left2 = blob(24, -24, 12, 14, 12);
+    G.scorch(ctx, small, 44);
+    G.scorch(ctx, big, 45);
+    G.scorch(ctx, left2, 46);
+    hole(ctx, small);
+    G.rim(ctx, small, 47, "k3", "kLine");
+    rebar(ctx, small, 2);
+    hole(ctx, big);
+    G.rim(ctx, big, 48, "k3", "kLine");
+    rebar(ctx, big, 5);
     hole(ctx, left2, false);
+    G.rim(ctx, left2, 49, "k3", "kLine");
     for (const [x, w, h] of [[120, 8, 4], [168, 10, 6], [128, 5, 3], [36, 7, 4]]) shape(ctx, [[x, 0], [x + w * 0.3, -h], [x + w, -h * 0.4], [x + w, 0]], "k1", "kLine");
   }
 });
@@ -596,9 +615,11 @@ define({
     flat(ctx, 0, -27, 124, 1, TRAIN.wagonShade);
     flat(ctx, 0, -24, 124, 3.5, TRAIN.stripe);
     flat(ctx, 0, -19, 124, 1, TRAIN.wagonShade);
+    G.wagon(ctx, 0, -55, 124, 46, 81);
     for (const [x, w] of [[34, 19], [55, 19], [96, 22]]) {
       flat(ctx, x - 1, -50, w + 2, 20, TRAIN.wagonShade);
       flat(ctx, x, -49, w, 18, TRAIN.window);
+      G.dirt(ctx, x, -49, w, 18, x, 0.35);
       ctx.globalAlpha = 0.6;
       shape(ctx, [[x + 2, -49], [x + 6.5, -49], [x + 1, -31], [x, -31]], TRAIN.windowGlint);
       ctx.globalAlpha = 1;
@@ -615,6 +636,8 @@ define({
       ctx.globalAlpha = 1;
     }
     flat(ctx, 16.6, -50, 0.8, 41, TRAIN.interior);
+    G.grain(ctx, G.rectRegion(ctx, 7, -50, 20, 41), 82);
+    G.dirt(ctx, 7, -50, 20, 41, 83, 0.4);
     for (const [x, y, seed, drips] of [[44, -51, 3, 3], [100, -51, 4, 2], [62, -29, 5, 2], [116, -33, 6, 1]]) splat(ctx, x, y, seed, simple() ? 1 : drips);
     slab(ctx, 126, -62, 14, 62, "concrete", 1);
   }

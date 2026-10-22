@@ -1,5 +1,5 @@
 (() => {
-const { define, P } = window.ENV;
+const { define, P, G } = window.ENV;
 const { box, flat, poly, cylV, cylH, disc, rivets, hazard, glow, stroke, lw } = P;
 const simple = () => window.ENV.simple;
 const pal = () => window.ENV.pal;
@@ -123,6 +123,7 @@ function carriage(ctx) {
   flat(ctx, x - 10, y + h - 14, w + 20, 3, DOOR.stripe || "b2");
   flat(ctx, x - 10, y + h - 9, w + 20, 1.5, DOOR.wagonShade || "c0");
   flat(ctx, x - 10, y + h, w + 20, 7, "m0", "mLine");
+  G.wagon(ctx, x - 10, y - 4, w + 20, h + 4, 61);
   if (!simple()) {
     for (const bx of [-6, w + 2]) flat(ctx, bx, y + h + 2, 4, 3, "m2", "mLine");
     for (const [bx, by, bh] of [[-7, 10, 9], [w + 5, 22, 6], [w * 0.7, 4, 5]]) {
@@ -136,7 +137,11 @@ function leaf(ctx, x, w, left) {
   const { y, h } = TD;
   flat(ctx, x, y, w, h, DOOR.door || "c1", "mLine");
   flat(ctx, left ? x : x + w - 3, y, 3, h, DOOR.doorShade || "c0");
+  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), left ? 62 : 63);
+  G.dirt(ctx, x, y, w, h, left ? 64 : 65, 0.4);
+  G.drips(ctx, x + 4, y + 28, w - 8, 12, left ? 66 : 67, 1);
   flat(ctx, x + 6, y + 6, w - 12, 22, DOOR.window || "glass", "mLine");
+  G.dirt(ctx, x + 6, y + 6, w - 12, 22, left ? 68 : 69, 0.35);
   ctx.save();
   ctx.globalAlpha = 0.6;
   poly(ctx, [[x + 8, y + 6], [x + 11, y + 6], [x + 8, y + 28], [x + 6.5, y + 28]], DOOR.windowGlint || "m3", 2, { line: false });
@@ -201,8 +206,11 @@ define({
     flat(ctx, left, y + h - 9, w, 1.5, DOOR.wagonShade || "c0");
     flat(ctx, left, y + h, w, 7, "m0", "mLine");
     flat(ctx, left, y - 4, 4, h + 4, DOOR.wagonShade || "c0", "mLine");
+    G.wagon(ctx, left, y - 4, w, h + 4, 70);
     for (const wx of [-94, -50]) {
       flat(ctx, wx, y + 6, 22, 22, DOOR.window || "glass", "mLine");
+      G.dirt(ctx, wx, y + 6, 22, 22, wx, 0.35);
+      G.drips(ctx, wx, y + 28, 22, 10, wx + 1, 2);
       ctx.save();
       ctx.globalAlpha = 0.6;
       poly(ctx, [[wx + 2, y + 6], [wx + 5, y + 6], [wx + 2, y + 28], [wx + 0.5, y + 28]], DOOR.windowGlint || "m3", 2, { line: false });

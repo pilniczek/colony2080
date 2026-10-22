@@ -122,6 +122,46 @@ const k = (e: Env): number => e.cell / TILE;
 
 const put = (e: Env, id: AssetId | EnvAsset, x: number, y: number, state = 0, size?: Size, t = 0): void => place(e, id, x, y, k(e), state, size, t);
 
+const SPRITE_PAD = 8;
+const SPRITES_KEPT = 48;
+const sprites = new Map<string, HTMLCanvasElement | null>();
+
+function sprite(id: AssetId, state: number, scale: number, lines: number): HTMLCanvasElement | null {
+  const key = `${id}|${state}|${scale}|${lines}`;
+  const known = sprites.get(key);
+  if (known !== undefined) return known;
+  if (sprites.size >= SPRITES_KEPT) sprites.clear();
+  const [x0, y0, x1, y1] = ASSETS[id].box;
+  const c = document.createElement("canvas");
+  c.width = Math.ceil((x1 - x0 + 2 * SPRITE_PAD) * scale);
+  c.height = Math.ceil((y1 - y0 + 2 * SPRITE_PAD) * scale);
+  const ctx = c.getContext("2d");
+  if (ctx) {
+    ctx.scale(scale, scale);
+    ctx.translate(SPRITE_PAD - x0, SPRITE_PAD - y0);
+    drawAsset(ctx, ASSETS[id], { state, lod: true, lines });
+  }
+  const made = ctx ? c : null;
+  sprites.set(key, made);
+  return made;
+}
+
+function putSprite(e: Env, id: AssetId, x: number, y: number, state: number): boolean {
+  const { ctx } = e;
+  const t = ctx.getTransform();
+  if (t.b || t.c || typeof document === "undefined") return false;
+  const scale = Math.round(t.a * k(e) * 1000) / 1000;
+  const image = sprite(id, state, scale, e.lines);
+  if (!image) return false;
+  if (e.drawn) e.drawn.count++;
+  const [x0, y0] = ASSETS[id].box;
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(image, Math.round(t.a * x + t.e + (x0 - SPRITE_PAD) * scale), Math.round(t.d * y + t.f + (y0 - SPRITE_PAD) * scale));
+  ctx.restore();
+  return true;
+}
+
 const px = (e: Env, size: number): number => size / k(e);
 
 function sky(e: Env): void {
@@ -375,6 +415,7 @@ export function prop(e: Env, p: Prop): void {
   const x = (p.x + dx) * e.cell - ((left + right) / 2) * k(e);
   const y = ((p.y ?? e.world.spawn[1]) + dy) * e.cell;
   if (!near(e, artBox(e, id, x, y, top === undefined ? 0 : top * e.cell))) return;
+  if (!size && !look && !ASSETS[id].anim && putSprite(e, id, x, y, state)) return;
   put(e, id, x, y, state, size, look?.t ?? 0);
 }
 
