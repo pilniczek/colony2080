@@ -145,8 +145,6 @@ const fencePanel = (ctx: CanvasRenderingContext2D, x: number, w: number, hole?: 
 };
 
 const signPlate = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, mat = "chrome"): void => {
-  wire(ctx, [[x + 2, y], [x + 4, y - 4]], "c1", 0.5);
-  wire(ctx, [[x + w - 2, y], [x + w - 4, y - 4]], "c1", 0.5);
   box(ctx, x, y, w, h, mat, 1);
   const s = 122 + Math.round(x * 3 + w);
   G.grain(ctx, G.rectRegion(ctx, x, y, w, h), s);

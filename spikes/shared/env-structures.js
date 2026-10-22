@@ -141,8 +141,6 @@ function fencePanel(ctx, x, w, hole) {
 }
 
 function signPlate(ctx, x, y, w, h, mat = "chrome") {
-  wire(ctx, [[x + 2, y], [x + 4, y - 4]], "c1", 0.5);
-  wire(ctx, [[x + w - 2, y], [x + w - 4, y - 4]], "c1", 0.5);
   box(ctx, x, y, w, h, mat, 1);
   const s = 122 + Math.round(x * 3 + w);
   G.grain(ctx, G.rectRegion(ctx, x, y, w, h), s);
