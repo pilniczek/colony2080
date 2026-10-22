@@ -32,6 +32,7 @@ interface Layer {
   image: ImageData | null;
   mask: HTMLCanvasElement;
   soft: HTMLCanvasElement;
+  hardY: HTMLCanvasElement;
   window: HTMLCanvasElement;
   windowKey: string;
   left: number;
@@ -97,14 +98,28 @@ function paintMask(fog: Fog, cached: Layer, box: CellBox): void {
   ctx.putImageData(image, 0, 0, box.col, box.row, box.w, box.h);
 }
 
+const blocksSight = (fog: Fog, col: number, row: number): boolean => fog.grid.opaque(col, row) || fog.grid.floor(col, row);
+
+export function hardEdges(fog: Fog, alpha: (i: number) => number, box: CellBox): [number, number][] {
+  const edges: [number, number][] = [];
+  for (let row = Math.max(1, box.row); row < Math.min(fog.height, box.row + box.h + 1); row++) {
+    for (let col = box.col; col < box.col + box.w; col++) {
+      const i = row * fog.width + col;
+      if (alpha(i) === alpha(i - fog.width)) continue;
+      if (blocksSight(fog, col, row - 1) || blocksSight(fog, col, row)) edges.push([col, row]);
+    }
+  }
+  return edges;
+}
+
 function grow(fog: Fog, box: CellBox, cells: number): CellBox {
   const col = Math.max(0, box.col - cells);
   const row = Math.max(0, box.row - cells);
   return { col, row, w: Math.min(fog.width, box.col + box.w + cells) - col, h: Math.min(fog.height, box.row + box.h + cells) - row };
 }
 
-function paintSoft(fog: Fog, mask: HTMLCanvasElement, soft: HTMLCanvasElement, box: CellBox): CellBox {
-  const ctx = soft.getContext("2d")!;
+function paintSoft(fog: Fog, cached: Layer, box: CellBox): CellBox {
+  const ctx = cached.soft.getContext("2d")!;
   const px = SOFT_CELL_PX;
   const blur = grow(fog, box, SOFT_BLUR_CELLS);
   const from = grow(fog, box, SOFT_BLUR_CELLS + SOFT_PAD_CELLS);
@@ -115,7 +130,20 @@ function paintSoft(fog: Fog, mask: HTMLCanvasElement, soft: HTMLCanvasElement, b
   ctx.clearRect(blur.col * px, blur.row * px, blur.w * px, blur.h * px);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(mask, from.col, from.row, from.w, from.h, from.col * px, from.row * px, from.w * px, from.h * px);
+  ctx.drawImage(cached.mask, from.col, from.row, from.w, from.h, from.col * px, from.row * px, from.w * px, from.h * px);
+  const pixels = new Uint32Array(cached.image!.data.buffer);
+  const hard = hardEdges(fog, (i) => pixels[i]! >>> 24, blur);
+  if (hard.length) {
+    const hy = cached.hardY.getContext("2d")!;
+    hy.clearRect(from.col, from.row * px, from.w, from.h * px);
+    hy.imageSmoothingEnabled = false;
+    hy.drawImage(cached.mask, from.col, from.row, from.w, from.h, from.col, from.row * px, from.w, from.h * px);
+    ctx.beginPath();
+    for (const [col, row] of hard) ctx.rect(col * px, row * px - px / 2, px, px);
+    ctx.clip();
+    ctx.clearRect(blur.col * px, blur.row * px, blur.w * px, blur.h * px);
+    ctx.drawImage(cached.hardY, from.col, from.row * px, from.w, from.h * px, from.col * px, from.row * px, from.w * px, from.h * px);
+  }
   ctx.restore();
   return blur;
 }
@@ -141,11 +169,13 @@ function layer(fog: Fog, span: SightSpan | undefined): { cached: Layer; dirty: C
   let cached = layers.get(fog);
   if (!cached) {
     const canvas = () => document.createElement("canvas");
-    cached = { version: NaN, shown: [], glide: new Map(), image: null, mask: canvas(), soft: canvas(), window: canvas(), windowKey: "", left: 0, top: 0 };
+    cached = { version: NaN, shown: [], glide: new Map(), image: null, mask: canvas(), soft: canvas(), hardY: canvas(), window: canvas(), windowKey: "", left: 0, top: 0 };
     cached.mask.width = fog.width;
     cached.mask.height = fog.height;
     cached.soft.width = fog.width * SOFT_CELL_PX;
     cached.soft.height = fog.height * SOFT_CELL_PX;
+    cached.hardY.width = fog.width;
+    cached.hardY.height = fog.height * SOFT_CELL_PX;
     layers.set(fog, cached);
   }
   const glide = glideOf(fog, span);
@@ -157,7 +187,7 @@ function layer(fog: Fog, span: SightSpan | undefined): { cached: Layer; dirty: C
   cached.version = fog.version;
   cached.shown = fog.seenCells;
   for (const box of boxes) paintMask(fog, cached, box);
-  return { cached, dirty: boxes.map((box) => paintSoft(fog, cached.mask, cached.soft, box)) };
+  return { cached, dirty: boxes.map((box) => paintSoft(fog, cached, box)) };
 }
 
 function paintWindow(fog: Fog, cached: Layer, left: number, top: number, k: number, part?: Rect): void {

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Fog } from "../fog";
-import { drawFog, glideOf } from "./fog";
+import { TileGrid } from "../../engine/world/tiles";
+import { drawFog, glideOf, hardEdges } from "./fog";
 
 interface FakeCanvas {
   width: number;
@@ -128,5 +129,17 @@ describe("glideOf", () => {
     expect(glide.get(20 + 13)).toBe(Math.round(0.75 * Math.round(0.6 * 255)));
     expect(glide.size).toBe(2);
     expect(glideOf(f, { left: 4.75, right: 13.25, top: 0, bottom: 1 }).size).toBe(0);
+  });
+});
+
+describe("hardEdges", () => {
+  it("keeps the fog edge hard only where a floor or wall stops the sight", () => {
+    const f = { ...fog(4, 4), grid: new TileGrid(["....", "##..", "....", "...."]) } as Fog;
+    const seenRows = new Set([1, 2, 3]);
+    const alpha = (i: number): number => (seenRows.has(Math.floor(i / 4)) ? 0 : 255);
+    expect(hardEdges(f, alpha, { col: 0, row: 0, w: 4, h: 4 })).toEqual([
+      [0, 1],
+      [1, 1],
+    ]);
   });
 });
