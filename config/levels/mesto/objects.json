@@ -1735,7 +1735,7 @@
       "task": null,
       "sheet": "buildings",
       "description": "Dark brown brick walls, full floor height, framing lift shafts and buildings, usually with a vertical pipe at the edge.",
-      "states": [],
+      "states": ["pipe at the right edge (ends a wall run)", "plain bricks (inside a run or infill)"],
       "refs": [
         {
           "path": "docs/research/video/frames-best/L1_t0296_lift_scaffold_crate_item_message.png",

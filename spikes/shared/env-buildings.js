@@ -378,8 +378,10 @@ define({
   id: "brickWall",
   box: [0, -168, 72, 0],
   draw(ctx, state, t, { w = 72, h = 168 } = {}) {
-    bricks(ctx, 0, -h, w - 14, h, 7);
-    G.drips(ctx, 0, -h, w - 14, min(h * 0.5, 60), 250, round(w / 14));
+    const brick = state === 1 ? w : w - 14;
+    bricks(ctx, 0, -h, brick, h, 7);
+    G.drips(ctx, 0, -h, brick, min(h * 0.5, 60), 250, round(w / 14));
+    if (state === 1) return;
     flat(ctx, w - 14, -h, 14, h, "r0", "rust");
     cylV(ctx, w - 11, -h, 7, h, "concrete", 2);
     G.surface(ctx, w - 14, -h, 14, h, 251, { rise: min(0.3, 40 / h), edge: false });
