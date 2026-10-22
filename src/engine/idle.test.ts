@@ -1,14 +1,23 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { IDLE_TIMEOUT_MS, whenIdle } from "./idle";
+import { describe, expect, it, vi } from "vitest";
+import { runIdleJob, whenIdle } from "./idle";
 
 describe("whenIdle", () => {
-  afterEach(() => vi.unstubAllGlobals());
-
-  it("runs the task within a timeout even when the browser never goes idle", () => {
-    const idle = vi.fn();
-    vi.stubGlobal("requestIdleCallback", idle);
-    const task = (): void => {};
+  it("runs nothing until an idle job is due", () => {
+    const task = vi.fn();
     whenIdle(task);
-    expect(idle).toHaveBeenCalledWith(task, { timeout: IDLE_TIMEOUT_MS });
+    expect(task).not.toHaveBeenCalled();
+    runIdleJob();
+    expect(task).toHaveBeenCalledOnce();
+  });
+
+  it("runs one queued task per idle job, oldest first", () => {
+    const order: string[] = [];
+    whenIdle(() => order.push("a"));
+    whenIdle(() => order.push("b"));
+    runIdleJob();
+    expect(order).toEqual(["a"]);
+    runIdleJob();
+    runIdleJob();
+    expect(order).toEqual(["a", "b"]);
   });
 });

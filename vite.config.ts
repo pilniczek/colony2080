@@ -5,12 +5,18 @@ import { assertNoOriginalGame, buildProductionSpikes, scrubConfig, stripDevOnly 
 
 const root = (path: string): string => fileURLToPath(new URL(path, import.meta.url));
 
+const scrub = (): Plugin => ({
+  name: "scrub-config",
+  apply: "build",
+  enforce: "pre",
+  transform: (code, id) => (/\/config\/.+\.json$/.test(id) ? JSON.stringify(scrubConfig(JSON.parse(code))) : null),
+});
+
 const production = (): Plugin => ({
   name: "production",
   apply: "build",
   enforce: "pre",
   transformIndexHtml: stripDevOnly,
-  transform: (code, id) => (/\/config\/.+\.json$/.test(id) ? JSON.stringify(scrubConfig(JSON.parse(code))) : null),
   closeBundle: () => {
     buildProductionSpikes(root("./spikes"), root("./dist/spikes"));
     assertNoOriginalGame(root("./dist"));
@@ -18,7 +24,8 @@ const production = (): Plugin => ({
 });
 
 export default defineConfig({
-  plugins: [react(), production()],
+  plugins: [react(), scrub(), production()],
+  worker: { format: "es", plugins: () => [scrub()] },
   resolve: {
     alias: { "@config": root("./config") },
   },

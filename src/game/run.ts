@@ -10,7 +10,7 @@ import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
 import { CheatInput } from "../sandbox/ui/CheatInput";
-import { whenIdle } from "../engine/idle";
+import { runIdleJob, whenIdle } from "../engine/idle";
 import { filmOf, loadFilms, type Cutscene, type CutsceneId } from "./cutscene";
 import { lookAt } from "./cutscene/looks";
 import { drawRobotView } from "./cutscene/robotView";
@@ -31,11 +31,14 @@ import { resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sand
 import { openBlockers, pickAll, say } from "./level/tasks";
 import { drawFog, seenPath } from "./render/fog";
 import { drawMap } from "./render/map";
+import { askTiles } from "./render/environment";
+import { paintTilesAside } from "./render/tilesAside";
 import { drawOverlays } from "./render/overlays";
 import { drawScene, viewCells, visibleEnemies } from "./render/scene";
 import { momentOf, tween, type Moment } from "./render/tween";
 import { snapView } from "./render/snapView";
 import { SOUNDS, samplesOf } from "./sound";
+import { prerender } from "./sound/prerender";
 import { saveSoundOn } from "./sound/settings";
 import { openInventory } from "./sound/ui";
 import { stopOnPause, stopOnSkip, stopWhenHidden, warmOnUnlock } from "./sound/voices";
@@ -107,6 +110,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     world.fog = on ? createFog(fogConfig, tuning().movement, hero, world.grid) : null;
   };
   applyFog(tuning().fogOn);
+  paintTilesAside(world);
   const rigs = createRigs(true);
   const enemyRigs = createRigs(true, true);
   const hold = holdPoses(rigs.side, rigs.front);
@@ -115,7 +119,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
 
   const mixer = createMixer(samplesOf);
   mixer.setMuted(!tuning().soundOn);
-  const unlockAudio = warmOnUnlock(mixer, Object.keys(SOUNDS), whenIdle);
+  const soundsRendered = prerender(Object.keys(SOUNDS));
+  const unlockAudio = warmOnUnlock(mixer, Object.keys(SOUNDS), (task) => void soundsRendered.then(() => setTimeout(task)));
   window.addEventListener("keydown", unlockAudio, { capture: true });
   window.addEventListener("pointerdown", unlockAudio, { capture: true });
 
@@ -249,18 +254,15 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     scratch.height = canvas.height;
     const warm = scratch.getContext("2d");
     if (!warm) return;
-    const next = (i: number): void => {
-      const film = films[i];
-      if (!film) return;
-      if (world.cutscene) return whenIdle(() => next(i));
+    whenIdle(() => {
+      for (let pass = 0; pass < CACHE_PASSES; pass++) {
+        drawSecurityCam(warm, scratch.width, scratch.height, 0, "");
+        drawRobotView(warm, scratch.width, scratch.height, 0);
+      }
+    });
+    for (const film of films) whenIdle(() => {
       for (let pass = 0; pass < CACHE_PASSES; pass++) film.render(warm, scratch.width, scratch.height, 0);
-      whenIdle(() => next(i + 1));
-    };
-    for (let pass = 0; pass < CACHE_PASSES; pass++) {
-      drawSecurityCam(warm, scratch.width, scratch.height, 0, "");
-      drawRobotView(warm, scratch.width, scratch.height, 0);
-    }
-    whenIdle(() => next(0));
+    });
   };
 
   const picture = (): string => {
@@ -345,8 +347,10 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       afterStep?.();
     },
     render(alpha) {
+      if (loop.paused) runIdleJob();
       if (world.cutscene) {
         drawFilm(world.cutscene.id, world.cutscene.t);
+        askTiles(world, tuning().movement, devicePixelRatio || 1, cameraView(hero, tuning().movement), gameWindow);
         return;
       }
       const { movement: cfg, clips, overlays } = tuning();

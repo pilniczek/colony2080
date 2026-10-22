@@ -32,7 +32,46 @@ const LIFT_CULL_PAD_CELLS = 3;
 
 const grown = ({ x, y, w, h }: Rect, by: number): Rect => ({ x: x - by, y: y - by, w: w + 2 * by, h: h + 2 * by });
 
-const layers = new WeakMap<SandboxWorld, Record<string, TileCache<HTMLCanvasElement | null>>>();
+type Surface = OffscreenCanvas | HTMLCanvasElement;
+
+export type TileImage = Surface | ImageBitmap;
+
+export type Layer = "below" | "above";
+
+export interface TileJob {
+  layer: Layer;
+  key: string;
+  scale: number;
+  cell: number;
+  unit: number;
+  lines: number;
+  size: { w: number; h: number };
+  col: number;
+  row: number;
+}
+
+const layers = new WeakMap<SandboxWorld, Partial<Record<Layer, TileCache<TileImage | null>>>>();
+
+const painters = new WeakMap<SandboxWorld, (job: TileJob) => void>();
+
+export function paintTilesWith(world: SandboxWorld, painter: ((job: TileJob) => void) | null): void {
+  if (painter) painters.set(world, painter);
+  else painters.delete(world);
+}
+
+export function adoptTile(world: SandboxWorld, { layer, key, col, row }: TileJob, image: TileImage | null): void {
+  const cache = layers.get(world)?.[layer];
+  if (cache) cache.adopt(key, col, row, image);
+  else free(image);
+}
+
+const surface = (w: number, h: number): Surface => {
+  if (typeof OffscreenCanvas !== "undefined") return new OffscreenCanvas(w, h);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  return canvas;
+};
 
 type Lookup = (col: number, row: number) => readonly unknown[];
 
@@ -125,21 +164,19 @@ const put = (e: Env, id: AssetId | EnvAsset, x: number, y: number, state = 0, si
 
 const SPRITE_PAD = 8;
 const SPRITES_KEPT = 48;
-const sprites = new Map<string, HTMLCanvasElement | null>();
+const sprites = new Map<string, Surface | null>();
 
 const spriteTop = (id: AssetId, size?: Size): number => Math.min(ASSETS[id].box[1], size?.top ?? 0);
 
-function sprite(id: AssetId, state: number, scale: number, lines: number, size?: Size): HTMLCanvasElement | null {
+function sprite(id: AssetId, state: number, scale: number, lines: number, size?: Size): Surface | null {
   const key = `${id}|${state}|${scale}|${lines}|${size?.top ?? ""}`;
   const known = sprites.get(key);
   if (known !== undefined) return known;
   if (sprites.size >= SPRITES_KEPT) sprites.clear();
   const [x0, , x1, y1] = ASSETS[id].box;
   const y0 = spriteTop(id, size);
-  const c = document.createElement("canvas");
-  c.width = Math.ceil((x1 - x0 + 2 * SPRITE_PAD) * scale);
-  c.height = Math.ceil((y1 - y0 + 2 * SPRITE_PAD) * scale);
-  const ctx = c.getContext("2d");
+  const c = surface(Math.ceil((x1 - x0 + 2 * SPRITE_PAD) * scale), Math.ceil((y1 - y0 + 2 * SPRITE_PAD) * scale));
+  const ctx = c.getContext("2d") as CanvasRenderingContext2D | null;
   if (ctx) {
     ctx.scale(scale, scale);
     ctx.translate(SPRITE_PAD - x0, SPRITE_PAD - y0);
@@ -153,7 +190,7 @@ function sprite(id: AssetId, state: number, scale: number, lines: number, size?:
 function putSprite(e: Env, id: AssetId, x: number, y: number, state: number, size?: Size): boolean {
   const { ctx } = e;
   const t = ctx.getTransform();
-  if (t.b || t.c || typeof document === "undefined") return false;
+  if (t.b || t.c || (typeof OffscreenCanvas === "undefined" && typeof document === "undefined")) return false;
   const scale = Math.round(t.a * k(e) * 1000) / 1000;
   const image = sprite(id, state, scale, e.lines, size);
   if (!image) return false;
@@ -191,10 +228,8 @@ function underground(e: Env): void {
   ctx.fillRect(0, (world.ground + 1) * cell, world.grid.width * cell, (world.grid.height - world.ground - 1) * cell);
 }
 
-function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: number; h: number }, col: number, row: number): HTMLCanvasElement | null {
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.min(TILE_PX, size.w - col * TILE_PX);
-  canvas.height = Math.min(TILE_PX, size.h - row * TILE_PX);
+function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: number; h: number }, col: number, row: number): Surface | null {
+  const canvas = surface(Math.min(TILE_PX, size.w - col * TILE_PX), Math.min(TILE_PX, size.h - row * TILE_PX));
   const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
   ctx.translate(-col * TILE_PX, -row * TILE_PX);
   ctx.scale(scale, scale);
@@ -206,33 +241,83 @@ function render(e: Env, scale: number, paint: (off: Env) => void, size: { w: num
   return null;
 }
 
-function free(canvas: HTMLCanvasElement | null): void {
-  if (canvas) canvas.width = canvas.height = 0;
+function free(image: TileImage | null): void {
+  if (!image) return;
+  if ("close" in image) image.close();
+  else image.width = image.height = 0;
 }
 
-function cached(e: Env, name: string, paint: (off: Env) => void): void {
-  const { ctx, world, cell, unit, lines, screen } = e;
-  const t = ctx.getTransform();
-  const scale = Math.hypot(t.a, t.b);
-  const x = Math.round(t.e);
-  const y = Math.round(t.f);
-  const size = { w: Math.ceil(world.grid.width * cell * scale), h: Math.ceil(world.grid.height * cell * scale) };
+export function paintTile(world: SandboxWorld, job: TileJob): ImageBitmap | null {
+  const e: Env = { ctx: null as unknown as CanvasRenderingContext2D, world, hero: { blaster: null }, cell: job.cell, unit: job.unit, lines: job.lines, screen: { x: 0, y: 0, w: 0, h: 0 } };
+  const canvas = render(e, job.scale, LAYERS[job.layer], job.size, job.col, job.row);
+  return canvas instanceof OffscreenCanvas ? canvas.transferToImageBitmap() : null;
+}
+
+interface Span {
+  key: string;
+  scale: number;
+  x: number;
+  y: number;
+  size: { w: number; h: number };
+  view: Rect;
+}
+
+function spanOf({ world, cell, unit, lines, screen }: Pick<Env, "world" | "cell" | "unit" | "lines" | "screen">, exact: number, offsetX: number, offsetY: number): Span {
+  const scale = Math.fround(exact);
+  const x = Math.round(offsetX);
+  const y = Math.round(offsetY);
+  return {
+    key: `${scale}|${lines}|${cell}|${unit}`,
+    scale,
+    x,
+    y,
+    size: { w: Math.ceil(world.grid.width * cell * scale), h: Math.ceil(world.grid.height * cell * scale) },
+    view: { x: screen.x - x, y: screen.y - y, w: screen.w, h: screen.h },
+  };
+}
+
+function cacheOf(world: SandboxWorld, name: Layer): TileCache<TileImage | null> {
   const own = layers.get(world) ?? {};
   layers.set(world, own);
-  const cache = (own[name] ??= new TileCache(DROPPED_KEPT, free, true));
-  const view = { x: screen.x - x, y: screen.y - y, w: screen.w, h: screen.h };
+  return (own[name] ??= new TileCache<TileImage | null>(DROPPED_KEPT, free, true));
+}
+
+const ringOf = ({ view, size }: Span): TileCoord[] => nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX);
+
+function aside(e: Pick<Env, "world" | "cell" | "unit" | "lines">, name: Layer, span: Span): { tiles: TileCoord[]; budget: number; request: (col: number, row: number) => void } | null {
+  const painter = painters.get(e.world);
+  if (!painter) return null;
+  const { key, scale, size } = span;
+  const { cell, unit, lines } = e;
+  return { tiles: ringOf(span), budget: 0, request: (col, row) => painter({ layer: name, key, scale, cell, unit, lines, size, col, row }) };
+}
+
+function cached(e: Env, name: Layer): void {
+  const { ctx } = e;
+  const t = ctx.getTransform();
+  const span = spanOf(e, Math.hypot(t.a, t.b), t.e, t.f);
+  const { key, scale, x, y, size, view } = span;
+  const cache = cacheOf(e.world, name);
   const need = visibleTiles(view, TILE_PX, 0, size);
   const ahead = (): { tiles: TileCoord[]; budget: number; more: () => boolean } => {
     const until = performance.now() + PREFETCH_MS;
-    return { tiles: nearestFirst(visibleTiles(view, TILE_PX, TILE_MARGIN, size), view, TILE_PX), budget: PREFETCH_PER_FRAME, more: () => performance.now() < until };
+    return { tiles: ringOf(span), budget: PREFETCH_PER_FRAME, more: () => performance.now() < until };
   };
-  const key = `${scale}|${lines}|${cell}|${unit}`;
-  const make = (col: number, row: number): HTMLCanvasElement | null => render(e, scale, paint, size, col, row);
-  const tiles = cache.settled(key, need) ?? cache.sync(key, need, make, ahead());
+  const make = (col: number, row: number): TileImage | null => render(e, scale, LAYERS[name], size, col, row);
+  const tiles = cache.settled(key, need) ?? cache.sync(key, need, make, aside(e, name, span) ?? ahead());
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, x, y);
   for (const [col, row, canvas] of tiles) if (canvas) ctx.drawImage(canvas, col * TILE_PX, row * TILE_PX);
   ctx.restore();
+}
+
+export function askTiles(world: SandboxWorld, cfg: MovementConfig, lines: number, view: { scale: number; offsetX: number; offsetY: number }, screen: Rect): void {
+  const e = { world, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen };
+  const span = spanOf(e, view.scale, view.offsetX, view.offsetY);
+  for (const name of ["below", "above"] as const) {
+    const ask = aside(e, name, span);
+    if (ask) cacheOf(world, name).sync(span.key, [], () => null, ask);
+  }
 }
 
 export function below(e: Env): void {
@@ -250,6 +335,8 @@ export function above(e: Env): void {
   ladders(e);
   clipped(e, e.world.lifts.map((l) => shaftBox(e, l)), true, () => scenery(e, "dressing", e.world.dressing));
 }
+
+const LAYERS: Record<Layer, (e: Env) => void> = { below, above };
 
 const shaftBox = ({ cell }: Env, l: Lift): Rect => ({ x: l.x * cell, y: l.top * cell - LIFT_HEAD, w: l.w * cell, h: (l.bottom + 1 - l.top) * cell + LIFT_HEAD });
 
@@ -498,8 +585,8 @@ export function drawEnvironment(
   const scale = Math.hypot(t.a, t.b);
   const clip = { x: (screen.x - t.e) / scale, y: (screen.y - t.f) / scale, w: screen.w / scale, h: screen.h / scale };
   const e: Env = { ctx, world, hero, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen, clip };
-  cached(e, "below", below);
+  cached(e, "below");
   for (const l of e.world.lifts) if (near(e, grown(shaftBox(e, l), LIFT_CULL_PAD_CELLS * e.cell))) lift(e, l, alpha);
-  cached(e, "above", above);
+  cached(e, "above");
   for (const p of world.props) prop(e, p);
 }

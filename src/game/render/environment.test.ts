@@ -4,7 +4,9 @@ import { ITEMS } from "../items";
 import { loadMesto } from "../level/mesto";
 import { loadSandbox, type Prop } from "../level/sandboxLevel";
 import { loadMission } from "../level/missions";
-import { above, below, bucketByTile, drawnTerrain, prop, type Env } from "./environment";
+import { above, askTiles, below, bucketByTile, drawnTerrain, paintTilesWith, prop, type Env, type TileJob } from "./environment";
+import movementJson from "@config/hero/movement.json";
+import { loadMovement } from "../hero/config";
 import type { Rect } from "../geometry";
 
 const CELL = 24;
@@ -205,5 +207,17 @@ describe("weapon props", () => {
       expect(landings).toContainEqual({ row, col: l.x, w: l.w });
       expect(covers(l.x, row)).toBe(false);
     }
+  });
+});
+
+describe("tiles painted aside", () => {
+  it("asks for the start view tiles under the scale the canvas keeps, as float32", () => {
+    const jobs: TileJob[] = [];
+    const own = loadSandbox(sandboxJson);
+    paintTilesWith(own, (job) => void jobs.push(job));
+    askTiles(own, loadMovement(movementJson), 1, { scale: 1.590277777777778, offsetX: 0, offsetY: 0 }, { x: 0, y: 0, w: 600, h: 400 });
+    expect(jobs.length).toBeGreaterThan(0);
+    expect(new Set(jobs.map((job) => job.scale))).toEqual(new Set([Math.fround(1.590277777777778)]));
+    expect(new Set(jobs.map((job) => job.layer))).toEqual(new Set(["below", "above"]));
   });
 });

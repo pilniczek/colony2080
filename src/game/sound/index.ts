@@ -8,6 +8,10 @@ export type SoundId = keyof typeof SOUNDS;
 
 const rendered = new Map<string, Float32Array>();
 
+export function adoptSamples(id: string, samples: Float32Array): void {
+  if (!rendered.has(id)) rendered.set(id, samples);
+}
+
 export function samplesOf(id: string): Float32Array {
   const cached = rendered.get(id);
   if (cached) return cached;

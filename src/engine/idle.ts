@@ -1,6 +1,9 @@
-export const IDLE_TIMEOUT_MS = 200;
+const queue: (() => void)[] = [];
 
 export const whenIdle = (task: () => void): void => {
-  if (typeof requestIdleCallback === "function") requestIdleCallback(task, { timeout: IDLE_TIMEOUT_MS });
-  else setTimeout(task);
+  queue.push(task);
+};
+
+export const runIdleJob = (): void => {
+  queue.shift()?.();
 };

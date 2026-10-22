@@ -33,6 +33,7 @@ export class TileCache<T> {
   private tiles = new Map<string, T>();
   private dropped = new Map<string, T>();
   private home = new Set<string>();
+  private asked = new Set<string>();
   private settledAt: string | null = null;
   private shown: [number, number, T][] = [];
 
@@ -54,12 +55,26 @@ export class TileCache<T> {
     return this.settledAt === spanOf(key, coords) ? this.shown : null;
   }
 
-  sync(key: string, coords: TileCoord[], make: (col: number, row: number) => T, prefetch?: { tiles: TileCoord[]; budget: number; more?: () => boolean }): [number, number, T][] {
+  adopt(key: string, col: number, row: number, tile: T): void {
+    const at = id(col, row);
+    this.asked.delete(at);
+    if (key !== this.key || this.tiles.has(at) || this.dropped.has(at)) return this.release(tile);
+    this.tiles.set(at, tile);
+    this.settledAt = null;
+  }
+
+  sync(
+    key: string,
+    coords: TileCoord[],
+    make: (col: number, row: number) => T,
+    prefetch?: { tiles: TileCoord[]; budget: number; more?: () => boolean; request?: (col: number, row: number) => void },
+  ): [number, number, T][] {
     if (key !== this.key) {
       this.key = key;
       for (const tile of [...this.tiles.values(), ...this.dropped.values()]) this.release(tile);
       this.tiles.clear();
       this.dropped.clear();
+      this.asked.clear();
       this.home = new Set(this.keepHome ? coords.map(([col, row]) => id(col, row)) : []);
     }
     const kept = new Map<string, T>();
@@ -78,7 +93,10 @@ export class TileCache<T> {
       if (kept.has(id(col, row))) continue;
       const tile = this.reuse(col, row);
       if (tile !== undefined) kept.set(id(col, row), tile);
-      else if (!missed && (budget > 0 || prefetch?.more?.())) {
+      else if (prefetch?.request) {
+        if (!this.asked.has(id(col, row))) prefetch.request(col, row);
+        this.asked.add(id(col, row));
+      } else if (!missed && (budget > 0 || prefetch?.more?.())) {
         budget--;
         kept.set(id(col, row), make(col, row));
       }

@@ -246,6 +246,48 @@ describe("TileCache", () => {
       expect(painted).toEqual(["0,0", "3,0"]);
     });
 
+    it("asks for each missing margin tile once instead of painting it", () => {
+      const cache = new TileCache<string>();
+      const { painted, make } = counter();
+      const asked: string[] = [];
+      const request = (col: number, row: number): void => void asked.push(`${col},${row}`);
+      cache.sync("a", need, make, { tiles: ring, budget: 4, request });
+      cache.sync("a", need, make, { tiles: ring, budget: 4, request });
+      expect(painted.sort()).toEqual(["1,0", "2,0"]);
+      expect(asked).toEqual(["0,0", "3,0"]);
+    });
+
+    it("shows a delivered margin tile without painting it and settles once all arrived", () => {
+      const cache = new TileCache<string>();
+      const { painted, make } = counter();
+      const request = (): void => {};
+      cache.sync("a", need, make, { tiles: ring, budget: 0, request });
+      cache.adopt("a", 0, 0, "0,0 worker");
+      expect(cache.settled("a", need)).toBeNull();
+      cache.adopt("a", 3, 0, "3,0 worker");
+      painted.length = 0;
+      cache.sync("a", need, make, { tiles: ring, budget: 0, request });
+      expect(painted).toEqual([]);
+      expect(cache.settled("a", need)).not.toBeNull();
+      cache.sync("a", visibleTiles({ ...at, x: 30 }, 100, 0, { w: 1000, h: 100 }), make);
+      expect(painted).toEqual([]);
+    });
+
+    it("frees a delivered tile it already holds or of another key, and asks again after a key change", () => {
+      const freed: string[] = [];
+      const cache = new TileCache<string>(0, (tile) => freed.push(tile));
+      const { make } = counter();
+      const asked: string[] = [];
+      const request = (col: number, row: number): void => void asked.push(`${col},${row}`);
+      cache.sync("a", need, make, { tiles: ring, budget: 0, request });
+      cache.adopt("a", 1, 0, "1,0 worker");
+      cache.adopt("old", 0, 0, "0,0 old");
+      cache.sync("b", need, make, { tiles: ring, budget: 0, request });
+      cache.adopt("a", 3, 0, "3,0 late");
+      expect(freed).toEqual(expect.arrayContaining(["1,0 worker", "0,0 old", "3,0 late"]));
+      expect(asked).toEqual(["0,0", "3,0", "0,0", "3,0"]);
+    });
+
     it("drops tiles outside the visible and margin tiles", () => {
       const cache = new TileCache<string>();
       const { make } = counter();

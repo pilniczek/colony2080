@@ -10,12 +10,11 @@ const DIRT = "#140c06";
 const DUST = "#c8b48c";
 const RUST = ["#3a1a0a", "#6a2c10", "#94461c", "#b8682c"] as const;
 
-let grainCanvas: HTMLCanvasElement | null | undefined;
+let grainCanvas: OffscreenCanvas | null | undefined;
 
-const makeGrain = (): HTMLCanvasElement | null => {
-  if (typeof document === "undefined") return null;
-  const c = document.createElement("canvas");
-  c.width = c.height = GRAIN_PX;
+const makeGrain = (): OffscreenCanvas | null => {
+  if (typeof OffscreenCanvas === "undefined") return null;
+  const c = new OffscreenCanvas(GRAIN_PX, GRAIN_PX);
   const g = c.getContext("2d");
   if (!g) return null;
   const r = rng(71);
