@@ -10,7 +10,6 @@ import type { Cutscene } from "./index";
 import { camera, feet, fitStage, hookAt, lineFor, oval, poly, random, rect, rowFill, scatter, sheetBlit, sheetDraw, stillLayer, stroke, tracks } from "./kit";
 
 type Shot = (t: number) => void;
-type MarchFile = (typeof config.march.files)[number];
 interface RobotOptions {
   ax?: number;
   pose?: Pose;
@@ -66,7 +65,6 @@ interface Rigs {
   side: GroupNode;
   front: GroupNode;
   enemyFront: GroupNode;
-  sideLod: GroupNode;
   badge: GroupNode;
   back: GroupNode;
   hold: ReturnType<typeof holdPoses>;
@@ -82,7 +80,6 @@ function robots(): Rigs {
     side,
     front,
     enemyFront,
-    sideLod: buildSide({ farLimbs: true, lod: true }),
     badge: buildSide({ farLimbs: true, badge: true }),
     back: buildBack(),
     hold: holdPoses(side, front),
@@ -113,23 +110,6 @@ function robot(root: GroupNode, x: number, floorY: number, k: number, { ax = ROB
   ctx.restore();
 }
 
-function walkPose(phase: number): Pose {
-  const s = Math.sin(phase);
-  const c = Math.cos(phase);
-  return {
-    hipNear: -22 * s,
-    hipFar: 22 * s,
-    kneeNear: 2 + 34 * Math.max(0, c),
-    kneeFar: 2 + 34 * Math.max(0, -c),
-    ankleNear: -1.4 - 10 * Math.max(0, c),
-    ankleFar: -1.4 - 10 * Math.max(0, -c),
-    arm: 16 * s,
-    fore: -18,
-    armFar: -16 * s,
-    foreFar: -18,
-  };
-}
-
 function guard(x: number, floorY: number, k: number, pal: Palette): void {
   const { enemyFront, hold } = robots();
   const pose = { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R };
@@ -153,15 +133,96 @@ function stars(dx: number, dy: number): void {
   ctx.globalAlpha = 1;
 }
 
-function marchFile(file: MarchFile, fi: number, t: number): void {
-  const { sideLod, side } = robots();
-  const pal = dimmed(BOT, "hero", file.dim);
-  for (let i = 0; i < file.n; i++) {
-    const x = file.x0 + i * file.gap + t * file.speed;
-    if (x < -400 || x > 1820) continue;
-    const phase = (t * config.march.cadence + i * 0.37 + fi * 0.5) * Math.PI * 2;
-    const bob = Math.abs(Math.cos(phase)) * 10 * file.k;
-    robot(file.lod ? sideLod : side, x, file.floorY - bob, file.k, { pose: walkPose(phase), pal, simple: file.lod });
+type March = typeof config.march;
+
+function boardDepth(M: March, s: number): { z: number; y: number; k: number; dx: number } {
+  const z = 1 + (M.depth - 1) * s;
+  const [, top, , h] = M.door as [number, number, number, number];
+  const sill = top + h;
+  const near = (M.nearY - sill) / (1 - 1 / M.depth);
+  return { z, y: sill - near / M.depth + near / z, k: M.nearK / z, dx: M.skew * (M.depth / z - 1) };
+}
+
+function boardShip(M: March): void {
+  const [dx, top, dw, dh] = M.door as [number, number, number, number];
+  const sill = top + dh;
+  rect(ctx, -1200, -400, 4400, 1000, palette.hangarWall);
+  for (let x = -1100; x < 3000; x += 360) {
+    rect(ctx, x, -400, 44, 1000, palette.hangarPillar);
+    rect(ctx, x, -400, 8, 1000, palette.hangarPillarLit);
+  }
+  rect(ctx, -1200, 40, 4400, 26, palette.hangarBeam);
+  rect(ctx, -1200, 120, 4400, 80, palette.hullTop);
+  rect(ctx, -1200, 200, 4400, 220, palette.hull);
+  rect(ctx, -1200, 420, 4400, 160, palette.hullDark);
+  poly(ctx, [[-1200, 580], [3200, 580], [3200, 610], [-1200, 640]], palette.hullDark);
+  ctx.globalAlpha = 0.35;
+  rect(ctx, -1200, 520, 4400, 60, palette.black);
+  ctx.globalAlpha = 1;
+  stroke(ctx, [[-1200, 120], [3200, 120]], palette.hullLine, 3);
+  stroke(ctx, [[-1200, 420], [3200, 420]], palette.hullLine, 3);
+  for (const x of [200, 1400]) stroke(ctx, [[x, 120], [x, 580]], palette.hullLine, 3);
+  rect(ctx, dx, top, dw, dh, palette.black);
+  ctx.globalAlpha = 0.22;
+  rect(ctx, dx, top, dw, 18, palette.hatchGlow);
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = palette.hullLine;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(dx, top, dw, dh);
+  rect(ctx, -1200, 640, 4400, 700, palette.plate);
+  ctx.strokeStyle = palette.plateLine;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let x = -2400; x < 4400; x += 90) {
+    ctx.moveTo(x, 640);
+    ctx.lineTo(800 + (x - 800) * 2.6, 1400);
+  }
+  for (let d = 8; d < 800; d *= 1.35) {
+    ctx.moveTo(-1200, 640 + d);
+    ctx.lineTo(3200, 640 + d);
+  }
+  ctx.stroke();
+  const far = boardDepth(M, 1);
+  const close = boardDepth(M, -0.2);
+  const half = (d: { z: number }): number => ((dw / 2) * M.depth) / d.z;
+  const cx = dx + dw / 2;
+  const ramp: Pt[] = [[cx - half(far), sill], [cx + half(far), sill], [cx + close.dx + half(close), close.y], [cx + close.dx - half(close), close.y]];
+  poly(ctx, ramp, palette.plateShine);
+  ctx.strokeStyle = palette.plateLine;
+  ctx.beginPath();
+  for (let s = 0.95; s > -0.2; s -= 0.08) {
+    const d = boardDepth(M, s);
+    ctx.moveTo(cx + d.dx - half(d), d.y);
+    ctx.lineTo(cx + d.dx + half(d), d.y);
+  }
+  ctx.stroke();
+  for (const side of [-1, 1]) stroke(ctx, [[cx + side * half(far), sill], [cx + close.dx + side * half(close), close.y]], palette.hangarPillar, 14);
+}
+
+const legUp = (r: number): [Pose[string], Pose[string]] => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
+
+function boarding(M: March, t: number): void {
+  const { back } = robots();
+  const [dx, top, dw, dh] = M.door as [number, number, number, number];
+  const lead = M.lead + t * M.speed;
+  for (let i = 0; i < M.n; i++) {
+    const s = lead - i * M.gap;
+    if (s >= M.inside || s < -0.4) continue;
+    const { y, k, dx: shift } = boardDepth(M, s);
+    const phase = (t * M.cadence + i * 0.37) * Math.PI * 2;
+    const swing = Math.sin(phase);
+    const [thighL, shinL] = legUp(M.lift * Math.max(0, swing));
+    const [thighR, shinR] = legUp(M.lift * Math.max(0, -swing));
+    const pose: Pose = { body: { dy: -M.bob * Math.abs(swing) }, thighL, shinL, thighR, shinR, armL: -M.swing * swing, armR: -M.swing * swing };
+    const dark = Math.round(20 * Math.min(1, Math.max(0, (s - M.fade) / (M.inside - M.fade)))) / 20;
+    ctx.save();
+    if (s > 1) {
+      ctx.beginPath();
+      ctx.rect(dx, top, dw, dh);
+      ctx.clip();
+    }
+    robot(back, dx + dw / 2 + shift, y, k, { ax: ROBOT.AX, pose, pal: dimmed(BOT, "hero", 1 - dark) });
+    ctx.restore();
   }
 }
 
@@ -169,33 +230,8 @@ function march(t: number): void {
   const M = config.march;
   ctx.save();
   camera(ctx, W, H, num("marchCamX", t), 470, num("marchZ", t));
-  rect(ctx, -1200, -400, 4400, 960, palette.hangarWall);
-  for (let x = -1100; x < 3000; x += 360) {
-    rect(ctx, x, -400, 44, 960, palette.hangarPillar);
-    rect(ctx, x, -400, 8, 960, palette.hangarPillarLit);
-  }
-  rect(ctx, -1200, 110, 4400, 26, palette.hangarBeam);
-  rect(ctx, 1520, 250, 230, 310, palette.hatch);
-  ctx.globalAlpha = 0.18;
-  poly(ctx, [[1520, 560], [1750, 560], [1980, 760], [1300, 760]], palette.hatchGlow);
-  ctx.globalAlpha = 1;
-  rect(ctx, -1200, 560, 4400, 800, palette.plate);
-  ctx.strokeStyle = palette.plateLine;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let x = -2400; x < 4400; x += 90) {
-    ctx.moveTo(x, 560);
-    ctx.lineTo(800 + (x - 800) * 2.6, 1300);
-  }
-  for (let d = 8; d < 800; d *= 1.35) {
-    ctx.moveTo(-1200, 560 + d);
-    ctx.lineTo(3200, 560 + d);
-  }
-  ctx.stroke();
-  rect(ctx, -1200, 560, 4400, 6, palette.plateShine);
-  marchFile(M.files[0]!, 0, t);
-  for (const g of M.guards) guard(g.x, g.floorY, g.k, dimmed(ENEMY, "enemy", g.dim));
-  marchFile(M.files[1]!, 1, t);
+  boardShip(M);
+  boarding(M, t);
   ctx.restore();
   rowFill(ctx, (c) => {
     c.fillStyle = vertical(0, H, [[0, "rgba(0,0,0,0.55)"], [0.45, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0.35)"]]);

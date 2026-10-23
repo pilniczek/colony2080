@@ -1271,37 +1271,26 @@ window.C28_CONFIG = {
     "height": 900
    },
    "march": {
-    "cadence": 1.1,
-    "files": [
-     {
-      "n": 8,
-      "x0": -1700,
-      "gap": 380,
-      "floorY": 610,
-      "k": 0.32,
-      "speed": 215,
-      "dim": 0.45,
-      "lod": true
-     },
-     {
-      "n": 5,
-      "x0": -1900,
-      "gap": 620,
-      "floorY": 860,
-      "k": 0.66,
-      "speed": 440,
-      "dim": 0.7,
-      "lod": false
-     }
+    "cadence": 0.9,
+    "n": 7,
+    "gap": 0.36,
+    "lead": 0.7,
+    "speed": 0.2,
+    "fade": 0.8,
+    "inside": 1.3,
+    "depth": 2.7,
+    "nearY": 980,
+    "nearK": 0.81,
+    "skew": -200,
+    "door": [
+     640,
+     200,
+     320,
+     340
     ],
-    "guards": [
-     {
-      "x": 1330,
-      "floorY": 700,
-      "k": 0.42,
-      "dim": 0.55
-     }
-    ]
+    "lift": 0.45,
+    "swing": 9,
+    "bob": 12
    },
    "hold": {
     "robots": [
@@ -1481,12 +1470,11 @@ window.C28_CONFIG = {
     "marchCamX": [
      [
       0,
-      640
+      800
      ],
      [
       6.5,
-      900,
-      "inOut"
+      800
      ]
     ],
     "marchZ": [
@@ -1496,7 +1484,7 @@ window.C28_CONFIG = {
      ],
      [
       6.5,
-      1.22,
+      1.15,
       "inOut"
      ]
     ],
