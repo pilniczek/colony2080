@@ -4,6 +4,8 @@ import { Input } from "../../engine/input";
 import { FIXED_STEP } from "../../engine/loop";
 import { objectLevel } from "../hero/testWorld";
 import { loadSandbox, pickUp, type SandboxWorld } from "../level/sandboxLevel";
+import type { ItemId } from "../items";
+import { loadMesto } from "../level/mesto";
 import { filmOf, loadFilms } from "./index";
 import { captionOf, playFilm, stepCutscene } from "./play";
 
@@ -53,6 +55,19 @@ describe("film caption", () => {
     expect(w.subtitle).toBeNull();
     stepCutscene(w, FIXED_STEP, false);
     expect(w.subtitle).toMatchObject({ text: "Find the bar man.", film: true });
+  });
+
+  it.each([
+    ["tradeHoloPlan", "item:holoPlan", "The bar man draws you a ship plan and wants the part."],
+    ["tradeShipPart", "item:shipPart", "A decoder for the part."],
+  ] as const)("captions the bar man in %s", (id, item, text) => {
+    const w = loadMesto();
+    if (id === "tradeShipPart") w.flags.add("task:tradeHoloPlan").add("flag:partWanted");
+    pickUp(w, item.slice("item:".length) as ItemId);
+    w.cutscene = { id, prop: w.props.find((p) => p.id === "barDoor")!, t: 0 };
+    while (w.cutscene && w.cutscene.t <= captionOf(id)!) stepCutscene(w, FIXED_STEP, false);
+    expect(w.cutscene).not.toBeNull();
+    expect(w.subtitle).toMatchObject({ text, film: true });
   });
 
   it("shows no caption for a film without one", () => {

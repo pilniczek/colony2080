@@ -7082,6 +7082,7 @@ window.C28_CONFIG = {
    "title": "Holo plan shown at the bar",
    "camera": "CAM 07 BAR",
    "duration": 11.99,
+   "caption": 3.07,
    "sounds": [
     [
      3.07,
@@ -7558,6 +7559,7 @@ window.C28_CONFIG = {
    "title": "Ship part handed in",
    "camera": "CAM 07 BAR",
    "duration": 2.83,
+   "caption": 1.05,
    "sounds": [],
    "note": "Same bar door shot as trade-holo-plan (its door block holds stage and tracks); only the handed items differ.",
    "items": {
