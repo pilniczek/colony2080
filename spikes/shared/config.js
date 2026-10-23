@@ -11437,7 +11437,7 @@ window.C28_CONFIG = {
       "marker": 12,
       "task": "takeController",
       "sheet": "props",
-      "description": "Item spot at map cell 112,50 on floor 45, by a small green machine and fence, left of a heap of fallen girders. No item sprite in the map; never reached in footage. Look follows the inventory preview `GRAFIKA/PROVL.GRA`: grey slab with a red block and a row of white keys.",
+      "description": "Item spot at map cell 112,50 on floor 45, by a small green machine and fence, left of a heap of fallen girders. No item sprite in the map; never reached in footage. Inventory preview `GRAFIKA/PROVL.GRA` shows a grey slab; our look is a rust frame matching the liftPanel screen (orange triangle, two lines), since it fits the lift panel (user).",
       "states": [
        "on ground",
        "taken"
@@ -11875,7 +11875,8 @@ window.C28_CONFIG = {
       "description": "Small dark box with a yellow-orange triangle or arrow sign (about 1 x 0.5 tiles) on a post or wall beside lifts; a taller post version stands at street lifts. Function inferred (the damaged lift message names a lift control panel).",
       "states": [
        "normal",
-       "damaged (lift 13 only)"
+       "damaged (lift 13 only)",
+       "top stop (triangle points down)"
       ],
       "refs": [
        {

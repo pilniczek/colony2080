@@ -285,16 +285,14 @@ define({
 
 define({
   id: "controller",
-  box: [-2, -8, 18, 0],
+  box: [-2, -10, 18, 0],
   draw(ctx, state) {
     if (state) return scuff(ctx, 1, 14);
-    box(ctx, 0.6, -1.6, 14, 1.6, "chrome", 0);
-    poly(ctx, [[0.6, -1.6], [2.4, -6.4], [16, -6.4], [14.6, -1.6]], "chrome", 1);
-    poly(ctx, [[10.6, -2.6], [11.2, -5.4], [13.8, -5.4], [13.2, -2.6]], "neon", 2);
-    for (let i = 0; i < 4; i++) poly(ctx, [[2.6 + i * 1.8, -2.4], [3.2 + i * 1.8, -4], [4.2 + i * 1.8, -4], [3.6 + i * 1.8, -2.4]], "c3", 2);
-    if (simple()) return;
-    flat(ctx, 3.6, -5.6, 6, 0.4, "c0");
-    flat(ctx, 9.6, -2.2, 0.4, 0.4, "c0");
+    box(ctx, 0, -9, 16, 9, "rust", 0);
+    flat(ctx, 0, -9, 16, 0.8, "r3");
+    flat(ctx, 2, -8, 12, 7, "hole", "mLine");
+    poly(ctx, [[5.5, -7], [8.5, -2], [2.5, -2]], "a1", 2);
+    for (const [y, c] of [[-6.2, "y2"], [-3.6, "c2"]]) flat(ctx, 9.5, y, 4, 0.8, c);
   }
 });
 

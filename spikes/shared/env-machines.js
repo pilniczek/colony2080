@@ -711,7 +711,7 @@ function screenNoise(ctx, x, y, w, h, t) {
   }
 }
 
-function controlBox(ctx, x, damaged, t) {
+function controlBox(ctx, x, damaged, t, down = false) {
   const l = x + 4;
   box(ctx, l, -24, 16, 24, "rust", 0);
   flat(ctx, l, -24, 16, 1.2, "r3");
@@ -719,16 +719,15 @@ function controlBox(ctx, x, damaged, t) {
   G.grain(ctx, G.rectRegion(ctx, l - 1, -24, 18, 24), 220);
   G.drips(ctx, l + 1, -22.8, 14, 14, 221, 2);
   if (damaged) {
-    screenNoise(ctx, l + 2, -21.5, 12, 14, t);
+    screenNoise(ctx, l + 2, -21.5, 12, 7, t);
     cable(ctx, [[l + 10, -21], [l + 8, -18], [l + 11, -16], [l + 9, -14]], "c3", 0.5, "c3");
     cable(ctx, [[l + 13, -7], [l + 15, -4], [l + 14, -2]], "a1", 0.8);
     if (Math.floor(t * 6) % 5 === 0) glow(ctx, l + 14, -2, 4, "y3", 0.9);
     return;
   }
-  flat(ctx, l + 2, -21.5, 12, 14, "hole", "mLine");
-  poly(ctx, [[l + 5.5, -20.5], [l + 8.5, -15.5], [l + 2.5, -15.5]], "a1", 2);
-  if (!simple()) for (const y of [-20, -18, -16]) flat(ctx, l + 9.5, y, 3.5, 0.8, "y1");
-  for (const [bx, c] of [[5, "a1"], [8, "y2"], [11, "c2"]]) disc(ctx, l + bx, -10.5, 0.9, c);
+  flat(ctx, l + 2, -21.5, 12, 7, "hole", "mLine");
+  poly(ctx, down ? [[l + 5.5, -15.5], [l + 8.5, -20.5], [l + 2.5, -20.5]] : [[l + 5.5, -20.5], [l + 8.5, -15.5], [l + 2.5, -15.5]], "a1", 2);
+  for (const [y, c] of [[-19.7, "y2"], [-17.1, "c2"]]) flat(ctx, l + 9.5, y, 4, 0.8, c);
 }
 
 define({
@@ -736,7 +735,7 @@ define({
   box: [-2, -26, 26, 0],
   anim: true,
   draw(ctx, state, t) {
-    controlBox(ctx, 0, state === 1, t);
+    controlBox(ctx, 0, state === 1, t, state === 2);
   }
 });
 
