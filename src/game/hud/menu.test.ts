@@ -59,7 +59,7 @@ describe("menuSvg", () => {
       const en = menuSvg(320, 200, state, slots, robot);
       for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER CALLS A DISTANT LIFT<", ">X<", ">HIDING MIGHT BE MORE THAN SHOOTING<", 'href="data:panel"']) expect(en).toContain(entry);
       const cs = menuSvg(320, 200, state, slots, robot, "City", "cs");
-      for (const entry of [">NÁVOD<", ">POHYB<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<", ">SKRÝVÁNÍ MŮŽE BÝT VÍC NEŽ STŘELBA<"]) expect(cs).toContain(entry);
+      for (const entry of [">NÁVOD<", ">POHYB<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<", ">SKRÝVÁNÍ MŮŽE BÝT VÍC NEŽ STŘÍLENÍ<"]) expect(cs).toContain(entry);
     }
   });
 
