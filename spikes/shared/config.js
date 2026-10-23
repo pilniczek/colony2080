@@ -10867,8 +10867,8 @@ window.C28_CONFIG = {
       "sheet": "machines",
       "description": "Small square dark-green wall panel with a light frame (about 1 x 1 tile) on the concrete wall under the colonnade building marked 05. After the wire is ripped out the panel shows a lightning icon. The same green lightning panel tile reappears beside card door 17.",
       "states": [
-       "intact (wires inside)",
-       "wires ripped out (lightning icon)"
+       "intact (lightning icon)",
+       "wires ripped out (torn stubs)"
       ],
       "refs": [
        {

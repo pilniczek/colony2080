@@ -101,12 +101,17 @@ function wires(ctx, x, y, n) {
   for (const [c, k] of ends) cable(ctx, [[x + n * k, y + 3], [x + n * (k - 0.3), y + n * 0.9], [x + n * (k + 0.1), y + n * 0.95]], c, 1);
 }
 
+function torn(ctx, x, y, n) {
+  flat(ctx, x + 1.5, y + 1.5, n - 3, 2, "m1", "mLine");
+  for (const k of [0.3, 0.7]) cable(ctx, [[x + n * k, y + 3.5], [x + n * k - 0.5, y + 6]], "a1", 0.8);
+}
+
 define({
   id: "wireBox",
   box: [-3, -43, 25, 0],
   draw(ctx, state) {
     greenPanel(ctx, 0, -40, 22, 100, (x, y, n) => {
-      if (state === 0) return wires(ctx, x, y, n);
+      if (state === 1) return torn(ctx, x, y, n);
       boltIcon(ctx, x, y, n);
       if (!simple()) for (const k of [0.3, 0.6]) cable(ctx, [[x + n * k, y + n], [x + n * k + 1, y + n + 2.5]], "a1", 0.8);
     });
@@ -127,11 +132,7 @@ define({
     G.chips(ctx, -2, -4.8, 30, 116);
     if (!simple()) for (const y of [-62, -16]) flat(ctx, 2, y, 22, 0.8, "k0");
     greenPanel(ctx, 4, -54, 18, 117, (x, y, n) => {
-      if (state === 0) {
-        flat(ctx, x + 1.5, y + 1.5, n - 3, 2, "m1", "mLine");
-        for (const k of [0.3, 0.7]) cable(ctx, [[x + n * k, y + 3.5], [x + n * k - 0.5, y + 6]], "a1", 0.8);
-        return;
-      }
+      if (state === 0) return torn(ctx, x, y, n);
       wires(ctx, x, y, n);
     });
     const lit = state === 1;
