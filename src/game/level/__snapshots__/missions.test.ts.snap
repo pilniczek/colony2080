@@ -702,8 +702,8 @@ exports[`missions > mesto json is unchanged 1`] = `
   "dressing": [
     {
       "asset": "ceilingPipe",
-      "w": 20.92,
-      "x": 20.625,
+      "w": 21.42,
+      "x": 20.125,
       "y": 75,
     },
     {
