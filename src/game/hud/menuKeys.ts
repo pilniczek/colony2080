@@ -4,7 +4,7 @@ import { AUTO_SLOT, type Slots } from "../save/slots";
 
 export const NAME_MAX = 16;
 const GAME_OVER_ROWS = 3;
-export const PAUSE_ROWS = { save: 0, load: 1, autosave: 2, lang: 3, restart: 4, home: 5 } as const;
+export const PAUSE_ROWS = { save: 0, load: 1, autosave: 2, lang: 3, restart: 4 } as const;
 export const SETTINGS_ROWS = { autosave: 0, lang: 1, start: 2 } as const;
 const PAUSE_COUNT = Object.keys(PAUSE_ROWS).length;
 const SETTINGS_COUNT = Object.keys(SETTINGS_ROWS).length;
@@ -88,7 +88,7 @@ function settings(state: Extract<MenuState, { screen: "settings" }>, is: (action
 
 function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: string) => boolean): MenuResult {
   if (state.confirm) {
-    if (is("useItem")) return { state, action: state.cursor === PAUSE_ROWS.restart ? "restart" : "home" };
+    if (is("useItem")) return { state, action: "restart" };
     if (is("menu")) return { state: { screen: "pause", cursor: state.cursor } };
     return { state };
   }
@@ -100,7 +100,7 @@ function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: stri
   if (!is("useItem")) return { state };
   if (state.cursor === PAUSE_ROWS.save) return { state: listOf("save") };
   if (state.cursor === PAUSE_ROWS.load) return { state: listOf("load") };
-  if (state.cursor === PAUSE_ROWS.restart || state.cursor === PAUSE_ROWS.home) return { state: { ...state, confirm: true } };
+  if (state.cursor === PAUSE_ROWS.restart) return { state: { ...state, confirm: true } };
   return { state };
 }
 

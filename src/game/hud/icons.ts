@@ -16,6 +16,7 @@ const STAGE = 2400;
 const PROBE_SHRINK = 8;
 const STAGE_PAD = 16;
 const ITEM_ZOOM = 8;
+const LIFT_PANEL = { w: 15, h: 14 };
 const OUTLINE_STEPS = [[-6, 0], [6, 0], [0, -6], [0, 6], [-4, -4], [4, 4], [-4, 4], [4, -4]] as const;
 const DIAGRAM_FILL = 0.18;
 const RUN_POSE = { body: 27, hipNear: { rot: -70, sx: 0.6 }, kneeNear: 80, ankleNear: -10, hipFar: { rot: 0, sx: 0.6 }, kneeFar: 30, ankleFar: 0, arm: -40, armFar: 40, fore: -78, foreFar: -78 };
@@ -218,7 +219,10 @@ export function inventoryArtJobs(): { jobs: (() => void)[]; art: InventoryArt } 
   const itemJobs = Object.entries(ITEMS).map(([id, item]) => (): void => {
     art.items[id as ItemId] = bigItem(item);
   });
-  return { jobs: [robotJob, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), ...itemJobs], art };
+  const panelJob = (): void => {
+    art.liftPanel = icon(LIFT_PANEL.w, LIFT_PANEL.h, (ctx) => assetIcon(ctx, "liftPanel", 0, 0, LIFT_PANEL.w, LIFT_PANEL.h), true);
+  };
+  return { jobs: [robotJob, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), panelJob, ...itemJobs], art };
 }
 
 export function inventoryArt(): InventoryArt {

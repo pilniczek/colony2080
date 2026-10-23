@@ -1,14 +1,14 @@
 import type { Rect } from "../geometry";
 import { LANG_NAMES, LANGS, tr, type Lang } from "../i18n";
 import { AUTO_SLOT, savedStamp, slotLabel, type Slots } from "../save/slots";
-import { BOLD, box, image, INV, INVENTORY_BOXES, INVENTORY_DEFS, label, MONO } from "./inventory";
+import { BOLD, box, image, INV, INVENTORY_BOXES, INVENTORY_DEFS, label, MONO, type InventoryArt } from "./inventory";
 import { HUD_H, HUD_MIN_W, viewRect } from "./layout";
 import { PAUSE_ROWS, SETTINGS_ROWS, type MenuState } from "./menuKeys";
 import type { HudIcon } from "./svg";
 
 const MENU = { back: "#0a1f14", grid: "#5a1a14", over: "#ffffff", overEdge: "#2438d0" };
 const AUTOSAVES = ["AUTOSAVE", "NO AUTOSAVE"];
-const MENU_BOX: Rect = { x: 22, y: 60, w: 128, h: 68 };
+const MENU_BOX: Rect = { x: 22, y: 8, w: 128, h: 68 };
 const SLOT_BOX: Rect = { x: 10, y: 8, w: 210, h: 184 };
 const CHOICE_BOX: Rect = { x: 106, y: 146, w: 108, h: 45 };
 const OVER = { size: 9, stroke: 1.2, fallback: { y: 100 } };
@@ -23,7 +23,11 @@ const CHOICE_ROW = 13;
 const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
-const ASK: Record<number, string> = { [PAUSE_ROWS.restart]: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC", [PAUSE_ROWS.home]: "LEAVE? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
+const ASK: Record<number, string> = { [PAUSE_ROWS.restart]: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
+const MANUAL_KEYS = [["← →", "WALK"], ["↑", "JUMP, CLIMB UP"], ["↓", "DUCK, CLIMB DOWN"], ["CTRL", "SHOOT / PUNCH"]] as const;
+const MANUAL = { gap: 14, text: 5.6, key: 24, panelGap: 6, pad: 4 };
+
+export type MenuArt = Pick<InventoryArt, "robot" | "liftPanel">;
 
 type Row = { entry: string; gap?: boolean } | { options: string[]; on: number };
 
@@ -73,9 +77,10 @@ function arrows(b: Rect, y: number, on: boolean): string {
   );
 }
 
+const rowsHeight = (rows: Row[]): number => MENU_ROOM + rows.length * MENU_ROW + rows.filter((row) => "entry" in row && row.gap).length * BUTTON_GAP;
+
 function rowsBox(title: string, rows: Row[], cursor: number): string {
-  const gaps = rows.filter((row) => "entry" in row && row.gap).length;
-  const b = { ...MENU_BOX, h: MENU_ROOM + rows.length * MENU_ROW + gaps * BUTTON_GAP };
+  const b = { ...MENU_BOX, h: rowsHeight(rows) };
   let y = b.y + 16;
   const drawn = rows.map((row, i) => {
     if ("entry" in row && row.gap) y += BUTTON_GAP;
@@ -87,30 +92,42 @@ function rowsBox(title: string, rows: Row[], cursor: number): string {
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, title) + drawn;
 }
 
+function manual(rows: Row[], panel: HudIcon, lang: Lang): string {
+  const top = MENU_BOX.y + rowsHeight(rows) + MANUAL.gap;
+  const x = MENU_BOX.x + 10;
+  const keys = MANUAL_KEYS.map(([key, action], i) => {
+    const y = top + 16 + i * MENU_ROW + MENU_ROW * 0.66;
+    return text(x, y, MANUAL.text, INV.name, key) + text(x + MANUAL.key, y, MANUAL.text, INV.label, tr(action, lang));
+  }).join("");
+  const py = top + 16 + MANUAL_KEYS.length * MENU_ROW + MANUAL.pad / 2;
+  const call = image(panel, x, py) + text(x + panel.w + MANUAL.panelGap, py + panel.h * 0.6, MANUAL.text, INV.label, tr("ENTER CALLS A DISTANT LIFT", lang));
+  const b = { ...MENU_BOX, y: top, h: py + panel.h + MANUAL.pad - top };
+  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr("MANUAL", lang)) + keys + call;
+}
+
 const autosaveRow = (autosave: boolean, lang: Lang): Row => ({ options: AUTOSAVES.map((o) => tr(o, lang)), on: autosave ? 0 : 1 });
 
 const langRow = (lang: Lang): Row => ({ options: LANGS.map((l) => LANG_NAMES[l]), on: LANGS.indexOf(lang) });
 
-function settings(s: Extract<MenuState, { screen: "settings" }>, lang: Lang): string {
+function settings(s: Extract<MenuState, { screen: "settings" }>, lang: Lang, panel: HudIcon): string {
   const rows: Row[] = [];
   rows[SETTINGS_ROWS.autosave] = autosaveRow(s.autosave, lang);
   rows[SETTINGS_ROWS.lang] = langRow(lang);
   rows[SETTINGS_ROWS.start] = { entry: tr("START", lang), gap: true };
-  return rowsBox(tr("SETTINGS", lang), rows, s.cursor);
+  return rowsBox(tr("SETTINGS", lang), rows, s.cursor) + manual(rows, panel, lang);
 }
 
-function pause(s: Extract<MenuState, { screen: "pause" }>, lang: Lang, autosave: boolean): string {
+function pause(s: Extract<MenuState, { screen: "pause" }>, lang: Lang, autosave: boolean, panel: HudIcon): string {
   const rows: Row[] = [];
   rows[PAUSE_ROWS.save] = { entry: tr("SAVE GAME", lang) };
   rows[PAUSE_ROWS.load] = { entry: tr("LOAD GAME", lang) };
   rows[PAUSE_ROWS.autosave] = autosaveRow(autosave, lang);
   rows[PAUSE_ROWS.lang] = langRow(lang);
   rows[PAUSE_ROWS.restart] = { entry: tr("RESTART MISSION", lang) };
-  rows[PAUSE_ROWS.home] = { entry: tr("MISSION SELECT", lang) };
   const b = MENU_BOX;
   const bottom = b.y + MENU_ROOM + rows.length * MENU_ROW;
   const ask = s.confirm ? text(b.x + b.w / 2, bottom + 9, 5.2, INV.stat, tr(ASK[s.cursor] ?? "", lang), 'text-anchor="middle"') : "";
-  return rowsBox(tr("MENU", lang), rows, s.cursor) + ask;
+  return rowsBox(tr("MENU", lang), rows, s.cursor) + ask + manual(rows, panel, lang);
 }
 
 function footer(s: Extract<MenuState, { screen: "save" | "load" }>, lang: Lang): [string, string] {
@@ -164,10 +181,10 @@ function gameOver(W: number, H: number, s: Extract<MenuState, { screen: "gameOve
   <g transform="translate(${ox} ${oy})">${note}${box(CHOICE_BOX)}${rows}</g>`;
 }
 
-export function menuSvg(W: number, H: number, state: MenuState, slots: Slots, robot: HudIcon, prefix = "City", lang: Lang = "en", autosave = false): string {
+export function menuSvg(W: number, H: number, state: MenuState, slots: Slots, art: MenuArt, prefix = "City", lang: Lang = "en", autosave = false): string {
   const open = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${INVENTORY_DEFS}${DEFS}`;
   if (state.screen === "gameOver") return `${open}${gameOver(W, H, state, lang)}</svg>`;
-  const body = state.screen === "settings" ? settings(state, lang) : state.screen === "pause" ? pause(state, lang, autosave) : slotList(state, slots, prefix, lang);
+  const body = state.screen === "settings" ? settings(state, lang, art.liftPanel) : state.screen === "pause" ? pause(state, lang, autosave, art.liftPanel) : slotList(state, slots, prefix, lang);
   const view = viewRect({ W, H, unit: 1 });
-  return `${open}${backdrop(view, robot)}<g transform="${fitIn(view)}">${body}</g></svg>`;
+  return `${open}${backdrop(view, art.robot)}<g transform="${fitIn(view)}">${body}</g></svg>`;
 }

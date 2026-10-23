@@ -4,6 +4,7 @@ import { INVENTORY_BOXES, inventorySvg, type InventoryArt, type InventoryState }
 
 const art = (): InventoryArt => ({
   robot: { url: "robot.png", w: 100, h: 150 },
+  liftPanel: { url: "panel.png", w: 15, h: 14 },
   body: { url: "body.png", w: 20, h: 40 },
   gun: { url: "gun.png", w: 20, h: 8 },
   items: Object.fromEntries(Object.keys(ITEMS).map((id) => [id, { url: `${id}.png`, w: 40, h: 30 }])) as InventoryArt["items"],

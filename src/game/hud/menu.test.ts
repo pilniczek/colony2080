@@ -3,14 +3,16 @@ import type { SlotEntry, Slots } from "../save/slots";
 import { VIEW_BOX } from "./layout";
 import { menuSvg } from "./menu";
 
-const robot = { url: "data:,", w: 10, h: 20 };
+const icon = { url: "data:,", w: 10, h: 20 };
+const robot = { robot: icon, liftPanel: { url: "data:panel", w: 15, h: 14 } };
 const slot = (name: string): SlotEntry => ({ mission: "mesto", name, savedAt: Date.UTC(2026, 9, 20, 21, 14), picture: "data:image/jpeg;base64,AA", snapshot: {} } as unknown as SlotEntry);
 const slots: Slots = [slot("City - door"), null, null, null, null, slot("City - Autosave")];
 
 describe("menuSvg", () => {
   it("lists the pause entries", () => {
     const svg = menuSvg(320, 200, { screen: "pause", cursor: 0 }, slots, robot);
-    for (const entry of ["SAVE GAME", "LOAD GAME", "MISSION SELECT"]) expect(svg).toContain(entry);
+    for (const entry of ["SAVE GAME", "LOAD GAME", "RESTART MISSION"]) expect(svg).toContain(entry);
+    expect(svg).not.toContain("MISSION SELECT");
   });
 
   it("shows each slot name, empty slots, the picture and the typed name", () => {
@@ -48,9 +50,17 @@ describe("menuSvg", () => {
     }
   });
 
-  it("asks before leaving to mission select", () => {
+  it("asks before restarting the mission", () => {
     expect(menuSvg(320, 200, { screen: "pause", cursor: 4, confirm: true }, slots, robot)).toContain("RESTART? UNSAVED PROGRESS IS LOST");
-    expect(menuSvg(320, 200, { screen: "pause", cursor: 5, confirm: true }, slots, robot)).toContain("LEAVE? UNSAVED PROGRESS IS LOST");
+  });
+
+  it("shows the manual with the lift panel under settings and the pause menu, in the chosen language", () => {
+    for (const state of [{ screen: "settings", cursor: 2, autosave: true }, { screen: "pause", cursor: 0 }] as const) {
+      const en = menuSvg(320, 200, state, slots, robot);
+      for (const entry of [">MANUAL<", ">WALK<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER CALLS A DISTANT LIFT<", 'href="data:panel"']) expect(en).toContain(entry);
+      const cs = menuSvg(320, 200, state, slots, robot, "City", "cs");
+      for (const entry of [">NÁVOD<", ">CHŮZE<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<"]) expect(cs).toContain(entry);
+    }
   });
 
   it("shows settings with the active options lit, in the chosen language", () => {
@@ -73,7 +83,7 @@ describe("menuSvg", () => {
 
   it("shows the autosave and language rows in the pause menu, in Czech too", () => {
     const svg = menuSvg(320, 200, { screen: "pause", cursor: 0 }, slots, robot, "City", "cs", true);
-    for (const entry of ["ULOŽIT HRU", "NAHRÁT HRU", ">AUTOUKLÁDÁNÍ<", ">ČESKY<", "RESTARTOVAT MISI", "VÝBĚR MISE"]) expect(svg).toContain(entry);
+    for (const entry of ["ULOŽIT HRU", "NAHRÁT HRU", ">AUTOUKLÁDÁNÍ<", ">ČESKY<", "RESTARTOVAT MISI"]) expect(svg).toContain(entry);
     expect(menuSvg(320, 200, { screen: "gameOver", cursor: 1, canLoad: false }, slots, robot, "City", "cs")).toContain(">KONEC HRY<");
   });
 

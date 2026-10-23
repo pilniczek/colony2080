@@ -223,17 +223,6 @@ describe("save menu", () => {
     expect(r.left).toEqual([]);
   });
 
-  it("asks before leaving for mission select", () => {
-    const r = rig();
-    r.input.keyDown("Escape");
-    r.menu.step(DT);
-    for (let i = 0; i < 5; i++) r.press("ArrowDown");
-    r.press("Enter");
-    expect(r.left).toEqual([]);
-    r.press("Enter");
-    expect(r.left).toEqual(["index.html"]);
-  });
-
   it("loads the slot the page opened with", () => {
     const storage = memory();
     writeSlot(storage, 3, saveOf(rig(storage), 5, (h) => Object.assign(h, { x: 30, ammo: 7 })));
