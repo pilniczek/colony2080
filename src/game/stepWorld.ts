@@ -57,7 +57,7 @@ export function stepWorld(
   worldSounds(world, hero, events, dt);
   if (events.some((e) => e.kind === "respawned")) resetWorld(world, cfg);
   if (!filming && world.cutscene) {
-    halt(hero);
+    if (hero.onGround) halt(hero);
     consume("menu");
   }
   return events;

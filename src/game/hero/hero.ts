@@ -145,14 +145,24 @@ function atLadderTop(s: Step): boolean {
   return h.onGround && Math.abs(h.y - row) <= EPS && world.grid.ladderTop(Math.floor(h.x), row);
 }
 
-function touching(s: Step, ...kinds: string[]): Prop | undefined {
+const nearest = (h: Hero, props: Prop[]): Prop | undefined =>
+  props.reduce<Prop | undefined>((best, p) => (best && Math.abs(best.x - h.x) <= Math.abs(p.x - h.x) ? best : p), undefined);
+
+function usable(s: Step): Prop | undefined {
   const { h, world, cfg } = s;
-  const inReach = world.props.filter((p) => {
+  return nearest(h, world.props.filter((p) => {
     const y = p.y ?? world.spawn[1];
-    const reach = PICKABLE.includes(p.kind) ? Math.max(cfg.pickReach, (cfg.box.width + (p.width ?? 0)) / 2) : (cfg.box.width + (p.width ?? 0)) / 2;
-    return kinds.includes(p.kind) && onGround(p, h, world.flags) && Math.abs(p.x - h.x) <= reach && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
-  });
-  return inReach.reduce<Prop | undefined>((best, p) => (best && Math.abs(best.x - h.x) <= Math.abs(p.x - h.x) ? best : p), undefined);
+    return USABLE.includes(p.kind) && onGround(p, h, world.flags) && Math.abs(p.x - h.x) <= (cfg.box.width + (p.width ?? 0)) / 2 && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
+  }));
+}
+
+function touchedItem(s: Step): Prop | undefined {
+  const { h, world, cfg } = s;
+  return nearest(h, world.props.filter((p) => {
+    const y = p.y ?? world.spawn[1];
+    const reach = Math.max(cfg.pickReach, (cfg.box.width + (p.width ?? 0)) / 2);
+    return PICKABLE.includes(p.kind) && onGround(p, h, world.flags) && Math.abs(p.x - h.x) <= reach && h.y > y - cfg.box.height && h.y <= y + EPS;
+  }));
 }
 
 const USABLE = ["panel", "object"];
@@ -316,7 +326,7 @@ function startAttack(s: Step, state: "attack" | "duckAttack"): void {
 
 function use(s: Step): boolean {
   if (!s.input.pressed.has("useItem")) return false;
-  const prop = touching(s, ...USABLE);
+  const prop = usable(s);
   if (!prop || !s.consume("useItem")) return false;
   const cutscene = prop.kind === "panel" ? undefined : openTask(s.world, prop)?.cutscene;
   if (!cutscene) {
@@ -372,7 +382,7 @@ function stance(s: Step): boolean {
   if (takeCover(s)) return true;
   if (onMovingLift(s) || !input.held.has("down")) return false;
   s.consume("down");
-  enter(h, touching(s, ...PICKABLE) ? "kneel" : "duck");
+  enter(h, "duck");
   return true;
 }
 
@@ -590,7 +600,6 @@ const transitions: Partial<Record<HeroState, Handler>> = {
   ladder,
   duck,
   duckAttack: attack,
-  kneel: toIdle,
   use: toIdle,
   hide,
   attack,
@@ -601,7 +610,8 @@ const transitions: Partial<Record<HeroState, Handler>> = {
 };
 
 function pickup(s: Step): void {
-  const prop = touching(s, ...PICKABLE);
+  if (isDead(s.h.state) || s.h.hidden || s.world.cutscene) return;
+  const prop = touchedItem(s);
   if (!prop) return;
   prop.taken = true;
   if (prop.kind === "weapon") {
@@ -616,7 +626,7 @@ function pickup(s: Step): void {
 }
 
 function press(s: Step): void {
-  const prop = touching(s, ...USABLE);
+  const prop = usable(s);
   if (!prop) return;
   if (prop.kind === "panel") prop.on = !prop.on;
   else runUse(s.world, prop);
@@ -627,7 +637,6 @@ function clipEvents(s: Step): void {
   const clip = clipOf(s);
   for (const [t, name] of clip.events ?? []) {
     if (!(clip.loop ? crossedLoop(s, t, clip.duration) : crossed(s, t))) continue;
-    if (name === "pickup") pickup(s);
     if (name === "use") press(s);
     if (name !== "punch") continue;
     cue(s.world, "punch", 13000);
@@ -763,6 +772,7 @@ export function updateHero(
     settle(s, startY);
   }
   if (h.state === before) stepSounds(s);
+  pickup(s);
   enemyHits(s);
   return s.events;
 }

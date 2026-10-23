@@ -2,7 +2,7 @@ import type { Keys } from "../../engine/anim/keyed";
 
 export type HeroState =
   | "idle" | "walk" | "run" | "standJump" | "walkJump" | "runJump" | "duckJump" | "fall" | "fallDeath" | "duck"
-  | "duckAttack" | "kneel" | "use" | "hide" | "attack" | "weaponSwitch" | "ladder" | "death" | "jumpDeath";
+  | "duckAttack" | "use" | "hide" | "attack" | "weaponSwitch" | "ladder" | "death" | "jumpDeath";
 export type Weapon = "fists" | "gun" | "blaster";
 export type View = "side" | "front" | "back";
 export type GunTrack = "hand" | "none" | "dropped";
@@ -170,7 +170,6 @@ const weaponClips: Partial<Record<HeroState, Record<"fists" | "gun", string>>> =
   attack: { fists: "punch", gun: "shoot" },
   duckAttack: { fists: "duckPunch", gun: "duckShoot" },
   use: { fists: "use", gun: "useGun" },
-  kneel: { fists: "kneel", gun: "kneelGun" },
 };
 
 export const clipFor = (state: HeroState, weapon: Weapon): string => weaponClips[state]?.[holdsGun(weapon) ? "gun" : "fists"] ?? state;

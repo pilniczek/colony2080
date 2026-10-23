@@ -2,7 +2,7 @@ import cameraJson from "@config/camera.json";
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { createFog, loadFog } from "./fog";
-import { cfg, clips, game, objectLevel, run, tick, type Game } from "./hero/testWorld";
+import { cfg, clips, game, objectLevel, run, tick, withoutItems, type Game } from "./hero/testWorld";
 import { spikeUnit } from "./hero/look";
 import { FLYER_HALF, type Enemy } from "./level/enemy";
 import { resetWorld } from "./level/sandboxLevel";
@@ -11,7 +11,7 @@ import { fireBeam, heroMuzzle, SPARK_LIFE } from "./shots";
 const TARGET_TOP = 14 - 1.51;
 
 const armed = (x: number, facing: 1 | -1 = 1): Game => {
-  const g = game({ x, y: 14, weapon: "gun" });
+  const g = withoutItems(game({ x, y: 14, weapon: "gun" }));
   g.hero.facing = facing;
   return g;
 };

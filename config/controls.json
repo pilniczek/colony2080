@@ -9,7 +9,6 @@
     "runToggle": ["AltLeft", "AltRight"],
     "shoot": ["ControlLeft", "ControlRight"],
     "hide": ["KeyX"],
-    "pickUp": ["ArrowDown", "Enter"],
     "useItem": ["Enter"],
     "inventory": ["KeyI"],
     "map": ["KeyM"],

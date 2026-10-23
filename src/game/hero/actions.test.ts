@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { damage, kill } from "./hero";
 import { pickUp } from "../level/sandboxLevel";
-import { bottomlessPits, cfg, clips, game, objectLevel, run, runUntil, RUNNING, tick, type Game } from "./testWorld";
+import { bottomlessPits, cfg, clips, game, objectLevel, run, runUntil, RUNNING, tick, withoutItems, type Game } from "./testWorld";
 
 const kinds = (g: Game, kind: string) => g.events.filter((e) => e.kind === kind);
 
@@ -15,33 +15,62 @@ function hidden(): Game {
   return g;
 }
 
-describe("kneel and duck", () => {
-  it("kneels at the item for one pickup, then ducks there", () => {
-    const g = game({ x: 9.5, y: 14 });
-    tick(g, ["down"]);
-    expect(g.hero.state).toBe("kneel");
-    run(g, 0.2);
-    expect(kinds(g, "pickup")).toHaveLength(0);
-    run(g, 0.1);
+describe("pickup and duck", () => {
+  const crowbar = (g: Game) => g.world.props.find((p) => p.item === "crowbar")!;
+
+  it("picks the item up on touch while walking and starts its film", () => {
+    const g = game();
+    runUntil(g, () => crowbar(g).taken === true, ["moveRight"], 1);
     expect(kinds(g, "pickup")).toHaveLength(1);
-    runUntil(g, (h) => h.state === "idle");
-    expect(g.world.props.find((p) => p.kind === "item")?.taken).toBe(true);
+    expect(g.hero.x).toBeGreaterThanOrEqual(9.5 - cfg.pickReach - 1e-9);
+    expect(g.world.cutscene?.id).toBe("pickCrowbar");
+    expect(g.hero).toMatchObject({ state: "idle", vx: 0 });
+  });
+
+  it("picks an item up to one tile away and not past that", () => {
+    const near = game({ x: 8.6, y: 14 });
+    tick(near);
+    expect(crowbar(near).taken).toBe(true);
+    const far = game({ x: 8.4, y: 14 });
+    tick(far);
+    expect(crowbar(far).taken).toBeFalsy();
+  });
+
+  it("picks the item up mid-air and keeps the jump", () => {
+    const g = game({ x: 9.5, y: 13, state: "fall" });
+    g.hero.onGround = false;
+    tick(g);
+    expect(crowbar(g).taken).toBe(true);
+    expect(g.hero.state).toBe("fall");
+  });
+
+  it("misses an item more than a hero height below the feet", () => {
+    const g = game({ x: 9.5, y: 14 - cfg.box.height - 0.1, state: "fall" });
+    g.hero.onGround = false;
+    tick(g);
+    expect(crowbar(g).taken).toBeFalsy();
+  });
+
+  it("picks nothing while hidden or dead", () => {
+    const hid = game({ x: 9.5, y: 14, state: "hide" });
+    hid.hero.hidden = true;
+    tick(hid, ["hide"]);
+    expect(crowbar(hid).taken).toBeFalsy();
+    const dead = game({ x: 9.5, y: 14 });
+    kill(dead.hero);
+    tick(dead);
+    expect(crowbar(dead).taken).toBeFalsy();
+  });
+
+  it("ducks on Down and never picks with it", () => {
+    const g = withoutItems(game({ x: 9.5, y: 14 }));
     tick(g, ["down"]);
     expect(g.hero.state).toBe("duck");
     run(g, 0.5, ["down"]);
     expect(g.hero.state).toBe("duck");
     tick(g);
     expect(g.hero.state).toBe("idle");
-    expect(kinds(g, "pickup")).toHaveLength(1);
-  });
-
-  it("kneels for an item up to one tile away and ducks past that", () => {
-    const near = game({ x: 8.6, y: 14 });
-    tick(near, ["down"]);
-    expect(near.hero.state).toBe("kneel");
-    const far = game({ x: 8.4, y: 14 });
-    tick(far, ["down"]);
-    expect(far.hero.state).toBe("duck");
+    expect(kinds(g, "pickup")).toHaveLength(0);
   });
 
   it("calls the lift instead of ducking on it", () => {
@@ -166,7 +195,7 @@ describe("hide", () => {
 
   it("hides at once while shooting and stops the fire", () => {
     for (const held of [["shoot"], ["shoot", "moveRight"]]) {
-      const g = game({ x: 10.5, y: 14, weapon: "gun" });
+      const g = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
       tick(g, held, ["shoot"]);
       run(g, 0.3, held);
       tick(g, [...held, "hide"]);
@@ -178,7 +207,7 @@ describe("hide", () => {
   });
 
   it("resumes fire on release while shoot stays held", () => {
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    const g = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
     tick(g, ["shoot"], ["shoot"]);
     tick(g, ["shoot", "hide"]);
     run(g, 0.3, ["shoot", "hide"]);
@@ -444,7 +473,6 @@ describe("damage", () => {
     ["ladder", () => { const g = game({ x: 3.4, y: 14 }); tick(g, [], ["up"]); run(g, 0.5, ["up"]); return g; }, ["up"]],
     ["use", () => { const g = game({ x: 21.5, y: 14 }); tick(g, [], ["useItem"]); run(g, 0.1); return g; }, []],
     ["runJump", () => { const g = game({ x: 7.5, y: 14, state: "run" }); tick(g, ["moveRight", RUNNING], ["up"]); run(g, 0.1); return g; }, []],
-    ["kneel", () => { const g = game({ x: 9.5, y: 14 }); tick(g, ["down"]); run(g, 0.3); return g; }, []],
   ];
 
   for (const [name, start, held] of committed) {
@@ -469,10 +497,10 @@ describe("damage", () => {
 
 describe("attack", () => {
   it("walks both ways while shooting the gun without a break in the fire", () => {
-    const plain = game({ x: 10.5, y: 14, weapon: "gun" });
+    const plain = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
     tick(plain, ["shoot"], ["shoot"]);
     run(plain, 59 / 60, ["shoot"]);
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    const g = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
     tick(g, ["shoot"], ["shoot"]);
     run(g, 0.3, ["shoot"]);
     tick(g, ["shoot", "moveLeft"]);
@@ -489,7 +517,7 @@ describe("attack", () => {
   });
 
   it("starts shooting while walking without stopping", () => {
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    const g = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
     run(g, 0.3, ["moveRight"]);
     const x = g.hero.x;
     tick(g, ["moveRight", "shoot"], ["shoot"]);
@@ -512,7 +540,7 @@ describe("attack", () => {
   });
 
   it("stops shooting on release and keeps walking", () => {
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    const g = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
     tick(g, ["moveRight", "shoot"], ["shoot"]);
     run(g, 0.3, ["moveRight", "shoot"]);
     const fired = kinds(g, "shot").length;
@@ -530,10 +558,10 @@ describe("attack", () => {
   });
 
   it("jumps on Up while shooting and keeps the fire cadence in the air and after landing", () => {
-    const plain = game({ x: 10.5, y: 14, weapon: "gun" });
+    const plain = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
     tick(plain, ["shoot"], ["shoot"]);
     run(plain, 1.5, ["shoot"]);
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    const g = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
     tick(g, ["shoot"], ["shoot"]);
     run(g, 0.2, ["shoot"]);
     tick(g, ["shoot"], ["up"]);
@@ -549,7 +577,7 @@ describe("attack", () => {
   });
 
   it("starts firing in the air on a shoot press and stops on release", () => {
-    const g = game({ x: 10.5, y: 14, weapon: "gun" });
+    const g = withoutItems(game({ x: 10.5, y: 14, weapon: "gun" }));
     tick(g, [], ["up"]);
     tick(g, ["shoot"], ["shoot"]);
     expect(g.hero.state).toBe("standJump");

@@ -7,7 +7,7 @@ import { RUN, WALK } from "./gait";
 
 const states: HeroState[] = [
   "idle", "walk", "run", "standJump", "walkJump", "runJump", "duckJump", "fall", "fallDeath", "duck",
-  "duckAttack", "kneel", "use", "hide", "attack", "weaponSwitch", "ladder", "death", "jumpDeath",
+  "duckAttack", "use", "hide", "attack", "weaponSwitch", "ladder", "death", "jumpDeath",
 ];
 const weapons: Weapon[] = ["fists", "gun", "blaster"];
 
@@ -90,7 +90,6 @@ describe("loadClips", () => {
     expect(clipFor("duckAttack", "fists")).toBe("duckPunch");
     expect(clipFor("duckAttack", "gun")).toBe("duckShoot");
     expect(clipFor("use", "gun")).toBe("useGun");
-    expect(clipFor("kneel", "gun")).toBe("kneelGun");
     expect(clipFor("walk", "gun")).toBe("walk");
   });
 

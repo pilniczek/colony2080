@@ -532,34 +532,21 @@ move("movement", "Duck", "hold Down", 2.4, (c, t) => {
   bot(c, { x: 180, y: FLOOR + lift(pose), pose });
 });
 
-const KNEEL_X = 150;
-const KNEEL_LEGS = crouch(70);
-const KNEEL_Y = FLOOR + lift(KNEEL_LEGS);
-const KNEEL_REACH = new DOMPoint(SIDE_AX + (handAt(KNEEL_LEGS, KNEEL_X, KNEEL_Y, [0, 0], "toeNear")[0] + 6 - KNEEL_X) / K, FOOT_Y - 11 / K + (FLOOR - KNEEL_Y) / K);
-const reachItem = (arm, fore, hook) => XBOT.solve(side, hook, KNEEL_LEGS, [arm, fore], [[-180, 60], [-150, 60]], KNEEL_REACH);
-const KNEEL = { ...KNEEL_LEGS, ...reachItem("arm", "fore", "hand"), armFar: -20, foreFar: -40 };
-const KNEEL_ARMED = { ...carry(KNEEL_LEGS), ...reachItem("armFar", "foreFar", "handFar") };
-const kneelHook = () => armed() ? "handFar" : "hand";
-const kneelGrip = () => handAt(armed() ? KNEEL_ARMED : KNEEL, KNEEL_X, KNEEL_Y, [0, 0], kneelHook());
+const PICK_X = 220;
+const PICK_REACH = FOOT_Y * K / 1.9;
+const pickWalk = t => {
+  const p = t / WALK.cycle * TAU;
+  return { x: PICK_X - PICK_REACH - WALK.speed * t, y: FLOOR + walkBob(p), pose: walkPose(p) };
+};
 
-function heldItem(hc) {
-  const m = hc.getTransform(), g = Math.hypot(m.a, m.b) / K;
-  hc.save();
-  hc.setTransform(g, 0, 0, g, m.e, m.f);
-  item(hc, 0, FLOOR - kneelGrip()[1]);
-  hc.restore();
-}
-
-move("interaction", "Kneel, pick up", "Down on item", 1.6, (c, t) => {
+move("interaction", "Pick up", "Touch item (walk, run, jump, fall)", 2.4, (c, t) => {
   backdrop(c);
-  const [rest, kneel] = armed() ? [carry(STAND), KNEEL_ARMED] : [STAND, KNEEL];
-  const pose = keyed([[0, rest], [ACTION_TIME.in, kneel], [ACTION_END, rest]], t);
-  shadow(c, KNEEL_X, FLOOR, 30);
-  if (t <= ACTION_TIME.in) item(c, kneelGrip()[0], FLOOR);
-  const hooks = armed() ? { hand: gun } : {};
-  if (t > ACTION_TIME.in && t < 1.2) hooks[kneelHook()] = heldItem;
-  bot(c, { x: KNEEL_X, y: FLOOR + lift(pose), pose, hold: false, hooks });
-  if (t > ACTION_END && t < 1.2) label(c, "+ ITEM");
+  const touch = PICK_REACH * 2 / WALK.speed;
+  const { x, y, pose } = pickWalk(touch - t);
+  if (t < touch) item(c, PICK_X, FLOOR);
+  shadow(c, x, FLOOR, 30);
+  bot(c, { x, y, pose });
+  if (t > touch && t < touch + 0.8) label(c, "+ ITEM");
 });
 
 const REACH = { ...STAND, arm: -74, fore: -8 };
@@ -623,11 +610,10 @@ if (CATEGORY === "interaction") {
   function pickLead(id, state) {
     const scene = (c, t) => {
       backdrop(c);
-      const [rest, kneel] = armed() ? [carry(STAND), KNEEL_ARMED] : [STAND, KNEEL];
-      const pose = t === null ? rest : keyed([[0, rest], [ACTION_TIME.in, kneel], [FILM_LEAD, kneel]], t);
-      shadow(c, KNEEL_X, FLOOR, 30);
-      if (t !== null) prop(c, id, state, kneelGrip()[0] + 18);
-      bot(c, { x: KNEEL_X, y: FLOOR + lift(pose), pose, hold: false, hooks: armed() ? { hand: gun } : {} });
+      const { x, y, pose } = t === null ? { x: PICK_X - PICK_REACH, y: FLOOR, pose: STAND } : pickWalk(FILM_LEAD - t);
+      if (t !== null) prop(c, id, state, PICK_X);
+      shadow(c, x, FLOOR, 30);
+      bot(c, { x, y, pose });
     };
     return [c => scene(c, null), scene];
   }
@@ -656,23 +642,23 @@ if (CATEGORY === "interaction") {
     ["New game", "Mission start", "missionStart", blankLead("NEW GAME")],
     ["Come near the rebel", "Walk up to him, plays cutscene", "rebelShot", standLead("dyingRebel", 0, 0, "COMES NEAR")],
     ["Talk to the rebel", "Enter at the rebel, plays cutscene", "talkRebel", useLead("dyingRebel", 0, 1)],
-    ["Pick up crowbar", "Down on item, plays cutscene", "pickCrowbar", pickLead("crowbar", 0)],
+    ["Pick up crowbar", "Touch item, plays cutscene", "pickCrowbar", pickLead("crowbar", 0)],
     ["Pull wires", "Enter at wire box, plays cutscene", "pullWires", useLead("wireBox", 0, 1)],
     ["Wire switchboard", "Enter at switchboard, plays cutscene", "wireSwitchboard", useLead("switchboard", 0, 1)],
-    ["Pick up E-Blaster", "Down on item, plays cutscene", "pickEBlaster", pickLead("eBlaster", 0)],
+    ["Pick up E-Blaster", "Touch item, plays cutscene", "pickEBlaster", pickLead("eBlaster", 0)],
     ["Take tap handle", "Enter at valve, plays cutscene", "takeTapHandle", useLead("tapValveWheel", 0, 1)],
     ["Search corpse", "Enter at corpse, plays cutscene", "searchCorpse", useLead("corpse", 0, 1)],
     ["Show holo plan", "Enter at bar door, plays cutscene", "tradeHoloPlan", useLead("barDoor", 0, 0)],
     ["Shoot hull cover", "Shoot the ship, plays cutscene", "hullCover", standLead("crashedShip", 0, 1, "HULL HIT")],
-    ["Pick up ship part", "Down on item, plays cutscene", "pickShipPart", pickLead("shipPart", 1)],
+    ["Pick up ship part", "Touch item, plays cutscene", "pickShipPart", pickLead("shipPart", 1)],
     ["Hand in ship part", "Enter at bar door, plays cutscene", "tradeShipPart", useLead("barDoor", 0, 0)],
     ["Decode plasma lock", "Enter at code lock, plays cutscene", "unlockPlasma", useLead("codeLock", 0, 1)],
-    ["Pick up controller", "Down on item, plays cutscene", "pickController", pickLead("controller", 0)],
+    ["Pick up controller", "Touch item, plays cutscene", "pickController", pickLead("controller", 0)],
     ["Repair lift", "Enter at lift panel, plays cutscene", "repairLift", useLead("liftPanel", 1, 0)],
     ["Open card door", "Enter at door, plays cutscene", "openDoor", useLead("cardDoor", 0, 1)],
     ["Step off lift by the guard", "Walk off the lift deck, plays cutscene once", "acidGuardComes", standLead("lift", 0, 0, "STEPS OFF LIFT")],
     ["Use acid tank", "Enter at tank, plays cutscene", "useAcidTank", useLead("acidTank", 0, 2)],
-    ["Pick up crane key", "Down on item, plays cutscene", "pickCraneKey", pickLead("craneKey", 0)],
+    ["Pick up crane key", "Touch item, plays cutscene", "pickCraneKey", pickLead("craneKey", 0)],
     ["Repair crane", "Enter at crane, plays cutscene", "repairCrane", useLead("crane", 0, 1)]
   ];
   for (const [name, keys, id, [after, lead]] of FILMS) move("interaction", name, keys, ...triggering(CUTSCENES[id], FILM_LEAD, lead, FILM_TAIL, after));

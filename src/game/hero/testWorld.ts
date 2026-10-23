@@ -29,6 +29,11 @@ export function game(
   return { world, hero, events: [], seen: new Set([hero.state]), frame: 0, buffer: new Map() };
 }
 
+export function withoutItems(g: Game): Game {
+  for (const p of g.world.props) if (p.kind === "item" || p.kind === "weapon") p.taken = true;
+  return g;
+}
+
 const PITS = [[28, 30], [34, 37]] as const;
 const openPits = (row: string, at: number): string =>
   at < 14 ? row : [...row].map((c, col) => (PITS.some(([a, b]) => col >= a && col <= b) ? "." : c)).join("");

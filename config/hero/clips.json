@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "spikes/movement/moves.js; walk and run poses come from the gait engine (src/game/hero/gait.ts) and travel is the spec speed x cycle in cells; every jump blends from its base or gait into LEAP in JUMP.in; kneel legs are the duck crouch leaned to body 70; duck and kneel and use share ACTION_TIME with no hold; kneel arms are the spike XBOT.solve reach (KNEEL and KNEEL_ARMED); deaths fold into FLAT_BACK in COLLAPSE; jumpDeath follows JUMP_DEATH (lands 0.36 s after the hit); a dust event starts landingDust",
+  "source": "spikes/movement/moves.js; walk and run poses come from the gait engine (src/game/hero/gait.ts) and travel is the spec speed x cycle in cells; every jump blends from its base or gait into LEAP in JUMP.in; duck and use share ACTION_TIME with no hold; deaths fold into FLAT_BACK in COLLAPSE; jumpDeath follows JUMP_DEATH (lands 0.36 s after the hit); a dust event starts landingDust",
   "clips": {
     "idle": {
       "duration": 3,
@@ -84,27 +84,6 @@
         [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
         [0.25, {"body": 16, "hipNear": -86, "kneeNear": 124, "ankleNear": -44, "hipFar": -68, "kneeFar": 128, "ankleFar": -76, "arm": -52, "fore": -92, "armFar": -44, "foreFar": -96}]
       ]
-    },
-    "kneel": {
-      "duration": 0.55,
-      "loop": false,
-      "pose": [
-        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}],
-        [0.25, {"body": 70, "hipNear": -140, "kneeNear": 124, "ankleNear": -44, "hipFar": -122, "kneeFar": 128, "ankleFar": -76, "arm": -21.25, "fore": -37, "armFar": -20, "foreFar": -40}],
-        [0.55, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4}]
-      ],
-      "events": [[0.25, "pickup"]]
-    },
-    "kneelGun": {
-      "duration": 0.55,
-      "loop": false,
-      "pose": [
-        [0, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 0, "fore": -72, "armFar": -62.25, "foreFar": 14.5}],
-        [0.25, {"body": 70, "hipNear": -140, "kneeNear": 124, "ankleNear": -44, "hipFar": -122, "kneeFar": 128, "ankleFar": -76, "arm": -70, "fore": -72, "armFar": -68.25, "foreFar": 41.5}],
-        [0.55, {"body": 0, "hipNear": 0, "kneeNear": 2, "ankleNear": -1.4, "hipFar": 0, "kneeFar": 2, "ankleFar": -1.4, "arm": 0, "fore": -72, "armFar": -62.25, "foreFar": 14.5}]
-      ],
-      "gun": [[0, "hand"]],
-      "events": [[0.25, "pickup"]]
     },
     "use": {
       "duration": 0.55,

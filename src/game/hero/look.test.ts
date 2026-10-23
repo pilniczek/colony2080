@@ -338,15 +338,6 @@ describe("hero look", () => {
     expect(heroLook(hero({ state: "use", weapon: "gun", time: 0.25 }), clips, rigs, hold, cfg).pose).toMatchObject({ armFar: reach.arm, foreFar: reach.fore });
   });
 
-  it("kneel keeps the gun in carry", () => {
-    for (const time of [0, 0.25, 0.4, 0.55]) {
-      const look = heroLook(hero({ state: "kneel", weapon: "gun", time }), clips, rigs, hold, cfg);
-      expect(look.gun).toBe("hand");
-      expect(angle(look.pose, "body") + angle(look.pose, "arm")).toBeCloseTo(hold.CARRY.arm, 6);
-      expect(angle(look.pose, "fore")).toBeCloseTo(hold.CARRY.fore, 6);
-    }
-  });
-
   it("duck jump launches straight from the duck pose into the leap", () => {
     const start = heroLook(hero({ state: "duckJump", time: 0, onGround: false }), clips, rigs, hold, cfg);
     const ducked = heroLook(hero({ state: "duck", time: clips.duck!.duration }), clips, rigs, hold, cfg);

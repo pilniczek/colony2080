@@ -146,18 +146,11 @@ describe("blaster fire", () => {
 
 describe("blaster pickup", () => {
   const spot = sandboxBlaster();
-  const pickUpBlaster = (g: Game): void => {
-    tick(g, ["down"]);
-    runUntil(g, (h) => h.state === "idle");
-  };
-
-  it("kneels at the E-Blaster and takes it with full ammo, keeping the selected weapon", () => {
+  it("takes the E-Blaster on touch with full ammo, keeping the selected weapon", () => {
     for (const weapon of ["gun", "fists"] as const) {
       const g = armed(weapon, null);
       Object.assign(g.hero, spot);
-      tick(g, ["down"]);
-      expect(g.hero.state).toBe("kneel");
-      runUntil(g, (h) => h.state === "idle");
+      tick(g);
       expect(g.hero).toMatchObject({ blaster: cfg.blaster.ammo, weapon });
       expect(g.world.subtitle?.text).toBe("Picked up E-Blaster");
     }
@@ -166,7 +159,7 @@ describe("blaster pickup", () => {
   it("cannot take it again, not even after death and respawn", () => {
     const g = armed("gun", null);
     Object.assign(g.hero, spot);
-    pickUpBlaster(g);
+    tick(g);
     g.hero.blaster = 5;
     tick(g, ["down"]);
     expect(g.hero.state).toBe("duck");
