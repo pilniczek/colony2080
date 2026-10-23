@@ -146,6 +146,15 @@ describe("fog follow", () => {
     expect(g.world.fog!.anchorY).toBe(14);
   });
 
+  it("eases to a new floor while the hero jumps on and on from it", () => {
+    const g = fogged(game({ x: 10.5, y: 14 }));
+    g.world.fog!.anchorY = 16;
+    tick(g, ["up"], ["up"]);
+    run(g, 3, ["up"]);
+    expect(g.hero.onGround).toBe(false);
+    expect(g.world.fog!.anchorY).toBeCloseTo(14, 1);
+  });
+
   it("moves when the hero leaves it", () => {
     const g = game({ x: 10.5, y: 14 });
     g.world.fog = createFog(fogCfg, cfg, g.hero, g.world.grid);

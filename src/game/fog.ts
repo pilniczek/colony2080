@@ -125,7 +125,8 @@ const settled = (h: Hero): boolean => h.onGround || h.state === "ladder";
 export function updateFog(fog: Fog, h: Hero, sight: Sight, dt: number): void {
   const { cfg } = fog;
   const outside = h.y > fog.anchorY + cfg.rowsBelow || h.y - sight.box.height < fog.anchorY - cfg.rowsAbove;
-  if (settled(h) || outside) fog.anchorY += (h.y - fog.anchorY) * Math.min(1, cfg.followRate * dt);
+  const floor = settled(h) || outside ? h.y : h.fallFrom;
+  fog.anchorY += (floor - fog.anchorY) * Math.min(1, cfg.followRate * dt);
   revealAround(fog, h.x, sight);
 }
 
