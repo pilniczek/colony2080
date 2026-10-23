@@ -2,28 +2,28 @@
 const { P, MAT } = window.ENV;
 
 const FLYER_PALETTE = {
-  fh0: "#182424", fh1: "#2c3838", fh2: "#404c4c", fh3: "#586464", fhLine: "#070d0e",
+  fh0: "#262a2e", fh1: "#3c4246", fh2: "#5a6064", fh3: "#868c90", fhLine: "#0a0c0e",
   fc0: "#061204", fc1: "#0c2008", fc2: "#182414", fc3: "#2c3c24",
-  fs0: "#0c3020", fs1: "#285038", fs2: "#305840", fs3: "#406c48",
-  fk0: "#282420", fk1: "#3c3a34", fk2: "#545048", fk3: "#686458",
-  fWindow: "#244830", fLight: "#c89a30", fLightHot: "#f0d070", fBelly: "#1c140c", fPatch: "#98a8a8",
+  fs0: "#5a0c08", fs1: "#a01c14", fs2: "#c8281c", fs3: "#e85a40",
+  fg0: "#34383a", fg1: "#4c5054", fg2: "#6a6e72", fg3: "#8a8e92",
+  fk0: "#34383a", fk1: "#4c5054", fk2: "#6a6e72", fk3: "#8a8e92",
+  fWindow: "#3a4044", fLight: "#a0a4a8", fLightHot: "#e0e4e8", fBelly: "#141618", fPatch: "#c0c4c8",
   e0: "#202488", e1: "#4c70a0", e2: "#c4cccc", e3: "#f4f4f4", eGlow: "#6084f4",
   fire0: "#b04010", fire1: "#e88a28", fire2: "#f8d070", fire3: "#ffffff"
 };
 
 const GUARD_PALETTE = {
   ...FLYER_PALETTE,
-  gm0: "#182424", gm1: "#2c3838", gm2: "#404c4c", gm3: "#586464", gmLine: "#070d0e",
-  gc0: "#445854", gc1: "#6c7c7a", gc2: "#98a8a8", gc3: "#c4cccc",
+  gm0: "#262a2e", gm1: "#3c4246", gm2: "#5a6064", gm3: "#868c90", gmLine: "#0a0c0e",
+  gc0: "#5c6064", gc1: "#9ca0a4", gc2: "#c0c4c8", gc3: "#eef0f2",
   top0: "#061204", top1: "#0c2008", top2: "#182414", top3: "#2c3c24",
   stripe0: "#163220", stripe1: "#285038", stripe2: "#305840", stripe3: "#406c48",
-  light: "#c89a30", glint: "#4a7068",
-  shell0: "#2c3838", shell1: "#404c4c", shell2: "#4c5858", shell3: "#586464", groove: "#202a28", band: "#304040",
+  light: "#a0a4a8", glint: "#8a8e92",
+  shell0: "#3c4246", shell1: "#5a6064", shell2: "#6a6e72", shell3: "#868c90", groove: "#24282a", band: "#3a3e42",
   visor0: "#582404", visor1: "#78200c", visor2: "#ac2c0c", visor3: "#d8401c",
   lip0: "#808078", lip1: "#b8b8b8", lip2: "#fcfcfc", stain: "#805c38",
   visor: "#ac2c0c", visorGlow: "#ff5a30",
-  acid: "#7ed43a", acidDark: "#2e6a12", fume: "#a8c890",
-  fire0: "#b04010", fire1: "#e88a28", fire2: "#f8d070", fire3: "#ffffff"
+  acid: "#7ed43a", acidDark: "#2e6a12", fume: "#a8c890"
 };
 
 const TROOPER_PALETTE = {
@@ -76,7 +76,7 @@ const MOUNT = { x: 16.5, y: 14.6 };
 const MOUNT_MUZZLE = (GUN.BARREL.x + MOUNT_BARREL + 2) * GUN_PX;
 
 const mountedGun = GUN.model({
-  mat: { m: ["fh0", "fh1", "fh2", "fh3", "fhLine"], c: ["c0", "c1", "c2", "c3", "fhLine"], a: ["fs0", "fs1", "fs2", "fs3", "fhLine"] },
+  mat: { m: ["fh0", "fh1", "fh2", "fh3", "fhLine"], c: ["c0", "c1", "c2", "c3", "fhLine"], a: ["fg0", "fg1", "fg2", "fg3", "fhLine"] },
   buildParts: length => [
     { name: "pylon", x: -10, y: -92, w: 40, h: 30, mat: "m", tone: 0 },
     { name: "receiver", x: -40, y: -70, w: 110, h: 60, mat: "m", tone: 2 },
@@ -101,12 +101,23 @@ function sideGun(ctx, x, y, facing, barrel) {
   ctx.restore();
 }
 
-function flyerHull(ctx, { hot = false, hump = true, patch = true } = {}) {
+const STRIPE_NOSE = [45.64, 9.71];
+const STRIPE_END = 26 + 0.72 * 21.5;
+
+function flyerHull(ctx, { hot = false, hump = true, patch = true, fullStripe = false } = {}) {
+  const stripeTop = fullStripe ? [[38, 9.2], STRIPE_NOSE] : [[38, 9.2]];
   P.poly(ctx, [[4, 14.2], [38, 14.2], [46.5, 13], [38, 15.8], [26, 17.2], [12, 17.4], [4, 16.6], [3.2, 15]], "flyerHull", 0);
   P.poly(ctx, [[4, 11], [26, 11], [47.5, 11.2], [49, 11.8], [46.5, 13], [38, 14.2], [4, 14.2]], "flyerHull", 2);
   P.poly(ctx, [[4, 8], [19, 8.2], [26, 8.4], [26, 11], [4, 11]], "flyerHull", 2);
-  P.poly(ctx, [[26, 8.4], [38, 9.2], [47.5, 11.2], [26, 11]], "flyerStripe", 1, { dir: [1, 0] });
-  P.poly(ctx, [[19, 3.6], [26, 3.4], [34, 4.6], [40, 6.4], [44, 8.4], [47.5, 11.2], [38, 9.2], [26, 8.4], [19, 8.2]], "flyerShell", 1);
+  ctx.save();
+  if (fullStripe) {
+    ctx.beginPath();
+    ctx.rect(0, 0, STRIPE_END, 20);
+    ctx.clip();
+  }
+  P.poly(ctx, [[26, 8.4], ...stripeTop, [47.5, 11.2], [26, 11]], "flyerStripe", 1, { dir: [1, 0] });
+  ctx.restore();
+  P.poly(ctx, [[19, 3.6], [26, 3.4], [34, 4.6], [40, 6.4], [44, 8.4], ...(fullStripe ? [STRIPE_NOSE] : [[47.5, 11.2]]), [38, 9.2], [26, 8.4], [19, 8.2]], "flyerShell", 1);
   P.poly(ctx, [[3.5, 5.2], [10.5, 4.8], [10.5, 8], [4, 8]], "flyerHull", 0);
   if (hump) {
     P.poly(ctx, [[10.5, 4.8], [11, 2.2], [18.5, 2.2], [19.2, 4], [19, 8.2], [10.5, 8]], "flyerHump", 2);
@@ -364,8 +375,16 @@ function squashAbove(ctx, y, draw) {
 }
 
 function sideHead(ctx) {
-  squashAbove(ctx, 21, top => sideHull(ctx, top ? BROW : 26));
-  sideVisor(ctx);
+  squashAbove(ctx, 21, top => sideHull(ctx, top ? BROW : 0));
+  tiltedLip(ctx);
+}
+
+function tiltedLip(ctx) {
+  ctx.save();
+  ctx.translate(23, 23.35);
+  ctx.rotate(-0.0206);
+  slit(ctx, 0, 16.4, 0, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
+  ctx.restore();
 }
 
 const BROW = 22;
@@ -383,20 +402,8 @@ function sideHull(ctx, front) {
   ctx.clip();
   ctx.translate(HULL.rear + 3.2 * HULL.sx, HULL.top - 2.2 * HULL.sy);
   ctx.scale(-HULL.sx, HULL.sy);
-  flyerHull(ctx, { hump: false, patch: false });
+  flyerHull(ctx, { hump: false, patch: false, fullStripe: true });
   ctx.restore();
-}
-
-function sideVisor(ctx) {
-  P.line(ctx, [[BROW, 21], [26, 21]], "gmLine", 0.5, "butt");
-  ctx.fillStyle = ENV.pal.groove;
-  ctx.fillRect(26, 21, 16, 1.1);
-  slit(ctx, 26, 41, 22.1, 1.1, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
-  ctx.fillStyle = ENV.pal.band;
-  ctx.fillRect(26, 23.2, 16, 1);
-  P.line(ctx, [[26, 21], [26, 24.2]], "gmLine", 0.4, "butt");
-  slit(ctx, HULL.nose, 42, 24.2, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
-
 }
 
 const FRONT_BROW = -32.5;
@@ -408,9 +415,9 @@ function frontHead(ctx) {
 function frontShell(ctx) {
   const shell = c => {
     c.moveTo(-9.6, -34);
-    c.quadraticCurveTo(0, -42, 9.6, -34);
+    c.bezierCurveTo(-9, -45.4, 9, -45.4, 9.6, -34);
     c.quadraticCurveTo(11.2, -29, 9.4, -23.5);
-    c.quadraticCurveTo(0, -20, -9.4, -23.5);
+    c.quadraticCurveTo(0, FRONT_BELLY, -9.4, -23.5);
     c.quadraticCurveTo(-11.2, -29, -9.6, -34);
   };
   fillPath(ctx, shell, grad(ctx, 0, -39, 0, -21, [[0, "shell2"], [0.35, "shell1"], [0.7, "gm1"], [1, "shell0"]]));
@@ -418,7 +425,6 @@ function frontShell(ctx) {
   ctx.beginPath();
   shell(ctx);
   ctx.clip();
-  if (!ENV.simple) for (const x of [-7.5, 7.5]) P.line(ctx, [[x, -28.4], [x, -20]], "shell0", 0.4, "butt");
   canopy(ctx, c => {
     c.moveTo(-12, FRONT_BROW);
     c.lineTo(-12, -44);
@@ -426,18 +432,32 @@ function frontShell(ctx) {
     c.lineTo(12, FRONT_BROW);
     c.quadraticCurveTo(0, FRONT_BROW - 1.5, -12, FRONT_BROW);
   }, -41, FRONT_BROW, [[-7, -37.2], [-2, -39.6], [4, -39.2]]);
-  ctx.fillStyle = ENV.pal.groove;
-  ctx.fillRect(-8, -32.5, 16, 1.1);
-  slit(ctx, -8, 8, -31.4, 1.1, [[0, "visor0"], [0.25, "visor1"], [0.5, "visor3"], [0.75, "visor2"], [1, "visor0"]]);
-  ctx.fillStyle = ENV.pal.band;
-  ctx.fillRect(-8, -30.3, 16, 1);
-  slit(ctx, -11, 11, -29.3, 0.9, [[0, "lip0"], [0.3, "lip1"], [0.45, "glint"], [0.55, "glint"], [0.7, "lip1"], [1, "lip0"]]);
-  ctx.fillStyle = ENV.pal.shell0;
-  ctx.fillRect(-11, -28.4, 22, 1.2);
+  frontRecess(ctx);
   ctx.restore();
-  P.line(ctx, [[-11, FRONT_BROW], [11, FRONT_BROW]], "gmLine", 0.5, "butt");
-  for (const x of [-8, 8]) P.line(ctx, [[x, -32.5], [x, -29.3]], "gmLine", 0.4, "butt");
+}
 
+const FRONT_BELLY = -14.5;
+const bellyAt = x => {
+  const t = (9.4 - x) / 18.8;
+  return -23.5 + 2 * t * (1 - t) * (FRONT_BELLY + 23.5);
+};
+
+const FRONT_LIP = -30.4;
+const FRONT_STRIPE = -34.58;
+
+function frontRecess(ctx) {
+  ctx.fillStyle = ENV.pal.groove;
+  ctx.fillRect(-12, FRONT_STRIPE, 24, FRONT_LIP - FRONT_STRIPE);
+  slit(ctx, -8, 8, FRONT_STRIPE, FRONT_LIP - FRONT_STRIPE, [[0, "fs1"], [0.5, "fs2"], [1, "fs1"]]);
+  slit(ctx, -10, 10, FRONT_LIP, 0.9, [[0, "lip0"], [0.3, "lip1"], [0.45, "glint"], [0.55, "glint"], [0.7, "lip1"], [1, "lip0"]]);
+  const keel = [-7.2, -5.4, -3.6, -1.8, 0, 1.8, 3.6, 5.4, 7.2].map(x => [x, bellyAt(x)]);
+  P.poly(ctx, [...keel, [5.2, -24.3], [0, -26.9], [-5.2, -24.3]], "guardMetal", 1, { dir: [1, 0] });
+  if (!ENV.simple) {
+    for (const x of [-6.2, -5.2, 5.2, 6.2]) P.flat(ctx, x - 0.3, -28.4, 0.6, 3.4, "gm0");
+    for (const x of [7.8, 9]) for (const y of [-27.6, -26.4]) for (const side of [-1, 1]) P.disc(ctx, side * x, y, 0.35, "gm0");
+  }
+  P.line(ctx, [[-12, FRONT_STRIPE], [12, FRONT_STRIPE]], "gmLine", 0.5, "butt");
+  for (const x of [-8, 8]) P.line(ctx, [[x, FRONT_STRIPE], [x, FRONT_LIP]], "gmLine", 0.4, "butt");
 }
 
 const GUN_BACK = 2;
@@ -559,16 +579,24 @@ function frontLeg(ctx, side, lift = 0) {
   });
 }
 
+const GUN_HEX = { y: -19.2, r: 3.8 };
+
+function hexGun(ctx, side, x) {
+  const { y, r } = GUN_HEX, h = r * 0.866;
+  fillPath(ctx, c => {
+    c.moveTo(side * 9.8, -28.3);
+    c.lineTo(side * 8.7, -24.5);
+    c.lineTo(x - side * r * 0.75, y - h / 2);
+    c.lineTo(x, y);
+    c.lineTo(x + side * r / 2, y - h);
+    c.lineTo(side * 11.7, -25.3);
+  }, grad(ctx, side * 8.7, 0, x, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]));
+  P.poly(ctx, [[x - r, y], [x - r / 2, y - h], [x + r / 2, y - h], [x + r, y], [x + r / 2, y + h], [x - r / 2, y + h]], "guardMetal", 2);
+}
+
 function frontGun(ctx, side, fire) {
   const x = side * 14;
-  P.box(ctx, x - 3.5, -22.5, 7, 6.5, "guardMetal", 2);
-  fillPath(ctx, c => {
-    c.moveTo(side * 9.4, -25.4);
-    c.lineTo(side * 11.4, -25.4);
-    c.lineTo(x + side * 0.5, -22.5);
-    c.lineTo(side * 10, -22.5);
-    c.quadraticCurveTo(side * 9.2, -23.8, side * 9.4, -25.4);
-  }, grad(ctx, side * 9.4, 0, x, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]));
+  hexGun(ctx, side, x);
   P.disc(ctx, x, -19.2, 2.1, "gm0", "gmLine");
   if (!ENV.simple) P.disc(ctx, x, -19.2, 1, "gc0");
   if (fire >= 0) burst(ctx, x, -19.2, 5, fire);

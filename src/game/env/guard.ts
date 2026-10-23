@@ -20,6 +20,10 @@ const HULL = { nose: 21, rear: 54, top: 9, sx: 33 / 45.8, sy: 24 / 15.2 };
 const LEG = 1 / 12;
 const KNEE_PAD = 0.75;
 const FRONT_BROW = -32.5;
+const FRONT_BELLY = -14.5;
+const FRONT_LIP = -30.4;
+const FRONT_STRIPE = -34.58;
+const GUN_HEX = { y: -19.2, r: 3.8 };
 const FRONT_KNEE = 53.5 - 38.5;
 const FRONT_STEP = { period: 0.8, lift: 3, bob: 0.8 };
 export const ACID_GUARD_FRONT = { idle: 0, firing: 1, walk: 2 } as const;
@@ -92,24 +96,21 @@ const sideHull = (ctx: CanvasRenderingContext2D, front: number): void => {
   ctx.clip();
   ctx.translate(HULL.rear + 3.2 * HULL.sx, HULL.top - 2.2 * HULL.sy);
   ctx.scale(-HULL.sx, HULL.sy);
-  flyerHull(ctx, { hump: false, patch: false });
+  flyerHull(ctx, { hump: false, patch: false, fullStripe: true });
   ctx.restore();
 };
 
-const sideVisor = (ctx: CanvasRenderingContext2D): void => {
-  line(ctx, [[BROW, 21], [26, 21]], "gmLine", 0.5, "butt");
-  ctx.fillStyle = P.pal().groove as string;
-  ctx.fillRect(26, 21, 16, 1.1);
-  slit(ctx, 26, 41, 22.1, 1.1, [[0, "visor0"], [0.3, "visor1"], [0.75, "visor2"], [0.92, "visor3"], [1, "visor1"]]);
-  ctx.fillStyle = P.pal().band as string;
-  ctx.fillRect(26, 23.2, 16, 1);
-  line(ctx, [[26, 21], [26, 24.2]], "gmLine", 0.4, "butt");
-  slit(ctx, HULL.nose, 42, 24.2, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
+const tiltedLip = (ctx: CanvasRenderingContext2D): void => {
+  ctx.save();
+  ctx.translate(23, 23.35);
+  ctx.rotate(-0.0206);
+  slit(ctx, 0, 16.4, 0, 0.9, [[0, "glint"], [0.14, "glint"], [0.2, "lip0"], [0.5, "lip1"], [0.85, "lip2"], [1, "lip1"]]);
+  ctx.restore();
 };
 
 const sideHead = (ctx: CanvasRenderingContext2D): void => {
-  squashAbove(ctx, 21, (top) => sideHull(ctx, top ? BROW : 26));
-  sideVisor(ctx);
+  squashAbove(ctx, 21, (top) => sideHull(ctx, top ? BROW : 0));
+  tiltedLip(ctx);
 };
 
 const inRigUnits = (ctx: CanvasRenderingContext2D, at: Pt, sx: number, sy: number, origin: Pt, draw: () => void): void => {
@@ -235,12 +236,32 @@ const canopy = (ctx: CanvasRenderingContext2D, trace: Trace, top: number, bottom
   if (!P.simple()) curve(ctx, shine, "fc3", 0.5);
 };
 
+const bellyAt = (x: number): number => {
+  const t = (9.4 - x) / 18.8;
+  return -23.5 + 2 * t * (1 - t) * (FRONT_BELLY + 23.5);
+};
+
+const frontRecess = (ctx: CanvasRenderingContext2D): void => {
+  ctx.fillStyle = P.pal().groove as string;
+  ctx.fillRect(-12, FRONT_STRIPE, 24, FRONT_LIP - FRONT_STRIPE);
+  slit(ctx, -8, 8, FRONT_STRIPE, FRONT_LIP - FRONT_STRIPE, [[0, "fs1"], [0.5, "fs2"], [1, "fs1"]]);
+  slit(ctx, -10, 10, FRONT_LIP, 0.9, [[0, "lip0"], [0.3, "lip1"], [0.45, "glint"], [0.55, "glint"], [0.7, "lip1"], [1, "lip0"]]);
+  const keel = [-7.2, -5.4, -3.6, -1.8, 0, 1.8, 3.6, 5.4, 7.2].map((x): Pt => [x, bellyAt(x)]);
+  poly(ctx, [...keel, [5.2, -24.3], [0, -26.9], [-5.2, -24.3]], "guardMetal", 1, { dir: [1, 0] });
+  if (!P.simple()) {
+    for (const x of [-6.2, -5.2, 5.2, 6.2]) flat(ctx, x - 0.3, -28.4, 0.6, 3.4, "gm0");
+    for (const x of [7.8, 9]) for (const y of [-27.6, -26.4]) for (const side of [-1, 1]) disc(ctx, side * x, y, 0.35, "gm0");
+  }
+  line(ctx, [[-12, FRONT_STRIPE], [12, FRONT_STRIPE]], "gmLine", 0.5, "butt");
+  for (const x of [-8, 8]) line(ctx, [[x, FRONT_STRIPE], [x, FRONT_LIP]], "gmLine", 0.4, "butt");
+};
+
 const frontShell = (ctx: CanvasRenderingContext2D): void => {
   const shell: Trace = (c) => {
     c.moveTo(-9.6, -34);
-    c.quadraticCurveTo(0, -42, 9.6, -34);
+    c.bezierCurveTo(-9, -45.4, 9, -45.4, 9.6, -34);
     c.quadraticCurveTo(11.2, -29, 9.4, -23.5);
-    c.quadraticCurveTo(0, -20, -9.4, -23.5);
+    c.quadraticCurveTo(0, FRONT_BELLY, -9.4, -23.5);
     c.quadraticCurveTo(-11.2, -29, -9.6, -34);
   };
   fillPath(ctx, shell, grad(ctx, 0, -39, 0, -21, [[0, "shell2"], [0.35, "shell1"], [0.7, "gm1"], [1, "shell0"]]));
@@ -248,7 +269,6 @@ const frontShell = (ctx: CanvasRenderingContext2D): void => {
   ctx.beginPath();
   shell(ctx);
   ctx.clip();
-  if (!P.simple()) for (const x of [-7.5, 7.5]) line(ctx, [[x, -28.4], [x, -20]], "shell0", 0.4, "butt");
   canopy(
     ctx,
     (c) => {
@@ -262,17 +282,8 @@ const frontShell = (ctx: CanvasRenderingContext2D): void => {
     FRONT_BROW,
     [[-7, -37.2], [-2, -39.6], [4, -39.2]],
   );
-  ctx.fillStyle = P.pal().groove as string;
-  ctx.fillRect(-8, -32.5, 16, 1.1);
-  slit(ctx, -8, 8, -31.4, 1.1, [[0, "visor0"], [0.25, "visor1"], [0.5, "visor3"], [0.75, "visor2"], [1, "visor0"]]);
-  ctx.fillStyle = P.pal().band as string;
-  ctx.fillRect(-8, -30.3, 16, 1);
-  slit(ctx, -11, 11, -29.3, 0.9, [[0, "lip0"], [0.3, "lip1"], [0.45, "glint"], [0.55, "glint"], [0.7, "lip1"], [1, "lip0"]]);
-  ctx.fillStyle = P.pal().shell0 as string;
-  ctx.fillRect(-11, -28.4, 22, 1.2);
+  frontRecess(ctx);
   ctx.restore();
-  line(ctx, [[-11, FRONT_BROW], [11, FRONT_BROW]], "gmLine", 0.5, "butt");
-  for (const x of [-8, 8]) line(ctx, [[x, -32.5], [x, -29.3]], "gmLine", 0.4, "butt");
 };
 
 const burst = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number, k: number): void => {
@@ -301,21 +312,24 @@ const frontLeg = (ctx: CanvasRenderingContext2D, side: number, lift: number): vo
 
 const frontGun = (ctx: CanvasRenderingContext2D, side: number, fire: number): void => {
   const x = side * 14;
-  box(ctx, x - 3.5, -22.5, 7, 6.5, "guardMetal", 2);
+  const { y, r } = GUN_HEX;
+  const h = r * 0.866;
   fillPath(
     ctx,
     (c) => {
-      c.moveTo(side * 9.4, -25.4);
-      c.lineTo(side * 11.4, -25.4);
-      c.lineTo(x + side * 0.5, -22.5);
-      c.lineTo(side * 10, -22.5);
-      c.quadraticCurveTo(side * 9.2, -23.8, side * 9.4, -25.4);
+      c.moveTo(side * 9.8, -28.3);
+      c.lineTo(side * 8.7, -24.5);
+      c.lineTo(x - side * r * 0.75, y - h / 2);
+      c.lineTo(x, y);
+      c.lineTo(x + (side * r) / 2, y - h);
+      c.lineTo(side * 11.7, -25.3);
     },
-    grad(ctx, side * 9.4, 0, x, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]),
+    grad(ctx, side * 8.7, 0, x, 0, [[0, "gm1"], [0.6, "gm2"], [1, "gc1"]]),
   );
-  disc(ctx, x, -19.2, 2.1, "gm0", "gmLine");
-  if (!P.simple()) disc(ctx, x, -19.2, 1, "gc0");
-  if (fire >= 0) burst(ctx, x, -19.2, 5, fire);
+  poly(ctx, [[x - r, y], [x - r / 2, y - h], [x + r / 2, y - h], [x + r, y], [x + r / 2, y + h], [x - r / 2, y + h]], "guardMetal", 2);
+  disc(ctx, x, y, 2.1, "gm0", "gmLine");
+  if (!P.simple()) disc(ctx, x, y, 1, "gc0");
+  if (fire >= 0) burst(ctx, x, y, 5, fire);
 };
 
 const frontStep = (t: number): { left: number; right: number; bob: number } => {

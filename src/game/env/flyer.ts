@@ -58,7 +58,7 @@ const mountParts = (length: number): WeaponPart[] => [
 
 const mountedGun = createWeaponModel({
   buildParts: mountParts,
-  mat: { m: ["fh0", "fh1", "fh2", "fh3", "fhLine"], c: ["c0", "c1", "c2", "c3", "fhLine"], a: ["fs0", "fs1", "fs2", "fs3", "fhLine"] },
+  mat: { m: ["fh0", "fh1", "fh2", "fh3", "fhLine"], c: ["c0", "c1", "c2", "c3", "fhLine"], a: ["fg0", "fg1", "fg2", "fg3", "fhLine"] },
 });
 
 const sideGun = (ctx: CanvasRenderingContext2D, [x, y]: Pt, barrel: number): void => {
@@ -71,12 +71,23 @@ const sideGun = (ctx: CanvasRenderingContext2D, [x, y]: Pt, barrel: number): voi
   ctx.restore();
 };
 
-export const flyerHull = (ctx: CanvasRenderingContext2D, { hot = false, hump = true, patch = true } = {}): void => {
+const STRIPE_NOSE: Pt = [45.64, 9.71];
+const STRIPE_END = 26 + 0.72 * 21.5;
+
+export const flyerHull = (ctx: CanvasRenderingContext2D, { hot = false, hump = true, patch = true, fullStripe = false } = {}): void => {
+  const stripeTop: Pt[] = fullStripe ? [[38, 9.2], STRIPE_NOSE] : [[38, 9.2]];
   poly(ctx, [[4, 14.2], [38, 14.2], [46.5, 13], [38, 15.8], [26, 17.2], [12, 17.4], [4, 16.6], [3.2, 15]], "flyerHull", 0);
   poly(ctx, [[4, 11], [26, 11], [47.5, 11.2], [49, 11.8], [46.5, 13], [38, 14.2], [4, 14.2]], "flyerHull", 2);
   poly(ctx, [[4, 8], [19, 8.2], [26, 8.4], [26, 11], [4, 11]], "flyerHull", 2);
-  poly(ctx, [[26, 8.4], [38, 9.2], [47.5, 11.2], [26, 11]], "flyerStripe", 1, { dir: [1, 0] });
-  poly(ctx, [[19, 3.6], [26, 3.4], [34, 4.6], [40, 6.4], [44, 8.4], [47.5, 11.2], [38, 9.2], [26, 8.4], [19, 8.2]], "flyerShell", 1);
+  ctx.save();
+  if (fullStripe) {
+    ctx.beginPath();
+    ctx.rect(0, 0, STRIPE_END, 20);
+    ctx.clip();
+  }
+  poly(ctx, [[26, 8.4], ...stripeTop, [47.5, 11.2], [26, 11]], "flyerStripe", 1, { dir: [1, 0] });
+  ctx.restore();
+  poly(ctx, [[19, 3.6], [26, 3.4], [34, 4.6], [40, 6.4], [44, 8.4], fullStripe ? STRIPE_NOSE : [47.5, 11.2], [38, 9.2], [26, 8.4], [19, 8.2]], "flyerShell", 1);
   poly(ctx, [[3.5, 5.2], [10.5, 4.8], [10.5, 8], [4, 8]], "flyerHull", 0);
   if (hump) {
     poly(ctx, [[10.5, 4.8], [11, 2.2], [18.5, 2.2], [19.2, 4], [19, 8.2], [10.5, 8]], "flyerHump", 2);
