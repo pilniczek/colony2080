@@ -12234,7 +12234,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Horizontal grey cylindrical tank with domed ends and a yellow radiation trefoil on the end, about 4 x 2 tiles, raised on the street. Longer twin tanks sit on the top floor.",
+      "description": "Horizontal grey cylindrical tank with domed ends and a yellow radiation trefoil on the end, about 4 x 2 tiles, raised on the street on two matching steel legs. The grille block under its left end in the original crop is background, not tank. Longer twin tanks sit on the top floor.",
       "states": [],
       "refs": [
        {
