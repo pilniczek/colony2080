@@ -209,7 +209,7 @@ function launch(s: Step, state: Jump): { height: number; speed: number } {
 
 function jump(s: Step, state: Jump): void {
   const { h, cfg } = s;
-  if (onMovingLift(s) || inCover(s.world.props, h.x, cfg.box.width / 2, h.y)) return;
+  if (inCover(s.world.props, h.x, cfg.box.width / 2, h.y)) return;
   const { height, speed } = launch(s, state);
   h.gaitTime = isGait(h.state) ? h.time : 0;
   enter(h, state);
@@ -389,7 +389,7 @@ function takeCover(s: Step): boolean {
 function stance(s: Step): boolean {
   const { h, input } = s;
   if (takeCover(s)) return true;
-  if (onMovingLift(s) || !input.held.has("down")) return false;
+  if (!input.held.has("down")) return false;
   s.consume("down");
   enter(h, "duck");
   return true;

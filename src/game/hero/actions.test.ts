@@ -205,7 +205,38 @@ describe("hide", () => {
     expect(kinds(g, "shot")).toHaveLength(fired + 1);
   });
 
-  it("does nothing on a moving lift", () => {
+  it("jumps on a moving lift and lands back on its deck", () => {
+    for (const start of [14, 4]) {
+      const g = game({ x: 18.5, y: start });
+      const lift = g.world.lifts[0]!;
+      lift.y = start;
+      tick(g);
+      tick(g, [], ["useItem"]);
+      run(g, 0.2);
+      tick(g, ["up"], ["up"]);
+      expect(g.hero.state).toBe("standJump");
+      runUntil(g, (h) => h.onGround, [], 2);
+      expect(lift.target).not.toBeNull();
+      expect(g.hero).toMatchObject({ onLift: true, x: 18.5 });
+      expect(g.hero.y).toBeCloseTo(lift.y, 6);
+    }
+  });
+
+  it("ducks on a moving lift and rides on", () => {
+    const g = game({ x: 18.5, y: 14 });
+    tick(g);
+    tick(g, [], ["useItem"]);
+    run(g, 0.2);
+    tick(g, ["down"], ["down"]);
+    expect(g.hero.state).toBe("duck");
+    run(g, 0.3, ["down"]);
+    const lift = g.world.lifts[0]!;
+    expect(lift.target).not.toBeNull();
+    expect(g.hero).toMatchObject({ state: "duck", onLift: true });
+    expect(g.hero.y).toBeCloseTo(lift.y, 6);
+  });
+
+  it("does not hide on a moving lift", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
     tick(g, [], ["useItem"]);
