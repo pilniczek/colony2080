@@ -386,11 +386,13 @@ function stance(s: Step): boolean {
   return true;
 }
 
+const upHeld = (s: Step): boolean => s.consume("up") || (s.input.held.has("up") && s.h.landing?.age === 0);
+
 function standUp(s: Step, from: Jump): boolean {
   const { h, world } = s;
   if (liftPress(s)) return false;
   if (padPress(s)) return true;
-  if (!s.consume("up")) return false;
+  if (!upHeld(s)) return false;
   if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) enterLadder(s);
   else jump(s, from);
   return true;
@@ -441,7 +443,7 @@ function moving(s: Step): void {
   if (takeCover(s)) return;
   if (liftPress(s)) return enter(h, "idle");
   if (padPress(s)) return;
-  if (s.consume("up")) {
+  if (upHeld(s)) {
     if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(s);
     return jump(s, h.state === "run" ? "runJump" : "walkJump");
   }

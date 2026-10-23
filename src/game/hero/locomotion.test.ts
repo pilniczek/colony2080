@@ -226,6 +226,22 @@ describe("jumps", () => {
     expect(g.hero.y).toBeLessThan(14);
   });
 
+  it("keeps jumping while up is held", () => {
+    for (const [jump, held] of [["standJump", []], ["walkJump", ["moveRight"]], ["runJump", ["moveRight", RUNNING]]] as const) {
+      const g = game();
+      run(g, 0.3, [...held]);
+      tick(g, [...held, "up"], ["up"]);
+      let launches = 1;
+      for (let i = 0; i < 180; i++) {
+        const rising = g.hero.vy < 0;
+        tick(g, [...held, "up"]);
+        if (!rising && g.hero.vy < 0) launches++;
+        expect(g.hero.state, jump).toBe(jump);
+      }
+      expect(launches, jump).toBeGreaterThan(2);
+    }
+  });
+
   it("walking jump launches from walk with walk speed and peaks at walkHeight", () => {
     const g = game();
     run(g, 0.2, ["moveRight"]);
