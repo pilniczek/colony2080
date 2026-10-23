@@ -18,7 +18,7 @@ EXTRAS = {
             "and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end "
             "(map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, "
             "dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; "
-            "lift stops are the repaired ones for the damaged lift (enabledBy); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors fill every bottom stop row so no pit "
+            "lift stops are the repaired ones for the damaged lift (enabledBy); lift 122 skips its unused middle stop (row 23, user); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors fill every bottom stop row so no pit "
             "opens under a lift (report 13, Our blockers); a floor beside a shaft on a row where its lift does not stop gets a wall up to the floor above, "
             "so it does not read as a landing (user);the crane mast gap (floor 10, cols 36-38) stays a plank with no wall so the hero walks west "
             "past the crane panel, and the plank row 10 gap over the crane (cols 22-30) stays open; the never reached floors over the crashed ship "
@@ -29,12 +29,13 @@ EXTRAS = {
             "col 9 from row 60, col 141 rows 17-44) on to the map edge over never reached cells, so the view there shows wall, not sky (user); "
             "the street (row 59) is the ground floor and its slab runs down to row 65 around the lift 78 shaft, so the metro under it is 4 rows high like the original tunnel art (rows 66-69, user); "
             "never reached cells under the street are solid too (cols 18-19 and 86-157 of the upper tunnel, cols 48-157 of the lower one, the map edge cols 158-159 from the street down and rows 76-79, user); "
-            "the never reached pockets walled in on every side are the original towers, so they are solid (cols 24-27, 69-73, 72-76, 93-99, 128-140); "
+            "the never reached pockets walled in on every side are the original towers, so they are solid (cols 24-27, 69-73, 72-76, 93-99, 125-140); "
             "the floors of rows 44-59 end at col 140 like the original, solid east of it; the unreached sky east of the col 127 skyscraper (cols 136-159, rows 0-15) "
             "and the clamp cells under the west roof (col 6, rows 11-29) are open sky"
         ),
         "spawn": [62.5, 59],
         "liftHints": {55: "The lift is broken."},
+        "liftStops": {122: [16, 30]},
         "tunnelWestEnd": (70, 40),
         "taskWalls": {
             (75, 20): "waterPipe",
@@ -49,7 +50,7 @@ EXTRAS = {
         "patches": [(14, 39, 14, 40, "|"), (15, 41, 20, 41, "#"), (21, 42, 21, 51, "|"), (9, 60, 77, 65, "#"), (81, 60, 157, 65, "#"),
                     (18, 66, 19, 69, "#"), (86, 66, 157, 69, "#"), (48, 71, 157, 74, "#"), (158, 59, 159, 79, "#"), (0, 76, 157, 79, "#"),
                     (24, 24, 27, 29, "#"), (24, 31, 27, 36, "#"), (69, 24, 73, 29, "#"), (72, 38, 76, 43, "#"), (72, 45, 76, 50, "#"),
-                    (93, 17, 99, 22, "#"), (128, 17, 140, 22, "#"), (128, 24, 140, 29, "#"), (141, 45, 159, 58, "#"), (133, 52, 159, 58, "#")],
+                    (93, 17, 99, 22, "#"), (125, 17, 140, 22, "#"), (128, 24, 140, 29, "#"), (141, 45, 159, 58, "#"), (133, 52, 159, 58, "#")],
     },
     2: {
         "borderFills": [],
@@ -148,6 +149,10 @@ def wall_top(data, planks, col, floor):
 
 def lift_stops(lift):
     return lift.get("stopsAfterRepair") or lift["stops"]
+
+
+def with_stops(lifts, cfg):
+    return [{**lift, "stops": cfg.get("liftStops", {}).get(lift["x"], lift["stops"])} for lift in lifts]
 
 
 def shaft_cells(lifts, rows):
@@ -589,7 +594,7 @@ def main():
     with open(enemies_path, encoding="utf-8") as f:
         enemies = json.load(f)
     if level == 1:
-        write(build(data, layout, enemies, EXTRAS[level]), out_path)
+        write(build(data, {**layout, "lifts": with_stops(layout["lifts"], EXTRAS[level])}, enemies, EXTRAS[level]), out_path)
     else:
         write(build_tiles(data, layout_of(level, layout), EXTRAS[level], layout, enemies, map_path), out_path)
 

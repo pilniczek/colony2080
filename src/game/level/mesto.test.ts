@@ -64,9 +64,9 @@ describe("mesto map", () => {
     }
   });
 
-  it("stops lift 14 on three floors and starts it at the bottom", () => {
+  it("stops lift 14 at its ends only and starts it at the bottom", () => {
     const lift = lifts.find((l) => l.x === 122)!;
-    expect(lift.stops).toEqual([16, 23, 30]);
+    expect(lift.stops).toEqual([16, 30]);
     expect(lift.y).toBe(30);
   });
 

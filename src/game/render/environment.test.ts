@@ -175,7 +175,7 @@ describe("weapon props", () => {
     const floorAt = (col: number, row: number): string | null =>
       ledges.some((r) => r.row === row && col >= r.col && col < r.col + r.w) ? "streetWalkway" : girders.some((r) => r.row === row && col >= r.col && col < r.col + r.w) ? "girderBridge" : null;
     const rows = new Set(behind.map((r) => `${mesto.lifts.find((l) => r.col >= l.x && r.col < l.x + l.w && r.row >= l.top && r.row < l.bottom)?.x},${r.row}`));
-    expect(rows.size).toBe(16);
+    expect(rows.size).toBe(15);
     for (const l of mesto.lifts) {
       expect(behind.some((r) => r.row === l.bottom && r.col >= l.x && r.col < l.x + l.w)).toBe(false);
       for (const r of behind.filter((b) => b.row >= l.top && b.row < l.bottom && b.col >= l.x && b.col < l.x + l.w)) {
