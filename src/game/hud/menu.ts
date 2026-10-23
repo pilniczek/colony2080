@@ -24,8 +24,8 @@ const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
 const ASK: Record<number, string> = { [PAUSE_ROWS.restart]: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
-const MANUAL_KEYS = [["← →", "WALK"], ["↑", "JUMP, CLIMB UP"], ["↓", "DUCK, CLIMB DOWN"], ["CTRL", "SHOOT / PUNCH"]] as const;
-const MANUAL = { gap: 14, text: 5.6, key: 24, panelGap: 6, pad: 4 };
+const MANUAL_KEYS = [["← →", "WALK", true], ["↑", "JUMP, CLIMB UP", true], ["↓", "DUCK, CLIMB DOWN", true], ["CTRL", "SHOOT / PUNCH", false]] as const;
+const MANUAL = { gap: 14, text: 5.6, arrow: 11.2, key: 20, keyGap: 4, pad: 4 };
 
 export type MenuArt = Pick<InventoryArt, "robot" | "liftPanel">;
 
@@ -95,12 +95,14 @@ function rowsBox(title: string, rows: Row[], cursor: number): string {
 function manual(rows: Row[], panel: HudIcon, lang: Lang): string {
   const top = MENU_BOX.y + rowsHeight(rows) + MANUAL.gap;
   const x = MENU_BOX.x + 10;
-  const keys = MANUAL_KEYS.map(([key, action], i) => {
+  const keyMid = x + MANUAL.key / 2;
+  const actionX = x + MANUAL.key + MANUAL.keyGap;
+  const keys = MANUAL_KEYS.map(([key, action, arrow], i) => {
     const y = top + 16 + i * MENU_ROW + MENU_ROW * 0.66;
-    return text(x, y, MANUAL.text, INV.name, key) + text(x + MANUAL.key, y, MANUAL.text, INV.label, tr(action, lang));
+    return text(keyMid, y, arrow ? MANUAL.arrow : MANUAL.text, INV.name, key, 'text-anchor="middle"') + text(actionX, y, MANUAL.text, INV.label, tr(action, lang));
   }).join("");
   const py = top + 16 + MANUAL_KEYS.length * MENU_ROW + MANUAL.pad / 2;
-  const call = image(panel, x, py) + text(x + panel.w + MANUAL.panelGap, py + panel.h * 0.6, MANUAL.text, INV.label, tr("ENTER CALLS A DISTANT LIFT", lang));
+  const call = image(panel, keyMid - panel.w / 2, py) + text(actionX, py + panel.h * 0.6, MANUAL.text, INV.label, tr("ENTER CALLS A DISTANT LIFT", lang));
   const b = { ...MENU_BOX, y: top, h: py + panel.h + MANUAL.pad - top };
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr("MANUAL", lang)) + keys + call;
 }
