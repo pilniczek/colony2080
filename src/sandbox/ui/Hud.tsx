@@ -19,7 +19,7 @@ const KEYS: HudKeys = {
 };
 
 const ALARM_PULSES = 5;
-const ALARM_PULSE_MS = 1000;
+const ALARM_PULSE_MS = 700;
 
 const WEAPON_SLOTS: Record<Weapon, number> = { gun: 0, fists: 1, blaster: 2 };
 
