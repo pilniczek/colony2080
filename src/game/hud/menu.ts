@@ -25,7 +25,8 @@ const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
 const ASK: Record<number, string> = { [PAUSE_ROWS.restart]: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
 const MANUAL_KEYS = [["← →", "WALK", true], ["↑", "JUMP, CLIMB UP", true], ["↓", "DUCK, CLIMB DOWN", true], ["CTRL", "SHOOT / PUNCH", false]] as const;
-const MANUAL = { gap: 14, text: 5.6, arrow: 11.2, key: 20, keyGap: 4, pad: 4 };
+const MANUAL = { gap: 14, text: 5.6, arrow: 10.08, key: 14, keyGap: 10, top: 18, rowGap: 8, pad: 6 };
+const INK_EM = { caps: 0.7, arrowMid: 0.27, upright: 0.54, flat: 0.32 };
 
 export type MenuArt = Pick<InventoryArt, "robot" | "liftPanel">;
 
@@ -92,19 +93,30 @@ function rowsBox(title: string, rows: Row[], cursor: number): string {
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, title) + drawn;
 }
 
+function manualRows(panel: HudIcon): { key: string; size: number; h: number; mid: number; action: string }[] {
+  const caps = MANUAL.text * INK_EM.caps;
+  const arrowMid = MANUAL.arrow * INK_EM.arrowMid;
+  const keyed = MANUAL_KEYS.map(([key, action, arrow]) => {
+    const h = arrow ? MANUAL.arrow * (key.includes("→") ? INK_EM.flat : INK_EM.upright) : caps;
+    return { key, action, size: arrow ? MANUAL.arrow : MANUAL.text, h: Math.max(h, caps), mid: arrow ? arrowMid : caps / 2 };
+  });
+  return [...keyed, { key: "", action: "ENTER CALLS A DISTANT LIFT", size: MANUAL.text, h: panel.h, mid: 0 }];
+}
+
 function manual(rows: Row[], panel: HudIcon, lang: Lang): string {
   const top = MENU_BOX.y + rowsHeight(rows) + MANUAL.gap;
   const x = MENU_BOX.x + 10;
   const keyMid = x + MANUAL.key / 2;
   const actionX = x + MANUAL.key + MANUAL.keyGap;
-  const keys = MANUAL_KEYS.map(([key, action, arrow], i) => {
-    const y = top + 16 + i * MENU_ROW + MENU_ROW * 0.66;
-    return text(keyMid, y, arrow ? MANUAL.arrow : MANUAL.text, INV.name, key, 'text-anchor="middle"') + text(actionX, y, MANUAL.text, INV.label, tr(action, lang));
+  let y = top + MANUAL.top;
+  const drawn = manualRows(panel).map((row) => {
+    const mid = y + row.h / 2;
+    y += row.h + MANUAL.rowGap;
+    const key = row.key ? text(keyMid, mid + row.mid, row.size, INV.name, row.key, 'text-anchor="middle"') : image(panel, keyMid - panel.w / 2, mid - panel.h / 2);
+    return key + text(actionX, mid + (MANUAL.text * INK_EM.caps) / 2, MANUAL.text, INV.label, tr(row.action, lang));
   }).join("");
-  const py = top + 16 + MANUAL_KEYS.length * MENU_ROW + MANUAL.pad / 2;
-  const call = image(panel, keyMid - panel.w / 2, py) + text(actionX, py + panel.h * 0.6, MANUAL.text, INV.label, tr("ENTER CALLS A DISTANT LIFT", lang));
-  const b = { ...MENU_BOX, y: top, h: py + panel.h + MANUAL.pad - top };
-  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr("MANUAL", lang)) + keys + call;
+  const b = { ...MENU_BOX, y: top, h: y - MANUAL.rowGap + MANUAL.pad - top };
+  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr("MANUAL", lang)) + drawn;
 }
 
 const autosaveRow = (autosave: boolean, lang: Lang): Row => ({ options: AUTOSAVES.map((o) => tr(o, lang)), on: autosave ? 0 : 1 });

@@ -220,7 +220,10 @@ export function inventoryArtJobs(): { jobs: (() => void)[]; art: InventoryArt } 
     art.items[id as ItemId] = bigItem(item);
   });
   const panelJob = (): void => {
-    art.liftPanel = icon(LIFT_PANEL.w, LIFT_PANEL.h, (ctx) => assetIcon(ctx, "liftPanel", 0, 0, LIFT_PANEL.w, LIFT_PANEL.h), true);
+    art.liftPanel = trimmed(stage((ctx) => {
+      ctx.scale(ITEM_ZOOM, ITEM_ZOOM);
+      drawAsset(ctx, ASSETS.liftPanel, { state: 0, lod: false, lines: 1 });
+    }), LIFT_PANEL.w, LIFT_PANEL.h);
   };
   return { jobs: [robotJob, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), panelJob, ...itemJobs], art };
 }
