@@ -187,6 +187,7 @@ export const isDead = (e: Enemy): boolean => e.deadAge !== null;
 export function hitEnemy(e: Enemy, damage = 1, react = true): boolean {
   if (isDead(e)) return false;
   e.body.energy -= damage;
+  if (e.flight) e.flight.engaged = true;
   if (react) {
     e.body.hitAge = 0;
     e.alertAge ??= 0;

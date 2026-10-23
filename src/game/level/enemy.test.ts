@@ -453,6 +453,18 @@ describe("sandbox flyer", () => {
     expect(e.body.energy).toBeLessThan(json.hits);
   });
 
+  it("dives to gun height once hit and stays there without seeing the hero", () => {
+    const g = game({ x: 7.5, y: floor });
+    const e = flyerOf(g);
+    hitEnemy(e);
+    run(g, (flight.hoverLift - flight.aimLift) / flight.climb + 0.05);
+    expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
+    for (let i = 0; i < 10 / dt; i++) {
+      tick(g);
+      expect(liftOf(e)).toBeCloseTo(flight.aimLift, 9);
+    }
+  });
+
   const punchReady = (lift: number): { g: Game; e: Enemy } => {
     const g = game({ x: 40.5, y: floor });
     const e = flyerOf(g);
