@@ -41,7 +41,6 @@ export const readoutW = (label: string): number => label.length * READOUT_SIZE *
 export const MENU_LABEL = "MENU";
 export const MENU_W = readoutW(MENU_LABEL);
 export const slotW = (iconW: number, label: string): number => iconW + SLOT.gap + readoutW(label);
-export const inventoryW = (slots: number[]): number => 2 * SLOT.pad + Math.max(...slots);
 export const TOGGLE_W = ICON_H * 0.9;
 const TOGGLE_GAP = WEAPON_GAP;
 export const BADGE_W = 48 * CONTENT_SCALE;
@@ -91,8 +90,12 @@ const WEAPONS_GRID_W = WEAPON_W.reduce((a, b) => a + b, 0) + (WEAPON_W.length + 
 const TOGGLES_W = SPEAKER_W + TOGGLE_W + HIDE_W + MAP_W + 5 * TOGGLE_GAP;
 const MENU_GAP = TOGGLE_GAP / 2;
 const MENU_GRID_W = MENU_W + 2 * MENU_GAP;
+const LEFT_W = EDGE + MENU_GRID_W + GAP + WEAPONS_GRID_W + 4 * PLATE_PAD;
+export const ITEM_PLATE_W = LEFT_W - EDGE - TOGGLES_W - GAP - 4 * PLATE_PAD;
+export const ITEM_SLOT_MAX = ITEM_PLATE_W - 2 * SLOT.pad;
 
-export function topBar(W: number, invW: number): TopBar {
+export function topBar(W: number): TopBar {
+  const invW = ITEM_PLATE_W;
   const inv = W - EDGE - PLATE_PAD - invW;
   const togglesX = inv - 2 * PLATE_PAD - GAP - TOGGLES_W;
   const sound = togglesX + TOGGLE_GAP;

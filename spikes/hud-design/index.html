@@ -252,8 +252,6 @@ for (const [id, item] of Object.entries(ITEMS)) {
 }
 const READOUT_SIZE = 5.6 * K, MONO_ADVANCE = .54, GRID_CELL = 3.2, SLOT = { pad: 2 * GRID_CELL, gap: 12 * K };
 const MENU_W = 4 * READOUT_SIZE * MONO_ADVANCE;
-const slotW = (iconW, label) => iconW + SLOT.gap + label.length * READOUT_SIZE * MONO_ADVANCE;
-const INV_W = 2 * SLOT.pad + Math.max(slotW(HAND_BOX.w, "nothing"), ...Object.entries(ITEMS).map(([id, i]) => slotW(ITEM_ICONS[id].w, i.name)));
 
 const GUN = (x) => `<image href="${GUN_ICON.url}" x="${x}" y="${WEAPON_MID - GUN_ICON.h / 2}" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
 const FIST_SCALE = 0.6;
@@ -289,8 +287,11 @@ function badgeArt(x, [a, b]) {
 }
 
 function topBar(W, s) {
-  const edge = 0, gap = 2, pad = PAD, invW = INV_W, inv = W - edge - pad - invW;
-  const togglesW = SPEAKER_W + TOGGLE_W + HIDE_W + MAP_W + 5 * TOGGLE_GAP, togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + SPEAKER_W + TOGGLE_GAP, hide = run + TOGGLE_W + TOGGLE_GAP, map = hide + HIDE_W + TOGGLE_GAP;
+  const edge = 0, gap = 2, pad = PAD;
+  const togglesW = SPEAKER_W + TOGGLE_W + HIDE_W + MAP_W + 5 * TOGGLE_GAP;
+  const leftW = edge + MENU_W + TOGGLE_GAP + gap + WEAPON_W.reduce((x, y) => x + y, 0) + (WEAPON_W.length + 1) * WEAPON_GAP + 4 * PAD;
+  const invW = leftW - edge - togglesW - gap - 4 * pad, inv = W - edge - pad - invW;
+  const togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + SPEAKER_W + TOGGLE_GAP, hide = run + TOGGLE_W + TOGGLE_GAP, map = hide + HIDE_W + TOGGLE_GAP;
   const menuX = edge + PAD, menuW = MENU_W + TOGGLE_GAP, menu = menuX + TOGGLE_GAP / 2, menuEnd = menuX + menuW + PAD;
   const held = s.item ? ITEM_ICONS[s.item] : null, label = held ? ITEMS[s.item].name : "nothing";
   const iconW = held ? held.w : HAND_BOX.w, textW = label.length * READOUT_SIZE * MONO_ADVANCE;
