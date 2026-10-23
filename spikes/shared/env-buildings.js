@@ -634,7 +634,7 @@ define({
 });
 
 const HULL = [[2, -44], [16, -50], [56, -55], [112, -55], [142, -51], [164, -43], [180, -33], [190, -24], [193, -20], [188, -15], [164, -12], [40, -12], [14, -15], [4, -21], [2, -30]];
-const HULL_BANDS = [[-60, 12, "sh3"], [-48, 16, "sh2"], [-32, 10, "m2"], [-22, 10, "m1"]];
+const HULL_BANDS = [[-60, 12, "sh3"], [-48, 16, "sh2"], [-32, 10, "m1"], [-22, 10, "m0"]];
 const WING_FAR = [[100, -50], [-4, -60], [-12, -60], [40, -50]];
 const WING = [[118, -46], [-6, -63], [-16, -63], [-14, -61], [36, -46]];
 const COCKPIT = [[136, -51], [156, -46], [174, -37], [182, -31], [160, -35], [138, -42]];
@@ -650,18 +650,8 @@ function gear(ctx, x) {
 
 function shipDoor(ctx) {
   const [x, y, w, h] = DOOR;
-  flat(ctx, x - 2, y - 2, w + 4, h + 3, "sh0", "shLine");
-  flat(ctx, x, y, w, h, "sh2", "shLine");
-  flat(ctx, x, y, w, 3, "sh3");
-  flat(ctx, x + w - 3, y, 3, h, "sh1");
-  disc(ctx, x + w / 2, y + 8, 3.4, "m1", "shLine");
-  disc(ctx, x + w / 2, y + 8, 2.4, "glass");
-  flat(ctx, x + 2, y + 13, 2, 6, "m3", "mLine");
+  line(ctx, [[x, y + h], [x, y], [x + w, y], [x + w, y + h]], "shLine", 0.6, "butt");
   flat(ctx, x + 2, y + h + 3, w - 4, 2, "m2", "mLine");
-  if (simple()) return;
-  disc(ctx, x + w / 2 - 0.9, y + 7, 0.8, "c1");
-  line(ctx, [[x, y + h - 7], [x + w - 3, y + h - 7]], "sh1", 0.5);
-  flat(ctx, x + w + 3, y + 3, 2, 3, "screen");
 }
 
 define({

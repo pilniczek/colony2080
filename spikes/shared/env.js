@@ -20,7 +20,7 @@ const PALETTE = {
   hair0: "#120c08", hair1: "#2a1a10", hair2: "#46301e", hair3: "#5e4630",
   boot0: "#110e0c", boot1: "#262019", boot2: "#3e352a", boot3: "#5a4e3e",
   sky0: "#2a1008", sky1: "#5a2a14", sky2: "#8a4a28", sky3: "#b8744a", skyline: "#0e0a08", skyline2: "#1e1410",
-  sh0: "#12301e", sh1: "#285038", sh2: "#3e6a48", sh3: "#6a9468", shLine: "#060e0a"
+  sh0: "#0c2416", sh1: "#1c3c28", sh2: "#2c5036", sh3: "#46684a", shLine: "#060e0a"
 };
 
 const MAT = {

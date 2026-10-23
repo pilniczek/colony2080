@@ -31,7 +31,7 @@
     "bayWall": "#55585a", "bayPanel": "#45484a", "bayFloor": "#6a6c6a", "bayFloorFar": "#575958", "rail": "#8d9090", "railShade": "#5a5d5e",
     "planetLit": "#9aa0e0", "planet": "#4a52a0", "planetDark": "#121634",
     "thrust": "#ffffff", "thrustGlow": "#c8d8ff",
-    "hull": "#867a62", "hullTop": "#bcb092", "hullDark": "#5a5040", "hullLine": "#100e0a", "wing": "#2e2820", "glassLit": "#c8d0c8",
+    "hull": "#2c5036", "hullTop": "#46684a", "hullDark": "#25393d", "hullLine": "#060e0a", "wing": "#1c3c28", "glassLit": "#c8d0c8",
     "station": "#57523e", "stationTop": "#7a745a", "stationDark": "#2e2b20", "stationLight": "#b8d4d0", "pod": "#9aa04a", "podDark": "#3c4018", "lens": "#c8ccd0",
     "skyHigh": "#56636e", "skyMid": "#7a7c80", "skyLow": "#c86a44", "skyGlow": "#e48a56", "cloud": "#94a0aa", "cloudDark": "#4a525a",
     "hills": "#2c4428", "grassFar": "#3c6232", "grassNear": "#5a8a42", "grassSpot": "#2e5228", "smoke": "#3c3a36", "fire": "#ffb040", "fireHot": "#fff2c0",
