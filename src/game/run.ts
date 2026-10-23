@@ -287,7 +287,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         prev = momentOf(hero);
       },
       leave: (href) => location.assign(href),
-      restart: () => restart({ weapon: "gun", running: true, blaster: null, fogOn: world.fog !== null }),
+      restart: () => restartMission(),
       playUi: play,
       bodyAt: () => {
         if (!lastView) return null;
@@ -387,6 +387,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     applyFog(fogOn);
     prev = momentOf(hero);
     useSandbox.setState({ inventory: { open: false, cursor: 0 }, mapOpen: false });
+  };
+
+  const restartMission = (): void => {
+    restart({ weapon: "gun", running: true, blaster: null, fogOn: world.fog !== null });
+    if (filmsOff) debug();
   };
 
   const applyTime = ({ paused, timeScale }: { paused: boolean; timeScale: number }): void => {
