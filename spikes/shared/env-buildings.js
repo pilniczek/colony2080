@@ -193,8 +193,6 @@ function skyline(ctx, flash) {
     grid(ctx, x + 3, -6 - h, round((w - 4) / 5), round((h - 6) / 6), 3, 3.5, 2, 2.5, flash ? "k2" : "#140f0a");
   }
   shape(ctx, [[-2, 0], ...jagged(-2, 322, -12, 5, 6, 77), [322, 0]], "skyline");
-  const r = rng(3);
-  for (const [x, w, h] of TOWERS) for (let i = 0; i < 3; i++) if (r() < 0.45) flat(ctx, x + 2 + r() * (w - 6), -10 - r() * (h - 16), 1.6, 1.6, flash ? "y3" : "a1");
 }
 
 define({
@@ -637,9 +635,9 @@ const HULL = [[2, -44], [16, -50], [56, -55], [112, -55], [142, -51], [164, -43]
 const HULL_BANDS = [[-60, 12, "sh3"], [-48, 16, "sh2"], [-32, 10, "m1"], [-22, 10, "m0"]];
 const WING_FAR = [[100, -50], [-4, -60], [-12, -60], [40, -50]];
 const WING = [[118, -46], [-6, -63], [-16, -63], [-14, -61], [36, -46]];
-window.ENV.SHIP = { HULL, WING, COCKPIT, DOOR };
 const COCKPIT = [[136, -51], [156, -46], [174, -37], [182, -31], [160, -35], [138, -42]];
 const DOOR = [78, -43, 24, 26];
+window.ENV.SHIP = { HULL, WING, COCKPIT, DOOR };
 const COVER = [8, -38, 20, 12];
 
 function gear(ctx, x) {
