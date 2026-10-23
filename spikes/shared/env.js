@@ -19,7 +19,8 @@ const PALETTE = {
   skin0: "#5a2e16", skin1: "#9a5a32", skin2: "#c98a5a", skin3: "#e8b88a",
   hair0: "#120c08", hair1: "#2a1a10", hair2: "#46301e", hair3: "#5e4630",
   boot0: "#110e0c", boot1: "#262019", boot2: "#3e352a", boot3: "#5a4e3e",
-  sky0: "#2a1008", sky1: "#5a2a14", sky2: "#8a4a28", sky3: "#b8744a", skyline: "#0e0a08", skyline2: "#1e1410"
+  sky0: "#2a1008", sky1: "#5a2a14", sky2: "#8a4a28", sky3: "#b8744a", skyline: "#0e0a08", skyline2: "#1e1410",
+  sh0: "#12301e", sh1: "#285038", sh2: "#3e6a48", sh3: "#6a9468", shLine: "#060e0a"
 };
 
 const MAT = {
@@ -36,7 +37,8 @@ const MAT = {
   jacket: ["jac0", "jac1", "jac2", "jac3", "kLine"],
   skin: ["skin0", "skin1", "skin2", "skin3", "kLine"],
   hair: ["hair0", "hair1", "hair2", "hair3", "kLine"],
-  boot: ["boot0", "boot1", "boot2", "boot3", "kLine"]
+  boot: ["boot0", "boot1", "boot2", "boot3", "kLine"],
+  ship: ["sh0", "sh1", "sh2", "sh3", "shLine"]
 };
 
 let pal = PALETTE;

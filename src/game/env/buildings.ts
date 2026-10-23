@@ -726,46 +726,68 @@ export const barDoor: EnvAsset = {
   },
 };
 
-const HULL: Pt[] = [[0, -40], [14, -52], [70, -61], [128, -57], [168, -42], [192, -22], [186, -16], [150, -12], [40, -12], [6, -20]];
-const HULL_TOP: Pt[] = [[14, -52], [70, -61], [128, -57], [168, -42], [124, -45], [66, -48], [20, -44]];
-const HULL_LOW: Pt[] = [[6, -20], [40, -12], [150, -12], [186, -16], [192, -22], [150, -27], [40, -27], [3, -30]];
-const COCKPIT: Pt[] = [[122, -51], [150, -45], [170, -36], [148, -38], [120, -45]];
+const HULL: Pt[] = [[2, -44], [16, -50], [56, -55], [112, -55], [142, -51], [164, -43], [180, -33], [190, -24], [193, -20], [188, -15], [164, -12], [40, -12], [14, -15], [4, -21], [2, -30]];
+const HULL_BANDS = [[-60, 12, "sh3"], [-48, 16, "sh2"], [-32, 10, "m2"], [-22, 10, "m1"]] as const;
+const WING_FAR: Pt[] = [[100, -50], [-4, -60], [-12, -60], [40, -50]];
+const WING: Pt[] = [[118, -46], [-6, -63], [-16, -63], [-14, -61], [36, -46]];
+const COCKPIT: Pt[] = [[136, -51], [156, -46], [174, -37], [182, -31], [160, -35], [138, -42]];
+const DOOR = [78, -43, 24, 26] as const;
 const COVER = [8, -38, 20, 12] as const;
 
-const strut = (ctx: CanvasRenderingContext2D, x: number): void => {
-  beam(ctx, [x, -14], [x - 6, -2], 2.4, "steel");
-  beam(ctx, [x + 4, -14], [x + 10, -2], 2.4, "steel");
-  box(ctx, x - 10, -3, 24, 3, "steel", 1);
+const gear = (ctx: CanvasRenderingContext2D, x: number): void => {
+  flat(ctx, x - 5, -14, 14, 2, "sh0");
+  beam(ctx, [x, -13], [x, -3], 2.6, "steel");
+  beam(ctx, [x + 7, -13], [x, -7], 1.6, "steel");
+  box(ctx, x - 9, -3, 20, 3, "steel", 2);
+};
+
+const shipDoor = (ctx: CanvasRenderingContext2D): void => {
+  const [x, y, w, h] = DOOR;
+  flat(ctx, x - 2, y - 2, w + 4, h + 3, "sh0", "shLine");
+  flat(ctx, x, y, w, h, "sh2", "shLine");
+  flat(ctx, x, y, w, 3, "sh3");
+  flat(ctx, x + w - 3, y, 3, h, "sh1");
+  disc(ctx, x + w / 2, y + 8, 3.4, "m1", "shLine");
+  disc(ctx, x + w / 2, y + 8, 2.4, "glass");
+  flat(ctx, x + 2, y + 13, 2, 6, "m3", "mLine");
+  flat(ctx, x + 2, y + h + 3, w - 4, 2, "m2", "mLine");
+  if (P.simple()) return;
+  disc(ctx, x + w / 2 - 0.9, y + 7, 0.8, "c1");
+  line(ctx, [[x, y + h - 7], [x + w - 3, y + h - 7]], "sh1", 0.5);
+  flat(ctx, x + w + 3, y + 3, 2, 3, "screen");
 };
 
 export const crashedShip: EnvAsset = {
   id: "crashedShip",
-  box: [-10, -64, 196, 0],
+  box: [-16, -64, 196, 0],
   draw(ctx, state) {
-    strut(ctx, 46);
-    strut(ctx, 138);
-    shape(ctx, HULL, "k2", "kLine");
-    shape(ctx, HULL_TOP, "k3");
-    shape(ctx, HULL_LOW, "k1");
+    gear(ctx, 50);
+    gear(ctx, 140);
+    shape(ctx, WING_FAR, "sh0", "shLine");
+    box(ctx, -3, -43, 7, 24, "steel", 1);
     ctx.save();
     path(ctx, HULL);
     ctx.clip();
-    G.grain(ctx, G.polyRegion(ctx, HULL), 350, 0.7);
-    G.drips(ctx, 20, -46, 140, 18, 351, 6);
-    G.drips(ctx, 8, -27, 180, 12, 352, 5);
-    G.dirt(ctx, 0, -40, 192, 28, 353, 0.4);
-    G.rustPatch(ctx, 58, -36, 6, 3, 354);
-    G.rustPatch(ctx, 160, -28, 5, 3, 355);
-    G.chips(ctx, 20, -58, 140, 356);
+    for (const [y, h, c] of HULL_BANDS) flat(ctx, 0, y, 196, h, c);
     ctx.restore();
     path(ctx, HULL);
-    stroke(ctx, "kLine");
-    if (!P.simple()) for (const x of [60, 98, 140]) line(ctx, [[x, -58 + (x - 60) * 0.05], [x - 4, -13]], "k1", 0.5);
-    line(ctx, [[4, -30], [40, -27], [150, -27], [192, -22]], "k0", 0.7);
-    shape(ctx, COCKPIT, "glass", "mLine");
-    if (!P.simple()) shape(ctx, [[128, -49], [136, -47], [126, -45]], "m3");
-    flat(ctx, 96, -36, 10, 3, "y2", "yLine");
-    if (!P.simple()) glow(ctx, 101, -34, 10, "y2", 0.35);
+    stroke(ctx, "ship");
+    line(ctx, [[4, -32], [150, -32], [186, -22]], "shLine", 0.6);
+    if (!P.simple()) {
+      for (const x of [40, 128]) line(ctx, [[x, -54], [x, -13]], "shLine", 0.4);
+      for (const x of [120, 128, 136, 144]) flat(ctx, x, -21, 2, 1.2, "y2");
+    }
+    shape(ctx, COCKPIT, "glass", "shLine");
+    if (!P.simple()) shape(ctx, [[142, -49], [152, -46.5], [146, -44], [140, -45.5]], "sh3");
+    disc(ctx, 191, -20, 1.5, "m3");
+    shipDoor(ctx);
+    shape(ctx, WING, "sh2", "shLine");
+    line(ctx, [[116, -46.6], [-6, -62.4]], "sh3", 1.2);
+    line(ctx, [[-14, -61.4], [36, -46.6]], "sh0", 1.2);
+    if (!P.simple()) {
+      line(ctx, [[44, -47.6], [-6, -60.6]], "sh1", 0.6);
+      disc(ctx, -11, -62.4, 1.2, "screen");
+    }
     for (const y of [-40, -29]) {
       cylH(ctx, -8, y, 10, 8, "steel", 2);
       disc(ctx, -8, y + 4, 3, "hole", "mLine");
@@ -773,15 +795,14 @@ export const crashedShip: EnvAsset = {
     const [cx, cy, cw, ch] = COVER;
     if (state === 0) {
       box(ctx, cx, cy, cw, ch, "steel", 2);
-      G.surface(ctx, cx, cy, cw, ch, 357, { rise: 0.35, drip: 1, dripLen: 8 });
       if (!P.simple()) for (const y of [cy + 2, cy + ch - 2]) rivets(ctx, cx, y, cw, 5, "m3");
       return;
     }
     const torn = blob(cx + cw / 2, cy + ch / 2, cw * 0.62, ch * 0.7, 17, 16);
     G.scorch(ctx, torn, 358);
-    shape(ctx, blob(cx + cw / 2, cy + ch / 2, cw * 0.8, ch * 0.9, 18, 16), "k0");
-    shape(ctx, torn, "hole", "kLine");
-    G.rim(ctx, torn, 359, "k3", "kLine");
+    shape(ctx, blob(cx + cw / 2, cy + ch / 2, cw * 0.8, ch * 0.9, 18, 16), "sh0");
+    shape(ctx, torn, "hole", "shLine");
+    G.rim(ctx, torn, 359, "sh3", "shLine");
     if (!P.simple()) for (let i = 0; i < 5; i++) line(ctx, [[cx + 3 + i * 3.5, cy + ch - 2], [cx + 4 + i * 3.5, cy + 3]], "m1", 0.6);
     if (state === 1) {
       if (!P.simple()) glow(ctx, cx + cw / 2, cy + ch / 2, 14, "a1", 0.45);
