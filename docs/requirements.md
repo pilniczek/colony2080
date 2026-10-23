@@ -116,6 +116,7 @@ flowchart LR
 | Spike vs sandbox | Spikes own the look (shapes, poses, gait, timing of pose changes). The sandbox owns physics (gravity, speeds, jump heights, air time) through `config/hero/movement.json`. Spike motion numbers stay in the spikes as reference; small drift between them is accepted | user |
 | Idle and turn | Idle is fully still. Turn flips between side views at once (no front view, no squash) | user |
 | Input response | Arcade style: every move acts on the press, no wind-up (jumps leave the floor at once, no crouch before takeoff or after landing). Less natural, more playable | user |
+| Held jump | Up held keeps the robot jumping: each landing starts the next jump of the current gait (stand, walk, run). Only a press starts the first jump, so leaving a ladder top with Up held does not jump (2026-10-23) | user (repeat on hold), Claude's call (first jump on press, ladder top) |
 | Death | Drop the gun, fall on the back, body flat on the floor. The hero explodes while he collapses: the enemy vortex blast plays from the first death frame over the falling body, with the explosion sound, in every death clip (2026-10-22) | user |
 | Shoot stance | Shooting robots (hero and gun walker enemies) stand on the idle legs, no leg split (2026-10-22) | user |
 | Inventory key | `I` instead of Tab | user |
