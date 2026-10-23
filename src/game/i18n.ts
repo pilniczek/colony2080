@@ -8,7 +8,10 @@ export const LANG_KEY = "c2080.lang";
 
 export const LANG_NAMES: Record<Lang, string> = { en: "ENGLISH", cs: "ČESKY" };
 
-const PICKED = /^Picked up (.+)$/;
+const TEMPLATES: [RegExp, (item: string) => string][] = [
+  [/^Picked up (.+)$/, (item) => `Sebráno: ${item}`],
+  [/^(.+) didn't work, maybe something else might be useful here\.$/, (item) => `${item}: tady to nefunguje, možná pomůže něco jiného.`],
+];
 
 const CS: Record<string, string> = {
   "Find the bar man. He knows the way out.": "Najdi barmana. Ví, kudy ven.",
@@ -77,8 +80,8 @@ export const itemName = (id: ItemId, lang: Lang): string => {
   return lang === "cs" && item.cs ? item.cs : item.name;
 };
 
-const pickedName = (name: string): string => {
-  const id = Object.keys(ITEMS).find((key) => ITEMS[key]!.name === name);
+const csItem = (name: string): string => {
+  const id = Object.keys(ITEMS).find((key) => ITEMS[key]!.name.toLowerCase() === name.toLowerCase());
   return id === undefined ? name : itemName(id, "cs");
 };
 
@@ -86,8 +89,11 @@ export function tr(text: string, lang: Lang): string {
   if (lang === "en") return text;
   const known = CS[text];
   if (known !== undefined) return known;
-  const picked = PICKED.exec(text);
-  return picked ? `Sebráno: ${pickedName(picked[1]!)}` : text;
+  for (const [pattern, cs] of TEMPLATES) {
+    const match = pattern.exec(text);
+    if (match) return cs(csItem(match[1]!));
+  }
+  return text;
 }
 
 export const knowsCs = (text: string): boolean => text in CS;

@@ -3,6 +3,10 @@ import tasksJson from "@config/levels/mesto/tasks.json";
 import worldJson from "@config/levels/mesto/world.json";
 import { describe, expect, it } from "vitest";
 import { itemName, knowsCs, loadLang, saveLang, tr } from "./i18n";
+import { ITEMS } from "./items";
+import { loadMesto } from "./level/mesto";
+import { showItem, pickUp } from "./level/sandboxLevel";
+import { hintFor } from "./level/tasks";
 
 const texts = (value: unknown): string[] => {
   if (Array.isArray(value)) return value.flatMap(texts);
@@ -14,6 +18,26 @@ describe("i18n", () => {
   it("has Czech for every mission 1 subtitle and hint", () => {
     const missing = [...texts(tasksJson), ...texts(worldJson), ...texts(mapJson)].filter((text) => !knowsCs(text));
     expect(missing).toEqual([]);
+  });
+
+  it("has Czech for every hint an object use can say, with each item shown", () => {
+    const world = loadMesto();
+    for (const id of Object.keys(ITEMS)) pickUp(world, id);
+    const said = new Set<string>();
+    for (const prop of world.props.filter((p) => p.kind === "object")) {
+      said.add((world.inventory.shown = null, hintFor(prop, world)));
+      for (const id of Object.keys(ITEMS)) {
+        showItem(world, id);
+        said.add(hintFor(prop, world));
+      }
+    }
+    const untranslated = [...said].filter((text) => tr(text, "cs") === text);
+    expect(untranslated).toEqual([]);
+  });
+
+  it("names the wrong item in Czech without a gendered verb", () => {
+    expect(tr("Ship part didn't work, maybe something else might be useful here.", "cs")).toBe("Součástka: tady to nefunguje, možná pomůže něco jiného.");
+    expect(tr("Crane key didn't work, maybe something else might be useful here.", "cs")).toBe("Klíč: tady to nefunguje, možná pomůže něco jiného.");
   });
 
   it("keeps English as is and translates known text to Czech", () => {
