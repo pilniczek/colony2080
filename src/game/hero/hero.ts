@@ -683,6 +683,11 @@ function keepOnDeck(from: number, to: number, lift: Lift, cfg: MovementConfig): 
   return Math.min(Math.max(to, Math.min(from, lift.x + half)), Math.max(from, lift.x + lift.w - half));
 }
 
+function deckUnder({ h, world, cfg }: Step): Lift | null {
+  const lift = liftAt(world, h, cfg);
+  return lift && !h.onGround && h.y <= lift.y + EPS && onDeck(h.x, lift, cfg) ? lift : null;
+}
+
 const enters = (props: Prop[], h: Hero, to: { x: number; y: number }, half: number): boolean =>
   !inCover(props, h.x, half, h.y) && inCover(props, to.x, half, to.y);
 
@@ -692,7 +697,8 @@ function physics(s: Step): void {
   const carrier = h.onLift ? liftAt(world, h, cfg) : null;
   if (carrier) box.y = moveBox(box, 0, carrier.vy * dt, world.grid, world.lifts, { ignoreOneWay: true }).y;
   const vy = Math.min(h.vy + cfg.gravity * dt, cfg.maxFallSpeed);
-  const dx = carrier?.target != null ? keepOnDeck(h.x, h.x + h.vx * dt, carrier, cfg) - h.x : h.vx * dt;
+  const deck = carrier ?? deckUnder(s);
+  const dx = deck?.target != null ? keepOnDeck(h.x, h.x + h.vx * dt, deck, cfg) - h.x : h.vx * dt;
   const r = moveBox(box, dx, ((h.vy + vy) / 2) * dt, world.grid, floorsOf(world));
   if (!h.onGround && enters(world.props, h, r, cfg.box.width / 2)) {
     r.x = h.x;

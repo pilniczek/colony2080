@@ -171,7 +171,7 @@ describe("lift panel", () => {
 });
 
 describe("moving lift", () => {
-  it("lets a running hero jump off the deck mid-ride", () => {
+  it("holds a running hero jumping mid-ride on the deck", () => {
     const g = game({ x: 17.8, y: 14 });
     tick(g);
     tick(g, [], ["useItem"]);
@@ -182,7 +182,10 @@ describe("moving lift", () => {
     expect(g.hero.state).toBe("run");
     tick(g, ["moveRight", RUNNING], ["up"]);
     expect(g.hero.state).toBe("runJump");
-    expect(g.hero.onLift).toBe(false);
+    runUntil(g, (h) => h.onGround, ["moveRight", RUNNING], 3);
+    expect(g.hero.onLift).toBe(true);
+    expect(g.hero.x).toBeCloseTo(lift.x + lift.w - cfg.box.width / 2, 6);
+    expect(g.hero.y).toBeCloseTo(lift.y, 6);
   });
 
   it("loads four droids, the three new ones without respawn, and a respawning flyer", () => {
