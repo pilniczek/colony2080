@@ -561,53 +561,76 @@ function wireRobot(t) {
   else robot(side, 800, 690, 0.7, { pal, sx: s > 0 ? -Math.abs(s) : Math.abs(s), lineW });
 }
 
-function wireMap(t) {
-  const z = at("mapZoom", t);
-  const turn = at("mapTurn", t) * DEG;
-  const height = (gx, gz) => 26 * Math.sin(gx * 0.9 + gz * 0.4) + 18 * Math.cos(gz * 1.3 - gx * 0.5);
-  const project = (gx, gz, h) => {
-    const rx = gx * Math.cos(turn) - gz * Math.sin(turn);
-    const rz = gx * Math.sin(turn) + gz * Math.cos(turn);
-    return [800 + rx * 62 * z, 470 - rz * 26 * z - h * 0.35 * z];
+function headProject(turn, pitch, k) {
+  const { pivot, eye } = CFG.head;
+  const ct = Math.cos(turn), st = Math.sin(turn), cp = Math.cos(pitch * DEG), sp = Math.sin(pitch * DEG);
+  return ([x, y, z]) => {
+    const rx = x * ct - z * st, rz = x * st + z * ct, ry = y - pivot;
+    const ty = ry * cp - rz * sp, tz = ry * sp + rz * cp;
+    const f = k * eye / (eye - tz);
+    return [800 + rx * f, 470 - ty * f];
   };
-  ctx.globalAlpha = 0.3;
-  poly(ctx, [[-7, -7], [7, -7], [7, 7], [-7, 7]].map(([gx, gz]) => project(gx, gz, 0)), palette.wireFill);
+}
+
+function boxLines(box, step, to) {
+  const lo = box.slice(0, 3), hi = lo.map((v, i) => v + box[3 + i]);
+  const at = (c, cv, a, av, b, bv) => {
+    const p = [0, 0, 0];
+    p[c] = cv;
+    p[a] = av;
+    p[b] = bv;
+    return to(p);
+  };
+  for (let c = 0; c < 3; c++) {
+    const a = (c + 1) % 3, b = (c + 2) % 3;
+    for (const cv of [lo[c], hi[c]]) {
+      for (let v = lo[b]; v <= hi[b] + 1e-6; v += Math.min(step, box[3 + b])) {
+        const [p, q] = [at(c, cv, a, lo[a], b, v), at(c, cv, a, hi[a], b, v)];
+        ctx.moveTo(p[0], p[1]);
+        ctx.lineTo(q[0], q[1]);
+      }
+      for (let u = lo[a]; u <= hi[a] + 1e-6; u += Math.min(step, box[3 + a])) {
+        const [p, q] = [at(c, cv, a, u, b, lo[b]), at(c, cv, a, u, b, hi[b])];
+        ctx.moveTo(p[0], p[1]);
+        ctx.lineTo(q[0], q[1]);
+      }
+    }
+  }
+}
+
+function boxFaces(box, to, color) {
+  const [x, y, z, w, h, d] = box;
+  const corner = (i, j, l) => to([x + i * w, y + j * h, z + l * d]);
+  for (const face of [[[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], [[0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]], [[0, 0, 0], [0, 0, 1], [0, 1, 1], [0, 1, 0]], [[1, 0, 0], [1, 0, 1], [1, 1, 1], [1, 1, 0]], [[0, 1, 0], [1, 1, 0], [1, 1, 1], [0, 1, 1]]]) {
+    poly(ctx, face.map(c => corner(...c)), color);
+  }
+}
+
+function wireHead(t) {
+  const H3 = CFG.head;
+  const to = headProject(at("headTurn", t) * DEG, at("headPitch", t), H3.scale * at("headZoom", t));
+  ctx.globalAlpha = 0.12;
+  for (const [box] of H3.boxes) boxFaces(box, to, palette.wireFill);
+  ctx.globalAlpha = 0.4;
+  poly(ctx, H3.visor.map(to), palette.wireFill);
+  ctx.globalAlpha = 0.55 + 0.35 * Math.sin(t * 9);
+  boxFaces(H3.memory, to, palette.mapMark);
   ctx.strokeStyle = palette.wire;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.4;
+  ctx.globalAlpha = 0.5;
+  ctx.beginPath();
+  for (const [box, step] of H3.inner) boxLines(box, step, to);
+  ctx.stroke();
   ctx.globalAlpha = 0.85;
   ctx.beginPath();
-  for (let gz = -7; gz <= 7; gz++) for (let gx = -7; gx <= 7; gx++) {
-    const p = project(gx, gz, height(gx, gz));
-    if (gx > -7) {
-      const q = project(gx - 1, gz, height(gx - 1, gz));
-      ctx.moveTo(q[0], q[1]);
-      ctx.lineTo(p[0], p[1]);
-    }
-    if (gz > -7) {
-      const q = project(gx, gz - 1, height(gx, gz - 1));
-      ctx.moveTo(q[0], q[1]);
-      ctx.lineTo(p[0], p[1]);
-    }
-  }
-  for (const [bx, bz, bh] of [[-2, 1, 120], [1, -2, 90], [3, 2, 150], [-3, -3, 70]]) {
-    const base = height(bx, bz);
-    for (const [ex, ez] of [[0, 0], [0.6, 0], [0.6, 0.6], [0, 0.6]]) {
-      const p = project(bx + ex, bz + ez, base);
-      const q = project(bx + ex, bz + ez, base + bh);
-      ctx.moveTo(p[0], p[1]);
-      ctx.lineTo(q[0], q[1]);
-    }
-  }
+  for (const [box, step] of H3.boxes) boxLines(box, step, to);
   ctx.stroke();
-  ctx.globalAlpha = 0.8;
-  const mark = [[0, 1], [2, 1], [2, 3], [0, 3]].map(([gx, gz]) => project(gx, gz, height(gx, gz)));
-  poly(ctx, mark, palette.mapMark);
   ctx.globalAlpha = 1;
 }
 
 function screenGlow(t, mode) {
   if (mode === "robot") wireRobot(t);
-  if (mode === "map") wireMap(t);
+  if (mode === "head") wireHead(t);
   ctx.globalAlpha = 0.18;
   ctx.fillStyle = palette.black;
   ctx.beginPath();
