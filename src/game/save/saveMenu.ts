@@ -6,7 +6,7 @@ import { isDead, type Hero } from "../hero/hero";
 import { gameOverState, menuKey, type MenuResult, type MenuState } from "../hud/menuKeys";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
-import { readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
+import { AUTO_SLOT, readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
 import { checkSnapshot, loadSnapshot, takeSnapshot, type SaveProblem } from "./snapshot";
 
 const HOME = "index.html";
@@ -15,6 +15,10 @@ const REPEATING = ["up", "down"];
 const CLICKING = ["up", "down", "useItem"];
 export const SAVED = "Saved.";
 export const SAVE_FAILED = "Save failed.";
+export const AUTOSAVED = "Game saved.";
+export const AUTOSAVE_FAILED = "Autosave failed.";
+const AUTO_NAME = "Autosave";
+const DONE_TASK = "task:";
 export const PROBLEMS: Record<SaveProblem, string> = {
   misfit: "This save does not fit this version of the mission.",
   damaged: "This save is damaged and cannot be loaded.",
@@ -24,6 +28,7 @@ export interface SaveMenuOptions {
   mission: string;
   storage: Storage | null;
   startSlot?: number | null;
+  askDifficulty?: boolean;
 }
 
 export interface SaveMenuDeps extends SaveMenuOptions {
@@ -36,13 +41,17 @@ export interface SaveMenuDeps extends SaveMenuOptions {
   moved: () => void;
   leave: (href: string) => void;
   restart: () => void;
+  begin: () => void;
   bodyAt: () => { x: number; y: number } | null;
   playUi: (cue: SoundCue) => void;
   target?: Pick<Window, "addEventListener">;
 }
 
 export interface SaveMenu {
+  readonly asking: boolean;
   step(dt: number): boolean;
+  track(): void;
+  flush(): void;
 }
 
 export const browserStorage = (): Storage | null => {
@@ -65,7 +74,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   const menu = (): MenuState | null => useSandbox.getState().menu;
   const slots = (): Slots => useSandbox.getState().slots;
   const show = (state: MenuState | null): void => useSandbox.setState({ menu: state });
-  const refresh = (): void => useSandbox.setState({ slots: readSlots(d.storage) });
+  const refresh = (): void => useSandbox.setState({ slots: readSlots(d.storage, d.mission) });
   const loadableNow = (): boolean => latestLoadable(slots(), d.mission, d.world) !== null;
 
   const close = (): void => {
@@ -73,8 +82,23 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     show(null);
   };
 
+  const progress = (): string => [...d.world.inventory.items, ...[...d.world.flags].filter((f) => f.startsWith(DONE_TASK)), d.hero.blaster === null ? "" : "blaster"].join(",");
+  let made = progress();
+  let pending = false;
+  const track = (): void => {
+    made = progress();
+    pending = false;
+  };
+  const playing = (): boolean => d.world.autosave && !d.world.complete && !isDead(d.hero.state);
+
+  const autosave = (): void => {
+    const entry: SlotEntry = { mission: d.mission, name: slotName(d.mission, AUTO_NAME), savedAt: Date.now(), picture: d.picture(), snapshot: takeSnapshot(d.world, d.hero) };
+    const note = writeSlot(d.storage, AUTO_SLOT, entry) ? AUTOSAVED : AUTOSAVE_FAILED;
+    d.world.subtitle = { ...(d.world.subtitle ?? { text: "", age: 0 }), note };
+  };
+
   const withMessage = (state: MenuState | null, message: string): MenuState | null => {
-    if (!state || state.screen === "pause") return state;
+    if (!state || state.screen === "pause" || state.screen === "difficulty") return state;
     if (state.screen === "gameOver") return gameOverState(loadableNow(), message, state.at ?? null);
     return { ...state, message };
   };
@@ -87,6 +111,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
       return;
     }
     d.moved();
+    track();
     close();
   };
 
@@ -102,7 +127,14 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     if (r.action === "load") return load(r.state?.screen === "gameOver" ? latestLoadable(slots(), d.mission, d.world) : slots()[r.slot!], r.state);
     if (r.action === "restart") {
       d.restart();
+      track();
       return close();
+    }
+    if (r.action === "difficulty") {
+      d.world.autosave = r.autosave ?? false;
+      track();
+      close();
+      return d.begin();
     }
     if (r.action === "end" || r.action === "home") return d.leave(HOME);
     if (r.state) show(r.state);
@@ -127,15 +159,25 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   };
   (d.target ?? window).addEventListener("keydown", onKey as EventListener, { capture: true });
 
-  if (d.startSlot != null) {
-    refresh();
-    const entry = slots()[d.startSlot];
-    if (entry?.mission === d.mission) load(entry, { screen: "load", cursor: d.startSlot, typing: null, confirm: false, message: null });
-  }
+  const opened = d.startSlot != null ? (refresh(), slots()[d.startSlot]) : null;
+  if (opened?.mission === d.mission) load(opened, { screen: "load", cursor: d.startSlot!, typing: null, confirm: false, message: null });
+  const asking = !!d.askDifficulty && opened?.mission !== d.mission;
+  if (asking) show({ screen: "difficulty", cursor: 0 });
 
   return {
+    asking,
+    track,
+    flush() {
+      if (pending && playing()) autosave();
+      pending = false;
+    },
     step(dt) {
       if (menu()) return true;
+      const now = progress();
+      if (now !== made) {
+        made = now;
+        pending ||= playing();
+      }
       const { hero } = d;
       if (gameOverDue(hero, dt, d.movement().respawnMs)) {
         refresh();

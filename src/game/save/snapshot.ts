@@ -28,6 +28,7 @@ export interface Snapshot {
   fog: string | null;
   complete: boolean;
   subtitle: string | null;
+  autosave?: boolean;
 }
 
 export type SaveProblem = "misfit" | "damaged";
@@ -72,6 +73,7 @@ export function takeSnapshot(world: SandboxWorld, hero: Hero): Snapshot {
     fog: world.fog ? packBits(world.fog.revealed) : null,
     complete: world.complete,
     subtitle: world.subtitle?.text ?? null,
+    autosave: world.autosave,
   };
 }
 
@@ -132,7 +134,8 @@ export function checkSnapshot(world: SandboxWorld, snap: unknown): SaveProblem |
     inventoryOk(snap.inventory) &&
     (snap.fog === null || (typeof snap.fog === "string" && unpackBits(snap.fog, fogLength) !== null)) &&
     typeof snap.complete === "boolean" &&
-    (snap.subtitle === null || typeof snap.subtitle === "string");
+    (snap.subtitle === null || typeof snap.subtitle === "string") &&
+    (snap.autosave === undefined || typeof snap.autosave === "boolean");
   return ok ? null : "damaged";
 }
 
@@ -149,6 +152,7 @@ function apply(world: SandboxWorld, hero: Hero, snap: Snapshot, cfg: MovementCon
   world.flags = new Set(snap.flags);
   world.inventory = clone(snap.inventory);
   world.complete = snap.complete;
+  world.autosave = snap.autosave ?? false;
   world.subtitle = snap.subtitle === null ? null : { text: snap.subtitle, age: 0 };
   applyBlocks(world);
   if (world.fog && snap.fog) {

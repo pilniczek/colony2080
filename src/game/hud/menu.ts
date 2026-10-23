@@ -1,5 +1,5 @@
 import type { Rect } from "../geometry";
-import { savedStamp, type Slots } from "../save/slots";
+import { AUTO_SLOT, savedStamp, slotLabel, type Slots } from "../save/slots";
 import { BOLD, box, image, INV, INVENTORY_BOXES, INVENTORY_DEFS, label, MONO } from "./inventory";
 import { HUD_H, HUD_MIN_W, viewRect } from "./layout";
 import type { MenuState } from "./menuKeys";
@@ -7,14 +7,17 @@ import type { HudIcon } from "./svg";
 
 const MENU = { back: "#0a1f14", grid: "#5a1a14", over: "#ffffff", overEdge: "#2438d0" };
 const ENTRIES = ["SAVE GAME", "LOAD GAME", "RESTART MISSION", "MISSION SELECT"];
+const DIFFICULTIES = ["WITH AUTOSAVE", "WITHOUT AUTOSAVE"];
 const MENU_BOX: Rect = { x: 22, y: 60, w: 128, h: 68 };
 const SLOT_BOX: Rect = { x: 10, y: 8, w: 210, h: 184 };
 const CHOICE_BOX: Rect = { x: 106, y: 146, w: 108, h: 45 };
 const OVER = { size: 9, stroke: 1.2, fallback: { y: 100 } };
 const SLOT_ROW = 30;
+const SLOT_ROOM = 26;
+const LETTER = { size: 7.2, auto: 4.4 };
 const MENU_ROW = 12;
 const CHOICE_ROW = 13;
-const PICTURE = { w: 40, h: 24 };
+const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
 const ASK: Record<number, string> = { 2: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC", 3: "LEAVE? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
@@ -42,15 +45,22 @@ function backdrop(view: Rect, robot: HudIcon): string {
   ${area(view, "url(#menuGrid)")}`;
 }
 
-function pause(s: Extract<MenuState, { screen: "pause" }>): string {
-  const b = MENU_BOX;
-  const rows = ENTRIES.map((entry, i) => {
+const MENU_ROOM = 20;
+
+function entries(title: string, names: string[], cursor: number): string {
+  const b = { ...MENU_BOX, h: MENU_ROOM + names.length * MENU_ROW };
+  const rows = names.map((entry, i) => {
     const y = b.y + 16 + i * MENU_ROW;
-    const on = i === s.cursor;
+    const on = i === cursor;
     return (on ? pick(b.x + 2, y, b.w - 4, MENU_ROW - 1) : "") + text(b.x + 8, y + MENU_ROW * 0.66, 6.4, on ? "#fff" : INV.name, entry);
   }).join("");
+  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, title) + rows;
+}
+
+function pause(s: Extract<MenuState, { screen: "pause" }>): string {
+  const b = MENU_BOX;
   const ask = s.confirm ? text(b.x + b.w / 2, b.y + b.h + 9, 5.2, INV.stat, ASK[s.cursor] ?? "", 'text-anchor="middle"') : "";
-  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, "MENU") + rows + ask;
+  return entries("MENU", ENTRIES, s.cursor) + ask;
 }
 
 function footer(s: Extract<MenuState, { screen: "save" | "load" }>): [string, string] {
@@ -62,17 +72,21 @@ function footer(s: Extract<MenuState, { screen: "save" | "load" }>): [string, st
 
 function slotList(s: Extract<MenuState, { screen: "save" | "load" }>, slots: Slots, prefix: string): string {
   const b = SLOT_BOX;
-  const rows = slots.map((slot, i) => {
-    const y = b.y + 16 + i * SLOT_ROW;
+  const shown = s.screen === "save" ? slots.slice(0, AUTO_SLOT) : slots;
+  const row = Math.min(SLOT_ROW, (b.h - SLOT_ROOM) / shown.length);
+  const ph = row - PICTURE.pad;
+  const pw = ph * PICTURE.aspect;
+  const rows = shown.map((slot, i) => {
+    const y = b.y + 16 + i * row;
     const on = i === s.cursor;
     const typing = on && s.typing !== null;
     const name = typing ? `${s.typing ? `${prefix} - ${s.typing}` : prefix}|` : slot ? slot.name : "EMPTY";
     const picture = slot
-      ? `<image href="${escaped(slot.picture)}" x="${b.x + b.w - PICTURE.w - 6}" y="${y + 3}" width="${PICTURE.w}" height="${PICTURE.h}" preserveAspectRatio="xMidYMid slice"/><rect x="${b.x + b.w - PICTURE.w - 6}" y="${y + 3}" width="${PICTURE.w}" height="${PICTURE.h}" fill="none" stroke="${INV.frame}" stroke-width=".5"/>`
+      ? `<image href="${escaped(slot.picture)}" x="${b.x + b.w - pw - 6}" y="${y + 3}" width="${pw}" height="${ph}" preserveAspectRatio="xMidYMid slice"/><rect x="${b.x + b.w - pw - 6}" y="${y + 3}" width="${pw}" height="${ph}" fill="none" stroke="${INV.frame}" stroke-width=".5"/>`
       : "";
     return (
-      (on ? pick(b.x + 2, y, b.w - 4, SLOT_ROW - 2) : "") +
-      text(b.x + 6, y + 11, 7.2, on ? "#fff" : INV.label, String.fromCharCode(65 + i)) +
+      (on ? pick(b.x + 2, y, b.w - 4, row - 2) : "") +
+      text(b.x + 6, y + 11, i === AUTO_SLOT ? LETTER.auto : LETTER.size, on ? "#fff" : INV.label, slotLabel(i)) +
       text(b.x + 18, y + 11, 6, on ? "#fff" : slot || typing ? INV.name : INV.frame, name.toUpperCase()) +
       (slot ? text(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, savedStamp(slot.savedAt)) : "") +
       picture
@@ -103,7 +117,7 @@ function gameOver(W: number, H: number, s: Extract<MenuState, { screen: "gameOve
 export function menuSvg(W: number, H: number, state: MenuState, slots: Slots, robot: HudIcon, prefix = "City"): string {
   const open = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${INVENTORY_DEFS}${DEFS}`;
   if (state.screen === "gameOver") return `${open}${gameOver(W, H, state)}</svg>`;
-  const body = state.screen === "pause" ? pause(state) : slotList(state, slots, prefix);
+  const body = state.screen === "difficulty" ? entries("DIFFICULTY", DIFFICULTIES, state.cursor) : state.screen === "pause" ? pause(state) : slotList(state, slots, prefix);
   const view = viewRect({ W, H, unit: 1 });
   return `${open}${backdrop(view, robot)}<g transform="${fitIn(view)}">${body}</g></svg>`;
 }

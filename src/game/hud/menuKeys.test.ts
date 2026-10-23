@@ -6,11 +6,25 @@ import { gameOverState, menuKey, type MenuState } from "./menuKeys";
 const keys = controls.keyboard;
 const press = (code: string, key = code) => ({ code, key });
 const filled = { mission: "mesto", name: "City", savedAt: 1, picture: "", snapshot: {} } as unknown as SlotEntry;
-const slots: Slots = [filled, null, null, null, { ...filled, mission: "other" }];
+const slots: Slots = [filled, null, null, null, { ...filled, mission: "other" }, filled];
 const list = (screen: "save" | "load", extra: Partial<MenuState & { screen: "save" }> = {}): MenuState => ({ screen, cursor: 0, typing: null, confirm: false, message: null, ...extra }) as MenuState;
 const step = (state: MenuState, code: string, key?: string) => menuKey(state, press(code, key), slots, "mesto", keys);
 
 describe("menuKey", () => {
+  it("picks the difficulty or goes back to mission select", () => {
+    expect(step({ screen: "difficulty", cursor: 0 }, "ArrowDown").state).toEqual({ screen: "difficulty", cursor: 1 });
+    expect(step({ screen: "difficulty", cursor: 1 }, "ArrowDown").state).toEqual({ screen: "difficulty", cursor: 1 });
+    expect(step({ screen: "difficulty", cursor: 0 }, "Enter")).toEqual({ state: null, action: "difficulty", autosave: true });
+    expect(step({ screen: "difficulty", cursor: 1 }, "Enter")).toEqual({ state: null, action: "difficulty", autosave: false });
+    expect(step({ screen: "difficulty", cursor: 0 }, "Escape")).toEqual({ state: { screen: "difficulty", cursor: 0 }, action: "home" });
+  });
+
+  it("loads the auto slot from the load list but never saves into it", () => {
+    expect(step(list("load", { cursor: 4 }), "ArrowDown").state).toMatchObject({ cursor: 5 });
+    expect(step(list("load", { cursor: 5 }), "Enter")).toMatchObject({ action: "load", slot: 5 });
+    expect(step(list("save", { cursor: 4 }), "ArrowDown").state).toMatchObject({ cursor: 4 });
+  });
+
   it("moves the pause cursor and stops at the ends", () => {
     expect(step({ screen: "pause", cursor: 0 }, "ArrowUp").state).toEqual({ screen: "pause", cursor: 0 });
     expect(step({ screen: "pause", cursor: 3 }, "ArrowDown").state).toEqual({ screen: "pause", cursor: 3 });

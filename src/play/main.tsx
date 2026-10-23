@@ -24,7 +24,7 @@ const { commands, afterStep } = panelCommands(() => run);
 
 const run: Run = startRun({
   world: import.meta.env.DEV ? (await import("../game/level/missions")).loadMission(MISSION) : loadMesto(),
-  saves: { mission: MISSION, storage: browserStorage(), startSlot },
+  saves: { mission: MISSION, storage: browserStorage(), startSlot, askDifficulty: true },
   intro: startSlot === null && MISSION === "mesto" ? "missionStart" : undefined,
   mapItem: mapItemOf(MISSION),
   afterStep,

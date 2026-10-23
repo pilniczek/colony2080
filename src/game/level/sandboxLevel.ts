@@ -145,6 +145,7 @@ export interface SandboxWorld {
   cutscene: { id: CutsceneId; prop: Prop | null; t: number } | null;
   complete: boolean;
   immortal: boolean;
+  autosave: boolean;
   sounds: SoundCue[];
   sfx: SoundClock;
   source: SandboxJson;
@@ -252,6 +253,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     cutscene: null,
     complete: false,
     immortal: false,
+    autosave: false,
     sounds: [],
     sfx: createSoundClock(),
     source: data,
@@ -261,8 +263,8 @@ export function loadSandbox(json: unknown): SandboxWorld {
 }
 
 export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
-  const { fog, immortal, sounds } = world;
-  Object.assign(world, loadSandbox(world.source), { immortal, sounds });
+  const { fog, immortal, autosave, sounds } = world;
+  Object.assign(world, loadSandbox(world.source), { immortal, autosave, sounds });
   const [x, y] = world.spawn;
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }

@@ -214,6 +214,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       item: world.inventory.shown,
       items: sameItems(tuning().items, world.inventory.items) ? tuning().items : [...world.inventory.items],
       subtitle: world.subtitle?.text ?? null,
+      subtitleNote: world.subtitle?.note ?? null,
       complete: world.complete,
       cutscene: world.cutscene !== null,
       state: hero.state,
@@ -288,6 +289,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       },
       leave: (href) => location.assign(href),
       restart: () => restartMission(),
+      begin: () => begin(),
       playUi: play,
       bodyAt: () => {
         if (!lastView) return null;
@@ -377,6 +379,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       drawOver?.(ctx, view, cfg.cellPx);
       if (tuning().mapOpen) drawMap(ctx, world, shown, cfg.box.height, gameWindow, tuning().debugPanel);
       ctx.restore();
+      saveMenu?.flush();
       push();
     },
   });
@@ -387,6 +390,10 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     applyFog(fogOn);
     prev = momentOf(hero);
     useSandbox.setState({ inventory: { open: false, cursor: 0 }, mapOpen: false });
+  };
+
+  const begin = (): void => {
+    if (!filmsOff) startFilm(world, intro);
   };
 
   const restartMission = (): void => {
@@ -464,6 +471,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     if (cheat === "open") say(world, openAll());
     if (cheat === "debug") debug();
     if (typeof cheat === "object" && cheat !== null) moveTo(...(cheat.moveTo === "start" ? world.spawn : cheat.moveTo));
+    saveMenu?.track();
   };
 
   const setFog = (fogOn: boolean): void => {
@@ -506,7 +514,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
 
   if (import.meta.env.VITE_START_CHEAT) enterCheat(import.meta.env.VITE_START_CHEAT);
-  if (!filmsOff) startFilm(world, intro);
+  if (!saveMenu?.asking) begin();
   setTimeout(() => void loadFilms().then(warmFilms), FILM_PRELOAD_MS);
   fit();
   window.addEventListener("resize", fit);

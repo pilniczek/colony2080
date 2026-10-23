@@ -35,6 +35,7 @@ export interface SandboxState {
   menu: MenuState | null;
   slots: Slots;
   subtitle: string | null;
+  subtitleNote: string | null;
   complete: boolean;
   weapon: Weapon;
   running: boolean;
@@ -129,6 +130,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   menu: null,
   slots: [],
   subtitle: null,
+  subtitleNote: null,
   complete: false,
   weapon: "gun",
   running: true,

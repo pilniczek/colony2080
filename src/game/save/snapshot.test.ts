@@ -5,7 +5,7 @@ import { createFog, loadFog } from "../fog";
 import { createHero, type Hero } from "../hero/hero";
 import { cfg } from "../hero/testWorld";
 import { loadMesto } from "../level/mesto";
-import { pickUp, type SandboxWorld } from "../level/sandboxLevel";
+import { pickUp, resetWorld, type SandboxWorld } from "../level/sandboxLevel";
 import { checkSnapshot, loadSnapshot, SAVE_VERSION, takeSnapshot, type Snapshot } from "./snapshot";
 
 const play = (): { world: SandboxWorld; hero: Hero } => {
@@ -52,6 +52,25 @@ describe("snapshot", () => {
     loadSnapshot(g.world, g.hero, takeSnapshot(saved.world, saved.hero), cfg);
     expect(g.world.complete).toBe(true);
     expect(g.world.subtitle?.text).toBe("Level complete");
+  });
+
+  it("restores the difficulty, and an old save without one has no autosave", () => {
+    const saved = changed();
+    saved.world.autosave = true;
+    const snap = takeSnapshot(saved.world, saved.hero);
+    const g = play();
+    expect(loadSnapshot(g.world, g.hero, snap, cfg)).toBeNull();
+    expect(g.world.autosave).toBe(true);
+    expect(loadSnapshot(g.world, g.hero, { ...snap, autosave: undefined }, cfg)).toBeNull();
+    expect(g.world.autosave).toBe(false);
+    expect(checkSnapshot(g.world, { ...snap, autosave: "yes" })).toBe("damaged");
+  });
+
+  it("keeps the difficulty over a mission restart", () => {
+    const g = play();
+    g.world.autosave = true;
+    resetWorld(g.world, cfg);
+    expect(g.world.autosave).toBe(true);
   });
 
   it("calls a save of another version or mission shape a misfit", () => {

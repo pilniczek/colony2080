@@ -19,6 +19,7 @@ export interface Task {
 export interface Subtitle {
   text: string;
   age: number;
+  note?: string;
 }
 
 const ITEM = "item:";

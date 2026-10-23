@@ -1,14 +1,16 @@
 import type { Bindings } from "../../engine/input";
-import type { Slots } from "../save/slots";
+import { AUTO_SLOT, type Slots } from "../save/slots";
 
 export const NAME_MAX = 16;
 const PAUSE_ROWS = 4;
 const GAME_OVER_ROWS = 3;
 const RESTART_ROW = 2;
+const DIFFICULTY_ROWS = 2;
 
 type ListScreen = { screen: "save" | "load"; cursor: number; typing: string | null; confirm: boolean; message: string | null };
 
 export type MenuState =
+  | { screen: "difficulty"; cursor: number }
   | { screen: "pause"; cursor: number; confirm?: boolean }
   | ListScreen
   | { screen: "gameOver"; cursor: number; canLoad: boolean; message?: string | null; at?: { x: number; y: number } | null };
@@ -21,13 +23,14 @@ export const gameOverState = (canLoad: boolean, message: string | null = null, a
   at,
 });
 
-export type MenuAction = "save" | "load" | "restart" | "end" | "home";
+export type MenuAction = "save" | "load" | "restart" | "end" | "home" | "difficulty";
 
 export interface MenuResult {
   state: MenuState | null;
   action?: MenuAction;
   slot?: number;
   name?: string;
+  autosave?: boolean;
 }
 
 const listOf = (screen: "save" | "load"): ListScreen => ({ screen, cursor: 0, typing: null, confirm: false, message: null });
@@ -53,7 +56,7 @@ function typed(s: ListScreen, key: { code: string; key: string }, slots: Slots, 
 function list(s: ListScreen, key: { code: string; key: string }, slots: Slots, mission: string, is: (action: string) => boolean): MenuResult {
   if (s.typing !== null) return typed(s, key, slots, s.typing, is);
   if (is("menu")) return { state: { screen: "pause", cursor: s.screen === "save" ? 0 : 1 } };
-  if (is("up") || is("down")) return { state: { ...s, cursor: moved(s.cursor, slots.length, is("up") ? -1 : 1), message: null } };
+  if (is("up") || is("down")) return { state: { ...s, cursor: moved(s.cursor, s.screen === "save" ? AUTO_SLOT : slots.length, is("up") ? -1 : 1), message: null } };
   if (!is("useItem")) return { state: s };
   if (s.screen === "save") return { state: { ...s, typing: "", message: null } };
   return slots[s.cursor]?.mission === mission ? { state: s, action: "load", slot: s.cursor } : { state: s };
@@ -64,6 +67,13 @@ function gameOver(state: Extract<MenuState, { screen: "gameOver" }>, is: (action
   if (is("up") || is("down")) return { state: { ...state, cursor: Math.max(first, moved(state.cursor, GAME_OVER_ROWS, is("up") ? -1 : 1)) } };
   if (!is("useItem")) return { state };
   return { state, action: (["load", "restart", "end"] as const)[state.cursor] };
+}
+
+function difficulty(state: Extract<MenuState, { screen: "difficulty" }>, is: (action: string) => boolean): MenuResult {
+  if (is("up") || is("down")) return { state: { ...state, cursor: moved(state.cursor, DIFFICULTY_ROWS, is("up") ? -1 : 1) } };
+  if (is("menu")) return { state, action: "home" };
+  if (!is("useItem")) return { state };
+  return { state: null, action: "difficulty", autosave: state.cursor === 0 };
 }
 
 function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: string) => boolean): MenuResult {
@@ -82,6 +92,7 @@ function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: stri
 
 export function menuKey(state: MenuState, key: { code: string; key: string }, slots: Slots, mission: string, keys: Bindings): MenuResult {
   const is = (action: string): boolean => keys[action]?.includes(key.code) ?? false;
+  if (state.screen === "difficulty") return difficulty(state, is);
   if (state.screen === "gameOver") return gameOver(state, is);
   if (state.screen === "pause") return pause(state, is);
   return list(state, key, slots, mission, is);

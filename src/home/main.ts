@@ -1,6 +1,6 @@
 import "@fontsource/orbitron/900.css";
 import "@fontsource/share-tech-mono/400.css";
-import { readSlots, savedStamp, SLOT_IDS, slotHref, type SlotEntry } from "../game/save/slots";
+import { readSlots, savedStamp, slotHref, slotLabel, type SlotEntry } from "../game/save/slots";
 
 const storage = (): Storage | null => {
   try {
@@ -34,7 +34,7 @@ function offerSaves(bar: HTMLAnchorElement, saves: { entry: SlotEntry; slot: num
   menu.className = "options";
   menu.id = `${bar.dataset.mission}-options`;
   menu.hidden = true;
-  menu.append(option(page, "New game"), ...saves.map(({ entry, slot }) => option(slotHref(bar.dataset.mission!, slot), entry.name, `${SLOT_IDS[slot]} · ${savedStamp(entry.savedAt)}`, entry.picture)));
+  menu.append(option(page, "New game"), ...saves.map(({ entry, slot }) => option(slotHref(bar.dataset.mission!, slot), entry.name, `${slotLabel(slot)} · ${savedStamp(entry.savedAt)}`, entry.picture)));
   bar.after(menu);
   bar.setAttribute("aria-haspopup", "true");
   bar.setAttribute("aria-controls", menu.id);
@@ -59,9 +59,8 @@ function offerSaves(bar: HTMLAnchorElement, saves: { entry: SlotEntry; slot: num
   });
 }
 
-const slots = readSlots(storage());
 for (const bar of document.querySelectorAll<HTMLAnchorElement>("a.mission[data-mission]")) {
-  const saves = slots
+  const saves = readSlots(storage(), bar.dataset.mission!)
     .map((entry, slot) => ({ entry, slot }))
     .filter((s): s is { entry: SlotEntry; slot: number } => s.entry?.mission === bar.dataset.mission)
     .sort((a, b) => b.entry.savedAt - a.entry.savedAt);

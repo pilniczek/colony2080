@@ -5,7 +5,7 @@ import { menuSvg } from "./menu";
 
 const robot = { url: "data:,", w: 10, h: 20 };
 const slot = (name: string): SlotEntry => ({ mission: "mesto", name, savedAt: Date.UTC(2026, 9, 20, 21, 14), picture: "data:image/jpeg;base64,AA", snapshot: {} } as unknown as SlotEntry);
-const slots: Slots = [slot("City - door"), null, null, null, null];
+const slots: Slots = [slot("City - door"), null, null, null, null, slot("City - Autosave")];
 
 describe("menuSvg", () => {
   it("lists the pause entries", () => {
@@ -51,6 +51,19 @@ describe("menuSvg", () => {
   it("asks before leaving to mission select", () => {
     expect(menuSvg(320, 200, { screen: "pause", cursor: 2, confirm: true }, slots, robot)).toContain("RESTART? UNSAVED PROGRESS IS LOST");
     expect(menuSvg(320, 200, { screen: "pause", cursor: 3, confirm: true }, slots, robot)).toContain("LEAVE? UNSAVED PROGRESS IS LOST");
+  });
+
+  it("lists the difficulties", () => {
+    const svg = menuSvg(320, 200, { screen: "difficulty", cursor: 0 }, slots, robot);
+    for (const entry of ["DIFFICULTY", "WITH AUTOSAVE", "WITHOUT AUTOSAVE"]) expect(svg).toContain(entry);
+  });
+
+  it("shows the auto slot in the load list only", () => {
+    const load = menuSvg(320, 200, { screen: "load", cursor: 0, typing: null, confirm: false, message: null }, slots, robot);
+    expect(load).toContain("CITY - AUTOSAVE");
+    expect(load).toContain(">AUTO<");
+    const save = menuSvg(320, 200, { screen: "save", cursor: 0, typing: null, confirm: false, message: null }, slots, robot);
+    expect(save).not.toContain("AUTOSAVE");
   });
 
   it("escapes typed text", () => {

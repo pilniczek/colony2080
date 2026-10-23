@@ -1,6 +1,8 @@
 import type { Snapshot } from "./snapshot";
 
 export const SLOT_IDS = ["A", "B", "C", "D", "E"] as const;
+export const AUTO_SLOT = SLOT_IDS.length;
+const AUTO_ID = "AUTO";
 
 const MISSION_NAMES: Record<string, string> = { mesto: "City", vesnice: "Suburb", jungle: "Jungle", jeskyne: "Caves" };
 
@@ -25,14 +27,18 @@ export const savedStamp = (ms: number): string => {
   return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())} ${two(d.getHours())}:${two(d.getMinutes())}`;
 };
 
-export const slotHref = (mission: string, i: number): string => `game.html?mission=${mission}&slot=${SLOT_IDS[i]}`;
+export const slotLabel = (i: number): string => (i === AUTO_SLOT ? AUTO_ID : SLOT_IDS[i]!);
+
+export const slotHref = (mission: string, i: number): string => `game.html?mission=${mission}&slot=${slotLabel(i)}`;
 
 export const slotFromQuery = (search: string): number | null => {
-  const i = SLOT_IDS.indexOf(new URLSearchParams(search).get("slot") as (typeof SLOT_IDS)[number]);
+  const id = new URLSearchParams(search).get("slot");
+  if (id === AUTO_ID) return AUTO_SLOT;
+  const i = SLOT_IDS.indexOf(id as (typeof SLOT_IDS)[number]);
   return i < 0 ? null : i;
 };
 
-const key = (prefix: string, i: number): string => `${prefix}${SLOT_IDS[i]}`;
+const key = (prefix: string, i: number, mission: string): string => (i === AUTO_SLOT ? `${prefix}auto.${mission}` : `${prefix}${SLOT_IDS[i]}`);
 
 const PICTURE_PREFIX = "data:image/";
 
@@ -61,12 +67,13 @@ function readOne(storage: Storage, k: string): SlotEntry | null {
   }
 }
 
-export const readSlots = (storage: Storage | null, prefix = "c2080.save."): Slots => SLOT_IDS.map((_, i) => (storage ? readOne(storage, key(prefix, i)) : null));
+export const readSlots = (storage: Storage | null, mission: string, prefix = "c2080.save."): Slots =>
+  Array.from({ length: AUTO_SLOT + 1 }, (_, i) => (storage ? readOne(storage, key(prefix, i, mission)) : null));
 
 export function writeSlot(storage: Storage | null, i: number, entry: SlotEntry, prefix = "c2080.save."): boolean {
   if (!storage) return false;
   try {
-    storage.setItem(key(prefix, i), JSON.stringify(entry));
+    storage.setItem(key(prefix, i, entry.mission), JSON.stringify(entry));
     return true;
   } catch {
     return false;
