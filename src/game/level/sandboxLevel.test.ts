@@ -155,6 +155,21 @@ describe("several lifts", () => {
   });
 });
 
+describe("lift panel", () => {
+  const callFrom = (x: number, y: number, liftY: number): number | null => {
+    const g = game({ x, y });
+    g.world.lifts[0]!.y = liftY;
+    tick(g);
+    tick(g, [], ["useItem"]);
+    return g.world.lifts[0]!.target;
+  };
+
+  it("calls the lift down from the bottom panel", () => expect(callFrom(20.4, 14, 4)).toBe(14));
+  it("calls the lift up from the top panel", () => expect(callFrom(20.4, 4, 14)).toBe(4));
+  it("does nothing while the lift stands at the panel", () => expect(callFrom(20.4, 14, 14)).toBeNull());
+  it("does nothing a cell away from the shaft", () => expect(callFrom(22.5, 14, 4)).toBeNull());
+});
+
 describe("moving lift", () => {
   it("keeps a running hero on the deck when up is pressed mid-ride", () => {
     const g = game({ x: 17.8, y: 14 });

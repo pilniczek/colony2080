@@ -416,7 +416,7 @@ function idle(s: Step): void {
 }
 
 function liftPress(s: Step): boolean {
-  if (!s.input.pressed.has("useItem") || usable(s) || !rideLift(s)) return false;
+  if (!s.input.pressed.has("useItem") || usable(s) || !(rideLift(s) || callFromPanel(s))) return false;
   s.consume("useItem");
   return true;
 }
@@ -440,6 +440,24 @@ function rideLift({ h, world, cfg }: Step): boolean {
     if (lift.hint) say(world, lift.hint);
   } else if (resting) cue(world, "liftStart", 8000);
   return true;
+}
+
+function callFromPanel({ h, world, cfg }: Step): boolean {
+  const lift = h.onLift ? undefined : world.lifts.find((l) => atPanel(h, l, cfg));
+  if (!lift || lift.target !== null || Math.abs(lift.y - h.y) < EPS) return false;
+  if (lift.enabledBy !== undefined && !world.flags.has(lift.enabledBy)) {
+    if (lift.hint) say(world, lift.hint);
+    return true;
+  }
+  lift.target = lift.stops.find((row) => Math.abs(row - h.y) < EPS)!;
+  cue(world, "liftStart", 8000);
+  return true;
+}
+
+function atPanel(h: Hero, lift: Lift, cfg: MovementConfig): boolean {
+  const half = cfg.box.width / 2;
+  const beside = h.x + half <= lift.x + EPS ? h.x + half > lift.x - 1 : h.x - half >= lift.x + lift.w - EPS && h.x - half < lift.x + lift.w + 1;
+  return beside && lift.stops.some((row) => Math.abs(row - h.y) < EPS);
 }
 
 function onDeck(x: number, lift: Lift, cfg: MovementConfig): boolean {
