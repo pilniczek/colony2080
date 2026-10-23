@@ -2241,6 +2241,7 @@ exports[`missions > mesto json is unchanged 1`] = `
       "asset": "dyingRebel",
       "id": "dyingRebel",
       "kind": "object",
+      "shownBy": "flag:rebelShot",
       "state": 0,
       "width": 2,
       "x": 34,

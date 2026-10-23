@@ -225,7 +225,7 @@
     {"asset": "liftPanel", "x": 51, "y": 16}
   ],
   "props": [
-    {"kind": "object", "id": "dyingRebel", "asset": "dyingRebel", "x": 34, "y": 59, "width": 2, "state": 0, "approach": {"cells": 6, "cutscene": "rebelShot", "gives": "flag:rebelShot"}},
+    {"kind": "object", "id": "dyingRebel", "asset": "dyingRebel", "x": 34, "y": 59, "width": 2, "state": 0, "shownBy": "flag:rebelShot", "approach": {"cells": 6, "cutscene": "rebelShot", "gives": "flag:rebelShot"}},
     {"kind": "object", "id": "wireBox", "asset": "wireBox", "x": 127.5, "y": 59, "width": 1, "state": 0},
     {"kind": "object", "id": "switchboard", "asset": "switchboard", "art": {"top": 4}, "x": 69.5, "y": 70, "width": 1, "state": 0},
     {"kind": "object", "id": "trainDoor", "asset": "trainDoor", "x": 61, "y": 70, "width": 2, "cover": {"clip": [55, 60.5], "reach": [56.125, 62.083], "rows": 3, "states": [2]}, "state": 0},

@@ -126,6 +126,14 @@ describe("object props", () => {
     expect(painting({ kind: "object", id: "a", x: 3 })).toBe(0);
     expect(painting({ kind: "object", id: "a", asset: "switchboard", x: 3, state: 1 })).toBeGreaterThan(painting({ kind: "object", id: "a", asset: "switchboard", x: 3, state: 0 }));
   });
+
+  it("paints an object with shownBy only once its flag is set", () => {
+    const rebel: Prop = { kind: "object", id: "a", asset: "dyingRebel", x: 3, shownBy: "flag:test" };
+    expect(painting(rebel)).toBe(0);
+    world.flags.add("flag:test");
+    expect(painting(rebel)).toBeGreaterThan(0);
+    world.flags.delete("flag:test");
+  });
 });
 
 const placedAt = (p: Prop): number[] => {

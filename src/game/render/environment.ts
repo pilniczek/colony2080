@@ -578,7 +578,7 @@ function ladders(e: Env): void {
 }
 
 export function prop(e: Env, p: Prop): void {
-  if ((p.kind === "item" || p.kind === "weapon") && !onGround(p, e.hero, e.world.flags)) return;
+  if ((p.kind === "item" || p.kind === "weapon" || p.kind === "object") && !onGround(p, e.hero, e.world.flags)) return;
   const icon = p.kind === "item" ? ITEMS[p.item!]!.icon : null;
   const id = p.kind === "item" ? icon?.asset : (p.asset ?? PROP_ASSETS[p.kind]);
   if (!id) return;

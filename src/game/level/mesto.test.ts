@@ -211,6 +211,11 @@ describe("mesto props", () => {
     expect(Math.abs(part.x - props.find((p) => p.id === "crashedShip")!.x)).toBeLessThanOrEqual(2);
   });
 
+  it("shows the dying rebel only once his approach film is due", () => {
+    const rebel = props.find((p) => p.id === "dyingRebel")!;
+    expect(rebel.shownBy).toBe(rebel.approach!.gives);
+  });
+
   it("drops the controller task for the controller pickup", () => {
     expect(tasks.tasks.map((t) => t.object)).not.toContain("controller");
   });
