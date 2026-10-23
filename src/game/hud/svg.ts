@@ -49,8 +49,8 @@ export const SHIELDS_MAX = 5;
 export const keyLabel = (code: string): string => code.replace(/^(Digit|Key)/, "").replace(/^Escape$/, "Esc").replace(/(Left|Right)$/, "").toUpperCase();
 
 export const READOUT = "#a8844a";
-const MONO = "Share Tech Mono, monospace";
-const BOLD = "Orbitron, sans-serif";
+const MONO = "Share Tech Mono, Oxanium, monospace";
+const BOLD = "Orbitron, Oxanium, sans-serif";
 const HI = "#d8c8ae";
 const LO = "#0e0b08";
 const ROD_YS = [3.4, 7.8, 12.2, 16.6].map((y) => (y * BAR_H) / 20.4);

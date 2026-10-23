@@ -8,7 +8,7 @@ const FONT_UNITS = 6;
 
 export const SUBTITLE_STYLE: CSSProperties = {
   color: "#ffd84a",
-  fontFamily: '"Share Tech Mono", ui-monospace, monospace',
+  fontFamily: '"Share Tech Mono", Oxanium, ui-monospace, monospace',
   textShadow: "0 0 4px #000, 0 2px 3px #000, 0 0 10px #000c",
   textAlign: "center",
   lineHeight: 1.3,

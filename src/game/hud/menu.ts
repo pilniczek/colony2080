@@ -18,6 +18,7 @@ const LETTER = { size: 7.2, auto: 4.4 };
 const MENU_ROW = 12;
 const MENU_ROOM = 20;
 const BUTTON_GAP = 6;
+const ARROW = { w: 3, h: 4.4, inset: 2.4 };
 const CHOICE_ROW = 13;
 const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
@@ -58,6 +59,19 @@ function rowText(row: Row, x: number, y: number, on: boolean): string {
   return `<text x="${x}" y="${y}" font-family="${MONO}" font-size="6.4" xml:space="preserve">${parts}</text>`;
 }
 
+function arrows(b: Rect, y: number, on: boolean): string {
+  const fill = on ? "#fff" : INV.frame;
+  const mid = y + (MENU_ROW - 1) / 2;
+  const top = mid - ARROW.h / 2;
+  const bottom = mid + ARROW.h / 2;
+  const left = b.x + ARROW.inset;
+  const right = b.x + b.w - ARROW.inset;
+  return (
+    `<polygon data-arrow="left" points="${left},${mid} ${left + ARROW.w},${top} ${left + ARROW.w},${bottom}" fill="${fill}"/>` +
+    `<polygon data-arrow="right" points="${right},${mid} ${right - ARROW.w},${top} ${right - ARROW.w},${bottom}" fill="${fill}"/>`
+  );
+}
+
 function rowsBox(title: string, rows: Row[], cursor: number): string {
   const gaps = rows.filter((row) => "entry" in row && row.gap).length;
   const b = { ...MENU_BOX, h: MENU_ROOM + rows.length * MENU_ROW + gaps * BUTTON_GAP };
@@ -65,7 +79,7 @@ function rowsBox(title: string, rows: Row[], cursor: number): string {
   const drawn = rows.map((row, i) => {
     if ("entry" in row && row.gap) y += BUTTON_GAP;
     const on = i === cursor;
-    const out = (on ? pick(b.x + 2, y, b.w - 4, MENU_ROW - 1) : "") + rowText(row, b.x + 8, y + MENU_ROW * 0.66, on);
+    const out = (on ? pick(b.x + 2, y, b.w - 4, MENU_ROW - 1) : "") + rowText(row, b.x + 10, y + MENU_ROW * 0.66, on) + ("options" in row ? arrows(b, y, on) : "");
     y += MENU_ROW;
     return out;
   }).join("");

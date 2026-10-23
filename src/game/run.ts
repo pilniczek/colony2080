@@ -1,5 +1,7 @@
 import "@fontsource/orbitron/900.css";
 import "@fontsource/share-tech-mono/400.css";
+import "@fontsource/oxanium/latin-ext-400.css";
+import "@fontsource/oxanium/latin-ext-800.css";
 import controls from "@config/controls.json";
 import cameraJson from "@config/camera.json";
 import { createElement, Fragment, type ReactNode } from "react";

@@ -63,6 +63,14 @@ describe("menuSvg", () => {
     expect(cs).toContain('<tspan fill="#f2e7a0">ČESKY</tspan>');
   });
 
+  it("marks only the switch rows with a left and right triangle", () => {
+    const settings = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: true }, slots, robot);
+    expect(settings.match(/data-arrow="left"/g)).toHaveLength(2);
+    expect(settings.match(/data-arrow="right"/g)).toHaveLength(2);
+    const pause = menuSvg(320, 200, { screen: "pause", cursor: 0 }, slots, robot);
+    expect(pause.match(/data-arrow="left"/g)).toHaveLength(2);
+  });
+
   it("shows the autosave and language rows in the pause menu, in Czech too", () => {
     const svg = menuSvg(320, 200, { screen: "pause", cursor: 0 }, slots, robot, "City", "cs", true);
     for (const entry of ["ULOŽIT HRU", "NAHRÁT HRU", ">AUTOUKLÁDÁNÍ<", ">ČESKY<", "RESTARTOVAT MISI", "VÝBĚR MISE"]) expect(svg).toContain(entry);

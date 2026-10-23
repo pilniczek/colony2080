@@ -39,8 +39,8 @@ export const GUN_SCALE = 0.55;
 export const STAT_COLOR = "#e8c020";
 
 export const INV = { frame: "#5aa9a0", back: "#0b1a17", line: "#1d4a3f", name: "#f2e7a0", label: "#8fd3c8", pick: "#2f6b63", stat: STAT_COLOR };
-export const MONO = "Share Tech Mono, monospace";
-export const BOLD = "Orbitron, sans-serif";
+export const MONO = "Share Tech Mono, Oxanium, monospace";
+export const BOLD = "Orbitron, Oxanium, sans-serif";
 const ROW = 7.2;
 const TEXT = 5.6;
 const PULSE_BARS = [6, 9, 5, 11, 8, 10];
