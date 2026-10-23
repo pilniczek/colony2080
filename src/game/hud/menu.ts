@@ -8,7 +8,7 @@ import type { HudIcon } from "./svg";
 
 const MENU = { back: "#0a1f14", grid: "#5a1a14", over: "#ffffff", overEdge: "#2438d0" };
 const AUTOSAVES = ["AUTOSAVE", "NO AUTOSAVE"];
-const MENU_BOX: Rect = { x: 22, y: 8, w: 128, h: 68 };
+const MENU_BOX: Rect = { x: 22, y: 8, w: 148, h: 68 };
 const SLOT_BOX: Rect = { x: 10, y: 8, w: 210, h: 184 };
 const CHOICE_BOX: Rect = { x: 106, y: 146, w: 108, h: 45 };
 const OVER = { size: 9, stroke: 1.2, fallback: { y: 100 } };
@@ -26,7 +26,14 @@ const DIM = 0.25;
 const ASK: Record<number, string> = { [PAUSE_ROWS.restart]: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
 const STEPS = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] } as const;
 type Step = keyof typeof STEPS;
-const MANUAL_KEYS: [string | Step[], string][] = [[["left", "right"], "MOVE"], [["up"], "JUMP, CLIMB UP"], [["down"], "DUCK, CLIMB DOWN"], ["CTRL", "SHOOT / PUNCH"]];
+const MANUAL_KEYS: [string | Step[] | "liftPanel", string][] = [
+  [["left", "right"], "MOVE"],
+  [["up"], "JUMP, CLIMB UP"],
+  [["down"], "DUCK, CLIMB DOWN"],
+  ["CTRL", "SHOOT / PUNCH"],
+  ["liftPanel", "ENTER CALLS A DISTANT LIFT"],
+  ["X", "HIDING MIGHT BE MORE THAN SHOOTING"],
+];
 const ARROW_KEY = { len: 5.4, head: 1.6, stroke: 0.7, spread: 4.5 };
 const MANUAL = { gap: 14, text: 5.6, key: 14, keyGap: 10, top: 18, pitch: 13, pad: 6 };
 const CAPS_EM = 0.7;
@@ -116,13 +123,14 @@ function manual(rows: Row[], panel: HudIcon, lang: Lang): string {
   const capsMid = (MANUAL.text * CAPS_EM) / 2;
   const midOf = (i: number): number => top + MANUAL.top + i * MANUAL.pitch;
   const action = (i: number, value: string): string => text(actionX, midOf(i) + capsMid, MANUAL.text, INV.label, tr(value, lang));
-  const keys = MANUAL_KEYS.map(([key, value], i) =>
-    (typeof key === "string" ? text(keyMid, midOf(i) + capsMid, MANUAL.text, INV.name, key, 'text-anchor="middle"') : arrowKeys(keyMid, midOf(i), key)) + action(i, value),
-  ).join("");
-  const last = MANUAL_KEYS.length;
-  const call = image(panel, keyMid - panel.w / 2, midOf(last) - panel.h / 2) + action(last, "ENTER CALLS A DISTANT LIFT");
-  const b = { ...MENU_BOX, y: top, h: midOf(last) + panel.h / 2 + MANUAL.pad - top };
-  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr("MANUAL", lang)) + keys + call;
+  const keyOf = (key: string | Step[], mid: number): string => {
+    if (key === "liftPanel") return image(panel, keyMid - panel.w / 2, mid - panel.h / 2);
+    if (typeof key === "string") return text(keyMid, mid + capsMid, MANUAL.text, INV.name, key, 'text-anchor="middle"');
+    return arrowKeys(keyMid, mid, key);
+  };
+  const keys = MANUAL_KEYS.map(([key, value], i) => keyOf(key, midOf(i)) + action(i, value)).join("");
+  const b = { ...MENU_BOX, y: top, h: midOf(MANUAL_KEYS.length - 1) + capsMid + MANUAL.pad - top };
+  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr("MANUAL", lang)) + keys;
 }
 
 const autosaveRow = (autosave: boolean, lang: Lang): Row => ({ options: AUTOSAVES.map((o) => tr(o, lang)), on: autosave ? 0 : 1 });
