@@ -5,7 +5,7 @@ import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { PALETTE as SKIN } from "../env/paint";
 import { gunHook, MUZZLE, MUZZLE_IN_HOOK } from "../robot/gun";
-import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
+import { buildBack, buildFront, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
 import { camera, feet, fitStage, hookAt, lineFor, oval, poly, rect, rowFill, scatter, tracks, unitScale } from "./kit";
 
@@ -37,7 +37,7 @@ interface RebelPose {
 const { width: W, height: H } = config.stage;
 const palette = config.palette;
 const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
-const { AX, SIDE_AX, FOOT_Y } = ROBOT;
+const { AX, FOOT_Y } = ROBOT;
 const PI = Math.PI;
 const DEG = PI / 180;
 const HUMAN_LINE = 1.2;
@@ -274,37 +274,11 @@ function wasteland(ctx: Ctx, t: number, horizon: number, colors: Waste): void {
   ctx.globalAlpha = 1;
 }
 
-const WASTE_A = (): Waste => [palette.skyTop, palette.skyMid, palette.skyLow, palette.cloudDark, palette.cloudLight, palette.dirtFar, palette.dirtNear, palette.dirtDark, palette.dirtLight];
 const WASTE_B = (): Waste => [palette.skyTop, palette.skyMid, palette.skyLow, palette.cloudDark, palette.cloudLight, palette.rustFar, palette.rustNear, palette.dirtDark, palette.rustLight];
 
-function scaffold(ctx: Ctx, x: number, y: number, w: number, h: number): void {
-  ctx.strokeStyle = palette.girder;
-  ctx.lineWidth = 7;
-  ctx.beginPath();
-  for (let i = 0; i <= 4; i++) {
-    ctx.moveTo(x + (w * i) / 4, y);
-    ctx.lineTo(x + (w * i) / 4, y + h);
-  }
-  for (let i = 0; i <= 3; i++) {
-    ctx.moveTo(x, y + (h * i) / 3);
-    ctx.lineTo(x + w, y + (h * i) / 3);
-  }
-  ctx.moveTo(x, y + h);
-  ctx.lineTo(x + w / 2, y);
-  ctx.stroke();
-}
-
-function rustTower(ctx: Ctx, x: number, y: number): void {
-  poly(ctx, [[x, y], [x + 30, y - 160], [x + 80, y - 175], [x + 110, y - 90], [x + 150, y - 70], [x + 150, y]], palette.rust);
-  poly(ctx, [[x + 80, y - 175], [x + 110, y - 90], [x + 150, y - 70], [x + 150, y], [x + 100, y]], palette.rustDark);
-}
-
-let trees: { front: GroupNode; side: GroupNode; back: GroupNode; droid: GroupNode; heroBack: GroupNode } | null = null;
+let trees: { droid: GroupNode; heroBack: GroupNode } | null = null;
 const rigs = () =>
   (trees ??= {
-    front: buildFront(),
-    side: buildSide({ farLimbs: true }),
-    back: buildBack({}),
     droid: buildFront({ enemy: true }),
     heroBack: buildBack({ rightForeBehind: true }),
   });
@@ -315,25 +289,6 @@ function placeBot(ctx: Ctx, root: GroupNode, x: number, y: number, k: number, ax
   const lineW = lineFor(ctx, 1);
   drawRig(ctx, root, { palette: pal, pose, hooks, lineW });
   ctx.restore();
-}
-
-function shotTurn(ctx: Ctx, t: number): void {
-  wasteland(ctx, t, 470, WASTE_A());
-  scaffold(ctx, 1080, 250, 300, 220);
-  rustTower(ctx, 1220, 470);
-  poly(ctx, [[60, 470], [110, 330], [130, 340], [100, 470]], palette.rustDark);
-  poly(ctx, [[130, 470], [200, 380], [214, 392], [170, 470]], palette.rust);
-  const turn = num("turn", t);
-  const c = Math.cos(turn * DEG);
-  const { front, side, back } = rigs();
-  const x = num("botX", t);
-  const y = num("botY", t);
-  const k = num("botK", t);
-  const pose = { arm: 10, fore: -20, armFar: -10, foreFar: -20, armL: 8, armR: -8, foreL: -6, foreR: 6 };
-  const pal = shade(ROBOT.palette, { brightness: config.light.dusk, saturate: 1 });
-  if (turn < 55) placeBot(ctx, front, x, y, k, AX, c, pose, {}, pal);
-  else if (turn < 125) placeBot(ctx, side, x, y, k, SIDE_AX, Math.sin(turn * DEG), pose, {}, pal);
-  else placeBot(ctx, back, x, y, k, AX, -c, pose, {}, pal);
 }
 
 function wreck(ctx: Ctx): void {
@@ -517,7 +472,7 @@ function shotFire(ctx: Ctx, t: number): void {
   }
 }
 
-const SHOTS: Record<string, (ctx: Ctx, t: number) => void> = { A: shotTurn, B: shotRun, C: shotHit, D: shotFire };
+const SHOTS: Record<string, (ctx: Ctx, t: number) => void> = { B: shotRun, C: shotHit, D: shotFire };
 
 function render(ctx: Ctx, w: number, h: number, t: number): void {
   ctx.save();

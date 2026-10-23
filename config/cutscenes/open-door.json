@@ -3,7 +3,7 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTDVER1.ANM; trigger: openDoor task",
   "title": "Card door opens",
   "camera": "CAM 10 ROOF",
-  "duration": 7.29,
+  "duration": 5,
   "sounds": [[0, "power", 13000]],
   "stage": { "width": 1600, "height": 900, "horizon": 470, "sun": [640, 470, 700] },
   "robot": { "scale": 1.6, "x": 820, "y": 58 },
@@ -13,13 +13,13 @@
     "door": "#070808", "doorEdge": "#1c2628", "doorTube": "#3a8ea0"
   },
   "tracks": {
-    "door": [[0, 0], [0.07, 0], [5.4, 1480], [5.79, 1600, "out"], [7.29, 1600]],
-    "camZ": [[0, 1], [7.29, 1.03, "inOut"]],
-    "breathe": [[0, 0], [1.8, 4, "inOut"], [3.6, 0, "inOut"], [5.4, 4, "inOut"], [7.29, 0, "inOut"]],
-    "head": [[0, 0], [5.8, 0], [6.4, -4, "inOut"], [7.29, -4]],
-    "armL": [[0, 14], [7.29, 14]],
-    "foreL": [[0, -10], [1.8, -14, "inOut"], [3.6, -10, "inOut"], [5.4, -14, "inOut"], [7.29, -10, "inOut"]],
-    "armR": [[0, -14], [7.29, -14]],
-    "foreR": [[0, 10], [1.8, 14, "inOut"], [3.6, 10, "inOut"], [5.4, 14, "inOut"], [7.29, 10, "inOut"]]
+    "door": [[0, 0], [0.048, 0], [3.704, 1480], [3.971, 1600, "out"], [5, 1600]],
+    "camZ": [[0, 1], [5, 1.03, "inOut"]],
+    "breathe": [[0, 0], [1.235, 4, "inOut"], [2.469, 0, "inOut"], [3.704, 4, "inOut"], [5, 0, "inOut"]],
+    "head": [[0, 0], [3.978, 0], [4.39, -4, "inOut"], [5, -4]],
+    "armL": [[0, 14], [5, 14]],
+    "foreL": [[0, -10], [1.235, -14, "inOut"], [2.469, -10, "inOut"], [3.704, -14, "inOut"], [5, -10, "inOut"]],
+    "armR": [[0, -14], [5, -14]],
+    "foreR": [[0, 10], [1.235, 14, "inOut"], [2.469, 10, "inOut"], [3.704, 14, "inOut"], [5, 10, "inOut"]]
   }
 }

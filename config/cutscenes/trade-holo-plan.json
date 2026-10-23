@@ -3,11 +3,11 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTEVRID.ANM, UKAZHOLO.ANM, DEJSOU1.ANM; trigger: tradeHoloPlan task",
   "title": "Holo plan shown at the bar",
   "camera": "CAM 07 BAR",
-  "duration": 11.99,
+  "duration": 8.73,
   "caption": 3.07,
-  "sounds": [[3.07, "servo", 11000], [4.366, "servo", 11000], [9.204, "heavyDoor", 9000], [10.51, "servo", 11000], [11.076, "step", 13000], [11.729, "servo", 11000]],
+  "sounds": [[3.07, "servo", 11000], [4.366, "servo", 11000], [5.944, "heavyDoor", 9000], [7.25, "servo", 11000], [7.816, "step", 13000], [8.469, "servo", 11000]],
   "items": {"robotBefore": null, "robotAfter": "shipPlan", "manBefore": "shipPlan", "manAfter": null},
-  "stage": {"width": 1600, "height": 900, "holoStart": 3.07, "doorStart": 9.16, "hatch": [170, 90, 1190, 600], "robotScale": 1, "itemScale": 14},
+  "stage": {"width": 1600, "height": 900, "holoStart": 3.07, "doorStart": 5.9, "hatch": [170, 90, 1190, 600], "robotScale": 1, "itemScale": 14},
   "palette": {
     "wall": "#5a5040", "wallLit": "#867a62", "wallDark": "#2e2820", "grit": "#100e0a", "hole": "#0c0806", "holeLight": "#3a2a18",
     "panel": "#3c5458", "panelLit": "#6f878b", "panelDark": "#25393d", "rivet": "#142427",
@@ -25,12 +25,12 @@
     "manScale": [[0.45, 1], [2.3, 1], [3.07, 1.18, "inOut"]],
     "manTurn": [[0.45, -0.5], [1.0, -0.35, "inOut"], [1.5, 0.25, "inOut"], [2.1, 0, "inOut"], [3.07, 0]],
     "glare": [[0.9, 1], [1.5, 1], [1.9, 0.25, "inOut"], [3.07, 0.2]],
-    "camY": [[3.07, 1010], [5.3, 990], [7.6, 830, "inOut"], [9.16, 815]],
-    "camZ": [[3.07, 3.0], [9.16, 2.8, "inOut"]],
-    "armL": [[3.07, 8.75], [5.1, 8.75], [5.9, 0, "inOut"], [9.16, 0]],
-    "foreL": [[3.07, -91.75], [5.1, -91.75], [5.9, 0, "inOut"], [9.16, 0]],
+    "camY": [[3.07, 1010], [5.3, 990], [5.9, 985]],
+    "camZ": [[3.07, 3.0], [5.9, 2.95, "inOut"]],
+    "armL": [[3.07, 8.75], [5.1, 8.75], [5.9, 0, "inOut"]],
+    "foreL": [[3.07, -91.75], [5.1, -91.75], [5.9, 0, "inOut"]],
     "holo": [[3.2, 0], [3.6, 1, "out"], [5.0, 1], [5.4, 0, "in"]],
-    "lamp": [[3.07, 0.6], [3.5, 1, "inOut"], [6.5, 1], [7.2, 0.5, "inOut"], [9.16, 0.4]]
+    "lamp": [[3.07, 0.6], [3.5, 1, "inOut"], [5.9, 1]]
   },
   "door": {
     "duration": 2.83,

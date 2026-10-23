@@ -2,7 +2,7 @@
 const { kit } = window.CUTSCENES;
 const { rect, poly, oval } = kit;
 const CFG = window.C28_CONFIG.cutscenes.rebelShot;
-const { buildFront, buildSide, buildBack, render: renderBot, locate, shade, AX, SIDE_AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
+const { buildFront, buildBack, render: renderBot, locate, shade, AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
 const SKIN = window.ENV.PALETTE;
 const W = CFG.stage.width, H = CFG.stage.height;
 const palette = { ...CFG.palette };
@@ -222,29 +222,10 @@ function wasteland(ctx, t, horizon, colors) {
   ctx.globalAlpha = 1;
 }
 
-const WASTE_A = () => [palette.skyTop, palette.skyMid, palette.skyLow, palette.cloudDark, palette.cloudLight, palette.dirtFar, palette.dirtNear, palette.dirtDark, palette.dirtLight];
 const WASTE_B = () => [palette.skyTop, palette.skyMid, palette.skyLow, palette.cloudDark, palette.cloudLight, palette.rustFar, palette.rustNear, palette.dirtDark, palette.rustLight];
 
-function scaffold(ctx, x, y, w, h) {
-  ctx.strokeStyle = palette.girder;
-  ctx.lineWidth = 7;
-  ctx.beginPath();
-  for (let i = 0; i <= 4; i++) { ctx.moveTo(x + w * i / 4, y); ctx.lineTo(x + w * i / 4, y + h); }
-  for (let i = 0; i <= 3; i++) { ctx.moveTo(x, y + h * i / 3); ctx.lineTo(x + w, y + h * i / 3); }
-  ctx.moveTo(x, y + h); ctx.lineTo(x + w / 2, y);
-  ctx.stroke();
-}
-
-function rustTower(ctx, x, y) {
-  poly(ctx, [[x, y], [x + 30, y - 160], [x + 80, y - 175], [x + 110, y - 90], [x + 150, y - 70], [x + 150, y]], palette.rust);
-  poly(ctx, [[x + 80, y - 175], [x + 110, y - 90], [x + 150, y - 70], [x + 150, y], [x + 100, y]], palette.rustDark);
-}
-
 const ROBOT_TREES = {};
-const rigs = () => ROBOT_TREES.front ? ROBOT_TREES : Object.assign(ROBOT_TREES, {
-  front: buildFront(),
-  side: buildSide({ farLimbs: true }),
-  back: buildBack({}),
+const rigs = () => ROBOT_TREES.droid ? ROBOT_TREES : Object.assign(ROBOT_TREES, {
   droid: buildFront({ enemy: true }),
   heroBack: buildBack({ rightForeBehind: true })
 });
@@ -255,23 +236,6 @@ function placeBot(ctx, root, x, y, k, ax, sx, pose, hooks, pal) {
   const lineW = kit.lineFor(ctx, 1);
   renderBot(ctx, root, { pal, pose, hooks, lineW });
   ctx.restore();
-}
-
-function shotTurn(ctx, t) {
-  wasteland(ctx, t, 470, WASTE_A());
-  scaffold(ctx, 1080, 250, 300, 220);
-  rustTower(ctx, 1220, 470);
-  poly(ctx, [[60, 470], [110, 330], [130, 340], [100, 470]], palette.rustDark);
-  poly(ctx, [[130, 470], [200, 380], [214, 392], [170, 470]], palette.rust);
-  const turn = at("turn", t);
-  const c = Math.cos(turn * DEG);
-  const { front, side, back } = rigs();
-  const x = at("botX", t), y = at("botY", t), k = at("botK", t);
-  const pose = { arm: 10, fore: -20, armFar: -10, foreFar: -20, armL: 8, armR: -8, foreL: -6, foreR: 6 };
-  const pal = shade(BOT_PALETTE, { brightness: CFG.light.dusk, saturate: 1 });
-  if (turn < 55) placeBot(ctx, front, x, y, k, AX, c, pose, {}, pal);
-  else if (turn < 125) placeBot(ctx, side, x, y, k, SIDE_AX, Math.sin(turn * DEG), pose, {}, pal);
-  else placeBot(ctx, back, x, y, k, AX, -c, pose, {}, pal);
 }
 
 function wreck(ctx) {
@@ -440,8 +404,7 @@ function render(ctx, w, h, t) {
   const z = at("camZ", t);
   kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
   const shot = at("shot", t);
-  if (shot === "A") shotTurn(ctx, t);
-  else if (shot === "B") shotRun(ctx, t);
+  if (shot === "B") shotRun(ctx, t);
   else if (shot === "C") shotHit(ctx, t);
   else shotFire(ctx, t);
   ctx.restore();
