@@ -380,13 +380,12 @@ export const fuelTank: EnvAsset = {
   id: "fuelTank",
   box: [0, -74, 106, 0],
   draw(ctx) {
-    box(ctx, 14, -26, 28, 26, "concrete", 1);
-    for (let gx = 0; gx < 4; gx++) for (let gy = 0; gy < 4; gy++) flat(ctx, 17 + gx * 6.25, -23 + gy * 5.75, 3.5, 3.5, "hole");
-    G.surface(ctx, 14, -26, 28, 26, 180, { rise: 0.45, drip: 2, dripLen: 12 });
-    cylV(ctx, 82, -26, 5, 26, "steel", 2);
-    box(ctx, 78, -27, 13, 3, "steel", 2);
-    G.drips(ctx, 82, -24, 5, 20, 181, 1);
-    G.dirt(ctx, 82, -26, 5, 26, 182, 0.4);
+    for (const [x, seed] of [[19, 180], [82, 181]] as const) {
+      cylV(ctx, x, -26, 5, 26, "steel", 2);
+      box(ctx, x - 4, -27, 13, 3, "steel", 2);
+      G.drips(ctx, x, -24, 5, 20, seed, 1);
+      G.dirt(ctx, x, -26, 5, 26, seed + 1, 0.4);
+    }
     dome(ctx, 12, Math.PI / 2, Math.PI * 1.5);
     dome(ctx, 94, -Math.PI / 2, Math.PI / 2);
     box(ctx, 12, -72, 82, 48, "chrome", 1);
