@@ -60,13 +60,15 @@ export function beam(): Float32Array {
 export function punch(): Float32Array {
   const noise = seeded(5);
   const hiss = biquad("high", 1500, 0.7);
+  const crack = biquad("band", 900, 0.8);
   const tone = osc("sine", sweep([[0.035, 250], [0.036, 100], [0.04, 100], [0.21, 40]]));
   const swing = envelope([[0, 0.2], [0.008, 0.5], [0.012, 0.9], [0.02, 0.6], [0.05, 0.65], [0.09, 0.8], [0.12, 1], [0.214, 1], [0.222, 0]]);
   const ring = osc("sine", () => 120);
   const tail = envelope([[0, 0], [0.214, 0], [0.225, 1.1], [0.338, 1], [0.352, 0]]);
   const grit = envelope([[0, 0.15], [0.01, 0], [0.205, 0], [0.215, 0.06], [0.25, 0]]);
+  const smack = envelope([[0, 0], [0.003, 8], [0.03, 5], [0.08, 2], [0.15, 0.8], [0.214, 0.5], [0.23, 0]]);
   const floor = grain(0.045, 0.35);
-  return render(0.363, (t) => clip(swing(t) * tone(t), 1.5) + tail(t) * (0.1 + 0.17 * ring(t)) + grit(t) * hiss(noise()) + floor(t));
+  return render(0.363, (t) => 0.5 * clip(swing(t) * tone(t), 6) + smack(t) * crack(noise()) + tail(t) * (0.1 + 0.17 * ring(t)) + grit(t) * hiss(noise()) + floor(t));
 }
 
 export function explosion(): Float32Array {

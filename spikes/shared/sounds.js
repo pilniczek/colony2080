@@ -16,27 +16,45 @@ var C28_SOUNDS = (function(exports) {
 	function buffer(seconds) {
 		return new Float32Array(Math.round(seconds * BASE_RATE));
 	}
+	function firstEndingAfter(times, t) {
+		let [lo, hi] = [1, times.length];
+		while (lo < hi) {
+			const mid = lo + hi >> 1;
+			if (times[mid] < t) lo = mid + 1;
+			else hi = mid;
+		}
+		return lo;
+	}
 	function envelope(points) {
+		const times = points.map(([at]) => at);
+		const values = points.map(([, v]) => v);
 		return (t) => {
-			for (let i = 1; i < points.length; i++) {
-				const [t0, v0] = points[i - 1];
-				const [t1, v1] = points[i];
-				if (t >= t0 && t <= t1) return t1 === t0 ? v1 : v0 + (v1 - v0) * (t - t0) / (t1 - t0);
-			}
-			return 0;
+			const i = firstEndingAfter(times, t);
+			if (i >= times.length) return 0;
+			const [t0, v0, t1, v1] = [
+				times[i - 1],
+				values[i - 1],
+				times[i],
+				values[i]
+			];
+			if (t < t0) return 0;
+			return t1 === t0 ? v1 : v0 + (v1 - v0) * (t - t0) / (t1 - t0);
 		};
 	}
 	function sweep(points) {
-		const [first] = points;
-		const last = points[points.length - 1];
+		const times = points.map(([at]) => at);
+		const values = points.map(([, v]) => v);
 		return (t) => {
-			if (t <= first[0]) return first[1];
-			for (let i = 1; i < points.length; i++) {
-				const [t0, v0] = points[i - 1];
-				const [t1, v1] = points[i];
-				if (t <= t1) return t1 === t0 ? v1 : v0 * (v1 / v0) ** ((t - t0) / (t1 - t0));
-			}
-			return last[1];
+			if (t <= times[0]) return values[0];
+			const i = firstEndingAfter(times, t);
+			if (i >= times.length) return values[values.length - 1];
+			const [t0, v0, t1, v1] = [
+				times[i - 1],
+				values[i - 1],
+				times[i],
+				values[i]
+			];
+			return t1 === t0 ? v1 : v0 * (v1 / v0) ** ((t - t0) / (t1 - t0));
 		};
 	}
 	function wave(shape, phase) {
@@ -128,6 +146,7 @@ var C28_SOUNDS = (function(exports) {
 			return power > 0 ? x / Math.sqrt(power) : 0;
 		});
 	}
+	const fadeOut = (end, seconds = .01) => (t) => Math.min(1, Math.max(0, (end - t) / seconds));
 	const steps = (width, levels) => (t) => levels[Math.floor(t / width)] ?? 0;
 	const driven = (carrier, drive, windowSeconds = .01) => steady(carrier.length / BASE_RATE, (_, i) => clip(carrier[i], drive), windowSeconds);
 	function sweptLow(cutoff) {
@@ -391,6 +410,7 @@ var C28_SOUNDS = (function(exports) {
 	function punch() {
 		const noise = seeded(5);
 		const hiss = biquad("high", 1500, .7);
+		const crack = biquad("band", 900, .8);
 		const tone = osc("sine", sweep([
 			[.035, 250],
 			[.036, 100],
@@ -423,8 +443,17 @@ var C28_SOUNDS = (function(exports) {
 			[.215, .06],
 			[.25, 0]
 		]);
+		const smack = envelope([
+			[0, 0],
+			[.003, 8],
+			[.03, 5],
+			[.08, 2],
+			[.15, .8],
+			[.214, .5],
+			[.23, 0]
+		]);
 		const floor = grain(.045, .35);
-		return render(.363, (t) => clip(swing(t) * tone(t), 1.5) + tail(t) * (.1 + .17 * ring(t)) + grit(t) * hiss(noise()) + floor(t));
+		return render(.363, (t) => .5 * clip(swing(t) * tone(t), 6) + smack(t) * crack(noise()) + tail(t) * (.1 + .17 * ring(t)) + grit(t) * hiss(noise()) + floor(t));
 	}
 	function explosion() {
 		const noise = seeded(17);
@@ -588,10 +617,11 @@ var C28_SOUNDS = (function(exports) {
 			.84,
 			.86,
 			.76,
-			.7,
-			.73
+			.75,
+			1.4
 		]);
-		return render(.3365, (t, i) => t < .3265 ? level(t) * carrier[i] : 0);
+		const fade = fadeOut(.3265);
+		return render(.3365, (t, i) => fade(t) * level(t) * carrier[i]);
 	}
 	function slam() {
 		const noise = seeded(47);
@@ -1795,7 +1825,8 @@ var C28_SOUNDS = (function(exports) {
 			.11,
 			.19
 		]);
-		return render(5.611, (t, i) => t < 5.6 ? level(t) * carrier[i] : 0);
+		const fade = fadeOut(5.6);
+		return render(5.611, (t, i) => fade(t) * level(t) * carrier[i]);
 	}
 	function blast() {
 		const noise = seeded(49);

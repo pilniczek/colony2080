@@ -384,7 +384,7 @@ Recipes in `src/game/sound/recipes/` against their original, both as sample stre
 | `cannon` | `P1_CANN` | 1.00 | 0.926 | 3.8 | 1.00 |
 | `laser` | `LASER2` | 1.00 | 0.967 | 3.7 | 1.03 |
 | `beam` | `LASER3` | 1.00 | 0.969 | 3.0 | 1.08 |
-| `punch` | `UDER` | 1.00 | 0.975 | 2.6 | 0.99 |
+| `punch` | `UDER` | 1.00 | 0.840 | 10.8 | 0.88 |
 | `explosion` | `VYBUCH6` | 1.00 | 0.944 | 2.8 | 1.03 |
 | `step` | `KROK3` | 1.00 | 0.964 | 3.5 | 1.06 |
 | `land` | `SIGNAL` | 1.00 | 0.987 | 3.7 | 0.95 |
