@@ -2455,7 +2455,7 @@ window.C28_CONFIG = {
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTDVER1.ANM; trigger: openDoor task",
    "title": "Card door opens",
    "camera": "CAM 10 ROOF",
-   "duration": 5,
+   "duration": 3.5,
    "sounds": [
     [
      0,
@@ -2500,20 +2500,20 @@ window.C28_CONFIG = {
       0
      ],
      [
-      0.048,
+      0.034,
       0
      ],
      [
-      3.704,
+      2.593,
       1480
      ],
      [
-      3.971,
+      2.78,
       1600,
       "out"
      ],
      [
-      5,
+      3.5,
       1600
      ]
     ],
@@ -2523,7 +2523,7 @@ window.C28_CONFIG = {
       1
      ],
      [
-      5,
+      3.5,
       1.03,
       "inOut"
      ]
@@ -2534,22 +2534,22 @@ window.C28_CONFIG = {
       0
      ],
      [
-      1.235,
+      0.865,
       4,
       "inOut"
      ],
      [
-      2.469,
+      1.728,
       0,
       "inOut"
      ],
      [
-      3.704,
+      2.593,
       4,
       "inOut"
      ],
      [
-      5,
+      3.5,
       0,
       "inOut"
      ]
@@ -2560,16 +2560,16 @@ window.C28_CONFIG = {
       0
      ],
      [
-      3.978,
+      2.785,
       0
      ],
      [
-      4.39,
+      3.073,
       -4,
       "inOut"
      ],
      [
-      5,
+      3.5,
       -4
      ]
     ],
@@ -2579,7 +2579,7 @@ window.C28_CONFIG = {
       14
      ],
      [
-      5,
+      3.5,
       14
      ]
     ],
@@ -2589,22 +2589,22 @@ window.C28_CONFIG = {
       -10
      ],
      [
-      1.235,
+      0.865,
       -14,
       "inOut"
      ],
      [
-      2.469,
+      1.728,
       -10,
       "inOut"
      ],
      [
-      3.704,
+      2.593,
       -14,
       "inOut"
      ],
      [
-      5,
+      3.5,
       -10,
       "inOut"
      ]
@@ -2615,7 +2615,7 @@ window.C28_CONFIG = {
       -14
      ],
      [
-      5,
+      3.5,
       -14
      ]
     ],
@@ -2625,22 +2625,22 @@ window.C28_CONFIG = {
       10
      ],
      [
-      1.235,
+      0.865,
       14,
       "inOut"
      ],
      [
-      2.469,
+      1.728,
       10,
       "inOut"
      ],
      [
-      3.704,
+      2.593,
       14,
       "inOut"
      ],
      [
-      5,
+      3.5,
       10,
       "inOut"
      ]
