@@ -35,10 +35,10 @@ describe("viewRect", () => {
 const INV_W = 50;
 
 describe("topBar", () => {
-  it("has 4 plates and 5 rod gaps at 320", () => {
+  it("has 5 plates and 6 rod gaps at 320", () => {
     const bar = topBar(320, INV_W);
-    expect(bar.plates).toHaveLength(4);
-    expect(bar.gaps).toHaveLength(5);
+    expect(bar.plates).toHaveLength(5);
+    expect(bar.gaps).toHaveLength(6);
     expect(bar.gridW).toBeCloseTo(WEAPON_W.reduce((a, b) => a + b, 0) + 4 * WEAPON_GAP, 9);
   });
 
@@ -49,8 +49,10 @@ describe("topBar", () => {
 
   it("frames every grid panel with the panel edge on its sides, like on top", () => {
     const bar = topBar(320, INV_W);
-    const [weapons, , toggles, inventory] = bar.plates;
+    const [menu, weapons, , toggles, inventory] = bar.plates;
     const side = PANEL_EDGE - 0.4;
+    expect(menu![0]).toBeCloseTo(bar.menuX - side, 9);
+    expect(menu![1]).toBeCloseTo(bar.menuX + bar.menuW + side, 9);
     expect(weapons![0]).toBeCloseTo(bar.gridX - side, 9);
     expect(weapons![1]).toBeCloseTo(bar.gridX + bar.gridW + side, 9);
     expect(toggles![0]).toBeCloseTo(bar.togglesX - side, 9);
@@ -59,20 +61,29 @@ describe("topBar", () => {
     expect(inventory![1]).toBeCloseTo(bar.inv + bar.invW + side, 9);
   });
 
-  it("holds the sound, run, hide, map and menu slots in that order in one toggles grid with equal gaps and ends", () => {
+  it("holds the sound, run, hide and map slots in that order in one toggles grid with equal gaps and ends", () => {
     for (const W of [320, 520]) {
-      const { togglesX, togglesW, sound, run, hide, map, menu } = topBar(W, INV_W);
-      const gaps = [sound - togglesX, run - (sound + SPEAKER_W), hide - (run + TOGGLE_W), map - (hide + HIDE_W), menu - (map + MAP_W), togglesX + togglesW - (menu + MENU_W)];
+      const { togglesX, togglesW, sound, run, hide, map } = topBar(W, INV_W);
+      const gaps = [sound - togglesX, run - (sound + SPEAKER_W), hide - (run + TOGGLE_W), map - (hide + HIDE_W), togglesX + togglesW - (map + MAP_W)];
       for (const g of gaps) expect(g).toBeCloseTo(gaps[0]!, 9);
       expect(gaps[0]).toBeGreaterThan(0);
+    }
+  });
+
+  it("centres the menu slot alone in its own grid left of the weapons grid, with half the toggle gap at both ends", () => {
+    for (const W of [320, 520]) {
+      const { menuX, menuW, menu, gridX } = topBar(W, INV_W);
+      expect(menu - menuX).toBeCloseTo(menuX + menuW - (menu + MENU_W), 9);
+      expect(menu - menuX).toBeCloseTo(WEAPON_GAP / 2, 9);
+      expect(menuX + menuW).toBeLessThan(gridX);
     }
   });
 
   it("keeps every plate apart and the badge window inside its plate at 320 and 520", () => {
     for (const W of [320, 520]) {
       const { plates, badge } = topBar(W, INV_W);
-      expect(badge).toBeGreaterThanOrEqual(plates[1]![0]);
-      expect(badge + BADGE_W).toBeLessThanOrEqual(plates[1]![1]);
+      expect(badge).toBeGreaterThanOrEqual(plates[2]![0]);
+      expect(badge + BADGE_W).toBeLessThanOrEqual(plates[2]![1]);
       plates.forEach(([a, b], i) => {
         expect(b).toBeGreaterThan(a);
         if (i > 0) expect(a).toBeGreaterThan(plates[i - 1]![1]);
@@ -80,20 +91,20 @@ describe("topBar", () => {
     }
   });
 
-  it("has 4 plates and no empty plate on a wide screen, the badge plate takes the leftover width", () => {
+  it("has 5 plates and no empty plate on a wide screen, the badge plate takes the leftover width", () => {
     const narrow = topBar(320, INV_W);
     const wide = topBar(467, INV_W);
-    expect(wide.plates).toHaveLength(4);
-    expect(wide.gaps).toHaveLength(5);
-    expect(wide.plates[0]).toEqual(narrow.plates[0]);
-    const width = (bar: ReturnType<typeof topBar>): number => bar.plates[1]![1] - bar.plates[1]![0];
+    expect(wide.plates).toHaveLength(5);
+    expect(wide.gaps).toHaveLength(6);
+    expect(wide.plates.slice(0, 2)).toEqual(narrow.plates.slice(0, 2));
+    const width = (bar: ReturnType<typeof topBar>): number => bar.plates[2]![1] - bar.plates[2]![0];
     expect(width(wide) - width(narrow)).toBeCloseTo(467 - 320, 9);
   });
 
   it("centres the badge window in its plate", () => {
     for (const W of [320, 467]) {
       const { badge, plates } = topBar(W, INV_W);
-      expect(badge + BADGE_W / 2).toBeCloseTo((plates[1]![0] + plates[1]![1]) / 2, 9);
+      expect(badge + BADGE_W / 2).toBeCloseTo((plates[2]![0] + plates[2]![1]) / 2, 9);
     }
   });
 

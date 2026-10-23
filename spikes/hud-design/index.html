@@ -232,7 +232,6 @@ const HAND_SCALE = ICON_H / 13.3, SPEAKER_SCALE = ICON_H * .7 / 8.2;
 const SPEAKER_INK = { left: 4.4, right: 4.65 }, SPEAKER_W = (SPEAKER_INK.left + SPEAKER_INK.right) * SPEAKER_SCALE;
 const MAP_W = 2 * 4.5 * SPEAKER_SCALE;
 const HIDE_W = 2 * 4.6 * SPEAKER_SCALE;
-const MENU_W = 2 * 3.25 * SPEAKER_SCALE;
 const ITEMS = window.C28_CONFIG.items;
 const itemIcon = ({ asset, state = 0, tilt, scale }) => {
   const w = HAND_BOX.w * scale, h = HAND_BOX.h * scale;
@@ -252,6 +251,7 @@ for (const [id, item] of Object.entries(ITEMS)) {
   $("held").add(new Option(item.name, id, false, ["crowbar", "holoPlan", "shipPlan", "card"].includes(id)));
 }
 const READOUT_SIZE = 5.6 * K, MONO_ADVANCE = .54, GRID_CELL = 3.2, SLOT = { pad: 2 * GRID_CELL, gap: 12 * K };
+const MENU_W = 4 * READOUT_SIZE * MONO_ADVANCE;
 const slotW = (iconW, label) => iconW + SLOT.gap + label.length * READOUT_SIZE * MONO_ADVANCE;
 const INV_W = 2 * SLOT.pad + Math.max(slotW(HAND_BOX.w, "nothing"), ...Object.entries(ITEMS).map(([id, i]) => slotW(ITEM_ICONS[id].w, i.name)));
 
@@ -290,7 +290,8 @@ function badgeArt(x, [a, b]) {
 
 function topBar(W, s) {
   const edge = 0, gap = 2, pad = PAD, invW = INV_W, inv = W - edge - pad - invW;
-  const togglesW = SPEAKER_W + TOGGLE_W + HIDE_W + MAP_W + MENU_W + 6 * TOGGLE_GAP, togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + SPEAKER_W + TOGGLE_GAP, hide = run + TOGGLE_W + TOGGLE_GAP, map = hide + HIDE_W + TOGGLE_GAP, menu = map + MAP_W + TOGGLE_GAP;
+  const togglesW = SPEAKER_W + TOGGLE_W + HIDE_W + MAP_W + 5 * TOGGLE_GAP, togglesX = inv - 2 * pad - gap - togglesW, sound = togglesX + TOGGLE_GAP, run = sound + SPEAKER_W + TOGGLE_GAP, hide = run + TOGGLE_W + TOGGLE_GAP, map = hide + HIDE_W + TOGGLE_GAP;
+  const menuX = edge + PAD, menuW = MENU_W + TOGGLE_GAP, menu = menuX + TOGGLE_GAP / 2, menuEnd = menuX + menuW + PAD;
   const held = s.item ? ITEM_ICONS[s.item] : null, label = held ? ITEMS[s.item].name : "nothing";
   const iconW = held ? held.w : HAND_BOX.w, textW = label.length * READOUT_SIZE * MONO_ADVANCE;
   const start = inv + (invW - iconW - SLOT.gap - textW) / 2, centre = start + iconW / 2;
@@ -298,36 +299,37 @@ function topBar(W, s) {
   const art = held ? `<image href="${held.url}" x="${centre - held.w / 2}" y="${MID - held.h / 2}" width="${held.w}" height="${held.h}"/>` : hand;
   const nameCentre = start + iconW + SLOT.gap + textW / 2;
   const item = art + readout(nameCentre, label);
-  const gridX = edge + PAD, gridW = WEAPON_W.reduce((x, y) => x + y, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
+  const gridX = menuEnd + gap + PAD, gridW = WEAPON_W.reduce((x, y) => x + y, 0) + (WEAPON_W.length + 1) * WEAPON_GAP;
   const weaponsEnd = gridX + gridW + PAD, togglesStart = togglesX - pad, badgeEnd = togglesStart - gap;
   const badge = (weaponsEnd + gap + badgeEnd) / 2 - 24 * K;
-  const gaps = [[0, edge], [weaponsEnd, weaponsEnd + gap], [badgeEnd, togglesStart], [togglesX + togglesW + pad, inv - pad], [W - edge, W]];
+  const gaps = [[0, edge], [menuEnd, menuEnd + gap], [weaponsEnd, weaponsEnd + gap], [badgeEnd, togglesStart], [togglesX + togglesW + pad, inv - pad], [W - edge, W]];
   const plates = gaps.slice(1).map(([a], i) => [gaps[i][1], a]);
   const wx = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((x, y) => x + y, 0));
   const tabs = [
+    { cx: menu + MENU_W / 2, label: "ESC", active: !!s.menuOpen },
     ...WEAPON_KEYS.slice(0, s.bonus ? 3 : 2).map((label, i) => ({ cx: wx[i] + (i === 2 ? 17 * K : WEAPON_W[i] / 2), label, active: s.weapon === i })),
     { cx: sound + SPEAKER_W / 2, label: "S", active: s.soundOn },
     { cx: run + TOGGLE_W / 2, label: "ALT", active: s.running },
     { cx: hide + HIDE_W / 2, label: "X", active: s.hidden },
     { cx: map + MAP_W / 2, label: "M", active: s.mapOpen },
-    { cx: menu + MENU_W / 2, label: "ESC", active: !!s.menuOpen },
     { cx: inv + invW / 2, label: "ENTER\u00a0\u00a0/\u00a0\u00a0I", active: false },
   ];
   const spans = tabs.map(tabSpan);
   return `<rect width="${W}" height="${BAR_H}" fill="url(#circuit)"/>
   ${gaps.filter(([a, b]) => b > a).map(([a, b]) => [3.4, 7.8, 12.2, 16.6].map((y) => rod(a, b, y * BAR_H / 20.4)).join("")).join("")}
   ${plates.map(([a, b]) => plate(a, b, spans)).join("")}
+  ${gridPanel(menuX, menuW, spans)}
+  ${menuIcon(menu + MENU_W / 2, !!s.menuOpen)}
   ${gridPanel(gridX, gridW, spans)}
   ${weapon(GUN(wx[0]), s.weapon === 0)}${counter(wx[0] + WEAPON_W[0], s.ammo)}
   ${weapon(FIST(wx[1]), s.weapon === 1)}
   ${s.bonus ? weapon(`<g transform="translate(${wx[2]} ${WEAPON_MID}) scale(${K}) translate(0 -9.5)">${window.EBLASTER.icon(0)}</g>`, s.weapon === 2) + counter(wx[2] + WEAPON_W[2], s.bonusAmmo) : ""}
-  ${badgeArt(badge, plates[1])}
+  ${badgeArt(badge, plates[2])}
   ${gridPanel(togglesX, togglesW, spans)}
   ${soundIcon(sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
   ${runIcon(run + TOGGLE_W / 2, s.running)}
   ${hideIcon(hide + HIDE_W / 2, s.hidden)}
   ${mapIcon(map + MAP_W / 2, s.mapOn, s.mapOpen)}
-  ${menuIcon(menu + MENU_W / 2, !!s.menuOpen)}
   ${gridPanel(inv, invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -370,7 +372,6 @@ const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0
   <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
 const foldedMap = () => `<path d="${MAP_SHEET}" fill="${READOUT}"/>
   <path d="${MAP_FOLDS}" stroke="${LO}" stroke-width=".6"/>`;
-const MENU_BARS = `<path d="M-2.8 -2.4H2.8M-2.8 0H2.8M-2.8 2.4H2.8" stroke="${READOUT}" stroke-width=".9" stroke-linecap="round"/>`;
 const EYE = `<path d="M-4 0Q0 -3.6 4 0Q0 3.6 -4 0Z" fill="none" stroke="${READOUT}" stroke-width="1.1" stroke-linejoin="round"/>
   <circle r="1.3" fill="${READOUT}"/>`;
 const EYE_SLASH = `<path d="M-3.3 3.3L3.3 -3.3" stroke="${LO}" stroke-width="2"/>
@@ -378,7 +379,7 @@ const EYE_SLASH = `<path d="M-3.3 3.3L3.3 -3.3" stroke="${LO}" stroke-width="2"/
 const hideIcon = (x, hidden) =>
   `<g filter="url(#${hidden ? "iconGlow" : "iconDim"})" data-icon="hide"><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${EYE}${hidden ? EYE_SLASH : ""}</g></g>`;
 const menuIcon = (x, open) =>
-  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="menu"><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
+  `<g${open ? ' filter="url(#iconGlow)"' : ""} data-icon="menu">${readout(x, "MENU")}</g>`;
 const mapIcon = (x, held, open) =>
   `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap() : QUESTION}</g></g>`;
 

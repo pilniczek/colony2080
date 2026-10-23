@@ -1,7 +1,7 @@
 import { itemName, tr, type Lang } from "../i18n";
 import { ITEMS, type ItemId } from "../items";
 import { blasterIcon, BLASTER_BODY_W, BLASTER_MID_Y } from "./blasterIcon";
-import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HIDE_W, HUD_H, inventoryW, MAP_W, MENU_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
+import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HIDE_W, HUD_H, inventoryW, MAP_W, MENU_LABEL, MENU_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
 
 export interface HudState {
   weapon: number;
@@ -105,7 +105,6 @@ const MAP_FOLDS = "M-1.5 -4.1V3.1M1.5 -3.1V4.1";
 
 const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0 .3V1.4" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
-const MENU_BARS = `<path d="M-2.8 -2.4H2.8M-2.8 0H2.8M-2.8 2.4H2.8" stroke="${READOUT}" stroke-width=".9" stroke-linecap="round"/>`;
 const EYE = `<path d="M-4 0Q0 -3.6 4 0Q0 3.6 -4 0Z" fill="none" stroke="${READOUT}" stroke-width="1.1" stroke-linejoin="round"/>
   <circle r="1.3" fill="${READOUT}"/>`;
 const EYE_SLASH = `<path d="M-3.3 3.3L3.3 -3.3" stroke="${LO}" stroke-width="2"/>
@@ -216,29 +215,30 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   const wx = bar.weapons;
   const item = slot(bar.inv, bar.invW, s.item, icons, s.lang ?? "en");
   const tabs: KeyTab[] = [
+    { cx: bar.menu + MENU_W / 2, label: keys.menu, active: s.menuOpen },
     ...wx.slice(0, s.bonus ? 3 : 2).map((x, i) => ({ cx: x + keyCentre(i), label: keys.weapons[i] ?? "", active: s.weapon === i })),
     { cx: bar.sound + SPEAKER_W / 2, label: keys.sound, active: s.soundOn },
     { cx: bar.run + TOGGLE_W / 2, label: keys.run, active: s.running },
     { cx: bar.hide + HIDE_W / 2, label: keys.hide, active: s.hidden },
     { cx: bar.map + MAP_W / 2, label: keys.map, active: s.mapOpen },
-    { cx: bar.menu + MENU_W / 2, label: keys.menu, active: s.menuOpen },
     { cx: bar.inv + bar.invW / 2, label: keys.item, active: false },
   ];
   const spans = tabs.map(tabSpan);
   return `<rect width="${W}" height="${BAR_H}" fill="url(#circuit)"/>
   ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}
   ${bar.plates.map((p) => plate(p, spans)).join("")}
+  ${gridPanel(bar.menuX, bar.menuW, spans)}
+  ${menuIcon(bar.menu + MENU_W / 2, s.menuOpen)}
   ${gridPanel(bar.gridX, bar.gridW, spans)}
   ${weapon(image(icons.gun, wx[0]!, WEAPON_MID - icons.gun.h / 2), s.weapon === 0)}${counter(wx[0]! + WEAPON_W[0]!, s.ammo, "ammo")}
   ${weapon(shrunk(icons.fist, FIST_SCALE, wx[1]!, WEAPON_MID - icons.fist.h / 2), s.weapon === 1)}
   ${s.bonus ? weapon(`<g transform="translate(${wx[2]!} ${WEAPON_MID}) scale(${CONTENT_SCALE}) translate(0 ${-BLASTER_MID_Y})">${blasterIcon(0)}</g>`, s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo, "bonusAmmo") : ""}
-  ${badge(bar.badge, bar.plates[1]!)}
+  ${badge(bar.badge, bar.plates[2]!)}
   ${gridPanel(bar.togglesX, bar.togglesW, spans)}
   ${soundIcon(bar.sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
   ${runIcon(s.running ? icons.run : icons.walk, bar.run + TOGGLE_W / 2, s.running)}
   ${hideIcon(bar.hide + HIDE_W / 2, s.hidden)}
   ${mapIcon(bar.map + MAP_W / 2, s.mapOn, s.mapOpen)}
-  ${menuIcon(bar.menu + MENU_W / 2, s.menuOpen)}
   ${gridPanel(bar.inv, bar.invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -275,7 +275,7 @@ const hideIcon = (x: number, hidden: boolean): string =>
   `<g filter="url(#${hidden ? "iconGlow" : "iconDim"})" data-icon="hide"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${EYE}${hidden ? EYE_SLASH : ""}</g></g>`;
 
 const menuIcon = (x: number, open: boolean): string =>
-  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="menu"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${MENU_BARS}</g></g>`;
+  `<g${open ? ' filter="url(#iconGlow)"' : ""} data-icon="menu">${readout(x, MENU_LABEL)}</g>`;
 
 const mapIcon = (x: number, held: boolean, open: boolean): string =>
   `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap : QUESTION}</g></g>`;

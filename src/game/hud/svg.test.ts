@@ -20,7 +20,7 @@ describe("hudSvg", () => {
 
   it("glows the active weapon and dims the others", () => {
     const svg = hudSvg(320, 200, base, icons);
-    expect(count(svg, 'filter="url(#iconDim)"')).toBe(4);
+    expect(count(svg, 'filter="url(#iconDim)"')).toBe(3);
     expect(svg).toContain('<g filter="url(#iconGlow)"><image href="gun.png"');
   });
 
@@ -28,7 +28,7 @@ describe("hudSvg", () => {
     expect(hudSvg(320, 200, base, icons)).not.toContain(">12</text>");
     const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 12, weapon: 2 }, icons);
     expect(svg).toContain(">12</text>");
-    expect(count(svg, 'filter="url(#iconDim)"')).toBe(5);
+    expect(count(svg, 'filter="url(#iconDim)"')).toBe(4);
   });
 
   it("shows a running figure instead of the RUN text, glowing in run mode and dimmed when walking", () => {
@@ -50,13 +50,15 @@ describe("hudSvg", () => {
     expect(Number(m[1]) + 2).toBeCloseTo(run + TOGGLE_W / 2, 9);
   });
 
-  it("draws one grid panel for the sound, run, hide, map and menu slots", () => {
+  it("draws one grid panel for the sound, run, hide and map slots and one for the menu slot left of the weapons", () => {
     const svg = hudSvg(320, 200, base, icons);
     const panels = [...svg.matchAll(/<path d="M([\d.]+) 0\.9H([\d.]+)[^"]*" fill="#0b0806"\/>/g)].map((m) => [Number(m[1]), Number(m[2])]);
-    expect(panels).toHaveLength(3);
-    const { sound, menu } = topBar(320, itemPlateW(icons));
-    const holding = panels.filter(([a, b]) => a! <= sound && menu + MENU_W <= b!);
-    expect(holding).toHaveLength(1);
+    expect(panels).toHaveLength(4);
+    const { sound, map, menu, weapons } = topBar(320, itemPlateW(icons));
+    expect(panels.filter(([a, b]) => a! <= sound && map + MAP_W <= b!)).toHaveLength(1);
+    const menuPanels = panels.filter(([a, b]) => a! <= menu && menu + MENU_W <= b!);
+    expect(menuPanels).toHaveLength(1);
+    expect(menuPanels[0]![1]!).toBeLessThan(weapons[0]!);
   });
 
   it("bends the panel and plate edges around each key label", () => {
@@ -81,12 +83,13 @@ describe("hudSvg", () => {
     }
   });
 
-  it("draws the menu bars centred on the menu slot, glowing with ESC lit only while the menu is open", () => {
+  it("draws the MENU label centred on the menu slot in the item name colour, glowing with ESC lit only while the menu is open", () => {
     const { menu } = topBar(320, itemPlateW(icons));
-    const icon = (svg: string): RegExpExecArray => /<g filter="url\(#(icon\w+)\)" data-icon="menu"><g transform="translate\(([\d.]+) /.exec(svg)!;
+    const icon = (svg: string): RegExpExecArray => /<g(?: filter="url\(#(icon\w+)\)")? data-icon="menu"><text x="([\d.]+)"[^>]*fill="([^"]+)">MENU<\/text>/.exec(svg)!;
     const tab = (svg: string): RegExpExecArray => /<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#ff4a26|#1a140f)"[^>]*>ESC<\/text>/.exec(svg)!;
     const shut = hudSvg(320, 200, base, icons);
-    expect(icon(shut)[1]).toBe("iconDim");
+    expect(icon(shut)[1]).toBeUndefined();
+    expect(icon(shut)[3]).toBe(/fill="([^"]+)">nothing<\/text>/.exec(shut)![1]);
     expect(Number(icon(shut)[2])).toBeCloseTo(menu + MENU_W / 2, 9);
     expect(Number(tab(shut)[1])).toBeCloseTo(menu + MENU_W / 2, 9);
     expect(tab(shut)[2]).toBe("#1a140f");
@@ -203,7 +206,7 @@ describe("hudSvg", () => {
       const svg = hudSvg(320, 200, base, icons);
       expect(svg).not.toContain('fill="#7ae0ff"');
       expect(slotKeyAny(svg)).toBe(false);
-      expect([...new Set(tabLetters(svg).map((t) => t.label))]).toEqual(["1", "2", "S", "ALT", "X", "M", "ESC", "ENTER"]);
+      expect([...new Set(tabLetters(svg).map((t) => t.label))]).toEqual(["ESC", "1", "2", "S", "ALT", "X", "M", "ENTER"]);
     });
   });
 
