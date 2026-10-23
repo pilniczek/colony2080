@@ -148,12 +148,21 @@ function atLadderTop(s: Step): boolean {
 const nearest = (h: Hero, props: Prop[]): Prop | undefined =>
   props.reduce<Prop | undefined>((best, p) => (best && Math.abs(best.x - h.x) <= Math.abs(p.x - h.x) ? best : p), undefined);
 
+function over(world: SandboxWorld, h: Hero, cfg: MovementConfig, p: Prop): boolean {
+  const y = p.y ?? world.spawn[1];
+  return USABLE.includes(p.kind) && onGround(p, h, world.flags) && Math.abs(p.x - h.x) <= (cfg.box.width + (p.width ?? 0)) / 2 && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
+}
+
 function usable(s: Step): Prop | undefined {
   const { h, world, cfg } = s;
-  return nearest(h, world.props.filter((p) => {
-    const y = p.y ?? world.spawn[1];
-    return USABLE.includes(p.kind) && onGround(p, h, world.flags) && Math.abs(p.x - h.x) <= (cfg.box.width + (p.width ?? 0)) / 2 && y > h.y - cfg.floorHeightCells && y <= h.y + EPS;
-  }));
+  return nearest(h, world.props.filter((p) => over(world, h, cfg, p)));
+}
+
+export function touchFilms(world: SandboxWorld, h: Hero, cfg: MovementConfig): void {
+  for (const p of world.props) {
+    const task = over(world, h, cfg, p) ? openTask(world, p) : undefined;
+    if (task?.touch) startFilm(world, task.cutscene, p);
+  }
 }
 
 function touchedItem(s: Step): Prop | undefined {

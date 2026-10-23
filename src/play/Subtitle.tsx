@@ -43,7 +43,8 @@ export function Subtitle() {
   const opacity = useSandbox((s) => s.subtitleOpacity);
   const complete = useSandbox((s) => s.complete);
   const filming = useSandbox((s) => s.cutscene);
-  if ((!text && !note) || complete || filming) return null;
+  const caption = useSandbox((s) => s.subtitleFilm);
+  if ((!text && !note) || complete || (filming && !caption)) return null;
   return (
     <Caption opacity={opacity}>
       {text && <div>{tr(text, lang)}</div>}

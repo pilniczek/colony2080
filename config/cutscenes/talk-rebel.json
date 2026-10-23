@@ -5,6 +5,7 @@
   "camera": "CAM 02 STREET",
   "views": [[0, "robot"]],
   "duration": 12.93,
+  "caption": 0.8,
   "sounds": [],
   "stage": {"width": 1600, "height": 900},
   "palette": {

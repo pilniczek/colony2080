@@ -13,6 +13,7 @@ export interface Task {
   state?: number;
   sets?: Record<string, number>;
   cutscene?: CutsceneId;
+  touch?: true;
   subtitle: string;
   hint?: string;
 }
@@ -21,6 +22,7 @@ export interface Subtitle {
   text: string;
   age: number;
   note?: string;
+  film?: true;
 }
 
 const ITEM = "item:";
@@ -70,6 +72,10 @@ function loadTask(json: unknown): Task {
   if (t.cutscene !== undefined) {
     if (typeof t.cutscene !== "string" || !isCutsceneId(t.cutscene)) throw new Error(`task ${id}: unknown cutscene: ${String(t.cutscene)}`);
     task.cutscene = t.cutscene as CutsceneId;
+  }
+  if (t.touch === true) {
+    if (!task.cutscene) throw new Error(`task ${id}: touch needs a cutscene`);
+    task.touch = true;
   }
   return task;
 }

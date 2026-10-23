@@ -5,7 +5,7 @@ import { FIXED_STEP } from "../../engine/loop";
 import { objectLevel } from "../hero/testWorld";
 import { loadSandbox, pickUp, type SandboxWorld } from "../level/sandboxLevel";
 import { filmOf, loadFilms } from "./index";
-import { playFilm, stepCutscene } from "./play";
+import { captionOf, playFilm, stepCutscene } from "./play";
 
 const filmed = (): SandboxWorld => {
   const world = loadSandbox(objectLevel);
@@ -36,6 +36,29 @@ describe("stepCutscene", () => {
     expect(stepCutscene(w, FIXED_STEP, true)).toBe(false);
     expect(w.cutscene).toBeNull();
     expect(door(w).state).toBe(2);
+  });
+});
+
+describe("film caption", () => {
+  const talking = (): SandboxWorld => {
+    const world = loadSandbox({ ...objectLevel, tasks: { tasks: [{ id: "talk", object: "switchboard", requires: [], gives: [], subtitle: "Find the bar man." }] } });
+    world.cutscene = { id: "talkRebel", prop: world.props.find((p) => p.id === "switchboard")!, t: 0 };
+    return world;
+  };
+
+  it("shows the task subtitle as a film caption from the film caption time", () => {
+    const w = talking();
+    const at = captionOf("talkRebel")!;
+    while (w.cutscene!.t + FIXED_STEP < at) stepCutscene(w, FIXED_STEP, false);
+    expect(w.subtitle).toBeNull();
+    stepCutscene(w, FIXED_STEP, false);
+    expect(w.subtitle).toMatchObject({ text: "Find the bar man.", film: true });
+  });
+
+  it("shows no caption for a film without one", () => {
+    const w = filmed();
+    for (let t = 0; t < 3; t += FIXED_STEP) stepCutscene(w, FIXED_STEP, false);
+    expect(w.subtitle).toBeNull();
   });
 });
 

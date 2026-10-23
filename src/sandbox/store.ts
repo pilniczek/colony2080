@@ -39,6 +39,7 @@ export interface SandboxState {
   slots: Slots;
   subtitle: string | null;
   subtitleNote: string | null;
+  subtitleFilm: boolean;
   subtitleOpacity: number;
   complete: boolean;
   weapon: Weapon;
@@ -137,6 +138,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   slots: [],
   subtitle: null,
   subtitleNote: null,
+  subtitleFilm: false,
   subtitleOpacity: 1,
   complete: false,
   weapon: "gun",

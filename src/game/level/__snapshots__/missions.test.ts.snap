@@ -2702,6 +2702,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "requires": [],
         "state": 1,
         "subtitle": "Find the bar man. He knows the way out.",
+        "touch": true,
       },
       {
         "cutscene": "pullWires",

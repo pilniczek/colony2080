@@ -6868,6 +6868,7 @@ window.C28_CONFIG = {
     ]
    ],
    "duration": 12.93,
+   "caption": 0.8,
    "sounds": [],
    "stage": {
     "width": 1600,

@@ -54,3 +54,29 @@ describe("cutscene trigger", () => {
     expect(g.buffer.has("menu")).toBe(false);
   });
 });
+
+const talk = { id: "talk", object: "switchboard", requires: [], gives: ["flag:talked"], cutscene: "talkRebel", touch: true, subtitle: "Find the bar man." };
+const touchLevel = { ...objectLevel, tasks: { tasks: [talk] } };
+const board = (g: Game) => g.world.props.find((p) => p.id === "switchboard")!;
+
+describe("touch trigger", () => {
+  it("starts the task film once the hero walks onto its object", () => {
+    const g = game(undefined, touchLevel);
+    runUntil(g, (h) => h.x > 3.9, ["moveRight"], 2);
+    expect(g.world.cutscene).toBeNull();
+    runUntil(g, () => g.world.cutscene !== null, ["moveRight"], 2);
+    expect(g.world.cutscene).toEqual({ id: "talkRebel", prop: board(g), t: 0 });
+    expect(g.hero).toMatchObject({ state: "idle", vx: 0 });
+  });
+
+  it("starts no film once the task is done", () => {
+    const g = game({ x: 6, y: 8 }, touchLevel);
+    g.world.flags.add("task:talk");
+    tick(g);
+    expect(g.world.cutscene).toBeNull();
+  });
+
+  it("rejects a touch task without a film", () => {
+    expect(() => game(undefined, { ...objectLevel, tasks: { tasks: [{ ...talk, cutscene: undefined }] } })).toThrow("touch");
+  });
+});
