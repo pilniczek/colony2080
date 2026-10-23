@@ -57,9 +57,9 @@ describe("menuSvg", () => {
   it("shows the manual with the lift panel under settings and the pause menu, in the chosen language", () => {
     for (const state of [{ screen: "settings", cursor: 2, autosave: true }, { screen: "pause", cursor: 0 }] as const) {
       const en = menuSvg(320, 200, state, slots, robot);
-      for (const entry of [">MANUAL<", ">WALK<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER CALLS A DISTANT LIFT<", 'href="data:panel"']) expect(en).toContain(entry);
+      for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER CALLS A DISTANT LIFT<", 'href="data:panel"']) expect(en).toContain(entry);
       const cs = menuSvg(320, 200, state, slots, robot, "City", "cs");
-      for (const entry of [">NÁVOD<", ">CHŮZE<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<"]) expect(cs).toContain(entry);
+      for (const entry of [">NÁVOD<", ">POHYB<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<"]) expect(cs).toContain(entry);
     }
   });
 

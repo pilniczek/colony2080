@@ -24,9 +24,12 @@ const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
 const ASK: Record<number, string> = { [PAUSE_ROWS.restart]: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
-const MANUAL_KEYS = [["← →", "WALK", true], ["↑", "JUMP, CLIMB UP", true], ["↓", "DUCK, CLIMB DOWN", true], ["CTRL", "SHOOT / PUNCH", false]] as const;
-const MANUAL = { gap: 14, text: 5.6, arrow: 10.08, key: 14, keyGap: 10, top: 18, pitch: 13, pad: 6 };
-const INK_EM = { caps: 0.7, arrowMid: 0.27 };
+const STEPS = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] } as const;
+type Step = keyof typeof STEPS;
+const MANUAL_KEYS: [string | Step[], string][] = [[["left", "right"], "MOVE"], [["up"], "JUMP, CLIMB UP"], [["down"], "DUCK, CLIMB DOWN"], ["CTRL", "SHOOT / PUNCH"]];
+const ARROW_KEY = { len: 5.4, head: 1.6, stroke: 0.7, spread: 4.5 };
+const MANUAL = { gap: 14, text: 5.6, key: 14, keyGap: 10, top: 18, pitch: 13, pad: 6 };
+const CAPS_EM = 0.7;
 
 export type MenuArt = Pick<InventoryArt, "robot" | "liftPanel">;
 
@@ -93,16 +96,28 @@ function rowsBox(title: string, rows: Row[], cursor: number): string {
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, title) + drawn;
 }
 
+function arrowKey(cx: number, cy: number, step: Step): string {
+  const [dx, dy] = STEPS[step];
+  const { len, head } = ARROW_KEY;
+  const tip = [cx + (dx * len) / 2, cy + (dy * len) / 2] as const;
+  const back = [tip[0] - dx * head, tip[1] - dy * head] as const;
+  const wing = (side: number): string => `${back[0] - dy * head * side},${back[1] + dx * head * side}`;
+  return `<path d="M${cx - (dx * len) / 2},${cy - (dy * len) / 2}L${tip[0]},${tip[1]}M${wing(1)}L${tip[0]},${tip[1]}L${wing(-1)}" fill="none" stroke="${INV.name}" stroke-width="${ARROW_KEY.stroke}" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+
+const arrowKeys = (cx: number, cy: number, steps: Step[]): string =>
+  steps.map((step, i) => arrowKey(cx + (i - (steps.length - 1) / 2) * 2 * ARROW_KEY.spread, cy, step)).join("");
+
 function manual(rows: Row[], panel: HudIcon, lang: Lang): string {
   const top = MENU_BOX.y + rowsHeight(rows) + MANUAL.gap;
   const x = MENU_BOX.x + 10;
   const keyMid = x + MANUAL.key / 2;
   const actionX = x + MANUAL.key + MANUAL.keyGap;
-  const capsMid = (MANUAL.text * INK_EM.caps) / 2;
+  const capsMid = (MANUAL.text * CAPS_EM) / 2;
   const midOf = (i: number): number => top + MANUAL.top + i * MANUAL.pitch;
   const action = (i: number, value: string): string => text(actionX, midOf(i) + capsMid, MANUAL.text, INV.label, tr(value, lang));
-  const keys = MANUAL_KEYS.map(([key, value, arrow], i) =>
-    text(keyMid, midOf(i) + (arrow ? MANUAL.arrow * INK_EM.arrowMid : capsMid), arrow ? MANUAL.arrow : MANUAL.text, INV.name, key, 'text-anchor="middle"') + action(i, value),
+  const keys = MANUAL_KEYS.map(([key, value], i) =>
+    (typeof key === "string" ? text(keyMid, midOf(i) + capsMid, MANUAL.text, INV.name, key, 'text-anchor="middle"') : arrowKeys(keyMid, midOf(i), key)) + action(i, value),
   ).join("");
   const last = MANUAL_KEYS.length;
   const call = image(panel, keyMid - panel.w / 2, midOf(last) - panel.h / 2) + action(last, "ENTER CALLS A DISTANT LIFT");

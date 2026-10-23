@@ -54,7 +54,7 @@ const CS: Record<string, string> = {
   SETTINGS: "NASTAVENÍ",
   START: "SPUSTIT",
   MANUAL: "NÁVOD",
-  WALK: "CHŮZE",
+  MOVE: "POHYB",
   "JUMP, CLIMB UP": "SKOK, LEZENÍ NAHORU",
   "DUCK, CLIMB DOWN": "PŘIKRČENÍ, LEZENÍ DOLŮ",
   "SHOOT / PUNCH": "STŘELBA / ÚDER",
