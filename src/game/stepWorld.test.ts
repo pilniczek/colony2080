@@ -11,7 +11,7 @@ import { createFog, loadFog } from "./fog";
 import { createHero, kill, type Hero } from "./hero/hero";
 import { loadSandbox, pickUp } from "./level/sandboxLevel";
 import { say } from "./level/tasks";
-import { stepWorld, SUBTITLE_MS } from "./stepWorld";
+import { stepWorld, SUBTITLE_FADE_MS, SUBTITLE_MS, subtitleOpacity } from "./stepWorld";
 
 const scenario = loadMovement(movementJson);
 const SCENARIO_SHOT = { speed: 8, radius: 0.15 };
@@ -112,14 +112,20 @@ describe("subtitles and level end", () => {
     for (let i = 0; i < n; i++) stepWorld(world, hero, input.frame(), cfg, clips, FIXED_STEP, (action) => input.consume(action));
   };
 
-  it("ages out the subtitle after 3.5 s", () => {
+  it("holds the subtitle 8 s, fades it out over 1.5 s, then drops it", () => {
     const world = loadSandbox(sandboxJson);
     const hero = createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
     say(world, "Hello");
-    steps(world, hero, Math.floor(SUBTITLE_MS / 1000 / FIXED_STEP) - 2);
+    const end = SUBTITLE_MS + SUBTITLE_FADE_MS;
+    steps(world, hero, Math.floor(end / 1000 / FIXED_STEP) - 2);
     expect(world.subtitle?.text).toBe("Hello");
     steps(world, hero, 4);
     expect(world.subtitle).toBeNull();
+    expect([SUBTITLE_MS, end]).toEqual([8000, 9500]);
+    expect(subtitleOpacity(0)).toBe(1);
+    expect(subtitleOpacity(SUBTITLE_MS)).toBe(1);
+    expect(subtitleOpacity(SUBTITLE_MS + SUBTITLE_FADE_MS / 2)).toBeCloseTo(0.5);
+    expect(subtitleOpacity(end)).toBe(0);
   });
 
   it("freezes the world once complete", () => {

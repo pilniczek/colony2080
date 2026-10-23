@@ -50,12 +50,13 @@ function backdrop(view: Rect, robot: HudIcon): string {
   ${area(view, "url(#menuGrid)")}`;
 }
 
-const tspan = (fill: string, value: string): string => `<tspan fill="${fill}">${escaped(value)}</tspan>`;
+const tspan = (fill: string, value: string, active = false): string =>
+  `<tspan fill="${fill}"${active ? ' text-decoration="underline"' : ""}>${escaped(value)}</tspan>`;
 
 function rowText(row: Row, x: number, y: number, on: boolean): string {
   const bright = on ? "#fff" : INV.name;
   if ("entry" in row) return text(x, y, 6.4, bright, row.entry);
-  const parts = row.options.map((option, i) => tspan(i === row.on ? bright : INV.frame, option)).join(tspan(INV.frame, " / "));
+  const parts = row.options.map((option, i) => tspan(i === row.on ? bright : INV.frame, option, i === row.on)).join(tspan(INV.frame, " / "));
   return `<text x="${x}" y="${y}" font-family="${MONO}" font-size="6.4" xml:space="preserve">${parts}</text>`;
 }
 

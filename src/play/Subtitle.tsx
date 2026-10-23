@@ -14,7 +14,7 @@ export const SUBTITLE_STYLE: CSSProperties = {
   lineHeight: 1.3,
 };
 
-export function Caption({ children }: { children: ReactNode }) {
+export function Caption({ children, opacity = 1 }: { children: ReactNode; opacity?: number }) {
   const fit = useSandbox((s) => s.hud);
   const r = viewRect(fit);
   return (
@@ -28,6 +28,7 @@ export function Caption({ children }: { children: ReactNode }) {
         fontSize: FONT_UNITS * fit.unit,
         padding: "0 16px",
         boxSizing: "border-box",
+        opacity,
       }}
     >
       {children}
@@ -39,11 +40,12 @@ export function Subtitle() {
   const text = useSandbox((s) => s.subtitle);
   const note = useSandbox((s) => s.subtitleNote);
   const lang = useSandbox((s) => s.lang);
+  const opacity = useSandbox((s) => s.subtitleOpacity);
   const complete = useSandbox((s) => s.complete);
   const filming = useSandbox((s) => s.cutscene);
   if ((!text && !note) || complete || filming) return null;
   return (
-    <Caption>
+    <Caption opacity={opacity}>
       {text && <div>{tr(text, lang)}</div>}
       {note && <div>{tr(note, lang)}</div>}
     </Caption>

@@ -56,11 +56,11 @@ describe("menuSvg", () => {
   it("shows settings with the active options lit, in the chosen language", () => {
     const svg = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: false }, slots, robot);
     for (const entry of ["SETTINGS", ">AUTOSAVE<", ">NO AUTOSAVE<", ">ENGLISH<", ">ČESKY<", ">START<"]) expect(svg).toContain(entry);
-    expect(svg).toContain('<tspan fill="#f2e7a0">NO AUTOSAVE</tspan>');
+    expect(svg).toContain('<tspan fill="#f2e7a0" text-decoration="underline">NO AUTOSAVE</tspan>');
     expect(svg).toContain('<tspan fill="#5aa9a0">AUTOSAVE</tspan>');
     const cs = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: true }, slots, robot, "City", "cs");
     for (const entry of ["NASTAVENÍ", ">AUTOUKLÁDÁNÍ<", ">RUČNĚ<", ">SPUSTIT<"]) expect(cs).toContain(entry);
-    expect(cs).toContain('<tspan fill="#f2e7a0">ČESKY</tspan>');
+    expect(cs).toContain('<tspan fill="#f2e7a0" text-decoration="underline">ČESKY</tspan>');
   });
 
   it("marks only the switch rows with a left and right triangle", () => {

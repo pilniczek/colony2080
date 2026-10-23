@@ -45,7 +45,7 @@ import { saveSoundOn } from "./sound/settings";
 import { openInventory } from "./sound/ui";
 import { stopOnPause, stopOnSkip, stopWhenHidden, warmOnUnlock } from "./sound/voices";
 import { holdPoses } from "./robot/gun";
-import { stepWorld } from "./stepWorld";
+import { stepWorld, subtitleOpacity } from "./stepWorld";
 
 const MAX_STEPS = 5;
 const ENEMY_MARGIN_CELLS = 2;
@@ -217,6 +217,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       items: sameItems(tuning().items, world.inventory.items) ? tuning().items : [...world.inventory.items],
       subtitle: world.subtitle?.text ?? null,
       subtitleNote: world.subtitle?.note ?? null,
+      subtitleOpacity: world.subtitle ? subtitleOpacity(world.subtitle.age) : 1,
       autosave: world.autosave,
       complete: world.complete,
       cutscene: world.cutscene !== null,

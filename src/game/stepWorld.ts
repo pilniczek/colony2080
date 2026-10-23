@@ -9,12 +9,15 @@ import { cue } from "./sound/cues";
 import { explode, siren, spark } from "./sound/triggers";
 import { ageSparks, fireBeam, fireEnemy, fireGuards, fireShots, landPunches } from "./shots";
 
-export const SUBTITLE_MS = 3500;
+export const SUBTITLE_MS = 8000;
+export const SUBTITLE_FADE_MS = 1500;
+
+export const subtitleOpacity = (age: number): number => Math.max(0, Math.min(1, 1 - (age - SUBTITLE_MS) / SUBTITLE_FADE_MS));
 
 function ageSubtitle(world: SandboxWorld, dt: number): void {
   if (!world.subtitle) return;
   world.subtitle.age += dt * 1000;
-  if (world.subtitle.age >= SUBTITLE_MS) world.subtitle = null;
+  if (world.subtitle.age >= SUBTITLE_MS + SUBTITLE_FADE_MS) world.subtitle = null;
 }
 
 function worldSounds(world: SandboxWorld, hero: Hero, events: HeroEvent[], dt: number): void {
