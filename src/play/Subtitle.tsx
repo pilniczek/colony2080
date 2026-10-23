@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { viewRect } from "../game/hud/layout";
+import { tr } from "../game/i18n";
 import { useSandbox } from "../sandbox/store";
 
 const BOTTOM_SHARE = 0.08;
@@ -37,13 +38,14 @@ export function Caption({ children }: { children: ReactNode }) {
 export function Subtitle() {
   const text = useSandbox((s) => s.subtitle);
   const note = useSandbox((s) => s.subtitleNote);
+  const lang = useSandbox((s) => s.lang);
   const complete = useSandbox((s) => s.complete);
   const filming = useSandbox((s) => s.cutscene);
   if ((!text && !note) || complete || filming) return null;
   return (
     <Caption>
-      {text && <div>{text}</div>}
-      {note && <div>{note}</div>}
+      {text && <div>{tr(text, lang)}</div>}
+      {note && <div>{tr(note, lang)}</div>}
     </Caption>
   );
 }

@@ -1,3 +1,4 @@
+import { itemName, tr, type Lang } from "../i18n";
 import { ITEMS, type ItemId } from "../items";
 import { blasterIcon, BLASTER_BODY_W, BLASTER_MID_Y } from "./blasterIcon";
 import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HIDE_W, HUD_H, inventoryW, MAP_W, MENU_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
@@ -16,6 +17,7 @@ export interface HudState {
   hidden: boolean;
   menuOpen: boolean;
   item: ItemId | null;
+  lang?: Lang;
 }
 
 export interface HudIcon {
@@ -188,9 +190,9 @@ const SLOT_MID_Y = CONTENT_MID;
 const handAt = (centre: number): string =>
   `<g transform="translate(${centre} ${SLOT_MID_Y}) scale(${HAND_SCALE}) translate(${-HAND_DRAWN.w / 2} ${-HAND_DRAWN.h / 2})">${HAND}</g>`;
 
-function slot(x: number, w: number, item: ItemId | null, icons: HudIcons): string {
+function slot(x: number, w: number, item: ItemId | null, icons: HudIcons, lang: Lang): string {
   const icon = item === null ? undefined : icons.items[item];
-  const label = item === null ? "nothing" : (ITEMS[item]?.name ?? item);
+  const label = item === null ? tr("nothing", lang) : itemName(item, lang);
   const iconW = icon ? icon.w : HAND_BOX.w;
   const textW = readoutW(label);
   const start = x + (w - slotW(iconW, label)) / 2;
@@ -206,13 +208,13 @@ interface KeyTab {
   active: boolean;
 }
 
-export const itemPlateW = (icons: HudIcons): number =>
-  inventoryW([slotW(HAND_BOX.w, "nothing"), ...Object.entries(ITEMS).map(([id, item]) => slotW(icons.items[id as ItemId]?.w ?? HAND_BOX.w, item.name))]);
+export const itemPlateW = (icons: HudIcons, lang: Lang = "en"): number =>
+  inventoryW([slotW(HAND_BOX.w, tr("nothing", lang)), ...Object.keys(ITEMS).map((id) => slotW(icons.items[id]?.w ?? HAND_BOX.w, itemName(id, lang)))]);
 
 function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
-  const bar = topBar(W, itemPlateW(icons));
+  const bar = topBar(W, itemPlateW(icons, s.lang));
   const wx = bar.weapons;
-  const item = slot(bar.inv, bar.invW, s.item, icons);
+  const item = slot(bar.inv, bar.invW, s.item, icons, s.lang ?? "en");
   const tabs: KeyTab[] = [
     ...wx.slice(0, s.bonus ? 3 : 2).map((x, i) => ({ cx: x + keyCentre(i), label: keys.weapons[i] ?? "", active: s.weapon === i })),
     { cx: bar.sound + SPEAKER_W / 2, label: keys.sound, active: s.soundOn },

@@ -1,3 +1,4 @@
+import { tr } from "../game/i18n";
 import { useSandbox } from "../sandbox/store";
 import { Caption } from "./Subtitle";
 
@@ -7,12 +8,13 @@ export function LevelEnd() {
   const complete = useSandbox((s) => s.complete);
   const text = useSandbox((s) => s.subtitle);
   const filming = useSandbox((s) => s.cutscene);
+  const lang = useSandbox((s) => s.lang);
   if (!complete || filming) return null;
   return (
     <Caption>
-      {text && <div>{text}</div>}
+      {text && <div>{tr(text, lang)}</div>}
       <a href="index.html" style={{ color: "inherit", fontSize: `${LINK_SCALE}em`, pointerEvents: "auto" }}>
-        Back to mission select
+        {tr("Back to mission select", lang)}
       </a>
     </Caption>
   );

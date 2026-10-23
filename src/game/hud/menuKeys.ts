@@ -1,16 +1,18 @@
 import type { Bindings } from "../../engine/input";
+import type { Lang } from "../i18n";
 import { AUTO_SLOT, type Slots } from "../save/slots";
 
 export const NAME_MAX = 16;
-const PAUSE_ROWS = 4;
 const GAME_OVER_ROWS = 3;
-const RESTART_ROW = 2;
-const DIFFICULTY_ROWS = 2;
+export const PAUSE_ROWS = { save: 0, load: 1, autosave: 2, lang: 3, restart: 4, home: 5 } as const;
+export const SETTINGS_ROWS = { autosave: 0, lang: 1, start: 2 } as const;
+const PAUSE_COUNT = Object.keys(PAUSE_ROWS).length;
+const SETTINGS_COUNT = Object.keys(SETTINGS_ROWS).length;
 
 type ListScreen = { screen: "save" | "load"; cursor: number; typing: string | null; confirm: boolean; message: string | null };
 
 export type MenuState =
-  | { screen: "difficulty"; cursor: number }
+  | { screen: "settings"; cursor: number; autosave: boolean }
   | { screen: "pause"; cursor: number; confirm?: boolean }
   | ListScreen
   | { screen: "gameOver"; cursor: number; canLoad: boolean; message?: string | null; at?: { x: number; y: number } | null };
@@ -23,7 +25,7 @@ export const gameOverState = (canLoad: boolean, message: string | null = null, a
   at,
 });
 
-export type MenuAction = "save" | "load" | "restart" | "end" | "home" | "difficulty";
+export type MenuAction = "save" | "load" | "restart" | "end" | "home" | "difficulty" | "autosave" | "lang";
 
 export interface MenuResult {
   state: MenuState | null;
@@ -31,7 +33,10 @@ export interface MenuResult {
   slot?: number;
   name?: string;
   autosave?: boolean;
+  lang?: Lang;
 }
+
+export const settingsState = (): MenuState => ({ screen: "settings", cursor: SETTINGS_ROWS.start, autosave: true });
 
 const listOf = (screen: "save" | "load"): ListScreen => ({ screen, cursor: 0, typing: null, confirm: false, message: null });
 
@@ -69,30 +74,39 @@ function gameOver(state: Extract<MenuState, { screen: "gameOver" }>, is: (action
   return { state, action: (["load", "restart", "end"] as const)[state.cursor] };
 }
 
-function difficulty(state: Extract<MenuState, { screen: "difficulty" }>, is: (action: string) => boolean): MenuResult {
-  if (is("up") || is("down")) return { state: { ...state, cursor: moved(state.cursor, DIFFICULTY_ROWS, is("up") ? -1 : 1) } };
+const sideways = (is: (action: string) => boolean): -1 | 1 | 0 => (is("moveLeft") ? -1 : is("moveRight") ? 1 : 0);
+
+function settings(state: Extract<MenuState, { screen: "settings" }>, is: (action: string) => boolean): MenuResult {
+  const side = sideways(is);
+  if (is("up") || is("down")) return { state: { ...state, cursor: moved(state.cursor, SETTINGS_COUNT, is("up") ? -1 : 1) } };
   if (is("menu")) return { state, action: "home" };
-  if (!is("useItem")) return { state };
-  return { state: null, action: "difficulty", autosave: state.cursor === 0 };
+  if (side && state.cursor === SETTINGS_ROWS.autosave) return { state: { ...state, autosave: side < 0 } };
+  if (side && state.cursor === SETTINGS_ROWS.lang) return { state, action: "lang", lang: side < 0 ? "en" : "cs" };
+  if (!is("useItem") || state.cursor !== SETTINGS_ROWS.start) return { state };
+  return { state: null, action: "difficulty", autosave: state.autosave };
 }
 
 function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: string) => boolean): MenuResult {
   if (state.confirm) {
-    if (is("useItem")) return { state, action: state.cursor === RESTART_ROW ? "restart" : "home" };
+    if (is("useItem")) return { state, action: state.cursor === PAUSE_ROWS.restart ? "restart" : "home" };
     if (is("menu")) return { state: { screen: "pause", cursor: state.cursor } };
     return { state };
   }
-  if (is("up") || is("down")) return { state: { ...state, cursor: moved(state.cursor, PAUSE_ROWS, is("up") ? -1 : 1) } };
+  const side = sideways(is);
+  if (is("up") || is("down")) return { state: { ...state, cursor: moved(state.cursor, PAUSE_COUNT, is("up") ? -1 : 1) } };
   if (is("menu")) return { state: null };
+  if (side && state.cursor === PAUSE_ROWS.autosave) return { state, action: "autosave", autosave: side < 0 };
+  if (side && state.cursor === PAUSE_ROWS.lang) return { state, action: "lang", lang: side < 0 ? "en" : "cs" };
   if (!is("useItem")) return { state };
-  if (state.cursor === 0) return { state: listOf("save") };
-  if (state.cursor === 1) return { state: listOf("load") };
-  return { state: { ...state, confirm: true } };
+  if (state.cursor === PAUSE_ROWS.save) return { state: listOf("save") };
+  if (state.cursor === PAUSE_ROWS.load) return { state: listOf("load") };
+  if (state.cursor === PAUSE_ROWS.restart || state.cursor === PAUSE_ROWS.home) return { state: { ...state, confirm: true } };
+  return { state };
 }
 
 export function menuKey(state: MenuState, key: { code: string; key: string }, slots: Slots, mission: string, keys: Bindings): MenuResult {
   const is = (action: string): boolean => keys[action]?.includes(key.code) ?? false;
-  if (state.screen === "difficulty") return difficulty(state, is);
+  if (state.screen === "settings") return settings(state, is);
   if (state.screen === "gameOver") return gameOver(state, is);
   if (state.screen === "pause") return pause(state, is);
   return list(state, key, slots, mission, is);

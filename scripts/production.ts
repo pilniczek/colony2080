@@ -19,11 +19,16 @@ export const stripDevOnly = (html: string): string => html.replace(DEV_ONLY, "")
 
 export const stripOriginals = (html: string): string => html.replace(ORIGINALS_BLOCK, "");
 
-export const scrubConfig = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(scrubConfig);
+const KEPT_IN: [RegExp, string][] = [[/\/config\/items\.json$/, "cs"]];
+
+export const scrubConfig = (value: unknown, kept: ReadonlySet<string> = new Set()): unknown => {
+  if (Array.isArray(value)) return value.map((v) => scrubConfig(v, kept));
   if (!value || typeof value !== "object") return value;
-  return Object.fromEntries(Object.entries(value).map(([key, v]) => [key, EMPTIED_KEYS.has(key) ? [] : BLANKED_KEYS.has(key) && typeof v === "string" ? "" : scrubConfig(v)]));
+  const blank = (key: string): boolean => BLANKED_KEYS.has(key) && !kept.has(key);
+  return Object.fromEntries(Object.entries(value).map(([key, v]) => [key, EMPTIED_KEYS.has(key) ? [] : blank(key) && typeof v === "string" ? "" : scrubConfig(v, kept)]));
 };
+
+export const scrubConfigFile = (id: string, value: unknown): unknown => scrubConfig(value, new Set(KEPT_IN.filter(([file]) => file.test(id)).map(([, key]) => key)));
 
 const productionConfig = (js: string): string => {
   const json: unknown = JSON.parse(js.slice(CONFIG_PREFIX.length).replace(/;\s*$/, ""));

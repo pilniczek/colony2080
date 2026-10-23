@@ -3,16 +3,17 @@ import type { Bindings, Input } from "../../engine/input";
 import { useSandbox } from "../../sandbox/store";
 import type { MovementConfig } from "../hero/config";
 import { isDead, type Hero } from "../hero/hero";
-import { gameOverState, menuKey, type MenuResult, type MenuState } from "../hud/menuKeys";
+import { saveLang } from "../i18n";
+import { gameOverState, menuKey, settingsState, type MenuResult, type MenuState } from "../hud/menuKeys";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
 import { AUTO_SLOT, readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
 import { checkSnapshot, loadSnapshot, takeSnapshot, type SaveProblem } from "./snapshot";
 
 const HOME = "index.html";
-const MENU_ACTIONS = ["up", "down", "useItem", "menu"];
+const MENU_ACTIONS = ["up", "down", "moveLeft", "moveRight", "useItem", "menu"];
 const REPEATING = ["up", "down"];
-const CLICKING = ["up", "down", "useItem"];
+const CLICKING = ["up", "down", "moveLeft", "moveRight", "useItem"];
 export const SAVED = "Saved.";
 export const SAVE_FAILED = "Save failed.";
 export const AUTOSAVED = "Game saved.";
@@ -98,7 +99,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   };
 
   const withMessage = (state: MenuState | null, message: string): MenuState | null => {
-    if (!state || state.screen === "pause" || state.screen === "difficulty") return state;
+    if (!state || state.screen === "pause" || state.screen === "settings") return state;
     if (state.screen === "gameOver") return gameOverState(loadableNow(), message, state.at ?? null);
     return { ...state, message };
   };
@@ -129,6 +130,16 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
       d.restart();
       track();
       return close();
+    }
+    if (r.action === "lang" && r.lang) {
+      useSandbox.setState({ lang: r.lang });
+      saveLang(r.lang, d.storage);
+      return show(r.state);
+    }
+    if (r.action === "autosave") {
+      d.world.autosave = r.autosave ?? false;
+      useSandbox.setState({ autosave: d.world.autosave });
+      return show(r.state);
     }
     if (r.action === "difficulty") {
       d.world.autosave = r.autosave ?? false;
@@ -162,7 +173,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   const opened = d.startSlot != null ? (refresh(), slots()[d.startSlot]) : null;
   if (opened?.mission === d.mission) load(opened, { screen: "load", cursor: d.startSlot!, typing: null, confirm: false, message: null });
   const asking = !!d.askDifficulty && opened?.mission !== d.mission;
-  if (asking) show({ screen: "difficulty", cursor: 0 });
+  if (asking) show(settingsState());
 
   return {
     asking,

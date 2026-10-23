@@ -49,13 +49,24 @@ describe("menuSvg", () => {
   });
 
   it("asks before leaving to mission select", () => {
-    expect(menuSvg(320, 200, { screen: "pause", cursor: 2, confirm: true }, slots, robot)).toContain("RESTART? UNSAVED PROGRESS IS LOST");
-    expect(menuSvg(320, 200, { screen: "pause", cursor: 3, confirm: true }, slots, robot)).toContain("LEAVE? UNSAVED PROGRESS IS LOST");
+    expect(menuSvg(320, 200, { screen: "pause", cursor: 4, confirm: true }, slots, robot)).toContain("RESTART? UNSAVED PROGRESS IS LOST");
+    expect(menuSvg(320, 200, { screen: "pause", cursor: 5, confirm: true }, slots, robot)).toContain("LEAVE? UNSAVED PROGRESS IS LOST");
   });
 
-  it("lists the difficulties", () => {
-    const svg = menuSvg(320, 200, { screen: "difficulty", cursor: 0 }, slots, robot);
-    for (const entry of ["DIFFICULTY", "WITH AUTOSAVE", "WITHOUT AUTOSAVE"]) expect(svg).toContain(entry);
+  it("shows settings with the active options lit, in the chosen language", () => {
+    const svg = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: false }, slots, robot);
+    for (const entry of ["SETTINGS", ">AUTOSAVE<", ">NO AUTOSAVE<", ">ENGLISH<", ">ČESKY<", ">START<"]) expect(svg).toContain(entry);
+    expect(svg).toContain('<tspan fill="#f2e7a0">NO AUTOSAVE</tspan>');
+    expect(svg).toContain('<tspan fill="#5aa9a0">AUTOSAVE</tspan>');
+    const cs = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: true }, slots, robot, "City", "cs");
+    for (const entry of ["NASTAVENÍ", ">AUTOUKLÁDÁNÍ<", ">RUČNĚ<", ">SPUSTIT<"]) expect(cs).toContain(entry);
+    expect(cs).toContain('<tspan fill="#f2e7a0">ČESKY</tspan>');
+  });
+
+  it("shows the autosave and language rows in the pause menu, in Czech too", () => {
+    const svg = menuSvg(320, 200, { screen: "pause", cursor: 0 }, slots, robot, "City", "cs", true);
+    for (const entry of ["ULOŽIT HRU", "NAHRÁT HRU", ">AUTOUKLÁDÁNÍ<", ">ČESKY<", "RESTARTOVAT MISI", "VÝBĚR MISE"]) expect(svg).toContain(entry);
+    expect(menuSvg(320, 200, { screen: "gameOver", cursor: 1, canLoad: false }, slots, robot, "City", "cs")).toContain(">KONEC HRY<");
   });
 
   it("shows the auto slot in the load list only", () => {

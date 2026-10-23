@@ -215,6 +215,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       items: sameItems(tuning().items, world.inventory.items) ? tuning().items : [...world.inventory.items],
       subtitle: world.subtitle?.text ?? null,
       subtitleNote: world.subtitle?.note ?? null,
+      autosave: world.autosave,
       complete: world.complete,
       cutscene: world.cutscene !== null,
       state: hero.state,
@@ -356,7 +357,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         askTiles(world, tuning().movement, devicePixelRatio || 1, cameraView(hero, tuning().movement), gameWindow);
         return;
       }
-      if (tuning().menu?.screen === "difficulty") {
+      if (tuning().menu?.screen === "settings") {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.fillStyle = "#000";
         ctx.fillRect(0, 0, canvas.width, canvas.height);

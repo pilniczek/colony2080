@@ -10,6 +10,7 @@ import type { ItemId } from "../game/items";
 import type { MenuState } from "../game/hud/menuKeys";
 import type { Slots } from "../game/save/slots";
 import { loadSoundOn } from "../game/sound/settings";
+import { storedLang, type Lang } from "../game/i18n";
 
 export type OverlayName = "hitbox" | "tiles" | "joints" | "info";
 export type ClipField = "duration" | "travel";
@@ -31,6 +32,8 @@ export interface SandboxState {
   cheatOpen: boolean;
   debugPanel: boolean;
   soundOn: boolean;
+  lang: Lang;
+  autosave: boolean;
   cutscene: boolean;
   menu: MenuState | null;
   slots: Slots;
@@ -126,6 +129,8 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   cheatOpen: false,
   debugPanel: false,
   soundOn: loadSoundOn(),
+  lang: storedLang(),
+  autosave: false,
   cutscene: false,
   menu: null,
   slots: [],

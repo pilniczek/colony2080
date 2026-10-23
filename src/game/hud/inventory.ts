@@ -1,5 +1,6 @@
+import { itemName, tr, type Lang } from "../i18n";
 import type { Rect } from "../geometry";
-import { ITEMS, type ItemId } from "../items";
+import type { ItemId } from "../items";
 import { blasterIcon } from "./blasterIcon";
 import { HUD_H, HUD_MIN_W } from "./layout";
 import { SHIELDS_MAX, type HudIcon } from "./svg";
@@ -11,6 +12,7 @@ export interface InventoryState {
   shields: number;
   ammo: number;
   blaster: number | null;
+  lang?: Lang;
 }
 
 export interface InventoryArt {
@@ -79,18 +81,18 @@ function room(W: number, H: number): string {
   <circle cx="${W - 34}" cy="${H * 0.24}" r="30" fill="url(#lamp)"/>`;
 }
 
-function list(s: InventoryState): string {
+function list(s: InventoryState, lang: Lang): string {
   const b = INVENTORY_BOXES.list;
   const rows = newestFirst(s.items).map((id, i) => {
     const y = b.y + 4 + i * ROW;
     const on = i === s.cursor;
     const pick = on ? `<rect x="${b.x + 2}" y="${y}" width="${b.w - 4}" height="${ROW}" fill="${INV.pick}"/>` : "";
-    return `<g data-row="${i}" data-on="${on}">${pick}${text(b.x + 4, y + ROW * 0.72, on ? "#fff" : INV.name, ITEMS[id]!.name.toUpperCase())}</g>`;
+    return `<g data-row="${i}" data-on="${on}">${pick}${text(b.x + 4, y + ROW * 0.72, on ? "#fff" : INV.name, itemName(id, lang).toUpperCase())}</g>`;
   });
-  return box(b) + rows.join("") + label(b.x + b.w / 2, b.y + b.h - 5, 7.6, "INVENTORY");
+  return box(b) + rows.join("") + label(b.x + b.w / 2, b.y + b.h - 5, 7.6, tr("INVENTORY", lang));
 }
 
-function stats(s: InventoryState, art: InventoryArt): string {
+function stats(s: InventoryState, art: InventoryArt, lang: Lang): string {
   const b = INVENTORY_BOXES.stats;
   const x = b.x + 4;
   const shields = Array.from({ length: SHIELDS_MAX }, (_, i) => {
@@ -102,7 +104,7 @@ function stats(s: InventoryState, art: InventoryArt): string {
   const diagram = { x: b.x + b.w - BODY_BOX.w - 4, y: b.y + 3, w: BODY_BOX.w + 1, h: b.h - 6 };
   return `${box(b)}<rect x="${diagram.x}" y="${diagram.y}" width="${diagram.w}" height="${diagram.h}" fill="url(#statGrid)" stroke="${INV.stat}" stroke-width=".4"/>
   ${centred(art.body, diagram)}
-  ${text(x, b.y + 9, INV.name, "ENERGY")}${text(x, b.y + 16, INV.name, `${s.energy}%`)}${text(x, b.y + 24, INV.name, "SHIELDS:")}
+  ${text(x, b.y + 9, INV.name, tr("ENERGY", lang))}${text(x, b.y + 16, INV.name, `${s.energy}%`)}${text(x, b.y + 24, INV.name, tr("SHIELDS:", lang))}
   ${shields}${pulse}${bars}`;
 }
 
@@ -120,12 +122,13 @@ function ammo(s: InventoryState, art: InventoryArt): string {
 
 export function inventorySvg(W: number, H: number, s: InventoryState, art: InventoryArt): string {
   const { title, item, robot } = INVENTORY_BOXES;
+  const lang = s.lang ?? "en";
   const shown = newestFirst(s.items)[s.cursor];
   const picture = shown === undefined ? "" : centred(art.items[shown]!, item);
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${INVENTORY_DEFS}${room(W, H)}
   <g transform="translate(${(W - HUD_MIN_W) / 2} ${(H - HUD_H) / 2})">
   ${image(art.robot, robot.x + (robot.w - art.robot.w) / 2, robot.y + robot.h - art.robot.h)}
-  ${picture}${list(s)}
-  ${box(title)}${label(title.x + title.w / 2, title.y + 8, 6.6, "C2080")}${label(title.x + title.w / 2, title.y + 15.4, 6.6, "STATISTICS")}
-  ${stats(s, art)}${ammo(s, art)}</g></svg>`;
+  ${picture}${list(s, lang)}
+  ${box(title)}${label(title.x + title.w / 2, title.y + 8, 6.6, "C2080")}${label(title.x + title.w / 2, title.y + 15.4, 6.6, tr("STATISTICS", lang))}
+  ${stats(s, art, lang)}${ammo(s, art)}</g></svg>`;
 }

@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
-import { assertNoOriginalGame, buildProductionSpikes, scrubConfig, stripDevOnly } from "./scripts/production";
+import { assertNoOriginalGame, buildProductionSpikes, scrubConfigFile, stripDevOnly } from "./scripts/production";
 
 const root = (path: string): string => fileURLToPath(new URL(path, import.meta.url));
 
@@ -9,7 +9,7 @@ const scrub = (): Plugin => ({
   name: "scrub-config",
   apply: "build",
   enforce: "pre",
-  transform: (code, id) => (/\/config\/.+\.json$/.test(id) ? JSON.stringify(scrubConfig(JSON.parse(code))) : null),
+  transform: (code, id) => (/\/config\/.+\.json$/.test(id) ? JSON.stringify(scrubConfigFile(id, JSON.parse(code))) : null),
 });
 
 const production = (): Plugin => ({

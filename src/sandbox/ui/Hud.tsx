@@ -3,6 +3,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 import { hudIcons } from "../../game/hud/icons";
 import { applyLive, hudSvg, keyLabel, type HudKeys, type HudState } from "../../game/hud/svg";
 import type { Weapon } from "../../game/hero/config";
+import type { Lang } from "../../game/i18n";
 import type { ItemId } from "../../game/items";
 import { useSandbox } from "../store";
 
@@ -33,9 +34,10 @@ export interface HudValues {
   hidden: boolean;
   menuOpen: boolean;
   item: ItemId | null;
+  lang?: Lang;
 }
 
-export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item }: HudValues): HudState => ({
+export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang }: HudValues): HudState => ({
   weapon: WEAPON_SLOTS[weapon],
   bonus: blaster !== null,
   bonusAmmo: blaster ?? 0,
@@ -49,6 +51,7 @@ export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running,
   menuOpen,
   ammo,
   item,
+  lang,
 });
 
 export function Hud() {
@@ -69,13 +72,14 @@ export function Hud() {
   const menuOpen = useSandbox((s) => s.menu !== null && s.menu.screen !== "gameOver");
   const item = useSandbox((s) => s.item);
   const filming = useSandbox((s) => s.cutscene);
-  const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item });
+  const lang = useSandbox((s) => s.lang);
+  const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang });
   const live = useRef(state);
   live.current = state;
   const armed = blaster !== null;
   const svg = useMemo(
     () => hudSvg(fit.W, fit.H, live.current, icons, KEYS),
-    [fit.W, fit.H, shields, armed, max, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, icons],
+    [fit.W, fit.H, shields, armed, max, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang, icons],
   );
   const html = useMemo(() => ({ __html: svg }), [svg]);
   useLayoutEffect(() => {

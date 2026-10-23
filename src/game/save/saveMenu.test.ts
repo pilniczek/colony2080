@@ -91,7 +91,7 @@ const die = (r: Rig): void => {
   r.hero.time = cfg.respawnMs / 1000;
 };
 
-beforeEach(() => useSandbox.setState({ menu: null, slots: [] }));
+beforeEach(() => useSandbox.setState({ menu: null, slots: [], lang: "en" }));
 
 describe("gameOverDue", () => {
   it("fires on the tick the respawn would happen, only while dead", () => {
@@ -184,7 +184,7 @@ describe("save menu", () => {
     r.press("Enter");
     r.press("Enter");
     expect(r.press("KeyX", "x").prevented).toBe(true);
-    expect(r.press("ArrowLeft").prevented).toBe(false);
+    expect(r.press("F5").prevented).toBe(false);
     expect(r.press("KeyC", "c", { ctrlKey: true }).prevented).toBe(false);
     expect(useSandbox.getState().menu).toMatchObject({ typing: "x" });
   });
@@ -214,8 +214,7 @@ describe("save menu", () => {
     const r = rig();
     r.input.keyDown("Escape");
     r.menu.step(DT);
-    r.press("ArrowDown");
-    r.press("ArrowDown");
+    for (let i = 0; i < 4; i++) r.press("ArrowDown");
     r.press("Enter");
     expect(r.restarts).toBe(0);
     r.press("Enter");
@@ -228,9 +227,7 @@ describe("save menu", () => {
     const r = rig();
     r.input.keyDown("Escape");
     r.menu.step(DT);
-    r.press("ArrowDown");
-    r.press("ArrowDown");
-    r.press("ArrowDown");
+    for (let i = 0; i < 5; i++) r.press("ArrowDown");
     r.press("Enter");
     expect(r.left).toEqual([]);
     r.press("Enter");
@@ -261,11 +258,16 @@ describe("save menu", () => {
   });
 });
 
-describe("difficulty", () => {
-  it("asks on a new game and starts the intro only once picked", () => {
+describe("settings", () => {
+  it("asks on a new game and starts the intro only from START", () => {
     const r = rig(memory(), null, true);
-    expect(useSandbox.getState().menu).toEqual({ screen: "difficulty", cursor: 0 });
+    expect(useSandbox.getState().menu).toEqual({ screen: "settings", cursor: 2, autosave: true });
+    r.press("ArrowUp");
+    r.press("ArrowUp");
+    r.press("ArrowRight");
+    r.press("Enter");
     expect(r.begins).toBe(0);
+    r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("Enter");
     expect(useSandbox.getState().menu).toBeNull();
@@ -274,6 +276,28 @@ describe("difficulty", () => {
     const auto = rig(memory(), null, true);
     auto.press("Enter");
     expect(auto.world.autosave).toBe(true);
+  });
+
+  it("switches and remembers the language", () => {
+    const r = rig(memory(), null, true);
+    r.press("ArrowUp");
+    r.press("ArrowRight");
+    expect(useSandbox.getState().lang).toBe("cs");
+    expect(r.storage.getItem("c2080.lang")).toBe("cs");
+    r.press("ArrowLeft");
+    expect(useSandbox.getState().lang).toBe("en");
+  });
+
+  it("switches autosave from the pause menu", () => {
+    const r = rig();
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    r.press("ArrowDown");
+    r.press("ArrowDown");
+    r.press("ArrowLeft");
+    expect(r.world.autosave).toBe(true);
+    r.press("ArrowRight");
+    expect(r.world.autosave).toBe(false);
   });
 
   it("goes back to mission select on Esc", () => {
@@ -285,7 +309,7 @@ describe("difficulty", () => {
 
   it("asks also when the opened slot is empty, never when it loads", () => {
     rig(memory(), 2, true);
-    expect(useSandbox.getState().menu).toEqual({ screen: "difficulty", cursor: 0 });
+    expect(useSandbox.getState().menu).toMatchObject({ screen: "settings" });
     const storage = memory();
     writeSlot(storage, 3, saveOf(rig(storage), 5));
     useSandbox.setState({ menu: null });
@@ -331,6 +355,10 @@ describe("autosave", () => {
 
   it("never saves without autosave, while dead, at the level end or after a tracked cheat", () => {
     const off = rig(memory(), null, true);
+    off.press("ArrowUp");
+    off.press("ArrowUp");
+    off.press("ArrowRight");
+    off.press("ArrowDown");
     off.press("ArrowDown");
     off.press("Enter");
     pickUp(off.world, "crowbar");

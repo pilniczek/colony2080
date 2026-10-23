@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { assertNoOriginalGame } from "./production";
+import { assertNoOriginalGame, scrubConfig, scrubConfigFile } from "./production";
 
 const distWith = (text: string): string => {
   const dir = mkdtempSync(join(tmpdir(), "c2080-dist-"));
@@ -33,5 +33,14 @@ describe("assertNoOriginalGame", () => {
 
   it("passes English sound ids", () => {
     expect(() => assertNoOriginalGame(distWith("gunShot cannon explosion liftStart siren inventory"))).not.toThrow();
+  });
+});
+
+describe("scrubConfig", () => {
+  it("blanks Czech names and sources, except the item names the game shows in Czech", () => {
+    const item = { crowbar: { name: "crowbar", cs: "Páčidlo", preview: "x" } };
+    expect(scrubConfig({ items: item })).toEqual({ items: { crowbar: { name: "crowbar", cs: "", preview: "" } } });
+    expect(scrubConfigFile("/repo/config/items.json", { items: item })).toEqual({ items: { crowbar: { name: "crowbar", cs: "Páčidlo", preview: "" } } });
+    expect(scrubConfigFile("/repo/config/levels/mesto/objects.json", { csName: "bar", cs: "bar" })).toEqual({ csName: "", cs: "" });
   });
 });
