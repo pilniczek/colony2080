@@ -6,7 +6,7 @@ import { isDead, type Hero } from "../hero/hero";
 import { gameOverState, menuKey, type MenuResult, type MenuState } from "../hud/menuKeys";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
-import { missionHref, readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
+import { readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
 import { checkSnapshot, loadSnapshot, takeSnapshot, type SaveProblem } from "./snapshot";
 
 const HOME = "index.html";
@@ -35,6 +35,7 @@ export interface SaveMenuDeps extends SaveMenuOptions {
   movement: () => MovementConfig;
   moved: () => void;
   leave: (href: string) => void;
+  restart: () => void;
   bodyAt: () => { x: number; y: number } | null;
   playUi: (cue: SoundCue) => void;
   target?: Pick<Window, "addEventListener">;
@@ -58,11 +59,9 @@ export const latestLoadable = (slots: Slots, mission: string, world: SandboxWorl
     null,
   );
 
-export const gameOverDue = (hero: Hero, dt: number, respawnMs: number, respawnAllowed: boolean): boolean =>
-  isDead(hero.state) && !respawnAllowed && (hero.time + dt) * 1000 >= respawnMs;
+export const gameOverDue = (hero: Hero, dt: number, respawnMs: number): boolean => isDead(hero.state) && (hero.time + dt) * 1000 >= respawnMs;
 
 export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
-  let respawnAllowed = false;
   const menu = (): MenuState | null => useSandbox.getState().menu;
   const slots = (): Slots => useSandbox.getState().slots;
   const show = (state: MenuState | null): void => useSandbox.setState({ menu: state });
@@ -102,10 +101,9 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     if (r.action === "save") return save(r);
     if (r.action === "load") return load(r.state?.screen === "gameOver" ? latestLoadable(slots(), d.mission, d.world) : slots()[r.slot!], r.state);
     if (r.action === "restart") {
-      respawnAllowed = true;
+      d.restart();
       return close();
     }
-    if (r.action === "restartMission") return d.leave(missionHref(d.mission));
     if (r.action === "end" || r.action === "home") return d.leave(HOME);
     if (r.state) show(r.state);
     else close();
@@ -139,8 +137,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     step(dt) {
       if (menu()) return true;
       const { hero } = d;
-      if (!isDead(hero.state)) respawnAllowed = false;
-      else if (gameOverDue(hero, dt, d.movement().respawnMs, respawnAllowed)) {
+      if (gameOverDue(hero, dt, d.movement().respawnMs)) {
         refresh();
         show(gameOverState(loadableNow(), null, d.bodyAt()));
         return true;

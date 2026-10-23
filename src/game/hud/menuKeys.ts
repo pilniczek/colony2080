@@ -21,7 +21,7 @@ export const gameOverState = (canLoad: boolean, message: string | null = null, a
   at,
 });
 
-export type MenuAction = "save" | "load" | "restart" | "restartMission" | "end" | "home";
+export type MenuAction = "save" | "load" | "restart" | "end" | "home";
 
 export interface MenuResult {
   state: MenuState | null;
@@ -68,7 +68,7 @@ function gameOver(state: Extract<MenuState, { screen: "gameOver" }>, is: (action
 
 function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: string) => boolean): MenuResult {
   if (state.confirm) {
-    if (is("useItem")) return { state, action: state.cursor === RESTART_ROW ? "restartMission" : "home" };
+    if (is("useItem")) return { state, action: state.cursor === RESTART_ROW ? "restart" : "home" };
     if (is("menu")) return { state: { screen: "pause", cursor: state.cursor } };
     return { state };
   }

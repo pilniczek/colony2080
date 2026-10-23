@@ -34,6 +34,7 @@ interface Rig {
   input: Input;
   storage: Storage;
   left: string[];
+  restarts: number;
   played: SoundCue[];
   press(code: string, key?: string, extra?: Partial<KeyboardEvent>): { prevented: boolean };
   menu: ReturnType<typeof createSaveMenu>;
@@ -46,6 +47,7 @@ function rig(storage: Storage = memory(), startSlot: number | null = null): Rig 
   let handler: (e: KeyboardEvent) => void = () => {};
   const left: string[] = [];
   const played: SoundCue[] = [];
+  const r = { restarts: 0 };
   const deps: SaveMenuDeps = {
     mission: "mesto",
     storage,
@@ -58,6 +60,10 @@ function rig(storage: Storage = memory(), startSlot: number | null = null): Rig 
     movement: () => cfg,
     moved: () => {},
     leave: (href) => void left.push(href),
+    restart: () => {
+      r.restarts++;
+      Object.assign(hero, createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo));
+    },
     bodyAt: () => ({ x: 40, y: 50 }),
     playUi: (cue) => void played.push(cue),
     target: { addEventListener: ((_: string, h: (e: KeyboardEvent) => void) => (handler = h)) as Window["addEventListener"] },
@@ -68,7 +74,7 @@ function rig(storage: Storage = memory(), startSlot: number | null = null): Rig 
     handler({ code, key, repeat: false, ctrlKey: false, metaKey: false, altKey: false, preventDefault: () => (prevented = true), stopImmediatePropagation: () => {}, ...extra } as KeyboardEvent);
     return { prevented };
   };
-  return { world, hero, input, storage, left, played, press, menu };
+  return Object.assign(r, { world, hero, input, storage, left, played, press, menu });
 }
 
 const saveOf = (r: Rig, savedAt: number, change: (h: Hero) => void = () => {}): SlotEntry => {
@@ -85,15 +91,14 @@ const die = (r: Rig): void => {
 beforeEach(() => useSandbox.setState({ menu: null, slots: [] }));
 
 describe("gameOverDue", () => {
-  it("fires on the tick the respawn would happen, only while dead and not released", () => {
+  it("fires on the tick the respawn would happen, only while dead", () => {
     const hero = createHero([1, 1], "gun", 1);
-    expect(gameOverDue(hero, DT, 2000, false)).toBe(false);
+    expect(gameOverDue(hero, DT, 2000)).toBe(false);
     kill(hero);
     hero.time = 1.9;
-    expect(gameOverDue(hero, DT, 2000, false)).toBe(false);
+    expect(gameOverDue(hero, DT, 2000)).toBe(false);
     hero.time = 1.99;
-    expect(gameOverDue(hero, DT, 2000, false)).toBe(true);
-    expect(gameOverDue(hero, DT, 2000, true)).toBe(false);
+    expect(gameOverDue(hero, DT, 2000)).toBe(true);
   });
 });
 
@@ -122,13 +127,14 @@ describe("save menu", () => {
     expect(useSandbox.getState().menu).toBeNull();
   });
 
-  it("offers restart and exit without a save, then lets the hero respawn", () => {
+  it("offers restart and exit without a save, then restarts the mission", () => {
     const r = rig();
     die(r);
     expect(r.menu.step(DT)).toBe(true);
     expect(useSandbox.getState().menu).toMatchObject({ screen: "gameOver", canLoad: false, cursor: 1, at: { x: 40, y: 50 } });
     r.press("Enter");
     expect(useSandbox.getState().menu).toBeNull();
+    expect(r.restarts).toBe(1);
     expect(r.menu.step(DT)).toBe(false);
   });
 
@@ -208,9 +214,11 @@ describe("save menu", () => {
     r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("Enter");
-    expect(r.left).toEqual([]);
+    expect(r.restarts).toBe(0);
     r.press("Enter");
-    expect(r.left).toEqual(["game.html?mission=mesto"]);
+    expect(r.restarts).toBe(1);
+    expect(useSandbox.getState().menu).toBeNull();
+    expect(r.left).toEqual([]);
   });
 
   it("asks before leaving for mission select", () => {

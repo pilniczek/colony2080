@@ -32,7 +32,7 @@ describe("menuKey", () => {
     const restart = step({ screen: "pause", cursor: 2 }, "Enter");
     expect(restart.action).toBeUndefined();
     expect(restart.state).toEqual({ screen: "pause", cursor: 2, confirm: true });
-    expect(step(restart.state!, "Enter").action).toBe("restartMission");
+    expect(step(restart.state!, "Enter").action).toBe("restart");
     expect(step(restart.state!, "Escape").state).toEqual({ screen: "pause", cursor: 2 });
   });
 
