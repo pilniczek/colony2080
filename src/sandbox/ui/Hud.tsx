@@ -19,6 +19,7 @@ const KEYS: HudKeys = {
 };
 
 const ALARM_PULSES = 5;
+const ALARM_PULSE_MS = 1000;
 
 const WEAPON_SLOTS: Record<Weapon, number> = { gun: 0, fists: 1, blaster: 2 };
 
@@ -75,7 +76,7 @@ export function Hud() {
   const item = useSandbox((s) => s.item);
   const filming = useSandbox((s) => s.cutscene);
   const lang = useSandbox((s) => s.lang);
-  const alarm = useSandbox((s) => s.alarm);
+  const alarmAt = useSandbox((s) => s.alarmAt);
   const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang });
   const live = useRef(state);
   live.current = state;
@@ -90,13 +91,13 @@ export function Hud() {
   }, [svg, energy, ammo, blaster]);
   useLayoutEffect(() => {
     const letter = root.current?.querySelector('[data-hud="alarm"]');
-    if (!alarm || !letter) return;
-    const elapsed = performance.now() - alarm.at;
-    if (elapsed >= alarm.ms) return;
-    const pulse = letter.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], { duration: alarm.ms / ALARM_PULSES, iterations: ALARM_PULSES });
+    if (alarmAt === null || !letter) return;
+    const elapsed = performance.now() - alarmAt;
+    if (elapsed >= ALARM_PULSES * ALARM_PULSE_MS) return;
+    const pulse = letter.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], { duration: ALARM_PULSE_MS, iterations: ALARM_PULSES });
     pulse.currentTime = elapsed;
     return () => pulse.cancel();
-  }, [svg, alarm]);
+  }, [svg, alarmAt]);
   return (
     <div
       ref={root}

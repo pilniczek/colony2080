@@ -141,7 +141,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const play = (sound: SoundCue): void => {
     soundLog = [...soundLog, sound].slice(-SOUND_LOG_SIZE);
     mixer.play(sound);
-    if (sound.id === "siren") useSandbox.setState({ alarm: { at: performance.now(), ms: (1000 * samplesOf(sound.id).length) / sound.rate } });
+    if (sound.id === "siren") useSandbox.setState({ alarmAt: performance.now() });
   };
 
   const drainSounds = (): void => {
