@@ -49,7 +49,7 @@ const CS: Record<string, string> = {
   "This save does not fit this version of the mission.": "Tato pozice neodpovídá této verzi mise.",
   "This save is damaged and cannot be loaded.": "Tato pozice je poškozená a nelze ji nahrát.",
   "Back to mission select": "Zpět na výběr mise",
-  nothing: "nic",
+  nothing: "holé ruce",
   MENU: "MENU",
   SETTINGS: "NASTAVENÍ",
   START: "SPUSTIT",
