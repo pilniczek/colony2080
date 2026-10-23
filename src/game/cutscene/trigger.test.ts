@@ -69,6 +69,15 @@ describe("touch trigger", () => {
     expect(g.hero).toMatchObject({ state: "idle", vx: 0 });
   });
 
+  it("starts the task film when the hero jumps over its object", () => {
+    const g = game(undefined, touchLevel);
+    runUntil(g, (h) => h.x > 3.8, ["moveRight"], 2);
+    tick(g, ["moveRight"], ["up"]);
+    runUntil(g, (h) => h.onGround || g.world.cutscene !== null, ["moveRight"], 2);
+    expect(g.hero.onGround).toBe(false);
+    expect(g.world.cutscene?.id).toBe("talkRebel");
+  });
+
   it("starts no film once the task is done", () => {
     const g = game({ x: 6, y: 8 }, touchLevel);
     g.world.flags.add("task:talk");

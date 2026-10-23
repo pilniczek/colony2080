@@ -53,8 +53,8 @@ export function stepWorld(
   const events = updateHero(hero, input, world, cfg, clips, dt, consume);
   stepConveyors(world, hero, cfg, dt);
   stepHazards(world, hero, cfg, dt, events);
-  if (!isDead(hero.state) && hero.onGround) {
-    approachFilms(world, hero);
+  if (!isDead(hero.state)) {
+    approachFilms(world, hero, cfg.box.height);
     touchFilms(world, hero, cfg);
   }
   fireShots(world, hero, events, clips, cfg);

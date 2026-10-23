@@ -59,16 +59,22 @@ describe("films without a task", () => {
 
   it("play once when the hero comes near on the same floor", () => {
     const w = loadSandbox(withProps(objectLevel, (p) => (p.id === "crane" ? { ...p, y: 8, approach: { cells: 3, cutscene: "rebelShot", gives: "flag:rebelShot" } } : p)));
-    approachFilms(w, { x: 13, y: 8 });
+    approachFilms(w, { x: 13, y: 8 }, 1.9);
     expect(w.cutscene).toBeNull();
-    approachFilms(w, { x: 14.5, y: 5 });
+    approachFilms(w, { x: 14.5, y: 6 }, 1.9);
     expect(w.cutscene).toBeNull();
-    approachFilms(w, { x: 14.5, y: 8 });
+    approachFilms(w, { x: 14.5, y: 8 }, 1.9);
     expect(w.cutscene?.id).toBe("rebelShot");
     expect(w.flags.has("flag:rebelShot")).toBe(true);
     w.cutscene = null;
-    approachFilms(w, { x: 15, y: 8 });
+    approachFilms(w, { x: 15, y: 8 }, 1.9);
     expect(w.cutscene).toBeNull();
+  });
+
+  it("play when the hero jumps over the approach spot", () => {
+    const w = loadSandbox(withProps(objectLevel, (p) => (p.id === "crane" ? { ...p, y: 8, approach: { cells: 3, cutscene: "rebelShot", gives: "flag:rebelShot" } } : p)));
+    approachFilms(w, { x: 14.5, y: 6.9 }, 1.9);
+    expect(w.cutscene?.id).toBe("rebelShot");
   });
 
   it("reject an unknown film id", () => {

@@ -278,10 +278,11 @@ export function startFilm(world: SandboxWorld, id: CutsceneId | undefined, prop:
 
 const FLOOR_EPS = 0.01;
 
-export function approachFilms(world: SandboxWorld, hero: Pick<Hero, "x" | "y">): void {
+export function approachFilms(world: SandboxWorld, hero: Pick<Hero, "x" | "y">, height: number): void {
   for (const prop of world.props) {
     const near = prop.approach;
-    if (!near || world.flags.has(near.gives) || Math.abs(hero.y - (prop.y ?? 0)) > FLOOR_EPS || Math.abs(hero.x - prop.x) > near.cells) continue;
+    const floor = prop.y ?? 0;
+    if (!near || world.flags.has(near.gives) || hero.y > floor + FLOOR_EPS || hero.y <= floor - height || Math.abs(hero.x - prop.x) > near.cells) continue;
     world.flags.add(near.gives);
     startFilm(world, near.cutscene);
   }
