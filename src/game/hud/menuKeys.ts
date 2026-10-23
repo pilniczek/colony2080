@@ -2,9 +2,9 @@ import type { Bindings } from "../../engine/input";
 import type { Slots } from "../save/slots";
 
 export const NAME_MAX = 16;
-const PAUSE_ROWS = 3;
+const PAUSE_ROWS = 4;
 const GAME_OVER_ROWS = 3;
-const LEAVE_ROW = 2;
+const RESTART_ROW = 2;
 
 type ListScreen = { screen: "save" | "load"; cursor: number; typing: string | null; confirm: boolean; message: string | null };
 
@@ -21,7 +21,7 @@ export const gameOverState = (canLoad: boolean, message: string | null = null, a
   at,
 });
 
-export type MenuAction = "save" | "load" | "restart" | "end" | "home";
+export type MenuAction = "save" | "load" | "restart" | "restartMission" | "end" | "home";
 
 export interface MenuResult {
   state: MenuState | null;
@@ -68,7 +68,7 @@ function gameOver(state: Extract<MenuState, { screen: "gameOver" }>, is: (action
 
 function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: string) => boolean): MenuResult {
   if (state.confirm) {
-    if (is("useItem")) return { state, action: "home" };
+    if (is("useItem")) return { state, action: state.cursor === RESTART_ROW ? "restartMission" : "home" };
     if (is("menu")) return { state: { screen: "pause", cursor: state.cursor } };
     return { state };
   }
@@ -77,7 +77,7 @@ function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: stri
   if (!is("useItem")) return { state };
   if (state.cursor === 0) return { state: listOf("save") };
   if (state.cursor === 1) return { state: listOf("load") };
-  return { state: { ...state, cursor: LEAVE_ROW, confirm: true } };
+  return { state: { ...state, confirm: true } };
 }
 
 export function menuKey(state: MenuState, key: { code: string; key: string }, slots: Slots, mission: string, keys: Bindings): MenuResult {

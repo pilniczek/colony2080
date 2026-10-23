@@ -6,8 +6,8 @@ import type { MenuState } from "./menuKeys";
 import type { HudIcon } from "./svg";
 
 const MENU = { back: "#0a1f14", grid: "#5a1a14", over: "#ffffff", overEdge: "#2438d0" };
-const ENTRIES = ["SAVE GAME", "LOAD GAME", "MISSION SELECT"];
-const MENU_BOX: Rect = { x: 22, y: 60, w: 128, h: 56 };
+const ENTRIES = ["SAVE GAME", "LOAD GAME", "RESTART MISSION", "MISSION SELECT"];
+const MENU_BOX: Rect = { x: 22, y: 60, w: 128, h: 68 };
 const SLOT_BOX: Rect = { x: 10, y: 8, w: 210, h: 184 };
 const CHOICE_BOX: Rect = { x: 106, y: 146, w: 108, h: 45 };
 const OVER = { size: 9, stroke: 1.2, fallback: { y: 100 } };
@@ -17,7 +17,7 @@ const CHOICE_ROW = 13;
 const PICTURE = { w: 40, h: 24 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
-const LEAVE = "LEAVE? UNSAVED PROGRESS IS LOST  ENTER / ESC";
+const ASK: Record<number, string> = { 2: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC", 3: "LEAVE? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
 
 const DEFS = `<defs><pattern id="menuGrid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M0 16V0H16" fill="none" stroke="${MENU.grid}" stroke-width=".6"/></pattern></defs>`;
 
@@ -49,7 +49,7 @@ function pause(s: Extract<MenuState, { screen: "pause" }>): string {
     const on = i === s.cursor;
     return (on ? pick(b.x + 2, y, b.w - 4, MENU_ROW - 1) : "") + text(b.x + 8, y + MENU_ROW * 0.66, 6.4, on ? "#fff" : INV.name, entry);
   }).join("");
-  const ask = s.confirm ? text(b.x + b.w / 2, b.y + b.h + 9, 5.2, INV.stat, LEAVE, 'text-anchor="middle"') : "";
+  const ask = s.confirm ? text(b.x + b.w / 2, b.y + b.h + 9, 5.2, INV.stat, ASK[s.cursor] ?? "", 'text-anchor="middle"') : "";
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, "MENU") + rows + ask;
 }
 

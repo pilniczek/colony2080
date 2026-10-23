@@ -25,6 +25,8 @@ export const savedStamp = (ms: number): string => {
   return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())} ${two(d.getHours())}:${two(d.getMinutes())}`;
 };
 
+export const missionHref = (mission: string): string => `game.html?mission=${mission}`;
+
 export const slotHref = (mission: string, i: number): string => `game.html?mission=${mission}&slot=${SLOT_IDS[i]}`;
 
 export const slotFromQuery = (search: string): number | null => {

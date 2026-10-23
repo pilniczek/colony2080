@@ -6,7 +6,7 @@ import { isDead, type Hero } from "../hero/hero";
 import { gameOverState, menuKey, type MenuResult, type MenuState } from "../hud/menuKeys";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
-import { readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
+import { missionHref, readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
 import { checkSnapshot, loadSnapshot, takeSnapshot, type SaveProblem } from "./snapshot";
 
 const HOME = "index.html";
@@ -105,6 +105,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
       respawnAllowed = true;
       return close();
     }
+    if (r.action === "restartMission") return d.leave(missionHref(d.mission));
     if (r.action === "end" || r.action === "home") return d.leave(HOME);
     if (r.state) show(r.state);
     else close();

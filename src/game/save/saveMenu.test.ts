@@ -201,10 +201,23 @@ describe("save menu", () => {
     expect(over.played).toEqual([MENU_CUE, MENU_CUE]);
   });
 
+  it("asks before restarting the mission", () => {
+    const r = rig();
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    r.press("ArrowDown");
+    r.press("ArrowDown");
+    r.press("Enter");
+    expect(r.left).toEqual([]);
+    r.press("Enter");
+    expect(r.left).toEqual(["game.html?mission=mesto"]);
+  });
+
   it("asks before leaving for mission select", () => {
     const r = rig();
     r.input.keyDown("Escape");
     r.menu.step(DT);
+    r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("Enter");

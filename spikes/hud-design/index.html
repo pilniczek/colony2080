@@ -644,15 +644,15 @@ function inventoryScreen(W, H, s) {
 }
 
 const MENU = { back: "#0a1f14", grid: "#5a1a14", over: "#ffffff", overEdge: "#2438d0" };
-const MENU_ENTRIES = ["SAVE GAME", "LOAD GAME", "MISSION SELECT"];
-const MENU_BOX = { x: 22, y: 60, w: 128, h: 56 };
+const MENU_ENTRIES = ["SAVE GAME", "LOAD GAME", "RESTART MISSION", "MISSION SELECT"];
+const MENU_BOX = { x: 22, y: 60, w: 128, h: 68 };
 const SLOT_BOX = { x: 10, y: 8, w: 210, h: 184 };
 const SLOT_ROW = 30;
 const PICTURE = { w: 40, h: 24 };
 const GAME_OVER_CHOICES = ["LOAD LAST SAVE", "RESTART MISSION", "EXIT"];
 const CHOICE_BOX = { x: 106, y: 146, w: 108, h: 45 };
 const OVER = { x: 160, y: 96, size: 9, stroke: 1.2 };
-const LEAVE = "LEAVE? UNSAVED PROGRESS IS LOST  ENTER / ESC";
+const ASK = { 2: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC", 3: "LEAVE? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
 const SAMPLE_SLOTS = [
   { name: "City - door open", time: "2026-10-20 21:14" },
   null,
@@ -686,7 +686,7 @@ function pauseMenu(m) {
     const y = b.y + 16 + i * row, on = i === m.cursor;
     return (on ? pickRow(b.x + 2, y, b.w - 4, row - 1) : "") + invText(b.x + 8, y + row * .66, 6.4, on ? "#fff" : INV.name, label);
   }).join("");
-  const ask = m.confirm ? invText(b.x + b.w / 2, b.y + b.h + 9, 5.2, INV.stat, LEAVE, 'text-anchor="middle"') : "";
+  const ask = m.confirm ? invText(b.x + b.w / 2, b.y + b.h + 9, 5.2, INV.stat, ASK[m.cursor] ?? "", 'text-anchor="middle"') : "";
   return invBox(b) + invLabel(b.x + b.w / 2, b.y + 10, 7.6, "MENU") + rows + ask;
 }
 
@@ -757,7 +757,7 @@ function draw() {
   s.cursor = Math.max(0, Math.min(s.cursor, s.held.length - 1));
   $("inventory").innerHTML = inventoryScreen(W, H, s);
   const screen = $("menu").value;
-  const limit = screen === "pause" || screen === "gameOver" ? 2 : 4;
+  const limit = screen === "gameOver" ? 2 : screen === "pause" ? 3 : 4;
   $("menuScreen").innerHTML = menuScreen(W, H, { screen, cursor: Math.max(0, Math.min(limit, +$("menuCursor").value)), typing: $("typing").checked, confirm: $("confirm").checked, canLoad: $("canLoad").checked }, s);
 }
 

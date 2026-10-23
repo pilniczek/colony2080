@@ -13,19 +13,27 @@ const step = (state: MenuState, code: string, key?: string) => menuKey(state, pr
 describe("menuKey", () => {
   it("moves the pause cursor and stops at the ends", () => {
     expect(step({ screen: "pause", cursor: 0 }, "ArrowUp").state).toEqual({ screen: "pause", cursor: 0 });
-    expect(step({ screen: "pause", cursor: 2 }, "ArrowDown").state).toEqual({ screen: "pause", cursor: 2 });
+    expect(step({ screen: "pause", cursor: 3 }, "ArrowDown").state).toEqual({ screen: "pause", cursor: 3 });
     expect(step({ screen: "pause", cursor: 0 }, "ArrowDown").state).toEqual({ screen: "pause", cursor: 1 });
   });
 
   it("opens the lists, goes home and closes on Esc", () => {
     expect(step({ screen: "pause", cursor: 0 }, "Enter").state).toEqual(list("save"));
     expect(step({ screen: "pause", cursor: 1 }, "Enter").state).toEqual(list("load"));
-    const leave = step({ screen: "pause", cursor: 2 }, "Enter");
+    const leave = step({ screen: "pause", cursor: 3 }, "Enter");
     expect(leave.action).toBeUndefined();
-    expect(leave.state).toEqual({ screen: "pause", cursor: 2, confirm: true });
+    expect(leave.state).toEqual({ screen: "pause", cursor: 3, confirm: true });
     expect(step(leave.state!, "Enter").action).toBe("home");
-    expect(step(leave.state!, "Escape").state).toEqual({ screen: "pause", cursor: 2 });
+    expect(step(leave.state!, "Escape").state).toEqual({ screen: "pause", cursor: 3 });
     expect(step({ screen: "pause", cursor: 0 }, "Escape").state).toBeNull();
+  });
+
+  it("asks before restarting the mission", () => {
+    const restart = step({ screen: "pause", cursor: 2 }, "Enter");
+    expect(restart.action).toBeUndefined();
+    expect(restart.state).toEqual({ screen: "pause", cursor: 2, confirm: true });
+    expect(step(restart.state!, "Enter").action).toBe("restartMission");
+    expect(step(restart.state!, "Escape").state).toEqual({ screen: "pause", cursor: 2 });
   });
 
   it("types a slot name and saves an empty slot at once", () => {

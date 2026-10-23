@@ -49,7 +49,8 @@ describe("menuSvg", () => {
   });
 
   it("asks before leaving to mission select", () => {
-    expect(menuSvg(320, 200, { screen: "pause", cursor: 2, confirm: true }, slots, robot)).toContain("UNSAVED PROGRESS IS LOST");
+    expect(menuSvg(320, 200, { screen: "pause", cursor: 2, confirm: true }, slots, robot)).toContain("RESTART? UNSAVED PROGRESS IS LOST");
+    expect(menuSvg(320, 200, { screen: "pause", cursor: 3, confirm: true }, slots, robot)).toContain("LEAVE? UNSAVED PROGRESS IS LOST");
   });
 
   it("escapes typed text", () => {
