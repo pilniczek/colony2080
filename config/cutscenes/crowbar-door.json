@@ -1,5 +1,6 @@
 {
   "status": "draft",
+  "mission": "mesto",
   "source": "docs/requirements.md",
   "note": "Agreed crowbar item-use clip. Track keys are absolute seconds on the original METROPAC.ANM timeline (0..clip.end); the clip plays clip.start..clip.end. Keyframe: [time, value, easing?], easing in linear|in|out|inOut; string-valued tracks switch values. robot.x is stage units; crowbar sizes and farGripOffset are robot model units.",
   "stage": { "width": 1600, "height": 900, "floorY": 740, "doorSeamX": 900, "doorHalfWidth": 95 },

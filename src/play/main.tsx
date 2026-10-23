@@ -36,7 +36,7 @@ const run: Run = startRun({
       <LevelEnd />
       <InventoryScreen />
       <MenuScreen mission={MISSION} />
-      <DebugPanel commands={commands} />
+      <DebugPanel commands={commands} mission={MISSION} />
     </>
   ),
 });

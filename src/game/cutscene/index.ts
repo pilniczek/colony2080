@@ -1,6 +1,11 @@
+import type { MissionId } from "../level/missionIds";
+import { FILM_CONFIGS } from "./configs";
+
 export const CUTSCENE_IDS = ["crowbarDoor", "missionStart", "rebelShot", "talkRebel", "pullWires", "wireSwitchboard", "takeTapHandle", "searchCorpse", "tradeHoloPlan", "tradeShipPart", "unlockPlasma", "repairLift", "openDoor", "acidGuardComes", "useAcidTank", "hullCover", "pickShipPart", "pickCraneKey", "pickCrowbar", "pickController", "pickEBlaster", "repairCrane"] as const;
 
 export type CutsceneId = (typeof CUTSCENE_IDS)[number];
+
+export const filmsOf = (mission: MissionId): CutsceneId[] => CUTSCENE_IDS.filter((id) => FILM_CONFIGS.get(id)?.mission === mission);
 
 export interface Cutscene {
   id: CutsceneId;

@@ -174,7 +174,7 @@ flowchart LR
 | `config/levels/mesto/objects.json` | Level 1 environment objects (52): name, interactive flag, map marker, task, sheet, states, description |
 | `config/robots/xbot.json` | Hero palette, frame axes, proportions, level lines, joint and hook names (part polygons stay in code) |
 | `config/cutscenes/crowbar-door.json` | Agreed crowbar clip: stage, clip window, robot placement and pry swing, palette, keyframe tracks |
-| `config/cutscenes/*.json` | One per mission 1 film: title, camera label, duration, palette, stage and keyframe tracks; `source` names the original clips and trigger |
+| `config/cutscenes/*.json` | One per film: mission, title, camera label, duration, palette, stage and keyframe tracks; `source` names the original clips and trigger |
 
 ## Known issues to handle later
 

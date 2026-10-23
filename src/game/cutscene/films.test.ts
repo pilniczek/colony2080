@@ -4,7 +4,8 @@ import { FIXED_STEP } from "../../engine/loop";
 import { game, objectLevel, run, tick } from "../hero/testWorld";
 import { approachFilms, loadSandbox, startFilm, type Prop } from "../level/sandboxLevel";
 import { hitShootable } from "../shots";
-import { loadFilms } from "./index";
+import { MISSIONS } from "../level/missionIds";
+import { CUTSCENE_IDS, filmsOf, loadFilms } from "./index";
 import { stepCutscene } from "./play";
 
 const withProps = (level: { props: unknown[] }, change: (p: Prop) => Prop): unknown => ({ ...level, props: (level.props as Prop[]).map(change) });
@@ -72,5 +73,16 @@ describe("films without a task", () => {
 
   it("reject an unknown film id", () => {
     expect(() => loadSandbox(withProps(objectLevel, (p) => (p.id === "crane" ? { ...p, cutscene: "nope" as never } : p)))).toThrow("unknown cutscene: nope");
+  });
+});
+
+describe("films by mission", () => {
+  it("files every film under one known mission", () => {
+    expect(MISSIONS.flatMap(filmsOf).sort()).toEqual([...CUTSCENE_IDS].sort());
+  });
+
+  it("files every film so far under mesto", () => {
+    expect(filmsOf("mesto")).toEqual([...CUTSCENE_IDS]);
+    expect(filmsOf("vesnice")).toEqual([]);
   });
 });

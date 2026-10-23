@@ -9,6 +9,7 @@ import { Films } from "./Films";
 import { Overlays } from "./Overlays";
 import { Recorder } from "./Recorder";
 import { TimeControls } from "./TimeControls";
+import type { MissionId } from "../../game/level/missionIds";
 import { Tuning } from "./Tuning";
 
 export interface SandboxCommands {
@@ -68,7 +69,7 @@ export function Section({ title, children }: { title: string; children: ReactNod
 
 const FILMING_OPACITY = 0.4;
 
-export function Panel({ commands }: { commands: SandboxCommands }) {
+export function Panel({ commands, mission }: { commands: SandboxCommands; mission?: MissionId }) {
   const [open, setOpen] = useState(true);
   const filming = useSandbox((s) => s.cutscene);
   if (!open)
@@ -87,7 +88,7 @@ export function Panel({ commands }: { commands: SandboxCommands }) {
         <Overlays />
         <Recorder commands={commands} />
         <Environment commands={commands} />
-        <Films commands={commands} />
+        <Films commands={commands} mission={mission} />
         <Cheats commands={commands} />
         <Tour commands={commands} />
         <Tuning />

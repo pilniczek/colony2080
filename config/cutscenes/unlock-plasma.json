@@ -1,5 +1,6 @@
 {
   "status": "draft",
+  "mission": "mesto",
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DEKOD1.ANM; trigger: unlockPlasma task",
   "title": "Code lock decoded",
   "camera": "CAM 08 PLASMA",

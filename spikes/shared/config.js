@@ -232,6 +232,7 @@ window.C28_CONFIG = {
  "cutscenes": {
   "acidGuardComes": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/C28/ZABIJ.ANM (docs/research/reports/10-level1-enemies.md, acid guard fires); trigger: first step off lift 104 onto floor 30 (user)",
    "title": "Acid guard comes",
    "camera": "CAM 14 GUARD",
@@ -446,6 +447,7 @@ window.C28_CONFIG = {
   },
   "crowbarDoor": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/requirements.md",
    "note": "Agreed crowbar item-use clip. Track keys are absolute seconds on the original METROPAC.ANM timeline (0..clip.end); the clip plays clip.start..clip.end. Keyframe: [time, value, easing?], easing in linear|in|out|inOut; string-valued tracks switch values. robot.x is stage units; crowbar sizes and farGripOffset are robot model units.",
    "stage": {
@@ -796,6 +798,7 @@ window.C28_CONFIG = {
   },
   "hullCover": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBSOUC.ANM; trigger: hull cover shot off",
    "title": "Hull cover shot off",
    "camera": "CAM 12 HANGAR",
@@ -1045,6 +1048,7 @@ window.C28_CONFIG = {
   },
   "missionStart": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/ODNAK.ANM, NAKLAD.ANM, RAKOD1.ANM, SESTREL.ANM, ROBBLIK.ANM, UPAD.ANM, RUCE.ANM, MONITOR.ANM, PRILET1.ANM, PRILET2.ANM; trigger: new game start",
    "title": "Mission start",
    "camera": "CAM 01 TRANSPORT",
@@ -2452,6 +2456,7 @@ window.C28_CONFIG = {
   },
   "openDoor": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTDVER1.ANM; trigger: openDoor task",
    "title": "Card door opens",
    "camera": "CAM 10 ROOF",
@@ -2649,6 +2654,7 @@ window.C28_CONFIG = {
   },
   "pickController": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBOVL.ANM; trigger: controller pickup",
    "title": "Lift controller picked up",
    "camera": "CAM 08 PLASMA",
@@ -2932,6 +2938,7 @@ window.C28_CONFIG = {
   },
   "pickCraneKey": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBKL1.ANM; trigger: craneKey pickup",
    "title": "Crane key picked up",
    "camera": "CAM 13 CRANE",
@@ -3215,6 +3222,7 @@ window.C28_CONFIG = {
   },
   "pickCrowbar": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPACID.ANM; trigger: crowbar pickup",
    "title": "Crowbar picked up",
    "camera": "CAM 04 STREET",
@@ -3503,6 +3511,7 @@ window.C28_CONFIG = {
   },
   "pickEBlaster": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/EBLAST.ANM; trigger: E-Blaster pickup",
    "title": "E-Blaster picked up",
    "camera": "CAM 03 METRO",
@@ -3721,6 +3730,7 @@ window.C28_CONFIG = {
   },
   "pickShipPart": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBSOU.ANM; trigger: shipPart pickup",
    "title": "Ship part picked up",
    "camera": "CAM 12 HANGAR",
@@ -4004,6 +4014,7 @@ window.C28_CONFIG = {
   },
   "pullWires": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/VYTDRAT.ANM; trigger: pullWires task",
    "title": "Wires torn out",
    "camera": "CAM 04 STREET",
@@ -4396,6 +4407,7 @@ window.C28_CONFIG = {
   },
   "rebelShot": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTOC.ANM, POSTREL.ANM, POSTREL2.ANM, POSTREL3.ANM; trigger: hero reaches the rebel",
    "title": "Rebel shot down",
    "camera": "CAM 02 STREET",
@@ -5207,6 +5219,7 @@ window.C28_CONFIG = {
   },
   "repairCrane": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/MESTOKO.ANM, SKALA3.ANM; trigger: repairCrane task, level end",
    "title": "Crane ride out of the city",
    "camera": "CAM 13 CRANE",
@@ -5837,6 +5850,7 @@ window.C28_CONFIG = {
   },
   "repairLift": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/VYTAHOP.ANM; trigger: repairLift task",
    "title": "Lift repaired",
    "camera": "CAM 09 ROOF",
@@ -6124,6 +6138,7 @@ window.C28_CONFIG = {
   },
   "searchCorpse": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPLAN.ANM; trigger: searchCorpse task",
    "title": "Corpse searched",
    "camera": "CAM 06 RUBBLE",
@@ -6451,6 +6466,7 @@ window.C28_CONFIG = {
   },
   "takeTapHandle": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTOCKOH.ANM, SEBKOH.ANM; trigger: takeTapHandle task",
    "title": "Water off, tap handle taken",
    "camera": "CAM 05 PUMP ROOM",
@@ -6771,6 +6787,7 @@ window.C28_CONFIG = {
   },
   "talkRebel": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/REBMRT.ANM; trigger: talkRebel task",
    "title": "Dying rebel speaks",
    "camera": "CAM 02 STREET",
@@ -6959,6 +6976,7 @@ window.C28_CONFIG = {
   },
   "tradeHoloPlan": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTEVRID.ANM, UKAZHOLO.ANM, DEJSOU1.ANM; trigger: tradeHoloPlan task",
    "title": "Holo plan shown at the bar",
    "camera": "CAM 07 BAR",
@@ -7414,6 +7432,7 @@ window.C28_CONFIG = {
   },
   "tradeShipPart": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DEJSOU1.ANM; trigger: tradeShipPart task",
    "title": "Ship part handed in",
    "camera": "CAM 07 BAR",
@@ -7432,6 +7451,7 @@ window.C28_CONFIG = {
   },
   "unlockPlasma": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DEKOD1.ANM; trigger: unlockPlasma task",
    "title": "Code lock decoded",
    "camera": "CAM 08 PLASMA",
@@ -7723,6 +7743,7 @@ window.C28_CONFIG = {
   },
   "useAcidTank": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/KYSELINA.ANM; trigger: useAcidTank task",
    "title": "Acid poured on the guard",
    "camera": "CAM 11 TANK",
@@ -8006,6 +8027,7 @@ window.C28_CONFIG = {
   },
   "wireSwitchboard": {
    "status": "draft",
+   "mission": "mesto",
    "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DRATVLOZ.ANM; trigger: wireSwitchboard task",
    "title": "Switchboard wired",
    "camera": "CAM 03 METRO",

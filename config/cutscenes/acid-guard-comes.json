@@ -1,5 +1,6 @@
 {
   "status": "draft",
+  "mission": "mesto",
   "source": "docs/research/gamedata/raw/C28/ZABIJ.ANM (docs/research/reports/10-level1-enemies.md, acid guard fires); trigger: first step off lift 104 onto floor 30 (user)",
   "title": "Acid guard comes",
   "camera": "CAM 14 GUARD",

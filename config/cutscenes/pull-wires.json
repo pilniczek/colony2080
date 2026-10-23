@@ -1,5 +1,6 @@
 {
   "status": "draft",
+  "mission": "mesto",
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/VYTDRAT.ANM; trigger: pullWires task",
   "title": "Wires torn out",
   "camera": "CAM 04 STREET",

@@ -1,5 +1,6 @@
 {
   "status": "draft",
+  "mission": "mesto",
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/OTDVER1.ANM; trigger: openDoor task",
   "title": "Card door opens",
   "camera": "CAM 10 ROOF",

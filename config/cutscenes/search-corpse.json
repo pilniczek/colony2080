@@ -1,5 +1,6 @@
 {
   "status": "draft",
+  "mission": "mesto",
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPLAN.ANM; trigger: searchCorpse task",
   "title": "Corpse searched",
   "camera": "CAM 06 RUBBLE",

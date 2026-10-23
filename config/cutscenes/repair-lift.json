@@ -1,5 +1,6 @@
 {
   "status": "draft",
+  "mission": "mesto",
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/VYTAHOP.ANM; trigger: repairLift task",
   "title": "Lift repaired",
   "camera": "CAM 09 ROOF",

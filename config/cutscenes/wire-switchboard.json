@@ -1,5 +1,6 @@
 {
   "status": "draft",
+  "mission": "mesto",
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/DRATVLOZ.ANM; trigger: wireSwitchboard task",
   "title": "Switchboard wired",
   "camera": "CAM 03 METRO",
