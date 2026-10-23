@@ -437,23 +437,19 @@ const stream = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: number
 
 export const waterPipe: EnvAsset = {
   id: "waterPipe",
-  box: [-24, -76, 30, 0],
+  box: [0, -72, 24, 0],
   anim: true,
   draw(ctx, state, t) {
-    flat(ctx, -24, -76, 54, 4, "m0", "mLine");
-    flat(ctx, 2, -76, 20, 6, "hole");
-    pipeH(ctx, -24, -70, 18, 8, "rust", 1);
-    poly(ctx, [[-10, -70], [-6, -69], [-7, -66], [-9, -63], [-11, -66]], "hole", 2, { line: false });
-    cylV(ctx, 4, -72, 16, 28, "rust", 1);
-    collarV(ctx, 4, -60, 16, "rust");
-    cylV(ctx, 2.5, -46, 19, 3, "rust", 2);
-    flat(ctx, 7, -43, 10, 1.5, "hole");
-    G.grain(ctx, rects(ctx, [[-24, -70, 18, 8], [2.5, -72, 19, 29]]), 130);
-    G.drips(ctx, 5, -72, 14, 24, 131, 2);
-    if (!P.simple()) {
-      flat(ctx, 8, -66, 3, 5, "r3");
-      flat(ctx, 14, -54, 2, 3, "r0");
-    }
+    const x = 3, W = CEILING_PIPE.w, top = CEILING_PIPE.foot, mouth = -46;
+    poly(ctx, [[x, top], [x + W, top], [x + W, mouth], [x, mouth]], PIPE, 1, { dir: [1, 0] });
+    flat(ctx, x + 4, top, 1, mouth - top, "c2");
+    G.grain(ctx, rects(ctx, [[x, top, W, mouth - top]]), 130);
+    G.drips(ctx, x + 1, top, W - 2, 18, 131, 2);
+    G.rustPatch(ctx, x + 6, -64, 3, 1.8, 132);
+    G.dirt(ctx, x, mouth - 8, W, 8, 133, 0.25);
+    if (!P.simple()) collarV(ctx, x, -60, W, PIPE);
+    cylV(ctx, x - 1.5, mouth, W + 3, 3, PIPE, 2);
+    flat(ctx, 7, mouth + 3, 10, 1.5, "hole");
     if (state === 0) {
       stream(ctx, 7.5, -42, 0, 9, t, "g3", "y3", 0.5);
       return;
