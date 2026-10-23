@@ -32,6 +32,7 @@ export interface SandboxState {
   cheatOpen: boolean;
   debugPanel: boolean;
   soundOn: boolean;
+  alarm: { at: number; ms: number } | null;
   lang: Lang;
   autosave: boolean;
   cutscene: boolean;
@@ -131,6 +132,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   cheatOpen: false,
   debugPanel: false,
   soundOn: loadSoundOn(),
+  alarm: null,
   lang: storedLang(),
   autosave: false,
   cutscene: false,

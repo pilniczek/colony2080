@@ -282,13 +282,14 @@ const readout = (x: number, label: string): string =>
 
 const KEY = { y: 181.5, size: 9, font: 6.2 };
 
-function keyBox(x: number, letter: string): string {
+function keyBox(x: number, letter: string, live?: string): string {
   const { y, size, font } = KEY, base = y + size / 2 + font * 0.36;
   return `<rect x="${x - 0.5}" y="${y - 0.5}" width="${size + 1}" height="${size + 1}" rx="1.3" fill="#0b0806"/>
   <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="1" fill="url(#plate)"/>
   ${bevel(x, y, size, size, 1, true, 0.4)}
   <text x="${x + size / 2 + 0.25}" y="${base + 0.25}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="${HI}" opacity=".55">${letter}</text>
-  <text x="${x + size / 2}" y="${base}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="#1a140f">${letter}</text>`;
+  <text x="${x + size / 2}" y="${base}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="#1a140f">${letter}</text>${live ? `
+  <text x="${x + size / 2}" y="${base}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${font}" fill="#ff3018" filter="url(#glow)" opacity="0" data-hud="${live}">${letter}</text>` : ""}`;
 }
 
 function tube(x: number, y: number, w: number, h: number, fillH: number, inner: number, paint: string, live?: string): string {
@@ -316,7 +317,7 @@ function leftColumn(s: HudState): string {
   <path d="M8.7 97.6h1.4M8.7 117.6h1.4M8.7 137.6h1.4M8.7 157.6h1.4" stroke="${HI}" stroke-opacity=".5" stroke-width=".3"/>
   <g transform="translate(0 ${y})" data-hud="lifeArrow"><path d="M0 -2.5l3.4 2.5L0 2.5z" fill="#ff3018" filter="url(#glow)"/>
   <path d="M0 -1.9l2 1.4" stroke="#ffd0b0" stroke-width=".3"/></g>
-  ${keyBox(1, "E")}`;
+  ${keyBox(1, "E", "alarm")}`;
 }
 
 const LAMP = { x: 3, y: 132.6, w: 5, h: 8.6, pitch: 9.6 };

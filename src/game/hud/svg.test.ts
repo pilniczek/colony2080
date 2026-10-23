@@ -345,7 +345,7 @@ describe("applyLive", () => {
     const next = { ...armed, ammo: 7, bonusAmmo: 12, life: 23.5 };
     const root = fakeRoot(liveParts(hudSvg(320, 200, armed, icons)));
     applyLive(root, next);
-    expect(Object.keys(root.parts).sort()).toEqual(["ammo", "bonusAmmo", "lifeArrow", "lifeFill"]);
+    expect(Object.keys(root.parts).sort()).toEqual(["alarm", "ammo", "bonusAmmo", "lifeArrow", "lifeFill"]);
     expect(root.parts).toEqual(liveParts(hudSvg(320, 200, next, icons)));
   });
 });

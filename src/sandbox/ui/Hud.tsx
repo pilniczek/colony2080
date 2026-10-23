@@ -18,6 +18,8 @@ const KEYS: HudKeys = {
   item: `${keyLabel(keyboard.useItem[0] ?? "")}\u00a0\u00a0/\u00a0\u00a0${keyLabel(keyboard.inventory[0] ?? "")}`,
 };
 
+const ALARM_PULSES = 5;
+
 const WEAPON_SLOTS: Record<Weapon, number> = { gun: 0, fists: 1, blaster: 2 };
 
 export interface HudValues {
@@ -73,6 +75,7 @@ export function Hud() {
   const item = useSandbox((s) => s.item);
   const filming = useSandbox((s) => s.cutscene);
   const lang = useSandbox((s) => s.lang);
+  const alarm = useSandbox((s) => s.alarm);
   const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang });
   const live = useRef(state);
   live.current = state;
@@ -85,6 +88,15 @@ export function Hud() {
   useLayoutEffect(() => {
     if (root.current) applyLive(root.current, live.current);
   }, [svg, energy, ammo, blaster]);
+  useLayoutEffect(() => {
+    const letter = root.current?.querySelector('[data-hud="alarm"]');
+    if (!alarm || !letter) return;
+    const elapsed = performance.now() - alarm.at;
+    if (elapsed >= alarm.ms) return;
+    const pulse = letter.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], { duration: alarm.ms / ALARM_PULSES, iterations: ALARM_PULSES });
+    pulse.currentTime = elapsed;
+    return () => pulse.cancel();
+  }, [svg, alarm]);
   return (
     <div
       ref={root}
