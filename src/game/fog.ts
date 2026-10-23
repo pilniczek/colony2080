@@ -69,7 +69,8 @@ function clearLine(grid: TileGrid, [ax, ay]: [number, number], [bx, by]: [number
     if (enteredRow) [ty, row] = [ty + deltaY, row + stepY];
     else [tx, col] = [tx + deltaX, col + stepX];
   }
-  return true;
+  const fromBelow = enteredRow && stepY < 0;
+  return !(fromBelow && (grid.opaque(col, row) || grid.floor(col, row)));
 }
 
 function inSight(grid: TileGrid, eye: [number, number], col: number, row: number): boolean {

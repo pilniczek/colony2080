@@ -47,14 +47,19 @@ describe("reveal", () => {
     expect(revealedAt(fog, 10, 13 - fogCfg.rowsAbove)).toBe(false);
   });
 
-  it("stops at walls and floors but uncovers the blocking cells", () => {
+  it("stops at walls and floors but uncovers the blocking wall cells", () => {
     const g = fogged(game({ x: 4.5, y: 8 }, { ...sandbox, rows: ROOM, lifts: [], enemies: [], props: [] }));
     const fog = g.world.fog!;
     expect(revealedAt(fog, 5, 6)).toBe(true);
     expect(revealedAt(fog, 8, 6)).toBe(true);
     expect(revealedAt(fog, 9, 6)).toBe(false);
-    expect(revealedAt(fog, 4, 3)).toBe(true);
     expect(revealedAt(fog, 4, 2)).toBe(false);
+  });
+
+  it("uncovers a floor from above, never from below", () => {
+    const room = { ...sandbox, rows: ROOM, lifts: [], enemies: [], props: [] };
+    expect(revealedAt(fogged(game({ x: 4.5, y: 8 }, room)).world.fog!, 4, 3)).toBe(false);
+    expect(revealedAt(fogged(game({ x: 4.5, y: 3 }, room)).world.fog!, 4, 3)).toBe(true);
   });
 
   it("stops at prop blockers unless they are see-through", () => {
@@ -69,7 +74,7 @@ describe("reveal", () => {
     const rows = ROOM.map((r, i) => (i === 3 ? "#........====#" : r));
     const g = fogged(game({ x: 10.5, y: 8 }, { ...sandbox, rows, lifts: [], enemies: [], props: [] }));
     const fog = g.world.fog!;
-    expect(revealedAt(fog, 10, 3)).toBe(true);
+    expect(revealedAt(fog, 10, 3)).toBe(false);
     expect(revealedAt(fog, 10, 2)).toBe(false);
   });
 
