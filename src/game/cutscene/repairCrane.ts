@@ -215,7 +215,7 @@ function drawPanel(ctx: CanvasRenderingContext2D): void {
   ctx.save();
   ctx.translate(CR.panelX, RB.y);
   ctx.scale(CR.panelScale, CR.panelScale);
-  drawAsset(ctx, ASSETS.liftPanel, { state: 0, lines: lineFor(ctx) });
+  drawAsset(ctx, ASSETS.craneMast, { lines: lineFor(ctx), size: { h: 200 } });
   ctx.restore();
 }
 

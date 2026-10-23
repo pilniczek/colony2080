@@ -208,7 +208,7 @@ function drawPanel() {
   ctx.save();
   ctx.translate(CR.panelX, RB.y);
   ctx.scale(CR.panelScale, CR.panelScale);
-  ENV.draw(ctx, asset("liftPanel"), { state: 0, lines: lineFor(ctx) });
+  ENV.draw(ctx, asset("craneMast"), { lines: lineFor(ctx), size: { h: 200 } });
   ctx.restore();
 }
 

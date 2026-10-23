@@ -604,6 +604,47 @@ define({
   }
 });
 
+const MAST = { x: 2, w: 20, foot: -8, seg: 20 };
+
+function mastTruss(ctx, h) {
+  const { x, w, foot, seg } = MAST;
+  P.truss(ctx, x, -h, w, h + foot, "yellow", 2.2);
+  for (let y = foot - seg; y > -h; y -= seg) box(ctx, x, y - 1, w, 2, "yellow", 1);
+  G.grain(ctx, rects(ctx, [[x - 1.1, -h, 3, h + foot], [x + w - 1.1, -h, 3, h + foot]]), 230);
+  for (let y = foot, i = 0; y > -h; y -= seg, i++) {
+    const s = 231 + i * 4;
+    G.drips(ctx, x - 1, y - seg + 1, w + 2, seg - 2, s, 2);
+    if (P.rng(s)() < 0.5) G.rustPatch(ctx, x + (i % 2 ? w : 0), y - seg / 2, 2, 3, s + 1);
+  }
+}
+
+function keyPanel(ctx) {
+  for (const y of [-45, -21]) box(ctx, MAST.x - 1.5, y, MAST.w + 3, 2.5, "chrome", 1);
+  box(ctx, 4, -44, 16, 24, "steel", 1);
+  flat(ctx, 4, -44, 16, 1.2, "m3");
+  G.surface(ctx, 4, -44, 16, 24, 250, { rise: 0.3, drip: 2, dripLen: 14 });
+  disc(ctx, 12, -35, 5, "c2", "mLine");
+  ring(ctx, 12, -35, 4, "c1", 0.8);
+  disc(ctx, 12, -36.2, 1.5, "hole");
+  poly(ctx, [[11.3, -36.2], [12.7, -36.2], [13.3, -32.4], [10.7, -32.4]], "hole", 0);
+  hazard(ctx, 5, -26, 14, 3, 3);
+  glow(ctx, 17, -41, 3, "neon", 0.6);
+  disc(ctx, 17, -41, 0.9, "neon", "mLine");
+  if (!simple()) rivets(ctx, 4, -21.5, 16, 4, "m3");
+}
+
+define({
+  id: "craneMast",
+  box: [-3, -336, 30, 0],
+  draw(ctx, state, t, size = {}) {
+    mastTruss(ctx, size.h ?? 336);
+    box(ctx, -2, MAST.foot, 28, -MAST.foot, "concrete", 2);
+    G.surface(ctx, -2, MAST.foot, 28, -MAST.foot, 255, { rise: 0.5, drip: 2, dripLen: 6 });
+    G.chips(ctx, -2, MAST.foot + 0.2, 28, 256);
+    keyPanel(ctx);
+  }
+});
+
 function tube(ctx, x, y, h) {
   flat(ctx, x, y, 3, h, "plasma", "mLine");
   flat(ctx, x + 0.6, y, 0.8, h, "plasmaCore");
