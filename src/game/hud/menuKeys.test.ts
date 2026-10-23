@@ -26,10 +26,10 @@ describe("menuKey", () => {
   });
 
   it("switches autosave and language from the pause menu", () => {
-    expect(step({ screen: "pause", cursor: 2 }, "ArrowRight")).toEqual({ state: { screen: "pause", cursor: 2 }, action: "autosave", autosave: false });
-    expect(step({ screen: "pause", cursor: 2 }, "ArrowLeft")).toEqual({ state: { screen: "pause", cursor: 2 }, action: "autosave", autosave: true });
-    expect(step({ screen: "pause", cursor: 3 }, "ArrowRight")).toEqual({ state: { screen: "pause", cursor: 3 }, action: "lang", lang: "cs" });
-    expect(step({ screen: "pause", cursor: 3 }, "Enter")).toEqual({ state: { screen: "pause", cursor: 3 } });
+    expect(step({ screen: "pause", cursor: 3 }, "ArrowRight")).toEqual({ state: { screen: "pause", cursor: 3 }, action: "autosave", autosave: false });
+    expect(step({ screen: "pause", cursor: 3 }, "ArrowLeft")).toEqual({ state: { screen: "pause", cursor: 3 }, action: "autosave", autosave: true });
+    expect(step({ screen: "pause", cursor: 4 }, "ArrowRight")).toEqual({ state: { screen: "pause", cursor: 4 }, action: "lang", lang: "cs" });
+    expect(step({ screen: "pause", cursor: 4 }, "Enter")).toEqual({ state: { screen: "pause", cursor: 4 } });
     expect(step({ screen: "pause", cursor: 0 }, "ArrowRight")).toEqual({ state: { screen: "pause", cursor: 0 } });
   });
 
@@ -52,11 +52,11 @@ describe("menuKey", () => {
   });
 
   it("asks before restarting the mission", () => {
-    const restart = step({ screen: "pause", cursor: 4 }, "Enter");
+    const restart = step({ screen: "pause", cursor: 2 }, "Enter");
     expect(restart.action).toBeUndefined();
-    expect(restart.state).toEqual({ screen: "pause", cursor: 4, confirm: true });
+    expect(restart.state).toEqual({ screen: "pause", cursor: 2, confirm: true });
     expect(step(restart.state!, "Enter").action).toBe("restart");
-    expect(step(restart.state!, "Escape").state).toEqual({ screen: "pause", cursor: 4 });
+    expect(step(restart.state!, "Escape").state).toEqual({ screen: "pause", cursor: 2 });
   });
 
   it("types a slot name and saves an empty slot at once", () => {

@@ -4,7 +4,7 @@ import { AUTO_SLOT, type Slots } from "../save/slots";
 
 export const NAME_MAX = 16;
 const GAME_OVER_ROWS = 3;
-export const PAUSE_ROWS = { save: 0, load: 1, autosave: 2, lang: 3, restart: 4 } as const;
+export const PAUSE_ROWS = { save: 0, load: 1, restart: 2, autosave: 3, lang: 4 } as const;
 export const SETTINGS_ROWS = { autosave: 0, lang: 1, start: 2 } as const;
 const PAUSE_COUNT = Object.keys(PAUSE_ROWS).length;
 const SETTINGS_COUNT = Object.keys(SETTINGS_ROWS).length;

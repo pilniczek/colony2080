@@ -214,7 +214,7 @@ describe("save menu", () => {
     const r = rig();
     r.input.keyDown("Escape");
     r.menu.step(DT);
-    for (let i = 0; i < 4; i++) r.press("ArrowDown");
+    for (let i = 0; i < 2; i++) r.press("ArrowDown");
     r.press("Enter");
     expect(r.restarts).toBe(0);
     r.press("Enter");
@@ -281,6 +281,7 @@ describe("settings", () => {
     const r = rig();
     r.input.keyDown("Escape");
     r.menu.step(DT);
+    r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("ArrowLeft");

@@ -51,7 +51,7 @@ describe("menuSvg", () => {
   });
 
   it("asks before restarting the mission", () => {
-    expect(menuSvg(320, 200, { screen: "pause", cursor: 4, confirm: true }, slots, robot)).toContain("RESTART? UNSAVED PROGRESS IS LOST");
+    expect(menuSvg(320, 200, { screen: "pause", cursor: 2, confirm: true }, slots, robot)).toContain("RESTART? UNSAVED PROGRESS IS LOST");
   });
 
   it("shows the manual with the lift panel under settings and the pause menu, in the chosen language", () => {
