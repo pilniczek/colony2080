@@ -1,3 +1,4 @@
+import { SHIP } from "./buildings";
 import { G } from "./grime";
 import { P, type EnvAsset } from "./paint";
 
@@ -427,6 +428,29 @@ export const holoPlan: EnvAsset = {
   }
 };
 
+const PLAN = { x: 4.3, y: -6.9, k: 0.068 };
+
+const shipSketch = (ctx: CanvasRenderingContext2D): void => {
+  const { HULL, WING, COCKPIT, DOOR } = SHIP;
+  ctx.save();
+  ctx.translate(PLAN.x, PLAN.y);
+  ctx.scale(PLAN.k, PLAN.k);
+  ctx.lineWidth /= PLAN.k;
+  ctx.beginPath();
+  for (const [first, ...rest] of [HULL, WING, COCKPIT]) {
+    ctx.moveTo(...(first as Pt));
+    for (const p of rest) ctx.lineTo(...p);
+    ctx.closePath();
+  }
+  if (!P.simple()) {
+    const [x, y, w, h] = DOOR;
+    ctx.moveTo(x, y + h); ctx.lineTo(x, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + h);
+    ctx.moveTo(4, -32); ctx.lineTo(150, -32); ctx.lineTo(186, -22);
+  }
+  ctx.stroke();
+  ctx.restore();
+};
+
 export const shipPlan: EnvAsset = {
   id: "shipPlan",
   box: [-2, -14, 22, 0],
@@ -437,9 +461,8 @@ export const shipPlan: EnvAsset = {
     ctx.strokeStyle = color("m1");
     ctx.lineWidth = 0.3;
     ctx.beginPath();
-    ctx.moveTo(3.4, -10); ctx.lineTo(9, -10.2); ctx.lineTo(10.4, -9.2); ctx.lineTo(8.6, -8.6); ctx.lineTo(3.6, -9.2); ctx.closePath();
-    ctx.moveTo(12, -10); ctx.lineTo(18, -10.2);
-    ctx.moveTo(15, -10.1); ctx.lineTo(15, -8.6);
+    shipSketch(ctx);
+    ctx.beginPath();
     ctx.moveTo(15.4, -6.4); ctx.lineTo(15.8, -1.6);
     ctx.moveTo(13, -4.6); ctx.lineTo(15.6, -3.6); ctx.lineTo(18.4, -4.6);
     if (!P.simple()) {
@@ -449,7 +472,6 @@ export const shipPlan: EnvAsset = {
     }
     ctx.stroke();
     ctx.restore();
-    disc(ctx, 15, -8.6, 0.6, "m0");
   }
 };
 
