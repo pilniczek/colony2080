@@ -16,7 +16,7 @@ Phase 1b: engine core and movement sandbox built, feel signed off (2026-10-19). 
 
 ## Reporting work
 
-Every final report that adds, changes or finds something visible in a mission map gives one `moveto(x,y)` per spot (world.json coords, y the floor row), on a cell the hero can stand on next to the spot, so the user can check it in game. Changes with no map spot (films, HUD, code only) say how to see them instead (e.g. debug panel Films).
+Every final report that adds, changes or finds something visible in a mission map gives one `moveto(x,y)` per spot (world.json coords, y the floor row), on a cell the hero can stand on next to the spot, so the user can check it in game. More than 3 spots: also give every `moveto` on one line, separated by spaces, ready to paste into the debug panel Tour box. Changes with no map spot (films, HUD, code only) say how to see them instead (e.g. debug panel Films).
 
 ## Commands
 
