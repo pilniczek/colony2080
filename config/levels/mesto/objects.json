@@ -304,7 +304,7 @@
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Concrete pipe run under the corridor ceiling from the valve wheel to the water pipe, bending down into it; any width (scenery w). Passes behind lift shafts darkened.",
+      "description": "Concrete pipe run under the corridor ceiling from the valve wheel to the water pipe, bending down into it; any width (scenery w). Passes behind lift shafts darkened. The water pipe continues its leg in the same concrete.",
       "note": "Not an original object: links the valve wheel to the water outlet it closes.",
       "states": [],
       "refs": []
