@@ -14,6 +14,10 @@ Phase 1b: engine core and movement sandbox built, feel signed off (2026-10-19). 
 - `docs/tours.md` - `moveto` check tours for the debug panel Tour box (mesto lift shafts).
 - `spikes/` - throwaway prototypes.
 
+## Reporting work
+
+Every final report that adds, changes or finds something visible in a mission map gives one `moveto(x,y)` per spot (world.json coords, y the floor row), on a cell the hero can stand on next to the spot, so the user can check it in game. Changes with no map spot (films, HUD, code only) say how to see them instead (e.g. debug panel Films).
+
 ## Commands
 
 - `npm run dev` - Vite dev server, opens the home page (`index.html`: game name, mission select, dev links to the sandbox and every spike page) in browser. Agents start bare `npx vite --port 5199 --strictPort` (no browser); never pass `--open false`, Vite reads `false` as path `/false`.
