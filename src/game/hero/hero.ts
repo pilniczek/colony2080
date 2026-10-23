@@ -678,14 +678,9 @@ function horizontalSpeed(s: Step): number {
   return h.facing * travelSpeed(clipOf(s));
 }
 
-function keepOnDeck(from: number, to: number, lift: Lift, cfg: MovementConfig): number {
+function risingDeck({ h, world, cfg, dt }: Step): Lift | undefined {
   const half = cfg.box.width / 2;
-  return Math.min(Math.max(to, Math.min(from, lift.x + half)), Math.max(from, lift.x + lift.w - half));
-}
-
-function deckUnder({ h, world, cfg }: Step): Lift | null {
-  const lift = liftAt(world, h, cfg);
-  return lift && !h.onGround && h.y <= lift.y + EPS && onDeck(h.x, lift, cfg) ? lift : null;
+  return world.lifts.find((l) => l.vy < 0 && h.vy > l.vy && h.x + half > l.x && h.x - half < l.x + l.w && h.y > l.y && h.y <= l.y - l.vy * dt + EPS);
 }
 
 const enters = (props: Prop[], h: Hero, to: { x: number; y: number }, half: number): boolean =>
@@ -696,9 +691,13 @@ function physics(s: Step): void {
   const box = boxOf(h, cfg);
   const carrier = h.onLift ? liftAt(world, h, cfg) : null;
   if (carrier) box.y = moveBox(box, 0, carrier.vy * dt, world.grid, world.lifts, { ignoreOneWay: true }).y;
+  const deck = carrier ? undefined : risingDeck(s);
+  if (deck) {
+    box.y = deck.y;
+    h.vy = Math.max(h.vy, 0);
+  }
   const vy = Math.min(h.vy + cfg.gravity * dt, cfg.maxFallSpeed);
-  const deck = carrier ?? deckUnder(s);
-  const dx = deck?.target != null ? keepOnDeck(h.x, h.x + h.vx * dt, deck, cfg) - h.x : h.vx * dt;
+  const dx = h.vx * dt;
   const r = moveBox(box, dx, ((h.vy + vy) / 2) * dt, world.grid, floorsOf(world));
   if (!h.onGround && enters(world.props, h, r, cfg.box.width / 2)) {
     r.x = h.x;

@@ -222,6 +222,22 @@ describe("hide", () => {
     }
   });
 
+  it("lands a walking jump on a rising deck that passes its feet", () => {
+    for (const dir of ["moveRight", "moveLeft"]) {
+      const g = game({ x: 18.5, y: 14 });
+      const lift = g.world.lifts[0]!;
+      tick(g);
+      tick(g, [], ["useItem"]);
+      run(g, 0.05, [dir]);
+      tick(g, ["up", dir], ["up"]);
+      expect(g.hero.state).toBe("walkJump");
+      runUntil(g, (h) => h.onGround, [dir], 2);
+      expect(lift.target).not.toBeNull();
+      expect(g.hero.onLift).toBe(true);
+      expect(g.hero.y).toBeCloseTo(lift.y, 6);
+    }
+  });
+
   it("ducks on a moving lift and rides on", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
@@ -245,20 +261,18 @@ describe("hide", () => {
     expect(g.hero.hidden).toBe(false);
   });
 
-  it("walks, runs and shoots on a moving lift but stops at its edge", () => {
-    for (const [dir, edge] of [
-      ["moveRight", 20 - cfg.box.width / 2],
-      ["moveLeft", 17 + cfg.box.width / 2],
+  it("walks, runs and shoots on a moving lift and runs off it", () => {
+    for (const [dir, side] of [
+      ["moveRight", 1],
+      ["moveLeft", -1],
     ] as const) {
       const g = game({ x: 18.5, y: 14, weapon: "gun" });
       tick(g);
       tick(g, [], ["useItem"]);
-      run(g, 0.6, [dir, RUNNING, "shoot"]);
+      runUntil(g, (h) => !h.onLift, [dir, RUNNING, "shoot"], 2);
       const lift = g.world.lifts[0]!;
       expect(lift.target).not.toBeNull();
-      expect(g.hero).toMatchObject({ state: "run", onLift: true });
-      expect(g.hero.x).toBeCloseTo(edge, 6);
-      expect(g.hero.y).toBeCloseTo(lift.y, 6);
+      expect((g.hero.x - 18.5) * side).toBeGreaterThan(1.5 - cfg.box.width / 2);
       expect(kinds(g, "shot").length).toBeGreaterThan(1);
     }
   });
