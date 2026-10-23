@@ -610,6 +610,24 @@ function tube(ctx, x, y, h) {
   flat(ctx, x + 2.2, y, 0.8, h, "water");
 }
 
+function cardReader(ctx, x, open) {
+  box(ctx, x - 1, -44, 16, 28, "steel", 0);
+  box(ctx, x, -43, 14, 26, "steel", 2);
+  flat(ctx, x, -43, 14, 1.2, "m3");
+  G.surface(ctx, x - 1, -44, 16, 28, 181, { rise: 0.3, drip: 2, dripLen: 14 });
+  flat(ctx, x + 2, -40.5, 10, 4.5, open ? "screenOff" : "hole", "mLine");
+  if (open) flat(ctx, x + 3, -39.2, 6, 1.8, "screen");
+  else for (let i = 0; i < 3; i++) flat(ctx, x + 3 + i * 3, -39.2, 2, 1.4, "neon");
+  flat(ctx, x + 2, -33, 6, 4, "c1", "mLine");
+  flat(ctx, x + 2, -32, 6, 1.2, "m0");
+  poly(ctx, [[x + 3, -26], [x + 7, -26], [x + 5, -23]], "yellow", 2);
+  box(ctx, x + 9, -35, 4, 16, "chrome", 1);
+  flat(ctx, x + 10.4, -34, 1.2, 14, "hole");
+  const led = open ? "screen" : "neon";
+  glow(ctx, x + 5, -20, 3.5, led, 0.6);
+  disc(ctx, x + 5, -20, 1, led, "mLine");
+}
+
 define({
   id: "cardDoor",
   box: [-24, -76, 28, 0],
@@ -618,28 +636,16 @@ define({
       box(ctx, -3.5, size.top, 31, -76 - size.top, "concrete", 0, { vertical: true });
       G.surface(ctx, -3.5, size.top, 31, -76 - size.top, 180, { rise: 0.3, drip: 3, dripLen: 30 });
     }
-    greenPanel(ctx, -22, -52, 18, 181, (x, y, n) => boltIcon(ctx, x, y, n));
+    cardReader(ctx, -20, state === 1);
+    if (state) return;
     box(ctx, -2, -76, 28, 4, "steel", 2);
     G.chips(ctx, -2, -75.8, 28, 185);
-    flat(ctx, 0, -72, 24, 72, "hole");
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, -72, 24, 72);
-    ctx.clip();
-    const dy = state ? -64 : 0;
-    box(ctx, 0, -72 + dy, 24, 72, "steel", 2, { vertical: true });
-    for (let y = -66; y < -8; y += 14) flat(ctx, 1, y + dy, 22, 1, "m0");
-    hazard(ctx, 0, -8 + dy, 24, 8, 3);
-    G.grain(ctx, G.rectRegion(ctx, 0, -72 + dy, 24, 72), 186);
-    G.dirt(ctx, 0, -72 + dy, 24, 72, 187, 0.25);
-    G.drips(ctx, 1, -72 + dy, 22, 40, 188, 4);
-    ctx.restore();
-    if (state) {
-      ctx.save();
-      ctx.globalAlpha = 0.5;
-      flat(ctx, 3, -3, 18, 3, "m1");
-      ctx.restore();
-    }
+    box(ctx, 0, -72, 24, 72, "steel", 2, { vertical: true });
+    for (let y = -66; y < -8; y += 14) flat(ctx, 1, y, 22, 1, "m0");
+    hazard(ctx, 0, -8, 24, 8, 3);
+    G.grain(ctx, G.rectRegion(ctx, 0, -72, 24, 72), 186);
+    G.dirt(ctx, 0, -72, 24, 72, 187, 0.25);
+    G.drips(ctx, 1, -72, 22, 40, 188, 4);
     for (const x of [-3.5, 24.5]) box(ctx, x, -72, 3, 72, "steel", 1, { vertical: true });
     G.grain(ctx, rects(ctx, [[-3.5, -72, 3, 72], [24.5, -72, 3, 72]]), 189);
     tube(ctx, 4, -72, 64);
