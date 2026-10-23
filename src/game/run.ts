@@ -356,6 +356,13 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         askTiles(world, tuning().movement, devicePixelRatio || 1, cameraView(hero, tuning().movement), gameWindow);
         return;
       }
+      if (tuning().menu?.screen === "difficulty") {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        push();
+        return;
+      }
       const { movement: cfg, clips, overlays } = tuning();
       const shown = tween(prev, hero, alpha);
       const look = heroLook(shown, clips, rigs, hold, cfg);
