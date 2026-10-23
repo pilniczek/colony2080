@@ -14,6 +14,7 @@ export interface Task {
   sets?: Record<string, number>;
   cutscene?: CutsceneId;
   subtitle: string;
+  hint?: string;
 }
 
 export interface Subtitle {
@@ -60,6 +61,10 @@ function loadTask(json: unknown): Task {
   const used = task.requires.filter((token) => itemOf(token) !== null);
   if (used.length > 1) throw new Error(`task ${id}: needs more than one item`);
   if (task.consumes.some((token) => itemOf(token) !== null && !used.includes(token))) throw new Error(`task ${id}: consumes an item it does not use`);
+  if (t.hint !== undefined) {
+    if (typeof t.hint !== "string") throw new Error(`task ${id}: hint is not text`);
+    task.hint = t.hint;
+  }
   if (typeof t.state === "number") task.state = t.state;
   if (t.sets) task.sets = { ...(t.sets as Record<string, number>) };
   if (t.cutscene !== undefined) {
@@ -87,8 +92,16 @@ const met = (world: SandboxWorld, token: string): boolean => {
 const open = (world: SandboxWorld, prop: Prop) =>
   world.tasks.filter((t) => t.object === prop.id && !world.flags.has(doneToken(t)));
 
+const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
 export function hintFor(prop: Prop, world: SandboxWorld): string {
-  return open(world, prop).length ? MISSING : DONE;
+  const tasks = open(world, prop);
+  const [first] = tasks;
+  if (!first) return DONE;
+  const { shown } = world.inventory;
+  const fits = tasks.some((t) => t.requires.includes(`${ITEM}${shown}`));
+  if (shown !== null && !fits) return `${capital(ITEMS[shown]?.name ?? shown)} didn't work, maybe something else might be useful here.`;
+  return first.hint ?? MISSING;
 }
 
 export function applyBlocks(world: SandboxWorld): void {

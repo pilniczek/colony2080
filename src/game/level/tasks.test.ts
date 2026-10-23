@@ -93,7 +93,7 @@ describe("runUse", () => {
     pickUp(w, "wires");
     pickUp(w, "crowbar");
     use(w, "switchboard");
-    expect(w.subtitle).toEqual({ text: "Something is missing here.", age: 0 });
+    expect(w.subtitle).toEqual({ text: "Crowbar didn't work, maybe something else might be useful here.", age: 0 });
     expect(w.inventory).toEqual({ items: ["wires", "crowbar"], shown: "crowbar" });
     expect(prop(w, "switchboard").state ?? 0).toBe(0);
     w.flags.add("flag:metroPowered");
@@ -135,6 +135,20 @@ describe("runUse", () => {
     use(w, "switchboard");
     expect(w.subtitle?.text).toBe("Nothing more to do here.");
     expect(w.inventory.items).toEqual(["card", "holoPlan"]);
+  });
+
+  it("tells what the quest needs from a mission object", () => {
+    const w = loadMesto();
+    use(w, "barDoor");
+    expect(w.subtitle?.text).toBe(w.tasks.find((t) => t.id === "tradeHoloPlan")!.hint);
+    pickUp(w, "crowbar");
+    use(w, "barDoor");
+    expect(w.subtitle?.text).toBe("Crowbar didn't work, maybe something else might be useful here.");
+  });
+
+  it("gives every mission task that needs something a hint", () => {
+    const needy = loadMesto().tasks.filter((t) => t.requires.length);
+    expect(needy.filter((t) => !t.hint).map((t) => t.id)).toEqual([]);
   });
 
   it("blocks cells while the object is in a solid state", () => {
