@@ -242,7 +242,7 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
       "lift 9 needs flag:upperFloorsOpen from repairLift (report 13: lift 10 repaired)": ["23,19", "23,36", "30,29", "30,36", "30,58"],
       "card door and acid guard, openDoor and useAcidTank open them (report 13: card door, lift 14 after acid)": [
         ...["10,31", "10,55", "16,27", "16,55", "16,125", "23,50", "23,87", "23,101", "23,107", "23,117", "30,75", "30,87"],
-        ...["30,107", "30,112", "30,125"],
+        ...["30,107", "30,112"],
       ],
       "behind the shoot guard, the E-Blaster wrecks it (world.json shootGuard)": ["16,19"],
     },

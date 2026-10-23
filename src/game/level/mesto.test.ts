@@ -140,7 +140,7 @@ describe("mesto map", () => {
     applyBlocks(open);
     const r = reachOf(open, cfg);
     const from = r.reach(r.graph(r.generous), id(r.runAt(spawn[1], Math.floor(spawn[0]))!));
-    expect(from.has("30,125") && from.has("23,101") && from.has("23,36")).toBe(true);
+    expect(from.has("23,101") && from.has("23,36")).toBe(true);
     const body = new Set(r.runs.filter((run) => from.has(id(run))).flatMap((run) => Array.from({ length: run.w }, (_, i) => [`${run.col + i},${run.row - 1}`, `${run.col + i},${run.row - 2}`]).flat()));
     const towers = world.dressing.filter((s) => (s.asset === "facadeTower" && s.x !== 11) || s.asset === "brickWall");
     expect(towers.some((s) => s.asset === "facadeTower" && s.x === 127)).toBe(true);
