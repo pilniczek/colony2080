@@ -11063,6 +11063,19 @@ window.C28_CONFIG = {
       ]
      },
      {
+      "id": "ceilingPipe",
+      "name": "Ceiling pipe",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Concrete pipe run under the corridor ceiling from the valve wheel to the water pipe, bending down into it; any width (scenery w). Passes behind lift shafts darkened.",
+      "note": "Not an original object: links the valve wheel to the water outlet it closes.",
+      "states": [],
+      "refs": []
+     },
+     {
       "id": "waterPipe",
       "name": "Leaking water pipe / shut-off",
       "csName": "uzávěr vody",

@@ -315,6 +315,30 @@ define({
   }
 });
 
+const CEILING_PIPE = { top: -92, w: 18, foot: -72 };
+
+define({
+  id: "ceilingPipe",
+  box: [0, -96, 96, -56],
+  draw(ctx, state, t, size = {}) {
+    const len = size.w ?? 96;
+    const { top, w: W, foot } = CEILING_PIPE;
+    const run = [[0, top], [len, top], [len, top + W], [W, top + W]];
+    const leg = [[0, top], [W, top + W], [W, foot], [0, foot]];
+    poly(ctx, run, PIPE, 1);
+    poly(ctx, leg, PIPE, 1, { dir: [1, 0] });
+    flat(ctx, 4, top + 4, len - 4, 1, "c2");
+    G.grain(ctx, G.polyRegion(ctx, [[0, top], [len, top], [len, top + W], [W, top + W], [W, foot], [0, foot]]), 190);
+    const s = 191 + Math.round(len);
+    G.drips(ctx, W, top + 1, len - W, W - 3, s, Math.max(2, Math.round(len / 40)));
+    G.chips(ctx, 0, top + 0.3, len, s + 1);
+    const rand = P.rng(s + 2);
+    for (let x = W + 30; x < len - 20; x += 90 + rand() * 60) G.rustPatch(ctx, x, top + W - 7, 3, 1.8, s + 3 + Math.round(x));
+    if (simple()) return;
+    for (let x = W + 40; x < len - 12; x += 120) collarH(ctx, x, top, W, PIPE);
+  }
+});
+
 function stream(ctx, x, y0, y1, w, t, color, dark, alpha = 0.75) {
   ctx.save();
   ctx.globalAlpha = alpha;

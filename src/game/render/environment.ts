@@ -1,6 +1,6 @@
 import { FIXED_STEP } from "../../engine/loop";
 import { ASSETS, type AssetId } from "../env/assets";
-import { liftDeck, liftShaft } from "../env/machines";
+import { CEILING_PIPE, liftDeck, liftShaft } from "../env/machines";
 import { drawAsset, TILE, type EnvAsset, type Size } from "../env/paint";
 import { guardHidden, guardLook } from "../level/guards";
 import type { MovementConfig } from "../hero/config";
@@ -328,6 +328,7 @@ export function below(e: Env): void {
   underground(e);
   clipped(e, [...e.world.lifts.map((l) => baseBox(e, l)), ...drawnTerrain(e.world).behind.map((r) => runBox(e, r))], false, () => scenery(e, "dressing", e.world.dressing));
   shadeBehind(e);
+  pipesBehind(e);
   shafts(e);
 }
 
@@ -481,6 +482,35 @@ function shadeBehind(e: Env): void {
   ctx.fillStyle = BEHIND_SHAFT;
   for (const r of drawnTerrain(e.world).behind) if (near(e, runBox(e, r))) ctx.fillRect(r.col * cell, r.row * cell, r.w * cell, cell);
 }
+
+function pipesBehind(e: Env): void {
+  const { ctx } = e;
+  for (const s of pick(e, "pipes", e.world.dressing, sceneryBox)) {
+    if (s.asset !== "ceilingPipe") continue;
+    const [x, y] = sceneryAt(e, s);
+    const band = { x: x + CEILING_PIPE.w * k(e), y: y + CEILING_PIPE.top * k(e), w: ((s.w ?? 0) * TILE - CEILING_PIPE.w) * k(e), h: CEILING_PIPE.w * k(e) };
+    for (const l of e.world.lifts) {
+      const r = overlap(band, shaftBox(e, l));
+      if (!r || !near(e, r)) continue;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(r.x, r.y, r.w, r.h);
+      ctx.clip();
+      put(e, s.asset, x, y, s.state ?? 0, { w: (s.w ?? 0) * TILE });
+      ctx.fillStyle = BEHIND_SHAFT;
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+      ctx.restore();
+    }
+  }
+}
+
+const overlap = (a: Rect, b: Rect): Rect | null => {
+  const x = Math.max(a.x, b.x);
+  const y = Math.max(a.y, b.y);
+  const w = Math.min(a.x + a.w, b.x + b.w) - x;
+  const h = Math.min(a.y + a.h, b.y + b.h) - y;
+  return w > 0 && h > 0 ? { x, y, w, h } : null;
+};
 
 type Side = { asset: BehindRun["asset"]; from: Run } | "wall" | null;
 

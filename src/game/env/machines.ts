@@ -382,6 +382,27 @@ export const tapValveWheel: EnvAsset = {
   },
 };
 
+export const CEILING_PIPE = { top: -92, w: 18, foot: -72 };
+
+export const ceilingPipe: EnvAsset = {
+  id: "ceilingPipe",
+  box: [0, -96, 96, -56],
+  draw(ctx, _state, _t, { w: len = 96 }: Size) {
+    const { top, w: W, foot } = CEILING_PIPE;
+    poly(ctx, [[0, top], [len, top], [len, top + W], [W, top + W]], PIPE, 1);
+    poly(ctx, [[0, top], [W, top + W], [W, foot], [0, foot]], PIPE, 1, { dir: [1, 0] });
+    flat(ctx, 4, top + 4, len - 4, 1, "c2");
+    G.grain(ctx, G.polyRegion(ctx, [[0, top], [len, top], [len, top + W], [W, top + W], [W, foot], [0, foot]]), 190);
+    const s = 191 + Math.round(len);
+    G.drips(ctx, W, top + 1, len - W, W - 3, s, Math.max(2, Math.round(len / 40)));
+    G.chips(ctx, 0, top + 0.3, len, s + 1);
+    const rand = P.rng(s + 2);
+    for (let x = W + 30; x < len - 20; x += 90 + rand() * 60) G.rustPatch(ctx, x, top + W - 7, 3, 1.8, s + 3 + Math.round(x));
+    if (P.simple()) return;
+    for (let x = W + 40; x < len - 12; x += 120) collarH(ctx, x, top, W, PIPE);
+  },
+};
+
 const stream = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: number, w: number, t: number, color: string, dark: string, alpha = 0.75): void => {
   ctx.save();
   ctx.globalAlpha = alpha;
@@ -747,4 +768,4 @@ export const damagedLift: EnvAsset = {
   },
 };
 
-export const machineAssets: EnvAsset[] = [wireBox, switchboard, trainDoor, trainCarriage, tapValveWheel, waterPipe, plasmaBarrier, codeLock, acidTank, crane, cardDoor, lift, liftPanel, damagedLift];
+export const machineAssets: EnvAsset[] = [wireBox, switchboard, trainDoor, trainCarriage, tapValveWheel, ceilingPipe, waterPipe, plasmaBarrier, codeLock, acidTank, crane, cardDoor, lift, liftPanel, damagedLift];

@@ -134,6 +134,7 @@
     {"asset": "metroTrain", "x": 70.6, "y": 70}
   ],
   "dressing": [
+    {"asset": "ceilingPipe", "x": 20.625, "y": 75, "w": 20.92},
     {"asset": "stripLight", "x": 17.5, "y": 75},
     {"asset": "stripLight", "x": 32.5, "y": 75},
     {"asset": "stripLight", "x": 44.5, "y": 75},
