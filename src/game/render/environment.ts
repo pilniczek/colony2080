@@ -588,5 +588,8 @@ export function drawEnvironment(
   cached(e, "below");
   for (const l of e.world.lifts) if (near(e, grown(shaftBox(e, l), LIFT_CULL_PAD_CELLS * e.cell))) lift(e, l, alpha);
   cached(e, "above");
-  for (const p of world.props) prop(e, p);
+  for (const p of world.props) if (!isPickup(p)) prop(e, p);
+  for (const p of world.props) if (isPickup(p)) prop(e, p);
 }
+
+const isPickup = (p: Prop): boolean => p.kind === "item" || p.kind === "weapon";
