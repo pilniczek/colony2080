@@ -208,7 +208,7 @@ describe("world cues", () => {
   it("lift start and stop", () => {
     const g = game({ x: 18.5, y: 14 }, sandbox);
     g.hero.onLift = true;
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     expect(g.world.lifts[0]!.target).toBe(4);
     expect(cues(g, "liftStart")).toEqual([{ id: "liftStart", rate: 8000, vol: 63, bus: "world" }]);
     runUntil(g, () => g.world.lifts[0]!.target === null, [], 10);

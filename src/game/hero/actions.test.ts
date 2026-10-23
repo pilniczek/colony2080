@@ -73,41 +73,29 @@ describe("pickup and duck", () => {
     expect(kinds(g, "pickup")).toHaveLength(0);
   });
 
-  it("calls the lift instead of ducking on it", () => {
+  it("ducks on the lift instead of calling it", () => {
     const g = game({ x: 18.5, y: 4 });
     g.world.lifts[0]!.y = 4;
     tick(g);
     tick(g, ["down"], ["down"]);
-    expect(g.hero.state).toBe("idle");
-    expect(g.world.lifts[0]!.target).toBe(14);
+    expect(g.hero.state).toBe("duck");
+    expect(g.world.lifts[0]!.target).toBeNull();
   });
 
-  it("says the lift hint once per press and ducks while the lift is disabled", () => {
+  it("says the lift hint once per press while the lift is disabled", () => {
     const g = game({ x: 18.5, y: 4 });
     const lift = g.world.lifts[0]!;
     lift.y = 4;
     lift.enabledBy = "flag:open";
     lift.hint = "Broken.";
     tick(g);
-    tick(g, ["down"], ["down"]);
+    tick(g, ["useItem"], ["useItem"]);
     expect(lift.target).toBeNull();
-    expect(g.hero.state).toBe("duck");
+    expect(g.hero.state).toBe("idle");
     expect(g.world.subtitle?.text).toBe("Broken.");
     g.world.subtitle = null;
-    tick(g, ["down"]);
+    tick(g, ["useItem"]);
     expect(g.world.subtitle).toBeNull();
-  });
-
-  it("says the lift hint and jumps on up while the lift is disabled", () => {
-    const g = game({ x: 18.5, y: 14 });
-    const lift = g.world.lifts[0]!;
-    lift.enabledBy = "flag:open";
-    lift.hint = "Broken.";
-    tick(g);
-    tick(g, [], ["up"]);
-    expect(lift.target).toBeNull();
-    expect(g.hero.state).toBe("standJump");
-    expect(g.world.subtitle?.text).toBe("Broken.");
   });
 });
 
@@ -220,7 +208,7 @@ describe("hide", () => {
   it("does nothing on a moving lift", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     run(g, 0.5, ["hide"]);
     expect([...g.seen]).toEqual(["idle"]);
     expect(g.hero.hidden).toBe(false);
@@ -233,7 +221,7 @@ describe("hide", () => {
     ] as const) {
       const g = game({ x: 18.5, y: 14, weapon: "gun" });
       tick(g);
-      tick(g, [], ["up"]);
+      tick(g, [], ["useItem"]);
       run(g, 0.6, [dir, RUNNING, "shoot"]);
       const lift = g.world.lifts[0]!;
       expect(lift.target).not.toBeNull();
@@ -330,7 +318,7 @@ describe("dead body", () => {
   it("rides a moving lift", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     run(g, 0.5);
     lethal(g);
     run(g, 1.4);

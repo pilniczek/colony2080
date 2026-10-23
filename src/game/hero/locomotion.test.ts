@@ -494,32 +494,32 @@ describe("buffered up", () => {
 });
 
 describe("lift", () => {
-  it("stops a walk and calls the lift on up without jumping", () => {
+  it("stops a walk and calls the lift on enter", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
     run(g, 0.1, ["moveRight"]);
     expect(g.hero).toMatchObject({ state: "walk", onLift: true });
-    tick(g, ["moveRight"], ["up"]);
+    tick(g, ["moveRight"], ["useItem"]);
     expect(g.hero).toMatchObject({ state: "idle", onGround: true });
     expect(g.world.lifts[0]!.target).toBe(4);
     expect(g.seen.has("walkJump")).toBe(false);
   });
 
-  it("stops a run and calls the lift on up without jumping", () => {
+  it("stops a run and calls the lift on enter", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
     tick(g, ["moveRight", RUNNING]);
     expect(g.hero).toMatchObject({ state: "run", onLift: true });
-    tick(g, ["moveRight", RUNNING], ["up"]);
+    tick(g, ["moveRight", RUNNING], ["useItem"]);
     expect(g.hero).toMatchObject({ state: "idle", onGround: true });
     expect(g.world.lifts[0]!.target).toBe(4);
     expect(g.seen.has("runJump")).toBe(false);
   });
 
-  it("rides to the top on one up press without jumping", () => {
+  it("rides to the top on one enter press", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     run(g, 5);
     expect([...g.seen]).toEqual(["idle"]);
     expect(g.world.lifts[0]!.y).toBe(4);
@@ -530,12 +530,12 @@ describe("lift", () => {
     const g = game({ x: 18.5, y: 14 }, flooredShaft);
     expect(g.world.grid.oneWay(18, 9)).toBe(true);
     tick(g);
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     run(g, 5);
     expect(g.world.lifts[0]!.y).toBe(4);
     expect(g.hero).toMatchObject({ onLift: true });
     expect(g.hero.y).toBeCloseTo(4, 6);
-    tick(g, ["down"], ["down"]);
+    tick(g, [], ["useItem"]);
     run(g, 2);
     expect(g.hero).toMatchObject({ onLift: true });
     expect(g.hero.y).toBeCloseTo(g.world.lifts[0]!.y, 6);
@@ -545,12 +545,11 @@ describe("lift", () => {
     expect([...g.seen]).toEqual(["idle"]);
   });
 
-  it("ducks instead of calling the lift from the floor edge next to its deck", () => {
+  it("does not call the lift from the floor edge next to its deck", () => {
     const g = game({ x: 33.8, y: 14 });
     tick(g);
     expect(g.hero).toMatchObject({ onGround: true, onLift: true });
-    tick(g, ["down"], ["down"]);
-    expect(g.hero.state).toBe("duck");
+    tick(g, [], ["useItem"]);
     expect(g.world.lifts[1]!.target).toBeNull();
   });
 
@@ -559,6 +558,14 @@ describe("lift", () => {
     tick(g);
     tick(g, ["down"], ["down"]);
     expect(g.hero.state).toBe("duck");
+    expect(g.world.lifts[0]!.target).toBeNull();
+  });
+
+  it("jumps on up from a resting deck", () => {
+    const g = game({ x: 18.5, y: 14 });
+    tick(g);
+    tick(g, [], ["up"]);
+    expect(g.hero.state).toBe("standJump");
     expect(g.world.lifts[0]!.target).toBeNull();
   });
 
@@ -574,7 +581,7 @@ describe("lift", () => {
   it("calls the lift down from the deck at the top stop", () => {
     const g = game({ x: 35.5, y: 14 });
     tick(g);
-    tick(g, ["down"], ["down"]);
+    tick(g, [], ["useItem"]);
     expect(g.hero.state).toBe("idle");
     expect(g.world.lifts[1]!.target).toBe(21);
   });

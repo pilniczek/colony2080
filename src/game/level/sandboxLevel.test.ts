@@ -115,7 +115,7 @@ describe("several lifts", () => {
   it("rides only the lift it stands on", () => {
     const g = game({ x: 18.5, y: 14 }, twoLifts);
     tick(g);
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     run(g, 0.5);
     expect(g.world.lifts[0]!.target).toBe(4);
     expect(g.world.lifts[1]!.target).toBeNull();
@@ -125,13 +125,13 @@ describe("several lifts", () => {
   it("calls the second lift from its own shaft", () => {
     const g = game({ x: 31.5, y: 14 }, twoLifts);
     tick(g);
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     run(g, 0.5);
     expect(g.world.lifts[1]!.target).toBe(4);
     expect(g.world.lifts[0]!.target).toBeNull();
   });
 
-  it("jumps instead of calling the lift from the deck edge", () => {
+  it("jumps from the deck edge", () => {
     const g = game({ x: 16.8, y: 14 }, twoLifts);
     tick(g);
     expect(g.hero.onLift).toBe(true);
@@ -144,7 +144,7 @@ describe("several lifts", () => {
     const g = game({ x: 18.5, y: 14 }, twoLifts);
     callLift(g.world.lifts[1]!, -1);
     tick(g);
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     run(g, 1);
     const [a, b] = g.world.lifts;
     expect(a!.target).toBe(4);
@@ -159,7 +159,7 @@ describe("moving lift", () => {
   it("keeps a running hero on the deck when up is pressed mid-ride", () => {
     const g = game({ x: 17.8, y: 14 });
     tick(g);
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     run(g, 1);
     const lift = g.world.lifts[0]!;
     expect(lift.target).toBe(4);

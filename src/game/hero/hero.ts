@@ -405,9 +405,8 @@ function idle(s: Step): void {
 }
 
 function liftPress(s: Step): boolean {
-  const dir = s.input.pressed.has("up") ? -1 : s.input.pressed.has("down") ? 1 : null;
-  if (dir === null || !rideLift(s, dir)) return false;
-  s.consume(dir < 0 ? "up" : "down");
+  if (!s.input.pressed.has("useItem") || usable(s) || !rideLift(s)) return false;
+  s.consume("useItem");
   return true;
 }
 
@@ -421,16 +420,15 @@ function padPress(s: Step): boolean {
   return true;
 }
 
-function rideLift({ h, world, cfg }: Step, dir: -1 | 1): boolean {
+function rideLift({ h, world, cfg }: Step): boolean {
   const lift = h.onLift ? liftAt(world, h, cfg) : null;
+  const dir = lift && lift.y > lift.top ? -1 : 1;
   if (!lift || !liftGoes(lift, dir) || !onDeck(h.x, lift, cfg)) return false;
   const resting = lift.target === null;
-  if (callLift(lift, dir, world.flags)) {
-    if (resting) cue(world, "liftStart", 8000);
-    return true;
-  }
-  if (lift.hint) say(world, lift.hint);
-  return false;
+  if (!callLift(lift, dir, world.flags)) {
+    if (lift.hint) say(world, lift.hint);
+  } else if (resting) cue(world, "liftStart", 8000);
+  return true;
 }
 
 function onDeck(x: number, lift: Lift, cfg: MovementConfig): boolean {
