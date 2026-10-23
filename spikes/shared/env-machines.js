@@ -604,7 +604,7 @@ define({
   }
 });
 
-const MAST = { x: 2, w: 20, foot: -8, seg: 20 };
+const MAST = { x: -8, w: 40, foot: -8, seg: 20 };
 
 function mastTruss(ctx, h) {
   const { x, w, foot, seg } = MAST;
@@ -635,12 +635,12 @@ function keyPanel(ctx) {
 
 define({
   id: "craneMast",
-  box: [-3, -336, 30, 0],
+  box: [-13, -336, 50, 0],
   draw(ctx, state, t, size = {}) {
     mastTruss(ctx, size.h ?? 336);
-    box(ctx, -2, MAST.foot, 28, -MAST.foot, "concrete", 2);
-    G.surface(ctx, -2, MAST.foot, 28, -MAST.foot, 255, { rise: 0.5, drip: 2, dripLen: 6 });
-    G.chips(ctx, -2, MAST.foot + 0.2, 28, 256);
+    box(ctx, -12, MAST.foot, 48, -MAST.foot, "concrete", 2);
+    G.surface(ctx, -12, MAST.foot, 48, -MAST.foot, 255, { rise: 0.5, drip: 2, dripLen: 6 });
+    G.chips(ctx, -12, MAST.foot + 0.2, 48, 256);
     keyPanel(ctx);
   }
 });
