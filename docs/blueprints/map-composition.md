@@ -12,6 +12,7 @@ Each rule ends with its source:
 | [M] | auto-memory note of an earlier session |
 | [T] | `docs/research/tools/levelmap.py` config notes or tests |
 | [CLAUDE.md] | project instructions |
+| [H: id date] | your own message in an earlier session (transcript id, first 8 characters); a forked session repeats some messages under a second id |
 
 ```mermaid
 flowchart TD
@@ -37,6 +38,9 @@ flowchart TD
 - Every lift has two stops; a three-stop lift becomes two lifts side by side. [R: Lift stops]
 - A floor beside a shaft on a row where its lift does not stop gets a wall up to the floor above, so it does not read as a landing. [R: Lift shaft sides]
 - A bottom stop is solid (`|` blockers in its shaft cells), so the hero never drops through with the deck away. [R: Lift art]
+- Map obstacles stop the hero from falling past a lift to its other stop, so a lift always waits at the hero's level. [H: 0841ea1e 2026-10-19]
+- A wall beside a lift is as high as the lift. [H: 736b19e6 2026-10-20]
+- Every panel calls its lift from the other end of the shaft, since the hero can ride and then jump down. [H: b21fdc09 2026-10-23]
 - Walkable art stays walkable: no blocker inside art the hero should walk over. The crashed ship pad walks up to its wall at col 22. [S]
 
 ## Reach and sight
@@ -56,6 +60,8 @@ flowchart TD
 - Wall in corners beside tall towers at the map edge (cols 128-142, rows 0-16). [S]
 - Crop the right map edge where every column beyond is wall or never reached (`width`). Keep the left columns: cropping them would shift every x coordinate of the mission (scenery, props, enemies, lifts, tasks, tests, `moveto` notes). [S]
 - Every edge the hero touches shows a wall; every blocker the hero can touch has visible art. [R: Mesto map art] [F]
+- Walls at the map edge are so thick that the view shows only bricks; same on the right edge and in every future map. [H: 736b19e6 2026-10-20]
+- Walls mostly reach the floor above, and no wall levitates: each stands on a floor or wall. [H: 51ca5370 2026-10-19] [H: 17637e34 2026-10-23]
 - A wall column above the ground reaches the floor above it (`mesto.test.ts`). The test splits walls into row rectangles, so a fill that makes two rows end at the same column can merge them into one tall wall whose top lands on a lift landing. Shape the fill so it does not. [T] [S]
 
 ## Scenery placement (`world.json`)
@@ -69,6 +75,11 @@ flowchart TD
 - A floor that reaches a lift shaft from both sides, or from one side up to a wall, runs on behind it, darkened. Floor and scenery art never covers a lift shaft. [R: Scenery placement] [R: Lift art]
 - A lift panel stands in the cell beside the shaft at every lift stop, on the original side. [R: Mesto map art]
 - Non-blocking tall scenery stays in the backdrop under the depth haze, so it never reads as solid. [R: Sandbox reskin]
+- Background art never looks like a movement blocker (a column on the big stair read as a wall), and scenery on a floor never looks like a pickup item (light brown crates confused players). [H: 0841ea1e 2026-10-19] [H: 47630b39 2026-10-23]
+- A building is a building, not walls around one, and it reaches the ground; a crashed vehicle never sticks into a wall and has clean sky above it. [H: 736b19e6 2026-10-20]
+- Pipes are continuous (no gap, no shrunken piece) and keep one design; a sign never hangs over a pipe; a fence is never broken by an overlap. [H: 26768559 2026-10-21] [H: ddd24ca7 2026-10-23]
+- Lift panels draw in front of walls and fences. [H: 71bebef1 2026-10-21]
+- The floor behind a lift shaft keeps the pattern of the floor beside it (not one global pattern), darkened like a far limb. [H: e1a65539 2026-10-22]
 - Fill empty sky between floors with `skylineTower` backdrop: first in `backdrop`, flat dark, varied `w`, `h`, state and `flip`, tall enough to pass behind the floor above. [S]
 
 ## Ground clutter
@@ -90,6 +101,8 @@ flowchart TD
 
 - Mission 1 feels rotting: grain, rust drips, pooled dirt and worn edges on every surface, holes read through a scorched ring and lit broken rim; grime static scenery freely (cached tiles), keep per-frame props cheap, keep 60 fps. [M]
 - Art is vector, drawn as code, not original assets. [CLAUDE.md]
+- Damage reads through the colours around it (scorch, rim), not only through a missing part; grime must not hurt performance. [H: 7d0fbc31 2026-10-22]
+- Underground: lower ceiling, darker, lights mounted on the ceiling; bricks stay until map looks are revisited. [H: 608a310d 2026-10-21]
 
 ## New assets
 
