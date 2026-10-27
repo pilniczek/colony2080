@@ -30,6 +30,7 @@ flowchart TD
 - The original map (dev overlay, key `o` on `game.html`) is the reference for every fix that has an original counterpart. [F]
 - Change the map only in `levelmap.py` (`sky`, `patches`, `borderFills`, `unseen`, `holes`, `plankGaps`, `width`), never in `map.json`. [F] [T]
 - Before a change, regenerate and diff: the output must match the committed file. [S]
+- Levels 2-4 use the same converter and reach tests as mission 1; a task that changes the map applies a whole-map variant over the base, never stacked on another variant. [R: Levels 2-4 layout] [H: 94261352 2026-10-20]
 
 ## Traversal
 
@@ -48,20 +49,23 @@ flowchart TD
 - Reachable means the strict reach graph with every task gate open. The generous graph lets the hero step off a moving lift deck past a wall, so a pocket only it reaches is unreachable (floor 44 west of lift 67, the removed middle stop of lift 122). [S]
 - Before filling a pocket, confirm in game (`moveto`, jumps) that the hero cannot enter it. [F]
 - After each map change, update `GATED` in `reach.test.ts`: runs a fill buries leave the lists, new fill tops nobody reaches join `never`. [F] [S]
+- Fog shows a floor only from above or from the side, never from below, so an unvisited upper floor reads the same everywhere. [H: 661a389c 2026-10-23] [CLAUDE.md]
 
 ## Walls, sky and edges
 
 - A cell the player never sees and that has something solid above it becomes wall (bricks). Sight is the game fog sight unioned over every reached floor, ladder and lift row (`unseen`). Check the union again after the fill: no cell seen before may turn unseen. [S]
 - Open sky stays open: sky above the top floor of a column, and the explicit `sky` rects (the sky over the crashed ship). [S]
+- No ceiling row at the map top: the sky is open above the level; an invisible ceiling above the top row is fine. [H: 0841ea1e 2026-10-19]
 - An outer wall at the map edge fills solid on to the edge over cells the hero never reaches, so the view shows wall, not sky (`borderFills`, every map). [R: Map borders]
 - Cells under the street that the hero never reaches are solid brick; the street slab is 7 rows thick, so metro tunnels are 4 rows high. [R: Mission 1 underground]
 - Never reached sealed pockets are solid. [R: Mesto map art] [F] Pockets the player cannot enter are walled in, also where only the generous reach graph enters them. [S]
-- Drop never reached roofs and planks that float in the sky (west roof, roof over floor 16); a wall then runs up to the map top where it ended at that roof (col 127 skyscraper). [S] This replaces the west roof drawn on a tower and the open sky east of the skyscraper. [F, superseded]
+- Drop never reached roofs and planks that float in the sky (west roof, roof over floor 16); a wall then runs up to the map top where it ended at that roof (col 127 skyscraper). [S]
 - Wall in corners beside tall towers at the map edge (cols 128-142, rows 0-16). [S]
 - Crop the right map edge where every column beyond is wall or never reached (`width`). Keep the left columns: cropping them would shift every x coordinate of the mission (scenery, props, enemies, lifts, tasks, tests, `moveto` notes). [S]
 - Every edge the hero touches shows a wall; every blocker the hero can touch has visible art. [R: Mesto map art] [F]
 - Walls at the map edge are so thick that the view shows only bricks; same on the right edge and in every future map. [H: 736b19e6 2026-10-20]
 - Walls mostly reach the floor above, and no wall levitates: each stands on a floor or wall. [H: 51ca5370 2026-10-19] [H: 17637e34 2026-10-23]
+- A wall block over an open corridor is fine when it reads as a storey; a nook a removed lift stop leaves behind is filled down to the floor. [H: 17637e34 2026-10-23]
 - A wall column above the ground reaches the floor above it (`mesto.test.ts`). The test splits walls into row rectangles, so a fill that makes two rows end at the same column can merge them into one tall wall whose top lands on a lift landing. Shape the fill so it does not. [T] [S]
 
 ## Scenery placement (`world.json`)
@@ -74,6 +78,7 @@ flowchart TD
 - A pipe never ends in view: a wall or building listed after it covers its end. A wall pipe runs only along a wall edge (`brickWall` state 0 ends a run, state 1 fills inside it). [R: Scenery placement]
 - A floor that reaches a lift shaft from both sides, or from one side up to a wall, runs on behind it, darkened. Floor and scenery art never covers a lift shaft. [R: Scenery placement] [R: Lift art]
 - A lift panel stands in the cell beside the shaft at every lift stop, on the original side. [R: Mesto map art]
+- Every use spot shows a visible object where the hero stands to use it (the crane key panel on its lattice mast at the winch); art drawn far from its use spot leaves players lost. [H: 61b4052c 2026-10-20] [R: Crane level]
 - Non-blocking tall scenery stays in the backdrop under the depth haze, so it never reads as solid. [R: Sandbox reskin]
 - Background art never looks like a movement blocker (a column on the big stair read as a wall), and scenery on a floor never looks like a pickup item (light brown crates confused players). [H: 0841ea1e 2026-10-19] [H: 47630b39 2026-10-23]
 - A building is a building, not walls around one, and it reaches the ground; a crashed vehicle never sticks into a wall and has clean sky above it. [H: 736b19e6 2026-10-20]
@@ -107,6 +112,7 @@ flowchart TD
 ## New assets
 
 - Draw in the spike first (`spikes/shared/env-*.js`), then port to `src/game/env/` and register the id in `assets.ts`. [F] [CLAUDE.md]
+- Every new map object of a mission gets our own vector variant before the map uses it; original screenshots are only references. [H: 94261352 2026-10-20] [R: Mission 2 art]
 - Add an `objects.json` entry with `"origin": "new"`, so the env-design sheet lists it under the new non-interactive group; run `node spikes/shared/build-config.mjs`. [S]
 - Judge size on the env-design sheet against its hero, which has game height. [S]
 
