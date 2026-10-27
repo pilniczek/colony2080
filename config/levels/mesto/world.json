@@ -191,6 +191,8 @@
     {"asset": "chainFence", "x": 47, "y": 37},
     {"asset": "chainFence", "x": 113.5, "y": 37},
     {"asset": "facadeTower", "x": 11, "y": 59, "w": 11, "h": 17},
+    {"asset": "facadeTower", "x": 7, "y": 23, "w": 11, "h": 12},
+    {"asset": "brickWall", "x": 6, "y": 23, "w": 1, "h": 19},
     {"asset": "facadeTower", "x": 127, "y": 30, "w": 9, "h": 27},
     {"asset": "facadeTower", "x": 132, "y": 59, "w": 8, "h": 7},
     {"asset": "facadeTower", "x": 22, "y": 37, "w": 7, "h": 13},
