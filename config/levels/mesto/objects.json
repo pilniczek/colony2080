@@ -1809,6 +1809,36 @@
       ]
     },
     {
+      "id": "skylineTower",
+      "name": "Far tower silhouette",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Narrow far-off tower in flat dark tones behind the near ruins, filling open sky between floors so the street keeps its city fighting feel; sized by w and h in cells, mirrored with flip.",
+      "states": [
+        "ruin (broken top, blown-out holes, rebar)",
+        "intact (antenna mast with red beacon, a few lit windows)"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/video/frames-best/L1_t0226_street_start_barrel_hud.png",
+          "imgSize": [
+            960,
+            600
+          ],
+          "crop": [
+            60,
+            220,
+            860,
+            280
+          ],
+          "caption": "dark tower silhouettes against the street sky"
+        }
+      ]
+    },
+    {
       "id": "graffitiWall",
       "name": "Graffiti wall",
       "csName": null,

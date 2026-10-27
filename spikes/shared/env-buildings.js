@@ -440,6 +440,67 @@ define({
   }
 });
 
+const SIL = ["#140d0a", "#2a1d15", "#3a2a1e", "#4c3726"];
+const SIL_LIT = ["#3a2c1c", "#4e3a22", "#6a5028"];
+const MAST = 48;
+
+function towerWindows(ctx, w, h, seed, lit) {
+  const r = rng(seed), cols = max(2, round((w - 10) / 9)), gx = (w - 10) / cols;
+  for (let y = -16; y > -h + 14; y -= 12) for (let i = 0; i < cols; i++) {
+    const k = r();
+    if (k < 0.2) continue;
+    const fill = lit && k > 0.82 ? SIL_LIT[round(r() * 2)] : SIL[0];
+    flat(ctx, 5 + i * gx + gx * 0.2, y - 6, gx * 0.6, 6, fill);
+  }
+}
+
+function ruinTop(w, h, r, seed) {
+  const left = h * (0.78 + r() * 0.08), right = h * (0.6 + r() * 0.15), peak = w * (0.3 + r() * 0.3);
+  return [...jagged(0, peak - 6, -left, 8, 5, seed + 1), [peak, -h], ...jagged(peak + 4, w * 0.75, -h * 0.9, 10, 4, seed + 13), ...jagged(w * 0.78, w, -right, 8, 5, seed + 14)];
+}
+
+define({
+  id: "skylineTower",
+  box: [0, -288, 72, 0],
+  draw(ctx, state, t, { w = 72, h = 288 } = {}) {
+    const seed = round(w * 7 + h * 3);
+    const r = rng(seed);
+    const ruin = state === 0;
+    const body = ruin ? h : h - MAST;
+    const top = ruin ? ruinTop(w, body, r, seed) : [[0, -body + 6], [3, -body + 6], [3, -body], [w - 3, -body], [w - 3, -body + 6], [w, -body + 6]];
+    const outline = [[0, 0], ...top, [w, 0]];
+    shape(ctx, outline, SIL[1]);
+    ctx.save();
+    path(ctx, outline);
+    ctx.clip();
+    flat(ctx, 0, -body, 4, body, SIL[2]);
+    flat(ctx, w - 5, -body, 5, body, SIL[0]);
+    for (let y = -12; y > -body; y -= 36) flat(ctx, 0, y - 2, w, 2, SIL[2]);
+    towerWindows(ctx, w, body, seed + 2, !ruin);
+    G.grain(ctx, G.polyRegion(ctx, outline), seed + 3, 0.5);
+    G.drips(ctx, 0, -body * 0.8, w, body * 0.3, seed + 4, round(w / 14), false);
+    G.dirt(ctx, 0, -body, w, body, seed + 5, min(0.25, 40 / body));
+    ctx.restore();
+    line(ctx, outline, SIL[3], 1.2);
+    if (ruin) {
+      for (let k = 0; k < 2; k++) {
+        const pts = blob(w * (0.3 + r() * 0.4), -body * (0.35 + k * 0.3 + r() * 0.1), w * 0.16, 9 + r() * 6, seed + 6 + k, 12);
+        G.scorch(ctx, pts, seed + 8 + k);
+        shape(ctx, pts, SIL[0]);
+        G.rim(ctx, pts, seed + 10 + k, SIL[3], SIL[0]);
+      }
+      rebar(ctx, top, seed + 12);
+      return;
+    }
+    const mast = w * (0.3 + r() * 0.4);
+    flat(ctx, w * 0.12, -body - 6, w * 0.22, 6, SIL[1]);
+    line(ctx, [[mast, -body], [mast, -h + 6]], SIL[2], 1.6);
+    for (let k = 1; k <= 3; k++) line(ctx, [[mast - 6 + k, -body - k * 9], [mast + 6 - k, -body - k * 9]], SIL[2], 0.8);
+    disc(ctx, mast, -h + 5, 1.4, "#c22a1a");
+    if (!simple()) glow(ctx, mast, -h + 5, 8, "#ff4a2a", 0.35);
+  }
+});
+
 const TAGS = (() => {
   const r = rng(23);
   return ["neon", "a1", "neon", "c3", "a2", "neon", "y2", "c3", "a1"].map((c, i) => {
