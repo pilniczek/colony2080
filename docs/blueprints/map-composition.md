@@ -20,7 +20,7 @@ flowchart TD
 - Open sky stays open: sky above the top floor of a column, and the explicit `sky` rects (the sky over the crashed ship).
 - Drop never reached roofs and planks that float in the sky (west roof, roof over floor 16). A wall then runs up to the map top where it ended at that roof (col 127 skyscraper).
 - Wall in pockets the player cannot enter, and corners beside tall towers at the map edge.
-- Crop the map edge where every column beyond is wall or never reached (`width`). Cropping the left side shifts every x coordinate of the mission, so decide it apart (open question).
+- Crop the right map edge where every column beyond is wall or never reached (`width`). Keep the left columns: cropping them would shift every x coordinate of the mission (scenery, props, enemies, lifts, tasks, tests, `moveto` notes), so they stay even when unused (user, 2026-10-27).
 - Walkable art stays walkable: no blocker inside art the hero should walk over (the crashed ship pad walks up to its wall at col 22).
 - A wall column above the ground reaches the floor above it (`mesto.test.ts`). The test splits walls into row rectangles, so a fill that makes two rows end at the same column can merge them into one tall wall whose top lands on a lift landing. Shape the fill so it does not.
 - After each map change, update `GATED` in `reach.test.ts`: runs a fill buries leave the lists, new fill tops that nobody reaches join `never`.
