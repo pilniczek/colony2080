@@ -23,8 +23,8 @@ const droids = enemies.enemies.filter((e) => e.type === "chromeDroid");
 const flyers = enemies.enemies.filter((e) => e.type === "flyer");
 
 describe("mesto map", () => {
-  it("loads 160 x 80", () => {
-    expect(grid.width).toBe(160);
+  it("loads 143 x 80", () => {
+    expect(grid.width).toBe(143);
     expect(grid.height).toBe(80);
   });
 

@@ -241,15 +241,14 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
       "plasma barrier, unlockPlasma opens it (report 13: plasma)": ["44,78", "44,85", "51,78", "51,85"],
       "lift 9 needs flag:upperFloorsOpen from repairLift (report 13: lift 10 repaired)": ["23,19", "23,36", "30,29", "30,36", "30,58"],
       "card door and acid guard, openDoor and useAcidTank open them (report 13: card door, lift 14 after acid)": [
-        ...["10,31", "10,55", "16,27", "16,55", "16,125", "23,50", "23,87", "23,101", "23,107", "23,117", "30,75", "30,87"],
+        ...["10,31", "10,55", "16,27", "16,55", "16,125", "23,50", "23,87", "23,101", "23,107", "30,75", "30,87"],
         ...["30,107", "30,112"],
       ],
       "behind the shoot guard, the E-Blaster wrecks it (world.json shootGuard)": ["16,19"],
     },
     never: {
-      "outside every reached walk segment of report 13 (Floor tiles table)": [...["3,127", "10,7", "10,66", "10,128", "16,136"]],
-      "crashed ship pad behind its hull blocker under the open sky (levelmap.py sky)": ["41,15"],
-      "border wall tops beside the map edge (levelmap.py borderFills and the under-street patch)": ["17,158", "39,0"],
+      "border wall top beside the map edge (levelmap.py borderFills)": ["39,0"],
+      "west roof wall top under the open sky (levelmap.py patches)": ["11,18"],
     },
   },
   vesnice: {

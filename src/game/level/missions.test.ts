@@ -43,7 +43,7 @@ describe("missions", () => {
 
   it.each(MISSIONS)("%s loads", (id) => {
     const world = loadMission(id);
-    expect(world.grid.width).toBe(160);
+    expect(world.grid.width).toBe(id === "mesto" ? 143 : 160);
     expect(world.grid.height).toBe(80);
   });
 
