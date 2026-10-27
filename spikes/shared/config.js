@@ -12856,6 +12856,49 @@ window.C28_CONFIG = {
       ]
      },
      {
+      "id": "brickPile",
+      "name": "Brick pile with rods",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Small heap of loose bricks and a concrete chunk with bent rebar rods sticking out, lying on a floor (about 2.7 x 1 tiles).",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "carWreck",
+      "name": "Burnt-out car wreck",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Static rusted, burnt-out vehicle shell: empty scorched window holes, flat or missing wheels, no flames or smoke.",
+      "states": [
+       "sedan (flat rear tyre)",
+       "hatchback (front wheel missing, nose down)",
+       "truck (cab and cargo box with a blown-out hole)"
+      ],
+      "refs": []
+     },
+     {
+      "id": "tyres",
+      "name": "Old tyres",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Worn tyres lying on the ground.",
+      "states": [
+       "stack of three lying flat",
+       "one lying flat, one leaning on it"
+      ],
+      "refs": []
+     },
+     {
       "id": "fallenGirders",
       "name": "Collapsed girder wreckage",
       "csName": null,

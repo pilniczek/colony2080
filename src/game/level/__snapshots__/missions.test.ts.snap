@@ -881,6 +881,56 @@ exports[`missions > mesto json is unchanged 1`] = `
   ],
   "dressing": [
     {
+      "asset": "barrel",
+      "x": 42.6,
+      "y": 59,
+    },
+    {
+      "asset": "barrel",
+      "x": 108.5,
+      "y": 37,
+    },
+    {
+      "asset": "barrel",
+      "x": 90.5,
+      "y": 16,
+    },
+    {
+      "asset": "barrel",
+      "x": 62.3,
+      "y": 30,
+    },
+    {
+      "asset": "barrel",
+      "x": 86.5,
+      "y": 51,
+    },
+    {
+      "asset": "barrel",
+      "x": 89,
+      "y": 23,
+    },
+    {
+      "asset": "brickPile",
+      "x": 66,
+      "y": 59,
+    },
+    {
+      "asset": "brickPile",
+      "x": 104,
+      "y": 37,
+    },
+    {
+      "asset": "brickPile",
+      "x": 113.3,
+      "y": 16,
+    },
+    {
+      "asset": "brickPile",
+      "x": 16,
+      "y": 10,
+    },
+    {
       "asset": "ceilingPipe",
       "w": 21.42,
       "x": 20.125,

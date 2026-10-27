@@ -1,6 +1,6 @@
 (() => {
 const { define, P, G } = window.ENV;
-const { rng, path, color, flat, box, poly, cylV, disc, rivets, glow, stroke, tones, line } = P;
+const { rng, path, color, flat, box, poly, cylV, disc, rivets, glow, stroke, tones, line, shape } = P;
 const { PI, sin, cos, atan2, hypot } = Math;
 
 const simple = () => window.ENV.simple;
@@ -556,6 +556,156 @@ define({
     const list = simple() ? BOULDERS.filter(b => b[2] > 6) : BOULDERS;
     list.map((b, i) => [...b, i]).sort((a, b) => a[1] - b[1]).forEach(([x, y, r, i]) => rock(ctx, x, y, r * 1.3, i + 3));
     clipped(ctx, PILE, () => G.dirt(ctx, -6, -100, 108, 100, 78, 0.6));
+  }
+});
+
+const BRICKS = (() => {
+  const r = rng(91), list = [];
+  for (let i = 0; i < 46; i++) {
+    const x = 4 + r() * 56, top = -16 * Math.sin(PI * (x / 64)) ** 0.8;
+    list.push([x, top * r() - 1, 6 + r() * 3, 3, (r() - 0.5) * 1.2, r() < 0.25 ? 1 : r() < 0.6 ? 2 : 3]);
+  }
+  return list.sort((a, b) => a[1] - b[1]).reverse();
+})();
+const RODS = [[10, -4, 4, -20], [22, -10, 30, -30], [26, -9, 38, -26], [40, -8, 56, -24], [46, -6, 50, -18], [14, -6, -2, -12]];
+const HEAP = [[0, 0], [4, -5], [12, -9], [22, -15], [32, -17], [42, -14], [52, -9], [60, -4], [66, 0]];
+
+define({
+  id: "brickPile",
+  box: [-4, -32, 70, 0],
+  draw(ctx) {
+    poly(ctx, HEAP, "brick", 0);
+    G.grain(ctx, G.polyRegion(ctx, HEAP), 92);
+    for (const [ax, ay, bx, by] of RODS.slice(0, 3)) line(ctx, [[ax, ay], [(ax + bx) / 2 + 2, (ay + by) / 2], [bx, by]], "rLine", 1.6);
+    const list = simple() ? BRICKS.filter((_, i) => i % 2) : BRICKS;
+    for (const [x, y, w, h, a, tone] of list) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a);
+      box(ctx, -w / 2, -h / 2, w, h, "brick", tone);
+      if (!simple()) flat(ctx, -w / 2 + 0.6, -h / 2 + 0.4, w - 1.2, 0.6, "b3");
+      ctx.restore();
+    }
+    poly(ctx, [[30, -12], [44, -16], [46, -11], [32, -7]], "concrete", 1);
+    G.grain(ctx, G.rectRegion(ctx, 30, -16, 16, 9), 93);
+    for (const [ax, ay, bx, by] of RODS.slice(3)) line(ctx, [[ax, ay], [(ax + bx) / 2 - 1, (ay + by) / 2 + 1], [bx, by]], "r2", 1.3);
+    for (const [ax, ay, bx, by] of RODS.slice(0, 3)) line(ctx, [[(ax + bx) / 2 + 2, (ay + by) / 2], [bx, by]], "r3", 0.7);
+    G.rustPatch(ctx, 42, -10, 3, 1.5, 94);
+    clipped(ctx, HEAP, () => G.dirt(ctx, 0, -18, 66, 18, 95, 0.55));
+  }
+});
+
+function tyre(ctx, cx, cy, r, seed) {
+  disc(ctx, cx, cy, r, "#151210", "#050404");
+  if (!simple()) line(ctx, arc(cx, cy, r * 0.8, r * 0.8, PI * 1.05, PI * 1.6, 6), "#3a332c", 1);
+  disc(ctx, cx, cy, r * 0.58, "#221e1a");
+  disc(ctx, cx, cy, r * 0.44, "r1", "rLine");
+  disc(ctx, cx, cy, r * 0.16, "r0");
+  G.rustPatch(ctx, cx + r * 0.18, cy - r * 0.12, r * 0.16, r * 0.1, seed);
+}
+
+function flatTyre(ctx, x, y, w, h) {
+  const rr = h / 2, pts = [...arc(x + w - rr, y - rr, rr, rr, -PI / 2, PI / 2, 6), ...arc(x + rr, y - rr, rr, rr, PI / 2, PI * 1.5, 6)];
+  shape(ctx, pts, "#151210", "#050404");
+  flat(ctx, x + rr, y - h + 1, w - h, 1, "#3a332c");
+  flat(ctx, x + rr, y - rr - 0.4, w - h, 0.8, "#050404");
+}
+
+define({
+  id: "tyres",
+  box: [-2, -30, 34, 0],
+  draw(ctx, state) {
+    if (state === 1) {
+      flatTyre(ctx, 0, 0, 26, 7);
+      tyre(ctx, 22, -11, 11, 96);
+      G.dirt(ctx, 0, -22, 34, 22, 97, 0.5);
+      return;
+    }
+    for (let i = 0; i < 3; i++) flatTyre(ctx, i === 1 ? 2 : 0, -i * 7, 26, 7);
+    G.dirt(ctx, 0, -21, 28, 21, 98, 0.45);
+  }
+});
+
+const CARS = [
+  {
+    body: [[0, -6], [2, -15], [20, -17], [34, -27], [62, -28], [74, -18], [94, -16], [96, -6]],
+    glass: [[[36, -18], [40, -25], [52, -25], [52, -18]], [[55, -18], [55, -25], [61, -25], [70, -18]]],
+    wheels: [[18, 7.5, 0], [78, 7, 1]], tilt: 0, doors: [34, 53], seed: 100
+  },
+  {
+    body: [[0, -7], [3, -14], [14, -17], [24, -29], [52, -30], [60, -27], [62, -8]],
+    glass: [[[26, -19], [30, -27], [44, -27], [44, -19]], [[47, -19], [47, -27], [53, -27], [56, -19]]],
+    wheels: [[14, 7, 2], [50, 7, 0]], tilt: -0.06, doors: [44], seed: 120
+  }
+];
+
+function wheelAt(ctx, x, r, kind, seed) {
+  if (kind === 2) {
+    disc(ctx, x, -r * 0.5, r * 0.32, "r0", "rLine");
+    return;
+  }
+  tyre(ctx, x, -r, r, seed);
+  if (kind === 1) flat(ctx, x - r - 1, -2.4, r * 2 + 2, 2.4, "#151210");
+}
+
+function burnt(ctx, pts, seed, x, y, w, h) {
+  clipped(ctx, pts, () => {
+    G.grain(ctx, G.polyRegion(ctx, pts), seed);
+    G.rustPatch(ctx, x + w * 0.3, y + h * 0.6, w * 0.12, h * 0.25, seed + 1);
+    G.rustPatch(ctx, x + w * 0.7, y + h * 0.4, w * 0.1, h * 0.2, seed + 2);
+    ctx.globalAlpha = 0.55;
+    shape(ctx, [[x + w * 0.35, y], [x + w * 0.62, y], [x + w * 0.7, y + h * 0.5], [x + w * 0.4, y + h * 0.6]], "hole");
+    ctx.globalAlpha = 1;
+    G.drips(ctx, x, y + h * 0.4, w, h * 0.5, seed + 3, Math.round(w / 14));
+    G.dirt(ctx, x, y, w, h, seed + 4, 0.5);
+  });
+}
+
+function glassHole(ctx, pts, seed) {
+  G.scorch(ctx, pts, seed);
+  shape(ctx, pts, "hole");
+  G.rim(ctx, pts, seed + 1, "r2", "rLine");
+}
+
+function car(ctx, c) {
+  const xs = c.body.map(p => p[0]), w = Math.max(...xs);
+  ctx.save();
+  ctx.translate(0, -2);
+  ctx.rotate(c.tilt);
+  for (const [x, r, kind] of c.wheels) if (kind !== 2) flat(ctx, x - r * 0.9, -r * 1.6, r * 1.8, r * 1.2, "hole");
+  poly(ctx, c.body, "rust", 1);
+  burnt(ctx, c.body, c.seed, 0, -30, w, 26);
+  flat(ctx, 0, -9, w, 2, "r0");
+  for (const x of c.doors) line(ctx, [[x, -8], [x, -20]], "rLine", 0.8);
+  for (const [i, g] of c.glass.entries()) glassHole(ctx, g, c.seed + 10 + i * 2);
+  for (const [i, [x, r, kind]] of c.wheels.entries()) wheelAt(ctx, x, r, kind, c.seed + 20 + i);
+  ctx.restore();
+}
+
+function truck(ctx) {
+  const cab = [[100, -6], [100, -40], [116, -42], [124, -28], [134, -24], [136, -6]];
+  const bed = [[0, -10], [0, -46], [96, -46], [96, -10]];
+  flat(ctx, 4, -10, 128, 4, "r0", "rLine");
+  poly(ctx, bed, "rust", 1);
+  burnt(ctx, bed, 140, 0, -46, 96, 36);
+  for (let x = 12; x < 96; x += 12) line(ctx, [[x, -44], [x, -12]], "r0", 1.2);
+  const breach = [[52, -46], [58, -34], [70, -38], [74, -30], [80, -46]];
+  G.scorch(ctx, breach, 145);
+  shape(ctx, breach, "hole");
+  G.rim(ctx, breach, 146, "r2", "rLine");
+  poly(ctx, cab, "rust", 2);
+  burnt(ctx, cab, 150, 100, -42, 36, 36);
+  glassHole(ctx, [[105, -24], [105, -37], [115, -38], [121, -24]], 155);
+  line(ctx, [[104, -10], [104, -22]], "rLine", 0.8);
+  for (const [i, [x, kind]] of [[18, 0], [36, 1], [118, 0]].entries()) wheelAt(ctx, x, 9, kind, 160 + i);
+}
+
+define({
+  id: "carWreck",
+  box: [-4, -50, 142, 0],
+  draw(ctx, state) {
+    if (state === 2) truck(ctx);
+    else car(ctx, CARS[state] ?? CARS[0]);
   }
 });
 

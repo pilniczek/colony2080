@@ -555,6 +555,46 @@ const BOULDERS: [number, number, number][] = [
   [2, -4, 5], [94, -6, 5], [27, -48, 5], [86, -60, 5],
 ];
 
+type Brick = [number, number, number, number, number, number];
+
+const BRICKS: Brick[] = (() => {
+  const r = rng(91);
+  const list: Brick[] = [];
+  for (let i = 0; i < 46; i++) {
+    const x = 4 + r() * 56;
+    const top = -16 * sin(PI * (x / 64)) ** 0.8;
+    list.push([x, top * r() - 1, 6 + r() * 3, 3, (r() - 0.5) * 1.2, r() < 0.25 ? 1 : r() < 0.6 ? 2 : 3]);
+  }
+  return list.sort((a, b) => a[1] - b[1]).reverse();
+})();
+const RODS: [number, number, number, number][] = [[10, -4, 4, -20], [22, -10, 30, -30], [26, -9, 38, -26], [40, -8, 56, -24], [46, -6, 50, -18], [14, -6, -2, -12]];
+const HEAP: Pt[] = [[0, 0], [4, -5], [12, -9], [22, -15], [32, -17], [42, -14], [52, -9], [60, -4], [66, 0]];
+
+export const brickPile: EnvAsset = {
+  id: "brickPile",
+  box: [-4, -32, 70, 0],
+  draw(ctx) {
+    poly(ctx, HEAP, "brick", 0);
+    G.grain(ctx, G.polyRegion(ctx, HEAP), 92);
+    for (const [ax, ay, bx, by] of RODS.slice(0, 3)) P.line(ctx, [[ax, ay], [(ax + bx) / 2 + 2, (ay + by) / 2], [bx, by]], "rLine", 1.6);
+    const list = P.simple() ? BRICKS.filter((_, i) => i % 2) : BRICKS;
+    for (const [x, y, w, h, a, tone] of list) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a);
+      box(ctx, -w / 2, -h / 2, w, h, "brick", tone);
+      if (!P.simple()) flat(ctx, -w / 2 + 0.6, -h / 2 + 0.4, w - 1.2, 0.6, "b3");
+      ctx.restore();
+    }
+    poly(ctx, [[30, -12], [44, -16], [46, -11], [32, -7]], "concrete", 1);
+    G.grain(ctx, G.rectRegion(ctx, 30, -16, 16, 9), 93);
+    for (const [ax, ay, bx, by] of RODS.slice(3)) P.line(ctx, [[ax, ay], [(ax + bx) / 2 - 1, (ay + by) / 2 + 1], [bx, by]], "r2", 1.3);
+    for (const [ax, ay, bx, by] of RODS.slice(0, 3)) P.line(ctx, [[(ax + bx) / 2 + 2, (ay + by) / 2], [bx, by]], "r3", 0.7);
+    G.rustPatch(ctx, 42, -10, 3, 1.5, 94);
+    clipped(ctx, HEAP, () => G.dirt(ctx, 0, -18, 66, 18, 95, 0.55));
+  },
+};
+
 export const rubblePile: EnvAsset = {
   id: "rubblePile",
   box: [-6, -100, 102, 0],
@@ -600,4 +640,4 @@ export const fallenGirders: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, fallenGirders];
+export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, brickPile, fallenGirders];
