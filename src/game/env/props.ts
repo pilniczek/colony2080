@@ -595,6 +595,138 @@ export const brickPile: EnvAsset = {
   },
 };
 
+const CAR_SCALE = 0.72;
+const TYRE_SCALE = 0.45;
+
+const tyre = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, seed: number): void => {
+  disc(ctx, cx, cy, r, "#151210", "#050404");
+  if (!P.simple()) P.line(ctx, arc(cx, cy, r * 0.8, r * 0.8, PI * 1.05, PI * 1.6, 6), "#3a332c", 1);
+  disc(ctx, cx, cy, r * 0.58, "#221e1a");
+  disc(ctx, cx, cy, r * 0.44, "r1", "rLine");
+  disc(ctx, cx, cy, r * 0.16, "r0");
+  G.rustPatch(ctx, cx + r * 0.18, cy - r * 0.12, r * 0.16, r * 0.1, seed);
+};
+
+const flatTyre = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+  const rr = h / 2;
+  const pts = [...arc(x + w - rr, y - rr, rr, rr, -PI / 2, PI / 2, 6), ...arc(x + rr, y - rr, rr, rr, PI / 2, PI * 1.5, 6)];
+  P.shape(ctx, pts, "#151210", "#050404");
+  flat(ctx, x + rr, y - h + 1, w - h, 1, "#3a332c");
+  flat(ctx, x + rr, y - rr - 0.4, w - h, 0.8, "#050404");
+};
+
+export const tyres: EnvAsset = {
+  id: "tyres",
+  box: [-2, -16, 18, 0],
+  draw(ctx, state) {
+    ctx.save();
+    ctx.scale(TYRE_SCALE, TYRE_SCALE);
+    if (state === 1) {
+      flatTyre(ctx, 0, 0, 26, 7);
+      tyre(ctx, 22, -11, 11, 96);
+      G.dirt(ctx, 0, -22, 34, 22, 97, 0.5);
+    } else {
+      for (let i = 0; i < 3; i++) flatTyre(ctx, i === 1 ? 2 : 0, -i * 7, 26, 7);
+      G.dirt(ctx, 0, -21, 28, 21, 98, 0.45);
+    }
+    ctx.restore();
+  },
+};
+
+type Car = { body: Pt[]; glass: Pt[][]; wheels: [number, number, number][]; arches: number[]; frame: Pt[][]; lift: number; tilt: number; doors: number[]; seed: number };
+
+const CARS: Car[] = [
+  {
+    body: [[0, -6], [2, -15], [20, -17], [34, -27], [62, -28], [74, -18], [94, -16], [96, -6]],
+    glass: [[[36, -18], [40, -25], [52, -25], [52, -18]], [[55, -18], [55, -25], [61, -25], [70, -18]]],
+    wheels: [[18, 7.5, 0], [78, 7, 1]], arches: [], frame: [], lift: 2, tilt: 0, doors: [34, 53], seed: 100,
+  },
+  {
+    body: [[0, -1], [2, -9], [12, -12], [22, -24], [38, -25], [42, -20], [39, -16], [45, -12], [41, -7], [46, -3], [43, 0], [2, 0]],
+    glass: [[[24, -14], [28, -22], [36, -22], [36, -14]]],
+    wheels: [], arches: [12], frame: [[[42, -19], [50, -20], [55, -18]], [[44, -11], [53, -12]], [[43, -1], [57, -1]], [[41, -6], [49, -8], [52, -4]]],
+    lift: 0, tilt: -0.04, doors: [20], seed: 120,
+  },
+];
+
+const wheelAt = (ctx: CanvasRenderingContext2D, x: number, r: number, kind: number, seed: number): void => {
+  if (kind === 2) {
+    disc(ctx, x, -r * 0.5, r * 0.32, "r0", "rLine");
+    return;
+  }
+  tyre(ctx, x, -r, r, seed);
+  if (kind === 1) flat(ctx, x - r - 1, -2.4, r * 2 + 2, 2.4, "#151210");
+};
+
+const burnt = (ctx: CanvasRenderingContext2D, pts: Pt[], seed: number, x: number, y: number, w: number, h: number): void => {
+  clipped(ctx, pts, () => {
+    G.grain(ctx, G.polyRegion(ctx, pts), seed);
+    G.rustPatch(ctx, x + w * 0.3, y + h * 0.6, w * 0.12, h * 0.25, seed + 1);
+    G.rustPatch(ctx, x + w * 0.7, y + h * 0.4, w * 0.1, h * 0.2, seed + 2);
+    ctx.globalAlpha = 0.55;
+    P.shape(ctx, [[x + w * 0.35, y], [x + w * 0.62, y], [x + w * 0.7, y + h * 0.5], [x + w * 0.4, y + h * 0.6]], "hole");
+    ctx.globalAlpha = 1;
+    G.drips(ctx, x, y + h * 0.4, w, h * 0.5, seed + 3, Math.round(w / 14));
+    G.dirt(ctx, x, y, w, h, seed + 4, 0.5);
+  });
+};
+
+const glassHole = (ctx: CanvasRenderingContext2D, pts: Pt[], seed: number): void => {
+  G.scorch(ctx, pts, seed);
+  P.shape(ctx, pts, "hole");
+  G.rim(ctx, pts, seed + 1, "r2", "rLine");
+};
+
+const car = (ctx: CanvasRenderingContext2D, c: Car): void => {
+  const w = Math.max(...c.body.map((p) => p[0]));
+  ctx.save();
+  ctx.scale(CAR_SCALE, CAR_SCALE);
+  ctx.translate(0, -c.lift);
+  ctx.rotate(c.tilt);
+  for (const [x, r] of c.wheels) flat(ctx, x - r * 0.9, -r * 1.6, r * 1.8, r * 1.2, "hole");
+  for (const pts of c.frame) P.line(ctx, pts, "r1", 1.4);
+  poly(ctx, c.body, "rust", 1);
+  burnt(ctx, c.body, c.seed, 0, -30, w, 26);
+  for (const x of c.arches) {
+    const arch = arc(x, 0, 7, 7, PI, 2 * PI, 8);
+    G.scorch(ctx, arch, c.seed + 30);
+    P.shape(ctx, arch, "hole");
+    disc(ctx, x, -2, 1.6, "r0", "rLine");
+  }
+  flat(ctx, 0, -9, w * 0.9, 2, "r0");
+  for (const x of c.doors) P.line(ctx, [[x, -8], [x, -20]], "rLine", 0.8);
+  c.glass.forEach((g, i) => glassHole(ctx, g, c.seed + 10 + i * 2));
+  c.wheels.forEach(([x, r, kind], i) => wheelAt(ctx, x, r, kind, c.seed + 20 + i));
+  ctx.restore();
+};
+
+const truck = (ctx: CanvasRenderingContext2D): void => {
+  const cab: Pt[] = [[100, -6], [100, -40], [116, -42], [124, -28], [134, -24], [136, -6]];
+  const bed: Pt[] = [[0, -10], [0, -46], [96, -46], [96, -10]];
+  flat(ctx, 4, -10, 128, 4, "r0", "rLine");
+  poly(ctx, bed, "rust", 1);
+  burnt(ctx, bed, 140, 0, -46, 96, 36);
+  for (let x = 12; x < 96; x += 12) P.line(ctx, [[x, -44], [x, -12]], "r0", 1.2);
+  const breach: Pt[] = [[52, -46], [58, -34], [70, -38], [74, -30], [80, -46]];
+  G.scorch(ctx, breach, 145);
+  P.shape(ctx, breach, "hole");
+  G.rim(ctx, breach, 146, "r2", "rLine");
+  poly(ctx, cab, "rust", 2);
+  burnt(ctx, cab, 150, 100, -42, 36, 36);
+  glassHole(ctx, [[105, -24], [105, -37], [115, -38], [121, -24]], 155);
+  P.line(ctx, [[104, -10], [104, -22]], "rLine", 0.8);
+  [[18, 0], [36, 1], [118, 0]].forEach(([x, kind], i) => wheelAt(ctx, x as number, 9, kind as number, 160 + i));
+};
+
+export const carWreck: EnvAsset = {
+  id: "carWreck",
+  box: [-2, -48, 140, 0],
+  draw(ctx, state) {
+    if (state === 2) truck(ctx);
+    else car(ctx, CARS[state] ?? (CARS[0] as Car));
+  },
+};
+
 export const rubblePile: EnvAsset = {
   id: "rubblePile",
   box: [-6, -100, 102, 0],
@@ -640,4 +772,4 @@ export const fallenGirders: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, brickPile, fallenGirders];
+export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, brickPile, tyres, carWreck, fallenGirders];

@@ -22,6 +22,7 @@
   section.asset h3 { margin: 0; font-size: 15px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
   .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; padding: 1px 6px; border-radius: 3px; background: #22302f; color: var(--muted); }
   .tag.on { background: #3a1e0c; color: var(--accent); }
+  .tag.new { background: #13303a; color: #7ad0e6; }
   .cs { color: var(--muted); font-weight: 400; font-style: italic; }
   .desc { margin: 4px 0 8px; color: var(--muted); max-width: 80ch; }
   .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
@@ -155,6 +156,7 @@ function tags(o) {
   const shared = others(o);
   return [
     el("span", { className: "tag" + (o.interactive ? " on" : ""), textContent: o.interactive ? "interactive" : "static" }),
+    o.origin === "new" ? el("span", { className: "tag new", textContent: "new" }) : null,
     el("span", { className: "tag", textContent: shared.length ? "shared: " + shared.map(l => l.name).join(", ") : "mission only" }),
     o.marker != null ? el("span", { className: "tag", textContent: "marker " + o.marker }) : null,
     o.task ? el("span", { className: "tag", textContent: o.task }) : null
@@ -166,6 +168,12 @@ function inScope(o) {
   return (others(o).length > 0) === (view.scope === "shared");
 }
 
+const GROUPS = [
+  ["Interactive", o => o.interactive],
+  ["Non-interactive, original", o => !o.interactive && o.origin !== "new"],
+  ["Non-interactive, new", o => !o.interactive && o.origin === "new"]
+];
+
 function build() {
   const toc = document.getElementById("toc");
   const sheet = document.getElementById("sheet");
@@ -173,9 +181,11 @@ function build() {
   sheet.replaceChildren();
   views.length = 0;
   const objects = LEVELS.find(l => l.id === view.mission).objects.objects.filter(inScope);
-  for (const group of [true, false]) {
-    toc.append(el("h2", { textContent: group ? "Interactive" : "Non-interactive" }));
-    for (const o of objects.filter(o => o.interactive === group)) {
+  for (const [title, inGroup] of GROUPS) {
+    const members = objects.filter(inGroup);
+    if (!members.length) continue;
+    toc.append(el("h2", { textContent: title }));
+    for (const o of members) {
       const asset = assets.get(o.id);
       toc.append(el("a", { href: "#" + o.id, textContent: o.name, className: asset ? "" : "missing" }));
       const ours = el("div", { className: "row ours" });

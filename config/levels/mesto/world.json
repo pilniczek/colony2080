@@ -157,6 +157,13 @@
     {"asset": "metroTrain", "x": 70.6, "y": 70}
   ],
   "dressing": [
+    {"asset": "carWreck", "x": 107.4, "y": 59, "state": 2},
+    {"asset": "carWreck", "x": 44.57, "y": 51},
+    {"asset": "carWreck", "x": 77.84, "y": 37, "state": 1},
+    {"asset": "tyres", "x": 21.93, "y": 59},
+    {"asset": "tyres", "x": 106.97, "y": 44, "state": 1},
+    {"asset": "tyres", "x": 60.59, "y": 23},
+    {"asset": "tyres", "x": 127.26, "y": 51, "state": 1},
     {"asset": "barrel", "x": 42.1, "y": 59},
     {"asset": "barrel", "x": 110.6, "y": 37},
     {"asset": "barrel", "x": 56.56, "y": 16},
