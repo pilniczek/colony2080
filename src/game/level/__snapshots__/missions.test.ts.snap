@@ -1276,6 +1276,73 @@ exports[`missions > mesto json is unchanged 1`] = `
       "y": 10,
     },
     {
+      "asset": "tyres",
+      "x": 38.76,
+      "y": 23,
+    },
+    {
+      "asset": "tyres",
+      "state": 1,
+      "x": 87.14,
+      "y": 44,
+    },
+    {
+      "asset": "tyres",
+      "state": 1,
+      "x": 119.14,
+      "y": 44,
+    },
+    {
+      "asset": "brickPile",
+      "x": 55.27,
+      "y": 51,
+    },
+    {
+      "asset": "brickPile",
+      "x": 116.94,
+      "y": 51,
+    },
+    {
+      "asset": "tyres",
+      "x": 21.92,
+      "y": 59,
+    },
+    {
+      "asset": "brickPile",
+      "x": 94.2,
+      "y": 59,
+    },
+    {
+      "asset": "barrel",
+      "x": 42.1,
+      "y": 59,
+    },
+    {
+      "asset": "barrel",
+      "x": 110.6,
+      "y": 37,
+    },
+    {
+      "asset": "barrel",
+      "x": 56.56,
+      "y": 16,
+    },
+    {
+      "asset": "barrel",
+      "x": 61.1,
+      "y": 30,
+    },
+    {
+      "asset": "barrel",
+      "x": 90.56,
+      "y": 51,
+    },
+    {
+      "asset": "barrel",
+      "x": 90.95,
+      "y": 23,
+    },
+    {
       "asset": "liftPanel",
       "state": 2,
       "x": 66,
@@ -1434,73 +1501,6 @@ exports[`missions > mesto json is unchanged 1`] = `
       "asset": "liftPanel",
       "x": 51,
       "y": 16,
-    },
-    {
-      "asset": "tyres",
-      "x": 38.76,
-      "y": 23,
-    },
-    {
-      "asset": "tyres",
-      "state": 1,
-      "x": 87.14,
-      "y": 44,
-    },
-    {
-      "asset": "tyres",
-      "state": 1,
-      "x": 119.14,
-      "y": 44,
-    },
-    {
-      "asset": "brickPile",
-      "x": 55.27,
-      "y": 51,
-    },
-    {
-      "asset": "brickPile",
-      "x": 116.94,
-      "y": 51,
-    },
-    {
-      "asset": "tyres",
-      "x": 21.92,
-      "y": 59,
-    },
-    {
-      "asset": "brickPile",
-      "x": 94.2,
-      "y": 59,
-    },
-    {
-      "asset": "barrel",
-      "x": 42.1,
-      "y": 59,
-    },
-    {
-      "asset": "barrel",
-      "x": 110.6,
-      "y": 37,
-    },
-    {
-      "asset": "barrel",
-      "x": 56.56,
-      "y": 16,
-    },
-    {
-      "asset": "barrel",
-      "x": 61.1,
-      "y": 30,
-    },
-    {
-      "asset": "barrel",
-      "x": 90.56,
-      "y": 51,
-    },
-    {
-      "asset": "barrel",
-      "x": 90.95,
-      "y": 23,
     },
   ],
   "enemies": [
