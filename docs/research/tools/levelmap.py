@@ -30,8 +30,9 @@ EXTRAS = {
             "the street (row 59) is the ground floor and its slab runs down to row 65 around the lift 78 shaft, so the metro under it is 4 rows high like the original tunnel art (rows 66-69, user); "
             "never reached cells under the street are solid too (cols 18-19 and 86-157 of the upper tunnel, cols 48-157 of the lower one, the map edge cols 158-159 from the street down and rows 76-79, user); "
             "the never reached pockets walled in on every side are the original towers, so they are solid (cols 24-27, 69-73, 72-76, 93-99, 125-140); "
-            "the floors of rows 44-59 end at col 140 like the original, solid east of it; the unreached sky east of the col 127 skyscraper (cols 136-159, rows 0-15) "
-            "and the clamp cells under the west roof (col 6, rows 11-29) are open sky"
+            "the floors of rows 44-59 end at col 140 like the original, solid east of it; the clamp cells under the west roof (col 6, rows 11-29) are open sky; "
+            "unseen fills every open cell no reached spot ever sees (fog sight from every reached floor, ladder and lift row, all task gates open) solid, "
+            "so no art is kept where the player cannot look (user)"
         ),
         "spawn": [62.5, 59],
         "liftHints": {55: "The lift is broken."},
@@ -45,7 +46,8 @@ EXTRAS = {
         },
         "plankGaps": {(10, col) for col in range(36, 39)},
         "holes": [(col, 10) for col in range(22, 31)],
-        "sky": [(7, 11, 17, 29), (18, 24, 22, 29), (7, 30, 22, 38), (21, 39, 21, 40), (11, 42, 20, 51), (6, 11, 6, 29), (136, 0, 159, 15)],
+        "sky": [(7, 11, 17, 29), (18, 24, 22, 29), (7, 30, 22, 38), (21, 39, 21, 40), (11, 42, 20, 51), (6, 11, 6, 29)],
+        "unseen": [(0, 0, 64, 2), (66, 0, 157, 2), (0, 3, 21, 3), (66, 3, 126, 9), (128, 3, 157, 9), (0, 4, 5, 33), (7, 4, 21, 8), (7, 9, 20, 9), (6, 10, 6, 33), (136, 10, 157, 15), (7, 11, 17, 33), (128, 11, 135, 15), (18, 24, 22, 33), (22, 34, 22, 36), (0, 34, 7, 38), (15, 39, 16, 40), (17, 40, 17, 40), (19, 42, 20, 49), (115, 45, 140, 50), (20, 50, 20, 50)],
         "borderFills": [(0, 39, 7, 59), (0, 60, 8, 75), (141, 17, 159, 44)],
         "patches": [(14, 39, 14, 40, "|"), (15, 41, 20, 41, "#"), (21, 42, 21, 51, "|"), (9, 60, 77, 65, "#"), (81, 60, 157, 65, "#"),
                     (18, 66, 19, 69, "#"), (86, 66, 157, 69, "#"), (48, 71, 157, 74, "#"), (158, 59, 159, 79, "#"), (0, 76, 157, 79, "#"),
@@ -249,6 +251,8 @@ def build(data, layout, enemies, cfg):
     for left, top, right, bottom, char in cfg["patches"]:
         paint(grid, left, top, right, bottom, char)
     fill_borders(grid, cfg)
+    for left, top, right, bottom in cfg["unseen"]:
+        paint(grid, left, top, right, bottom, "#")
     for w in task_walls:
         while grid[w["top"]][w["col"]] == "#":
             w["top"] += 1

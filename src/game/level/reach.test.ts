@@ -247,11 +247,8 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
       "behind the shoot guard, the E-Blaster wrecks it (world.json shootGuard)": ["16,19"],
     },
     never: {
-      "outside every reached walk segment of report 13 (Floor tiles table)": [
-        ...["3,127", "10,7", "10,66", "10,128", "16,128", "51,115"],
-      ],
-      "crashed ship pad behind its hull blocker under the open sky (levelmap.py sky)": ["41,15"],
-      "border wall tops beside the map edge (levelmap.py borderFills and the under-street patch)": ["17,158", "39,0"],
+      "unseen fill tops beside open cells the player sees, around the crashed ship and the west roof (levelmap.py unseen)": ["10,21", "39,15", "40,17", "41,18"],
+      "border wall top beside the map edge (levelmap.py borderFills)": ["17,158"],
     },
   },
   vesnice: {
