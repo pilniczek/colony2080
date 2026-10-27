@@ -559,6 +559,10 @@ define({
   }
 });
 
+const TRUCK_SCALE = 1.3;
+const PILE_SCALE = 1.3;
+const TYRE_SCALE = 0.7;
+
 const BRICKS = (() => {
   const r = rng(91), list = [];
   for (let i = 0; i < 46; i++) {
@@ -572,8 +576,10 @@ const HEAP = [[0, 0], [4, -5], [12, -9], [22, -15], [32, -17], [42, -14], [52, -
 
 define({
   id: "brickPile",
-  box: [-4, -32, 70, 0],
+  box: [-5, -42, 91, 0],
   draw(ctx) {
+    ctx.save();
+    ctx.scale(PILE_SCALE, PILE_SCALE);
     poly(ctx, HEAP, "brick", 0);
     G.grain(ctx, G.polyRegion(ctx, HEAP), 92);
     for (const [ax, ay, bx, by] of RODS.slice(0, 3)) line(ctx, [[ax, ay], [(ax + bx) / 2 + 2, (ay + by) / 2], [bx, by]], "rLine", 1.6);
@@ -592,11 +598,9 @@ define({
     for (const [ax, ay, bx, by] of RODS.slice(0, 3)) line(ctx, [[(ax + bx) / 2 + 2, (ay + by) / 2], [bx, by]], "r3", 0.7);
     G.rustPatch(ctx, 42, -10, 3, 1.5, 94);
     clipped(ctx, HEAP, () => G.dirt(ctx, 0, -18, 66, 18, 95, 0.55));
+    ctx.restore();
   }
 });
-
-const CAR_SCALE = 0.72;
-const TYRE_SCALE = 0.45;
 
 function tyre(ctx, cx, cy, r, seed) {
   disc(ctx, cx, cy, r, "#151210", "#050404");
@@ -616,7 +620,7 @@ function flatTyre(ctx, x, y, w, h) {
 
 define({
   id: "tyres",
-  box: [-2, -16, 18, 0],
+  box: [-2, -24, 26, 0],
   draw(ctx, state) {
     ctx.save();
     ctx.scale(TYRE_SCALE, TYRE_SCALE);
@@ -677,7 +681,6 @@ function glassHole(ctx, pts, seed) {
 function car(ctx, c) {
   const xs = c.body.map(p => p[0]), w = Math.max(...xs);
   ctx.save();
-  ctx.scale(CAR_SCALE, CAR_SCALE);
   ctx.translate(0, -c.lift);
   ctx.rotate(c.tilt);
   for (const [x, r] of c.wheels) flat(ctx, x - r * 0.9, -r * 1.6, r * 1.8, r * 1.2, "hole");
@@ -698,6 +701,8 @@ function car(ctx, c) {
 }
 
 function truck(ctx) {
+  ctx.save();
+  ctx.scale(TRUCK_SCALE, TRUCK_SCALE);
   const cab = [[100, -6], [100, -40], [116, -42], [124, -28], [134, -24], [136, -6]];
   const bed = [[0, -10], [0, -46], [96, -46], [96, -10]];
   flat(ctx, 4, -10, 128, 4, "r0", "rLine");
@@ -713,11 +718,12 @@ function truck(ctx) {
   glassHole(ctx, [[105, -24], [105, -37], [115, -38], [121, -24]], 155);
   line(ctx, [[104, -10], [104, -22]], "rLine", 0.8);
   for (const [i, [x, kind]] of [[18, 0], [36, 1], [118, 0]].entries()) wheelAt(ctx, x, 9, kind, 160 + i);
+  ctx.restore();
 }
 
 define({
   id: "carWreck",
-  box: [-2, -48, 140, 0],
+  box: [-2, -62, 182, 0],
   draw(ctx, state) {
     if (state === 2) truck(ctx);
     else car(ctx, CARS[state] ?? CARS[0]);

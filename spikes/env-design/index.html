@@ -69,7 +69,7 @@ for (const l of LEVELS) for (const o of l.objects.objects) USED_IN.set(o.id, [..
 const params = new URLSearchParams(location.search);
 const view = { mission: LEVELS.some(l => l.id === params.get("mission")) ? params.get("mission") : LEVELS[0].id, scope: params.get("scope") ?? "" };
 const { TILE } = ENV;
-const HERO_H = 32;
+const HERO_H = 45.6;
 const HERO_GAP = 6;
 const MAX_W = 560;
 const MAX_SCALE = 4;
