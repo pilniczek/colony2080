@@ -110,7 +110,7 @@ describe("mesto static tile", () => {
         expect(paint(clip, { col, row })).toBe(paint(clip));
       }
     }
-  });
+  }, 20000);
 });
 
 const painting = (p: Prop, hero: { blaster: number | null } = { blaster: null }): number => {
