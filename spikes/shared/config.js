@@ -12878,7 +12878,7 @@ window.C28_CONFIG = {
       "description": "Static rusted, burnt-out vehicle shell: empty scorched window holes, flat or missing wheels, no flames or smoke.",
       "states": [
        "sedan (flat rear tyre)",
-       "hatchback (front wheel missing, nose down)",
+       "hatchback (no wheels, rear torn off)",
        "truck (cab and cargo box with a blown-out hole)"
       ],
       "refs": []

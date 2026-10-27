@@ -595,6 +595,9 @@ define({
   }
 });
 
+const CAR_SCALE = 0.72;
+const TYRE_SCALE = 0.45;
+
 function tyre(ctx, cx, cy, r, seed) {
   disc(ctx, cx, cy, r, "#151210", "#050404");
   if (!simple()) line(ctx, arc(cx, cy, r * 0.8, r * 0.8, PI * 1.05, PI * 1.6, 6), "#3a332c", 1);
@@ -613,16 +616,19 @@ function flatTyre(ctx, x, y, w, h) {
 
 define({
   id: "tyres",
-  box: [-2, -30, 34, 0],
+  box: [-2, -16, 18, 0],
   draw(ctx, state) {
+    ctx.save();
+    ctx.scale(TYRE_SCALE, TYRE_SCALE);
     if (state === 1) {
       flatTyre(ctx, 0, 0, 26, 7);
       tyre(ctx, 22, -11, 11, 96);
       G.dirt(ctx, 0, -22, 34, 22, 97, 0.5);
-      return;
+    } else {
+      for (let i = 0; i < 3; i++) flatTyre(ctx, i === 1 ? 2 : 0, -i * 7, 26, 7);
+      G.dirt(ctx, 0, -21, 28, 21, 98, 0.45);
     }
-    for (let i = 0; i < 3; i++) flatTyre(ctx, i === 1 ? 2 : 0, -i * 7, 26, 7);
-    G.dirt(ctx, 0, -21, 28, 21, 98, 0.45);
+    ctx.restore();
   }
 });
 
@@ -630,12 +636,13 @@ const CARS = [
   {
     body: [[0, -6], [2, -15], [20, -17], [34, -27], [62, -28], [74, -18], [94, -16], [96, -6]],
     glass: [[[36, -18], [40, -25], [52, -25], [52, -18]], [[55, -18], [55, -25], [61, -25], [70, -18]]],
-    wheels: [[18, 7.5, 0], [78, 7, 1]], tilt: 0, doors: [34, 53], seed: 100
+    wheels: [[18, 7.5, 0], [78, 7, 1]], arches: [], frame: [], lift: 2, tilt: 0, doors: [34, 53], seed: 100
   },
   {
-    body: [[0, -7], [3, -14], [14, -17], [24, -29], [52, -30], [60, -27], [62, -8]],
-    glass: [[[26, -19], [30, -27], [44, -27], [44, -19]], [[47, -19], [47, -27], [53, -27], [56, -19]]],
-    wheels: [[14, 7, 2], [50, 7, 0]], tilt: -0.06, doors: [44], seed: 120
+    body: [[0, -1], [2, -9], [12, -12], [22, -24], [38, -25], [42, -20], [39, -16], [45, -12], [41, -7], [46, -3], [43, 0], [2, 0]],
+    glass: [[[24, -14], [28, -22], [36, -22], [36, -14]]],
+    wheels: [], arches: [12], frame: [[[42, -19], [50, -20], [55, -18]], [[44, -11], [53, -12]], [[43, -1], [57, -1]], [[41, -6], [49, -8], [52, -4]]],
+    lift: 0, tilt: -0.04, doors: [20], seed: 120
   }
 ];
 
@@ -670,12 +677,20 @@ function glassHole(ctx, pts, seed) {
 function car(ctx, c) {
   const xs = c.body.map(p => p[0]), w = Math.max(...xs);
   ctx.save();
-  ctx.translate(0, -2);
+  ctx.scale(CAR_SCALE, CAR_SCALE);
+  ctx.translate(0, -c.lift);
   ctx.rotate(c.tilt);
-  for (const [x, r, kind] of c.wheels) if (kind !== 2) flat(ctx, x - r * 0.9, -r * 1.6, r * 1.8, r * 1.2, "hole");
+  for (const [x, r] of c.wheels) flat(ctx, x - r * 0.9, -r * 1.6, r * 1.8, r * 1.2, "hole");
+  for (const pts of c.frame) line(ctx, pts, "r1", 1.4);
   poly(ctx, c.body, "rust", 1);
   burnt(ctx, c.body, c.seed, 0, -30, w, 26);
-  flat(ctx, 0, -9, w, 2, "r0");
+  for (const x of c.arches) {
+    const arch = arc(x, 0, 7, 7, PI, 2 * PI, 8);
+    G.scorch(ctx, arch, c.seed + 30);
+    shape(ctx, arch, "hole");
+    disc(ctx, x, -2, 1.6, "r0", "rLine");
+  }
+  flat(ctx, 0, -9, w * 0.9, 2, "r0");
   for (const x of c.doors) line(ctx, [[x, -8], [x, -20]], "rLine", 0.8);
   for (const [i, g] of c.glass.entries()) glassHole(ctx, g, c.seed + 10 + i * 2);
   for (const [i, [x, r, kind]] of c.wheels.entries()) wheelAt(ctx, x, r, kind, c.seed + 20 + i);
@@ -702,7 +717,7 @@ function truck(ctx) {
 
 define({
   id: "carWreck",
-  box: [-4, -50, 142, 0],
+  box: [-2, -48, 140, 0],
   draw(ctx, state) {
     if (state === 2) truck(ctx);
     else car(ctx, CARS[state] ?? CARS[0]);
