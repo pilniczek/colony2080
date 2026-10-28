@@ -13015,6 +13015,7 @@ window.C28_CONFIG = {
       "name": "Ladder",
       "csName": null,
       "interactive": false,
+      "origin": "new",
       "marker": null,
       "task": null,
       "sheet": "structures",

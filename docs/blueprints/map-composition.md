@@ -6,7 +6,7 @@ Each rule ends with its source:
 
 | Tag | Source |
 |---|---|
-| [S] | map fine-tuning session, 2026-10-27 (user rulings and findings) |
+| [S] | map fine-tuning session, 2026-10-27 and 2026-10-28 (user rulings and findings) |
 | [R: name] | `docs/requirements.md` decision row of that name (date in the row) |
 | [F] | mesto map fixes spec, `docs/superpowers/specs/2026-10-21-mesto-map-fixes-design.md` |
 | [M] | auto-memory note of an earlier session |
@@ -63,6 +63,7 @@ flowchart TD
 - Wall in corners beside tall towers at the map edge (cols 128-142, rows 0-16). [S]
 - Crop the right map edge where every column beyond is wall or never reached (`width`). Keep the left columns: cropping them would shift every x coordinate of the mission (scenery, props, enemies, lifts, tasks, tests, `moveto` notes). [S]
 - Every edge the hero touches shows a wall; every blocker the hero can touch has visible art. [R: Mesto map art] [F]
+- No invisible blockers (`|`) in new map work: where a blocker is needed, make it a visible wall or object. Remove `|` cells that no longer hold anything. Today's mesto `|` cells all sit under visible art (lift bottom stops, the building under the ship pad). [S]
 - Walls at the map edge are so thick that the view shows only bricks; same on the right edge and in every future map. [H: 736b19e6 2026-10-20]
 - Walls mostly reach the floor above, and no wall levitates: each stands on a floor or wall. [H: 51ca5370 2026-10-19] [H: 17637e34 2026-10-23]
 - A wall block over an open corridor is fine when it reads as a storey; a nook a removed lift stop leaves behind is filled down to the floor. [H: 17637e34 2026-10-23]
@@ -99,6 +100,7 @@ flowchart TD
 | In front of all assets | small clutter: `barrel`, `tyres`, `brickPile` | end of `dressing`, before the `liftPanel` block |
 | Front | `liftPanel` | last in `dressing` (test) |
 
+- Vehicles may stand on any floor the player can walk, never underground. [S]
 - Density on mesto: at least 3 trucks and 10 cars. Where building edges run out, a car may stand beside another wreck, at most 3 wrecks per cluster. [S]
 - Scale against the game hero: 1.9 cells = 45.6 units (1 cell = 24 units). Cars draw at full size (about 2 hero heights long), trucks and brick piles at 1.3, tyres at 0.7. [S]
 
