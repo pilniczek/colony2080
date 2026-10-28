@@ -31,11 +31,13 @@ const MANUAL_KEYS: [string | Step[] | "liftPanel", string][] = [
   [["up"], "JUMP, CLIMB UP"],
   [["down"], "DUCK, CLIMB DOWN"],
   ["CTRL", "SHOOT / PUNCH"],
+  ["ENTER", "USE ITEM"],
+  ["I", "INVENTORY"],
   ["liftPanel", "ENTER CALLS A DISTANT LIFT"],
   ["X", "HIDING MIGHT BE MORE THAN SHOOTING"],
 ];
 const ARROW_KEY = { len: 5.4, head: 1.6, stroke: 0.7, spread: 4.5 };
-const MANUAL = { gap: 14, text: 5.6, key: 14, keyGap: 10, top: 18, pitch: 13, pad: 6 };
+const MANUAL = { gap: 8, text: 5.6, key: 14, keyGap: 10, top: 18, pitch: 11, pad: 6 };
 const CAPS_EM = 0.7;
 
 export type MenuArt = Pick<InventoryArt, "robot" | "liftPanel">;
