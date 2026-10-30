@@ -561,12 +561,27 @@ describe("lift", () => {
     expect([...g.seen]).toEqual(["idle"]);
   });
 
-  it("does not call the lift from the floor edge next to its deck", () => {
+  it("walks onto the deck from the floor edge next to it, then rides", () => {
     const g = game({ x: 33.8, y: 14 });
     tick(g);
     expect(g.hero).toMatchObject({ onGround: true, onLift: true });
     tick(g, [], ["useItem"]);
+    const lift = g.world.lifts[1]!;
+    expect(lift.target).toBeNull();
+    runUntil(g, () => lift.target !== null, [], 1);
+    expect(g.seen.has("walk") || g.seen.has("run")).toBe(true);
+    run(g, 5);
+    expect(lift.y).toBe(21);
+    expect(g.hero.y).toBeCloseTo(21, 6);
+  });
+
+  it("stops boarding when an arrow is pressed", () => {
+    const g = game({ x: 33.8, y: 14 });
+    tick(g);
+    tick(g, [], ["useItem"]);
+    run(g, 0.5, ["moveLeft"]);
     expect(g.world.lifts[1]!.target).toBeNull();
+    expect(g.world.boarding).toBeNull();
   });
 
   it("ducks on down at the bottom stop", () => {

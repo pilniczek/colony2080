@@ -432,14 +432,49 @@ function padPress(s: Step): boolean {
 }
 
 function rideLift({ h, world, cfg }: Step): boolean {
-  const lift = h.onLift ? liftAt(world, h, cfg) : null;
-  const dir = lift && lift.y > lift.top ? -1 : 1;
-  if (!lift || !liftGoes(lift, dir) || !onDeck(h.x, lift, cfg)) return false;
-  const resting = lift.target === null;
-  if (!callLift(lift, dir, world.flags)) {
+  const lift = deckUnder(h, world, cfg);
+  if (!lift || !liftGoes(lift, rideDir(lift))) return false;
+  if (lift.enabledBy !== undefined && !world.flags.has(lift.enabledBy)) {
     if (lift.hint) say(world, lift.hint);
-  } else if (resting) cue(world, "liftStart", 8000);
+  } else if (onDeck(h.x, lift, cfg)) startRide(world, lift);
+  else world.boarding = lift;
   return true;
+}
+
+const rideDir = (lift: Lift): -1 | 1 => (lift.y > lift.top ? -1 : 1);
+
+function startRide(world: SandboxWorld, lift: Lift): void {
+  const resting = lift.target === null;
+  callLift(lift, rideDir(lift), world.flags);
+  if (resting) cue(world, "liftStart", 8000);
+}
+
+function deckUnder(h: Hero, world: SandboxWorld, cfg: MovementConfig): Lift | null {
+  const lift = h.onGround ? liftAt(world, h, cfg) : null;
+  return lift && (h.onLift || Math.abs(lift.y - h.y) < EPS) ? lift : null;
+}
+
+function onDeck(x: number, lift: Lift, cfg: MovementConfig): boolean {
+  const half = cfg.box.width / 2;
+  return x - half >= lift.x - EPS && x + half <= lift.x + lift.w + EPS;
+}
+
+function board(s: Step): void {
+  const { h, world, input, cfg } = s;
+  const lift = world.boarding;
+  if (!lift) return;
+  const idleOrGait = h.state === "idle" || isGait(h.state);
+  if (input.dir !== 0 || input.pressed.size > 0 || !h.onGround || !idleOrGait || world.cutscene || !deckUnder(h, world, cfg)) {
+    world.boarding = null;
+    return;
+  }
+  if (!onDeck(h.x, lift, cfg)) {
+    s.input = { ...input, dir: h.x < lift.x + lift.w / 2 ? 1 : -1 };
+    return;
+  }
+  world.boarding = null;
+  halt(h);
+  startRide(world, lift);
 }
 
 function callFromPanel({ h, world, cfg }: Step): boolean {
@@ -456,13 +491,8 @@ function callFromPanel({ h, world, cfg }: Step): boolean {
 
 function atPanel(h: Hero, lift: Lift, cfg: MovementConfig): boolean {
   const half = cfg.box.width / 2;
-  const beside = h.x + half <= lift.x + EPS ? h.x + half > lift.x - 1 : h.x - half >= lift.x + lift.w - EPS && h.x - half < lift.x + lift.w + 1;
+  const beside = h.x - half < lift.x - EPS ? h.x + half > lift.x - 1 : h.x + half > lift.x + lift.w + EPS && h.x - half < lift.x + lift.w + 1;
   return beside && lift.stops.some((row) => Math.abs(row - h.y) < EPS);
-}
-
-function onDeck(x: number, lift: Lift, cfg: MovementConfig): boolean {
-  const half = cfg.box.width / 2;
-  return x - half >= lift.x - EPS && x + half <= lift.x + lift.w + EPS;
 }
 
 function moving(s: Step): void {
@@ -794,6 +824,7 @@ export function updateHero(
   if (h.fireTime !== null) h.fireTime += dt;
   if (consume("runToggle")) h.running = !h.running;
   quickSwitch(s);
+  board(s);
   clipEvents(s);
   transitions[h.state]?.(s);
   if (isDead(h.state)) fallDead(s);

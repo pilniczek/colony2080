@@ -124,6 +124,7 @@ export interface SandboxWorld {
   teleports: Teleport[];
   variants: Record<string, CellPatch[]>;
   lifts: Lift[];
+  boarding: Lift | null;
   props: Prop[];
   inventory: Inventory;
   spawn: [number, number];
@@ -254,6 +255,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     complete: false,
     immortal: false,
     autosave: false,
+    boarding: null,
     sounds: [],
     sfx: createSoundClock(),
     source: data,

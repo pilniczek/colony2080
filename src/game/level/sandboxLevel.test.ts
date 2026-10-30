@@ -140,6 +140,21 @@ describe("several lifts", () => {
     expect(g.world.lifts[0]!.target).toBeNull();
   });
 
+  it("walks onto the deck from either edge and rides the lift", () => {
+    for (const x of [17.1, 19.9, 20.2]) {
+      const g = game({ x, y: 14 }, twoLifts);
+      tick(g);
+      tick(g, [], ["useItem"]);
+      const lift = g.world.lifts[0]!;
+      runUntil(g, () => lift.target !== null, [], 1);
+      expect(lift.target).toBe(4);
+      run(g, 5);
+      expect(g.hero.y).toBeCloseTo(4, 6);
+      expect(g.hero.x - cfg.box.width / 2).toBeGreaterThanOrEqual(lift.x - 1e-3);
+      expect(g.hero.x + cfg.box.width / 2).toBeLessThanOrEqual(lift.x + lift.w + 1e-3);
+    }
+  });
+
   it("carries only its own lift while both move", () => {
     const g = game({ x: 18.5, y: 14 }, twoLifts);
     callLift(g.world.lifts[1]!, -1);
@@ -167,6 +182,7 @@ describe("lift panel", () => {
   it("calls the lift down from the bottom panel", () => expect(callFrom(20.4, 14, 4)).toBe(14));
   it("calls the lift up from the top panel", () => expect(callFrom(20.4, 4, 14)).toBe(4));
   it("does nothing while the lift stands at the panel", () => expect(callFrom(20.4, 14, 14)).toBeNull());
+  it("calls the lift from the panel cell edge over the shaft", () => expect(callFrom(20.1, 4, 14)).toBe(4));
   it("does nothing a cell away from the shaft", () => expect(callFrom(22.5, 14, 4)).toBeNull());
 });
 
