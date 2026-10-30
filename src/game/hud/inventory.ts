@@ -88,7 +88,7 @@ function list(s: InventoryState, lang: Lang): string {
     const y = b.y + 4 + i * ROW;
     const on = i === s.cursor;
     const pick = on ? `<rect x="${b.x + 2}" y="${y}" width="${b.w - 4}" height="${ROW}" fill="${INV.pick}"/>` : "";
-    return `<g data-row="${i}" data-on="${on}">${pick}${text(b.x + 4, y + ROW * 0.72, on ? "#fff" : INV.name, itemName(id, lang).toUpperCase())}</g>`;
+    return `<g data-row="${i}" data-on="${on}" style="cursor:pointer"><rect x="${b.x + 2}" y="${y}" width="${b.w - 4}" height="${ROW}" fill="transparent"/>${pick}${text(b.x + 4, y + ROW * 0.72, on ? "#fff" : INV.name, itemName(id, lang).toUpperCase())}</g>`;
   });
   return box(b) + rows.join("") + label(b.x + b.w / 2, b.y + b.h - 5, 7.6, tr("INVENTORY", lang));
 }

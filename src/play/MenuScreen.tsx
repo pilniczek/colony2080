@@ -17,7 +17,7 @@ export function MenuScreen({ mission }: { mission: string }) {
   if (!svg) return null;
   return (
     <div
-      style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "none" }}
+      style={{ position: "absolute", left: 0, top: 0, width: fit.W * fit.unit, height: fit.H * fit.unit, pointerEvents: "auto" }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

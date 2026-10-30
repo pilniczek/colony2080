@@ -111,3 +111,27 @@ export function menuKey(state: MenuState, key: { code: string; key: string }, sl
   if (state.screen === "pause") return pause(state, is);
   return list(state, key, slots, mission, is);
 }
+
+export type MenuPress = "hover" | "useItem" | "moveLeft" | "moveRight";
+
+export interface MenuPoint {
+  row: number;
+  press: MenuPress;
+}
+
+const held = (state: MenuState): boolean =>
+  ((state.screen === "save" || state.screen === "load") && (state.typing !== null || state.confirm)) || (state.screen === "pause" && !!state.confirm);
+
+function pointed(state: MenuState, row: number): MenuState | null {
+  if (row === state.cursor) return state;
+  if (held(state) || (state.screen === "gameOver" && row === 0 && !state.canLoad)) return null;
+  return state.screen === "save" || state.screen === "load" ? { ...state, cursor: row, message: null } : { ...state, cursor: row };
+}
+
+export function menuPoint(state: MenuState, { row, press }: MenuPoint, slots: Slots, mission: string, keys: Bindings): MenuResult {
+  const at = pointed(state, row);
+  if (!at) return { state };
+  const code = keys[press]?.[0];
+  if (press === "hover" || !code) return { state: at };
+  return menuKey(at, { code, key: "" }, slots, mission, keys);
+}

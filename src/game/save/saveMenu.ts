@@ -4,7 +4,8 @@ import { useSandbox } from "../../sandbox/store";
 import type { MovementConfig } from "../hero/config";
 import { isDead, type Hero } from "../hero/hero";
 import { saveLang } from "../i18n";
-import { gameOverState, menuKey, settingsState, type MenuResult, type MenuState } from "../hud/menuKeys";
+import { gameOverState, menuKey, menuPoint, settingsState, type MenuResult, type MenuState } from "../hud/menuKeys";
+import { menuPointOf } from "../hud/pointer";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
 import { AUTO_SLOT, readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
@@ -168,7 +169,20 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     if (bound(e.code, CLICKING)) d.playUi(MENU_CUE);
     act(menuKey(state, { code: e.code, key: e.key }, slots(), d.mission, d.keys));
   };
-  (d.target ?? window).addEventListener("keydown", onKey as EventListener, { capture: true });
+  const onPoint =
+    (click: boolean) =>
+    (e: Event): void => {
+      const state = menu();
+      const point = state && menuPointOf(e.target, click);
+      if (!point) return;
+      const r = menuPoint(state, point, slots(), d.mission, d.keys);
+      if (click || r.state !== state) d.playUi(MENU_CUE);
+      act(r);
+    };
+  const target = d.target ?? window;
+  target.addEventListener("keydown", onKey as EventListener, { capture: true });
+  target.addEventListener("pointerover", onPoint(false));
+  target.addEventListener("click", onPoint(true));
 
   const opened = d.startSlot != null ? (refresh(), slots()[d.startSlot]) : null;
   if (opened?.mission === d.mission) load(opened, { screen: "load", cursor: d.startSlot!, typing: null, confirm: false, message: null });

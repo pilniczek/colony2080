@@ -53,6 +53,9 @@ const text = (x: number, y: number, size: number, fill: string, value: string, a
 
 const pick = (x: number, y: number, w: number, h: number): string => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${INV.pick}"/>`;
 
+const hit = (row: number, x: number, y: number, w: number, h: number, body: string, live = true): string =>
+  live ? `<g data-menu-row="${row}" style="cursor:pointer"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"/>${body}</g>` : body;
+
 const fitIn = ({ x, y, w, h }: Rect): string => {
   const k = Math.min(w / HUD_MIN_W, h / HUD_H);
   return `translate(${x + (w - HUD_MIN_W * k) / 2} ${y + (h - HUD_H * k) / 2}) scale(${k})`;
@@ -67,13 +70,13 @@ function backdrop(view: Rect, robot: HudIcon): string {
   ${area(view, "url(#menuGrid)")}`;
 }
 
-const tspan = (fill: string, value: string, active = false): string =>
-  `<tspan fill="${fill}"${active ? ' text-decoration="underline"' : ""}>${escaped(value)}</tspan>`;
+const tspan = (fill: string, value: string, active = false, option?: number): string =>
+  `<tspan fill="${fill}"${option === undefined ? "" : ` data-option="${option}"`}${active ? ' text-decoration="underline"' : ""}>${escaped(value)}</tspan>`;
 
 function rowText(row: Row, x: number, y: number, on: boolean): string {
   const bright = on ? "#fff" : INV.name;
   if ("entry" in row) return text(x, y, 6.4, bright, row.entry);
-  const parts = row.options.map((option, i) => tspan(i === row.on ? bright : INV.frame, option, i === row.on)).join(tspan(INV.frame, " / "));
+  const parts = row.options.map((option, i) => tspan(i === row.on ? bright : INV.frame, option, i === row.on, i)).join(tspan(INV.frame, " / "));
   return `<text x="${x}" y="${y}" font-family="${MONO}" font-size="6.4" xml:space="preserve">${parts}</text>`;
 }
 
@@ -98,7 +101,7 @@ function rowsBox(title: string, rows: Row[], cursor: number): string {
   const drawn = rows.map((row, i) => {
     if ("entry" in row && row.gap) y += BUTTON_GAP;
     const on = i === cursor;
-    const out = (on ? pick(b.x + 2, y, b.w - 4, MENU_ROW - 1) : "") + rowText(row, b.x + 10, y + MENU_ROW * 0.66, on) + ("options" in row ? arrows(b, y, on) : "");
+    const out = hit(i, b.x + 2, y, b.w - 4, MENU_ROW - 1, (on ? pick(b.x + 2, y, b.w - 4, MENU_ROW - 1) : "") + rowText(row, b.x + 10, y + MENU_ROW * 0.66, on) + ("options" in row ? arrows(b, y, on) : ""));
     y += MENU_ROW;
     return out;
   }).join("");
@@ -181,12 +184,17 @@ function slotList(s: Extract<MenuState, { screen: "save" | "load" }>, slots: Slo
     const picture = slot
       ? `<image href="${escaped(slot.picture)}" x="${b.x + b.w - pw - 6}" y="${y + 3}" width="${pw}" height="${ph}" preserveAspectRatio="xMidYMid slice"/><rect x="${b.x + b.w - pw - 6}" y="${y + 3}" width="${pw}" height="${ph}" fill="none" stroke="${INV.frame}" stroke-width=".5"/>`
       : "";
-    return (
+    return hit(
+      i,
+      b.x + 2,
+      y,
+      b.w - 4,
+      row - 2,
       (on ? pick(b.x + 2, y, b.w - 4, row - 2) : "") +
       text(b.x + 6, y + 11, i === AUTO_SLOT ? LETTER.auto : LETTER.size, on ? "#fff" : INV.label, slotLabel(i)) +
       text(b.x + 18, y + 11, 6, on ? "#fff" : slot || typing ? INV.name : INV.frame, name.toUpperCase()) +
       (slot ? text(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, savedStamp(slot.savedAt)) : "") +
-      picture
+      picture,
     );
   }).join("");
   const [hint, colour] = footer(s, lang);
@@ -199,7 +207,8 @@ function gameOver(W: number, H: number, s: Extract<MenuState, { screen: "gameOve
     const y = CHOICE_BOX.y + 4 + i * CHOICE_ROW;
     const on = i === s.cursor;
     const off = i === 0 && !s.canLoad;
-    return (on ? pick(CHOICE_BOX.x + 4, y, CHOICE_BOX.w - 8, CHOICE_ROW - 1) : "") + text(CHOICE_BOX.x + CHOICE_BOX.w / 2, y + 8.4, 6.4, on ? "#fff" : off ? INV.frame : INV.name, choice, 'text-anchor="middle"');
+    const body = (on ? pick(CHOICE_BOX.x + 4, y, CHOICE_BOX.w - 8, CHOICE_ROW - 1) : "") + text(CHOICE_BOX.x + CHOICE_BOX.w / 2, y + 8.4, 6.4, on ? "#fff" : off ? INV.frame : INV.name, choice, 'text-anchor="middle"');
+    return hit(i, CHOICE_BOX.x + 4, y, CHOICE_BOX.w - 8, CHOICE_ROW - 1, body, !off);
   }).join("");
   const note = s.message ? text(160, CHOICE_BOX.y - 4, 5.2, INV.stat, tr(s.message, lang).toUpperCase(), 'text-anchor="middle"') : "";
   const ox = (W - HUD_MIN_W) / 2;

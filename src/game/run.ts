@@ -25,6 +25,7 @@ import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
 import { createHero, halt, type Hero } from "./hero/hero";
 import { createRigs, heroLook } from "./hero/look";
+import { attrOf } from "./hud/pointer";
 import { canOpenScreen, closesMap, inventoryKey, openCursor, repeatsOnScreen, screenKey } from "./hud/inventoryKeys";
 import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
@@ -444,6 +445,21 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     useSandbox.setState({ inventory: { open: !close, cursor }, item: world.inventory.shown });
   };
   window.addEventListener("keydown", inventoryKeys, { capture: true });
+
+  const inventoryPoint =
+    (click: boolean) =>
+    (e: Event): void => {
+      const row = tuning().inventory.open ? attrOf(e.target, "data-row") : null;
+      if (row === null) return;
+      const cursor = Number(row);
+      if (click) {
+        showItem(world, newestFirst(world.inventory.items)[cursor]!);
+        input.clearPresses();
+      }
+      useSandbox.setState({ inventory: { open: !click, cursor }, item: world.inventory.shown });
+    };
+  window.addEventListener("pointerover", inventoryPoint(false));
+  window.addEventListener("click", inventoryPoint(true));
 
   const mapKeys = (e: KeyboardEvent): void => {
     if (!tuning().mapOpen) return;

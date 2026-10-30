@@ -1,7 +1,7 @@
 import controls from "@config/controls.json";
 import { describe, expect, it } from "vitest";
 import type { SlotEntry, Slots } from "../save/slots";
-import { gameOverState, menuKey, type MenuState } from "./menuKeys";
+import { gameOverState, menuKey, menuPoint, type MenuPress, type MenuState } from "./menuKeys";
 
 const keys = controls.keyboard;
 const press = (code: string, key = code) => ({ code, key });
@@ -111,5 +111,40 @@ describe("menuKey", () => {
     expect(over).toMatchObject({ cursor: 1 });
     expect(step(over, "ArrowUp").state).toMatchObject({ cursor: 1 });
     expect(step(over, "ArrowDown").state).toMatchObject({ cursor: 2 });
+  });
+});
+
+describe("menuPoint", () => {
+  const point = (state: MenuState, row: number, press: MenuPress) => menuPoint(state, { row, press }, slots, "mesto", keys);
+
+  it("moves the cursor to a hovered row and acts on a clicked one like Enter", () => {
+    const at = { screen: "pause", cursor: 0 } as const;
+    expect(point(at, 2, "hover")).toEqual({ state: { screen: "pause", cursor: 2 } });
+    expect(point(at, 0, "hover").state).toBe(at);
+    expect(point(at, 2, "useItem")).toEqual({ state: { screen: "pause", cursor: 2, confirm: true } });
+    expect(point({ screen: "settings", cursor: 0, autosave: true }, 2, "useItem")).toEqual({ state: null, action: "difficulty", autosave: true });
+  });
+
+  it("switches an option row toward the clicked side", () => {
+    const at = { screen: "settings", cursor: 2, autosave: true } as const;
+    expect(point(at, 0, "moveRight").state).toEqual({ ...at, cursor: 0, autosave: false });
+    expect(point(at, 1, "moveRight")).toEqual({ state: { ...at, cursor: 1 }, action: "lang", lang: "cs" });
+  });
+
+  it("skips a greyed load row and keeps a typing or confirming row", () => {
+    const over = gameOverState(false);
+    expect(point(over, 0, "hover").state).toBe(over);
+    expect(point(over, 0, "useItem")).toEqual({ state: over });
+    const typing = list("save", { cursor: 1, typing: "ab" });
+    expect(point(typing, 2, "hover").state).toBe(typing);
+    expect(point(typing, 2, "useItem")).toEqual({ state: typing });
+    expect(point(typing, 1, "useItem")).toEqual({ state: { ...typing, typing: null }, action: "save", slot: 1, name: "ab" });
+    const asking = { screen: "pause", cursor: 2, confirm: true } as const;
+    expect(point(asking, 0, "useItem")).toEqual({ state: asking });
+    expect(point(asking, 2, "useItem")).toEqual({ state: asking, action: "restart" });
+  });
+
+  it("clears a list message when the cursor moves", () => {
+    expect(point(list("load", { message: "Saved." }), 1, "hover").state).toMatchObject({ cursor: 1, message: null });
   });
 });

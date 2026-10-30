@@ -38,6 +38,7 @@ interface Rig {
   begins: number;
   played: SoundCue[];
   press(code: string, key?: string, extra?: Partial<KeyboardEvent>): { prevented: boolean };
+  point(type: "pointerover" | "click", attrs: Record<string, string>): void;
   menu: ReturnType<typeof createSaveMenu>;
 }
 
@@ -45,7 +46,7 @@ function rig(storage: Storage = memory(), startSlot: number | null = null, askDi
   const world = loadMesto();
   const hero = createHero(world.spawn, "gun", cfg.energy.max, 0, cfg.ammo);
   const input = new Input(controls.keyboard, () => 0, 150);
-  let handler: (e: KeyboardEvent) => void = () => {};
+  const handlers: Record<string, (e: Event) => void> = {};
   const left: string[] = [];
   const played: SoundCue[] = [];
   const r = { restarts: 0, begins: 0 };
@@ -69,15 +70,17 @@ function rig(storage: Storage = memory(), startSlot: number | null = null, askDi
     begin: () => void r.begins++,
     bodyAt: () => ({ x: 40, y: 50 }),
     playUi: (cue) => void played.push(cue),
-    target: { addEventListener: ((_: string, h: (e: KeyboardEvent) => void) => (handler = h)) as Window["addEventListener"] },
+    target: { addEventListener: ((type: string, h: (e: Event) => void) => (handlers[type] = h)) as Window["addEventListener"] },
   };
   const menu = createSaveMenu(deps);
   const press = (code: string, key = code, extra: Partial<KeyboardEvent> = {}) => {
     let prevented = false;
-    handler({ code, key, repeat: false, ctrlKey: false, metaKey: false, altKey: false, preventDefault: () => (prevented = true), stopImmediatePropagation: () => {}, ...extra } as KeyboardEvent);
+    handlers.keydown!({ code, key, repeat: false, ctrlKey: false, metaKey: false, altKey: false, preventDefault: () => (prevented = true), stopImmediatePropagation: () => {}, ...extra } as KeyboardEvent);
     return { prevented };
   };
-  return Object.assign(r, { world, hero, input, storage, left, played, press, menu });
+  const point = (type: "pointerover" | "click", attrs: Record<string, string>) =>
+    handlers[type]!({ target: { closest: (selector: string) => (selector.slice(1, -1) in attrs ? { getAttribute: (name: string) => attrs[name] ?? null } : null) } } as unknown as Event);
+  return Object.assign(r, { world, hero, input, storage, left, played, press, point, menu });
 }
 
 const saveOf = (r: Rig, savedAt: number, change: (h: Hero) => void = () => {}): SlotEntry => {
@@ -265,6 +268,22 @@ describe("settings", () => {
     const auto = rig(memory(), null, true);
     auto.press("Enter");
     expect(auto.world.autosave).toBe(true);
+  });
+
+  it("takes the mouse: hover moves the cursor, a click on an option switches it, a click on START starts", () => {
+    const r = rig(memory(), null, true);
+    r.point("pointerover", { "data-menu-row": "0" });
+    expect(useSandbox.getState().menu).toMatchObject({ cursor: 0 });
+    expect(r.played).toEqual([MENU_CUE]);
+    r.point("click", { "data-menu-row": "0", "data-option": "1" });
+    r.point("click", { "data-menu-row": "1", "data-arrow": "right" });
+    expect(useSandbox.getState().lang).toBe("cs");
+    r.point("click", {});
+    expect(r.begins).toBe(0);
+    r.point("click", { "data-menu-row": "2" });
+    expect(useSandbox.getState().menu).toBeNull();
+    expect(r.world.autosave).toBe(false);
+    expect(r.begins).toBe(1);
   });
 
   it("switches and remembers the language", () => {
