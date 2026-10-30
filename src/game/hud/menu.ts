@@ -23,7 +23,7 @@ const CHOICE_ROW = 13;
 const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
-const ASK: Record<number, string> = { [PAUSE_ROWS.restart]: "RESTART? UNSAVED PROGRESS IS LOST  ENTER / ESC" };
+const ASK = { title: "RESTART?", lines: ["UNSAVED PROGRESS IS LOST", "ENTER / ESC"], gap: 6, w: 138, top: 17, pad: 6 };
 const STEPS = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] } as const;
 type Step = keyof typeof STEPS;
 const MANUAL_KEYS: [string | Step[] | "liftPanel", string][] = [
@@ -138,6 +138,13 @@ function manual(rows: Row[], panel: HudIcon, lang: Lang): string {
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr("MANUAL", lang)) + keys;
 }
 
+function askBox(lang: Lang): string {
+  const capsMid = (MANUAL.text * CAPS_EM) / 2;
+  const b = { x: MENU_BOX.x + MENU_BOX.w + ASK.gap, y: MENU_BOX.y, w: ASK.w, h: ASK.top + (ASK.lines.length - 1) * MANUAL.pitch + capsMid + ASK.pad };
+  const lines = ASK.lines.map((value, i) => text(b.x + b.w / 2, b.y + ASK.top + i * MANUAL.pitch + capsMid, MANUAL.text, INV.stat, tr(value, lang), 'text-anchor="middle"')).join("");
+  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr(ASK.title, lang)) + lines;
+}
+
 const autosaveRow = (autosave: boolean, lang: Lang): Row => ({ options: AUTOSAVES.map((o) => tr(o, lang)), on: autosave ? 0 : 1 });
 
 const langRow = (lang: Lang): Row => ({ options: LANGS.map((l) => LANG_NAMES[l]), on: LANGS.indexOf(lang) });
@@ -157,10 +164,7 @@ function pause(s: Extract<MenuState, { screen: "pause" }>, lang: Lang, autosave:
   rows[PAUSE_ROWS.autosave] = autosaveRow(autosave, lang);
   rows[PAUSE_ROWS.lang] = langRow(lang);
   rows[PAUSE_ROWS.restart] = { entry: tr("RESTART MISSION", lang) };
-  const b = MENU_BOX;
-  const bottom = b.y + MENU_ROOM + rows.length * MENU_ROW;
-  const ask = s.confirm ? text(b.x + b.w / 2, bottom + 9, 5.2, INV.stat, tr(ASK[s.cursor] ?? "", lang), 'text-anchor="middle"') : "";
-  return rowsBox(tr("MENU", lang), rows, s.cursor) + ask + manual(rows, panel, lang);
+  return rowsBox(tr("MENU", lang), rows, s.cursor) + (s.confirm ? askBox(lang) : "") + manual(rows, panel, lang);
 }
 
 function footer(s: Extract<MenuState, { screen: "save" | "load" }>, lang: Lang): [string, string] {
