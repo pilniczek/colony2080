@@ -107,7 +107,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const tuning = () => useSandbox.getState();
   const mapOn = (): boolean => !mapItem || world.inventory.items.includes(mapItem);
   const fogConfig = loadFog(cameraJson);
-  const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: number } };
+  const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: number; zoom: number } };
   const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, true);
   const applyFog = (on: boolean): void => {
     world.fog = on ? createFog(fogConfig, tuning().movement, hero, world.grid) : null;
@@ -184,8 +184,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       gameWindow.h,
       world.grid.width * cellPx,
       world.grid.height * cellPx,
-      cameraConfig.view.widthCells * cellPx,
-      cameraConfig.view.heightCells * cellPx,
+      (cameraConfig.view.widthCells / cameraConfig.view.zoom) * cellPx,
+      (cameraConfig.view.heightCells / cameraConfig.view.zoom) * cellPx,
       shown.x * cellPx,
       (shown.y - cfg.box.height / 2) * cellPx,
     );
