@@ -444,9 +444,10 @@ function rideLift({ h, world, cfg }: Step): boolean {
 const rideDir = (lift: Lift): -1 | 1 => (lift.y > lift.top ? -1 : 1);
 
 function startRide(world: SandboxWorld, lift: Lift): void {
-  const resting = lift.target === null;
-  callLift(lift, rideDir(lift), world.flags);
-  if (resting) cue(world, "liftStart", 8000);
+  const dir = lift.target === null ? rideDir(lift) : lift.target > lift.y ? -1 : 1;
+  lift.target = null;
+  callLift(lift, dir, world.flags);
+  cue(world, "liftStart", 8000);
 }
 
 function deckUnder(h: Hero, world: SandboxWorld, cfg: MovementConfig): Lift | null {

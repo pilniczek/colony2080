@@ -542,6 +542,29 @@ describe("lift", () => {
     expect(g.hero.y).toBeCloseTo(4, 6);
   });
 
+  it("turns back on enter mid-ride and again on the next enter", () => {
+    const g = game({ x: 18.5, y: 14 });
+    const lift = g.world.lifts[0]!;
+    tick(g);
+    tick(g, [], ["useItem"]);
+    run(g, 1);
+    const turnedAt = lift.y;
+    expect(turnedAt).toBeLessThan(14);
+    expect(turnedAt).toBeGreaterThan(4);
+    g.world.sounds.length = 0;
+    tick(g, [], ["useItem"]);
+    expect(lift.target).toBe(14);
+    expect(g.world.sounds.map((s) => s.id)).toContain("liftStart");
+    run(g, 0.3);
+    expect(lift.y).toBeGreaterThan(turnedAt);
+    tick(g, [], ["useItem"]);
+    expect(lift.target).toBe(4);
+    run(g, 5);
+    expect(lift.y).toBe(4);
+    expect(g.hero.y).toBeCloseTo(4, 6);
+    expect([...g.seen]).toEqual(["idle"]);
+  });
+
   it("rides up and down through one-way floor rows in its shaft", () => {
     const g = game({ x: 18.5, y: 14 }, flooredShaft);
     expect(g.world.grid.oneWay(18, 9)).toBe(true);
