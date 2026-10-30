@@ -45,6 +45,7 @@ const CS: Record<string, string> = {
   "Saved.": "Uloženo.",
   "Save failed.": "Uložení selhalo.",
   "Game saved.": "Hra uložena.",
+  "Press Enter to skip": "Stiskni Enter pro přeskočení",
   "Autosave failed.": "Automatické uložení selhalo.",
   "This save does not fit this version of the mission.": "Tato pozice neodpovídá této verzi mise.",
   "This save is damaged and cannot be loaded.": "Tato pozice je poškozená a nelze ji nahrát.",

@@ -16,6 +16,8 @@ import { runIdleJob, whenIdle } from "../engine/idle";
 import { filmOf, loadFilms, type Cutscene, type CutsceneId } from "./cutscene";
 import { lookAt } from "./cutscene/looks";
 import { drawRobotView } from "./cutscene/robotView";
+import { drawSkipHint } from "./cutscene/skipHint";
+import { tr } from "./i18n";
 import { playFilm, stepCutscene } from "./cutscene/play";
 import { drawSecurityCam } from "./cutscene/securityCam";
 import { cheatOf, isCheatKey } from "./cheats";
@@ -253,6 +255,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     film.render(ctx, filmWidth, canvas.height, t);
     if (lookAt(id, t) === "robot") drawRobotView(ctx, filmWidth, canvas.height, t);
     else drawSecurityCam(ctx, filmWidth, canvas.height, t, film.camera);
+    drawSkipHint(ctx, filmWidth, canvas.height, tr("Press Enter to skip", tuning().lang));
     push();
   };
 
