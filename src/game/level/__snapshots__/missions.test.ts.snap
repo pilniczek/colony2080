@@ -2973,6 +2973,43 @@ exports[`missions > mesto json is unchanged 1`] = `
     59,
   ],
   "tasks": {
+    "quests": [
+      {
+        "after": [],
+        "text": "Find a way out of the city.",
+        "until": "flag:levelComplete",
+      },
+      {
+        "after": [
+          "flag:rebelTalked",
+        ],
+        "text": "Find the bar man.",
+        "until": "flag:partWanted",
+      },
+      {
+        "after": [
+          "flag:partWanted",
+        ],
+        "text": "Bring the bar man the ship part.",
+        "until": "item:decoder",
+      },
+      {
+        "after": [
+          "item:decoder",
+        ],
+        "text": "Open the coded lock with the decoder.",
+        "until": "flag:plasmaOff",
+      },
+      {
+        "after": [],
+        "any": [
+          "flag:tried:damagedLift",
+          "flag:tried:upperFloorsOpen",
+        ],
+        "text": "Repair the lift panel.",
+        "until": "flag:upperFloorsOpen",
+      },
+    ],
     "source": "docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md, docs/research/reports/06-cz-walkthroughs.md level 1 task order, docs/research/reports/13-level1-layout.md blocking and map variants; object ids from config/levels/mesto/objects.json, metroTunnel is the dark tunnel gate; crowbar, craneKey and controller are item props (no task row; the plasma wall gates the controller); the valve is used once with no item: it closes the water (M13 drops the water wall) and hands over the tap handle, which the item table lists at the valve spot",
     "status": "draft",
     "tasks": [

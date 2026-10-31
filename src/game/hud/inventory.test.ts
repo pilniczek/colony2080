@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ITEMS, type ItemId } from "../items";
-import { INVENTORY_BOXES, inventorySvg, type InventoryArt, type InventoryState } from "./inventory";
+import { INVENTORY_BOXES, inventorySvg, wrap, type InventoryArt, type InventoryState } from "./inventory";
 
 const art = (): InventoryArt => ({
   robot: { url: "robot.png", w: 100, h: 150 },
@@ -15,8 +15,12 @@ const svg = (s: Partial<InventoryState> = {}): string => inventorySvg(320, 200, 
 const name = (id: ItemId): string => ITEMS[id]!.name.toUpperCase();
 
 describe("inventory screen", () => {
-  it("keeps every box apart", () => {
-    const boxes = Object.values(INVENTORY_BOXES);
+  it("keeps every box apart, quests over the robot legs", () => {
+    const { robot, quests, item } = INVENTORY_BOXES;
+    expect(quests.y + quests.h).toBe(robot.y + robot.h);
+    expect(quests.x + quests.w).toBe(robot.x + robot.w);
+    expect([quests.y, quests.h]).toEqual([item.y, item.h]);
+    const boxes = Object.values(INVENTORY_BOXES).filter((b) => b !== robot);
     for (const a of boxes) {
       for (const b of boxes) {
         if (a === b) continue;
@@ -33,6 +37,21 @@ describe("inventory screen", () => {
     expect(ammo.y - (stats.y + stats.h)).toBe(2);
     expect(item.y - (list.y + list.h)).toBe(2);
     expect(robot.x - (title.x + title.w)).toBe(2);
+  });
+
+  it("lists the quests with the level quest first", () => {
+    const s = svg({ quests: ["Find a way out of the city.", "Find the bar man."] });
+    expect(s).toContain("OBJECTIVES");
+    expect(s.indexOf("> Find a way out")).toBeLessThan(s.indexOf("- Find the bar man."));
+    expect(svg({ quests: ["Find the bar man."], lang: "cs" })).toContain("Najdi barmana.");
+  });
+
+  it("hides the quest box without quests", () => {
+    expect(svg()).not.toContain("OBJECTIVES");
+  });
+
+  it("wraps quest text by words", () => {
+    expect(wrap("Open the coded lock with the decoder.", 16)).toEqual(["Open the coded", "lock with the", "decoder."]);
   });
 
   it("lists names newest first", () => {

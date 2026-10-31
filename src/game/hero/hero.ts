@@ -3,7 +3,7 @@ import { moveBox, type Box } from "../../engine/world/collide";
 import { ITEMS } from "../items";
 import { callLift, fallLimit, floorsOf, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { inCover } from "../level/cover";
-import { openTask, runUse, say } from "../level/tasks";
+import { openTask, runUse, say, tried } from "../level/tasks";
 import { padUnder, ridePad } from "../level/teleports";
 import { cue } from "../sound/cues";
 import { step as footsteps } from "../sound/triggers";
@@ -434,11 +434,15 @@ function padPress(s: Step): boolean {
 function rideLift({ h, world, cfg }: Step): boolean {
   const lift = deckUnder(h, world, cfg);
   if (!lift || !liftGoes(lift, rideDir(lift))) return false;
-  if (lift.enabledBy !== undefined && !world.flags.has(lift.enabledBy)) {
-    if (lift.hint) say(world, lift.hint);
-  } else if (onDeck(h.x, lift, cfg)) startRide(world, lift);
+  if (lift.enabledBy !== undefined && !world.flags.has(lift.enabledBy)) refuseLift(world, lift.enabledBy, lift.hint);
+  else if (onDeck(h.x, lift, cfg)) startRide(world, lift);
   else world.boarding = lift;
   return true;
+}
+
+function refuseLift(world: SandboxWorld, enabledBy: string, hint: string | undefined): void {
+  world.flags.add(tried(enabledBy.slice(enabledBy.indexOf(":") + 1)));
+  if (hint) say(world, hint);
 }
 
 const rideDir = (lift: Lift): -1 | 1 => (lift.y > lift.top ? -1 : 1);
@@ -484,7 +488,7 @@ function callFromPanel({ h, world, cfg }: Step): boolean {
   const stop = lift.stops.find((row) => Math.abs(row - h.y) < EPS)!;
   if (lift.target === stop || (lift.target === null && Math.abs(lift.y - h.y) < EPS)) return false;
   if (lift.enabledBy !== undefined && !world.flags.has(lift.enabledBy)) {
-    if (lift.hint) say(world, lift.hint);
+    refuseLift(world, lift.enabledBy, lift.hint);
     return true;
   }
   lift.target = stop;

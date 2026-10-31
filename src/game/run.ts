@@ -32,6 +32,7 @@ import { canOpenScreen, closesMap, inventoryKey, openCursor, repeatsOnScreen, sc
 import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
 import type { ItemId } from "./items";
+import { activeQuests } from "./level/quests";
 import { resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
 import { openBlockers, pickAll, say } from "./level/tasks";
 import { drawFog, seenPath } from "./render/fog";
@@ -216,9 +217,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     const now = performance.now();
     if (lastRender) fps += (1000 / Math.max(1, now - lastRender) - fps) * FPS_SMOOTHING;
     lastRender = now;
+    const quests = activeQuests(world.quests, world);
     useSandbox.setState({
       item: world.inventory.shown,
       items: sameItems(tuning().items, world.inventory.items) ? tuning().items : [...world.inventory.items],
+      quests: sameItems(tuning().quests, quests) ? tuning().quests : quests,
       subtitle: world.subtitle?.text ?? null,
       subtitleNote: world.subtitle?.note ?? null,
       subtitleFilm: world.subtitle?.film ?? false,

@@ -15,5 +15,12 @@
     { "id": "openDoor", "object": "cardDoor", "requires": ["item:card"], "gives": ["flag:doorOpen"], "state": 1, "cutscene": "openDoor", "subtitle": "Card accepted. The door opens.", "hint": "The door has a card reader. It needs an access card." },
     { "id": "useAcidTank", "object": "acidTank", "requires": ["item:tapHandle"], "gives": ["flag:acidPoured"], "state": 2, "sets": { "acidGuard": 1 }, "cutscene": "useAcidTank", "subtitle": "Acid pours out of the tank. The guard below melts down.", "hint": "The tank tap has no handle. Find one that fits." },
     { "id": "repairCrane", "object": "crane", "requires": ["item:craneKey"], "gives": ["flag:levelComplete"], "state": 1, "cutscene": "repairCrane", "subtitle": "Level complete", "hint": "The crane cab is locked. It needs its key." }
+  ],
+  "quests": [
+    { "text": "Find a way out of the city.", "after": [], "until": "flag:levelComplete" },
+    { "text": "Find the bar man.", "after": ["flag:rebelTalked"], "until": "flag:partWanted" },
+    { "text": "Bring the bar man the ship part.", "after": ["flag:partWanted"], "until": "item:decoder" },
+    { "text": "Open the coded lock with the decoder.", "after": ["item:decoder"], "until": "flag:plasmaOff" },
+    { "text": "Repair the lift panel.", "after": [], "any": ["flag:tried:damagedLift", "flag:tried:upperFloorsOpen"], "until": "flag:upperFloorsOpen" }
   ]
 }

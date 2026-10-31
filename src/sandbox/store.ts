@@ -26,6 +26,7 @@ export interface SandboxState {
   blaster: number | null;
   item: ItemId | null;
   items: ItemId[];
+  quests: string[];
   inventory: { open: boolean; cursor: number };
   mapOpen: boolean;
   mapOn: boolean;
@@ -126,6 +127,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   blaster: null,
   item: null,
   items: [],
+  quests: [],
   inventory: { open: false, cursor: 0 },
   mapOpen: false,
   mapOn: true,

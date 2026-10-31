@@ -12,6 +12,7 @@ export interface InventoryState {
   shields: number;
   ammo: number;
   blaster: number | null;
+  quests?: string[];
   lang?: Lang;
 }
 
@@ -23,7 +24,7 @@ export interface InventoryArt {
   liftPanel: HudIcon;
 }
 
-export type InventoryBox = "list" | "title" | "stats" | "ammo" | "item" | "robot";
+export type InventoryBox = "list" | "title" | "stats" | "ammo" | "item" | "robot" | "quests";
 
 export const INVENTORY_BOXES: Record<InventoryBox, Rect> = {
   list: { x: 4, y: 4, w: 74, h: 116 },
@@ -32,6 +33,7 @@ export const INVENTORY_BOXES: Record<InventoryBox, Rect> = {
   ammo: { x: 80, y: 88, w: 72, h: 32 },
   item: { x: 4, y: 122, w: 148, h: 74 },
   robot: { x: 154, y: 4, w: 162, h: 192 },
+  quests: { x: 154, y: 122, w: 162, h: 74 },
 };
 
 export const ITEM_FILL = 0.8;
@@ -44,6 +46,7 @@ export const MONO = "Share Tech Mono, Oxanium, monospace";
 export const BOLD = "Orbitron, Oxanium, sans-serif";
 const ROW = 7.2;
 const TEXT = 5.6;
+const CHAR_W = 0.6;
 const PULSE_BARS = [6, 9, 5, 11, 8, 10];
 
 export const INVENTORY_DEFS = `<defs>
@@ -93,6 +96,27 @@ function list(s: InventoryState, lang: Lang): string {
   return box(b) + rows.join("") + label(b.x + b.w / 2, b.y + b.h - 5, 7.6, tr("INVENTORY", lang));
 }
 
+export function wrap(line: string, chars: number): string[] {
+  const lines: string[] = [];
+  for (const word of line.split(" ")) {
+    const last = lines.length - 1;
+    if (last >= 0 && lines[last]!.length + 1 + word.length <= chars) lines[last] += ` ${word}`;
+    else lines.push(word);
+  }
+  return lines;
+}
+
+function quests(texts: string[], lang: Lang): string {
+  if (texts.length === 0) return "";
+  const b = INVENTORY_BOXES.quests;
+  const chars = Math.floor((b.w - 12) / (TEXT * CHAR_W));
+  const lines = texts.flatMap((quest, i) =>
+    wrap(tr(quest, lang), chars - 2).map((line, j) => ({ line: j === 0 ? `${i === 0 ? ">" : "-"} ${line}` : `  ${line}`, fill: i === 0 ? INV.name : INV.label })),
+  );
+  const rows = lines.map(({ line, fill }, i) => text(b.x + 4, b.y + 18 + i * ROW, fill, line, 'xml:space="preserve"')).join("");
+  return box(b) + label(b.x + b.w / 2, b.y + 9, 6.6, tr("OBJECTIVES", lang)) + rows;
+}
+
 function stats(s: InventoryState, art: InventoryArt, lang: Lang): string {
   const b = INVENTORY_BOXES.stats;
   const x = b.x + 4;
@@ -131,5 +155,5 @@ export function inventorySvg(W: number, H: number, s: InventoryState, art: Inven
   ${image(art.robot, robot.x + (robot.w - art.robot.w) / 2, robot.y + robot.h - art.robot.h)}
   ${picture}${list(s, lang)}
   ${box(title)}${label(title.x + title.w / 2, title.y + 8, 6.6, "C2080")}${label(title.x + title.w / 2, title.y + 15.4, 6.6, tr("STATISTICS", lang))}
-  ${stats(s, art, lang)}${ammo(s, art)}</g></svg>`;
+  ${stats(s, art, lang)}${ammo(s, art)}${quests(s.quests ?? [], lang)}</g></svg>`;
 }

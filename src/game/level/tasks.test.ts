@@ -124,11 +124,11 @@ describe("runUse", () => {
     expect(w.subtitle).toEqual({ text: "Power is back.", age: 0 });
   });
 
-  it("hints and changes nothing without the needed item", () => {
+  it("hints and only marks the try without the needed item", () => {
     const w = world();
     use(w, "switchboard");
     expect(w.subtitle?.text).toBe("Something is missing here.");
-    expect(w.flags.size).toBe(0);
+    expect([...w.flags]).toEqual(["flag:tried:switchboard"]);
     expect(w.inventory.items).toEqual([]);
     pickUp(w, "wires");
     use(w, "switchboard");

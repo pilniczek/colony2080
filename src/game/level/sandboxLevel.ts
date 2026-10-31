@@ -11,6 +11,7 @@ import { ITEMS, type ItemId } from "../items";
 import { keepOutOf, type Cover } from "./cover";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
 import type { PropFire, PropRepel } from "./guards";
+import { loadQuests, type Quest } from "./quests";
 import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
 import { terrain, type Rect as CellRect } from "./terrain";
 
@@ -142,6 +143,7 @@ export interface SandboxWorld {
   enemies: Enemy[];
   flags: Set<string>;
   tasks: Task[];
+  quests: Quest[];
   subtitle: Subtitle | null;
   cutscene: { id: CutsceneId; prop: Prop | null; t: number } | null;
   complete: boolean;
@@ -250,6 +252,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     enemies: data.enemies.map((e) => createEnemy(e, grid, lifts, keepOutOf(data.props))),
     flags: new Set(),
     tasks: data.tasks === undefined ? [] : loadTasks(data.tasks),
+    quests: loadQuests(data.tasks),
     subtitle: null,
     cutscene: null,
     complete: false,

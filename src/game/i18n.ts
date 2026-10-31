@@ -15,6 +15,12 @@ const TEMPLATES: [RegExp, (item: string) => string][] = [
 
 const CS: Record<string, string> = {
   "Find the bar man. He knows the way out.": "Najdi barmana. Ví, kudy ven.",
+  "Find a way out of the city.": "Najdi cestu ven z města.",
+  "Find the bar man.": "Najdi barmana.",
+  "Bring the bar man the ship part.": "Přines barmanovi součástku lodi.",
+  "Open the coded lock with the decoder.": "Otevři kódový zámek dekodérem.",
+  "Repair the lift panel.": "Oprav panel výtahu.",
+  OBJECTIVES: "ÚKOLY",
   "Wires torn out.": "Dráty vytrženy.",
   "The metro lights come on.": "Světla v metru se rozsvítí.",
   "The switchboard is dead. Its wires are gone. Torn wires hang from a box somewhere.": "Rozvaděč je mrtvý. Chybí mu dráty. Vytržené dráty visí někde z krabice.",

@@ -33,10 +33,11 @@ export function InventoryScreen() {
   const blaster = useSandbox((s) => s.blaster);
   const filming = useSandbox((s) => s.cutscene);
   const lang = useSandbox((s) => s.lang);
+  const quests = useSandbox((s) => s.quests);
   useEffect(() => whenIdle(buildWhenIdle), []);
   const svg = useMemo(
-    () => open && inventorySvg(fit.W, fit.H, { items, cursor, energy: Math.round((100 * energy) / max), shields, ammo, blaster, lang }, art()),
-    [open, fit.W, fit.H, items, cursor, energy, max, shields, ammo, blaster],
+    () => open && inventorySvg(fit.W, fit.H, { items, cursor, energy: Math.round((100 * energy) / max), shields, ammo, blaster, quests, lang }, art()),
+    [open, fit.W, fit.H, items, cursor, energy, max, shields, ammo, blaster, quests, lang],
   );
   if (!svg || filming) return null;
   return (

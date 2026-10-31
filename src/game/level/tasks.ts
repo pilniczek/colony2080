@@ -86,6 +86,8 @@ export function loadTasks(json: unknown): Task[] {
   return tasks.map(loadTask);
 }
 
+export const tried = (name: string): string => `${FLAG}tried:${name}`;
+
 export function say(world: SandboxWorld, text: string): void {
   world.subtitle = { text, age: 0 };
 }
@@ -165,6 +167,7 @@ export function openBlockers(world: SandboxWorld): number {
 export function runUse(world: SandboxWorld, prop: Prop, { filmed = false } = {}): void {
   const task = openTask(world, prop);
   if (!task) {
+    if (prop.id !== undefined) world.flags.add(tried(prop.id));
     say(world, hintFor(prop, world));
     return;
   }

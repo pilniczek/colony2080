@@ -93,6 +93,7 @@ describe("pickup and duck", () => {
     expect(lift.target).toBeNull();
     expect(g.hero.state).toBe("idle");
     expect(g.world.subtitle?.text).toBe("Broken.");
+    expect(g.world.flags.has("flag:tried:open")).toBe(true);
     g.world.subtitle = null;
     tick(g, ["useItem"]);
     expect(g.world.subtitle).toBeNull();

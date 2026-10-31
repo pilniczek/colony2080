@@ -11,11 +11,11 @@ import { hintFor } from "./level/tasks";
 const texts = (value: unknown): string[] => {
   if (Array.isArray(value)) return value.flatMap(texts);
   if (!value || typeof value !== "object") return [];
-  return Object.entries(value).flatMap(([key, v]) => ((key === "subtitle" || key === "hint") && typeof v === "string" ? [v] : texts(v)));
+  return Object.entries(value).flatMap(([key, v]) => ((key === "subtitle" || key === "hint" || key === "text") && typeof v === "string" ? [v] : texts(v)));
 };
 
 describe("i18n", () => {
-  it("has Czech for every mission 1 subtitle and hint", () => {
+  it("has Czech for every mission 1 subtitle, hint and quest", () => {
     const missing = [...texts(tasksJson), ...texts(worldJson), ...texts(mapJson)].filter((text) => !knowsCs(text));
     expect(missing).toEqual([]);
   });

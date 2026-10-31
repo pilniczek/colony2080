@@ -43,6 +43,7 @@
   <label>Item <select id="item"><option value="">none</option></select></label>
   <label>Held <select id="held" multiple size="3"></select></label>
   <label>Cursor <input id="cursor" type="number" min="0" max="9" value="0"></label>
+  <label><input id="quests" type="checkbox" checked> Quests</label>
   <label>Menu <select id="menu"><option value="pause">pause</option><option value="save">save</option><option value="load">load</option><option value="gameOver">game over</option></select></label>
   <label>Menu cursor <input id="menuCursor" type="number" min="0" max="4" value="1"></label>
   <label><input id="typing" type="checkbox"> Typing</label>
@@ -514,8 +515,10 @@ const INV_BOXES = {
   ammo: { x: 80, y: 88, w: 72, h: 32 },
   item: { x: 4, y: 122, w: 148, h: 74 },
   robot: { x: 154, y: 4, w: 162, h: 192 },
+  quests: { x: 154, y: 122, w: 162, h: 74 },
 };
 const INV_ROW = 7.2;
+const SAMPLE_QUESTS = ["Find a way out of the city.", "Find the bar man."];
 const INV_DEFS = `<defs>
   <pattern id="invGrid" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M4 0H0V4" fill="none" stroke="${INV.line}" stroke-width=".25"/></pattern>
   <pattern id="statGrid" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M4 0H0V4" fill="none" stroke="#5a4a10" stroke-width=".25"/></pattern>
@@ -633,6 +636,13 @@ function ammoBox(s) {
   return invBox(b) + gun + extra;
 }
 
+function questBox(s) {
+  if (!s.quests) return "";
+  const b = INV_BOXES.quests;
+  const rows = SAMPLE_QUESTS.map((q, i) => invText(b.x + 4, b.y + 18 + i * INV_ROW, 5.6, i === 0 ? INV.name : INV.label, `${i === 0 ? ">" : "-"} ${q}`)).join("");
+  return invBox(b) + invLabel(b.x + b.w / 2, b.y + 9, 6.6, "OBJECTIVES") + rows;
+}
+
 function inventoryScreen(W, H, s) {
   const ox = (W - 320) / 2, oy = (H - 200) / 2, t = INV_BOXES.title, it = INV_BOXES.item, r = INV_BOXES.robot;
   const shown = [...s.held].reverse()[s.cursor], art = shown && BIG_ITEMS[shown];
@@ -642,7 +652,7 @@ function inventoryScreen(W, H, s) {
   ${art ? img(art, it.x + (it.w - art.w) / 2, it.y + (it.h - art.h) / 2) : ""}
   ${listBox(s)}
   ${invBox(t)}${invLabel(t.x + t.w / 2, t.y + 8, 6.6, "C2080")}${invLabel(t.x + t.w / 2, t.y + 15.4, 6.6, "STATISTICS")}
-  ${statsBox(s)}${ammoBox(s)}</g></svg>`;
+  ${statsBox(s)}${ammoBox(s)}${questBox(s)}</g></svg>`;
 }
 
 const MENU = { back: "#0a1f14", grid: "#5a1a14", over: "#ffffff", overEdge: "#2438d0" };
@@ -747,6 +757,7 @@ function state() {
     item: $("item").value,
     held: [...$("held").selectedOptions].map((o) => o.value),
     cursor: +$("cursor").value,
+    quests: $("quests").checked,
     energy: +$("life").value
   };
 }
