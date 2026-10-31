@@ -41,8 +41,8 @@ window.C28_CONFIG = {
    "preview": "GRAFIKA/PRKART.GRA"
   },
   "holoPlan": {
-   "name": "holo plan",
-   "cs": "Holog. plán",
+   "name": "holoplan",
+   "cs": "Holoplán",
    "icon": {
     "asset": "holoPlan",
     "tilt": 0,

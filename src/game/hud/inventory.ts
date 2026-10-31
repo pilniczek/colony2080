@@ -49,7 +49,9 @@ export const MONO = "Share Tech Mono, Oxanium, monospace";
 export const BOLD = "Orbitron, Oxanium, sans-serif";
 const ROW = 7.2;
 const TEXT = 5.6;
-const CHAR_W = 0.6;
+const CHAR_W = 0.55;
+const QUEST_TOP = 18;
+const QUEST_BOTTOM = 5;
 const PULSE_BARS = [6, 9, 5, 11, 8, 10];
 
 export const INVENTORY_DEFS = `<defs>
@@ -111,12 +113,14 @@ export function wrap(line: string, chars: number): string[] {
 
 function quests(texts: string[], lang: Lang): string {
   if (texts.length === 0) return "";
-  const b = INVENTORY_BOXES.quests;
-  const chars = Math.floor((b.w - 12) / (TEXT * CHAR_W));
+  const fixed = INVENTORY_BOXES.quests;
+  const chars = Math.floor((fixed.w - 12) / (TEXT * CHAR_W));
   const lines = texts.flatMap((quest, i) =>
     wrap(tr(quest, lang), chars - 2).map((line, j) => ({ line: j === 0 ? `${i === 0 ? ">" : "-"} ${line}` : `  ${line}`, fill: i === 0 ? INV.name : INV.label })),
   );
-  const rows = lines.map(({ line, fill }, i) => text(b.x + 4, b.y + 18 + i * ROW, fill, line, 'xml:space="preserve"')).join("");
+  const h = Math.max(fixed.h, QUEST_TOP + (lines.length - 1) * ROW + QUEST_BOTTOM);
+  const b = { ...fixed, y: fixed.y + fixed.h - h, h };
+  const rows = lines.map(({ line, fill }, i) => text(b.x + 4, b.y + QUEST_TOP + i * ROW, fill, line, 'xml:space="preserve"')).join("");
   return box(b) + label(b.x + b.w / 2, b.y + 9, 6.6, tr("OBJECTIVES", lang)) + rows;
 }
 

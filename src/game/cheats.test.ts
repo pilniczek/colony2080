@@ -5,6 +5,7 @@ describe("cheat codes", () => {
   it("maps each code to its cheat, ignoring case and outer spaces", () => {
     expect(cheatOf("c2080isforever")).toBe("immortal");
     expect(cheatOf(" C2080IsEverywhere ")).toBe("noFog");
+    expect(cheatOf("c2080isquestioned")).toBe("quests");
     expect(cheatOf("c2080ispowerful")).toBe("weapon");
     expect(cheatOf("c2080isrich")).toBe("items");
     expect(cheatOf("c2080isunstoppable")).toBe("open");

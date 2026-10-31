@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { loadMesto } from "./mesto";
-import { pickUp } from "./sandboxLevel";
+import { cfg } from "../hero/testWorld";
+import { pickUp, resetWorld } from "./sandboxLevel";
 import { runUse } from "./tasks";
 import { activeQuests, loadQuests } from "./quests";
 
@@ -51,10 +52,10 @@ describe("quests", () => {
     mesto.flags.add("flag:rebelTalked");
     const door = mesto.props.find((p) => p.id === "barDoor")!;
     runUse(mesto, door);
-    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man a plan of the way out."]);
+    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man the holoplan."]);
     pickUp(mesto, "holoPlan");
     runUse(mesto, door);
-    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man the ship part."]);
+    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man the ship part he wants."]);
   });
 
   it("drops find the bar man when the first bar door use already trades the plan", () => {
@@ -62,15 +63,44 @@ describe("quests", () => {
     mesto.flags.add("flag:rebelTalked");
     pickUp(mesto, "holoPlan");
     runUse(mesto, mesto.props.find((p) => p.id === "barDoor")!);
-    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man the ship part."]);
+    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man the ship part he wants."]);
+  });
+
+  it("reminds every mesto hint until its task is done", () => {
+    const mesto = loadMesto();
+    const reminded = (token: string) => mesto.quests.some((q) => [...q.after, ...(q.any ?? [])].includes(token));
+    const objects = mesto.tasks.filter((t) => t.hint !== undefined).map((t) => `flag:tried:${t.object}`);
+    const lifts = mesto.lifts.filter((l) => l.hint !== undefined).map((l) => `flag:tried:${l.enabledBy!.slice("flag:".length)}`);
+    expect([...objects, ...lifts].filter((token) => !reminded(token))).toEqual([]);
+    expect(mesto.quests.filter((q) => q.until === undefined)).toEqual([]);
+  });
+
+  it("never shows a mesto quest for an item picked up alone", () => {
+    const tokens = loadMesto().quests.flatMap((q) => [...q.after, ...(q.any ?? [])]);
+    expect(tokens.filter((t) => t.startsWith("item:"))).toEqual([]);
+  });
+
+  it("asks mesto for the switchboard when the train door is tried without metro power", () => {
+    const mesto = loadMesto();
+    runUse(mesto, mesto.props.find((p) => p.id === "trainDoor")!);
+    expect(activeQuests(mesto.quests, mesto)).toContain("Get the switchboard working.");
+    mesto.flags.add("flag:metroPowered");
+    expect(activeQuests(mesto.quests, mesto)).not.toContain("Get the switchboard working.");
+  });
+
+  it("keeps the show all quests cheat over a world reset", () => {
+    const mesto = loadMesto();
+    mesto.allQuests = true;
+    resetWorld(mesto, cfg);
+    expect(mesto.allQuests).toBe(true);
   });
 
   it("asks mesto to repair the lift panel once a use of the dead panel fails, until it is repaired", () => {
     const mesto = loadMesto();
     const panel = mesto.props.find((p) => p.id === "damagedLift")!;
     runUse(mesto, panel);
-    expect(activeQuests(mesto.quests, mesto)).toContain("Repair the lift panel.");
+    expect(activeQuests(mesto.quests, mesto)).toContain("Repair the lift.");
     mesto.flags.add("flag:upperFloorsOpen");
-    expect(activeQuests(mesto.quests, mesto)).not.toContain("Repair the lift panel.");
+    expect(activeQuests(mesto.quests, mesto)).not.toContain("Repair the lift.");
   });
 });

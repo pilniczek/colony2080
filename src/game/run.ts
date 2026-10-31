@@ -217,7 +217,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     const now = performance.now();
     if (lastRender) fps += (1000 / Math.max(1, now - lastRender) - fps) * FPS_SMOOTHING;
     lastRender = now;
-    const quests = activeQuests(world.quests, world);
+    const quests = world.allQuests ? world.quests.map((q) => q.text) : activeQuests(world.quests, world);
     useSandbox.setState({
       item: world.inventory.shown,
       items: sameItems(tuning().items, world.inventory.items) ? tuning().items : [...world.inventory.items],
@@ -500,6 +500,10 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       const fogOn = world.fog === null;
       setFog(fogOn);
       say(world, fogOn ? "Fog of war on" : "Fog of war off");
+    }
+    if (cheat === "quests") {
+      world.allQuests = !world.allQuests;
+      say(world, world.allQuests ? "All quests shown" : "Open quests shown");
     }
     if (cheat === "weapon") say(world, giveWeapon());
     if (cheat === "items") say(world, giveItems());

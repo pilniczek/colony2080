@@ -1,12 +1,13 @@
 type MoveTarget = [number, number] | "start";
 
-export type Cheat = "immortal" | "noFog" | "weapon" | "items" | "open" | "debug" | { moveTo: MoveTarget };
+export type Cheat = "immortal" | "noFog" | "quests" | "weapon" | "items" | "open" | "debug" | { moveTo: MoveTarget };
 
 type Toggle = Exclude<Cheat, { moveTo: MoveTarget }>;
 
 export const CHEATS: { code: string; effect: string; cheat?: Toggle }[] = [
   { code: "c2080isforever", cheat: "immortal", effect: "Immortality: shots, hazards and falls do nothing, pits hold the hero. Enter again to turn off." },
   { code: "c2080iseverywhere", cheat: "noFog", effect: "No fog of war. Enter again to turn fog back on." },
+  { code: "c2080isquestioned", cheat: "quests", effect: "Shows every quest of the mission in the inventory screen at once, done or not. Enter again to show only the open ones." },
   { code: "c2080ispowerful", cheat: "weapon", effect: "Gives the mission's special weapon with full ammo and removes its pickup from the map." },
   { code: "c2080isrich", cheat: "items", effect: "Gives every item of the mission: items on the map (hidden ones too) and items tasks hand out, each once. Weapons stay. No films." },
   { code: "c2080isunstoppable", cheat: "open", effect: "Opens every movement blocker of the mission: locked doors, gates, guards in the way and unpowered lifts. Tasks stay undone. No films." },

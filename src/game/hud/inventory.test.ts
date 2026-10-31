@@ -49,6 +49,19 @@ describe("inventory screen", () => {
     expect(svg({ quests: ["Find the bar man."], lang: "cs" })).toContain("Najdi barmana.");
   });
 
+  it("grows the quest box up from the bottom to fit every quest", () => {
+    const { quests } = INVENTORY_BOXES;
+    const frame = (s: string) => Number(/<rect x="154" y="([\d.]+)" width="162" height="([\d.]+)"/.exec(s)!.slice(1).reduce((a, b) => String(Number(a) + Number(b))));
+    const top = (s: string) => Number(/<rect x="154" y="([\d.]+)" width="162"/.exec(s)![1]);
+    const few = svg({ quests: ["One."] });
+    expect(top(few)).toBe(quests.y);
+    const many = svg({ quests: Array.from({ length: 12 }, (_, i) => `Quest ${i}.`) });
+    expect(top(many)).toBeLessThan(quests.y);
+    expect(frame(many)).toBe(quests.y + quests.h);
+    const last = Number([...many.matchAll(/y="([\d.]+)"[^>]*>- Quest 11\./g)][0]![1]);
+    expect(last).toBeLessThan(quests.y + quests.h);
+  });
+
   it("hides the quest box without quests", () => {
     expect(svg()).not.toContain("OBJECTIVES");
   });

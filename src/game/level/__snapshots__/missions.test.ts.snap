@@ -2990,21 +2990,37 @@ exports[`missions > mesto json is unchanged 1`] = `
         "after": [
           "flag:tried:barDoor",
         ],
-        "text": "Bring the bar man a plan of the way out.",
+        "text": "Bring the bar man the holoplan.",
         "until": "flag:partWanted",
       },
       {
         "after": [
           "flag:partWanted",
         ],
-        "text": "Bring the bar man the ship part.",
+        "text": "Bring the bar man the ship part he wants.",
         "until": "item:decoder",
       },
       {
-        "after": [
-          "item:decoder",
+        "after": [],
+        "any": [
+          "flag:tried:switchboard",
+          "flag:tried:trainDoor",
         ],
-        "text": "Open the coded lock with the decoder.",
+        "text": "Get the switchboard working.",
+        "until": "flag:metroPowered",
+      },
+      {
+        "after": [
+          "flag:tried:trainDoor",
+        ],
+        "text": "Find a way to open the train door.",
+        "until": "flag:metroOpen",
+      },
+      {
+        "after": [
+          "flag:tried:codeLock",
+        ],
+        "text": "Find a way past the coded lock.",
         "until": "flag:plasmaOff",
       },
       {
@@ -3013,8 +3029,29 @@ exports[`missions > mesto json is unchanged 1`] = `
           "flag:tried:damagedLift",
           "flag:tried:upperFloorsOpen",
         ],
-        "text": "Repair the lift panel.",
+        "text": "Repair the lift.",
         "until": "flag:upperFloorsOpen",
+      },
+      {
+        "after": [
+          "flag:tried:cardDoor",
+        ],
+        "text": "Find a way to open the locked door.",
+        "until": "flag:doorOpen",
+      },
+      {
+        "after": [
+          "flag:tried:acidTank",
+        ],
+        "text": "Open the acid tank tap.",
+        "until": "flag:acidPoured",
+      },
+      {
+        "after": [
+          "flag:tried:crane",
+        ],
+        "text": "Unlock the crane.",
+        "until": "flag:levelComplete",
       },
     ],
     "source": "docs/superpowers/specs/2026-10-19-mission-1-mesto-design.md, docs/research/reports/06-cz-walkthroughs.md level 1 task order, docs/research/reports/13-level1-layout.md blocking and map variants; object ids from config/levels/mesto/objects.json, metroTunnel is the dark tunnel gate; crowbar, craneKey and controller are item props (no task row; the plasma wall gates the controller); the valve is used once with no item: it closes the water (M13 drops the water wall) and hands over the tap handle, which the item table lists at the valve spot",
@@ -3100,7 +3137,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "object": "corpse",
         "requires": [],
         "state": 1,
-        "subtitle": "A card and a holo plan.",
+        "subtitle": "A card and a holoplan.",
       },
       {
         "cutscene": "tradeHoloPlan",

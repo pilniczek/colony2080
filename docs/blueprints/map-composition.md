@@ -30,7 +30,7 @@ flowchart TD
 - The original map (dev overlay, key `o` on `game.html`) is the reference for every fix that has an original counterpart. [F]
 - Change the map only in `levelmap.py` (`sky`, `patches`, `borderFills`, `unseen`, `holes`, `plankGaps`, `width`), never in `map.json`. [F] [T]
 - Before a change, regenerate and diff: the output must match the committed file. [S]
-- Levels 2-4 use the same converter and reach tests as mission 1; a task that changes the map applies a whole-map variant over the base, never stacked on another variant. [R: Levels 2-4 layout] [H: 94261352 2026-10-20]
+- All missions use the same converter and reach tests; a task that changes the map applies a whole-map variant over the base, never stacked on another variant. [R: Levels 2-4 layout] [H: 94261352 2026-10-20]
 
 ## Traversal
 
