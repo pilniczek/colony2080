@@ -100,7 +100,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   };
 
   const withMessage = (state: MenuState | null, message: string): MenuState | null => {
-    if (!state || state.screen === "pause" || state.screen === "settings") return state;
+    if (!state || state.screen === "pause" || state.screen === "settings" || state.screen === "help") return state;
     if (state.screen === "gameOver") return gameOverState(loadableNow(), message, state.at ?? null);
     return { ...state, message };
   };

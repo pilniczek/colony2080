@@ -201,6 +201,31 @@ function slot(x: number, w: number, item: ItemId | null, icons: HudIcons, lang: 
   return art + readout(nameCentre, label);
 }
 
+export type HudPart = "menu" | "weapon1" | "weapon2" | "weapon3" | "sound" | "run" | "hide" | "map" | "item";
+
+export function hudTabs(W: number, bonus: boolean): { part: HudPart; cx: number }[] {
+  const bar = topBar(W);
+  const weapons = bar.weapons.slice(0, bonus ? 3 : 2).map((x, i) => ({ part: `weapon${i + 1}` as HudPart, cx: x + keyCentre(i) }));
+  return [
+    { part: "menu", cx: bar.menu + MENU_W / 2 },
+    ...weapons,
+    { part: "sound", cx: bar.sound + SPEAKER_W / 2 },
+    { part: "run", cx: bar.run + TOGGLE_W / 2 },
+    { part: "hide", cx: bar.hide + HIDE_W / 2 },
+    { part: "map", cx: bar.map + MAP_W / 2 },
+    { part: "item", cx: bar.inv + bar.invW / 2 },
+  ];
+}
+
+export const TAB_BOTTOM = TAB.y + TAB.half;
+
+const sideY = (H: number, y: number): number => H - VIEW_BOX.bottom + (y - SIDE_ART.bottom) * SIDE_ART.scale;
+
+export const sideMarks = (H: number): { energy: number; shields: number } => ({
+  energy: sideY(H, LIFE.y + LIFE.h / 2),
+  shields: sideY(H, LAMP.y + (SHIELDS_MAX * LAMP.pitch) / 2),
+});
+
 interface KeyTab {
   cx: number;
   label: string;
@@ -211,15 +236,18 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   const bar = topBar(W);
   const wx = bar.weapons;
   const item = slot(bar.inv, bar.invW, s.item, icons, s.lang ?? "en");
-  const tabs: KeyTab[] = [
-    { cx: bar.menu + MENU_W / 2, label: keys.menu, active: s.menuOpen },
-    ...wx.slice(0, s.bonus ? 3 : 2).map((x, i) => ({ cx: x + keyCentre(i), label: keys.weapons[i] ?? "", active: s.weapon === i })),
-    { cx: bar.sound + SPEAKER_W / 2, label: keys.sound, active: s.soundOn },
-    { cx: bar.run + TOGGLE_W / 2, label: keys.run, active: s.running },
-    { cx: bar.hide + HIDE_W / 2, label: keys.hide, active: s.hidden },
-    { cx: bar.map + MAP_W / 2, label: keys.map, active: s.mapOpen },
-    { cx: bar.inv + bar.invW / 2, label: keys.item, active: false },
-  ];
+  const keyOf: Record<HudPart, [string, boolean]> = {
+    menu: [keys.menu, s.menuOpen],
+    weapon1: [keys.weapons[0] ?? "", s.weapon === 0],
+    weapon2: [keys.weapons[1] ?? "", s.weapon === 1],
+    weapon3: [keys.weapons[2] ?? "", s.weapon === 2],
+    sound: [keys.sound, s.soundOn],
+    run: [keys.run, s.running],
+    hide: [keys.hide, s.hidden],
+    map: [keys.map, s.mapOpen],
+    item: [keys.item, false],
+  };
+  const tabs: KeyTab[] = hudTabs(W, s.bonus).map(({ part, cx }) => ({ cx, label: keyOf[part][0], active: keyOf[part][1] }));
   const spans = tabs.map(tabSpan);
   return `<rect width="${W}" height="${BAR_H}" fill="url(#circuit)"/>
   ${bar.gaps.filter(([a, b]) => b > a).map((g) => ROD_YS.map((y) => rod(g, y)).join("")).join("")}

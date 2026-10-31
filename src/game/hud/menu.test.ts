@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { SlotEntry, Slots } from "../save/slots";
 import { VIEW_BOX } from "./layout";
-import { menuSvg } from "./menu";
+import { helpLayout, helpTextW, menuSvg } from "./menu";
+import { hudFit } from "./layout";
 
 const icon = { url: "data:,", w: 10, h: 20 };
-const robot = { robot: icon, liftPanel: { url: "data:panel", w: 15, h: 14 } };
+const robot = { robot: icon, liftPanel: { url: "data:panel", w: 15, h: 14 }, liftDeck: { url: "data:lift", w: 8, h: 16 }, wireBox: { url: "data:wires", w: 9, h: 16 }, crashedShip: { url: "data:ship", w: 22, h: 7 } };
 const slot = (name: string): SlotEntry => ({ mission: "mesto", name, savedAt: Date.UTC(2026, 9, 20, 21, 14), picture: "data:image/jpeg;base64,AA", snapshot: {} } as unknown as SlotEntry);
 const slots: Slots = [slot("City - door"), null, null, null, null, slot("City - Autosave")];
 
@@ -57,12 +58,12 @@ describe("menuSvg", () => {
     expect(menuSvg(320, 200, { screen: "pause", cursor: 2, confirm: true }, slots, robot, "City", "cs")).toContain("NEULOŽENÝ POSTUP SE ZTRATÍ");
   });
 
-  it("shows the manual with the lift panel under settings and the pause menu, in the chosen language", () => {
+  it("shows the manual and the tips with their pictures under settings and the pause menu, in the chosen language", () => {
     for (const state of [{ screen: "settings", cursor: 2, autosave: true }, { screen: "pause", cursor: 0 }] as const) {
       const en = menuSvg(320, 200, state, slots, robot);
-      for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER<", ">USE ITEM<", ">I<", ">INVENTORY<", ">ENTER CALLS A DISTANT LIFT<", ">X<", ">HIDING MIGHT BE MORE THAN SHOOTING<", 'href="data:panel"']) expect(en).toContain(entry);
+      for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER<", ">USE ITEM FROM INVENTORY<", ">I<", ">INVENTORY<", ">ENTER CALLS A DISTANT LIFT<", ">X<", ">HIDING MIGHT BE MORE THAN SHOOTING<", ">TIPS<", ">ENTER TO USE THE LIFT<", ">ENTER TO USE THINGS<", ">SOME THINGS NEED TO BE DAMAGED<", 'href="data:panel"', 'href="data:lift"', 'href="data:wires"', 'href="data:ship"']) expect(en).toContain(entry);
       const cs = menuSvg(320, 200, state, slots, robot, "City", "cs");
-      for (const entry of [">NÁVOD<", ">POHYB<", ">POUŽITÍ PŘEDMĚTU<", ">INVENTÁŘ<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<", ">SKRÝVÁNÍ MŮŽE BÝT VÍC NEŽ STŘÍLENÍ<"]) expect(cs).toContain(entry);
+      for (const entry of [">OVLÁDÁNÍ<", ">POHYB<", ">POUŽITÍ PŘEDMĚTU Z INVENTÁŘE<", ">INVENTÁŘ<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<", ">SKRÝVÁNÍ MŮŽE BÝT VÍC NEŽ STŘÍLENÍ<", ">TIPY<", ">ENTER POUŽIJE VÝTAH<", ">ENTER POUŽIJE VĚCI<", ">NĚKTERÉ VĚCI JE TŘEBA POŠKODIT<"]) expect(cs).toContain(entry);
     }
   });
 
@@ -72,7 +73,7 @@ describe("menuSvg", () => {
     expect(svg).toContain('<tspan fill="#f2e7a0" data-option="1" text-decoration="underline">NO AUTOSAVE</tspan>');
     expect(svg).toContain('<tspan fill="#5aa9a0" data-option="0">AUTOSAVE</tspan>');
     const cs = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: true }, slots, robot, "City", "cs");
-    for (const entry of ["NASTAVENÍ", ">AUTOUKLÁDÁNÍ<", ">RUČNĚ<", ">SPUSTIT<"]) expect(cs).toContain(entry);
+    for (const entry of ["NASTAVENÍ", ">AUTOUKLÁDÁNÍ<", ">UKLÁDÁNÍ RUČNĚ<", ">SPUSTIT<"]) expect(cs).toContain(entry);
     expect(cs).toContain('<tspan fill="#f2e7a0" data-option="1" text-decoration="underline">ČESKY</tspan>');
   });
 
@@ -100,5 +101,49 @@ describe("menuSvg", () => {
 
   it("escapes typed text", () => {
     expect(menuSvg(320, 200, { screen: "save", cursor: 1, typing: "<b>&", confirm: false, message: null }, slots, robot)).toContain("&lt;B&gt;&amp;");
+  });
+
+  it("adds a HELP row to settings and the pause menu", () => {
+    expect(menuSvg(320, 200, { screen: "settings", cursor: 3, autosave: true }, slots, robot)).toContain(">HELP<");
+    expect(menuSvg(320, 200, { screen: "pause", cursor: 0 }, slots, robot, "City", "cs")).toContain(">NÁPOVĚDA<");
+  });
+
+  it("shows the help screen with a BACK button and weapon 3 only with the E-Blaster", () => {
+    const help = { screen: "help", cursor: 0, from: { screen: "pause", cursor: 5 } } as const;
+    const en = menuSvg(400, 200, help, slots, robot);
+    for (const entry of [">OPENS THE MENU<", ">FISTS<", ">MAP<", ">HIDE<", ">ITEM IN HAND: ENTER USES IT, I OPENS INVENTORY<", ">SHIELDS: SPARE LIVES<", ">PRO TIP<", ">BACK<", 'data-menu-row="0"']) expect(en).toContain(entry);
+    expect(en).not.toContain(">E-BLASTER<");
+    expect(en).not.toContain(">MANUAL<");
+    expect(menuSvg(400, 200, help, slots, robot, "City", "en", false, true)).toContain(">E-BLASTER<");
+    const cs = menuSvg(400, 200, help, slots, robot, "City", "cs", false, true);
+    for (const entry of [">ZPĚT<", ">OTEVŘE MENU<", ">TIP PRO PROFÍKY<", ">DRŽ VÍC KLÁVES NARÁZ, NAPŘ. CTRL A X.<", ">E-BLASTER<", ">SKRÝVÁNÍ<"]) expect(cs).toContain(entry);
+  });
+
+  it("keeps every help label clear of the other labels and of every arrow, on narrow and wide screens", () => {
+    const TEXT = 5.2;
+    for (const [width, height] of [[320, 200], [1280, 800], [2000, 1024], [1920, 1080], [800, 900]] as const) {
+      const { W, H } = hudFit(width, height);
+      for (const lang of ["en", "cs"] as const) {
+        for (const blaster of [false, true]) {
+          const { labels, arrows, tip, back } = helpLayout(W, H, blaster, lang);
+          const words = labels.map(({ x, y, end, text }) => {
+            const w = helpTextW(text);
+            return { x0: end ? x - w : x, x1: end ? x : x + w, y0: y - TEXT * 0.8, y1: y + TEXT * 0.25 };
+          });
+          const boxes = [...words, ...[tip, back].map(({ x, y, w, h }) => ({ x0: x, x1: x + w, y0: y, y1: y + h }))];
+          for (const b of boxes) {
+            expect(b.x0).toBeGreaterThanOrEqual(VIEW_BOX.left);
+            expect(b.x1).toBeLessThanOrEqual(W - VIEW_BOX.right);
+          }
+          boxes.forEach((a, i) => boxes.slice(i + 1).forEach((b) => expect(a.x1 <= b.x0 || b.x1 <= a.x0 || a.y1 <= b.y0 || b.y1 <= a.y0, `${width}x${height} ${lang} ${labels[i]?.text ?? "box"}`).toBe(true)));
+          for (const { path } of arrows) {
+            const [mx, my, hx, vy] = path.match(/-?[\d.]+/g)!.map(Number) as [number, number, number, number?];
+            const hit = (x0: number, x1: number, y0: number, y1: number) => boxes.some((b) => Math.max(x0, b.x0) < Math.min(x1, b.x1) && Math.max(y0, b.y0) < Math.min(y1, b.y1));
+            expect(hit(Math.min(mx, hx), Math.max(mx, hx), my - 0.3, my + 0.3), path).toBe(false);
+            if (vy !== undefined) expect(hit(hx - 0.3, hx + 0.3, Math.min(my, vy), Math.max(my, vy)), path).toBe(false);
+          }
+        }
+      }
+    }
   });
 });

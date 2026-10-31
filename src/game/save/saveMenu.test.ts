@@ -253,12 +253,14 @@ describe("save menu", () => {
 describe("settings", () => {
   it("asks on a new game and starts the intro only from START", () => {
     const r = rig(memory(), null, true);
-    expect(useSandbox.getState().menu).toEqual({ screen: "settings", cursor: 2, autosave: true });
+    expect(useSandbox.getState().menu).toEqual({ screen: "settings", cursor: 3, autosave: true });
+    r.press("ArrowUp");
     r.press("ArrowUp");
     r.press("ArrowUp");
     r.press("ArrowRight");
     r.press("Enter");
     expect(r.begins).toBe(0);
+    r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("Enter");
@@ -280,7 +282,7 @@ describe("settings", () => {
     expect(useSandbox.getState().lang).toBe("cs");
     r.point("click", {});
     expect(r.begins).toBe(0);
-    r.point("click", { "data-menu-row": "2" });
+    r.point("click", { "data-menu-row": "3" });
     expect(useSandbox.getState().menu).toBeNull();
     expect(r.world.autosave).toBe(false);
     expect(r.begins).toBe(1);
@@ -288,6 +290,7 @@ describe("settings", () => {
 
   it("switches and remembers the language", () => {
     const r = rig(memory(), null, true);
+    r.press("ArrowUp");
     r.press("ArrowUp");
     r.press("ArrowRight");
     expect(useSandbox.getState().lang).toBe("cs");
@@ -366,7 +369,9 @@ describe("autosave", () => {
     const off = rig(memory(), null, true);
     off.press("ArrowUp");
     off.press("ArrowUp");
+    off.press("ArrowUp");
     off.press("ArrowRight");
+    off.press("ArrowDown");
     off.press("ArrowDown");
     off.press("ArrowDown");
     off.press("Enter");

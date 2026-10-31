@@ -12,8 +12,8 @@ const step = (state: MenuState, code: string, key?: string) => menuKey(state, pr
 
 describe("menuKey", () => {
   it("switches autosave and language with Left and Right, and only START starts", () => {
-    const at = { screen: "settings", cursor: 2, autosave: true } as const;
-    expect(step(at, "ArrowUp").state).toEqual({ ...at, cursor: 1 });
+    const at = { screen: "settings", cursor: 3, autosave: true } as const;
+    expect(step(at, "ArrowUp").state).toEqual({ ...at, cursor: 2 });
     expect(step({ ...at, cursor: 0 }, "ArrowUp").state).toEqual({ ...at, cursor: 0 });
     expect(step({ ...at, cursor: 0 }, "ArrowRight").state).toEqual({ ...at, cursor: 0, autosave: false });
     expect(step({ ...at, cursor: 0, autosave: false }, "ArrowLeft").state).toEqual({ ...at, cursor: 0 });
@@ -41,7 +41,7 @@ describe("menuKey", () => {
 
   it("moves the pause cursor and stops at the ends", () => {
     expect(step({ screen: "pause", cursor: 0 }, "ArrowUp").state).toEqual({ screen: "pause", cursor: 0 });
-    expect(step({ screen: "pause", cursor: 4 }, "ArrowDown").state).toEqual({ screen: "pause", cursor: 4 });
+    expect(step({ screen: "pause", cursor: 5 }, "ArrowDown").state).toEqual({ screen: "pause", cursor: 5 });
     expect(step({ screen: "pause", cursor: 0 }, "ArrowDown").state).toEqual({ screen: "pause", cursor: 1 });
   });
 
@@ -122,11 +122,11 @@ describe("menuPoint", () => {
     expect(point(at, 2, "hover")).toEqual({ state: { screen: "pause", cursor: 2 } });
     expect(point(at, 0, "hover").state).toBe(at);
     expect(point(at, 2, "useItem")).toEqual({ state: { screen: "pause", cursor: 2, confirm: true } });
-    expect(point({ screen: "settings", cursor: 0, autosave: true }, 2, "useItem")).toEqual({ state: null, action: "difficulty", autosave: true });
+    expect(point({ screen: "settings", cursor: 0, autosave: true }, 3, "useItem")).toEqual({ state: null, action: "difficulty", autosave: true });
   });
 
   it("switches an option row toward the clicked side", () => {
-    const at = { screen: "settings", cursor: 2, autosave: true } as const;
+    const at = { screen: "settings", cursor: 3, autosave: true } as const;
     expect(point(at, 0, "moveRight").state).toEqual({ ...at, cursor: 0, autosave: false });
     expect(point(at, 1, "moveRight")).toEqual({ state: { ...at, cursor: 1 }, action: "lang", lang: "cs" });
   });
@@ -146,5 +146,19 @@ describe("menuPoint", () => {
 
   it("clears a list message when the cursor moves", () => {
     expect(point(list("load", { message: "Saved." }), 1, "hover").state).toMatchObject({ cursor: 1, message: null });
+  });
+});
+
+describe("help", () => {
+  it("opens from the HELP row of settings and the pause menu and goes back with Enter, Esc or a click", () => {
+    const settings = { screen: "settings", cursor: 2, autosave: false } as const;
+    const help = step(settings, "Enter").state!;
+    expect(help).toEqual({ screen: "help", cursor: 0, from: settings });
+    expect(step(help, "Enter").state).toBe(settings);
+    expect(step(help, "Escape").state).toBe(settings);
+    expect(step(help, "ArrowDown").state).toBe(help);
+    expect(menuPoint(help, { row: 0, press: "useItem" }, slots, "mesto", keys).state).toBe(settings);
+    const pause = { screen: "pause", cursor: 5 } as const;
+    expect(step(pause, "Enter").state).toEqual({ screen: "help", cursor: 0, from: pause });
   });
 });

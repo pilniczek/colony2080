@@ -2,6 +2,7 @@ import { drawRig } from "../../engine/rig/draw";
 import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, RigNode } from "../../engine/rig/tree";
 import { ASSETS, type AssetId } from "../env/assets";
+import { liftDeck } from "../env/machines";
 import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
 import { buildFront, buildSide, ROBOT } from "../robot/xbot";
@@ -16,7 +17,8 @@ const STAGE = 2400;
 const PROBE_SHRINK = 8;
 const STAGE_PAD = 16;
 const ITEM_ZOOM = 8;
-const LIFT_PANEL = { w: 9, h: 9 };
+const TIP_ART = { w: 22, h: 16 };
+const TIP_ASSETS = { liftDeck, liftPanel: ASSETS.liftPanel, wireBox: ASSETS.wireBox, crashedShip: ASSETS.crashedShip };
 const OUTLINE_STEPS = [[-6, 0], [6, 0], [0, -6], [0, 6], [-4, -4], [4, 4], [-4, 4], [4, -4]] as const;
 const DIAGRAM_FILL = 0.18;
 const RUN_POSE = { body: 27, hipNear: { rot: -70, sx: 0.6 }, kneeNear: 80, ankleNear: -10, hipFar: { rot: 0, sx: 0.6 }, kneeFar: 30, ankleFar: 0, arm: -40, armFar: 40, fore: -78, foreFar: -78 };
@@ -219,13 +221,13 @@ export function inventoryArtJobs(): { jobs: (() => void)[]; art: InventoryArt } 
   const itemJobs = Object.entries(ITEMS).map(([id, item]) => (): void => {
     art.items[id as ItemId] = bigItem(item);
   });
-  const panelJob = (): void => {
-    art.liftPanel = trimmed(stage((ctx) => {
+  const tipJobs = Object.entries(TIP_ASSETS).map(([id, asset]) => (): void => {
+    art[id as keyof typeof TIP_ASSETS] = trimmed(stage((ctx) => {
       ctx.scale(ITEM_ZOOM, ITEM_ZOOM);
-      drawAsset(ctx, ASSETS.liftPanel, { state: 0, lod: false, lines: 1 });
-    }), LIFT_PANEL.w, LIFT_PANEL.h);
-  };
-  return { jobs: [robotJob, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), panelJob, ...itemJobs], art };
+      drawAsset(ctx, asset, { state: 0, lod: false, lines: 1 });
+    }), TIP_ART.w, TIP_ART.h);
+  });
+  return { jobs: [robotJob, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), ...tipJobs, ...itemJobs], art };
 }
 
 export function inventoryArt(): InventoryArt {

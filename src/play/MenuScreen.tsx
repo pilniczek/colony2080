@@ -10,9 +10,10 @@ export function MenuScreen({ mission }: { mission: string }) {
   const fit = useSandbox((s) => s.hud);
   const lang = useSandbox((s) => s.lang);
   const autosave = useSandbox((s) => s.autosave);
+  const blaster = useSandbox((s) => s.blaster !== null);
   const svg = useMemo(
-    () => menu && menuSvg(fit.W, fit.H, menu, slots, art(), missionName(mission), lang, autosave),
-    [menu, slots, fit.W, fit.H, mission, lang, autosave],
+    () => menu && menuSvg(fit.W, fit.H, menu, slots, art(), missionName(mission), lang, autosave, blaster),
+    [menu, slots, fit.W, fit.H, mission, lang, autosave, blaster],
   );
   if (!svg) return null;
   return (
