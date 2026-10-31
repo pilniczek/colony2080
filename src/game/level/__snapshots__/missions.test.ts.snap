@@ -2984,6 +2984,13 @@ exports[`missions > mesto json is unchanged 1`] = `
           "flag:rebelTalked",
         ],
         "text": "Find the bar man.",
+        "until": "flag:tried:barDoor",
+      },
+      {
+        "after": [
+          "flag:tried:barDoor",
+        ],
+        "text": "Bring the bar man a plan of the way out.",
         "until": "flag:partWanted",
       },
       {

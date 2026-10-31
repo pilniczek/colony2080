@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { loadMesto } from "./mesto";
+import { pickUp } from "./sandboxLevel";
 import { runUse } from "./tasks";
 import { activeQuests, loadQuests } from "./quests";
 
@@ -43,6 +44,25 @@ describe("quests", () => {
     expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city."]);
     mesto.flags.add("flag:rebelTalked");
     expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Find the bar man."]);
+  });
+
+  it("asks mesto for a plan for the bar man once the bar door is tried, until the holo plan trade", () => {
+    const mesto = loadMesto();
+    mesto.flags.add("flag:rebelTalked");
+    const door = mesto.props.find((p) => p.id === "barDoor")!;
+    runUse(mesto, door);
+    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man a plan of the way out."]);
+    pickUp(mesto, "holoPlan");
+    runUse(mesto, door);
+    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man the ship part."]);
+  });
+
+  it("drops find the bar man when the first bar door use already trades the plan", () => {
+    const mesto = loadMesto();
+    mesto.flags.add("flag:rebelTalked");
+    pickUp(mesto, "holoPlan");
+    runUse(mesto, mesto.props.find((p) => p.id === "barDoor")!);
+    expect(activeQuests(mesto.quests, mesto)).toEqual(["Find a way out of the city.", "Bring the bar man the ship part."]);
   });
 
   it("asks mesto to repair the lift panel once a use of the dead panel fails, until it is repaired", () => {

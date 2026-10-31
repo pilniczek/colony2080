@@ -18,7 +18,8 @@
   ],
   "quests": [
     { "text": "Find a way out of the city.", "after": [], "until": "flag:levelComplete" },
-    { "text": "Find the bar man.", "after": ["flag:rebelTalked"], "until": "flag:partWanted" },
+    { "text": "Find the bar man.", "after": ["flag:rebelTalked"], "until": "flag:tried:barDoor" },
+    { "text": "Bring the bar man a plan of the way out.", "after": ["flag:tried:barDoor"], "until": "flag:partWanted" },
     { "text": "Bring the bar man the ship part.", "after": ["flag:partWanted"], "until": "item:decoder" },
     { "text": "Open the coded lock with the decoder.", "after": ["item:decoder"], "until": "flag:plasmaOff" },
     { "text": "Repair the lift panel.", "after": [], "any": ["flag:tried:damagedLift", "flag:tried:upperFloorsOpen"], "until": "flag:upperFloorsOpen" }

@@ -17,6 +17,7 @@ const CS: Record<string, string> = {
   "Find the bar man. He knows the way out.": "Najdi barmana. Ví, kudy ven.",
   "Find a way out of the city.": "Najdi cestu ven z města.",
   "Find the bar man.": "Najdi barmana.",
+  "Bring the bar man a plan of the way out.": "Přines barmanovi plán cesty ven.",
   "Bring the bar man the ship part.": "Přines barmanovi součástku lodi.",
   "Open the coded lock with the decoder.": "Otevři kódový zámek dekodérem.",
   "Repair the lift panel.": "Oprav panel výtahu.",
