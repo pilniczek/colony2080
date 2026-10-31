@@ -480,12 +480,14 @@ function board(s: Step): void {
 
 function callFromPanel({ h, world, cfg }: Step): boolean {
   const lift = h.onLift ? undefined : world.lifts.find((l) => atPanel(h, l, cfg));
-  if (!lift || lift.target !== null || Math.abs(lift.y - h.y) < EPS) return false;
+  if (!lift) return false;
+  const stop = lift.stops.find((row) => Math.abs(row - h.y) < EPS)!;
+  if (lift.target === stop || (lift.target === null && Math.abs(lift.y - h.y) < EPS)) return false;
   if (lift.enabledBy !== undefined && !world.flags.has(lift.enabledBy)) {
     if (lift.hint) say(world, lift.hint);
     return true;
   }
-  lift.target = lift.stops.find((row) => Math.abs(row - h.y) < EPS)!;
+  lift.target = stop;
   cue(world, "liftStart", 8000);
   return true;
 }

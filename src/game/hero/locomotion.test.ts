@@ -607,6 +607,22 @@ describe("lift", () => {
     expect(g.world.boarding).toBeNull();
   });
 
+  it("turns a lift leaving the stop back to it from the panel", () => {
+    const g = game({ x: 33.8, y: 14 });
+    const lift = g.world.lifts[1]!;
+    lift.target = 21;
+    run(g, 1);
+    expect(g.hero).toMatchObject({ onGround: true, onLift: false });
+    const turnedAt = lift.y;
+    expect(turnedAt).toBeGreaterThan(14);
+    g.world.sounds.length = 0;
+    tick(g, [], ["useItem"]);
+    expect(lift.target).toBe(14);
+    expect(g.world.sounds.map((s) => s.id)).toContain("liftStart");
+    run(g, 5);
+    expect(lift.y).toBe(14);
+  });
+
   it("ducks on down at the bottom stop", () => {
     const g = game({ x: 18.5, y: 14 });
     tick(g);
