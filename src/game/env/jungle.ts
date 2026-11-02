@@ -574,28 +574,28 @@ const caveCapsule: EnvAsset = {
   },
 };
 
-const HELI: Pt[] = [[8, -10], [2, -26], [10, -44], [34, -54], [74, -54], [92, -44], [96, -20], [86, -8], [30, -4]];
+const HELI: Pt[] = [[6, -8], [0, -20], [4, -34], [16, -48], [34, -56], [60, -58], [80, -54], [94, -42], [98, -26], [90, -10], [60, -4], [24, -3]];
 
 const heliBody = (ctx: Ctx, seed: number): void => {
-  poly(ctx, HELI, "olive", 1, { dir: [0, 1] });
+  poly(ctx, HELI, "rust", 2, { dir: [0, 1] });
   ctx.save();
   path(ctx, HELI);
   ctx.clip();
-  flat(ctx, 0, -56, 100, 10, "o2");
-  flat(ctx, 0, -18, 100, 18, "o0");
+  flat(ctx, 0, -60, 100, 12, "r3");
+  flat(ctx, 0, -16, 100, 16, "r1");
   if (!simple()) for (let x = 28; x < 92; x += 14) flat(ctx, x, -52, 0.8, 46, "#00000044");
   ctx.restore();
   path(ctx, HELI);
   stroke(ctx, "kLine");
-  shape(ctx, [[6, -26], [12, -42], [30, -50], [32, -30], [16, -16]], "#13201c", "kLine");
+  shape(ctx, [[3, -22], [8, -36], [20, -48], [32, -53], [34, -30], [18, -12]], "#13201c", "kLine");
   if (!simple()) {
     shape(ctx, [[10, -34], [14, -42], [22, -46], [16, -38]], "#4a6a64");
     line(ctx, [[18, -44], [24, -32], [16, -24]], "#9ab4ac", 0.6);
   }
   flat(ctx, 44, -40, 26, 18, "#0b0d0a", "kLine");
   if (!simple()) {
-    line(ctx, [[44, -40], [52, -30], [48, -22]], "o3", 0.6);
-    line(ctx, [[70, -40], [62, -32], [68, -22]], "o3", 0.6);
+    line(ctx, [[44, -40], [52, -30], [48, -22]], "r3", 0.6);
+    line(ctx, [[70, -40], [62, -32], [68, -22]], "r3", 0.6);
   }
   G.grain(ctx, G.polyRegion(ctx, HELI), seed);
   G.grain(ctx, G.polyRegion(ctx, HELI), seed + 1, 0.7);
@@ -615,9 +615,9 @@ const helicopterWreck: EnvAsset = {
   box: [-8, -128, 160, 1],
   draw(ctx) {
     const seed = 700;
-    strut(ctx, [84, -40], [148, -102], 8, "o1");
-    if (!simple()) line(ctx, [[84, -44], [146, -104]], "o2", 2, "butt");
-    shape(ctx, [[140, -96], [150, -124], [154, -100], [146, -92]], "o1", "kLine");
+    strut(ctx, [84, -40], [148, -102], 8, "r1");
+    if (!simple()) line(ctx, [[84, -44], [146, -104]], "r2", 2, "butt");
+    shape(ctx, [[140, -96], [150, -124], [154, -100], [146, -92]], "r1", "rLine");
     disc(ctx, 146, -100, 3, "m1", "mLine");
     strut(ctx, [146, -100], [130, -122], 2.2, "m2");
     strut(ctx, [146, -100], [156, -80], 2.2, "m2");
@@ -1027,6 +1027,7 @@ const trunks = (ctx: Ctx, n: number, seed: number, c: string, w0: number, w1: nu
     const lean = (r() - 0.5) * 8;
     shape(ctx, [[x - w / 2 + lean, top], [x + w / 2 + lean, top], [x + w * 0.7, bottom], [x - w * 0.7, bottom]], c);
     if (branches && !simple()) {
+      shape(ctx, [[x - w / 2 + lean, top], [x - w / 5 + lean, top], [x - w * 0.28, bottom], [x - w * 0.7, bottom]], "#2d5245");
       for (let k = 0; k < 2; k++) {
         const y = top + (bottom - top) * (0.15 + r() * 0.35);
         const s = r() < 0.5 ? -1 : 1;
