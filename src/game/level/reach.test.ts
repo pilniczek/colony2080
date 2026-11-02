@@ -282,10 +282,12 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
     },
     never: {
       "past the spawn ledge wall tables (112,19) col 116 and (124,19) col 131 (report 15 wall tables)": ["24,135", "25,104", "25,132"],
-      "past the east wall table (141,35) col 148 (report 15 wall tables)": ["41,149"],
+      "wall tops under the open sky: pillar col 107, tree col 75, spawn ledge walls cols 116 and 131, border walls cols 21 and 148, rock col 82 (levelmap.py borderFills, patches)": [
+        ...["4,107", "6,75", "11,0", "20,116", "20,131", "35,148", "39,82"],
+      ],
       "cabinet cells behind the cave step wall col 96, shot from column 93 on (report 15 task 1)": ["48,97"],
       "floor tiles not on the report 15 floor flowchart: 2+ rows up or 8+ cells across from a reached floor": [
-        ...["13,37", "16,37", "16,39", "16,70", "17,42", "18,80", "18,82", "25,49", "28,65", "28,84", "28,107", "30,97", "37,122"],
+        ...["13,37", "16,37", "16,39", "16,70", "25,49", "28,65", "28,84", "28,107", "30,97", "37,122"],
         ...["37,127", "38,120"],
       ],
     },

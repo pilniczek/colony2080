@@ -90,12 +90,22 @@ EXTRAS = {
         "enemyKinds": ("rocketRobot", "greyTrooper"),
     },
     3: {
-        "borderFills": [],
+        "borderFills": [(0, 11, 21, 79), (148, 35, 159, 79)],
+        "width": 152,
+        "unseen": [(22, 38, 75, 79), (76, 39, 80, 48), (81, 46, 81, 48), (82, 47, 82, 47), (97, 42, 147, 45), (99, 46, 147, 47), (99, 48, 147, 79), (76, 49, 79, 79), (98, 49, 98, 49),
+                   (80, 50, 86, 79), (96, 50, 98, 79)],
+        "patches": [(6, 0, 6, 10, "."), (21, 10, 21, 10, "."), (75, 5, 75, 5, "."), (107, 3, 107, 3, "."), (116, 19, 116, 19, "."), (131, 19, 131, 19, "."),
+                    (82, 39, 82, 39, "#"), (96, 42, 96, 42, "#"), (76, 37, 80, 38, "#"), (83, 43, 83, 43, "#"), (84, 45, 84, 45, "#"), (84, 47, 84, 47, "#"), (82, 48, 85, 48, "#"), (80, 49, 88, 49, "#"), (87, 50, 88, 79, "#"),
+                    (93, 49, 95, 79, "#"), (96, 49, 97, 49, "#"), (42, 17, 42, 17, "."), (80, 18, 80, 18, "."), (82, 18, 82, 18, ".")],
         "source": (
             "docs/research/reports/15-level3-layout.md, built by docs/research/tools/levelmap.py from MAPY/M31.MAP "
             "and gamedata/disasm/level3_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
             "filled over the hero stand height), '|' map clamp (columns 6 and 158) and a cap over each bare wall top (wall tiles hold no hero); no lifts (the tower lift is a scripted teleport); "
-            "spawn on the spawn ledge; "
+            "spawn on the spawn ledge; the clamp at column 6 and the wall caps (cols 21, 75, 107, 116, 131) are dropped; borderFills fill solid from the west girder column (col 21, from row 11) "
+            "and the east wall col 148 (from row 35) on to the map edge, and the map ends at col 151; unseen fills the never seen ground under floors 37 and 41 and around the cave solid; "
+            "the dip east of floor 37 (cols 76-80, rows 37-38) is ground, the rock west of the cave stair and the cave floor are solid except the pit under its gaps (cols 89-92), "
+            "the cabinet niche behind the col 96 wall (cols 97-98, rows 46-47) stays open, the cell over the col 96 wall and the col 82 rock top are solid; "
+            "stray floor tiles inside the building (42,17) and by the pipe (80 and 82, row 18) are dropped; "
         )
         + ZONES_NOTE,
         "fallDeathCells": None,

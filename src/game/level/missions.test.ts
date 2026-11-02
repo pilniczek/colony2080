@@ -46,7 +46,7 @@ describe("missions", () => {
 
   it.each(MISSIONS)("%s loads", (id) => {
     const world = loadMission(id);
-    expect(world.grid.width).toBe(id === "mesto" ? 143 : 160);
+    expect(world.grid.width).toBe(({ mesto: 143, jungle: 152 } as Partial<Record<string, number>>)[id] ?? 160);
     expect(world.grid.height).toBe(80);
   });
 
