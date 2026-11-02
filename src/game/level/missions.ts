@@ -1,6 +1,7 @@
 import jeskyneMap from "@config/levels/jeskyne/map.json";
+import jeskyneWorld from "@config/levels/jeskyne/world.json";
 import jungleMap from "@config/levels/jungle/map.json";
-import mestoWorld from "@config/levels/mesto/world.json";
+import jungleWorld from "@config/levels/jungle/world.json";
 import vesniceMap from "@config/levels/vesnice/map.json";
 import vesniceWorld from "@config/levels/vesnice/world.json";
 import type { EnemyJson } from "./enemy";
@@ -38,9 +39,7 @@ interface MissionWorld {
   bare?: SandboxJson["bare"];
 }
 
-const NO_WORLD: MissionWorld = { sky: mestoWorld.sky, backdrop: [], dressing: [] };
-
-const WORLDS: Record<OtherMission, MissionWorld> = { vesnice: vesniceWorld, jungle: NO_WORLD, jeskyne: NO_WORLD };
+const WORLDS: Record<OtherMission, MissionWorld> = { vesnice: vesniceWorld, jungle: jungleWorld, jeskyne: jeskyneWorld };
 
 const MESTO_KINDS: Record<string, DroidTuning> = { chromeDroid: DROID, flyer: FLYER };
 

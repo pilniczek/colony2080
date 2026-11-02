@@ -893,6 +893,13 @@ const stiltBuilding: EnvAsset = {
   },
 };
 
+export const VESNICE_IDS = [
+  "sourceTeleport", "targetTeleport", "brokenTeleport", "teleportPad", "fuseBox", "electricCabinet", "cannon", "energyBarrier", "transformer",
+  "grassyWalkway", "cliffBlocks", "fireBarricade", "dynamiteWall", "powerBridge", "rockCliff", "overheadPipeline", "storageTank", "watchtower", "bridgeGuardPost",
+  "villageBackdrop", "villageHouse", "stiltBuilding", "smoulderingRemains", "smallKey", "walkieTalkie", "detonator", "projectile", "fuse", "dynamite",
+  "navCircuit", "toaster", "energyPickup", "ammoPickup", "shieldPickup", "projectileCrate",
+] as const;
+
 export const vesniceAssets: EnvAsset[] = [
   sourceTeleport, targetTeleport, brokenTeleport, teleportPad, fuseBox, electricCabinet, cannon, energyBarrier, transformer,
   grassyWalkway, cliffBlocks, fireBarricade, dynamiteWall, powerBridge, rockCliff, overheadPipeline, storageTank, watchtower, bridgeGuardPost,
