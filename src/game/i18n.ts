@@ -78,7 +78,7 @@ const CS: Record<string, string> = {
   BACK: "ZPĚT",
   "PRO TIP": "TIP PRO PROFÍKY",
   "OPENS THE MENU": "OTEVŘE MENU",
-  "GUN, NUMBER = AMMO LEFT": "KULOMET, ČÍSLO = NÁBOJE",
+  "GUN, NUMBER = AMMO LEFT": "ZBRAŇ, ČÍSLO = NÁBOJE",
   FISTS: "PĚSTI",
   "SOUND ON / OFF": "ZVUK ZAP. / VYP.",
   "RUN OR WALK": "BĚH NEBO CHŮZE",
