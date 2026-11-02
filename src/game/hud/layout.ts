@@ -71,10 +71,9 @@ export interface TopBar {
   plates: Span[];
 }
 
-export function hudFit(width: number, height: number): HudFit {
-  const W = Math.max(HUD_MIN_W, (HUD_H * width) / height);
-  const H = Math.max(HUD_H, (HUD_MIN_W * height) / width);
-  return { W, H, unit: height / H };
+export function hudFit(width: number, height: number, maxUnit = Infinity): HudFit {
+  const unit = Math.min(Math.min(width / HUD_MIN_W, height / HUD_H), maxUnit);
+  return { W: Math.max(HUD_MIN_W, width / unit), H: Math.max(HUD_H, height / unit), unit };
 }
 
 export function viewRect({ W, H, unit }: HudFit): Rect {

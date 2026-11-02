@@ -1,10 +1,14 @@
 {
   "status": "draft",
-  "source": "docs/requirements.md; playfield 290x169 px = about 12x7 tiles (docs/research/README.md), hero 6 cells from the left screen edge (docs/research/reports/10-level1-enemies.md), fog reveal width is the hero sightCells (config/hero/movement.json), rowsBelow is the original 1 plus 50%, rowsAbove the original 6 plus 50% lowered by 2 (user); rememberedOpacity covers uncovered cells out of the current sight (Claude's call, user); camera view 32 x 13 cells, zoomed in from the sandbox tall map plan 40 x 16 (user); zoom 1.5 brings the camera closer, the view shows widthCells / zoom by heightCells / zoom cells (user)",
+  "source": "docs/requirements.md; playfield 290x169 px = about 12x7 tiles (docs/research/README.md), hero 6 cells from the left screen edge (docs/research/reports/10-level1-enemies.md), fog reveal width is the hero sightCells (config/hero/movement.json), rowsBelow is the original 1 plus 50%, rowsAbove the original 6 plus 50% lowered by 2 (user); rememberedOpacity covers uncovered cells out of the current sight (Claude's call, user); camera view 32 x 13 cells, zoomed in from the sandbox tall map plan 40 x 16 (user); zoom 1.5 brings the camera closer, the view shows widthCells / zoom by heightCells / zoom cells (user); referenceScreen is the 14.5 inch laptop game page size in CSS px: on a bigger screen the HUD and the hero keep their size there, the HUD badge plate widens and the game window shows more map under fog (user, size Claude's guess)",
   "view": {
     "widthCells": 32,
     "heightCells": 13,
     "zoom": 1.5
+  },
+  "referenceScreen": {
+    "width": 1440,
+    "height": 900
   },
   "viewLimit": {
     "enabled": false,

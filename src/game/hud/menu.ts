@@ -64,7 +64,7 @@ const hit = (row: number, x: number, y: number, w: number, h: number, body: stri
   live ? `<g data-menu-row="${row}" style="cursor:pointer"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"/>${body}</g>` : body;
 
 const fitIn = ({ x, y, w, h }: Rect): string => {
-  const k = Math.min(w / HUD_MIN_W, h / HUD_H);
+  const k = Math.min(w / HUD_MIN_W, h / HUD_H, (HUD_H - VIEW_BOX.top - VIEW_BOX.bottom) / HUD_H);
   return `translate(${x + (w - HUD_MIN_W * k) / 2} ${y + (h - HUD_H * k) / 2}) scale(${k})`;
 };
 

@@ -18,6 +18,14 @@ describe("hudFit", () => {
   it("heightens the frame on a narrow screen", () => {
     expect(hudFit(640, 800)).toEqual({ W: 320, H: 400, unit: 2 });
   });
+
+  it("keeps the unit at its cap and grows the frame on a big screen", () => {
+    expect(hudFit(3200, 1600, 4)).toEqual({ W: 800, H: 400, unit: 4 });
+  });
+
+  it("ignores the cap on a smaller screen", () => {
+    expect(hudFit(1280, 800, 5)).toEqual({ W: 320, H: 200, unit: 4 });
+  });
 });
 
 describe("viewRect", () => {

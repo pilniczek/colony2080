@@ -110,7 +110,9 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const tuning = () => useSandbox.getState();
   const mapOn = (): boolean => !mapItem || world.inventory.items.includes(mapItem);
   const fogConfig = loadFog(cameraJson);
-  const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: number; zoom: number } };
+  const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: number; zoom: number }; referenceScreen: { width: number; height: number } };
+  const reference = hudFit(cameraConfig.referenceScreen.width, cameraConfig.referenceScreen.height);
+  const referenceWindow = viewRect(reference);
   const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, true);
   const applyFog = (on: boolean): void => {
     world.fog = on ? createFog(fogConfig, tuning().movement, hero, world.grid) : null;
@@ -174,7 +176,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     const dpr = devicePixelRatio || 1;
     resizeCanvas(canvas, dpr);
     filmWidth = freeWidth(dpr);
-    const hud = hudFit(filmWidth / dpr, canvas.height / dpr);
+    const hud = hudFit(filmWidth / dpr, canvas.height / dpr, reference.unit);
     const r = viewRect(hud);
     gameWindow = { x: r.x * dpr, y: r.y * dpr, w: r.w * dpr, h: r.h * dpr };
     useSandbox.setState({ hud });
@@ -182,13 +184,16 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
 
   const cameraView = (shown: { x: number; y: number }, cfg: { cellPx: number; box: { height: number } }): ViewTransform => {
     const { cellPx } = cfg;
+    const dpr = devicePixelRatio || 1;
+    const widen = gameWindow.w / Math.min(gameWindow.w, referenceWindow.w * dpr);
+    const heighten = gameWindow.h / Math.min(gameWindow.h, referenceWindow.h * dpr);
     const v = followView(
       gameWindow.w,
       gameWindow.h,
       world.grid.width * cellPx,
       world.grid.height * cellPx,
-      (cameraConfig.view.widthCells / cameraConfig.view.zoom) * cellPx,
-      (cameraConfig.view.heightCells / cameraConfig.view.zoom) * cellPx,
+      (cameraConfig.view.widthCells / cameraConfig.view.zoom) * cellPx * widen,
+      (cameraConfig.view.heightCells / cameraConfig.view.zoom) * cellPx * heighten,
       shown.x * cellPx,
       (shown.y - cfg.box.height / 2) * cellPx,
     );
