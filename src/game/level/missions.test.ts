@@ -1,5 +1,8 @@
 import jeskyneMap from "@config/levels/jeskyne/map.json";
+import jeskyneWorld from "@config/levels/jeskyne/world.json";
 import jungleMap from "@config/levels/jungle/map.json";
+import jungleWorld from "@config/levels/jungle/world.json";
+import vesniceWorld from "@config/levels/vesnice/world.json";
 import { describe, expect, it } from "vitest";
 import { createHero } from "../hero/hero";
 import { cfg } from "../hero/testWorld";
@@ -72,13 +75,11 @@ describe("missions", () => {
     expect(missionJson("mesto")).toMatchSnapshot();
   });
 
-  it("draws vesnice with its own sky and scenery, the other missions with none", () => {
-    const vesnice = loadMission("vesnice");
-    expect(vesnice.sky).toBe("villageBackdrop");
-    expect(vesnice.backdrop.length).toBeGreaterThan(0);
-    expect(vesnice.dressing.map((s) => s.asset)).toContain("grassyWalkway");
-    expect(vesnice.props).toEqual([]);
-    for (const id of ["jungle", "jeskyne"] as const) expect(missionJson(id).dressing).toEqual([]);
+  it("draws every later mission from its own world.json", () => {
+    for (const [id, world] of [["vesnice", vesniceWorld], ["jungle", jungleWorld], ["jeskyne", jeskyneWorld]] as const) {
+      const json = missionJson(id);
+      expect([json.sky, json.backdrop, json.dressing, json.props], id).toEqual([world.sky, world.backdrop, world.dressing, []]);
+    }
   });
 
   it("refuses a vesnice snapshot in mesto", () => {

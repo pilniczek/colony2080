@@ -247,17 +247,7 @@ def build(data, layout, enemies, cfg):
         if grid[row][col] != "#":
             raise SystemExit(f"hole not a plank at {col},{row}")
         grid[row][col] = "."
-    for left, top, right, bottom in cfg["sky"]:
-        paint(grid, left, top, right, bottom, ".")
-    for left, top, right, bottom, char in cfg["patches"]:
-        paint(grid, left, top, right, bottom, char)
-    fill_borders(grid, cfg)
-    covered = [[any(grid[r][c] != "." for r in range(row)) for c in range(W)] for row in range(H)]
-    for left, top, right, bottom in cfg["unseen"]:
-        for row in range(top, bottom + 1):
-            for col in range(left, right + 1):
-                if covered[row][col] and not inside(cfg["sky"], col, row):
-                    grid[row][col] = "#"
+    compose(grid, cfg)
     for w in task_walls:
         while grid[w["top"]][w["col"]] == "#":
             w["top"] += 1
@@ -284,6 +274,21 @@ def build(data, layout, enemies, cfg):
         "flyers": flyers(enemies),
         "spawn": cfg["spawn"],
     }
+
+
+def compose(grid, cfg):
+    sky = cfg.get("sky", [])
+    for left, top, right, bottom in sky:
+        paint(grid, left, top, right, bottom, ".")
+    for left, top, right, bottom, char in cfg.get("patches", []):
+        paint(grid, left, top, right, bottom, char)
+    fill_borders(grid, cfg)
+    covered = [[any(grid[r][c] != "." for r in range(row)) for c in range(W)] for row in range(H)]
+    for left, top, right, bottom in cfg.get("unseen", []):
+        for row in range(top, bottom + 1):
+            for col in range(left, right + 1):
+                if covered[row][col] and not inside(sky, col, row):
+                    grid[row][col] = "#"
 
 
 def pairs(tiles):
@@ -523,7 +528,7 @@ def variant_grid(data, layout, cfg, name):
     drops = {layout.get("namedWalls", {})[wall] for wall in cfg.get("variantDrops", {}).get(name, [])}
     grid = tile_rows(data, {**layout, "wallCells": [w for w in layout["wallCells"] if w not in drops]})
     open_shafts(grid, plain_lifts(layout["lifts"], cfg))
-    fill_borders(grid, cfg)
+    compose(grid, cfg)
     return grid
 
 
@@ -540,7 +545,7 @@ def variants(base, map_path, layout, cfg):
         out[vid] = [
             {"col": col, "row": row, "ch": grid[row][col]}
             for row in range(H)
-            for col in range(W)
+            for col in range(cfg.get("width", W))
             if grid[row][col] != base[row][col] and (rects is None or inside(rects, col, row))
         ]
         sources[vid] = name
@@ -552,13 +557,13 @@ def build_tiles(data, layout, cfg, raw, enemies, map_path):
     lifts = plain_lifts(layout["lifts"], cfg)
     for col, row, was, now in open_shafts(grid, lifts):
         print(f"shaft cell {col},{row} {was} -> {now}", file=sys.stderr)
-    fill_borders(grid, cfg)
+    compose(grid, cfg)
     found, sources = variants(grid, map_path, layout, cfg)
     zones = hazards(raw["zones"], cfg)
     return {
         "status": "draft",
         "source": cfg["source"],
-        "rows": ["".join(r) for r in grid],
+        "rows": ["".join(r[:cfg.get("width", W)]) for r in grid],
         "lifts": [lift_json(lift, cfg) for lift in lifts],
         "spawn": drop_spawn(grid, layout["spawn"]),
         "fallDeathCells": cfg["fallDeathCells"],
