@@ -1,8 +1,10 @@
 import tasksJson from "@config/levels/mesto/tasks.json";
 import { describe, expect, it } from "vitest";
 import { cfg, objectLevel } from "../hero/testWorld";
-import { loadSandbox, pickUp, resetWorld, showItem, useShown, type SandboxWorld } from "./sandboxLevel";
+import { loadSandbox, onGround, pickUp, resetWorld, showItem, useShown, type SandboxWorld } from "./sandboxLevel";
+import { ITEMS } from "../items";
 import { loadMesto } from "./mesto";
+import { loadQuests } from "./quests";
 import { loadTasks, openBlockers, pickAll, runUse } from "./tasks";
 
 const world = (): SandboxWorld => loadSandbox(objectLevel);
@@ -26,9 +28,18 @@ describe("inventory", () => {
     pickUp(w, "wires");
     pickUp(w, "crowbar");
     pickUp(w, "card");
+    showItem(w, "crowbar");
+    expect(useShown(w)).toBe("crowbar");
+    expect(w.inventory).toEqual({ items: ["wires", "card"], shown: "wires" });
+  });
+
+  it("shows the next listed item, else the previous one, after a use", () => {
+    const w = world();
+    pickUp(w, "wires");
+    pickUp(w, "crowbar");
     showItem(w, "wires");
     expect(useShown(w)).toBe("wires");
-    expect(w.inventory).toEqual({ items: ["crowbar", "card"], shown: "card" });
+    expect(w.inventory).toEqual({ items: ["crowbar"], shown: "crowbar" });
   });
 
   it("never holds an item twice", () => {
@@ -88,7 +99,7 @@ describe("inventory", () => {
 });
 
 describe("runUse", () => {
-  it("uses the shown item and keeps it unless the task consumes it", () => {
+  it("uses the shown item and drops it once no open task needs it", () => {
     const w = world();
     pickUp(w, "wires");
     pickUp(w, "crowbar");
@@ -98,9 +109,47 @@ describe("runUse", () => {
     expect(prop(w, "switchboard").state ?? 0).toBe(0);
     w.flags.add("flag:metroPowered");
     use(w, "trainDoor");
-    expect(w.inventory).toEqual({ items: ["wires", "crowbar"], shown: "crowbar" });
+    expect(w.inventory).toEqual({ items: ["wires"], shown: "wires" });
     expect(prop(w, "trainDoor").state).toBe(2);
     expect(w.flags.has("flag:metroOpen")).toBe(true);
+  });
+
+  it("keeps a used item another open task still needs", () => {
+    const w = world();
+    w.tasks.push({ ...w.tasks.find((t) => t.id === "openTrainDoor")!, id: "openCrane", object: "crane", state: 1, sets: undefined });
+    pickUp(w, "crowbar");
+    w.flags.add("flag:metroPowered");
+    use(w, "trainDoor");
+    expect(w.inventory).toEqual({ items: ["crowbar"], shown: "crowbar" });
+    use(w, "crane");
+    expect(w.inventory).toEqual({ items: [], shown: null });
+  });
+
+  it("keeps the holoplan, the map, after its last use", () => {
+    const w = loadMesto();
+    pickUp(w, "holoPlan");
+    runUse(w, w.props.find((p) => p.id === "barDoor")!);
+    expect(w.flags.has("task:tradeHoloPlan")).toBe(true);
+    expect(w.inventory.items).toEqual(["holoPlan", "shipPlan"]);
+  });
+
+  it("never puts a spent item back on the ground", () => {
+    const w = loadMesto();
+    const crowbar = w.props.find((p) => p.item === "crowbar")!;
+    crowbar.taken = true;
+    pickUp(w, "crowbar");
+    w.flags.add("flag:metroPowered");
+    runUse(w, w.props.find((p) => p.id === "trainDoor")!);
+    expect(w.inventory.items).not.toContain("crowbar");
+    expect(onGround(crowbar, { blaster: null }, w.flags)).toBe(false);
+  });
+
+  it("never gives back a spent item", () => {
+    const w = world();
+    pickUp(w, "wires");
+    use(w, "switchboard");
+    pickAll(w);
+    expect(w.inventory.items).not.toContain("wires");
   });
 
   it("uses an older item once it is shown", () => {
@@ -223,7 +272,13 @@ describe("loadTasks", () => {
     for (const t of tasks) expect(t.consumes.every((c) => t.requires.includes(c)), t.id).toBe(true);
   });
 
-  it("keeps every used item except the ship part the bar man trades", () => {
+  it("waits on no item a task can spend in any quest", () => {
+    const used = new Set(loadTasks(tasksJson).flatMap((t) => t.requires).filter((t) => t.startsWith("item:") && !ITEMS[t.slice(5)]!.keep));
+    const quests = loadQuests(tasksJson);
+    for (const q of quests) for (const t of [...q.after, ...(q.any ?? []), q.until ?? ""]) expect(used.has(t), `${q.text}: ${t}`).toBe(false);
+  });
+
+  it("consumes only the ship part the bar man trades", () => {
     const tasks = loadTasks(tasksJson);
     expect(tasks.filter((t) => t.consumes.length).map((t) => t.id)).toEqual(["tradeShipPart"]);
     expect(tasks.map((t) => t.id)).not.toContain("getShipPart");

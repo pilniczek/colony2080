@@ -306,10 +306,11 @@ export function showItem(world: SandboxWorld, id: ItemId): void {
 
 export function useShown(world: SandboxWorld): ItemId | null {
   const { inventory } = world;
-  const { shown } = inventory;
+  const { shown, items } = inventory;
   if (shown === null) return null;
-  inventory.items.splice(inventory.items.indexOf(shown), 1);
-  inventory.shown = inventory.items.at(-1) ?? null;
+  const at = items.indexOf(shown);
+  items.splice(at, 1);
+  inventory.shown = items[at - 1] ?? items[at] ?? null;
   return shown;
 }
 

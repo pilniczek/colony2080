@@ -134,13 +134,18 @@ function setState(world: SandboxWorld, id: string, state: number): void {
   for (const prop of world.props) if (prop.id === id) moveProp(world, prop, state, false);
 }
 
+const spent = (world: SandboxWorld, id: ItemId): boolean => {
+  const users = world.tasks.filter((t) => t.requires.includes(`${ITEM}${id}`));
+  return !ITEMS[id]?.keep && users.length > 0 && users.every((t) => world.flags.has(doneToken(t)));
+};
+
 export const openTask = (world: SandboxWorld, prop: Prop): Task | undefined => open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
 
 export function pickAll(world: SandboxWorld): number {
   const ground = world.props.filter((p) => p.kind === "item");
   for (const prop of ground) prop.taken = true;
   const given = world.tasks.flatMap((t) => t.gives.map(itemOf));
-  const fresh = [...new Set([...ground.map((p) => p.item!), ...given])].filter((id): id is ItemId => id !== null && !world.inventory.items.includes(id));
+  const fresh = [...new Set([...ground.map((p) => p.item!), ...given])].filter((id): id is ItemId => id !== null && !world.inventory.items.includes(id) && !spent(world, id));
   for (const id of fresh) pickUp(world, id);
   return fresh.length;
 }
@@ -171,16 +176,18 @@ export function runUse(world: SandboxWorld, prop: Prop, { filmed = false } = {})
     say(world, hintFor(prop, world));
     return;
   }
+  world.flags.add(doneToken(task));
   for (const token of task.consumes) {
     if (itemOf(token) === null) world.flags.delete(token);
     else useShown(world);
   }
+  const used = task.requires.map(itemOf).find((item) => item !== null);
+  if (used && world.inventory.shown === used && spent(world, used)) useShown(world);
   for (const token of task.gives) {
     const item = itemOf(token);
     if (item === null) world.flags.add(token);
     else pickUp(world, item);
   }
-  world.flags.add(doneToken(task));
   if (task.state !== undefined) moveProp(world, prop, task.state, filmed);
   for (const [id, state] of Object.entries(task.sets ?? {})) setState(world, id, state);
   applyBlocks(world);

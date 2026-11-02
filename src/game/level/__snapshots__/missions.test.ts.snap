@@ -2998,7 +2998,7 @@ exports[`missions > mesto json is unchanged 1`] = `
           "flag:partWanted",
         ],
         "text": "Bring the bar man the ship part he wants.",
-        "until": "item:decoder",
+        "until": "flag:partTraded",
       },
       {
         "after": [],
@@ -3160,6 +3160,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "cutscene": "tradeShipPart",
         "gives": [
           "item:decoder",
+          "flag:partTraded",
         ],
         "hint": "The bar man wants the ship part from his plan first. Look for it at the crashed ship.",
         "id": "tradeShipPart",
