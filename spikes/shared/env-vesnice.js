@@ -117,7 +117,7 @@ const crateWall = {
       for (let i = c0; i < c1; i++) {
         const s = hash(seed + i, j);
         if (s < 0.22) G.drips(ctx, i * TILE, -h + j * TILE + 20, TILE, 14, seed + i * 7 + j * 13, 1);
-        if (s > 0.9) G.rustPatch(ctx, i * TILE + 12, -h + j * TILE + 12, 3, 1.6, seed + i * 5 + j);
+        if (s > 0.96) G.rustPatch(ctx, i * TILE + 12, -h + j * TILE + 12, 2.6, 1.4, seed + i * 5 + j);
       }
     }
     G.dirt(ctx, 0, -h, w, h, seed + 2, min(0.25, 36 / h));
