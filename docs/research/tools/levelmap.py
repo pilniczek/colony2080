@@ -78,8 +78,11 @@ EXTRAS = {
         "source": (
             "docs/research/reports/14-level2-layout.md, built by docs/research/tools/levelmap.py from MAPY/M21.MAP "
             "and gamedata/disasm/level2_layout.json: '=' one-way floor support tiles, '#' wall tiles (walls filled over the hero stand height), "
-            "'|' map clamp (columns 6 and 158), the bridge guard post code wall and a cap over each bare wall top (wall tiles hold no hero), lift shafts open from two rows over the top stop "
-            "to the bottom stop; spawn dropped from engine (146, 33) to the floor below; "
+            "the bridge guard post code wall '|' (column 52), lift shafts open from two rows over the top stop "
+            "to the bottom stop; spawn dropped from engine (146, 33) to the floor below; patches drop the map clamp (columns 6 and 158) and the caps over bare wall tops "
+            "(no jump reaches them), fill every original crate block and rock tile (sheet 10, not the lattice, deck or machine tiles) solid, so the cliffs and masses of the map image are walls, "
+            "and wall the west edge (cols 0-6 rows 24-50) and the east edge (cols 156-159 rows 13-41) on to the map edge (map composition blueprint); unseen fills the never seen cells under the lower floors "
+            "(bedrock under floors 50, 59 and 68 and east of the floor 41 to 59 masses) and the lattice slot in the col 87-95 mass, leaving the one-row strips under the floors open; "
         )
         + ZONES_NOTE,
         "fallDeathCells": None,
@@ -96,7 +99,8 @@ EXTRAS = {
                    (80, 50, 86, 79), (96, 50, 98, 79)],
         "patches": [(6, 0, 6, 10, "."), (21, 10, 21, 10, "."), (75, 5, 75, 5, "."), (107, 3, 107, 3, "."), (116, 19, 116, 19, "."), (131, 19, 131, 19, "."),
                     (82, 39, 82, 39, "#"), (96, 42, 96, 42, "#"), (76, 37, 80, 38, "#"), (83, 43, 83, 43, "#"), (84, 45, 84, 45, "#"), (84, 47, 84, 47, "#"), (82, 48, 85, 48, "#"), (80, 49, 88, 49, "#"), (87, 50, 88, 79, "#"),
-                    (93, 49, 95, 79, "#"), (96, 49, 97, 49, "#"), (42, 17, 42, 17, "."), (80, 18, 80, 18, "."), (82, 18, 82, 18, ".")],
+                    (93, 49, 95, 79, "#"), (96, 49, 97, 49, "#"), (42, 17, 42, 17, "."), (80, 18, 80, 18, "."), (82, 18, 82, 18, "."),
+                    (107, 28, 111, 28, "."), (135, 24, 141, 24, ".")],
         "source": (
             "docs/research/reports/15-level3-layout.md, built by docs/research/tools/levelmap.py from MAPY/M31.MAP "
             "and gamedata/disasm/level3_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
@@ -105,7 +109,7 @@ EXTRAS = {
             "and the east wall col 148 (from row 35) on to the map edge, and the map ends at col 151; unseen fills the never seen ground under floors 37 and 41 and around the cave solid; "
             "the dip east of floor 37 (cols 76-80, rows 37-38) is ground, the rock west of the cave stair and the cave floor are solid except the pit under its gaps (cols 89-92), "
             "the cabinet niche behind the col 96 wall (cols 97-98, rows 46-47) stays open, the cell over the col 96 wall and the col 82 rock top are solid; "
-            "stray floor tiles inside the building (42,17) and by the pipe (80 and 82, row 18) are dropped; "
+            "stray floor tiles inside the building (42,17) and by the pipe (80 and 82, row 18) and the never seen planks under and on the spawn deck (row 28 cols 107-111, row 24 cols 135-141) are dropped; "
         )
         + ZONES_NOTE,
         "fallDeathCells": None,

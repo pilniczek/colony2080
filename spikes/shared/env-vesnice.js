@@ -92,14 +92,12 @@ const crate = (ctx, x, y, seed) => {
   const flipped = hash(seed, 7) < 0.5;
   const diag = flipped ? [[x + 18.5, y + 2], [x + 21.5, y + 2], [x + 8.5, y + 16], [x + 5.5, y + 16]] : [[x + 5.5, y + 2], [x + 8.5, y + 2], [x + 21.5, y + 16], [x + 18.5, y + 16]];
   shape(ctx, diag, t[2]);
-  if (!simple()) {
-    line(ctx, [diag[1], diag[2]], t[0], 0.7);
-    flat(ctx, x + 11.4, y + 8.4, 1.4, 1.4, t[3]);
-    flat(ctx, x + 3.4, y + 3, 1.2, 1.2, t[3]);
-  }
+  line(ctx, [diag[1], diag[2]], t[0], 0.7);
+  flat(ctx, x + 11.4, y + 8.4, 1.4, 1.4, t[3]);
+  flat(ctx, x + 3.4, y + 3, 1.2, 1.2, t[3]);
   flat(ctx, x, y + 18, 24, 6, CRATE[4]);
   flat(ctx, x, y + 19.6, 24, 1.3, k > 0.85 ? STRIPE_DARK : STRIPE);
-  if (!simple()) flat(ctx, x, y + 20.9, 24, 0.7, STRIPE_DARK);
+  flat(ctx, x, y + 20.9, 24, 0.7, STRIPE_DARK);
 };
 const crateWall = {
   id: "crateWall",
@@ -115,13 +113,11 @@ const crateWall = {
     for (let j = r0; j < r1; j++)
       for (let i = c0; i < c1; i++) crate(ctx, i * TILE, -h + j * TILE, seed + i * 31 + j * 17);
     G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed + 1, 0.9);
-    if (!simple()) {
-      for (let j = r0; j < r1; j++) {
-        for (let i = c0; i < c1; i++) {
-          const s = hash(seed + i, j);
-          if (s < 0.22) G.drips(ctx, i * TILE, -h + j * TILE + 20, TILE, 14, seed + i * 7 + j * 13, 1);
-          if (s > 0.9) G.rustPatch(ctx, i * TILE + 12, -h + j * TILE + 12, 3, 1.6, seed + i * 5 + j);
-        }
+    for (let j = r0; j < r1; j++) {
+      for (let i = c0; i < c1; i++) {
+        const s = hash(seed + i, j);
+        if (s < 0.22) G.drips(ctx, i * TILE, -h + j * TILE + 20, TILE, 14, seed + i * 7 + j * 13, 1);
+        if (s > 0.9) G.rustPatch(ctx, i * TILE + 12, -h + j * TILE + 12, 3, 1.6, seed + i * 5 + j);
       }
     }
     G.dirt(ctx, 0, -h, w, h, seed + 2, min(0.25, 36 / h));
@@ -156,7 +152,7 @@ const walkway = (ctx, w) => {
     if (bw > 12) {
       const n = hash(k, 5) < 0.5 ? [[x + 4, 21], [x + 4, 9], [x + bw - 4, 21], [x + bw - 4, 9]] : [[x + 4, 9], [x + 4, 21], [x + bw - 4, 9], [x + bw - 4, 21]];
       line(ctx, n, STONE[0], 2.2);
-      if (!simple()) line(ctx, n, STONE[3], 0.6);
+      line(ctx, n, STONE[3], 0.6);
     }
     flat(ctx, x, 22.6, bw, 1.4, STONE[4]);
   }
@@ -166,20 +162,15 @@ const walkway = (ctx, w) => {
   flat(ctx, x0, 0, x1 - x0, 1.4, SOIL[3]);
   flat(ctx, x0, 6.4, x1 - x0, 0.8, SOIL[0]);
   G.grain(ctx, G.rectRegion(ctx, x0, 0, x1 - x0, 24), seed + 1);
-  if (!simple()) {
-    for (let x = x0; x < x1; x += TILE) {
-      const k = floor(x / TILE);
-      if (hash(k, 9) < 0.4) G.drips(ctx, x, 7, TILE, 10, seed + k, 1);
-      if (hash(k, 11) < 0.3) {
-        const mx = x + hash(k, 12) * 16;
-        shape(ctx, [[mx, 7], [mx + 6, 7], [mx + 4.5, 11], [mx + 1.5, 12]], GRASS[0]);
-      }
+  for (let x = x0; x < x1; x += TILE) {
+    const k = floor(x / TILE);
+    if (hash(k, 9) < 0.4) G.drips(ctx, x, 7, TILE, 10, seed + k, 1);
+    if (hash(k, 11) < 0.3) {
+      const mx = x + hash(k, 12) * 16;
+      shape(ctx, [[mx, 7], [mx + 6, 7], [mx + 4.5, 11], [mx + 1.5, 12]], GRASS[0]);
     }
-    tufts(ctx, x0, x1, 0, seed + 3 + floor(x0 / TILE));
   }
-  else {
-    for (let x = x0; x < x1; x += 6) flat(ctx, x, -1.6, 3, 1.8, GRASS[2]);
-  }
+  tufts(ctx, x0, x1, 0, seed + 3 + floor(x0 / TILE), simple() ? 4.4 : 3.2);
 };
 const grassyWalkway = {
   id: "grassyWalkway",
@@ -234,8 +225,7 @@ const villageBackdrop = {
     for (const [at, c] of SKY) g.addColorStop(at, c);
     ctx.fillStyle = g;
     ctx.fillRect(0, -170, 320, 170);
-    if (!simple())
-      for (const [x, y, s] of STARS) flat(ctx, x, y, s, s, "#8a9a90");
+    for (const [x, y, s] of STARS) flat(ctx, x, y, s, s, "#8a9a90");
     glow(ctx, 244, -152, 22, "#4a5a4a", 0.35);
     disc(ctx, 244, -152, 4.2, "#b8bca0");
     disc(ctx, 245.4, -152.8, 3.6, "#8a8e78");
@@ -269,8 +259,7 @@ const jungleCanopy = {
     flat(ctx, 0, -h * 0.55, w, h * 0.55, JUNGLE[0]);
     for (let x = 8; x < w; x += 30 + r() * 30) palm(ctx, x, 0, h * (0.7 + r() * 0.3), (r() - 0.5) * 30, JUNGLE[1], seed + round(x) * 3);
     for (let x = 0; x < w + 10; x += 16 + r() * 12) shape(ctx, blob(x, -h * (0.18 + r() * 0.12), 14 + r() * 8, 10 + r() * 6, seed + 7 + round(x)), JUNGLE[r() < 0.5 ? 1 : 2]);
-    if (!simple())
-      for (let x = 4; x < w; x += 9 + r() * 10) fern(ctx, x, 8 + r() * 10, JUNGLE[3]);
+    for (let x = 4; x < w; x += 9 + r() * 10) fern(ctx, x, 8 + r() * 10, JUNGLE[3]);
     flat(ctx, 0, -6, w, 6, JUNGLE[0]);
   },
 };
@@ -302,37 +291,37 @@ const ruinWall = {
     G.drips(ctx, 0, -h, w, h * 0.6, seed + 3, round(w / 16), false);
     G.dirt(ctx, 0, -h, w, h, seed + 4, 0.35);
     ctx.restore();
-    if (!simple())
-      for (let x = 4; x < w; x += 7 + r() * 9) fern(ctx, x, 5 + r() * 9, r() < 0.5 ? "#2a3a24" : "#3a4c2e");
+    for (let x = 4; x < w; x += 7 + r() * 9) fern(ctx, x, 5 + r() * 9, r() < 0.5 ? "#2a3a24" : "#3a4c2e");
   },
 };
 const BOULDER = ["#2a2620", "#4c463a", "#6e6654", "#968c74", "#b4aa8e"];
 const boulder = (ctx, cx, cy, rx, ry, seed) => {
   shape(ctx, blob(cx, cy, rx, ry, seed, 10), BOULDER[1], BOULDER[0]);
   shape(ctx, blob(cx - rx * 0.18, cy - ry * 0.22, rx * 0.72, ry * 0.6, seed + 1, 9), BOULDER[2]);
-  if (!simple()) {
-    shape(ctx, blob(cx - rx * 0.32, cy - ry * 0.4, rx * 0.36, ry * 0.26, seed + 2, 8), BOULDER[3]);
-    flat(ctx, cx - rx * 0.4, cy - ry * 0.55, rx * 0.25, 0.8, BOULDER[4]);
-    line(ctx, [[cx - rx * 0.6, cy + ry * 0.5], [cx + rx * 0.5, cy + ry * 0.62]], BOULDER[0], 0.8);
-  }
+  shape(ctx, blob(cx - rx * 0.32, cy - ry * 0.4, rx * 0.36, ry * 0.26, seed + 2, 8), BOULDER[3]);
+  flat(ctx, cx - rx * 0.4, cy - ry * 0.55, rx * 0.25, 0.8, BOULDER[4]);
+  line(ctx, [[cx - rx * 0.6, cy + ry * 0.5], [cx + rx * 0.5, cy + ry * 0.62]], BOULDER[0], 0.8);
 };
 const rockCliff = {
   id: "rockCliff",
-  box: [-14, -80, 80, 6],
+  box: [-18, -84, 84, 8],
   draw(ctx, _state, _t, { w = 72, h = 72 } = {}) {
     const seed = round(w * 13 + h * 5);
     const r = rng(seed);
-    const rows = max(1, round(h / 14));
-    const band = min(w, 30);
+    const rows = max(1, round(h / 17));
+    const band = min(w + 6, 38);
+    const back = [[-10, 4], [band, 4], [w + 4, -h + 6], [w + 4, -h - 4], [w - 8, -h - 6]];
+    shape(ctx, back, BOULDER[0]);
     for (let j = 0; j < rows; j++) {
       const y = -(j + 0.5) * (h / rows);
       const edge = (w * (j + 0.5)) / rows;
-      for (let x = edge - 8 + r() * 6; x < min(w + 4, edge + band); x += 13 + r() * 9) boulder(ctx, x, y + (r() - 0.5) * 4, 8 + r() * 6, 5.5 + r() * 3.5, seed + j * 31 + round(x));
+      for (let x = edge - 6 + r() * 6; x < min(w + 6, edge + band); x += 15 + r() * 9) boulder(ctx, x, y + (r() - 0.5) * 4, 10 + r() * 6, 7 + r() * 3.5, seed + j * 31 + round(x));
     }
     for (let j = 0; j < rows; j++) {
       const y = -(j + 0.5) * (h / rows);
-      boulder(ctx, (w * (j + 0.5)) / rows - 5, y + 2, 9 + r() * 4, 6 + r() * 2, seed + 500 + j);
+      boulder(ctx, (w * (j + 0.5)) / rows - 6, y + 3, 11 + r() * 4, 7.5 + r() * 2, seed + 500 + j);
     }
+    G.grain(ctx, G.polyRegion(ctx, back), seed + 7, 0.6);
   },
 };
 const bronzePipe = {
@@ -754,11 +743,9 @@ const massTop = {
       const rx = 1.6 + r() * 2.6;
       boulder(ctx, x, -0.6 - rx * 0.4, rx, rx * 0.7, 1101 + round(x));
     }
-    if (!simple()) {
-      for (let x = x0; x < x1; x += TILE)
-        if (hash(floor(x / TILE), 21) < 0.45) tufts(ctx, x + 4, x + 4 + hash(floor(x / TILE), 22) * 14, 0, 1102 + round(x), 2.6);
-      G.chips(ctx, x0, 0.4, x1 - x0, 1103 + round(x0));
-    }
+    for (let x = x0; x < x1; x += TILE)
+      if (hash(floor(x / TILE), 21) < 0.45) tufts(ctx, x + 4, x + 4 + hash(floor(x / TILE), 22) * 14, 0, 1102 + round(x), 2.6);
+    G.chips(ctx, x0, 0.4, x1 - x0, 1103 + round(x0));
   },
 };
 for (const asset of [
