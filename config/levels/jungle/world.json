@@ -14,7 +14,7 @@
     {"asset": "girderColumn", "x": 28, "y": 37, "h": 11.167},
     {"asset": "girderColumn", "x": 34, "y": 37, "h": 11.167},
     {"asset": "girderColumn", "x": 25, "y": 37, "h": 8.167},
-    {"asset": "waterfall", "x": 94, "y": 22, "w": 6, "h": 19},
+    {"asset": "waterfall", "x": 94, "y": 28.4, "w": 6, "h": 25.4},
     {"asset": "caveChasm", "x": 84, "y": 49, "w": 12, "h": 8},
     {"asset": "caveChasm", "x": 89, "y": 80, "w": 4, "h": 31},
     {"asset": "jungleBuilding", "x": 37, "y": 20, "w": 8, "h": 4},
@@ -29,7 +29,7 @@
     {"asset": "fuelTank", "x": 59.5, "y": 37}
   ],
   "dressing": [
-    {"asset": "girderColumn", "x": 21, "y": 37, "h": 26},
+    {"asset": "girderColumn", "x": 22, "y": 37, "h": 26},
     {"asset": "girderColumn", "x": 107, "y": 20, "h": 16},
     {"asset": "girderColumn", "x": 148, "y": 41, "h": 6},
     {"asset": "girderColumn", "x": 38, "y": 20, "h": 6.167},
@@ -103,7 +103,7 @@
     {"asset": "jungleFern", "x": 90, "y": 41, "state": 1},
     {"asset": "jungleFern", "x": 112, "y": 41, "state": 1},
     {"asset": "jungleFern", "x": 35.5, "y": 32, "state": 2},
-    {"asset": "jungleFern", "x": 61.2, "y": 20, "state": 0},
+    {"asset": "jungleFern", "x": 62.2, "y": 20, "state": 0},
     {"asset": "jungleFern", "x": 92.5, "y": 11, "state": 1}
   ],
   "bare": [
