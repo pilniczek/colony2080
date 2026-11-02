@@ -260,12 +260,15 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
       "west of the barricade col 22, the cannon shot loads M24; floor 50 west by lift 9, wall 14 floor by teleport 13 (report 14)": [
         ...["41,15", "50,15", "32,30"],
       ],
+      "barricade col 22 top, gone once the cannon shot loads M24 (report 14)": ["36,22"],
     },
     never: {
       "past the marker 14 wall col 29 that the dynamite blows to end the level (report 14 tasks)": ["32,7"],
-      "plank stub past a floor-end wall, a report 14 walk segment off its route flowchart": [
-        ...["23,55", "23,87", "23,123", "23,149", "32,47", "32,59", "32,87", "32,106", "32,153", "41,10", "41,154", "50,11", "50,59"],
-        ...["50,69", "50,138", "59,74", "59,104", "59,113", "59,138", "68,77", "68,125"],
+      "wall tops nobody reaches: the original rock and crate block masses, the barrier col 99 and wall 14 col 29 (levelmap.py patches)": [
+        ...["12,90", "13,153", "14,117", "15,50", "15,87", "15,120", "16,54", "16,121", "16,151", "17,55", "17,122", "18,56", "18,86"],
+        ...["18,123", "18,148", "24,0", "24,102", "25,49", "25,61", "25,154", "27,29", "27,46", "27,62", "27,86", "27,107", "27,152"],
+        ...["36,12", "36,99", "36,153", "43,13", "43,60", "43,69", "43,139", "44,70", "45,14", "45,58", "45,71", "45,137", "52,73"],
+        ...["52,105", "52,112", "53,113", "54,75", "54,103", "54,114", "63,78", "63,124"],
       ],
     },
   },
