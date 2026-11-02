@@ -872,13 +872,13 @@
   },
   {
    "id": "rockCliff",
-   "name": "Rock cliff over steel block wall",
+   "name": "Rock cliff",
    "csName": null,
    "interactive": false,
    "marker": null,
    "task": null,
    "sheet": "structures",
-   "description": "Floor-high walls of riveted grey steel blocks with yellow seams, fronted by big rounded boulders spilling down in a slope; close every floor end and frame the chasm.",
+   "description": "Big rounded boulders spilling down the slope faces of the crate block masses; sized w and h in cells, flip mirrors it.",
    "states": [],
    "refs": [
     {
@@ -919,7 +919,7 @@
    "marker": null,
    "task": null,
    "sheet": "structures",
-   "description": "Floor plank: dry grass and dirt over a riveted steel girder with X bracing, 1 tile thick; every floor of the level, 9 rows apart.",
+   "description": "Floor run (terrain ledge art): dry grass and dirt over grey stone curb blocks with a diagonal brace, 1 tile thick; every floor of the level.",
    "states": [],
    "refs": [
     {
@@ -935,33 +935,6 @@
       48
      ],
      "caption": "map M21: floor 32 plank"
-    }
-   ]
-  },
-  {
-   "id": "chainFence",
-   "name": "Chain-link fence",
-   "csName": null,
-   "interactive": false,
-   "marker": null,
-   "task": null,
-   "sheet": "structures",
-   "description": "Same mesh fence panels between steel posts as mesto, with small grey sign plates; on most floors.",
-   "states": [],
-   "refs": [
-    {
-     "path": "docs/research/gamedata/png/maps/map_M21.png",
-     "imgSize": [
-      3840,
-      1920
-     ],
-     "crop": [
-      1416,
-      456,
-      264,
-      96
-     ],
-     "caption": "map M21: fence on floor 23"
     }
    ]
   },
@@ -1020,7 +993,7 @@
    ]
   },
   {
-   "id": "fuelTank",
+   "id": "horizontalTank",
    "name": "Horizontal tank",
    "csName": null,
    "interactive": false,
@@ -1109,7 +1082,10 @@
    "task": null,
    "sheet": "buildings",
    "description": "Pale concrete houses with flat roofs, window grids and pillars (5-10 tiles wide) on floors 41, 50 and 68; some ruined with broken roofs.",
-   "states": [],
+   "states": [
+    "concrete house",
+    "ruined arch hall"
+   ],
    "refs": [
     {
      "path": "docs/research/gamedata/png/maps/map_M21.png",
@@ -1150,7 +1126,10 @@
    "task": null,
    "sheet": "buildings",
    "description": "Brown wooden building with window rows raised on posts, spanning a floor (cells 89-98, rows 51-58), and a smaller stilt hut with spiked roof on floor 50 (cells 74-86).",
-   "states": [],
+   "states": [
+    "timber block on posts",
+    "hut with broken roof"
+   ],
    "refs": [
     {
      "path": "docs/research/gamedata/png/maps/map_M21.png",
@@ -1183,14 +1162,110 @@
    ]
   },
   {
-   "id": "pipeColumn",
-   "name": "Vertical pipe column",
+   "id": "crateWall",
+   "name": "Crate block wall",
    "csName": null,
    "interactive": false,
    "marker": null,
    "task": null,
    "sheet": "structures",
-   "description": "Thick bronze vertical pipe with ring joints (for example cell 60, rows 33-41 and cell 120, rows 33-40).",
+   "description": "Terrain wall art: dark olive steel crate panels, one per cell, with a diagonal brace and a yellow seam strip under every row; the solid masses under the rock cliffs and the bedrock under the lower floors.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1104,
+      576,
+      336,
+      240
+     ],
+     "caption": "map M21: crate blocks under the cliff"
+    }
+   ]
+  },
+  {
+   "id": "walkwayGirder",
+   "name": "Free walkway",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Terrain girder art: the grassy walkway drawn for a floor run that touches no wall.",
+   "states": [],
+   "refs": [],
+   "origin": "new"
+  },
+  {
+   "id": "jungleCanopy",
+   "name": "Jungle canopy",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "buildings",
+   "description": "Backdrop band of dark palms, canopy blobs and ferns, sized w and h in cells; the original parallax jungle (background frame 0) laid behind the storeys.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/lev2/f000.png",
+     "imgSize": [
+      320,
+      200
+     ],
+     "crop": [
+      0,
+      0,
+      320,
+      170
+     ],
+     "caption": "background frame 0"
+    }
+   ],
+   "origin": "new"
+  },
+  {
+   "id": "ruinWall",
+   "name": "Ruined backdrop wall",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "buildings",
+   "description": "Pale broken concrete wall with ferns at its foot, sized w and h; the ruined walls of the original parallax backdrop.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/lev2/f000.png",
+     "imgSize": [
+      320,
+      200
+     ],
+     "crop": [
+      0,
+      80,
+      320,
+      80
+     ],
+     "caption": "background frame 0: ruined walls"
+    }
+   ],
+   "origin": "new"
+  },
+  {
+   "id": "bronzePipe",
+   "name": "Bronze pipe column",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Thick bronze vertical pipe with ring joints, sized h (for example cell 60, rows 33-41 and cell 86, rows 24-32).",
    "states": [],
    "refs": [
     {
@@ -1208,6 +1283,167 @@
      "caption": "map M21: pipe column"
     }
    ]
+  },
+  {
+   "id": "latticeMast",
+   "name": "Lattice mast",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "X-braced steel post of the crate block steel, sized h; the free lattice posts and the power plant gantry legs.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      3120,
+      288,
+      288,
+      144
+     ],
+     "caption": "map M21: lattice gantry"
+    }
+   ]
+  },
+  {
+   "id": "powerPlant",
+   "name": "Power plant machinery",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Coil banks, insulators with live arcs, a domed tank and a pipe gantry on floor 23 (cells 126-141, rows 12-22), fed by the fuse box (inferred).",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      2976,
+      288,
+      480,
+      288
+     ],
+     "caption": "map M21: power plant"
+    }
+   ]
+  },
+  {
+   "id": "villageFence",
+   "name": "Mesh fence",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Chain mesh panel between steel posts with a small grey sign plate, sized w; on most floors.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1416,
+      480,
+      336,
+      96
+     ],
+     "caption": "map M21: fence on floor 23"
+    }
+   ]
+  },
+  {
+   "id": "ammoDepot",
+   "name": "Ammo depot",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Concrete pillars with burning braziers on top and AMMO crates with shells between them, sized w (cells 23-28 floor 41, cells 30-38 floor 32).",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      528,
+      888,
+      168,
+      96
+     ],
+     "caption": "map M21: depot, floor 41"
+    },
+    {
+     "path": "docs/research/gamedata/png/maps/map_M21.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      696,
+      696,
+      240,
+      72
+     ],
+     "caption": "map M21: depot, floor 32"
+    }
+   ]
+  },
+  {
+   "id": "woodPile",
+   "name": "Wood pile",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Stack of dark logs at a building edge; small ground clutter.",
+   "states": [],
+   "refs": [],
+   "origin": "new"
+  },
+  {
+   "id": "sackPile",
+   "name": "Sack pile",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Three grain sacks in a heap; small ground clutter.",
+   "states": [],
+   "refs": [],
+   "origin": "new"
+  },
+  {
+   "id": "massTop",
+   "name": "Mass top",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Terrain top art for a wall top the hero does not walk: a soil crust with pebbles and dry grass on the crate block masses.",
+   "states": [],
+   "refs": [],
+   "origin": "new"
   }
  ]
 }

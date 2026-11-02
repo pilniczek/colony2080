@@ -1,35 +1,13 @@
-import { P, TILE, type EnvAsset } from "./paint";
-import { facets } from "./props";
+import { G } from "./grime";
+import { P, TILE, type EnvAsset, type Size } from "./paint";
 
-const { rng, path, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, tones, shape, line, curve, slab, hazard, text } = P;
-const { PI, sin, cos, min, max, abs } = Math;
+const { rng, path, color, flat, box, cylV, disc, rivets, glow, stroke, shape, line, curve, mesh, hazard } = P;
+const { PI, sin, cos, min, max, abs, round, floor, ceil } = Math;
 
 type Pt = [number, number];
-type Shades = [string, string, string, string];
+type Pt3 = [number, number, number];
 
 const simple = (): boolean => P.simple();
-
-export const scuff = (ctx: CanvasRenderingContext2D, x: number, w: number): void => {
-  ctx.save();
-  ctx.globalAlpha = 0.45;
-  ctx.fillStyle = color("hole");
-  ctx.beginPath();
-  ctx.ellipse(x + w / 2, -0.5, w / 2, 0.9, 0, 0, PI * 2);
-  ctx.fill();
-  ctx.restore();
-  if (simple()) return;
-  for (const [dx, s] of [[0.15, 1], [0.55, 0.8], [0.8, 1.2]] as Pt[]) flat(ctx, x + w * dx, -1.4 * s, s, s * 0.8, "k2");
-};
-
-export const shadow = (ctx: CanvasRenderingContext2D, cx: number, w: number, alpha = 0.4): void => {
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = color("hole");
-  ctx.beginPath();
-  ctx.ellipse(cx, -0.4, w / 2, 0.9, 0, 0, PI * 2);
-  ctx.fill();
-  ctx.restore();
-};
 
 export const ellipse = (ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, fill: string, edge: string | null = null): void => {
   ctx.fillStyle = color(fill);
@@ -39,9 +17,11 @@ export const ellipse = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r
   if (edge) stroke(ctx, edge);
 };
 
-export const wire = (ctx: CanvasRenderingContext2D, pts: Pt[], c: string, w = 0.8): void => {
-  line(ctx, pts, "mLine", w + 0.6);
-  line(ctx, pts, c, w);
+export const shadow = (ctx: CanvasRenderingContext2D, cx: number, w: number, alpha = 0.4): void => {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ellipse(ctx, cx, -0.4, w / 2, 0.9, "hole");
+  ctx.restore();
 };
 
 export const smoke = (ctx: CanvasRenderingContext2D, x: number, y: number, t: number, n = 3, h = 22): void => {
@@ -54,7 +34,18 @@ export const smoke = (ctx: CanvasRenderingContext2D, x: number, y: number, t: nu
   ctx.restore();
 };
 
-const flame = (ctx: CanvasRenderingContext2D, x: number, base: number, w: number, h: number, t: number, seed = 0): void => {
+export const spark = (ctx: CanvasRenderingContext2D, x: number, y: number, t: number, seed = 0): void => {
+  if (floor(t * 7 + seed) % 4) return;
+  const r = rng(floor(t * 7) + seed * 13);
+  if (!simple()) glow(ctx, x, y, 5, "y3", 0.8);
+  for (let i = 0; i < 4; i++) {
+    const a = r() * PI * 2;
+    const l = 2 + r() * 3;
+    line(ctx, [[x, y], [x + cos(a) * l, y + sin(a) * l]], "y3", 0.5);
+  }
+};
+
+export const flame = (ctx: CanvasRenderingContext2D, x: number, base: number, w: number, h: number, t: number, seed = 0): void => {
   const f = 0.85 + sin(t * 11 + seed * 2.3) * 0.08 + sin(t * 17.3 + seed) * 0.07;
   const tip = h * f;
   const lean = sin(t * 6 + seed) * w * 0.12;
@@ -67,724 +58,194 @@ const flame = (ctx: CanvasRenderingContext2D, x: number, base: number, w: number
     [x + w * (0.5 + s / 2) - w * 0.04, base - tip * k * 0.4],
     [x + w * (0.5 + s / 2), base],
   ];
-  shape(ctx, pts(1, 1), "a0", "aLine");
-  shape(ctx, pts(0.78, 0.72), "a1");
-  shape(ctx, pts(0.52, 0.46), "a2");
-  if (!simple()) shape(ctx, pts(0.3, 0.24), "y3");
+  if (!simple()) glow(ctx, x + w / 2, base - tip * 0.4, w * 1.3, "a1", 0.35);
+  shape(ctx, pts(1, 1), "fire0");
+  shape(ctx, pts(0.75, 0.7), "fire1");
+  shape(ctx, pts(0.45, 0.42), "fire2");
 };
 
-const ring = (ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, c: string, w = 1): void => {
-  ctx.save();
-  ctx.lineWidth = w;
-  ctx.strokeStyle = color(c);
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, PI * 2);
-  ctx.stroke();
-  ctx.restore();
-};
-
-const lamp = (ctx: CanvasRenderingContext2D, x: number, y: number, c: string, lit = true): void => {
-  if (lit && !simple()) glow(ctx, x, y, 4, c, 0.6);
-  disc(ctx, x, y, 1.2, lit ? c : "k0", "mLine");
-};
-
-export const spark = (ctx: CanvasRenderingContext2D, x: number, y: number, t: number, seed = 0): void => {
-  if (Math.floor(t * 7 + seed) % 4) return;
-  const r = rng(Math.floor(t * 7) + seed * 13);
-  if (!simple()) glow(ctx, x, y, 5, "y3", 0.8);
-  for (let i = 0; i < 4; i++) {
-    const a = r() * PI * 2;
-    const l = 2 + r() * 3;
-    line(ctx, [[x, y], [x + cos(a) * l, y + sin(a) * l]], "y3", 0.5);
+export const viewSpan = (ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number): [number, number, number, number] => {
+  const { a, b, c, d, e, f } = ctx.getTransform();
+  const det = a * d - b * c;
+  const cw = Number(ctx.canvas.width);
+  const ch = Number(ctx.canvas.height);
+  if (!det || !cw || !ch) return [x0, y0, x0, y0];
+  const xs: number[] = [];
+  const ys: number[] = [];
+  for (const [X, Y] of [[0, 0], [cw, 0], [0, ch], [cw, ch]] as Pt[]) {
+    xs.push((d * (X - e) - c * (Y - f)) / det);
+    ys.push((-b * (X - e) + a * (Y - f)) / det);
   }
+  return [max(x0, min(...xs)), max(y0, min(...ys)), min(x1, max(...xs)), min(y1, max(...ys))];
 };
 
-const arcBolt = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: number, w: number, t: number, seed: number, c = "plasma", k = 1): void => {
-  const r = rng(Math.floor(t * 18) + seed * 101);
-  const pts: Pt[] = [];
-  const n = Math.max(4, Math.round((y1 - y0) / 6));
-  for (let i = 0; i <= n; i++) pts.push([x + (i === 0 || i === n ? 0 : (r() - 0.5) * w), y0 + ((y1 - y0) * i) / n]);
-  line(ctx, pts, c, 1.8 * k);
-  line(ctx, pts, "plasmaCore", 0.7 * k);
+const cells = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): [number, number, number, number] => {
+  const [vx0, vy0, vx1, vy1] = viewSpan(ctx, x, y, x + w, y + h);
+  return [max(0, floor((vx0 - x) / TILE)), min(ceil(w / TILE), ceil((vx1 - x) / TILE)), max(0, floor((vy0 - y) / TILE)), min(ceil(h / TILE), ceil((vy1 - y) / TILE))];
 };
 
-const beamColumn = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: number, w: number, t: number): void => {
-  if (!simple()) glow(ctx, x, (y0 + y1) / 2, (y1 - y0) * 0.6, "plasma", 0.35);
-  ctx.save();
-  ctx.globalAlpha = 0.55;
-  const g = ctx.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
-  g.addColorStop(0, "rgba(122,224,255,0)");
-  g.addColorStop(0.5, color("plasma"));
-  g.addColorStop(1, "rgba(122,224,255,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(x - w / 2, y0, w, y1 - y0);
-  ctx.restore();
-  for (let i = 0; i < 3; i++) {
-    const k = (t * 0.8 + i / 3) % 1;
-    ring(ctx, x, y1 + (y0 - y1) * k, w * 0.45, 1.2, "plasmaCore", 0.5);
-  }
+export const hash = (a: number, b: number): number => {
+  const s = sin(a * 127.1 + b * 311.7) * 43758.5453;
+  return s - floor(s);
 };
 
-const POD_TOP = -72;
+export const CRATE = ["#1e261c", "#2c3828", "#3c4a36", "#5a6a50", "#0e120c"] as const;
+const CRATE_ALT = ["#222a22", "#30382e", "#424c3e", "#626e58"] as const;
+const STRIPE = "#b08a30";
+const STRIPE_DARK = "#5a3e14";
 
-const podFrame = (ctx: CanvasRenderingContext2D): void => {
-  box(ctx, 0, -6, 48, 6, "steel", 1);
-  box(ctx, 2, -8, 44, 2.4, "steel", 2);
-  box(ctx, 9, -56, 30, 48, "rust", 0);
-  if (!simple()) for (let y = -50; y < -10; y += 8) flat(ctx, 10, y, 28, 0.6, "r1");
-  for (const x of [3, 39]) {
-    box(ctx, x, -58, 6, 50, "steel", 2, { vertical: true });
-    for (const y of [-46, -32, -18]) cylV(ctx, x - 1, y, 8, 3, "chrome", 2);
-  }
-  ellipse(ctx, 24, -8.6, 13, 2, "m1", "mLine");
-};
-
-const podHood = (ctx: CanvasRenderingContext2D, lampColor: string, lit: boolean): void => {
-  poly(ctx, [[0, POD_TOP], [48, POD_TOP], [40, -58], [8, -58]], "steel", 2);
-  flat(ctx, 0, POD_TOP, 48, 2.2, "m3", "mLine");
+const crate = (ctx: CanvasRenderingContext2D, x: number, y: number, seed: number): void => {
+  const k = hash(seed, 3);
+  const t = k < 0.3 ? CRATE_ALT : CRATE;
+  flat(ctx, x, y, 24, 18, t[1]);
+  flat(ctx, x, y, 24, 1.2, t[3]);
+  flat(ctx, x, y, 1.2, 18, t[2]);
+  flat(ctx, x + 22.8, y, 1.2, 18, t[0]);
+  flat(ctx, x + 2.5, y + 2, 3, 14, t[2]);
+  flat(ctx, x + 18.5, y + 2, 3, 14, t[0]);
+  const flipped = hash(seed, 7) < 0.5;
+  const diag: Pt[] = flipped ? [[x + 18.5, y + 2], [x + 21.5, y + 2], [x + 8.5, y + 16], [x + 5.5, y + 16]] : [[x + 5.5, y + 2], [x + 8.5, y + 2], [x + 21.5, y + 16], [x + 18.5, y + 16]];
+  shape(ctx, diag, t[2]);
   if (!simple()) {
-    rivets(ctx, 4, -68, 40, 6, "m3");
-    flat(ctx, 12, -63, 24, 0.6, "m0");
+    line(ctx, [diag[1] as Pt, diag[2] as Pt], t[0], 0.7);
+    flat(ctx, x + 11.4, y + 8.4, 1.4, 1.4, t[3]);
+    flat(ctx, x + 3.4, y + 3, 1.2, 1.2, t[3]);
   }
-  box(ctx, 18, -58, 12, 3, "chrome", 1);
-  box(ctx, 41, -54, 6, 7, "steel", 0);
-  if (!simple()) for (let y = -53; y < -48; y += 1.4) flat(ctx, 41.6, y, 4.8, 0.6, "c2");
-  lamp(ctx, 24, POD_TOP - 1.5, lampColor, lit);
+  flat(ctx, x, y + 18, 24, 6, CRATE[4]);
+  flat(ctx, x, y + 19.6, 24, 1.3, k > 0.85 ? STRIPE_DARK : STRIPE);
+  if (!simple()) flat(ctx, x, y + 20.9, 24, 0.7, STRIPE_DARK);
 };
 
-type PodMode = "idle" | "off" | "working" | "damaged";
-
-const POD_LAMP: Record<PodMode, string> = { working: "screen", off: "k1", idle: "a1", damaged: "neon" };
-
-const pod = (ctx: CanvasRenderingContext2D, mode: PodMode, t: number): void => {
-  podFrame(ctx);
-  if (mode === "working") beamColumn(ctx, 24, -55, -9, 24, t);
-  if (mode === "idle" && !simple()) {
+export const crateWall: EnvAsset = {
+  id: "crateWall",
+  box: [0, -168, 72, 0],
+  draw(ctx, _state, _t, { w = 72, h = 168 }: Size = {}) {
+    const seed = round(w * 3 + h * 7);
     ctx.save();
-    ctx.globalAlpha = 0.25 + sin(t * 2) * 0.1;
-    flat(ctx, 12, -55, 24, 46, "plasma");
-    ctx.restore();
-  }
-  if (mode === "damaged") {
-    poly(ctx, [[14, -40], [20, -46], [26, -38], [22, -30], [16, -32]], "hole", 2);
-    line(ctx, [[30, -55], [32, -46], [29, -40], [31, -34]], "a1", 0.8);
-    spark(ctx, 31, -34, t, 1);
-    spark(ctx, 20, -56, t, 3);
-  }
-  podHood(ctx, POD_LAMP[mode], mode !== "off");
-};
-
-const SOURCE_MODES: PodMode[] = ["idle", "off", "working"];
-
-const sourceTeleport: EnvAsset = {
-  id: "sourceTeleport",
-  box: [-2, -76, 50, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    pod(ctx, SOURCE_MODES[state] ?? "idle", t);
-  },
-};
-
-const targetTeleport: EnvAsset = {
-  id: "targetTeleport",
-  box: [-2, -76, 50, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    pod(ctx, state ? "working" : "damaged", t);
-  },
-};
-
-const brokenTeleport: EnvAsset = {
-  id: "brokenTeleport",
-  box: [-4, -42, 54, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    box(ctx, 0, -6, 48, 6, "steel", 1);
-    ellipse(ctx, 24, -6.6, 13, 1.6, "m0", "mLine");
-    poly(ctx, [[9, -6], [9, -26], [14, -31], [18, -24], [23, -33], [28, -22], [33, -28], [39, -20], [39, -6]], "rust", 0);
-    for (const [x, top] of [[3, -38], [39, -34]] as Pt[]) {
-      poly(ctx, [[x, -6], [x, top + 3], [x + 2, top], [x + 4, top + 4], [x + 6, top + 1], [x + 6, -6]], "steel", 2, { dir: [1, 0] });
-      cylV(ctx, x - 1, -20, 8, 3, "chrome", 2);
-    }
-    poly(ctx, [[-2, 0], [4, -7], [12, -9], [10, -3], [14, 0]], "steel", 1);
-    poly(ctx, [[38, 0], [41, -5], [49, -6], [52, 0]], "steel", 0);
-    box(ctx, 16, -16, 16, 9, "steel", 0);
-    if (state === 0) {
-      flat(ctx, 18, -15, 12, 7, "g1", "gLine");
-      for (let x = 19.5; x < 29; x += simple() ? 3 : 1.5) flat(ctx, x, -9.4, 0.5, 1.2, "y2");
-      flat(ctx, 21, -13.6, 5, 3, "m0");
-      if (!simple()) glow(ctx, 24, -11, 6, "screen", 0.25 + sin(t * 3) * 0.15);
-    } else flat(ctx, 18, -15, 12, 7, "hole", "mLine");
-    line(ctx, [[30, -24], [33, -18], [30, -14]], "a1", 0.8);
-    spark(ctx, 30, -14, t, 5);
-  },
-};
-
-const teleportPad: EnvAsset = {
-  id: "teleportPad",
-  box: [-2, -76, 50, 0],
-  anim: true,
-  draw(ctx, _state, t) {
-    pod(ctx, "working", t);
-  },
-};
-
-const fuseScreen = (ctx: CanvasRenderingContext2D, x: number, y: number, state: number, t: number): void => {
-  flat(ctx, x, y, 9, 4, state === 1 ? "screenOff" : "hole", "gLine");
-  if (state === 1) return;
-  const blink = Math.floor(t * 2) % 2;
-  for (let i = 0; i < 3; i++) flat(ctx, x + 1 + i * 2.7, y + 0.8, 1.8, 2.4, i === 2 && blink ? "g1" : "screen");
-};
-
-const fuseBox: EnvAsset = {
-  id: "fuseBox",
-  box: [-6, -76, 30, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    box(ctx, 0, -72, 24, 72, "concrete", 1, { vertical: true });
-    box(ctx, -2, -74, 28, 4, "concrete", 2);
-    box(ctx, -2, -4, 28, 4, "concrete", 1);
-    if (!simple()) for (const y of [-60, -24]) flat(ctx, 1, y, 22, 0.6, "k0");
-    cylV(ctx, 10, -30, 4, 28, "steel", 1);
-    box(ctx, 3, -46, 18, 17, "green", 1);
-    flat(ctx, 3, -46, 18, 1.2, "g3");
-    box(ctx, 4.6, -44.6, 14.8, 14.2, "green", state === 1 ? 0 : 2);
-    fuseScreen(ctx, 7.6, -43, state, t);
-    if (state === 1) {
-      poly(ctx, [[5, -37], [10, -38], [12, -34], [9, -31], [5, -32]], "hole", 2);
-      for (const [x, y] of [[13.6, -36], [16, -34]] as Pt[]) flat(ctx, x, y, 1.4, 3, "c1", "mLine");
-      poly(ctx, [[19, -45], [24, -47], [24.4, -32], [19.6, -31]], "green", 1);
-      line(ctx, [[10, -33], [12, -28], [10, -24]], "a1", 0.7);
-      spark(ctx, 10, -24, t, 2);
-    } else {
-      for (const x of [7, 11, 15]) {
-        box(ctx, x, -37.4, 2.6, 5.4, state === 2 && x === 11 ? "yellow" : "chrome", 2, { vertical: true });
-        if (state === 2 && x === 11 && !simple()) glow(ctx, x + 1.3, -34.6, 4, "y3", 0.4);
-      }
-    }
-    lamp(ctx, 19, -48.6, state === 1 ? "neon" : "screen", state !== 1 || Math.floor(t * 3) % 2 === 0);
-  },
-};
-
-const electricCabinet: EnvAsset = {
-  id: "electricCabinet",
-  box: [-2, -78, 100, 0],
-  draw(ctx, state) {
-    slab(ctx, 0, -72, 96, 72, "concrete", 2);
-    flat(ctx, -1, -75, 98, 4, "k3", "kLine");
-    flat(ctx, 0, -3, 96, 3, "k0", "kLine");
-    for (const x of [6, 70]) {
-      box(ctx, x, -60, 20, 50, "steel", 1);
-      for (let y = -56; y < -12; y += simple() ? 8 : 4) flat(ctx, x + 2, y, 16, 1.8, "m3");
-    }
-    for (const x of [10, 74]) {
-      poly(ctx, [[x + 4, -70], [x, -64], [x + 4, -64], [x + 1, -58], [x + 8, -66], [x + 4, -66], [x + 7, -70]], "water", 2);
-    }
-    box(ctx, 32, -58, 32, 56, "steel", 0);
-    if (state === 0) {
-      box(ctx, 34, -56, 28, 54, "chrome", 1);
-      flat(ctx, 34, -56, 28, 1.4, "c3");
-      flat(ctx, 44, -44, 8, 8, "hazard", "yLine");
-      poly(ctx, [[48.6, -43], [45.6, -39.6], [48, -39.6], [47, -37], [50.4, -40.6], [48, -40.6], [49.4, -43]], "hazardDark", 2, { line: false });
-      box(ctx, 56, -30, 3, 7, "steel", 2);
-      lamp(ctx, 57.5, -33, "neon");
-    } else {
-      flat(ctx, 34, -56, 28, 54, "hole", "mLine");
-      for (const y of [-46, -34, -22]) flat(ctx, 36, y, 24, 1.4, "m2", "mLine");
-      for (const [x, y] of [[40, -45], [50, -45], [40, -33], [50, -21]] as Pt[]) box(ctx, x, y - 5, 2.6, 5, "chrome", 2, { vertical: true });
-      flat(ctx, 50, -38.4, 2.6, 5, "m0");
-      poly(ctx, [[34, -56], [26, -60], [26, 2], [34, -2]], "chrome", 0, { dir: [1, 0] });
-      lamp(ctx, 57.5, -60, "screen");
-    }
-  },
-};
-
-const cannon: EnvAsset = {
-  id: "cannon",
-  box: [-14, -78, 150, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    const age = t % 1.6;
-    const kick = state === 1 ? max(0, 1 - age * 3) * 6 : 0;
-    box(ctx, 56, -14, 80, 10, "steel", 1);
-    for (const x of [64, 84, 104, 124]) {
-      ellipse(ctx, x, -6, 6, 6, "m0", "mLine");
-      ellipse(ctx, x, -6, 2.6, 2.6, "m2", "mLine");
-    }
-    flat(ctx, 58, -16, 76, 2.4, "m3", "mLine");
-    poly(ctx, [[96, -16], [130, -16], [138, -2], [128, -2]], "chrome", 0);
-    ctx.save();
-    ctx.translate(kick, 0);
-    cylH(ctx, 6, -45, 66, 7, "chrome", 1);
-    cylH(ctx, 0, -46.6, 9, 10.2, "chrome", 0);
-    if (!simple()) for (const x of [2, 5]) flat(ctx, x, -45.4, 1.2, 7.8, "hole");
-    cylH(ctx, 40, -47, 8, 11, "chrome", 2);
-    cylH(ctx, 50, -36, 30, 4, "steel", 2);
-    ctx.restore();
-    poly(ctx, [[66, -16], [70, -52], [84, -62], [118, -62], [126, -50], [124, -16]], "chrome", 1);
-    poly(ctx, [[84, -62], [118, -62], [116, -56], [88, -56]], "chrome", 2, { line: false });
-    poly(ctx, [[70, -52], [84, -62], [88, -56], [76, -48]], "c3", 2, { line: false });
-    box(ctx, 92, -50, 22, 14, "chrome", 0);
+    ctx.beginPath();
+    ctx.rect(0, -h, w, h);
+    ctx.clip();
+    flat(ctx, 0, -h, w, h, CRATE[4]);
+    const [c0, c1, r0, r1] = cells(ctx, 0, -h, w, h);
+    for (let j = r0; j < r1; j++) for (let i = c0; i < c1; i++) crate(ctx, i * TILE, -h + j * TILE, seed + i * 31 + j * 17);
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed + 1, 0.9);
     if (!simple()) {
-      rivets(ctx, 72, -20, 50, 6, "c3");
-      for (let x = 95; x < 112; x += 3) flat(ctx, x, -48, 1.2, 10, "m1");
-      flat(ctx, 100, -32, 14, 3, "hazard", "yLine");
-    }
-    poly(ctx, [[118, -50], [130, -46], [130, -24], [124, -20]], "steel", 1, { dir: [1, 0] });
-    if (state === 1 && age < 0.5) {
-      const k = 1 - age * 2;
-      glow(ctx, -6, -42, 18 * k + 6, "a2", 0.8 * k);
-      poly(ctx, [[1, -48], [-10 * k - 4, -52], [-6, -44], [-14 * k - 6, -41], [-6, -38], [-10 * k - 4, -32], [1, -36]], "a1", 2);
-      poly(ctx, [[1, -45], [-6 * k - 2, -44], [-8 * k - 3, -41], [-6 * k - 2, -38], [1, -38]], "y3", 2, { line: false });
-    }
-    if (state === 1 && !simple()) {
-      ctx.save();
-      for (let i = 0; i < 3; i++) {
-        const k = min(1, age * 1.2 + i * 0.12);
-        ctx.globalAlpha = 0.45 * (1 - k);
-        ellipse(ctx, -4 - k * 10 + i * 3, -42 - k * 18 - i * 4, 4 + k * 8, 3 + k * 5, "k2");
+      for (let j = r0; j < r1; j++) {
+        for (let i = c0; i < c1; i++) {
+          const s = hash(seed + i, j);
+          if (s < 0.22) G.drips(ctx, i * TILE, -h + j * TILE + 20, TILE, 14, seed + i * 7 + j * 13, 1);
+          if (s > 0.9) G.rustPatch(ctx, i * TILE + 12, -h + j * TILE + 12, 3, 1.6, seed + i * 5 + j);
+        }
       }
-      ctx.restore();
     }
-  },
-};
-
-const energyBarrier: EnvAsset = {
-  id: "energyBarrier",
-  box: [-4, -98, 28, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    const on = state === 0;
-    if (on && !simple()) glow(ctx, 12, -48, 30, "plasma", 0.25 + sin(t * 13) * 0.06);
-    if (on) {
-      arcBolt(ctx, 12, -86, -4, 10, t, 1);
-      arcBolt(ctx, 12, -86, -4, 8, t + 0.37, 2, "plasma", 0.6);
-    }
-    box(ctx, 0, -96, 24, 10, "steel", 1);
-    box(ctx, 6, -86, 12, 3, "chrome", 1);
-    flat(ctx, 2, -94, 20, 2, "hazard", "yLine");
-    box(ctx, 4, -4, 16, 4, "steel", 1);
-    box(ctx, 8, -6, 8, 2.4, "chrome", 1);
-    lamp(ctx, 12, -84, "plasma", on);
-  },
-};
-
-const coilStack = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, n: number): void => {
-  cylV(ctx, x + w * 0.3, y - 4, w * 0.4, n * 7 + 8, "steel", 0);
-  for (let i = 0; i < n; i++) cylV(ctx, x, y + i * 7, w, 5, "chrome", 2);
-  for (let i = 0; i < 3; i++) {
-    const cy = y - 6 - i * 4;
-    poly(ctx, [[x + w * 0.2, cy], [x + w * 0.8, cy], [x + w * 0.7, cy - 3], [x + w * 0.3, cy - 3]], "c1", 2);
-  }
-};
-
-const transformer: EnvAsset = {
-  id: "transformer",
-  box: [-4, -170, 172, 0],
-  anim: true,
-  draw(ctx, _state, t) {
-    slab(ctx, 0, -120, 168, 120, "concrete", 1);
-    flat(ctx, -2, -124, 172, 5, "k3", "kLine");
-    for (const [x, w] of [[8, 46], [62, 46], [116, 44]] as Pt[]) {
-      box(ctx, x, -110, w, 56, "green", 1);
-      box(ctx, x + 4, -106, w - 8, 48, "green", 0);
-      if (!simple()) for (let y = -100; y < -60; y += 6) flat(ctx, x + 6, y, w - 12, 1, "g2");
-    }
-    coilStack(ctx, 16, -160, 26, 5);
-    coilStack(ctx, 70, -160, 26, 5);
-    for (const x of [124, 140, 156]) {
-      cylV(ctx, x - 3, -138, 6, 14, "chrome", 1);
-      for (let i = 0; i < 3; i++) cylV(ctx, x - 4.4, -138 + i * 4.4, 8.8, 2.2, "chrome", 2);
-    }
-    line(ctx, [[124, -138], [104, -150], [83, -162]], "mLine", 1.2);
-    line(ctx, [[140, -138], [124, -158], [83, -164]], "mLine", 1.2);
-    box(ctx, 8, -48, 152, 6, "steel", 1);
-    for (const x of [14, 46, 80, 114, 148]) cylV(ctx, x, -42, 6, 42, "chrome", 1);
-    hazard(ctx, 0, -8, 168, 4, 5);
-    box(ctx, 120, -40, 34, 26, "steel", 0);
-    flat(ctx, 124, -36, 26, 8, "screenOff", "gLine");
-    if (!simple()) for (let i = 0; i < 4; i++) flat(ctx, 126 + i * 6, -33 - abs(sin(t * 3 + i)) * 3, 3, 1 + abs(sin(t * 3 + i)) * 3, "screen");
-    lamp(ctx, 128, -20, "screen", Math.floor(t * 2) % 2 === 0);
-    lamp(ctx, 136, -20, "a1");
-  },
-};
-
-const ROCK: Shades = ["#2a2620", "#4a4436", "#6e6450", "#9a8e74"];
-
-const boulder = (ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, seed: number, shades: Shades = ROCK): void => {
-  const rnd = rng(seed);
-  const n = simple() ? 6 : 7 + Math.floor(rnd() * 3);
-  const a0 = rnd() * PI;
-  const pts: Pt[] = Array.from({ length: n }, (_, i) => {
-    const a = a0 + (i * 2 * PI) / n + (rnd() - 0.5) * 0.4;
-    const k = r * (0.8 + rnd() * 0.25);
-    return [cx + cos(a) * k * 1.15, cy + sin(a) * k * 0.8];
-  });
-  facets(ctx, pts, cx + r * 0.25, cy + r * 0.2, shades, "kLine");
-};
-
-const braced = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
-  box(ctx, x, y, w, h, "steel", 1);
-  if (!simple()) {
-    line(ctx, [[x + 3, y + 3], [x + w - 3, y + h - 3]], "m2", 2.2);
-    line(ctx, [[x + w - 3, y + 3], [x + 3, y + h - 3]], "m0", 2.2);
-  }
-  flat(ctx, x + 1, y + 1, w - 2, 1, "m3");
-  if (!simple()) for (const [dx, dy] of [[2.5, 2.5], [w - 2.5, 2.5], [2.5, h - 2.5], [w - 2.5, h - 2.5]] as Pt[]) disc(ctx, x + dx, y + dy, 0.6, "m3");
-};
-
-const blockWall = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
-  for (let yy = y; yy < y + h; yy += TILE) {
-    for (let xx = x; xx < x + w; xx += TILE / 2) braced(ctx, xx, yy, TILE / 2, TILE - 3);
-    flat(ctx, x, yy + TILE - 3, w, 3, "y1", "yLine");
-  }
-};
-
-const cliffBlocks: EnvAsset = {
-  id: "cliffBlocks",
-  box: [0, 0, 72, 24],
-  draw(ctx, _state, _t, { w = 72, h = TILE }) {
-    blockWall(ctx, 0, 0, w, h);
-  },
-};
-
-const grass = (ctx: CanvasRenderingContext2D, x: number, w: number, seed: number): void => {
-  const r = rng(seed);
-  flat(ctx, x, -3, w, 4, "r1");
-  const pts: Pt[] = [[x, 1]];
-  for (let i = x; i <= x + w; i += simple() ? 3 : 1.5) pts.push([i, -3 - r() * (simple() ? 2 : 4)], [i + 0.75, -2]);
-  pts.push([x + w, 1]);
-  shape(ctx, pts, "o1");
-  if (simple()) return;
-  for (let i = 0; i < w / 3; i++) {
-    const gx = x + r() * w;
-    line(ctx, [[gx, -1], [gx + (r() - 0.5) * 3, -4 - r() * 3]], r() > 0.5 ? "o3" : "g2", 0.5);
-  }
-};
-
-const grassyWalkway: EnvAsset = {
-  id: "grassyWalkway",
-  box: [0, -8, 144, 25],
-  draw(ctx, _state, _t, { w = 144 }) {
-    box(ctx, 0, 0, w, 24, "steel", 0);
-    for (let x = 0; x < w; x += TILE) {
-      line(ctx, [[x + 2, 5], [x + TILE - 2, 19]], "mLine", 3);
-      line(ctx, [[x + 2, 5], [x + TILE - 2, 19]], "m2", 2);
-      line(ctx, [[x + TILE - 2, 5], [x + 2, 19]], "mLine", 3);
-      line(ctx, [[x + TILE - 2, 5], [x + 2, 19]], "m1", 2);
-      flat(ctx, x, 3, 1.5, 18, "m3");
-    }
-    box(ctx, 0, 0, w, 4, "rust", 1);
-    box(ctx, 0, 19, w, 5, "steel", 2);
-    rivets(ctx, 0, 21.5, w, 6, "m3");
-    grass(ctx, 0, w, 7);
-  },
-};
-
-const post = (ctx: CanvasRenderingContext2D, x: number, h: number, broken = false): void => {
-  if (broken) {
-    poly(ctx, [[x, 0], [x, -14], [x + 5, -20], [x + 9, -13], [x + 15, -22], [x + 20, -15], [x + 24, -18], [x + 24, 0]], "concrete", 1);
-    for (const [cx, r, s] of [[x - 6, 4, 3], [x + 30, 5, 4], [x + 12, 3, 5]] as [number, number, number][]) boulder(ctx, cx, -r * 0.7, r, s, ["k0", "k1", "k2", "k3"]);
-    flat(ctx, x + 2, -12, 20, 2, "#2a1a10");
-    return;
-  }
-  box(ctx, x, -h, TILE, h, "steel", 1, { vertical: true });
-  box(ctx, x + 2, -h + 2, TILE - 4, 20, "steel", 0);
-  flat(ctx, x + 4, -h + 4, TILE - 8, 16, "glass", "mLine");
-  hazard(ctx, x, -h + 24, TILE, 3, 3);
-  for (let y = -h + 32; y < -6; y += 6) flat(ctx, x + 2, y, TILE - 4, 3, "c1", "mLine");
-};
-
-const brazier = (ctx: CanvasRenderingContext2D, x: number, t: number, seed: number): void => {
-  box(ctx, x + 2, -26, 20, 26, "concrete", 1, { vertical: true });
-  flat(ctx, x + 2, -26, 20, 2, "k3");
-  box(ctx, x, -48, 24, 22, "rust", 0);
-  flat(ctx, x + 2, -46, 20, 14, "#2a0c04");
-  if (!simple()) glow(ctx, x + 12, -40, 16, "a1", 0.45);
-  flame(ctx, x + 2, -32, 9, 18, t, seed);
-  flame(ctx, x + 11, -32, 10, 22, t, seed + 1);
-  flat(ctx, x, -34, 24, 3, "rust");
-  flat(ctx, x - 1, -49, 26, 2.4, "r2", "rLine");
-};
-
-const sandbags = (ctx: CanvasRenderingContext2D, x: number, w: number): void => {
-  for (let i = 0; i < w / 10 - 0.5; i++) {
-    const bx = x + 1 + i * 10;
-    poly(ctx, [[bx, 0], [bx + 0.6, -5], [bx + 2, -6], [bx + 8, -6], [bx + 9.4, -5], [bx + 10, 0]], "olive", 1);
-  }
-};
-
-const fireRow = (ctx: CanvasRenderingContext2D, x: number, n: number, t: number, pair = 1): void => {
-  let cx = x;
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < pair; j++) {
-      brazier(ctx, cx, t, i * 3 + j);
-      cx += TILE;
-    }
-    if (i < n - 1) {
-      box(ctx, cx, -36, TILE, 8, "concrete", 2);
-      flat(ctx, cx + 3, -34.4, TILE - 6, 4.8, "k1", "kLine");
-      if (!simple()) for (let k = 0; k < 4; k++) flat(ctx, cx + 5 + k * 3.8, -33.4, 2, 2.8, "c2");
-      sandbags(ctx, cx, TILE);
-      cx += TILE;
-    }
-  }
-};
-
-export const stick = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
-  box(ctx, x, y, w, h, "brick", 2, { vertical: w < h });
-  if (!simple()) flat(ctx, x + (w < h ? w * 0.2 : 0.4), y + (w < h ? 0.4 : h * 0.2), w < h ? w * 0.2 : w - 0.8, w < h ? h - 0.8 : h * 0.2, "b3");
-};
-
-const fireBarricade: EnvAsset = {
-  id: "fireBarricade",
-  box: [-8, -80, 196, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    fireRow(ctx, 24, 3, t, 1);
-    post(ctx, 0, 72, state === 1);
-    if (state === 1 && !simple()) smoke(ctx, 12, -18, t, 3, 30);
-  },
-};
-
-const dynamiteWall: EnvAsset = {
-  id: "dynamiteWall",
-  box: [-4, -80, 220, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    fireRow(ctx, 24, 3, t, 2);
-    post(ctx, 0, 72);
-    if (state === 1) {
-      for (const x of [6, 9, 12]) stick(ctx, x, -14, 3, 14);
-      for (const y of [-11, -4]) flat(ctx, 5.6, y, 9.8, 1.4, "k1", "kLine");
-      box(ctx, 7.6, -9, 5.2, 3.6, "steel", 1);
-      lamp(ctx, 11.4, -7.2, "neon", Math.floor(t * 3) % 2 === 0);
-      wire(ctx, [[10, -9], [11, -16], [16, -12], [20, -2], [30, -0.6]], "y2");
-    }
-  },
-};
-
-const anchor = (ctx: CanvasRenderingContext2D, x: number, flip: boolean): void => {
-  ctx.save();
-  ctx.translate(x, 0);
-  if (flip) ctx.scale(-1, 1);
-  box(ctx, 0, 0, TILE, 7, "steel", 2);
-  poly(ctx, [[0, 7], [TILE, 7], [TILE - 4, 12], [8, 12]], "steel", 0);
-  box(ctx, 2, -3, 8, 3, "steel", 1);
-  if (!simple()) rivets(ctx, 0, 3.5, TILE, 6, "m3");
-  ctx.restore();
-};
-
-const powerBridge: EnvAsset = {
-  id: "powerBridge",
-  box: [-4, -6, 292, 14],
-  draw(ctx, state) {
-    anchor(ctx, 0, false);
-    anchor(ctx, 288, true);
-    if (state === 0) {
-      box(ctx, TILE, 0.4, 240, 2.6, "chrome", 2);
-      if (!simple()) for (let x = TILE + 12; x < 264; x += 24) flat(ctx, x, 0.8, 1, 1.6, "c0");
-      return;
-    }
-    poly(ctx, [[TILE, 0.4], [TILE + 10, 1.6], [TILE + 9, 3.4], [TILE, 3]], "chrome", 1);
-    poly(ctx, [[264, 0.4], [254, 2.8], [255, 4.2], [264, 3]], "chrome", 1);
-  },
-};
-
-const rockCliff: EnvAsset = {
-  id: "rockCliff",
-  box: [0, -218, 128, 0],
-  draw(ctx) {
-    blockWall(ctx, 0, -216, 72, 216);
-    shape(ctx, [[66, 0], [66, -216], [90, -216], [100, -150], [104, -80], [112, -30], [116, 0]], "#1a1612", "kLine");
-    const rocks: [number, number, number, number][] = [];
-    const r = rng(21);
-    for (let y = -206; y < 0; y += 13) {
-      const reach = 96 + ((216 + y) / 216) * 22;
-      for (let x = 70 + r() * 8; x < reach; x += 18 + r() * 6) rocks.push([x, y + r() * 6, 11 + r() * 5, rocks.length + 1]);
-    }
-    for (const [cx, cy, size, seed] of rocks) boulder(ctx, cx, cy, size, seed);
-  },
-};
-
-const overheadPipeline: EnvAsset = {
-  id: "overheadPipeline",
-  box: [-4, -22, 292, 4],
-  draw(ctx, _state, _t, { w = 288 }) {
-    for (let x = 24; x < w; x += 96) {
-      slab(ctx, x, -20, 24, 10, "concrete", 2);
-      for (const dx of [8, 16]) line(ctx, [[x + dx, -10], [x + dx, -3]], "m2", 1.6);
-    }
-    cylH(ctx, 0, -8, w, 2.4, "chrome", 1);
-    cylH(ctx, 0, -4, w, 2.4, "chrome", 1);
-    for (let x = 6; x < w; x += 48) {
-      hazard(ctx, x, -9.4, 14, 2, 2.4, { fill: "a1", line: "aLine" });
-      hazard(ctx, x, -5.4, 14, 2, 2.4, { fill: "a1", line: "aLine" });
-      for (const dx of [0, 13]) disc(ctx, x + dx, -6.8, 0.8, "c2", "mLine");
-    }
-  },
-};
-
-const tank = (ctx: CanvasRenderingContext2D, x: number, w: number, h: number): void => {
-  cylV(ctx, x, -h, w, h, "rust", 1);
-  ctx.save();
-  ctx.beginPath();
-  ctx.ellipse(x + w / 2, -h, w / 2, 8, 0, PI, 0);
-  ctx.closePath();
-  const g = ctx.createLinearGradient(x, 0, x + w, 0);
-  const [r0, , r2, r3] = tones("rust") as [string, string, string, string];
-  g.addColorStop(0, r3);
-  g.addColorStop(0.4, r2);
-  g.addColorStop(1, r0);
-  ctx.fillStyle = g;
-  ctx.fill();
-  stroke(ctx, "rust");
-  ctx.restore();
-  for (const y of [-h + 6, -h / 2, -6]) {
-    flat(ctx, x, y - 1, w, 2, "r0", "rLine");
-    rivets(ctx, x, y - 3, w, 4, "r3");
-  }
-  box(ctx, x + w / 2 - 6, -h - 11, 12, 4, "steel", 1);
-  box(ctx, x + w / 2 - 4, -h - 14, 8, 3, "steel", 2);
-  flat(ctx, x + 6, -h + 14, 12, 8, "y2", "yLine");
-  if (!simple()) text(ctx, "T", x + 12, -h + 18, 6, "hazardDark");
-};
-
-const storageTank: EnvAsset = {
-  id: "storageTank",
-  box: [-2, -88, 126, 0],
-  anim: true,
-  draw(ctx, _state, t) {
-    tank(ctx, 0, 48, 64);
-    for (const [x, w] of [[52, 6], [62, 6]] as Pt[]) cylV(ctx, x, -84, w, 84, "steel", 1);
-    for (const y of [-70, -40]) {
-      box(ctx, 50, y, 20, 4, "steel", 2);
-      hazard(ctx, 51, y + 5, 18, 2.4, 3);
-    }
-    lamp(ctx, 60, -76, "a1", sin(t * 3) > 0);
-    lamp(ctx, 60, -46, "screen", sin(t * 3 + 1.5) > 0);
-    tank(ctx, 74, 48, 64);
-  },
-};
-
-const watchtower: EnvAsset = {
-  id: "watchtower",
-  box: [-6, -176, 82, 0],
-  draw(ctx) {
-    const leg = (a: Pt, b: Pt): void => {
-      line(ctx, [a, b], "rLine", 5);
-      line(ctx, [a, b], "r2", 3.4);
-    };
-    const brace = (a: Pt, b: Pt): void => {
-      line(ctx, [a, b], "rLine", 3);
-      line(ctx, [a, b], "r1", 1.8);
-    };
-    const xl = (k: number): number => 4 + (-k / 136) * 14;
-    const xr = (k: number): number => 68 - (-k / 136) * 14;
-    for (let i = 0; i < 4; i++) {
-      const y0 = -i * 32;
-      const y1 = y0 - 32;
-      brace([xl(y0), y0 - 2], [xr(y1), y1 + 2]);
-      if (!simple()) brace([xr(y0), y0 - 2], [xl(y1), y1 + 2]);
-      line(ctx, [[xl(y1), y1], [xr(y1), y1]], "rLine", 3);
-      line(ctx, [[xl(y1), y1], [xr(y1), y1]], "r2", 1.8);
-    }
-    leg([4, 0], [18, -136]);
-    leg([68, 0], [54, -136]);
-    leg([36, 0], [36, -136]);
-    box(ctx, 8, -140, 56, 5, "rust", 2);
-    box(ctx, 12, -170, 48, 30, "rust", 1);
-    if (!simple()) for (let x = 16; x < 60; x += 5) flat(ctx, x, -168, 0.8, 27, "r0");
-    flat(ctx, 18, -164, 36, 8, "hole", "rLine");
-    box(ctx, 8, -174, 56, 5, "rust", 3);
-    line(ctx, [[60, -142], [72, -142]], "rLine", 3);
-    line(ctx, [[60, -142], [72, -142]], "r2", 1.8);
-  },
-};
-
-const bridgeGuardPost: EnvAsset = {
-  id: "bridgeGuardPost",
-  box: [-12, -78, 56, 0],
-  anim: true,
-  draw(ctx, state, t) {
-    sandbags(ctx, 0, 30);
-    poly(ctx, [[3, -6], [4, -11], [6, -12], [12, -12], [13.4, -11], [14, -6]], "olive", 2);
-    poly(ctx, [[15, -6], [16, -11], [18, -12], [24, -12], [25.4, -11], [26, -6]], "olive", 1);
-    box(ctx, 32, -40, 8, 40, "steel", 1, { vertical: true });
-    box(ctx, 30, -42, 12, 4, "steel", 2);
-    const away = state === 1;
-    box(ctx, 34, -50, 10, 7, "steel", 0);
-    lamp(ctx, 39, -46.5, away ? "screen" : "neon", away || Math.floor(t * 2) % 2 === 0);
-    ctx.save();
-    ctx.translate(30, -34);
-    ctx.rotate(away ? PI / 2.2 : 0);
-    box(ctx, -40, -2, 40, 4, "chrome", 2);
-    for (let x = -36; x < -2; x += 8) flat(ctx, x, -2, 4, 4, "neon");
+    G.dirt(ctx, 0, -h, w, h, seed + 2, min(0.25, 36 / h));
     ctx.restore();
-    flat(ctx, 42, -30, 8, 10, "k3", "kLine");
-    flat(ctx, 43.4, -27, 5.2, 1.2, "neon");
-    flat(ctx, 43.4, -24.4, 5.2, 1.2, "neon");
   },
 };
 
-const blob = (cx: number, cy: number, rx: number, ry: number, seed: number, n = 14): Pt[] => {
-  const r = rng(seed);
-  return Array.from({ length: n }, (_, i) => {
-    const a = (i / n) * 2 * PI;
-    const k = 0.65 + r() * 0.5;
-    return [cx + cos(a) * rx * k, cy + sin(a) * ry * k];
-  });
-};
+export const SOIL = ["#2a1e10", "#4a3420", "#6a4c2c", "#8a6a40"] as const;
+export const GRASS = ["#2e3a14", "#4c5a1e", "#6e7a2a", "#9a9440", "#b8a858"] as const;
+const STONE = ["#26262a", "#3e3e3c", "#5a5a54", "#7e7c72", "#121210"] as const;
 
-const JUNGLE = ["#0c1410", "#16241a", "#24382a", "#3c5440", "#5e7660"] as const;
-
-const canopy = (ctx: CanvasRenderingContext2D, cx: number, cy: number, w: number, seed: number): void => {
+export const tufts = (ctx: CanvasRenderingContext2D, x0: number, x1: number, y: number, seed: number, step = 3.2): void => {
   const r = rng(seed);
-  for (let i = 0; i < (simple() ? 4 : 8); i++) {
-    const x = cx + (r() - 0.5) * w;
-    const y = cy + (r() - 0.5) * w * 0.3;
-    shape(ctx, blob(x, y, w * 0.32, w * 0.16, seed * 10 + i), JUNGLE[1 + (i % 2)] as string);
-    if (!simple()) shape(ctx, blob(x - w * 0.06, y - w * 0.05, w * 0.18, w * 0.07, seed * 20 + i), JUNGLE[3]);
+  for (let x = x0 + r() * step; x < x1; x += step * (0.6 + r() * 0.8)) {
+    const h = 2 + r() * 4.5;
+    const c = GRASS[1 + floor(r() * 4)] as string;
+    const lean = (r() - 0.5) * 2.4;
+    line(ctx, [[x, y + 1], [x + lean, y - h]], c, 0.9);
+    if (r() < 0.6) line(ctx, [[x + 0.8, y + 1], [x + 0.8 + lean * 1.6, y - h * 0.7]], GRASS[2], 0.7);
   }
 };
 
-const palm = (ctx: CanvasRenderingContext2D, x: number, h: number, lean: number, seed: number): void => {
-  curve(ctx, [[x, 0], [x + lean * 0.4, -h * 0.5], [x + lean, -h]], JUNGLE[0], 4);
+const walkway = (ctx: CanvasRenderingContext2D, w: number): void => {
+  const seed = 400 + round(w) * 3;
+  const [vx0, , vx1] = viewSpan(ctx, -6, -8, w + 6, 26);
+  const x0 = max(0, floor(vx0 / TILE) * TILE);
+  const x1 = min(w, ceil(vx1 / TILE) * TILE);
+  if (x1 <= x0) return;
+  flat(ctx, x0, 6, x1 - x0, 18, STONE[1]);
+  for (let x = x0; x < x1; x += TILE) {
+    const k = floor(x / TILE);
+    const bw = min(TILE, w - x);
+    flat(ctx, x + 0.6, 7.2, bw - 1.2, 15.6, hash(k, 2) < 0.35 ? STONE[2] : STONE[1]);
+    flat(ctx, x + 0.6, 7.2, bw - 1.2, 1.2, STONE[3]);
+    if (bw > 12) {
+      const n: Pt[] = hash(k, 5) < 0.5 ? [[x + 4, 21], [x + 4, 9], [x + bw - 4, 21], [x + bw - 4, 9]] : [[x + 4, 9], [x + 4, 21], [x + bw - 4, 9], [x + bw - 4, 21]];
+      line(ctx, n, STONE[0], 2.2);
+      if (!simple()) line(ctx, n, STONE[3], 0.6);
+    }
+    flat(ctx, x, 22.6, bw, 1.4, STONE[4]);
+  }
+  flat(ctx, x0, 0, x1 - x0, 7, SOIL[1]);
+  const r = rng(seed + floor(x0 / TILE));
+  for (let x = x0; x < x1; x += 5 + r() * 9) flat(ctx, x, 2 + r() * 3, 2 + r() * 5, 1 + r() * 1.5, r() < 0.5 ? SOIL[0] : SOIL[2]);
+  flat(ctx, x0, 0, x1 - x0, 1.4, SOIL[3]);
+  flat(ctx, x0, 6.4, x1 - x0, 0.8, SOIL[0]);
+  G.grain(ctx, G.rectRegion(ctx, x0, 0, x1 - x0, 24), seed + 1);
+  if (!simple()) {
+    for (let x = x0; x < x1; x += TILE) {
+      const k = floor(x / TILE);
+      if (hash(k, 9) < 0.4) G.drips(ctx, x, 7, TILE, 10, seed + k, 1);
+      if (hash(k, 11) < 0.3) {
+        const mx = x + hash(k, 12) * 16;
+        shape(ctx, [[mx, 7], [mx + 6, 7], [mx + 4.5, 11], [mx + 1.5, 12]], GRASS[0]);
+      }
+    }
+    tufts(ctx, x0, x1, 0, seed + 3 + floor(x0 / TILE));
+  } else {
+    for (let x = x0; x < x1; x += 6) flat(ctx, x, -1.6, 3, 1.8, GRASS[2]);
+  }
+};
+
+export const grassyWalkway: EnvAsset = {
+  id: "grassyWalkway",
+  box: [0, -6, 120, 25],
+  draw(ctx, _state, _t, { w = 120 }: Size = {}) {
+    walkway(ctx, w);
+  },
+};
+
+export const walkwayGirder: EnvAsset = {
+  id: "walkwayGirder",
+  box: [0, -30, 120, 1],
+  draw(ctx, _state, _t, { w = 120 }: Size = {}) {
+    ctx.translate(0, -TILE);
+    walkway(ctx, w);
+  },
+};
+
+const SKY: [number, string][] = [[0, "#04070a"], [0.35, "#08100e"], [0.6, "#0e1a14"], [0.8, "#142016"], [1, "#0a0e0a"]];
+const STARS: Pt3[] = Array.from({ length: 70 }, (_, i) => [hash(i, 1) * 320, -170 + hash(i, 2) * 60, 0.25 + hash(i, 3) * 0.45]);
+
+const ridge = (x0: number, x1: number, base: number, amp: number, step: number, seed: number): Pt[] => {
+  const r = rng(seed);
+  const pts: Pt[] = [[x0, 0]];
+  for (let x = x0; x <= x1; x += step) pts.push([x, base - r() * amp]);
+  pts.push([x1, base - r() * amp], [x1, 0]);
+  return pts;
+};
+
+const palmTop = (ctx: CanvasRenderingContext2D, x: number, y: number, s: number, c: string, seed: number): void => {
   const r = rng(seed);
   for (let i = 0; i < 7; i++) {
-    const a = PI + (i / 6) * PI + (r() - 0.5) * 0.3;
-    const l = 22 + r() * 12;
-    const tip: Pt = [x + lean + cos(a) * l, -h + sin(a) * l * 0.5 + l * 0.25];
-    curve(ctx, [[x + lean, -h], [x + lean + cos(a) * l * 0.5, -h + sin(a) * l * 0.5 - 4], tip], JUNGLE[2], 2.4);
+    const a = -PI / 2 + (i - 3) * 0.48 + (r() - 0.5) * 0.25;
+    const l = s * (0.8 + r() * 0.4);
+    const ex = x + cos(a) * l;
+    const ey = y + sin(a) * l * 0.55 + l * 0.35;
+    const mx = x + cos(a) * l * 0.5;
+    const my = y + sin(a) * l * 0.6;
+    shape(ctx, [[x, y], [mx, my - s * 0.12], [ex, ey], [mx, my + s * 0.1]], c);
   }
 };
 
-const fern = (ctx: CanvasRenderingContext2D, x: number, h: number, seed: number): void => {
-  const r = rng(seed);
-  for (let i = 0; i < (simple() ? 5 : 9); i++) {
-    const a = -PI / 2 + (i / 8 - 0.5) * 2.4;
-    const l = h * (0.7 + r() * 0.4);
-    const tip: Pt = [x + cos(a) * l, -h * 0.05 + sin(a) * l];
-    shape(ctx, [[x - 1.5, 0], [x + cos(a) * l * 0.5 - 2, sin(a) * l * 0.5], tip, [x + cos(a) * l * 0.5 + 2, sin(a) * l * 0.5], [x + 1.5, 0]], i % 2 ? JUNGLE[3] : JUNGLE[2]);
-  }
+export const palm = (ctx: CanvasRenderingContext2D, x: number, base: number, h: number, lean: number, c: string, seed: number): void => {
+  const top: Pt = [x + lean, base - h];
+  curve(ctx, [[x, base], [x + lean * 0.2, base - h * 0.5], top], c, max(1.2, h * 0.05));
+  palmTop(ctx, top[0], top[1], h * 0.42, c, seed);
 };
 
-const ruinWall = (ctx: CanvasRenderingContext2D, x: number, w: number, h: number, seed: number): void => {
-  const r = rng(seed);
-  const top: Pt[] = [[x, -h * (0.7 + r() * 0.3)]];
-  for (let i = 1; i < 6; i++) top.push([x + (w * i) / 6, -h * (0.55 + r() * 0.45)]);
-  top.push([x + w, -h * (0.6 + r() * 0.4)]);
-  shape(ctx, [[x, 0], ...top, [x + w, 0]], "#7c8270");
-  ctx.save();
-  path(ctx, [[x, 0], ...top, [x + w, 0]]);
-  ctx.clip();
-  flat(ctx, x, -h, w, h * 0.3, "#949a86");
-  flat(ctx, x + w * 0.7, -h, w * 0.3, h, "#5e6454");
-  flat(ctx, x, -14, w, 2, "#a08a40");
-  ctx.restore();
-};
-
-const villageBackdrop: EnvAsset = {
+export const villageBackdrop: EnvAsset = {
   id: "villageBackdrop",
   box: [0, -170, 320, 0],
   draw(ctx) {
@@ -792,116 +253,568 @@ const villageBackdrop: EnvAsset = {
     ctx.beginPath();
     ctx.rect(0, -170, 320, 170);
     ctx.clip();
-    flat(ctx, 0, -170, 320, 170, "#1c1a12");
-    for (const [x, w] of [[30, 30], [110, 22], [200, 34], [270, 26]] as Pt[]) flat(ctx, x, -150, w * 0.18, 150, JUNGLE[0]);
-    canopy(ctx, 50, -150, 150, 1);
-    canopy(ctx, 230, -150, 170, 2);
-    canopy(ctx, 150, -175, 120, 3);
-    palm(ctx, 90, 120, 14, 4);
-    palm(ctx, 250, 130, -10, 5);
-    ruinWall(ctx, 0, 130, 75, 6);
-    ruinWall(ctx, 200, 90, 70, 7);
-    ruinWall(ctx, 296, 30, 80, 8);
-    shape(ctx, blob(158, -44, 36, 20, 9), JUNGLE[1]);
-    for (const [x, h, seed] of [[60, 34, 10], [140, 28, 11], [170, 40, 12], [240, 30, 13], [300, 26, 14], [20, 24, 15]] as [number, number, number][]) {
-      ctx.save();
-      ctx.translate(0, -24);
-      fern(ctx, x, h, seed);
-      ctx.restore();
-    }
-    flat(ctx, 0, -26, 320, 18, JUNGLE[1]);
-    if (!simple()) for (let x = 0; x < 320; x += 6) flat(ctx, x, -27 - ((x * 7) % 5), 2, 4, JUNGLE[2]);
-    flat(ctx, 0, -8, 320, 8, "#1a1008");
-    for (let x = 4; x < 320; x += 14) flat(ctx, x, -6, 8, 3, "a0");
+    const g = ctx.createLinearGradient(0, -170, 0, 0);
+    for (const [at, c] of SKY) g.addColorStop(at, c);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, -170, 320, 170);
+    if (!simple()) for (const [x, y, s] of STARS) flat(ctx, x, y, s, s, "#8a9a90");
+    glow(ctx, 244, -152, 22, "#4a5a4a", 0.35);
+    disc(ctx, 244, -152, 4.2, "#b8bca0");
+    disc(ctx, 245.4, -152.8, 3.6, "#8a8e78");
+    shape(ctx, ridge(0, 320, -118, 16, 9, 11), "#0c1612");
+    shape(ctx, ridge(0, 320, -100, 12, 6, 12), "#0a130f");
+    for (let i = 0; i < 16; i++) palm(ctx, hash(i, 4) * 330 - 5, -92 + hash(i, 5) * 8, 14 + hash(i, 6) * 12, (hash(i, 7) - 0.5) * 8, "#08100c", 30 + i);
+    shape(ctx, ridge(0, 320, -84, 8, 5, 13), "#08100c");
+    flat(ctx, 0, -84, 320, 84, "#070c09");
     ctx.restore();
   },
 };
 
-const windows = (ctx: CanvasRenderingContext2D, x: number, y: number, cols: number, rows: number, w: number, h: number, gap: number, seed: number): void => {
+export const JUNGLE = ["#0c1610", "#14221a", "#1e3024", "#2c4232", "#3e5640"] as const;
+
+export const blob = (cx: number, cy: number, rx: number, ry: number, seed: number, n = 12): Pt[] => {
   const r = rng(seed);
-  for (let i = 0; i < cols; i++) {
-    for (let j = 0; j < rows; j++) {
-      const wx = x + i * (w + gap);
-      const wy = y + j * (h + gap);
-      flat(ctx, wx, wy, w, h, "glass", "kLine");
-      if (!simple()) {
-        flat(ctx, wx + w / 2 - 0.5, wy, 1, h, "c1");
-        flat(ctx, wx, wy + h / 2 - 0.5, w, 1, "c1");
-      }
-      if (r() < 0.3) shape(ctx, [[wx + 1, wy + 1], [wx + w * 0.7, wy + 1], [wx + w * 0.3, wy + h * 0.6], [wx + 1, wy + h * 0.8]], "hole");
-    }
-  }
+  return Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * PI * 2;
+    const k = 0.75 + r() * 0.35;
+    return [cx + cos(a) * rx * k, cy + sin(a) * ry * k] as Pt;
+  });
 };
 
-const villageHouse: EnvAsset = {
-  id: "villageHouse",
-  box: [-4, -126, 220, 0],
-  draw(ctx) {
-    const top: Pt[] = [[0, -96], [10, -104], [22, -100], [30, -112], [130, -112]];
-    shape(ctx, [[0, 0], ...top, [130, -116], [212, -116], [212, 0]], "k2", "kLine");
-    flat(ctx, 128, -120, 86, 5, "k3", "kLine");
-    flat(ctx, 0, -6, 212, 6, "k1", "kLine");
-    for (const x of [0, 66, 128, 198]) box(ctx, x, -110, 14, 110, "concrete", 2, { vertical: true });
-    windows(ctx, 18, -94, 4, 3, 9, 9, 3, 1);
-    windows(ctx, 84, -94, 3, 3, 9, 9, 3, 2);
-    windows(ctx, 146, -100, 4, 4, 9, 9, 3, 3);
-    shape(ctx, [[82, -112], [90, -120], [100, -114], [112, -124], [122, -112]], "k2", "kLine");
-    shape(ctx, [[86, -112], [94, -100], [104, -108], [114, -98], [120, -112]], "hole");
-    if (!simple()) {
-      for (const [x, y] of [[96, -112], [104, -116], [110, -110]] as Pt[]) line(ctx, [[x, y], [x + 2, y - 6]], "r2", 0.7);
-      for (const y of [-58, -32]) flat(ctx, 14, y, 52, 1, "k1");
-    }
-    box(ctx, 88, -40, 26, 40, "steel", 0);
-    flat(ctx, 92, -36, 18, 32, "hole", "mLine");
-    for (let x = 146; x < 196; x += 12) box(ctx, x, -24, 8, 18, "concrete", 1, { vertical: true });
+export const fern = (ctx: CanvasRenderingContext2D, x: number, fh: number, c: string): void => {
+  for (let k = -2; k <= 2; k++) curve(ctx, [[x, 0], [x + k * fh * 0.25, -fh * 0.6], [x + k * fh * 0.55, -fh * (0.7 - abs(k) * 0.12)]], c, 1);
+};
+
+export const jungleCanopy: EnvAsset = {
+  id: "jungleCanopy",
+  box: [-30, -150, 270, 0],
+  draw(ctx, _state, _t, { w = 240, h = 144 }: Size = {}) {
+    const seed = round(w * 5 + h * 3);
+    const r = rng(seed);
+    for (let x = -10; x < w + 10; x += 22 + r() * 18) shape(ctx, blob(x, -h * (0.55 + r() * 0.2), 26 + r() * 14, 18 + r() * 10, seed + round(x)), JUNGLE[0]);
+    flat(ctx, 0, -h * 0.55, w, h * 0.55, JUNGLE[0]);
+    for (let x = 8; x < w; x += 30 + r() * 30) palm(ctx, x, 0, h * (0.7 + r() * 0.3), (r() - 0.5) * 30, JUNGLE[1], seed + round(x) * 3);
+    for (let x = 0; x < w + 10; x += 16 + r() * 12) shape(ctx, blob(x, -h * (0.18 + r() * 0.12), 14 + r() * 8, 10 + r() * 6, seed + 7 + round(x)), JUNGLE[r() < 0.5 ? 1 : 2]);
+    if (!simple()) for (let x = 4; x < w; x += 9 + r() * 10) fern(ctx, x, 8 + r() * 10, JUNGLE[3]);
+    flat(ctx, 0, -6, w, 6, JUNGLE[0]);
   },
 };
 
-const plankWall = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
-  box(ctx, x, y, w, h, "rust", 1);
-  if (!simple()) for (let yy = y + 4; yy < y + h; yy += 4) flat(ctx, x, yy, w, 0.6, "r0");
+export const RUIN = ["#4a4840", "#6e6a5c", "#8e8a78", "#aca692", "#1c1a16"] as const;
+
+const jagged = (x0: number, x1: number, y: number, amp: number, step: number, seed: number): Pt[] => {
+  const r = rng(seed);
+  const pts: Pt[] = [];
+  for (let x = x0; x < x1; x += step * (0.5 + r())) pts.push([x, y + r() * amp]);
+  pts.push([x1, y + r() * amp]);
+  return pts;
 };
 
-const stiltBuilding: EnvAsset = {
+export const ruinWall: EnvAsset = {
+  id: "ruinWall",
+  box: [0, -72, 144, 0],
+  draw(ctx, _state, _t, { w = 144, h = 72 }: Size = {}) {
+    const seed = round(w * 11 + h);
+    const outline: Pt[] = [[0, 0], ...jagged(0, w, -h, h * 0.35, 10, seed), [w, 0]];
+    shape(ctx, outline, RUIN[1], RUIN[4]);
+    G.grain(ctx, G.polyRegion(ctx, outline), seed + 1);
+    const r = rng(seed + 2);
+    ctx.save();
+    path(ctx, outline);
+    ctx.clip();
+    for (let y = -h + 10; y < -4; y += 12) flat(ctx, 0, y, w, 1, RUIN[0]);
+    for (let x = 6 + r() * 20; x < w - 20; x += 34 + r() * 30) {
+      flat(ctx, x, -h * 0.62, 14, h * 0.3, RUIN[4]);
+      flat(ctx, x - 1.5, -h * 0.62 - 2, 17, 2, RUIN[2]);
+    }
+    G.drips(ctx, 0, -h, w, h * 0.6, seed + 3, round(w / 16), false);
+    G.dirt(ctx, 0, -h, w, h, seed + 4, 0.35);
+    ctx.restore();
+    if (!simple()) for (let x = 4; x < w; x += 7 + r() * 9) fern(ctx, x, 5 + r() * 9, r() < 0.5 ? "#2a3a24" : "#3a4c2e");
+  },
+};
+
+const BOULDER = ["#2a2620", "#4c463a", "#6e6654", "#968c74", "#b4aa8e"] as const;
+
+export const boulder = (ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, seed: number): void => {
+  shape(ctx, blob(cx, cy, rx, ry, seed, 10), BOULDER[1], BOULDER[0]);
+  shape(ctx, blob(cx - rx * 0.18, cy - ry * 0.22, rx * 0.72, ry * 0.6, seed + 1, 9), BOULDER[2]);
+  if (!simple()) {
+    shape(ctx, blob(cx - rx * 0.32, cy - ry * 0.4, rx * 0.36, ry * 0.26, seed + 2, 8), BOULDER[3]);
+    flat(ctx, cx - rx * 0.4, cy - ry * 0.55, rx * 0.25, 0.8, BOULDER[4]);
+    line(ctx, [[cx - rx * 0.6, cy + ry * 0.5], [cx + rx * 0.5, cy + ry * 0.62]], BOULDER[0], 0.8);
+  }
+};
+
+export const rockCliff: EnvAsset = {
+  id: "rockCliff",
+  box: [-14, -80, 80, 6],
+  draw(ctx, _state, _t, { w = 72, h = 72 }: Size = {}) {
+    const seed = round(w * 13 + h * 5);
+    const r = rng(seed);
+    const rows = max(1, round(h / 14));
+    const band = min(w, 30);
+    for (let j = 0; j < rows; j++) {
+      const y = -(j + 0.5) * (h / rows);
+      const edge = (w * (j + 0.5)) / rows;
+      for (let x = edge - 8 + r() * 6; x < min(w + 4, edge + band); x += 13 + r() * 9) boulder(ctx, x, y + (r() - 0.5) * 4, 8 + r() * 6, 5.5 + r() * 3.5, seed + j * 31 + round(x));
+    }
+    for (let j = 0; j < rows; j++) {
+      const y = -(j + 0.5) * (h / rows);
+      boulder(ctx, (w * (j + 0.5)) / rows - 5, y + 2, 9 + r() * 4, 6 + r() * 2, seed + 500 + j);
+    }
+  },
+};
+
+export const bronzePipe: EnvAsset = {
+  id: "bronzePipe",
+  box: [-3, -168, 19, 0],
+  draw(ctx, _state, _t, { h = 168 }: Size = {}) {
+    const seed = 600 + round(h) * 3;
+    cylV(ctx, 0, -h, 16, h, "rust", 2);
+    if (!simple()) {
+      flat(ctx, 4, -h, 2.4, h, "#c89a60");
+      flat(ctx, 11, -h, 1.4, h, "r1");
+    }
+    for (let y = -h + 10; y < -8; y += 48) {
+      box(ctx, -2, y, 20, 5, "rust", 3);
+      rivets(ctx, -2, y + 2.5, 20, 5, "r0");
+    }
+    box(ctx, -2, -6, 20, 6, "steel", 1);
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, 16, h), seed);
+    G.drips(ctx, 0, -h, 16, min(60, h * 0.4), seed + 1, 2);
+    G.dirt(ctx, 0, -h, 16, h, seed + 2, min(0.3, 30 / h));
+  },
+};
+
+export const latticeMast: EnvAsset = {
+  id: "latticeMast",
+  box: [-2, -168, 26, 0],
+  draw(ctx, _state, _t, { h = 168 }: Size = {}) {
+    const seed = 620 + round(h) * 3;
+    const n = max(1, round(h / TILE));
+    const s = h / n;
+    for (let i = 0; i < n; i++) {
+      const y = -h + i * s;
+      for (const c of [CRATE[0], CRATE[2]]) {
+        const wd = c === CRATE[0] ? 3 : 1.8;
+        line(ctx, [[3, y + 2], [21, y + s - 2]], c, wd);
+        line(ctx, [[21, y + 2], [3, y + s - 2]], c, wd);
+      }
+      flat(ctx, 0, y, 24, 2.4, CRATE[1]);
+      if (!simple()) flat(ctx, 0, y, 24, 0.8, CRATE[3]);
+    }
+    flat(ctx, 0, -h, 3.4, h, CRATE[2], CRATE[4]);
+    flat(ctx, 20.6, -h, 3.4, h, CRATE[1], CRATE[4]);
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, 24, h), seed);
+    G.drips(ctx, 0, -h, 24, min(40, h * 0.3), seed + 1, 2);
+  },
+};
+
+export const overheadPipeline: EnvAsset = {
+  id: "overheadPipeline",
+  box: [0, -16, 240, 6],
+  draw(ctx, _state, _t, { w = 240 }: Size = {}) {
+    const seed = 640 + round(w);
+    flat(ctx, 0, -9, w, 2.6, "c0", "mLine");
+    flat(ctx, 0, -9, w, 0.8, "c1");
+    flat(ctx, 0, -4.6, w, 2, "m2", "mLine");
+    for (let x = 18; x < w - 12; x += 72) {
+      box(ctx, x, -14, 18, 13, "concrete", 2);
+      hazard(ctx, x + 2, -11, 14, 3.4, 3, { fill: "a1", dark: "hazardDark", line: "aLine" });
+      G.grain(ctx, G.rectRegion(ctx, x, -14, 18, 13), seed + x);
+      G.drips(ctx, x, -1, 18, 6, seed + x + 1, 1);
+    }
+    for (let x = 54; x < w - 12; x += 72) {
+      box(ctx, x, -11, 6, 9, "steel", 2);
+      if (!simple()) flat(ctx, x + 1, -10, 1, 7, "m3");
+    }
+  },
+};
+
+export const PLANK = ["#24160c", "#3e2814", "#5a3c1e", "#7a5430", "#0e0804"] as const;
+
+export const planks = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, seed: number, vertical = false): void => {
+  const r = rng(seed);
+  flat(ctx, x, y, w, h, PLANK[1]);
+  if (vertical) {
+    for (let px = x; px < x + w; px += 6) {
+      flat(ctx, px, y, min(5.4, x + w - px), h, r() < 0.3 ? PLANK[2] : PLANK[1]);
+      flat(ctx, px + 5.4, y, 0.6, h, PLANK[4]);
+    }
+  } else {
+    for (let py = y; py < y + h; py += 5) {
+      flat(ctx, x, py, w, min(4.4, y + h - py), r() < 0.3 ? PLANK[2] : PLANK[1]);
+      flat(ctx, x, py + 4.4, w, 0.6, PLANK[4]);
+    }
+  }
+  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), seed + 1);
+  G.dirt(ctx, x, y, w, h, seed + 2, 0.3);
+};
+
+const post = (ctx: CanvasRenderingContext2D, x: number, top: number, w: number): void => {
+  box(ctx, x, top, w, -top, "rust", 1, { vertical: true });
+  if (!simple()) flat(ctx, x + 1, top, 1, -top, "r2");
+};
+
+const windowRow = (ctx: CanvasRenderingContext2D, x: number, y: number, n: number, ww: number, wh: number, gap: number, seed: number): void => {
+  const r = rng(seed);
+  for (let i = 0; i < n; i++) {
+    const wx = x + i * (ww + gap);
+    flat(ctx, wx - 1.5, y - 1.5, ww + 3, wh + 3, PLANK[3], PLANK[4]);
+    const lit = r() < 0.18;
+    flat(ctx, wx, y, ww, wh, lit ? "#5a4418" : "#0e0a06");
+    if (lit && !simple()) glow(ctx, wx + ww / 2, y + wh / 2, ww, "#c08a30", 0.25);
+    flat(ctx, wx + ww / 2 - 0.5, y, 1, wh, PLANK[1]);
+    if (!simple()) flat(ctx, wx, y, ww, 1.4, "#00000066");
+  }
+};
+
+export const stiltBuilding: EnvAsset = {
   id: "stiltBuilding",
-  box: [-4, -212, 244, 0],
+  box: [-6, -200, 246, 0],
+  draw(ctx, state, _t, { w = 240 }: Size = {}) {
+    const seed = 700 + round(w) * 3 + state * 101;
+    if (state === 1) {
+      for (const x of [w * 0.12, w * 0.5, w * 0.84]) post(ctx, x, -72, 10);
+      line(ctx, [[w * 0.12 + 10, -66], [w * 0.5, -12]], PLANK[4], 3);
+      line(ctx, [[w * 0.12 + 10, -66], [w * 0.5, -12]], PLANK[2], 1.6);
+      flat(ctx, 0, -80, w, 8, PLANK[2], PLANK[4]);
+      planks(ctx, 6, -136, w - 12, 56, seed);
+      windowRow(ctx, 18, -122, max(1, floor((w - 30) / 26)), 16, 20, 10, seed + 1);
+      box(ctx, -2, -142, w + 4, 6, "rust", 2);
+      const r = rng(seed + 3);
+      for (let x = 4; x < w - 4; x += 14 + r() * 10) {
+        const lh = 10 + r() * 22;
+        const lean = (r() - 0.5) * 8;
+        line(ctx, [[x, -142], [x + lean, -142 - lh]], PLANK[4], 2.6);
+        line(ctx, [[x, -142], [x + lean, -142 - lh]], PLANK[2], 1.4);
+      }
+      for (const x of [0, w - 5]) box(ctx, x, -142, 5, 62, "rust", 1, { vertical: true });
+      G.drips(ctx, 6, -80, w - 12, 20, seed + 4, round(w / 20));
+      return;
+    }
+    for (const x of [w * 0.18, w * 0.74]) post(ctx, x, -76, 18);
+    if (!simple()) {
+      line(ctx, [[w * 0.18 + 18, -70], [w * 0.74, -10]], PLANK[4], 3);
+      line(ctx, [[w * 0.18 + 18, -70], [w * 0.74, -10]], PLANK[1], 1.6);
+    }
+    flat(ctx, 0, -84, w, 8, PLANK[2], PLANK[4]);
+    planks(ctx, 4, -186, w - 8, 102, seed);
+    for (const y of [-176, -128]) {
+      flat(ctx, 4, y - 6, w - 8, 4, PLANK[3], PLANK[4]);
+      windowRow(ctx, 16, y, max(1, floor((w - 26) / 24)), 15, 24, 9, seed + y);
+    }
+    box(ctx, -4, -192, w + 8, 7, "rust", 2);
+    for (const x of [0, w - 6]) box(ctx, x, -192, 6, 108, "rust", 1, { vertical: true });
+    G.drips(ctx, 4, -186, w - 8, 50, seed + 5, round(w / 16));
+  },
+};
+
+export const concreteBlock = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, seed: number): void => {
+  flat(ctx, x, y, w, h, RUIN[2], RUIN[4]);
+  flat(ctx, x, y, w, 1.6, RUIN[3]);
+  flat(ctx, x + w - 2, y, 2, h, RUIN[1]);
+  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), seed);
+};
+
+export const villageHouse: EnvAsset = {
+  id: "villageHouse",
+  box: [-4, -156, 244, 0],
+  draw(ctx, state, _t, { w = 240 }: Size = {}) {
+    const seed = 760 + round(w) * 5 + state * 77;
+    if (state === 1) {
+      const outline: Pt[] = [[0, 0], [0, -144], [w * 0.2, -144], [w * 0.24, -128], [w * 0.36, -136], [w * 0.42, -120], [w * 0.58, -124], [w * 0.64, -144], [w, -144], [w, 0]];
+      shape(ctx, outline, RUIN[1], RUIN[4]);
+      G.grain(ctx, G.polyRegion(ctx, outline), seed);
+      for (const x of [0, w - 36]) concreteBlock(ctx, x, -144, 36, 144, seed + x);
+      flat(ctx, 36, -104, w - 72, 10, RUIN[3], RUIN[4]);
+      const arches = max(1, round((w - 72) / 60));
+      const aw = (w - 72) / arches;
+      for (let i = 0; i < arches; i++) {
+        const ax = 36 + i * aw + aw * 0.18;
+        const pts: Pt[] = [[ax, 0], [ax, -60], [ax + aw * 0.32, -82], [ax + aw * 0.64, -60], [ax + aw * 0.64, 0]];
+        shape(ctx, pts, "#0e0c0a");
+        G.rim(ctx, pts, seed + i, RUIN[3], RUIN[4]);
+      }
+      const r = rng(seed + 1);
+      for (let i = 0; i < 6; i++) flat(ctx, 40 + r() * (w - 90), -140 + r() * 30, 8 + r() * 10, 5 + r() * 6, r() < 0.5 ? RUIN[0] : "#2a4a2a");
+      for (const x of [w * 0.24, w * 0.6]) {
+        const hole: Pt[] = [[x, -128], [x + 14, -132], [x + 20, -118], [x + 8, -112]];
+        G.scorch(ctx, hole, seed + round(x));
+        shape(ctx, hole, "#0e0c0a");
+        G.rim(ctx, hole, seed + round(x) + 1, RUIN[3], RUIN[4]);
+      }
+      G.drips(ctx, 0, -144, w, 70, seed + 2, round(w / 14), false);
+      G.dirt(ctx, 0, -144, w, 144, seed + 3, 0.25);
+      return;
+    }
+    concreteBlock(ctx, 0, -96, w, 96, seed);
+    flat(ctx, -4, -102, w + 8, 7, RUIN[3], RUIN[4]);
+    const r = rng(seed + 4);
+    for (let x = 14; x < w - 30; x += 40) {
+      const kind = r();
+      flat(ctx, x, -80, 26, 30, "#121410", RUIN[4]);
+      if (kind < 0.4) {
+        for (let k = 1; k < 4; k++) flat(ctx, x + k * 6.5, -80, 1.2, 30, RUIN[1]);
+        flat(ctx, x, -66, 26, 1.2, RUIN[1]);
+      } else if (kind < 0.55) {
+        flat(ctx, x + 3, -77, 20, 24, "#2e4e44");
+        if (!simple()) flat(ctx, x + 4, -76, 6, 22, "#4e6e60");
+      }
+      flat(ctx, x - 2, -48, 30, 3, RUIN[3], RUIN[4]);
+    }
+    for (const x of [0, w - 10]) flat(ctx, x, -96, 10, 96, RUIN[1], RUIN[4]);
+    flat(ctx, w * 0.44, -40, 20, 40, "#0c0a08", RUIN[4]);
+    G.drips(ctx, 0, -95, w, 40, seed + 5, round(w / 12), false);
+    G.dirt(ctx, 0, -96, w, 96, seed + 6, 0.3);
+  },
+};
+
+export const watchtower: EnvAsset = {
+  id: "watchtower",
+  box: [-30, -172, 34, 0],
   draw(ctx) {
-    for (const x of [24, 108, 192]) {
-      box(ctx, x, -112, 20, 112, "rust", 1, { vertical: true });
-      box(ctx, x - 2, -8, 24, 8, "concrete", 1);
+    for (const [a, b] of [[[-24, 0], [-10, -120]], [[22, 0], [8, -120]], [[-20, -30], [18, -60]], [[18, -30], [-18, -60]], [[-15, -70], [13, -100]]] as [Pt, Pt][]) {
+      line(ctx, [a, b], PLANK[4], 3.4);
+      line(ctx, [a, b], PLANK[2], 2);
+    }
+    flat(ctx, -22, -62, 42, 3, PLANK[2], PLANK[4]);
+    flat(ctx, -16, -96, 30, 3, PLANK[2], PLANK[4]);
+    flat(ctx, -20, -124, 40, 5, PLANK[3], PLANK[4]);
+    planks(ctx, -18, -156, 36, 32, 811, true);
+    flat(ctx, -12, -150, 24, 10, "#0a0806", PLANK[4]);
+    shape(ctx, [[-24, -156], [0, -170], [24, -156]], PLANK[2], PLANK[4]);
+    G.drips(ctx, -18, -124, 36, 10, 812, 3);
+  },
+};
+
+export const storageTank: EnvAsset = {
+  id: "storageTank",
+  box: [-2, -96, 62, 0],
+  draw(ctx) {
+    cylV(ctx, 2, -64, 56, 60, "rust", 2);
+    ctx.fillStyle = color("r2");
+    ctx.beginPath();
+    ctx.ellipse(30, -64, 28, 14, 0, PI, 0);
+    ctx.fill();
+    stroke(ctx, "rust");
+    if (!simple()) ellipse(ctx, 22, -70, 10, 4, "r3");
+    for (const y of [-52, -34, -16]) {
+      flat(ctx, 2, y, 56, 1.4, "r0");
+      rivets(ctx, 2, y + 2.4, 56, 5, "r3");
+    }
+    box(ctx, 24, -82, 12, 6, "steel", 2);
+    for (let y = -60; y < -6; y += 6) flat(ctx, 48, y, 6, 1.2, "m3");
+    flat(ctx, 48, -62, 1.2, 58, "m2");
+    flat(ctx, 53, -62, 1.2, 58, "m2");
+    box(ctx, -2, -6, 64, 6, "concrete", 1);
+    G.grain(ctx, G.rectRegion(ctx, 2, -64, 56, 60), 820);
+    G.rustPatch(ctx, 14, -40, 6, 3, 821);
+    G.drips(ctx, 2, -60, 56, 40, 822, 5);
+    G.dirt(ctx, 2, -64, 56, 60, 823, 0.3);
+  },
+};
+
+export const horizontalTank: EnvAsset = {
+  id: "horizontalTank",
+  box: [-6, -64, 126, 0],
+  draw(ctx) {
+    for (const x of [22, 86]) {
+      box(ctx, x, -18, 12, 18, "steel", 1);
+      shape(ctx, [[x - 6, -16], [x + 18, -16], [x + 14, -22], [x - 2, -22]], "m2", "mLine");
+    }
+    box(ctx, 14, -54, 92, 34, "rust", 2);
+    for (const [cx, dir] of [[14, -1], [106, 1]] as Pt[]) {
+      ctx.fillStyle = color("r1");
+      ctx.beginPath();
+      ctx.ellipse(cx, -37, 10, 17, 0, dir < 0 ? PI / 2 : -PI / 2, dir < 0 ? (PI * 3) / 2 : PI / 2);
+      ctx.fill();
+      stroke(ctx, "rust");
+      flat(ctx, cx - 1.5, -56, 3, 38, "r3", "rLine");
+    }
+    if (!simple()) flat(ctx, 14, -50, 92, 3, "r3");
+    for (const x of [30, 56, 82]) flat(ctx, x, -54, 1.4, 34, "r0");
+    rivets(ctx, 14, -52, 92, 6, "r3");
+    curve(ctx, [[6, -40], [-2, -40], [-2, -30], [6, -26]], "rLine", 4);
+    curve(ctx, [[6, -40], [-2, -40], [-2, -30], [6, -26]], "r2", 2.4);
+    box(ctx, 52, -62, 14, 8, "steel", 2);
+    G.grain(ctx, G.rectRegion(ctx, 14, -54, 92, 34), 830);
+    G.rustPatch(ctx, 40, -30, 7, 3, 831);
+    G.drips(ctx, 14, -40, 92, 20, 832, 5);
+  },
+};
+
+export const coil = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, n: number): void => {
+  for (let i = 0; i < n; i++) {
+    box(ctx, x, y + i * 6, w, 5, "chrome", 1);
+    if (!simple()) flat(ctx, x + 2, y + i * 6 + 1, w - 4, 1, "c2");
+  }
+};
+
+export const transformer: EnvAsset = {
+  id: "transformer",
+  box: [-4, -148, 220, 0],
+  draw(ctx) {
+    box(ctx, 0, -100, 120, 100, "olive", 1);
+    for (let x = 6; x < 114; x += 22) {
+      box(ctx, x, -92, 16, 60, "steel", 2);
+      coil(ctx, x + 2, -88, 12, 8);
+    }
+    flat(ctx, 6, -26, 108, 18, "#141410", "kLine");
+    for (let x = 10; x < 110; x += 8) flat(ctx, x, -24, 4, 14, "m2");
+    box(ctx, 120, -64, 92, 64, "olive", 2);
+    cylV(ctx, 130, -132, 26, 68, "chrome", 1);
+    cylV(ctx, 168, -120, 30, 56, "rust", 2);
+    for (const y of [-124, -112, -100, -88]) flat(ctx, 130, y, 26, 2, "c0");
+    for (let i = 0; i < 4; i++) {
+      disc(ctx, 140 + i * 18, -40, 5, "m1", "mLine");
+      if (!simple()) disc(ctx, 140 + i * 18, -40, 2, i === 1 ? "screen" : "k3");
+    }
+    box(ctx, 196, -60, 10, 60, "steel", 1);
+    curve(ctx, [[143, -132], [143, -144], [183, -144], [183, -120]], "mLine", 4.5);
+    curve(ctx, [[143, -132], [143, -144], [183, -144], [183, -120]], "m2", 3);
+    hazard(ctx, 124, -12, 84, 5, 4);
+    G.surface(ctx, 0, -100, 120, 100, 840, { drip: 6 });
+    G.surface(ctx, 120, -64, 92, 64, 841, { drip: 4 });
+    G.grain(ctx, G.rectRegion(ctx, 130, -132, 26, 68), 842);
+    G.grain(ctx, G.rectRegion(ctx, 168, -120, 30, 56), 843);
+  },
+};
+
+const insulator = (ctx: CanvasRenderingContext2D, x: number, y: number, n: number): void => {
+  for (let i = 0; i < n; i++) ellipse(ctx, x, y - i * 4, 5, 1.8, i % 2 ? "c1" : "c0", "mLine");
+};
+
+export const powerPlant: EnvAsset = {
+  id: "powerPlant",
+  box: [-2, -270, 290, 0],
+  draw(ctx) {
+    const pipe = (x: number, top: number, bottom: number): void => {
+      cylV(ctx, x, top, 14, bottom - top, "steel", 2);
+      for (let y = top + 12; y < bottom - 12; y += 24) box(ctx, x - 2, y, 18, 5, "olive", 2);
+      G.grain(ctx, G.rectRegion(ctx, x, top, 14, bottom - top), 851 + x, 0.7);
+    };
+    for (const x of [24, 120, 216]) pipe(x, -264, -132);
+    box(ctx, 18, -144, 218, 16, "steel", 1);
+    if (!simple()) flat(ctx, 20, -142, 214, 2, "m3");
+    G.grain(ctx, G.rectRegion(ctx, 18, -144, 218, 16), 855);
+    G.drips(ctx, 18, -128, 218, 14, 852, 5);
+    pipe(120, -128, -60);
+    box(ctx, 0, -60, 288, 60, "olive", 1);
+    for (let x = 4; x < 96; x += 18) {
+      box(ctx, x, -96, 14, 40, "chrome", 1);
+      coil(ctx, x + 1, -92, 12, 5);
+    }
+    box(ctx, 140, -96, 46, 40, "olive", 2);
+    for (let i = 0; i < 4; i++) disc(ctx, 150 + i * 9, -70, 1.8, i % 2 ? "neon" : "k0", "mLine");
+    for (let i = 0; i < 3; i++) {
+      const x = 196 + i * 14;
+      insulator(ctx, x, -60, 7);
+      if (!simple()) glow(ctx, x, -92, 8, "plasma", 0.35);
+      disc(ctx, x, -90, 2.2, "plasma");
+    }
+    cylV(ctx, 244, -120, 40, 60, "chrome", 1);
+    ctx.fillStyle = color("c1");
+    ctx.beginPath();
+    ctx.ellipse(264, -120, 20, 8, 0, PI, 0);
+    ctx.fill();
+    stroke(ctx, "chrome");
+    G.grain(ctx, G.rectRegion(ctx, 244, -120, 40, 60), 856);
+    for (let i = 0; i < 5; i++) {
+      flat(ctx, 8 + i * 56, -40, 40, 22, "#121410", "kLine");
+      for (let k = 0; k < 5; k++) flat(ctx, 12 + i * 56 + k * 7, -38, 3, 18, "m2");
+    }
+    hazard(ctx, 4, -8, 280, 5, 4);
+    G.surface(ctx, 0, -60, 288, 60, 850, { drip: 8 });
+  },
+};
+
+export const villageFence: EnvAsset = {
+  id: "villageFence",
+  box: [-3, -52, 147, 1],
+  draw(ctx, _state, _t, { w = 144 }: Size = {}) {
+    const seed = 860 + round(w);
+    flat(ctx, 0, -46, w, 44, "#00000033");
+    mesh(ctx, 0, -46, w, 44, "c0", 3);
+    flat(ctx, 0, -47, w, 1.4, "m2", "mLine");
+    const n = max(1, round(w / 48));
+    for (let i = 0; i <= n; i++) box(ctx, (w * i) / n - 1.5, -50, 3, 50, "steel", 2, { vertical: true });
+    if (w >= 48) {
+      const sx = w * 0.3;
+      flat(ctx, sx, -38, 14, 8, "k2", "kLine");
+      if (!simple()) for (const y of [-36, -34]) flat(ctx, sx + 2, y, 10, 0.8, "k0");
+    }
+    G.drips(ctx, 0, -47, w, 12, seed, round(w / 24));
+    G.dirt(ctx, 0, -46, w, 46, seed + 1, 0.3);
+  },
+};
+
+export const woodPile: EnvAsset = {
+  id: "woodPile",
+  box: [-2, -28, 58, 0],
+  draw(ctx) {
+    for (const [x, y, l] of [[0, -6, 52], [3, -12, 46], [6, -18, 40], [12, -24, 26]] as Pt3[]) {
+      flat(ctx, x, y, l, 6, PLANK[1], PLANK[4]);
+      disc(ctx, x + l, y + 3, 3, PLANK[3], PLANK[4]);
+      if (!simple()) disc(ctx, x + l, y + 3, 1.2, PLANK[2]);
+    }
+    G.grain(ctx, G.rectRegion(ctx, 0, -24, 56, 24), 870);
+    G.dirt(ctx, 0, -24, 56, 24, 871, 0.4);
+  },
+};
+
+export const sackPile: EnvAsset = {
+  id: "sackPile",
+  box: [-2, -24, 46, 0],
+  draw(ctx) {
+    const sack = (cx: number, cy: number, rx: number, seed: number): void => {
+      shape(ctx, blob(cx, cy, rx, 5.5, seed, 10), "#4a4232", "#14100a");
+      if (!simple()) {
+        shape(ctx, blob(cx - 1, cy - 1.5, rx * 0.7, 3, seed + 1, 8), "#5e5440");
+        line(ctx, [[cx - rx * 0.6, cy + 1], [cx + rx * 0.6, cy + 1.5]], "#2a2418", 0.7);
+      }
+    };
+    sack(10, -5.5, 10, 880);
+    sack(30, -5.5, 11, 881);
+    sack(20, -15, 10, 882);
+    G.grain(ctx, G.rectRegion(ctx, 0, -22, 44, 22), 883);
+  },
+};
+
+export const massTop: EnvAsset = {
+  id: "massTop",
+  box: [0, -9, 120, 4],
+  draw(ctx, _state, _t, { w = 120 }: Size = {}) {
+    const [vx0, , vx1] = viewSpan(ctx, -6, -10, w + 6, 4);
+    const x0 = max(0, floor(vx0 / TILE) * TILE);
+    const x1 = min(w, ceil(vx1 / TILE) * TILE);
+    if (x1 <= x0) return;
+    const r = rng(1100 + floor(x0 / TILE) * 7 + round(w));
+    const crust: Pt[] = [[x0, 3]];
+    for (let x = x0; x < x1; x += 3 + r() * 4) crust.push([x, -0.5 - r() * 1.8]);
+    crust.push([x1, -0.8], [x1, 3]);
+    shape(ctx, crust, SOIL[0]);
+    for (let x = x0 + r() * 6; x < x1 - 2; x += 5 + r() * 9) {
+      const rx = 1.6 + r() * 2.6;
+      boulder(ctx, x, -0.6 - rx * 0.4, rx, rx * 0.7, 1101 + round(x));
     }
     if (!simple()) {
-      line(ctx, [[44, -100], [108, -40]], "rLine", 3);
-      line(ctx, [[44, -100], [108, -40]], "r1", 1.8);
+      for (let x = x0; x < x1; x += TILE) if (hash(floor(x / TILE), 21) < 0.45) tufts(ctx, x + 4, x + 4 + hash(floor(x / TILE), 22) * 14, 0, 1102 + round(x), 2.6);
+      G.chips(ctx, x0, 0.4, x1 - x0, 1103 + round(x0));
     }
-    box(ctx, 0, -120, 240, 10, "rust", 2);
-    plankWall(ctx, 6, -192, 228, 72);
-    for (const y of [-182, -150]) {
-      flat(ctx, 6, y - 4, 228, 3, "r3", "rLine");
-      for (let x = 14; x < 226; x += 24) {
-        flat(ctx, x, y, 18, 20, "hole", "rLine");
-        flat(ctx, x + 1, y + 1, 16, 2, "r0");
-        if (!simple()) for (let k = 0; k < 4; k++) flat(ctx, x + 2 + k * 4, y + 17, 1, 3, "r2");
-      }
-    }
-    box(ctx, 0, -196, 240, 6, "rust", 3);
-    for (const x of [16, 52, 96, 140, 176, 220]) {
-      box(ctx, x, -210, 3, 14, "rust", 2, { vertical: true });
-      poly(ctx, [[x - 1, -210], [x + 1.5, -214], [x + 4, -210]], "rust", 2);
-    }
-    for (const x of [0, 236]) box(ctx, x, -196, 4, 86, "rust", 2, { vertical: true });
   },
 };
 
 export const VESNICE_IDS = [
-  "sourceTeleport", "targetTeleport", "brokenTeleport", "teleportPad", "fuseBox", "electricCabinet", "cannon", "energyBarrier", "transformer",
-  "grassyWalkway", "cliffBlocks", "fireBarricade", "dynamiteWall", "powerBridge", "rockCliff", "overheadPipeline", "storageTank", "watchtower", "bridgeGuardPost",
-  "villageBackdrop", "villageHouse", "stiltBuilding", "smoulderingRemains", "smallKey", "walkieTalkie", "detonator", "projectile", "fuse", "dynamite",
-  "navCircuit", "toaster", "energyPickup", "ammoPickup", "shieldPickup", "projectileCrate",
+  "massTop", "crateWall", "grassyWalkway", "walkwayGirder", "villageBackdrop", "jungleCanopy", "ruinWall", "rockCliff", "bronzePipe", "latticeMast", "overheadPipeline",
+  "stiltBuilding", "villageHouse", "watchtower", "storageTank", "horizontalTank", "transformer", "powerPlant", "villageFence", "woodPile", "sackPile",
+  "sourceTeleport", "targetTeleport", "teleportPad", "brokenTeleport", "fuseBox", "electricCabinet", "cannon", "ammoDepot", "fireBarricade", "dynamiteWall", "energyBarrier",
+  "powerBridge", "bridgeGuardPost", "smoulderingRemains", "smallKey", "walkieTalkie", "detonator", "projectileCrate", "projectile", "fuse", "dynamite", "navCircuit", "toaster",
+  "energyPickup", "ammoPickup", "shieldPickup",
 ] as const;
 
 export const vesniceAssets: EnvAsset[] = [
-  sourceTeleport, targetTeleport, brokenTeleport, teleportPad, fuseBox, electricCabinet, cannon, energyBarrier, transformer,
-  grassyWalkway, cliffBlocks, fireBarricade, dynamiteWall, powerBridge, rockCliff, overheadPipeline, storageTank, watchtower, bridgeGuardPost,
-  villageBackdrop, villageHouse, stiltBuilding,
+  massTop, crateWall, grassyWalkway, walkwayGirder, villageBackdrop, jungleCanopy, ruinWall, rockCliff, bronzePipe, latticeMast, overheadPipeline,
+  stiltBuilding, villageHouse, watchtower, storageTank, horizontalTank, transformer, powerPlant, villageFence, woodPile, sackPile,
 ];

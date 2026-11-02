@@ -160,13 +160,16 @@ export interface TerrainArt {
   wall: AssetId;
   ledge: AssetId;
   girder: AssetId;
+  top?: AssetId;
 }
+
+const TERRAIN_PARTS: (keyof TerrainArt)[] = ["wall", "ledge", "girder", "top"];
 
 const MESTO_TERRAIN: TerrainArt = { wall: "brickWall", ledge: "streetWalkway", girder: "girderBridge" };
 
 const terrainArtOf = (art: SandboxJson["terrainArt"] = {}): TerrainArt => {
   const out = { ...MESTO_TERRAIN };
-  for (const part of Object.keys(out) as (keyof TerrainArt)[]) {
+  for (const part of TERRAIN_PARTS) {
     const id = art[part];
     if (id === undefined) continue;
     if (!isAssetId(id)) throw new Error(`unknown asset: ${id}`);

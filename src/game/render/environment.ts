@@ -462,7 +462,9 @@ function terrain(e: Env): void {
     if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   }
   for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
-  for (const r of pick(e, "ledges", ledges, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
+  for (const r of pick(e, "ledges", ledges, runBox)) {
+    if (near(e, runBox(e, r))) for (const [asset, run] of ledgeParts(e.world, r)) put(e, asset, run.col * cell, run.row * cell, 0, { w: px(e, run.w * cell) });
+  }
   for (const r of pick(e, "girders", girders, runBox)) if (near(e, runBox(e, r))) put(e, art.girder, r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "landings", landings, runBox)) if (near(e, runBox(e, r))) put(e, "liftLanding", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "behind", behind, runBox)) {
@@ -476,6 +478,18 @@ function terrain(e: Env): void {
     put(e, r.asset, col * cell, (r.asset === art.girder ? r.row + 1 : r.row) * cell, 0, { w: px(e, (end - col) * cell) });
     e.ctx.restore();
   }
+}
+
+function ledgeParts({ grid, terrainArt: { ledge, top } }: SandboxWorld, r: Run): [AssetId, Run][] {
+  if (!top) return [[ledge, r]];
+  const parts: [AssetId, Run][] = [];
+  for (let col = r.col; col < r.col + r.w; col++) {
+    const asset = grid.wall(col, r.row) ? top : ledge;
+    const last = parts[parts.length - 1];
+    if (last && last[0] === asset) last[1].w++;
+    else parts.push([asset, { row: r.row, col, w: 1 }]);
+  }
+  return parts;
 }
 
 function shadeBehind(e: Env): void {
