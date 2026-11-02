@@ -400,7 +400,7 @@ interface DrawnTerrain {
 }
 
 interface BehindRun extends Run {
-  asset: "streetWalkway" | "girderBridge";
+  asset: AssetId;
   from: Run;
 }
 
@@ -456,13 +456,14 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
 
 function terrain(e: Env): void {
   const { cell } = e;
+  const art = e.world.terrainArt;
   const { walls, ledges, girders, landings, bases, behind } = drawnTerrain(e.world);
   for (const r of pick(e, "walls", walls, wallBox)) {
-    if (near(e, wallBox(e, r))) put(e, "brickWall", r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
+    if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   }
-  for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
-  for (const r of pick(e, "ledges", ledges, runBox)) if (near(e, runBox(e, r))) put(e, "streetWalkway", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
-  for (const r of pick(e, "girders", girders, runBox)) if (near(e, runBox(e, r))) put(e, "girderBridge", r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
+  for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
+  for (const r of pick(e, "ledges", ledges, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
+  for (const r of pick(e, "girders", girders, runBox)) if (near(e, runBox(e, r))) put(e, art.girder, r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "landings", landings, runBox)) if (near(e, runBox(e, r))) put(e, "liftLanding", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "behind", behind, runBox)) {
     if (!near(e, runBox(e, r))) continue;
@@ -472,7 +473,7 @@ function terrain(e: Env): void {
     e.ctx.beginPath();
     e.ctx.rect(r.col * cell, r.row * cell, r.w * cell, cell);
     e.ctx.clip();
-    put(e, r.asset, col * cell, (r.asset === "girderBridge" ? r.row + 1 : r.row) * cell, 0, { w: px(e, (end - col) * cell) });
+    put(e, r.asset, col * cell, (r.asset === art.girder ? r.row + 1 : r.row) * cell, 0, { w: px(e, (end - col) * cell) });
     e.ctx.restore();
   }
 }
@@ -512,16 +513,16 @@ const overlap = (a: Rect, b: Rect): Rect | null => {
   return w > 0 && h > 0 ? { x, y, w, h } : null;
 };
 
-type Side = { asset: BehindRun["asset"]; from: Run } | "wall" | null;
+type Side = { asset: AssetId; from: Run } | "wall" | null;
 
 function shaftFloor(world: SandboxWorld, l: Lift, row: number): BehindRun[] {
   const { walls, ledges, girders } = world.terrain;
   const side = (col: number): Side => {
     const on = (r: Run): boolean => r.row === row && col >= r.col && col < r.col + r.w;
     const ledge = ledges.find(on);
-    if (ledge) return { asset: "streetWalkway", from: ledge };
+    if (ledge) return { asset: world.terrainArt.ledge, from: ledge };
     const girder = girders.find(on);
-    if (girder) return { asset: "girderBridge", from: girder };
+    if (girder) return { asset: world.terrainArt.girder, from: girder };
     return walls.some((r) => row >= r.row && row < r.row + r.h && col >= r.col && col < r.col + r.w) ? "wall" : null;
   };
   const left = side(l.x - 1);

@@ -133,6 +133,7 @@ export interface SandboxWorld {
   backdrop: Scenery[];
   dressing: Scenery[];
   terrain: ReturnType<typeof terrain>;
+  terrainArt: TerrainArt;
   bare: CellRect[];
   ground: number | null;
   fog: Fog | null;
@@ -154,6 +155,25 @@ export interface SandboxWorld {
   sfx: SoundClock;
   source: SandboxJson;
 }
+
+export interface TerrainArt {
+  wall: AssetId;
+  ledge: AssetId;
+  girder: AssetId;
+}
+
+const MESTO_TERRAIN: TerrainArt = { wall: "brickWall", ledge: "streetWalkway", girder: "girderBridge" };
+
+const terrainArtOf = (art: SandboxJson["terrainArt"] = {}): TerrainArt => {
+  const out = { ...MESTO_TERRAIN };
+  for (const part of Object.keys(out) as (keyof TerrainArt)[]) {
+    const id = art[part];
+    if (id === undefined) continue;
+    if (!isAssetId(id)) throw new Error(`unknown asset: ${id}`);
+    out[part] = id;
+  }
+  return out;
+};
 
 type SceneryJson = Omit<Scenery, "asset"> & { asset: string };
 
@@ -185,6 +205,7 @@ export interface SandboxJson {
   teleports?: Teleport[];
   variants?: Record<string, CellPatch[]>;
   bare?: CellRect[];
+  terrainArt?: Partial<Record<keyof TerrainArt, string>>;
   ground?: number;
 }
 
@@ -243,6 +264,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     backdrop: scenery(data.backdrop),
     dressing: scenery(data.dressing),
     terrain: terrain(grid),
+    terrainArt: terrainArtOf(data.terrainArt),
     bare: structuredClone(data.bare ?? []),
     ground: data.ground ?? null,
     fog: null,

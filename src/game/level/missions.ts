@@ -37,6 +37,7 @@ interface MissionWorld {
   backdrop: SandboxJson["backdrop"];
   dressing: SandboxJson["dressing"];
   bare?: SandboxJson["bare"];
+  terrainArt?: SandboxJson["terrainArt"];
 }
 
 const WORLDS: Record<OtherMission, MissionWorld> = { vesnice: vesniceWorld, jungle: jungleWorld, jeskyne: jeskyneWorld };
@@ -72,6 +73,7 @@ export function missionJson(id: MissionId): SandboxJson {
     teleports: (map.teleports ?? []) as SandboxJson["teleports"],
     variants: (map.variants ?? {}) as SandboxJson["variants"],
     ...(WORLDS[id].bare === undefined ? {} : { bare: WORLDS[id].bare }),
+    ...(WORLDS[id].terrainArt === undefined ? {} : { terrainArt: WORLDS[id].terrainArt }),
   };
 }
 
