@@ -866,14 +866,14 @@
    ]
   },
   {
-   "id": "latticePylon",
-   "name": "Lattice pylon",
+   "id": "jungleTower",
+   "name": "Rusty lattice tower",
    "csName": null,
    "interactive": false,
    "marker": null,
    "task": null,
    "sheet": "structures",
-   "description": "Steel truss towers, also used by the scripted lift; same as mesto.",
+   "description": "Rusted riveted steel truss towers with X bracing (spawn ledge, tower lift); our own variant instead of the grey mesto pylon. Sized by w and h in cells.",
    "states": [],
    "refs": [
     {
@@ -1098,7 +1098,7 @@
    "marker": null,
    "task": null,
    "sheet": "structures",
-   "description": "Vertical girder at the west map edge (cell 22, rows 15-37); the west wall table entries (x 17) stop the hero here.",
+   "description": "Vertical girder at the west map edge (cell 22, rows 15-37); the west wall table entries (x 17) stop the hero here. Also the 1 cell riveted post under every girder platform (h in cells).",
    "states": [],
    "refs": [
     {
@@ -1336,14 +1336,14 @@
    ]
   },
   {
-   "id": "skyBackground",
+   "id": "jungleSky",
    "name": "Parallax sky",
    "csName": null,
    "interactive": false,
    "marker": null,
    "task": null,
    "sheet": "buildings",
-   "description": "Jungle backdrop from LEV3.GRA frame 0, scrolls slower than the playfield.",
+   "description": "Jungle backdrop from LEV3.GRA frame 0, scrolls slower than the playfield. Our variant: misty teal forest of trunk silhouettes, canopy blobs and mist bands, dark under the floors.",
    "states": [],
    "refs": [
     {
@@ -1361,6 +1361,88 @@
      "caption": "LEV3.GRA frame 0"
     }
    ]
+  },
+  {
+   "id": "jungleRock",
+   "name": "Mossy cobble rock",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Terrain wall art of the jungle: dark mossy cobbles, each cell its own stones (a 4 x 4 cell pattern), so stacked wall rects show no seam. Sized by w and h.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "jungleLedge",
+   "name": "Stone strip floor",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Terrain floor art of the jungle: a rusted rail with yellow dashes and bracket plates over two staggered rows of rounded stones, one cell thick; sized by w.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "jungleBeam",
+   "name": "Riveted girder platform",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Brown riveted box girder with recessed panels, drawn over the bare cells of the thin platforms (rows 13, 25, 28, 30, 31) on girderColumn posts; sized by w.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "jungleFern",
+   "name": "Fern and grass",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "Small ground clutter at building and rock edges.",
+   "states": [
+    "fern",
+    "grass tuft",
+    "bush"
+   ],
+   "refs": []
+  },
+  {
+   "id": "hangingVines",
+   "name": "Hanging vines",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Moss strip with vines hanging under ledges, beams and buildings; sized by w and h (vines hang from the top).",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "jungleSpan",
+   "name": "Stone strip floor (free run)",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "The stone strip floor for free-standing floor runs, which the terrain renderer anchors at the run bottom: the same art as jungleLedge one cell up.",
+   "states": [],
+   "refs": []
   }
  ]
 }
