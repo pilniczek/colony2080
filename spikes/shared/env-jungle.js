@@ -171,6 +171,24 @@ define({
   }
 });
 
+define({
+  id: "jungleRockTop",
+  box: [0, -3, 120, 24],
+  draw(ctx, state, t, { w = 120 } = {}) {
+    const seed = 440 + round(w) * 5;
+    const r = rng(seed);
+    cobbleFill(ctx, 0, 0, w, 24);
+    G.grain(ctx, G.rectRegion(ctx, 0, 0, w, 24), seed, 0.7);
+    mossCap(ctx, 0, 0, w, seed + 1, 3.5);
+    if (!simple()) for (let x = 2 + r() * 6; x < w - 4; x += 9 + r() * 16) {
+      ctx.save();
+      ctx.translate(0, 0.4);
+      grass(ctx, x, 3 + r() * 4, 2.5 + r() * 2.5, seed + round(x));
+      ctx.restore();
+    }
+  }
+});
+
 function ledgeStones(ctx, w, seed) {
   const r = rng(seed);
   ctx.save();

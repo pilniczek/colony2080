@@ -1,7 +1,7 @@
 {
   "source": "laid out over docs/research/gamedata/png/maps/map_M31.png (24 px per cell) and the jungle demo footage (docs/research/video/sheets/98GhruztJP0_*.png)",
   "sky": "jungleSky",
-  "terrainArt": {"wall": "jungleRock", "ledge": "jungleLedge", "girder": "jungleSpan"},
+  "terrainArt": {"wall": "jungleRock", "ledge": "jungleLedge", "girder": "jungleSpan", "top": "jungleRockTop"},
   "backdrop": [
     {"asset": "rockLedges", "x": 28, "y": 37, "w": 9, "h": 11},
     {"asset": "rockLedges", "x": 37.5, "y": 37, "w": 7, "h": 10},

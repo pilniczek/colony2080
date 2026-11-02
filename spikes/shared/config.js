@@ -10724,6 +10724,19 @@ window.C28_CONFIG = {
       "description": "The stone strip floor for free-standing floor runs, which the terrain renderer anchors at the run bottom: the same art as jungleLedge one cell up.",
       "states": [],
       "refs": []
+     },
+     {
+      "id": "jungleRockTop",
+      "name": "Mossy rock top",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Terrain art for the top cell of a jungle rock wall (terrainArt top): the cobble rock under a ragged moss cap with grass tufts; sized by w.",
+      "states": [],
+      "refs": []
      }
     ]
    }

@@ -175,6 +175,26 @@ const jungleRock: EnvAsset = {
   },
 };
 
+const jungleRockTop: EnvAsset = {
+  id: "jungleRockTop",
+  box: [0, -3, 120, 24],
+  draw(ctx, _state, _t, { w = 120 }) {
+    const seed = 440 + round(w) * 5;
+    const r = rng(seed);
+    cobbleFill(ctx, 0, 0, w, 24);
+    G.grain(ctx, G.rectRegion(ctx, 0, 0, w, 24), seed, 0.7);
+    mossCap(ctx, 0, 0, w, seed + 1, 3.5);
+    if (!simple()) {
+      for (let x = 2 + r() * 6; x < w - 4; x += 9 + r() * 16) {
+        ctx.save();
+        ctx.translate(0, 0.4);
+        grass(ctx, x, 3 + r() * 4, 2.5 + r() * 2.5, seed + round(x));
+        ctx.restore();
+      }
+    }
+  },
+};
+
 const ledgeStones = (ctx: Ctx, w: number, seed: number): void => {
   const r = rng(seed);
   ctx.save();
@@ -1056,13 +1076,13 @@ const jungleSky: EnvAsset = {
 };
 
 export const JUNGLE_IDS = [
-  "jungleRock", "jungleLedge", "jungleSpan", "jungleBeam", "girderColumn", "jungleTower", "rockLedges", "rockSlope", "jungleBuilding", "flamethrowerDoor", "waterfall", "spikes", "caveChasm",
+  "jungleRock", "jungleRockTop", "jungleLedge", "jungleSpan", "jungleBeam", "girderColumn", "jungleTower", "rockLedges", "rockSlope", "jungleBuilding", "flamethrowerDoor", "waterfall", "spikes", "caveChasm",
   "caveCapsule", "helicopterWreck", "excavator", "jeep", "fallenTree", "cannonTurret", "distributionCabinet", "stonePuzzle", "tripwire", "mine", "canister", "cutters", "grenade",
   "flamethrower", "bonusPickup", "towerLift", "jungleFern", "hangingVines", "jungleSky",
 ] as const;
 
 export const jungleAssets: EnvAsset[] = [
-  jungleRock, jungleLedge, jungleSpan, jungleBeam, girderColumn, jungleTower, stoneStack("rockLedges", 192, 520, false), stoneStack("rockSlope", 144, 540, true), jungleBuilding, flamethrowerDoor,
+  jungleRock, jungleRockTop, jungleLedge, jungleSpan, jungleBeam, girderColumn, jungleTower, stoneStack("rockLedges", 192, 520, false), stoneStack("rockSlope", 144, 540, true), jungleBuilding, flamethrowerDoor,
   waterfall, spikes, caveChasm, caveCapsule, helicopterWreck, excavator, jeep, fallenTree, cannonTurret, distributionCabinet, stonePuzzle, tripwire, mine, canister, cutters, grenade,
   flamethrower, bonusPickup, towerLift, jungleFern, hangingVines, jungleSky,
 ];
