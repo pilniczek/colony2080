@@ -253,7 +253,7 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
   },
   vesnice: {
     byTask: {
-      "middle floors behind the barrier col 99: smashed fuses turn it off (report 14 M22), teleport 3 links once the target is repaired and the power is back": [
+      "middle floors behind the barrier col 99: the pulled fuse turns it off (report 14 M22), teleport 3 links once the target is repaired and the power is back": [
         ...["23,63", "23,74", "32,63", "32,83", "41,53", "41,92", "50,73", "50,135", "59,78", "59,87", "59,116", "59,120", "68,81"],
       ],
       "behind the bridge guard col 62, the toaster beam takes him down (report 14 marker 5)": ["23,59"],

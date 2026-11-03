@@ -250,24 +250,19 @@ const fuseBox: EnvAsset = {
     cylV(ctx, 10, -30, 4, 28, "steel", 1);
     box(ctx, 3, -46, 18, 17, "green", 1);
     flat(ctx, 3, -46, 18, 1.2, "g3");
-    box(ctx, 4.6, -44.6, 14.8, 14.2, "green", state === 1 ? 0 : 2);
+    box(ctx, 4.6, -44.6, 14.8, 14.2, "green", 2);
     G.drips(ctx, 3, -29, 18, 8, 2182, 2);
     G.chips(ctx, 3, -46, 18, 2183, G.DIRT);
     fuseScreen(ctx, 7.6, -43, state, t);
-    if (state === 1) {
-      const hole: Pt[] = [[5, -37], [10, -38], [12, -34], [9, -31], [5, -32]];
-      G.scorch(ctx, hole, 2184);
-      poly(ctx, hole, "hole", 2);
-      G.rim(ctx, hole, 2185, "g3", "hole");
-      for (const [x, y] of [[13.6, -36], [16, -34]] as Pt[]) flat(ctx, x, y, 1.4, 3, "c1", "mLine");
-      poly(ctx, [[19, -45], [24, -47], [24.4, -32], [19.6, -31]], "green", 1);
-      line(ctx, [[10, -33], [12, -28], [10, -24]], "a1", 0.7);
-      spark(ctx, 10, -24, t, 2);
-    } else {
-      for (const x of [7, 11, 15]) {
-        box(ctx, x, -37.4, 2.6, 5.4, state === 2 && x === 11 ? "yellow" : "chrome", 2, { vertical: true });
-        if (state === 2 && x === 11 && !simple()) glow(ctx, x + 1.3, -34.6, 4, "y3", 0.4);
+    for (const x of [7, 11, 15]) {
+      if (state === 1 && x === 11) {
+        flat(ctx, x - 0.2, -37.8, 3, 6.2, "hole", "gLine");
+        for (const y of [-37.8, -32.8]) flat(ctx, x + 0.3, y, 2, 1, "c1", "mLine");
+        continue;
       }
+      const fresh = state === 2 && x === 11;
+      box(ctx, x, -37.4, 2.6, 5.4, fresh ? "yellow" : "chrome", 2, { vertical: true });
+      if (fresh && !simple()) glow(ctx, x + 1.3, -34.6, 4, "y3", 0.4);
     }
     lamp(ctx, 19, -48.6, state === 1 ? "neon" : "screen", state !== 1 || Math.floor(t * 3) % 2 === 0);
   },

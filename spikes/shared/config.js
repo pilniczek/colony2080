@@ -13230,10 +13230,10 @@ window.C28_CONFIG = {
       "marker": 2,
       "task": "breakFuses",
       "sheet": "machines",
-      "description": "Wall box with a green panel on floor 32 (use window map cells 146-150, art about cells 148-149, rows 29-31). First use (map M21) smashes the fuses: power off, map M22 (energy barrier and bridge vanish). Using the fuse there in M22 restarts the power plant: map M23.",
+      "description": "Wall box with a green panel on floor 32 (use window map cells 146-150, art about cells 148-149, rows 29-31). First use (map M21) pulls out one fuse (an empty slot and a blinking red lamp, the box stays intact, user): power off, map M22 (energy barrier and bridge vanish). Using the fuse there in M22 restarts the power plant: map M23.",
       "states": [
        "working (M21)",
-       "fuses smashed (M22)",
+       "fuse pulled out (M22)",
        "fuse fitted (M23)"
       ],
       "refs": [
