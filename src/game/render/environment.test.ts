@@ -195,7 +195,7 @@ describe("weapon props", () => {
     expect(behind.filter((r) => r.row === 10 && r.col >= lift.x && r.col < lift.x + lift.w).map((r) => r.asset)).toEqual(["girderBridge", "streetWalkway"]);
   });
 
-  it("leaves bare cells, lift stops and the cells under bottom stops out of the terrain runs and lands each = bottom stop", () => {
+  it("leaves bare cells, lift stops and the cells under bottom stops out of the terrain runs and floors each = bottom stop behind the lift", () => {
     const mesto = loadMesto();
     const { ledges: mestoLedges, behind, ...mestoRest } = drawnTerrain(mesto);
     expect(behind.every((r) => mesto.lifts.some((l) => r.col >= l.x && r.col < l.x + l.w && r.row >= l.top && r.row < l.bottom))).toBe(true);
@@ -205,14 +205,14 @@ describe("weapon props", () => {
     }
     const vesnice = loadSandbox({ ...missionJson("vesnice"), bare: [{ col: 45, row: 41, w: 12, h: 1 }] });
     const { walls, ledges, girders, landings, bases } = drawnTerrain(vesnice);
-    expect(bases).toEqual([]);
+    expect(bases).toEqual(vesnice.lifts.map((l) => ({ row: l.bottom, col: l.x, w: l.w })));
     const covers = (col: number, row: number): boolean =>
       [...ledges.map((r) => ({ ...r, h: 1 })), ...girders.map((r) => ({ ...r, h: 1 })), ...walls].some((r) => row >= r.row && row < r.row + r.h && col >= r.col && col < r.col + r.w);
     for (let col = 45; col < 57; col++) expect(covers(col, 41), String(col)).toBe(false);
     expect(covers(44, 41)).toBe(true);
     expect(covers(57, 41)).toBe(true);
     for (const l of vesnice.lifts) {
-      expect(landings).toContainEqual({ row: l.bottom, col: l.x, w: l.w });
+      expect(landings.some((r) => r.row === l.bottom)).toBe(false);
       for (const row of l.stops) expect(covers(l.x, row)).toBe(false);
     }
   });

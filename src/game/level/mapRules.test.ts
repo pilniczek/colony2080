@@ -78,7 +78,7 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
     roles: {
       sky: ["villageBackdrop"],
       far: ["farPalms", "farRuins"],
-      filler: ["crateWall"],
+      filler: ["crateWall", "stoneWall"],
       wall: ["rivetWall", "plankWall", "ammoDepot"],
       fence: ["chainFence"],
       floor: ["grassyWalkway", "steelDeckPlate", "liftLanding"],
@@ -350,7 +350,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
 
   it(`overlaps no two front or two back dressing items by more than ${OVERLAP_SHARE * 100}% of the smaller`, () => {
     const back = (s: Scenery): boolean => rolesOf(rules, s.asset).some((role) => BACK.includes(role));
-    const items = world.dressing.filter((s) => !rules.hangs.includes(s.asset)).map((s) => ({ s, b: boxOf(world, s), back: back(s) }));
+    const items = world.dressing.filter((s) => !rules.hangs.includes(s.asset) && !rules.roles.filler.includes(s.asset)).map((s) => ({ s, b: boxOf(world, s), back: back(s) }));
     const clash: string[] = [];
     items.forEach((a, i) => {
       for (const c of items.slice(i + 1)) {

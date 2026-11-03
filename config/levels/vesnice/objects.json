@@ -924,6 +924,29 @@
    ]
   },
   {
+   "id": "stoneWall",
+   "name": "Stone wall",
+   "csName": null,
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "origin": "new",
+   "description": "Filler role (deep terrain art and the fill behind rock cliffs). A rectangular mass of the rock cliff boulders, sized w and h in cells, so the rock masses read as stone, not crate blocks (user, 2026-11-03).",
+   "states": [],
+   "refs": [],
+   "sizes": [
+    [
+     6,
+     6
+    ],
+    [
+     3,
+     8
+    ]
+   ]
+  },
+  {
    "id": "grassyWalkway",
    "name": "Grassy stone walkway",
    "csName": null,

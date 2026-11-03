@@ -1751,33 +1751,45 @@ const cliffStone = (ctx: Ctx, cx: number, cy: number, rx: number, ry: number, se
   ctx.restore();
 };
 
+const rockMass = (ctx: Ctx, w: number, h: number, base: Pt[], edgeAt: (x: number) => number, seed: number, sides = false): void => {
+  shape(ctx, base, BOULDER[1]);
+  STONES.forEach(([cw, ch, rx, ry, odds], k) => {
+    eachCell(ctx, 0, -h, w, h, cw, ch, (x, y, i, j) => {
+      const s = cellSeed(seed + k * 7919, i, j);
+      const r = rng(s);
+      if (r() > odds) return;
+      const cx = x + cw / 2 + (r() - 0.5) * cw * 0.5;
+      const cy = y + ch / 2 + (r() - 0.5) * ch * 0.5;
+      const sx = rx * (0.75 + r() * 0.5);
+      const sy = ry * (0.75 + r() * 0.5);
+      if (cy - sy * (rx > 20 ? 0.8 : 0.3) < edgeAt(cx) || cy + sy * 0.2 > 0) return;
+      if (sides && (cx - sx * 0.7 < 0 || cx + sx * 0.7 > w)) return;
+      cliffStone(ctx, cx, cy, sx, sy, s + 1);
+    }, rx * 1.4 + cw / 2);
+  });
+  G.grain(ctx, G.polyRegion(ctx, base), seed + 1, 0.7);
+  clipped(ctx, base, () => G.dirt(ctx, 0, -h, w, h, seed + 2, min(0.3, 50 / h)));
+};
+
 export const rockCliff: EnvAsset = {
   id: "rockCliff",
   box: [0, -200, 144, 0],
   draw(ctx, _state, _t, { w = 144, h = 192 } = {}) {
-    const seed = 5200 + round(w + h * 3);
     const base: Pt[] = [[0, 0], [0, -h + 8], [w * 0.25, -h + 16], [w - 8, -4], [w - 8, 0]];
     const edgeAt = (x: number): number => {
       const u = x / w;
       return u < 0.25 ? -h + 8 * (u / 0.25) : -h + 8 + (h - 14) * ((u - 0.25) / 0.75);
     };
-    shape(ctx, base, BOULDER[1]);
-    STONES.forEach(([cw, ch, rx, ry, odds], k) => {
-      eachCell(ctx, 0, -h, w, h, cw, ch, (x, y, i, j) => {
-        const s = cellSeed(seed + k * 7919, i, j);
-        const r = rng(s);
-        if (r() > odds) return;
-        const cx = x + cw / 2 + (r() - 0.5) * cw * 0.5;
-        const cy = y + ch / 2 + (r() - 0.5) * ch * 0.5;
-        const sx = rx * (0.75 + r() * 0.5);
-        const sy = ry * (0.75 + r() * 0.5);
-        if (cy - sy * (rx > 20 ? 0.8 : 0.3) < edgeAt(cx) || cy + sy * 0.2 > 0) return;
-        cliffStone(ctx, cx, cy, sx, sy, s + 1);
-      }, rx * 1.4 + cw / 2);
-    });
-    G.grain(ctx, G.polyRegion(ctx, base), seed + 1, 0.7);
-    clipped(ctx, base, () => G.dirt(ctx, 0, -h, w, h, seed + 2, min(0.3, 50 / h)));
-    tufts(ctx, 0, w, 0, seed + 3, 0.6, 6);
+    rockMass(ctx, w, h, base, edgeAt, 5200 + round(w + h * 3));
+    tufts(ctx, 0, w, 0, 5200 + round(w + h * 3) + 3, 0.6, 6);
+  },
+};
+
+export const stoneWall: EnvAsset = {
+  id: "stoneWall",
+  box: [0, -144, 144, 0],
+  draw(ctx, _state, _t, { w = 144, h = 144 } = {}) {
+    rockMass(ctx, w, h, [[0, 0], [0, -h], [w, -h], [w, 0]], () => -h, 6100 + round(w * 7 + h * 3), true);
   },
 };
 
@@ -2261,12 +2273,12 @@ export const shellCrate: EnvAsset = {
 
 export const vesniceSceneryAssets: EnvAsset[] = [
   villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, ammoDepot, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse,
-  latticeMast, warningLamp, junctionBox, watchtower, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, rubbleHeap, militaryWreck, fuelDrum,
+  latticeMast, warningLamp, junctionBox, watchtower, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, stoneWall, rubbleHeap, militaryWreck, fuelDrum,
   sandbags, shellCrate,
 ];
 
 export const VESNICE_IDS = [
-  "villageBackdrop", "farPalms", "farRuins", "crateWall", "rivetWall", "plankWall", "ammoDepot", "grassyWalkway", "steelDeckPlate", "trussWalkway", "villageHouse", "stiltBuilding", "powerHouse", "latticeMast", "warningLamp", "junctionBox", "watchtower", "overheadPipeline", "transformer", "storageTank", "powerPlant", "rockCliff", "rubbleHeap", "militaryWreck", "fuelDrum", "sandbags", "shellCrate",
+  "villageBackdrop", "farPalms", "farRuins", "crateWall", "rivetWall", "plankWall", "ammoDepot", "grassyWalkway", "steelDeckPlate", "trussWalkway", "villageHouse", "stiltBuilding", "powerHouse", "latticeMast", "warningLamp", "junctionBox", "watchtower", "overheadPipeline", "transformer", "storageTank", "powerPlant", "rockCliff", "stoneWall", "rubbleHeap", "militaryWreck", "fuelDrum", "sandbags", "shellCrate",
   "sourceTeleport", "targetTeleport", "teleportPad", "brokenTeleport", "fuseBox", "electricCabinet", "cannon", "fireBarricade", "dynamiteWall", "energyBarrier", "powerBridge",
   "bridgeGuardPost", "smoulderingRemains", "smallKey", "walkieTalkie", "detonator", "projectileCrate", "projectile", "fuse", "dynamite", "navCircuit", "toaster", "energyPickup",
   "ammoPickup", "shieldPickup",

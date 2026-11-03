@@ -496,12 +496,13 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
   for (const { col, row, w, h } of world.bare) for (let r = row; r < row + h; r++) for (let c = col; c < col + w; c++) skip.add(`${c},${r}`);
   const landings: Run[] = [];
   const bases: Run[] = [];
+  const bare = new Set(skip);
   for (const l of world.lifts) {
     for (const row of l.stops) {
       const open = new Set<string>();
       for (let c = l.x; c < l.x + l.w; c++) (world.grid.at(c, row) === "=" ? skip : open).add(`${c},${row}`);
-      landings.push(...cutRuns([{ row, col: l.x, w: l.w }], open));
-      if (row === l.bottom) bases.push(...cutRuns([{ row, col: l.x, w: l.w }], skip));
+      if (row === l.bottom) bases.push(...cutRuns([{ row, col: l.x, w: l.w }], bare));
+      else landings.push(...cutRuns([{ row, col: l.x, w: l.w }], open));
     }
   }
   const underLifts = new Set(skip);
@@ -667,21 +668,21 @@ export function prop(e: Env, p: Prop): void {
   const id = p.kind === "item" ? icon?.asset : (p.asset ?? PROP_ASSETS[p.kind]);
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
-  const { dx = 0, dy = 0, top } = p.art ?? {};
+  const { dx = 0, dy = 0, top, w } = p.art ?? {};
   const look = guardLook(p);
   if (look === "gone" || guardHidden(p, e.world.flags)) return;
   const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
-  const size = top === undefined ? undefined : { top: -px(e, top * e.cell) };
+  const size = top === undefined && w === undefined ? undefined : { ...(top === undefined ? {} : { top: -px(e, top * e.cell) }), ...(w === undefined ? {} : { w: px(e, w * e.cell) }) };
   const x = (p.x + dx) * e.cell - ((left + right) / 2) * k(e);
   const y = ((p.y ?? e.world.spawn[1]) + dy) * e.cell;
-  if (!near(e, artBox(e, id, x, y, top === undefined ? 0 : top * e.cell))) return;
+  if (!near(e, artBox(e, id, x, y, top === undefined ? 0 : top * e.cell, w === undefined ? 0 : w * e.cell))) return;
   if (!look && !ASSETS[id].anim && putSprite(e, id, x, y, state, size)) return;
   put(e, id, x, y, state, size, look?.t ?? 0);
 }
 
-function artBox(e: Env, id: AssetId, x: number, y: number, rise: number): Rect {
+function artBox(e: Env, id: AssetId, x: number, y: number, rise: number, wide = 0): Rect {
   const [x0, y0, x1, y1] = ASSETS[id].box;
-  const reach = Math.max(x1 - x0, y1 - y0) * k(e);
+  const reach = Math.max(x1 - x0, y1 - y0) * k(e) + wide;
   const up = Math.min(y0 * k(e), -rise);
   return { x: x + x0 * k(e) - reach, y: y + up - reach, w: (x1 - x0) * k(e) + 2 * reach, h: y1 * k(e) - up + 2 * reach };
 }

@@ -1783,35 +1783,46 @@ const cliffStone = (ctx, cx, cy, rx, ry, seed) => {
         G.drips(ctx, cx - rx * 0.45, cy + ry * 0.2, rx, ry, seed + 6, 1, false);
     ctx.restore();
 };
+const rockMass = (ctx, w, h, base, edgeAt, seed, sides = false) => {
+    shape(ctx, base, BOULDER[1]);
+    STONES.forEach(([cw, ch, rx, ry, odds], k) => {
+        eachCell(ctx, 0, -h, w, h, cw, ch, (x, y, i, j) => {
+            const s = cellSeed(seed + k * 7919, i, j);
+            const r = rng(s);
+            if (r() > odds)
+                return;
+            const cx = x + cw / 2 + (r() - 0.5) * cw * 0.5;
+            const cy = y + ch / 2 + (r() - 0.5) * ch * 0.5;
+            const sx = rx * (0.75 + r() * 0.5);
+            const sy = ry * (0.75 + r() * 0.5);
+            if (cy - sy * (rx > 20 ? 0.8 : 0.3) < edgeAt(cx) || cy + sy * 0.2 > 0)
+                return;
+            if (sides && (cx - sx * 0.7 < 0 || cx + sx * 0.7 > w))
+                return;
+            cliffStone(ctx, cx, cy, sx, sy, s + 1);
+        }, rx * 1.4 + cw / 2);
+    });
+    G.grain(ctx, G.polyRegion(ctx, base), seed + 1, 0.7);
+    clipped(ctx, base, () => G.dirt(ctx, 0, -h, w, h, seed + 2, min(0.3, 50 / h)));
+};
 const rockCliff = {
     id: "rockCliff",
     box: [0, -200, 144, 0],
     draw(ctx, _state, _t, { w = 144, h = 192 } = {}) {
-        const seed = 5200 + round(w + h * 3);
         const base = [[0, 0], [0, -h + 8], [w * 0.25, -h + 16], [w - 8, -4], [w - 8, 0]];
         const edgeAt = (x) => {
             const u = x / w;
             return u < 0.25 ? -h + 8 * (u / 0.25) : -h + 8 + (h - 14) * ((u - 0.25) / 0.75);
         };
-        shape(ctx, base, BOULDER[1]);
-        STONES.forEach(([cw, ch, rx, ry, odds], k) => {
-            eachCell(ctx, 0, -h, w, h, cw, ch, (x, y, i, j) => {
-                const s = cellSeed(seed + k * 7919, i, j);
-                const r = rng(s);
-                if (r() > odds)
-                    return;
-                const cx = x + cw / 2 + (r() - 0.5) * cw * 0.5;
-                const cy = y + ch / 2 + (r() - 0.5) * ch * 0.5;
-                const sx = rx * (0.75 + r() * 0.5);
-                const sy = ry * (0.75 + r() * 0.5);
-                if (cy - sy * (rx > 20 ? 0.8 : 0.3) < edgeAt(cx) || cy + sy * 0.2 > 0)
-                    return;
-                cliffStone(ctx, cx, cy, sx, sy, s + 1);
-            }, rx * 1.4 + cw / 2);
-        });
-        G.grain(ctx, G.polyRegion(ctx, base), seed + 1, 0.7);
-        clipped(ctx, base, () => G.dirt(ctx, 0, -h, w, h, seed + 2, min(0.3, 50 / h)));
-        tufts(ctx, 0, w, 0, seed + 3, 0.6, 6);
+        rockMass(ctx, w, h, base, edgeAt, 5200 + round(w + h * 3));
+        tufts(ctx, 0, w, 0, 5200 + round(w + h * 3) + 3, 0.6, 6);
+    },
+};
+const stoneWall = {
+    id: "stoneWall",
+    box: [0, -144, 144, 0],
+    draw(ctx, _state, _t, { w = 144, h = 144 } = {}) {
+        rockMass(ctx, w, h, [[0, 0], [0, -h], [w, -h], [w, 0]], () => -h, 6100 + round(w * 7 + h * 3), true);
     },
 };
 const RUBBLE_HEAP = [[-2, 0], [6, -10], [20, -20], [36, -30], [52, -34], [66, -26], [80, -14], [94, 0]];
@@ -2302,17 +2313,17 @@ const shellCrate = {
 };
 const vesniceSceneryAssets = [
     villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, ammoDepot, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse,
-    latticeMast, warningLamp, junctionBox, watchtower, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, rubbleHeap, militaryWreck, fuelDrum,
+    latticeMast, warningLamp, junctionBox, watchtower, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, stoneWall, rubbleHeap, militaryWreck, fuelDrum,
     sandbags, shellCrate,
 ];
 const VESNICE_IDS = [
-    "villageBackdrop", "farPalms", "farRuins", "crateWall", "rivetWall", "plankWall", "ammoDepot", "grassyWalkway", "steelDeckPlate", "trussWalkway", "villageHouse", "stiltBuilding", "powerHouse", "latticeMast", "warningLamp", "junctionBox", "watchtower", "overheadPipeline", "transformer", "storageTank", "powerPlant", "rockCliff", "rubbleHeap", "militaryWreck", "fuelDrum", "sandbags", "shellCrate",
+    "villageBackdrop", "farPalms", "farRuins", "crateWall", "rivetWall", "plankWall", "ammoDepot", "grassyWalkway", "steelDeckPlate", "trussWalkway", "villageHouse", "stiltBuilding", "powerHouse", "latticeMast", "warningLamp", "junctionBox", "watchtower", "overheadPipeline", "transformer", "storageTank", "powerPlant", "rockCliff", "stoneWall", "rubbleHeap", "militaryWreck", "fuelDrum", "sandbags", "shellCrate",
     "sourceTeleport", "targetTeleport", "teleportPad", "brokenTeleport", "fuseBox", "electricCabinet", "cannon", "fireBarricade", "dynamiteWall", "energyBarrier", "powerBridge",
     "bridgeGuardPost", "smoulderingRemains", "smallKey", "walkieTalkie", "detonator", "projectileCrate", "projectile", "fuse", "dynamite", "navCircuit", "toaster", "energyPickup",
     "ammoPickup", "shieldPickup",
 ];
 for (const asset of vesniceSceneryAssets) define(asset);
-window.ENV.VESNICE = { ellipse, shadow, smoke, spark, flame, blob, RUIN, boulder, PLANK, planks, concreteBlock, within, outside, rectPts, villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, depotWall, depotBay, depotRun, ammoDepot, steelGate, gateBlock, gateRuin, meshFence, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse, latticeMast, warningLamp, junctionBox, watchtower, bronzeColumn, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, rubbleHeap, militaryWreck, fuelDrum, sandbags, shellCrate, vesniceSceneryAssets, VESNICE_IDS };
+window.ENV.VESNICE = { ellipse, shadow, smoke, spark, flame, blob, RUIN, boulder, PLANK, planks, concreteBlock, within, outside, rectPts, villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, depotWall, depotBay, depotRun, ammoDepot, steelGate, gateBlock, gateRuin, meshFence, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse, latticeMast, warningLamp, junctionBox, watchtower, bronzeColumn, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, stoneWall, rubbleHeap, militaryWreck, fuelDrum, sandbags, shellCrate, vesniceSceneryAssets, VESNICE_IDS };
 })();
 
 (() => {
@@ -2750,8 +2761,27 @@ const energyBarrier = {
     id: "energyBarrier",
     box: [-4, -98, 28, 0],
     anim: true,
-    draw(ctx, state, t) {
+    draw(ctx, state, t, size) {
         const on = state === 0;
+        const reach = size?.w;
+        if (reach) {
+            const arm = [[20, -95, reach - 20, 8]];
+            box(ctx, 20, -95, reach - 20, 8, "steel", 1);
+            flat(ctx, 20, -92, reach - 20, 1.4, "m3");
+            if (!simple())
+                for (let x = 30; x < reach - 6; x += 12)
+                    disc(ctx, x, -91, 0.9, "m2", "mLine");
+            box(ctx, reach - 3, -101, 5, 20, "steel", 1);
+            for (const y of [-98, -84])
+                disc(ctx, reach - 0.5, y, 1, "m2", "mLine");
+            const mount = [...arm, [reach - 3, -101, 5, 20]];
+            G.grain(ctx, G.rectsRegion(ctx, mount), 2245, 0.6);
+            G.chips(ctx, 20, -95, reach - 20, 2246);
+            within(ctx, mount, () => {
+                G.drips(ctx, 20, -88, reach - 20, 6, 2247, 3);
+                G.rustPatch(ctx, reach * 0.6, -91, 4, 1.4, 2248);
+            });
+        }
         if (on && !simple())
             glow(ctx, 12, -48, 30, "plasma", 0.25 + sin(t * 13) * 0.06);
         if (on) {

@@ -427,8 +427,24 @@ const energyBarrier: EnvAsset = {
   id: "energyBarrier",
   box: [-4, -98, 28, 0],
   anim: true,
-  draw(ctx, state, t) {
+  draw(ctx, state, t, size) {
     const on = state === 0;
+    const reach = size?.w;
+    if (reach) {
+      const arm = [[20, -95, reach - 20, 8]] as const;
+      box(ctx, 20, -95, reach - 20, 8, "steel", 1);
+      flat(ctx, 20, -92, reach - 20, 1.4, "m3");
+      if (!simple()) for (let x = 30; x < reach - 6; x += 12) disc(ctx, x, -91, 0.9, "m2", "mLine");
+      box(ctx, reach - 3, -101, 5, 20, "steel", 1);
+      for (const y of [-98, -84]) disc(ctx, reach - 0.5, y, 1, "m2", "mLine");
+      const mount = [...arm, [reach - 3, -101, 5, 20]] as const;
+      G.grain(ctx, G.rectsRegion(ctx, mount), 2245, 0.6);
+      G.chips(ctx, 20, -95, reach - 20, 2246);
+      within(ctx, mount, () => {
+        G.drips(ctx, 20, -88, reach - 20, 6, 2247, 3);
+        G.rustPatch(ctx, reach * 0.6, -91, 4, 1.4, 2248);
+      });
+    }
     if (on && !simple()) glow(ctx, 12, -48, 30, "plasma", 0.25 + sin(t * 13) * 0.06);
     if (on) {
       arcBolt(ctx, 12, -86, -4, 10, t, 1);

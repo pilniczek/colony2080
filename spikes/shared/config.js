@@ -101,6 +101,76 @@ window.C28_CONFIG = {
     "scale": 1.25
    },
    "preview": "GRAFIKA/PRKLIC.GRA"
+  },
+  "smallKey": {
+   "name": "small key",
+   "cs": "Malý klíč",
+   "icon": {
+    "asset": "smallKey",
+    "tilt": 30,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC1.GRA"
+  },
+  "walkieTalkie": {
+   "name": "walkie-talkie",
+   "cs": "Vysílačka",
+   "icon": {
+    "asset": "walkieTalkie",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRVYS.GRA"
+  },
+  "projectile": {
+   "name": "projectile",
+   "cs": "Projektil",
+   "icon": {
+    "asset": "projectile",
+    "tilt": 20,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRPROJEK.GRA"
+  },
+  "detonator": {
+   "name": "detonator",
+   "cs": "Rozbuška",
+   "icon": {
+    "asset": "detonator",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRROZB.GRA"
+  },
+  "dynamite": {
+   "name": "dynamite",
+   "cs": "Dynamit",
+   "icon": {
+    "asset": "dynamite",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRDYNA.GRA"
+  },
+  "navCircuit": {
+   "name": "nav circuit",
+   "cs": "Nav. obvod",
+   "icon": {
+    "asset": "navCircuit",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRNAV.GRA"
+  },
+  "fuse": {
+   "name": "fuse",
+   "cs": "Pojistka",
+   "icon": {
+    "asset": "fuse",
+    "tilt": 20,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRPOJ.GRA"
   }
  },
  "robots": {
@@ -14024,6 +14094,29 @@ window.C28_CONFIG = {
        [
         4,
         4
+       ]
+      ]
+     },
+     {
+      "id": "stoneWall",
+      "name": "Stone wall",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Filler role (deep terrain art and the fill behind rock cliffs). A rectangular mass of the rock cliff boulders, sized w and h in cells, so the rock masses read as stone, not crate blocks (user, 2026-11-03).",
+      "states": [],
+      "refs": [],
+      "sizes": [
+       [
+        6,
+        6
+       ],
+       [
+        3,
+        8
        ]
       ]
      },
