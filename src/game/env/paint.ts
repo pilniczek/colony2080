@@ -13,6 +13,7 @@ export interface Size {
   py?: number;
   rung?: number;
   at?: readonly [number, number];
+  region?: (col: number, row: number) => boolean;
 }
 
 export interface EnvAsset {

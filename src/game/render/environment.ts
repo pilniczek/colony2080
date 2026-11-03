@@ -405,6 +405,8 @@ function scenery(e: Env, name: string, items: Scenery[]): void {
 
 const wallBox = ({ cell }: Env, r: CellRect): Rect => ({ x: r.col * cell, y: r.row * cell, w: r.w * cell, h: r.h * cell });
 
+const deepBox = ({ cell }: Env, r: CellRect): Rect => ({ x: (r.col - 1) * cell, y: (r.row - 1) * cell, w: (r.w + 2) * cell, h: (r.h + 2) * cell });
+
 const runBox = ({ cell }: Env, r: Run): Rect => ({ x: r.col * cell, y: r.row * cell, w: r.w * cell, h: cell });
 
 interface DrawnTerrain {
@@ -426,12 +428,35 @@ const drawnTerrains = new WeakMap<SandboxWorld, DrawnTerrain>();
 
 const DEEP_CELLS = 3;
 
-function deepRects({ grid }: SandboxWorld): CellRect[] {
+function deepTest({ grid }: SandboxWorld): (col: number, row: number) => boolean {
   const solid = (col: number, row: number): boolean => col < 0 || row < 0 || col >= grid.width || row >= grid.height || grid.wall(col, row);
   const deep = (col: number, row: number): boolean => {
     for (let r = row - DEEP_CELLS; r <= row + DEEP_CELLS; r++) for (let c = col - DEEP_CELLS; c <= col + DEEP_CELLS; c++) if (!solid(c, r)) return false;
     return true;
   };
+  const known = new Int8Array(grid.width * grid.height);
+  return (col, row) => {
+    if (col < 0 || row < 0 || col >= grid.width || row >= grid.height) return deep(col, row);
+    const i = row * grid.width + col;
+    if (!known[i]) known[i] = deep(col, row) ? 1 : -1;
+    return known[i] === 1;
+  };
+}
+
+const deepTests = new WeakMap<SandboxWorld, (col: number, row: number) => boolean>();
+
+const deepAtOf = (world: SandboxWorld): ((col: number, row: number) => boolean) => {
+  let test = deepTests.get(world);
+  if (!test) {
+    test = deepTest(world);
+    deepTests.set(world, test);
+  }
+  return test;
+};
+
+function deepRects(world: SandboxWorld): CellRect[] {
+  const { grid } = world;
+  const deep = deepTest(world);
   const rects: CellRect[] = [];
   let open: CellRect[] = [];
   for (let row = 0; row < grid.height; row++) {
@@ -512,7 +537,7 @@ function terrain(e: Env): void {
   for (const r of pick(e, "walls", walls, wallBox)) {
     if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   }
-  if (art.deep) for (const r of pick(e, "deep", deep, wallBox)) if (near(e, wallBox(e, r))) put(e, art.deep, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell), at: [r.col * TILE, (r.row + r.h) * TILE] });
+  if (art.deep) for (const r of pick(e, "deep", deep, deepBox)) if (near(e, deepBox(e, r))) put(e, art.deep, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell), at: [r.col * TILE, (r.row + r.h) * TILE], region: deepAtOf(e.world) });
   for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "ledges", ledges, runBox)) {
     if (near(e, runBox(e, r))) for (const [asset, run] of ledgeParts(e.world, r)) put(e, asset, run.col * cell, run.row * cell, 0, { w: px(e, run.w * cell) });

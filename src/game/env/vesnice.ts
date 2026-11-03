@@ -1,6 +1,6 @@
 import { G } from "./grime";
 import { wireBox } from "./machines";
-import { P, type EnvAsset } from "./paint";
+import { P, TILE, type EnvAsset } from "./paint";
 
 const { rng, color, flat, glow, stroke, shape, line, curve, disc, rivets, hazard, text, path, box, poly, cylV, cylH, slab, tones } = P;
 const { PI, sin, cos, min, max, floor, ceil, round, abs } = Math;
@@ -1724,12 +1724,64 @@ const WALL_STONES: readonly (readonly [number, number, number, number])[] = [
 
 const wrap = (i: number, n: number): number => ((i % n) + n) % n;
 
-const stoneField = (ctx: Ctx, x: number, y: number, w: number, h: number): void => {
+const EDGE_BAND = 10;
+const CORNERS = [[-1, -1], [1, -1], [1, 1], [-1, 1]] as const;
+const RING = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]] as const;
+
+type Region = (col: number, row: number) => boolean;
+
+const fieldShape = (x: number, y: number, w: number, h: number, region?: Region): { clip: (ctx: Ctx) => void; base: (ctx: Ctx) => void; keeps: (cx: number, cy: number, rx: number, ry: number) => boolean } => {
+  if (!region) {
+    const box = (ctx: Ctx): void => {
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+    };
+    return { clip: box, base: box, keeps: () => true };
+  }
+  const c0 = round(x / TILE);
+  const r0 = round(y / TILE);
+  const c1 = c0 + round(w / TILE);
+  const r1 = r0 + round(h / TILE);
+  const inRect = (c: number, r: number): boolean => c >= c0 && c < c1 && r >= r0 && r < r1;
+  const ring = new Set<string>();
+  const cells: [number, number, number, number, number, number][] = [];
+  for (let r = r0; r < r1; r++) {
+    for (let c = c0; c < c1; c++) {
+      const open = (dc: number, dr: number): number => (region(c + dc, r + dr) ? 0 : EDGE_BAND);
+      cells.push([c, r, open(-1, 0), open(0, -1), open(1, 0), open(0, 1)]);
+      for (const [dc, dr] of RING) if (!inRect(c + dc, r + dr) && !region(c + dc, r + dr)) ring.add(`${c + dc},${r + dr}`);
+    }
+  }
+  const allowed = (px: number, py: number): boolean => {
+    const c = floor(px / TILE);
+    const r = floor(py / TILE);
+    return region(c, r) || ring.has(`${c},${r}`);
+  };
+  return {
+    clip: (ctx) => {
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      for (const key of ring) {
+        const [c, r] = key.split(",").map(Number) as [number, number];
+        ctx.rect(c * TILE, r * TILE, TILE, TILE);
+      }
+    },
+    base: (ctx) => {
+      ctx.beginPath();
+      for (const [c, r, left, top, right, bottom] of cells) ctx.rect(c * TILE + left, r * TILE + top, TILE - left - right, TILE - top - bottom);
+    },
+    keeps: (cx, cy, rx, ry) => region(floor(cx / TILE), floor(cy / TILE)) && CORNERS.every(([sx, sy]) => allowed(cx + sx * rx * 1.2, cy + sy * ry * 1.2)),
+  };
+};
+
+const stoneField = (ctx: Ctx, x: number, y: number, w: number, h: number, region?: Region): void => {
+  const field = fieldShape(x, y, w, h, region);
   ctx.save();
-  ctx.beginPath();
-  ctx.rect(x, y, w, h);
+  field.clip(ctx);
   ctx.clip();
-  flat(ctx, x, y, w, h, BOULDER[1]);
+  field.base(ctx);
+  ctx.fillStyle = BOULDER[1];
+  ctx.fill();
   WALL_STONES.forEach(([c, rx, ry, odds], k) => {
     const pad = rx * 1.4;
     const i0 = floor((x - pad) / c);
@@ -1741,21 +1793,23 @@ const stoneField = (ctx: Ctx, x: number, y: number, w: number, h: number): void 
       if (r() > odds) return;
       const cx = cx0 + c / 2 + (r() - 0.5) * c * 0.4;
       const cy = cy0 + c / 2 + (r() - 0.5) * c * 0.4;
-      cliffStone(ctx, cx, cy, rx * (0.8 + r() * 0.4), ry * (0.8 + r() * 0.4), s + 1);
+      const sx = rx * (0.8 + r() * 0.4);
+      const sy = ry * (0.8 + r() * 0.4);
+      if (field.keeps(cx, cy, sx, sy)) cliffStone(ctx, cx, cy, sx, sy, s + 1);
     }, pad);
   });
-  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), STONE_SEED + 1, 0.7);
+  G.grain(ctx, () => field.base(ctx), STONE_SEED + 1, 0.7);
   ctx.restore();
 };
 
 export const stoneWall: EnvAsset = {
   id: "stoneWall",
   box: [0, -144, 144, 0],
-  draw(ctx, _state, _t, { w = 144, h = 144, at = [0, 0] } = {}) {
+  draw(ctx, _state, _t, { w = 144, h = 144, at = [0, 0], region } = {}) {
     const [ax, ay] = at;
     ctx.save();
     ctx.translate(-ax, -ay);
-    stoneField(ctx, ax, ay - h, w, h);
+    stoneField(ctx, ax, ay - h, w, h, region);
     ctx.restore();
   },
 };
