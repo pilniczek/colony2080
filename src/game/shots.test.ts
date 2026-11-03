@@ -7,7 +7,9 @@ import { bonusAmmo } from "./hero/hero";
 import { createRigs, heroLook, spikeUnit } from "./hero/look";
 import { FLYER_HALF, type Enemy } from "./level/enemy";
 import { resetWorld } from "./level/sandboxLevel";
-import { fireBeam, heroMuzzle, SPARK_LIFE, toasterSight } from "./shots";
+import { BONUS_LOW, BONUS_LOW_TEXT, fireBeam, heroMuzzle, SPARK_LIFE, toasterSight, warnLowBonus } from "./shots";
+import { loadMesto } from "./level/mesto";
+import { loadMission } from "./level/missions";
 import { toasterHolds } from "./robot/toaster";
 
 const TARGET_TOP = 14 - 1.51;
@@ -605,5 +607,40 @@ describe("toaster fireball", () => {
     expect(bonusAmmo(g.world, cfg)).toBe(250);
     g.world.bonus = "blaster";
     expect(bonusAmmo(g.world, cfg)).toBe(cfg.blaster.ammo);
+  });
+});
+
+describe("low bonus weapon ammo warning", () => {
+  const mesto = (blaster: number) => {
+    const world = loadMesto();
+    const hero = { blaster } as Game["hero"];
+    return { world, hero };
+  };
+
+  it("warns once when the ammo drops below the limit while a beam-only obstacle stands", () => {
+    const { world, hero } = mesto(cfg.blaster.lowWarn);
+    warnLowBonus(world, hero, cfg);
+    expect(world.flags.has(BONUS_LOW)).toBe(false);
+    hero.blaster = cfg.blaster.lowWarn - 1;
+    warnLowBonus(world, hero, cfg);
+    expect(world.subtitle?.text).toBe(BONUS_LOW_TEXT.blaster);
+    world.subtitle = null;
+    warnLowBonus(world, hero, cfg);
+    expect(world.subtitle).toBeNull();
+  });
+
+  it("warns with the toaster limit and text when the toaster is held", () => {
+    const world = loadMission("vesnice");
+    const hero = { blaster: cfg.toaster.lowWarn - 1 } as Game["hero"];
+    world.bonus = "toaster";
+    warnLowBonus(world, hero, cfg);
+    expect(world.subtitle?.text).toBe(BONUS_LOW_TEXT.toaster);
+  });
+
+  it("stays quiet once every beam-only obstacle is down", () => {
+    const { world, hero } = mesto(10);
+    for (const p of world.props) if (p.shootable?.by === "beam") p.state = p.shootable.state;
+    warnLowBonus(world, hero, cfg);
+    expect(world.flags.has(BONUS_LOW)).toBe(false);
   });
 });

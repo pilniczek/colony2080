@@ -7,7 +7,7 @@ import { approachFilms, resetWorld, updateLift, type SandboxWorld } from "./leve
 import { updateEnemy } from "./level/enemy";
 import { cue } from "./sound/cues";
 import { explode, siren, spark } from "./sound/triggers";
-import { ageSparks, fireBeam, fireEnemy, fireGuards, fireShots, landPunches, stepProjectiles } from "./shots";
+import { ageSparks, fireBeam, fireEnemy, fireGuards, fireShots, landPunches, stepProjectiles, warnLowBonus } from "./shots";
 
 export const SUBTITLE_MS = 8000;
 export const SUBTITLE_FADE_MS = 1500;
@@ -60,6 +60,7 @@ export function stepWorld(
   }
   fireShots(world, hero, events, clips, cfg);
   fireBeam(world, hero, events, clips, cfg, dt);
+  warnLowBonus(world, hero, cfg);
   landPunches(world, hero, events, cfg);
   worldSounds(world, hero, events, dt);
   if (events.some((e) => e.kind === "respawned")) resetWorld(world, cfg);

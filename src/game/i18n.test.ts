@@ -7,6 +7,7 @@ import { itemName, knowsCs, loadLang, saveLang, tr } from "./i18n";
 import { ITEMS } from "./items";
 import { loadMesto } from "./level/mesto";
 import { showItem, pickUp } from "./level/sandboxLevel";
+import { BONUS_LOW_TEXT } from "./shots";
 import { hintFor } from "./level/tasks";
 
 const texts = (value: unknown): string[] => {
@@ -19,6 +20,10 @@ describe("i18n", () => {
   it("has Czech for every mission 1 subtitle, hint and quest", () => {
     const missing = [...texts(tasksJson), ...texts(worldJson), ...texts(mapJson)].filter((text) => !knowsCs(text));
     expect(missing).toEqual([]);
+  });
+
+  it("has Czech for the mission 1 low E-Blaster ammo warning", () => {
+    expect(knowsCs(BONUS_LOW_TEXT.blaster)).toBe(true);
   });
 
   it("has Czech for every bonus pickup text", () => {

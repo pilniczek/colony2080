@@ -24,7 +24,7 @@ describe("loadMovement", () => {
     expect(cfg.jump.walkHeight).toBe(0.47);
     expect(cfg.energy).toEqual({ max: 100, hit: 1, shields: 0 });
     expect(cfg.deathSlide).toBe(0.45);
-    expect(cfg.blaster).toEqual({ tickHz: 32, damage: 0.47, ammo: 400 });
+    expect(cfg.blaster).toEqual({ tickHz: 32, damage: 0.47, ammo: 400, lowWarn: 100 });
   });
 
   it("names a missing blaster tick rate", () => {

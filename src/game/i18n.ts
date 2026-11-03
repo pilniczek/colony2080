@@ -14,6 +14,7 @@ const TEMPLATES: [RegExp, (item: string) => string][] = [
 ];
 
 const CS: Record<string, string> = {
+  "E-Blaster ammo is running low. Save it: some obstacles fall only to the E-Blaster.": "Docházejí náboje do E-Blasteru. Šetři je: některé překážky zničí jen E-Blaster.",
   "Find the bar man. He knows the way out.": "Najdi barmana. Ví, kudy ven.",
   "Find a way out of the city.": "Najdi cestu ven z města.",
   "Find the bar man.": "Najdi barmana.",

@@ -304,6 +304,20 @@ export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clip
   world.beam = { x, y, end, facing: h.facing, tick: Math.floor((h.fireTime ?? 0) * cfg.blaster.tickHz + BEAM_EPS) };
 }
 
+export const BONUS_LOW = "flag:bonusLow";
+export const BONUS_LOW_TEXT: Record<SandboxWorld["bonus"], string> = {
+  blaster: "E-Blaster ammo is running low. Save it: some obstacles fall only to the E-Blaster.",
+  toaster: "Toaster ammo is running low. Save it: some obstacles fall only to the Toaster.",
+};
+
+const beamOnlyLeft = (world: SandboxWorld): boolean => world.props.some((p) => p.shootable?.by === "beam" && p.state !== p.shootable.state);
+
+export function warnLowBonus(world: SandboxWorld, h: Hero, cfg: MovementConfig): void {
+  if (h.blaster === null || h.blaster >= cfg[world.bonus].lowWarn || world.flags.has(BONUS_LOW) || !beamOnlyLeft(world)) return;
+  world.flags.add(BONUS_LOW);
+  say(world, BONUS_LOW_TEXT[world.bonus]);
+}
+
 export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], cfg: MovementConfig): void {
   for (const e of events) {
     if (e.kind !== "punch") continue;
