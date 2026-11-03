@@ -94,8 +94,9 @@ const podFrame = (ctx: CanvasRenderingContext2D, seed: number): void => {
     G.grain(ctx, G.rectRegion(ctx, x, -58, 6, 50), seed + 2 + x, 0.6);
     within(ctx, [[x, -58, 6, 50]], () => G.drips(ctx, x, -58, 6, 24, seed + 3 + x, 1));
   }
-  G.grain(ctx, G.rectRegion(ctx, 0, -8, 48, 8), seed + 4, 0.6);
-  G.dirt(ctx, 0, -8, 48, 8, seed + 5, 0.7);
+  const base = [[0, -6, 48, 6], [2, -8, 44, 2.4]] as const;
+  G.grain(ctx, G.rectsRegion(ctx, base), seed + 4, 0.6);
+  within(ctx, base, () => G.dirt(ctx, 0, -8, 48, 8, seed + 5, 0.7));
   G.chips(ctx, 2, -8, 44, seed + 6);
 };
 
@@ -186,7 +187,7 @@ const brokenTeleport: EnvAsset = {
     G.scorch(ctx, shell, 2160);
     ctx.restore();
     G.grain(ctx, G.polyRegion(ctx, shell), 2161, 0.7);
-    G.rim(ctx, shell, 2162, "r3", "hole");
+    G.inside(ctx, G.polyRegion(ctx, shell), () => G.rim(ctx, shell, 2162, "r3", "hole"));
     for (const [x, top] of [[3, -38], [39, -34]] as Pt[]) {
       poly(ctx, [[x, -6], [x, top + 3], [x + 2, top], [x + 4, top + 4], [x + 6, top + 1], [x + 6, -6]], "steel", 2, { dir: [1, 0] });
       cylV(ctx, x - 1, -20, 8, 3, "chrome", 2);
@@ -327,8 +328,10 @@ const roadWheel = (ctx: CanvasRenderingContext2D, x: number, seed: number): void
   ellipse(ctx, x, y, 4.2, 4.2, "m2", "mLine");
   ellipse(ctx, x, y, 1.8, 1.8, "m1", "mLine");
   if (!simple()) for (let i = 0; i < 6; i++) flat(ctx, x + cos((i / 6) * PI * 2) * 3 - 0.4, y + sin((i / 6) * PI * 2) * 3 - 0.4, 0.8, 0.8, "m3");
-  G.rustPatch(ctx, x + 1.6, y - 2.4, 1.6, 1, seed);
-  G.dirt(ctx, x - 5.6, y - 2, 11.2, 7.6, seed + 1, 0.7);
+  G.inside(ctx, G.polyRegion(ctx, circle(x, y, 5.6)), () => {
+    G.rustPatch(ctx, x + 1.6, y - 2.4, 1.6, 1, seed);
+    G.dirt(ctx, x - 5.6, y - 2, 11.2, 7.6, seed + 1, 0.7);
+  });
 };
 
 const track = (ctx: CanvasRenderingContext2D): void => {
@@ -351,8 +354,10 @@ const track = (ctx: CanvasRenderingContext2D): void => {
   disc(ctx, x1 - TRACK_R, -TRACK_R, 1.6, "m1", "mLine");
   for (const x of ROAD_WHEELS) roadWheel(ctx, x, 2269 + x);
   G.grain(ctx, G.polyRegion(ctx, belt), 2280, 0.8);
-  G.dirt(ctx, x0, -h, x1 - x0, h, 2281, 0.9);
-  G.rustPatch(ctx, 92, -11.4, 3, 0.8, 2282);
+  G.inside(ctx, G.polysRegion(ctx, [belt, circle(x0 + TRACK_R, -TRACK_R, TRACK_R), circle(x1 - TRACK_R, -TRACK_R, TRACK_R)]), () => {
+    G.dirt(ctx, x0, -h, x1 - x0, h, 2281, 0.9);
+    G.rustPatch(ctx, 92, -11.4, 3, 0.8, 2282);
+  });
 };
 
 const CANNON_BODY: Pt[] = [[56, -16], [60, -48], [76, -60], [138, -60], [148, -48], [146, -16]];
@@ -377,8 +382,9 @@ const cannon: EnvAsset = {
     if (!simple()) for (const x of [2, 5]) flat(ctx, x, -45.4, 1.2, 7.8, "hole");
     cylH(ctx, 40, -47, 8, 11, "chrome", 2);
     cylH(ctx, 50, -36, 30, 4, "steel", 2);
-    G.grain(ctx, G.rectRegion(ctx, 0, -47, 72, 11), 2262, 0.5);
-    G.rustPatch(ctx, 30, -43, 3, 1.4, 2263);
+    const barrel = [[6, -45, 66, 7], [0, -46.6, 9, 10.2], [40, -47, 8, 11], [50, -36, 30, 4]] as const;
+    G.grain(ctx, G.rectsRegion(ctx, barrel), 2262, 0.5);
+    within(ctx, barrel, () => G.rustPatch(ctx, 30, -43, 3, 1.4, 2263));
     ctx.restore();
     poly(ctx, CANNON_BODY, "steel", 1);
     poly(ctx, [[76, -60], [138, -60], [136, -54], [80, -54]], "steel", 2, { line: false });
@@ -398,7 +404,7 @@ const cannon: EnvAsset = {
     ctx.restore();
     G.rustPatch(ctx, 128, -32, 5, 2.5, 2266);
     G.chips(ctx, 76, -60, 62, 2267);
-    G.dirt(ctx, 56, -48, 92, 32, 2268, 0.3);
+    G.inside(ctx, G.polyRegion(ctx, CANNON_BODY), () => G.dirt(ctx, 56, -48, 92, 32, 2268, 0.3));
     if (state === 1 && age < 0.5) {
       const k = 1 - age * 2;
       glow(ctx, -6, -42, 18 * k + 6, "a2", 0.8 * k);
@@ -431,13 +437,14 @@ const energyBarrier: EnvAsset = {
     box(ctx, 0, -96, 24, 10, "steel", 1);
     box(ctx, 6, -86, 12, 3, "chrome", 1);
     flat(ctx, 2, -94, 20, 2, "hazard", "yLine");
-    G.grain(ctx, G.rectRegion(ctx, 0, -96, 24, 13), 2240, 0.6);
+    G.grain(ctx, G.rectsRegion(ctx, [[0, -96, 24, 10], [6, -86, 12, 3]]), 2240, 0.6);
     G.chips(ctx, 0, -96, 24, 2241);
     within(ctx, [[0, -96, 24, 10], [6, -86, 12, 3]], () => G.drips(ctx, 0, -92, 24, 10, 2242, 2));
     box(ctx, 4, -4, 16, 4, "steel", 1);
     box(ctx, 8, -6, 8, 2.4, "chrome", 1);
-    G.grain(ctx, G.rectRegion(ctx, 4, -6, 16, 6), 2243, 0.6);
-    G.dirt(ctx, 4, -6, 16, 6, 2244, 0.7);
+    const foot = [[4, -4, 16, 4], [8, -6, 8, 2.4]] as const;
+    G.grain(ctx, G.rectsRegion(ctx, foot), 2243, 0.6);
+    within(ctx, foot, () => G.dirt(ctx, 4, -6, 16, 6, 2244, 0.7));
     lamp(ctx, 12, -84, "plasma", on);
   },
 };
@@ -488,8 +495,9 @@ const anchor = (ctx: CanvasRenderingContext2D, x: number, flip: boolean): void =
   poly(ctx, [[0, 7], [TILE, 7], [TILE - 4, 12], [8, 12]], "steel", 0);
   box(ctx, 2, -3, 8, 3, "steel", 1);
   if (!simple()) rivets(ctx, 0, 3.5, TILE, 6, "m3");
-  G.grain(ctx, G.rectRegion(ctx, 0, -3, TILE, 15), 2300 + x, 0.6);
-  within(ctx, [[0, 0, TILE, 7], [8, 7, TILE - 12, 5]], () => G.drips(ctx, 0, 3, TILE, 9, 2301 + x, 2));
+  const body: Pt[][] = [rectPts(0, 0, TILE, 7), [[0, 7], [TILE, 7], [TILE - 4, 12], [8, 12]], rectPts(2, -3, 8, 3)];
+  G.grain(ctx, G.polysRegion(ctx, body), 2300 + x, 0.6);
+  G.inside(ctx, G.polysRegion(ctx, body), () => G.drips(ctx, 0, 3, TILE, 9, 2301 + x, 2));
   G.chips(ctx, 0, 0, TILE, 2302 + x);
   ctx.restore();
 };
@@ -504,13 +512,17 @@ const powerBridge: EnvAsset = {
       box(ctx, TILE, 0.4, 240, 2.6, "chrome", 2);
       if (!simple()) for (let x = TILE + 12; x < 264; x += 24) flat(ctx, x, 0.8, 1, 1.6, "c0");
       G.grain(ctx, G.rectRegion(ctx, TILE, 0.4, 240, 2.6), 2310, 0.5);
-      for (const x of [62, 150, 221]) G.rustPatch(ctx, x, 1.7, 3, 0.9, 2311 + x);
+      within(ctx, [[TILE, 0.4, 240, 2.6]], () => {
+        for (const x of [62, 150, 221]) G.rustPatch(ctx, x, 1.7, 3, 0.9, 2311 + x);
+      });
       return;
     }
     poly(ctx, [[TILE, 0.4], [TILE + 10, 1.6], [TILE + 9, 3.4], [TILE, 3]], "chrome", 1);
     poly(ctx, [[264, 0.4], [254, 2.8], [255, 4.2], [264, 3]], "chrome", 1);
-    G.rustPatch(ctx, TILE + 4, 2, 2.5, 1, 2312);
-    G.rustPatch(ctx, 260, 2, 2.5, 1, 2313);
+    G.inside(ctx, G.polysRegion(ctx, [[[TILE, 0.4], [TILE + 10, 1.6], [TILE + 9, 3.4], [TILE, 3]], [[264, 0.4], [254, 2.8], [255, 4.2], [264, 3]]]), () => {
+      G.rustPatch(ctx, TILE + 4, 2, 2.5, 1, 2312);
+      G.rustPatch(ctx, 260, 2, 2.5, 1, 2313);
+    });
   },
 };
 
@@ -850,7 +862,7 @@ const toaster: EnvAsset = {
     box(ctx, 10, -7, 11.6, 2.8, "steel", 1);
     for (let x = 11.2; x < 21; x += simple() ? 3 : 1.5) flat(ctx, x, -7, 0.6, 2.8, "a1");
     box(ctx, 21.6, -7.6, 1.6, 4, "chrome", 2, { vertical: true });
-    G.grain(ctx, G.rectRegion(ctx, 0.6, -8, 22.6, 4.8), 2340, 0.4);
+    G.grain(ctx, G.rectsRegion(ctx, [[0.6, -8, 9.4, 4.8], [10, -7, 11.6, 2.8], [21.6, -7.6, 1.6, 4]]), 2340, 0.4);
     G.chips(ctx, 0.6, -8, 9.4, 2341);
   },
 };
