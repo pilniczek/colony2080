@@ -183,6 +183,8 @@ Saves store a 96 px JPEG of the game window. `main` mode copies `#game`. Worker 
 
 Everything `paintFrame` reaches runs in a worker, so drawing code never calls `document`. Offscreen canvases come from `surface()` / `context2d()` (`engine/render/surface.ts`: `OffscreenCanvas`, else a DOM canvas for tests and old browsers). Debug overlays take the device pixel ratio as an argument.
 
+Every mode, the main thread too, uses `OffscreenCanvas`, so all modes draw the same pixels. `OffscreenCanvas` rasterises some gradients and stretched strips a few pixels differently from a DOM canvas, so the spike film caches (`spikes/shared/cutscenes.js` `surface`, `spikes/shared/robot-view.js`) use it too, and `npm run test:visual` compares like with like.
+
 ## Speed
 
 Budget per frame at 30 fps: 33 ms. Measured with Playwright (`busyPerFrame` traces and rAF frame times), production build served by `vite preview`, game window 1366 x 768, hero running through 14 spots of mesto, CPU slowed with `Emulation.setCPUThrottlingRate`.
