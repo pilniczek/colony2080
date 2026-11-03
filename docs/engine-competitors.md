@@ -106,4 +106,18 @@ flowchart TD
 | 6 | Auto fallback on slow frames | Excalibur | If `gl` mode runs at or under 20 fps for 100 frames, restart the painter in `worker` mode. | Guards against slow or buggy GPU drivers (Construct's WebGPU and worker bug history). | Needs a painter restart path like the worker failure one. |
 | 7 | GL instanced figures | Pixi, Excalibur, Phaser `SpriteGPULayer` | Tessellate each part once into a vertex buffer and draw all figures in the WebGL2 layer with per-instance matrix and colour. | Largest on GPU. | Big rewrite: tone bands, outlines and hooks in shaders; `gl` mode only, no help without a GPU. Do only if 1 and 2 fall short. |
 
+### Bitmap quality on high-DPI screens
+
+Baking figures into bitmaps (tweaks 1 and 2) loses no sharpness on a high-DPI screen if the bitmap is drawn 1:1 in device pixels. Prop sprites already work this way (`putSprite` in `render/environment.ts`): the key holds the scale from the context transform, which includes the device pixel ratio, and the sprite is drawn with an identity transform at a rounded device pixel. The cached map tiles follow the same rule and match direct drawing pixel for pixel (`docs/rendering.md` Map art tiles).
+
+| Risk | When it happens | Fix |
+|---|---|---|
+| Blur from scaling | the bitmap was made at another scale than it is drawn at (zoom, resize, DPR change) | key by device scale (`Math.fround`, as tiles); rebuild on change, never stretch an old bitmap |
+| Position snapping | a direct vector draw antialiases at a fractional pixel; a bitmap drawn at a rounded pixel moves in whole device pixels | at DPR 2 one step is half a CSS pixel, finer than on a DPR 1 screen; if still visible, key by a quarter pixel offset (4x memory) |
+| Soft edges on rotation | tweak 2 only: part bitmaps are rotated with their joints, so edges are resampled | raster parts at 2x and draw them scaled down (Excalibur `quality`); tweak 1 has no rotation, the pose is baked |
+| Memory | bitmap size grows with DPR squared | **[inferred]** at the reference screen a cell is about 64 CSS px, so a hero sprite is about 130 x 130 CSS px: about 70 KB at DPR 1, 270 KB at DPR 2, 600 KB at DPR 3; an LRU of 256 sprites is about 70 MB at DPR 2. Cap the cache by bytes, not count |
+| First-draw cost | every new pose still draws as vectors once, then the copy | warm common poses (idle, walk cycle) while the loop is paused, like films (`whenIdle`) |
+
+So high-DPI screens cost memory and first-draw time, not sharpness. A high-DPI screen also makes vector drawing slower in the first place (the `main` mode no-GPU row at DPR 2 runs at 25 fps against 59 at DPR 1), so these screens gain the most from the cache.
+
 Not worth it now: WebGPU (Pixi and Construct users report no gain or losses on some GPUs; our GPU rows already hold 60 fps), Construct render cells (our tile bucketing covers the static case), moving simulation into the worker (Construct's input and timing bugs).
