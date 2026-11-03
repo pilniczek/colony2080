@@ -12,6 +12,7 @@ export interface Size {
   top?: number;
   py?: number;
   rung?: number;
+  at?: readonly [number, number];
 }
 
 export interface EnvAsset {

@@ -408,7 +408,7 @@ function scenery(e: Env, name: string, items: Scenery[]): void {
   for (const s of pick(e, name, items, sceneryBox)) {
     if (!near(e, sceneryBox(e, s))) continue;
     const [x, y] = sceneryAt(e, s);
-    const size = s.w === undefined && s.h === undefined ? undefined : { w: s.w && s.w * TILE, h: s.h && s.h * TILE };
+    const size = s.w === undefined && s.h === undefined ? undefined : { w: s.w && s.w * TILE, h: s.h && s.h * TILE, at: [s.x * TILE, (s.y ?? e.world.spawn[1]) * TILE] as const };
     if (!s.flip) {
       put(e, s.asset, x, y, s.state ?? 0, size);
       continue;
@@ -530,7 +530,7 @@ function terrain(e: Env): void {
   for (const r of pick(e, "walls", walls, wallBox)) {
     if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   }
-  if (art.deep) for (const r of pick(e, "deep", deep, wallBox)) if (near(e, wallBox(e, r))) put(e, art.deep, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
+  if (art.deep) for (const r of pick(e, "deep", deep, wallBox)) if (near(e, wallBox(e, r))) put(e, art.deep, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell), at: [r.col * TILE, (r.row + r.h) * TILE] });
   for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "ledges", ledges, runBox)) {
     if (near(e, runBox(e, r))) for (const [asset, run] of ledgeParts(e.world, r)) put(e, asset, run.col * cell, run.row * cell, 0, { w: px(e, run.w * cell) });

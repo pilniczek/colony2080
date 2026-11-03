@@ -1750,7 +1750,7 @@ const cliffStone = (ctx: Ctx, cx: number, cy: number, rx: number, ry: number, se
   ctx.restore();
 };
 
-const rockMass = (ctx: Ctx, w: number, h: number, base: Pt[], edgeAt: (x: number) => number, seed: number, sides = false): void => {
+const rockMass = (ctx: Ctx, w: number, h: number, base: Pt[], edgeAt: (x: number) => number, seed: number): void => {
   shape(ctx, base, BOULDER[1]);
   STONES.forEach(([cw, ch, rx, ry, odds], k) => {
     eachCell(ctx, 0, -h, w, h, cw, ch, (x, y, i, j) => {
@@ -1762,7 +1762,6 @@ const rockMass = (ctx: Ctx, w: number, h: number, base: Pt[], edgeAt: (x: number
       const sx = rx * (0.75 + r() * 0.5);
       const sy = ry * (0.75 + r() * 0.5);
       if (cy - sy * (rx > 20 ? 0.8 : 0.3) < edgeAt(cx) || cy + sy * 0.2 > 0) return;
-      if (sides && (cx - sx * 0.7 < 0 || cx + sx * 0.7 > w)) return;
       cliffStone(ctx, cx, cy, sx, sy, s + 1);
     }, rx * 1.4 + cw / 2);
   });
@@ -1784,11 +1783,50 @@ export const rockCliff: EnvAsset = {
   },
 };
 
+export const STONE_TILE = 192;
+const STONE_SEED = 6100;
+const WALL_STONES: readonly (readonly [number, number, number, number])[] = [
+  [12, 5, 3.6, 0.7],
+  [24, 10, 7.5, 0.75],
+  [48, 19, 14.5, 0.55],
+  [96, 32, 25, 0.5],
+];
+
+const wrap = (i: number, n: number): number => ((i % n) + n) % n;
+
+const stoneField = (ctx: Ctx, x: number, y: number, w: number, h: number): void => {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  flat(ctx, x, y, w, h, BOULDER[1]);
+  WALL_STONES.forEach(([c, rx, ry, odds], k) => {
+    const pad = rx * 1.4;
+    const i0 = floor((x - pad) / c);
+    const j0 = floor((y - pad) / c);
+    const n = STONE_TILE / c;
+    eachCell(ctx, i0 * c, j0 * c, ceil((x + w + pad) / c) * c - i0 * c, ceil((y + h + pad) / c) * c - j0 * c, c, c, (cx0, cy0, i, j) => {
+      const s = cellSeed(STONE_SEED + k * 7919, wrap(i0 + i, n), wrap(j0 + j, n));
+      const r = rng(s);
+      if (r() > odds) return;
+      const cx = cx0 + c / 2 + (r() - 0.5) * c * 0.4;
+      const cy = cy0 + c / 2 + (r() - 0.5) * c * 0.4;
+      cliffStone(ctx, cx, cy, rx * (0.8 + r() * 0.4), ry * (0.8 + r() * 0.4), s + 1);
+    }, pad);
+  });
+  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), STONE_SEED + 1, 0.7);
+  ctx.restore();
+};
+
 export const stoneWall: EnvAsset = {
   id: "stoneWall",
   box: [0, -144, 144, 0],
-  draw(ctx, _state, _t, { w = 144, h = 144 } = {}) {
-    rockMass(ctx, w, h, [[0, 0], [0, -h], [w, -h], [w, 0]], () => -h, 6100 + round(w * 7 + h * 3), true);
+  draw(ctx, _state, _t, { w = 144, h = 144, at = [0, 0] } = {}) {
+    const [ax, ay] = at;
+    ctx.save();
+    ctx.translate(-ax, -ay);
+    stoneField(ctx, ax, ay - h, w, h);
+    ctx.restore();
   },
 };
 
