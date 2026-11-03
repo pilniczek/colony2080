@@ -13090,7 +13090,7 @@ window.C28_CONFIG = {
       "marker": 1,
       "task": "takeSmallKey",
       "sheet": "props",
-      "description": "Inventory item (record 1, shown as TORZO until picked). Opens the electric cabinet (marker 9) and is consumed there. Inventory art: open.",
+      "description": "Inventory item (record 1, shown as TORZO until picked). Opens the electric cabinet (marker 9) and is consumed there. Inventory art: open. Drawn with the mesto crane key art.",
       "states": [
        "on ground",
        "taken"
@@ -13362,7 +13362,7 @@ window.C28_CONFIG = {
       "marker": 8,
       "task": "takeProjectile",
       "sheet": "props",
-      "description": "Item record 3 (BEDNA) on floor 50, engine (109, 44) = map cell 115. Picking it renames it PROJEKTIL: \"Uvnitř bedny jsi našel projektil do děla\".",
+      "description": "Item record 3 (BEDNA) on floor 50, engine (109, 44) = map cell 115. Picking it renames it PROJEKTIL: \"Uvnitř bedny jsi našel projektil do děla\". Label: hazard stripe block and AMMO.",
       "states": [
        "on ground",
        "taken"
@@ -13528,7 +13528,7 @@ window.C28_CONFIG = {
       "marker": 12,
       "task": "fireCannon",
       "sheet": "machines",
-      "description": "Grey artillery gun on floor 41 pointing west, with a wooden watchtower behind it (art about map cells 33-43, rows 35-40; use window cells 31-38). \"Útočný kanón na hlídání hranice města\". With the projectile it blasts the barricade: map M24.",
+      "description": "Blue-grey artillery gun with rust drips and a hazard band along the body bottom on floor 41 pointing west, with a wooden watchtower behind it (art about map cells 33-43, rows 35-40; use window cells 31-38). \"Útočný kanón na hlídání hranice města\". With the projectile it blasts the barricade: map M24.",
       "states": [
        "idle",
        "firing"
@@ -14005,6 +14005,43 @@ window.C28_CONFIG = {
       ]
      },
      {
+      "id": "chainFence",
+      "name": "Chain-link fence",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Fence role. Same mesh fence panels between steel posts as mesto, with small grey sign plates; mesh: grey-green mesh between steel tube posts every 3 cells, top and bottom rails, grey sign plates with red bars; torn: rusty hole with wire ends. Sized w (cells 58-66 rows 20-22, 62-75 rows 38-40).",
+      "states": [
+       "chain-link, toxic sign",
+       "mesh, sign plate",
+       "mesh, torn"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1416,
+         480,
+         336,
+         96
+        ],
+        "caption": "map M21: fence on floor 23"
+       }
+      ],
+      "sizes": [
+       [
+        3,
+        2
+       ]
+      ]
+     },
+     {
       "id": "overheadPipeline",
       "name": "Overhead pipeline",
       "csName": null,
@@ -14038,6 +14075,42 @@ window.C28_CONFIG = {
       ]
      },
      {
+      "id": "pipeColumn",
+      "name": "Vertical pipe column",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Pipe role. Thick vertical pipe with ring joints, mesto concrete column; bronze: flanged ring joints every 2 cells, verdigris and rust, sized h (cell 60 rows 33-41, cell 85 rows 24-32).",
+      "states": [
+       "concrete",
+       "bronze"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1392,
+         768,
+         120,
+         240
+        ],
+        "caption": "map M21: pipe column"
+       }
+      ],
+      "sizes": [
+       [
+        1,
+        4
+       ]
+      ]
+     },
+     {
       "id": "storageTank",
       "name": "Riveted storage tank",
       "csName": null,
@@ -14045,8 +14118,11 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Machine role. Squat rust-brown riveted cylinder with a lid and hatch, a pipe stack with an amber lamp beside it (cells 124-130 rows 27-31).",
-      "states": [],
+      "description": "Machine role. Squat rust-brown riveted cylinder tanks with a lid and hatch, a pipe stack with lamps between them (cells 124-130 rows 27-31); horizontal: bronze tank on two steel legs with a hatch and a gauge on its face (cells 128-133 rows 37-40, 138-143 rows 28-31).",
+      "states": [
+       "two upright tanks, pipe stack",
+       "horizontal tank"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M21.png",
@@ -14061,18 +14137,32 @@ window.C28_CONFIG = {
          120
         ],
         "caption": "map M21: tanks"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         3048,
+         888,
+         192,
+         96
+        ],
+        "caption": "map M21: tank, floor 41"
        }
       ]
      },
      {
-      "id": "horizontalTank",
+      "id": "fuelTank",
       "name": "Horizontal tank",
       "csName": null,
       "interactive": false,
       "marker": null,
       "task": null,
-      "sheet": "machines",
-      "description": "Machine role. Bronze tank on two steel legs with curled end pipes, a hatch and a gauge (cells 128-133 rows 37-40, 138-143 rows 28-31).",
+      "sheet": "structures",
+      "description": "Horizontal bronze tank with curled end pipes on short legs (about 4 x 2 tiles) on floors 32 and 41; mesto fuelTank role, without the trefoil.",
       "states": [],
       "refs": [
        {
@@ -14287,39 +14377,6 @@ window.C28_CONFIG = {
       ]
      },
      {
-      "id": "bronzePipe",
-      "name": "Bronze pipe column",
-      "csName": null,
-      "interactive": false,
-      "marker": null,
-      "task": null,
-      "sheet": "structures",
-      "description": "Pipe role. Thick bronze vertical pipe with flanged ring joints every 2 cells, verdigris and rust, sized h (cell 60 rows 33-41, cell 85 rows 24-32).",
-      "states": [],
-      "refs": [
-       {
-        "path": "docs/research/gamedata/png/maps/map_M21.png",
-        "imgSize": [
-         3840,
-         1920
-        ],
-        "crop": [
-         1392,
-         768,
-         120,
-         240
-        ],
-        "caption": "map M21: pipe column"
-       }
-      ],
-      "sizes": [
-       [
-        1,
-        4
-       ]
-      ]
-     },
-     {
       "id": "latticeMast",
       "name": "Lattice column",
       "csName": null,
@@ -14383,42 +14440,6 @@ window.C28_CONFIG = {
       ]
      },
      {
-      "id": "villageFence",
-      "name": "Mesh fence",
-      "csName": null,
-      "interactive": false,
-      "marker": null,
-      "task": null,
-      "sheet": "structures",
-      "description": "Fence role. Grey-green mesh between steel tube posts every 3 cells, top and bottom rails, grey sign plates with red bars; torn: rusty hole with wire ends. Sized w (cells 58-66 rows 20-22, 62-75 rows 38-40).",
-      "states": [
-       "intact, sign plate",
-       "torn"
-      ],
-      "refs": [
-       {
-        "path": "docs/research/gamedata/png/maps/map_M21.png",
-        "imgSize": [
-         3840,
-         1920
-        ],
-        "crop": [
-         1416,
-         480,
-         336,
-         96
-        ],
-        "caption": "map M21: fence on floor 23"
-       }
-      ],
-      "sizes": [
-       [
-        2,
-        2
-       ]
-      ]
-     },
-     {
       "id": "ammoDepot",
       "name": "Ammo depot",
       "csName": null,
@@ -14426,7 +14447,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Wall role. Concrete pillars with sooted fire baskets on top, AMMO plates and lying shells between them, sized w (cells 23-28 floor 41, cells 30-38 floor 32).",
+      "description": "Wall role. Dark brown block walls (2 cells) with red and pale sprayed graffiti letters over a green ledge strip and a concrete base, between them a grey AMMO plate with a yellow edge over a few tiny ammo boxes, sized w (cells 23-28 floor 41, cells 30-38 floor 32).",
       "states": [],
       "refs": [
        {
@@ -14717,7 +14738,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Mounted role. Green steel box with a yellow bolt on a conduit down to the floor; open: door hanging, torn wires (cell 79 row 21, cell 107 row 39).",
+      "description": "Mounted role. The mesto wire box (green steel box, hazard bolt plate) on a steel pole to the floor; open: door hanging, torn wires (cell 79 row 21, cell 107 row 39).",
       "states": [
        "closed",
        "open, torn wires"
@@ -14813,34 +14834,6 @@ window.C28_CONFIG = {
       "states": [
        "stacked boxes",
        "broken box, spilled shells"
-      ],
-      "refs": []
-     },
-     {
-      "id": "brazier",
-      "name": "Brazier",
-      "interactive": false,
-      "marker": null,
-      "task": null,
-      "sheet": "props",
-      "origin": "new",
-      "description": "Sign role (light). Iron fire basket on a tripod with a fire and glow, painted still so it caches; the light of the village floors (the depot fire baskets, cells 30-38 row 30).",
-      "states": [],
-      "refs": []
-     },
-     {
-      "id": "warningSign",
-      "name": "Warning sign",
-      "interactive": false,
-      "marker": null,
-      "task": null,
-      "sheet": "props",
-      "origin": "new",
-      "description": "Sign role. Bent steel plate on a post with a pictogram (no text), rust, drips and bullet holes.",
-      "states": [
-       "high voltage",
-       "mines",
-       "arrow"
       ],
       "refs": []
      }
