@@ -120,7 +120,7 @@ Baking figures into bitmaps (tweaks 1 and 2) loses no sharpness on a high-DPI sc
 
 So high-DPI screens cost memory and first-draw time, not sharpness. A high-DPI screen also makes vector drawing slower in the first place (the `main` mode no-GPU row at DPR 2 runs at 25 fps against 59 at DPR 1), so these screens gain the most from the cache.
 
-Status (2026-11-03): 1, 4, 5 and 6 are built (`docs/rendering.md` Per-frame vector art, Render modes). Measured, 1 and 4 gain less than ranked above: without a GPU the frame is pixel-bound (native raster and compositing, fog and tile copies), figures are about 4% of CPU (`docs/rendering.md` Speed). 2, 3 and 7 wait for a case where figures are the bottleneck.
+Status (2026-11-03): 1, 4 and 5 are built (`docs/rendering.md` Per-frame vector art). Measured, 1 and 4 gain less than ranked above: without a GPU the frame is pixel-bound (native raster and compositing, fog and tile copies), figures are about 4% of CPU (`docs/rendering.md` Speed). 6 was built and removed with the `gl` mode, which was no faster than `worker` and stalled in Firefox (`docs/rendering.md` Render modes); 7 needed that mode and is dropped. 2 and 3 wait for a case where figures are the bottleneck.
 
 Not worth it now: WebGPU (Pixi and Construct users report no gain or losses on some GPUs; our GPU rows already hold 60 fps), Construct render cells (our tile bucketing covers the static case), moving simulation into the worker (Construct's input and timing bugs).
 
@@ -129,7 +129,7 @@ Not worth it now: WebGPU (Pixi and Construct users report no gain or losses on s
 Asked 2026-11-03 before starting the tweaks. Answer: no, keep our engine and do the tweaks.
 
 - **No framework fixes the slow case.** That case is a machine without a GPU, where `main` mode drops to 15 fps at 4x CPU slowdown. PixiJS (8.16) and Excalibur fall back to Canvas 2D there, the API we already use. Their speed comes from sprite batching on a GPU.
-- **On a GPU we already hold 60 fps** in `worker` and `gl` modes at 6x CPU slowdown.
+- **On a GPU we already hold 60 fps** in `worker` mode at 6x CPU slowdown.
 - **The fix is the same either way:** bake vectors into bitmaps (tweak 1). In a framework it would be built on top of their engine; here it reuses `putSprite`.
 - **Cost of moving:**
   - About 13,500 lines of Canvas 2D art would need porting to a different vector API: `src/game/env` 8,400, `src/game/cutscene` 5,200, with grime patterns, gradients and tone bands.
@@ -141,16 +141,14 @@ Asked 2026-11-03 before starting the tweaks. Answer: no, keep our engine and do 
 | Helps machines without a GPU | yes, the main target | no, same Canvas 2D fallback |
 | Look | kept, same drawing code | at risk, art redone |
 
-Middle path for later: PixiJS only as the figure renderer inside the `gl` layer (tweak 7 with a library), if bitmaps ever fall short on GPUs.
-
 ## Our engine against frameworks, for the next game
 
 ### What ours does that frameworks don't
 
 - **Art as code at any resolution.** Assets are TypeScript drawing functions with a state and a size (`size` option), so one asset makes every variant, every scale and every device pixel ratio. Frameworks centre on sprite sheets; their vector APIs (Pixi and Phaser `Graphics`) are documented as slow when complex.
 - **Deterministic fixed step with input record and replay** (`src/engine/input.ts`, `loop.ts`). Phaser and Pixi step with a smoothed variable delta; Phaser has a fixed step only inside Arcade physics.
-- **Render modes chosen per machine** (`main`, `worker`, `gl`, with fallback on worker failure). Construct is the only competitor with worker rendering, and it has turned it off twice for browser bugs.
-- **Built for this genre:** fog of war with matched 2D and WebGL pipelines, cinematic films in the engine, cover, lifts, rig poses solved from clip data, sounds synthesized from recipes (no audio files).
+- **Render modes chosen per machine** (`main`, `worker`, with fallback on worker failure). Construct is the only competitor with worker rendering, and it has turned it off twice for browser bugs.
+- **Built for this genre:** fog of war, cinematic films in the engine, cover, lifts, rig poses solved from clip data, sounds synthesized from recipes (no audio files).
 
 ### What frameworks do better
 
@@ -183,9 +181,9 @@ flowchart LR
 
 1. **Boundary.** List what is generic and what is Colony 28.
 2. **Move generic parts into the engine:**
-    - render modes (`render/painter.ts`, `renderWorker.ts`, `sync.ts`, `gl.ts`, `frame.ts`)
+    - render modes (`render/painter.ts`, `renderWorker.ts`, `sync.ts`, `frame.ts`)
     - tile cache and tile worker (`render/tiles.ts`, `tileWorker.ts`, `tilesAside.ts`)
-    - fog of war, 2D and WebGL (`fog.ts`, `render/fog.ts`)
+    - fog of war (`fog.ts`, `render/fog.ts`)
     - sprite cache (`putSprite`)
     - camera and tweening (`render/tween.ts`)
     - sound mixer and cue queue
@@ -201,6 +199,6 @@ flowchart LR
 7. **Workers from a package:** render and tile workers must load from the package (Vite `?worker` URLs or blob workers) and work with the user's bundler.
 8. **Docs:** getting started, concepts (fixed step, render modes, layers, fog), API reference (TypeDoc); `docs/rendering.md` becomes engine docs.
 9. **Examples:** a minimal platformer and a vector-art demo; Colony 2080 moves onto the package.
-10. **Tests:** engine-only unit tests, plus a browser matrix (Chrome, Firefox, Safari, with and without a GPU), since the worker and `gl` paths depend on the browser.
+10. **Tests:** engine-only unit tests, plus a browser matrix (Chrome, Firefox, Safari, with and without a GPU), since the worker path depends on the browser.
 11. **Tooling:** at least a level JSON schema; an editor is optional but expected by users of other engines (see What frameworks do better).
 12. **Open source basics:** license, contribution guide, issue templates, CI (lint, typecheck, tests, build), npm publishing.

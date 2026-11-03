@@ -152,21 +152,6 @@ function paintSoft(fog: Fog, cached: Layer, box: CellBox): CellBox {
   return blur;
 }
 
-const texels = new WeakMap<Fog, { version: number; glide: Map<number, number>; cells: Uint8Array }>();
-
-export function fogCells(fog: Fog, span: SightSpan | undefined): Uint8Array {
-  const glide = glideOf(fog, span);
-  const known = texels.get(fog);
-  if (known && known.version === fog.version && sameGlide(glide, known.glide)) return known.cells;
-  const [covered, remembered] = [alphaOf(fog.cfg.opacity), alphaOf(fog.cfg.rememberedOpacity)];
-  const alpha = (i: number): number => glide.get(i) ?? (fog.seen[i] ? 0 : fog.revealed[i] ? remembered : covered);
-  const cells = new Uint8Array(fog.width * fog.height * 2);
-  for (let i = 0; i < fog.width * fog.height; i++) cells[2 * i] = alpha(i);
-  for (const [col, row] of hardEdges(fog, alpha, { col: 0, row: 0, w: fog.width, h: fog.height })) cells[2 * (row * fog.width + col) + 1] = 255;
-  texels.set(fog, { version: fog.version, glide, cells });
-  return cells;
-}
-
 const openCache = new WeakMap<Fog, { key: string; rects: CellBox[] }>();
 
 export function openRects(fog: Fog, box: CellBox): CellBox[] {

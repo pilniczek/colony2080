@@ -6,19 +6,11 @@ import { drawSecurityCam } from "../cutscene/securityCam";
 import type { FogConfig } from "../fog";
 import { loadSandbox, type SandboxJson, type SandboxWorld } from "../level/sandboxLevel";
 import { createKit, paintFrame, type FrameState, type Kit, type Target, type Tune } from "./frame";
-import { fogLayer, mapLayer } from "./gl";
 import { applySync, type WorldSync } from "./sync";
 import { paintTilesAside } from "./tilesAside";
 
-export interface Layers {
-  top: OffscreenCanvas;
-  map?: OffscreenCanvas;
-  back?: OffscreenCanvas;
-  fog?: OffscreenCanvas;
-}
-
 export type ToRenderer =
-  | { kind: "init"; source: SandboxJson; fogCfg: FogConfig; layers: Layers }
+  | { kind: "init"; source: SandboxJson; fogCfg: FogConfig; top: OffscreenCanvas }
   | { kind: "frame"; w: number; h: number; state: FrameState; sync: WorldSync; paused: boolean; thumb: { w: number; h: number } | null }
   | { kind: "warm"; w: number; h: number };
 
@@ -33,30 +25,24 @@ const scope = self as unknown as {
 
 let world: SandboxWorld | null = null;
 let fogCfg: FogConfig | null = null;
-let layers: Layers | null = null;
+let top: OffscreenCanvas | null = null;
 let target: Target | null = null;
 let kit: Kit | null = null;
 let tune: Tune | null = null;
 
-function init(source: SandboxJson, cfg: FogConfig, given: Layers): void {
+function init(source: SandboxJson, cfg: FogConfig, given: OffscreenCanvas): void {
   world = loadSandbox(source);
   fogCfg = cfg;
-  layers = given;
+  top = given;
   kit = createKit();
   paintTilesAside(world);
-  const map = given.map && mapLayer(given.map);
-  const fog = given.fog && fogLayer(given.fog);
-  const gl = map && fog && given.back ? { back: context2d(given.back), map, fog } : null;
-  target = { ctx: context2d(given.top, { alpha: gl !== null }), w: given.top.width, h: given.top.height, gl };
+  target = { ctx: context2d(given, { alpha: false }), w: given.width, h: given.height };
 }
 
 function resize(w: number, h: number): void {
-  if (!layers || !target || (target.w === w && target.h === h)) return;
-  for (const canvas of [layers.top, layers.map, layers.back, layers.fog]) {
-    if (!canvas) continue;
-    canvas.width = w;
-    canvas.height = h;
-  }
+  if (!top || !target || (target.w === w && target.h === h)) return;
+  top.width = w;
+  top.height = h;
   target.w = w;
   target.h = h;
 }
@@ -64,9 +50,7 @@ function resize(w: number, h: number): void {
 function thumbOf({ w, h }: { w: number; h: number }, window: { x: number; y: number; w: number; h: number }): ImageBitmap {
   const out = new OffscreenCanvas(w, h);
   const ctx = context2d(out);
-  for (const canvas of [layers!.map, layers!.back, layers!.fog, layers!.top]) {
-    if (canvas && (canvas === layers!.top || target!.gl)) ctx.drawImage(canvas, window.x, window.y, window.w, window.h, 0, 0, w, h);
-  }
+  ctx.drawImage(top!, window.x, window.y, window.w, window.h, 0, 0, w, h);
   return out.transferToImageBitmap();
 }
 
@@ -88,7 +72,7 @@ function warm(w: number, h: number): void {
 
 scope.onmessage = ({ data }) => {
   try {
-    if (data.kind === "init") return init(data.source, data.fogCfg, data.layers);
+    if (data.kind === "init") return init(data.source, data.fogCfg, data.top);
     if (data.kind === "warm") return warm(data.w, data.h);
     if (!world || !target || !kit || !fogCfg) return;
     resize(data.w, data.h);

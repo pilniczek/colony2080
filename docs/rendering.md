@@ -19,7 +19,7 @@ flowchart LR
     paint --> tw[tile worker]
   end
   painter -- "main mode" --> paintMain[paintFrame on #game]
-  painter -- "worker / gl mode: FrameState + WorldSync" --> mirror
+  painter -- "worker mode: FrameState + WorldSync" --> mirror
   rw -- "done, thumb" --> painter
 ```
 
@@ -37,21 +37,17 @@ flowchart TD
   A -- worker --> W[worker]
   A -- none --> B{"Worker, OffscreenCanvas,<br/>transferControlToOffscreen?"}
   B -- no --> M
-  B -- yes --> C{"hardware WebGL2?<br/>(glLayersWork)"}
-  C -- yes --> G[gl]
-  C -- "no / software renderer" --> W
+  B -- yes --> W
 ```
 
 | Mode | Who draws | Canvases | When |
 |---|---|---|---|
 | `main` | main thread, Canvas 2D | `#game` | old browsers, `?render=main`, after a worker failure |
-| `worker` | render worker, Canvas 2D | `#game` (transferred) | no GPU, `?render=worker`, or after slow `gl` frames |
-| `gl` | render worker, WebGL2 map and fog, Canvas 2D for the rest | 3 layer canvases under `#game`, all transferred | hardware GPU |
+| `worker` | render worker, Canvas 2D | `#game` (transferred) | every browser with Worker, `OffscreenCanvas` and `transferControlToOffscreen` |
 
-- `glLayersWork` (`render/gl.ts`) opens a WebGL2 context with `failIfMajorPerformanceCaveat` and rejects software renderers by name (`SOFTWARE_GL`: SwiftShader, llvmpipe, ...). Chrome without GPU still hands out SwiftShader WebGL, so the name check is what keeps a GPU-less machine on `worker`.
 - A worker error or a throw inside the worker posts `failed`; the painter drops the worker, swaps `#game` for a fresh canvas (a transferred canvas can't get a main thread context) and continues in `main` mode. Console: `render worker failed, drawing on the main thread`.
-- In `gl` mode the painter times each game frame from send to `done` (paused frames and films skipped). After `SLOW_FRAMES` (100) frames in a row of `SLOW_FRAME_MS` (50 ms) or more (`slowWatch`), it drops the worker the same way and restarts in `worker` mode, for slow or buggy GPU drivers. Console: `gl frames took over 50 ms, drawing in the worker with Canvas 2D`. A later worker failure still falls back to `main`.
-- `?render=main|worker|gl` is for speed tests and debugging.
+- `?render=main|worker` is for speed tests and debugging.
+- A WebGL2 mode (map tiles as textures, fog as a shader) was built and removed on 2026-11-03: it measured no faster than `worker` (Windows GPU: 3.2 ms against 2.4 ms per frame, both 60 fps), and in Firefox it stalled about 100 ms every few cells of a run, so it only added code. Without it, Windows Firefox runs smooth (user check, 2026-11-03).
 
 ## One frame
 
@@ -85,23 +81,14 @@ sequenceDiagram
 
 ## Layers and draw order
 
-2D modes (`main`, `worker`) draw all into one canvas, in this order, clipped to the game window:
+Both modes draw all into one canvas, in this order, clipped to the game window:
 
 ```mermaid
 flowchart TB
   black[fill black] --> below[map tiles: below layer] --> decks[lift decks] --> above[map tiles: above layer] --> props[props and pickups] --> fog[fog of war] --> figures[hero, enemies, shadows, blasts] --> fx[beam and sparks, clipped to seen cells] --> dbg[debug overlays, drawOver] --> map[map screen]
 ```
 
-`gl` mode splits the same order over 4 stacked canvases (DOM order, bottom first). The browser compositor blends them on the GPU.
-
-```mermaid
-flowchart BT
-  c1["map canvas (WebGL2): black, below tiles, above tiles"] --> c2["back canvas (2D): lift decks, props"] --> c3["fog canvas (WebGL2): fog shader"] --> c4["#game (2D): figures, beam, sparks, overlays, map screen, films"]
-```
-
-- Lift decks move above the `above` tiles in `gl` mode. Safe: `above` dressing is clipped out of every lift shaft box and no ladder runs through a shaft.
-- Films and the settings screen fill `#game` black over the whole canvas, so the layers under it never show.
-- `drawOver` (sandbox and dev only: original map overlay, key `o`) draws on an extra main thread canvas over `#game` in worker modes; production passes none.
+- `drawOver` (sandbox and dev only: original map overlay, key `o`) draws on an extra main thread canvas over `#game` in `worker` mode; production passes none.
 
 ## Map art tiles
 
@@ -122,8 +109,7 @@ flowchart LR
 - Tiles of the game window paint at once on the drawing thread; the margin ring comes from the tile worker. Without Worker support the ring paints on the drawing thread, 1 tile per frame plus more while 4 ms (`PREFETCH_MS`) last.
 - The first view after start or a resize is never freed (`keepHome`), so a respawn at spawn paints nothing.
 - Key uses the float32 scale, the value Chromium keeps in the context transform, so a frame never misses its own tiles.
-- Opaque fog skip (`openRects` in `render/fog.ts`): with covered `opacity` 1, a frame copies tile pixels only within `SOFT_BLUR_CELLS` + 1 cells of a seen or remembered cell. 2D modes clip `drawImage` source rects; `gl` mode uses one scissor rect per open rect.
-- `gl` mode uploads each tile bitmap once as a texture (`NEAREST`, one texel per device pixel, integer offsets, so it looks exactly like the 2D copy) and frees textures unused for 120 frames.
+- Opaque fog skip (`openRects` in `render/fog.ts`): with covered `opacity` 1, a frame copies tile pixels only within `SOFT_BLUR_CELLS` + 1 cells of a seen or remembered cell. Frames clip `drawImage` source rects to them.
 
 ## Per-frame vector art
 
@@ -144,7 +130,7 @@ Data (`src/game/fog.ts`): `revealed` (ever seen), `seen` (in sight now), `seenCe
 
 Sight edge glide (`glideOf`): the two edge columns of each sight row fade by how much of the cell lies within `sightSpan` of the drawn hero x, in quarter cell steps (`GLIDE_STEPS`), so a moving hero changes the fog at most 4 times per cell.
 
-### 2D pipeline (`main`, `worker`)
+### Pipeline
 
 ```mermaid
 flowchart LR
@@ -158,29 +144,13 @@ flowchart LR
 - Hard edges (`hardEdges`): a horizontal cell edge where either cell is a wall or floor stays hard, so nothing on a floor above the sight shows through.
 - Pans copy a shifted part of the window canvas until the view leaves its 128 px margin.
 
-### WebGL pipeline (`gl`)
-
-```mermaid
-flowchart LR
-  f[fog + glide] --> t["fogCells: RG8 texture<br/>R alpha, G hard top edge"]
-  t --> sh["fragment shader per device pixel"]
-  sh --> b["Mitchell cubic (B = C = 1/3)<br/>over 4 x 4 cells"]
-  sh --> e["hard edge: cubic in x,<br/>own row in y"]
-  sh --> l["scanline: integer row test"]
-```
-
-- `fogCells` rebuilds the whole cell texture (width x height x 2 bytes, mesto 23 KB) only when version or glide change; the shader samples it with `texelFetch`.
-- Mitchell matches the 2D chain (mask to soft with "high" smoothing, soft to window bilinear): edge profiles match within 3 of 765 brightness.
-- Scanline test uses integer maths; a float `mod` misses rows from rounding.
-- Hard edges are exact in WebGL; the 2D chain blurs them over about 3 px from its last bilinear copy.
-
 ## Films
 
-`paintFilm`: black fill, `film.render`, then the robot vision or the security camera look (`cutscene/looks.ts`), then the skip hint. While a film plays, `askTiles` asks the tile worker for the view the film returns to, so the first frame after it paints nothing. Each drawing thread loads films on demand (`loadFilm`); a missing film shows black until loaded. Film and look caches warm as idle jobs, one per frame, only while the loop is paused: main thread queue in `main` mode, worker queue (`warm` message, `paused` flag) in worker modes.
+`paintFilm`: black fill, `film.render`, then the robot vision or the security camera look (`cutscene/looks.ts`), then the skip hint. While a film plays, `askTiles` asks the tile worker for the view the film returns to, so the first frame after it paints nothing. Each drawing thread loads films on demand (`loadFilm`); a missing film shows black until loaded. Film and look caches warm as idle jobs, one per frame, only while the loop is paused: main thread queue in `main` mode, worker queue (`warm` message, `paused` flag) in `worker` mode.
 
 ## Save pictures
 
-Saves store a 96 px JPEG of the game window. `main` mode copies `#game`. Worker modes can't read a transferred canvas, so the worker sends an `ImageBitmap` thumbnail of all layers every 30th game frame (not with the map screen open), and `picture()` encodes the latest one.
+Saves store a 96 px JPEG of the game window. `main` mode copies `#game`. `worker` mode can't read a transferred canvas, so the worker sends an `ImageBitmap` thumbnail every 30th game frame (not with the map screen open), and `picture()` encodes the latest one.
 
 ## Code without a DOM
 
@@ -223,15 +193,12 @@ GPU: Windows Chrome 156, hardware GPU, over CDP.
 |---|---|---|---|---|---|---|
 | 4x | 1 | `main` | 58 | 56 / 60 | 0% | 16.8 |
 | 4x | 1 | `worker` | 60 | 60 / 60 | 0% | 16.8 |
-| 4x | 1 | `gl` | 60 | 60 / 60 | 0% | 16.8 |
 | 6x | 1 | `main` | 50 | 37 / 58 | 4% | 33.4 |
 | 6x | 1 | `worker` | 60 | 60 / 60 | 0% | 16.8 |
-| 6x | 1 | `gl` | 60 | 60 / 60 | 0% | 16.8 |
 | 4x | 2 | `main` | 59 | 56 / 60 | 0% | 16.8 |
 | 4x | 2 | `worker` | 60 | 60 / 60 | 0% | 16.8 |
-| 4x | 2 | `gl` | 60 | 60 / 60 | 0% | 16.8 |
 
-No GPU: WSL Playwright Chromium with `--disable-gpu --disable-gpu-compositing` (software raster). `gl` is not offered there (`glLayersWork` rejects SwiftShader), so `worker` is the auto mode.
+No GPU: WSL Playwright Chromium with `--disable-gpu --disable-gpu-compositing` (software raster).
 
 | CPU slowdown | DPR | mode | fps | min / max | >33 ms | p95 ms |
 |---|---|---|---|---|---|---|
@@ -246,8 +213,8 @@ No GPU: WSL Playwright Chromium with `--disable-gpu --disable-gpu-compositing` (
 
 - On a GPU every mode holds the 30 fps floor; `main` drops to 50 at 6x slowdown.
 - Without a GPU `main` misses the floor at 4x slowdown and at DPR 2; in `worker` mode the main thread keeps 60 in every row (the worker itself: Worker draw time below).
-- The rAF times come from the main thread. In worker modes they show that input and simulation keep pace; the worker draws at its own pace and skips frames while busy (one frame in flight), so a slow worker shows as late pictures, not as low fps here.
-- `setCPUThrottlingRate` slows only the page main thread, not workers (checked 2026-11-03: a loop took 4.2x longer on the main thread at rate 4, no longer in a worker). So the `worker` and `gl` rows above only show that input and simulation keep pace; they say nothing about the worker on a slow CPU. Worker draw time is measured below instead.
+- The rAF times come from the main thread. In `worker` mode they show that input and simulation keep pace; the worker draws at its own pace and skips frames while busy (one frame in flight), so a slow worker shows as late pictures, not as low fps here.
+- `setCPUThrottlingRate` slows only the page main thread, not workers (checked 2026-11-03: a loop took 4.2x longer on the main thread at rate 4, no longer in a worker). So the `worker` rows above only show that input and simulation keep pace; they say nothing about the worker on a slow CPU. Worker draw time is measured below instead.
 
 ### Worker draw time (2026-11-03)
 
@@ -256,7 +223,6 @@ The perf script wraps `Worker` in an init script: it timestamps each `frame` mes
 | Machine | DPR | mode | worker fps | draw ms | draw p95 ms |
 |---|---|---|---|---|---|
 | Windows GPU | 1 | `worker` | 60 | 2.4 | 4.7 |
-| Windows GPU | 1 | `gl` | 60 | 3.2 | 5.5 |
 | no GPU | 1 | `worker` | 55 | 10.0 | 17.8 |
 | no GPU | 2 | `worker` | 24 | 31.0 | 54.7 |
 
@@ -275,7 +241,7 @@ The perf script wraps `Worker` in an init script: it timestamps each `frame` mes
 | droid spots | 2x | 31 | 36 |
 | droid spots | 4x | 12 | 13 |
 
-No-GPU `worker` draw time moved from 10.9 to 10.0 ms at DPR 1 and 32.1 to 31.0 ms at DPR 2; GPU modes stay within noise (`worker` 2.3 to 2.4 ms, `gl` 2.7 to 3.2 ms).
+No-GPU `worker` draw time moved from 10.9 to 10.0 ms at DPR 1 and 32.1 to 31.0 ms at DPR 2; on the GPU it stays within noise (2.3 to 2.4 ms).
 
 ### Planned: render resolution scaling
 
@@ -283,7 +249,7 @@ Not built. Without a GPU the frame cost grows with pixel count (Worker draw time
 
 - Render DPR: the game canvas draws at `devicePixelRatio * renderScale` instead of `devicePixelRatio`; CSS stretches it to the screen. The HUD (SVG) and React text stay at full DPR.
 - One value for every user: `fit`, `cameraView`, the `lines` of the frame state and the hero badge position in `run.ts` read `devicePixelRatio` today; all of them read the render DPR instead. `drawOverlays` already derives its DPR from canvas size over client size.
-- Steps: `renderScale` 1, 0.75, 0.5, never under 1 device pixel per CSS pixel unless DPR is 1. A step change refits and rebuilds the tile cache (its key holds the scale), so steps need hysteresis: step down after a run of slow frames (like `slowWatch`), step up only after a long run of fast ones.
-- Signal: worker modes use send to `done` time (the `slowWatch` path in `painter.ts`); `main` uses rAF frame time.
+- Steps: `renderScale` 1, 0.75, 0.5, never under 1 device pixel per CSS pixel unless DPR is 1. A step change refits and rebuilds the tile cache (its key holds the scale), so steps need hysteresis: step down after a run of slow frames, step up only after a long run of fast ones.
+- Signal: `worker` mode uses send to `done` time; `main` uses rAF frame time.
 - `?scale=` pins a step for tests.
 - Done when the no-GPU `worker` row at DPR 2 reaches 30 fps or more (today 24), measured as in Worker draw time, with a visual check that figures and fog edges stay sharp enough at 0.75.

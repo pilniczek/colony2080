@@ -33,7 +33,7 @@ const LIFT_CULL_PAD_CELLS = 3;
 
 const grown = ({ x, y, w, h }: Rect, by: number): Rect => ({ x: x - by, y: y - by, w: w + 2 * by, h: h + 2 * by });
 
-export type TileImage = Surface | ImageBitmap;
+type TileImage = Surface | ImageBitmap;
 
 export type Layer = "below" | "above";
 
@@ -283,14 +283,10 @@ function aside(e: Pick<Env, "world" | "cell" | "unit" | "lines">, name: Layer, s
   return { tiles: ringOf(span), budget: 0, request: (col, row) => painter({ layer: name, key, scale, cell, unit, lines, size, col, row }) };
 }
 
-export interface PlacedTiles {
-  x: number;
-  y: number;
-  tiles: [number, number, TileImage | null][];
-  open?: Rect[] | null;
-}
-
-function placed(e: Env, name: Layer, span: Span): PlacedTiles {
+function cached(e: Env, name: Layer): void {
+  const { ctx } = e;
+  const t = ctx.getTransform();
+  const span = spanOf(e, Math.hypot(t.a, t.b), t.e, t.f);
   const { key, scale, x, y, size, view } = span;
   const cache = cacheOf(e.world, name);
   const need = visibleTiles(view, TILE_PX, 0, size);
@@ -299,14 +295,7 @@ function placed(e: Env, name: Layer, span: Span): PlacedTiles {
     return { tiles: ringOf(span), budget: PREFETCH_PER_FRAME, more: () => performance.now() < until };
   };
   const make = (col: number, row: number): TileImage | null => render(e, scale, LAYERS[name], size, col, row);
-  return { x, y, tiles: cache.settled(key, need) ?? cache.sync(key, need, make, aside(e, name, span) ?? ahead()) };
-}
-
-function cached(e: Env, name: Layer): void {
-  const { ctx } = e;
-  const t = ctx.getTransform();
-  const span = spanOf(e, Math.hypot(t.a, t.b), t.e, t.f);
-  const { x, y, tiles } = placed(e, name, span);
+  const tiles = cache.settled(key, need) ?? cache.sync(key, need, make, aside(e, name, span) ?? ahead());
   const open = shownParts(e, span);
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, x, y);
@@ -337,13 +326,6 @@ function blitPart(ctx: CanvasRenderingContext2D, image: TileImage, tx: number, t
   const x1 = Math.min(tx + image.width, r.x + r.w);
   const y1 = Math.min(ty + image.height, r.y + r.h);
   if (x1 > x0 && y1 > y0) ctx.drawImage(image, x0 - tx, y0 - ty, x1 - x0, y1 - y0, x0, y0, x1 - x0, y1 - y0);
-}
-
-export function mapTiles(world: SandboxWorld, cfg: MovementConfig, lines: number, view: { scale: number; offsetX: number; offsetY: number }, screen: Rect): PlacedTiles[] {
-  const e: Env = { ctx: null as unknown as CanvasRenderingContext2D, world, hero: { blaster: null }, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen };
-  const span = spanOf(e, view.scale, view.offsetX, view.offsetY);
-  const open = shownParts(e, span);
-  return (["below", "above"] as const).map((name) => ({ ...placed(e, name, span), open }));
 }
 
 export function askTiles(world: SandboxWorld, cfg: MovementConfig, lines: number, view: { scale: number; offsetX: number; offsetY: number }, screen: Rect): void {
@@ -716,18 +698,15 @@ export function drawEnvironment(
   alpha: number,
   lines: number,
   screen: Rect = { x: 0, y: 0, w: ctx.canvas.width, h: ctx.canvas.height },
-  tiles = true,
 ): void {
   const t = ctx.getTransform();
   const scale = Math.hypot(t.a, t.b);
   const clip = { x: (screen.x - t.e) / scale, y: (screen.y - t.f) / scale, w: screen.w / scale, h: screen.h / scale };
   const e: Env = { ctx, world, hero, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen, clip };
-  if (tiles) {
-    cached(e, "below");
-    flowing(e, performance.now() / 1000);
-  }
+  cached(e, "below");
+  flowing(e, performance.now() / 1000);
   for (const l of e.world.lifts) if (near(e, grown(shaftBox(e, l), LIFT_CULL_PAD_CELLS * e.cell))) lift(e, l, alpha);
-  if (tiles) cached(e, "above");
+  cached(e, "above");
   for (const p of world.props) if (!isPickup(p)) prop(e, p);
   for (const p of world.props) if (isPickup(p)) prop(e, p);
 }
