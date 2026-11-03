@@ -411,7 +411,7 @@
       ]
     },
     {
-      "id": "barrel",
+      "id": "explosiveTank",
       "name": "Explosive tank",
       "csName": "nádrž s výbušninou",
       "interactive": true,
@@ -650,7 +650,7 @@
       ]
     },
     {
-      "id": "cardDoor",
+      "id": "caveCardDoor",
       "name": "Card door",
       "csName": "dveře",
       "interactive": true,
@@ -913,6 +913,77 @@
           "caption": "background frame 0"
         }
       ]
+    },
+    {
+      "id": "caveRockTop",
+      "name": "Cave rock top",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Terrain art for the top cell of a cave rock wall (terrainArt top): the rock fill under a worn lighter lip with moss patches; sized by w.",
+      "states": [],
+      "refs": []
+    },
+    {
+      "id": "rustTube",
+      "name": "Corrugated rust tunnel",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Big ribbed rusty tube behind the corridors, after the orange tunnel tiles of the original map; sized by w and h in cells, drawn upright when h is more than w (spawn shaft); state 1 has a scorched hole.",
+      "states": [
+        "whole",
+        "holed"
+      ],
+      "refs": []
+    },
+    {
+      "id": "caveMachine",
+      "name": "Cave machinery wall",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Grey-green riveted machine panels with pipes, vents and dim lamps set into the cave, after the green machine tiles of the original map; sized by w and h.",
+      "states": [],
+      "refs": []
+    },
+    {
+      "id": "caveStalactites",
+      "name": "Stalactite fringe",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Row of small hanging rock spikes under a cave ceiling, drawn down from y; sized by w, state 1 longer.",
+      "states": [
+        "short",
+        "long"
+      ],
+      "refs": []
+    },
+    {
+      "id": "cartCrusher",
+      "name": "Cart crusher",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Toothed crushing rollers in a steel frame at the east end of the mine cart conveyor, the cart crush death zone (columns 123-125, report 16 zones), with sparks.",
+      "states": [],
+      "refs": []
     }
   ]
 }
