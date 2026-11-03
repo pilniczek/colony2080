@@ -170,14 +170,35 @@ Middle path for later: PixiJS only as the figure renderer inside the `gl` layer 
 | Team of non-programmers, visual scripting | Construct |
 | Mobile first, many devices to support | a framework, for its device bug fixes |
 
-### Before reusing it
+### Extracting a reusable engine
 
-**[inferred]** Today only `src/engine` is game-agnostic. The parts most worth reusing still live in `src/game`:
+Planned for later (2026-11-03): turn the engine into a package anyone can use, with Colony 2080 as one of its consumers. Today only `src/engine` (about 1,600 lines) is game-agnostic. Do the speed tweaks first, so the sprite cache API is designed once.
 
-- painter and render worker (`render/painter.ts`, `renderWorker.ts`, `sync.ts`)
-- tile cache (`render/tiles.ts`, `tileWorker.ts`)
-- fog (`fog.ts`, `render/fog.ts`, `render/gl.ts`)
-- sprite cache (`putSprite`)
-- sound mixer (`src/engine/audio` is already shared, the cues are not)
+```mermaid
+flowchart LR
+  A[speed tweaks] --> B[boundary] --> C[move generic parts] --> D[cut game imports] --> E[generalise systems] --> F[createEngine entry] --> G[package + workers] --> H[docs, examples, tests] --> I[publish]
+```
 
-Moving them under `src/engine` behind interfaces, with no Colony 28 names, is the step that turns this into a reusable engine. Without it, a second game starts as a fork.
+1. **Boundary.** List what is generic and what is Colony 28.
+2. **Move generic parts into the engine:**
+    - render modes (`render/painter.ts`, `renderWorker.ts`, `sync.ts`, `gl.ts`, `frame.ts`)
+    - tile cache and tile worker (`render/tiles.ts`, `tileWorker.ts`, `tilesAside.ts`)
+    - fog of war, 2D and WebGL (`fog.ts`, `render/fog.ts`)
+    - sprite cache (`putSprite`)
+    - camera and tweening (`render/tween.ts`)
+    - sound mixer and cue queue
+    - idle job queue
+3. **Cut game imports.** Those parts import `World`, `Hero`, enemy kinds, `ASSETS` and `config/` directly; replace them with interfaces or plugin hooks: a world adapter, an asset registry, a layer list. This and step 4 are the heaviest.
+4. **Generalise game-tied systems:**
+    - tile grid with one-way floors
+    - lifts, ladders and cover as optional modules
+    - hero and enemy state machines as examples, not core
+    - films as a timeline plus a scene API
+5. **One entry point:** `createEngine({ canvas, world, assets, modes, ... })`. Today `startRun` (`src/game/run.ts`) mixes engine, game, HUD and store setup.
+6. **Package:** separate package (`@<scope>/engine`), ESM build with type declarations, own Vite and Vitest config, no React or Zustand, semantic versions and a changelog.
+7. **Workers from a package:** render and tile workers must load from the package (Vite `?worker` URLs or blob workers) and work with the user's bundler.
+8. **Docs:** getting started, concepts (fixed step, render modes, layers, fog), API reference (TypeDoc); `docs/rendering.md` becomes engine docs.
+9. **Examples:** a minimal platformer and a vector-art demo; Colony 2080 moves onto the package.
+10. **Tests:** engine-only unit tests, plus a browser matrix (Chrome, Firefox, Safari, with and without a GPU), since the worker and `gl` paths depend on the browser.
+11. **Tooling:** at least a level JSON schema; an editor is optional but expected by users of other engines (see What frameworks do better).
+12. **Open source basics:** license, contribution guide, issue templates, CI (lint, typecheck, tests, build), npm publishing.
