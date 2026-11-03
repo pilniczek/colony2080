@@ -186,6 +186,7 @@ M21 is the base. **[map] [code]**
 Enemy table as level 1 (`ds:0x6AD4 + 27n`). Slots 2-29 used, slot 1 is the dummy. All 2.0 hp. **[code]**
 
 - **Types draw `LEV2.GRA` frames 21-24** (same pointer table as level 1). Type 1 = rocket robot: blue-steel humanoid with a shoulder launcher, kneels to fire, leaves a burning wreck. Type 2 = grey trooper: bulky grey armoured soldier with a rifle, leaves a scrap pile. Rebuilt in `gamedata/png/enemy-sprites/lev2_types_f21_f24.png`. **[code]**
+- **Start facing right.** The setup writes the state counter (`+0xD`, `[slot+0x6AE1]`) to 1 for every slot (`4:0x4FB6` `mov word ptr [0x6b17], 1` for slot 2): walk state 1-0x18 faces right, 0x3E9-0x400 faces left. All six level setups in seg 4 write only 1, so every table enemy of every level starts walking right. **[code]**
 - **No hover.** The level-2 init never fills the hover rows `ds:0x7465/0x7469`, so with a fresh start no enemy leaves its floor row. **[code]** After an in-process jump from level 1 the old values would remain **[open]**.
 - Speed 3 px per tick for both types (`4:0xD547`). Fire damage per fire tick is `(6 - shields) / 6 x c`, with c = 2.2 for type 1 and 2.4 for type 2 (`4:0xDC93`, `4:0xE040`), rounded per tick: 18 per 9-tick burst with 0 or 1 shield. **[code]**
 - Kills: 7 machine-gun hits, 3 punches (level-1 constants, not level-gated), or 2 toaster hits (1.0 per hit, `7:0x19D7`). **[code]**

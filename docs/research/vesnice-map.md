@@ -106,18 +106,18 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 
 ## Enemies
 
-All 28 table enemies of report 14 stand at their original cells and patrols (`map.json` `enemies`) as their own game kinds, tuned by `config/enemies/kinds.json`: 15 `rocketRobot` (kneels, fires a rocket), 13 `greyTrooper` (rifle bursts). No flyers, no hover in level 2. The walkie-talkie guard is the `radioGuard` prop, not a table enemy.
+All 28 table enemies of report 14 stand at their original cells and patrols (`map.json` `enemies`) as their own game kinds, tuned by `config/enemies/kinds.json`: 15 `rocketRobot` (kneels, fires a rocket), 13 `greyTrooper` (rifle bursts). No flyers, no hover in level 2. The walkie-talkie guard is the `radioGuard` prop, not a table enemy. Every enemy starts facing right: the level-2 setup writes walk state 1 (facing right; left-facing states are 0x3E9 and up) into every slot (`4:0x4FB6` `mov word ptr [0x6b17], 1` for slot 2, the same for slots 3-29), as every other level setup does (report 14).
 
-| Floor | Segment | Rocket robots (col) | Grey troopers (col) |
-|---|---|---|---|
-| 23 | 74-85 | 77 | - |
-| 23 | 127-142 | - | 137 |
-| 32 | 30-44 | 36 | 30 |
-| 32 | 119-141 | 122, 134 | 131 |
-| 41 | 59-79 | 65, 72 | 74 |
-| 41 | 101-114, 119-152 | 120 | 104, 125 |
-| 50 | 22-57 | 33, 50 | 24, 36 |
-| 50 | 73-87, 93-130 | 82, 106, 125 | 74, 112 |
-| 59 | 79-83 | 79 | - |
-| 59 | 121-132 | - | 126 |
-| 68 | 88-115 | 96, 110 | 88, 99 |
+| Floor | Segment | Rocket robots (col) | Grey troopers (col) | Facing at start |
+|---|---|---|---|---|
+| 23 | 74-85 | 77 | - | right (code) |
+| 23 | 127-142 | - | 137 | right (code) |
+| 32 | 30-44 | 36 | 30 | right (code) |
+| 32 | 119-141 | 122, 134 | 131 | right (code) |
+| 41 | 59-79 | 65, 72 | 74 | right (code) |
+| 41 | 101-114, 119-152 | 120 | 104, 125 | right (code) |
+| 50 | 22-57 | 33, 50 | 24, 36 | right (code) |
+| 50 | 73-87, 93-130 | 82, 106, 125 | 74, 112 | right (code) |
+| 59 | 79-83 | 79 | - | right (code) |
+| 59 | 121-132 | - | 126 | right (code) |
+| 68 | 88-115 | 96, 110 | 88, 99 | right (code) |

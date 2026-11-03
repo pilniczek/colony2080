@@ -127,6 +127,11 @@ describe("missions", () => {
     expect(enemies.filter((e) => e.kind === "greyTrooper")).toHaveLength(13);
   });
 
+  it("starts every mission enemy facing right, the original walk state 1 of every level setup", () => {
+    for (const id of MISSIONS) expect(missionJson(id).enemies.every((e) => e.facing === 1), id).toBe(true);
+    expect(loadMission("vesnice").enemies.every((e) => e.body.facing === 1)).toBe(true);
+  });
+
   it("stands every vesnice enemy in open air on a floor, inside its patrol", () => {
     const world = loadMission("vesnice");
     for (const e of world.enemies) {
