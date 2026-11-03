@@ -10,7 +10,7 @@ Phase 1b: engine core and movement sandbox built, feel signed off (2026-10-19). 
 - `WORK-REPORT.md` - local session handoff (gitignored): open follow-ups and abandoned approaches.
 - `docs/research/README.md` - research summary (mechanics, level 1 task graph, data formats, open gaps). Read before answering questions about the original game.
 - `config/` - draft JSON configs (`"status": "draft"`). Each cites its research or decision `source`.
-- `docs/blueprints/` - recipes for repeating a built mechanic (walk-through cover), map composition rules (`map-composition.md`) and the quest list recipe for a mission (`quest-list.md`).
+- `docs/blueprints/` - recipes for repeating a built mechanic (walk-through cover), the map composition process, roles and rules for any mission (`map-composition.md`) and the quest list recipe for a mission (`quest-list.md`).
 - `docs/tours.md` - `moveto` check tours for the debug panel Tour box (mesto lift shafts).
 - `spikes/` - throwaway prototypes.
 
@@ -29,6 +29,7 @@ Every final report that adds, changes or finds something visible in a mission ma
 - `npm run typecheck` - `tsc --noEmit`.
 - `npm run test:visual` - Playwright runs `tools/visual/compare.html`: spike vs port robot trees and renders, hero and `enemy` variant, plus each env asset the sandbox uses (states, game LOD, ladder and sized variants) against its spike, and every cutscene at 9 times and 2 sizes, bare and filmed. `VISUAL_ONLY=id1,id2` runs only those cutscenes. The own-matrix render may differ by a few edge pixels because Chromium stores scale/translate DOMMatrix values as float32.
 - `npm run sound:compare [id ...]` - renders each sound recipe and scores it against its original sound (sample ratio, envelope correlation, spectrogram distance, level); `tools/sound/compare.ts` holds `ORIGINAL_OF`, the id to original file map, and writes spectrogram PNG pairs to the OS temp dir (`c2080-sound/sound`). Needs the local research files.
+- `node tools/map/crop.mjs <map png> <col> <row> <cols> <rows> <out.png> [scale]` - crops a decoded original map (`docs/research/gamedata/png/maps/`, local only, 24 px per cell) at those cells with a yellow cell grid and col / row labels every 5 cells, for step 2 of `docs/blueprints/map-composition.md`; `scale` (default 2) enlarges it. Runs the Playwright default Chromium.
 
 ## Stack and architecture
 
