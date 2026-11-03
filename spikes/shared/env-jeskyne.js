@@ -1,7 +1,7 @@
 (() => {
 const { define, P, G } = window.ENV;
 const { rng, path, flat, box, poly, cylV, disc, rivets, glow, stroke, shape, line, curve, hazard } = P;
-const { PI, sin, cos, min, max, round } = Math;
+const { PI, sin, cos, min, max, round, floor, abs } = Math;
 const simple = () => window.ENV.simple;
 const ROCK = ["#0e0906", "#1c130d", "#2c1f15", "#46321f"];
 const RUSTY = ["#2a1206", "#5e2a10", "#9a4e20", "#d08442"];
@@ -11,8 +11,10 @@ const LAVA = ["#4a0c02", "#a82806", "#ee6612", "#ffd25a"];
 const ICE = ["#14324e", "#2e6c9c", "#6ab4e0", "#dcf4ff"];
 const STONE = ["#2e2a24", "#4c463c", "#6e6656", "#968c78"];
 const PEBBLE = ["#221d14", "#3e3626", "#585036", "#76704e"];
+const MACH = ["#111814", "#1f2b25", "#324238", "#4e6255"];
+const MLINE = "#050806";
 const RLINE = "#060403";
-const ROCK_UNITS = 96;
+const ROCK_UNITS = 192;
 const ROCK_PX = 4;
 const DOOR_H = 120;
 const jag = (x0, x1, y, amp, step, seed) => {
@@ -40,32 +42,42 @@ const blob = (cx, cy, rx, ry, seed, n = 8, jitter = 0.28) => {
 const lump = (g, cx, cy, rx, ry, seed, tone) => {
   shape(g, blob(cx + 0.8, cy + 0.9, rx, ry, seed), ROCK[0]);
   shape(g, blob(cx, cy, rx, ry, seed), ROCK[tone]);
-  if (simple())
-    return;
   veil(g, blob(cx - rx * 0.25, cy - ry * 0.3, rx * 0.6, ry * 0.45, seed + 1, 7), ROCK[3], 0.35);
   veil(g, blob(cx + rx * 0.3, cy + ry * 0.35, rx * 0.55, ry * 0.4, seed + 2, 7), ROCK[0], 0.45);
 };
 const rockCell = (g, x, y, seed) => {
   const r = rng(seed);
-  const n = simple() ? 4 : 6;
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < 6; i++) {
     const rx = 4.5 + r() * 4;
     const ry = 3.4 + r() * 3;
     const cx = x + rx + 0.4 + r() * (23.2 - rx * 2);
     const cy = y + ry + 0.4 + r() * (23.2 - ry * 2);
     lump(g, cx, cy, rx, ry, seed + i * 13, r() < 0.4 ? 1 : 2);
   }
-  if (!simple() && r() < 0.2) {
+  if (r() < 0.08) {
     const vx = x + 5 + r() * 12;
     const vy = y + 4 + r() * 12;
-    curve(g, [[vx, vy], [vx + 2 + r() * 3, vy + 3], [vx + 1 + r() * 5, vy + 6]], RUSTY[1], 0.8);
+    curve(g, [[vx, vy], [vx + 2 + r() * 3, vy + 3], [vx + 1 + r() * 5, vy + 6]], RUSTY[1], 0.9);
   }
-  if (!simple()) {
-    for (let i = 0; i < 6; i++)
-      flat(g, x + 1 + r() * 22, y + 1 + r() * 22, 0.8, 0.8, r() < 0.4 ? ROCK[3] : ROCK[0]);
+  for (let i = 0; i < 6; i++)
+    flat(g, x + 1 + r() * 22, y + 1 + r() * 22, 0.8, 0.8, r() < 0.4 ? ROCK[3] : ROCK[0]);
+};
+const rockCracks = (g) => {
+  const r = rng(760);
+  for (let i = 0; i < 6; i++) {
+    let x = 14 + r() * (ROCK_UNITS - 28);
+    let y = 12 + r() * (ROCK_UNITS - 70);
+    const pts = [[x, y]];
+    for (let k = 0; k < 5; k++) {
+      x = min(ROCK_UNITS - 8, max(8, x + (r() - 0.5) * 12));
+      y += 4 + r() * 6;
+      pts.push([x, y]);
+    }
+    line(g, pts.map(([px, py]) => [px + 0.6, py + 0.6]), ROCK[3], 0.5);
+    line(g, pts, ROCK[0], 0.9);
   }
 };
-const rockCanvases = new Map();
+let rockCanvas;
 const makeRock = () => {
   if (typeof OffscreenCanvas === "undefined")
     return null;
@@ -78,14 +90,13 @@ const makeRock = () => {
   for (let j = 0; j < ROCK_UNITS / 24; j++)
     for (let i = 0; i < ROCK_UNITS / 24; i++)
       rockCell(g, i * 24, j * 24, 700 + j * 11 + i * 5);
+  rockCracks(g);
   return c;
 };
 const rockFill = (ctx, x, y, w, h) => {
-  const key = simple() ? "lod" : "full";
-  if (!rockCanvases.has(key))
-    rockCanvases.set(key, makeRock());
-  const c = rockCanvases.get(key);
-  const p = c ? ctx.createPattern(c, "repeat") : null;
+  if (rockCanvas === undefined)
+    rockCanvas = makeRock();
+  const p = rockCanvas ? ctx.createPattern(rockCanvas, "repeat") : null;
   if (!p)
     return flat(ctx, x, y, w, h, ROCK[1]);
   p.setTransform(new DOMMatrix([1 / ROCK_PX, 0, 0, 1 / ROCK_PX, 0, 0]));
@@ -200,42 +211,58 @@ const caveBackdrop = {
     ctx.restore();
   },
 };
+const bowPts = (x, top, bot, b) => Array.from({ length: 7 }, (_, i) => {
+  const t = i / 6;
+  return [x + b * 4 * t * (1 - t), top + (bot - top) * t];
+});
+const TUBE_SHADE = [[0, "rgba(0,0,0,0.6)"], [0.2, "rgba(0,0,0,0.12)"], [0.34, "rgba(255,210,150,0.14)"], [0.5, "rgba(0,0,0,0)"], [0.76, "rgba(0,0,0,0.3)"], [1, "rgba(0,0,0,0.72)"]];
 const ribs = (ctx, len, dia, seed) => {
-  const r = rng(seed);
-  const step = 11;
-  const bow = dia * 0.16;
-  for (let x = -step + (seed % 7); x < len + step; x += step) {
-    const pts = [[x, -dia], [x + bow, -dia / 2], [x, 0]];
-    curve(ctx, pts.map(([px, py]) => [px + 2.8, py]), RUSTY[0], 2.4);
-    curve(ctx, pts, RUSTY[3], 2);
-    if (!simple())
-      curve(ctx, pts.map(([px, py]) => [px - 1.2, py]), RUSTY[1], 0.8);
-    if (!simple() && r() < 0.12)
-      G.rustPatch(ctx, x + 5, -dia * (0.25 + r() * 0.5), 2.5, 3, seed + round(x));
+  const step = 10 + (seed % 3);
+  const th = step * 0.55;
+  const b = dia * 0.28;
+  for (let x = -b - step + (seed % 5); x < len + step; x += step) {
+    shape(ctx, [...bowPts(x + th * 0.5, -dia, 0, b), ...bowPts(x + th * 1.35, 0, -dia, b * 0.9)], "#160803");
+    shape(ctx, [...bowPts(x, -dia, 0, b), ...bowPts(x + th, 0, -dia, b * 0.9)], RUSTY[2]);
+    shape(ctx, [...bowPts(x, -dia, 0, b), ...bowPts(x + th * 0.35, 0, -dia, b * 0.95)], RUSTY[3]);
   }
 };
+const collar = (ctx, x, dia) => {
+  box(ctx, x - 3.5, -dia - 1.5, 7, dia + 3, "steel", 1, { vertical: true });
+  for (let y = -dia + 4; y < -2; y += 7)
+    disc(ctx, x, y, 0.9, "m3");
+};
+const tubeHatch = (ctx, x, dia, seed) => {
+  const w = 26;
+  flat(ctx, x, -dia, w, dia, MACH[1], MLINE);
+  flat(ctx, x, -dia, w, 2, MACH[3]);
+  flat(ctx, x, -2, w, 2, MACH[0]);
+  for (let y = -dia + 4; y < -2; y += 6) {
+    disc(ctx, x + 2.5, y, 0.8, MACH[3]);
+    disc(ctx, x + w - 2.5, y, 0.8, MACH[3]);
+  }
+  const cx = x + w / 2;
+  const cy = -dia / 2;
+  const rr = min(9, dia * 0.28);
+  disc(ctx, cx, cy, rr, MACH[0], MLINE);
+  disc(ctx, cx, cy, rr * 0.7, MACH[2], MLINE);
+  line(ctx, [[cx - rr * 0.7, cy], [cx + rr * 0.7, cy]], MLINE, 1.4);
+  line(ctx, [[cx, cy - rr * 0.7], [cx, cy + rr * 0.7]], MLINE, 1.4);
+  disc(ctx, cx, cy, 1.6, MACH[3], MLINE);
+  G.rustPatch(ctx, x + w * 0.7, -dia * 0.25, 3, 2, seed);
+};
 const tubeBody = (ctx, len, dia, seed, broken) => {
-  const g = ctx.createLinearGradient(0, -dia, 0, 0);
-  const stops = simple()
-    ? [[0, RUSTY[0]], [0.25, RUSTY[1]], [0.45, RUSTY[2]], [0.7, RUSTY[1]], [1, RUSTY[0]]]
-    : [[0, RUSTY[0]], [0.18, RUSTY[1]], [0.42, RUSTY[2]], [0.55, RUSTY[2]], [0.82, RUSTY[1]], [1, RUSTY[0]]];
-  for (const [at, c] of stops)
-    g.addColorStop(at, c);
+  const r = rng(seed + 3);
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, -dia, len, dia);
   ctx.clip();
-  ctx.fillStyle = g;
-  ctx.fillRect(0, -dia, len, dia);
+  flat(ctx, 0, -dia, len, dia, RUSTY[0]);
   ribs(ctx, len, dia, seed);
-  const r = rng(seed + 3);
-  for (let x = 30 + r() * 30; x < len - 12; x += 60 + r() * 50) {
-    flat(ctx, x, -dia, 6, dia, RUSTY[0]);
-    flat(ctx, x + 1, -dia, 1.4, dia, RUSTY[2]);
-    if (!simple())
-      for (let y = -dia + 5; y < -3; y += 9)
-        disc(ctx, x + 3, y, 0.9, RUSTY[3]);
-  }
+  for (let x = 10 + r() * 40; x < len - 10; x += 34 + r() * 60)
+    G.rustPatch(ctx, x, -dia * (0.3 + r() * 0.5), 3 + r() * 3, 2 + r() * 2, seed + round(x));
+  const hatch = len >= 120 && r() < 0.6 ? round(len * (0.3 + r() * 0.4) - 13) : null;
+  if (hatch !== null)
+    tubeHatch(ctx, hatch, dia, seed + 4);
   if (broken) {
     const hx = len * (0.3 + r() * 0.4);
     const hole = [[hx - 9, -dia * 0.7], [hx - 2, -dia * 0.82], [hx + 8, -dia * 0.66], [hx + 10, -dia * 0.36], [hx + 1, -dia * 0.22], [hx - 8, -dia * 0.34]];
@@ -243,12 +270,23 @@ const tubeBody = (ctx, len, dia, seed, broken) => {
     shape(ctx, hole, "#050302");
     G.rim(ctx, hole, seed + 6, RUSTY[3], RUSTY[0]);
   }
+  const g = ctx.createLinearGradient(0, -dia, 0, 0);
+  for (const [at, c] of TUBE_SHADE)
+    g.addColorStop(at, c);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, -dia, len, dia);
   G.grain(ctx, G.rectRegion(ctx, 0, -dia, len, dia), seed + 7, 0.8);
-  G.dirt(ctx, 0, -dia, len, dia, seed + 8, 0.35);
+  G.dirt(ctx, 0, -dia, len, dia, seed + 8, 0.3);
   ctx.restore();
-  flat(ctx, 0, -dia, len, 1.6, RLINE);
-  flat(ctx, 0, -1.6, len, 1.6, RLINE);
-  G.drips(ctx, 0, -dia + 1.6, len, dia * 0.5, seed + 9, max(1, round(len / 30)));
+  const joints = [0, len];
+  for (let x = 70 + r() * 40; x < len - 50; x += 90 + r() * 50)
+    if (hatch === null || abs(x - hatch - 13) > 30)
+      joints.push(x);
+  for (const x of joints)
+    collar(ctx, min(len - 3.5, max(3.5, x)), dia);
+  flat(ctx, 0, -dia, len, 1.2, RLINE);
+  flat(ctx, 0, -1.2, len, 1.2, RLINE);
+  G.drips(ctx, 0, -dia + 1.5, len, dia * 0.55, seed + 9, max(2, round(len / 24)));
 };
 const rustTube = {
   id: "rustTube",
@@ -261,49 +299,99 @@ const rustTube = {
     tubeBody(ctx, h, w, seed, state === 1);
   },
 };
-const machinePanel = (ctx, x, top, w, h, seed) => {
-  const r = rng(seed);
-  box(ctx, x + 1, top + 1, w - 2, h - 2, "steel", 1);
-  flat(ctx, x + 3, top + 3, w - 6, h - 6, "m0", "mLine");
-  const pipes = w > 20 ? 2 : 1;
-  for (let i = 0; i < pipes; i++) {
-    const px = x + (w / (pipes + 1)) * (i + 1) - 2.5;
-    cylV(ctx, px, top + 3, 5, h - 6, "steel", 2);
-    if (!simple())
-      for (let y = top + 8; y < top + h - 6; y += 14)
-        flat(ctx, px - 1, y, 7, 2.2, "m3", "mLine");
+const housing = (ctx, x, top, w, h) => {
+  flat(ctx, x, top, w, h, MACH[1], MLINE);
+  flat(ctx, x + 1, top + 1, w - 2, 1.6, MACH[3]);
+  flat(ctx, x + 1, top + h - 2.6, w - 2, 1.6, MACH[0]);
+  for (let i = x + 3; i < x + w - 1; i += 6) {
+    disc(ctx, i, top + 3.6, 0.8, MACH[3]);
+    disc(ctx, i, top + h - 3.6, 0.8, MACH[3]);
   }
-  if (!simple() && r() < 0.6) {
-    flat(ctx, x + 4, top + 5, 5, 3, "#141a18", "mLine");
-    disc(ctx, x + 6.5, top + 6.5, 0.9, r() < 0.5 ? "#d8a040" : "#5ac060");
-  }
-  if (!simple()) {
-    for (let y = top + h - 9; y < top + h - 4; y += 2)
-      flat(ctx, x + w - 10, y, 6, 0.8, "mLine");
-    rivets(ctx, x + 2, top + 2.2, w - 4, 6, "m3");
-    rivets(ctx, x + 2, top + h - 2.2, w - 4, 6, "m3");
-  }
-  if (r() < 0.5)
-    G.rustPatch(ctx, x + w * (0.2 + r() * 0.6), top + h * (0.3 + r() * 0.5), 2.5, 2, seed + 1);
 };
+const gaugeModule = (ctx, x, top, w, h, r) => {
+  housing(ctx, x, top, w, h);
+  const cx = x + w / 2;
+  const rr = min(w * 0.22, h * 0.14, 7);
+  const cy = top + 7 + rr;
+  disc(ctx, cx, cy, rr + 1.5, MACH[0], MLINE);
+  disc(ctx, cx, cy, rr, "#8c8268", MLINE);
+  const a = -PI * (0.2 + r() * 0.6);
+  line(ctx, [[cx, cy], [cx + cos(a) * rr * 0.8, cy + sin(a) * rr * 0.8]], "#8a1a10", 1);
+  const ly = cy + rr + 6;
+  ["#e0a030", "#5ac060", "#d03818"].forEach((c, i) => disc(ctx, x + w * (0.25 + i * 0.25), ly, 1.6, r() < 0.7 ? c : "#2a2420", MLINE));
+  if (ly + 14 < top + h) {
+    flat(ctx, x + 4, ly + 5, w - 8, top + h - ly - 11, MACH[2], MLINE);
+    flat(ctx, x + w - 9, ly + 8, 3, 5, MACH[3], MLINE);
+  }
+};
+const finsModule = (ctx, x, top, w, h) => {
+  housing(ctx, x, top, w, h);
+  flat(ctx, x + 3, top + 6, w - 6, h - 12, MACH[0], MLINE);
+  for (let y = top + 8; y < top + h - 8; y += 4) {
+    flat(ctx, x + 3, y, w - 6, 2, MACH[2]);
+    flat(ctx, x + 3, y, w - 6, 0.6, MACH[3]);
+  }
+};
+const wheelModule = (ctx, x, top, w, h) => {
+  housing(ctx, x, top, w, h);
+  const rr = min(w, h) * 0.24;
+  const cx = x + w / 2;
+  const cy = top + h - rr * 1.3 - 6;
+  line(ctx, [[cx - rr * 0.9, cy], [cx - 1.5, top + 8]], "#0a0806", 1.6);
+  line(ctx, [[cx + rr * 0.9, cy], [cx + 1.5, top + 8]], "#0a0806", 1.6);
+  disc(ctx, cx, top + 8, 3, MACH[2], MLINE);
+  cog(ctx, cx, cy, rr, 10);
+};
+const pistonModule = (ctx, x, top, w, h, r) => {
+  flat(ctx, x, top, w, h, MACH[0], MLINE);
+  line(ctx, [[x + 5, top + 4], [x + w - 5, top + h - 4]], MACH[1], 2);
+  line(ctx, [[x + w - 5, top + 4], [x + 5, top + h - 4]], MACH[1], 2);
+  for (const px of [x, x + w - 5]) {
+    flat(ctx, px, top, 5, h, MACH[2], MLINE);
+    flat(ctx, px + 1, top, 1, h, MACH[3]);
+  }
+  const cw = min(12, w * 0.4);
+  const cx = x + w / 2 - cw / 2;
+  const ext = h * (0.2 + r() * 0.2);
+  cylV(ctx, cx, top + h * 0.45, cw, h * 0.55 - 4, "steel", 1);
+  cylV(ctx, cx + cw * 0.3, top + h * 0.45 - ext, cw * 0.4, ext, "chrome", 1);
+  box(ctx, cx - 2, top + h * 0.45 - ext - 4, cw + 4, 5, "steel", 2);
+};
+const ventModule = (ctx, x, top, w, h) => {
+  housing(ctx, x, top, w, h);
+  const vx = x + 4;
+  const vy = top + h * 0.3;
+  const vw = w - 8;
+  const vh = h * 0.45;
+  flat(ctx, vx, vy, vw, vh, "#0a0604", MLINE);
+  glow(ctx, vx + vw / 2, vy + vh / 2, min(vw, vh) * 0.7, "#ff7020", 0.4);
+  for (let y = vy + 2; y < vy + vh - 1; y += 3.4)
+    flat(ctx, vx, y, vw, 1.6, MACH[2]);
+};
+const MODULES = [gaugeModule, finsModule, wheelModule, pistonModule, ventModule];
 const caveMachine = {
   id: "caveMachine",
   box: [0, -72, 72, 0],
-  draw(ctx, _state, _t, { w = 72, h = 72 } = {}) {
-    const seed = 860 + round(w) * 3 + round(h);
-    const n = max(1, round(w / 24));
+  draw(ctx, state, _t, { w = 72, h = 72 } = {}) {
+    const seed = 860 + round(w) * 3 + round(h) + state * 53;
+    const r = rng(seed);
+    const n = max(1, round(w / 30));
     const pw = w / n;
-    const rows = max(1, round(h / 36));
-    const ph = (h - 4) / rows;
-    flat(ctx, 0, -h, w, h, "m0", "mLine");
-    for (let j = 0; j < rows; j++)
-      for (let i = 0; i < n; i++)
-        machinePanel(ctx, i * pw, -h + j * ph, pw, ph, seed + i * 7 + j * 31);
-    box(ctx, -1, -4, w + 2, 4, "steel", 0);
+    let last = -1;
+    for (let i = 0; i < n; i++) {
+      let k = i === 0 ? state % MODULES.length : floor(r() * MODULES.length);
+      if (k === last)
+        k = (k + 1) % MODULES.length;
+      last = k;
+      MODULES[k](ctx, i * pw, -h + 5, pw, h - 10, r);
+    }
+    box(ctx, -1, -h, w + 2, 5, "steel", 1);
+    box(ctx, -2, -5, w + 4, 5, "steel", 0);
     G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed + 2);
-    G.drips(ctx, 0, -h, w, min(h * 0.5, 40), seed + 3, max(1, round(w / 18)));
-    G.dirt(ctx, 0, -h, w, h, seed + 4, min(0.4, 30 / h));
+    G.drips(ctx, 0, -h + 4, w, min(h * 0.3, 22), seed + 3, max(1, round(w / 26)));
+    G.dirt(ctx, 0, -h, w, h, seed + 4, min(0.45, 34 / h));
     G.chips(ctx, 0, -h + 0.6, w, seed + 5);
+    G.rustPatch(ctx, w * (0.2 + r() * 0.6), -h * (0.3 + r() * 0.4), 3, 2.5, seed + 6);
   },
 };
 const metalPillars = {
@@ -737,26 +825,64 @@ const lavaFall = {
   id: "lavaFall",
   box: [-4, -148, 148, 2],
   draw(ctx, _state, _t, { w = 144, h = 144 } = {}) {
-    const r = rng(1090 + round(w) + round(h));
-    for (let y = -h + 2; y < -2; y += 16) {
-      const bh = min(12, -2 - y);
-      const g = ctx.createLinearGradient(0, y, 0, y + bh);
-      g.addColorStop(0, LAVA[3]);
-      g.addColorStop(0.4, LAVA[2]);
-      g.addColorStop(1, LAVA[1]);
-      ctx.fillStyle = g;
-      ctx.fillRect(0, y, w, bh);
-      if (!simple())
-        for (let x = r() * 2; x < w; x += 1.6 + r() * 2.4)
-          flat(ctx, x, y + r() * 3, 0.7, bh * (0.4 + r() * 0.6), r() < 0.5 ? LAVA[1] : LAVA[3]);
-      for (let x = r() * 10; x < w - 4; x += 12 + r() * 20)
-        veil(ctx, blob(x, y + bh * 0.6, 2 + r() * 3, 1.4, round(x + y), 6), LAVA[0], 0.5);
-      flat(ctx, 0, y + bh, w, 16 - bh, "#3a0c04");
+    const seed = 1090 + round(w) + round(h);
+    const r = rng(seed);
+    glow(ctx, w / 2, -h * 0.35, w * 0.6, "#ff5a10", 0.3);
+    const opening = [
+      ...jag(w * 0.16, w * 0.84, -h + 2, 2.5, 8, seed),
+      ...jag(-h + 2, -9, w * 0.9, 3, 10, seed + 1).map(([y, x]) => [x + (y + h) * 0.06, y]),
+      ...jag(w * 0.04, w * 0.97, -9, 1.5, 9, seed + 2).reverse(),
+      ...jag(-h + 2, -9, w * 0.1, 3, 10, seed + 3).map(([y, x]) => [x - (y + h) * 0.05, y]).reverse(),
+    ];
+    const [mx, my] = [w / 2, -h / 2];
+    const ring = opening.map(([x, y]) => [mx + (x - mx) * 1.1, my + (y - my) * 1.06]);
+    shape(ctx, ring, CEIL[2], RLINE);
+    G.grain(ctx, G.polyRegion(ctx, ring), seed + 8, 0.8);
+    shape(ctx, opening, "#0c0402");
+    ctx.save();
+    path(ctx, opening);
+    ctx.clip();
+    const inner = ctx.createLinearGradient(0, -h, 0, 0);
+    inner.addColorStop(0, "rgba(120,30,6,0.1)");
+    inner.addColorStop(1, "rgba(255,110,30,0.4)");
+    ctx.fillStyle = inner;
+    ctx.fillRect(0, -h, w, h);
+    const fall = [[w * 0.32, -h], [w * 0.68, -h], [w * 0.74, -h * 0.5], [w * 0.8, 0], [w * 0.2, 0], [w * 0.26, -h * 0.5]];
+    const g = ctx.createLinearGradient(w * 0.2, 0, w * 0.8, 0);
+    g.addColorStop(0, LAVA[1]);
+    g.addColorStop(0.3, LAVA[2]);
+    g.addColorStop(0.5, LAVA[3]);
+    g.addColorStop(0.7, LAVA[2]);
+    g.addColorStop(1, LAVA[1]);
+    ctx.fillStyle = g;
+    path(ctx, fall);
+    ctx.fill();
+    ctx.save();
+    path(ctx, fall);
+    ctx.clip();
+    for (let x = w * 0.2 + r() * 3; x < w * 0.8; x += 2.5 + r() * 3.5) {
+      const wob = rng(seed + round(x * 7));
+      const pts = [];
+      for (let y = -h; y <= 0; y += 12)
+        pts.push([x + (wob() - 0.5) * 2.4, y]);
+      line(ctx, pts, r() < 0.5 ? LAVA[3] : LAVA[1], 0.8 + r() * 1.2);
     }
-    flat(ctx, -4, -h - 2, w + 8, 4, ROCK[2], RLINE);
-    flat(ctx, -4, -3, w + 8, 4, ROCK[2], RLINE);
-    for (const x of [-4, w])
-      flat(ctx, x, -h - 2, 4, h, ROCK[1], RLINE);
+    for (let i = 0; i < w / 6; i++) {
+      const cx = w * 0.22 + r() * w * 0.56;
+      const cy = -h + r() * h;
+      veil(ctx, blob(cx, cy, 1.2 + r() * 1.6, 4 + r() * 6, seed + i * 3, 6), LAVA[0], 0.4);
+    }
+    ctx.restore();
+    glow(ctx, w / 2, -10, w * 0.42, "#ffb040", 0.6);
+    ctx.restore();
+    line(ctx, [...opening, opening[0]], LAVA[1], 1.6);
+    path(ctx, opening);
+    stroke(ctx, RLINE, 0.8);
+    const sill = [[-4, 2], ...jag(-4, w + 4, -13, 2.2, 7, seed + 5), [w + 4, 2]];
+    shape(ctx, sill, ROCK[2], RLINE);
+    line(ctx, jag(w * 0.08, w * 0.92, -13.5, 1.2, 7, seed + 5), LAVA[2], 1.2);
+    G.grain(ctx, G.polyRegion(ctx, sill), seed + 6, 0.8);
+    G.chips(ctx, w * 0.1, -13, w * 0.8, seed + 7);
   },
 };
 const chasm = {
@@ -813,9 +939,285 @@ const entryCard = {
     flat(ctx, -6, -6, 5, 3, "#c8a018");
   },
 };
+const WOOD = ["#1a1009", "#33210f", "#4e3519", "#6c4c26"];
+const CEIL = ["#080605", "#0d0a07", "#13100b", "#1a160f"];
+const GROUND = ["#0a0705", "#16110c", "#231b13", "#33291c"];
+const flowstone = (ctx, x, cw, h, seed) => {
+  const r = rng(seed);
+  const waist = cw * (0.3 + r() * 0.2);
+  const left = [[x - cw * 0.7, -h - 1], [x - waist, -h * 0.55], [x - waist * 0.8, -h * 0.4], [x - cw * 0.6, 1]];
+  const right = [[x + cw * 0.6, 1], [x + waist * 0.9, -h * 0.45], [x + waist, -h * 0.6], [x + cw * 0.7, -h - 1]];
+  const body = [...left, ...right];
+  shape(ctx, body, CEIL[2]);
+  ctx.save();
+  path(ctx, body);
+  ctx.clip();
+  shape(ctx, [...left, [x - cw * 0.15, 1], [x - waist * 0.3, -h * 0.5], [x - cw * 0.15, -h - 1]], CEIL[3]);
+  shape(ctx, [[x + cw * 0.25, -h - 1], [x + waist * 0.35, -h * 0.5], [x + cw * 0.3, 1], ...right], CEIL[0]);
+  for (let y = -h + 6 + r() * 6; y < -4; y += 6 + r() * 8)
+    line(ctx, [[x - cw, y], [x, y + 1.5], [x + cw, y]], CEIL[1], 0.8);
+  ctx.restore();
+};
+const stalagmite = (ctx, x, y, ht) => {
+  const bw = ht * 0.32;
+  veil(ctx, [[x, y], [x + bw * 2.6, y + 1.5], [x + bw * 2.2, y + 3], [x - bw * 0.4, y + 2]], GROUND[0], 0.6);
+  shape(ctx, [[x - bw, y], [x - bw * 0.2, y - ht * 0.7], [x, y - ht], [x + bw * 0.25, y - ht * 0.65], [x + bw, y]], GROUND[2]);
+  shape(ctx, [[x - bw, y], [x - bw * 0.2, y - ht * 0.7], [x, y - ht], [x - bw * 0.05, y]], GROUND[3]);
+  shape(ctx, [[x - bw * 0.15, y - ht * 0.72], [x, y - ht], [x + bw * 0.1, y - ht * 0.75]], "#4c3f2e");
+};
+const farScaffold = (ctx, w, y, r) => {
+  const x0 = w * (0.1 + r() * 0.2);
+  const x1 = w * (0.6 + r() * 0.3);
+  const deck = y - 10;
+  for (let x = x0 + 2; x < x1 - 4; x += 22 + r() * 10) {
+    flat(ctx, x, deck, 2.4, y - deck, CEIL[3]);
+    line(ctx, [[x + 1, deck + 2], [x + 9, y]], CEIL[2], 1.2);
+  }
+  flat(ctx, x0, deck, x1 - x0, 2.4, CEIL[3]);
+  flat(ctx, x0, deck - 7, x1 - x0, 1, CEIL[3]);
+  for (let x = x0 + 4; x < x1; x += 12)
+    flat(ctx, x, deck - 7, 0.9, 7, CEIL[2]);
+  for (let x = x0 + 8; x < x1; x += 30 + r() * 20) {
+    glow(ctx, x, deck - 10, 9, "#ffb050", 0.5);
+    disc(ctx, x, deck - 10, 1.1, "#e8a848");
+  }
+};
+const caveDepths = {
+  id: "caveDepths",
+  box: [0, -144, 240, 0],
+  draw(ctx, state, _t, { w = 240, h = 144 } = {}) {
+    const seed = 1120 + round(w) * 3 + round(h) * 7 + state * 101;
+    const r = rng(seed);
+    const band = -min(h * 0.55, 58);
+    const horizon = -min(h * 0.38, 40);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, -h, w, h);
+    ctx.clip();
+    flat(ctx, 0, -h, w, h, CEIL[1]);
+    for (let i = 0; i < (w * (h + band)) / 260; i++) {
+      const x = r() * w;
+      const y = -h + r() * (h + band);
+      const rx = 4 + r() * 8;
+      const ry = 3 + r() * 5;
+      shape(ctx, blob(x + 0.8, y + 0.9, rx, ry, seed + i), CEIL[0]);
+      shape(ctx, blob(x, y, rx, ry, seed + i), CEIL[r() < 0.5 ? 1 : 2]);
+      veil(ctx, blob(x - rx * 0.3, y - ry * 0.3, rx * 0.5, ry * 0.4, seed + i + 1, 7), r() < 0.3 ? "#1c2012" : CEIL[3], 0.3);
+    }
+    shape(ctx, [...jag(-4, w + 4, band, 2.5, 7, seed + 1), [w + 4, horizon + 2], [-4, horizon + 2]], "#070504");
+    for (let x = r() * 6; x < w; x += 5 + r() * 10) {
+      const l = 3 + r() * min(16, (horizon - band) * 0.5);
+      const sw = 3 + r() * 5;
+      shape(ctx, [[x, band - 3], [x + sw, band - 3], [x + sw * 0.5, band + l]], CEIL[1]);
+    }
+    if (state !== 2)
+      for (let x = 30 + r() * 60; x < w - 12; x += 110 + r() * 120)
+        flowstone(ctx, x, 10 + r() * 10, h, seed + round(x) * 5);
+    const ground = ctx.createLinearGradient(0, horizon, 0, 0);
+    ground.addColorStop(0, GROUND[1]);
+    ground.addColorStop(0.8, GROUND[3]);
+    ground.addColorStop(1, GROUND[2]);
+    ctx.fillStyle = ground;
+    path(ctx, [...jag(-4, w + 4, horizon, 1.2, 10, seed + 2), [w + 4, 1], [-4, 1]]);
+    ctx.fill();
+    for (let y = horizon + 4; y < -3; y += 4 + r() * 4)
+      veil(ctx, jag(r() * w * 0.5, w * (0.5 + r() * 0.5), y, 0.6, 12, seed + round(y) * 9), GROUND[0], 0.5);
+    if (state === 0) {
+      const ry = horizon * 0.6;
+      const lava = ctx.createLinearGradient(0, ry - 22, 0, ry);
+      lava.addColorStop(0, "rgba(255,90,20,0)");
+      lava.addColorStop(1, "rgba(255,100,24,0.16)");
+      ctx.fillStyle = lava;
+      ctx.fillRect(0, ry - 22, w, 22);
+      const bank = jag(-4, w + 4, ry, 0.8, 6, seed + 3);
+      shape(ctx, [...bank, ...jag(-4, w + 4, ry + 2.2, 0.6, 8, seed + 4).reverse()], LAVA[0]);
+      line(ctx, bank, LAVA[1], 0.8);
+      for (let x = r() * 6; x < w; x += 4 + r() * 8)
+        flat(ctx, x, ry + 0.6, 2 + r() * 3, 0.6, LAVA[1]);
+    }
+    const mites = [];
+    for (let i = 0; i < w / 18; i++)
+      mites.push([r() * w, horizon + 3 + r() * (-horizon - 6)]);
+    mites.sort((a, b) => a[1] - b[1]);
+    for (const [x, y] of mites)
+      stalagmite(ctx, x, y, (6 + r() * 18) * (0.5 + (y - horizon) / -horizon));
+    if (state === 2)
+      farScaffold(ctx, w, horizon + 8, r);
+    const shade = ctx.createLinearGradient(0, -h, 0, band);
+    shade.addColorStop(0, "rgba(0,0,0,0.45)");
+    shade.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = shade;
+    ctx.fillRect(0, -h, w, h + band);
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed + 3, 0.35);
+    ctx.restore();
+  },
+};
+const timberV = (ctx, x, top, h, seed) => {
+  const r = rng(seed);
+  flat(ctx, x, top, 8, h, WOOD[1], RLINE);
+  flat(ctx, x + 1, top, 2, h, WOOD[2]);
+  flat(ctx, x + 6, top, 1.6, h, WOOD[0]);
+  for (let i = 0; i < 3; i++) {
+    const gx = x + 2 + r() * 4;
+    line(ctx, [[gx, top + r() * h * 0.3], [gx + (r() - 0.5) * 1.5, top + h * (0.5 + r() * 0.5)]], WOOD[0], 0.6);
+  }
+  G.grain(ctx, G.rectRegion(ctx, x, top, 8, h), seed + 1);
+  G.dirt(ctx, x, top, 8, h, seed + 2, min(0.4, 30 / h));
+  for (const y of [top + h * (0.25 + r() * 0.1), top + h * 0.7]) {
+    flat(ctx, x - 0.6, y, 9.2, 3, "m1", "mLine");
+    disc(ctx, x + 4, y + 1.5, 0.8, "m3");
+    G.drips(ctx, x, y + 3, 8, 7, seed + round(y), 1);
+  }
+};
+const timberH = (ctx, x, y, w, seed) => {
+  flat(ctx, x, y, w, 9, WOOD[1], RLINE);
+  flat(ctx, x, y + 1, w, 1.8, WOOD[3]);
+  flat(ctx, x, y + 7, w, 1.6, WOOD[0]);
+  const r = rng(seed);
+  for (let i = 0; i < w / 12; i++) {
+    const gx = x + r() * w;
+    line(ctx, [[gx, y + 3 + r() * 3], [gx + 6 + r() * 8, y + 3 + r() * 3]], WOOD[0], 0.6);
+  }
+  G.grain(ctx, G.rectRegion(ctx, x, y, w, 9), seed + 1);
+  G.chips(ctx, x, y + 0.6, w, seed + 2);
+};
+const mineShoring = {
+  id: "mineShoring",
+  box: [-4, -96, 76, 0],
+  draw(ctx, state, _t, { w = 72, h = 96 } = {}) {
+    const seed = 1130 + round(w) * 3 + round(h) + state * 41;
+    const top = -h + 9;
+    const brace = (a, b) => {
+      line(ctx, [a, b], RLINE, 5.4, "butt");
+      line(ctx, [a, b], WOOD[1], 4, "butt");
+      line(ctx, [a, b], WOOD[2], 1.2, "butt");
+    };
+    timberV(ctx, 0, top, h - 9, seed + 1);
+    timberV(ctx, w - 8, top, h - 9, seed + 2);
+    brace([8, top + 14], [20, top]);
+    if (state === 2) {
+      ctx.save();
+      ctx.translate(-4, -h);
+      ctx.rotate(0.05);
+      timberH(ctx, 0, 0, w * 0.58, seed + 3);
+      ctx.restore();
+      ctx.save();
+      ctx.translate(w + 4, -h);
+      ctx.rotate(-0.16);
+      timberH(ctx, -w * 0.5, 0, w * 0.5, seed + 4);
+      ctx.restore();
+      shape(ctx, [[w * 0.52, -h + 1], [w * 0.58, -h + 4], [w * 0.5, -h + 9], [w * 0.55, -h + 5]], WOOD[3], RLINE);
+      return;
+    }
+    brace([w - 8, top + 14], [w - 20, top]);
+    timberH(ctx, -4, -h, w + 8, seed + 3);
+    if (state !== 1)
+      return;
+    const lx = w / 2;
+    line(ctx, [[lx, top], [lx, top + 9]], RLINE, 0.8);
+    glow(ctx, lx, top + 15, 26, "#ffb850", 0.45);
+    box(ctx, lx - 3, top + 9, 6, 3, "steel", 1);
+    disc(ctx, lx, top + 15.5, 3.4, "#ffd890");
+    for (const dx of [-2.4, 0, 2.4])
+      line(ctx, [[lx + dx, top + 12], [lx + dx * 1.4, top + 16], [lx + dx, top + 19.5]], "mLine", 0.6);
+  },
+};
+const rockPile = {
+  id: "rockPile",
+  box: [-4, -26, 56, 2],
+  draw(ctx, state) {
+    const seed = 1140 + state * 13;
+    const r = rng(seed);
+    if (state === 1) {
+      line(ctx, [[4, -1], [40, -21]], RLINE, 5.6, "butt");
+      line(ctx, [[4, -1], [40, -21]], WOOD[2], 4, "butt");
+      line(ctx, [[2, -3], [28, -7], [50, -1]], "mLine", 2.8);
+      line(ctx, [[2, -3], [28, -7], [50, -1]], "m2", 1.4);
+    }
+    for (let i = 0; i < 9; i++) {
+      const big = 1 - i / 9;
+      const rx = 3 + big * 7 + r() * 2;
+      const ry = 2.5 + big * 5 + r();
+      const cx = 6 + r() * 40;
+      const cy = -ry * 0.75 - (big > 0.5 ? r() * 4 : 0);
+      const pts = blob(cx, cy, rx, ry, seed + i * 7);
+      shape(ctx, blob(cx + 0.8, cy + 0.8, rx, ry, seed + i * 7), RLINE);
+      shape(ctx, pts, i % 3 === 0 ? STONE[1] : ROCK[3]);
+      veil(ctx, blob(cx - rx * 0.25, cy - ry * 0.35, rx * 0.55, ry * 0.4, seed + i * 7 + 1, 7), STONE[2], 0.5);
+      G.grain(ctx, G.polyRegion(ctx, pts), seed + i, 0.8);
+      path(ctx, pts);
+      stroke(ctx, RLINE);
+    }
+    G.dirt(ctx, 0, -10, 52, 10, seed + 2, 0.5);
+  },
+};
+const ROPE = ["#1c1a14", "#36342a", "#585444", "#7e7862"];
+const cableTwist = {
+  id: "cableTwist",
+  box: [0, -240, 48, 0],
+  draw(ctx, _state, _t, { w = 48, h = 240 } = {}) {
+    const seed = 1150 + round(w) + round(h) * 3;
+    const cw = w * 0.72;
+    const x0 = (w - cw) / 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x0, -h, cw, h);
+    ctx.clip();
+    const g = ctx.createLinearGradient(x0, 0, x0 + cw, 0);
+    g.addColorStop(0, ROPE[0]);
+    g.addColorStop(0.3, ROPE[2]);
+    g.addColorStop(0.55, ROPE[1]);
+    g.addColorStop(1, ROPE[0]);
+    ctx.fillStyle = g;
+    ctx.fillRect(x0, -h, cw, h);
+    const pitch = cw * 0.9;
+    for (let y = -h - pitch; y < pitch; y += pitch * 0.5) {
+      const band = [[x0 - 2, y], [x0 + cw * 0.5, y + pitch * 0.32], [x0 + cw + 2, y + pitch * 0.5], [x0 + cw + 2, y + pitch * 0.66], [x0 + cw * 0.5, y + pitch * 0.48], [x0 - 2, y + pitch * 0.16]];
+      shape(ctx, band, RUSTY[1]);
+      line(ctx, [band[0], band[1], band[2]], RUSTY[3], 0.9);
+      line(ctx, [band[5], band[4], band[3]], ROPE[0], 1.2);
+    }
+    const shade = ctx.createLinearGradient(x0, 0, x0 + cw, 0);
+    shade.addColorStop(0, "rgba(0,0,0,0.55)");
+    shade.addColorStop(0.35, "rgba(0,0,0,0)");
+    shade.addColorStop(1, "rgba(0,0,0,0.6)");
+    ctx.fillStyle = shade;
+    ctx.fillRect(x0, -h, cw, h);
+    G.grain(ctx, G.rectRegion(ctx, x0, -h, cw, h), seed, 0.8);
+    ctx.restore();
+    for (const y of [-h + 2, -8]) {
+      box(ctx, x0 - 3, y, cw + 6, 6, "steel", 1);
+      G.drips(ctx, x0, y + 6, cw, 10, seed + round(y), 1);
+    }
+    G.dirt(ctx, x0, -h * 0.25, cw, h * 0.25, seed + 1, 0.6);
+  },
+};
+const rockRoots = {
+  id: "rockRoots",
+  box: [-10, -240, 10, 0],
+  draw(ctx, _state, _t, { h = 240 } = {}) {
+    const seed = 1160 + round(h) * 7;
+    const r = rng(seed);
+    const pts = [];
+    for (let y = -h; y <= 0; y += 6)
+      pts.push([sin(y * 0.11 + seed) * 2.6 + (r() - 0.5) * 1.6, y]);
+    for (let y = -h + 8 + r() * 10; y < -6; y += 10 + r() * 16) {
+      const side = r() < 0.5 ? -1 : 1;
+      const x = sin(y * 0.11 + seed) * 2.6;
+      const twig = [[x, y], [x + side * (3 + r() * 3), y + 3 + r() * 3], [x + side * (5 + r() * 4), y + 7 + r() * 5]];
+      line(ctx, twig, "#1a0d05", 1.4);
+      line(ctx, twig, "#5a3418", 0.6);
+    }
+    line(ctx, pts, "#140a04", 3);
+    line(ctx, pts, "#3c2210", 2);
+    line(ctx, pts.map(([x, y]) => [x - 0.6, y]), "#5e3a1c", 0.6);
+    for (let y = -h + r() * 12; y < -2; y += 9 + r() * 14)
+      disc(ctx, sin(y * 0.11 + seed) * 2.6 + (r() - 0.5) * 3, y, 0.7, RUSTY[2]);
+  },
+};
 for (const asset of [
   caveRock, caveRockTop, caveFloor, rockLedge, caveBackdrop, rustTube, caveMachine, metalPillars, ropeColumn, caveStalactites, stalactite, crystal, leverBank, leverDoor,
   keyDoors, caveCardDoor, airlock, liftLock, keySlots, stoneBlocks, explosiveTank, mineCarts, cartCrusher, lavaPit, lavaFall, chasm, rod, keyCard("#e8c21a", "yellowKey"), keyCard("#ee7a1a", "orangeKey"),
-  keyCard("#3a70e0", "blueKey"), entryCard,
+  keyCard("#3a70e0", "blueKey"), entryCard, caveDepths, mineShoring, rockPile, cableTwist, rockRoots,
 ]) define(asset);
 })();

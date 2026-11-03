@@ -134,6 +134,7 @@ export interface SandboxWorld {
   dressing: Scenery[];
   terrain: ReturnType<typeof terrain>;
   terrainArt: TerrainArt;
+  haze: string;
   bare: CellRect[];
   ground: number | null;
   fog: Fog | null;
@@ -161,9 +162,12 @@ export interface TerrainArt {
   ledge: AssetId;
   girder: AssetId;
   top?: AssetId;
+  deep?: AssetId;
 }
 
-const TERRAIN_PARTS: (keyof TerrainArt)[] = ["wall", "ledge", "girder", "top"];
+const TERRAIN_PARTS: (keyof TerrainArt)[] = ["wall", "ledge", "girder", "top", "deep"];
+
+const MESTO_HAZE = "rgba(26, 12, 8, 0.45)";
 
 const MESTO_TERRAIN: TerrainArt = { wall: "brickWall", ledge: "streetWalkway", girder: "girderBridge" };
 
@@ -209,6 +213,7 @@ export interface SandboxJson {
   variants?: Record<string, CellPatch[]>;
   bare?: CellRect[];
   terrainArt?: Partial<Record<keyof TerrainArt, string>>;
+  haze?: string;
   ground?: number;
 }
 
@@ -268,6 +273,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     dressing: scenery(data.dressing),
     terrain: terrain(grid),
     terrainArt: terrainArtOf(data.terrainArt),
+    haze: data.haze ?? MESTO_HAZE,
     bare: structuredClone(data.bare ?? []),
     ground: data.ground ?? null,
     fog: null,

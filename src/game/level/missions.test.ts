@@ -82,6 +82,11 @@ describe("missions", () => {
     }
   });
 
+  it("hazes each later mission backdrop in its own colour and mesto in the default", () => {
+    for (const [id, world] of [["vesnice", vesniceWorld], ["jungle", jungleWorld], ["jeskyne", jeskyneWorld]] as const) expect(loadMission(id).haze, id).toBe(world.haze);
+    expect(loadMission("mesto").haze).toBe("rgba(26, 12, 8, 0.45)");
+  });
+
   it("refuses a vesnice snapshot in mesto", () => {
     const vesnice = loadMission("vesnice");
     const hero = createHero(vesnice.spawn, "gun", cfg.energy.max, cfg.energy.shields, cfg.ammo);

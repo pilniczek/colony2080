@@ -1,7 +1,8 @@
 {
   "source": "laid out over docs/research/gamedata/png/maps/map_M21.png (24 px per cell) and docs/research/reports/14-level2-layout.md; terrain art is the crate block wall and the grassy walkway, rock cliffs follow the original rock tiles (sheet 10) on every mass slope, the jungle canopy and ruined walls behind each storey stand for the original parallax backdrop (background frame 0), interactive objects stand as non-interactive dressing in their first state until the tasks phase; bare keeps terrain art off the power bridge cells and off the barricade, wall 14 and barrier wall cells, whose objects draw them; a lift panel stands beside every lift stop",
   "sky": "villageBackdrop",
-  "terrainArt": {"wall": "crateWall", "ledge": "grassyWalkway", "girder": "walkwayGirder", "top": "massTop"},
+  "haze": "rgba(28, 22, 12, 0.4)",
+    "terrainArt": {"wall": "crateWall", "ledge": "grassyWalkway", "girder": "walkwayGirder", "top": "massTop", "deep": "jungleRock"},
   "backdrop": [
     {"asset": "jungleCanopy", "x": 8, "y": 32, "w": 22, "h": 6},
     {"asset": "jungleCanopy", "x": 28, "y": 32, "w": 18, "h": 7},

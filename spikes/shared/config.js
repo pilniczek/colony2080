@@ -9227,7 +9227,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Orange striped glowing block at columns 37-42, rows 68-73 (sheet 1 tile 3) and orange strips in the bottom corridor floor (sheet 1 tiles 4-7). Effect on the hero not traced.",
+      "description": "Orange striped glowing block at columns 37-42, rows 68-73 (sheet 1 tile 3) and orange strips in the bottom corridor floor (sheet 1 tiles 4-7). Ours: a lava cascade in a cleft of the back wall, its pool hidden behind a lit rock sill; sized by w and h. Effect on the hero not traced.",
       "states": [],
       "refs": [
        {
@@ -9295,7 +9295,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Big ribbed rusty tube behind the corridors, after the orange tunnel tiles of the original map; sized by w and h in cells, drawn upright when h is more than w (spawn shaft); state 1 has a scorched hole.",
+      "description": "Big corrugated rusty tube behind the corridors, after the orange tunnel tiles of the original map: crescent ribs, round shading, steel collars at the ends and joints, now and then a riveted green hatch; sized by w and h in cells, drawn upright when h is more than w (spawn shaft); state 1 has a scorched hole.",
       "states": [
        "whole",
        "holed"
@@ -9311,8 +9311,14 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Grey-green riveted machine panels with pipes, vents and dim lamps set into the cave, after the green machine tiles of the original map; sized by w and h.",
-      "states": [],
+      "description": "Grey-green riveted machine bank set into the cave, after the green machine tiles of the original map: modules side by side (gauge panel, cooling fins, flywheel, piston frame, glowing vent), the state picks the first module; sized by w and h.",
+      "states": [
+       "gauge first",
+       "fins first",
+       "flywheel first",
+       "piston first",
+       "vent first"
+      ],
       "refs": []
      },
      {
@@ -9341,6 +9347,82 @@ window.C28_CONFIG = {
       "task": null,
       "sheet": "machines",
       "description": "Toothed crushing rollers in a steel frame at the east end of the mine cart conveyor, the cart crush death zone (columns 123-125, report 16 zones), with sparks.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "caveDepths",
+      "name": "Far cave hall",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Backdrop of a deeper cave hall behind each corridor, after the original parallax backdrop (background frame 0): mossy rock ceiling, a dark band with stalactite teeth, a pale ground with stalagmites; state 0 adds a far lava river, state 1 flowstone columns only, state 2 a lit mine gallery; sized by w and h in cells.",
+      "states": [
+       "lava river",
+       "plain",
+       "mine gallery"
+      ],
+      "refs": []
+     },
+     {
+      "id": "mineShoring",
+      "name": "Mine shoring frame",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Timber support frame (two posts, knee braces and a cap beam with iron straps) standing on a floor up to the ceiling; sized by w and h in cells; state 1 hangs a caged lamp from the beam, state 2 has a cracked sagging beam.",
+      "states": [
+       "plain",
+       "lamp",
+       "cracked"
+      ],
+      "refs": []
+     },
+     {
+      "id": "rockPile",
+      "name": "Rock rubble",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Small ground clutter: a heap of fallen rocks; state 1 with a broken plank and a bent rail.",
+      "states": [
+       "rocks",
+       "rocks with plank"
+      ],
+      "refs": []
+     },
+     {
+      "id": "cableTwist",
+      "name": "Twisted cable column",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thick twisted rope or cable bundle with steel clamps top and bottom, after the twisted column of the original map (columns 62-64, rows 51-60); sized by w and h in cells.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "rockRoots",
+      "name": "Root strands on rock",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thin dark roots with side twigs and orange flecks running down a rock face, after the root strands along the walls of the original map; sized by h in cells, drawn up from y.",
       "states": [],
       "refs": []
      }
@@ -10586,7 +10668,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Cylindrical tanks on plank row 37 (cells 57-66); same kind as mesto.",
+      "description": "Cylindrical tank on the camp floor by the waterfall (cells 85-89, row 19); same kind as mesto.",
       "states": [],
       "refs": [
        {
@@ -10627,8 +10709,12 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "buildings",
-      "description": "Small concrete buildings with windows on plank rows 25 and 32 (cells 37-44 and 50-57).",
-      "states": [],
+      "description": "Small concrete buildings with barred windows on plank rows 20 and 32 (cells 37-44 and 50-57). State 1 adds a steel door and a roof vent with an antenna mast, state 2 a scorched shell hole with rubble below; sized by w and h.",
+      "states": [
+       "plain",
+       "door and roof vent",
+       "shell hole"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M31.png",
@@ -10749,8 +10835,11 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Brown riveted box girder with recessed panels, drawn over the bare cells of the thin platforms (rows 13, 25, 28, 30, 31) on girderColumn posts; sized by w.",
-      "states": [],
+      "description": "Riveted girder platform drawn over the bare cells of the thin platforms (rows 13, 25, 28, 30, 31) on girderColumn posts; sized by w. State 1 is the teal steel walkway of the east deck (row 25, cols 104-143).",
+      "states": [
+       "rusty box girder",
+       "steel walkway"
+      ],
       "refs": []
      },
      {
@@ -10806,6 +10895,163 @@ window.C28_CONFIG = {
       "task": null,
       "sheet": "structures",
       "description": "Terrain art for the top cell of a jungle rock wall (terrainArt top): the cobble rock under a ragged moss cap with grass tufts; sized by w.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "jungleTree",
+      "name": "Jungle tree",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Tall backdrop tree on buttress roots with a strangler vine, moss patches and lianas; h in cells sets its height. Fills the open sky between floors under the depth haze.",
+      "states": [
+       "broadleaf crown",
+       "palm crown",
+       "burnt snag"
+      ],
+      "refs": []
+     },
+     {
+      "id": "campFence",
+      "name": "Camp fence",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Chain-link fence of the jungle camp on rusty posts with a barbed wire coil on top; sized by w (a post every 2 cells).",
+      "states": [
+       "plain",
+       "mine warning sign",
+       "torn panel"
+      ],
+      "refs": []
+     },
+     {
+      "id": "sandbags",
+      "name": "Sandbags",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Dark muddy sandbag wall, small ground clutter at building edges; sized by w.",
+      "states": [
+       "three rows",
+       "broken low pile"
+      ],
+      "refs": []
+     },
+     {
+      "id": "tankRack",
+      "name": "Tank rack",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Steel frame of horizontal steel tanks with domed ends, valve boxes and red hand wheels, under plank row 25 (cells 58-71, rows 26-31); sized by w and h, a riser pipe fills any height over the tanks.",
+      "states": [
+       "two tiers",
+       "one tier"
+      ],
+      "refs": []
+     },
+     {
+      "id": "mossWall",
+      "name": "Mossy back wall",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Dark mossy cobble back wall behind floor 37 (cells 61-75, rows 33-36) and the cave behind the pipe (cells 89-95, rows 42-47); sized by w and h, drawn in the backdrop under the haze.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "cavePipe",
+      "name": "Cave pipe",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Teal lit pipe on a rusty rail with L brackets and thin bars along the cave wall (cells 89-95, rows 42-46); sized by w.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "rockOverhang",
+      "name": "Rock overhang",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Boulder mass hanging under the jeep ledge (cells 80-90, rows 12-16), tapering down with moss and vines; sized by w and h.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "stonePier",
+      "name": "Stone pier wall",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Concrete wall with stone-filled pillars: the pier under plank row 20 (cells 46-50, rows 27-31), the pillar and low wall east of the camp building (cells 77-84, rows 16-19); sized by w and h.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "deckRailing",
+      "name": "Deck railing",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Yellow double rail on steel posts along the east steel deck (cells 121-129, row 24); sized by w.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "pipeStack",
+      "name": "Pipe stack",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Pile of lying rusty pipes on the east steel deck (cells 135-141, row 24); sized by w.",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "pumpUnit",
+      "name": "Pump unit",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Rusty red pump with a steel cylinder and pipes up into the floor above, under floor 32 (cells 58-60, rows 33-36); sized by w and h.",
       "states": [],
       "refs": []
      }

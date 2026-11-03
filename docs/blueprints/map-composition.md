@@ -28,7 +28,7 @@ flowchart TD
 
 - Collision, lifts, items, objects and enemies come from the decoded original level data; Claude lays out the scenery over the decoded map image. [R: Mission 1 layout] [R: Levels 2-4 layout]
 - The original map (dev overlay, key `o` on `game.html`) is the reference for every fix that has an original counterpart. [F]
-- Change the map only in `levelmap.py` (`sky`, `patches`, `borderFills`, `unseen`, `holes`, `plankGaps`, `width`), never in `map.json`. [F] [T]
+- Change the map only in `levelmap.py` (`sky`, `patches`, `borderFills`, `unseen`, `holes`, `plankGaps`, `liftSplits`, `width`), never in `map.json`. [F] [T]
 - Before a change, regenerate and diff: the output must match the committed file. [S]
 - All missions use the same converter and reach tests; a task that changes the map applies a whole-map variant over the base, never stacked on another variant. [R: Levels 2-4 layout] [H: 94261352 2026-10-20]
 
@@ -78,7 +78,8 @@ flowchart TD
 - Wall-mounted things (vent, wire box, code lock) sit on a wall, column or other solid object; where the backdrop has none, a short `brickWall` stands behind them. [R: Scenery placement]
 - A pipe never ends in view: a wall or building listed after it covers its end. A wall pipe runs only along a wall edge (`brickWall` state 0 ends a run, state 1 fills inside it). [R: Scenery placement]
 - A floor that reaches a lift shaft from both sides, or from one side up to a wall, runs on behind it, darkened. Floor and scenery art never covers a lift shaft. [R: Scenery placement] [R: Lift art]
-- A lift panel stands in the cell beside the shaft at every lift stop, on the original side. [R: Mesto map art]
+- A lift panel stands in the cell beside the shaft at every lift stop, on the original side; where that cell is taken (another shaft, a door), it may stand on the other side. [R: Mesto map art] [H: 3ea5cd5a 2026-11-03]
+- Where two scenery items collide (door over a lift panel or a ledge stair), move one 1 or 2 tiles off its original cell. [H: 3ea5cd5a 2026-11-03]
 - Every use spot shows a visible object where the hero stands to use it (the crane key panel on its lattice mast at the winch); art drawn far from its use spot leaves players lost. [H: 61b4052c 2026-10-20] [R: Crane level]
 - Non-blocking tall scenery stays in the backdrop under the depth haze, so it never reads as solid. [R: Sandbox reskin]
 - Background art never looks like a movement blocker (a column on the big stair read as a wall), and scenery on a floor never looks like a pickup item (light brown crates confused players). [H: 0841ea1e 2026-10-19] [H: 47630b39 2026-10-23]
@@ -114,9 +115,12 @@ flowchart TD
 ## New assets
 
 - Draw in the spike first (`spikes/shared/env-*.js`), then port to `src/game/env/` and register the id in `assets.ts`. [F] [CLAUDE.md]
-- Every new map object of a mission gets our own vector variant before the map uses it; original screenshots are only references. [H: 94261352 2026-10-20] [R: Mission 2 art]
+- Every new map object of a mission gets our own vector variant before the map uses it; original screenshots are only references. [H: 94261352 2026-10-20] [R: Missions 2-4 art]
 - Add an `objects.json` entry with `"origin": "new"`, so the env-design sheet lists it under the new non-interactive group; run `node spikes/shared/build-config.mjs`. [S]
 - Judge size on the env-design sheet against its hero, which has game height. [S]
+- Keep every scenery and terrain drawing inside its asset box plus one cell: a tile paints only the scenery whose box meets it, so a glow outside the box is cut off at tile seams. [CLAUDE.md]
+- An asset whose ids clash with another mission gets a mission name (`explosiveTank`, `caveCardDoor`), since all missions share one id registry. [CLAUDE.md]
+- A mission sets its terrain look in `world.json` `terrainArt` (`wall`, `ledge`, `girder`, `top`, `deep`) and its backdrop `haze`; missing parts fall back to the mesto assets. [CLAUDE.md]
 
 ## Check
 

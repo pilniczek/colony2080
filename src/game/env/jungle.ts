@@ -255,11 +255,30 @@ const beamPanel = (ctx: Ctx, x: number, w: number, seed: number): void => {
   if (rng(seed)() < 0.4) G.rustPatch(ctx, x + w * 0.5, 10, 3, 2, seed);
 };
 
+const steelDeck = (ctx: Ctx, w: number, seed: number): void => {
+  box(ctx, 0, 3, w, 15, "steel", 1);
+  for (let x = 0; x < w - 4; x += 24) {
+    flat(ctx, x + 2, 6, 20, 8, "m0", "mLine");
+    line(ctx, [[x + 4, 13], [x + 12, 7], [x + 20, 13]], "r2", 1.6);
+    if (!simple()) disc(ctx, x + 12, 10, 1, "m3");
+  }
+  box(ctx, 0, -0.5, w, 4, "steel", 2);
+  if (!simple()) flat(ctx, 0, 0.2, w, 0.8, "m3");
+  box(ctx, 0, 17, w, 4, "rust", 2);
+  box(ctx, 0, 10, w, 3, "chrome", 1);
+  rivets(ctx, 2, 1.4, w - 4, 8, "m3");
+  G.grain(ctx, G.rectRegion(ctx, 0, -0.5, w, 21.5), seed + 1);
+  G.drips(ctx, 0, 20, w, 8, seed + 3, max(1, round(w / 30)));
+  G.chips(ctx, 0, 0, w, seed + 4);
+  G.dirt(ctx, 0, 3, w, 15, seed + 5, 0.3);
+};
+
 const jungleBeam: EnvAsset = {
   id: "jungleBeam",
   box: [0, -1, 96, 21],
-  draw(ctx, _state, _t, { w = 96 }) {
+  draw(ctx, state, _t, { w = 96 }) {
     const seed = 460 + round(w) * 3;
+    if (state === 1) return steelDeck(ctx, w, seed);
     box(ctx, 0, 3, w, 14, "rust", 1);
     for (let x = 0; x < w - 4; x += 24) beamPanel(ctx, x, min(24, w - x), seed + x);
     box(ctx, 0, -0.5, w, 4, "rust", 2);
@@ -436,19 +455,59 @@ const bunkerGrime = (ctx: Ctx, w: number, h: number, seed: number): void => {
   if (!simple()) for (const vx of [6 + r() * 10, w - 10 - r() * 10]) vine(ctx, vx, -h - 2, h * (0.4 + r() * 0.4), seed + round(vx));
 };
 
-const bunkerWindows = (ctx: Ctx, w: number, h: number, from: number, to: number, seed: number): void => {
+const bunkerWindows = (ctx: Ctx, w: number, h: number, from: number, to: number, seed: number, skip: Pt | null = null): void => {
   const wh = min(26, h - 34);
-  for (let x = from; x + 30 <= to; x += 40) barredWindow(ctx, x, -h + 14, 30, wh, seed + x);
+  for (let x = from; x + 30 <= to; x += 40) if (!skip || x + 30 < skip[0] || x > skip[1]) barredWindow(ctx, x, -h + 14, 30, wh, seed + x);
+};
+
+const roofUnit = (ctx: Ctx, x: number, h: number, seed: number): void => {
+  box(ctx, x, -h - 17, 22, 12, "steel", 1);
+  for (let k = 0; k < 4; k++) flat(ctx, x + 3 + k * 4.5, -h - 14, 2, 7, "m1");
+  line(ctx, [[x + 30, -h - 5], [x + 31, -h - 26]], "m2", 1.4);
+  for (const y of [-h - 22, -h - 16]) line(ctx, [[x + 26, y], [x + 36, y + 1]], "m2", 1);
+  G.grain(ctx, G.rectRegion(ctx, x, -h - 17, 22, 12), seed);
+  G.drips(ctx, x, -h - 7, 22, 10, seed + 1, 2);
+};
+
+const shellHole = (ctx: Ctx, cx: number, cy: number, seed: number): void => {
+  const pts = blobPts(cx, cy, 20, 15, seed, 11, 0.32);
+  G.scorch(ctx, pts, seed + 1);
+  shape(ctx, pts, "#060807");
+  if (!simple()) {
+    const r = rng(seed + 2);
+    for (let k = 0; k < 4; k++) {
+      const x = cx - 12 + k * 8 + r() * 3;
+      curve(ctx, [[x, cy - 14], [x + (r() - 0.5) * 6, cy - 2], [x + (r() - 0.5) * 10, cy + 6]], "r1", 0.9);
+    }
+  }
+  G.rim(ctx, pts, seed + 3, BUNKER[3], CLINE);
+};
+
+const rubble = (ctx: Ctx, x: number, w: number, seed: number): void => {
+  const r = rng(seed);
+  for (let i = 0; i < 11; i++) stone(ctx, x + r() * w, -3 - r() * 5, 4 + r() * 5, 3 + r() * 3, seed + i * 3, BUNKER);
 };
 
 const jungleBuilding: EnvAsset = {
   id: "jungleBuilding",
   box: [-3, -102, 195, 0],
-  draw(ctx, _state, _t, { w = 192, h = 96 }) {
-    const seed = 560 + round(w) * 3 + round(h);
+  draw(ctx, state, _t, { w = 192, h = 96 }) {
+    const seed = 560 + round(w) * 3 + round(h) + state * 17;
     bunkerBody(ctx, w, h, seed);
-    bunkerWindows(ctx, w, h, 20, w - 16, seed + 7);
+    if (state === 1) {
+      door(ctx, w - 44, min(h - 18, 54), false);
+      bunkerWindows(ctx, w, h, 20, w - 52, seed + 7);
+    } else if (state === 2) {
+      const hx = round(w * 0.58);
+      bunkerWindows(ctx, w, h, 20, w - 16, seed + 7, [hx - 24, hx + 24]);
+    } else bunkerWindows(ctx, w, h, 20, w - 16, seed + 7);
     bunkerGrime(ctx, w, h, seed + 9);
+    if (state === 1) roofUnit(ctx, 18, h, seed + 11);
+    if (state === 2) {
+      const hx = round(w * 0.58);
+      shellHole(ctx, hx, -h * 0.55, seed + 13);
+      rubble(ctx, hx - 22, 44, seed + 15);
+    }
   },
 };
 
@@ -486,10 +545,28 @@ const flamethrowerDoor: EnvAsset = {
   },
 };
 
+const waterFlow = (ctx: Ctx, w: number, h: number, t: number): void => {
+  const r = rng(630 + round(w));
+  ctx.save();
+  ctx.globalAlpha *= 0.55;
+  for (let x = 1; x < w - 1; x += 4 + r() * 5) {
+    const speed = 150 + r() * 90;
+    const gap = 48 + r() * 50;
+    const len = 10 + r() * 18;
+    const width = 1 + r() * 1.6;
+    const shift = (r() * gap + t * speed) % gap;
+    for (let y = -h - gap + shift; y < -len; y += gap) if (y > -h) flat(ctx, x, y, width, len, WATER[3]);
+    if (simple()) x += 6;
+  }
+  ctx.restore();
+};
+
 const waterfall: EnvAsset = {
   id: "waterfall",
   box: [-10, -441, 154, 10],
-  draw(ctx, _state, _t, { w = 144, h = 432 }) {
+  anim: true,
+  draw(ctx, state, t, { w = 144, h = 432 }) {
+    if (state === 1) return waterFlow(ctx, w, h, t);
     const seed = 620 + round(w);
     const r = rng(seed);
     flat(ctx, 0, -h, w, h, WATER[1]);
@@ -1076,14 +1153,426 @@ const jungleSky: EnvAsset = {
   },
 };
 
+const BARK: Tones = ["#120e0a", "#221c14", "#342a1e", "#4a3e2c"];
+const BAG: Tones = ["#1e1e12", "#33321e", "#4a482c", "#625e3c"];
+
+const treeCrown = (ctx: Ctx, x: number, y: number, state: number, seed: number): void => {
+  const r = rng(seed);
+  if (state === 1) {
+    for (let i = 0; i < 9; i++) frond(ctx, x, y, 44 + r() * 16, -PI + (i / 8) * PI + (r() - 0.5) * 0.3, seed + i * 5);
+    for (const s of [-1, 1]) frond(ctx, x, y + 2, 40, PI / 2 + s * 1.1, seed + 60 + s);
+    return;
+  }
+  for (const [dx, dy, rx, ry] of [[-30, 10, 30, 16], [28, 8, 32, 17], [-4, -4, 40, 20], [-44, 22, 18, 10], [46, 20, 20, 11]] as [number, number, number, number][]) {
+    line(ctx, [[x, y + 26], [x + dx * 0.7, y + dy + 6]], BARK[1], 3);
+    leafBlob(ctx, x + dx, y + dy, rx, ry, seed + dx + dy * 3);
+  }
+};
+
+const snagTop = (ctx: Ctx, x: number, y: number, seed: number): void => {
+  const r = rng(seed);
+  const pts: Pt[] = [[x - 7, y + 24], [x - 5, y + 6], [x - 1, y + 14], [x + 2, y], [x + 4, y + 10], [x + 7, y + 4], [x + 7, y + 24]];
+  shape(ctx, pts, BARK[2], SLINE);
+  G.scorch(ctx, pts, seed + 1);
+  G.rim(ctx, pts, seed + 2, "r2", "rLine");
+  for (const s of [-1, 1]) line(ctx, [[x + s * 4, y + 34 + r() * 10], [x + s * (20 + r() * 10), y + 14 + r() * 8], [x + s * (28 + r() * 8), y + 18]], BARK[2], 2);
+};
+
+const jungleTree: EnvAsset = {
+  id: "jungleTree",
+  box: [-72, -240, 72, 2],
+  draw(ctx, state, _t, { h = 240 }) {
+    const seed = 1100 + state * 37 + round(h);
+    const r = rng(seed);
+    const lean = (r() - 0.5) * 14;
+    const top = -h + (state === 1 ? 46 : state === 2 ? 0 : 40);
+    const trunk: Pt[] = [[-15, 0], [-11, -34], [lean - 6, top + 24], [lean + 6, top + 24], [11, -34], [15, 0]];
+    for (const k of [1, 0]) for (const s of [-1, 1]) {
+      const reach = 22 + k * 16 + r() * 8;
+      const fin: Pt[] = [[s * 7, -46 - k * 10], [s * (10 + reach * 0.3), -18 - k * 4], [s * reach, 0], [s * (reach - 7), 0], [s * (8 + reach * 0.2), -10], [s * 4, -20]];
+      shape(ctx, fin, BARK[k ? 1 : 2], SLINE);
+      if (!simple()) line(ctx, [[s * 7, -45 - k * 10], [s * (10 + reach * 0.3), -17 - k * 4], [s * (reach - 1), -0.5]], BARK[3], 0.8);
+    }
+    shape(ctx, trunk, BARK[1], SLINE);
+    ctx.save();
+    path(ctx, trunk);
+    ctx.clip();
+    flat(ctx, -16 + lean * 0.3, top, 7, -top, BARK[2]);
+    if (!simple()) {
+      flat(ctx, -15 + lean * 0.3, top, 2, -top, BARK[3]);
+      for (let k = 0; k < 6; k++) {
+        const bx = -9 + k * 3.4 + r() * 2;
+        curve(ctx, [[bx * 0.8, 0], [bx * 0.7 + lean * 0.5, top * 0.5], [bx * 0.5 + lean, top + 24]], BARK[0], 0.7);
+      }
+    }
+    G.grain(ctx, G.polyRegion(ctx, trunk), seed + 1);
+    G.dirt(ctx, -16, top, 32, -top, seed + 2, 0.2);
+    ctx.restore();
+    if (state !== 2) {
+      const pts: Pt[] = [];
+      for (let k = 0; k <= 10; k++) pts.push([lean * (k / 10) + sin(k * 1.4 + seed) * 9, -(k / 10) * (-top - 30)]);
+      curve(ctx, pts, MOSS[1], 2.4);
+      if (!simple()) curve(ctx, pts.map(([x, y]): Pt => [x + 1, y - 1]), MOSS[2], 0.8);
+    }
+    for (let y = -30 - r() * 20; y > top + 40; y -= 40 + r() * 40) mossCap(ctx, lean * (y / top) - 9, y, 14 + r() * 6, seed + round(y), 2.5);
+    if (state === 2) snagTop(ctx, lean, top, seed + 3);
+    else treeCrown(ctx, lean, top, state, seed + 4);
+    if (!simple() && state === 0) for (let k = 0; k < 4; k++) vine(ctx, lean - 40 + k * 26 + r() * 8, top + 26, 40 + r() * 60, seed + 10 + k);
+    grass(ctx, -34, 68, 7, seed + 5);
+    if (!simple()) fern(ctx, 24 * (r() < 0.5 ? -1 : 1), 16, seed + 6);
+  },
+};
+
+const chainPanel = (ctx: Ctx, x: number, w: number, seed: number, torn: boolean): void => {
+  const r = rng(seed);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, -44, w, 44);
+  let hole: Pt[] | null = null;
+  if (torn) {
+    const hx = x + w * (0.3 + r() * 0.3);
+    hole = [[hx, -44], [hx + 14, -44], [hx + 11, -34], [hx + 18, -26], [hx + 9, -18], [hx + 12, -8], [hx + 2, -12], [hx - 4, -24], [hx + 2, -32]];
+    hole.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+  }
+  ctx.clip("evenodd");
+  mesh(ctx, x, -44, w, 44, "c0", 3);
+  G.dirt(ctx, x, -44, w, 44, seed + 1, 0.35);
+  G.drips(ctx, x, -44, w, 10, seed + 2, Math.ceil(w / 40));
+  ctx.restore();
+  if (hole) {
+    line(ctx, hole.slice(0, 5), "c0", 0.6);
+    for (let k = 1; k < hole.length - 1; k += 2) {
+      const [hx, hy] = hole[k] as Pt;
+      line(ctx, [[hx, hy], [hx + 3, hy + 2]], "c1", 0.5);
+    }
+  }
+  line(ctx, [[x, -44], [x + w * 0.5, -42.5 + (torn ? 3 : 0)], [x + w, -44]], "c0", 0.9);
+  line(ctx, [[x, -2], [x + w, -2]], "c0", 0.9);
+};
+
+const barbs = (ctx: Ctx, x0: number, x1: number, y: number, seed: number): void => {
+  const r = rng(seed);
+  line(ctx, [[x0, y], [x1, y]], "c0", 0.6);
+  if (simple()) return;
+  for (let x = x0 + 2; x < x1; x += 4 + r() * 2) {
+    ctx.save();
+    ctx.globalAlpha *= 0.85;
+    ctx.beginPath();
+    ctx.ellipse(x, y - 2.5, 2.6, 2.8, 0.3, 0, PI * 2);
+    ctx.strokeStyle = color("c0");
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+const mineSign = (ctx: Ctx, x: number, seed: number): void => {
+  const plate: Pt[] = [[x, -40], [x + 9, -24], [x - 9, -24]];
+  shape(ctx, plate, "#b8a02a", "kLine");
+  shape(ctx, [[x, -36.5], [x + 6.2, -25.6], [x - 6.2, -25.6]], "#1a1610");
+  disc(ctx, x, -30, 2.6, "#b8a02a");
+  flat(ctx, x - 1.6, -28.6, 3.2, 1.6, "#b8a02a");
+  for (const dx of [-0.9, 0.9]) flat(ctx, x + dx - 0.5, -30.8, 1, 1, "#1a1610");
+  G.grain(ctx, G.polyRegion(ctx, plate), seed);
+  G.drips(ctx, x - 6, -25, 12, 8, seed + 1, 2);
+  line(ctx, [[x, -40], [x, -44]], "c0", 0.6);
+};
+
+const campPost = (ctx: Ctx, x: number, seed: number): void => {
+  box(ctx, x - 1.8, -48, 3.6, 48, "rust", 1, { vertical: true });
+  line(ctx, [[x, -47], [x - 5, -55]], "r1", 1.8, "butt");
+  G.drips(ctx, x - 1.8, -46, 3.6, 22, seed, 1);
+  G.rustPatch(ctx, x, -20 - (seed % 7) * 3, 1.6, 2.4, seed + 1);
+};
+
+const campFence: EnvAsset = {
+  id: "campFence",
+  box: [-8, -60, 98, 1],
+  draw(ctx, state, _t, { w = 96 }) {
+    const seed = 1200 + round(w) * 3 + state * 11;
+    const r = rng(seed);
+    const posts: number[] = [];
+    for (let x = 0; x < w - 12; x += 48) posts.push(x);
+    posts.push(w);
+    posts.slice(0, -1).forEach((x, i) => chainPanel(ctx, x, (posts[i + 1] as number) - x, seed + i * 5, state === 2 && i === posts.length - 2));
+    barbs(ctx, -5, w - 5, -53, seed + 3);
+    line(ctx, [[-4, -50], [w - 4, -50]], "c0", 0.5);
+    for (const x of posts) campPost(ctx, x, seed + round(x));
+    if (state === 1) mineSign(ctx, round(w * (0.3 + r() * 0.4)), seed + 7);
+    grass(ctx, 0, w, 9, seed + 8);
+  },
+};
+
+const bag = (ctx: Ctx, x: number, y: number, w: number, h: number): Pt[] => {
+  const pts: Pt[] = [[x + 2.5, y], [x + w - 2.5, y + 0.4], [x + w - 0.4, y + 2.2], [x + w, y + h * 0.55], [x + w - 1, y + h - 0.6], [x + w - 3, y + h], [x + 3, y + h], [x + 1, y + h - 0.6], [x, y + h * 0.5], [x + 0.5, y + 2]];
+  shape(ctx, pts, BAG[1], "kLine");
+  ctx.save();
+  path(ctx, pts);
+  ctx.clip();
+  flat(ctx, x, y, w, h * 0.45, BAG[2]);
+  if (!simple()) {
+    flat(ctx, x + 2, y + 0.6, w - 4, 1, BAG[3]);
+    line(ctx, [[x + w * 0.3, y + 1], [x + w * 0.32, y + h - 1]], BAG[0], 0.6);
+  }
+  flat(ctx, x, y + h * 0.75, w, h, BAG[0]);
+  ctx.restore();
+  return pts;
+};
+
+const sandbags: EnvAsset = {
+  id: "sandbags",
+  box: [-2, -28, 74, 1],
+  draw(ctx, state, _t, { w = 72 }) {
+    const seed = 1300 + round(w) + state * 9;
+    const r = rng(seed);
+    const rows = state === 1 ? 2 : 3;
+    const bags: Pt[][] = [];
+    for (let row = 0; row < rows; row++) {
+      const y = -8 - row * 7.5;
+      const inset = row * (state === 1 ? 10 : 3);
+      const off = row % 2 ? 7 : 0;
+      for (let x = inset - off; x < w - inset - 4; x += 14) {
+        if (state === 1 && row === 1 && r() < 0.35) continue;
+        const x0 = max(inset, x);
+        const x1 = min(w - inset, x + 14);
+        if (x1 - x0 > 5) bags.push(bag(ctx, x0, y, x1 - x0, 8.5));
+      }
+    }
+    ctx.save();
+    ctx.beginPath();
+    for (const pts of bags) pts.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+    ctx.clip();
+    G.grain(ctx, G.rectRegion(ctx, 0, -8 - rows * 7.5, w, rows * 7.5 + 8), seed + 1, 0.8);
+    G.dirt(ctx, 0, -8 - rows * 7.5, w, rows * 7.5 + 8, seed + 2, 0.5);
+    ctx.restore();
+    if (state === 1) shape(ctx, blobPts(w * 0.6, -1.5, 9, 2.5, seed + 3, 9, 0.3), "#3a3422");
+    grass(ctx, -2, w + 4, 6, seed + 4);
+    mossCap(ctx, w * 0.2, -0.5 - rows * 7.5, w * 0.3, seed + 5, 1.5);
+  },
+};
+
+const tankTier = (ctx: Ctx, w: number, y: number, th: number, seed: number): void => {
+  const r = rng(seed);
+  const ty = y - th + 4;
+  const tw = w - 20;
+  const ch = th - 10;
+  for (const lx of [6, w / 2 - 2, w - 10]) {
+    box(ctx, lx, y - 8, 4, 8, "steel", 1, { vertical: true });
+    flat(ctx, lx - 3, y - 9, 10, 2.5, "m2", "mLine");
+  }
+  box(ctx, 10, ty, tw, ch, "chrome", 1);
+  for (const [cx, a0, a1] of [[10, PI / 2, PI * 1.5], [10 + tw, -PI / 2, PI / 2]] as [number, number, number][]) {
+    ctx.fillStyle = color("c1");
+    ctx.beginPath();
+    ctx.ellipse(cx, ty + ch / 2, 7, ch / 2, 0, a0, a1);
+    ctx.fill();
+    stroke(ctx, "mLine");
+  }
+  for (let x = 22; x < 10 + tw - 6; x += 26) flat(ctx, x, ty, 1.4, ch, "c0");
+  if (!simple()) flat(ctx, 14, ty + 2, tw - 8, 2, "c2");
+  const vx = 16 + round(r() * (tw - 36));
+  box(ctx, vx, ty + ch * 0.4, 14, ch * 0.45, "steel", 1);
+  for (const bx of [vx + 3, vx + 8]) flat(ctx, bx, ty + ch * 0.48, 2.4, ch * 0.3, RED[2], "rLine");
+  disc(ctx, vx + 7, ty - 2, 3.4, RED[1], "rLine");
+  line(ctx, [[vx + 7, ty - 2], [vx + 7, ty + 1]], "m1", 2);
+  G.grain(ctx, G.rectRegion(ctx, 3, ty - 7, tw + 14, ch + 7), seed + 1);
+  G.drips(ctx, 10, ty + 2, tw, ch * 0.7, seed + 2, max(2, round(tw / 22)));
+  G.rustPatch(ctx, 18 + r() * (tw - 20), ty + ch * 0.7, 5, 3, seed + 3);
+  G.dirt(ctx, 10, ty, tw, ch, seed + 4, 0.35);
+};
+
+const tankRack: EnvAsset = {
+  id: "tankRack",
+  box: [-4, -148, 124, 1],
+  draw(ctx, state, _t, { w = 120, h = 144 }) {
+    const seed = 1340 + round(w) * 3 + state * 7;
+    const tiers = state === 1 ? 1 : 2;
+    const body = min(h, tiers * 48);
+    const th = body / tiers;
+    for (const x of [2, w - 6]) box(ctx, x, -body, 4, body, "steel", 2, { vertical: true });
+    for (let i = 1; i < tiers; i++) box(ctx, 0, -th * i - 3, w, 4, "steel", 2);
+    for (let i = 0; i < tiers; i++) tankTier(ctx, w, -th * i, th, seed + i * 19);
+    if (h > body) {
+      box(ctx, 14, -h, 6, h - body + 6, "chrome", 1, { vertical: true });
+      for (let y = -h + 6; y < -body; y += 16) flat(ctx, 12, y, 10, 2.4, "m1", "mLine");
+      G.drips(ctx, 14, -h, 6, h - body, seed + 9, 1);
+    }
+    G.grain(ctx, G.rectRegion(ctx, 0, -body, w, body), seed + 11, 0.5);
+  },
+};
+
+const mossWall: EnvAsset = {
+  id: "mossWall",
+  box: [0, -96, 96, 0],
+  draw(ctx, _state, _t, { w = 96, h = 96 }) {
+    const seed = 1360 + round(w) + round(h) * 3;
+    const r = rng(seed);
+    cobbleFill(ctx, 0, -h, w, h);
+    flat(ctx, 0, -h, w, h, "#00000055");
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed, 0.6);
+    for (let x = 4 + r() * 10; x < w - 4; x += 14 + r() * 22) {
+      const len = h * (0.2 + r() * 0.5);
+      shape(ctx, [[x - 4, -h], [x + 4 + r() * 4, -h], [x + 1.5, -h + len], [x - 1, -h + len * 0.8]], MOSS[1]);
+      if (!simple()) vine(ctx, x + 1, -h, len * 1.2, seed + round(x));
+    }
+    G.dirt(ctx, 0, -h, w, h, seed + 1, 0.4);
+    grass(ctx, 0, w, 7, seed + 2);
+  },
+};
+
+const cavePipe: EnvAsset = {
+  id: "cavePipe",
+  box: [-2, -146, 170, 0],
+  draw(ctx, _state, _t, { w = 168 }) {
+    const seed = 1380 + round(w);
+    for (let x = 6; x < w - 2; x += 24) {
+      line(ctx, [[x, -144], [x, -86]], "m1", 1.6);
+      line(ctx, [[x, -84], [x, -50], [x + 12, -50]], "mLine", 3.4, "butt");
+      line(ctx, [[x, -84], [x, -50], [x + 12, -50]], "m2", 2, "butt");
+    }
+    box(ctx, 0, -110, w, 10, "steel", 2);
+    flat(ctx, 0, -107, w, 2.4, "#58c8b8");
+    if (!simple()) {
+      glow(ctx, w / 2, -105, w * 0.4, "#58c8b8", 0.12);
+      for (let x = 12; x < w; x += 48) flat(ctx, x, -110, 4, 10, "m3", "mLine");
+    }
+    box(ctx, 0, -98, w, 8, "rust", 1);
+    rivets(ctx, 2, -94, w - 4, 6, "r3");
+    G.grain(ctx, G.rectRegion(ctx, 0, -110, w, 20), seed + 1);
+    G.drips(ctx, 0, -90, w, 28, seed + 2, max(2, round(w / 24)));
+  },
+};
+
+const rockOverhang: EnvAsset = {
+  id: "rockOverhang",
+  box: [-3, -120, 147, 1],
+  draw(ctx, _state, _t, { w = 144, h = 120 }) {
+    const seed = 1400 + round(w) + round(h) * 3;
+    const r = rng(seed);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(-3, -h, w + 6, h + 1);
+    ctx.clip();
+    let y = -h;
+    let i = 0;
+    while (y < -10) {
+      const k = (y + h) / h;
+      const span = w * (1 - k * 0.75);
+      const x0 = (w - span) * (0.25 + r() * 0.5);
+      for (let x = x0; x < x0 + span; ) {
+        const rx = 9 + r() * 8;
+        stone(ctx, x + rx, y + 9, rx, 8 + r() * 3, seed + i * 7);
+        x += rx * 1.6;
+        i++;
+      }
+      y += 13 + r() * 3;
+    }
+    ctx.restore();
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed + 1, 0.7);
+    mossCap(ctx, 0, -h, w, seed + 2, 4);
+    if (!simple()) for (let x = 8 + r() * 10; x < w * 0.8; x += 18 + r() * 20) vine(ctx, x, -h + 8, h * (0.4 + r() * 0.5), seed + round(x));
+  },
+};
+
+const stoneInset = (ctx: Ctx, x: number, w: number, h: number, seed: number): void => {
+  const r = rng(seed);
+  flat(ctx, x, -h, w, h, "#16140f", CLINE);
+  for (let y = -h + 2; y < -4; ) {
+    const sh = 9 + r() * 6;
+    stone(ctx, x + w / 2 + (r() - 0.5) * 2, y + sh / 2, w / 2 - 0.5, sh / 2, seed + round(y));
+    y += sh;
+  }
+};
+
+const stonePier: EnvAsset = {
+  id: "stonePier",
+  box: [-3, -102, 99, 0],
+  draw(ctx, _state, _t, { w = 96, h = 96 }) {
+    const seed = 1420 + round(w) * 3 + round(h);
+    flat(ctx, 0, -h, w, h, BUNKER[1], CLINE);
+    for (let x = 0; x < w; x += 24) if (rng(seed + x)() < 0.5) flat(ctx, x, -h, min(24, w - x), h, BUNKER[2]);
+    for (let x = 4; x + 14 <= w - 2; x += 48) stoneInset(ctx, x, 14, h - 4, seed + x);
+    flat(ctx, -2, -h - 4, w + 4, 5, BUNKER[2], CLINE);
+    if (!simple()) flat(ctx, -2, -h - 4, w + 4, 1.2, BUNKER[3]);
+    G.grain(ctx, G.rectRegion(ctx, -2, -h - 4, w + 4, h + 4), seed + 1);
+    G.drips(ctx, 0, -h, w, h * 0.5, seed + 2, max(2, round(w / 18)), false);
+    G.dirt(ctx, 0, -h, w, h, seed + 3, 0.4);
+    G.chips(ctx, -2, -h - 3.6, w + 4, seed + 4, G.DIRT);
+    mossCap(ctx, -2, -h - 4, w * 0.5, seed + 5, 3);
+    grass(ctx, 0, w, 6, seed + 6);
+  },
+};
+
+const deckRailing: EnvAsset = {
+  id: "deckRailing",
+  box: [-2, -26, 218, 1],
+  draw(ctx, _state, _t, { w = 216 }) {
+    const seed = 1440 + round(w);
+    for (const y of [-21, -12]) {
+      box(ctx, 0, y, w, 3, "yellow", 1);
+      if (!simple()) flat(ctx, 0, y, w, 0.8, "y3");
+    }
+    for (let x = 0; x <= w - 6; x += 72) {
+      box(ctx, x, -24, 6, 24, "steel", 1, { vertical: true });
+      flat(ctx, x - 1, -25, 8, 2.4, "m2", "mLine");
+    }
+    for (let x = 24; x < w - 6; x += 24) if (x % 72) box(ctx, x, -21, 2.4, 21, "yellow", 1, { vertical: true });
+    G.grain(ctx, G.rectRegion(ctx, 0, -25, w, 25), seed, 0.8);
+    G.drips(ctx, 0, -18, w, 12, seed + 1, max(2, round(w / 30)));
+  },
+};
+
+const pipeStack: EnvAsset = {
+  id: "pipeStack",
+  box: [-2, -26, 146, 1],
+  draw(ctx, _state, _t, { w = 144 }) {
+    const seed = 1460 + round(w);
+    const r = rng(seed);
+    for (const [y, inset] of [[-8, 0], [-16, 5], [-24, 10]] as Pt[]) {
+      box(ctx, inset, y, w - inset * 2, 8, "rust", y === -16 ? 1 : 2);
+      for (const ex of [inset + 1, w - inset - 3]) flat(ctx, ex, y, 2, 8, "r0", "rLine");
+      if (!simple()) flat(ctx, inset + 4, y + 1.4, w - inset * 2 - 8, 1, "r3");
+    }
+    for (const x of [6, w - 14]) flat(ctx, x, -3, 8, 3, "k1", "kLine");
+    G.grain(ctx, G.rectRegion(ctx, 0, -24, w, 24), seed + 1);
+    G.drips(ctx, 0, -20, w, 12, seed + 2, max(2, round(w / 24)));
+    G.rustPatch(ctx, w * (0.3 + r() * 0.4), -12, 6, 3, seed + 3);
+    mossCap(ctx, 12, -24, w * 0.3, seed + 4, 2);
+  },
+};
+
+const pumpUnit: EnvAsset = {
+  id: "pumpUnit",
+  box: [-4, -98, 76, 1],
+  draw(ctx, _state, _t, { w = 72, h = 96 }) {
+    const seed = 1480 + round(w) + round(h);
+    for (const x of [10, w - 18]) {
+      box(ctx, x, -h, 6, h * 0.5, "steel", 1, { vertical: true });
+      flat(ctx, x - 2, -h * 0.55, 10, 3, "m2", "mLine");
+    }
+    box(ctx, 2, -h * 0.5, w - 4, h * 0.5, "brick", 1);
+    for (let x = 8; x < w - 8; x += 7) flat(ctx, x, -h * 0.42, 2.2, h * 0.18, "b0");
+    box(ctx, w * 0.35, -h * 0.72, w * 0.3, h * 0.72, "chrome", 1, { vertical: true });
+    for (let y = -h * 0.68; y < -4; y += 8) flat(ctx, w * 0.35, y, w * 0.3, 1.4, "c0");
+    disc(ctx, w - 12, -h * 0.3, 5, "c2", "mLine");
+    line(ctx, [[w - 12, -h * 0.3], [w - 9, -h * 0.34]], RED[2], 1);
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed);
+    G.drips(ctx, 2, -h * 0.5, w - 4, h * 0.4, seed + 1, 4);
+    G.rustPatch(ctx, w * 0.2, -h * 0.2, 6, 4, seed + 2);
+    G.dirt(ctx, 0, -h * 0.5, w, h * 0.5, seed + 3, 0.5);
+  },
+};
+
 export const JUNGLE_IDS = [
   "jungleRock", "jungleRockTop", "jungleLedge", "jungleSpan", "jungleBeam", "girderColumn", "jungleTower", "rockLedges", "rockSlope", "jungleBuilding", "flamethrowerDoor", "waterfall", "spikes", "caveChasm",
   "caveCapsule", "helicopterWreck", "excavator", "jeep", "fallenTree", "cannonTurret", "distributionCabinet", "stonePuzzle", "tripwire", "mine", "canister", "cutters", "grenade",
-  "flamethrower", "bonusPickup", "towerLift", "jungleFern", "hangingVines", "jungleSky",
+  "flamethrower", "bonusPickup", "towerLift", "jungleFern", "hangingVines", "jungleSky", "jungleTree", "campFence", "sandbags",
+  "tankRack", "mossWall", "cavePipe", "rockOverhang", "stonePier", "deckRailing", "pipeStack", "pumpUnit",
 ] as const;
 
 export const jungleAssets: EnvAsset[] = [
   jungleRock, jungleRockTop, jungleLedge, jungleSpan, jungleBeam, girderColumn, jungleTower, stoneStack("rockLedges", 192, 520, false), stoneStack("rockSlope", 144, 540, true), jungleBuilding, flamethrowerDoor,
   waterfall, spikes, caveChasm, caveCapsule, helicopterWreck, excavator, jeep, fallenTree, cannonTurret, distributionCabinet, stonePuzzle, tripwire, mine, canister, cutters, grenade,
-  flamethrower, bonusPickup, towerLift, jungleFern, hangingVines, jungleSky,
+  flamethrower, bonusPickup, towerLift, jungleFern, hangingVines, jungleSky, jungleTree, campFence, sandbags,
+  tankRack, mossWall, cavePipe, rockOverhang, stonePier, deckRailing, pipeStack, pumpUnit,
 ];

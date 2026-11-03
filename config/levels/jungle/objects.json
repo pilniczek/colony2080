@@ -1234,7 +1234,7 @@
    "marker": null,
    "task": null,
    "sheet": "structures",
-   "description": "Cylindrical tanks on plank row 37 (cells 57-66); same kind as mesto.",
+   "description": "Cylindrical tank on the camp floor by the waterfall (cells 85-89, row 19); same kind as mesto.",
    "states": [],
    "refs": [
     {
@@ -1275,8 +1275,12 @@
    "marker": null,
    "task": null,
    "sheet": "buildings",
-   "description": "Small concrete buildings with windows on plank rows 25 and 32 (cells 37-44 and 50-57).",
-   "states": [],
+   "description": "Small concrete buildings with barred windows on plank rows 20 and 32 (cells 37-44 and 50-57). State 1 adds a steel door and a roof vent with an antenna mast, state 2 a scorched shell hole with rubble below; sized by w and h.",
+   "states": [
+    "plain",
+    "door and roof vent",
+    "shell hole"
+   ],
    "refs": [
     {
      "path": "docs/research/gamedata/png/maps/map_M31.png",
@@ -1397,8 +1401,11 @@
    "marker": null,
    "task": null,
    "sheet": "structures",
-   "description": "Brown riveted box girder with recessed panels, drawn over the bare cells of the thin platforms (rows 13, 25, 28, 30, 31) on girderColumn posts; sized by w.",
-   "states": [],
+   "description": "Riveted girder platform drawn over the bare cells of the thin platforms (rows 13, 25, 28, 30, 31) on girderColumn posts; sized by w. State 1 is the teal steel walkway of the east deck (row 25, cols 104-143).",
+   "states": [
+    "rusty box girder",
+    "steel walkway"
+   ],
    "refs": []
   },
   {
@@ -1454,6 +1461,163 @@
    "task": null,
    "sheet": "structures",
    "description": "Terrain art for the top cell of a jungle rock wall (terrainArt top): the cobble rock under a ragged moss cap with grass tufts; sized by w.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "jungleTree",
+   "name": "Jungle tree",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Tall backdrop tree on buttress roots with a strangler vine, moss patches and lianas; h in cells sets its height. Fills the open sky between floors under the depth haze.",
+   "states": [
+    "broadleaf crown",
+    "palm crown",
+    "burnt snag"
+   ],
+   "refs": []
+  },
+  {
+   "id": "campFence",
+   "name": "Camp fence",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Chain-link fence of the jungle camp on rusty posts with a barbed wire coil on top; sized by w (a post every 2 cells).",
+   "states": [
+    "plain",
+    "mine warning sign",
+    "torn panel"
+   ],
+   "refs": []
+  },
+  {
+   "id": "sandbags",
+   "name": "Sandbags",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "Dark muddy sandbag wall, small ground clutter at building edges; sized by w.",
+   "states": [
+    "three rows",
+    "broken low pile"
+   ],
+   "refs": []
+  },
+  {
+   "id": "tankRack",
+   "name": "Tank rack",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Steel frame of horizontal steel tanks with domed ends, valve boxes and red hand wheels, under plank row 25 (cells 58-71, rows 26-31); sized by w and h, a riser pipe fills any height over the tanks.",
+   "states": [
+    "two tiers",
+    "one tier"
+   ],
+   "refs": []
+  },
+  {
+   "id": "mossWall",
+   "name": "Mossy back wall",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Dark mossy cobble back wall behind floor 37 (cells 61-75, rows 33-36) and the cave behind the pipe (cells 89-95, rows 42-47); sized by w and h, drawn in the backdrop under the haze.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "cavePipe",
+   "name": "Cave pipe",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Teal lit pipe on a rusty rail with L brackets and thin bars along the cave wall (cells 89-95, rows 42-46); sized by w.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "rockOverhang",
+   "name": "Rock overhang",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Boulder mass hanging under the jeep ledge (cells 80-90, rows 12-16), tapering down with moss and vines; sized by w and h.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "stonePier",
+   "name": "Stone pier wall",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Concrete wall with stone-filled pillars: the pier under plank row 20 (cells 46-50, rows 27-31), the pillar and low wall east of the camp building (cells 77-84, rows 16-19); sized by w and h.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "deckRailing",
+   "name": "Deck railing",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "description": "Yellow double rail on steel posts along the east steel deck (cells 121-129, row 24); sized by w.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "pipeStack",
+   "name": "Pipe stack",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "props",
+   "description": "Pile of lying rusty pipes on the east steel deck (cells 135-141, row 24); sized by w.",
+   "states": [],
+   "refs": []
+  },
+  {
+   "id": "pumpUnit",
+   "name": "Pump unit",
+   "csName": null,
+   "interactive": false,
+   "origin": "new",
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "description": "Rusty red pump with a steel cylinder and pipes up into the floor above, under floor 32 (cells 58-60, rows 33-36); sized by w and h.",
    "states": [],
    "refs": []
   }

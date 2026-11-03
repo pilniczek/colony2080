@@ -868,7 +868,7 @@
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Orange striped glowing block at columns 37-42, rows 68-73 (sheet 1 tile 3) and orange strips in the bottom corridor floor (sheet 1 tiles 4-7). Effect on the hero not traced.",
+      "description": "Orange striped glowing block at columns 37-42, rows 68-73 (sheet 1 tile 3) and orange strips in the bottom corridor floor (sheet 1 tiles 4-7). Ours: a lava cascade in a cleft of the back wall, its pool hidden behind a lit rock sill; sized by w and h. Effect on the hero not traced.",
       "states": [],
       "refs": [
         {
@@ -936,7 +936,7 @@
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Big ribbed rusty tube behind the corridors, after the orange tunnel tiles of the original map; sized by w and h in cells, drawn upright when h is more than w (spawn shaft); state 1 has a scorched hole.",
+      "description": "Big corrugated rusty tube behind the corridors, after the orange tunnel tiles of the original map: crescent ribs, round shading, steel collars at the ends and joints, now and then a riveted green hatch; sized by w and h in cells, drawn upright when h is more than w (spawn shaft); state 1 has a scorched hole.",
       "states": [
         "whole",
         "holed"
@@ -952,8 +952,14 @@
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Grey-green riveted machine panels with pipes, vents and dim lamps set into the cave, after the green machine tiles of the original map; sized by w and h.",
-      "states": [],
+      "description": "Grey-green riveted machine bank set into the cave, after the green machine tiles of the original map: modules side by side (gauge panel, cooling fins, flywheel, piston frame, glowing vent), the state picks the first module; sized by w and h.",
+      "states": [
+        "gauge first",
+        "fins first",
+        "flywheel first",
+        "piston first",
+        "vent first"
+      ],
       "refs": []
     },
     {
@@ -982,6 +988,82 @@
       "task": null,
       "sheet": "machines",
       "description": "Toothed crushing rollers in a steel frame at the east end of the mine cart conveyor, the cart crush death zone (columns 123-125, report 16 zones), with sparks.",
+      "states": [],
+      "refs": []
+    },
+    {
+      "id": "caveDepths",
+      "name": "Far cave hall",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Backdrop of a deeper cave hall behind each corridor, after the original parallax backdrop (background frame 0): mossy rock ceiling, a dark band with stalactite teeth, a pale ground with stalagmites; state 0 adds a far lava river, state 1 flowstone columns only, state 2 a lit mine gallery; sized by w and h in cells.",
+      "states": [
+        "lava river",
+        "plain",
+        "mine gallery"
+      ],
+      "refs": []
+    },
+    {
+      "id": "mineShoring",
+      "name": "Mine shoring frame",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Timber support frame (two posts, knee braces and a cap beam with iron straps) standing on a floor up to the ceiling; sized by w and h in cells; state 1 hangs a caged lamp from the beam, state 2 has a cracked sagging beam.",
+      "states": [
+        "plain",
+        "lamp",
+        "cracked"
+      ],
+      "refs": []
+    },
+    {
+      "id": "rockPile",
+      "name": "Rock rubble",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Small ground clutter: a heap of fallen rocks; state 1 with a broken plank and a bent rail.",
+      "states": [
+        "rocks",
+        "rocks with plank"
+      ],
+      "refs": []
+    },
+    {
+      "id": "cableTwist",
+      "name": "Twisted cable column",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thick twisted rope or cable bundle with steel clamps top and bottom, after the twisted column of the original map (columns 62-64, rows 51-60); sized by w and h in cells.",
+      "states": [],
+      "refs": []
+    },
+    {
+      "id": "rockRoots",
+      "name": "Root strands on rock",
+      "csName": null,
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thin dark roots with side twigs and orange flecks running down a rock face, after the root strands along the walls of the original map; sized by h in cells, drawn up from y.",
       "states": [],
       "refs": []
     }

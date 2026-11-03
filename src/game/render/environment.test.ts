@@ -199,7 +199,7 @@ describe("weapon props", () => {
     const mesto = loadMesto();
     const { ledges: mestoLedges, behind, ...mestoRest } = drawnTerrain(mesto);
     expect(behind.every((r) => mesto.lifts.some((l) => r.col >= l.x && r.col < l.x + l.w && r.row >= l.top && r.row < l.bottom))).toBe(true);
-    expect(mestoRest).toEqual({ walls: mesto.terrain.walls, girders: mesto.terrain.girders, landings: [], bases: mesto.lifts.map((l) => ({ row: l.bottom, col: l.x, w: l.w })) });
+    expect(mestoRest).toEqual({ walls: mesto.terrain.walls, girders: mesto.terrain.girders, landings: [], bases: mesto.lifts.map((l) => ({ row: l.bottom, col: l.x, w: l.w })), deep: [] });
     for (const l of mesto.lifts) {
       for (let col = l.x; col < l.x + l.w; col++) expect(mestoLedges.some((r) => r.row === l.bottom + 1 && col >= r.col && col < r.col + r.w), `${col},${l.bottom + 1}`).toBe(false);
     }
@@ -227,5 +227,22 @@ describe("tiles painted aside", () => {
     expect(jobs.length).toBeGreaterThan(0);
     expect(new Set(jobs.map((job) => job.scale))).toEqual(new Set([Math.fround(1.590277777777778)]));
     expect(new Set(jobs.map((job) => job.layer))).toEqual(new Set(["below", "above"]));
+  });
+});
+
+describe("deep terrain", () => {
+  it("covers only wall cells at least three cells from any open cell", () => {
+    const vesnice = loadMission("vesnice");
+    const { grid } = vesnice;
+    const wallAt = (col: number, row: number): boolean => col < 0 || row < 0 || col >= grid.width || row >= grid.height || grid.wall(col, row);
+    const { deep } = drawnTerrain(vesnice);
+    expect(deep.length).toBeGreaterThan(0);
+    for (const r of deep) {
+      for (let row = r.row - 3; row < r.row + r.h + 3; row++) for (let col = r.col - 3; col < r.col + r.w + 3; col++) expect(wallAt(col, row)).toBe(true);
+    }
+  });
+
+  it("stays empty for a world without deep art", () => {
+    expect(drawnTerrain(loadMission("jungle")).deep).toEqual([]);
   });
 });

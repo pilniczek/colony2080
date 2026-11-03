@@ -16,7 +16,6 @@ const SKY_H = 170;
 const SKY_W = 320;
 const LIFT_HEAD = 32;
 const LADDER_W = 56;
-const HAZE = "rgba(26, 12, 8, 0.45)";
 const UNDERGROUND = "rgba(4, 6, 10, 0.55)";
 const BEHIND_SHAFT = "rgba(6, 4, 2, 0.6)";
 
@@ -217,7 +216,7 @@ function sky(e: Env): void {
 
 function haze(e: Env): void {
   const { ctx, world, cell } = e;
-  ctx.fillStyle = HAZE;
+  ctx.fillStyle = world.haze;
   ctx.fillRect(0, 0, world.grid.width * cell, world.grid.height * cell);
 }
 
@@ -397,6 +396,7 @@ interface DrawnTerrain {
   landings: Run[];
   bases: Run[];
   behind: BehindRun[];
+  deep: CellRect[];
 }
 
 interface BehindRun extends Run {
@@ -405,6 +405,38 @@ interface BehindRun extends Run {
 }
 
 const drawnTerrains = new WeakMap<SandboxWorld, DrawnTerrain>();
+
+const DEEP_CELLS = 3;
+
+function deepRects({ grid }: SandboxWorld): CellRect[] {
+  const solid = (col: number, row: number): boolean => col < 0 || row < 0 || col >= grid.width || row >= grid.height || grid.wall(col, row);
+  const deep = (col: number, row: number): boolean => {
+    for (let r = row - DEEP_CELLS; r <= row + DEEP_CELLS; r++) for (let c = col - DEEP_CELLS; c <= col + DEEP_CELLS; c++) if (!solid(c, r)) return false;
+    return true;
+  };
+  const rects: CellRect[] = [];
+  let open: CellRect[] = [];
+  for (let row = 0; row < grid.height; row++) {
+    const runs: CellRect[] = [];
+    for (let col = 0; col < grid.width; col++) {
+      if (!deep(col, row)) continue;
+      const last = runs[runs.length - 1];
+      if (last && last.col + last.w === col) last.w++;
+      else runs.push({ row, col, w: 1, h: 1 });
+    }
+    const next: CellRect[] = [];
+    for (const run of runs) {
+      const above = open.find((r) => r.col === run.col && r.w === run.w);
+      if (above) {
+        above.h++;
+        next.push(above);
+      } else next.push(run);
+    }
+    rects.push(...open.filter((r) => !next.includes(r)));
+    open = next;
+  }
+  return [...rects, ...open];
+}
 
 const cutRuns = (runs: Run[], skip: ReadonlySet<string>): Run[] =>
   runs.flatMap(({ row, col, w }) => {
@@ -449,7 +481,7 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
       .filter((row) => Array.from({ length: l.w }, (_, i) => l.x + i).every((c) => world.grid.at(c, row) !== "=" && !world.grid.wall(c, row)))
       .flatMap((row) => shaftFloor(world, l, row));
   });
-  const drawn = { walls: cutWalls, ledges: cutRuns(ledges, underLifts), girders: cutRuns(girders, skip), landings, bases, behind };
+  const drawn = { walls: cutWalls, ledges: cutRuns(ledges, underLifts), girders: cutRuns(girders, skip), landings, bases, behind, deep: world.terrainArt.deep ? deepRects(world) : [] };
   drawnTerrains.set(world, drawn);
   return drawn;
 }
@@ -457,10 +489,11 @@ export function drawnTerrain(world: SandboxWorld): DrawnTerrain {
 function terrain(e: Env): void {
   const { cell } = e;
   const art = e.world.terrainArt;
-  const { walls, ledges, girders, landings, bases, behind } = drawnTerrain(e.world);
+  const { walls, ledges, girders, landings, bases, behind, deep } = drawnTerrain(e.world);
   for (const r of pick(e, "walls", walls, wallBox)) {
     if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   }
+  if (art.deep) for (const r of pick(e, "deep", deep, wallBox)) if (near(e, wallBox(e, r))) put(e, art.deep, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
   for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "ledges", ledges, runBox)) {
     if (near(e, runBox(e, r))) for (const [asset, run] of ledgeParts(e.world, r)) put(e, asset, run.col * cell, run.row * cell, 0, { w: px(e, run.w * cell) });
@@ -617,6 +650,27 @@ function artBox(e: Env, id: AssetId, x: number, y: number, rise: number): Rect {
   return { x: x + x0 * k(e) - reach, y: y + up - reach, w: (x1 - x0) * k(e) + 2 * reach, h: y1 * k(e) - up + 2 * reach };
 }
 
+const hazeAlpha = (haze: string): number => Number(/,\s*([\d.]+)\s*\)$/.exec(haze)?.[1] ?? 0);
+
+function flowing(e: Env, t: number): void {
+  const { ctx, world, cell } = e;
+  for (const s of world.backdrop) {
+    if (!ASSETS[s.asset].anim) continue;
+    const box = sceneryBox(e, s);
+    if (!near(e, box)) continue;
+    ctx.save();
+    ctx.beginPath();
+    for (let row = Math.floor(box.y / cell); row < Math.ceil((box.y + box.h) / cell); row++) {
+      for (let col = Math.floor(box.x / cell); col < Math.ceil((box.x + box.w) / cell); col++) if (world.grid.at(col, row) === ".") ctx.rect(col * cell, row * cell, cell, cell);
+    }
+    ctx.clip();
+    ctx.globalAlpha = 1 - hazeAlpha(world.haze);
+    const [x, y] = sceneryAt(e, s);
+    put(e, s.asset, x, y, 1, { w: s.w && s.w * TILE, h: s.h && s.h * TILE }, t);
+    ctx.restore();
+  }
+}
+
 export function drawEnvironment(
   ctx: CanvasRenderingContext2D,
   world: SandboxWorld,
@@ -631,6 +685,7 @@ export function drawEnvironment(
   const clip = { x: (screen.x - t.e) / scale, y: (screen.y - t.f) / scale, w: screen.w / scale, h: screen.h / scale };
   const e: Env = { ctx, world, hero, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen, clip };
   cached(e, "below");
+  flowing(e, performance.now() / 1000);
   for (const l of e.world.lifts) if (near(e, grown(shaftBox(e, l), LIFT_CULL_PAD_CELLS * e.cell))) lift(e, l, alpha);
   cached(e, "above");
   for (const p of world.props) if (!isPickup(p)) prop(e, p);
