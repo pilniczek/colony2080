@@ -418,28 +418,35 @@ const cannon: EnvAsset = {
   },
 };
 
+const BAR_TOP = -150;
+
+const hangerBar = (ctx: CanvasRenderingContext2D, top: number): void => {
+  const bar = [[8, top, 8, -96 - top]] as const;
+  box(ctx, 8, top, 8, -96 - top, "steel", 1, { vertical: true });
+  flat(ctx, 11, top, 1.4, -96 - top, "m3");
+  if (!simple()) for (let y = top + 10; y < -100; y += 12) disc(ctx, 12, y, 0.9, "m2", "mLine");
+  box(ctx, 2, top, 20, 5, "steel", 1);
+  for (const x of [5, 19]) disc(ctx, x, top + 2.5, 1, "m2", "mLine");
+  box(ctx, 5, -101, 14, 5, "steel", 1);
+  for (const x of [8, 16]) disc(ctx, x, -98.5, 0.9, "m2", "mLine");
+  const mount = [...bar, [2, top, 20, 5], [5, -101, 14, 5]] as const;
+  G.grain(ctx, G.rectsRegion(ctx, mount), 2245, 0.6);
+  within(ctx, mount, () => {
+    for (let y = top + 8, i = 0; y < -110; y += 40, i++) {
+      G.drips(ctx, 8, y, 8, 14, 2247 + i, 2);
+      if (i % 2 === 0) G.rustPatch(ctx, 12, y + 18, 2.4, 4, 2248 + i);
+    }
+    G.drips(ctx, 5, -97, 14, 4, 2246, 2);
+  });
+};
+
 const energyBarrier: EnvAsset = {
   id: "energyBarrier",
-  box: [-4, -98, 28, 0],
+  box: [-4, BAR_TOP, 28, 0],
   anim: true,
   draw(ctx, state, t, size) {
     const on = state === 0;
-    const reach = size?.w;
-    if (reach) {
-      const arm = [[20, -95, reach - 20, 8]] as const;
-      box(ctx, 20, -95, reach - 20, 8, "steel", 1);
-      flat(ctx, 20, -92, reach - 20, 1.4, "m3");
-      if (!simple()) for (let x = 30; x < reach - 6; x += 12) disc(ctx, x, -91, 0.9, "m2", "mLine");
-      box(ctx, reach - 3, -101, 5, 20, "steel", 1);
-      for (const y of [-98, -84]) disc(ctx, reach - 0.5, y, 1, "m2", "mLine");
-      const mount = [...arm, [reach - 3, -101, 5, 20]] as const;
-      G.grain(ctx, G.rectsRegion(ctx, mount), 2245, 0.6);
-      G.chips(ctx, 20, -95, reach - 20, 2246);
-      within(ctx, mount, () => {
-        G.drips(ctx, 20, -88, reach - 20, 6, 2247, 3);
-        G.rustPatch(ctx, reach * 0.6, -91, 4, 1.4, 2248);
-      });
-    }
+    hangerBar(ctx, size?.top ?? BAR_TOP);
     if (on && !simple()) glow(ctx, 12, -48, 30, "plasma", 0.25 + sin(t * 13) * 0.06);
     if (on) {
       arcBolt(ctx, 12, -86, -4, 10, t, 1);

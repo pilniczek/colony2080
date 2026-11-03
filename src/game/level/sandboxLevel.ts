@@ -30,7 +30,7 @@ export interface Prop {
   on?: boolean;
   id?: string;
   asset?: AssetId;
-  art?: { dx?: number; dy?: number; top?: number; w?: number; flip?: boolean };
+  art?: { dx?: number; dy?: number; top?: number; flip?: boolean };
   state?: number;
   solidStates?: number[];
   gapStates?: number[];

@@ -650,14 +650,14 @@ export function prop(e: Env, p: Prop): void {
   const id = p.kind === "item" ? icon?.asset : (p.asset ?? PROP_ASSETS[p.kind]);
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
-  const { dx = 0, dy = 0, top, w, flip } = p.art ?? {};
+  const { dx = 0, dy = 0, top, flip } = p.art ?? {};
   const look = guardLook(p);
   if (look === "gone" || guardHidden(p, e.world.flags)) return;
   const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
-  const size = top === undefined && w === undefined ? undefined : { ...(top === undefined ? {} : { top: -px(e, top * e.cell) }), ...(w === undefined ? {} : { w: px(e, w * e.cell) }) };
+  const size = top === undefined ? undefined : { top: -px(e, top * e.cell) };
   const x = (p.x + dx) * e.cell + (flip ? 1 : -1) * ((left + right) / 2) * k(e);
   const y = ((p.y ?? e.world.spawn[1]) + dy) * e.cell;
-  if (!near(e, artBox(e, id, x, y, top === undefined ? 0 : top * e.cell, w === undefined ? 0 : w * e.cell))) return;
+  if (!near(e, artBox(e, id, x, y, top === undefined ? 0 : top * e.cell))) return;
   if (flip) {
     e.ctx.save();
     e.ctx.translate(x, 0);
@@ -670,9 +670,9 @@ export function prop(e: Env, p: Prop): void {
   put(e, id, x, y, state, size, look?.t ?? 0);
 }
 
-function artBox(e: Env, id: AssetId, x: number, y: number, rise: number, wide = 0): Rect {
+function artBox(e: Env, id: AssetId, x: number, y: number, rise: number): Rect {
   const [x0, y0, x1, y1] = ASSETS[id].box;
-  const reach = Math.max(x1 - x0, y1 - y0) * k(e) + wide;
+  const reach = Math.max(x1 - x0, y1 - y0) * k(e);
   const up = Math.min(y0 * k(e), -rise);
   return { x: x + x0 * k(e) - reach, y: y + up - reach, w: (x1 - x0) * k(e) + 2 * reach, h: y1 * k(e) - up + 2 * reach };
 }
