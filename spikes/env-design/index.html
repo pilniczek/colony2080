@@ -19,6 +19,7 @@
   nav a.missing { color: var(--muted); }
   h2 { font-size: 13px; font-weight: 600; margin: 12px 0 4px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
   section.asset { margin: 12px 16px; padding: 12px; background: var(--card); border-radius: 6px; scroll-margin-top: 56px; }
+  p.desc[id] { scroll-margin-top: 56px; }
   section.asset h3 { margin: 0; font-size: 15px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
   .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; padding: 1px 6px; border-radius: 3px; background: #22302f; color: var(--muted); }
   .tag.on { background: #3a1e0c; color: var(--accent); }
@@ -188,38 +189,49 @@ function build() {
     const members = objects.filter(inGroup);
     if (!members.length) continue;
     toc.append(el("h2", { textContent: title }));
+    const done = new Set();
     for (const o of members) {
-      const asset = assets.get(o.id);
-      toc.append(el("a", { href: "#" + o.id, textContent: o.name, className: asset ? "" : "missing" }));
-      const ours = el("div", { className: "row ours" });
-      const game = el("div", { className: "row ours" });
-      if (asset) {
-        const states = o.states.length ? o.states : ["static"];
-        states.forEach((label, state) => {
-          const canvas = el("canvas");
-          views.push({ canvas, asset, state });
-          ours.append(el("figure", {}, el("figcaption", { textContent: label }), canvas));
-        });
-        for (const [w, h] of o.sizes ?? []) {
-          const canvas = el("canvas");
-          views.push({ canvas, asset, state: 0, size: { w: w * TILE, h: h * TILE } });
-          ours.append(el("figure", {}, el("figcaption", { textContent: `${w} x ${h} cells` }), canvas));
-        }
-        states.forEach((label, state) => {
-          const canvas = el("canvas");
-          views.push({ canvas, asset, state, game: true });
-          game.append(el("figure", {}, el("figcaption", { textContent: label }), canvas));
-        });
-      } else ours.append(el("div", { className: "todo", textContent: "not drawn yet" }));
-      const refs = el("div", { className: "row refs" }, ...o.refs.map(r => el("figure", {}, el("figcaption", { textContent: r.caption }), refCanvas(r))));
-      sheet.append(el("section", { id: o.id, className: "asset " + (o.interactive ? "interactive" : "static") },
-        el("h3", {}, o.name, o.csName ? el("span", { className: "cs", textContent: o.csName }) : null, ...tags(o)),
-        el("p", { className: "desc", textContent: o.description ?? "" }),
-        el("div", { className: "label", textContent: "Our variant" }), ours,
-        ...(asset ? [el("div", { className: "label", textContent: "Game size, game LOD" }), game] : []),
-        ...(o.refs.length ? [el("div", { className: "label", textContent: "Original" }), refs] : [])));
+      if (done.has(o)) continue;
+      const kin = o.family ? members.filter(m => m.family === o.family) : [o];
+      for (const m of kin) done.add(m);
+      for (const m of kin) toc.append(el("a", { href: "#" + m.id, textContent: m.name, className: assets.get(m.id) ? "" : "missing" }));
+      sheet.append(section(o, kin));
     }
   }
+}
+
+function figures(o, game) {
+  const asset = assets.get(o.id);
+  const prefix = o.family ? o.name + ": " : "";
+  const figs = [];
+  if (!asset) return game ? [] : [el("div", { className: "todo", textContent: (prefix || "") + "not drawn yet" })];
+  const states = o.states.length ? o.states : ["static"];
+  states.forEach((label, state) => {
+    const canvas = el("canvas");
+    views.push({ canvas, asset, state, game });
+    figs.push(el("figure", {}, el("figcaption", { textContent: prefix + label }), canvas));
+  });
+  if (!game) for (const [w, h] of o.sizes ?? []) {
+    const canvas = el("canvas");
+    views.push({ canvas, asset, state: 0, size: { w: w * TILE, h: h * TILE } });
+    figs.push(el("figure", {}, el("figcaption", { textContent: `${prefix}${w} x ${h} cells` }), canvas));
+  }
+  return figs;
+}
+
+function section(o, kin) {
+  const family = kin.length > 1;
+  const ours = el("div", { className: "row ours" }, ...kin.flatMap(m => figures(m, false)));
+  const game = el("div", { className: "row ours" }, ...kin.flatMap(m => figures(m, true)));
+  const refs = kin.flatMap(m => m.refs.map(r => el("figure", {}, el("figcaption", { textContent: (family ? m.name + ": " : "") + r.caption }), refCanvas(r))));
+  const head = family
+    ? [el("h3", {}, o.family, ...tags({ ...o, marker: null, task: null })), ...kin.map(m => el("p", { id: m.id, className: "desc" }, el("b", { textContent: m.name + (m.csName ? " (" + m.csName + ")" : "") + (m.marker != null ? ", marker " + m.marker : "") + ". " }), m.description ?? ""))]
+    : [el("h3", {}, o.name, o.csName ? el("span", { className: "cs", textContent: o.csName }) : null, ...tags(o)), el("p", { className: "desc", textContent: o.description ?? "" })];
+  return el("section", { id: family ? "family-" + o.family : o.id, className: "asset " + (o.interactive ? "interactive" : "static") },
+    ...head,
+    el("div", { className: "label", textContent: "Our variant" }), ours,
+    ...(game.children.length ? [el("div", { className: "label", textContent: "Game size, game LOD" }), game] : []),
+    ...(refs.length ? [el("div", { className: "label", textContent: "Original" }), el("div", { className: "row refs" }, ...refs)] : []));
 }
 
 function paintAll(t = SPIKE_CLOCK.seconds()) {

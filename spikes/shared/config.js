@@ -13185,6 +13185,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "sourceTeleport",
+      "family": "Teleports",
       "name": "Teleport",
       "csName": "teleport",
       "interactive": true,
@@ -13351,6 +13352,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "targetTeleport",
+      "family": "Teleports",
       "name": "Target teleport (damaged)",
       "csName": "cílový teleport",
       "interactive": true,
@@ -13532,6 +13534,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "brokenTeleport",
+      "family": "Teleports",
       "name": "Broken teleport",
       "csName": "rozbitý teleport",
       "interactive": true,
@@ -13651,6 +13654,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "teleportPad",
+      "family": "Teleports",
       "name": "Teleport pair",
       "csName": "teleport",
       "interactive": true,

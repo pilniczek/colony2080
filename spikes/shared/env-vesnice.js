@@ -2013,7 +2013,7 @@ const { TILE } = window.ENV;
 const craneKey = window.ENV.ASSETS.find((a) => a.id === "craneKey");
 const { PLANK, depotRun, gateBlock, gateRuin, planks, shadow, smoke, spark, steelGate } = window.ENV.VESNICE;
 const { rng, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, curve, slab, hazard, text } = P;
-const { PI, sin, cos, min, max, floor, abs } = Math;
+const { PI, sin, cos, min, max, floor } = Math;
 const simple = () => P.simple();
 const scuff = (ctx, x, w) => {
     ctx.save();
@@ -2272,6 +2272,12 @@ const electricCabinet = {
         flat(ctx, 0, -3, 96, 3, "k0", "kLine");
         G.surface(ctx, 0, -71, 96, 68, 2200, { rise: 0.35, drip: 5, dripLen: 30 });
         G.chips(ctx, -1, -75, 98, 2201);
+        G.grain(ctx, G.rectRegion(ctx, -1, -75, 98, 4), 2204, 1);
+        G.dirt(ctx, -1, -75, 98, 4, 2205, 0.6);
+        for (const [x, r] of [[14, 3], [52, 4], [84, 2.6]])
+            G.rustPatch(ctx, x, -73, r, 1.2, 2206 + x);
+        G.drips(ctx, -1, -71, 98, 12, 2207, 7);
+        G.chips(ctx, -1, -72, 98, 2208, G.DIRT);
         for (const x of [6, 70]) {
             box(ctx, x, -60, 20, 50, "steel", 1);
             for (let y = -56; y < -12; y += simple() ? 8 : 4)
@@ -2305,28 +2311,44 @@ const electricCabinet = {
         }
     },
 };
-const WHEEL_R = 13;
-const wheel = (ctx, x, seed) => {
-    const y = -WHEEL_R;
-    ellipse(ctx, x, y, WHEEL_R, WHEEL_R, "k0", "kLine");
-    ellipse(ctx, x, y, WHEEL_R - 3, WHEEL_R - 3, "m1", "mLine");
+const TRACK_R = 6.6;
+const ROAD_WHEELS = [66, 83, 100, 117, 134];
+const roadWheel = (ctx, x, seed) => {
+    const y = -TRACK_R;
+    ellipse(ctx, x, y, 5.6, 5.6, "m1", "kLine");
+    ellipse(ctx, x, y, 4.2, 4.2, "m2", "mLine");
+    ellipse(ctx, x, y, 1.8, 1.8, "m1", "mLine");
     if (!simple())
-        for (let i = 0; i < 12; i++) {
-            const a = (i / 12) * PI * 2;
-            line(ctx, [[x + cos(a) * (WHEEL_R - 0.6), y + sin(a) * (WHEEL_R - 0.6)], [x + cos(a) * (WHEEL_R - 2.4), y + sin(a) * (WHEEL_R - 2.4)]], "k1", 1);
+        for (let i = 0; i < 6; i++)
+            flat(ctx, x + cos((i / 6) * PI * 2) * 3 - 0.4, y + sin((i / 6) * PI * 2) * 3 - 0.4, 0.8, 0.8, "m3");
+    G.rustPatch(ctx, x + 1.6, y - 2.4, 1.6, 1, seed);
+    G.dirt(ctx, x - 5.6, y - 2, 11.2, 7.6, seed + 1, 0.7);
+};
+const track = (ctx) => {
+    const x0 = 52, x1 = 150, h = TRACK_R * 2;
+    const belt = [[x0 + TRACK_R, -h], [x1 - TRACK_R, -h], [x1, -TRACK_R], [x1 - TRACK_R, 0], [x0 + TRACK_R, 0], [x0, -TRACK_R]];
+    shape(ctx, belt, "k1", "kLine");
+    ellipse(ctx, x0 + TRACK_R, -TRACK_R, TRACK_R, TRACK_R, "k1", "kLine");
+    ellipse(ctx, x1 - TRACK_R, -TRACK_R, TRACK_R, TRACK_R, "k1", "kLine");
+    if (!simple())
+        for (let x = x0 + TRACK_R; x < x1 - TRACK_R; x += 3) {
+            flat(ctx, x, -h, 1.6, 1.2, "k3");
+            flat(ctx, x + 1.5, -1.2, 1.6, 1.2, "k3");
         }
-    for (let i = 0; i < 6; i++) {
-        const a = (i / 6) * PI * 2 + 0.3;
-        line(ctx, [[x, y], [x + cos(a) * (WHEEL_R - 3.4), y + sin(a) * (WHEEL_R - 3.4)]], "m3", simple() ? 1.6 : 1.2);
-    }
-    ellipse(ctx, x, y, 4, 4, "m2", "mLine");
-    disc(ctx, x, y, 1.6, "c1", "mLine");
+    ellipse(ctx, x0 + TRACK_R, -TRACK_R, 4.4, 4.4, "m2", "mLine");
     if (!simple())
-        for (let i = 0; i < 5; i++)
-            flat(ctx, x + cos((i / 5) * PI * 2) * 2.8 - 0.5, y + sin((i / 5) * PI * 2) * 2.8 - 0.5, 1, 1, "m3");
-    G.rustPatch(ctx, x + 3, y - 5, 2, 1.4, seed);
-    G.grain(ctx, G.polyRegion(ctx, [[x - WHEEL_R, y - WHEEL_R], [x + WHEEL_R, y - WHEEL_R], [x + WHEEL_R, 0], [x - WHEEL_R, 0]]), seed + 1, 0.5);
-    G.dirt(ctx, x - WHEEL_R, y, WHEEL_R * 2, WHEEL_R, seed + 2, 0.5);
+        for (let i = 0; i < 8; i++) {
+            const a = (i / 8) * PI * 2;
+            flat(ctx, x0 + TRACK_R + cos(a) * 4.6 - 0.6, -TRACK_R + sin(a) * 4.6 - 0.6, 1.2, 1.2, "m1");
+        }
+    disc(ctx, x0 + TRACK_R, -TRACK_R, 1.6, "c1", "mLine");
+    ellipse(ctx, x1 - TRACK_R, -TRACK_R, 4.4, 4.4, "m2", "mLine");
+    disc(ctx, x1 - TRACK_R, -TRACK_R, 1.6, "m1", "mLine");
+    for (const x of ROAD_WHEELS)
+        roadWheel(ctx, x, 2269 + x);
+    G.grain(ctx, G.polyRegion(ctx, belt), 2280, 0.8);
+    G.dirt(ctx, x0, -h, x1 - x0, h, 2281, 0.9);
+    G.rustPatch(ctx, 92, -11.4, 3, 0.8, 2282);
 };
 const CANNON_BODY = [[56, -16], [60, -48], [76, -60], [138, -60], [148, -48], [146, -16]];
 const cannon = {
@@ -2337,10 +2359,11 @@ const cannon = {
         const age = t % 1.6;
         const kick = state === 1 ? max(0, 1 - age * 3) * 6 : 0;
         shadow(ctx, 100, 104, 0.5);
-        box(ctx, 54, -18, 94, 6, "steel", 1);
-        G.grain(ctx, G.rectRegion(ctx, 54, -18, 94, 6), 2260, 0.6);
-        G.dirt(ctx, 54, -18, 94, 6, 2261, 0.6);
-        flat(ctx, 52, -16, 96, 2.4, "m3", "mLine");
+        track(ctx);
+        box(ctx, 54, -18, 94, 5, "steel", 1);
+        G.grain(ctx, G.rectRegion(ctx, 54, -18, 94, 5), 2260, 0.6);
+        G.dirt(ctx, 54, -18, 94, 5, 2261, 0.6);
+        flat(ctx, 52, -15.4, 96, 2, "m3", "mLine");
         ctx.save();
         ctx.translate(kick, 0);
         cylH(ctx, 6, -45, 66, 7, "chrome", 1);
@@ -2369,8 +2392,6 @@ const cannon = {
         G.rustPatch(ctx, 128, -32, 5, 2.5, 2266);
         G.chips(ctx, 76, -60, 62, 2267);
         G.dirt(ctx, 56, -48, 92, 32, 2268, 0.3);
-        for (const x of [76, 126])
-            wheel(ctx, x, 2269 + x);
         if (state === 1 && age < 0.5) {
             const k = 1 - age * 2;
             glow(ctx, -6, -42, 18 * k + 6, "a2", 0.8 * k);
@@ -2490,25 +2511,46 @@ const powerBridge = {
     },
 };
 const WALKER = [
-    [[0.2, -2.2], [0, 0.4]],
-    [[0, 0.4], [-1.4, 2.4], [-2.2, 4.6]],
-    [[0, 0.4], [1, 2.4], [2.4, 4.2]],
-    [[-0.2, -1.4], [-1.8, 0], [-2.4, 1.4]],
-    [[-0.2, -1.4], [1.4, -0.2], [2.2, 1]],
+    [[0.5, -2.2], [-0.3, 1]],
+    [[-0.3, 1], [0.9, 2.8], [1.2, 5]],
+    [[-0.3, 1], [-1.3, 2.9], [-2.8, 4.4]],
+    [[0.3, -1.4], [1.6, 0], [2.2, 1.4]],
+    [[0.3, -1.4], [-0.9, -0.1], [-1.6, 1.2]],
 ];
+const circle = (cx, cy, r, n = 20) => Array.from({ length: n }, (_, i) => [cx + cos((i / n) * PI * 2) * r, cy + sin((i / n) * PI * 2) * r]);
 const noWalkingSign = (ctx, x, y, r) => {
-    disc(ctx, x, y, r, "fs2", "kLine");
-    disc(ctx, x, y, r * 0.74, "c3");
+    disc(ctx, x, y, r + 0.5, "m1", "kLine");
+    disc(ctx, x, y, r, "fs2");
+    disc(ctx, x, y, r * 0.78, "c3");
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(r / 6.4, r / 6.4);
-    disc(ctx, 0.6, -3.4, 1, "hazardDark");
+    disc(ctx, 0.9, -3.6, 1.05, "k0");
     for (const limb of WALKER)
-        line(ctx, limb, "hazardDark", 1.1);
+        line(ctx, limb, "k0", 1.15);
+    flat(ctx, 0.9, 4.6, 1.4, 0.5, "k0");
+    flat(ctx, -3.4, 4.1, 1.2, 0.5, "k0");
     ctx.restore();
-    line(ctx, [[x - r * 0.52, y - r * 0.52], [x + r * 0.52, y + r * 0.52]], "fs2", r * 0.2, "butt");
-    if (!simple())
-        G.grain(ctx, G.rectRegion(ctx, x - r, y - r, r * 2, r * 2), 1024, 0.25);
+    line(ctx, [[x - r * 0.56, y - r * 0.56], [x + r * 0.56, y + r * 0.56]], "fs1", r * 0.17, "butt");
+    ctx.save();
+    ctx.globalAlpha = 0.24;
+    disc(ctx, x, y, r, "c1");
+    ctx.restore();
+    const face = G.polyRegion(ctx, circle(x, y, r));
+    G.grain(ctx, face, 1024, 0.75);
+    ctx.save();
+    face();
+    ctx.clip();
+    G.dirt(ctx, x - r, y - r, r * 2, r * 2, 1025, 0.45);
+    G.rustPatch(ctx, x + r * 0.62, y + r * 0.5, r * 0.28, r * 0.2, 1026);
+    G.rustPatch(ctx, x - r * 0.7, y - r * 0.2, r * 0.16, r * 0.14, 1027);
+    if (!simple()) {
+        line(ctx, [[x - r * 0.5, y + r * 0.3], [x - r * 0.1, y + r * 0.42]], "m2", 0.3);
+        line(ctx, [[x + r * 0.1, y - r * 0.62], [x + r * 0.42, y - r * 0.5]], "m2", 0.3);
+    }
+    ctx.restore();
+    G.drips(ctx, x - r * 0.3, y + r * 0.8, r * 0.6, r * 1.4, 1028, 2);
+    disc(ctx, x, y - r * 0.9, 0.5, "m3", "mLine");
 };
 const bridgeGuardPost = {
     id: "bridgeGuardPost",
@@ -2542,62 +2584,105 @@ const bone = (ctx, pts, w) => {
         line(ctx, pts.map(([x, y]) => [x, y - w * 0.22]), BONE[3], w * 0.3);
 };
 const knob = (ctx, x, y, r) => disc(ctx, x, y, r, BONE[2], "kLine");
-const SKULL = [[1, -2.4], [1.4, -6], [4, -8.8], [8, -9.4], [11, -7.6], [12, -4.6], [11.2, -1.6], [8, -0.6], [5.6, -1], [4.6, 0], [2.2, 0], [1.4, -1]];
-const PELVIS = [[26, -1.2], [26.6, -5.6], [29.4, -7], [31.6, -5], [31.4, -1.4], [29, -0.4]];
-const skeleton = (ctx, seed) => {
-    bone(ctx, [[12.6, -2.6], [20, -2.8], [27, -2.6]], 1.4);
-    if (!simple())
-        for (let x = 13; x < 27; x += 1.8)
-            flat(ctx, x, -3.6, 0.7, 2, BONE[1]);
-    for (let i = 0; i < 5; i++) {
-        const x = 13.6 + i * 2.5;
-        const h = 7.8 - abs(i - 1.6) * 0.8;
-        curve(ctx, [[x, -2.8], [x + 0.6, -h], [x + 2.2, -h - 0.4], [x + 2.6, -2.8]], "kLine", 1.6);
-        curve(ctx, [[x, -2.8], [x + 0.6, -h], [x + 2.2, -h - 0.4], [x + 2.6, -2.8]], BONE[2], 0.8);
+const CRANIUM = [[1.4, -1.2], [0.2, -4], [0.8, -7.2], [3, -9.6], [6.2, -10.8], [8.6, -10.6], [10, -11.4], [11.2, -10.6], [12, -9.4], [11, -8.6], [9.4, -7], [9.6, -4.6], [8, -2.4], [5, -0.8]];
+const JAW = [[8.6, -4.2], [9.8, -6.8], [11, -8.2], [12.6, -8.8], [13.6, -8.4], [13.4, -7.4], [11.6, -6.6], [10.6, -4.4], [9.6, -3.4]];
+const PELVIS = [[29.6, -1.4], [29.8, -5.2], [31, -8.4], [33.2, -9], [35.2, -7.2], [35.6, -4.4], [34.6, -1.2], [32, -0.6]];
+const STERNUM = [[15.6, -8.6], [17, -9.4], [23.4, -8.2], [24.6, -7.2], [23.2, -7], [17, -7.8]];
+const SCAPULA = [[13.6, -1.2], [14.4, -4.4], [17.6, -3], [20, -1.4], [17, -0.8]];
+const RIBS = 7;
+const vertebrae = (ctx, x0, x1, y0, y1, r) => {
+    bone(ctx, [[x0, y0], [x1, y1]], r * 1.1);
+    if (simple())
+        return;
+    const n = Math.max(2, Math.round((x1 - x0) / (r * 1.8)));
+    for (let i = 0; i <= n; i++) {
+        const k = i / n;
+        disc(ctx, x0 + (x1 - x0) * k, y0 + (y1 - y0) * k, r * 0.8, BONE[2], "kLine");
+        flat(ctx, x0 + (x1 - x0) * k - 0.25, y0 + (y1 - y0) * k - r * 1.4, 0.5, r * 0.8, BONE[1]);
     }
-    bone(ctx, [[14, -1.4], [20.6, -0.8]], 1.1);
-    bone(ctx, [[20.6, -0.8], [26.6, -0.7]], 0.9);
-    for (const dx of [0, 1.2, 2.4])
-        line(ctx, [[26.6, -0.7], [28 + dx * 0.6, -0.4 + dx * 0.1]], BONE[2], 0.5);
+};
+const ribs = (ctx, near) => {
+    for (let i = 0; i < RIBS; i++) {
+        const x = 15 + i * 1.8;
+        const top = -9.4 + i * 0.25 + (i > 4 ? (i - 4) * 0.7 : 0);
+        const end = i < 5 ? 17 + i * 1.3 : 20.6 + i * 1.5;
+        const pts = [[x, -2.2], [x - 1.4 + i * 0.1, top + 2.4], [x + 0.6, top], [end, top + 0.6 + (i > 4 ? 1.4 : 0)]];
+        curve(ctx, pts, "kLine", near ? 1.5 : 1.3);
+        curve(ctx, pts, near ? BONE[2] : BONE[1], near ? 0.8 : 0.6);
+    }
+};
+const skeleton = (ctx, seed) => {
+    bone(ctx, [[33.4, -2.6], [41.4, -2.2]], 1.3);
+    bone(ctx, [[41.4, -1.9], [48.6, -1.6]], 1.1);
+    line(ctx, [[42, -1], [48.4, -0.8]], BONE[1], 0.5);
+    ribs(ctx, false);
+    disc(ctx, 41.4, -2.1, 1.3, BONE[1], "kLine");
+    shape(ctx, SCAPULA, BONE[1], "kLine");
+    vertebrae(ctx, 9.4, 14.2, -3.4, -2.6, 0.9);
+    vertebrae(ctx, 14.2, 26, -2.4, -2.2, 0.85);
+    vertebrae(ctx, 26, 30.6, -2.4, -3, 1.05);
+    ribs(ctx, true);
+    shape(ctx, STERNUM, BONE[2], "kLine");
+    bone(ctx, [[15.8, -8.4], [14.6, -5.2]], 0.8);
     shape(ctx, PELVIS, BONE[2], "kLine");
-    disc(ctx, 29, -3.6, 1.2, BONE[0]);
-    bone(ctx, [[29.6, -3.8], [32.8, -10], [35.2, -15.6]], 1.8);
-    bone(ctx, [[35.4, -15.4], [38.6, -8.4], [41.6, -1.6]], 1.5);
-    line(ctx, [[36.4, -14.6], [39.6, -8], [42.4, -2]], BONE[1], 0.6);
-    knob(ctx, 35.3, -15.8, 1.7);
-    bone(ctx, [[41.4, -1.2], [44.6, -0.9], [46.4, -0.6]], 1);
+    ellipse(ctx, 33.4, -2.8, 1.1, 0.8, "hole");
     if (!simple())
-        for (const dx of [45.6, 46.6, 47.4])
-            line(ctx, [[45, -0.9], [dx, -0.3]], BONE[2], 0.4);
-    shape(ctx, SKULL, BONE[2], "kLine");
+        curve(ctx, [[30.6, -6.6], [32.4, -8], [34.4, -7.2]], BONE[3], 0.5);
+    bone(ctx, [[14.8, -4.4], [19, -2.4], [22.6, -1.4]], 1.2);
+    knob(ctx, 14.8, -4.4, 1.3);
+    knob(ctx, 22.6, -1.5, 1);
+    bone(ctx, [[22.8, -1.8], [28.6, -1.6]], 0.6);
+    bone(ctx, [[22.8, -0.9], [28.6, -0.9]], 0.75);
+    for (const [dx, dy] of [[0, -1.8], [0.4, -1.2], [0.2, -0.6]])
+        bone(ctx, [[29 + dx, -1.3], [31.6 + dx, dy - 0.2], [33 + dx, dy + 0.1]], 0.4);
+    disc(ctx, 29.2, -1.3, 0.9, BONE[2], "kLine");
+    knob(ctx, 34, -4.6, 1.6);
+    bone(ctx, [[34, -4.6], [37.4, -10.4], [39.6, -15.6]], 1.7);
+    bone(ctx, [[41.2, -14.8], [43.4, -8.4], [45, -2.6]], 0.6);
+    bone(ctx, [[40.2, -15.2], [42.2, -8.6], [43.8, -2.6]], 1.2);
+    knob(ctx, 40, -15.6, 1.8);
+    disc(ctx, 40.8, -16.4, 0.9, BONE[3], "kLine");
+    shape(ctx, [[43, -3.4], [45.4, -3.6], [45.6, -1.6], [43.8, -0.4], [42.2, -0.6], [42.4, -2]], BONE[2], "kLine");
+    for (const [dy, end] of [[-1.6, 50.4], [-1.1, 50.8], [-0.6, 50.2]])
+        bone(ctx, [[45.4, dy - 0.4], [48.6, dy], [end, dy + 0.3]], 0.42);
+    ctx.save();
+    ctx.translate(10, -1);
+    ctx.scale(0.78, 0.78);
+    ctx.translate(-10, 1);
+    shape(ctx, CRANIUM, BONE[2], "kLine");
     if (!simple())
-        shape(ctx, [[4, -8.2], [8, -8.8], [10.6, -7.2], [7.6, -7.6]], BONE[3]);
-    ellipse(ctx, 4.4, -5, 1.6, 1.4, "hole");
-    flat(ctx, 1.6, -3, 0.9, 1, "hole");
-    if (!simple())
-        for (let x = 2.2; x < 5.4; x += 0.9)
-            flat(ctx, x, -1.4, 0.4, 1.1, BONE[0]);
-    ellipse(ctx, 8.4, -4.8, 2, 1.6, BONE[1]);
-    G.grain(ctx, G.polyRegion(ctx, SKULL), seed, 0.9);
+        shape(ctx, [[2, -7], [3.6, -9.2], [6.4, -10.2], [5, -8.6], [3, -6.4]], BONE[3]);
+    shape(ctx, JAW, BONE[2], "kLine");
+    ellipse(ctx, 8.2, -8.8, 1.5, 1.1, "hole");
+    shape(ctx, [[10.2, -10.6], [11, -10.8], [10.8, -9.8]], "hole");
+    ellipse(ctx, 6.6, -4.6, 0.9, 0.7, "hole");
+    if (!simple()) {
+        for (let x = 11.2; x < 13.2; x += 0.6)
+            flat(ctx, x, -9.6 + (x - 11.2) * 0.35, 0.35, 0.9, BONE[3]);
+        curve(ctx, [[1.6, -5.4], [4.4, -6.4], [7.4, -6.6]], BONE[1], 0.4);
+    }
+    G.grain(ctx, G.polyRegion(ctx, CRANIUM), seed, 0.9);
+    ctx.restore();
     G.grain(ctx, G.polyRegion(ctx, PELVIS), seed + 1, 0.9);
-    G.dirt(ctx, 0, -4, 48, 4, seed + 2, 0.55);
+    G.grain(ctx, G.polyRegion(ctx, STERNUM), seed + 3, 0.7);
+    G.dirt(ctx, 0, -5, 51, 5, seed + 2, 0.55);
     if (!simple())
-        for (const [x, w] of [[3, 3], [17, 4], [30, 2.4], [40, 3]])
+        for (const [x, w] of [[1, 3], [16, 4], [30, 2.4], [42, 3]])
             flat(ctx, x, -0.9, w, 0.9, "g1");
 };
 const smoulderingRemains = {
     id: "smoulderingRemains",
-    box: [-4, -20, 52, 0],
+    box: [-4, -20, 54, 0],
     anim: true,
     draw(ctx, state, t) {
-        G.scorch(ctx, [[0, 0], [6, -3], [24, -5], [44, -3], [48, 0]], 2320);
-        shadow(ctx, 24, 48, 0.5);
+        G.scorch(ctx, [[0, 0], [6, -3], [24, -5], [44, -3], [51, 0]], 2320);
+        shadow(ctx, 25, 51, 0.5);
         skeleton(ctx, 2321);
         if (state === 0) {
-            flat(ctx, 27.6, -1.6, 3.6, 1, "y2", "yLine");
-            ellipse(ctx, 27.6, -1.1, 1.2, 1.1, "y1", "yLine");
+            flat(ctx, 31.6, -1.4, 3.6, 1, "y2", "yLine");
+            ellipse(ctx, 31.6, -0.9, 1.2, 1.1, "y1", "yLine");
             if (!simple())
-                glow(ctx, 28.6, -1.4, 4, "y3", 0.35 + sin(t * 4) * 0.15);
+                glow(ctx, 32.6, -1.2, 4, "y3", 0.35 + sin(t * 4) * 0.15);
         }
     },
 };
@@ -2849,12 +2934,13 @@ const projectileCrate = {
             box(ctx, x, -20, 3.6, 20, "olive", 2, { vertical: true });
         box(ctx, 0.4, -21.6, 29.2, 2.4, "olive", 3);
         box(ctx, 0.4, -2, 29.2, 2, "olive", 0);
-        flat(ctx, 5.4, -14, 11, 7, "o0", "kLine");
-        poly(ctx, [[6.4, -11.8], [12, -11.8], [14.4, -11.2], [15, -10.5], [14.4, -9.8], [12, -9.2], [6.4, -9.2]], "y2", 2, { line: false });
+        hazard(ctx, 4.6, -5.4, 20.8, 3, 3);
+        text(ctx, "AMMO", 15, -16, 2.6, "k0");
+        flat(ctx, 8, -14, 14, 6.6, "o0", "kLine");
+        poly(ctx, [[9.4, -11.9], [16.6, -11.9], [19.4, -11.3], [20.4, -10.7], [19.4, -10.1], [16.6, -9.5], [9.4, -9.5]], "y2", 2, { line: false });
         if (!simple())
-            flat(ctx, 6.4, -12.8, 8, 0.7, "y1");
-        flat(ctx, 8.6, -11.8, 0.6, 2.6, "y0");
-        text(ctx, "AMMO", 20.6, -10.5, 2.8, "k0");
+            flat(ctx, 9.4, -12.6, 9, 0.6, "y1");
+        flat(ctx, 11.6, -11.9, 0.6, 2.4, "y0");
         if (!simple())
             for (const x of [4.4, 25.6])
                 rivets(ctx, x - 1, -18, 2, 4, "o3");
