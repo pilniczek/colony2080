@@ -28,3 +28,11 @@ One stop per shaft row with the floor run on behind the lift (`behind` in `src/g
 ```
 moveto(77,59) moveto(24,70) moveto(13,70) moveto(23,51) moveto(11,41) moveto(33,44) moveto(66,37) moveto(130,37) moveto(81,44) moveto(54,30) moveto(32,23) moveto(83,23) moveto(103,23) moveto(121,16) moveto(121,23) moveto(51,10)
 ```
+
+## Vesnice regions
+
+One stop per region of `docs/research/vesnice-map.md` (game page `game.html?mission=vesnice`): spawn, fuse box, remains, east floors, power plant, the middle floors, guard, target teleport, cannon and bridge, the west floors, then the lower floors.
+
+```
+moveto(146,41) moveto(148,32) moveto(111,32) moveto(130,32) moveto(135,23) moveto(135,41) moveto(95,41) moveto(72,41) moveto(70,23) moveto(66,32) moveto(36,41) moveto(57,41) moveto(37,32) moveto(36,50) moveto(110,50) moveto(120,59) moveto(88,59) moveto(100,68)
+```
