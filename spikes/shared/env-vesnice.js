@@ -1346,10 +1346,15 @@ const watchtower = {
         if (!simple())
             for (let x = 14; x < 74; x += 6)
                 line(ctx, [[x, base - 36 - (20 * (1 - abs(x - 43) / 35))], [x, base - 36]], BRONZE[0], 0.5);
-        G.grain(ctx, G.polyRegion(ctx, roof), seed + 2);
+        const gable = [[4, base - 38], [43, base - 62], [82, base - 38]];
+        G.grain(ctx, G.polyRegion(ctx, gable), seed + 2);
+        clipped(ctx, gable, () => {
+            G.dirt(ctx, 4, base - 62, 78, 26, seed + 56, 0.45);
+            G.drips(ctx, 14, base - 52, 58, 16, seed + 57, 7);
+            for (const [x, y, rx, seedOff] of [[60, base - 42, 5, 4], [28, base - 44, 4, 54], [44, base - 54, 3, 58], [70, base - 40, 3, 59], [16, base - 40, 3.5, 60]])
+                G.rustPatch(ctx, x, y, rx, 1.6, seed + seedOff);
+        });
         within(ctx, [[14, base - 38, 58, 38]], () => outside(ctx, openings, () => G.drips(ctx, 8, base - 36, 70, 20, seed + 3, 7)));
-        G.rustPatch(ctx, 60, base - 42, 5, 2, seed + 4);
-        G.rustPatch(ctx, 28, base - 44, 4, 2, seed + 54);
         G.chips(ctx, 4, base - 38, 78, seed + 55, G.DIRT);
         disc(ctx, 70, base - 26, 2.2, AMBER[1], "#0a0604");
         if (!simple())
