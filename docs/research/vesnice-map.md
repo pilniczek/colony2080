@@ -35,7 +35,7 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 | Mesh fences | 133-136, 150-152, 38-40 | `chainFence` (2) |
 | Lattice mast | 144, 34-40 | `latticeMast` |
 | Overhead pipe | 141-152, 35 | `overheadPipeline` |
-| Ammo bonus | 129, 41 | skipped: no bonus pickup kind in the engine yet |
+| Ammo bonus | 129, 41 | prop `bonus` `ammo` (`ammoBox`) |
 
 ## Middle, floors 23 to 41 (cols 46-99)
 
@@ -45,7 +45,7 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 | Crate mass with rock face | 85-96, 12-31 | terrain, `rockCliff` (flip) |
 | Mesh fence, guard, walkie-talkie | 59-69, 21-22 | `chainFence`, prop `radioGuard`, item `walkieTalkie` |
 | Utility house with green panel | 76-80, 18-22 | `powerHouse`, `junctionBox` |
-| Energy bonus | 83, 23 | skipped: no bonus pickup kind |
+| Energy bonus | 83, 23 | prop `bonus` `energy` (`energyCell`) |
 | Target teleport, pad 13 top | 65, 42, rows 29-31 | props `targetTeleport`, `padDown` |
 | Timber block on stilts, fence | 63-77, 33-40 | `stiltBuilding`, `chainFence` |
 | Bronze pipe columns | 60, 85, 33-40 | `pipeColumn` (bronze, 2) |
@@ -67,7 +67,7 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 | House and pillar | 34-48, 44-49 | `villageHouse` (ruined), `latticeMast` |
 | Pad 13 bottom | 50-54, 49 | prop `padUp` |
 | Rock mound | 58-74, 42-50 | `rockCliff` (2) |
-| Shield bonus | 41, 41 | skipped: no bonus pickup kind |
+| Shield bonus | 41, 41 | prop `bonus` `shield` (`shieldCell`) |
 | Floor 32 west of wall 14 | 7-28, 32 | skipped: never reached, the dynamite ends the level there |
 
 ## Lower floors 50 to 68 (cols 68-146)
@@ -99,9 +99,9 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 | Region | Features | Placed | Skipped |
 |---|---|---|---|
 | East, floors 23 and 32 | 14 | 14 | 0 |
-| East, floor 41 | 9 | 8 | 1 |
-| Middle, floors 23 to 41 | 11 | 10 | 1 |
-| West, floors 32 to 50 | 12 | 10 | 2 |
+| East, floor 41 | 9 | 9 | 0 |
+| Middle, floors 23 to 41 | 11 | 11 | 0 |
+| West, floors 32 to 50 | 12 | 11 | 1 |
 | Lower floors 50 to 68 | 19 | 19 | 0 |
 
 ## Enemies

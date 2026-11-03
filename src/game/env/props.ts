@@ -796,4 +796,55 @@ export const fallenGirders: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, brickPile, tyres, carWreck, fallenGirders];
+export const ammoBox: EnvAsset = {
+  id: "ammoBox",
+  box: [-1, -14, 19, 0],
+  draw(ctx) {
+    for (const x of [4, 8, 12]) {
+      box(ctx, x, -13, 2.4, 6, "yellow", 2, { vertical: true });
+      flat(ctx, x + 0.2, -13.6, 2, 1.4, "k2", "kLine");
+    }
+    box(ctx, 0, -9, 18, 9, "olive", 2);
+    flat(ctx, 0, -9, 18, 2, "o1", "kLine");
+    flat(ctx, 2, -5.6, 14, 2.2, "y2", "yLine");
+    if (!P.simple()) for (const x of [4, 8, 12]) flat(ctx, x, -5.2, 2, 1.4, "k1");
+    flat(ctx, 8, -9.6, 2, 1.2, "steel", "kLine");
+    G.grain(ctx, G.rectRegion(ctx, 0, -9, 18, 9), 3101, 0.8);
+    G.inside(ctx, G.rectRegion(ctx, 0, -9, 18, 9), () => G.rustPatch(ctx, 15, -2, 1.6, 1, 3102));
+    G.chips(ctx, 0, -9, 18, 3103, G.DIRT);
+  },
+};
+
+export const energyCell: EnvAsset = {
+  id: "energyCell",
+  box: [-2, -18, 14, 0],
+  draw(ctx) {
+    box(ctx, -1, -3, 12, 3, "steel", 1);
+    cylV(ctx, 1, -15, 8, 12, "green", 2);
+    flat(ctx, 3.6, -16.6, 2.8, 1.8, "chrome", "kLine");
+    flat(ctx, 3.4, -13, 3.2, 8, "screenOff", "kLine");
+    for (let y = -7; y > -13; y -= 2) flat(ctx, 3.8, y, 2.4, 1.2, "acid");
+    if (!P.simple()) P.glow(ctx, 5, -9, 6, "acid", 0.3);
+    G.grain(ctx, G.rectRegion(ctx, 1, -15, 8, 12), 3111, 0.7);
+    G.chips(ctx, -1, -3, 12, 3112, G.DIRT);
+  },
+};
+
+const SHIELD_PLATE: Pt[] = [[7, -18], [12.6, -15], [12.6, -9], [7, -6], [1.4, -9], [1.4, -15]];
+
+export const shieldCell: EnvAsset = {
+  id: "shieldCell",
+  box: [-2, -20, 16, 0],
+  draw(ctx) {
+    box(ctx, 0, -3, 14, 3, "steel", 1);
+    flat(ctx, 6, -6, 2, 3, "k1", "kLine");
+    P.shape(ctx, SHIELD_PLATE, "den1", "kLine");
+    P.shape(ctx, [[7, -16], [10.4, -14.2], [10, -10.2], [7, -8], [4, -10.2], [3.6, -14.2]], "den3", "den0");
+    P.line(ctx, [[7, -15], [7, -9]], "plasmaCore", 0.8);
+    if (!P.simple()) P.glow(ctx, 7, -12, 8, "plasma", 0.3);
+    G.grain(ctx, G.polyRegion(ctx, SHIELD_PLATE), 3121, 0.6);
+    G.chips(ctx, 0, -3, 14, 3122, G.DIRT);
+  },
+};
+
+export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, brickPile, tyres, carWreck, fallenGirders, ammoBox, energyCell, shieldCell];

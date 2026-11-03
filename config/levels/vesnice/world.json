@@ -188,10 +188,13 @@
     {"asset": "liftPanel", "x": 17.08, "y": 50, "state": 0}
   ],
   "props": [
-    {"kind": "item", "item": "smallKey", "x": 111.2, "y": 32},
+    {"kind": "item", "item": "smallKey", "pickupText": "You found a small key at the smouldering remains.", "x": 111.2, "y": 32},
     {"kind": "object", "id": "fuseBox", "asset": "fuseBox", "art": {"dx": 0.5}, "x": 148.5, "y": 32, "width": 4, "state": 0},
     {"kind": "gate", "id": "sourceTeleport", "asset": "sourceTeleport", "x": 129, "y": 23, "width": 2, "state": 0},
-    {"kind": "weapon", "weapon": "toaster", "x": 61.5, "y": 41},
+    {"kind": "weapon", "weapon": "toaster", "pickupText": "You found the Toaster.", "x": 61.5, "y": 41},
+    {"kind": "bonus", "bonus": "energy", "x": 83.5, "y": 23},
+    {"kind": "bonus", "bonus": "ammo", "x": 129.5, "y": 41},
+    {"kind": "bonus", "bonus": "shield", "x": 41.5, "y": 41},
     {"kind": "object", "id": "bridgeGuardPost", "asset": "bridgeGuardPost", "art": {"dx": -1.5}, "x": 59, "y": 41, "width": 2, "solidStates": [0], "cells": {"col": 58, "row": 35, "w": 1, "h": 6}, "state": 0},
     {"kind": "gate", "id": "westGuardPost", "asset": "bridgeGuardPost", "art": {"dx": -0.5}, "x": 44, "y": 41, "width": 2, "state": 0},
     {"kind": "gate", "id": "powerBridge", "asset": "powerBridge", "x": 51, "y": 41, "width": 12, "gapStates": [1], "cells": {"col": 45, "row": 41, "w": 12, "h": 1}, "state": 0},

@@ -49,6 +49,7 @@ export interface MovementConfig {
   ammo: number;
   blaster: { tickHz: number; damage: number; ammo: number };
   toaster: { cycle: number; hitFrame: number; ammoFrame: number; range: number; damage: number; ammo: number };
+  bonuses: Record<BonusKind, { add: number; cap: number }>;
   respawnMs: number;
   deathSlide: number;
 }
@@ -73,6 +74,18 @@ const positive = (v: unknown, path: string): number => {
   const n = finite(v, path);
   return n > 0 ? n : fail(path, "must be above 0");
 };
+
+export const BONUS_KINDS = ["ammo", "energy", "shield"] as const;
+
+export type BonusKind = (typeof BONUS_KINDS)[number];
+
+const bonusesOf = (o: Obj): MovementConfig["bonuses"] =>
+  Object.fromEntries(
+    BONUS_KINDS.map((kind) => {
+      const g = obj(o[kind], `movement.bonuses.${kind}`);
+      return [kind, { add: finite(g.add, `movement.bonuses.${kind}.add`), cap: finite(g.cap, `movement.bonuses.${kind}.cap`) }];
+    }),
+  ) as MovementConfig["bonuses"];
 
 export function loadMovement(json: unknown): MovementConfig {
   const o = obj(json, "movement");
@@ -105,6 +118,7 @@ export function loadMovement(json: unknown): MovementConfig {
     ammo: n("ammo"),
     blaster: group("blaster", ["tickHz", "damage", "ammo"]),
     toaster: group("toaster", ["cycle", "hitFrame", "ammoFrame", "range", "damage", "ammo"]),
+    bonuses: bonusesOf(obj(o.bonuses, "movement.bonuses")),
     respawnMs: n("respawnMs"),
     deathSlide: n("deathSlide"),
   };

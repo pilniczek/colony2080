@@ -2,6 +2,7 @@ import mapJson from "@config/levels/mesto/map.json";
 import tasksJson from "@config/levels/mesto/tasks.json";
 import worldJson from "@config/levels/mesto/world.json";
 import { describe, expect, it } from "vitest";
+import { BONUS_TEXT } from "./hero/hero";
 import { itemName, knowsCs, loadLang, saveLang, tr } from "./i18n";
 import { ITEMS } from "./items";
 import { loadMesto } from "./level/mesto";
@@ -11,13 +12,17 @@ import { hintFor } from "./level/tasks";
 const texts = (value: unknown): string[] => {
   if (Array.isArray(value)) return value.flatMap(texts);
   if (!value || typeof value !== "object") return [];
-  return Object.entries(value).flatMap(([key, v]) => ((key === "subtitle" || key === "hint" || key === "text") && typeof v === "string" ? [v] : texts(v)));
+  return Object.entries(value).flatMap(([key, v]) => ((key === "subtitle" || key === "hint" || key === "text" || key === "pickupText") && typeof v === "string" ? [v] : texts(v)));
 };
 
 describe("i18n", () => {
   it("has Czech for every mission 1 subtitle, hint and quest", () => {
     const missing = [...texts(tasksJson), ...texts(worldJson), ...texts(mapJson)].filter((text) => !knowsCs(text));
     expect(missing).toEqual([]);
+  });
+
+  it("has Czech for every bonus pickup text", () => {
+    expect(Object.values(BONUS_TEXT).filter((text) => !knowsCs(text))).toEqual([]);
   });
 
   it("has Czech for every hint an object use can say, with each item shown", () => {

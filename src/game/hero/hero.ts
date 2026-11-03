@@ -6,9 +6,10 @@ import { inCover } from "../level/cover";
 import { openTask, pending, runUse, say, tried } from "../level/tasks";
 import { padEnabled, padHint, padUnder, ridePad } from "../level/teleports";
 import { cue } from "../sound/cues";
+import type { SoundId } from "../sound";
 import { step as footsteps } from "../sound/triggers";
 import { footContacts } from "./gait";
-import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
+import { clipFor, holdsGun, type BonusKind, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
 export interface Hero {
   x: number;
@@ -175,7 +176,7 @@ function touchedItem(s: Step): Prop | undefined {
 }
 
 const USABLE = ["panel", "object"];
-const PICKABLE = ["item", "weapon"];
+const PICKABLE = ["item", "weapon", "bonus"];
 
 function ladderBottom(s: Step): number {
   const { h, world } = s;
@@ -687,6 +688,23 @@ const transitions: Partial<Record<HeroState, Handler>> = {
   jumpDeath: respawn,
 };
 
+export const BONUS_TEXT: Record<BonusKind, string> = {
+  ammo: "You found ammunition.",
+  energy: "You found an energy cell. Energy refilled.",
+  shield: "You found a shield unit. One more shield is ready.",
+};
+
+const BONUS_SOUND: Record<BonusKind, [SoundId, number]> = { ammo: ["click", 9000], energy: ["power", 20000], shield: ["power", 16000] };
+
+export function takeBonus(s: Pick<Step, "h" | "world" | "cfg">, kind: BonusKind): void {
+  const { h, world, cfg } = s;
+  const { add, cap } = cfg.bonuses[kind];
+  if (kind === "ammo") h.ammo = Math.max(h.ammo, Math.min(cap, h.ammo + add));
+  if (kind === "energy") h.energy = Math.max(h.energy, Math.min(cap, h.energy + add));
+  if (kind === "shield") h.shields = Math.max(h.shields, Math.min(cap, h.shields + add));
+  cue(world, ...BONUS_SOUND[kind]);
+}
+
 function pickup(s: Step): void {
   if (isDead(s.h.state) || s.h.hidden || s.world.cutscene) return;
   const prop = touchedItem(s);
@@ -694,11 +712,15 @@ function pickup(s: Step): void {
   if (prop.kind === "weapon") {
     s.world.bonus = prop.weapon ?? "blaster";
     s.h.blaster = bonusAmmo(s.world, s.cfg);
-    say(s.world, `Picked up ${BONUS_NAMES[s.world.bonus]}`);
+    say(s.world, prop.pickupText ?? `Picked up ${BONUS_NAMES[s.world.bonus]}`);
+  } else if (prop.kind === "bonus") {
+    prop.taken = true;
+    takeBonus(s, prop.bonus!);
+    say(s.world, prop.pickupText ?? BONUS_TEXT[prop.bonus!]);
   } else {
     prop.taken = true;
     pickUp(s.world, prop.item!);
-    say(s.world, `Picked up ${ITEMS[prop.item!]!.name}`);
+    say(s.world, prop.pickupText ?? `Picked up ${ITEMS[prop.item!]!.name}`);
   }
   startFilm(s.world, prop.cutscene);
   emit(s, "pickup");

@@ -5,7 +5,7 @@ import { TileGrid } from "../../engine/world/tiles";
 import { isAssetId, type AssetId } from "../env/assets";
 import { createFog, type Fog } from "../fog";
 import { createSoundClock, type SoundClock } from "../sound/triggers";
-import type { MovementConfig } from "../hero/config";
+import { BONUS_KINDS, type BonusKind, type MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { ITEMS, type ItemId } from "../items";
 import { keepOutOf, type Cover } from "./cover";
@@ -25,6 +25,8 @@ export interface Prop {
   height?: number;
   item?: ItemId;
   weapon?: BonusWeapon;
+  bonus?: BonusKind;
+  pickupText?: string;
   taken?: boolean;
   shownBy?: string;
   on?: boolean;
@@ -177,6 +179,8 @@ export const BONUS_NAMES: Record<BonusWeapon, string> = { blaster: "E-Blaster", 
 
 const WEAPON_ASSETS: Record<BonusWeapon, AssetId> = { blaster: "eBlaster", toaster: "toaster" };
 
+const BONUS_ASSETS: Record<BonusKind, AssetId> = { ammo: "ammoBox", energy: "energyCell", shield: "shieldCell" };
+
 export const firstBonus = (props: Prop[]): BonusWeapon => props.find((p) => p.kind === "weapon")?.weapon ?? "blaster";
 
 export interface TerrainArt {
@@ -242,11 +246,13 @@ export interface SandboxJson {
 function checkedProp(prop: Prop): Prop {
   if (prop.kind === "item" && !(prop.item && ITEMS[prop.item])) throw new Error(`unknown item: ${prop.item}`);
   if (prop.kind === "weapon" && !(prop.weapon !== undefined && prop.weapon in BONUS_NAMES)) throw new Error(`unknown weapon: ${prop.weapon}`);
+  if (prop.kind === "bonus" && !(BONUS_KINDS as readonly string[]).includes(prop.bonus ?? "")) throw new Error(`unknown bonus: ${prop.bonus}`);
   if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
   if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
   for (const id of [prop.cutscene, prop.shootable?.cutscene, prop.approach?.cutscene, prop.repels?.cutscene]) if (id !== undefined && !isCutsceneId(id)) throw new Error(`unknown cutscene: ${id}`);
   const copy = structuredClone(prop);
   if (copy.kind === "weapon") copy.asset ??= WEAPON_ASSETS[copy.weapon!];
+  if (copy.kind === "bonus") copy.asset ??= BONUS_ASSETS[copy.bonus!];
   return copy;
 }
 

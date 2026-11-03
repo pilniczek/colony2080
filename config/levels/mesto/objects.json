@@ -1749,7 +1749,10 @@
       "task": null,
       "sheet": "buildings",
       "description": "Dark brown brick walls, full floor height, framing lift shafts and buildings, usually with a vertical pipe at the edge.",
-      "states": ["pipe at the right edge (ends a wall run)", "plain bricks (inside a run or infill)"],
+      "states": [
+        "pipe at the right edge (ends a wall run)",
+        "plain bricks (inside a run or infill)"
+      ],
       "refs": [
         {
           "path": "docs/research/video/frames-best/L1_t0296_lift_scaffold_crate_item_message.png",
@@ -2368,6 +2371,18 @@
       "sheet": "structures",
       "description": "Steel ladder with two rails and chrome rungs, climbed by the hero; height follows the ladder cells, rung spacing matches the game climb steps.",
       "states": [],
+      "refs": []
+    },
+    {
+      "id": "shieldCell",
+      "name": "Shield bonus",
+      "csName": "štít",
+      "interactive": true,
+      "sheet": "props",
+      "description": "Bonus pickup, taken on touch once per level: shields +1, cap 5 (KLEV1.EXE 5:0x5D0B). Original look unknown; ours is a blue hex emitter on a stand. Level 1 cell 24, floor 23; level 2 cell 41, floor 41.",
+      "states": [
+        "on ground"
+      ],
       "refs": []
     }
   ]

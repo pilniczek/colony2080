@@ -13165,6 +13165,18 @@ window.C28_CONFIG = {
       "description": "Steel ladder with two rails and chrome rungs, climbed by the hero; height follows the ladder cells, rung spacing matches the game climb steps.",
       "states": [],
       "refs": []
+     },
+     {
+      "id": "shieldCell",
+      "name": "Shield bonus",
+      "csName": "štít",
+      "interactive": true,
+      "sheet": "props",
+      "description": "Bonus pickup, taken on touch once per level: shields +1, cap 5 (KLEV1.EXE 5:0x5D0B). Original look unknown; ours is a blue hex emitter on a stand. Level 1 cell 24, floor 23; level 2 cell 41, floor 41.",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
      }
     ]
    }
@@ -14938,6 +14950,42 @@ window.C28_CONFIG = {
       "states": [
        "stacked boxes",
        "broken box, spilled shells"
+      ],
+      "refs": []
+     },
+     {
+      "id": "ammoBox",
+      "name": "Ammo bonus",
+      "csName": "munice",
+      "interactive": true,
+      "sheet": "props",
+      "description": "Bonus pickup, taken on touch once per level: +350 machine-gun ammo, cap 999 (KLEV1.EXE 5:0x5493). Original look unknown (not in the map tiles); ours is an olive ammo can with rounds on top. Level 2 cell 129, floor 41.",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
+     },
+     {
+      "id": "energyCell",
+      "name": "Energy bonus",
+      "csName": "baterie",
+      "interactive": true,
+      "sheet": "props",
+      "description": "Bonus pickup (battery), taken on touch once per level: energy +90 of the 90 max, a full refill (KLEV1.EXE 5:0x4F0E). Original look unknown; ours is an upright green cell with a lit gauge. Level 2 cell 83, floor 23; the level 1 battery (cell 126, floor 23) sits on a floor our map walls in, so it is not placed.",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
+     },
+     {
+      "id": "shieldCell",
+      "name": "Shield bonus",
+      "csName": "štít",
+      "interactive": true,
+      "sheet": "props",
+      "description": "Bonus pickup, taken on touch once per level: shields +1, cap 5 (KLEV1.EXE 5:0x5D0B). Original look unknown; ours is a blue hex emitter on a stand. Level 1 cell 24, floor 23; level 2 cell 41, floor 41.",
+      "states": [
+       "on ground"
       ],
       "refs": []
      }

@@ -16,7 +16,7 @@ const BASE_IDS = [
   "streetWalkway", "hazardPlate", "girderBridge", "ladder", "liftLanding", "pipeColumn", "pipeBend", "fuelTank", "staircase", "chainFence", "latticePylon", "stripLight", "tunnelGate", "tunnelFloor", "tunnelWall", "metroPlatformWall",
   "skyBackground", "midgroundRuins", "windowBuilding", "ruinedBuilding", "colonnadeBuilding", "facadeTower", "skylineTower", "brickWall", "graffitiWall", "gantryBuilding", "barSign", "barDoor", "crashedShip", "metroTrain",
   "wireBox", "switchboard", "trainDoor", "trainCarriage", "tapValveWheel", "ceilingPipe", "waterPipe", "plasmaBarrier", "codeLock", "acidTank", "crane", "craneMast", "cardDoor", "lift", "liftPanel", "damagedLift", "acidGuard", "acidGuardFront", "flyer", "shootGuard",
-  "barrel", "dyingRebel", "corpse", "crowbar", "eBlaster", "craneKey", "shipPart", "controller", "wires", "tapHandle", "card", "holoPlan", "shipPlan", "decoder", "crate", "signPost", "floorVent", "rubblePile", "brickPile", "tyres", "carWreck", "fallenGirders",
+  "barrel", "dyingRebel", "corpse", "crowbar", "eBlaster", "craneKey", "shipPart", "controller", "wires", "tapHandle", "card", "holoPlan", "shipPlan", "decoder", "crate", "signPost", "floorVent", "rubblePile", "brickPile", "tyres", "carWreck", "fallenGirders", "ammoBox", "energyCell", "shieldCell",
   "radioGuard",
 ] as const;
 

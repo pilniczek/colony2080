@@ -2656,6 +2656,7 @@ exports[`missions > mesto json is unchanged 1`] = `
       "cutscene": "pickShipPart",
       "item": "shipPart",
       "kind": "item",
+      "pickupText": "You picked up the ship part from the ground.",
       "shownBy": "flag:hullOpen",
       "x": 12,
       "y": 41,
@@ -2663,9 +2664,16 @@ exports[`missions > mesto json is unchanged 1`] = `
     {
       "cutscene": "pickEBlaster",
       "kind": "weapon",
+      "pickupText": "You found an E-Blaster!",
       "weapon": "blaster",
       "x": 40.5,
       "y": 75,
+    },
+    {
+      "bonus": "shield",
+      "kind": "bonus",
+      "x": 24.5,
+      "y": 23,
     },
     {
       "art": {
@@ -2824,6 +2832,7 @@ exports[`missions > mesto json is unchanged 1`] = `
       "cutscene": "pickCrowbar",
       "item": "crowbar",
       "kind": "item",
+      "pickupText": "You found a crowbar.",
       "x": 24.5,
       "y": 44,
     },
