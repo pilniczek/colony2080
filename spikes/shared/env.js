@@ -457,7 +457,7 @@ function chips(ctx, x, y, w, seed, c = DUST) {
   ctx.fillStyle = c;
   for (let cx = x + r() * 6; cx < x + w - 2; cx += 4 + r() * 10) {
     ctx.globalAlpha = 0.25 + r() * 0.35;
-    ctx.fillRect(cx, y, 1 + r() * 3, 0.6 + r() * 1.2);
+    ctx.fillRect(cx, y, Math.min(1 + r() * 3, x + w - cx), 0.6 + r() * 1.2);
   }
   ctx.restore();
 }
@@ -522,8 +522,41 @@ function wagon(ctx, x, y, w, h, seed) {
   chips(ctx, x, y + 1, w, seed + 5, DIRT);
 }
 
+function inside(ctx, region, draw, holes = []) {
+  ctx.save();
+  if (region) {
+    region();
+    ctx.clip();
+  }
+  if (holes.length) {
+    ctx.beginPath();
+    ctx.rect(-1e4, -1e4, 2e4, 2e4);
+    for (const pts of holes) {
+      pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+      ctx.closePath();
+    }
+    ctx.clip("evenodd");
+  }
+  draw();
+  ctx.restore();
+}
+
+const rectsRegion = (ctx, rects) => () => {
+  ctx.beginPath();
+  for (const [x, y, w, h] of rects) ctx.rect(x, y, w, h);
+};
+
+const rectPts = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+
 const G = {
-  wagon, grain, rectRegion, polyRegion: (ctx, pts) => () => path(ctx, pts),
+  wagon, grain, rectRegion, rectsRegion, rectPts, inside, polyRegion: (ctx, pts) => () => path(ctx, pts),
+  polysRegion: (ctx, polys) => () => {
+    ctx.beginPath();
+    for (const pts of polys) {
+      pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+      ctx.closePath();
+    }
+  },
   dirt, drips, streak, rustPatch, chips, scorch, rim, surface, DIRT, DUST, RUST
 };
 

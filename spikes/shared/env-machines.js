@@ -126,8 +126,10 @@ define({
     box(ctx, 0, top + 4, 26, -top - 4, "concrete", 0, { vertical: true });
     box(ctx, -2, top + 2, 30, 5, "concrete", 1);
     box(ctx, -2, -5, 30, 5, "concrete", 1);
-    G.surface(ctx, 0, top + 7, 26, -top - 12, 110, { rise: 0.35, drip: 3, dripLen: 24 });
-    G.rustPatch(ctx, 7, -26, 3.5, 2, 114);
+    G.inside(ctx, G.rectRegion(ctx, 0, top + 4, 26, -top - 4), () => {
+      G.surface(ctx, 0, top + 7, 26, -top - 12, 110, { rise: 0.35, drip: 3, dripLen: 24 });
+      G.rustPatch(ctx, 7, -26, 3.5, 2, 114);
+    });
     G.chips(ctx, -2, top + 2.2, 30, 115);
     G.chips(ctx, -2, -4.8, 30, 116);
     if (!simple()) for (const y of [-62, -16]) flat(ctx, 2, y, 22, 0.8, "k0");
@@ -150,7 +152,7 @@ function carriage(ctx) {
   flat(ctx, x - 10, y + h - 14, w + 20, 3, DOOR.stripe || "b2");
   flat(ctx, x - 10, y + h - 9, w + 20, 1.5, DOOR.wagonShade || "c0");
   flat(ctx, x - 10, y + h, w + 20, 7, "m0", "mLine");
-  G.wagon(ctx, x - 10, y - 4, w + 20, h + 4, 61);
+  G.inside(ctx, G.rectRegion(ctx, x - 10, y - 4, w + 20, h + 4), () => G.wagon(ctx, x - 10, y - 4, w + 20, h + 4, 61));
   if (!simple()) {
     for (const bx of [-6, w + 2]) flat(ctx, bx, y + h + 2, 4, 3, "m2", "mLine");
     for (const [bx, by, bh] of [[-7, 10, 9], [w + 5, 22, 6], [w * 0.7, 4, 5]]) {
@@ -168,7 +170,6 @@ function leaf(ctx, x, w, left) {
   G.dirt(ctx, x, y, w, h, left ? 64 : 65, 0.4);
   G.drips(ctx, x + 4, y + 28, w - 8, 12, left ? 66 : 67, 1);
   flat(ctx, x + 6, y + 6, w - 12, 22, DOOR.window || "glass", "mLine");
-  G.dirt(ctx, x + 6, y + 6, w - 12, 22, left ? 68 : 69, 0.35);
   ctx.save();
   ctx.globalAlpha = 0.6;
   poly(ctx, [[x + 8, y + 6], [x + 11, y + 6], [x + 8, y + 28], [x + 6.5, y + 28]], DOOR.windowGlint || "m3", 2, { line: false });
@@ -233,10 +234,9 @@ define({
     flat(ctx, left, y + h - 9, w, 1.5, DOOR.wagonShade || "c0");
     flat(ctx, left, y + h, w, 7, "m0", "mLine");
     flat(ctx, left, y - 4, 4, h + 4, DOOR.wagonShade || "c0", "mLine");
-    G.wagon(ctx, left, y - 4, w, h + 4, 70);
+    G.inside(ctx, G.rectRegion(ctx, left, y - 4, w, h + 4), () => G.wagon(ctx, left, y - 4, w, h + 4, 70));
     for (const wx of [-94, -50]) {
       flat(ctx, wx, y + 6, 22, 22, DOOR.window || "glass", "mLine");
-      G.dirt(ctx, wx, y + 6, 22, 22, wx, 0.35);
       G.drips(ctx, wx, y + 28, 22, 10, wx + 1, 2);
       ctx.save();
       ctx.globalAlpha = 0.6;
@@ -298,13 +298,16 @@ define({
     poly(ctx, [[x + W, top], [x + W, 0], [x, 0], [x, top + W]], PIPE, 1, { dir: [1, 0] });
     flat(ctx, -40, top + 4, 40 + W - 4, 1, "c2");
     flat(ctx, x + 4, top + W - 4, 1, -top - W + 4, "c2");
-    G.grain(ctx, G.polyRegion(ctx, [[-40, top], [x + W, top], [x + W, 0], [x, 0], [x, top + W], [-40, top + W]]), 120);
-    G.drips(ctx, -38, top + 1, 34, W - 3, 121, 3);
-    G.drips(ctx, x + 1, top + W, W - 2, 34, 122, 2);
-    G.dirt(ctx, x, top + W, W, -top - W, 123, 0.25);
-    G.rustPatch(ctx, -27, top + W - 7, 3, 1.8, 124);
-    G.rustPatch(ctx, x + 6, -12, 3, 1.8, 125);
-    G.chips(ctx, -40, top + 0.3, 40 + W, 126);
+    const body = G.polyRegion(ctx, [[-40, top], [x + W, top], [x + W, 0], [x, 0], [x, top + W], [-40, top + W]]);
+    G.inside(ctx, body, () => {
+      G.grain(ctx, body, 120);
+      G.drips(ctx, -38, top + 1, 34, W - 3, 121, 3);
+      G.drips(ctx, x + 1, top + W, W - 2, 34, 122, 2);
+      G.dirt(ctx, x, top + W, W, -top - W, 123, 0.25);
+      G.rustPatch(ctx, -27, top + W - 7, 3, 1.8, 124);
+      G.rustPatch(ctx, x + 6, -12, 3, 1.8, 125);
+      G.chips(ctx, -40, top + 0.3, 40 + W, 126);
+    });
     if (!simple()) {
       for (const cx of [-28]) collarH(ctx, cx, top, W, PIPE);
       for (const cy of [-52, -10]) collarV(ctx, x, cy, W, PIPE);
@@ -328,12 +331,15 @@ define({
     poly(ctx, run, PIPE, 1);
     poly(ctx, leg, PIPE, 1, { dir: [1, 0] });
     flat(ctx, 4, top + 4, len - 4, 1, "c2");
-    G.grain(ctx, G.polyRegion(ctx, [[0, top], [len, top], [len, top + W], [W, top + W], [W, foot], [0, foot]]), 190);
+    const body = G.polyRegion(ctx, [[0, top], [len, top], [len, top + W], [W, top + W], [W, foot], [0, foot]]);
     const s = 191 + Math.round(len);
-    G.drips(ctx, W, top + 1, len - W, W - 3, s, Math.max(2, Math.round(len / 40)));
-    G.chips(ctx, 0, top + 0.3, len, s + 1);
-    const rand = P.rng(s + 2);
-    for (let x = W + 30; x < len - 20; x += 90 + rand() * 60) G.rustPatch(ctx, x, top + W - 7, 3, 1.8, s + 3 + Math.round(x));
+    G.inside(ctx, body, () => {
+      G.grain(ctx, body, 190);
+      G.drips(ctx, W, top + 1, len - W, W - 3, s, Math.max(2, Math.round(len / 40)));
+      G.chips(ctx, 0, top + 0.3, len, s + 1);
+      const rand = P.rng(s + 2);
+      for (let x = W + 30; x < len - 20; x += 90 + rand() * 60) G.rustPatch(ctx, x, top + W - 7, 3, 1.8, s + 3 + Math.round(x));
+    });
     if (simple()) return;
     for (let x = W + 40; x < len - 12; x += 120) collarH(ctx, x, top, W, PIPE);
   }
@@ -377,10 +383,12 @@ define({
     const x = 3, W = CEILING_PIPE.w, top = CEILING_PIPE.foot, mouth = -46;
     poly(ctx, [[x, top], [x + W, top], [x + W, mouth], [x, mouth]], PIPE, 1, { dir: [1, 0] });
     flat(ctx, x + 4, top, 1, mouth - top, "c2");
-    G.grain(ctx, rects(ctx, [[x, top, W, mouth - top]]), 130);
-    G.drips(ctx, x + 1, top, W - 2, 18, 131, 2);
-    G.rustPatch(ctx, x + 6, -64, 3, 1.8, 132);
-    G.dirt(ctx, x, mouth - 8, W, 8, 133, 0.25);
+    G.inside(ctx, rects(ctx, [[x, top, W, mouth - top]]), () => {
+      G.grain(ctx, rects(ctx, [[x, top, W, mouth - top]]), 130);
+      G.drips(ctx, x + 1, top, W - 2, 18, 131, 2);
+      G.rustPatch(ctx, x + 6, -64, 3, 1.8, 132);
+      G.dirt(ctx, x, mouth - 8, W, 8, 133, 0.25);
+    });
     if (!simple()) collarV(ctx, x, -60, W, PIPE);
     cylV(ctx, x - 1.5, mouth, W + 3, 3, PIPE, 2);
     flat(ctx, 7, mouth + 3, 10, 1.5, "hole");
@@ -445,8 +453,10 @@ define({
   draw(ctx, state, t, size = {}) {
     if (size.top !== undefined) {
       box(ctx, -1, size.top, 26, PLASMA_EMITTER - size.top, "concrete", 0, { vertical: true });
-      G.grain(ctx, G.rectRegion(ctx, -1, size.top, 26, PLASMA_EMITTER - size.top), 140);
-      G.drips(ctx, 1, size.top, 22, (PLASMA_EMITTER - size.top) * 0.5, 141, 2);
+      G.inside(ctx, G.rectRegion(ctx, -1, size.top, 26, PLASMA_EMITTER - size.top), () => {
+        G.grain(ctx, G.rectRegion(ctx, -1, size.top, 26, PLASMA_EMITTER - size.top), 140);
+        G.drips(ctx, 1, size.top, 22, (PLASMA_EMITTER - size.top) * 0.5, 141, 2);
+      });
       ctx.save();
       ctx.translate(0, PLASMA_EMITTER);
       ctx.scale(1, -1);
@@ -463,7 +473,7 @@ define({
   draw(ctx, state) {
     box(ctx, 0, -50, 22, 28, "rust", 1);
     flat(ctx, 0, -50, 22, 1.5, "r3");
-    G.surface(ctx, 0, -50, 22, 28, 150, { rise: 0.35, drip: 2, dripLen: 20 });
+    G.inside(ctx, G.rectRegion(ctx, 0, -50, 22, 28), () => G.surface(ctx, 0, -50, 22, 28, 150, { rise: 0.35, drip: 2, dripLen: 20 }));
     flat(ctx, 3, -47, 16, 6, state ? "screenOff" : "hole", "mLine");
     if (state) {
       flat(ctx, 5, -45, 6, 2, "screen");
@@ -472,9 +482,11 @@ define({
     for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) {
       box(ctx, 4 + c * 5, -39 + r * 4, 4, 3, "steel", r === 3 && c === 2 ? 3 : 2);
     }
-    G.grain(ctx, G.rectRegion(ctx, 4, -39, 14, 15), 152);
-    G.drips(ctx, 4, -40, 14, 14, 153, 2, false);
-    G.rustPatch(ctx, 4, -26, 2.5, 1.4, 154);
+    G.inside(ctx, G.rectRegion(ctx, 0, -50, 22, 28), () => {
+      G.grain(ctx, G.rectRegion(ctx, 4, -39, 14, 15), 152);
+      G.drips(ctx, 4, -40, 14, 14, 153, 2, false);
+      G.rustPatch(ctx, 4, -26, 2.5, 1.4, 154);
+    });
     const led = state ? "screen" : "neon";
     glow(ctx, 19, -24.5, 4, led, 0.6);
     disc(ctx, 19, -24.5, 1, led, "mLine");
@@ -494,19 +506,21 @@ function tank(ctx) {
     flat(ctx, x + 1, y + 2.6, w - 2, 1.2, "k0");
   }
   box(ctx, x + 14, top, 8, base - top, "concrete", 0, { vertical: true });
-  G.dirt(ctx, x, top, w, base - top, 163, 0.35);
-  G.rustPatch(ctx, x + 36, base - 10, 5, 2.5, 164);
-  G.rustPatch(ctx, x + 84, top + 22, 3.5, 2, 165);
+  G.inside(ctx, G.rectRegion(ctx, x, top, w, base - top), () => {
+    G.dirt(ctx, x, top, w, base - top, 163, 0.35);
+    G.rustPatch(ctx, x + 36, base - 10, 5, 2.5, 164);
+    G.rustPatch(ctx, x + 84, top + 22, 3.5, 2, 165);
+  });
   for (const y of [top, base - 4]) box(ctx, x - 1, y, w + 2, 4, "concrete", 1);
   G.chips(ctx, x - 1, top + 0.2, w + 2, 166);
   G.chips(ctx, x - 1, base - 3.8, w + 2, 167);
   const roofPts = [[x - 2, top], [x + w / 2, roof], [x + w + 2, top]];
   poly(ctx, roofPts, "steel", 2, { dir: [1, 0] });
   poly(ctx, [[x + w / 2 - 6, roof + 4], [x + w / 2, roof], [x + w / 2 + 6, roof + 4]], "m3", 2, { line: false });
-  G.grain(ctx, polys(ctx, [...legs, roofPts, [[x - 1, top], [x + w + 1, top], [x + w + 1, base], [x - 1, base]]]), 160);
+  G.grain(ctx, polys(ctx, [...legs, roofPts, [[x, top], [x + w, top], [x + w, base], [x, base]]]), 160);
   const t = window.ENV.P.text;
   t(ctx, "ACID", x + 54, top + 32, 15, "y1");
-  G.drips(ctx, x + 2, top + 4, w - 4, 36, 170, 6);
+  G.inside(ctx, G.rectRegion(ctx, x, top, w, base - top), () => G.drips(ctx, x + 2, top + 4, w - 4, 36, 170, 6));
 }
 
 const OUT = { x: -40, w: 14, y: -84, valve: -34 };
@@ -518,8 +532,10 @@ function outlet(ctx, state) {
   collarH(ctx, -8, y, w, "concrete");
   pipeV(ctx, x, y + w, w, -y - w - 4, "concrete");
   G.grain(ctx, rects(ctx, [[x, y, -x + 2, w], [x, y + w, w, -y - w - 4]]), 171);
-  G.drips(ctx, x + 1, y + w, w - 2, 34, 172, 2);
-  G.drips(ctx, x + w + 2, y + 1, -x - w - 4, w - 3, 173, 2);
+  G.inside(ctx, rects(ctx, [[x, y, -x + 2, w], [x, y + w, w, -y - w - 4]]), () => {
+    G.drips(ctx, x + 1, y + w, w - 2, 34, 172, 2);
+    G.drips(ctx, x + w + 2, y + 1, -x - w - 4, w - 3, 173, 2);
+  });
   box(ctx, x - 1.5, valve - 5, w + 3, 11, "steel", 2, { vertical: true });
   if (state !== 0) handwheel(ctx, x + w / 2, valve, 5.5);
   cylV(ctx, x - 1, -5, w + 2, 3, "concrete", 1);
@@ -574,9 +590,11 @@ function beam(ctx) {
   if (!simple()) rivets(ctx, 0, h / 2, len, 8, "g2");
   for (const y of [0, h - 3]) box(ctx, 0, y, len, 3, "chrome", 1);
   G.grain(ctx, G.rectRegion(ctx, 0, 0, len, h), 175);
-  G.drips(ctx, 4, 3, len - 8, h - 5, 176, 6);
-  G.rustPatch(ctx, 30, h / 2, 5, 2.5, 177);
-  G.rustPatch(ctx, 140, h / 2 + 1, 4, 2, 178);
+  G.inside(ctx, G.rectRegion(ctx, 0, 0, len, h), () => {
+    G.drips(ctx, 4, 3, len - 8, h - 5, 176, 6);
+    G.rustPatch(ctx, 30, h / 2, 5, 2.5, 177);
+    G.rustPatch(ctx, 140, h / 2 + 1, 4, 2, 178);
+  });
   G.chips(ctx, 0, 0.2, len, 179);
   for (const cx of [clampA, clampB]) box(ctx, cx, -1, 4.5, h + 2, "armor", 0, { vertical: true });
   box(ctx, len - 2, -0.5, 3, h + 1, "chrome", 2, { vertical: true });
@@ -607,11 +625,15 @@ function mastTruss(ctx, h) {
   P.truss(ctx, x, -h, w, h + foot, "yellow", 2.2);
   for (let y = foot - seg; y > -h; y -= seg) box(ctx, x, y - 1, w, 2, "yellow", 1);
   G.grain(ctx, rects(ctx, [[x - 1.1, -h, 3, h + foot], [x + w - 1.1, -h, 3, h + foot]]), 230);
-  for (let y = foot, i = 0; y > -h; y -= seg, i++) {
-    const s = 231 + i * 4;
-    G.drips(ctx, x - 1, y - seg + 1, w + 2, seg - 2, s, 2);
-    if (P.rng(s)() < 0.5) G.rustPatch(ctx, x + (i % 2 ? w : 0), y - seg / 2, 2, 3, s + 1);
-  }
+  const bars = [];
+  for (let y = foot - seg; y > -h; y -= seg) bars.push([x, y - 1, w, 2]);
+  G.inside(ctx, rects(ctx, [[x - 1.1, -h, 3, h + foot], [x + w - 1.1, -h, 3, h + foot], ...bars]), () => {
+    for (let y = foot, i = 0; y > -h; y -= seg, i++) {
+      const s = 231 + i * 4;
+      G.drips(ctx, x - 1, y - seg + 1, w + 2, seg - 2, s, 2);
+      if (P.rng(s)() < 0.5) G.rustPatch(ctx, x + (i % 2 ? w : 0), y - seg / 2, 2, 3, s + 1);
+    }
+  });
 }
 
 function keyPanel(ctx) {
@@ -699,11 +721,13 @@ function shaft(ctx, { w = LIFT.w, top = LIFT.top } = {}) {
   for (const x of [railA, railB]) box(ctx, x - 1.5, top, 3, -top + 6, "concrete", 1, { vertical: true });
   box(ctx, rack - 2, top, 4, -top + 6, "concrete", 0, { vertical: true });
   for (let y = top + 2; y < 6; y += simple() ? 6 : 3.5) flat(ctx, rack - 3, y, 6, simple() ? 2 : 1.2, "k2");
-  G.grain(ctx, rects(ctx, [[railA - 1.5, top, 3, -top + 6], [railB - 1.5, top, 3, -top + 6], [rack - 3, top, 6, -top + 6]]), 200);
-  for (let y = top + 12, i = 0; y < -8; y += 34, i++) {
-    G.streak(ctx, railA, y, 14 + (i % 3) * 4, 2.2, G.RUST[1], 0.6);
-    G.streak(ctx, railB, y + 17, 18 - (i % 3) * 4, 2.2, G.RUST[1], 0.6);
-  }
+  G.grain(ctx, rects(ctx, [[railA - 1.5, top, 3, -top + 6], [railB - 1.5, top, 3, -top + 6], [rack - 2, top, 4, -top + 6]]), 200);
+  G.inside(ctx, rects(ctx, [[railA - 1.5, top, 3, -top + 6], [railB - 1.5, top, 3, -top + 6]]), () => {
+    for (let y = top + 12, i = 0; y < -8; y += 34, i++) {
+      G.streak(ctx, railA, y, 14 + (i % 3) * 4, 2.2, G.RUST[1], 0.6);
+      G.streak(ctx, railB, y + 17, 18 - (i % 3) * 4, 2.2, G.RUST[1], 0.6);
+    }
+  });
 }
 
 function deck(ctx, w) {
@@ -759,8 +783,10 @@ function controlBox(ctx, x, damaged, t, down = false) {
   box(ctx, l, -24, 16, 24, "rust", 0);
   flat(ctx, l, -24, 16, 1.2, "r3");
   box(ctx, l - 1, -2, 18, 2, "rust", 1);
-  G.grain(ctx, G.rectRegion(ctx, l - 1, -24, 18, 24), 220);
-  G.drips(ctx, l + 1, -22.8, 14, 14, 221, 2);
+  G.inside(ctx, rects(ctx, [[l, -24, 16, 24], [l - 1, -2, 18, 2]]), () => {
+    G.grain(ctx, G.rectRegion(ctx, l - 1, -24, 18, 24), 220);
+    G.drips(ctx, l + 1, -22.8, 14, 14, 221, 2);
+  });
   if (damaged) {
     screenNoise(ctx, l + 2, -21.5, 12, 7, t);
     cable(ctx, [[l + 10, -21], [l + 8, -18], [l + 11, -16], [l + 9, -14]], "c3", 0.5, "c3");

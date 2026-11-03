@@ -86,9 +86,11 @@ function beam(ctx, ax, ay, bx, by, w, seed) {
   ctx.rotate(atan2(by - ay, bx - ax));
   box(ctx, 0, -w / 2, len, w, "rust", 2);
   flat(ctx, w * 0.3, -w * 0.18, len - w * 0.6, w * 0.36, "r1");
-  G.grain(ctx, G.rectRegion(ctx, 0, -w / 2, len, w), seed);
-  G.rustPatch(ctx, len * 0.55, 0, w * 0.5, w * 0.25, seed + 1);
-  G.chips(ctx, 0, -w / 2, len, seed + 2, G.DIRT);
+  G.inside(ctx, G.rectRegion(ctx, 0, -w / 2, len, w), () => {
+    G.grain(ctx, G.rectRegion(ctx, 0, -w / 2, len, w), seed);
+    G.rustPatch(ctx, len * 0.55, 0, w * 0.5, w * 0.25, seed + 1);
+    G.chips(ctx, 0, -w / 2, len, seed + 2, G.DIRT);
+  });
   rivets(ctx, 0, -w * 0.36, len, 4, "r3");
   poly(ctx, [[len, -w / 2], [len + w * 0.3, -w * 0.2], [len - w * 0.1, w * 0.1], [len + w * 0.2, w / 2], [len, w / 2]], "rust", 1);
   ctx.restore();
@@ -149,13 +151,16 @@ function drum(ctx, x, w, h) {
   for (let y = -h + step; y < -1; y += step) flat(ctx, x + 0.4, y - 0.6, w - 0.8, 1.2, "c0");
   for (const y of [-h + 1, -h * 0.5, -2]) cylV(ctx, x - 0.6, y - 1.2, w + 1.2, 2.4, "chrome", 2);
   poly(ctx, [[x, -h], [x + w, -h], [x + w - 1, -h - 2], [x + 1, -h - 2]], "chrome", 2);
-  G.grain(ctx, G.rectRegion(ctx, x - 0.6, -h - 2, w + 1.2, h + 2), 51);
-  G.grain(ctx, G.rectRegion(ctx, x - 0.6, -h - 2, w + 1.2, h + 2), 52, 0.8);
-  G.rustPatch(ctx, x + w * 0.65, -h * 0.3, 3.5, 2, 53);
-  G.rustPatch(ctx, x + w * 0.25, -h * 0.7, 2.2, 1.4, 54);
-  G.drips(ctx, x + 1, -h + 2, w - 2, h * 0.45, 55, 3);
-  G.dirt(ctx, x - 0.6, -h, w + 1.2, h, 56, 0.45);
-  G.chips(ctx, x - 0.6, -h * 0.5 - 1.2, w + 1.2, 57, G.DIRT);
+  const shell = [G.rectPts(x, -h, w, h), [[x, -h], [x + w, -h], [x + w - 1, -h - 2], [x + 1, -h - 2]], ...[-h + 1, -h * 0.5, -2].map((y) => G.rectPts(x - 0.6, y - 1.2, w + 1.2, 2.4))];
+  G.inside(ctx, G.polysRegion(ctx, shell), () => {
+    G.grain(ctx, G.rectRegion(ctx, x - 0.6, -h - 2, w + 1.2, h + 2), 51);
+    G.grain(ctx, G.rectRegion(ctx, x - 0.6, -h - 2, w + 1.2, h + 2), 52, 0.8);
+    G.rustPatch(ctx, x + w * 0.65, -h * 0.3, 3.5, 2, 53);
+    G.rustPatch(ctx, x + w * 0.25, -h * 0.7, 2.2, 1.4, 54);
+    G.drips(ctx, x + 1, -h + 2, w - 2, h * 0.45, 55, 3);
+    G.dirt(ctx, x - 0.6, -h, w + 1.2, h, 56, 0.45);
+    G.chips(ctx, x - 0.6, -h * 0.5 - 1.2, w + 1.2, 57, G.DIRT);
+  });
 }
 
 define({
@@ -493,8 +498,12 @@ define({
       const w = 20 / cols;
       flat(ctx, 4 + c * w + w * 0.2, -21.5 + r * 5, w * 0.6, 3.4, "hole");
     }
-    G.surface(ctx, 1, -25, 26, 25, 58, { rise: 0.4, drip: 3, dripLen: 12 });
-    G.rustPatch(ctx, 22, -6, 3, 1.8, 62);
+    const slot = 20 / cols;
+    const slots = Array.from({ length: rows * cols }, (_, i) => G.rectPts(4 + (i % cols) * slot + slot * 0.2, -21.5 + Math.floor(i / cols) * 5, slot * 0.6, 3.4));
+    G.inside(ctx, G.rectRegion(ctx, 1, -25, 26, 25), () => {
+      G.surface(ctx, 1, -25, 26, 25, 58, { rise: 0.4, drip: 3, dripLen: 12 });
+      G.rustPatch(ctx, 22, -6, 3, 1.8, 62);
+    }, slots);
     G.grain(ctx, G.rectRegion(ctx, 0, -27, 28, 2.6), 63);
     G.chips(ctx, 0, -27, 28, 64, G.DIRT);
     flat(ctx, 1, -2, 26, 2, "b0", "bLine");
@@ -510,12 +519,16 @@ define({
     box(ctx, -1, -42, 4, 2.5, "chrome", 0);
     box(ctx, -4.5, -59, 11, 18, "chrome", 1, { vertical: true });
     flat(ctx, -3.5, -57, 5, 14, "screenOff", "gLine");
-    G.grain(ctx, G.rectRegion(ctx, -0.5, -40, 3, 38), 65);
-    G.dirt(ctx, -0.5, -40, 3, 38, 66, 0.3);
-    G.rustPatch(ctx, 1, -12, 1.4, 1.2, 67);
-    G.grain(ctx, G.rectRegion(ctx, -4.5, -59, 11, 18), 68, 0.8);
-    G.drips(ctx, -4, -59, 10, 10, 69, 2);
-    G.chips(ctx, -4.5, -59, 11, 70, G.DIRT);
+    G.inside(ctx, G.rectRegion(ctx, -0.5, -40, 3, 38), () => {
+      G.grain(ctx, G.rectRegion(ctx, -0.5, -40, 3, 38), 65);
+      G.dirt(ctx, -0.5, -40, 3, 38, 66, 0.3);
+      G.rustPatch(ctx, 1, -12, 1.4, 1.2, 67);
+    });
+    G.inside(ctx, G.rectRegion(ctx, -4.5, -59, 11, 18), () => {
+      G.grain(ctx, G.rectRegion(ctx, -4.5, -59, 11, 18), 68, 0.8);
+      G.drips(ctx, -4, -59, 10, 10, 69, 2);
+      G.chips(ctx, -4.5, -59, 11, 70, G.DIRT);
+    }, [G.rectPts(-3.5, -57, 5, 14)]);
     G.grain(ctx, G.polyRegion(ctx, [[-4, 0], [-3, -2], [5, -2], [6, 0]]), 71);
     if (simple()) return;
     for (let y = -55; y < -45; y += 2.6) flat(ctx, -2.8, y, 3.4, 0.8, "screen");
@@ -531,8 +544,10 @@ define({
     flat(ctx, 1.6, -6.6, 18.8, 4.6, "hole");
     const n = simple() ? 4 : 6;
     for (let i = 0; i < n; i++) box(ctx, 2.6 + i * (17 / n), -6.6, 1.2, 4.6, "steel", 2, { vertical: true, line: false });
-    G.surface(ctx, 0, -8, 22, 7, 72, { rise: 0.5 });
-    G.rustPatch(ctx, 17, -5, 2.5, 1, 76);
+    G.inside(ctx, G.rectRegion(ctx, 0, -8, 22, 7), () => {
+      G.surface(ctx, 0, -8, 22, 7, 72, { rise: 0.5 });
+      G.rustPatch(ctx, 17, -5, 2.5, 1, 76);
+    }, [G.rectPts(1.6, -6.6, 18.8, 4.6)]);
   }
 });
 
@@ -593,10 +608,10 @@ define({
       ctx.restore();
     }
     poly(ctx, [[30, -12], [44, -16], [46, -11], [32, -7]], "concrete", 1);
-    G.grain(ctx, G.rectRegion(ctx, 30, -16, 16, 9), 93);
+    G.grain(ctx, G.polyRegion(ctx, [[30, -12], [44, -16], [46, -11], [32, -7]]), 93);
     for (const [ax, ay, bx, by] of RODS.slice(3)) line(ctx, [[ax, ay], [(ax + bx) / 2 - 1, (ay + by) / 2 + 1], [bx, by]], "r2", 1.3);
     for (const [ax, ay, bx, by] of RODS.slice(0, 3)) line(ctx, [[(ax + bx) / 2 + 2, (ay + by) / 2], [bx, by]], "r3", 0.7);
-    G.rustPatch(ctx, 42, -10, 3, 1.5, 94);
+    G.inside(ctx, G.polyRegion(ctx, [[30, -12], [44, -16], [46, -11], [32, -7]]), () => G.rustPatch(ctx, 42, -10, 3, 1.5, 94));
     clipped(ctx, HEAP, () => G.dirt(ctx, 0, -18, 66, 18, 95, 0.55));
     ctx.restore();
   }
@@ -616,6 +631,7 @@ function flatTyre(ctx, x, y, w, h) {
   shape(ctx, pts, "#151210", "#050404");
   flat(ctx, x + rr, y - h + 1, w - h, 1, "#3a332c");
   flat(ctx, x + rr, y - rr - 0.4, w - h, 0.8, "#050404");
+  return pts;
 }
 
 define({
@@ -625,12 +641,12 @@ define({
     ctx.save();
     ctx.scale(TYRE_SCALE, TYRE_SCALE);
     if (state === 1) {
-      flatTyre(ctx, 0, 0, 26, 7);
+      const shapes = [flatTyre(ctx, 0, 0, 26, 7), arc(22, -11, 11, 11, 0, PI * 2, 16)];
       tyre(ctx, 22, -11, 11, 96);
-      G.dirt(ctx, 0, -22, 34, 22, 97, 0.5);
+      G.inside(ctx, G.polysRegion(ctx, shapes), () => G.dirt(ctx, 0, -22, 34, 22, 97, 0.5));
     } else {
-      for (let i = 0; i < 3; i++) flatTyre(ctx, i === 1 ? 2 : 0, -i * 7, 26, 7);
-      G.dirt(ctx, 0, -21, 28, 21, 98, 0.45);
+      const shapes = [0, 1, 2].map((i) => flatTyre(ctx, i === 1 ? 2 : 0, -i * 7, 26, 7));
+      G.inside(ctx, G.polysRegion(ctx, shapes), () => G.dirt(ctx, 0, -21, 28, 21, 98, 0.45));
     }
     ctx.restore();
   }
@@ -672,10 +688,12 @@ function burnt(ctx, pts, seed, x, y, w, h) {
   });
 }
 
-function glassHole(ctx, pts, seed) {
-  G.scorch(ctx, pts, seed);
-  shape(ctx, pts, "hole");
-  G.rim(ctx, pts, seed + 1, "r2", "rLine");
+function glassHole(ctx, pts, seed, body) {
+  G.inside(ctx, G.polyRegion(ctx, body), () => {
+    G.scorch(ctx, pts, seed);
+    shape(ctx, pts, "hole");
+    G.rim(ctx, pts, seed + 1, "r2", "rLine");
+  });
 }
 
 function car(ctx, c) {
@@ -689,13 +707,13 @@ function car(ctx, c) {
   burnt(ctx, c.body, c.seed, 0, -30, w, 26);
   for (const x of c.arches) {
     const arch = arc(x, 0, 7, 7, PI, 2 * PI, 8);
-    G.scorch(ctx, arch, c.seed + 30);
+    G.inside(ctx, G.polyRegion(ctx, c.body), () => G.scorch(ctx, arch, c.seed + 30));
     shape(ctx, arch, "hole");
     disc(ctx, x, -2, 1.6, "r0", "rLine");
   }
   flat(ctx, 0, -9, w * 0.9, 2, "r0");
   for (const x of c.doors) line(ctx, [[x, -8], [x, -20]], "rLine", 0.8);
-  for (const [i, g] of c.glass.entries()) glassHole(ctx, g, c.seed + 10 + i * 2);
+  for (const [i, g] of c.glass.entries()) glassHole(ctx, g, c.seed + 10 + i * 2, c.body);
   for (const [i, [x, r, kind]] of c.wheels.entries()) wheelAt(ctx, x, r, kind, c.seed + 20 + i);
   ctx.restore();
 }
@@ -710,12 +728,12 @@ function truck(ctx) {
   burnt(ctx, bed, 140, 0, -46, 96, 36);
   for (let x = 12; x < 96; x += 12) line(ctx, [[x, -44], [x, -12]], "r0", 1.2);
   const breach = [[52, -46], [58, -34], [70, -38], [74, -30], [80, -46]];
-  G.scorch(ctx, breach, 145);
+  G.inside(ctx, G.polyRegion(ctx, bed), () => G.scorch(ctx, breach, 145));
   shape(ctx, breach, "hole");
-  G.rim(ctx, breach, 146, "r2", "rLine");
+  G.inside(ctx, G.polyRegion(ctx, bed), () => G.rim(ctx, breach, 146, "r2", "rLine"));
   poly(ctx, cab, "rust", 2);
   burnt(ctx, cab, 150, 100, -42, 36, 36);
-  glassHole(ctx, [[105, -24], [105, -37], [115, -38], [121, -24]], 155);
+  glassHole(ctx, [[105, -24], [105, -37], [115, -38], [121, -24]], 155, cab);
   line(ctx, [[104, -10], [104, -22]], "rLine", 0.8);
   for (const [i, [x, kind]] of [[18, 0], [36, 1], [118, 0]].entries()) wheelAt(ctx, x, 9, kind, 160 + i);
   ctx.restore();

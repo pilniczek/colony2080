@@ -122,7 +122,7 @@ const chips = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, s
   ctx.fillStyle = c;
   for (let cx = x + r() * 6; cx < x + w - 2; cx += 4 + r() * 10) {
     ctx.globalAlpha = 0.25 + r() * 0.35;
-    ctx.fillRect(cx, y, 1 + r() * 3, 0.6 + r() * 1.2);
+    ctx.fillRect(cx, y, Math.min(1 + r() * 3, x + w - cx), 0.6 + r() * 1.2);
   }
   ctx.restore();
 };
@@ -187,11 +187,47 @@ const wagon = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h
   chips(ctx, x, y + 1, w, seed + 5, DIRT);
 };
 
+const inside = (ctx: CanvasRenderingContext2D, region: (() => void) | null, draw: () => void, holes: readonly Pt[][] = []): void => {
+  ctx.save();
+  if (region) {
+    region();
+    ctx.clip();
+  }
+  if (holes.length) {
+    ctx.beginPath();
+    ctx.rect(-1e4, -1e4, 2e4, 2e4);
+    for (const pts of holes) {
+      pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.closePath();
+    }
+    ctx.clip("evenodd");
+  }
+  draw();
+  ctx.restore();
+};
+
+const rectsRegion = (ctx: CanvasRenderingContext2D, rects: readonly (readonly [number, number, number, number])[]) => (): void => {
+  ctx.beginPath();
+  for (const [x, y, w, h] of rects) ctx.rect(x, y, w, h);
+};
+
+const rectPts = (x: number, y: number, w: number, h: number): Pt[] => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+
 export const G = {
   wagon,
   grain,
   rectRegion,
+  rectsRegion,
+  rectPts,
+  inside,
   polyRegion: (ctx: CanvasRenderingContext2D, pts: Pt[]) => (): void => path(ctx, pts),
+  polysRegion: (ctx: CanvasRenderingContext2D, polys: readonly Pt[][]) => (): void => {
+    ctx.beginPath();
+    for (const pts of polys) {
+      pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.closePath();
+    }
+  },
   dirt,
   drips,
   streak,
