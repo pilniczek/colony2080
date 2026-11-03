@@ -19,7 +19,7 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 | Horizontal tank | 136-142, 28-31 | `storageTank` (horizontal) |
 | Lattice masts with lamps | 132, 139, 142, 27-31 | `latticeMast` (2) |
 | Fuse box hut | 146-151, 28-31 | `rivetWall`, `warningLamp`, prop `fuseBox` |
-| Smouldering remains, fence | 110-113, 29-31 | prop `smoulderingRemains`, `chainFence` |
+| Smouldering remains, fence | 110-113, 29-31 | `smoulderingRemains` dressing (searched state), `smallKey` item by its hand (picked on touch, user), `chainFence` |
 | Riveted floor-end wall | 109, 28-31 | `rivetWall` |
 | East edge rock | 152-159, 24-41 | `rockCliff` (flip, 2) |
 

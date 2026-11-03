@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { loadMesto } from "./mesto";
+import { loadMission } from "./missions";
 import { cfg } from "../hero/testWorld";
-import { pickUp, resetWorld } from "./sandboxLevel";
+import { pickUp, resetWorld, showItem } from "./sandboxLevel";
 import { runUse } from "./tasks";
 import { activeQuests, loadQuests } from "./quests";
 
@@ -102,5 +103,22 @@ describe("quests", () => {
     expect(activeQuests(mesto.quests, mesto)).toContain("Repair the lift.");
     mesto.flags.add("flag:upperFloorsOpen");
     expect(activeQuests(mesto.quests, mesto)).not.toContain("Repair the lift.");
+  });
+
+  it("keeps vesnice from asking for the power right after the hero pulled the fuse, and asks once the teleport is repaired", () => {
+    const vesnice = loadMission("vesnice");
+    const fuseBox = vesnice.props.find((p) => p.id === "fuseBox")!;
+    const now = () => activeQuests(vesnice.quests, vesnice);
+    runUse(vesnice, fuseBox);
+    expect(now()).toEqual(["Find a way out of the village."]);
+    pickUp(vesnice, "fuse");
+    runUse(vesnice, fuseBox);
+    expect(now()).toEqual(["Find a way out of the village.", "Repair the damaged teleport."]);
+    pickUp(vesnice, "navCircuit");
+    runUse(vesnice, vesnice.props.find((p) => p.id === "targetTeleport")!);
+    expect(now()).toEqual(["Find a way out of the village.", "Bring the power back to link the teleports."]);
+    showItem(vesnice, "fuse");
+    runUse(vesnice, fuseBox);
+    expect(now()).toEqual(["Find a way out of the village."]);
   });
 });

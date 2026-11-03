@@ -7,11 +7,10 @@
    "id": "smoulderingRemains",
    "name": "Smouldering remains with small key",
    "csName": "tlející zbytky",
-   "interactive": true,
+   "interactive": false,
    "marker": 1,
-   "task": "takeSmallKey",
    "sheet": "props",
-   "description": "Charred robot remains lying on floor 32 (map cell 110-111, row 31, about 2 x 1 tiles). Pickup of item record 1 (TORZO) at engine (105, 26) renames it MALÝ KLÍČ: \"U tlejících zbytků jsi našel malý klíč\".",
+   "description": "Scenery (the small key lies by its hand as an item, picked on touch). Charred robot remains lying on floor 32 (map cell 110-111, row 31, about 2 x 1 tiles). Pickup of item record 1 (TORZO) at engine (105, 26) renames it MALÝ KLÍČ: \"U tlejících zbytků jsi našel malý klíč\".",
    "states": [
     "remains with key",
     "searched"
@@ -39,9 +38,8 @@
    "csName": "malý klíč",
    "interactive": true,
    "marker": 1,
-   "task": "takeSmallKey",
    "sheet": "props",
-   "description": "Inventory item (record 1, shown as TORZO until picked). Opens the electric cabinet (marker 9) and is consumed there. Inventory art: open. Drawn with the mesto crane key art.",
+   "description": "Item prop by the skeleton's hand on floor 32, picked on touch. Inventory item (record 1, shown as TORZO until picked). Opens the electric cabinet (marker 9) and is consumed there. Inventory art: open. Drawn with the mesto crane key art.",
    "states": [
     "on ground",
     "taken"

@@ -4,6 +4,7 @@ import { cfg, objectLevel } from "../hero/testWorld";
 import { loadSandbox, onGround, pickUp, resetWorld, showItem, useShown, type SandboxWorld } from "./sandboxLevel";
 import { ITEMS } from "../items";
 import { loadMesto } from "./mesto";
+import { loadMission } from "./missions";
 import { loadQuests } from "./quests";
 import { loadTasks, openBlockers, pickAll, runUse } from "./tasks";
 
@@ -173,17 +174,30 @@ describe("runUse", () => {
     expect(w.subtitle).toEqual({ text: "Power is back.", age: 0 });
   });
 
-  it("hints and only marks the try without the needed item", () => {
+  it("hints and only marks the try and the refusal without the needed item", () => {
     const w = world();
     use(w, "switchboard");
     expect(w.subtitle?.text).toBe("Something is missing here.");
-    expect([...w.flags]).toEqual(["flag:tried:switchboard"]);
+    expect([...w.flags]).toEqual(["flag:tried:switchboard", "flag:refused:switchboard"]);
     expect(w.inventory.items).toEqual([]);
     pickUp(w, "wires");
     use(w, "switchboard");
     use(w, "switchboard");
     expect(w.subtitle?.text).toBe("Nothing more to do here.");
     expect(w.inventory.items).toEqual(["card", "holoPlan"]);
+  });
+
+  it("says the first hint whose flag is still missing before the task hint", () => {
+    const w = loadMission("vesnice");
+    use(w, "fuseBox");
+    pickUp(w, "fuse");
+    use(w, "fuseBox");
+    expect(w.subtitle?.text).toBe("The power can't come back yet. The teleport has to work first.");
+    expect(w.inventory.items).toContain("fuse");
+    w.flags.add("flag:teleportRepaired");
+    w.inventory.shown = null;
+    use(w, "fuseBox");
+    expect(w.subtitle?.text).toBe("A fuse is missing. The power plant is down.");
   });
 
   it("tells what the quest needs from a mission object", () => {

@@ -247,21 +247,21 @@ export interface Ride {
   ys: number[];
 }
 
-export function route(world: SandboxWorld, cfg: MovementConfig, from: Ride, targets: (r: ReturnType<typeof reachOf>) => string[]): Ride | null {
+export function reachable(world: SandboxWorld, cfg: MovementConfig, from: Ride): Map<string, Ride> {
   const r = reachOf(world, cfg);
   const g = r.graph(r.strict);
   const open = world.lifts.map((l) => l.enabledBy === undefined || world.flags.has(l.enabledBy));
+  const found = new Map<string, Ride>();
   const start = r.floors.find((f) => f.row === from.row && from.col >= f.col && from.col < f.col + f.w);
-  if (!start) return null;
-  const goal = new Set(targets(r));
+  if (!start) return found;
   const at0 = { node: r.node(start), ys: from.ys };
   const key = ({ node, ys }: typeof at0): string => `${node}|${ys.join(",")}`;
   const seen = new Set([key(at0)]);
   const todo = [at0];
   for (let at = todo.shift(); at !== undefined; at = todo.shift()) {
-    if (goal.has(at.node)) {
+    if (!found.has(at.node)) {
       const run = r.floors.find((f) => r.node(f) === at.node)!;
-      return { row: run.row, col: run.col, ys: at.ys };
+      found.set(at.node, { row: run.row, col: run.col, ys: at.ys });
     }
     for (const { to, lift, hole } of g.get(at.node) ?? []) {
       const deck = r.deckOf.get(to);
@@ -277,5 +277,11 @@ export function route(world: SandboxWorld, cfg: MovementConfig, from: Ride, targ
       todo.push(next);
     }
   }
+  return found;
+}
+
+export function route(world: SandboxWorld, cfg: MovementConfig, from: Ride, targets: (r: ReturnType<typeof reachOf>) => string[]): Ride | null {
+  const goal = new Set(targets(reachOf(world, cfg)));
+  for (const [node, ride] of reachable(world, cfg, from)) if (goal.has(node)) return ride;
   return null;
 }

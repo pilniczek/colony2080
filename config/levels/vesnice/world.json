@@ -167,6 +167,7 @@
     {"asset": "shellCrate", "x": 100, "y": 59, "state": 0},
     {"asset": "fuelDrum", "x": 102, "y": 68, "state": 1},
     {"asset": "shellCrate", "x": 121.5, "y": 68, "state": 1},
+    {"asset": "smoulderingRemains", "x": 110.3125, "y": 32, "state": 1},
     {"asset": "liftPanel", "x": 114.08, "y": 32, "state": 2},
     {"asset": "liftPanel", "x": 114.08, "y": 41, "state": 0},
     {"asset": "liftPanel", "x": 88.08, "y": 41, "state": 2},
@@ -187,7 +188,7 @@
     {"asset": "liftPanel", "x": 17.08, "y": 50, "state": 0}
   ],
   "props": [
-    {"kind": "object", "id": "smoulderingRemains", "asset": "smoulderingRemains", "x": 111, "y": 32, "width": 2, "state": 0},
+    {"kind": "item", "item": "smallKey", "x": 111.2, "y": 32},
     {"kind": "object", "id": "fuseBox", "asset": "fuseBox", "art": {"dx": 0.5}, "x": 148.5, "y": 32, "width": 4, "state": 0},
     {"kind": "gate", "id": "sourceTeleport", "asset": "sourceTeleport", "x": 129, "y": 23, "width": 2, "state": 0},
     {"kind": "weapon", "weapon": "toaster", "x": 61.5, "y": 41},

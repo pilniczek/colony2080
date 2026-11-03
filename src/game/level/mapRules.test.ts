@@ -90,7 +90,7 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
       rubble: ["rockCliff", "rubbleHeap"],
       mounted: ["warningLamp", "junctionBox"],
       bigClutter: ["militaryWreck"],
-      smallClutter: ["fuelDrum", "sandbags", "shellCrate"],
+      smallClutter: ["fuelDrum", "sandbags", "shellCrate", "smoulderingRemains"],
       sign: ["warningLamp"],
       panel: ["liftPanel"],
     },

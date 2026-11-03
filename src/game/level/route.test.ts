@@ -4,10 +4,9 @@ import { loadMovement } from "../hero/config";
 import { hitShootable } from "../shots";
 import { loadMesto } from "./mesto";
 import { loadMission } from "./missions";
-import { route, type Ride } from "./reach";
+import { reachable, reachOf, route, type Ride } from "./reach";
 import { onGround, pickUp, showItem, type Prop, type SandboxWorld } from "./sandboxLevel";
-import type { ItemId } from "../items";
-import { runUse } from "./tasks";
+import { openTask, runUse } from "./tasks";
 
 const cfg = loadMovement(movementJson);
 
@@ -37,7 +36,7 @@ const ORDER: Step[] = [
 
 const VESNICE: Step[] = [
   { use: "fuseBox" },
-  { use: "smoulderingRemains" },
+  { pick: "smallKey" },
   { pick: "toaster" },
   { shoot: "bridgeGuard" },
   { pick: "walkieTalkie" },
@@ -131,28 +130,75 @@ describe("vesnice route", () => {
     walkThrough(loadMission("vesnice"), VESNICE);
   });
 
-  it("fits the fuse before the teleport repair as in the original, linking the teleports only once both are done", () => {
-    for (const fuseFirst of [true, false]) {
-      const world = loadMission("vesnice");
-      const prop = (id: string) => world.props.find((p) => p.id === id)!;
-      runUse(world, prop("fuseBox"));
-      pickUp(world, "fuse");
-      pickUp(world, "navCircuit");
-      const steps: [string, ItemId][] = [["fuseBox", "fuse"], ["targetTeleport", "navCircuit"]];
-      for (const [id, item] of fuseFirst ? steps : steps.reverse()) {
-        expect(world.flags.has("flag:teleportLinked"), `${id} before`).toBe(false);
-        showItem(world, item);
-        runUse(world, prop(id));
-      }
-      expect([...world.flags].filter((f) => ["flag:powerOn", "flag:teleportRepaired", "flag:teleportLinked"].includes(f)).sort()).toEqual(["flag:powerOn", "flag:teleportLinked", "flag:teleportRepaired"]);
-      expect(world.inventory.items).not.toContain("fuse");
-      expect(world.inventory.items).not.toContain("navCircuit");
-      for (const id of ["fuseBox", "targetTeleport"]) {
-        runUse(world, prop(id));
-        expect(world.subtitle?.text, id).toBe("Nothing more to do here.");
-      }
+  it("keeps the fuse until the teleport is repaired, then fits it and links the teleports", () => {
+    const world = loadMission("vesnice");
+    const prop = (id: string) => world.props.find((p) => p.id === id)!;
+    runUse(world, prop("fuseBox"));
+    pickUp(world, "fuse");
+    pickUp(world, "navCircuit");
+    showItem(world, "fuse");
+    runUse(world, prop("fuseBox"));
+    expect(world.subtitle?.text).toBe("The power can't come back yet. The teleport has to work first.");
+    expect(prop("fuseBox").state).toBe(1);
+    expect(world.inventory.items).toContain("fuse");
+    showItem(world, "navCircuit");
+    runUse(world, prop("targetTeleport"));
+    expect(world.flags.has("flag:teleportLinked")).toBe(false);
+    showItem(world, "fuse");
+    runUse(world, prop("fuseBox"));
+    expect([...world.flags].filter((f) => ["flag:powerOn", "flag:teleportRepaired", "flag:teleportLinked"].includes(f)).sort()).toEqual(["flag:powerOn", "flag:teleportLinked", "flag:teleportRepaired"]);
+    expect(world.inventory.items).not.toContain("fuse");
+    expect(world.inventory.items).not.toContain("navCircuit");
+    for (const id of ["fuseBox", "targetTeleport"]) {
+      runUse(world, prop(id));
+      expect(world.subtitle?.text, id).toBe("Nothing more to do here.");
     }
   });
+
+  it("reaches the level end from every state any order of uses can reach", () => {
+    const fresh = loadMission("vesnice");
+    const [x, y] = fresh.spawn;
+    const replay = (done: Step[]): SandboxWorld => {
+      const world = loadMission("vesnice");
+      for (const step of done) act(world, step, propOf(world, step));
+      return world;
+    };
+    const runs = (world: SandboxWorld, step: Step, prop: Prop): boolean => {
+      if ("pick" in step) return onGround(prop, { blaster: null }, world.flags);
+      if ("shoot" in step) return !!prop.shootable && (prop.state ?? 0) !== prop.shootable.state;
+      if (step.with && !world.inventory.items.includes(step.with)) return false;
+      const shown = world.inventory.shown;
+      if (step.with) showItem(world, step.with);
+      const task = openTask(world, prop);
+      world.inventory.shown = shown;
+      return task !== undefined;
+    };
+    const propFor = (world: SandboxWorld, step: Step): Prop | undefined =>
+      world.props.find((p) => ("pick" in step ? (p.item ?? p.asset) === step.pick : p.id === ("use" in step ? step.use : step.shoot)));
+    const seen = new Map<string, boolean>();
+    const finishes = (done: Step[], at: Ride): boolean => {
+      const world = replay(done);
+      if (world.complete) return true;
+      const area = reachable(world, cfg, at);
+      const key = `${done.map(name).sort().join(";")}@${[...area.keys()].sort().join(";")}`;
+      const known = seen.get(key);
+      if (known !== undefined) return known;
+      seen.set(key, true);
+      const r = reachOf(world, cfg);
+      let moved = false;
+      let ok = true;
+      for (const step of VESNICE.filter((s) => !done.includes(s))) {
+        const prop = propFor(world, step);
+        const next = prop && r.nodesAt(prop).map((n) => area.get(n)).find((ride) => ride !== undefined);
+        if (!prop || !next || !runs(world, step, prop)) continue;
+        moved = true;
+        if (!finishes([...done, step], next)) ok = false;
+      }
+      seen.set(key, moved && ok);
+      return moved && ok;
+    };
+    expect(finishes([], { row: y, col: Math.floor(x), ys: fresh.lifts.map((l) => l.y) })).toBe(true);
+  }, 600000);
 
   it("opens the bridge gap while the power is off, so the hero falls into the bridgeGap hazard", () => {
     const world = loadMission("vesnice");

@@ -16,6 +16,12 @@ export interface Task {
   touch?: true;
   subtitle: string;
   hint?: string;
+  hints?: TaskHint[];
+}
+
+export interface TaskHint {
+  text: string;
+  until: string;
 }
 
 export interface Subtitle {
@@ -67,6 +73,12 @@ function loadTask(json: unknown): Task {
     if (typeof t.hint !== "string") throw new Error(`task ${id}: hint is not text`);
     task.hint = t.hint;
   }
+  if (t.hints !== undefined) {
+    if (!Array.isArray(t.hints) || !t.hints.every((h: { text?: unknown; until?: unknown }) => typeof h?.text === "string" && typeof h.until === "string" && h.until.startsWith(FLAG))) {
+      throw new Error(`task ${id}: bad hints`);
+    }
+    task.hints = t.hints.map(({ text, until }: TaskHint) => ({ text, until }));
+  }
   if (typeof t.state === "number") task.state = t.state;
   if (t.sets) task.sets = { ...(t.sets as Record<string, number>) };
   if (t.cutscene !== undefined) {
@@ -87,6 +99,8 @@ export function loadTasks(json: unknown): Task[] {
 }
 
 export const tried = (name: string): string => `${FLAG}tried:${name}`;
+
+export const refused = (name: string): string => `${FLAG}refused:${name}`;
 
 export function say(world: SandboxWorld, text: string): void {
   world.subtitle = { text, age: 0 };
@@ -109,7 +123,7 @@ export function hintFor(prop: Prop, world: SandboxWorld): string {
   const { shown } = world.inventory;
   const fits = tasks.some((t) => t.requires.includes(`${ITEM}${shown}`));
   if (shown !== null && !fits) return `${capital(ITEMS[shown]?.name ?? shown)} didn't work, maybe something else might be useful here.`;
-  return first.hint ?? MISSING;
+  return first.hints?.find((h) => !world.flags.has(h.until))?.text ?? first.hint ?? MISSING;
 }
 
 export function applyBlocks(world: SandboxWorld): void {
@@ -180,6 +194,7 @@ export function runUse(world: SandboxWorld, prop: Prop, { filmed = false } = {})
   if (prop.id !== undefined) world.flags.add(tried(prop.id));
   const task = openTask(world, prop);
   if (!task) {
+    if (prop.id !== undefined) world.flags.add(refused(prop.id));
     say(world, hintFor(prop, world));
     return;
   }
