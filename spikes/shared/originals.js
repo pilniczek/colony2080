@@ -37,7 +37,7 @@ window.ORIGINALS = {
   enemies: {
     rocketRobot: [["Rocket robot (rows 1-2) and grey trooper (rows 3-4), LEV2.GRA f21-24", "gamedata/png/enemy-sprites/lev2_types_f21_f24.png"]],
     greyTrooper: [["Rocket robot (rows 1-2) and grey trooper (rows 3-4), LEV2.GRA f21-24", "gamedata/png/enemy-sprites/lev2_types_f21_f24.png"]],
-    bridgeGuard: [["Bridge guard, LEV2.GRA f25 frames 1-8", "gamedata/png/enemy-sprites/lev2_guard_f25_frames.png"]],
+    radioGuard: [["Walkie-talkie guard, LEV2.GRA f25 frames 1-8", "gamedata/png/enemy-sprites/lev2_guard_f25_frames.png"]],
     rocketDroid: [
       ["Walk, LEV3.GRA f21", "gamedata/png/enemy-sprites/lev3_f21.png"],
       ["Fire 1-9, burning scrap 10-24, LEV3.GRA f22", "gamedata/png/enemy-sprites/lev3_f22.png"]

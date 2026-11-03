@@ -3420,7 +3420,7 @@ function droppedRifle(ctx, x) {
 }
 
 define({
-  id: "bridgeGuard",
+  id: "radioGuard",
   box: [-30, -64, 60, 0],
   anim: true,
   draw(ctx, state, t) {

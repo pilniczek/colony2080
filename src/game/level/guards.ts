@@ -3,6 +3,7 @@ import type { TileGrid } from "../../engine/world/tiles";
 import type { AssetId } from "../env/assets";
 import { BLAST } from "../env/blast";
 import { ACID_GUARD_FIRING } from "../env/guard";
+import { RADIO_GUARD_FIRING } from "../env/radioGuard";
 import { SHOOT_GUARD_EXPLODE, SHOOT_GUARD_FIRING } from "../env/shootGuard";
 import type { Fog } from "../fog";
 import type { CutsceneId } from "../cutscene";
@@ -39,6 +40,7 @@ const EDGE = 1e-6;
 const ART: Partial<Record<AssetId, GuardArt>> = {
   acidGuard: { firing: ACID_GUARD_FIRING },
   shootGuard: { firing: SHOOT_GUARD_FIRING, explode: SHOOT_GUARD_EXPLODE },
+  radioGuard: { firing: RADIO_GUARD_FIRING },
 };
 
 const artOf = (prop: Prop): GuardArt => {

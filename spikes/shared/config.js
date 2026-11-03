@@ -13291,7 +13291,7 @@ window.C28_CONFIG = {
       "marker": 4,
       "task": "takeToaster",
       "sheet": "props",
-      "description": "Bonus weapon (slot 3) lying at the east end of the bridge, engine (55, 35) = map cell 61, floor 41. Gives 250 shots; the only weapon that hurts the bridge guard. Not drawn in the map tiles (sprite or invisible, open).",
+      "description": "Bonus weapon (slot 3) lying at the east end of the bridge, engine (55, 35) = map cell 61, floor 41. Gives 250 shots; the only weapon that hurts the walkie-talkie guard. Not drawn in the map tiles (sprite or invisible, open).",
       "states": [
        "on ground",
        "taken"
@@ -13344,14 +13344,14 @@ window.C28_CONFIG = {
       ]
      },
      {
-      "id": "bridgeGuard",
-      "name": "Bridge guard",
+      "id": "radioGuard",
+      "name": "Walkie-talkie guard",
       "csName": "stráž",
       "interactive": false,
       "marker": 5,
       "task": "shootGuard",
       "sheet": "enemies",
-      "description": "Bulky olive armoured soldier with a rifle, facing right (LEV2.GRA frame 25, 8 frames of 3x3 tiles). Stands on floor 23 at map cell 62; 70 hit points, only the toaster hurts him (6 per hit). Blocks the hero and fires bursts. The walkie-talkie lies behind him at cell 60.",
+      "description": "Guards the walkie-talkie, not the bridge. Bulky olive armoured soldier with a rifle, facing right (LEV2.GRA frame 25, 8 frames of 3x3 tiles). Stands on floor 23 at map cell 62; 70 hit points, only the toaster hurts him (6 per hit). Blocks the hero and fires bursts. The walkie-talkie lies behind him at cell 60.",
       "states": [
        "idle",
        "firing",
@@ -13396,7 +13396,7 @@ window.C28_CONFIG = {
       "marker": 5,
       "task": "callGuardsAway",
       "sheet": "props",
-      "description": "Item record 2 on floor 23 behind the bridge guard, engine (54, 17) = map cell 60. Used at the bridge east end it calls the guard post away; it stays in the inventory.",
+      "description": "Item record 2 on floor 23 behind the walkie-talkie guard, engine (54, 17) = map cell 60. Used at the bridge east end it calls the guard post away; it stays in the inventory.",
       "states": [
        "on ground",
        "taken"

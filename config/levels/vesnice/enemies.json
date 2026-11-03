@@ -823,7 +823,7 @@
         22
       ],
       "confidence": "medium",
-      "behaviour": "Bridge guard (marker 5): bulky olive armoured soldier with a rifle, sprite LEV2.GRA frame 25 (8 frames, 3x3 tiles, faces right). Shootable table: 70 hit points, only the toaster hurts him, 6 per hit (about 12 hits, 7:0x1574). Blocks the hero while alive and fires the shared guard burst (5:0x24A4: hero on its row 1-6 cells to its right, not hidden). The walkie-talkie lies behind him at cell 60. Never seen in footage.",
+      "behaviour": "Walkie-talkie guard (marker 5): bulky olive armoured soldier with a rifle, sprite LEV2.GRA frame 25 (8 frames, 3x3 tiles, faces right). Shootable table: 70 hit points, only the toaster hurts him, 6 per hit (about 12 hits, 7:0x1574). Blocks the hero while alive and fires the shared guard burst (5:0x24A4: hero on its row 1-6 cells to its right, not hidden). The walkie-talkie lies behind him at cell 60. Never seen in footage.",
       "nearMarker": 5,
       "floor": 17,
       "area": "floor 23, walk segment 59-85",

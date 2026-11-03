@@ -7,7 +7,7 @@ import type { EnvAsset } from "./paint";
 import { propAssets } from "./props";
 import { structureAssets } from "./structures";
 import { VESNICE_IDS, vesniceSceneryAssets } from "./vesnice";
-import { bridgeGuard } from "./bridgeGuard";
+import { radioGuard } from "./radioGuard";
 import { JESKYNE_IDS, jeskyneAssets } from "./jeskyne";
 import { JUNGLE_IDS, jungleAssets } from "./jungle";
 import { vesnicePropAssets } from "./vesniceProps";
@@ -17,14 +17,14 @@ const BASE_IDS = [
   "skyBackground", "midgroundRuins", "windowBuilding", "ruinedBuilding", "colonnadeBuilding", "facadeTower", "skylineTower", "brickWall", "graffitiWall", "gantryBuilding", "barSign", "barDoor", "crashedShip", "metroTrain",
   "wireBox", "switchboard", "trainDoor", "trainCarriage", "tapValveWheel", "ceilingPipe", "waterPipe", "plasmaBarrier", "codeLock", "acidTank", "crane", "craneMast", "cardDoor", "lift", "liftPanel", "damagedLift", "acidGuard", "acidGuardFront", "flyer", "shootGuard",
   "barrel", "dyingRebel", "corpse", "crowbar", "eBlaster", "craneKey", "shipPart", "controller", "wires", "tapHandle", "card", "holoPlan", "shipPlan", "decoder", "crate", "signPost", "floorVent", "rubblePile", "brickPile", "tyres", "carWreck", "fallenGirders",
-  "bridgeGuard",
+  "radioGuard",
 ] as const;
 
 const ASSET_IDS = [...BASE_IDS, ...VESNICE_IDS, ...JUNGLE_IDS, ...JESKYNE_IDS] as const;
 
 export type AssetId = (typeof ASSET_IDS)[number];
 
-const list: EnvAsset[] = [...structureAssets, ...buildingAssets, ...machineAssets, ...propAssets, ...guardAssets, flyer, shootGuard, bridgeGuard, ...vesnicePropAssets, ...vesniceSceneryAssets, ...jungleAssets, ...jeskyneAssets];
+const list: EnvAsset[] = [...structureAssets, ...buildingAssets, ...machineAssets, ...propAssets, ...guardAssets, flyer, shootGuard, radioGuard, ...vesnicePropAssets, ...vesniceSceneryAssets, ...jungleAssets, ...jeskyneAssets];
 
 export const ASSETS = Object.fromEntries(list.map((a) => [a.id, a])) as Record<AssetId, EnvAsset>;
 

@@ -1,5 +1,5 @@
 {
-  "source": "laid out over docs/research/gamedata/png/maps/map_M21.png (24 px per cell) and docs/research/reports/14-level2-layout.md, region inventory in docs/research/vesnice-map.md; terrain art is the crate block wall and the grassy walkway; far palms and ruins fill the sky between floors, buildings, machines, masts, pipes and fences stand in the backdrop under the haze, rock cliffs follow the original rock tiles on every mass slope; items and interactive objects are props with the tasks of tasks.json; a lift panel stands beside every lift stop",
+  "source": "laid out over docs/research/gamedata/png/maps/map_M21.png (24 px per cell) and docs/research/reports/14-level2-layout.md, region inventory in docs/research/vesnice-map.md; terrain art is the crate block wall and the grassy walkway; far palms and ruins fill the sky between floors, buildings, machines, masts, pipes and fences stand in the backdrop under the haze, rock cliffs follow the original rock tiles on every mass slope; items and interactive objects are props with the tasks of tasks.json; a lift panel stands beside every lift stop; the walkie-talkie guard (radioGuard, report 14 marker 5) fires the level 1 guard burst, since the shared guard routine 5:0x24A4 has no level check, and falls to 12 toaster fireballs (70 hp, 6 per hit, 7:0x1574)",
   "sky": "villageBackdrop",
   "haze": "rgba(20, 26, 18, 0.42)",
   "ground": 68,
@@ -195,7 +195,7 @@
     {"kind": "object", "id": "bridgeGuardPost", "asset": "bridgeGuardPost", "art": {"dx": -1.5}, "x": 59, "y": 41, "width": 2, "solidStates": [0], "cells": {"col": 58, "row": 35, "w": 1, "h": 6}, "state": 0},
     {"kind": "gate", "id": "westGuardPost", "asset": "bridgeGuardPost", "art": {"dx": 1.25, "flip": true}, "x": 44, "y": 41, "width": 2, "state": 0},
     {"kind": "gate", "id": "powerBridge", "asset": "powerBridge", "x": 51, "y": 41, "width": 12, "gapStates": [1], "cells": {"col": 45, "row": 41, "w": 12, "h": 1}, "state": 0},
-    {"kind": "gate", "id": "bridgeGuard", "asset": "bridgeGuard", "x": 62.5, "y": 23, "width": 2, "height": 2.2, "solidStates": [0, 1], "cells": {"col": 62, "row": 17, "w": 1, "h": 6}, "state": 0, "shootable": {"hits": 60, "state": 2, "by": "beam", "gives": ["flag:guardDown"], "subtitle": "The bridge guard is down."}},
+    {"kind": "gate", "id": "radioGuard", "asset": "radioGuard", "x": 62.5, "y": 23, "width": 2, "height": 2.2, "solidStates": [0, 1], "cells": {"col": 62, "row": 17, "w": 1, "h": 6}, "state": 0, "fires": {"facing": 1, "burst": {"shots": 18, "ms": 560}, "pauseMs": 600, "states": [0]}, "shootable": {"hits": 12, "state": 2, "by": "beam", "gives": ["flag:guardDown"], "subtitle": "The guard is down. The walkie-talkie lies behind him."}},
     {"kind": "item", "item": "walkieTalkie", "x": 60.5, "y": 23},
     {"kind": "object", "id": "targetTeleport", "asset": "targetTeleport", "x": 65.5, "y": 32, "width": 3, "state": 0},
     {"kind": "item", "item": "detonator", "x": 79.5, "y": 50},

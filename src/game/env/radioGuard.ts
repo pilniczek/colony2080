@@ -139,13 +139,16 @@ const droppedRifle = (ctx: CanvasRenderingContext2D, x: number): void => {
   ctx.restore();
 };
 
-export const bridgeGuard: EnvAsset = {
-  id: "bridgeGuard",
+export const RADIO_GUARD_FIRING = 1;
+const RADIO_GUARD_DEAD = 2;
+
+export const radioGuard: EnvAsset = {
+  id: "radioGuard",
   box: [-30, -64, 60, 0],
   anim: true,
   draw(ctx, state, t) {
     shadow(ctx, 0, 34, 0.45);
-    if (state === 2) {
+    if (state === RADIO_GUARD_DEAD) {
       ctx.save();
       ctx.translate(30, -9);
       ctx.rotate(-Math.PI / 2);
@@ -156,6 +159,6 @@ export const bridgeGuard: EnvAsset = {
       return;
     }
     const ph = (t * 4) % 1;
-    guardFigure(ctx, state === 1 && ph < 0.4 ? 1 - ph / 0.4 : -1);
+    guardFigure(ctx, state === RADIO_GUARD_FIRING && ph < 0.4 ? 1 - ph / 0.4 : -1);
   },
 };

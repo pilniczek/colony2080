@@ -43,7 +43,7 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 |---|---|---|
 | Rock mass between floors 23 and 32 | 46-63, 14-31 | `rockCliff` (2) |
 | Crate mass with rock face | 85-96, 12-31 | terrain, `rockCliff` (flip) |
-| Mesh fence, guard, walkie-talkie | 59-69, 21-22 | `chainFence`, prop `bridgeGuard`, item `walkieTalkie` |
+| Mesh fence, guard, walkie-talkie | 59-69, 21-22 | `chainFence`, prop `radioGuard`, item `walkieTalkie` |
 | Utility house with green panel | 76-80, 18-22 | `powerHouse`, `junctionBox` |
 | Energy bonus | 83, 23 | skipped: no bonus pickup kind |
 | Target teleport, pad 13 top | 65, 42, rows 29-31 | props `targetTeleport`, `padDown` |

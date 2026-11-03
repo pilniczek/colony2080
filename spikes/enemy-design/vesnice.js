@@ -1,6 +1,6 @@
 {
   const { ROCKET_ROBOT, GREY_TROOPER, ROCKET_PALETTE, GREY_PALETTE } = ENEMIES;
-  const BRIDGE_GUARD = ENV.ASSETS.find(a => a.id === "bridgeGuard");
+  const RADIO_GUARD = ENV.ASSETS.find(a => a.id === "radioGuard");
   const ownKeys = palette => Object.keys(palette).filter(k => !k.startsWith("vFire"));
 
   const single = (asset, state, x = 500) => (ctx, lw, pal, w, h, t) => {
@@ -74,19 +74,19 @@
     ]
   };
 
-  ENEMY_KINDS.bridgeGuard = {
-    label: "Bridge guard", mission: "vesnice",
-    palette: () => ({ ...ENV.PALETTE, ...overrides.bridgeGuard }),
+  ENEMY_KINDS.radioGuard = {
+    label: "Walkie-talkie guard", mission: "vesnice",
+    palette: () => ({ ...ENV.PALETTE, ...overrides.radioGuard }),
     ownKeys: [],
     figures: [
-      { id: "bgIdle", caption: "Bridge guard, idle", w: 1300, h: 1300, draw: single(BRIDGE_GUARD, 0) },
-      { id: "bgFire", caption: "Bridge guard, firing", w: 1300, h: 1300, draw: single(BRIDGE_GUARD, 1) },
-      { id: "bgDead", caption: "Bridge guard, dead", w: 1300, h: 1300, draw: single(BRIDGE_GUARD, 2, 650) },
-      { id: "bgScale", caption: "Scale, hero and bridge guard", w: 2300, h: 1300, hero: true, draw: scale(BRIDGE_GUARD, 0, 1650) }
+      { id: "bgIdle", caption: "Walkie-talkie guard, idle", w: 1300, h: 1300, draw: single(RADIO_GUARD, 0) },
+      { id: "bgFire", caption: "Walkie-talkie guard, firing", w: 1300, h: 1300, draw: single(RADIO_GUARD, 1) },
+      { id: "bgDead", caption: "Walkie-talkie guard, dead", w: 1300, h: 1300, draw: single(RADIO_GUARD, 2, 650) },
+      { id: "bgScale", caption: "Scale, hero and walkie-talkie guard", w: 2300, h: 1300, hero: true, draw: scale(RADIO_GUARD, 0, 1650) }
     ],
     game: [
-      { id: "gBridgeGuard", caption: "Face-off", w: 2600, h: 1300, draw: faceOff(BRIDGE_GUARD, 1, 1900) },
-      { id: "gBridgeDead", caption: "Dead", w: 1300, h: 1300, draw: inGame(BRIDGE_GUARD, 2, 650) }
+      { id: "gBridgeGuard", caption: "Face-off", w: 2600, h: 1300, draw: faceOff(RADIO_GUARD, 1, 1900) },
+      { id: "gBridgeDead", caption: "Dead", w: 1300, h: 1300, draw: inGame(RADIO_GUARD, 2, 650) }
     ]
   };
 }

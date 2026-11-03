@@ -38,7 +38,7 @@ const VESNICE: Step[] = [
   { use: "fuseBox" },
   { pick: "smallKey" },
   { pick: "toaster" },
-  { shoot: "bridgeGuard" },
+  { shoot: "radioGuard" },
   { pick: "walkieTalkie" },
   { use: "projectileCrate" },
   { use: "electricCabinet", with: "smallKey" },
