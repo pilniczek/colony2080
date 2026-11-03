@@ -8478,7 +8478,7 @@ window.C28_CONFIG = {
       "marker": 3,
       "task": "releaseLiftLock",
       "sheet": "machines",
-      "description": "Mechanical safety lock of lift 1 at columns 34-36 on floor 55 (hero engine x 28-30, y 49). Using the rod plays XTYC.anm (TYCI JSI PREPNUL MECHANICKOU POJISTKU) and rewrites lift 1 from one stop (55) to three stops (29, 44, 55) (5:0xECB7).",
+      "description": "Mechanical safety lock of lift 1 at columns 34-36 on floor 55 (hero engine x 28-30, y 49). Using the rod plays XTYC.anm (TYCI JSI PREPNUL MECHANICKOU POJISTKU) and rewrites lift 1 from one stop (55) to three stops (29, 44, 55) (5:0xECB7). Here lift 1 is two lifts side by side, cols 49-51 (floors 44-55) and cols 52-54 (floors 29-44), both unlocked by the rod (flag:liftLock).",
       "states": [
        "locked",
        "released"
@@ -8508,7 +8508,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Six rope lifts: a thin chain or rope column at the lift centre (tile (10,36) on each stop's stand row) and a deck drawn by tiles (7,61) (7,62) (7,63) where the lift stops in a gap of an upper floor. Same slot code as level 1 (ds:0x4C90). Lift 1 is locked until the rod is used; lift 4 snaps to its top stop while the hero is on the cart stretch (7:0x87A5).",
+      "description": "Six rope lifts: a thin chain or rope column at the lift centre (tile (10,36) on each stop's stand row) and a deck drawn by tiles (7,61) (7,62) (7,63) where the lift stops in a gap of an upper floor. Same slot code as level 1 (ds:0x4C90). Lift 1 is locked until the rod is used; lift 4 snaps to its top stop while the hero is on the cart stretch (7:0x87A5). Every lift here has two stops: the three-stop lifts 1 (floors 29, 44, 55) and 4 (floors 21, 23, 29) are each two lifts side by side that both reach the middle floor (lift 1: cols 49-51 and 52-54; lift 4: cols 82-84 for floors 23-29 and cols 86-88 for floors 21-23, the half the snap moves).",
       "states": [
        "idle at floor",
        "moving up",

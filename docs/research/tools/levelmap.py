@@ -121,14 +121,22 @@ EXTRAS = {
     },
     4: {
         "borderFills": [],
+        "width": 157,
+        "patches": [(85, 21, 85, 22, "."), (89, 23, 90, 23, "="), (49, 30, 51, 39, "#"), (0, 0, 159, 7, "#"), (0, 8, 86, 12, "#"), (130, 8, 159, 10, "#"), (138, 11, 159, 29, "#"), (0, 13, 14, 55, "#"), (24, 13, 31, 13, "#"), (40, 13, 43, 47, "#"), (67, 13, 86, 13, "#"), (24, 14, 26, 16, "#"), (67, 14, 81, 15, "#"), (68, 16, 70, 22, "#"), (36, 21, 43, 35, "#"), (48, 21, 51, 21, "#"), (57, 21, 60, 21, "#"), (107, 21, 111, 31, "#"), (48, 22, 48, 39, "#"), (112, 22, 116, 31, "#"), (15, 29, 19, 55, "#"), (55, 30, 57, 36, "#"), (76, 30, 103, 31, "#"), (138, 30, 138, 30, "#"), (142, 30, 159, 40, "#"), (55, 37, 55, 40, "#"), (101, 40, 122, 40, "#"), (101, 41, 115, 50, "#"), (152, 41, 159, 79, "#"), (20, 44, 34, 55, "#"), (44, 45, 47, 47, "#"), (53, 45, 70, 49, "#"), (81, 46, 81, 63, "#"), (130, 49, 159, 79, "#"), (53, 50, 64, 55, "#"), (113, 51, 115, 66, "#"), (85, 53, 85, 65, "#"), (52, 55, 64, 55, "#"), (0, 56, 11, 79, "#"), (62, 56, 64, 56, "#"), (116, 57, 126, 65, "#"), (25, 64, 44, 66, "#"), (116, 66, 117, 66, "#"), (123, 66, 126, 66, "#"), (20, 75, 43, 79, "#"), (45, 75, 45, 79, "#"), (50, 75, 51, 79, "#"), (53, 75, 54, 79, "#"), (56, 75, 61, 79, "#"), (63, 75, 63, 79, "#"), (66, 75, 66, 79, "#"), (69, 75, 74, 79, "#"), (76, 75, 91, 79, "#"), (93, 75, 159, 79, "#"), (12, 76, 159, 79, "#"), (137, 16, 137, 16, "."), (63, 23, 66, 23, "."), (76, 38, 118, 38, "."), (89, 47, 100, 47, "."), (96, 60, 105, 60, "."), (25, 67, 61, 73, ".")],
         "source": (
             "docs/research/reports/16-level4-layout.md, built by docs/research/tools/levelmap.py from MAPY/M41.MAP "
             "and gamedata/disasm/level4_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
-            "filled over the hero stand height), '|' map clamp (columns 6 and 158) and a cap over each bare wall top (wall tiles hold no hero), lift shafts open from two rows over the top stop "
-            "to the bottom stop; lift 1 uses its stops after the rod (enabledBy); spawn dropped from engine (28, 8) to floor 20; "
+            "filled over the hero stand height), lift shafts open from two rows over the top stop "
+            "to the bottom stop; lift 1 uses its stops after the rod (enabledBy); each three-stop lift is split into two two-stop lifts side by side that both reach the middle floor (liftSplits, user): "
+            "lift 1 into cols 49-51 (floors 44-55) and cols 52-54 (floors 29-44), both locked by the rod, the col 49-51 shaft over floor 29 walled in; lift 4 into cols 82-84 (floors 23-29) and cols 86-88 (floors 21-23), "
+            "the wall stub at col 85 between them opened and floor 23 run on to the col 91 wall; the original lift 4 snap to its top while the hero is on the cart stretch (7:0x87A5) moves the cols 86-88 half; "
+            "spawn dropped from engine (28, 8) to floor 20; a cave has no sky: patches fill solid every cell no reached spot sees (fog sight from every reached floor and lift row and along every fall and jump, all task gates open) and the lava band from row 76, "
+            "except the left lava shaft and the marker 13 ledge (cols 12-19, rows 64-75); the map clamp (columns 6 and 158) and the caps over bare wall tops are gone, three caps the hero lands on are rock (cols 81, 85, 107); "
+            "free-hanging wall bits grow to the rock above (cols 55, 57, 81, 130), one-cell notches and slots under a ceiling are filled, rock tops nobody reaches grow up to the rock over them; the map ends at col 156, everything east of it is rock; "
         )
         + ZONES_NOTE,
         "liftEnabled": {49: ("flag:liftLock", [29, 44, 55])},
+        "liftSplits": {49: [(49, [44, 55], 55), (52, [29, 44], 44)], 82: [(82, [23, 29], 29), (86, [21, 23], 23)]},
         "fallDeathCells": None,
         "hazardZones": {0: ("stalactiteChasm", "death"), 1: ("middleChasm", "death"), 2: ("cartCrush", "death"), 3: ("lava", "death")},
         "soundZones": {"cartSparks": ({"x": [95, 119], "y": [30, 33]}, "spark")},
@@ -342,7 +350,8 @@ def plain_lifts(lifts, cfg):
     out = []
     for lift in lifts:
         enabled, stops = cfg.get("liftEnabled", {}).get(lift["x"], (None, lift["stops"]))
-        out.append({"x": lift["x"], "width": lift["width"], "stops": stops, "start": lift["start"], "enabledBy": enabled})
+        halves = cfg.get("liftSplits", {}).get(lift["x"], [(lift["x"], stops, lift["start"])])
+        out.extend({"x": x, "width": lift["width"], "stops": s, "start": start, "enabledBy": enabled} for x, s, start in halves)
     return out
 
 

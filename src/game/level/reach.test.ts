@@ -299,18 +299,19 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
         ...["48,122", "49,117", "50,118", "51,116", "52,95", "52,120", "53,91", "53,117", "54,90", "54,120", "55,92", "55,116", "56,90"],
         ...["56,116", "57,93", "58,92", "59,87", "59,110", "60,88", "60,108", "61,86", "61,110", "62,88", "62,109", "63,16", "63,87"],
         ...["63,111", "64,64", "64,86", "64,110", "65,88", "65,105", "66,86", "66,97", "67,62", "74,21", "74,45", "74,50", "74,53"],
-        ...["74,56", "74,63", "74,66", "74,69", "74,76", "74,93"],
+        ...["74,56", "74,63", "74,66", "74,69", "74,76", "74,93", "46,81", "53,85"],
       ],
       "east of the crystal on floor 29, the stalactite shot loads M42 (report 16 shots)": [
-        ...["15,92", "16,126", "17,128", "18,126", "19,127", "20,125", "21,82", "21,99", "21,101", "22,133", "23,71", "23,135", "24,134"],
+        ...["15,92", "16,126", "17,128", "18,126", "19,127", "20,125", "21,86", "21,99", "21,101", "22,133", "23,71", "23,135", "24,134"],
         ...["25,133", "26,135", "27,133", "28,134", "29,64", "29,135", "30,131", "31,122", "32,119", "33,117", "34,119", "35,118"],
-        ...["36,117", "37,58", "37,120", "38,119", "39,92", "39,126", "40,88", "40,126"],
+        ...["36,117", "37,58", "37,120", "38,119", "39,92", "39,126", "40,88", "40,126", "24,63", "24,92"],
       ],
     },
     never: {
-      "below chasm 8, entered only through the death zone (report 16 zones)": ["24,92"],
       "marker 13 energy ledge under floor 63, an exact jump (report 16 dead end 2)": ["72,16"],
-      "floor tiles stacked in column 52, not on the report 16 floor flowchart": ["7,52", "8,52", "9,52", "10,52"],
+      "rock tops nobody reaches: hanging wall columns 76 and 89, the col 96 wall and the alcove over the east ledge stair (levelmap.py patches)": [
+        ...["17,137", "39,76", "48,89", "61,96"],
+      ],
     },
   },
 };
@@ -374,7 +375,7 @@ describe("mission reach", () => {
     const open = loadSandbox(variant(missionJson("jeskyne"), "tankShot"));
     open.flags.add(open.lifts[0]!.enabledBy!);
     const { r, from } = openGraph(open);
-    const lower = r.runs.filter((run) => run.row >= 48 && from.has(id(run))).map(id);
+    const lower = r.runs.filter((run) => run.row >= 46 && from.has(id(run))).map(id);
     expect(lower.length).toBeGreaterThan(0);
     expect(oneWay(open, () => stopId(0, open.lifts[0]!.top))).toEqual(lower.filter((n) => !START_CHAIN.includes(n)));
   });
