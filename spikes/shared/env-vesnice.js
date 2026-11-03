@@ -1823,8 +1823,8 @@ const P = { ...window.ENV.P, simple: () => window.ENV.simple };
 const { TILE } = window.ENV;
 const craneKey = window.ENV.ASSETS.find((a) => a.id === "craneKey");
 const { PLANK, depotRun, gateBlock, gateRuin, planks, shadow, smoke, spark, steelGate } = window.ENV.VESNICE;
-const { rng, path, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, slab, hazard, text } = P;
-const { PI, sin, min, max, floor } = Math;
+const { rng, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, curve, slab, hazard, text } = P;
+const { PI, sin, cos, min, max, floor, abs } = Math;
 const simple = () => P.simple();
 const scuff = (ctx, x, w) => {
     ctx.save();
@@ -1915,6 +1915,17 @@ const podFrame = (ctx, seed) => {
     G.dirt(ctx, 0, -8, 48, 8, seed + 5, 0.7);
     G.chips(ctx, 2, -8, 44, seed + 6);
 };
+const podBox = (ctx, x, y, lampColor, lit, seed) => {
+    box(ctx, x, y, 9, 13, "steel", 1);
+    flat(ctx, x, y, 9, 1.4, "m3", "mLine");
+    for (let k = y + 2.6; k < y + 7.4; k += simple() ? 2.4 : 1.2)
+        flat(ctx, x + 1.2, k, 6.6, 0.6, "c2");
+    flat(ctx, x + 1.2, y + 8.4, 4.4, 3, lit ? "screen" : "screenOff", "mLine");
+    lamp(ctx, x + 7, y + 9.9, lampColor, lit, 0.9, 3);
+    G.grain(ctx, G.rectRegion(ctx, x, y, 9, 13), seed, 0.6);
+    G.chips(ctx, x, y, 9, seed + 1);
+    G.drips(ctx, x, y + 13, 9, 5, seed + 2, 1);
+};
 const podHood = (ctx, lampColor, lit, seed) => {
     const hood = [[0, POD_TOP], [48, POD_TOP], [40, -58], [8, -58]];
     poly(ctx, hood, "steel", 2);
@@ -1925,13 +1936,10 @@ const podHood = (ctx, lampColor, lit, seed) => {
         flat(ctx, 12, -63, 24, 0.6, "m0");
     }
     box(ctx, 18, -58, 12, 3, "chrome", 1);
-    box(ctx, 41, -54, 6, 7, "steel", 0);
-    if (!simple())
-        for (let y = -53; y < -48; y += 1.4)
-            flat(ctx, 41.6, y, 4.8, 0.6, "c2");
     G.chips(ctx, 0, POD_TOP, 48, seed + 8);
     G.drips(ctx, 9, -58, 30, 12, seed + 9, 3);
     lamp(ctx, 24, POD_TOP - 1.5, lampColor, lit);
+    podBox(ctx, 40, -54, lampColor, lit, seed + 12);
 };
 const POD_LAMP = { working: "screen", off: "k1", idle: "a1", damaged: "neon" };
 const pod = (ctx, mode, t, seed) => {
@@ -1958,7 +1966,7 @@ const pod = (ctx, mode, t, seed) => {
 const SOURCE_MODES = ["idle", "off", "working"];
 const sourceTeleport = {
     id: "sourceTeleport",
-    box: [-2, -76, 50, 0],
+    box: [-2, -76, 51, 0],
     anim: true,
     draw(ctx, state, t) {
         pod(ctx, SOURCE_MODES[state] ?? "idle", t, 2100);
@@ -1966,7 +1974,7 @@ const sourceTeleport = {
 };
 const targetTeleport = {
     id: "targetTeleport",
-    box: [-2, -76, 50, 0],
+    box: [-2, -76, 51, 0],
     anim: true,
     draw(ctx, state, t) {
         pod(ctx, state ? "working" : "damaged", t, 2120);
@@ -2004,13 +2012,14 @@ const brokenTeleport = {
         G.grain(ctx, G.rectRegion(ctx, -2, -9, 54, 9), 2163, 0.6);
         G.dirt(ctx, -2, -9, 54, 9, 2164, 0.7);
         G.rustPatch(ctx, 8, -3, 3, 1.5, 2165);
+        podBox(ctx, 40, -32, POD_LAMP.damaged, state === 0 && floor(t * 3) % 2 === 0, 2166);
         line(ctx, [[30, -24], [33, -18], [30, -14]], "a1", 0.8);
         spark(ctx, 30, -14, t, 5);
     },
 };
 const teleportPad = {
     id: "teleportPad",
-    box: [-2, -76, 50, 0],
+    box: [-2, -76, 51, 0],
     anim: true,
     draw(ctx, _state, t) {
         pod(ctx, "working", t, 2140);
@@ -2081,9 +2090,6 @@ const electricCabinet = {
             G.grain(ctx, G.rectRegion(ctx, x, -60, 20, 50), 2202 + x, 0.6);
             G.rustPatch(ctx, x + 14, -14, 2.5, 1.5, 2203 + x);
         }
-        for (const x of [10, 74]) {
-            poly(ctx, [[x + 4, -70], [x, -64], [x + 4, -64], [x + 1, -58], [x + 8, -66], [x + 4, -66], [x + 7, -70]], "water", 2);
-        }
         box(ctx, 32, -58, 32, 56, "steel", 0);
         if (state === 0) {
             box(ctx, 34, -56, 28, 54, "chrome", 1);
@@ -2091,8 +2097,9 @@ const electricCabinet = {
             G.grain(ctx, G.rectRegion(ctx, 34, -56, 28, 54), 2210, 0.6);
             G.drips(ctx, 34, -56, 28, 22, 2211, 3);
             G.dirt(ctx, 34, -56, 28, 54, 2212, 0.25);
-            flat(ctx, 44, -44, 8, 8, "hazard", "yLine");
-            poly(ctx, [[48.6, -43], [45.6, -39.6], [48, -39.6], [47, -37], [50.4, -40.6], [48, -40.6], [49.4, -43]], "hazardDark", 2, { line: false });
+            shape(ctx, [[48, -46], [53.4, -36.4], [42.6, -36.4]], "hazardDark", "kLine");
+            shape(ctx, [[48, -44.2], [51.8, -37.4], [44.2, -37.4]], "hazard");
+            shape(ctx, [[48.6, -43], [46.2, -39.8], [48, -39.8], [47.2, -37.8], [50, -40.8], [48.2, -40.8], [49.2, -43]], "hazardDark");
             box(ctx, 56, -30, 3, 7, "steel", 2);
             lamp(ctx, 57.5, -33, "neon");
         }
@@ -2109,6 +2116,29 @@ const electricCabinet = {
         }
     },
 };
+const WHEEL_R = 13;
+const wheel = (ctx, x, seed) => {
+    const y = -WHEEL_R;
+    ellipse(ctx, x, y, WHEEL_R, WHEEL_R, "k0", "kLine");
+    ellipse(ctx, x, y, WHEEL_R - 3, WHEEL_R - 3, "m1", "mLine");
+    if (!simple())
+        for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * PI * 2;
+            line(ctx, [[x + cos(a) * (WHEEL_R - 0.6), y + sin(a) * (WHEEL_R - 0.6)], [x + cos(a) * (WHEEL_R - 2.4), y + sin(a) * (WHEEL_R - 2.4)]], "k1", 1);
+        }
+    for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * PI * 2 + 0.3;
+        line(ctx, [[x, y], [x + cos(a) * (WHEEL_R - 3.4), y + sin(a) * (WHEEL_R - 3.4)]], "m3", simple() ? 1.6 : 1.2);
+    }
+    ellipse(ctx, x, y, 4, 4, "m2", "mLine");
+    disc(ctx, x, y, 1.6, "c1", "mLine");
+    if (!simple())
+        for (let i = 0; i < 5; i++)
+            flat(ctx, x + cos((i / 5) * PI * 2) * 2.8 - 0.5, y + sin((i / 5) * PI * 2) * 2.8 - 0.5, 1, 1, "m3");
+    G.rustPatch(ctx, x + 3, y - 5, 2, 1.4, seed);
+    G.grain(ctx, G.polyRegion(ctx, [[x - WHEEL_R, y - WHEEL_R], [x + WHEEL_R, y - WHEEL_R], [x + WHEEL_R, 0], [x - WHEEL_R, 0]]), seed + 1, 0.5);
+    G.dirt(ctx, x - WHEEL_R, y, WHEEL_R * 2, WHEEL_R, seed + 2, 0.5);
+};
 const CANNON_BODY = [[56, -16], [60, -48], [76, -60], [138, -60], [148, -48], [146, -16]];
 const cannon = {
     id: "cannon",
@@ -2118,15 +2148,10 @@ const cannon = {
         const age = t % 1.6;
         const kick = state === 1 ? max(0, 1 - age * 3) * 6 : 0;
         shadow(ctx, 100, 104, 0.5);
-        box(ctx, 50, -14, 100, 10, "steel", 1);
-        for (const x of [62, 86, 110, 134]) {
-            ellipse(ctx, x, -6, 6, 6, "m0", "mLine");
-            ellipse(ctx, x, -6, 2.6, 2.6, "m2", "mLine");
-        }
-        G.grain(ctx, G.rectRegion(ctx, 50, -14, 100, 10), 2260, 0.6);
-        G.dirt(ctx, 50, -14, 100, 14, 2261, 0.6);
+        box(ctx, 54, -18, 94, 6, "steel", 1);
+        G.grain(ctx, G.rectRegion(ctx, 54, -18, 94, 6), 2260, 0.6);
+        G.dirt(ctx, 54, -18, 94, 6, 2261, 0.6);
         flat(ctx, 52, -16, 96, 2.4, "m3", "mLine");
-        poly(ctx, [[112, -16], [146, -16], [154, -2], [142, -2]], "steel", 0);
         ctx.save();
         ctx.translate(kick, 0);
         cylH(ctx, 6, -45, 66, 7, "chrome", 1);
@@ -2155,6 +2180,8 @@ const cannon = {
         G.rustPatch(ctx, 128, -32, 5, 2.5, 2266);
         G.chips(ctx, 76, -60, 62, 2267);
         G.dirt(ctx, 56, -48, 92, 32, 2268, 0.3);
+        for (const x of [76, 126])
+            wheel(ctx, x, 2269 + x);
         if (state === 1 && age < 0.5) {
             const k = 1 - age * 2;
             glow(ctx, -6, -42, 18 * k + 6, "a2", 0.8 * k);
@@ -2273,11 +2300,31 @@ const powerBridge = {
         G.rustPatch(ctx, 260, 2, 2.5, 1, 2313);
     },
 };
+const WALKER = [
+    [[0.2, -2.2], [0, 0.4]],
+    [[0, 0.4], [-1.4, 2.4], [-2.2, 4.6]],
+    [[0, 0.4], [1, 2.4], [2.4, 4.2]],
+    [[-0.2, -1.4], [-1.8, 0], [-2.4, 1.4]],
+    [[-0.2, -1.4], [1.4, -0.2], [2.2, 1]],
+];
+const noWalkingSign = (ctx, x, y, r) => {
+    disc(ctx, x, y, r, "fs2", "kLine");
+    disc(ctx, x, y, r * 0.74, "c3");
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(r / 6.4, r / 6.4);
+    disc(ctx, 0.6, -3.4, 1, "hazardDark");
+    for (const limb of WALKER)
+        line(ctx, limb, "hazardDark", 1.1);
+    ctx.restore();
+    line(ctx, [[x - r * 0.52, y - r * 0.52], [x + r * 0.52, y + r * 0.52]], "fs2", r * 0.2, "butt");
+    if (!simple())
+        G.grain(ctx, G.rectRegion(ctx, x - r, y - r, r * 2, r * 2), 1024, 0.25);
+};
 const bridgeGuardPost = {
     id: "bridgeGuardPost",
     box: [-54, -152, 30, 0],
-    anim: true,
-    draw(ctx, state, t) {
+    draw(ctx, state) {
         planks(ctx, -2, -144, 26, 144, 1020, true);
         flat(ctx, 2, -128, 18, 14, "#0a0806", PLANK[4]);
         shape(ctx, [[-6, -144], [11, -152], [28, -144]], PLANK[2], PLANK[4]);
@@ -2291,60 +2338,77 @@ const bridgeGuardPost = {
         for (let x = -42; x < -2; x += 10)
             flat(ctx, x, -2.5, 5, 5, "neon");
         ctx.restore();
-        lamp(ctx, 11, -136, up ? "screen" : "neon", up || floor(t * 2) % 2 === 0, 1.4, 5);
-        flat(ctx, 2, -100, 18, 10, "y1", "yLine");
-        if (!simple())
-            text(ctx, "STOP", 11, -95, 5, "k0");
+        flat(ctx, 10.4, -102, 1.2, 4, "m1", "mLine");
+        noWalkingSign(ctx, 11, -94, 7);
         G.drips(ctx, -2, -144, 26, 60, 1021, 3);
         G.rustPatch(ctx, -2, -18, 2.5, 4, 1022);
         G.chips(ctx, -4, -146, 30, 1023, G.DIRT);
     },
 };
-const BURNT = ["#1e1c1a", "#3e3a36", "#6a645c", "#a8a49c"];
+const BONE = ["#34322a", "#5e5a4a", "#8c8670", "#b4ac92"];
+const bone = (ctx, pts, w) => {
+    line(ctx, pts, "kLine", w + 1);
+    line(ctx, pts, BONE[2], w);
+    if (!simple())
+        line(ctx, pts.map(([x, y]) => [x, y - w * 0.22]), BONE[3], w * 0.3);
+};
+const knob = (ctx, x, y, r) => disc(ctx, x, y, r, BONE[2], "kLine");
+const SKULL = [[1, -2.4], [1.4, -6], [4, -8.8], [8, -9.4], [11, -7.6], [12, -4.6], [11.2, -1.6], [8, -0.6], [5.6, -1], [4.6, 0], [2.2, 0], [1.4, -1]];
+const PELVIS = [[26, -1.2], [26.6, -5.6], [29.4, -7], [31.6, -5], [31.4, -1.4], [29, -0.4]];
+const skeleton = (ctx, seed) => {
+    bone(ctx, [[12.6, -2.6], [20, -2.8], [27, -2.6]], 1.4);
+    if (!simple())
+        for (let x = 13; x < 27; x += 1.8)
+            flat(ctx, x, -3.6, 0.7, 2, BONE[1]);
+    for (let i = 0; i < 5; i++) {
+        const x = 13.6 + i * 2.5;
+        const h = 7.8 - abs(i - 1.6) * 0.8;
+        curve(ctx, [[x, -2.8], [x + 0.6, -h], [x + 2.2, -h - 0.4], [x + 2.6, -2.8]], "kLine", 1.6);
+        curve(ctx, [[x, -2.8], [x + 0.6, -h], [x + 2.2, -h - 0.4], [x + 2.6, -2.8]], BONE[2], 0.8);
+    }
+    bone(ctx, [[14, -1.4], [20.6, -0.8]], 1.1);
+    bone(ctx, [[20.6, -0.8], [26.6, -0.7]], 0.9);
+    for (const dx of [0, 1.2, 2.4])
+        line(ctx, [[26.6, -0.7], [28 + dx * 0.6, -0.4 + dx * 0.1]], BONE[2], 0.5);
+    shape(ctx, PELVIS, BONE[2], "kLine");
+    disc(ctx, 29, -3.6, 1.2, BONE[0]);
+    bone(ctx, [[29.6, -3.8], [32.8, -10], [35.2, -15.6]], 1.8);
+    bone(ctx, [[35.4, -15.4], [38.6, -8.4], [41.6, -1.6]], 1.5);
+    line(ctx, [[36.4, -14.6], [39.6, -8], [42.4, -2]], BONE[1], 0.6);
+    knob(ctx, 35.3, -15.8, 1.7);
+    bone(ctx, [[41.4, -1.2], [44.6, -0.9], [46.4, -0.6]], 1);
+    if (!simple())
+        for (const dx of [45.6, 46.6, 47.4])
+            line(ctx, [[45, -0.9], [dx, -0.3]], BONE[2], 0.4);
+    shape(ctx, SKULL, BONE[2], "kLine");
+    if (!simple())
+        shape(ctx, [[4, -8.2], [8, -8.8], [10.6, -7.2], [7.6, -7.6]], BONE[3]);
+    ellipse(ctx, 4.4, -5, 1.6, 1.4, "hole");
+    flat(ctx, 1.6, -3, 0.9, 1, "hole");
+    if (!simple())
+        for (let x = 2.2; x < 5.4; x += 0.9)
+            flat(ctx, x, -1.4, 0.4, 1.1, BONE[0]);
+    ellipse(ctx, 8.4, -4.8, 2, 1.6, BONE[1]);
+    G.grain(ctx, G.polyRegion(ctx, SKULL), seed, 0.9);
+    G.grain(ctx, G.polyRegion(ctx, PELVIS), seed + 1, 0.9);
+    G.dirt(ctx, 0, -4, 48, 4, seed + 2, 0.55);
+    if (!simple())
+        for (const [x, w] of [[3, 3], [17, 4], [30, 2.4], [40, 3]])
+            flat(ctx, x, -0.9, w, 0.9, "g1");
+};
 const smoulderingRemains = {
     id: "smoulderingRemains",
-    box: [-4, -30, 52, 0],
+    box: [-4, -20, 52, 0],
     anim: true,
     draw(ctx, state, t) {
-        G.scorch(ctx, [[0, 0], [6, -4], [24, -7], [44, -5], [48, 0]], 2320);
-        shadow(ctx, 24, 48, 0.55);
-        flat(ctx, 2, -1.4, 44, 1.4, "#1a1410");
-        const pile = [[8, 0], [9, -5], [22, -6.4], [30, -5.6], [31, 0]];
-        poly(ctx, pile, BURNT[1], 2, { line: false });
-        path(ctx, pile);
-        stroke(ctx, "kLine");
-        for (let i = 0; i < 5; i++) {
-            const x = 11 + i * 3.6;
-            line(ctx, [[x, -5.4], [x + 1.2, -9.4 + (i % 2)], [x + 2.4, -5.8]], "kLine", 1.5);
-            line(ctx, [[x, -5.4], [x + 1.2, -9.4 + (i % 2)], [x + 2.4, -5.8]], BURNT[3], 0.8);
-        }
-        const head = [[30, 0], [31, -6], [37, -7.8], [42, -5.6], [42.6, 0]];
-        poly(ctx, head, BURNT[2], 2, { line: false });
-        path(ctx, head);
-        stroke(ctx, "kLine");
-        flat(ctx, 36.6, -5.6, 4, 1.2, state ? "#3a1008" : "neon");
-        line(ctx, [[2, -1], [5, -4.6], [8.6, -2.2]], "kLine", 2);
-        line(ctx, [[2, -1], [5, -4.6], [8.6, -2.2]], BURNT[2], 1.2);
-        line(ctx, [[22, -5], [26, -14], [28.6, -16.4]], "kLine", 2.2);
-        line(ctx, [[22, -5], [26, -14], [28.6, -16.4]], BURNT[3], 1.2);
-        for (const [dx, dy] of [[28.6, -16.4], [29.8, -15.4], [29.4, -17.6]])
-            line(ctx, [[28.6, -16.4], [dx + 1, dy - 0.6]], BURNT[3], 0.6);
-        const embers = [[14, -4], [19, -2.6], [26, -3.6], [34, -2], [40, -3]];
-        embers.forEach(([x, y], i) => {
-            const k = 0.5 + sin(t * 3 + i * 1.7) * 0.5;
-            if (!simple())
-                glow(ctx, x, y, 3.5, "a1", 0.25 + k * 0.3);
-            disc(ctx, x, y, 0.7, k > 0.5 ? "a2" : "a0");
-        });
+        G.scorch(ctx, [[0, 0], [6, -3], [24, -5], [44, -3], [48, 0]], 2320);
+        shadow(ctx, 24, 48, 0.5);
+        skeleton(ctx, 2321);
         if (state === 0) {
-            flat(ctx, 44, -1.6, 3.6, 1, "y2", "yLine");
-            ellipse(ctx, 44, -1.1, 1.2, 1.1, "y1", "yLine");
+            flat(ctx, 27.6, -1.6, 3.6, 1, "y2", "yLine");
+            ellipse(ctx, 27.6, -1.1, 1.2, 1.1, "y1", "yLine");
             if (!simple())
-                glow(ctx, 45, -1.4, 4, "y3", 0.35 + sin(t * 4) * 0.15);
-        }
-        if (!simple()) {
-            smoke(ctx, 18, -6, t, 3, 20);
-            smoke(ctx, 36, -7, t + 1.4, 2, 16);
+                glow(ctx, 28.6, -1.4, 4, "y3", 0.35 + sin(t * 4) * 0.15);
         }
     },
 };
@@ -2497,28 +2561,27 @@ const navCircuit = {
 };
 const toaster = {
     id: "toaster",
-    box: [-2, -14, 28, 0],
+    box: [-2, -11, 28, 0],
     anim: true,
     draw(ctx, state, t) {
         if (state)
             return scuff(ctx, 0, 26);
         shadow(ctx, 12, 24);
-        box(ctx, 2, -3, 4, 3, "steel", 0);
-        box(ctx, 0.6, -11, 14, 8.6, "chrome", 1);
-        box(ctx, 0.6, -12.2, 14, 1.6, "chrome", 2);
+        box(ctx, 3, -3.4, 2.6, 3.4, "steel", 0, { vertical: true });
+        box(ctx, 0.6, -8, 9.4, 4.8, "chrome", 1);
+        flat(ctx, 0.6, -8, 9.4, 1, "c2");
         const heat = 0.6 + sin(t * 5) * 0.25;
-        for (const x of [3, 8]) {
-            flat(ctx, x, -12, 3.4, 1, "hole");
-            if (!simple())
-                glow(ctx, x + 1.7, -12, 3, "a1", heat * 0.6);
-            flat(ctx, x + 0.4, -11.9, 2.6, 0.5, "a2");
-        }
-        box(ctx, 14.6, -9, 9, 4.4, "steel", 1);
-        for (let x = 16; x < 23; x += simple() ? 3.2 : 1.6)
-            flat(ctx, x, -9, 0.6, 4.4, "a1");
-        box(ctx, 23.4, -9.6, 1.6, 5.6, "chrome", 2, { vertical: true });
-        box(ctx, 9, -3, 3, 3, "steel", 1, { vertical: true });
-        flat(ctx, 2, -8.6, 5, 1.6, "hazard", "yLine");
+        flat(ctx, 2.6, -8.6, 4.6, 0.9, "hole");
+        if (!simple())
+            glow(ctx, 4.9, -8.4, 2.6, "a1", heat * 0.6);
+        flat(ctx, 3, -8.5, 3.8, 0.4, "a2");
+        flat(ctx, 1.6, -6, 3.4, 1.2, "hazard", "yLine");
+        box(ctx, 10, -7, 11.6, 2.8, "steel", 1);
+        for (let x = 11.2; x < 21; x += simple() ? 3 : 1.5)
+            flat(ctx, x, -7, 0.6, 2.8, "a1");
+        box(ctx, 21.6, -7.6, 1.6, 4, "chrome", 2, { vertical: true });
+        G.grain(ctx, G.rectRegion(ctx, 0.6, -8, 22.6, 4.8), 2340, 0.4);
+        G.chips(ctx, 0.6, -8, 9.4, 2341);
     },
 };
 const energyPickup = {
@@ -2597,8 +2660,12 @@ const projectileCrate = {
             box(ctx, x, -20, 3.6, 20, "olive", 2, { vertical: true });
         box(ctx, 0.4, -21.6, 29.2, 2.4, "olive", 3);
         box(ctx, 0.4, -2, 29.2, 2, "olive", 0);
-        hazard(ctx, 5.4, -12.6, 6, 4, 2);
-        text(ctx, "AMMO", 18.8, -10.4, 4.2, "k0");
+        flat(ctx, 5.4, -14, 11, 7, "o0", "kLine");
+        poly(ctx, [[6.4, -11.8], [12, -11.8], [14.4, -11.2], [15, -10.5], [14.4, -9.8], [12, -9.2], [6.4, -9.2]], "y2", 2, { line: false });
+        if (!simple())
+            flat(ctx, 6.4, -12.8, 8, 0.7, "y1");
+        flat(ctx, 8.6, -11.8, 0.6, 2.6, "y0");
+        text(ctx, "AMMO", 20.6, -10.5, 2.8, "k0");
         if (!simple())
             for (const x of [4.4, 25.6])
                 rivets(ctx, x - 1, -18, 2, 4, "o3");

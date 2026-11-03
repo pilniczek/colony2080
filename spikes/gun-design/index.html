@@ -36,18 +36,18 @@
 <body>
 <header>
   <h1>Weapon design sheet</h1>
-  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button></div>
+  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button></div>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
 </header>
-<main>
+<main data-for="fists gun blaster">
   <figure class="wide"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200"></canvas></figure>
   <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Slung, back (ladder pose)</figcaption><canvas id="slungBack" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Slung, side (back hook)</figcaption><canvas id="slungSide" data-w="640" data-h="780"></canvas></figure>
 </main>
-<h2>In-game, simplified (game size, scale 0.2)</h2>
-<main class="game">
+<h2 data-for="fists gun blaster">In-game, simplified (game size, scale 0.2)</h2>
+<main class="game" data-for="fists gun blaster">
   <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
@@ -71,6 +71,13 @@
   <main class="game">
     <figure><figcaption>Full size (x 12)</figcaption><canvas id="groundFull" data-w="26" data-h="11" data-scale="12"></canvas></figure>
     <figure><figcaption>Game size, game LOD</figcaption><canvas id="groundGame" data-w="26" data-h="11" data-scale="game"></canvas></figure>
+  </main>
+</section>
+<section data-for="toaster">
+  <h2>Ground pickup (toaster asset, mission 2)</h2>
+  <main class="game">
+    <figure><figcaption>Full size (x 12)</figcaption><canvas id="toasterFull" data-w="30" data-h="12" data-scale="12"></canvas></figure>
+    <figure><figcaption>Game size, game LOD</figcaption><canvas id="toasterGame" data-w="30" data-h="12" data-scale="game"></canvas></figure>
   </main>
 </section>
 <!-- originals -->
@@ -98,6 +105,8 @@
 <script src="../shared/eblaster.js"></script>
 <script src="../shared/env.js"></script>
 <script src="../shared/env-props.js"></script>
+<script src="../shared/env-machines.js"></script>
+<script src="../shared/env-vesnice.js"></script>
 <script>
 const { buildSide, buildFront, buildBack, render, locate, FOOT_Y, LEVELS } = window.XBOT;
 const roots = {
@@ -130,7 +139,7 @@ const ROW_H = 780;
 const opts = { lines: true };
 let WEAPON = "gun";
 try { WEAPON = localStorage.getItem("weaponSheet") || "gun"; } catch {}
-if (!MODELS[WEAPON] && WEAPON !== "fists") WEAPON = "gun";
+if (!MODELS[WEAPON] && WEAPON !== "fists" && WEAPON !== "toaster") WEAPON = "gun";
 
 const model = () => MODELS[WEAPON];
 const held = (hookName, lineW, simple, barrel) => model() ? { [hookName]: c => model().hook(c, { lineW, simple, barrel }) } : {};
@@ -199,10 +208,10 @@ function fist(ctx, lineW) {
   render(ctx, { ...FORE, m: null, name: null }, { lineW });
 }
 
-function ground(ctx, lod) {
-  const def = ENV.ASSETS.find(a => a.id === "eBlaster");
-  ctx.translate(2, 10.5);
-  ENV.draw(ctx, def, { state: 0, lod, lines: opts.lines ? 1 : 0 });
+function ground(ctx, lod, id = "eBlaster", x = 2, y = 10.5, t = 0) {
+  const def = ENV.ASSETS.find(a => a.id === id);
+  ctx.translate(x, y);
+  ENV.draw(ctx, def, { state: 0, t, lod, lines: opts.lines ? 1 : 0 });
 }
 
 const VIEWS = {
@@ -217,9 +226,12 @@ const VIEWS = {
   beamFull: (ctx, lw, t) => beamRows(ctx, roots.side, hold, false, lw * 1.4, t),
   beamGame: (ctx, lw, t) => beamRows(ctx, roots.gSide, gHold, true, lw * XBOT.GAME_LINE, t),
   groundFull: ctx => ground(ctx, false),
-  groundGame: ctx => ground(ctx, true)
+  groundGame: ctx => ground(ctx, true),
+  toasterFull: (ctx, lw, t) => ground(ctx, false, "toaster", 2, 11.5, t),
+  toasterGame: (ctx, lw, t) => ground(ctx, true, "toaster", 2, 11.5, t)
 };
 const ANIMATED = new Set(["beamFull", "beamGame"]);
+const TOASTER = new Set(["toasterFull", "toasterGame"]);
 
 const frames = document.getElementById("frames");
 for (let f = 0; f < EBLASTER.FRAMES; f++) {
@@ -284,6 +296,7 @@ function setWeapon(w) {
 
 function tick() {
   if (WEAPON === "blaster") paint([...ANIMATED], SPIKE_CLOCK.seconds());
+  if (WEAPON === "toaster") paint([...TOASTER], SPIKE_CLOCK.seconds());
   requestAnimationFrame(tick);
 }
 
