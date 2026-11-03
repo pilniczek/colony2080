@@ -36,3 +36,27 @@ One stop per region of `docs/research/vesnice-map.md` (game page `game.html?miss
 ```
 moveto(146,41) moveto(148,32) moveto(111,32) moveto(130,32) moveto(135,23) moveto(135,41) moveto(95,41) moveto(72,41) moveto(70,23) moveto(66,32) moveto(36,41) moveto(57,41) moveto(37,32) moveto(36,50) moveto(110,50) moveto(120,59) moveto(88,59) moveto(100,68)
 ```
+
+## Vesnice objects
+
+Interactive objects, pickups and blockers in route order: fuse box, small key, target and source teleports, walkie-talkie guard, west guard post, plasma gate, barricade, dynamite wall, bonus pickups (energy, ammo, shield), power plant arcs.
+
+```
+moveto(146,32) moveto(112,32) moveto(65,32) moveto(128,23) moveto(66,23) moveto(41,41) moveto(97,41) moveto(27,41) moveto(34,32) moveto(83,23) moveto(129,41) moveto(41,41) moveto(135,23)
+```
+
+## Vesnice enemies
+
+One stop 4-6 cells from each rocket robot and grey trooper group (`docs/research/vesnice-map.md` Enemies).
+
+```
+moveto(130,41) moveto(109,41) moveto(127,32) moveto(132,23) moveto(78,50) moveto(112,50) moveto(120,59) moveto(102,68) moveto(81,59) moveto(69,41) moveto(83,23) moveto(29,50) moveto(45,50) moveto(40,32)
+```
+
+## Vesnice lifts and rock
+
+Lift bottom stops (walkway across the shaft) and stone fill edges.
+
+```
+moveto(113,41) moveto(87,50) moveto(78,41) moveto(69,32) moveto(141,32) moveto(130,59) moveto(115,68) moveto(82,68) moveto(16,50) moveto(12,50) moveto(17,41) moveto(64,32) moveto(72,59) moveto(78,68) moveto(108,59)
+```
