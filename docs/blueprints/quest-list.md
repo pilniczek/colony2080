@@ -9,7 +9,8 @@ The inventory screen `OBJECTIVES` box lists the level quest and open subquests. 
 3. **Show only after the player hears it.** A quest shows only after the subtitle or hint that tells it. A pickup alone never shows a quest, so an item never tells what it is for.
 4. **Gone when done.** A done quest leaves the list. Nothing is marked done.
 5. **Short.** Short imperative sentence, one line in both languages ("Repair the lift." / "Oprav výtah.").
-6. **Level quest first.** One quest with `after: []` from the start until the level ends. It shows marked `>`, subquests marked `-`.
+6. **Never undo the player.** After a deliberate action (pulling the fuse to drop a barrier), the next quest names what that action opened, not a reversal of it ("Bring the power back" shows only once restoring it is the next step).
+7. **Level quest first.** One quest with `after: []` from the start until the level ends. It shows marked `>`, subquests marked `-`.
 
 ## Data
 

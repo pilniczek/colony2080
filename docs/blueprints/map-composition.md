@@ -184,6 +184,7 @@ Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLi
 - Every mission feels rotting: grain, rust drips, pooled dirt and worn edges on every surface, holes read through a scorched ring and lit broken rim; grime static scenery freely (cached tiles), keep per-frame props cheap, keep 60 fps. Every asset of a structure or building role (far, filler, wall, fence, floor, girder, building, support, pipe, machine, rubble) calls the grime helpers. [M] [U] [test]
 - Art is vector, drawn as code, not original assets. [CLAUDE.md]
 - Damage reads through the colours around it (scorch, rim), not only through a missing part; grime must not hurt performance. [H: 7d0fbc31 2026-10-22]
+- A prop state the player can undo looks undoable, not destroyed: a pulled fuse leaves an intact box with an empty slot and a red lamp, not a smashed box. Only a one-way state (blasted, burnt) looks broken. [U]
 - Underground: lower ceiling, darker, lights mounted on the ceiling; mesto bricks stay until its map looks are revisited. [H: 608a310d 2026-10-21]
 
 ## New assets
