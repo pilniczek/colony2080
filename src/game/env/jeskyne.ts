@@ -492,7 +492,8 @@ const slidingDoor = (ctx: Ctx, shut: number, seed: number, lamp: () => void): vo
   box(ctx, -5, -DOOR_H - 4, 34, 6, "steel", 1);
   cylV(ctx, -5, -DOOR_H, 5, DOOR_H, "steel", 1);
   cylV(ctx, 24, -DOOR_H, 5, DOOR_H, "steel", 1);
-  G.grain(ctx, G.rectRegion(ctx, -5, -DOOR_H - 4, 34, DOOR_H + 4), seed + 3);
+  G.grain(ctx, G.rectRegion(ctx, -5, -DOOR_H - 4, 34, 6), seed + 3);
+  for (const x of [-5, 24]) G.grain(ctx, G.rectRegion(ctx, x, -DOOR_H, 5, DOOR_H), seed + 4 + x);
   lamp();
 };
 
