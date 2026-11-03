@@ -11,7 +11,7 @@ type Tones = readonly [string, string, string, string, string];
 
 const simple = (): boolean => P.simple();
 
-const ellipse = (ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, fill: string, edge: string | null = null): void => {
+export const ellipse = (ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, fill: string, edge: string | null = null): void => {
   ctx.fillStyle = color(fill);
   ctx.beginPath();
   ctx.ellipse(cx, cy, rx, ry, 0, 0, PI * 2);

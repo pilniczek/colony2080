@@ -57,6 +57,8 @@ function cellBox(fog: Fog, cells: Iterable<number>): CellBox {
   return { col: c0, row: r0, w: c1 - c0 + 1, h: r1 - r0 + 1 };
 }
 
+const GLIDE_STEPS = 4;
+
 const alphaOf = (opacity: number): number => Math.round(opacity * 255);
 
 export function glideOf(fog: Fog, span: SightSpan | undefined): Map<number, number> {
@@ -73,7 +75,8 @@ export function glideOf(fog: Fog, span: SightSpan | undefined): Map<number, numb
       const i = row * fog.width + col;
       const inner = col + inward;
       if (!fog.seen[i] && !(inner >= 0 && inner < fog.width && fog.seen[i + inward])) continue;
-      glide.set(i, Math.round((1 - cover) * (fog.seen[i] || fog.revealed[i] ? remembered : covered)));
+      const step = Math.round(cover * GLIDE_STEPS) / GLIDE_STEPS;
+      glide.set(i, Math.round((1 - step) * (fog.seen[i] || fog.revealed[i] ? remembered : covered)));
     }
   }
   return glide;
@@ -146,6 +149,49 @@ function paintSoft(fog: Fog, cached: Layer, box: CellBox): CellBox {
   }
   ctx.restore();
   return blur;
+}
+
+const openCache = new WeakMap<Fog, { key: string; rects: CellBox[] }>();
+
+export function openRects(fog: Fog, box: CellBox): CellBox[] {
+  if (fog.cfg.opacity < 1) return [box];
+  const key = `${fog.version}|${box.col},${box.row},${box.w},${box.h}`;
+  const cached = openCache.get(fog);
+  if (cached?.key === key) return cached.rects;
+  const reach = SOFT_BLUR_CELLS + 1;
+  const lit = (col: number, row: number): boolean => {
+    if (col < 0 || row < 0 || col >= fog.width || row >= fog.height) return false;
+    const i = row * fog.width + col;
+    return fog.revealed[i] === 1 || fog.seen[i] === 1;
+  };
+  const near = (col: number, row: number): boolean => {
+    for (let r = row - reach; r <= row + reach; r++) for (let c = col - reach; c <= col + reach; c++) if (lit(c, r)) return true;
+    return false;
+  };
+  const rects: CellBox[] = [];
+  let open: CellBox[] = [];
+  for (let row = box.row; row < box.row + box.h; row++) {
+    const runs: [number, number][] = [];
+    for (let col = box.col; col < box.col + box.w; col++) {
+      if (!near(col, row)) continue;
+      const start = col;
+      while (col + 1 < box.col + box.w && near(col + 1, row)) col++;
+      runs.push([start, col + 1 - start]);
+    }
+    const next: CellBox[] = [];
+    for (const [col, w] of runs) {
+      const above = open.find((r) => r.col === col && r.w === w);
+      if (above) {
+        above.h++;
+        next.push(above);
+      } else next.push({ col, row, w, h: 1 });
+    }
+    for (const r of open) if (!next.includes(r)) rects.push(r);
+    open = next;
+  }
+  rects.push(...open);
+  openCache.set(fog, { key, rects });
+  return rects;
 }
 
 const SPLIT_CELLS = 8;

@@ -10,6 +10,7 @@ import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
 import type { Rect as CellRect, Run } from "../level/terrain";
 import { onGround, type Lift, type Prop, type SandboxWorld, type Scenery } from "../level/sandboxLevel";
+import { openRects } from "./fog";
 import { nearestFirst, TileCache, TILE_PX, visibleTiles, type TileCoord } from "./tiles";
 
 const SKY_H = 170;
@@ -304,10 +305,36 @@ function cached(e: Env, name: Layer): void {
   };
   const make = (col: number, row: number): TileImage | null => render(e, scale, LAYERS[name], size, col, row);
   const tiles = cache.settled(key, need) ?? cache.sync(key, need, make, aside(e, name, span) ?? ahead());
+  const open = shownParts(e, span);
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, x, y);
-  for (const [col, row, canvas] of tiles) if (canvas) ctx.drawImage(canvas, col * TILE_PX, row * TILE_PX);
+  for (const [col, row, canvas] of tiles) {
+    if (!canvas) continue;
+    const [tx, ty] = [col * TILE_PX, row * TILE_PX];
+    if (!open) ctx.drawImage(canvas, tx, ty);
+    else for (const r of open) blitPart(ctx, canvas, tx, ty, r);
+  }
   ctx.restore();
+}
+
+function shownParts({ world, cell }: Env, { scale, view }: Span): Rect[] | null {
+  if (!world.fog) return null;
+  const k = cell * scale;
+  const col = Math.floor(view.x / k);
+  const row = Math.floor(view.y / k);
+  const box = { col, row, w: Math.ceil((view.x + view.w) / k) - col, h: Math.ceil((view.y + view.h) / k) - row };
+  return openRects(world.fog, box).map((r) => {
+    const [x0, y0] = [Math.floor(r.col * k), Math.floor(r.row * k)];
+    return { x: x0, y: y0, w: Math.ceil((r.col + r.w) * k) - x0, h: Math.ceil((r.row + r.h) * k) - y0 };
+  });
+}
+
+function blitPart(ctx: CanvasRenderingContext2D, image: TileImage, tx: number, ty: number, r: Rect): void {
+  const x0 = Math.max(tx, r.x);
+  const y0 = Math.max(ty, r.y);
+  const x1 = Math.min(tx + image.width, r.x + r.w);
+  const y1 = Math.min(ty + image.height, r.y + r.h);
+  if (x1 > x0 && y1 > y0) ctx.drawImage(image, x0 - tx, y0 - ty, x1 - x0, y1 - y0, x0, y0, x1 - x0, y1 - y0);
 }
 
 export function askTiles(world: SandboxWorld, cfg: MovementConfig, lines: number, view: { scale: number; offsetX: number; offsetY: number }, screen: Rect): void {

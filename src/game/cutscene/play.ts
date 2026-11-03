@@ -34,6 +34,7 @@ export function stepCutscene(world: SandboxWorld, dt: number, skip: boolean): bo
   world.cutscene = null;
   world.heroHits = 0;
   world.sparks.length = 0;
+  world.projectiles.length = 0;
   world.beam = null;
   if (film.prop) runUse(world, film.prop, { filmed: true });
   return false;

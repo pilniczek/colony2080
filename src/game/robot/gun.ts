@@ -41,24 +41,24 @@ export const gunSlung = model.slung;
 export const CARRY = { arm: 0, fore: -72 };
 export const FRONT_CARRY = { armL: -24, foreL: -66 };
 
-interface HoldPoses {
+export interface HoldPoses {
   CARRY: typeof CARRY;
   CARRY_FAR: { armFar: number; foreFar: number };
   FRONT_CARRY: typeof FRONT_CARRY;
   FRONT_CARRY_R: { armR: number; foreR: number };
 }
 
-const gripTarget = (root: GroupNode, hook: string, pose: Pose): Pt => {
+const gripTarget = (root: GroupNode, hook: string, pose: Pose, support: Pt): Pt => {
   const m = locate(root, hook, pose);
   if (!m) throw new Error(`missing hook ${hook}`);
-  return apply(m, SUPPORT_IN_HOOK);
+  return apply(m, support);
 };
 
-export const holdPoses = (side: GroupNode, front: GroupNode): HoldPoses => {
-  const far = solve(side, "handFar", CARRY, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], gripTarget(side, "hand", CARRY));
-  const right = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], gripTarget(front, "handL", FRONT_CARRY));
+export const holdPoses = (side: GroupNode, front: GroupNode, carry = CARRY, support = SUPPORT_IN_HOOK): HoldPoses => {
+  const far = solve(side, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], gripTarget(side, "hand", carry, support));
+  const right = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], gripTarget(front, "handL", FRONT_CARRY, SUPPORT_IN_HOOK));
   return {
-    CARRY,
+    CARRY: carry,
     CARRY_FAR: { armFar: far.armFar as number, foreFar: far.foreFar as number },
     FRONT_CARRY,
     FRONT_CARRY_R: { armR: right.armR as number, foreR: right.foreR as number },

@@ -16,8 +16,11 @@ import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
+import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
+import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
+import { drawProjectiles } from "./projectiles";
 import { BEAM_FRAMES, drawBeam } from "./beam";
 import { drawEnvironment } from "./environment";
 
@@ -27,11 +30,11 @@ const FLASH = { ahead: 4 / SPIKE_K, radius: 8 / SPIKE_K, k: 0.2 };
 const IMPACT = { radius: 7, k: 0.3 };
 const DUST = { back: 30, up: 6, radius: 18 };
 const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
-const ENEMY_PALETTE: Palette = { ...shade(ROBOT.palette, { brightness: 1.1, saturate: 0 }), visor: ROBOT.palette.visor! };
 const MODELS = {
   gun: { draw: drawGun, hook: gunHook, slung: gunSlung },
   blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
 } satisfies Record<GunModel, unknown>;
+const LASER = { color: "#ff2a1a", width: 1, glow: 4, glowAlpha: 0.3 };
 const FLYER_HIT = { flash: 0.25, glow: 0.6, steps: 16 };
 
 const COLORS = {
@@ -106,23 +109,69 @@ function flyerFigure(f: Frame, { body, flight, deadAge }: Enemy): void {
   if (deadAge !== null) blast(f, body, deadAge, true);
 }
 
-function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, rigs: Rigs, scale: number, fireRate: number): void {
-  if (enemy.flight) return flyerFigure(f, enemy);
-  const age = enemy.deadAge;
-  if (age === null || age < BLAST.hideBody) {
-    if (feetSeen(f.world.fog, enemy.body)) shadow(f, enemy.body, look);
-    heroFigure(f, enemy.body, look, rigs, scale, firing(enemy.body, fireRate), ENEMY_PALETTE);
-  } else scrap(f, enemy.body);
-  if (age !== null) blast(f, enemy.body, age);
+const fireOf = (body: Hero): number | null => (body.state === "attack" ? body.fireTime : null);
+
+function laserFrom(f: Frame, body: Hero, look: HeroLook, kind: EnemyKind, scale: number): Pt | null {
+  if (!kind.laser || fireOf(body) === null) return null;
+  const { ctx } = f;
+  const world = ctx.getTransform().inverse();
+  ctx.save();
+  toRigSpace(ctx, body, look, f.cell, scale);
+  const local = muzzleInRig(look, kind.rigs, kind.laser);
+  const at = local && world.multiply(ctx.getTransform()).transformPoint(new DOMPoint(local[0], local[1]));
+  ctx.restore();
+  return at ? [at.x, at.y] : null;
 }
 
-function droppedGun(f: Frame, hero: Hero, look: HeroLook, scale: number, palette: Palette): void {
+function dyingLook(body: Hero, look: HeroLook, dying: Dying, age: number): [Hero, HeroLook] {
+  const k = Math.min(1, age / dying.seconds);
+  return [{ ...body, x: body.x - body.facing * dying.back * k, y: body.y - dying.up * k }, { ...look, pose: { ...look.pose, ...dying.pose } }];
+}
+
+function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, kind: EnemyKind, scale: number, fireRate: number): Pt | null {
+  if (enemy.flight) {
+    flyerFigure(f, enemy);
+    return null;
+  }
+  const age = enemy.deadAge;
+  const alive = age === null || age < BLAST.hideBody;
+  const [body, pose] = age !== null && kind.dying ? dyingLook(enemy.body, look, kind.dying, age) : [enemy.body, look];
+  if (alive) {
+    if (feetSeen(f.world.fog, enemy.body)) shadow(f, enemy.body, look);
+    const flash = !!kind.muzzle && firing(enemy.body, fireRate);
+    heroFigure(f, body, pose, kind.rigs, scale, flash, kind.palette, kind.hooks?.(pose, f.lineW, fireOf(enemy.body)), kind.muzzle, kind.weapon);
+  } else if (!kind.dying) scrap(f, enemy.body);
+  if (age !== null) blast(f, body, age);
+  return alive && age === null ? laserFrom(f, enemy.body, look, kind, scale) : null;
+}
+
+function lasers(f: Frame, from: Pt[], hero: Hero, height: number): void {
+  const { ctx, cell, unit } = f;
+  const to: Pt = [hero.x * cell, (hero.y - height * 0.6) * cell];
+  ctx.save();
+  ctx.strokeStyle = LASER.color;
+  ctx.lineCap = "round";
+  for (const [x, y] of from) {
+    ctx.globalAlpha = LASER.glowAlpha;
+    ctx.lineWidth = LASER.glow * unit;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(...to);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = LASER.width * unit;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function droppedGun(f: Frame, hero: Hero, look: HeroLook, scale: number, palette: Palette, weapon: KindWeapon): void {
   const { ctx, cell, unit, lineW } = f;
   const ahead = DROPPED_GUN.ahead - DROPPED_GUN.slide * look.gunSlide;
   ctx.save();
   ctx.translate(hero.x * cell + hero.facing * ahead * unit, hero.y * cell - DROPPED_GUN.up * unit);
   ctx.scale(scale * hero.facing, scale);
-  MODELS[look.hand].draw(ctx, { palette, lineW, simple: true });
+  weapon.draw(ctx, { palette, lineW, simple: true });
   ctx.restore();
 }
 
@@ -159,8 +208,8 @@ const hitStar = (ctx: CanvasRenderingContext2D, hit: HitLook): void => star(ctx,
 const firing = (hero: Hero, fireRate: number): boolean =>
   hero.weapon === "gun" && hero.fireTime !== null && Math.floor(hero.fireTime * fireRate) % 2 === 0;
 
-function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs): void {
-  const muzzle = muzzleInRig(look, rigs);
+function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs, local: Pt): void {
+  const muzzle = muzzleInRig(look, rigs, local);
   if (muzzle) star(ctx, [muzzle[0] + FLASH.ahead, muzzle[1]], FLASH.radius, FLASH.k);
 }
 
@@ -171,16 +220,26 @@ export function weaponHooks(look: HeroLook, lineW: number): Record<string, HookD
   return hooks;
 }
 
-function heroFigure(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, scale: number, flash: boolean, base: Palette = ROBOT.palette): void {
+function heroFigure(
+  f: Frame,
+  hero: Hero,
+  look: HeroLook,
+  rigs: Rigs,
+  scale: number,
+  flash: boolean,
+  base: Palette = ROBOT.palette,
+  hooks: Record<string, HookDraw> = weaponHooks(look, f.lineW),
+  muzzle: Pt = MUZZLE_IN_HOOK,
+  weapon: KindWeapon = MODELS[look.hand],
+): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(base, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : base;
-  const hooks = weaponHooks(look, lineW);
-  if (look.gun === "dropped") droppedGun(f, hero, look, scale, palette);
+  if (look.gun === "dropped") droppedGun(f, hero, look, scale, palette, weapon);
   ctx.save();
   toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
-  if (look.gun === "slung") MODELS[look.hand].slung(ctx, palette, { lineW, simple: true });
-  if (flash) muzzleFlash(ctx, look, rigs);
+  if (look.gun === "slung") weapon.slung(ctx, palette, { lineW, simple: true });
+  if (flash) muzzleFlash(ctx, look, rigs, muzzle);
   if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();
   if (look.dust !== null) landingDust(f, hero, look.dust);
@@ -204,6 +263,7 @@ export const visibleEnemies = (enemies: Enemy[], view: Rect, margin: number): En
 export interface EnemyView {
   enemy: Enemy;
   look: HeroLook;
+  kind: EnemyKind;
 }
 
 export function drawScene(
@@ -216,7 +276,6 @@ export function drawScene(
   view: ViewTransform,
   alpha: number,
   enemyViews: EnemyView[],
-  enemyRigs: Rigs,
   sight: Path2D | null = null,
   lines = 1,
   screen?: Rect,
@@ -248,11 +307,14 @@ export function drawScene(
   };
   const behind = heroBehindEnemies(hero);
   if (behind) drawHero();
-  enemyViews
+  const lasing = enemyViews
     .filter(({ enemy }) => boxSeen(world.fog, bodyBox(enemy, cfg.box)))
-    .forEach(({ enemy, look: enemyLook }) => enemyFigure(f, enemy, enemyLook, enemyRigs, scale, cfg.fireRate));
+    .map(({ enemy, look: enemyLook, kind }) => enemyFigure(f, enemy, enemyLook, kind, scale, cfg.fireRate))
+    .filter((p): p is Pt => p !== null);
   if (!behind) drawHero();
   if (sight) ctx.clip(sight);
+  lasers(f, lasing, hero, cfg.box.height);
+  drawProjectiles(ctx, world.projectiles, f.cell, f.unit);
   beam(f);
   impacts(f);
   ctx.restore();

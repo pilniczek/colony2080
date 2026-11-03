@@ -189,6 +189,26 @@ Enemy table as level 1 (`ds:0x6AD4 + 27n`). Slots 2-29 used, slot 1 is the dummy
 - **No hover.** The level-2 init never fills the hover rows `ds:0x7465/0x7469`, so with a fresh start no enemy leaves its floor row. **[code]** After an in-process jump from level 1 the old values would remain **[open]**.
 - Speed 3 px per tick for both types (`4:0xD547`). Fire damage per fire tick is `(6 - shields) / 6 x c`, with c = 2.2 for type 1 and 2.4 for type 2 (`4:0xDC93`, `4:0xE040`), rounded per tick: 18 per 9-tick burst with 0 or 1 shield. **[code]**
 - Kills: 7 machine-gun hits, 3 punches (level-1 constants, not level-gated), or 2 toaster hits (1.0 per hit, `7:0x19D7`). **[code]**
+- **Burst chance 1/12 per tick.** `4:0xC3B2-0xC41E` sets the `Random(n) == 1` divisor by level: 13, 12, 11, 10, 9, 8, 7, 6 for levels 1-8, 4 for level 9. Both types share it. **[code]**
+
+### Fire rules shared by every level (table enemies, `ds:0x6AD4`)
+
+Same routine for every level and both types; only the burst divisor and c change. **[code]** unless tagged.
+
+- **Burst start** (`4:0xC41E-0xC7EE`), checked each tick while the enemy walks (state 1-0x18 or 0x3E9-0x400):
+  - hero not hidden (`[0x3BD9] == 0`) and not in hero state 0x78 / 0x460 (`[0x760D]`; the held hide pose, set at `7:0x8CC5` while the hide key flag `[0xE3D0]` is on **[inferred]**);
+  - hero y pixel offset `[0xDB48]` a multiple of 6 (`4:0xC4A1`: 0 when standing, so a jumping hero is safe on most jump ticks);
+  - no hit push running (`[0xE3D2] == 0`, see below);
+  - pixel gap 40-136 with the hero on the left of a left-facing enemy, 8-118 with the hero on the right of a right-facing one; hero row within ±1;
+  - then `Random(n) == 1` starts the burst (state 0x19, or 0x401 facing left).
+- **Burst** (`4:0xDB21-0xE2EB` facing right, `4:0xE2EE-0xEAA7` facing left): 9 ticks (states 0x19-0x21 / 0x401-0x409), then walk. Every tick takes `(6 - shields) / 6 x c` off energy (`fild` / `fistp` qword, rounded to nearest, ties to even) while the hero stands at most 8 cells ahead of the enemy (`4:0xDB84`, `4:0xE351`). The burst ticks check neither row nor hiding, so hiding mid-burst does not stop the damage. Not checked in the running game.
+- **Hit push.** Each damaging tick with the hero not hidden puts him in hit state 0x82 / 0x46A and sets `[0xE3D2]` to +3 (enemy facing right) or -3 (facing left). The hero plays states 0x82-0x84 (3 ticks after the last hit), copies `[0xE3D2]` into his pixel step `[0xDC66]` (`7:0x8E0F`), then goes to state 0x5E and clears `[0xE3D2]` (`7:0x8E38`). So no enemy can start a burst until 3 ticks after the last hit. **[code]** That the step moves the hero 3 px per tick away from the shooter is **[inferred]**.
+- **Cycle.** With the hero standing in reach and not hidden: 9 burst ticks + 3 push ticks + on average n waiting ticks. **[inferred]**
+
+| Type | c (`cs:`) | Per tick at 0 shields | Per burst | Cycle (ticks) | Energy per s at 32 ticks/s |
+|---|---|---|---|---|---|
+| 1 rocket robot | 2.2 (`4:0xBA73`) | 2 | 18 | 24 | 24 |
+| 2 grey trooper | 2.4 (`4:0xBABD`) | 2 | 18 | 24 | 24 |
 
 | Floor | Segment | Rocket robots (cell col) | Grey troopers (cell col) |
 |---|---|---|---|

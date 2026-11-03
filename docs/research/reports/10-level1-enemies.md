@@ -224,8 +224,8 @@ Addresses are in `docs/research/gamedata/disasm/verify/`.
 - **Hit test.** Instant hit-scan, no random chance. The target (`4:0xCB11-0xCD74`) is the nearest live enemy (hp >= 1.0) in the active window (±12 cells, ±3 rows), on the facing side, in the player row or one row above (below when ducking). Random(12) only scatters the spark (`5:0x7D8C-0x7E75`). Shots with no target in front are spent for nothing, and fire does not stop at a kill. This explains the 16-26 rounds per kill seen in the videos.
 - **Hit reaction: none.** A hit changes hp and adds a spark; state changes only on death (`5:0x8158-0x8195`).
 - **Turning.** A player behind the enemy at 20-120 px (left) or 44-144 px (right) turns it with chance 1/7 per tick, about 7 ticks on average (`4:0xBD92`, `4:0xBE35-0xC17E`).
-- **Firing.** The enemy faces the player, the gap is 40-136 px (player to the left) or 8-118 px (player to the right), rows within ±1, player not hidden (`[0x3BD9]`). Then a burst starts with chance 1/13 per tick (`4:0xC3B2`, `4:0xC41E-0xC7EE`). A burst lasts 9 ticks, then the enemy walks again, so a cycle averages about 22 ticks: about 0.41 energy per tick with 0 shields.
-- Not determined: the `[0xDB48]`/6 check and the `[0xE3D2]` condition before an enemy fires.
+- **Firing.** The enemy faces the player, the gap is 40-136 px (player to the left) or 8-118 px (player to the right), rows within ±1, player not hidden (`[0x3BD9]`). Then a burst starts with chance 1/13 per tick (`4:0xC3B2`, `4:0xC41E-0xC7EE`). A burst lasts 9 ticks, then the enemy walks again. Correction: each hit also starts a 3-tick hit push (`[0xE3D2]`) that blocks every burst start, so a cycle averages about 9 + 3 + 13 = 25 ticks: about 0.36 energy per tick (11.5 per s) with 0 shields.
+- The two checks before an enemy fires (decoded later, see report 14, Fire rules shared by every level): `[0xDB48]`/6 lets a burst start only while the hero y pixel offset is a multiple of 6 (0 when standing), and `[0xE3D2] == 0` blocks it while a hit push runs. The 9 burst ticks check neither row nor hiding.
 
 ### Changes
 

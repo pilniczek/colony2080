@@ -7,7 +7,7 @@ import { approachFilms, resetWorld, updateLift, type SandboxWorld } from "./leve
 import { updateEnemy } from "./level/enemy";
 import { cue } from "./sound/cues";
 import { explode, siren, spark } from "./sound/triggers";
-import { ageSparks, fireBeam, fireEnemy, fireGuards, fireShots, landPunches } from "./shots";
+import { ageSparks, fireBeam, fireEnemy, fireGuards, fireShots, landPunches, stepProjectiles } from "./shots";
 
 export const SUBTITLE_MS = 8000;
 export const SUBTITLE_FADE_MS = 1500;
@@ -42,8 +42,9 @@ export function stepWorld(
   const filming = world.cutscene !== null;
   ageSubtitle(world, dt);
   if (world.fog) updateFog(world.fog, hero, cfg, dt);
-  for (const enemy of world.enemies) fireEnemy(world, enemy, updateEnemy(enemy, world.grid, world.fog, hero, clips, cfg, dt));
+  for (const enemy of world.enemies) fireEnemy(world, enemy, updateEnemy(enemy, world.grid, world.fog, hero, clips, cfg, dt), clips, cfg);
   fireGuards(world, hero, cfg, dt);
+  stepProjectiles(world, hero, cfg, dt);
   ageSparks(world, dt);
   for (const lift of world.lifts) {
     const moving = lift.target !== null;
