@@ -1,7 +1,7 @@
 import { G } from "./grime";
 import { P, TILE, type EnvAsset } from "./paint";
 import { craneKey } from "./props";
-import { PLANK, depotRun, gateBlock, gateRuin, planks, shadow, smoke, spark, steelGate } from "./vesnice";
+import { PLANK, depotRun, gateBlock, gateRuin, outside, planks, rectPts, shadow, smoke, spark, steelGate, within } from "./vesnice";
 
 const { rng, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, curve, slab, hazard, text } = P;
 const { PI, sin, cos, min, max, floor } = Math;
@@ -92,7 +92,7 @@ const podFrame = (ctx: CanvasRenderingContext2D, seed: number): void => {
   G.rustPatch(ctx, 15, -16, 3, 2, seed + 1);
   for (const x of [3, 39]) {
     G.grain(ctx, G.rectRegion(ctx, x, -58, 6, 50), seed + 2 + x, 0.6);
-    G.drips(ctx, x, -58, 6, 24, seed + 3 + x, 1);
+    within(ctx, [[x, -58, 6, 50]], () => G.drips(ctx, x, -58, 6, 24, seed + 3 + x, 1));
   }
   G.grain(ctx, G.rectRegion(ctx, 0, -8, 48, 8), seed + 4, 0.6);
   G.dirt(ctx, 0, -8, 48, 8, seed + 5, 0.7);
@@ -107,7 +107,7 @@ const podBox = (ctx: CanvasRenderingContext2D, x: number, y: number, lampColor: 
   lamp(ctx, x + 7, y + 9.9, lampColor, lit, 0.9, 3);
   G.grain(ctx, G.rectRegion(ctx, x, y, 9, 13), seed, 0.6);
   G.chips(ctx, x, y, 9, seed + 1);
-  G.drips(ctx, x, y + 13, 9, 5, seed + 2, 1);
+  within(ctx, [[x - 1, y + 13, 6, 5]], () => G.drips(ctx, x, y + 13, 9, 5, seed + 2, 1));
 };
 
 const podHood = (ctx: CanvasRenderingContext2D, lampColor: string, lit: boolean, seed: number): void => {
@@ -121,7 +121,7 @@ const podHood = (ctx: CanvasRenderingContext2D, lampColor: string, lit: boolean,
   }
   box(ctx, 18, -58, 12, 3, "chrome", 1);
   G.chips(ctx, 0, POD_TOP, 48, seed + 8);
-  G.drips(ctx, 9, -58, 30, 12, seed + 9, 3);
+  within(ctx, [[3, -58, 6, 12], [39, -58, 6, 12]], () => G.drips(ctx, 2, -58, 44, 12, seed + 9, 3));
   lamp(ctx, 24, POD_TOP - 1.5, lampColor, lit);
   podBox(ctx, 40, -54, lampColor, lit, seed + 12);
 };
@@ -179,16 +179,21 @@ const brokenTeleport: EnvAsset = {
     box(ctx, 0, -6, 48, 6, "steel", 1);
     ellipse(ctx, 24, -6.6, 13, 1.6, "m0", "mLine");
     const shell: Pt[] = [[9, -6], [9, -26], [14, -31], [18, -24], [23, -33], [28, -22], [33, -28], [39, -20], [39, -6]];
-    G.scorch(ctx, shell, 2160);
     poly(ctx, shell, "rust", 0);
+    ctx.save();
+    G.polyRegion(ctx, shell)();
+    ctx.clip();
+    G.scorch(ctx, shell, 2160);
+    ctx.restore();
     G.grain(ctx, G.polyRegion(ctx, shell), 2161, 0.7);
     G.rim(ctx, shell, 2162, "r3", "hole");
     for (const [x, top] of [[3, -38], [39, -34]] as Pt[]) {
       poly(ctx, [[x, -6], [x, top + 3], [x + 2, top], [x + 4, top + 4], [x + 6, top + 1], [x + 6, -6]], "steel", 2, { dir: [1, 0] });
       cylV(ctx, x - 1, -20, 8, 3, "chrome", 2);
     }
-    poly(ctx, [[-2, 0], [4, -7], [12, -9], [10, -3], [14, 0]], "steel", 1);
-    poly(ctx, [[38, 0], [41, -5], [49, -6], [52, 0]], "steel", 0);
+    const debris: Pt[][] = [[[-2, 0], [4, -7], [12, -9], [10, -3], [14, 0]], [[38, 0], [41, -5], [49, -6], [52, 0]], [[0, -6], [48, -6], [48, 0], [0, 0]]];
+    poly(ctx, debris[0]!, "steel", 1);
+    poly(ctx, debris[1]!, "steel", 0);
     box(ctx, 16, -16, 16, 9, "steel", 0);
     if (state === 0) {
       flat(ctx, 18, -15, 12, 7, "g1", "gLine");
@@ -196,9 +201,18 @@ const brokenTeleport: EnvAsset = {
       flat(ctx, 21, -13.6, 5, 3, "m0");
       if (!simple()) glow(ctx, 24, -11, 6, "screen", 0.25 + sin(t * 3) * 0.15);
     } else flat(ctx, 18, -15, 12, 7, "hole", "mLine");
+    ctx.save();
+    ctx.beginPath();
+    for (const pts of debris) {
+      ctx.moveTo(pts[0]![0], pts[0]![1]);
+      for (const [x, y] of pts.slice(1)) ctx.lineTo(x, y);
+      ctx.closePath();
+    }
+    ctx.clip();
     G.grain(ctx, G.rectRegion(ctx, -2, -9, 54, 9), 2163, 0.6);
     G.dirt(ctx, -2, -9, 54, 9, 2164, 0.7);
     G.rustPatch(ctx, 8, -3, 3, 1.5, 2165);
+    ctx.restore();
     podBox(ctx, 40, -32, POD_LAMP.damaged, state === 0 && floor(t * 3) % 2 === 0, 2166);
     line(ctx, [[30, -24], [33, -18], [30, -14]], "a1", 0.8);
     spark(ctx, 30, -14, t, 5);
@@ -230,7 +244,7 @@ const fuseBox: EnvAsset = {
     box(ctx, -2, -74, 28, 4, "concrete", 2);
     box(ctx, -2, -4, 28, 4, "concrete", 1);
     if (!simple()) for (const y of [-60, -24]) flat(ctx, 1, y, 22, 0.6, "k0");
-    G.surface(ctx, 0, -70, 24, 66, 2180, { rise: 0.3, drip: 2, dripLen: 26 });
+    within(ctx, [[0, -72, 24, 72]], () => G.surface(ctx, 0, -70, 24, 66, 2180, { rise: 0.3, drip: 2, dripLen: 26 }));
     G.chips(ctx, -2, -74, 28, 2181);
     cylV(ctx, 10, -30, 4, 28, "steel", 1);
     box(ctx, 3, -46, 18, 17, "green", 1);
@@ -265,12 +279,14 @@ const electricCabinet: EnvAsset = {
     slab(ctx, 0, -72, 96, 72, "concrete", 2);
     flat(ctx, -1, -75, 98, 4, "k3", "kLine");
     flat(ctx, 0, -3, 96, 3, "k0", "kLine");
-    G.surface(ctx, 0, -71, 96, 68, 2200, { rise: 0.35, drip: 5, dripLen: 30 });
+    within(ctx, [[0, -72, 96, 72]], () => G.surface(ctx, 0, -71, 96, 68, 2200, { rise: 0.35, drip: 5, dripLen: 30 }));
     G.chips(ctx, -1, -75, 98, 2201);
     G.grain(ctx, G.rectRegion(ctx, -1, -75, 98, 4), 2204, 1);
     G.dirt(ctx, -1, -75, 98, 4, 2205, 0.6);
-    for (const [x, r] of [[14, 3], [52, 4], [84, 2.6]] as Pt[]) G.rustPatch(ctx, x, -73, r, 1.2, 2206 + x);
-    G.drips(ctx, -1, -71, 98, 12, 2207, 7);
+    within(ctx, [[-1, -75, 98, 4], [0, -72, 96, 72]], () => {
+      for (const [x, r] of [[14, 3], [52, 4], [84, 2.6]] as Pt[]) G.rustPatch(ctx, x, -73, r, 1.2, 2206 + x);
+      G.drips(ctx, -1, -71, 98, 12, 2207, 7);
+    });
     G.chips(ctx, -1, -72, 98, 2208, G.DIRT);
     for (const x of [6, 70]) {
       box(ctx, x, -60, 20, 50, "steel", 1);
@@ -375,7 +391,11 @@ const cannon: EnvAsset = {
     hazard(ctx, 58, -22, 88, 5, 4);
     poly(ctx, [[138, -50], [152, -46], [152, -24], [146, -20]], "steel", 1, { dir: [1, 0] });
     G.grain(ctx, G.polyRegion(ctx, CANNON_BODY), 2264, 0.6);
+    ctx.save();
+    G.polyRegion(ctx, CANNON_BODY)();
+    ctx.clip();
     G.drips(ctx, 62, -58, 82, 24, 2265, 6);
+    ctx.restore();
     G.rustPatch(ctx, 128, -32, 5, 2.5, 2266);
     G.chips(ctx, 76, -60, 62, 2267);
     G.dirt(ctx, 56, -48, 92, 32, 2268, 0.3);
@@ -413,7 +433,7 @@ const energyBarrier: EnvAsset = {
     flat(ctx, 2, -94, 20, 2, "hazard", "yLine");
     G.grain(ctx, G.rectRegion(ctx, 0, -96, 24, 13), 2240, 0.6);
     G.chips(ctx, 0, -96, 24, 2241);
-    G.drips(ctx, 0, -88, 24, 10, 2242, 2);
+    within(ctx, [[0, -96, 24, 10], [6, -86, 12, 3]], () => G.drips(ctx, 0, -92, 24, 10, 2242, 2));
     box(ctx, 4, -4, 16, 4, "steel", 1);
     box(ctx, 8, -6, 8, 2.4, "chrome", 1);
     G.grain(ctx, G.rectRegion(ctx, 4, -6, 16, 6), 2243, 0.6);
@@ -469,7 +489,7 @@ const anchor = (ctx: CanvasRenderingContext2D, x: number, flip: boolean): void =
   box(ctx, 2, -3, 8, 3, "steel", 1);
   if (!simple()) rivets(ctx, 0, 3.5, TILE, 6, "m3");
   G.grain(ctx, G.rectRegion(ctx, 0, -3, TILE, 15), 2300 + x, 0.6);
-  G.drips(ctx, 0, 7, TILE, 8, 2301 + x, 2);
+  within(ctx, [[0, 0, TILE, 7], [8, 7, TILE - 12, 5]], () => G.drips(ctx, 0, 3, TILE, 9, 2301 + x, 2));
   G.chips(ctx, 0, 0, TILE, 2302 + x);
   ctx.restore();
 };
@@ -543,6 +563,7 @@ const bridgeGuardPost: EnvAsset = {
   box: [-54, -152, 30, 0],
   draw(ctx, state) {
     planks(ctx, -2, -144, 26, 144, 1020, true);
+    const window = rectPts(2, -128, 18, 14);
     flat(ctx, 2, -128, 18, 14, "#0a0806", PLANK[4]);
     shape(ctx, [[-6, -144], [11, -152], [28, -144]], PLANK[2], PLANK[4]);
     flat(ctx, -4, -146, 30, 3, PLANK[3], PLANK[4]);
@@ -556,7 +577,7 @@ const bridgeGuardPost: EnvAsset = {
     ctx.restore();
     flat(ctx, 10.4, -102, 1.2, 4, "m1", "mLine");
     noWalkingSign(ctx, 11, -94, 7);
-    G.drips(ctx, -2, -144, 26, 60, 1021, 3);
+    within(ctx, [[-2, -144, 26, 144]], () => outside(ctx, [window], () => G.drips(ctx, -2, -144, 26, 60, 1021, 3)));
     G.rustPatch(ctx, -2, -18, 2.5, 4, 1022);
     G.chips(ctx, -4, -146, 30, 1023, G.DIRT);
   },
@@ -650,7 +671,7 @@ const skeleton = (ctx: CanvasRenderingContext2D, seed: number): void => {
   ctx.restore();
   G.grain(ctx, G.polyRegion(ctx, PELVIS), seed + 1, 0.9);
   G.grain(ctx, G.polyRegion(ctx, STERNUM), seed + 3, 0.7);
-  G.dirt(ctx, 0, -5, 51, 5, seed + 2, 0.55);
+  within(ctx, [[0, -1.6, 51, 1.6]], () => G.dirt(ctx, 0, -5, 51, 5, seed + 2, 0.55));
   if (!simple()) for (const [x, w] of [[1, 3], [16, 4], [30, 2.4], [42, 3]] as Pt[]) flat(ctx, x, -0.9, w, 0.9, "g1");
 };
 
@@ -659,7 +680,7 @@ const smoulderingRemains: EnvAsset = {
   box: [-4, -20, 54, 0],
   anim: true,
   draw(ctx, state, t) {
-    G.scorch(ctx, [[0, 0], [6, -3], [24, -5], [44, -3], [51, 0]], 2320);
+    G.scorch(ctx, [[0, 0], [6, -0.8], [24, -1.2], [44, -0.8], [51, 0]], 2320);
     shadow(ctx, 25, 51, 0.5);
     skeleton(ctx, 2321);
     if (state === 0) {
