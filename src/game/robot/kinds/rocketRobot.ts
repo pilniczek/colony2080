@@ -6,7 +6,7 @@ import { P } from "../../env/paint";
 import { createRigs, type HeroLook } from "../../hero/look";
 import { KIND_TUNING } from "../../level/enemy";
 import { holdPoses } from "../gun";
-import { addHooks, backToBody, paintHook, rigKeys, stanceShot, type EnemyKind } from "../kinds";
+import { addHooks, backToBody, paintHook, rigKeys, stanceShot, type EnemyKind, type KindWeapon } from "../kinds";
 
 const { box, poly, flat, disc, shape } = P;
 
@@ -23,6 +23,7 @@ const DROP = 48;
 const { kneelMs, fireMs, reloadMs, emptyMs } = KIND_TUNING.rocketRobot!.rocket!;
 const SHOT = { settle: kneelMs / 1000, fire: fireMs / 1000, reload: reloadMs / 1000, empty: emptyMs / 1000 };
 const LAUNCH: Pt = [566, 62];
+const LYING = { x: 337, y: 136 };
 const KNEEL = { body: 0, hipNear: -76, kneeNear: 84, ankleNear: 0, hipFar: 12, kneeFar: 92, ankleFar: -80 };
 const GRIP = { near: [394, 112] as Pt, far: [478, 106] as Pt };
 const REACH: [[number, number], [number, number]] = [[-170, 40], [-160, 30]];
@@ -93,12 +94,19 @@ export const rocketRobot = (): EnemyKind => {
       lineW,
       (ctx) => {
         rack(ctx);
-        if (look.gun !== "hand") return;
+        if (look.gun !== "hand" && look.gun !== "slung") return;
         ctx.translate(0, DROP);
         launcher(ctx, fire === null || fire < SHOT.fire || (fire - SHOT.fire) % SHOT.reload > SHOT.empty);
       },
       back,
     ),
   });
-  return { palette, rigs, hold, hooks, launch: apply(inHand, LAUNCH), clips: stanceShot(KNEEL, SHOT.settle) };
+  const weapon: KindWeapon = {
+    draw: (ctx, { palette: pal = palette, lineW = 1 } = {}) => paintHook(lineW, (c) => {
+      c.translate(-LYING.x, -LYING.y);
+      launcher(c, true);
+    })(ctx, pal),
+    slung: () => {},
+  };
+  return { palette, rigs, hold, hooks, weapon, launch: apply(inHand, LAUNCH), clips: stanceShot(KNEEL, SHOT.settle) };
 };

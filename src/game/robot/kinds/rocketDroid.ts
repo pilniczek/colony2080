@@ -77,6 +77,7 @@ const rack = (ctx: CanvasRenderingContext2D): void => {
 export const rocketDroid = (): EnemyKind => {
   const rigs = createRigs(true, true);
   return {
+    weapon: designator,
     palette: DROID_PALETTE,
     rigs,
     hold: holdPoses(rigs.side, rigs.front, CARRY, toHook(DESIGNATOR_SUPPORT)),

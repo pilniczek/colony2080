@@ -126,5 +126,5 @@ export const greyTrooper = (): EnemyKind => {
       );
     return out;
   };
-  return { palette, rigs, hold, hooks };
+  return { palette, rigs, hold, hooks, weapon: rifle };
 };

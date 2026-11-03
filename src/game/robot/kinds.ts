@@ -8,7 +8,7 @@ import type { ClipSet } from "../hero/config";
 import { createRigs, type HeroLook, type Rigs } from "../hero/look";
 import { STANCE_HOLD } from "../level/enemy";
 import { holdPoses, type HoldPoses } from "./gun";
-import { MUZZLE_IN_HOOK } from "./weaponModel";
+import { MUZZLE_IN_HOOK, type WeaponModel } from "./weaponModel";
 import { ROBOT } from "./xbot";
 import { caveTrooper } from "./kinds/caveTrooper";
 import { greyTrooper } from "./kinds/greyTrooper";
@@ -25,7 +25,10 @@ export interface EnemyKind {
   clips?: ClipSet;
   hooks?: (look: HeroLook, lineW: number, fire: number | null) => Record<string, HookDraw>;
   dying?: Dying;
+  weapon?: KindWeapon;
 }
+
+export type KindWeapon = Pick<WeaponModel, "draw" | "slung">;
 
 export interface Dying {
   pose: Record<string, number>;

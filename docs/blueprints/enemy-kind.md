@@ -42,6 +42,7 @@ flowchart LR
 - `clips` - hero clip overrides; `stanceShot(stance, settle)` makes a `shoot` clip that settles into a kneel or brace and gets up from `STANCE_HOLD`.
 - `laser` - hand-hook point; a red beam to the hero while it attacks.
 - `dying` - pose, `back` and `up` cells, `seconds`: replaces the pose while it explodes and flings it back and up; no scrap left.
+- `weapon` - the kind's own weapon (`draw` lying, `slung` on the back), used instead of the gun whenever the look drops or slings it; every humanoid kind but the walker must have one (`kinds.test.ts`).
 - `launch` - hand-hook point a rocket leaves from (missiles leave from their config `muzzle` cells instead).
 
 ## Rocket kinds

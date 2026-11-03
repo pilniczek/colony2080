@@ -118,6 +118,7 @@ export const caveTrooper = (): EnemyKind => {
   addHooks(rigs.side, { head: ["helmet"], arm: ["pauldron"], armFar: ["pauldronFar"], fore: ["vambrace"], foreFar: ["vambraceFar"] });
   const deathHold = holdPoses(rigs.side, rigs.front, DEATH_ARMS, toHook(SUPPORT));
   return {
+    weapon: rifle,
     palette: PALETTE,
     rigs,
     hold: holdPoses(rigs.side, rigs.front, READY, toHook(SUPPORT)),

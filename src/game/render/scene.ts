@@ -16,7 +16,7 @@ import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
-import type { Dying, EnemyKind } from "../robot/kinds";
+import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
 import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
@@ -139,7 +139,7 @@ function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, kind: EnemyKind, sc
   if (alive) {
     if (feetSeen(f.world.fog, enemy.body)) shadow(f, enemy.body, look);
     const flash = !!kind.muzzle && firing(enemy.body, fireRate);
-    heroFigure(f, body, pose, kind.rigs, scale, flash, kind.palette, kind.hooks?.(pose, f.lineW, fireOf(enemy.body)), kind.muzzle);
+    heroFigure(f, body, pose, kind.rigs, scale, flash, kind.palette, kind.hooks?.(pose, f.lineW, fireOf(enemy.body)), kind.muzzle, kind.weapon);
   } else if (!kind.dying) scrap(f, enemy.body);
   if (age !== null) blast(f, body, age);
   return alive && age === null ? laserFrom(f, enemy.body, look, kind, scale) : null;
@@ -165,13 +165,13 @@ function lasers(f: Frame, from: Pt[], hero: Hero, height: number): void {
   ctx.restore();
 }
 
-function droppedGun(f: Frame, hero: Hero, look: HeroLook, scale: number, palette: Palette): void {
+function droppedGun(f: Frame, hero: Hero, look: HeroLook, scale: number, palette: Palette, weapon: KindWeapon): void {
   const { ctx, cell, unit, lineW } = f;
   const ahead = DROPPED_GUN.ahead - DROPPED_GUN.slide * look.gunSlide;
   ctx.save();
   ctx.translate(hero.x * cell + hero.facing * ahead * unit, hero.y * cell - DROPPED_GUN.up * unit);
   ctx.scale(scale * hero.facing, scale);
-  MODELS[look.hand].draw(ctx, { palette, lineW, simple: true });
+  weapon.draw(ctx, { palette, lineW, simple: true });
   ctx.restore();
 }
 
@@ -230,14 +230,15 @@ function heroFigure(
   base: Palette = ROBOT.palette,
   hooks: Record<string, HookDraw> = weaponHooks(look, f.lineW),
   muzzle: Pt = MUZZLE_IN_HOOK,
+  weapon: KindWeapon = MODELS[look.hand],
 ): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(base, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : base;
-  if (look.gun === "dropped") droppedGun(f, hero, look, scale, palette);
+  if (look.gun === "dropped") droppedGun(f, hero, look, scale, palette, weapon);
   ctx.save();
   toRigSpace(ctx, hero, look, cell, scale);
   drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
-  if (look.gun === "slung") MODELS[look.hand].slung(ctx, palette, { lineW, simple: true });
+  if (look.gun === "slung") weapon.slung(ctx, palette, { lineW, simple: true });
   if (flash) muzzleFlash(ctx, look, rigs, muzzle);
   if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();
