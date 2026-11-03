@@ -33,6 +33,7 @@ export interface Prop {
   art?: { dx?: number; dy?: number; top?: number };
   state?: number;
   solidStates?: number[];
+  gapStates?: number[];
   seeThrough?: boolean;
   cells?: { col: number; row: number; w: number; h: number };
   cover?: Cover;

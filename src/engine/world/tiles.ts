@@ -4,6 +4,7 @@ const FLOOR = 4;
 const LADDER = 8;
 const BLOCKED = 16;
 const SEE_THROUGH = 32;
+const GAP = 64;
 
 const TILE_FLAGS: Record<string, number> = { "#": SOLID | WALL, "|": SOLID, "=": FLOOR, H: LADDER };
 
@@ -56,6 +57,15 @@ export class TileGrid {
     this.changes++;
   }
 
+  gap(col: number, row: number, on: boolean): void {
+    if (col < 0 || col >= this.width || row < 0 || row >= this.height) return;
+    const i = row * this.width + col;
+    const next = on ? this.flags[i]! | GAP : this.flags[i]! & ~GAP;
+    if (next === this.flags[i]) return;
+    this.flags[i] = next;
+    this.changes++;
+  }
+
   blocks(): Uint8Array {
     return this.flags.slice();
   }
@@ -66,7 +76,7 @@ export class TileGrid {
   }
 
   clearBlocks(): void {
-    for (let i = 0; i < this.flags.length; i++) this.flags[i]! &= ~(BLOCKED | SEE_THROUGH);
+    for (let i = 0; i < this.flags.length; i++) this.flags[i]! &= ~(BLOCKED | SEE_THROUGH | GAP);
     this.changes++;
   }
 
@@ -83,7 +93,7 @@ export class TileGrid {
   }
 
   floor(col: number, row: number): boolean {
-    return (this.flagsAt(col, row) & FLOOR) !== 0;
+    return (this.flagsAt(col, row) & (FLOOR | GAP)) === FLOOR;
   }
 
   oneWay(col: number, row: number): boolean {

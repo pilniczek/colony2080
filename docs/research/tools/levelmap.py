@@ -91,12 +91,13 @@ EXTRAS = {
             "(bedrock under floors 50, 59 and 68 and east of the floor 41 to 59 masses) and the lattice slot in the col 87-95 mass, leaving the one-row strips under the floors open; "
             "every wall column under a floor runs up to that floor, filling the one to three row gaps over the original masses and stand-row walls (map composition blueprint); "
             "every lift shaft is open down to its bottom stop, whose floor alone stays (no floor tile in the shaft at the top stop, the deck stands there); "
-            "the guard post code wall (col 52), the electric barrier (col 99) and the barricade post (col 22) are open cells: world.json gate props block them while a task keeps them shut (the bridge blocker shares col 52 while the power is off); "
+            "the guard post code wall (col 52), the electric barrier (col 99) and the barricade post (col 22) are open cells: world.json gate props block them while a task keeps them shut; the power bridge planks (cols 45-56, row 41) stay one-way floor: the powerBridge gate prop opens a gap in them while the power is off (gapStates), so the hero falls into the bridgeGap hazard as in the original, which covers the whole gap (cols 45-56) and the 4 rows under it (hazardRects; the layout zone covers only cols 47-56 of the stand row, so a hero stepping off the gap edge would land on floor 50 alive; user: death by fall); "
         )
         + ZONES_NOTE,
         "fallDeathCells": None,
         "shaftBottomOnly": True,
         "hazardZones": {0: ("bridgeGap", "death")},
+        "hazardRects": {"bridgeGap": {"col": 45, "row": 41, "w": 12, "h": 4}},
         "teleportZones": {1: "padUp", 2: "padDown", 3: "sourceTeleport", 4: "targetTeleport"},
         "teleportFlags": {"sourceTeleport": "flag:teleportLinked", "targetTeleport": "flag:teleportLinked"},
         "variants": {"powerOff": "M22", "powerOn": "M23", "barricadeGone": "M24"},
@@ -487,7 +488,7 @@ def damage_rates(spec):
 def hazards(zones, cfg):
     out = []
     for index, (name, kind) in cfg["hazardZones"].items():
-        hazard = {"id": name, "kind": kind, **zone_rect(zones[index]["engine"])}
+        hazard = {"id": name, "kind": kind, **zone_rect(zones[index]["engine"]), **cfg.get("hazardRects", {}).get(name, {})}
         if kind == "damage":
             hazard.update(damage_rates(cfg["damage"][name]))
         out.append(hazard)

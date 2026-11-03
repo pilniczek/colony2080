@@ -6,6 +6,7 @@ import { loadMesto } from "./mesto";
 import { loadMission } from "./missions";
 import { route, type Ride } from "./reach";
 import { onGround, pickUp, showItem, type Prop, type SandboxWorld } from "./sandboxLevel";
+import type { ItemId } from "../items";
 import { runUse } from "./tasks";
 
 const cfg = loadMovement(movementJson);
@@ -40,12 +41,12 @@ const VESNICE: Step[] = [
   { pick: "toaster" },
   { shoot: "bridgeGuard" },
   { pick: "walkieTalkie" },
-  { use: "bridgeGuardPost", with: "walkieTalkie" },
   { use: "projectileCrate" },
   { use: "electricCabinet", with: "smallKey" },
   { use: "brokenTeleport" },
   { use: "targetTeleport", with: "navCircuit" },
   { use: "fuseBox", with: "fuse" },
+  { use: "bridgeGuardPost", with: "walkieTalkie" },
   { pick: "dynamite" },
   { pick: "detonator" },
   { use: "cannon", with: "projectile" },
@@ -130,13 +131,35 @@ describe("vesnice route", () => {
     walkThrough(loadMission("vesnice"), VESNICE);
   });
 
-  it("keeps the fuse box shut until the damaged teleport works, so the barrier never locks the hero out", () => {
+  it("fits the fuse before the teleport repair as in the original, linking the teleports only once both are done", () => {
+    for (const fuseFirst of [true, false]) {
+      const world = loadMission("vesnice");
+      const prop = (id: string) => world.props.find((p) => p.id === id)!;
+      runUse(world, prop("fuseBox"));
+      pickUp(world, "fuse");
+      pickUp(world, "navCircuit");
+      const steps: [string, ItemId][] = [["fuseBox", "fuse"], ["targetTeleport", "navCircuit"]];
+      for (const [id, item] of fuseFirst ? steps : steps.reverse()) {
+        expect(world.flags.has("flag:teleportLinked"), `${id} before`).toBe(false);
+        showItem(world, item);
+        runUse(world, prop(id));
+      }
+      expect([...world.flags].filter((f) => ["flag:powerOn", "flag:teleportRepaired", "flag:teleportLinked"].includes(f)).sort()).toEqual(["flag:powerOn", "flag:teleportLinked", "flag:teleportRepaired"]);
+      expect(world.inventory.items).not.toContain("fuse");
+      expect(world.inventory.items).not.toContain("navCircuit");
+      for (const id of ["fuseBox", "targetTeleport"]) {
+        runUse(world, prop(id));
+        expect(world.subtitle?.text, id).toBe("Nothing more to do here.");
+      }
+    }
+  });
+
+  it("opens the bridge gap while the power is off, so the hero falls into the bridgeGap hazard", () => {
     const world = loadMission("vesnice");
-    const box = world.props.find((p) => p.id === "fuseBox")!;
-    runUse(world, box);
-    pickUp(world, "fuse");
-    runUse(world, box);
-    expect(world.flags.has("flag:powerOn")).toBe(false);
-    expect(world.subtitle?.text).toBe(world.tasks.find((t) => t.id === "restorePower")!.hint);
+    expect(world.grid.oneWay(50, 41)).toBe(true);
+    runUse(world, world.props.find((p) => p.id === "fuseBox")!);
+    for (let col = 45; col <= 56; col++) expect(world.grid.oneWay(col, 41), `${col}`).toBe(false);
+    expect(world.grid.oneWay(44, 41)).toBe(true);
+    expect(world.hazards.find((h) => h.id === "bridgeGap")).toMatchObject({ kind: "death", row: 41 });
   });
 });

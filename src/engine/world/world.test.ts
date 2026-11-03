@@ -62,6 +62,17 @@ describe("TileGrid", () => {
     expect(g.opaque(1, 0)).toBe(true);
   });
 
+  it("opens a gap in a one-way floor until cleared", () => {
+    const g = new TileGrid(["===", "..."]);
+    const start = g.version;
+    g.gap(1, 0, true);
+    g.gap(1, 0, true);
+    expect(g.version).toBe(start + 1);
+    expect([g.oneWay(0, 0), g.oneWay(1, 0), g.floor(1, 0), g.at(1, 0)]).toEqual([true, false, false, "="]);
+    g.clearBlocks();
+    expect(g.oneWay(1, 0)).toBe(true);
+  });
+
   it("counts a version only when blocks change", () => {
     const g = new TileGrid(["...", "..."]);
     const start = g.version;

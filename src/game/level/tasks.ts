@@ -115,10 +115,15 @@ export function hintFor(prop: Prop, world: SandboxWorld): string {
 export function applyBlocks(world: SandboxWorld): void {
   world.grid.clearBlocks();
   for (const prop of world.props) {
-    const { cells, solidStates } = prop;
-    if (!cells || !solidStates?.includes(prop.state ?? 0)) continue;
+    const { cells, solidStates, gapStates } = prop;
+    const state = prop.state ?? 0;
+    const solid = solidStates?.includes(state);
+    if (!cells || !(solid || gapStates?.includes(state))) continue;
     for (let row = cells.row; row < cells.row + cells.h; row++) {
-      for (let col = cells.col; col < cells.col + cells.w; col++) world.grid.block(col, row, true, prop.seeThrough);
+      for (let col = cells.col; col < cells.col + cells.w; col++) {
+        if (solid) world.grid.block(col, row, true, prop.seeThrough);
+        else world.grid.gap(col, row, true);
+      }
     }
   }
 }

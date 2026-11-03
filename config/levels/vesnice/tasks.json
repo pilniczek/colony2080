@@ -1,12 +1,14 @@
 {
   "status": "draft",
-  "source": "docs/research/reports/14-level2-layout.md Tasks and Map variants; the map variants M22 to M24 are prop states: smashed fuses turn the barrier (col 99) off and pull the bridge (col 52 blocker), the fitted fuse turns both back on; the fuse fits only once the damaged teleport is repaired, since the barrier comes back with the power and the teleports are then the only way west (the original soft-locks there)",
+  "source": "docs/research/reports/14-level2-layout.md Tasks and Map variants; the map variants M22 to M24 are prop states: smashed fuses turn the barrier (col 99) off and pull the bridge (col 52 blocker), the fitted fuse turns both back on; the fuse fits as soon as the hero has it, as in the original (fitted before the teleport repair, the barrier comes back and locks the hero east: the original soft-lock, kept, user); the teleport link needs both the power and the repaired teleport, so restorePower and repairTeleport each come twice under one id: the first entry runs when the other part is already done and links the teleports, the second runs alone; tasks sharing an id close together",
   "tasks": [
     { "id": "takeSmallKey", "object": "smoulderingRemains", "requires": [], "gives": ["item:smallKey"], "state": 1, "subtitle": "You found a small key in the smouldering remains." },
     { "id": "breakFuses", "object": "fuseBox", "requires": [], "gives": ["flag:powerOff"], "state": 1, "sets": { "energyBarrier": 1, "powerBridge": 1, "sourceTeleport": 1 }, "subtitle": "You smashed the fuses. The power plant is down." },
-    { "id": "restorePower", "object": "fuseBox", "requires": ["item:fuse", "flag:powerOff", "flag:teleportRepaired"], "gives": ["flag:powerOn", "flag:teleportLinked"], "state": 2, "sets": { "energyBarrier": 0, "powerBridge": 0, "sourceTeleport": 2 }, "hint": "The fuses are smashed. Repair the damaged teleport first, the power brings the barrier back.", "subtitle": "You fitted the fuse. The power plant runs again." },
+    { "id": "restorePower", "object": "fuseBox", "requires": ["item:fuse", "flag:powerOff", "flag:teleportRepaired"], "gives": ["flag:powerOn", "flag:teleportLinked"], "state": 2, "sets": { "energyBarrier": 0, "powerBridge": 0, "sourceTeleport": 2 }, "hint": "The fuses are smashed. The power plant is down.", "subtitle": "You fitted the fuse. The power plant runs again." },
+    { "id": "restorePower", "object": "fuseBox", "requires": ["item:fuse", "flag:powerOff"], "gives": ["flag:powerOn"], "state": 2, "sets": { "energyBarrier": 0, "powerBridge": 0, "sourceTeleport": 2 }, "hint": "The fuses are smashed. The power plant is down.", "subtitle": "You fitted the fuse. The power plant runs again." },
     { "id": "takeFuse", "object": "electricCabinet", "requires": ["item:smallKey"], "gives": ["item:fuse", "flag:cabinetOpen"], "state": 1, "hint": "The electric cabinet is locked.", "subtitle": "You unlocked the cabinet and took a fuse." },
     { "id": "takeNavCircuit", "object": "brokenTeleport", "requires": [], "gives": ["item:navCircuit"], "state": 1, "subtitle": "You took an undamaged navigation circuit from the wreck." },
+    { "id": "repairTeleport", "object": "targetTeleport", "requires": ["item:navCircuit", "flag:powerOn"], "gives": ["flag:teleportRepaired", "flag:teleportLinked"], "state": 1, "hint": "This teleport is damaged. A part of it is missing.", "subtitle": "You repaired the damaged teleport." },
     { "id": "repairTeleport", "object": "targetTeleport", "requires": ["item:navCircuit"], "gives": ["flag:teleportRepaired"], "state": 1, "hint": "This teleport is damaged. A part of it is missing.", "subtitle": "You repaired the damaged teleport." },
     { "id": "takeProjectile", "object": "projectileCrate", "requires": [], "gives": ["item:projectile"], "state": 1, "subtitle": "Inside the crate you found a cannon projectile." },
     { "id": "callGuardsAway", "object": "bridgeGuardPost", "requires": ["item:walkieTalkie"], "gives": ["flag:guardsGone"], "state": 1, "hint": "You can't go on. There is a guard post on the other side of the bridge.", "subtitle": "You called the guards away with the walkie-talkie." },
@@ -18,7 +20,7 @@
     { "text": "Find a way out of the village.", "after": [], "until": "flag:levelComplete" },
     { "text": "Find a way to open the electric cabinet.", "after": ["flag:tried:electricCabinet"], "until": "flag:cabinetOpen" },
     { "text": "Get the power plant running again.", "after": ["flag:powerOff"], "until": "flag:powerOn" },
-    { "text": "Repair the damaged teleport.", "after": [], "any": ["flag:tried:targetTeleport", "flag:tried:fuseBox"], "until": "flag:teleportRepaired" },
+    { "text": "Repair the damaged teleport.", "after": [], "any": ["flag:tried:targetTeleport"], "until": "flag:teleportRepaired" },
     { "text": "Get past the guard post at the bridge.", "after": ["flag:tried:bridgeGuardPost"], "until": "flag:guardsGone" },
     { "text": "Find ammunition for the cannon.", "after": ["flag:tried:cannon"], "until": "flag:barricadeGone" },
     { "text": "Break through the wall.", "after": ["flag:tried:dynamiteWall"], "until": "flag:levelComplete" }
