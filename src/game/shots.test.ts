@@ -572,6 +572,34 @@ describe("toaster fireball", () => {
     expect(aim(g).end).toBeCloseTo(29, 9);
   });
 
+  it("lets a fireball finish its flight after fire is released", () => {
+    const g = toaster([7.5]);
+    ticks(g, 1);
+    g.hero.fireTime = null;
+    const tick = 1 / cfg.blaster.tickHz;
+    const frames: number[] = [];
+    for (let i = 0; i < 4; i++) {
+      fireBeam(g.world, g.hero, [], clips, cfg, tick);
+      frames.push(g.world.beam?.cycle ?? -1);
+    }
+    expect(frames).toEqual([2, -1, -1, -1]);
+    expect(g.world.enemies[0]!.body.energy).toBe(7 - cfg.toaster.damage);
+  });
+
+  it("ends a missed flight at the cycle end after fire is released", () => {
+    const g = toaster();
+    ticks(g, 2);
+    g.hero.fireTime = null;
+    const tick = 1 / cfg.blaster.tickHz;
+    const frames: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      fireBeam(g.world, g.hero, [], clips, cfg, tick);
+      frames.push(g.world.beam?.cycle ?? -1);
+    }
+    expect(frames).toEqual([3, 4, 5, 6, -1, -1]);
+    expect(g.hero.blaster).toBe(cfg.toaster.ammo - 1);
+  });
+
   it("gives its own ammo on pickup", () => {
     const g = toaster();
     expect(bonusAmmo(g.world, cfg)).toBe(250);

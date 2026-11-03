@@ -80,6 +80,7 @@ export interface Beam {
   facing: 1 | -1;
   tick: number;
   cycle?: number;
+  clock?: number;
 }
 
 export interface Inventory {

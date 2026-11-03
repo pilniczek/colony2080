@@ -251,11 +251,12 @@ function toast(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig
   return hit;
 }
 
-function fireToaster(world: SandboxWorld, h: Hero, ticks: number, clips: ClipSet, cfg: MovementConfig): void {
+function fireToaster(world: SandboxWorld, h: Hero, ticks: number, clips: ClipSet, cfg: MovementConfig, clock = 0): void {
   const { cycle, hitFrame, ammoFrame } = cfg.toaster;
   let frame = world.beam?.cycle ?? 0;
   let drawn = world.beam?.tick ?? 0;
   let line = toasterLine(world, h, clips, cfg);
+  const released = h.fireTime === null;
   for (let i = 0; i < ticks; i++) {
     if (frame === ammoFrame) h.blaster = Math.max(0, (h.blaster ?? 0) - 1);
     frame = (frame + 1) % cycle;
@@ -265,13 +266,29 @@ function fireToaster(world: SandboxWorld, h: Hero, ticks: number, clips: ClipSet
       frame = 0;
       line = toasterLine(world, h, clips, cfg);
     }
+    if (released && frame === 0) {
+      world.beam = null;
+      return;
+    }
   }
   const { x, y, end } = line;
-  world.beam = { x, y, end, facing: h.facing, tick: drawn, cycle: frame };
+  world.beam = { x, y, end, facing: h.facing, tick: drawn, cycle: frame, clock };
 }
 
-export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clips: ClipSet, cfg: MovementConfig): void {
+function flightTicks(world: SandboxWorld, dt: number, cfg: MovementConfig): { ticks: number; clock: number } {
+  const t = (world.beam?.clock ?? 0) + dt * cfg.blaster.tickHz;
+  const ticks = Math.floor(t + BEAM_EPS);
+  return { ticks, clock: Math.max(0, t - ticks) };
+}
+
+const inFlight = (world: SandboxWorld, h: Hero): boolean => world.bonus === "toaster" && h.weapon === "blaster" && !!world.beam?.cycle;
+
+export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clips: ClipSet, cfg: MovementConfig, dt = 0): void {
   const ticks = events.filter((e) => e.kind === "beam").length;
+  if (!ticks && h.fireTime === null && inFlight(world, h)) {
+    const flight = flightTicks(world, dt, cfg);
+    return fireToaster(world, h, flight.ticks, clips, cfg, flight.clock);
+  }
   if (!ticks && (h.weapon !== "blaster" || h.fireTime === null)) {
     world.beam = null;
     world.beamHits.clear();

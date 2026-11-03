@@ -59,7 +59,7 @@ export function stepWorld(
     touchFilms(world, hero, cfg);
   }
   fireShots(world, hero, events, clips, cfg);
-  fireBeam(world, hero, events, clips, cfg);
+  fireBeam(world, hero, events, clips, cfg, dt);
   landPunches(world, hero, events, cfg);
   worldSounds(world, hero, events, dt);
   if (events.some((e) => e.kind === "respawned")) resetWorld(world, cfg);
