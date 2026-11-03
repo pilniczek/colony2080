@@ -28,6 +28,10 @@ window.ORIGINALS = {
       ["Beam, 6 frames (game data)", "video/frames-best/GRA_LEV1_f008_eblaster_beam_6frames.png"],
       ["Beam hits a droid", "video/frames-best/L1_KkPeK_t1304_eblaster_beam_hits_droid.png"],
       ["HUD top bar, slot 3", "video/frames-best/GRA_DESKA3_hud_top_with_eblaster_slot3.png"]
+    ],
+    toaster: [
+      ["Shot, 6 frames, fireball 1 tile per tick (game data, LEV2.GRA f8)", "video/frames-best/GRA_LEV2_f008_toaster_shot_6frames.png"],
+      ["HUD slot 3, level 2 (DESKA4.GRA)", "video/frames-best/GRA_DESKA4_hud_slot3_toaster.png"]
     ]
   },
   enemies: {

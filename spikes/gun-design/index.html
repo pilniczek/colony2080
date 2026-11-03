@@ -36,7 +36,7 @@
 <body>
 <header>
   <h1>Weapon design sheet</h1>
-  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button></div>
+  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button><button data-weapon="enemies">Enemy weapons</button></div>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
 </header>
 <main data-for="fists gun blaster toaster">
@@ -52,6 +52,15 @@
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
 </main>
+<section data-for="gun">
+  <h2>Fire (12 flashes per s, hit spark 9 cells out)</h2>
+  <main>
+    <figure class="full"><figcaption>Full size: facing right and left, standing and ducking, muzzle flash and wall hit spark</figcaption><canvas id="fireFull" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <main class="game">
+    <figure><figcaption>Game size, game LOD hero firing the gun</figcaption><canvas id="fireGame" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+</section>
 <section data-for="blaster">
   <h2>Beam (9 cells, 32 ticks per s)</h2>
   <main>
@@ -74,6 +83,15 @@
   </main>
 </section>
 <section data-for="toaster">
+  <h2>Shot (fireball, one per 7 ticks at 32 ticks per s, 1 cell per tick, random slope per shot)</h2>
+  <main>
+    <figure class="full"><figcaption>Full size: facing right and left, standing and ducking</figcaption><canvas id="shotFull" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <main class="game">
+    <figure><figcaption>Game size, game LOD hero firing the toaster</figcaption><canvas id="shotGame" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <h2>Shot frames, 6 per cycle (one shot with its random slope)</h2>
+  <main id="shotFrames"></main>
   <h2>Ground pickup (toaster asset, mission 2)</h2>
   <main class="game">
     <figure><figcaption>Full size (x 12)</figcaption><canvas id="toasterFull" data-w="30" data-h="12" data-scale="12"></canvas></figure>
@@ -84,6 +102,12 @@
     <figure><figcaption>Selected</figcaption><div id="toasterLit"></div></figure>
     <figure><figcaption>Not selected</figcaption><div id="toasterDim"></div></figure>
   </main>
+</section>
+<section data-for="enemies">
+  <h2>Enemy weapons firing (full size)</h2>
+  <main class="game" id="enemyFull"></main>
+  <h2>Enemy weapons firing (game size, game LOD)</h2>
+  <main class="game" id="enemyGame"></main>
 </section>
 <!-- originals -->
 <section data-for="gun">
@@ -113,6 +137,11 @@
 <script src="../shared/env-machines.js"></script>
 <script src="../shared/env-vesnice.js"></script>
 <script src="../shared/toaster.js"></script>
+<script src="../shared/gait.js"></script>
+<script src="../shared/enemies.js"></script>
+<script src="../shared/enemies-vesnice.js"></script>
+<script src="../shared/enemies-jungle.js"></script>
+<script src="../shared/enemies-jeskyne.js"></script>
 <script>
 const { buildSide, buildFront, buildBack, render, locate, FOOT_Y, LEVELS } = window.XBOT;
 const roots = {
@@ -145,7 +174,7 @@ const ROW_H = 780;
 const opts = { lines: true };
 let WEAPON = "gun";
 try { WEAPON = localStorage.getItem("weaponSheet") || "gun"; } catch {}
-if (!MODELS[WEAPON] && WEAPON !== "fists") WEAPON = "gun";
+if (!MODELS[WEAPON] && WEAPON !== "fists" && WEAPON !== "enemies") WEAPON = "gun";
 
 const model = () => MODELS[WEAPON];
 const held = (hookName, lineW, simple, barrel) => model() ? { [hookName]: c => model().hook(c, { lineW, simple, barrel }) } : {};
@@ -178,6 +207,61 @@ function beamRow(ctx, root, pose, simple, lineW, facing, t) {
   ctx.scale(1 / GAME_PX, 1 / GAME_PX);
   EBLASTER.beam(ctx, BEAM_LEN, EBLASTER.frameAt(t), tick);
   ctx.restore();
+}
+
+const FIRE_RATE = C28_CONFIG.hero?.movement?.fireRate ?? 12;
+const FLASH = { ahead: 20, radius: 40, k: 0.2 };
+const IMPACT = { radius: 35, k: 0.3, life: 0.15 };
+
+function star(ctx, x, y, radius, k) {
+  if (k >= 1) return;
+  ctx.save();
+  ctx.globalAlpha *= 1 - k;
+  ctx.fillStyle = "#ffd76a";
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = (i * 2 * Math.PI) / 10;
+    const r = radius * (i % 2 ? 0.35 : 0.6 + k);
+    ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+  }
+  ctx.fill();
+  ctx.restore();
+}
+
+function fireEffect(ctx, t) {
+  if (Math.floor(t * FIRE_RATE) % 2 === 0) star(ctx, FLASH.ahead, 0, FLASH.radius, FLASH.k);
+  const age = t % (2 / FIRE_RATE);
+  if (age < IMPACT.life) star(ctx, BEAM_LEN * GAME_PX, 0, IMPACT.radius, IMPACT.k + (1 - IMPACT.k) * (age / IMPACT.life));
+}
+
+function shotEffect(ctx, t, simple) {
+  ctx.scale(1 / GAME_PX, 1 / GAME_PX);
+  TOASTER.shot(ctx, BEAM_LEN, Math.floor(t * EBLASTER.TICK_HZ), simple);
+}
+
+function firingRow(ctx, root, pose, simple, lineW, facing, t, weapon, effect) {
+  ctx.save();
+  if (facing > 0) ctx.translate(SIDE_SHIFT, 0);
+  else { ctx.translate(+ctx.canvas.dataset.w - SIDE_SHIFT, 0); ctx.scale(-1, 1); }
+  ctx.translate(0, footLift(root, pose));
+  render(ctx, root, { pose, lineW, simple, hooks: { hand: c => weapon.hook(c, { lineW, simple }) } });
+  const m = locate(root, "hand", pose).transformPoint(new DOMPoint(...weapon.muzzleInHook));
+  ctx.translate(m.x, m.y);
+  effect(ctx, t, simple);
+  ctx.restore();
+}
+
+function firingRows(ctx, root, h, simple, lineW, t, weapon, effect) {
+  const rows = [[1, carry({}, h)], [-1, carry({}, h)], [1, carry(DUCK, h)], [-1, carry(DUCK, h)]];
+  rows.forEach(([facing, pose], i) => {
+    ctx.save();
+    ctx.translate(0, i * ROW_H);
+    ctx.fillStyle = "#2a3436";
+    ctx.fillRect(0, FOOT_Y, +ctx.canvas.dataset.w, 8);
+    if (effect === fireEffect) ctx.fillRect(facing > 0 ? +ctx.canvas.dataset.w - 60 : 0, 0, 60, ROW_H);
+    firingRow(ctx, root, pose, simple, lineW, facing, t, weapon, effect);
+    ctx.restore();
+  });
 }
 
 function beamRows(ctx, root, h, simple, lineW, t) {
@@ -234,10 +318,67 @@ const VIEWS = {
   groundFull: ctx => ground(ctx, false),
   groundGame: ctx => ground(ctx, true),
   toasterFull: (ctx, lw, t) => ground(ctx, false, "toaster", 2, 11.5, t),
-  toasterGame: (ctx, lw, t) => ground(ctx, true, "toaster", 2, 11.5, t)
+  toasterGame: (ctx, lw, t) => ground(ctx, true, "toaster", 2, 11.5, t),
+  fireFull: (ctx, lw, t) => firingRows(ctx, roots.side, hold, false, lw * 1.4, t, GUN, fireEffect),
+  fireGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, gHold, true, lw * XBOT.GAME_LINE, t, GUN, fireEffect),
+  shotFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.toaster.hold, false, lw * 1.4, t, TOASTER, shotEffect),
+  shotGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.toaster.gHold, true, lw * XBOT.GAME_LINE, t, TOASTER, shotEffect)
 };
 const ANIMATED = new Set(["beamFull", "beamGame"]);
-const TOASTER_VIEWS = new Set(["toasterFull", "toasterGame"]);
+const TOASTER_VIEWS = new Set(["toasterFull", "toasterGame", "shotFull", "shotGame"]);
+const GUN_VIEWS = new Set(["fireFull", "fireGame"]);
+const ENEMY_VIEWS = new Set();
+
+const SHOT_W = BEAM_LEN + 16, SHOT_H = 24;
+const shotFrames = document.getElementById("shotFrames");
+for (let f = 0; f < TOASTER.SHOT.frames; f++) {
+  const fig = document.createElement("figure");
+  fig.innerHTML = `<figcaption>Frame ${f}</figcaption><canvas id="shot${f}" data-w="${SHOT_W}" data-h="${SHOT_H}"></canvas>`;
+  shotFrames.append(fig);
+  VIEWS["shot" + f] = ctx => {
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, SHOT_W, SHOT_H);
+    ctx.translate(4, SHOT_H / 2);
+    TOASTER.shot(ctx, BEAM_LEN, f + 1, false);
+  };
+}
+
+const ENEMY_FIRING = [
+  ["Rocket robot (mission 2): kneels, fires rockets", "ROCKET_ROBOT", "ROCKET_PALETTE"],
+  ["Grey trooper (mission 2): rifle burst, flash and casings", "GREY_TROOPER", "GREY_PALETTE"],
+  ["Rocket droid (mission 3): braces, missile volley", "ROCKET_DROID", "ROCKET_PALETTE"],
+  ["Crawler (mission 3)", "CRAWLER", "CRAWLER_PALETTE"],
+  ["Spider walker (mission 4): twin gun flash", "SPIDER_WALKER", "SPIDER_PALETTE"],
+  ["Pod walker (mission 4): cannon flash", "POD_WALKER", "POD_PALETTE"],
+  ["Cave trooper (mission 4): plasma flash", "CAVE_TROOPER", "CAVE_TROOPER_PALETTE"],
+  ["Flyer (mission 1): side gun", "FLYER", null],
+  ["Acid guard (mission 1): acid spray", "GUARD", null],
+  ["Shoot guard (mission 1): rifle", "TROOPER", null]
+].filter(([, asset]) => ENEMIES[asset]);
+const ENEMY_W = 2400, ENEMY_H = 1100;
+const FIRING_STATE = { FLYER: 1, GUARD: 1, TROOPER: 1 };
+
+function enemyFiring(ctx, lw, t, asset, palette, lod) {
+  ctx.fillStyle = "#2a3436";
+  ctx.fillRect(0, ENEMY_H - 50, ENEMY_W, 8);
+  ctx.save();
+  ctx.translate(1100, ENEMY_H - 50);
+  ctx.scale(1 / GAME_PX, 1 / GAME_PX);
+  const pal = palette && ENEMIES[palette] ? { ...ENV.PALETTE, ...ENEMIES[palette] } : undefined;
+  ENV.draw(ctx, ENEMIES[asset], { state: FIRING_STATE[asset] ?? 2, t, palette: pal, lines: lw, lod });
+  ctx.restore();
+}
+
+for (const [label, asset, palette] of ENEMY_FIRING) {
+  for (const [list, lod, suffix] of [["enemyFull", false, "F"], ["enemyGame", true, "G"]]) {
+    const id = `enemy${asset}${suffix}`;
+    const fig = document.createElement("figure");
+    fig.innerHTML = `<figcaption>${label}</figcaption><canvas id="${id}" data-w="${ENEMY_W}" data-h="${ENEMY_H}"${lod ? "" : ' data-scale="0.25"'}></canvas>`;
+    document.getElementById(list).append(fig);
+    VIEWS[id] = (ctx, lw, t) => enemyFiring(ctx, lw, t, asset, palette, lod);
+    ENEMY_VIEWS.add(id);
+  }
+}
 
 const frames = document.getElementById("frames");
 for (let f = 0; f < EBLASTER.FRAMES; f++) {
@@ -305,6 +446,8 @@ function setWeapon(w) {
 function tick() {
   if (WEAPON === "blaster") paint([...ANIMATED], SPIKE_CLOCK.seconds());
   if (WEAPON === "toaster") paint([...TOASTER_VIEWS], SPIKE_CLOCK.seconds());
+  if (WEAPON === "gun") paint([...GUN_VIEWS], SPIKE_CLOCK.seconds());
+  if (WEAPON === "enemies") paint([...ENEMY_VIEWS], SPIKE_CLOCK.seconds());
   requestAnimationFrame(tick);
 }
 

@@ -80,10 +80,53 @@ const ICON_RECTS = [
   [21.6, -7.6, 1.6, 4, "#dfe5e7"]
 ];
 const n = v => +v.toFixed(2);
-const ICON = { w: n(23.2 * ICON_SCALE), arcEnd: n(23.2 * ICON_SCALE) };
-const icon = x => `<g transform="translate(${x} 15) scale(${ICON_SCALE})" stroke="#202826" stroke-width=".2">${ICON_RECTS.map(([rx, ry, w, h, fill]) => `<rect x="${rx}" y="${ry}" width="${w}" height="${h}" fill="${fill}"${h < 1 ? ' stroke="none"' : ""}/>`).join("")}</g>`;
+const ICON_BALL = { x: 25.4, y: -5.6, layers: [["#c8300c", 2.6, 1.8, 0], ["#f09024", 2, 1.3, 0.2], ["#fce438", 1.4, 0.9, 0.4], ["#fcf0c4", 0.8, 0.45, 0.6]] };
+const ICON = { w: n(23.2 * ICON_SCALE), arcEnd: n((ICON_BALL.x + 2.6) * ICON_SCALE) };
+const iconBall = ICON_BALL.layers.map(([fill, rx, ry, ahead]) => `<ellipse cx="${n(ICON_BALL.x + ahead)}" cy="${ICON_BALL.y}" rx="${rx}" ry="${ry}" fill="${fill}" stroke="none"/>`).join("");
+const icon = x => `<g transform="translate(${x} 15.7) scale(${ICON_SCALE})" stroke="#202826" stroke-width=".2">${ICON_RECTS.map(([rx, ry, w, h, fill]) => `<rect x="${rx}" y="${ry}" width="${w}" height="${h}" fill="${fill}"${h < 1 ? ' stroke="none"' : ""}/>`).join("")}${iconBall}</g>`;
+
+const SHOT = { cycle: 7, step: 24, lead: 12, drift: 8, frames: 6 };
+const BALL = [["#ac2c0c", 7.5, 5, 0], ["#c8300c", 7, 4.4, 0], ["#e86418", 6.4, 3.8, 0.4], ["#f09024", 5.6, 3.2, 0.8], ["#f4b82c", 4.8, 2.6, 1.2], ["#fce438", 3.8, 2, 1.6], ["#fcf0c4", 2.4, 1.1, 2]];
+const TAIL = [["#ac2c0c", 2.4, 1.8], ["#e86418", 1.4, 1]];
+
+function rng(seed) {
+  let s = (seed * 2654435761) >>> 0 || 1;
+  return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+}
+
+function oval(ctx, x, y, rx, ry, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function ball(ctx, x, y, simple) {
+  for (const [color, rx, ry] of TAIL) oval(ctx, x - 10, y - 0.6, rx, ry, color);
+  for (const [color, rx, ry, ahead] of simple ? BALL.filter((_, i) => i % 2 === 0) : BALL) oval(ctx, x + ahead, y, rx, ry, color);
+}
+
+function flash(ctx, simple) {
+  ctx.save();
+  ctx.globalAlpha = 0.55;
+  oval(ctx, 2, 0, 6, 4, "#f09024");
+  ctx.globalAlpha = 1;
+  oval(ctx, 2, 0, simple ? 3 : 2.6, simple ? 2 : 1.6, "#fcf0c4");
+  ctx.restore();
+}
+
+const shotFrame = tick => (tick % SHOT.cycle) - 1;
+const shotDrift = tick => Math.floor(rng(Math.floor(tick / SHOT.cycle) + 1)() * SHOT.drift) - SHOT.drift / 2;
+
+function shot(ctx, length, tick, simple = false) {
+  const f = shotFrame(tick);
+  if (f < 0) return;
+  const x = SHOT.lead + f * SHOT.step;
+  if (f === 0) flash(ctx, simple);
+  if (x <= length) ball(ctx, x, f * shotDrift(tick), simple);
+}
 
 const sized = fn => (ctx, opts = {}) => fn(ctx, { ...opts, barrel: opts.barrel ?? BARREL.length });
 
-window.TOASTER = { ...core, draw: sized(core.draw), hook: sized(core.hook), slung: sized(core.slung), BARREL, MUZZLE, SUPPORT, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT), holdPoses, ICON, icon };
+window.TOASTER = { ...core, draw: sized(core.draw), hook: sized(core.hook), slung: sized(core.slung), BARREL, MUZZLE, SUPPORT, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT), holdPoses, ICON, icon, SHOT, shot, shotFrame, shotDrift };
 })();
