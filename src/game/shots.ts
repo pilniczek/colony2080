@@ -14,6 +14,7 @@ import { live, tick } from "./level/projectile";
 import { flyRocket, launchRocket } from "./level/rockets";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
+import { TOASTER_MUZZLE_IN_HOOK, toasterHolds } from "./robot/toaster";
 import { kindOf } from "./robot/kinds";
 import { cue } from "./sound/cues";
 import { explode } from "./sound/triggers";
@@ -23,12 +24,12 @@ const DEG = Math.PI / 180;
 
 export const SPARK_LIFE = 0.15;
 
-let simRigs: { rigs: Rigs; hold: ReturnType<typeof holdPoses> } | null = null;
+let simRigs: { rigs: Rigs; hold: ReturnType<typeof holdPoses>; toasterHold: ReturnType<typeof holdPoses> } | null = null;
 
 const sim = () => {
   if (!simRigs) {
     const rigs = createRigs(true);
-    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.front) };
+    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.front), toasterHold: toasterHolds(rigs.side, rigs.front) };
   }
   return simRigs;
 };
@@ -43,6 +44,11 @@ export function muzzleInRig(look: HeroLook, rigs: Rigs, local: Pt = MUZZLE_IN_HO
 export function heroMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
   const { rigs, hold } = sim();
   return rigPoint(h, heroLook(h, clips, rigs, hold, cfg), rigs, MUZZLE_IN_HOOK, cfg);
+}
+
+function toasterMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
+  const { rigs, toasterHold } = sim();
+  return rigPoint(h, heroLook(h, clips, rigs, toasterHold, cfg), rigs, TOASTER_MUZZLE_IN_HOOK, cfg);
 }
 
 function rigPoint(h: Hero, look: HeroLook, rigs: Rigs, inHand: Pt, cfg: MovementConfig): Pt {
@@ -184,7 +190,7 @@ interface BeamLine {
 }
 
 function beamLine(world: SandboxWorld, h: Hero, clips: ClipSet, cfg: MovementConfig): BeamLine {
-  const [x, y] = heroMuzzle(h, clips, cfg);
+  const [x, y] = world.bonus === "toaster" ? toasterMuzzle(h, clips, cfg) : heroMuzzle(h, clips, cfg);
   const { ray } = openRay(world, h, y, cfg);
   const end = ahead(h.facing, x, ray.end);
   const prop = nearestProp(world, { ...ray, end }, true);

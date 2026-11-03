@@ -16,6 +16,7 @@ import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
+import { drawToaster, TOASTER_FRONT_BARREL, toasterHook, toasterSlung } from "../robot/toaster";
 import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
 import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
@@ -23,6 +24,7 @@ import { muzzleInRig, SPARK_LIFE } from "../shots";
 import { drawFigure, figureKey } from "./figures";
 import { drawProjectiles } from "./projectiles";
 import { BEAM_FRAMES, drawBeam } from "./beam";
+import { drawToasterShot } from "./toasterShot";
 import { drawEnvironment } from "./environment";
 
 const DEG = Math.PI / 180;
@@ -34,7 +36,9 @@ const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
 const MODELS = {
   gun: { draw: drawGun, hook: gunHook, slung: gunSlung },
   blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
+  toaster: { draw: drawToaster, hook: toasterHook, slung: toasterSlung },
 } satisfies Record<GunModel, unknown>;
+const FRONT_BARRELS: Record<GunModel, number> = { gun: FRONT_BARREL, blaster: FRONT_BARREL, toaster: TOASTER_FRONT_BARREL };
 const LASER = { color: "#ff2a1a", width: 1, glow: 4, glowAlpha: 0.3 };
 const FLYER_HIT = { flash: 0.25, glow: 0.6, steps: 16 };
 
@@ -59,7 +63,8 @@ function beam(f: Frame): void {
   ctx.save();
   ctx.translate(b.x * cell, b.y * cell);
   ctx.scale(b.facing * k, k);
-  drawBeam(ctx, Math.abs(b.end - b.x) * TILE, b.tick % BEAM_FRAMES, b.tick);
+  if (world.bonus === "toaster") drawToasterShot(ctx, Math.abs(b.end - b.x) * TILE, b.tick, true);
+  else drawBeam(ctx, Math.abs(b.end - b.x) * TILE, b.tick % BEAM_FRAMES, b.tick);
   ctx.restore();
 }
 
@@ -218,7 +223,7 @@ function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs, 
 export function weaponHooks(look: HeroLook, lineW: number): Record<string, HookDraw> {
   const front = look.view === "front";
   const hooks: Record<string, HookDraw> = {};
-  if (look.gun === "hand") hooks[front ? "handL" : "hand"] = (c, pal) => MODELS[look.hand].hook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARREL : undefined });
+  if (look.gun === "hand") hooks[front ? "handL" : "hand"] = (c, pal) => MODELS[look.hand].hook(c, pal, { lineW, simple: true, barrel: front ? FRONT_BARRELS[look.hand] : undefined });
   return hooks;
 }
 

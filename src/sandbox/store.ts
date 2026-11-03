@@ -7,6 +7,7 @@ import { loadFog } from "../game/fog";
 import { hudFit, type HudFit } from "../game/hud/layout";
 import { loadClips, loadMovement, type ClipSet, type HeroState, type MovementConfig, type Weapon } from "../game/hero/config";
 import type { ItemId } from "../game/items";
+import type { BonusWeapon } from "../game/level/sandboxLevel";
 import type { MenuState } from "../game/hud/menuKeys";
 import type { Slots } from "../game/save/slots";
 import { loadSoundOn } from "../game/sound/settings";
@@ -24,6 +25,7 @@ export interface SandboxState {
   shields: number;
   ammo: number;
   blaster: number | null;
+  bonus: BonusWeapon;
   item: ItemId | null;
   items: ItemId[];
   quests: string[];
@@ -125,6 +127,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   shields: 0,
   ammo: 0,
   blaster: null,
+  bonus: "blaster",
   item: null,
   items: [],
   quests: [],

@@ -8,10 +8,11 @@ import type { SightSpan } from "../fog";
 import type { Rect } from "../geometry";
 import type { ClipSet, MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
-import { createRigs, heroLook, type Rigs } from "../hero/look";
+import { createRigs, heroLook, type HeroLook, type Rigs } from "../hero/look";
 import type { Enemy } from "../level/enemy";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { holdPoses, type HoldPoses } from "../robot/gun";
+import { toasterHolds } from "../robot/toaster";
 import { kindOf } from "../robot/kinds";
 import { askTiles, mapTiles } from "./environment";
 import { drawFog, seenPath } from "./fog";
@@ -52,6 +53,15 @@ export interface Tune {
 export interface Kit {
   rigs: Rigs;
   hold: HoldPoses;
+  toasterHold: HoldPoses;
+}
+
+export const holdsToaster = (world: SandboxWorld, hero: Hero): boolean => world.bonus === "toaster" && hero.weapon === "blaster";
+
+export function bonusLook(world: SandboxWorld, hero: Hero, look: (hold: HoldPoses) => HeroLook, kit: Pick<Kit, "hold" | "toasterHold">): HeroLook {
+  if (world.bonus !== "toaster") return look(kit.hold);
+  const seen = look(holdsToaster(world, hero) ? kit.toasterHold : kit.hold);
+  return seen.hand === "blaster" ? { ...seen, hand: "toaster" } : seen;
 }
 
 export interface Target {
@@ -63,7 +73,7 @@ export interface Target {
 
 export function createKit(): Kit {
   const rigs = createRigs(true);
-  return { rigs, hold: holdPoses(rigs.side, rigs.front) };
+  return { rigs, hold: holdPoses(rigs.side, rigs.front), toasterHold: toasterHolds(rigs.side, rigs.front) };
 }
 
 function fillBlack({ ctx, w, h }: Target): void {
@@ -104,7 +114,7 @@ const atPoseRate = (body: Hero): Hero => ({
 
 function paintGame(target: Target, world: SandboxWorld, s: GameFrame, kit: Kit, { cfg, clips }: Tune, over?: Over): void {
   const { ctx, gl } = target;
-  const look = heroLook(s.hero, clips, kit.rigs, kit.hold, cfg);
+  const look = bonusLook(world, s.hero, (hold) => heroLook(s.hero, clips, kit.rigs, hold, cfg), kit);
   const enemies = s.enemies.map((enemy) => {
     const kind = kindOf(enemy.kind);
     return { enemy, look: heroLook(atPoseRate(enemy.body), kind.clips ? { ...clips, ...kind.clips } : clips, kind.rigs, kind.hold, cfg), kind };

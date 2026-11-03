@@ -146,6 +146,7 @@ export interface SandboxWorld {
   projectiles: (Rocket | Missile)[];
   beam: Beam | null;
   beamHits: Set<Enemy>;
+  bonus: BonusWeapon;
   enemies: Enemy[];
   flags: Set<string>;
   tasks: Task[];
@@ -160,6 +161,12 @@ export interface SandboxWorld {
   sfx: SoundClock;
   source: SandboxJson;
 }
+
+export type BonusWeapon = "blaster" | "toaster";
+
+export const BONUS_NAMES: Record<BonusWeapon, string> = { blaster: "E-Blaster", toaster: "Toaster" };
+
+const bonusOf = (props: Prop[]): BonusWeapon => (props.some((p) => p.kind === "weapon" && p.asset === "toaster") ? "toaster" : "blaster");
 
 export interface TerrainArt {
   wall: AssetId;
@@ -286,6 +293,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     projectiles: [],
     beam: null,
     beamHits: new Set(),
+    bonus: bonusOf(data.props),
     enemies: data.enemies.map((e) => createEnemy(e, grid, lifts, keepOutOf(data.props))),
     flags: new Set(),
     tasks: data.tasks === undefined ? [] : loadTasks(data.tasks),

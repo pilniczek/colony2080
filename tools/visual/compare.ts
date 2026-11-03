@@ -1,6 +1,9 @@
 import { BEAM_FRAMES, drawBeam } from "../../src/game/render/beam";
 import { blasterIcon } from "../../src/game/hud/blasterIcon";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../../src/game/robot/eblaster";
+import { drawToaster, TOASTER_FRONT_BARREL, toasterHolds, toasterHook, toasterSlung } from "../../src/game/robot/toaster";
+import { drawToasterShot } from "../../src/game/render/toasterShot";
+import { toasterIcon } from "../../src/game/hud/toasterIcon";
 import { barrelFor, drawGun, FRONT_BARREL, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
@@ -53,6 +56,11 @@ interface SpikeEBlaster extends Omit<SpikeGun, "holdPoses"> {
   icon(x: number): string;
 }
 
+interface SpikeToaster extends SpikeGun {
+  shot(ctx: CanvasRenderingContext2D, length: number, tick: number, simple?: boolean): void;
+  icon(x: number): string;
+}
+
 interface SpikeEnvAsset {
   id: string;
   box: [number, number, number, number];
@@ -84,6 +92,7 @@ declare global {
     XBOT: Spike;
     GUN: SpikeGun;
     EBLASTER: SpikeEBlaster;
+    TOASTER: SpikeToaster;
     ENV: SpikeEnv;
     CUTSCENES: Record<CutsceneId, { duration: number; camera: string; render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void }> & {
       securityCam(ctx: CanvasRenderingContext2D, w: number, h: number, t: number, label: string): void;
@@ -113,7 +122,7 @@ const views: [View, Options][] = [
 ];
 
 type Carry = "side" | "front" | "slung";
-type WeaponKind = "gun" | "eblaster";
+type WeaponKind = "gun" | "eblaster" | "toaster";
 
 const carries: [View, Options, Carry][] = [
   ["side", { farLimbs: true, propBehindArm: true }, "side"],
@@ -219,13 +228,17 @@ interface Scene {
 const weaponDraws = {
   gun: { spike: () => window.GUN, hook: gunHook, slung: gunSlung, draw: drawGun },
   eblaster: { spike: () => window.EBLASTER, hook: eblasterHook, slung: eblasterSlung, draw: drawEBlaster },
+  toaster: { spike: () => window.TOASTER, hook: toasterHook, slung: toasterSlung, draw: drawToaster },
 };
+
+const holdsOf = { gun: { spike: () => window.GUN, port: holdPoses, front: FRONT_BARREL }, eblaster: { spike: () => window.GUN, port: holdPoses, front: FRONT_BARREL }, toaster: { spike: () => window.TOASTER, port: toasterHolds, front: TOASTER_FRONT_BARREL } };
 
 const gunScene = (carry: Carry, simple: boolean, kind: WeaponKind = "gun"): Scene => {
   const weapon = weaponDraws[kind];
-  const spikeHold = window.GUN.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
-  const portHold = holdPoses(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }));
-  const barrel = carry === "front" ? FRONT_BARREL : undefined;
+  const holds = holdsOf[kind];
+  const spikeHold = holds.spike().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
+  const portHold = holds.port(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }));
+  const barrel = carry === "front" ? (kind === "toaster" ? spikeHold.FRONT_BARREL : holds.front) : undefined;
   const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => weapon.spike().hook(ctx, { pal, lineW: LINE_W, simple, barrel });
   const portGun: HookDraw = (ctx, pal) => weapon.hook(ctx, pal, { lineW: LINE_W, simple, barrel });
   if (carry === "side")
@@ -309,7 +322,39 @@ const runBeam = (frame: number, seed: number, out: HTMLElement): VisualResult =>
   return report(`beam ${JSON.stringify({ frame, seed })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
 };
 
+const runShot = (tick: number, simple: boolean, out: HTMLElement): VisualResult => {
+  const spike = canvas();
+  const own = canvas();
+  spike.translate(...BEAM_SHIFT);
+  own.translate(...BEAM_SHIFT);
+  window.TOASTER.shot(spike, BEAM_LENGTH, tick, simple);
+  drawToasterShot(own, BEAM_LENGTH, tick, simple);
+  const diff = pixelDiff(spike, own);
+  return report(`toaster shot ${JSON.stringify({ tick, lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
+};
+
 const ICON_XS = [0, 37.5];
+
+const runToasterIcon = (out: HTMLElement): VisualResult => {
+  const differ = ICON_XS.filter((x) => window.TOASTER.icon(x) !== toasterIcon(x));
+  const name = `toaster icon ${JSON.stringify({ xs: ICON_XS })}, differ: ${differ.join(", ") || "none"}`;
+  const box = document.createElement("div");
+  box.className = "case";
+  box.append(name);
+  out.append(box);
+  return { name, mismatches: differ.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: differ.length === 0 };
+};
+
+const runToasterFrontBarrel = (out: HTMLElement): VisualResult => {
+  const spike = window.TOASTER.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true, lod: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true, lod: true })).FRONT_BARREL;
+  const name = `toaster front barrel spike lod ${spike} TOASTER_FRONT_BARREL ${TOASTER_FRONT_BARREL}`;
+  const box = document.createElement("div");
+  box.className = "case";
+  box.append(name);
+  out.append(box);
+  const mismatches = Number(spike !== TOASTER_FRONT_BARREL);
+  return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
+};
 
 const runBlasterIcon = (out: HTMLElement): VisualResult => {
   const differ = ICON_XS.filter((x) => window.EBLASTER.icon(x) !== blasterIcon(x));
@@ -439,6 +484,15 @@ const eblasterCases = [
     lods.map((lod) => (o: HTMLElement) => runCase(`eblaster ${carry} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o, gunScene(carry, lod, "eblaster"))),
   ),
 ];
+const toasterCases = [
+  ...lods.map((lod) => (o: HTMLElement) => runGunAlone(lod, o, "toaster")),
+  ...carries.flatMap(([view, opts, carry]) =>
+    lods.map((lod) => (o: HTMLElement) => runCase(`toaster ${carry} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o, gunScene(carry, lod, "toaster"))),
+  ),
+  ...[1, 2, 3, 6, 9, 13].flatMap((tick) => lods.map((lod) => (o: HTMLElement) => runShot(tick, lod, o))),
+  runToasterIcon,
+  runToasterFrontBarrel,
+];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
 const envStates: Record<string, number[]> = { brickWall: [0, 1], stripLight: [0, 1], tunnelGate: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], acidGuard: [0, 1, 2], flyer: [0, 1], shootGuard: [0, 1, 2], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1], sourceTeleport: [0, 1, 2], targetTeleport: [0, 1], brokenTeleport: [0, 1], fuseBox: [0, 1, 2], electricCabinet: [0, 1], cannon: [0, 1], energyBarrier: [0, 1], fireBarricade: [0, 1], dynamiteWall: [0, 1], powerBridge: [0, 1], bridgeGuardPost: [0, 1], bridgeGuard: [0, 1, 2], smoulderingRemains: [0, 1], smallKey: [0, 1], walkieTalkie: [0, 1], detonator: [0, 1], projectile: [0, 1], fuse: [0, 1], dynamite: [0, 1, 2], navCircuit: [0, 1], toaster: [0, 1], energyPickup: [0, 1], ammoPickup: [0, 1], shieldPickup: [0, 1], projectileCrate: [0, 1], flamethrowerDoor: [0, 1], jeep: [0, 1], cannonTurret: [0, 1], distributionCabinet: [0, 1], waterfall: [0, 1], stonePuzzle: [0, 1], tripwire: [0, 1], mine: [0, 1], towerLift: [0, 1], stalactite: [0, 1, 2], crystal: [0, 1], leverBank: [0, 1, 2], leverDoor: [0, 1, 2, 3], keyDoors: [0, 1, 2], caveCardDoor: [0, 1, 2], airlock: [0, 1, 2], liftLock: [0, 1], keySlots: [0, 1, 2], stoneBlocks: [0, 1, 2], explosiveTank: [0, 1, 2], farPalms: [0, 1], farRuins: [0, 1], rivetWall: [0, 1], plankWall: [0, 1], grassyWalkway: [0, 1], villageHouse: [0, 1], stiltBuilding: [0, 1], powerHouse: [0, 1], latticeMast: [0, 1], warningLamp: [0, 1], junctionBox: [0, 1], rubbleHeap: [0, 1], militaryWreck: [0, 1, 2], fuelDrum: [0, 1, 2], sandbags: [0, 1], shellCrate: [0, 1], chainFence: [0, 1, 2], pipeColumn: [0, 1], storageTank: [0, 1] };
@@ -529,6 +583,6 @@ const runRobotView = (t: number, size: { w: number; h: number }, out: HTMLElemen
   return { name, mismatches: 0, copiedDiff: 0, diff, matrixDelta: 0, pass: diff === 0 };
 };
 const robotViewCases = CUTSCENE_SIZES.flatMap((size) => ROBOT_VIEW_TS.map((t) => (o: HTMLElement) => runRobotView(t, size, o)));
-const cases = only ? [...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases, ...robotViewCases];
+const cases = only ? [...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases, ...robotViewCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

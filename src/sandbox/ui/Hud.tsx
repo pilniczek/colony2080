@@ -5,6 +5,7 @@ import { applyLive, hudSvg, keyLabel, type HudKeys, type HudState } from "../../
 import type { Weapon } from "../../game/hero/config";
 import type { Lang } from "../../game/i18n";
 import type { ItemId } from "../../game/items";
+import type { BonusWeapon } from "../../game/level/sandboxLevel";
 import { useSandbox } from "../store";
 
 const { keyboard } = controls;
@@ -29,6 +30,7 @@ export interface HudValues {
   shields: number;
   ammo: number;
   blaster: number | null;
+  bonusModel?: BonusWeapon;
   weapon: Weapon;
   running: boolean;
   soundOn: boolean;
@@ -40,10 +42,11 @@ export interface HudValues {
   lang?: Lang;
 }
 
-export const hudState = ({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang }: HudValues): HudState => ({
+export const hudState = ({ energy, max, shields, ammo, blaster, bonusModel = "blaster", weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang }: HudValues): HudState => ({
   weapon: WEAPON_SLOTS[weapon],
   bonus: blaster !== null,
   bonusAmmo: blaster ?? 0,
+  bonusModel,
   life: (100 * energy) / max,
   shields,
   running,
@@ -65,6 +68,7 @@ export function Hud() {
   const shields = useSandbox((s) => s.shields);
   const ammo = useSandbox((s) => s.ammo);
   const blaster = useSandbox((s) => s.blaster);
+  const bonusModel = useSandbox((s) => s.bonus);
   const max = useSandbox((s) => s.movement.energy.max);
   const weapon = useSandbox((s) => s.weapon);
   const running = useSandbox((s) => s.running);
@@ -77,13 +81,13 @@ export function Hud() {
   const filming = useSandbox((s) => s.cutscene);
   const lang = useSandbox((s) => s.lang);
   const alarmAt = useSandbox((s) => s.alarmAt);
-  const state = hudState({ energy, max, shields, ammo, blaster, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang });
+  const state = hudState({ energy, max, shields, ammo, blaster, bonusModel, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang });
   const live = useRef(state);
   live.current = state;
   const armed = blaster !== null;
   const svg = useMemo(
     () => hudSvg(fit.W, fit.H, live.current, icons, KEYS),
-    [fit.W, fit.H, shields, armed, max, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang, icons],
+    [fit.W, fit.H, shields, armed, bonusModel, max, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang, icons],
   );
   const html = useMemo(() => ({ __html: svg }), [svg]);
   useLayoutEffect(() => {

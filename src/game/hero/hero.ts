@@ -1,12 +1,13 @@
 import type { InputFrame } from "../../engine/input";
 import { moveBox, type Box } from "../../engine/world/collide";
 import { ITEMS } from "../items";
-import { callLift, fallLimit, floorsOf, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { BONUS_NAMES, callLift, fallLimit, floorsOf, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { inCover } from "../level/cover";
 import { openTask, runUse, say, tried } from "../level/tasks";
 import { padUnder, ridePad } from "../level/teleports";
 import { cue } from "../sound/cues";
 import { step as footsteps } from "../sound/triggers";
+import { TOASTER_CYCLE } from "../robot/toaster";
 import { footContacts } from "./gait";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
@@ -299,7 +300,8 @@ function shoot(s: Step): void {
   const { h } = s;
   if (h.weapon === "blaster") {
     h.blaster = ammoOf(h, "blaster") - 1;
-    cue(s.world, "beam", 8000);
+    if (s.world.bonus !== "toaster") cue(s.world, "beam", 8000);
+    else if (Math.floor((h.fireTime ?? 0) * s.cfg.blaster.tickHz + SHOT_EPS) % TOASTER_CYCLE === 1) cue(s.world, "laser", 12000);
     return emit(s, "beam");
   }
   h.ammo -= 1;
@@ -680,7 +682,7 @@ function pickup(s: Step): void {
   prop.taken = true;
   if (prop.kind === "weapon") {
     s.h.blaster = s.cfg.blaster.ammo;
-    say(s.world, "Picked up E-Blaster");
+    say(s.world, `Picked up ${BONUS_NAMES[s.world.bonus]}`);
   } else {
     pickUp(s.world, prop.item!);
     say(s.world, `Picked up ${ITEMS[prop.item!]!.name}`);

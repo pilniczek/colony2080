@@ -28,7 +28,7 @@ import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
 import type { ItemId } from "./items";
 import { activeQuests } from "./level/quests";
-import { resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
+import { BONUS_NAMES, resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
 import { openBlockers, pickAll, say } from "./level/tasks";
 import { createPainter } from "./render/painter";
 import { paintTilesAside } from "./render/tilesAside";
@@ -230,6 +230,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       shields: hero.shields,
       ammo: hero.ammo,
       blaster: hero.blaster,
+      bonus: world.bonus,
       weapon: hero.weapon,
       running: hero.running,
       hidden: hero.hidden,
@@ -483,7 +484,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     if (!props.length) return "No special weapon in this mission";
     for (const p of props) p.taken = true;
     hero.blaster = tuning().movement.blaster.ammo;
-    return "Picked up E-Blaster";
+    return `Picked up ${BONUS_NAMES[world.bonus]}`;
   };
 
   const giveItems = (): string => {

@@ -55,9 +55,9 @@ const gripTarget = (root: GroupNode, hook: string, pose: Pose, support: Pt): Pt 
   return apply(m, support);
 };
 
-export const holdPoses = (side: GroupNode, front: GroupNode, carry = CARRY, support = SUPPORT_IN_HOOK): HoldPoses => {
+export const holdPoses = (side: GroupNode, front: GroupNode, carry = CARRY, support = SUPPORT_IN_HOOK, frontSupport = SUPPORT_IN_HOOK): HoldPoses => {
   const far = solve(side, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], gripTarget(side, "hand", carry, support));
-  const right = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], gripTarget(front, "handL", FRONT_CARRY, SUPPORT_IN_HOOK));
+  const right = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], gripTarget(front, "handL", FRONT_CARRY, frontSupport));
   return {
     CARRY: carry,
     CARRY_FAR: { armFar: far.armFar as number, foreFar: far.foreFar as number },
