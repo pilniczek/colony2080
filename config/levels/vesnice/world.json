@@ -208,6 +208,6 @@
     {"kind": "gate", "id": "energyBarrier", "asset": "energyBarrier", "art": {"top": 41}, "x": 99.5, "y": 41, "width": 1, "solidStates": [0], "cells": {"col": 99, "row": 36, "w": 1, "h": 5}, "state": 0},
     {"kind": "gate", "id": "padUp", "asset": "teleportPad", "x": 52.5, "y": 50, "width": 2, "state": 0},
     {"kind": "gate", "id": "padDown", "asset": "teleportPad", "x": 42.5, "y": 32, "width": 2, "state": 0},
-    {"kind": "object", "id": "dynamiteWall", "asset": "dynamiteWall", "art": {"dx": 3}, "x": 31, "y": 32, "width": 3, "state": 0}
+    {"kind": "object", "id": "dynamiteWall", "asset": "dynamiteWall", "art": {"dx": -1.375}, "x": 31, "y": 32, "width": 3, "state": 0}
   ]
 }
