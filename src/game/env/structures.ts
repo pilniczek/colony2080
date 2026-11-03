@@ -1,5 +1,6 @@
 import { G } from "./grime";
 import { P, TILE, type EnvAsset, type Size } from "./paint";
+import { bronzeColumn, meshFence } from "./vesnice";
 
 const { box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, trefoil, glow, text, stroke, slab } = P;
 
@@ -174,8 +175,9 @@ const TEAR: Pt[] = [[0, -46], [30, -46], [26, -40], [31, -36], [22, -31], [25, -
 
 export const chainFence: EnvAsset = {
   id: "chainFence",
-  box: [-2, -52, 194, 0],
-  draw(ctx, _state, _t, { w }: Size) {
+  box: [-2, -60, 194, 0],
+  draw(ctx, state, _t, { w }: Size) {
+    if (state) return meshFence(ctx, state - 1, w ?? 192);
     if (w !== undefined && w < 192) {
       fencePanel(ctx, 0, w);
       toxicSign(ctx, (w - 60) / 2);
@@ -305,7 +307,8 @@ export const pipeRings = (h: number): number[] => {
 export const pipeColumn: EnvAsset = {
   id: "pipeColumn",
   box: [-4, -168, 28, 0],
-  draw(ctx, _state, _t, { h = 168 }: Size) {
+  draw(ctx, state, _t, { h = 168 }: Size) {
+    if (state) return bronzeColumn(ctx, h);
     const s = 160 + Math.round(h) * 3;
     cylV(ctx, 0, -h, 24, h, "concrete", 2);
     G.grain(ctx, G.rectRegion(ctx, 0, -h, 24, h), s);

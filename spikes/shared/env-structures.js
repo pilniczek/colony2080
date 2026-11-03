@@ -170,9 +170,10 @@ const TEAR = [[0, -46], [30, -46], [26, -40], [31, -36], [22, -31], [25, -24], [
 
 define({
   id: "chainFence",
-  box: [-2, -52, 194, 0],
+  box: [-2, -60, 194, 0],
   draw(ctx, state, t, size = {}) {
     const { w } = size;
+    if (state) return window.ENV.VESNICE.meshFence(ctx, state - 1, w ?? 192);
     if (w !== undefined && w < 192) {
       fencePanel(ctx, 0, w);
       toxicSign(ctx, (w - 60) / 2);
@@ -302,6 +303,7 @@ define({
   box: [-4, -168, 28, 0],
   draw(ctx, state, t, size = {}) {
     const h = size.h ?? 168;
+    if (state) return window.ENV.VESNICE.bronzeColumn(ctx, h);
     const s = 160 + Math.round(h) * 3;
     cylV(ctx, 0, -h, 24, h, "concrete", 2);
     G.grain(ctx, G.rectRegion(ctx, 0, -h, 24, h), s);

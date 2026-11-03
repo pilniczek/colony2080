@@ -758,4 +758,5 @@ define({
     GIRDERS.forEach((g, i) => beam(ctx, ...g, 90 + i * 4));
   }
 });
+window.ENV.PROPS = { facets };
 })();
