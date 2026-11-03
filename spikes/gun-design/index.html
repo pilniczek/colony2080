@@ -39,15 +39,15 @@
   <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button></div>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
 </header>
-<main data-for="fists gun blaster">
+<main data-for="fists gun blaster toaster">
   <figure class="wide"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200"></canvas></figure>
   <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Slung, back (ladder pose)</figcaption><canvas id="slungBack" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Slung, side (back hook)</figcaption><canvas id="slungSide" data-w="640" data-h="780"></canvas></figure>
 </main>
-<h2 data-for="fists gun blaster">In-game, simplified (game size, scale 0.2)</h2>
-<main class="game" data-for="fists gun blaster">
+<h2 data-for="fists gun blaster toaster">In-game, simplified (game size, scale 0.2)</h2>
+<main class="game" data-for="fists gun blaster toaster">
   <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
@@ -79,6 +79,11 @@
     <figure><figcaption>Full size (x 12)</figcaption><canvas id="toasterFull" data-w="30" data-h="12" data-scale="12"></canvas></figure>
     <figure><figcaption>Game size, game LOD</figcaption><canvas id="toasterGame" data-w="30" data-h="12" data-scale="game"></canvas></figure>
   </main>
+  <h2>HUD icon</h2>
+  <main>
+    <figure><figcaption>Selected</figcaption><div id="toasterLit"></div></figure>
+    <figure><figcaption>Not selected</figcaption><div id="toasterDim"></div></figure>
+  </main>
 </section>
 <!-- originals -->
 <section data-for="gun">
@@ -107,6 +112,7 @@
 <script src="../shared/env-props.js"></script>
 <script src="../shared/env-machines.js"></script>
 <script src="../shared/env-vesnice.js"></script>
+<script src="../shared/toaster.js"></script>
 <script>
 const { buildSide, buildFront, buildBack, render, locate, FOOT_Y, LEVELS } = window.XBOT;
 const roots = {
@@ -117,20 +123,20 @@ const roots = {
   gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true }),
   gBack: buildBack({ thumbsBehind: true, forearmsUnder: true, lod: true })
 };
-const MODELS = { gun: GUN, blaster: EBLASTER };
+const MODELS = { gun: GUN, blaster: EBLASTER, toaster: TOASTER };
 const CLIMB = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
 const DUCK = { body: 16, hipNear: -86, kneeNear: 124, ankleNear: -44, hipFar: -68, kneeFar: 128, ankleFar: -76 };
 const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
-const hold = GUN.holdPoses(roots.side, roots.front);
-const gHold = GUN.holdPoses(roots.gSide, roots.gFront);
+const HOLDS = {
+  gun: { hold: GUN.holdPoses(roots.side, roots.front), gHold: GUN.holdPoses(roots.gSide, roots.gFront) },
+  toaster: { hold: TOASTER.holdPoses(roots.side, roots.front), gHold: TOASTER.holdPoses(roots.gSide, roots.gFront) }
+};
+const { hold, gHold } = HOLDS.gun;
+const holds = () => HOLDS[WEAPON === "toaster" ? "toaster" : "gun"];
 const carry = (pose, h) => {
   const b = pose.body || 0;
   return { ...pose, arm: h.CARRY.arm - b, fore: h.CARRY.fore, armFar: h.CARRY_FAR.armFar - b, foreFar: h.CARRY_FAR.foreFar };
 };
-const sidePose = carry({}, hold);
-const frontPose = { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R };
-const gSidePose = carry({}, gHold);
-const gFrontPose = { ...gHold.FRONT_CARRY, ...gHold.FRONT_CARRY_R };
 const SIDE_SHIFT = -150;
 const GAME_PX = (1.9 * 24) / (FOOT_Y - LEVELS.find(([k]) => k === "head")[1]);
 const SHEET_SCALE = 0.2;
@@ -139,7 +145,7 @@ const ROW_H = 780;
 const opts = { lines: true };
 let WEAPON = "gun";
 try { WEAPON = localStorage.getItem("weaponSheet") || "gun"; } catch {}
-if (!MODELS[WEAPON] && WEAPON !== "fists" && WEAPON !== "toaster") WEAPON = "gun";
+if (!MODELS[WEAPON] && WEAPON !== "fists") WEAPON = "gun";
 
 const model = () => MODELS[WEAPON];
 const held = (hookName, lineW, simple, barrel) => model() ? { [hookName]: c => model().hook(c, { lineW, simple, barrel }) } : {};
@@ -216,12 +222,12 @@ function ground(ctx, lod, id = "eBlaster", x = 2, y = 10.5, t = 0) {
 
 const VIEWS = {
   side: (ctx, lw) => model() ? (ctx.translate(250, 130), model().draw(ctx, { lineW: lw * 1.4 })) : fist(ctx, lw * 1.4),
-  heldSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.side, sidePose, "hand", false, lw * 1.4); },
-  heldFront: (ctx, lw) => robot(ctx, roots.front, frontPose, "handL", false, lw * 1.4, hold.FRONT_BARREL),
+  heldSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.side, carry({}, holds().hold), "hand", false, lw * 1.4); },
+  heldFront: (ctx, lw) => { const h = holds().hold; robot(ctx, roots.front, { ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }, "handL", false, lw * 1.4, h.FRONT_BARREL); },
   slungBack: (ctx, lw) => climber(ctx, roots.back, false, lw * 1.4),
   slungSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); render(ctx, roots.side, { lineW: lw * 1.4, hooks: held("back", lw * 1.4, false) }); },
-  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, gSidePose, "hand", true, lw * XBOT.GAME_LINE); },
-  gFront: (ctx, lw) => robot(ctx, roots.gFront, gFrontPose, "handL", true, lw * XBOT.GAME_LINE, gHold.FRONT_BARREL),
+  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, carry({}, holds().gHold), "hand", true, lw * XBOT.GAME_LINE); },
+  gFront: (ctx, lw) => { const h = holds().gHold; robot(ctx, roots.gFront, { ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }, "handL", true, lw * XBOT.GAME_LINE, h.FRONT_BARREL); },
   gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw * XBOT.GAME_LINE),
   beamFull: (ctx, lw, t) => beamRows(ctx, roots.side, hold, false, lw * 1.4, t),
   beamGame: (ctx, lw, t) => beamRows(ctx, roots.gSide, gHold, true, lw * XBOT.GAME_LINE, t),
@@ -231,7 +237,7 @@ const VIEWS = {
   toasterGame: (ctx, lw, t) => ground(ctx, true, "toaster", 2, 11.5, t)
 };
 const ANIMATED = new Set(["beamFull", "beamGame"]);
-const TOASTER = new Set(["toasterFull", "toasterGame"]);
+const TOASTER_VIEWS = new Set(["toasterFull", "toasterGame"]);
 
 const frames = document.getElementById("frames");
 for (let f = 0; f < EBLASTER.FRAMES; f++) {
@@ -251,12 +257,14 @@ const ICON_DEFS = `<defs>
   <filter id="iconGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="b"/><feFlood flood-color="#ffb21c" flood-opacity=".6"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="iconDim"><feColorMatrix type="saturate" values=".25"/><feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer></filter>
 </defs>`;
-const iconSvg = (lit, n) => `<svg viewBox="0 0 65 20" xmlns="http://www.w3.org/2000/svg">${ICON_DEFS.replace(/id="(\w+)"/g, `id="$1${lit ? "L" : "D"}"`).replace(/url\(#(\w+)\)/g, `url(#$1${lit ? "L" : "D"})`)}
-  <rect width="65" height="20" rx="1.4" fill="url(#grid${lit ? "L" : "D"})"/>
-  <g filter="url(#icon${lit ? "GlowL" : "DimD"})">${EBLASTER.icon(4)}</g>
-  <text x="${4 + EBLASTER.ICON.arcEnd}" y="16" text-anchor="end" font-family="monospace" font-size="4.6" fill="#a8844a">${n}</text></svg>`;
+const iconSvg = (lit, n, model = EBLASTER, tag = "") => `<svg viewBox="0 0 65 20" xmlns="http://www.w3.org/2000/svg">${ICON_DEFS.replace(/id="(\w+)"/g, `id="$1${lit ? "L" : "D"}${tag}"`).replace(/url\(#(\w+)\)/g, `url(#$1${lit ? "L" : "D"}${tag})`)}
+  <rect width="65" height="20" rx="1.4" fill="url(#grid${lit ? "L" : "D"}${tag})"/>
+  <g filter="url(#icon${lit ? "GlowL" : "DimD"}${tag})">${model.icon(4)}</g>
+  <text x="${4 + model.ICON.arcEnd}" y="16" text-anchor="end" font-family="monospace" font-size="4.6" fill="#a8844a">${n}</text></svg>`;
 document.getElementById("iconLit").innerHTML = iconSvg(true, 400);
 document.getElementById("iconDim").innerHTML = iconSvg(false, 387);
+document.getElementById("toasterLit").innerHTML = iconSvg(true, 60, TOASTER, "T");
+document.getElementById("toasterDim").innerHTML = iconSvg(false, 42, TOASTER, "T");
 
 function refs() {
   const list = window.ORIGINALS.on && window.ORIGINALS.weapons?.[WEAPON];
@@ -296,7 +304,7 @@ function setWeapon(w) {
 
 function tick() {
   if (WEAPON === "blaster") paint([...ANIMATED], SPIKE_CLOCK.seconds());
-  if (WEAPON === "toaster") paint([...TOASTER], SPIKE_CLOCK.seconds());
+  if (WEAPON === "toaster") paint([...TOASTER_VIEWS], SPIKE_CLOCK.seconds());
   requestAnimationFrame(tick);
 }
 
