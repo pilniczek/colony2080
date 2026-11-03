@@ -1284,19 +1284,19 @@ const warningLamp = {
 };
 const junctionBox = {
     id: "junctionBox",
-    box: [-4, -68, 28, 0],
+    box: [-4, -52, 28, 0],
     draw(ctx, state, t, size) {
         const seed = 4400;
-        box(ctx, 9, -44, 4, 42, "steel", 1, { vertical: true });
-        G.grain(ctx, G.rectRegion(ctx, 9, -44, 4, 42), seed, 0.6);
-        within(ctx, [[9, -44, 4, 42]], () => {
-            G.drips(ctx, 9, -44, 4, 18, seed + 1, 1);
-            G.rustPatch(ctx, 11, -10, 1.6, 2.5, seed + 2);
+        box(ctx, 9, -30, 4, 28, "steel", 1, { vertical: true });
+        G.grain(ctx, G.rectRegion(ctx, 9, -30, 4, 28), seed, 0.6);
+        within(ctx, [[9, -30, 4, 28]], () => {
+            G.drips(ctx, 9, -30, 4, 12, seed + 1, 1);
+            G.rustPatch(ctx, 11, -6, 1.6, 2, seed + 2);
         });
         box(ctx, 4, -3, 14, 3, "steel", 2);
         within(ctx, [[4, -3, 14, 3]], () => G.dirt(ctx, 4, -3, 14, 3, seed + 3, 0.8));
         ctx.save();
-        ctx.translate(0, -24);
+        ctx.translate(0, -8);
         wireBox.draw(ctx, state, t, size);
         ctx.restore();
     },
@@ -1707,8 +1707,7 @@ const powerPlant = {
         pier(ctx, 210, -100, 54, 82, PLATE);
         for (let k = 0; k < 2; k++)
             grille(ctx, 216, -92 + k * 34, 42, 22, seed + 40 + k);
-        pier(ctx, 235, -110, 4, 10, PLATE);
-        hvPanel(ctx, 230, -128, 14, 18, seed + 44, false);
+        hvPanel(ctx, 230, -118, 14, 18, seed + 44, false);
         outside(ctx, [rectPts(216, -92, 42, 22), rectPts(216, -58, 42, 22)], () => G.grain(ctx, G.rectRegion(ctx, 210, -100, 54, 82), seed + 45));
         const dome = () => {
             ctx.beginPath();
