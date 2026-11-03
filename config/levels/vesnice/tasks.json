@@ -16,11 +16,16 @@
     { "id": "placeDynamite", "object": "dynamiteWall", "requires": ["item:dynamite"], "gives": ["flag:dynamitePlaced"], "state": 1, "hint": "This wall is too strong to break by hand.", "subtitle": "You placed the dynamite at the wall." },
     { "id": "blowWall", "object": "dynamiteWall", "requires": ["item:detonator", "flag:dynamitePlaced"], "gives": ["flag:levelComplete"], "hint": "The dynamite needs something to set it off.", "subtitle": "You blew up the wall. The way out is open." }
   ],
+  "padHints": [
+    { "text": "The teleport has no power.", "after": ["flag:powerOff"], "until": "flag:powerOn" },
+    { "text": "The teleports are not linked.", "until": "flag:teleportLinked" }
+  ],
   "quests": [
     { "text": "Find a way out of the village.", "after": [], "until": "flag:levelComplete" },
     { "text": "Find a way to open the electric cabinet.", "after": ["flag:tried:electricCabinet"], "until": "flag:cabinetOpen" },
     { "text": "Get the power plant running again.", "after": ["flag:powerOff"], "until": "flag:powerOn" },
     { "text": "Repair the damaged teleport.", "after": [], "any": ["flag:tried:targetTeleport"], "until": "flag:teleportRepaired" },
+    { "text": "Get the teleports working.", "after": [], "any": ["flag:tried:sourceTeleport", "flag:tried:targetTeleport"], "until": "flag:teleportLinked" },
     { "text": "Get past the guard post at the bridge.", "after": ["flag:tried:bridgeGuardPost"], "until": "flag:guardsGone" },
     { "text": "Find ammunition for the cannon.", "after": ["flag:tried:cannon"], "until": "flag:barricadeGone" },
     { "text": "Break through the wall.", "after": ["flag:tried:dynamiteWall"], "until": "flag:levelComplete" }

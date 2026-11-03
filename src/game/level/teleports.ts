@@ -7,8 +7,11 @@ export function padUnder(world: SandboxWorld, h: Hero): Teleport | null {
   if (!h.onGround) return null;
   const col = Math.floor(h.x);
   const row = Math.floor(h.y - 0.001);
-  return world.teleports.find((t) => t.from[1] === row && col >= t.col && col < t.col + t.w && padEnabled(world, t)) ?? null;
+  return world.teleports.find((t) => t.from[1] === row && col >= t.col && col < t.col + t.w) ?? null;
 }
+
+export const padHint = (world: SandboxWorld): string | undefined => 
+  world.padHints.find((h) => (h.after ?? []).every((flag) => world.flags.has(flag)) && (h.until === undefined || !world.flags.has(h.until)))?.text;
 
 export function ridePad(h: Hero, pad: Teleport): void {
   h.x = pad.to[0] + 0.5;

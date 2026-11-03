@@ -107,6 +107,12 @@ export interface Conveyor {
   vx: number;
 }
 
+export interface PadHint {
+  text: string;
+  after?: string[];
+  until?: string;
+}
+
 export interface Teleport {
   id: string;
   from: [number, number];
@@ -153,6 +159,7 @@ export interface SandboxWorld {
   flags: Set<string>;
   tasks: Task[];
   quests: Quest[];
+  padHints: PadHint[];
   subtitle: Subtitle | null;
   cutscene: { id: CutsceneId; prop: Prop | null; t: number } | null;
   complete: boolean;
@@ -304,6 +311,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     flags: new Set(),
     tasks: data.tasks === undefined ? [] : loadTasks(data.tasks),
     quests: loadQuests(data.tasks),
+    padHints: ((data.tasks ?? {}) as { padHints?: PadHint[] }).padHints ?? [],
     subtitle: null,
     cutscene: null,
     complete: false,

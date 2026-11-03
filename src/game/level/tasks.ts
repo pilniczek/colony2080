@@ -144,6 +144,8 @@ const spent = (world: SandboxWorld, id: ItemId): boolean => {
   return !ITEMS[id]?.keep && users.length > 0 && users.every((t) => world.flags.has(doneToken(t)));
 };
 
+export const pending = (world: SandboxWorld, prop: Prop): boolean => open(world, prop).length > 0;
+
 export const openTask = (world: SandboxWorld, prop: Prop): Task | undefined => open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
 
 export function pickAll(world: SandboxWorld): number {

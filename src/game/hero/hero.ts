@@ -3,8 +3,8 @@ import { moveBox, type Box } from "../../engine/world/collide";
 import { ITEMS } from "../items";
 import { BONUS_NAMES, callLift, fallLimit, floorsOf, liftAt, liftGoes, onGround, pickUp, startFilm, type Lift, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { inCover } from "../level/cover";
-import { openTask, runUse, say, tried } from "../level/tasks";
-import { padUnder, ridePad } from "../level/teleports";
+import { openTask, pending, runUse, say, tried } from "../level/tasks";
+import { padEnabled, padHint, padUnder, ridePad } from "../level/teleports";
 import { cue } from "../sound/cues";
 import { step as footsteps } from "../sound/triggers";
 import { footContacts } from "./gait";
@@ -426,12 +426,22 @@ function liftPress(s: Step): boolean {
 }
 
 function padPress(s: Step): boolean {
-  const pad = s.input.pressed.has("up") ? padUnder(s.world, s.h) : null;
+  const { world, h } = s;
+  const pad = s.input.pressed.has("useItem") ? padUnder(world, h) : null;
   if (!pad) return false;
-  s.consume("up");
-  ridePad(s.h, pad);
-  cue(s.world, "teleport", 13000);
-  halt(s.h);
+  const enabled = padEnabled(world, pad);
+  const prop = usable(s);
+  if (prop && (openTask(world, prop) || (!enabled && pending(world, prop)))) return false;
+  s.consume("useItem");
+  if (!enabled) {
+    world.flags.add(tried(pad.id));
+    const hint = padHint(world);
+    if (hint) say(world, hint);
+    return true;
+  }
+  ridePad(h, pad);
+  cue(world, "teleport", 13000);
+  halt(h);
   return true;
 }
 

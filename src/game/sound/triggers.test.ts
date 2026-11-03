@@ -265,7 +265,7 @@ describe("world cues", () => {
   it("teleport pad use cues teleport 13000", () => {
     const rows = [...Array<string>(8).fill(open), solid, solid];
     const g = game({ x: 5.5, y: 8 }, arena({ rows, teleports: [{ id: "pad", from: [5, 7], col: 4, w: 3, to: [15, 7] }] }));
-    tick(g, [], ["up"]);
+    tick(g, [], ["useItem"]);
     expect(g.hero.x).toBe(15.5);
     expect(g.world.sounds).toEqual([{ id: "teleport", rate: 13000, vol: 63, bus: "world" }]);
   });
