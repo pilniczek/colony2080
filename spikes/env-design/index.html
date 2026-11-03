@@ -74,6 +74,7 @@ const HERO_GAP = 6;
 const MAX_W = 560;
 const MAX_SCALE = 4;
 const REF_H = 150;
+const GAME_SCALE = 60 / 24;
 const hero = XBOT.buildSide({ farLimbs: true, lod: true });
 const opts = { lines: true, lod: false, hero: true, grid: false };
 const assets = new Map(ENV.ASSETS.map(a => [a.id, a]));
@@ -97,8 +98,10 @@ function drawHero(ctx, x) {
   ctx.restore();
 }
 
-function frame(asset) {
-  const [x0, y0, x1, y1] = asset.box;
+function frame(asset, size) {
+  const [x0, top, right, y1] = asset.box;
+  const x1 = Math.max(right, size?.w ?? -Infinity);
+  const y0 = Math.min(top, size?.h ? -size.h : Infinity);
   const heroX = x1 + HERO_GAP + 10;
   const bx1 = opts.hero ? Math.max(x1, heroX + 12) : x1;
   const by0 = opts.hero ? Math.min(y0, -HERO_H - 2) : y0;
@@ -106,10 +109,10 @@ function frame(asset) {
 }
 
 function paint(view, t) {
-  const { canvas, asset, state } = view;
-  const f = frame(asset);
+  const { canvas, asset, state, size, game } = view;
+  const f = frame(asset, size);
   const w = f.x1 - f.x0, h = f.y1 - f.y0;
-  const s = Math.min(MAX_SCALE, MAX_W / w);
+  const s = game ? Math.min(GAME_SCALE, 2 * MAX_W / w) : Math.min(MAX_SCALE, MAX_W / w);
   const dpr = devicePixelRatio || 1;
   const cw = Math.round(w * s), ch = Math.round(h * s);
   if (canvas.width !== cw * dpr || canvas.height !== ch * dpr) {
@@ -129,7 +132,7 @@ function paint(view, t) {
     for (let y = Math.ceil(f.y0 / TILE) * TILE; y <= f.y1; y += TILE) { ctx.moveTo(f.x0, y); ctx.lineTo(f.x1, y); }
     ctx.stroke();
   }
-  ENV.draw(ctx, asset, { state, t, lines: opts.lines ? dpr : 0, lod: opts.lod });
+  ENV.draw(ctx, asset, { state, t, lines: opts.lines ? dpr : 0, lod: game || opts.lod, size });
   if (opts.hero) drawHero(ctx, f.heroX);
 }
 
@@ -189,6 +192,7 @@ function build() {
       const asset = assets.get(o.id);
       toc.append(el("a", { href: "#" + o.id, textContent: o.name, className: asset ? "" : "missing" }));
       const ours = el("div", { className: "row ours" });
+      const game = el("div", { className: "row ours" });
       if (asset) {
         const states = o.states.length ? o.states : ["static"];
         states.forEach((label, state) => {
@@ -196,12 +200,23 @@ function build() {
           views.push({ canvas, asset, state });
           ours.append(el("figure", {}, el("figcaption", { textContent: label }), canvas));
         });
+        for (const [w, h] of o.sizes ?? []) {
+          const canvas = el("canvas");
+          views.push({ canvas, asset, state: 0, size: { w: w * TILE, h: h * TILE } });
+          ours.append(el("figure", {}, el("figcaption", { textContent: `${w} x ${h} cells` }), canvas));
+        }
+        states.forEach((label, state) => {
+          const canvas = el("canvas");
+          views.push({ canvas, asset, state, game: true });
+          game.append(el("figure", {}, el("figcaption", { textContent: label }), canvas));
+        });
       } else ours.append(el("div", { className: "todo", textContent: "not drawn yet" }));
       const refs = el("div", { className: "row refs" }, ...o.refs.map(r => el("figure", {}, el("figcaption", { textContent: r.caption }), refCanvas(r))));
       sheet.append(el("section", { id: o.id, className: "asset " + (o.interactive ? "interactive" : "static") },
         el("h3", {}, o.name, o.csName ? el("span", { className: "cs", textContent: o.csName }) : null, ...tags(o)),
         el("p", { className: "desc", textContent: o.description ?? "" }),
         el("div", { className: "label", textContent: "Our variant" }), ours,
+        ...(asset ? [el("div", { className: "label", textContent: "Game size, game LOD" }), game] : []),
         ...(o.refs.length ? [el("div", { className: "label", textContent: "Original" }), refs] : [])));
     }
   }
