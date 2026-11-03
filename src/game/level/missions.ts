@@ -3,6 +3,7 @@ import jeskyneWorld from "@config/levels/jeskyne/world.json";
 import jungleMap from "@config/levels/jungle/map.json";
 import jungleWorld from "@config/levels/jungle/world.json";
 import vesniceMap from "@config/levels/vesnice/map.json";
+import vesniceTasks from "@config/levels/vesnice/tasks.json";
 import vesniceWorld from "@config/levels/vesnice/world.json";
 import type { EnemyJson } from "./enemy";
 import type { MissionId } from "./missionIds";
@@ -39,9 +40,13 @@ interface MissionWorld {
   bare?: SandboxJson["bare"];
   terrainArt?: SandboxJson["terrainArt"];
   haze?: string;
+  ground?: number;
+  props?: unknown[];
 }
 
 const WORLDS: Record<OtherMission, MissionWorld> = { vesnice: vesniceWorld, jungle: jungleWorld, jeskyne: jeskyneWorld };
+
+const TASKS: Partial<Record<OtherMission, unknown>> = { vesnice: vesniceTasks };
 
 const MESTO_KINDS: Record<string, DroidTuning> = { chromeDroid: DROID, flyer: FLYER };
 
@@ -65,9 +70,9 @@ export function missionJson(id: MissionId): SandboxJson {
     backdrop: WORLDS[id].backdrop,
     dressing: WORLDS[id].dressing,
     lifts: map.lifts as SandboxJson["lifts"],
-    props: [],
+    props: (WORLDS[id].props ?? []) as SandboxJson["props"],
     enemies: mapEnemies(id),
-    tasks: { tasks: [] },
+    tasks: TASKS[id] ?? { tasks: [] },
     ...(map.fallDeathCells === undefined ? {} : { fallDeathCells: map.fallDeathCells }),
     hazards: (map.hazards ?? []) as SandboxJson["hazards"],
     conveyors: (map.conveyors ?? []) as SandboxJson["conveyors"],
@@ -76,6 +81,7 @@ export function missionJson(id: MissionId): SandboxJson {
     ...(WORLDS[id].bare === undefined ? {} : { bare: WORLDS[id].bare }),
     ...(WORLDS[id].terrainArt === undefined ? {} : { terrainArt: WORLDS[id].terrainArt }),
     ...(WORLDS[id].haze === undefined ? {} : { haze: WORLDS[id].haze }),
+    ...(WORLDS[id].ground === undefined ? {} : { ground: WORLDS[id].ground }),
   };
 }
 

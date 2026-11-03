@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { loadMovement } from "../hero/config";
 import { hitShootable } from "../shots";
 import { loadMesto } from "./mesto";
+import { loadMission } from "./missions";
 import { route, type Ride } from "./reach";
 import { onGround, pickUp, showItem, type Prop, type SandboxWorld } from "./sandboxLevel";
 import { runUse } from "./tasks";
@@ -33,12 +34,31 @@ const ORDER: Step[] = [
   { use: "crane", with: "craneKey" },
 ];
 
+const VESNICE: Step[] = [
+  { use: "fuseBox" },
+  { use: "smoulderingRemains" },
+  { pick: "toaster" },
+  { shoot: "bridgeGuard" },
+  { pick: "walkieTalkie" },
+  { use: "bridgeGuardPost", with: "walkieTalkie" },
+  { use: "projectileCrate" },
+  { use: "electricCabinet", with: "smallKey" },
+  { use: "brokenTeleport" },
+  { use: "targetTeleport", with: "navCircuit" },
+  { use: "fuseBox", with: "fuse" },
+  { pick: "dynamite" },
+  { pick: "detonator" },
+  { use: "cannon", with: "projectile" },
+  { use: "dynamiteWall", with: "dynamite" },
+  { use: "dynamiteWall", with: "detonator" },
+];
+
 const name = (step: Step): string => Object.entries(step).map((e) => e.join(" ")).join(" ");
 
 function propOf(world: SandboxWorld, step: Step): Prop {
   const prop =
     "pick" in step
-      ? world.props.find((p) => p.kind === "item" && p.item === step.pick && onGround(p, { blaster: null }, world.flags))
+      ? world.props.find((p) => ((p.kind === "item" && p.item === step.pick) || (p.kind === "weapon" && p.asset === step.pick)) && onGround(p, { blaster: null }, world.flags))
       : world.props.find((p) => p.id === ("use" in step ? step.use : step.shoot));
   if (!prop) throw new Error(`no prop for ${name(step)}`);
   return prop;
@@ -46,7 +66,7 @@ function propOf(world: SandboxWorld, step: Step): Prop {
 
 function act(world: SandboxWorld, step: Step, prop: Prop): void {
   if ("pick" in step) {
-    pickUp(world, prop.item!);
+    if (prop.item) pickUp(world, prop.item);
     prop.taken = true;
   } else if ("shoot" in step) {
     for (let hit = 0; hit < (prop.shootable?.hits ?? 0); hit++) hitShootable(world, prop);
@@ -57,24 +77,26 @@ function act(world: SandboxWorld, step: Step, prop: Prop): void {
   }
 }
 
+function walkThrough(world: SandboxWorld, order: Step[]): void {
+  const [x, y] = world.spawn;
+  let at: Ride = { row: y, col: Math.floor(x), ys: world.lifts.map((l) => l.y) };
+  const done: string[] = [];
+  for (const step of order) {
+    const prop = propOf(world, step);
+    const next = route(world, cfg, at, (r) => r.nodesAt(prop));
+    expect(next, `reach ${name(step)} after ${done.join(", ")}`).not.toBeNull();
+    at = next!;
+    const before = [world.flags.size, world.inventory.items.length, prop.taken, prop.state].join();
+    act(world, step, prop);
+    expect([world.flags.size, world.inventory.items.length, prop.taken, prop.state].join() !== before, `${name(step)} does something`).toBe(true);
+    done.push(name(step));
+  }
+  expect(world.complete).toBe(true);
+}
+
 describe("mesto route", () => {
   it("completes mesto in one pickup and use order, each object reachable from the last by floors and lifts", () => {
-    const world = loadMesto();
-    const [x, y] = world.spawn;
-    let at: Ride = { row: y, col: Math.floor(x), ys: world.lifts.map((l) => l.y) };
-    const done: string[] = [];
-    for (const step of ORDER) {
-      const prop = propOf(world, step);
-      const next = route(world, cfg, at, (r) => r.nodesAt(prop));
-      expect(next, `reach ${name(step)} after ${done.join(", ")}`).not.toBeNull();
-      at = next!;
-      const flags = world.flags.size;
-      const held = world.inventory.items.length;
-      act(world, step, prop);
-      expect(world.flags.size !== flags || world.inventory.items.length !== held, `${name(step)} does something`).toBe(true);
-      done.push(name(step));
-    }
-    expect(world.complete).toBe(true);
+    walkThrough(loadMesto(), ORDER);
   });
 
   it("reaches the E-Blaster once the metro is open", () => {
@@ -100,5 +122,21 @@ describe("mesto route", () => {
     };
     expect(["tapValveWheel", "corpse", "controller", "cardDoor", "acidTank", "craneKey", "crane"].filter(reachable)).toEqual([]);
     expect(["dyingRebel", "crowbar", "wireBox", "switchboard", "barDoor", "codeLock", "damagedLift"].every(reachable)).toBe(true);
+  });
+});
+
+describe("vesnice route", () => {
+  it("completes vesnice in one pickup and use order, each object reachable from the last by floors, lifts and teleports", () => {
+    walkThrough(loadMission("vesnice"), VESNICE);
+  });
+
+  it("keeps the fuse box shut until the damaged teleport works, so the barrier never locks the hero out", () => {
+    const world = loadMission("vesnice");
+    const box = world.props.find((p) => p.id === "fuseBox")!;
+    runUse(world, box);
+    pickUp(world, "fuse");
+    runUse(world, box);
+    expect(world.flags.has("flag:powerOn")).toBe(false);
+    expect(world.subtitle?.text).toBe(world.tasks.find((t) => t.id === "restorePower")!.hint);
   });
 });

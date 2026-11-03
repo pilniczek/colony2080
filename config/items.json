@@ -11,6 +11,13 @@
     "shipPart": { "name": "ship part", "cs": "Součástka", "icon": { "asset": "shipPart", "state": 1, "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRSOUC.GRA" },
     "decoder": { "name": "decoder", "cs": "Dekodér", "icon": { "asset": "decoder", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRDEKOD.GRA" },
     "controller": { "name": "controller", "cs": "Ovladač", "icon": { "asset": "controller", "tilt": 25, "scale": 1.25 }, "preview": "GRAFIKA/PROVL.GRA" },
-    "craneKey": { "name": "crane key", "cs": "Klíč", "icon": { "asset": "craneKey", "tilt": 30, "scale": 1.25 }, "preview": "GRAFIKA/PRKLIC.GRA" }
+    "craneKey": { "name": "crane key", "cs": "Klíč", "icon": { "asset": "craneKey", "tilt": 30, "scale": 1.25 }, "preview": "GRAFIKA/PRKLIC.GRA" },
+    "smallKey": { "name": "small key", "cs": "Malý klíč", "icon": { "asset": "smallKey", "tilt": 30, "scale": 1.25 }, "preview": "GRAFIKA/PRKLIC1.GRA" },
+    "walkieTalkie": { "name": "walkie-talkie", "cs": "Vysílačka", "icon": { "asset": "walkieTalkie", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRVYS.GRA" },
+    "projectile": { "name": "projectile", "cs": "Projektil", "icon": { "asset": "projectile", "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRPROJEK.GRA" },
+    "detonator": { "name": "detonator", "cs": "Rozbuška", "icon": { "asset": "detonator", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRROZB.GRA" },
+    "dynamite": { "name": "dynamite", "cs": "Dynamit", "icon": { "asset": "dynamite", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRDYNA.GRA" },
+    "navCircuit": { "name": "nav circuit", "cs": "Nav. obvod", "icon": { "asset": "navCircuit", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRNAV.GRA" },
+    "fuse": { "name": "fuse", "cs": "Pojistka", "icon": { "asset": "fuse", "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRPOJ.GRA" }
   }
 }

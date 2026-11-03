@@ -78,13 +78,14 @@ describe("missions", () => {
   it("draws every later mission from its own world.json", () => {
     for (const [id, world] of [["vesnice", vesniceWorld], ["jungle", jungleWorld], ["jeskyne", jeskyneWorld]] as const) {
       const json = missionJson(id);
-      expect([json.sky, json.backdrop, json.dressing, json.props], id).toEqual([world.sky, world.backdrop, world.dressing, []]);
+      expect([json.sky, json.backdrop, json.dressing, json.props], id).toEqual([world.sky, world.backdrop, world.dressing, "props" in world ? world.props : []]);
     }
   });
 
   it("hazes the backdrop in the world haze colour, else in the mesto default", () => {
     expect(loadSandbox({ ...missionJson("vesnice"), haze: "rgba(28, 22, 12, 0.4)" }).haze).toBe("rgba(28, 22, 12, 0.4)");
-    for (const id of MISSIONS) expect(loadMission(id).haze, id).toBe("rgba(26, 12, 8, 0.45)");
+    expect(loadMission("vesnice").haze).toBe(vesniceWorld.haze);
+    for (const id of MISSIONS.filter((m) => m !== "vesnice")) expect(loadMission(id).haze, id).toBe("rgba(26, 12, 8, 0.45)");
   });
 
   it("refuses a vesnice snapshot in mesto", () => {

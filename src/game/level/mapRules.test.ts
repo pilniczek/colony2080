@@ -13,7 +13,7 @@ import type { Lift, SandboxWorld, Scenery } from "./sandboxLevel";
 import { terrain, type Run } from "./terrain";
 import { openGraph, opened } from "./testMissions";
 
-const BUILT: MissionId[] = ["mesto"];
+const BUILT: MissionId[] = ["mesto", "vesnice"];
 
 type Role =
   | "sky" | "far" | "filler" | "wall" | "fence" | "floor" | "girder" | "building" | "support" | "pipe"
@@ -98,7 +98,15 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
     panelProps: [],
     clutter: { small: 14, big: 13 },
     blockersUnderArt: false,
-    openEnds: [],
+    openEnds: [
+      { col: 45, row: 13, w: 15, h: 14, why: "rock mass slope over floors 23 and 32, cols 46-63, tops nobody reaches (original rock tiles, map M21)" },
+      { col: 85, row: 11, w: 12, h: 7, why: "crate block mass over floor 23, cols 87-95, tops nobody reaches (map M21)" },
+      { col: 101, row: 23, w: 10, h: 4, why: "crate and rock mass under floor 23, cols 102-109, tops nobody reaches (map M21)" },
+      { col: 116, row: 13, w: 11, h: 5, why: "rock slope west of floor 23 east, cols 117-125, tops nobody reaches (map M21)" },
+      { col: 147, row: 12, w: 6, h: 6, why: "rock slope east of floor 23 east, cols 148-156, tops nobody reaches (map M21)" },
+      { col: 7, row: 23, w: 1, h: 1, why: "west edge wall top under the open sky (levelmap.py patches)" },
+      { col: 28, row: 26, w: 3, h: 1, why: "top of the col 29 wall the dynamite blows to end the level (report 14 marker 14)" },
+    ],
     towersOnReach: [],
   },
 };
@@ -210,6 +218,8 @@ describe.each(BUILT)("%s map rules", (mission) => {
   const world = loadMission(mission);
   const { grid, lifts } = world;
   const rules = rulesOf(mission);
+  const firm = (col: number, row: number): boolean => grid.solid(col, row) || grid.floor(col, row);
+  const ground = (col: number, row: number): boolean => grid.wall(col, row) || grid.floor(col, row);
 
   it("gives every layout asset a role and fills every role", () => {
     const used = new Set([...sceneryOf(world).map((s) => s.asset), ...Object.values(world.terrainArt).filter(Boolean), world.sky]);
@@ -221,10 +231,10 @@ describe.each(BUILT)("%s map rules", (mission) => {
     const open: string[] = [];
     for (let row = 1; row < grid.height; row++) {
       for (let col = 1; col < grid.width - 1; col++) {
-        if (!grid.wall(col, row) || grid.solid(col, row - 1)) continue;
+        if (!ground(col, row) || firm(col, row - 1)) continue;
         for (const next of [col - 1, col + 1]) {
-          if (grid.solid(next, row) || inShaft(lifts, next, row) || inCells(rules.openEnds, next, row) || inCells(rules.openEnds, next, row - 1)) continue;
-          if (!grid.solid(next, row - 1)) open.push(`${next},${row - 1}`);
+          if (firm(next, row) || inShaft(lifts, next, row) || inCells(rules.openEnds, next, row) || inCells(rules.openEnds, next, row - 1)) continue;
+          if (!firm(next, row - 1)) open.push(`${next},${row - 1}`);
         }
       }
     }
@@ -250,8 +260,8 @@ describe.each(BUILT)("%s map rules", (mission) => {
     const short: string[] = [];
     for (const wall of terrain(grid).walls.filter((w) => w.h > 1 && w.row < (world.ground ?? grid.height))) {
       for (let col = wall.col; col < wall.col + wall.w; col++) {
-        const floorAbove = Array.from({ length: wall.row }, (_, row) => grid.wall(col, row)).some(Boolean);
-        if (floorAbove && !grid.wall(col, wall.row - 1) && !liftFloor(col, wall.row - 1) && !inCells(rules.openEnds, col, wall.row - 1)) short.push(`${col},${wall.row}`);
+        const floorAbove = Array.from({ length: wall.row }, (_, row) => ground(col, row)).some(Boolean);
+        if (floorAbove && !ground(col, wall.row - 1) && !liftFloor(col, wall.row - 1) && !inCells(rules.openEnds, col, wall.row - 1)) short.push(`${col},${wall.row}`);
       }
     }
     expect(short).toEqual([]);
@@ -262,7 +272,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
     for (const lift of lifts) {
       for (let col = lift.x; col < lift.x + lift.w; col++) {
         for (let row = lift.top - 2; row < lift.bottom; row++) if (grid.at(col, row) !== ".") shut.push(`${col},${row}`);
-        if (!grid.solid(col, lift.bottom)) shut.push(`bottom ${col},${lift.bottom}`);
+        if (!firm(col, lift.bottom)) shut.push(`bottom ${col},${lift.bottom}`);
       }
     }
     expect(shut).toEqual([]);
@@ -273,8 +283,8 @@ describe.each(BUILT)("%s map rules", (mission) => {
     for (const l of lifts) {
       for (const stop of l.stops) {
         for (const side of [l.x - 1, l.x + l.w]) {
-          const floor = grid.solid(side, stop) && !inCells(world.bare, side, stop);
-          if (!floor && !grid.solid(side, stop - 1)) pits.push(`lift ${l.x} stop ${stop} side ${side}`);
+          const floor = firm(side, stop) && !inCells(world.bare, side, stop);
+          if (!floor && !firm(side, stop - 1)) pits.push(`lift ${l.x} stop ${stop} side ${side}`);
         }
       }
     }
@@ -306,7 +316,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
     for (const s of sceneryOf(world)) {
       if (rules.hangs.includes(s.asset) || rules.roles.girder.includes(s.asset)) continue;
       const y = s.y ?? world.spawn[1];
-      const cols = baseCols(boxOf(world, s)).filter((col) => !grid.solid(col, y) && !inShaft(lifts, col, y));
+      const cols = baseCols(boxOf(world, s)).filter((col) => !firm(col, y) && !inShaft(lifts, col, y));
       if (cols.length) loose.push(`${label(s)} over ${cols.join(" ")}`);
     }
     expect(loose).toEqual([]);
@@ -356,7 +366,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
   });
 
   it("stands every prop on a floor", () => {
-    const off = world.props.filter((p) => p.y === undefined || !grid.wall(Math.floor(p.x), p.y) || grid.wall(Math.floor(p.x), p.y - 1));
+    const off = world.props.filter((p) => p.y === undefined || !ground(Math.floor(p.x), p.y) || ground(Math.floor(p.x), p.y - 1));
     expect(off.map((p) => p.id ?? p.item)).toEqual([]);
   });
 
@@ -379,7 +389,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
       const facades = buildings.filter((k) => k.y === s.y).map((k) => boxOf(world, k)).filter((k) => k.x0 < b.x1 && k.x1 > b.x0);
       if (facades.some((k) => !(b.x0 <= k.x0 && k.x0 <= b.x1) && !(b.x0 <= k.x1 && k.x1 <= b.x1))) bad.push(`${label(s)} in front of a facade middle`);
       const y = s.y ?? world.spawn[1];
-      const walls = baseCols(b).filter((col) => grid.solid(col, y - 1) && Math.min(b.x1, col + 1) - Math.max(b.x0, col) > BOX_SLACK);
+      const walls = baseCols(b).filter((col) => firm(col, y - 1) && Math.min(b.x1, col + 1) - Math.max(b.x0, col) > BOX_SLACK);
       if (walls.length) bad.push(`${label(s)} over wall ${walls.join(" ")},${y - 1}`);
     }
     expect(bad).toEqual([]);
