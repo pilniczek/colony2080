@@ -650,14 +650,22 @@ export function prop(e: Env, p: Prop): void {
   const id = p.kind === "item" ? icon?.asset : (p.asset ?? PROP_ASSETS[p.kind]);
   if (!id) return;
   const [left, , right] = ASSETS[id].box;
-  const { dx = 0, dy = 0, top, w } = p.art ?? {};
+  const { dx = 0, dy = 0, top, w, flip } = p.art ?? {};
   const look = guardLook(p);
   if (look === "gone" || guardHidden(p, e.world.flags)) return;
   const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
   const size = top === undefined && w === undefined ? undefined : { ...(top === undefined ? {} : { top: -px(e, top * e.cell) }), ...(w === undefined ? {} : { w: px(e, w * e.cell) }) };
-  const x = (p.x + dx) * e.cell - ((left + right) / 2) * k(e);
+  const x = (p.x + dx) * e.cell + (flip ? 1 : -1) * ((left + right) / 2) * k(e);
   const y = ((p.y ?? e.world.spawn[1]) + dy) * e.cell;
   if (!near(e, artBox(e, id, x, y, top === undefined ? 0 : top * e.cell, w === undefined ? 0 : w * e.cell))) return;
+  if (flip) {
+    e.ctx.save();
+    e.ctx.translate(x, 0);
+    e.ctx.scale(-1, 1);
+    put(e, id, 0, y, state, size, look?.t ?? 0);
+    e.ctx.restore();
+    return;
+  }
   if (!look && !ASSETS[id].anim && putSprite(e, id, x, y, state, size)) return;
   put(e, id, x, y, state, size, look?.t ?? 0);
 }

@@ -254,10 +254,10 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
   vesnice: {
     byTask: {
       "middle floors behind the barrier col 99: the pulled fuse turns it off (report 14 M22), teleport 3 links once the target is repaired and the power is back": [
-        ...["23,63", "23,74", "32,63", "32,83", "41,53", "41,92", "50,73", "50,135", "59,78", "59,87", "59,116", "59,120", "68,81"],
+        ...["23,63", "23,74", "32,63", "32,83", "41,59", "41,92", "50,73", "50,135", "59,78", "59,87", "59,116", "59,120", "68,81"],
       ],
       "behind the bridge guard col 62, the toaster beam takes him down (report 14 marker 5)": ["23,59"],
-      "west of the bridge: the walkie-talkie calls the guard post away from its col 52 code wall, and the bridge planks gap while the power is off (report 14 code wall, M22)": ["41,23"],
+      "west of the bridge: the walkie-talkie calls the guard post away from its col 58 code wall, and the bridge planks gap while the power is off (report 14 code wall, M22)": ["41,23"],
       "west of the barricade col 22, the cannon shot blasts it (report 14 M24); floor 50 west by lift 9, wall 14 floor by teleport 13": ["41,15", "41,21", "50,15", "32,30"],
     },
     never: {

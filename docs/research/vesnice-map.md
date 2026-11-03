@@ -59,7 +59,7 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 |---|---|---|
 | Wall 14 and its depot run | 29-38, 27-31 | prop `dynamiteWall` |
 | Barricade and its depot run | 22-29, 36-40 | prop `fireBarricade` |
-| Power bridge, guard post | 45-56, 41 | props `powerBridge`, `bridgeGuardPost` |
+| Power bridge, guard posts | 43-59, 41 | props `powerBridge`, `bridgeGuardPost` (east bank, code wall col 58), `westGuardPost` (west bank, mirrored) |
 | Cannon and watchtower | 31-43, 34-40 | prop `cannon`, `watchtower` |
 | Ruin by the bridge | 40-44, 36-40 | `villageHouse` (ruined) |
 | West rock | 10-15, 33-50 | `rockCliff` (2) |

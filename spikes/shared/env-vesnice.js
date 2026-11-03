@@ -2966,7 +2966,7 @@ const bridgeGuardPost = {
         const up = state === 1;
         ctx.save();
         ctx.translate(-2, -34);
-        ctx.rotate(up ? -PI / 2.2 : 0);
+        ctx.rotate(up ? PI / 2.2 : 0);
         flat(ctx, -46, -2.5, 46, 5, "k3", "kLine");
         for (let x = -42; x < -2; x += 10)
             flat(ctx, x, -2.5, 5, 5, "neon");
