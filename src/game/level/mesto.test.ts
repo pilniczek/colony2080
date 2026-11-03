@@ -7,17 +7,12 @@ import tasks from "@config/levels/mesto/tasks.json";
 import { ITEMS } from "../items";
 import { cfg, game, run, runUntil, tick, type Game } from "../hero/testWorld";
 import { loadMesto, mestoJson } from "./mesto";
-import { id, reachOf } from "./reach";
 import { coverClips } from "./cover";
 import { guardHidden } from "./guards";
 import { applyBlocks } from "./tasks";
-import { terrain } from "./terrain";
 
 const world = loadMesto();
 const { grid, spawn, lifts } = world;
-
-const shipSky = (col: number, row: number): boolean => col >= 6 && col <= 22 && row >= 11 && row <= 50;
-const eastSky = (col: number, row: number): boolean => col >= 136 && row <= 15;
 
 const droids = enemies.enemies.filter((e) => e.type === "chromeDroid");
 const flyers = enemies.enemies.filter((e) => e.type === "flyer");
@@ -55,45 +50,10 @@ describe("mesto map", () => {
     }
   });
 
-  it("keeps every lift shaft open from above its top stop down to its bottom stop, with a blocker floor on that stop", () => {
-    for (const lift of lifts) {
-      for (let col = lift.x; col < lift.x + lift.w; col++) {
-        for (let row = lift.top - 2; row < lift.bottom; row++) expect(grid.at(col, row), `${col},${row}`).toBe(".");
-        expect(grid.at(col, lift.bottom), `${col},${lift.bottom}`).toBe("|");
-      }
-    }
-  });
-
   it("stops lift 14 at its ends only and starts it at the bottom", () => {
     const lift = lifts.find((l) => l.x === 122)!;
     expect(lift.stops).toEqual([16, 30]);
     expect(lift.y).toBe(30);
-  });
-
-  it("closes every floor end with a wall or an invisible blocker", () => {
-    const shaft = (col: number, row: number): boolean => lifts.some((l) => l.top <= row && row <= l.bottom && col >= l.x && col < l.x + l.w);
-    const craneGap = (col: number, row: number): boolean => row === 10 && col >= 22 && col <= 30;
-    for (const row of [10, 16, 23, 30, 37, 41, 44, 51, 59, 70, 75]) {
-      for (let col = 1; col < grid.width - 1; col++) {
-        if (!grid.wall(col, row) || grid.solid(col, row - 1)) continue;
-        for (const next of [col - 1, col + 1]) {
-          if (grid.solid(next, row) || shaft(next, row) || craneGap(next, row) || shipSky(next, row - 1) || eastSky(next, row - 1)) continue;
-          expect(grid.solid(next, row - 1), `${next},${row - 1}`).toBe(true);
-        }
-      }
-    }
-  });
-
-  it("runs every wall column above the ground up to the floor above", () => {
-    const liftFloor = (col: number, row: number): boolean => lifts.some((l) => l.bottom === row && col >= l.x && col < l.x + l.w);
-    const short: string[] = [];
-    for (const wall of terrain(grid).walls.filter((w) => w.h > 1 && w.row < world.ground!)) {
-      for (let col = wall.col; col < wall.col + wall.w; col++) {
-        const floorAbove = Array.from({ length: wall.row }, (_, row) => grid.wall(col, row)).some(Boolean);
-        if (floorAbove && !grid.wall(col, wall.row - 1) && !liftFloor(col, wall.row - 1) && !shipSky(col, wall.row - 1)) short.push(`${col},${wall.row}`);
-      }
-    }
-    expect(short).toEqual([]);
   });
 
   it("leaves task walls out of the grid on a walkable plank", () => {
@@ -131,30 +91,6 @@ describe("mesto map", () => {
 
   it("takes the droid cells and patrols from the research list", () => {
     expect(map.droids).toEqual(droids.map((d) => ({ cell: d.cell, patrol: d.patrol })));
-  });
-
-  it("keeps tower dressing off reachable cells", () => {
-    const open = loadMesto();
-    for (const lift of open.lifts) if (lift.enabledBy) open.flags.add(lift.enabledBy);
-    for (const prop of open.props) if (prop.solidStates) prop.state = Math.max(...prop.solidStates) + 1;
-    applyBlocks(open);
-    const r = reachOf(open, cfg);
-    const from = r.reach(r.graph(r.generous), id(r.runAt(spawn[1], Math.floor(spawn[0]))!));
-    expect(from.has("23,101") && from.has("23,36")).toBe(true);
-    const body = new Set(r.runs.filter((run) => from.has(id(run))).flatMap((run) => Array.from({ length: run.w }, (_, i) => [`${run.col + i},${run.row - 1}`, `${run.col + i},${run.row - 2}`]).flat()));
-    const towers = world.dressing.filter((s) => (s.asset === "facadeTower" && s.x !== 11) || s.asset === "brickWall");
-    expect(towers.some((s) => s.asset === "facadeTower" && s.x === 127)).toBe(true);
-    for (const s of towers) {
-      for (let col = Math.floor(s.x); col < Math.ceil(s.x + s.w!); col++) {
-        for (let row = s.y! - s.h!; row < s.y!; row++) expect(body.has(`${col},${row}`), `${s.asset} ${s.x},${s.y} covers ${col},${row}`).toBe(false);
-      }
-    }
-  });
-
-  it("draws lift panels in front of all other dressing", () => {
-    const assets = world.dressing.map((s) => s.asset);
-    const first = assets.indexOf("liftPanel");
-    expect(assets.slice(first).every((a) => a === "liftPanel")).toBe(true);
   });
 
   it("stands every droid on a floor", () => {
@@ -218,11 +154,6 @@ describe("mesto props", () => {
 
   it("drops the controller task for the controller pickup", () => {
     expect(tasks.tasks.map((t) => t.object)).not.toContain("controller");
-  });
-
-  it("stands every prop on a floor", () => {
-    const off = props.filter((p) => p.y === undefined || !grid.wall(Math.floor(p.x), p.y) || grid.wall(Math.floor(p.x), p.y - 1));
-    expect(off.map((p) => p.id ?? p.item)).toEqual([]);
   });
 
   it("blocks the task wall cells until the task opens them", () => {

@@ -124,5 +124,6 @@ flowchart TD
 
 ## Check
 
+- `src/game/level/mapRules.test.ts` checks the map rules on every mission in its `BUILT` list (today mesto). A mission joins `BUILT` once its map is built, with its role table in `RULES`.
 - `npm test` twice (the whole-map tile test is slow), lint, typecheck, build; `npm run test:visual` when a ported asset changes. [S] [F]
 - Report one `moveto(x,y)` per changed spot and a Tour line; look at each in the game with fog off. [CLAUDE.md] [M]
