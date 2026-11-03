@@ -1,6 +1,6 @@
 import { G } from "./grime";
-import { P, type EnvAsset, type Size } from "./paint";
-import { blob, boulder, concreteBlock, ellipse, flame, PLANK, planks, RUIN, shadow, smoke, spark } from "./vesnice";
+import { P, type EnvAsset } from "./paint";
+import { blob, boulder, concreteBlock, flame, PLANK, planks, RUIN, shadow, smoke, spark } from "./vesnice";
 
 const { rng, flat, box, poly, cylV, disc, rivets, glow, stroke, shape, line, curve, hazard, text } = P;
 const { PI, sin, min, max, round, floor } = Math;
@@ -250,30 +250,6 @@ export const cannon: EnvAsset = {
     G.grain(ctx, G.polyRegion(ctx, [[40, 0], [60, -30], [150, -30], [176, 0]]), 974);
     G.drips(ctx, 70, -56, 90, 20, 971, 6);
     G.rustPatch(ctx, 120, -40, 6, 3, 972);
-  },
-};
-
-export const ammoDepot: EnvAsset = {
-  id: "ammoDepot",
-  box: [-2, -66, 146, 0],
-  anim: true,
-  draw(ctx, _state, t, { w = 144 }: Size = {}) {
-    const n = max(1, floor(w / 48));
-    for (let i = 0; i < n; i++) {
-      const x = i * 48;
-      flat(ctx, x + 2, -22, 20, 10, "#22261c", "kLine");
-      flat(ctx, x + 4, -20, 16, 6, "#141610", "kLine");
-      if (!simple()) text(ctx, "AMMO", x + 12, -17, 4, "#6a6a52");
-      for (const k of [0, 1]) {
-        flat(ctx, x + 3 + k * 9, -10, 8, 10, "#2c3024", "kLine");
-        ellipse(ctx, x + 7 + k * 9, -10, 4, 1.4, "#5a4a1e");
-      }
-      concreteBlock(ctx, x + 24, -44, 22, 44, 980 + i);
-      flat(ctx, x + 22, -50, 26, 6, "k1", "kLine");
-      for (let k = 0; k < 2; k++) flame(ctx, x + 24 + k * 11, -50, 11, 16, t, i * 3 + k);
-      G.drips(ctx, x + 24, -44, 22, 18, 985 + i, 2);
-    }
-    G.dirt(ctx, 0, -50, w, 50, 989, 0.3);
   },
 };
 
@@ -553,8 +529,7 @@ export const shieldPickup = item("shieldPickup", [-8, -18, 8, 1], (ctx, t) => {
 }, true);
 
 export const vesnicePropAssets: EnvAsset[] = [
-  sourceTeleport, targetTeleport, teleportPad, brokenTeleport, fuseBox, electricCabinet, cannon, ammoDepot, fireBarricade, dynamiteWall, energyBarrier,
-  powerBridge, bridgeGuardPost, smoulderingRemains, smallKey, walkieTalkie, detonator, projectileCrate, projectile, fuse, dynamite, navCircuit, toaster,
-  energyPickup, ammoPickup, shieldPickup,
+  sourceTeleport, targetTeleport, teleportPad, brokenTeleport, fuseBox, electricCabinet, cannon, fireBarricade, dynamiteWall, energyBarrier, powerBridge, bridgeGuardPost,
+  smoulderingRemains, smallKey, walkieTalkie, detonator, projectileCrate, projectile, fuse, dynamite, navCircuit, toaster, energyPickup, ammoPickup, shieldPickup,
 ];
 

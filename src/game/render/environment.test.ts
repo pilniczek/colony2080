@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ITEMS } from "../items";
 import { loadMesto } from "../level/mesto";
 import { loadSandbox, type Prop } from "../level/sandboxLevel";
-import { loadMission } from "../level/missions";
+import { loadMission, missionJson } from "../level/missions";
 import { above, askTiles, below, bucketByTile, drawnTerrain, paintTilesWith, prop, type Env, type TileJob } from "./environment";
 import movementJson from "@config/hero/movement.json";
 import { loadMovement } from "../hero/config";
@@ -203,7 +203,7 @@ describe("weapon props", () => {
     for (const l of mesto.lifts) {
       for (let col = l.x; col < l.x + l.w; col++) expect(mestoLedges.some((r) => r.row === l.bottom + 1 && col >= r.col && col < r.col + r.w), `${col},${l.bottom + 1}`).toBe(false);
     }
-    const vesnice = loadMission("vesnice");
+    const vesnice = loadSandbox({ ...missionJson("vesnice"), bare: [{ col: 45, row: 41, w: 12, h: 1 }] });
     const { walls, ledges, girders, landings, bases } = drawnTerrain(vesnice);
     expect(bases).toEqual([]);
     const covers = (col: number, row: number): boolean =>
@@ -232,7 +232,7 @@ describe("tiles painted aside", () => {
 
 describe("deep terrain", () => {
   it("covers only wall cells at least three cells from any open cell", () => {
-    const vesnice = loadMission("vesnice");
+    const vesnice = loadSandbox({ ...missionJson("vesnice"), terrainArt: { deep: "brickWall" } });
     const { grid } = vesnice;
     const wallAt = (col: number, row: number): boolean => col < 0 || row < 0 || col >= grid.width || row >= grid.height || grid.wall(col, row);
     const { deep } = drawnTerrain(vesnice);

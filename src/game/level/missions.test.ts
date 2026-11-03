@@ -9,7 +9,7 @@ import { cfg } from "../hero/testWorld";
 import { checkSnapshot, takeSnapshot } from "../save/snapshot";
 import { mapItemOf, missionFromQuery, MISSIONS } from "./missionIds";
 import { enemyKinds, loadMission, missionJson } from "./missions";
-import type { SandboxWorld } from "./sandboxLevel";
+import { loadSandbox, type SandboxWorld } from "./sandboxLevel";
 
 const footRow = (y: number): number => Math.floor(y - 0.001);
 
@@ -82,9 +82,9 @@ describe("missions", () => {
     }
   });
 
-  it("hazes each later mission backdrop in its own colour and mesto in the default", () => {
-    for (const [id, world] of [["vesnice", vesniceWorld], ["jungle", jungleWorld], ["jeskyne", jeskyneWorld]] as const) expect(loadMission(id).haze, id).toBe(world.haze);
-    expect(loadMission("mesto").haze).toBe("rgba(26, 12, 8, 0.45)");
+  it("hazes the backdrop in the world haze colour, else in the mesto default", () => {
+    expect(loadSandbox({ ...missionJson("vesnice"), haze: "rgba(28, 22, 12, 0.4)" }).haze).toBe("rgba(28, 22, 12, 0.4)");
+    for (const id of MISSIONS) expect(loadMission(id).haze, id).toBe("rgba(26, 12, 8, 0.45)");
   });
 
   it("refuses a vesnice snapshot in mesto", () => {

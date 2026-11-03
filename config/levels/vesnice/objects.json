@@ -1189,75 +1189,6 @@
    ]
   },
   {
-   "id": "walkwayGirder",
-   "name": "Free walkway",
-   "csName": null,
-   "interactive": false,
-   "marker": null,
-   "task": null,
-   "sheet": "structures",
-   "description": "Terrain girder art: the grassy walkway drawn for a floor run that touches no wall.",
-   "states": [],
-   "refs": [],
-   "origin": "new"
-  },
-  {
-   "id": "jungleCanopy",
-   "name": "Jungle canopy",
-   "csName": null,
-   "interactive": false,
-   "marker": null,
-   "task": null,
-   "sheet": "buildings",
-   "description": "Backdrop band of dark palms, canopy blobs and ferns, sized w and h in cells; the original parallax jungle (background frame 0) laid behind the storeys.",
-   "states": [],
-   "refs": [
-    {
-     "path": "docs/research/gamedata/png/lev2/f000.png",
-     "imgSize": [
-      320,
-      200
-     ],
-     "crop": [
-      0,
-      0,
-      320,
-      170
-     ],
-     "caption": "background frame 0"
-    }
-   ],
-   "origin": "new"
-  },
-  {
-   "id": "ruinWall",
-   "name": "Ruined backdrop wall",
-   "csName": null,
-   "interactive": false,
-   "marker": null,
-   "task": null,
-   "sheet": "buildings",
-   "description": "Pale broken concrete wall with ferns at its foot, sized w and h; the ruined walls of the original parallax backdrop.",
-   "states": [],
-   "refs": [
-    {
-     "path": "docs/research/gamedata/png/lev2/f000.png",
-     "imgSize": [
-      320,
-      200
-     ],
-     "crop": [
-      0,
-      80,
-      320,
-      80
-     ],
-     "caption": "background frame 0: ruined walls"
-    }
-   ],
-   "origin": "new"
-  },
-  {
    "id": "bronzePipe",
    "name": "Bronze pipe column",
    "csName": null,
@@ -1405,45 +1336,6 @@
      "caption": "map M21: depot, floor 32"
     }
    ]
-  },
-  {
-   "id": "woodPile",
-   "name": "Wood pile",
-   "csName": null,
-   "interactive": false,
-   "marker": null,
-   "task": null,
-   "sheet": "structures",
-   "description": "Stack of dark logs at a building edge; small ground clutter.",
-   "states": [],
-   "refs": [],
-   "origin": "new"
-  },
-  {
-   "id": "sackPile",
-   "name": "Sack pile",
-   "csName": null,
-   "interactive": false,
-   "marker": null,
-   "task": null,
-   "sheet": "structures",
-   "description": "Three grain sacks in a heap; small ground clutter.",
-   "states": [],
-   "refs": [],
-   "origin": "new"
-  },
-  {
-   "id": "massTop",
-   "name": "Mass top",
-   "csName": null,
-   "interactive": false,
-   "marker": null,
-   "task": null,
-   "sheet": "structures",
-   "description": "Terrain top art for a wall top the hero does not walk: a soil crust with pebbles and dry grass on the crate block masses.",
-   "states": [],
-   "refs": [],
-   "origin": "new"
   }
  ]
 }

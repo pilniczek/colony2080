@@ -6,7 +6,7 @@ import { machineAssets } from "./machines";
 import type { EnvAsset } from "./paint";
 import { propAssets } from "./props";
 import { structureAssets } from "./structures";
-import { VESNICE_IDS, vesniceAssets } from "./vesnice";
+import { VESNICE_IDS } from "./vesnice";
 import { bridgeGuard } from "./bridgeGuard";
 import { JESKYNE_IDS, jeskyneAssets } from "./jeskyne";
 import { JUNGLE_IDS, jungleAssets } from "./jungle";
@@ -24,7 +24,7 @@ const ASSET_IDS = [...BASE_IDS, ...VESNICE_IDS, ...JUNGLE_IDS, ...JESKYNE_IDS] a
 
 export type AssetId = (typeof ASSET_IDS)[number];
 
-const list: EnvAsset[] = [...structureAssets, ...buildingAssets, ...machineAssets, ...propAssets, ...guardAssets, flyer, shootGuard, ...vesniceAssets, bridgeGuard, ...vesnicePropAssets, ...jungleAssets, ...jeskyneAssets];
+const list: EnvAsset[] = [...structureAssets, ...buildingAssets, ...machineAssets, ...propAssets, ...guardAssets, flyer, shootGuard, bridgeGuard, ...vesnicePropAssets, ...jungleAssets, ...jeskyneAssets];
 
 export const ASSETS = Object.fromEntries(list.map((a) => [a.id, a])) as Record<AssetId, EnvAsset>;
 
