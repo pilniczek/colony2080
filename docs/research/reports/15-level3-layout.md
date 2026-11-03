@@ -152,6 +152,7 @@ Table `ds:0x6AEF`, 27-byte slots as in report 10. The common init `4:0x04AE` set
 - Both types move at 3 px per tick (`4:0xD4E1-0xD96A`).
 - Damage per fire tick is (6 - shields)/6 x c. With no shields that is about 18 per burst, double the level 1 rate. c is read at `4:0xDCD6` and `4:0xE05E`.
 - Burst chance is 1/11 per tick (`4:0xC3CA`). Turn chance is 1/6 (`4:0xBDAA`). **[code]**
+- Burst start conditions, 9-tick burst, reach and hit push are the shared rules in report 14 (Fire rules shared by every level). c: type 1 1.8 (`4:0xBA7D`), type 2 the single 2.0 at `4:0xBAC7`, both facings. At 0 shields each tick rounds to 2: 18 per burst, a cycle of about 9 + 3 + 11 = 23 ticks, about 25 energy per s at 32 ticks per s. **[code]** for c, **[inferred]** for the cycle.
 - Kill counts use report 10's damage rule. **[inferred]**
 - `f25` holds a dome turret sprite (8 frames, fires right). Level 3 does not use it: the guard tables `ds:0x39B9` and `ds:0x39F6` stay empty. **[code]**
 

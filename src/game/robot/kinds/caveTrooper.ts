@@ -3,6 +3,7 @@ import type { Pt } from "../../../engine/rig/tree";
 import { P } from "../../env/paint";
 import { ellipse } from "../../env/vesnice";
 import { createRigs } from "../../hero/look";
+import { KIND_TUNING } from "../../level/enemy";
 import { holdPoses } from "../gun";
 import { addHooks, paintHook, type EnemyKind } from "../kinds";
 import { createWeaponModel, toHook, type WeaponPart } from "../weaponModel";
@@ -22,9 +23,15 @@ const PALETTE: Palette = {
 };
 
 const READY = { arm: -18, fore: -54 };
+const DEATH_ARMS = { arm: -62, fore: -50 };
+const DEATH_LEAN = -13;
+const DEATH_LEGS = { hipNear: 3 - DEATH_LEAN, kneeNear: 22, ankleNear: -10, hipFar: -33 - DEATH_LEAN, kneeFar: 8, ankleFar: 8 };
+const ORIGINAL_PX = 24;
+const DEATH = { back: 44 / ORIGINAL_PX, up: 22 / ORIGINAL_PX, seconds: 11 / 32 };
 const SUPPORT: Pt = [150, -26];
 const MUZZLE: Pt = [322, -46];
-const BURST = { shots: 9, every: 0.035, tickHz: 32, size: 34 };
+const { shots, ms } = KIND_TUNING.caveTrooper!.burst!;
+const BURST = { shots, every: ms / (shots - 1) / 1000, tickHz: 32, size: 34 };
 
 const rifleParts = (): WeaponPart[] => [
   { name: "stock", x: -130, y: -74, w: 84, h: 44, mat: "m", tone: 1 },
@@ -109,10 +116,12 @@ const shotAge = (fire: number | null): number | null => {
 export const caveTrooper = (): EnemyKind => {
   const rigs = createRigs(true, true);
   addHooks(rigs.side, { head: ["helmet"], arm: ["pauldron"], armFar: ["pauldronFar"], fore: ["vambrace"], foreFar: ["vambraceFar"] });
+  const deathHold = holdPoses(rigs.side, rigs.front, DEATH_ARMS, toHook(SUPPORT));
   return {
     palette: PALETTE,
     rigs,
     hold: holdPoses(rigs.side, rigs.front, READY, toHook(SUPPORT)),
+    dying: { ...DEATH, pose: { body: DEATH_LEAN, ...DEATH_LEGS, ...deathHold.CARRY, ...deathHold.CARRY_FAR } },
     hooks: (look, lineW, fire) => {
       if (look.view !== "side") return {};
       const hooks: Record<string, HookDraw> = {

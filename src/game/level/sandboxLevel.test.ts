@@ -2,6 +2,7 @@ import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox } from "../../engine/world/collide";
 import { cfg, game, run, runUntil, RUNNING, tick } from "../hero/testWorld";
+import { KIND_TUNING } from "./enemy";
 import { callLift, loadSandbox, onGround, pickUp, resetWorld, updateLift } from "./sandboxLevel";
 
 const dt = 1 / 60;
@@ -216,6 +217,17 @@ describe("moving lift", () => {
       ["rocketDroid", 5000],
       ["caveTrooper", 5000],
     ]);
+  });
+
+  it("gives each humanoid kind its hits, burst, pause, damage and weapon from the kind config", () => {
+    const { enemies } = loadSandbox(sandbox);
+    for (const e of enemies.slice(5)) {
+      const tune = KIND_TUNING[e.kind]!;
+      expect(e.body.energy, e.kind).toBe(tune.hits);
+      expect(e.damage, e.kind).toBe(tune.damage ?? 1);
+      if (tune.burst) expect(e).toMatchObject({ burst: tune.burst, pauseMs: tune.pauseMs });
+      expect([e.rocket, e.missiles]).toEqual([tune.rocket ?? null, tune.missiles ?? null]);
+    }
   });
 
   it("damages only the enemy a hero bullet reaches", () => {

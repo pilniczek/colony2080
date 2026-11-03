@@ -1,0 +1,51 @@
+{
+  "status": "draft",
+  "source": "Enemy kind tuning shared by the game (src/game/level/enemy.ts, rockets.ts, missiles.ts, src/game/robot/kinds) and the enemy design spikes. Rocket and missile timing, look and flight: user tuning 2026-11-03. Damage and fire frequency match the original energy per second at 0 shields (docs/research/reports/14-level2-layout.md, 15-level3-layout.md, 16-level4-layout.md): L2 rocket robot and grey trooper 18 per burst every 0.75 s (24/s), L3 rocket droid 18 every 0.72 s (25/s), L4 trooper 4 fire ticks of 3 every about 1.4 s (8.5/s); hits scale the original hp to the 7-hit walker: 2.0 hp 7, L4 trooper 10.0 hp at one gun hit each 10.",
+  "units": "ms milliseconds, cells map cells, hits enemy hits taken (walker 7), damage and rocket or missile hits hero energy per shot, degrees for climb and turn",
+  "kinds": {
+    "rocketRobot": {
+      "hits": 7,
+      "rocket": {
+        "kneelMs": 120,
+        "fireMs": 150,
+        "reloadMs": 750,
+        "emptyMs": 450,
+        "speed": 22,
+        "hits": 18,
+        "range": 16,
+        "trailMs": 350
+      }
+    },
+    "rocketDroid": {
+      "hits": 7,
+      "missiles": {
+        "braceMs": 200,
+        "fireMs": 300,
+        "reloadMs": 1600,
+        "count": 3,
+        "gapMs": 220,
+        "speed": 12,
+        "hits": 13,
+        "muzzle": [-0.3, 2.2],
+        "trailMs": 900,
+        "climb": 45,
+        "turn": 320,
+        "steerMs": 120,
+        "glide": 2.5,
+        "level": 1.2
+      }
+    },
+    "greyTrooper": {
+      "hits": 7,
+      "burst": { "shots": 9, "ms": 280 },
+      "pauseMs": 470,
+      "damage": 2
+    },
+    "caveTrooper": {
+      "hits": 10,
+      "burst": { "shots": 4, "ms": 94 },
+      "pauseMs": 1300,
+      "damage": 3
+    }
+  }
+}

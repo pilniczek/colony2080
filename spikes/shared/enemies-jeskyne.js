@@ -743,7 +743,7 @@ function trooperWreck(ctx, t) {
   spark(ctx, -16, -12, t, 6);
 }
 
-const TROOPER_STATES = ["idle", "walk", "firing", "hit (knockback)", "explode", "wreck"];
+const TROOPER_STATES = ["idle", "walk", "firing", "death fling", "explode", "wreck"];
 
 const CAVE_TROOPER = {
   id: "caveTrooper",

@@ -2,6 +2,7 @@ import type { HookDraw, Palette } from "../../../engine/rig/draw";
 import type { Pt } from "../../../engine/rig/tree";
 import { P } from "../../env/paint";
 import { createRigs } from "../../hero/look";
+import { KIND_TUNING } from "../../level/enemy";
 import { holdPoses } from "../gun";
 import { paintHook, stanceShot, type EnemyKind } from "../kinds";
 import { createWeaponModel, toHook, type WeaponPart } from "../weaponModel";
@@ -26,7 +27,7 @@ const DESIGNATOR_MUZZLE: Pt = [104, -40];
 const DESIGNATOR_SUPPORT: Pt = [30, -20];
 const CARRY = { arm: -20, fore: -62 };
 const BRACE = { body: 0, hipNear: -34, kneeNear: 30, ankleNear: 4, hipFar: 26, kneeFar: 0, ankleFar: -26 };
-const SETTLE = 0.2;
+const SETTLE = KIND_TUNING.rocketDroid!.missiles!.braceMs / 1000;
 
 const designatorParts = (): WeaponPart[] => [
   { name: "body", x: -10, y: -64, w: 112, h: 40, mat: "m", tone: 2 },

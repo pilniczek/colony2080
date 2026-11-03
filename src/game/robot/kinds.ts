@@ -24,6 +24,14 @@ export interface EnemyKind {
   laser?: Pt;
   clips?: ClipSet;
   hooks?: (look: HeroLook, lineW: number, fire: number | null) => Record<string, HookDraw>;
+  dying?: Dying;
+}
+
+export interface Dying {
+  pose: Record<string, number>;
+  back: number;
+  up: number;
+  seconds: number;
 }
 
 const groupNamed = (node: GroupNode, name: string): GroupNode | null => {

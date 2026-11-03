@@ -22,6 +22,7 @@ New humanoid enemy for any mission. Built first for rocket robot, grey trooper, 
 | Weapon | `GUN.model` | `createWeaponModel` |
 | Hold | `XBOT.solve` for the far hand | `holdPoses(side, front, carry, support)` |
 | Placement | sheet figures | enemy entry with `"kind"` in a level `enemies` list |
+| Tuning (hits, burst, pause, damage, rocket or missiles) | `C28_CONFIG.enemies.<kind>` | `KIND_TUNING` from `config/enemies/kinds.json`, the one source; rerun `node spikes/shared/build-config.mjs` after editing |
 
 ```mermaid
 flowchart LR
@@ -40,11 +41,12 @@ flowchart LR
 - `hooks(look, lineW, fire)` - replaces the gun hooks; draw the weapon on `hand` only while `look.gun === "hand"`; `fire` is seconds since the attack started, null otherwise.
 - `clips` - hero clip overrides; `stanceShot(stance, settle)` makes a `shoot` clip that settles into a kneel or brace and gets up from `STANCE_HOLD`.
 - `laser` - hand-hook point; a red beam to the hero while it attacks.
-- `launch` - hand-hook point a rocket leaves from; else the rocket `muzzle` cells.
+- `dying` - pose, `back` and `up` cells, `seconds`: replaces the pose while it explodes and flings it back and up; no scrap left.
+- `launch` - hand-hook point a rocket leaves from (missiles leave from their config `muzzle` cells instead).
 
 ## Rocket kinds
 
-An enemy entry with `rocket` fires rockets instead of bursts. Behaviour and flight law in CLAUDE.md (`level/rockets.ts`). Keep the kind stance settle equal to `kneelMs`, and any reload art in the kind file equal to `fireMs` / `reloadMs`.
+A kind with `rocket` (straight, `level/rockets.ts`) or `missiles` (homing salvo, `level/missiles.ts`) in `config/enemies/kinds.json` fires them instead of bursts. They are separate weapons; only the trail and impact code in `level/projectile.ts` is shared. Kind files and spikes read stance settle, fire and reload timing from the config, never their own copies. Behaviour and flight law in CLAUDE.md.
 
 ```mermaid
 stateDiagram-v2
@@ -52,7 +54,7 @@ stateDiagram-v2
   walk --> stance: sees hero
   stance --> stance: fireMs, then every reloadMs while seen
   stance --> rising: loses hero
-  rising --> walk: after kneelMs
+  rising --> walk: after the settle (kneelMs or braceMs)
 ```
 
 ## Checks

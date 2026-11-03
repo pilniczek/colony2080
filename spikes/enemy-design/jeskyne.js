@@ -128,7 +128,7 @@
       { id: "ctIdle", caption: "Cave trooper, idle", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 0, { x: 480 }) },
       { id: "ctWalk", caption: "Cave trooper, walk", w: 1600, h: 780, draw: trooperWalking() },
       { id: "ctFire", caption: "Cave trooper, firing", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 2, { x: 440 }) },
-      { id: "ctHit", caption: "Cave trooper, hit (knockback)", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 3, { x: 600 }) },
+      { id: "ctHit", caption: "Cave trooper, death fling (thrown back and up as it explodes)", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 3, { x: 600 }) },
       { id: "ctBlast", caption: "Cave trooper, explosion", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 4, { x: 640 }) },
       { id: "ctWreck", caption: "Cave trooper, wreck", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 5, { x: 640 }) },
       { id: "ctScale", caption: "Scale, hero and cave trooper", w: 2000, h: 1100, hero: true, draw: scale(CAVE_TROOPER, 0, 1500) }
@@ -136,7 +136,7 @@
     game: [
       { id: "gCtDuel", caption: "Face-off, cave", w: 2200, h: 1200, draw: faceOff(CAVE_TROOPER, 2, 1650) },
       { id: "gCtWalk", caption: "Walk", w: 1300, h: 1200, draw: trooperWalking({ lod: true, scenery: true }) },
-      { id: "gCtHit", caption: "Hit (knockback)", w: 1300, h: 1200, draw: inCave(CAVE_TROOPER, 3, 600) },
+      { id: "gCtHit", caption: "Death fling", w: 1300, h: 1200, draw: inCave(CAVE_TROOPER, 3, 600) },
       { id: "gCtWreck", caption: "Wreck", w: 1300, h: 1200, draw: inCave(CAVE_TROOPER, 5, 640) }
     ]
   };

@@ -87,15 +87,15 @@
     { "kind": "weapon", "weapon": "blaster", "x": 30.5 , "cutscene": "pickEBlaster"}
   ],
   "enemies": [
-    { "x": 6.5, "y": 4, "facing": 1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400 },
-    { "x": 18.5, "y": 18, "facing": -1, "hits": 7, "respawnMs": null, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400 },
-    { "x": 26.5, "y": 21, "facing": 1, "hits": 7, "respawnMs": null, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400 },
-    { "x": 13.5, "y": 28, "facing": 1, "hits": 7, "respawnMs": null, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400 },
-    { "x": 45.5, "y": 14, "facing": -1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400, "patrol": [37, 47], "flight": { "hoverLift": 2.8, "aimLift": 1.4, "speedScale": 2, "climb": 3, "closeCells": 3, "wave": { "cells": 0.25, "hz": 0.4 } } },
-    { "x": 38.5, "y": 21, "facing": -1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400, "patrol": [36, 40], "kind": "rocketRobot", "rocket": { "kneelMs": 120, "fireMs": 150, "reloadMs": 900, "speed": 22, "hits": 9, "range": 16, "muzzle": [0.9, 1.1], "trailMs": 350 } },
-    { "x": 9.5, "y": 21, "facing": 1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400, "patrol": [7, 12], "kind": "greyTrooper" },
-    { "x": 36.5, "y": 28, "facing": -1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400, "patrol": [31, 40], "kind": "rocketDroid", "rocket": { "kneelMs": 200, "fireMs": 300, "reloadMs": 1600, "salvo": { "count": 3, "gapMs": 220 }, "speed": 12, "hits": 3, "muzzle": [-0.3, 2.2], "trailMs": 900, "homing": { "climb": 45, "turn": 320, "steerMs": 120, "glide": 2.5, "level": 1.2 }, "fins": true } },
-    { "x": 26.5, "y": 25, "facing": -1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 400, "patrol": [23, 30], "kind": "caveTrooper" }
+    { "x": 6.5, "y": 4, "facing": 1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500 },
+    { "x": 18.5, "y": 18, "facing": -1, "hits": 7, "respawnMs": null, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500 },
+    { "x": 26.5, "y": 21, "facing": 1, "hits": 7, "respawnMs": null, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500 },
+    { "x": 13.5, "y": 28, "facing": 1, "hits": 7, "respawnMs": null, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500 },
+    { "x": 45.5, "y": 14, "facing": -1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500, "patrol": [37, 47], "flight": { "hoverLift": 2.8, "aimLift": 1.4, "speedScale": 2, "climb": 3, "closeCells": 3, "wave": { "cells": 0.25, "hz": 0.4 } } },
+    { "x": 38.5, "y": 21, "facing": -1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500, "patrol": [36, 40], "kind": "rocketRobot" },
+    { "x": 9.5, "y": 21, "facing": 1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500, "patrol": [7, 12], "kind": "greyTrooper" },
+    { "x": 36.5, "y": 28, "facing": -1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500, "patrol": [31, 40], "kind": "rocketDroid" },
+    { "x": 26.5, "y": 25, "facing": -1, "hits": 7, "respawnMs": 5000, "reactMs": 250, "burst": { "shots": 9, "ms": 280 }, "pauseMs": 500, "patrol": [23, 30], "kind": "caveTrooper" }
   ],
   "tasks": {
     "tasks": [

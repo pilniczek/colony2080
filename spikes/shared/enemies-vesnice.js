@@ -163,12 +163,13 @@ function exploding(ctx, t, body, wreck) {
 }
 
 const RR = { drop: 48, launch: [566, 62] };
-const RR_SHOT = { settle: 0.12, fire: 0.15, reload: 0.9, empty: 0.45, seen: 2.4, loop: 4 };
+const RR_TUNE = window.C28_CONFIG.enemies.rocketRobot.rocket;
+const RR_SHOT = { settle: RR_TUNE.kneelMs / 1000, fire: RR_TUNE.fireMs / 1000, reload: RR_TUNE.reloadMs / 1000, empty: RR_TUNE.emptyMs / 1000, seen: 2.4, loop: 4 };
 const RR_STAND = { body: 0, hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
 const RR_KNEEL = { body: 0, hipNear: -76, kneeNear: 84, ankleNear: 0, hipFar: 12, kneeFar: 92, ankleFar: -80 };
 const RR_SLUMP = { ...legs(14, [-66, 92, -4], [22, 96, -80]), chest: 16, head: 38, arm: 18, fore: -30, armFar: 6, foreFar: -40 };
 const RR_GRIP = { near: [394, 112], far: [478, 106] };
-const ROCKET = { length: 0.4, radius: 0.035, nose: 0.1, speed: 22, range: 16, trailStep: 0.08, trailLife: 0.35, boom: 0.45 };
+const ROCKET = { length: 0.4, radius: 0.035, nose: 0.1, speed: RR_TUNE.speed, range: RR_TUNE.range, trailStep: 0.08, trailLife: RR_TUNE.trailMs / 1000, boom: 0.45 };
 const ROCKET_COLORS = { body: "#52683e", line: "#1c2614", nose: "#c4301c", flame: "#ffd060", glow: "rgba(255,150,40,0.45)" };
 const PUFF = { start: 0.04, grow: 0.22, rise: 0.15, alpha: 0.5, shade: [176, 170, 160] };
 const rrRigs = {};

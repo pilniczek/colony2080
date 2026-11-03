@@ -79,8 +79,9 @@ const DEG = PI / 180;
 
 const RACK = { x0: -96, x1: 34, y0: -250, y1: 90, cells: 3, lid: 26 };
 const DESIGNATOR = { muzzle: [104, -40], support: [30, -20] };
-const VOLLEY = { settle: 0.2, fire: 0.3, reload: 1.6, count: 3, gap: 0.22, lost: 3.4, loop: 5 };
-const ROCKET = { speed: 12, muzzle: [-0.3, 2.2], trail: 0.9, trailStep: 0.08, climb: 45 * DEG, turn: 320 * DEG, steerAt: 0.12, glide: 2.5, level: 1.2, step: 1 / 60, life: 10 };
+const RD_TUNE = window.C28_CONFIG.enemies.rocketDroid.missiles;
+const VOLLEY = { settle: RD_TUNE.braceMs / 1000, fire: RD_TUNE.fireMs / 1000, reload: RD_TUNE.reloadMs / 1000, count: RD_TUNE.count, gap: RD_TUNE.gapMs / 1000, lost: 3.4, loop: 5 };
+const ROCKET = { speed: RD_TUNE.speed, muzzle: RD_TUNE.muzzle, trail: RD_TUNE.trailMs / 1000, trailStep: 0.08, climb: RD_TUNE.climb * DEG, turn: RD_TUNE.turn * DEG, steerAt: RD_TUNE.steerMs / 1000, glide: RD_TUNE.glide, level: RD_TUNE.level, step: 1 / 60, life: 10 };
 const CLOSE = { cells: 6, climb: 85 * DEG, tighter: 1 };
 const TARGET = { height: 1.9, width: 0.7, chest: 0.5, laser: 0.6 };
 const BODY = { length: 0.4, radius: 0.035, nose: 0.1, fin: 0.07 };

@@ -43,6 +43,7 @@ window.C28_CONFIG = {
   "holoPlan": {
    "name": "holoplan",
    "cs": "Holoplán",
+   "keep": true,
    "icon": {
     "asset": "holoPlan",
     "tilt": 0,
@@ -228,6 +229,43 @@ window.C28_CONFIG = {
     ]
    }
   }
+ },
+ "enemies": {
+  "rocketRobot": {
+   "rocket": {
+    "kneelMs": 120,
+    "fireMs": 150,
+    "reloadMs": 900,
+    "emptyMs": 450,
+    "speed": 22,
+    "hits": 9,
+    "range": 16,
+    "trailMs": 350
+   }
+  },
+  "rocketDroid": {
+   "missiles": {
+    "braceMs": 200,
+    "fireMs": 300,
+    "reloadMs": 1600,
+    "count": 3,
+    "gapMs": 220,
+    "speed": 12,
+    "hits": 3,
+    "muzzle": [
+     -0.3,
+     2.2
+    ],
+    "trailMs": 900,
+    "climb": 45,
+    "turn": 320,
+    "steerMs": 120,
+    "glide": 2.5,
+    "level": 1.2
+   }
+  },
+  "greyTrooper": {},
+  "caveTrooper": {}
  },
  "cutscenes": {
   "acidGuardComes": {

@@ -9,7 +9,9 @@ import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./her
 import { bodyBox, hitEnemy, isDead, shotBox, type Enemy } from "./level/enemy";
 import { startFilm, type Prop, type SandboxWorld } from "./level/sandboxLevel";
 import { repelHero, updateGuard } from "./level/guards";
-import { flyRockets, launch, liveRockets } from "./level/rockets";
+import { flyMissile, launchMissile } from "./level/missiles";
+import { live, tick } from "./level/projectile";
+import { flyRocket, launchRocket } from "./level/rockets";
 import { applyBlocks, say } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { kindOf } from "./robot/kinds";
@@ -233,31 +235,37 @@ export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], c
   }
 }
 
-function enemyFire(world: SandboxWorld, sound: "laser" | "cannon", count: number): void {
-  world.heroHits += count;
+function enemyFire(world: SandboxWorld, sound: "laser" | "cannon", count: number, damage = 1): void {
+  world.heroHits += count * damage;
   for (let i = 0; i < count; i++) cue(world, sound, 15000);
 }
 
-function launchPoint({ body, kind }: Enemy, muzzle: number[], clips: ClipSet, cfg: MovementConfig): Pt {
+function launcherTip({ body, kind }: Enemy, clips: ClipSet, cfg: MovementConfig): Pt {
   const { launch: inHand, rigs, hold, clips: own } = kindOf(kind);
-  if (inHand) return rigPoint(body, heroLook(body, own ? { ...clips, ...own } : clips, rigs, hold, cfg), rigs, inHand, cfg);
-  return [body.x + body.facing * muzzle[0]!, body.y - muzzle[1]!];
+  if (!inHand) return [body.x, body.y - cfg.box.height / 2];
+  return rigPoint(body, heroLook(body, own ? { ...clips, ...own } : clips, rigs, hold, cfg), rigs, inHand, cfg);
 }
 
 export function fireEnemy(world: SandboxWorld, enemy: Enemy, count: number, clips: ClipSet, cfg: MovementConfig): void {
-  const { rocket } = enemy;
-  if (!rocket) return enemyFire(world, enemy.flight ? "laser" : "cannon", count);
+  const { rocket, missiles, body } = enemy;
+  if (!rocket && !missiles) return enemyFire(world, enemy.flight ? "laser" : "cannon", count, enemy.damage);
   for (let i = 0; i < count; i++) {
-    world.rockets.push(launch(launchPoint(enemy, rocket.muzzle, clips, cfg), enemy.body.facing, rocket));
+    if (rocket) world.projectiles.push(launchRocket(launcherTip(enemy, clips, cfg), body.facing, rocket));
+    if (missiles) world.projectiles.push(launchMissile([body.x + body.facing * missiles.muzzle[0]!, body.y - missiles.muzzle[1]!], body.facing, missiles));
     cue(world, "takeoff", 15000);
   }
 }
 
-export function stepRockets(world: SandboxWorld, hero: Hero, cfg: MovementConfig, dt: number): void {
-  const { hits, booms } = flyRockets(world.rockets, world.grid, world.fog, hero, cfg.box, dt);
-  world.heroHits += hits;
-  for (let i = 0; i < booms; i++) explode(world);
-  world.rockets = liveRockets(world.rockets);
+export function stepProjectiles(world: SandboxWorld, hero: Hero, cfg: MovementConfig, dt: number): void {
+  for (const p of world.projectiles) {
+    const { hits, burst } =
+      p.kind === "rocket"
+        ? tick(p, dt, (r) => flyRocket(r, world.grid, hero, cfg.box, dt))
+        : tick(p, dt, (m) => flyMissile(m, world.grid, world.fog, hero, cfg.box, dt));
+    world.heroHits += hits;
+    if (burst) explode(world);
+  }
+  world.projectiles = world.projectiles.filter(live);
 }
 
 function repelled(world: SandboxWorld, hits: number): void {

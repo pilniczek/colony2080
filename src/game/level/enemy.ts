@@ -1,3 +1,4 @@
+import kindsJson from "@config/enemies/kinds.json";
 import type { TileGrid } from "../../engine/world/tiles";
 import { FLYER_HULL } from "../env/flyer";
 import { TILE } from "../env/paint";
@@ -25,22 +26,46 @@ export interface EnemyJson {
   patrol?: [number, number];
   flight?: FlightJson;
   kind?: string;
-  rocket?: RocketJson;
 }
 
 export interface RocketJson {
   kneelMs: number;
   fireMs: number;
   reloadMs: number;
+  emptyMs: number;
+  speed: number;
+  hits: number;
+  range: number;
+  trailMs: number;
+}
+
+export interface MissilesJson {
+  braceMs: number;
+  fireMs: number;
+  reloadMs: number;
+  count: number;
+  gapMs: number;
   speed: number;
   hits: number;
   muzzle: number[];
   trailMs: number;
-  range?: number;
-  salvo?: { count: number; gapMs: number };
-  homing?: { climb: number; turn: number; steerMs: number; glide: number; level: number };
-  fins?: boolean;
+  climb: number;
+  turn: number;
+  steerMs: number;
+  glide: number;
+  level: number;
 }
+
+export interface KindTuning {
+  hits?: number;
+  burst?: Burst;
+  pauseMs?: number;
+  damage?: number;
+  rocket?: RocketJson;
+  missiles?: MissilesJson;
+}
+
+export const KIND_TUNING = kindsJson.kinds as Record<string, KindTuning>;
 
 export interface FlightJson {
   hoverLift: number;
@@ -96,6 +121,8 @@ export interface Enemy {
   pauseLeft: number;
   flight: Flight | null;
   rocket: RocketJson | null;
+  missiles: MissilesJson | null;
+  damage: number;
 }
 
 const walking = (body: Hero): Hero => ({ ...body, state: "walk" });
@@ -183,15 +210,19 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
   const spot: [number, number] = [json.x, json.y];
   const free = json.flight ? airOf(grid, spot, json.flight) : patrolOf(grid, shafts, spot);
   const patrol = keptOut(configuredPatrol(free, json.patrol, half), spot, keepOut, half);
-  const base = { spot: [Math.min(patrol[1], Math.max(patrol[0], json.x)), json.y] as [number, number], facing: json.facing, hits: json.hits, flight };
+  const kind = json.kind ?? "walker";
+  const tune = KIND_TUNING[kind] ?? {};
+  const base = { spot: [Math.min(patrol[1], Math.max(patrol[0], json.x)), json.y] as [number, number], facing: json.facing, hits: tune.hits ?? json.hits, flight };
   return {
     ...base,
-    kind: json.kind ?? "walker",
-    rocket: json.rocket ?? null,
+    kind,
+    rocket: tune.rocket ?? null,
+    missiles: tune.missiles ?? null,
+    damage: tune.damage ?? 1,
     respawnMs: json.respawnMs,
     reactMs: json.reactMs,
-    burst: json.burst,
-    pauseMs: json.pauseMs,
+    burst: tune.burst ?? json.burst,
+    pauseMs: tune.pauseMs ?? json.pauseMs,
     patrol,
     body: spawnBody(base),
     deadAge: null,
@@ -281,17 +312,31 @@ function patrol(e: Enemy, grid: TileGrid, clips: ClipSet, dt: number, scale = 1)
 
 export const STANCE_HOLD = 600;
 
-export function shotsBy(t: number, rocket: RocketJson): number {
-  const { count, gapMs } = rocket.salvo ?? { count: 1, gapMs: 0 };
+export interface Stance {
+  settleMs: number;
+  fireMs: number;
+  reloadMs: number;
+  count: number;
+  gapMs: number;
+}
+
+export const stanceOf = ({ rocket, missiles }: Pick<Enemy, "rocket" | "missiles">): Stance | null =>
+  rocket
+    ? { settleMs: rocket.kneelMs, fireMs: rocket.fireMs, reloadMs: rocket.reloadMs, count: 1, gapMs: 0 }
+    : missiles
+      ? { settleMs: missiles.braceMs, fireMs: missiles.fireMs, reloadMs: missiles.reloadMs, count: missiles.count, gapMs: missiles.gapMs }
+      : null;
+
+export function shotsBy(t: number, { fireMs, reloadMs, count, gapMs }: Stance): number {
   let shots = 0;
   for (let i = 0; i < count; i++) {
-    const first = (rocket.fireMs + i * gapMs) / 1000;
-    if (t >= first) shots += Math.floor((t - first) / (rocket.reloadMs / 1000) + 1e-9) + 1;
+    const first = (fireMs + i * gapMs) / 1000;
+    if (t >= first) shots += Math.floor((t - first) / (reloadMs / 1000) + 1e-9) + 1;
   }
   return shots;
 }
 
-function volley(e: Enemy, rocket: RocketJson, dt: number): number {
+function volley(e: Enemy, stance: Stance, dt: number): number {
   const { body } = e;
   if (body.state !== "attack" || body.time >= STANCE_HOLD) {
     Object.assign(body, { state: "attack", time: 0, fireTime: 0 });
@@ -299,14 +344,14 @@ function volley(e: Enemy, rocket: RocketJson, dt: number): number {
   }
   const before = body.fireTime ?? 0;
   body.fireTime = before + dt;
-  return shotsBy(body.fireTime, rocket) - shotsBy(before, rocket);
+  return shotsBy(body.fireTime, stance) - shotsBy(before, stance);
 }
 
-function rising(e: Enemy, rocket: RocketJson): boolean {
+function rising(e: Enemy, stance: Stance): boolean {
   const { body } = e;
   if (body.state !== "attack") return false;
   if (body.time < STANCE_HOLD) Object.assign(body, { time: STANCE_HOLD, fireTime: null });
-  return body.time < STANCE_HOLD + rocket.kneelMs / 1000;
+  return body.time < STANCE_HOLD + stance.settleMs / 1000;
 }
 
 function shoot(e: Enemy, dt: number): number {
@@ -368,9 +413,10 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
   }
   if (e.flight) return fly(e, e.flight, grid, fog, hero, clips, cfg.sightCells, dt);
   const seen = sees(e, grid, hero, fog, cfg.sightCells);
-  if (e.rocket) {
-    if (seen) return volley(e, e.rocket, dt);
-    if (rising(e, e.rocket)) return 0;
+  const stance = stanceOf(e);
+  if (stance) {
+    if (seen) return volley(e, stance, dt);
+    if (rising(e, stance)) return 0;
   } else if (seen) return shoot(e, dt);
   setState(e.body, "walk");
   patrol(e, grid, clips, dt);

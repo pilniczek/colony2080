@@ -2,6 +2,7 @@ import type { HookDraw, Palette } from "../../../engine/rig/draw";
 import type { Pt } from "../../../engine/rig/tree";
 import { P } from "../../env/paint";
 import { createRigs, type HeroLook } from "../../hero/look";
+import { KIND_TUNING } from "../../level/enemy";
 import { CARRY, holdPoses } from "../gun";
 import { addHooks, backToBody, paintHook, rigKeys, type EnemyKind } from "../kinds";
 import { createWeaponModel, toHook, type WeaponPart } from "../weaponModel";
@@ -18,7 +19,8 @@ const OWN: Palette = {
   vFire0: "#b04010", vFire1: "#e88a28", vFire2: "#f8d070", vFire3: "#ffffff",
 };
 
-const BURST = { shots: 9, gap: 0.035, frames: 3, flash: 40, casingLife: 0.35 };
+const { shots, ms } = KIND_TUNING.greyTrooper!.burst!;
+const BURST = { shots, gap: ms / (shots - 1) / 1000, frames: 3, flash: 40, casingLife: 0.35 };
 const IN_HAND = { a: 0, b: 1, c: -1, d: 0, e: 0, f: 0 };
 const MUZZLE: Pt = [328, -52];
 const SUPPORT: Pt = [150, -24];

@@ -142,13 +142,35 @@ M43 restores the M41 stalactite art at rows 16-18 (the crystal stays gone). This
 |---|---|---|---|---|---|---|
 | spider walker | `ds:0x6AEF`, type 1 | 7 | box body on thin legs, forward gun (f21, f22) | 5.0 | 2 px | (6 - shields)/6 x 1.2 |
 | pod walker | `ds:0x6AEF`, type 2 | 10 | grey domed pod on bent green legs (f23, f24) | 3.0 | 3 px | x 1.4 or 2.4 by facing |
-| trooper | `ds:0x39F6`, 23-byte records | 8 | blue humanoid soldier with a rifle (f27 walk, f28 other) | 10.0 | [open] | x 3.0, knockback |
+| trooper | `ds:0x39F6`, 23-byte records | 8 | blue humanoid soldier with a rifle (f27 walk, f28 other) | 10.0 | 2 px | (6 - shields)/6 x 3.0, 4 ticks per shot |
 
 - **Table enemies.**
   - Turn chance 1/5 (`4:0xBDB6`), fire chance 1/10 (`4:0xC3D6`).
+  - Burst start, 9-tick burst, reach and hit push follow the shared rules in report 14 (Fire rules shared by every level). **[code]**
+  - **Pod walker facing rule.** The right-facing burst (states 0x19-0x21, `4:0xE09E`) loads c = 1.4 (`4:0xBACB`); the left-facing burst (states 0x401-0x409, `4:0xE857`) loads 2.4 (`4:0xBABD`, the level 2 constant). So a pod walker shooting left hits almost twice as hard. Probably a copy slip in the original. The spider walker uses 1.2 (`4:0xBA87`) both ways. **[code]**
+  - At 0 shields each tick rounds to 1 (spider, pod facing right) or 2 (pod facing left): 9 or 18 per burst. Cycle about 9 + 3 + 10 = 22 ticks, so about 13 or 26 energy per s at 32 ticks per s. **[inferred]**
   - Level 4 lifts no slot by 4 rows: pod walkers stay on their floor. The hover range stays 0, and what the hover update does with it is **[open]**.
   - Kill counts: about 27 gun hits or 9 punches for a spider walker, 14 or 5 for a pod walker.
-- **Troopers.** A gun hit takes the ammo type value, a punch takes 1.0 (50 px reach), and the level 3 flamethrower particle takes 0.1.
+- **Troopers.** A gun hit takes the ammo type value, a punch takes 1.0 (50 px reach), and the level 3 flamethrower particle takes 0.1. No hit makes the trooper flinch: a hit only lowers hp and puts a spark (`5:0x7891-0x7D83`, `7:0x1B41`). **[code]**
+
+### Trooper behaviour (`5:0x09A8-0x249F`)
+
+**[code]** unless tagged. Per-tick routine over trooper slots 1-10. Record (`ds:0x39F6 + 23n`): +0 / +2 patrol x min / max (cells), +4 x (cells), +8 y, +0xC state byte, +0xD x pixel offset, +0xF y pixel offset, +0x11 hp (Real48). States below 0x64 face right; the same state + 0x64 faces left. Frames are the 48 x 48 sprites of `LEV4.GRA` f27 (walk) and f28 (others), laid out as in report 10.
+
+- **Active** only while the hero is within 16 columns and the trooper is at most 9 rows above or 2 rows below him.
+- **Walk** (states 1-0x18, f27 frames 1-24): 2 px per tick (4 in level 8), 64 px per s at 32 ticks per s. At a patrol bound the step is cancelled, so it walks in place. Turns at once (no chance roll) when the hero is more than 2 cells behind it.
+- **Stop on sight.** While walking, with the hero on its row, in front and within 10 cells, not in hide state 0x78 / 0x460 and with y offset `[0xDB48] == 0`, it rolls `Random(5)` every tick: 1 → aim (0x19), else → take cover (0x3C). So on the first such tick it stops: 1/5 aim, 4/5 cover.
+- **Aim loop** (0x19-0x24, f28 frames 1, 2, 3, 2 for 3 ticks each, 12-tick loop). Leaves for walk when the hero is more than 3 cells ahead and off its row or hiding.
+- **Cover** (0x3C → f28 frame 17, 0x3D → frame 18, then 0x25 = frame 16, the dark front view: the trooper steps into the background like the hidden hero). In 0x25 / 0x89 every hero weapon skips it (`5:0x7991`, `7:0x1C6B`). Each tick with the fire key not held (`[0xDC6E] == 0`, set at `3:0x0101`) it leaves with chance 1/20 (`Random(20) == 2`, `5:0x134F`): 0x3E (frame 18), 0x3F (frame 17), then the aim loop. A hero who keeps fire held keeps it in cover; it also returns to walking when the hero leaves its row or hides. Level 8 also teleports it next to the hero on that exit.
+- **Fire decision** (`5:0x0F2D`, `5:0x1013`): from walk or the aim loop, not in cover, `Random(9) == 2` (1/9 per tick) with the hero ahead within 6 cells (facing right) or 7 cells (facing left). No row or hiding check here.
+- **Shot** (one shot, 17 ticks):
+  - wind-up 0x26-0x2F, state + 2 per tick: f28 frames 4, 5, 6, 5, 4 (5 ticks);
+  - fire 0x30-0x33: frames 7 (muzzle flash), 8, 9, 10 (rifle kicks up), sound 5 on the first tick (4 ticks). **Every fire tick** takes `(6 - shields) / 6 x 3.0` (`5:0x16E4`, constants 6.0 at `5:0x998`, 3.0 at `5:0x99C`; level 5 4.0, 6 5.0, 7 6.0, 8 5.0) when the hero is not hidden (`[0x3BD9]`), not in hide state 0x78 / 0x460, on its row or one row up, and has a y offset that is a multiple of 6. No x check. At 0 shields 3 per tick, 12 per shot. With 1 shield it is 2.5 per tick, rounded to even, so 2 or 3 by the energy parity;
+  - recoil 0x34-0x3B: frames 11, 12, 13, 14, 2 ticks each (8 ticks);
+  - then `Random(5)`: 0-3 → cover (0x3C), 4 → aim loop.
+- **Hit push on the hero.** Each damaging tick sets hero hit state 0x82 / 0x46A and `[0xE3D2]` = +3 (trooper facing right, `5:0x185E`) or -3 (facing left, `5:0x1F54`): the same 3 px per tick push for 3 ticks after the last hit as the table enemies (report 14). A full shot pushes for about 7 ticks, about 21 px, under one cell. **[inferred]** for the pixel distance. It is not a special knockback: the marker 15 guard uses 9 (`5:0x2AD8`, `5:0x2D76`).
+- **Death** (hp < 1.0, states 0x50-0x5A, mirror 0xB4-0xBE): f28 frame 15 (leaning back, rifle up) for 11 ticks, an explosion spark and sound 9 every tick, and the body moves 4 px per tick backwards and 2 px per tick up (44 px and 22 px in total). Then it is gone, no wreck. This is the trooper being thrown back, not the hero.
+- **Average cycle** with the hero standing still 6 cells in front, not hiding and not firing: 9 waiting ticks + 17 shot ticks + 4/5 x (2 + 20 + 2) cover ticks, about 45 ticks (1.4 s): 12 energy per cycle, about 8.5 per s at 0 shields. **[inferred]**
 - **No special guard.** The shoot-only guard table (`ds:0x39B9`) is empty in level 4. No map-tile guard exists.
 
 Full list with cells and patrols: `config/levels/jeskyne/enemies.json`. By floor (map rows):
@@ -212,4 +234,4 @@ The reach model is a script over the floor runs, not the game, so items 3 and 4 
 - Lifts, items, bonuses, spawn, enemy and trooper cells: HIGH (init stores; all 30 placements sit on floor tiles).
 - Floor tile list, fall, cart carry, zones, door and block logic, use and shot handlers: HIGH (code).
 - Jump reach in cells and the reach-model dead ends: MEDIUM.
-- Enemy names and looks: MEDIUM (sprites rebuilt, never seen in footage). Trooper speed and burst: [open].
+- Enemy names and looks: MEDIUM (sprites rebuilt, never seen in footage). Trooper speed, shot and cover logic: HIGH (code); averages per second: MEDIUM (tick rate 32 per s assumed).

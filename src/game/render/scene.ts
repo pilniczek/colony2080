@@ -16,11 +16,11 @@ import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
-import type { EnemyKind } from "../robot/kinds";
+import type { Dying, EnemyKind } from "../robot/kinds";
 import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
-import { drawRockets } from "./rockets";
+import { drawProjectiles } from "./projectiles";
 import { BEAM_FRAMES, drawBeam } from "./beam";
 import { drawEnvironment } from "./environment";
 
@@ -123,6 +123,11 @@ function laserFrom(f: Frame, body: Hero, look: HeroLook, kind: EnemyKind, scale:
   return at ? [at.x, at.y] : null;
 }
 
+function dyingLook(body: Hero, look: HeroLook, dying: Dying, age: number): [Hero, HeroLook] {
+  const k = Math.min(1, age / dying.seconds);
+  return [{ ...body, x: body.x - body.facing * dying.back * k, y: body.y - dying.up * k }, { ...look, pose: { ...look.pose, ...dying.pose } }];
+}
+
 function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, kind: EnemyKind, scale: number, fireRate: number): Pt | null {
   if (enemy.flight) {
     flyerFigure(f, enemy);
@@ -130,12 +135,13 @@ function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, kind: EnemyKind, sc
   }
   const age = enemy.deadAge;
   const alive = age === null || age < BLAST.hideBody;
+  const [body, pose] = age !== null && kind.dying ? dyingLook(enemy.body, look, kind.dying, age) : [enemy.body, look];
   if (alive) {
     if (feetSeen(f.world.fog, enemy.body)) shadow(f, enemy.body, look);
     const flash = !!kind.muzzle && firing(enemy.body, fireRate);
-    heroFigure(f, enemy.body, look, kind.rigs, scale, flash, kind.palette, kind.hooks?.(look, f.lineW, fireOf(enemy.body)), kind.muzzle);
-  } else scrap(f, enemy.body);
-  if (age !== null) blast(f, enemy.body, age);
+    heroFigure(f, body, pose, kind.rigs, scale, flash, kind.palette, kind.hooks?.(pose, f.lineW, fireOf(enemy.body)), kind.muzzle);
+  } else if (!kind.dying) scrap(f, enemy.body);
+  if (age !== null) blast(f, body, age);
   return alive && age === null ? laserFrom(f, enemy.body, look, kind, scale) : null;
 }
 
@@ -307,7 +313,7 @@ export function drawScene(
   if (!behind) drawHero();
   if (sight) ctx.clip(sight);
   lasers(f, lasing, hero, cfg.box.height);
-  drawRockets(ctx, world.rockets, f.cell, f.unit);
+  drawProjectiles(ctx, world.projectiles, f.cell, f.unit);
   beam(f);
   impacts(f);
   ctx.restore();

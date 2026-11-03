@@ -1,4 +1,6 @@
 import { BLAST, drawBlast, inBlastUnits } from "../env/blast";
+import type { Missile } from "../level/missiles";
+import type { Projectile } from "../level/projectile";
 import type { Rocket } from "../level/rockets";
 
 const BODY = { length: 0.4, radius: 0.035, nose: 0.1, fin: 0.07 };
@@ -6,7 +8,7 @@ const COLORS = { body: "#52683e", line: "#1c2614", nose: "#c4301c", fin: "#33452
 const PUFF = { start: 0.04, grow: 0.22, rise: 0.15, alpha: 0.5, shade: [176, 170, 160] as const };
 const BOOM_SCALE = 0.45;
 
-function smoke(ctx: CanvasRenderingContext2D, r: Rocket, cell: number): void {
+function smoke(ctx: CanvasRenderingContext2D, r: Projectile, cell: number): void {
   const [red, green, blue] = PUFF.shade;
   for (const [x, y, born] of r.trail) {
     const k = (r.age - born) / r.trailLife;
@@ -37,7 +39,7 @@ function fins(ctx: CanvasRenderingContext2D): void {
   }
 }
 
-function missile(ctx: CanvasRenderingContext2D, r: Rocket, cell: number): void {
+function body(ctx: CanvasRenderingContext2D, r: Rocket | Missile, cell: number): void {
   const { length, radius, nose } = BODY;
   ctx.save();
   ctx.translate(r.x * cell, r.y * cell);
@@ -55,7 +57,7 @@ function missile(ctx: CanvasRenderingContext2D, r: Rocket, cell: number): void {
   ctx.lineTo(-length - radius * (4 + Math.sin(r.age * 60)), 0);
   ctx.lineTo(-length, radius * 0.7);
   ctx.fill();
-  if (r.fins) fins(ctx);
+  if (r.kind === "missile") fins(ctx);
   ctx.fillStyle = COLORS.body;
   ctx.fillRect(-length, -radius, length - nose, radius * 2);
   ctx.strokeRect(-length, -radius, length - nose, radius * 2);
@@ -70,10 +72,10 @@ function missile(ctx: CanvasRenderingContext2D, r: Rocket, cell: number): void {
   ctx.restore();
 }
 
-export function drawRockets(ctx: CanvasRenderingContext2D, rockets: Rocket[], cell: number, unit: number): void {
-  for (const r of rockets) {
+export function drawProjectiles(ctx: CanvasRenderingContext2D, projectiles: (Rocket | Missile)[], cell: number, unit: number): void {
+  for (const r of projectiles) {
     smoke(ctx, r, cell);
-    if (r.ended === null) missile(ctx, r, cell);
+    if (r.ended === null) body(ctx, r, cell);
     else if (r.burst && r.ended < BLAST.fade[1]) {
       const age = r.ended;
       inBlastUnits(ctx, r.x * cell, r.y * cell - BLAST.center * unit * BOOM_SCALE, unit * BOOM_SCALE, () => drawBlast(ctx, age, 1));
