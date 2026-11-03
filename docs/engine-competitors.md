@@ -149,7 +149,6 @@ Middle path for later: PixiJS only as the figure renderer inside the `gl` layer 
 - **Deterministic fixed step with input record and replay** (`src/engine/input.ts`, `loop.ts`). Phaser and Pixi step with a smoothed variable delta; Phaser has a fixed step only inside Arcade physics.
 - **Render modes chosen per machine** (`main`, `worker`, `gl`, with fallback on worker failure). Construct is the only competitor with worker rendering, and it has turned it off twice for browser bugs.
 - **Built for this genre:** fog of war with matched 2D and WebGL pipelines, cinematic films in the engine, cover, lifts, rig poses solved from clip data, sounds synthesized from recipes (no audio files).
-- **Small and owned.** `src/engine` is about 1,600 lines with no runtime dependency; React only for the UI shell. The page bundle (game, configs and React) is 214 KB gzipped, the render worker 93 KB. No framework upgrade can break it, and every hot path is ours to change.
 
 ### What frameworks do better
 
