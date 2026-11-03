@@ -2882,9 +2882,20 @@ const GUARD_PAL = {
 };
 const GUARD_H = 60;
 const GUARD_WIDE = 1.18;
-const GUARD_POSE = { hipNear: -14, kneeNear: 18, ankleNear: -4, hipFar: 12, kneeFar: 6, ankleFar: -16, body: 3 };
+const SHIN_WIDE = 1.5;
+const FOOT_BACK = 0.7;
+const GUARD_POSE = {
+  hipNear: -14,
+  kneeNear: { rot: 18, sx: SHIN_WIDE },
+  ankleNear: { rot: -4, sx: FOOT_BACK },
+  hipFar: 12,
+  kneeFar: { rot: 6, sx: SHIN_WIDE },
+  ankleFar: { rot: -16, sx: FOOT_BACK },
+  body: 3
+};
 const RIFLE_SUPPORT = [40, -14];
 const RIFLE_MUZZLE = [262, -44];
+const LIMP_ARMS = { arm: 6, fore: -8, armFar: -4, foreFar: -12 };
 const guardRigs = {};
 let rifleModel = null;
 
@@ -2908,9 +2919,14 @@ function guardRig() {
   rifleModel ||= window.GUN.model({ buildParts: rifleParts });
   const root = buildSide({ enemy: true, lod: simple(), farLimbs: true });
   const carry = { ...GUARD_POSE, arm: -8, fore: -76 };
-  const grip = window.GUN.toHook(RIFLE_SUPPORT);
-  const far = solve(root, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(root, "hand", carry).transformPoint(new DOMPoint(...grip)));
-  return (guardRigs[key] = { root, pose: { ...carry, ...far } });
+  const hand = locate(root, "hand", carry);
+  const [dx, dy] = window.GUN.toHook([1, 0]);
+  const tilt = Math.atan2(hand.b * dx + hand.d * dy, hand.a * dx + hand.c * dy);
+  const aim = hand.a * hand.d - hand.b * hand.c > 0 ? -tilt : tilt;
+  const [sx, sy] = RIFLE_SUPPORT;
+  const grip = window.GUN.toHook([sx * Math.cos(aim) - sy * Math.sin(aim), sx * Math.sin(aim) + sy * Math.cos(aim)]);
+  const far = solve(root, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], hand.transformPoint(new DOMPoint(...grip)));
+  return (guardRigs[key] = { root, pose: { ...carry, ...far }, aim });
 }
 
 function muzzleFlash(ctx, x, y, k) {
@@ -2919,7 +2935,7 @@ function muzzleFlash(ctx, x, y, k) {
   poly(ctx, [[x, y - 8], [x + 40 * k + 14, y], [x, y + 8]], "y3", 2, { line: false });
 }
 
-function backpack(ctx) {
+function pack(ctx) {
   ctx.save();
   ctx.transform(0, 1, -1, 0, 0, 0);
   box(ctx, -40, -10, 150, 80, "olive", 1);
@@ -2927,8 +2943,15 @@ function backpack(ctx) {
   ctx.restore();
 }
 
+function backpack(tint) {
+  return ctx => {
+    if (tint) P.inShade({ brightness: tint.brightness ?? 1, saturate: tint.saturate ?? 1 }, () => pack(ctx));
+    else pack(ctx);
+  };
+}
+
 function guardFigure(ctx, fire, tint) {
-  const { root, pose } = guardRig();
+  const { root, pose, aim } = guardRig();
   const { render, FOOT_Y, SIDE_AX, shade } = window.XBOT;
   const k = GUARD_H / (FOOT_Y - 2);
   const pal = tint ? shade(GUARD_PAL, tint) : GUARD_PAL;
@@ -2938,8 +2961,10 @@ function guardFigure(ctx, fire, tint) {
   const t = ctx.getTransform();
   const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
   const hand = c => {
+    if (tint) return;
     c.save();
     c.transform(0, 1, -1, 0, 0, 0);
+    c.rotate(aim);
     rifleModel.draw(c, { pal, lineW, simple: simple() });
     if (fire >= 0) {
       c.translate(RIFLE_MUZZLE[0], RIFLE_MUZZLE[1]);
@@ -2948,7 +2973,19 @@ function guardFigure(ctx, fire, tint) {
     }
     c.restore();
   };
-  render(ctx, root, { pal, pose, hooks: { hand, back: backpack }, lineW, simple: simple() });
+  render(ctx, root, { pal, pose: tint ? { ...pose, ...LIMP_ARMS } : pose, hooks: { hand, back: backpack(tint) }, lineW, simple: simple() });
+  ctx.restore();
+}
+
+function droppedRifle(ctx, x) {
+  const k = (GUARD_H / (window.XBOT.FOOT_Y - 2)) * 0.9;
+  ctx.save();
+  ctx.translate(x, 0);
+  ctx.scale(k * GUARD_WIDE, k);
+  ctx.translate(0, -26);
+  const t = ctx.getTransform();
+  const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+  rifleModel.draw(ctx, { pal: window.XBOT.shade(GUARD_PAL, { brightness: 0.55, saturate: 0.5 }), lineW, simple: simple() });
   ctx.restore();
 }
 
@@ -2964,10 +3001,8 @@ define({
       ctx.rotate(-PI / 2);
       guardFigure(ctx, -1, { brightness: 0.55, saturate: 0.5 });
       ctx.restore();
-      if (!simple()) {
-        smoke(ctx, -4, -10, t, 3, 24);
-        spark(ctx, 6, -6, t, 4);
-      }
+      droppedRifle(ctx, -36);
+      if (!simple()) spark(ctx, 6, -6, t, 4);
       return;
     }
     const ph = (t * 4) % 1;
