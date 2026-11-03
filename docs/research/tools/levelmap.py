@@ -18,7 +18,7 @@ EXTRAS = {
             "and gamedata/disasm/level1_layout.json: '#' floor planks and wall columns, '|' invisible blocker at a floor end "
             "(map clamp), lift shafts open on their plank rows; taskWalls are the walls a task removes (water, plasma, card door, "
             "dark metro tunnel), not baked into rows; the tunnel west end wall is dropped so the tunnel is walkable once open; "
-            "lift stops are the repaired ones for the damaged lift (enabledBy); lift 122 skips its unused middle stop (row 23, user), but its east ledge (cols 125-126) keeps an open pocket for the original battery (passedLedges, user); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors fill every bottom stop row so no pit "
+            "lift stops are the repaired ones for the damaged lift (enabledBy); lift 122 skips its unused middle stop (row 23, user); droids are the chromeDroid cells and patrols from config/levels/mesto/enemies.json; flyers are its flyer cells and patrols with the plank row of their floor (engine y + 6); '|' shaft floors fill every bottom stop row so no pit "
             "opens under a lift (report 13, Our blockers); a floor beside a shaft on a row where its lift does not stop gets a wall up to the floor above, "
             "so it does not read as a landing (user);the crane mast gap (floor 10, cols 36-38) stays a plank with no wall so the hero walks west "
             "past the crane panel, and the plank row 10 gap over the crane (cols 22-30) stays open; the never reached floors over the crashed ship "
@@ -37,7 +37,6 @@ EXTRAS = {
         "spawn": [62.5, 59],
         "liftHints": {55: "The lift is broken."},
         "liftStops": {122: [16, 30]},
-        "passedLedges": {(125, 23)},
         "tunnelWestEnd": (70, 40),
         "taskWalls": {
             (75, 20): "waterPipe",
@@ -54,7 +53,7 @@ EXTRAS = {
         "patches": [(22, 24, 22, 43, "#"), (128, 0, 142, 16, "#"), (6, 4, 6, 9, "."), (14, 39, 14, 40, "."), (6, 10, 21, 10, "."), (117, 17, 120, 22, "#"), (66, 10, 126, 10, "."), (127, 0, 127, 2, "#"), (15, 41, 20, 41, "#"), (21, 42, 21, 51, "|"), (9, 60, 77, 65, "#"), (81, 60, 157, 65, "#"),
                     (18, 66, 19, 69, "#"), (86, 66, 157, 69, "#"), (48, 71, 157, 74, "#"), (158, 59, 159, 79, "#"), (0, 76, 157, 79, "#"),
                     (24, 24, 27, 29, "#"), (24, 31, 27, 36, "#"), (69, 24, 73, 29, "#"), (72, 38, 76, 43, "#"), (72, 45, 76, 50, "#"),
-                    (93, 17, 99, 22, "#"), (127, 17, 140, 22, "#"), (125, 24, 140, 29, "#"), (141, 45, 159, 58, "#"), (133, 52, 159, 58, "#")],
+                    (93, 17, 99, 22, "#"), (125, 17, 140, 22, "#"), (125, 24, 140, 29, "#"), (141, 45, 159, 58, "#"), (133, 52, 159, 58, "#")],
     },
     2: {
         "borderFills": [],
@@ -239,14 +238,14 @@ def lift_json(lift, extra):
     return out
 
 
-def wall_passed_floors(grid, lifts, keep=frozenset()):
+def wall_passed_floors(grid, lifts):
     for lift in lifts:
         stops = lift.get("stops", [lift["top"], lift["bottom"]])
         for row in range(stops[0] + 1, stops[-1]):
             if row in stops:
                 continue
             for col in (lift["x"] - 1, lift["x"] + lift["width"]):
-                if grid[row][col] not in "#=" or grid[row - 1][col] in "#=" or (col, row) in keep:
+                if grid[row][col] not in "#=" or grid[row - 1][col] in "#=":
                     continue
                 top = row - 1
                 while top > 0 and grid[top - 1][col] not in "#=":
@@ -309,7 +308,7 @@ def build(data, layout, enemies, cfg):
     for lift in lifts:
         for col in range(lift["x"], lift["x"] + lift["width"]):
             grid[lift["bottom"]][col] = "|"
-    wall_passed_floors(grid, lifts, cfg.get("passedLedges", frozenset()))
+    wall_passed_floors(grid, lifts)
     for lift in lifts:
         for row in range(lift["top"] - 2, lift["bottom"]):
             for col in range(lift["x"], lift["x"] + lift["width"]):

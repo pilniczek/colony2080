@@ -64,9 +64,9 @@ describe("bonus pickups", () => {
     expect(fresh.hero.shields).toBe(g.hero.shields);
   });
 
-  it("places the original bonuses of missions 1 and 2", () => {
+  it("places the bonuses of missions 1 and 2", () => {
     const at = (props: Prop[]) => props.filter((p) => p.kind === "bonus").map((p) => [p.bonus, Math.floor(p.x), p.y]);
-    expect(at(loadMesto().props)).toEqual([["shield", 24, 23], ["energy", 126, 23]]);
+    expect(at(loadMesto().props)).toEqual([["shield", 24, 23], ["energy", 118, 30]]);
     expect(at(loadMission("vesnice").props)).toEqual([["energy", 83, 23], ["ammo", 129, 41], ["shield", 41, 41]]);
   });
 });
