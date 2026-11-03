@@ -675,11 +675,15 @@ const skeleton = (ctx: CanvasRenderingContext2D, seed: number): void => {
   if (!simple()) for (const [x, w] of [[1, 3], [16, 4], [30, 2.4], [42, 3]] as Pt[]) flat(ctx, x, -0.9, w, 0.9, "g1");
 };
 
+const REMAINS_SCALE = 0.65;
+
 const smoulderingRemains: EnvAsset = {
   id: "smoulderingRemains",
-  box: [-4, -20, 54, 0],
+  box: [-3, -13, 36, 0],
   anim: true,
   draw(ctx, state, t) {
+    ctx.save();
+    ctx.scale(REMAINS_SCALE, REMAINS_SCALE);
     G.scorch(ctx, [[0, 0], [6, -0.8], [24, -1.2], [44, -0.8], [51, 0]], 2320);
     shadow(ctx, 25, 51, 0.5);
     skeleton(ctx, 2321);
@@ -688,6 +692,7 @@ const smoulderingRemains: EnvAsset = {
       ellipse(ctx, 31.6, -0.9, 1.2, 1.1, "y1", "yLine");
       if (!simple()) glow(ctx, 32.6, -1.2, 4, "y3", 0.35 + sin(t * 4) * 0.15);
     }
+    ctx.restore();
   },
 };
 
