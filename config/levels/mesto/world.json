@@ -281,6 +281,7 @@
     {"kind": "item", "item": "shipPart", "pickupText": "You picked up the ship part from the ground.", "x": 12, "y": 41, "shownBy": "flag:hullOpen", "cutscene": "pickShipPart"},
     {"kind": "weapon", "weapon": "blaster", "pickupText": "You found an E-Blaster!", "x": 40.5, "y": 75, "cutscene": "pickEBlaster"},
     {"kind": "bonus", "bonus": "shield", "x": 24.5, "y": 23},
+    {"kind": "bonus", "bonus": "energy", "x": 126, "y": 23},
     {"kind": "object", "id": "crashedShip", "asset": "crashedShip", "art": {"dx": 1.4}, "x": 12.5, "y": 41, "width": 3, "height": 2, "shootable": {"hits": 7, "state": 1, "gives": ["flag:hullOpen"], "subtitle": "The hull cover falls off.", "cutscene": "hullCover"}, "state": 0},
     {"kind": "object", "id": "barDoor", "asset": "barDoor", "x": 39.5, "y": 37, "width": 2, "state": 0},
     {"kind": "object", "id": "damagedLift", "asset": "liftPanel", "x": 58.5, "y": 37, "width": 2, "state": 1},
