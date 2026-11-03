@@ -535,23 +535,22 @@ const sprayed = (ctx, str, x, y, size, c, alpha) => {
     text(ctx, str, x, y, size, c);
     ctx.restore();
 };
-const depotWall = (ctx, x, seed) => {
-    const w = DEPOT_WALL;
+const depotWall = (ctx, x, seed, w = DEPOT_WALL) => {
     flat(ctx, x, -48, w, 30, "#2a1c12", "#0e0804");
     G.grain(ctx, G.rectRegion(ctx, x, -48, w, 30), seed);
     G.grain(ctx, G.rectRegion(ctx, x, -48, w, 30), seed + 1, 0.6);
-    for (let k = 0; k < 2; k++) {
+    for (let k = 0; k < w / 24; k++) {
         const cx = x + 12 + k * 24;
         const word = GRAFFITI[(seed + k) % GRAFFITI.length];
         sprayed(ctx, word, cx, -40, 11, "#e06a1c", 0.9);
         sprayed(ctx, word, cx - 0.8, -40.6, 10, "#b8281a", 0.95);
         sprayed(ctx, SCRAWL[(seed + k * 3) % SCRAWL.length], cx, -25, 5.4, "#b8ae94", 0.6);
     }
-    G.drips(ctx, x, -48, w, 16, seed + 2, 4);
+    G.drips(ctx, x, -48, w, 16, seed + 2, 2 * w / 24);
     G.chips(ctx, x, -48, w, seed + 3);
     flat(ctx, x, -18, w, 4, OLIVE[2], OLIVE[4]);
     if (!simple())
-        for (let k = 0; k < 6; k++)
+        for (let k = 0; k < w / 8; k++)
             flat(ctx, x + 3 + k * 8, -17, 3, 1.2, CONC[3]);
     band(ctx, x, -14, w, 14, CONC);
     G.surface(ctx, x, -14, w, 14, seed + 4, { rise: 0.5, drip: 2, dripLen: 8 });
@@ -572,6 +571,14 @@ const depotBay = (ctx, x, seed) => {
         flat(ctx, x + 17, -3, 4, 0.8, OLIVE[1]);
     G.dirt(ctx, x, -6, w, 6, seed + 2, 0.6);
 };
+const depotRun = (ctx, x, walls, n, seed) => {
+    let cx = x;
+    for (let b = 0; b < n; b++) {
+        depotBay(ctx, cx, seed + b * 11 + 5);
+        depotWall(ctx, cx + 24, seed + b * 11, walls * 24);
+        cx += 24 + walls * 24;
+    }
+};
 const ammoDepot = {
     id: "ammoDepot",
     box: [-4, -52, 220, 0],
@@ -583,6 +590,91 @@ const ammoDepot = {
                 depotBay(ctx, x + DEPOT_WALL, seed + b * 11 + 5);
         }
     },
+};
+const GATE = ["#3a403e", "#4e5654", "#626a66", "#7a8480", "#121614"];
+const MOSS = ["#22220e", "#363418", "#4a4824", "#686638", "#0c0c06"];
+const SLAB = ["#4a3e32", "#66584a", "#7e705e", "#988a76", "#18140e"];
+const RAIL = ["#4e4a40", "#7c7666", "#9c9682", "#bcb6a0", "#1a1812"];
+const gatePipe = (ctx, x, y, h) => {
+    flat(ctx, x, y, 2, h, TUBE[1], TUBE[4]);
+    flat(ctx, x + 0.5, y, 0.8, h, TUBE[3]);
+};
+const gateRails = (ctx, x, w) => {
+    flat(ctx, x, -24, w, 24, GATE[0], GATE[4]);
+    tube(ctx, x, -23, w, 5, RAIL);
+    flat(ctx, x, -18, w, 3, GATE[1]);
+    tube(ctx, x, -15, w, 5, RAIL);
+    flat(ctx, x, -10, w, 1.6, MOSS[0]);
+};
+const steelGate = (ctx, x, seed) => {
+    flat(ctx, x, -72, 24, 24, MOSS[1], MOSS[4]);
+    flat(ctx, x, -72, 24, 1.6, MOSS[3]);
+    flat(ctx, x + 1, -65, 14, 17, GATE[2], GATE[4]);
+    flat(ctx, x + 1, -65, 14, 1.2, GATE[3]);
+    flat(ctx, x + 16.5, -70, 1.6, 22, MOSS[0]);
+    G.grain(ctx, G.rectRegion(ctx, x, -72, 24, 24), seed, 0.9);
+    flat(ctx, x, -48, 24, 24, GATE[2], GATE[4]);
+    flat(ctx, x, -48, 24, 2.4, MOSS[2], MOSS[4]);
+    strut(ctx, x + 3, -25, x + 21, -45, 1.2, GATE);
+    gatePipe(ctx, x + 1.5, -46, 22);
+    gatePipe(ctx, x + 16.5, -46, 22);
+    if (!simple())
+        flat(ctx, x + 17, -36, 1, 12, TUBE[3]);
+    flat(ctx, x, -40, 3.6, 6, GATE[1], GATE[4]);
+    gateRails(ctx, x, 24);
+    strut(ctx, x + 2, -1, x + 14, -9, 1.2, GATE);
+    gatePipe(ctx, x + 1.5, -24, 24);
+    gatePipe(ctx, x + 16.5, -24, 24);
+    G.grain(ctx, G.rectRegion(ctx, x, -48, 24, 48), seed + 1, 0.7);
+    G.drips(ctx, x, -46, 24, 8, seed + 2, 1);
+    G.drips(ctx, x, -10, 24, 8, seed + 3, 2);
+    G.chips(ctx, x, -72, 24, seed + 4, MOSS[0]);
+    G.dirt(ctx, x, -12, 24, 12, seed + 5, 0.5);
+    G.rustPatch(ctx, x + 8, -30, 3, 2, seed + 6);
+};
+const gateBlock = (ctx, x, seed) => {
+    flat(ctx, x, -48, 24, 8, GATE[2], GATE[4]);
+    flat(ctx, x, -48, 24, 2.4, MOSS[2], MOSS[4]);
+    gatePipe(ctx, x + 17, -46, 6);
+    flat(ctx, x, -40, 2, 16, GATE[1]);
+    band(ctx, x + 2, -40, 22, 16, SLAB);
+    gateRails(ctx, x, 22);
+    band(ctx, x + 2, -8, 22, 8, SLAB);
+    gatePipe(ctx, x + 17, -24, 24);
+    G.grain(ctx, G.rectRegion(ctx, x, -48, 24, 48), seed, 0.9);
+    G.grain(ctx, G.rectRegion(ctx, x + 2, -40, 22, 16), seed + 1);
+    G.drips(ctx, x, -46, 24, 10, seed + 2, 2);
+    G.chips(ctx, x, -40, 24, seed + 3, G.DIRT);
+    G.dirt(ctx, x, -10, 24, 10, seed + 4, 0.6);
+};
+const gateRuin = (ctx, x, seed) => {
+    const stub = [[x + 10, 0], [x + 11, -8], [x + 14, -14], [x + 13, -20], [x + 17, -26], [x + 18, -31], [x + 14, -34], [x + 20, -38], [x + 21, -40], [x + 24, -38], [x + 24, 0]];
+    G.scorch(ctx, stub, seed + 1);
+    shape(ctx, stub, MOSS[2], MOSS[4]);
+    flat(ctx, x + 20, -38, 1.6, 30, MOSS[1]);
+    G.grain(ctx, G.polyRegion(ctx, stub), seed + 2);
+    G.rim(ctx, stub, seed + 3, MOSS[3], HOLE);
+    const slab = [[x, -8], [x, -22], [x + 4, -24], [x + 15, -23], [x + 19, -20], [x + 24, -21], [x + 24, -8]];
+    shape(ctx, slab, SLAB[2], SLAB[4]);
+    G.grain(ctx, G.polyRegion(ctx, slab), seed + 4);
+    for (const [a, b] of [[3, 7], [8, 12], [12, 15]]) {
+        line(ctx, [[x + a, -21], [x + a + 3, -15], [x + b, -9]], "#b8281a", 1.8);
+        line(ctx, [[x + a + 1, -20], [x + a + 3.5, -14]], "#e06a1c", 0.8);
+    }
+    G.rim(ctx, slab, seed + 5, SLAB[3], HOLE);
+    flat(ctx, x, -8, 24, 8, SLAB[1], SLAB[4]);
+    flat(ctx, x + 11, -8, 13, 8, MOSS[1]);
+    G.dirt(ctx, x - 24, -8, 48, 8, seed + 6, 0.7);
+    const shard = [[x + 8, -43], [x + 14, -44], [x + 14.5, -38], [x + 8.5, -37]];
+    shape(ctx, shard, "#6a2a10", "#1a0804");
+    for (const k of [9.5, 11.5, 13])
+        line(ctx, [[x + k, -43.5], [x + k + 0.3, -37.5]], "#e06a1c", 0.8);
+    flat(ctx, x + 8.3, -41, 6, 0.8, "#b8ae94");
+    for (const [cx, w, h, i] of [[-19, 7, 2.6, 0], [-11, 4, 1.8, 1], [-4, 6, 3, 2], [3, 4, 2, 3]]) {
+        const chunk = [[x + cx, 0], [x + cx + 0.6, -h * 0.7], [x + cx + w * 0.35, -h], [x + cx + w * 0.8, -h * 0.85], [x + cx + w, 0]];
+        shape(ctx, chunk, i % 2 ? GATE[1] : SLAB[1], HOLE);
+        flat(ctx, x + cx + w * 0.3, -h + 0.3, w * 0.4, 0.7, i % 2 ? GATE[3] : SLAB[3]);
+    }
 };
 const FENCE_POST = 72;
 const meshFence = (ctx, state, w) => {
@@ -1721,7 +1813,7 @@ const VESNICE_IDS = [
     "ammoPickup", "shieldPickup",
 ];
 for (const asset of vesniceSceneryAssets) define(asset);
-window.ENV.VESNICE = { shadow, smoke, spark, flame, blob, RUIN, boulder, PLANK, planks, concreteBlock, villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, ammoDepot, meshFence, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse, latticeMast, warningLamp, junctionBox, watchtower, bronzeColumn, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, rubbleHeap, militaryWreck, fuelDrum, sandbags, shellCrate, vesniceSceneryAssets, VESNICE_IDS };
+window.ENV.VESNICE = { shadow, smoke, spark, flame, blob, RUIN, boulder, PLANK, planks, concreteBlock, depotRun, steelGate, gateBlock, gateRuin, villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, ammoDepot, meshFence, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse, latticeMast, warningLamp, junctionBox, watchtower, bronzeColumn, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, rubbleHeap, militaryWreck, fuelDrum, sandbags, shellCrate, vesniceSceneryAssets, VESNICE_IDS };
 })();
 
 (() => {
@@ -1730,10 +1822,9 @@ const { G } = window.ENV;
 const P = { ...window.ENV.P, simple: () => window.ENV.simple };
 const { TILE } = window.ENV;
 const craneKey = window.ENV.ASSETS.find((a) => a.id === "craneKey");
-const { facets } = window.ENV.PROPS;
-const { PLANK, planks, shadow, smoke, spark } = window.ENV.VESNICE;
+const { PLANK, depotRun, gateBlock, gateRuin, planks, shadow, smoke, spark, steelGate } = window.ENV.VESNICE;
 const { rng, path, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, slab, hazard, text } = P;
-const { PI, sin, cos, min, max, floor } = Math;
+const { PI, sin, min, max, floor } = Math;
 const simple = () => P.simple();
 const scuff = (ctx, x, w) => {
     ctx.save();
@@ -1759,25 +1850,6 @@ const ellipse = (ctx, cx, cy, rx, ry, fill, edge = null) => {
 const wire = (ctx, pts, c, w = 0.8) => {
     line(ctx, pts, "mLine", w + 0.6);
     line(ctx, pts, c, w);
-};
-const flame = (ctx, x, base, w, h, t, seed = 0) => {
-    const f = 0.85 + sin(t * 11 + seed * 2.3) * 0.08 + sin(t * 17.3 + seed) * 0.07;
-    const tip = h * f;
-    const lean = sin(t * 6 + seed) * w * 0.12;
-    const pts = (k, s) => [
-        [x + w * (0.5 - s / 2), base],
-        [x + w * (0.5 - s / 2) + w * 0.05, base - tip * k * 0.45],
-        [x + w / 2 + lean * k - w * s * 0.18, base - tip * k * 0.75],
-        [x + w / 2 + lean * k, base - tip * k],
-        [x + w / 2 + lean * k + w * s * 0.2, base - tip * k * 0.7],
-        [x + w * (0.5 + s / 2) - w * 0.04, base - tip * k * 0.4],
-        [x + w * (0.5 + s / 2), base],
-    ];
-    shape(ctx, pts(1, 1), "a0", "aLine");
-    shape(ctx, pts(0.78, 0.72), "a1");
-    shape(ctx, pts(0.52, 0.46), "a2");
-    if (!simple())
-        shape(ctx, pts(0.3, 0.24), "y3");
 };
 const ring = (ctx, cx, cy, rx, ry, c, w = 1) => {
     ctx.save();
@@ -2125,85 +2197,6 @@ const energyBarrier = {
         lamp(ctx, 12, -84, "plasma", on);
     },
 };
-const ROCK = ["#2a2620", "#4a4436", "#6e6450", "#9a8e74"];
-const boulder = (ctx, cx, cy, r, seed, shades = ROCK) => {
-    const rnd = rng(seed);
-    const n = simple() ? 6 : 7 + Math.floor(rnd() * 3);
-    const a0 = rnd() * PI;
-    const pts = Array.from({ length: n }, (_, i) => {
-        const a = a0 + (i * 2 * PI) / n + (rnd() - 0.5) * 0.4;
-        const k = r * (0.8 + rnd() * 0.25);
-        return [cx + cos(a) * k * 1.15, cy + sin(a) * k * 0.8];
-    });
-    facets(ctx, pts, cx + r * 0.25, cy + r * 0.2, shades, "kLine");
-};
-const post = (ctx, x, h, broken = false) => {
-    if (broken) {
-        const stub = [[x, 0], [x, -14], [x + 5, -20], [x + 9, -13], [x + 15, -22], [x + 20, -15], [x + 24, -18], [x + 24, 0]];
-        G.scorch(ctx, stub, 2280);
-        poly(ctx, stub, "concrete", 1);
-        G.grain(ctx, G.polyRegion(ctx, stub), 2281, 0.7);
-        G.rim(ctx, stub, 2282, "k3", "hole");
-        for (const [cx, r, s] of [[x - 6, 4, 3], [x + 30, 5, 4], [x + 12, 3, 5]])
-            boulder(ctx, cx, -r * 0.7, r, s, ["k0", "k1", "k2", "k3"]);
-        flat(ctx, x + 2, -12, 20, 2, "#2a1a10");
-        return;
-    }
-    box(ctx, x, -h, TILE, h, "steel", 1, { vertical: true });
-    box(ctx, x + 2, -h + 2, TILE - 4, 20, "steel", 0);
-    flat(ctx, x + 4, -h + 4, TILE - 8, 16, "glass", "mLine");
-    hazard(ctx, x, -h + 24, TILE, 3, 3);
-    for (let y = -h + 32; y < -6; y += 6)
-        flat(ctx, x + 2, y, TILE - 4, 3, "c1", "mLine");
-    G.grain(ctx, G.rectRegion(ctx, x, -h, TILE, h), 2283, 0.6);
-    G.drips(ctx, x, -h + 27, TILE, 24, 2284, 3);
-    G.chips(ctx, x, -h, TILE, 2285);
-    G.dirt(ctx, x, -h, TILE, h, 2286, 0.2);
-    G.rustPatch(ctx, x + 6, -8, 3, 2, 2287);
-};
-const brazier = (ctx, x, t, seed) => {
-    box(ctx, x + 2, -26, 20, 26, "concrete", 1, { vertical: true });
-    flat(ctx, x + 2, -26, 20, 2, "k3");
-    box(ctx, x, -48, 24, 22, "rust", 0);
-    flat(ctx, x + 2, -46, 20, 14, "#2a0c04");
-    if (!simple())
-        glow(ctx, x + 12, -40, 16, "a1", 0.45);
-    flame(ctx, x + 2, -32, 9, 18, t, seed);
-    flame(ctx, x + 11, -32, 10, 22, t, seed + 1);
-    flat(ctx, x, -34, 24, 3, "rust");
-    flat(ctx, x - 1, -49, 26, 2.4, "r2", "rLine");
-    G.grain(ctx, G.rectRegion(ctx, x, -34, 24, 8), seed + 2290, 0.6);
-    G.drips(ctx, x, -31, 24, 10, seed + 2291, 2);
-    G.surface(ctx, x + 2, -26, 20, 26, seed + 2292, { rise: 0.4, drip: 1, dripLen: 10 });
-    G.chips(ctx, x - 1, -49, 26, seed + 2293, G.DIRT);
-};
-const sandbags = (ctx, x, w) => {
-    for (let i = 0; i < w / 10 - 0.5; i++) {
-        const bx = x + 1 + i * 10;
-        poly(ctx, [[bx, 0], [bx + 0.6, -5], [bx + 2, -6], [bx + 8, -6], [bx + 9.4, -5], [bx + 10, 0]], "olive", 1);
-    }
-    G.dirt(ctx, x, -6, w, 6, 2295 + x, 0.7);
-};
-const fireRow = (ctx, x, n, t, pair = 1) => {
-    let cx = x;
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < pair; j++) {
-            brazier(ctx, cx, t, i * 3 + j);
-            cx += TILE;
-        }
-        if (i < n - 1) {
-            box(ctx, cx, -36, TILE, 8, "concrete", 2);
-            flat(ctx, cx + 3, -34.4, TILE - 6, 4.8, "k1", "kLine");
-            if (!simple())
-                for (let k = 0; k < 4; k++)
-                    flat(ctx, cx + 5 + k * 3.8, -33.4, 2, 2.8, "c2");
-            G.grain(ctx, G.rectRegion(ctx, cx, -36, TILE, 8), 2296 + cx, 0.6);
-            G.drips(ctx, cx, -28, TILE, 8, 2297 + cx, 2);
-            sandbags(ctx, cx, TILE);
-            cx += TILE;
-        }
-    }
-};
 const stick = (ctx, x, y, w, h) => {
     box(ctx, x, y, w, h, "brick", 2, { vertical: w < h });
     if (!simple())
@@ -2211,22 +2204,27 @@ const stick = (ctx, x, y, w, h) => {
 };
 const fireBarricade = {
     id: "fireBarricade",
-    box: [-8, -80, 196, 0],
+    box: [-30, -76, 196, 0],
     anim: true,
     draw(ctx, state, t) {
-        fireRow(ctx, 24, 3, t, 1);
-        post(ctx, 0, 72, state === 1);
-        if (state === 1 && !simple())
-            smoke(ctx, 12, -18, t, 3, 30);
+        depotRun(ctx, 48, 1, 3, 2280);
+        if (state === 1) {
+            gateRuin(ctx, 24, 2290);
+            if (!simple())
+                smoke(ctx, 40, -30, t, 3, 30);
+            return;
+        }
+        gateBlock(ctx, 24, 2284);
+        steelGate(ctx, 0, 2286);
     },
 };
 const dynamiteWall = {
     id: "dynamiteWall",
-    box: [-4, -80, 220, 0],
+    box: [-4, -76, 244, 0],
     anim: true,
     draw(ctx, state, t) {
-        fireRow(ctx, 24, 3, t, 2);
-        post(ctx, 0, 72);
+        depotRun(ctx, 24, 2, 3, 2300);
+        steelGate(ctx, 0, 2296);
         if (state === 1) {
             for (const x of [6, 9, 12])
                 stick(ctx, x, -14, 3, 14);

@@ -509,7 +509,7 @@
    "marker": 12,
    "task": "fireCannon",
    "sheet": "structures",
-   "description": "Grey concrete post (map cell 22, rows 37-40) followed by a row of sandbagged fire boxes with red flames (cells 23-29). The post tiles (8,50) (8,63) (8,76) are a stand-row wall; M24 removes them.",
+   "description": "Grey steel post in a mossy frame (map cell 22, rows 38-40: panel, diagonal brace and pipes, beige rails) with a lower stone and rail block (cell 23, rows 39-40), then the ammo depot run: AMMO plate bays and one-cell graffiti walls (cells 24-29). The post tiles (8,50) (8,63) (8,76) are a stand-row wall; M24 blasts the post away and leaves a jagged mossy stub, a graffiti stone slab, a red crate shard and rubble in cell 23.",
    "states": [
     "standing",
     "blasted (M24)"
@@ -596,7 +596,7 @@
    "marker": 14,
    "task": "blowWall",
    "sheet": "structures",
-   "description": "Grey concrete post (map cell 29, rows 29-31, stand-row wall) with a row of fire boxes behind it on floor 32. Dynamite then detonator here ends the level.",
+   "description": "Grey steel post in a mossy frame (map cell 29, rows 29-31, stand-row wall: panel, diagonal brace and pipes, beige rails) followed by the ammo depot run on floor 32: AMMO plate bays and two-cell graffiti walls (cells 30-38). Dynamite then detonator here ends the level.",
    "states": [
     "intact",
     "dynamite placed"

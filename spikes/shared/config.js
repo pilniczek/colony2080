@@ -232,18 +232,20 @@ window.C28_CONFIG = {
  },
  "enemies": {
   "rocketRobot": {
+   "hits": 7,
    "rocket": {
     "kneelMs": 120,
     "fireMs": 150,
-    "reloadMs": 900,
+    "reloadMs": 750,
     "emptyMs": 450,
     "speed": 22,
-    "hits": 9,
+    "hits": 18,
     "range": 16,
     "trailMs": 350
    }
   },
   "rocketDroid": {
+   "hits": 7,
    "missiles": {
     "braceMs": 200,
     "fireMs": 300,
@@ -251,7 +253,7 @@ window.C28_CONFIG = {
     "count": 3,
     "gapMs": 220,
     "speed": 12,
-    "hits": 3,
+    "hits": 13,
     "muzzle": [
      -0.3,
      2.2
@@ -264,8 +266,24 @@ window.C28_CONFIG = {
     "level": 1.2
    }
   },
-  "greyTrooper": {},
-  "caveTrooper": {}
+  "greyTrooper": {
+   "hits": 7,
+   "burst": {
+    "shots": 9,
+    "ms": 280
+   },
+   "pauseMs": 470,
+   "damage": 2
+  },
+  "caveTrooper": {
+   "hits": 10,
+   "burst": {
+    "shots": 4,
+    "ms": 94
+   },
+   "pauseMs": 1300,
+   "damage": 3
+  }
  },
  "cutscenes": {
   "acidGuardComes": {
@@ -13595,7 +13613,7 @@ window.C28_CONFIG = {
       "marker": 12,
       "task": "fireCannon",
       "sheet": "structures",
-      "description": "Grey concrete post (map cell 22, rows 37-40) followed by a row of sandbagged fire boxes with red flames (cells 23-29). The post tiles (8,50) (8,63) (8,76) are a stand-row wall; M24 removes them.",
+      "description": "Grey steel post in a mossy frame (map cell 22, rows 38-40: panel, diagonal brace and pipes, beige rails) with a lower stone and rail block (cell 23, rows 39-40), then the ammo depot run: AMMO plate bays and one-cell graffiti walls (cells 24-29). The post tiles (8,50) (8,63) (8,76) are a stand-row wall; M24 blasts the post away and leaves a jagged mossy stub, a graffiti stone slab, a red crate shard and rubble in cell 23.",
       "states": [
        "standing",
        "blasted (M24)"
@@ -13682,7 +13700,7 @@ window.C28_CONFIG = {
       "marker": 14,
       "task": "blowWall",
       "sheet": "structures",
-      "description": "Grey concrete post (map cell 29, rows 29-31, stand-row wall) with a row of fire boxes behind it on floor 32. Dynamite then detonator here ends the level.",
+      "description": "Grey steel post in a mossy frame (map cell 29, rows 29-31, stand-row wall: panel, diagonal brace and pipes, beige rails) followed by the ammo depot run on floor 32: AMMO plate bays and two-cell graffiti walls (cells 30-38). Dynamite then detonator here ends the level.",
       "states": [
        "intact",
        "dynamite placed"

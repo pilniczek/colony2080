@@ -538,27 +538,26 @@ const sprayed = (ctx: Ctx, str: string, x: number, y: number, size: number, c: s
   ctx.restore();
 };
 
-const depotWall = (ctx: Ctx, x: number, seed: number): void => {
-  const w = DEPOT_WALL;
+export const depotWall = (ctx: Ctx, x: number, seed: number, w = DEPOT_WALL): void => {
   flat(ctx, x, -48, w, 30, "#2a1c12", "#0e0804");
   G.grain(ctx, G.rectRegion(ctx, x, -48, w, 30), seed);
   G.grain(ctx, G.rectRegion(ctx, x, -48, w, 30), seed + 1, 0.6);
-  for (let k = 0; k < 2; k++) {
+  for (let k = 0; k < w / 24; k++) {
     const cx = x + 12 + k * 24;
     const word = GRAFFITI[(seed + k) % GRAFFITI.length] as string;
     sprayed(ctx, word, cx, -40, 11, "#e06a1c", 0.9);
     sprayed(ctx, word, cx - 0.8, -40.6, 10, "#b8281a", 0.95);
     sprayed(ctx, SCRAWL[(seed + k * 3) % SCRAWL.length] as string, cx, -25, 5.4, "#b8ae94", 0.6);
   }
-  G.drips(ctx, x, -48, w, 16, seed + 2, 4);
+  G.drips(ctx, x, -48, w, 16, seed + 2, 2 * w / 24);
   G.chips(ctx, x, -48, w, seed + 3);
   flat(ctx, x, -18, w, 4, OLIVE[2], OLIVE[4]);
-  if (!simple()) for (let k = 0; k < 6; k++) flat(ctx, x + 3 + k * 8, -17, 3, 1.2, CONC[3]);
+  if (!simple()) for (let k = 0; k < w / 8; k++) flat(ctx, x + 3 + k * 8, -17, 3, 1.2, CONC[3]);
   band(ctx, x, -14, w, 14, CONC);
   G.surface(ctx, x, -14, w, 14, seed + 4, { rise: 0.5, drip: 2, dripLen: 8 });
 };
 
-const depotBay = (ctx: Ctx, x: number, seed: number): void => {
+export const depotBay = (ctx: Ctx, x: number, seed: number): void => {
   const w = DEPOT_BAY - DEPOT_WALL;
   flat(ctx, x - 1, -34, w, 10, "#3a3834", "#0e0e0c");
   text(ctx, "AMMO", x + w / 2 - 2, -29, 5, "#b4b0a4");
@@ -574,6 +573,15 @@ const depotBay = (ctx: Ctx, x: number, seed: number): void => {
   G.dirt(ctx, x, -6, w, 6, seed + 2, 0.6);
 };
 
+export const depotRun = (ctx: Ctx, x: number, walls: number, n: number, seed: number): void => {
+  let cx = x;
+  for (let b = 0; b < n; b++) {
+    depotBay(ctx, cx, seed + b * 11 + 5);
+    depotWall(ctx, cx + 24, seed + b * 11, walls * 24);
+    cx += 24 + walls * 24;
+  }
+};
+
 export const ammoDepot: EnvAsset = {
   id: "ammoDepot",
   box: [-4, -52, 220, 0],
@@ -584,6 +592,95 @@ export const ammoDepot: EnvAsset = {
       if (x + DEPOT_BAY <= w) depotBay(ctx, x + DEPOT_WALL, seed + b * 11 + 5);
     }
   },
+};
+
+const GATE: Tones = ["#3a403e", "#4e5654", "#626a66", "#7a8480", "#121614"];
+const MOSS: Tones = ["#22220e", "#363418", "#4a4824", "#686638", "#0c0c06"];
+const SLAB: Tones = ["#4a3e32", "#66584a", "#7e705e", "#988a76", "#18140e"];
+const RAIL: Tones = ["#4e4a40", "#7c7666", "#9c9682", "#bcb6a0", "#1a1812"];
+
+const gatePipe = (ctx: Ctx, x: number, y: number, h: number): void => {
+  flat(ctx, x, y, 2, h, TUBE[1], TUBE[4]);
+  flat(ctx, x + 0.5, y, 0.8, h, TUBE[3]);
+};
+
+const gateRails = (ctx: Ctx, x: number, w: number): void => {
+  flat(ctx, x, -24, w, 24, GATE[0], GATE[4]);
+  tube(ctx, x, -23, w, 5, RAIL);
+  flat(ctx, x, -18, w, 3, GATE[1]);
+  tube(ctx, x, -15, w, 5, RAIL);
+  flat(ctx, x, -10, w, 1.6, MOSS[0]);
+};
+
+export const steelGate = (ctx: Ctx, x: number, seed: number): void => {
+  flat(ctx, x, -72, 24, 24, MOSS[1], MOSS[4]);
+  flat(ctx, x, -72, 24, 1.6, MOSS[3]);
+  flat(ctx, x + 1, -65, 14, 17, GATE[2], GATE[4]);
+  flat(ctx, x + 1, -65, 14, 1.2, GATE[3]);
+  flat(ctx, x + 16.5, -70, 1.6, 22, MOSS[0]);
+  G.grain(ctx, G.rectRegion(ctx, x, -72, 24, 24), seed, 0.9);
+  flat(ctx, x, -48, 24, 24, GATE[2], GATE[4]);
+  flat(ctx, x, -48, 24, 2.4, MOSS[2], MOSS[4]);
+  strut(ctx, x + 3, -25, x + 21, -45, 1.2, GATE);
+  gatePipe(ctx, x + 1.5, -46, 22);
+  gatePipe(ctx, x + 16.5, -46, 22);
+  if (!simple()) flat(ctx, x + 17, -36, 1, 12, TUBE[3]);
+  flat(ctx, x, -40, 3.6, 6, GATE[1], GATE[4]);
+  gateRails(ctx, x, 24);
+  strut(ctx, x + 2, -1, x + 14, -9, 1.2, GATE);
+  gatePipe(ctx, x + 1.5, -24, 24);
+  gatePipe(ctx, x + 16.5, -24, 24);
+  G.grain(ctx, G.rectRegion(ctx, x, -48, 24, 48), seed + 1, 0.7);
+  G.drips(ctx, x, -46, 24, 8, seed + 2, 1);
+  G.drips(ctx, x, -10, 24, 8, seed + 3, 2);
+  G.chips(ctx, x, -72, 24, seed + 4, MOSS[0]);
+  G.dirt(ctx, x, -12, 24, 12, seed + 5, 0.5);
+  G.rustPatch(ctx, x + 8, -30, 3, 2, seed + 6);
+};
+
+export const gateBlock = (ctx: Ctx, x: number, seed: number): void => {
+  flat(ctx, x, -48, 24, 8, GATE[2], GATE[4]);
+  flat(ctx, x, -48, 24, 2.4, MOSS[2], MOSS[4]);
+  gatePipe(ctx, x + 17, -46, 6);
+  flat(ctx, x, -40, 2, 16, GATE[1]);
+  band(ctx, x + 2, -40, 22, 16, SLAB);
+  gateRails(ctx, x, 22);
+  band(ctx, x + 2, -8, 22, 8, SLAB);
+  gatePipe(ctx, x + 17, -24, 24);
+  G.grain(ctx, G.rectRegion(ctx, x, -48, 24, 48), seed, 0.9);
+  G.grain(ctx, G.rectRegion(ctx, x + 2, -40, 22, 16), seed + 1);
+  G.drips(ctx, x, -46, 24, 10, seed + 2, 2);
+  G.chips(ctx, x, -40, 24, seed + 3, G.DIRT);
+  G.dirt(ctx, x, -10, 24, 10, seed + 4, 0.6);
+};
+
+export const gateRuin = (ctx: Ctx, x: number, seed: number): void => {
+  const stub: Pt[] = [[x + 10, 0], [x + 11, -8], [x + 14, -14], [x + 13, -20], [x + 17, -26], [x + 18, -31], [x + 14, -34], [x + 20, -38], [x + 21, -40], [x + 24, -38], [x + 24, 0]];
+  G.scorch(ctx, stub, seed + 1);
+  shape(ctx, stub, MOSS[2], MOSS[4]);
+  flat(ctx, x + 20, -38, 1.6, 30, MOSS[1]);
+  G.grain(ctx, G.polyRegion(ctx, stub), seed + 2);
+  G.rim(ctx, stub, seed + 3, MOSS[3], HOLE);
+  const slab: Pt[] = [[x, -8], [x, -22], [x + 4, -24], [x + 15, -23], [x + 19, -20], [x + 24, -21], [x + 24, -8]];
+  shape(ctx, slab, SLAB[2], SLAB[4]);
+  G.grain(ctx, G.polyRegion(ctx, slab), seed + 4);
+  for (const [a, b] of [[3, 7], [8, 12], [12, 15]] as Pt[]) {
+    line(ctx, [[x + a, -21], [x + a + 3, -15], [x + b, -9]], "#b8281a", 1.8);
+    line(ctx, [[x + a + 1, -20], [x + a + 3.5, -14]], "#e06a1c", 0.8);
+  }
+  G.rim(ctx, slab, seed + 5, SLAB[3], HOLE);
+  flat(ctx, x, -8, 24, 8, SLAB[1], SLAB[4]);
+  flat(ctx, x + 11, -8, 13, 8, MOSS[1]);
+  G.dirt(ctx, x - 24, -8, 48, 8, seed + 6, 0.7);
+  const shard: Pt[] = [[x + 8, -43], [x + 14, -44], [x + 14.5, -38], [x + 8.5, -37]];
+  shape(ctx, shard, "#6a2a10", "#1a0804");
+  for (const k of [9.5, 11.5, 13]) line(ctx, [[x + k, -43.5], [x + k + 0.3, -37.5]], "#e06a1c", 0.8);
+  flat(ctx, x + 8.3, -41, 6, 0.8, "#b8ae94");
+  for (const [cx, w, h, i] of [[-19, 7, 2.6, 0], [-11, 4, 1.8, 1], [-4, 6, 3, 2], [3, 4, 2, 3]] as [number, number, number, number][]) {
+    const chunk: Pt[] = [[x + cx, 0], [x + cx + 0.6, -h * 0.7], [x + cx + w * 0.35, -h], [x + cx + w * 0.8, -h * 0.85], [x + cx + w, 0]];
+    shape(ctx, chunk, i % 2 ? GATE[1] : SLAB[1], HOLE);
+    flat(ctx, x + cx + w * 0.3, -h + 0.3, w * 0.4, 0.7, i % 2 ? GATE[3] : SLAB[3]);
+  }
 };
 
 const FENCE_POST = 72;
