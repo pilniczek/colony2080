@@ -81,7 +81,7 @@ function toasterCross(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, cfg: Mov
   ctx.save();
   ctx.translate(end * cell, y * cell);
   ctx.scale(k, k);
-  drawToasterSight(ctx, world.beam !== null, true);
+  drawToasterSight(ctx, world.sparks.length > 0, true);
   ctx.restore();
 }
 

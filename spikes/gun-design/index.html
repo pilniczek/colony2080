@@ -236,9 +236,10 @@ function fireEffect(ctx, t) {
 
 function shotEffect(ctx, t, simple) {
   ctx.scale(1 / GAME_PX, 1 / GAME_PX);
-  TOASTER.shot(ctx, TOASTER.RANGE, Math.floor(t * EBLASTER.TICK_HZ), simple);
+  const tick = Math.floor(t * EBLASTER.TICK_HZ);
+  TOASTER.shot(ctx, TOASTER.RANGE, tick, simple);
   ctx.translate(TOASTER.RANGE, 0);
-  TOASTER.sight(ctx, true, simple);
+  TOASTER.sight(ctx, TOASTER.shotFrame(tick) === TOASTER.SHOT.frames - 1, simple);
 }
 
 function firingRow(ctx, root, pose, simple, lineW, facing, t, weapon, effect) {

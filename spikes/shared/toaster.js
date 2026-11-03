@@ -121,21 +121,29 @@ function shot(ctx, length, tick, simple = false) {
 }
 
 const RANGE = 6 * 24;
-const SIGHT = { arm: 3.2, gap: 1.2, width: 0.7, idle: ["#e86418", 0.4], firing: ["#fce438", 0.85] };
+const SIGHT = { r: 4, side: 3, tick: 1.4, post: [5.2, 1.8], dot: 0.45, width: 0.7, idle: ["#e86418", 0.4], hit: ["#fce438", 0.9] };
 
-function sight(ctx, firing = false, simple = false) {
-  const [color, alpha] = firing ? SIGHT.firing : SIGHT.idle;
-  const { arm, gap } = SIGHT;
+function sight(ctx, hit = false, simple = false) {
+  const [color, alpha] = hit ? SIGHT.hit : SIGHT.idle;
+  const { r, side, tick, post, dot } = SIGHT;
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.strokeStyle = color;
+  ctx.fillStyle = color;
   ctx.lineWidth = simple ? SIGHT.width * 1.4 : SIGHT.width;
   ctx.beginPath();
-  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-    ctx.moveTo(dx * gap, dy * gap);
-    ctx.lineTo(dx * (gap + arm), dy * (gap + arm));
-  }
+  ctx.moveTo(-r + tick, -side);
+  ctx.lineTo(-r, -side);
+  ctx.lineTo(-r, 0);
+  ctx.arc(0, 0, r, Math.PI, 0, true);
+  ctx.lineTo(r, -side);
+  ctx.lineTo(r - tick, -side);
+  ctx.moveTo(0, -post[0]);
+  ctx.lineTo(0, -post[1]);
   ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, dot, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 
