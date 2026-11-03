@@ -71,7 +71,6 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
     openEnds: [
       { col: 22, row: 10, w: 9, h: 1, why: "crane gap in plank row 10 (levelmap.py holes)" },
       { col: 6, row: 11, w: 17, h: 40, why: "open sky over the crashed ship (levelmap.py sky)" },
-      { col: 125, row: 17, w: 2, h: 6, why: "battery pocket east of lift 14 on its passed floor 23 (levelmap.py passedLedges)" },
     ],
     towersOnReach: [{ asset: "facadeTower", x: 11, why: "the crashed ship pad is its roof" }],
   },

@@ -244,7 +244,6 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
         ...["10,31", "10,55", "16,27", "16,55", "16,125", "23,50", "23,87", "23,101", "23,107", "30,75", "30,87"],
         ...["30,107", "30,112"],
       ],
-      "battery pocket east of lift 14 on floor 23, past the acid guard like floor 16 east (levelmap.py passedLedges)": ["23,125"],
       "behind the shoot guard, the E-Blaster wrecks it (world.json shootGuard)": ["16,19"],
     },
     never: {
