@@ -610,74 +610,6 @@ const plankWall = {
         tufts(ctx, 0, w, 0, seed + 30, 0.6, 4);
     },
 };
-const DEPOT_BAY = 72;
-const DEPOT_WALL = 48;
-const GRAFFITI = ["4R", "AR", "KR", "4X"];
-const SCRAWL = ["atcB", "zBt", "ocB", "tcR"];
-const sprayed = (ctx, str, x, y, size, c, alpha) => {
-    ctx.save();
-    ctx.globalAlpha = alpha * 0.35;
-    text(ctx, str, x + 0.6, y + 0.5, size * 1.08, c);
-    ctx.globalAlpha = alpha;
-    text(ctx, str, x, y, size, c);
-    ctx.restore();
-};
-const depotWall = (ctx, x, seed, w = DEPOT_WALL) => {
-    flat(ctx, x, -48, w, 30, "#2a1c12", "#0e0804");
-    G.grain(ctx, G.rectRegion(ctx, x, -48, w, 30), seed);
-    G.grain(ctx, G.rectRegion(ctx, x, -48, w, 30), seed + 1, 0.6);
-    for (let k = 0; k < w / 24; k++) {
-        const cx = x + 12 + k * 24;
-        const word = GRAFFITI[(seed + k) % GRAFFITI.length];
-        sprayed(ctx, word, cx, -40, 11, "#e06a1c", 0.9);
-        sprayed(ctx, word, cx - 0.8, -40.6, 10, "#b8281a", 0.95);
-        sprayed(ctx, SCRAWL[(seed + k * 3) % SCRAWL.length], cx, -25, 5.4, "#b8ae94", 0.6);
-    }
-    within(ctx, [[x, -48, w, 30]], () => G.drips(ctx, x, -48, w, 16, seed + 2, 2 * w / 24));
-    G.chips(ctx, x, -48, w, seed + 3);
-    flat(ctx, x, -18, w, 4, OLIVE[2], OLIVE[4]);
-    if (!simple())
-        for (let k = 0; k < w / 8; k++)
-            flat(ctx, x + 3 + k * 8, -17, 3, 1.2, CONC[3]);
-    band(ctx, x, -14, w, 14, CONC);
-    within(ctx, [[x, -14, w, 14]], () => G.surface(ctx, x, -14, w, 14, seed + 4, { rise: 0.5, drip: 2, dripLen: 8 }));
-};
-const depotBay = (ctx, x, seed) => {
-    const w = DEPOT_BAY - DEPOT_WALL;
-    flat(ctx, x - 1, -34, w, 10, "#3a3834", "#0e0e0c");
-    text(ctx, "AMMO", x + w / 2 - 2, -29, 5, "#b4b0a4");
-    flat(ctx, x + w - 3, -35, 3, 12, SEAM[2], SEAM[4]);
-    G.grain(ctx, G.rectRegion(ctx, x - 1, -34, w, 10), seed, 0.6);
-    flat(ctx, x, -24, w, 5, OLIVE[1], OLIVE[4]);
-    within(ctx, [[x, -24, w, 5]], () => G.drips(ctx, x - 1, -24, w, 6, seed + 1, 2));
-    flat(ctx, x + 2, -6, 11, 6, OLIVE[2], OLIVE[4]);
-    flat(ctx, x + 2, -6, 11, 1.2, OLIVE[3]);
-    flat(ctx, x + 13, -6, 2, 6, SEAM[2], SEAM[4]);
-    flat(ctx, x + 16, -4.5, 6, 4.5, CONC[3], CONC[4]);
-    if (!simple())
-        flat(ctx, x + 17, -3, 4, 0.8, OLIVE[1]);
-    within(ctx, [[x + 2, -6, 13, 6], [x + 16, -4.5, 6, 4.5]], () => G.dirt(ctx, x, -6, w, 6, seed + 2, 0.6));
-};
-const depotRun = (ctx, x, walls, n, seed) => {
-    let cx = x;
-    for (let b = 0; b < n; b++) {
-        depotBay(ctx, cx, seed + b * 11 + 5);
-        depotWall(ctx, cx + 24, seed + b * 11, walls * 24);
-        cx += 24 + walls * 24;
-    }
-};
-const ammoDepot = {
-    id: "ammoDepot",
-    box: [-4, -52, 220, 0],
-    draw(ctx, _state, _t, { w = 216 } = {}) {
-        const seed = 3400;
-        for (let x = 0, b = 0; x < w; x += DEPOT_BAY, b++) {
-            depotWall(ctx, x, seed + b * 11);
-            if (x + DEPOT_BAY <= w)
-                depotBay(ctx, x + DEPOT_WALL, seed + b * 11 + 5);
-        }
-    },
-};
 const GATE = ["#3a403e", "#4e5654", "#626a66", "#7a8480", "#121614"];
 const MOSS = ["#22220e", "#363418", "#4a4824", "#686638", "#0c0c06"];
 const SLAB = ["#4a3e32", "#66584a", "#7e705e", "#988a76", "#18140e"];
@@ -2346,18 +2278,18 @@ const shellCrate = {
     },
 };
 const vesniceSceneryAssets = [
-    villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, ammoDepot, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse,
+    villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse,
     latticeMast, warningLamp, junctionBox, watchtower, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, stoneWall, rubbleHeap, militaryWreck, fuelDrum,
     sandbags, shellCrate,
 ];
 const VESNICE_IDS = [
-    "villageBackdrop", "farPalms", "farRuins", "crateWall", "rivetWall", "plankWall", "ammoDepot", "grassyWalkway", "steelDeckPlate", "trussWalkway", "villageHouse", "stiltBuilding", "powerHouse", "latticeMast", "warningLamp", "junctionBox", "watchtower", "overheadPipeline", "transformer", "storageTank", "powerPlant", "rockCliff", "stoneWall", "rubbleHeap", "militaryWreck", "fuelDrum", "sandbags", "shellCrate",
+    "villageBackdrop", "farPalms", "farRuins", "crateWall", "rivetWall", "plankWall", "grassyWalkway", "steelDeckPlate", "trussWalkway", "villageHouse", "stiltBuilding", "powerHouse", "latticeMast", "warningLamp", "junctionBox", "watchtower", "overheadPipeline", "transformer", "storageTank", "powerPlant", "rockCliff", "stoneWall", "rubbleHeap", "militaryWreck", "fuelDrum", "sandbags", "shellCrate",
     "sourceTeleport", "targetTeleport", "teleportPad", "brokenTeleport", "fuseBox", "electricCabinet", "cannon", "fireBarricade", "dynamiteWall", "energyBarrier", "powerBridge",
     "bridgeGuardPost", "smoulderingRemains", "smallKey", "walkieTalkie", "detonator", "projectileCrate", "projectile", "fuse", "dynamite", "navCircuit", "toaster", "energyPickup",
     "ammoPickup", "shieldPickup",
 ];
 for (const asset of vesniceSceneryAssets) define(asset);
-window.ENV.VESNICE = { ellipse, shadow, smoke, spark, flame, blob, RUIN, boulder, PLANK, planks, concreteBlock, within, outside, rectPts, villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, depotWall, depotBay, depotRun, ammoDepot, steelGate, gateBlock, gateRuin, meshFence, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse, latticeMast, warningLamp, junctionBox, watchtower, bronzeColumn, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, STONE_TILE, stoneWall, rubbleHeap, militaryWreck, fuelDrum, sandbags, shellCrate, vesniceSceneryAssets, VESNICE_IDS };
+window.ENV.VESNICE = { ellipse, shadow, smoke, spark, flame, blob, RUIN, boulder, PLANK, planks, concreteBlock, within, outside, rectPts, villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, steelGate, gateBlock, gateRuin, meshFence, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, powerHouse, latticeMast, warningLamp, junctionBox, watchtower, bronzeColumn, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, STONE_TILE, stoneWall, rubbleHeap, militaryWreck, fuelDrum, sandbags, shellCrate, vesniceSceneryAssets, VESNICE_IDS };
 })();
 
 (() => {
@@ -2366,7 +2298,7 @@ const { G } = window.ENV;
 const P = { ...window.ENV.P, simple: () => window.ENV.simple };
 const { TILE } = window.ENV;
 const craneKey = window.ENV.ASSETS.find((a) => a.id === "craneKey");
-const { PLANK, depotRun, gateBlock, gateRuin, outside, planks, rectPts, shadow, smoke, spark, steelGate, within } = window.ENV.VESNICE;
+const { PLANK, gateBlock, gateRuin, outside, planks, rectPts, shadow, smoke, spark, steelGate, within } = window.ENV.VESNICE;
 const { rng, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, curve, slab, hazard, text } = P;
 const { PI, sin, cos, min, max, floor } = Math;
 const simple = () => P.simple();
@@ -2845,10 +2777,9 @@ const stick = (ctx, x, y, w, h) => {
 };
 const fireBarricade = {
     id: "fireBarricade",
-    box: [-30, -76, 196, 0],
+    box: [-30, -76, 52, 0],
     anim: true,
     draw(ctx, state, t) {
-        depotRun(ctx, 48, 1, 3, 2280);
         if (state === 1) {
             gateRuin(ctx, 24, 2290);
             if (!simple())
@@ -2861,10 +2792,9 @@ const fireBarricade = {
 };
 const dynamiteWall = {
     id: "dynamiteWall",
-    box: [-4, -76, 244, 0],
+    box: [-4, -76, 34, 0],
     anim: true,
     draw(ctx, state, t) {
-        depotRun(ctx, 24, 2, 3, 2300);
         steelGate(ctx, 0, 2296);
         if (state === 1) {
             for (const x of [6, 9, 12])

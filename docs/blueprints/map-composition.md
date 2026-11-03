@@ -80,7 +80,7 @@ Every layout asset has one role (`[test]`). Each mission's design sheet fills it
 | sky | sky behind everything | `skyBackground` | `villageBackdrop` | | |
 | far | far layer filling open sky between floors | `skylineTower`, `midgroundRuins` | `farPalms`, `farRuins` | | |
 | filler | map edge and never reached solid (terrain wall) | `brickWall` | `crateWall` | | |
-| wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | `rivetWall`, `plankWall`, `ammoDepot` | | |
+| wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | `rivetWall`, `plankWall` | | |
 | fence | fences the hero walks along | `chainFence` | `chainFence` (mesh states) | | |
 | floor | floor runs and floor plates | `streetWalkway`, `tunnelFloor`, `hazardPlate`, `liftLanding` | `grassyWalkway`, `steelDeckPlate`, `liftLanding` | | |
 | girder | free-standing floor runs and elevated decks | `girderBridge` | `trussWalkway` | | |

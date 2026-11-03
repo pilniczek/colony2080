@@ -536,8 +536,6 @@ const envSizes: [string, Size][] = [
   ["rivetWall", { w: 24, h: 192 }],
   ["rivetWall", { w: 96, h: 48 }],
   ["plankWall", { w: 48, h: 192 }],
-  ["ammoDepot", { w: 72 }],
-  ["ammoDepot", { w: 216 }],
   ["grassyWalkway", { w: 72 }],
   ["steelDeckPlate", { w: 48 }],
   ["trussWalkway", { w: 96 }],

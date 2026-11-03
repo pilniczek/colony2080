@@ -13685,7 +13685,7 @@ window.C28_CONFIG = {
       "marker": 12,
       "task": "fireCannon",
       "sheet": "structures",
-      "description": "Grey steel post in a mossy frame (map cell 22, rows 38-40: panel, diagonal brace and pipes, beige rails) with a lower stone and rail block (cell 23, rows 39-40), then the ammo depot run: AMMO plate bays and one-cell graffiti walls (cells 24-29). The post tiles (8,50) (8,63) (8,76) are a stand-row wall; M24 blasts the post away and leaves a jagged mossy stub, a graffiti stone slab, a red crate shard and rubble in cell 23.",
+      "description": "Grey steel post in a mossy frame (map cell 22, rows 38-40: panel, diagonal brace and pipes, beige rails) with a lower stone and rail block (cell 23, rows 39-40). The original's ammo depot run behind it (AMMO plate bays and graffiti walls, cells 24-29) is left out (user). The post tiles (8,50) (8,63) (8,76) are a stand-row wall; M24 blasts the post away and leaves a jagged mossy stub, a graffiti stone slab, a red crate shard and rubble in cell 23.",
       "states": [
        "standing",
        "blasted (M24)"
@@ -13773,7 +13773,7 @@ window.C28_CONFIG = {
       "marker": 14,
       "task": "blowWall",
       "sheet": "structures",
-      "description": "Grey steel post in a mossy frame (map cell 29, rows 29-31, stand-row wall: panel, diagonal brace and pipes, beige rails) followed by the ammo depot run on floor 32: AMMO plate bays and two-cell graffiti walls (cells 30-38). Dynamite then detonator here ends the level.",
+      "description": "Grey steel post in a mossy frame (map cell 29, rows 29-31, stand-row wall: panel, diagonal brace and pipes, beige rails). The original's ammo depot run behind it on floor 32 (AMMO plate bays and graffiti walls, cells 30-38) is left out (user). Dynamite then detonator here ends the level.",
       "states": [
        "intact",
        "dynamite placed"
@@ -14588,53 +14588,6 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: power plant"
        }
-      ]
-     },
-     {
-      "id": "ammoDepot",
-      "name": "Ammo depot",
-      "csName": null,
-      "interactive": false,
-      "marker": null,
-      "task": null,
-      "sheet": "structures",
-      "description": "Wall role. Dark brown block walls (2 cells) with red and pale sprayed graffiti letters over a green ledge strip and a concrete base, between them a grey AMMO plate with a yellow edge over a few tiny ammo boxes, sized w (cells 23-28 floor 41, cells 30-38 floor 32).",
-      "states": [],
-      "refs": [
-       {
-        "path": "docs/research/gamedata/png/maps/map_M21.png",
-        "imgSize": [
-         3840,
-         1920
-        ],
-        "crop": [
-         528,
-         888,
-         168,
-         96
-        ],
-        "caption": "map M21: depot, floor 41"
-       },
-       {
-        "path": "docs/research/gamedata/png/maps/map_M21.png",
-        "imgSize": [
-         3840,
-         1920
-        ],
-        "crop": [
-         696,
-         696,
-         240,
-         72
-        ],
-        "caption": "map M21: depot, floor 32"
-       }
-      ],
-      "sizes": [
-       [
-        3,
-        1
-       ]
       ]
      },
      {

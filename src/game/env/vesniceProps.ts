@@ -1,7 +1,7 @@
 import { G } from "./grime";
 import { P, TILE, type EnvAsset } from "./paint";
 import { craneKey } from "./props";
-import { PLANK, depotRun, gateBlock, gateRuin, outside, planks, rectPts, shadow, smoke, spark, steelGate, within } from "./vesnice";
+import { PLANK, gateBlock, gateRuin, outside, planks, rectPts, shadow, smoke, spark, steelGate, within } from "./vesnice";
 
 const { rng, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, curve, slab, hazard, text } = P;
 const { PI, sin, cos, min, max, floor } = Math;
@@ -476,10 +476,9 @@ const stick = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h
 
 const fireBarricade: EnvAsset = {
   id: "fireBarricade",
-  box: [-30, -76, 196, 0],
+  box: [-30, -76, 52, 0],
   anim: true,
   draw(ctx, state, t) {
-    depotRun(ctx, 48, 1, 3, 2280);
     if (state === 1) {
       gateRuin(ctx, 24, 2290);
       if (!simple()) smoke(ctx, 40, -30, t, 3, 30);
@@ -492,10 +491,9 @@ const fireBarricade: EnvAsset = {
 
 const dynamiteWall: EnvAsset = {
   id: "dynamiteWall",
-  box: [-4, -76, 244, 0],
+  box: [-4, -76, 34, 0],
   anim: true,
   draw(ctx, state, t) {
-    depotRun(ctx, 24, 2, 3, 2300);
     steelGate(ctx, 0, 2296);
     if (state === 1) {
       for (const x of [6, 9, 12]) stick(ctx, x, -14, 3, 14);

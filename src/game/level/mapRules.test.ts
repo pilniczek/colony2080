@@ -79,7 +79,7 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
       sky: ["villageBackdrop"],
       far: ["farPalms", "farRuins"],
       filler: ["crateWall", "stoneWall"],
-      wall: ["rivetWall", "plankWall", "ammoDepot"],
+      wall: ["rivetWall", "plankWall"],
       fence: ["chainFence"],
       floor: ["grassyWalkway", "steelDeckPlate", "liftLanding"],
       girder: ["trussWalkway"],

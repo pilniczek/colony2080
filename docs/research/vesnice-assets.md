@@ -13,7 +13,7 @@ Review the sheet at `spikes/env-design/index.html?mission=vesnice&scope=own`.
 | Crate block masses (olive steel panels, brace, yellow seam) | 50-60 r15-24, 6-14 r34-49, 69-76 r52-68, 88-95 r12-31, 140-145 r50-58 | `crateWall` | filler (terrain wall) | static, sized w h |
 | Floor-end riveted blocks (stand-row walls) | 76 r22, 93-99 r58, 109 r32, 152 r32 | `rivetWall` | wall | edge post, plain |
 | Timber walls (village) | none as a wall; timber of 63-76 r34-40 | `plankWall` | wall | planks, burnt |
-| Ammo depot: dark block walls with sprayed red and pale graffiti letters, AMMO plates with a yellow edge, tiny ammo boxes | 23-28 r38-40, 30-38 r29-31 | `ammoDepot` | wall | static, sized w |
+| Ammo depot: dark block walls with sprayed red and pale graffiti letters, AMMO plates with a yellow edge, tiny ammo boxes | 23-28 r38-40, 30-38 r29-31 | left out (user) | | |
 | Mesh fence with posts, sign plate, rusty tears | 58-66 r20-22, 62-75 r38-40, 80-85 r56-58, 101-110 r20-22, 104-112 r65-67 | `chainFence` (shared, mesh states) | fence | chain-link, mesh with sign, mesh torn |
 | Grassy floor rows (grass over grey curb stones) | every floor row, e.g. 58-66 r23 | `grassyWalkway` | floor (terrain ledge) | grass, trampled |
 | Riveted steel plates in floors | 93-100 r59, 63-67 r32 | `steelDeckPlate` | floor | static, sized w |
