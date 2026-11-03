@@ -48,6 +48,7 @@ export interface MovementConfig {
   energy: { max: number; hit: number; shields: number };
   ammo: number;
   blaster: { tickHz: number; damage: number; ammo: number };
+  toaster: { cycle: number; hitFrame: number; ammoFrame: number; range: number; damage: number; ammo: number };
   respawnMs: number;
   deathSlide: number;
 }
@@ -103,6 +104,7 @@ export function loadMovement(json: unknown): MovementConfig {
     energy: group("energy", ["max", "hit", "shields"]),
     ammo: n("ammo"),
     blaster: group("blaster", ["tickHz", "damage", "ammo"]),
+    toaster: group("toaster", ["cycle", "hitFrame", "ammoFrame", "range", "damage", "ammo"]),
     respawnMs: n("respawnMs"),
     deathSlide: n("deathSlide"),
   };

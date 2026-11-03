@@ -3,6 +3,7 @@ import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { createFog, loadFog } from "./fog";
 import { cfg, clips, game, objectLevel, run, tick, withoutItems, type Game } from "./hero/testWorld";
+import { bonusAmmo } from "./hero/hero";
 import { spikeUnit } from "./hero/look";
 import { FLYER_HALF, type Enemy } from "./level/enemy";
 import { resetWorld } from "./level/sandboxLevel";
@@ -508,5 +509,63 @@ describe("blaster beam", () => {
     expect(g.world.beam!.tick).toBe(10);
     tick(g);
     expect(g.world.beam).toBeNull();
+  });
+});
+
+describe("toaster fireball", () => {
+  const open = `#${".".repeat(28)}#`;
+  const solid = "#".repeat(30);
+  const level = (enemies: number[]) => ({
+    rows: [solid, open, open, open, solid],
+    spawn: [3.5, 4],
+    sky: "skyBackground",
+    backdrop: [],
+    dressing: [],
+    lifts: [],
+    props: [],
+    enemies: enemies.map((x) => ({ x, y: 4, facing: -1, hits: 7, respawnMs: null, reactMs: 250, burst: { shots: 9, ms: 280 }, pauseMs: 400 })),
+  });
+  const toaster = (enemies: number[] = []): Game => {
+    const g = game({ x: 3.5, y: 4, weapon: "blaster", state: "attack" }, level(enemies));
+    g.world.bonus = "toaster";
+    Object.assign(g.hero, { facing: 1, blaster: cfg.toaster.ammo, fireTime: 0, onGround: true });
+    return g;
+  };
+  const ticks = (g: Game, n: number): number[] => {
+    const frames: number[] = [];
+    for (let i = 0; i < n; i++) {
+      fireBeam(g.world, g.hero, [{ kind: "beam", x: g.hero.x, y: g.hero.y }], clips, cfg);
+      frames.push(g.world.beam!.tick);
+    }
+    return frames;
+  };
+
+  it("draws frames 1 to 6 then a blank tick and spends 1 ammo per missed cycle", () => {
+    const g = toaster();
+    expect(ticks(g, 14)).toEqual([1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0]);
+    expect(g.hero.blaster).toBe(cfg.toaster.ammo - 2);
+  });
+
+  it("hits every live enemy in range from the hit frame, restarts the cycle and spends no ammo", () => {
+    const g = toaster([7.5, 8.5]);
+    expect(ticks(g, 3)).toEqual([1, 2, 3]);
+    expect(g.world.enemies.map((e) => e.body.energy)).toEqual([7 - cfg.toaster.damage, 7 - cfg.toaster.damage]);
+    expect(g.world.beam!.cycle).toBe(0);
+    ticks(g, 3);
+    expect(g.world.enemies.every((e) => e.body.energy <= 0)).toBe(true);
+    expect(g.hero.blaster).toBe(cfg.toaster.ammo);
+  });
+
+  it("misses an enemy past its range", () => {
+    const g = toaster([3.5 + cfg.toaster.range + 1.5]);
+    ticks(g, 7);
+    expect(g.world.enemies[0]!.body.energy).toBe(7);
+  });
+
+  it("gives its own ammo on pickup", () => {
+    const g = toaster();
+    expect(bonusAmmo(g.world, cfg)).toBe(250);
+    g.world.bonus = "blaster";
+    expect(bonusAmmo(g.world, cfg)).toBe(cfg.blaster.ammo);
   });
 });

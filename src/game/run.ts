@@ -21,7 +21,7 @@ import { createFog, loadFog, sightSpan } from "./fog";
 import { createSaveMenu, type SaveMenuOptions } from "./save/saveMenu";
 import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
-import { createHero, halt, type Hero } from "./hero/hero";
+import { bonusAmmo, createHero, halt, type Hero } from "./hero/hero";
 import { attrOf } from "./hud/pointer";
 import { canOpenScreen, closesMap, inventoryKey, openCursor, repeatsOnScreen, screenKey } from "./hud/inventoryKeys";
 import { newestFirst } from "./hud/inventory";
@@ -483,7 +483,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     const props = world.props.filter((p) => p.kind === "weapon");
     if (!props.length) return "No special weapon in this mission";
     for (const p of props) p.taken = true;
-    hero.blaster = tuning().movement.blaster.ammo;
+    hero.blaster = bonusAmmo(world, tuning().movement);
     return `Picked up ${BONUS_NAMES[world.bonus]}`;
   };
 

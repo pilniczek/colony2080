@@ -190,7 +190,7 @@ interface BeamLine {
 }
 
 function beamLine(world: SandboxWorld, h: Hero, clips: ClipSet, cfg: MovementConfig): BeamLine {
-  const [x, y] = world.bonus === "toaster" ? toasterMuzzle(h, clips, cfg) : heroMuzzle(h, clips, cfg);
+  const [x, y] = heroMuzzle(h, clips, cfg);
   const { ray } = openRay(world, h, y, cfg);
   const end = ahead(h.facing, x, ray.end);
   const prop = nearestProp(world, { ...ray, end }, true);
@@ -214,6 +214,51 @@ function burn(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig)
   world.beamHits = burned;
 }
 
+function toasterLine(world: SandboxWorld, h: Hero, clips: ClipSet, cfg: MovementConfig): BeamLine {
+  const [x, y] = toasterMuzzle(h, clips, cfg);
+  const { ray } = openRay(world, h, y, cfg);
+  const end = ahead(h.facing, x, nearer(h.facing, ray.end, h.x + h.facing * cfg.toaster.range));
+  const prop = nearestProp(world, { ...ray, end }, true);
+  return prop ? { x, y, end: ahead(h.facing, x, prop.face), prop: prop.prop } : { x, y, end, prop: null };
+}
+
+function toast(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig): boolean {
+  let hit = false;
+  if (line.prop) {
+    hitShootable(world, line.prop);
+    spark(world, line.end, line.y);
+    hit = true;
+  }
+  const ray: Ray = { from: h.x, y: line.y, dir: h.facing, end: line.end };
+  for (const enemy of world.enemies) {
+    const face = enemyFace(enemy, cfg, ray);
+    if (face === null) continue;
+    harm(world, enemy, cfg.toaster.damage, true);
+    spark(world, ahead(h.facing, line.x, face), sparkY(enemy, cfg, line.y));
+    hit = true;
+  }
+  return hit;
+}
+
+function fireToaster(world: SandboxWorld, h: Hero, ticks: number, clips: ClipSet, cfg: MovementConfig): void {
+  const { cycle, hitFrame, ammoFrame } = cfg.toaster;
+  let frame = world.beam?.cycle ?? 0;
+  let drawn = world.beam?.tick ?? 0;
+  let line = toasterLine(world, h, clips, cfg);
+  for (let i = 0; i < ticks; i++) {
+    if (frame === ammoFrame) h.blaster = Math.max(0, (h.blaster ?? 0) - 1);
+    frame = (frame + 1) % cycle;
+    drawn = frame;
+    if (frame === 1) cue(world, "laser", 12000);
+    if (frame >= hitFrame && toast(world, h, line, cfg)) {
+      frame = 0;
+      line = toasterLine(world, h, clips, cfg);
+    }
+  }
+  const { x, y, end } = line;
+  world.beam = { x, y, end, facing: h.facing, tick: drawn, cycle: frame };
+}
+
 export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clips: ClipSet, cfg: MovementConfig): void {
   const ticks = events.filter((e) => e.kind === "beam").length;
   if (!ticks && (h.weapon !== "blaster" || h.fireTime === null)) {
@@ -221,6 +266,7 @@ export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clip
     world.beamHits.clear();
     return;
   }
+  if (world.bonus === "toaster") return fireToaster(world, h, ticks, clips, cfg);
   let line = beamLine(world, h, clips, cfg);
   for (let i = 0; i < ticks; i++) {
     burn(world, h, line, cfg);

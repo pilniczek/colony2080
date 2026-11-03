@@ -79,6 +79,7 @@ export interface Beam {
   end: number;
   facing: 1 | -1;
   tick: number;
+  cycle?: number;
 }
 
 export interface Inventory {

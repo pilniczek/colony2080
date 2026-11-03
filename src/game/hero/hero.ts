@@ -7,7 +7,6 @@ import { openTask, runUse, say, tried } from "../level/tasks";
 import { padUnder, ridePad } from "../level/teleports";
 import { cue } from "../sound/cues";
 import { step as footsteps } from "../sound/triggers";
-import { TOASTER_CYCLE } from "../robot/toaster";
 import { footContacts } from "./gait";
 import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type HeroState, type MovementConfig, type Weapon } from "./config";
 
@@ -285,6 +284,8 @@ function emit(s: Step, kind: HeroEvent["kind"]): void {
   s.events.push({ kind, x: s.h.x, y: s.h.y });
 }
 
+export const bonusAmmo = (world: SandboxWorld, cfg: MovementConfig): number => (world.bonus === "toaster" ? cfg.toaster.ammo : cfg.blaster.ammo);
+
 const ammoOf = (h: Hero, weapon: Weapon): number => (weapon === "gun" ? h.ammo : weapon === "blaster" ? (h.blaster ?? 0) : 0);
 
 const emptyWeapon = (h: Hero): boolean => holdsGun(h.weapon) && ammoOf(h, h.weapon) <= 0;
@@ -299,9 +300,10 @@ const fireRate = ({ h, cfg }: Step): number => (h.weapon === "blaster" ? cfg.bla
 function shoot(s: Step): void {
   const { h } = s;
   if (h.weapon === "blaster") {
-    h.blaster = ammoOf(h, "blaster") - 1;
-    if (s.world.bonus !== "toaster") cue(s.world, "beam", 8000);
-    else if (Math.floor((h.fireTime ?? 0) * s.cfg.blaster.tickHz + SHOT_EPS) % TOASTER_CYCLE === 1) cue(s.world, "laser", 12000);
+    if (s.world.bonus !== "toaster") {
+      h.blaster = ammoOf(h, "blaster") - 1;
+      cue(s.world, "beam", 8000);
+    }
     return emit(s, "beam");
   }
   h.ammo -= 1;
@@ -681,7 +683,7 @@ function pickup(s: Step): void {
   if (!prop) return;
   prop.taken = true;
   if (prop.kind === "weapon") {
-    s.h.blaster = s.cfg.blaster.ammo;
+    s.h.blaster = bonusAmmo(s.world, s.cfg);
     say(s.world, `Picked up ${BONUS_NAMES[s.world.bonus]}`);
   } else {
     pickUp(s.world, prop.item!);
