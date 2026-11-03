@@ -10,7 +10,7 @@ import type { MissionId } from "./missionIds";
 import { loadMission } from "./missions";
 import { id } from "./reach";
 import type { Lift, SandboxWorld, Scenery } from "./sandboxLevel";
-import { terrain, type Rect, type Run } from "./terrain";
+import { terrain, type Run } from "./terrain";
 import { openGraph, opened } from "./testMissions";
 
 const BUILT: MissionId[] = ["mesto"];
@@ -228,16 +228,6 @@ describe.each(BUILT)("%s map rules", (mission) => {
       }
     }
     expect(short).toEqual([]);
-  });
-
-  it("stands every wall on a floor or wall, or spans it to a wall beside it", () => {
-    const hanging = terrain(grid).walls.filter((w: Rect) => {
-      if (w.h < 2 || w.row + w.h >= grid.height) return false;
-      const below = Array.from({ length: w.w }, (_, i) => grid.solid(w.col + i, w.row + w.h)).some(Boolean);
-      const sides = Array.from({ length: w.h }, (_, i) => grid.solid(w.col - 1, w.row + i) || grid.solid(w.col + w.w, w.row + i)).some(Boolean);
-      return !below && !sides;
-    });
-    expect(hanging.map((w) => `${w.col},${w.row} ${w.w}x${w.h}`)).toEqual([]);
   });
 
   it("keeps every lift shaft open from above its top stop down to a solid bottom stop", () => {

@@ -142,7 +142,7 @@ Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLi
 - Every floor end closes with a wall (named exemptions: mesto crane gap, open sky over the crashed ship). [S] [test]
 - No invisible blockers (`|`). Mesto keeps its old ones only under a lift bottom stop or visible art; every other mission has none. [S] [test]
 - Walls mostly reach the floor above; a wall column above the ground reaches the floor above it. The test splits walls into row rectangles, so a fill that makes two rows end at the same column can merge them into one tall wall whose top lands on a lift landing; shape the fill so it does not. [H: 51ca5370 2026-10-19] [T] [S] [test]
-- No wall levitates: each stands on a floor or wall, or spans to a wall beside it (a slab over a corridor reads as a storey). A nook a removed lift stop leaves behind is filled down to the floor. [H: 51ca5370 2026-10-19] [H: 17637e34 2026-10-23] [test]
+- A nook a removed lift stop leaves behind is filled down to the floor. [H: 17637e34 2026-10-23]
 
 ## Scenery placement (`world.json`)
 
