@@ -30,6 +30,35 @@ window.ORIGINALS = {
       ["HUD top bar, slot 3", "video/frames-best/GRA_DESKA3_hud_top_with_eblaster_slot3.png"]
     ]
   },
+  enemies: {
+    rocketRobot: [["Rocket robot (rows 1-2) and grey trooper (rows 3-4), LEV2.GRA f21-24", "gamedata/png/enemy-sprites/lev2_types_f21_f24.png"]],
+    greyTrooper: [["Rocket robot (rows 1-2) and grey trooper (rows 3-4), LEV2.GRA f21-24", "gamedata/png/enemy-sprites/lev2_types_f21_f24.png"]],
+    bridgeGuard: [["Bridge guard, LEV2.GRA f25 frames 1-8", "gamedata/png/enemy-sprites/lev2_guard_f25_frames.png"]],
+    rocketDroid: [
+      ["Walk, LEV3.GRA f21", "gamedata/png/enemy-sprites/lev3_f21.png"],
+      ["Fire 1-9, burning scrap 10-24, LEV3.GRA f22", "gamedata/png/enemy-sprites/lev3_f22.png"]
+    ],
+    crawler: [
+      ["Walk, LEV3.GRA f23", "gamedata/png/enemy-sprites/lev3_f23.png"],
+      ["Burst 1-9, wreck 10-24, LEV3.GRA f24", "gamedata/png/enemy-sprites/lev3_f24.png"],
+      ["Unused guard, LEV3.GRA f25", "gamedata/png/enemy-sprites/lev3_turret_f25_frames.png"]
+    ],
+    spiderWalker: [
+      ["Spider walker walk, LEV4.GRA f21 frames 1, 7, 13, 19", "gamedata/png/enemy-sprites/lev4_spider_walk.png"],
+      ["Spider walker firing, LEV4.GRA f22 frames 1, 2, 4, 7", "gamedata/png/enemy-sprites/lev4_spider_fire.png"],
+      ["Spider walker, LEV4.GRA f21-f22 all frames", "gamedata/png/enemy-sprites/lev4_spider_f21_f22.png"]
+    ],
+    podWalker: [
+      ["Pod walker walk, LEV4.GRA f23 frames 1, 5, 10, 16", "gamedata/png/enemy-sprites/lev4_pod_walk.png"],
+      ["Pod walker fire and wreck, LEV4.GRA f24 frames 1, 2, 4, 12, 20", "gamedata/png/enemy-sprites/lev4_pod_fire_wreck.png"],
+      ["Pod walker, LEV4.GRA f23-f24 all frames", "gamedata/png/enemy-sprites/lev4_pod_f23_f24.png"]
+    ],
+    caveTrooper: [
+      ["Trooper walk, LEV4.GRA f27 frames 1, 6, 12, 18", "gamedata/png/enemy-sprites/lev4_trooper_walk.png"],
+      ["Trooper aim, fire, knockback, front, LEV4.GRA f28", "gamedata/png/enemy-sprites/lev4_trooper_other.png"],
+      ["Trooper, LEV4.GRA f27-f28 all frames", "gamedata/png/enemy-sprites/lev4_trooper_f27_f28.png"]
+    ]
+  },
   cutscenes: {
     crowbarDoor: {
       label: "Original METROPAC.ANM (time-normalised)",

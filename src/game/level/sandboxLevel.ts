@@ -10,6 +10,7 @@ import type { Hero } from "../hero/hero";
 import { ITEMS, type ItemId } from "../items";
 import { keepOutOf, type Cover } from "./cover";
 import { createEnemy, type Enemy, type EnemyJson } from "./enemy";
+import type { Rocket } from "./rockets";
 import type { PropFire, PropRepel } from "./guards";
 import { loadQuests, type Quest } from "./quests";
 import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
@@ -138,6 +139,7 @@ export interface SandboxWorld {
   fog: Fog | null;
   heroHits: number;
   sparks: Spark[];
+  rockets: Rocket[];
   beam: Beam | null;
   beamHits: Set<Enemy>;
   enemies: Enemy[];
@@ -248,6 +250,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     fog: null,
     heroHits: 0,
     sparks: [],
+    rockets: [],
     beam: null,
     beamHits: new Set(),
     enemies: data.enemies.map((e) => createEnemy(e, grid, lifts, keepOutOf(data.props))),

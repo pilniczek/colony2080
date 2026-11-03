@@ -25,7 +25,7 @@
   #palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
   #palette label.edited { color: var(--text); font-weight: 600; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
-  .kinds { display: flex; border: 1px solid #2f3f3e; border-radius: 4px; overflow: hidden; }
+  .kinds { display: flex; flex-wrap: wrap; border: 1px solid #2f3f3e; border-radius: 4px; overflow: hidden; }
   .kinds label { padding: 4px 10px; cursor: pointer; color: var(--muted); }
   .kinds input { display: none; }
   .kinds label:has(input:checked) { background: #2f4140; color: var(--text); }
@@ -56,6 +56,7 @@
   <figure><figcaption>Enemy, front</figcaption><canvas id="front" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, side, carry</figcaption><canvas id="side" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, back</figcaption><canvas id="back" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Enemy, walk</figcaption><canvas id="walkWalker" data-w="1600" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, explosion</figcaption><canvas id="blastWalker" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, wreck</figcaption><canvas id="wreckWalker" data-w="640" data-h="780"></canvas></figure>
   <figure class="heroOnly"><figcaption>Hero, side, carry</figcaption><canvas id="heroSide" data-w="640" data-h="780"></canvas></figure>
@@ -145,8 +146,14 @@
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script src="../shared/gun.js"></script>
+<script src="../shared/gait.js"></script>
 <script src="../shared/env.js"></script>
 <script src="../shared/enemies.js"></script>
+<script src="../shared/originals.js"></script>
+<script src="../shared/env-vesnice.js"></script>
+<script src="../shared/enemies-vesnice.js"></script>
+<script src="../shared/enemies-jungle.js"></script>
+<script src="../shared/enemies-jeskyne.js"></script>
 <script>
 const { PALETTE, shade, buildFront, buildSide, buildBack, render, FOOT_Y, LEVELS } = window.XBOT;
 const { FLYER, GUARD, GUARD_FRONT, TROOPER, FLYER_PALETTE, GUARD_PALETTE, TROOPER_PALETTE } = window.ENEMIES;
@@ -158,6 +165,7 @@ const LOW_FLYER = 32;
 const tint = { brightness: 1.1, saturate: 0 };
 const overrides = { walker: {}, flyer: {}, guard: {}, shooter: {} };
 const opts = { lines: true, hero: true, guides: true, kind: "walker" };
+const ENEMY_KINDS = {};
 const GUIDED = new Set(["guardFront", "guardFire", "guardAcid", "guardWreck", "guardScale"]);
 
 const roots = {
@@ -219,6 +227,8 @@ function walkerUnits(ctx, draw) {
 
 const walkerScrap = ctx => walkerUnits(ctx, () => ENEMIES.scrap(ctx));
 
+const acrossX = (x, w, margin = 300) => ((x % (w + 2 * margin)) + w + 2 * margin) % (w + 2 * margin) - margin;
+
 function backdrop(ctx, w, h) {
   const g = ctx.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0, SKY[0]);
@@ -245,6 +255,11 @@ const VIEWS = {
     front: (ctx, lw, pal) => robot(ctx, { root: roots.front, pose: POSES.front, hook: "handL", barrel: hold.FRONT_BARREL, pal, lineW: lw * 1.4 }),
     side: (ctx, lw, pal) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.side, pose: POSES.side, hook: "hand", pal, lineW: lw * 1.4 }); },
     back: (ctx, lw, pal) => { render(ctx, roots.back, { pal, lineW: lw * 1.4 }); GUN.slung(ctx, { pal, lineW: lw * 1.4 }); },
+    walkWalker: (ctx, lw, pal, w, h, t) => {
+      const { pose, drop, x } = GAIT.walkAt(t);
+      ctx.translate(acrossX(x, w) - XBOT.SIDE_AX, drop);
+      robot(ctx, { root: roots.side, pose: { ...pose, ...POSES.side }, hook: "hand", pal, lineW: lw * 1.4 });
+    },
     blastWalker: (ctx, lw, pal, w, h, t) => {
       const age = t % ENEMIES.BLAST.loop;
       if (age < ENEMIES.BLAST.hideBody) robot(ctx, { root: roots.side, pose: POSES.side, hook: "hand", pal, lineW: lw * 1.4 });
@@ -403,6 +418,37 @@ function setKind(kind) {
   draw();
 }
 
+function kindSection(kind, { figures, game = [] }) {
+  const refs = ORIGINALS.enemies?.[kind] ?? [];
+  const figure = ({ id, caption, w, h, hero }) => `<figure${hero ? ' class="heroOnly"' : ""}><figcaption>${caption}</figcaption><canvas id="${id}" data-w="${w}" data-h="${h}"></canvas></figure>`;
+  const ref = ([caption, path]) => `<figure><figcaption>${caption}</figcaption><img src="${ORIGINALS.src(path)}" alt="${caption}"></figure>`;
+  const section = document.createElement("section");
+  section.dataset.kind = kind;
+  section.hidden = true;
+  section.innerHTML = `<main>${figures.map(figure).join("")}</main>`
+    + (game.length ? `<h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2><main class="game">${game.map(figure).join("")}</main>` : "")
+    + (ORIGINALS.on && refs.length ? `<h2>References</h2><main>${refs.map(ref).join("")}</main>` : "");
+  return section;
+}
+
+function registerKinds() {
+  const radios = document.querySelector(".kinds");
+  const before = document.querySelector("body > script");
+  for (const [kind, k] of Object.entries(ENEMY_KINDS)) {
+    PALETTES[kind] = k.palette;
+    OWN_KEYS[kind] = k.ownKeys;
+    overrides[kind] = {};
+    VIEWS[kind] = Object.fromEntries([...k.figures, ...(k.game ?? [])].map(f => [f.id, f.draw]));
+    radios.insertAdjacentHTML("beforeend", `<label title="${k.mission}"><input type="radio" name="kind" value="${kind}">${k.label}</label>`);
+    document.body.insertBefore(kindSection(kind, k), before);
+  }
+}
+</script>
+<script src="vesnice.js"></script>
+<script src="jungle.js"></script>
+<script src="jeskyne.js"></script>
+<script>
+registerKinds();
 for (const key of ["brightness", "saturate"]) {
   const input = document.getElementById(key);
   const out = document.getElementById(key + "Out");

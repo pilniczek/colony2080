@@ -203,12 +203,19 @@ describe("moving lift", () => {
     expect(g.hero.x).toBeGreaterThan(lift.x + lift.w);
   });
 
-  it("loads four droids, the three new ones without respawn, and a respawning flyer", () => {
+  it("loads four droids, the three new ones without respawn, a respawning flyer and one respawning humanoid per kind", () => {
     const { enemies } = loadSandbox(sandbox);
-    expect(enemies).toHaveLength(5);
+    expect(enemies).toHaveLength(9);
     expect(enemies[0]!.respawnMs).toBe(5000);
     expect(enemies.slice(1, 4).every((e) => e.respawnMs === null && !e.flight)).toBe(true);
     expect(enemies[4]!).toMatchObject({ respawnMs: 5000, flight: { lift: sandbox.enemies[4]!.flight!.hoverLift } });
+    expect(enemies.slice(0, 5).every((e) => e.kind === "walker")).toBe(true);
+    expect(enemies.slice(5).map((e) => [e.kind, e.respawnMs])).toEqual([
+      ["rocketRobot", 5000],
+      ["greyTrooper", 5000],
+      ["rocketDroid", 5000],
+      ["caveTrooper", 5000],
+    ]);
   });
 
   it("damages only the enemy a hero bullet reaches", () => {

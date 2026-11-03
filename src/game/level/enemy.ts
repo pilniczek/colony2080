@@ -24,6 +24,22 @@ export interface EnemyJson {
   pauseMs: number;
   patrol?: [number, number];
   flight?: FlightJson;
+  kind?: string;
+  rocket?: RocketJson;
+}
+
+export interface RocketJson {
+  kneelMs: number;
+  fireMs: number;
+  reloadMs: number;
+  speed: number;
+  hits: number;
+  muzzle: number[];
+  trailMs: number;
+  range?: number;
+  salvo?: { count: number; gapMs: number };
+  homing?: { climb: number; turn: number; steerMs: number; glide: number; level: number };
+  fins?: boolean;
 }
 
 export interface FlightJson {
@@ -63,6 +79,7 @@ export interface Shaft {
 }
 
 export interface Enemy {
+  kind: string;
   body: Hero;
   spot: [number, number];
   facing: -1 | 1;
@@ -78,6 +95,7 @@ export interface Enemy {
   unseen: boolean;
   pauseLeft: number;
   flight: Flight | null;
+  rocket: RocketJson | null;
 }
 
 const walking = (body: Hero): Hero => ({ ...body, state: "walk" });
@@ -168,6 +186,8 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
   const base = { spot: [Math.min(patrol[1], Math.max(patrol[0], json.x)), json.y] as [number, number], facing: json.facing, hits: json.hits, flight };
   return {
     ...base,
+    kind: json.kind ?? "walker",
+    rocket: json.rocket ?? null,
     respawnMs: json.respawnMs,
     reactMs: json.reactMs,
     burst: json.burst,
@@ -259,6 +279,36 @@ function patrol(e: Enemy, grid: TileGrid, clips: ClipSet, dt: number, scale = 1)
   }
 }
 
+export const STANCE_HOLD = 600;
+
+export function shotsBy(t: number, rocket: RocketJson): number {
+  const { count, gapMs } = rocket.salvo ?? { count: 1, gapMs: 0 };
+  let shots = 0;
+  for (let i = 0; i < count; i++) {
+    const first = (rocket.fireMs + i * gapMs) / 1000;
+    if (t >= first) shots += Math.floor((t - first) / (rocket.reloadMs / 1000) + 1e-9) + 1;
+  }
+  return shots;
+}
+
+function volley(e: Enemy, rocket: RocketJson, dt: number): number {
+  const { body } = e;
+  if (body.state !== "attack" || body.time >= STANCE_HOLD) {
+    Object.assign(body, { state: "attack", time: 0, fireTime: 0 });
+    return 0;
+  }
+  const before = body.fireTime ?? 0;
+  body.fireTime = before + dt;
+  return shotsBy(body.fireTime, rocket) - shotsBy(before, rocket);
+}
+
+function rising(e: Enemy, rocket: RocketJson): boolean {
+  const { body } = e;
+  if (body.state !== "attack") return false;
+  if (body.time < STANCE_HOLD) Object.assign(body, { time: STANCE_HOLD, fireTime: null });
+  return body.time < STANCE_HOLD + rocket.kneelMs / 1000;
+}
+
 function shoot(e: Enemy, dt: number): number {
   const { body, burst } = e;
   if (body.state !== "attack") {
@@ -317,7 +367,11 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
     e.alertAge = null;
   }
   if (e.flight) return fly(e, e.flight, grid, fog, hero, clips, cfg.sightCells, dt);
-  if (sees(e, grid, hero, fog, cfg.sightCells)) return shoot(e, dt);
+  const seen = sees(e, grid, hero, fog, cfg.sightCells);
+  if (e.rocket) {
+    if (seen) return volley(e, e.rocket, dt);
+    if (rising(e, e.rocket)) return 0;
+  } else if (seen) return shoot(e, dt);
   setState(e.body, "walk");
   patrol(e, grid, clips, dt);
   return 0;

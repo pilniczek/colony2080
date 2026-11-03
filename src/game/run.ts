@@ -27,6 +27,7 @@ import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
 import { createHero, halt, type Hero } from "./hero/hero";
 import { createRigs, heroLook } from "./hero/look";
+import { kindOf } from "./robot/kinds";
 import { attrOf } from "./hud/pointer";
 import { canOpenScreen, closesMap, inventoryKey, openCursor, repeatsOnScreen, screenKey } from "./hud/inventoryKeys";
 import { newestFirst } from "./hud/inventory";
@@ -120,7 +121,6 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   applyFog(tuning().fogOn);
   paintTilesAside(world);
   const rigs = createRigs(true);
-  const enemyRigs = createRigs(true, true);
   const hold = holdPoses(rigs.side, rigs.front);
   const input = new Input(controls.keyboard, () => performance.now(), tuning().movement.inputBufferMs);
   input.attach(window);
@@ -396,8 +396,9 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       const sight = world.fog && seenPath(world.fog, cfg.cellPx);
       drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => {
         const body = tween(prevEnemies.get(enemy.body) ?? momentOf(enemy.body), enemy.body, alpha);
-        return { enemy: { ...enemy, body }, look: heroLook(body, clips, enemyRigs, hold, cfg) };
-      }), enemyRigs, sight, devicePixelRatio || 1, gameWindow, () => {
+        const kind = kindOf(enemy.kind);
+        return { enemy: { ...enemy, body }, look: heroLook(body, kind.clips ? { ...clips, ...kind.clips } : clips, kind.rigs, kind.hold, cfg), kind };
+      }), sight, devicePixelRatio || 1, gameWindow, () => {
         if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow, sightSpan(world.fog, cfg.sightCells, shown.x));
       });
       drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
