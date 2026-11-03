@@ -193,7 +193,7 @@
     {"kind": "gate", "id": "sourceTeleport", "asset": "sourceTeleport", "x": 129, "y": 23, "width": 2, "state": 0},
     {"kind": "weapon", "weapon": "toaster", "x": 61.5, "y": 41},
     {"kind": "object", "id": "bridgeGuardPost", "asset": "bridgeGuardPost", "art": {"dx": -1.5}, "x": 59, "y": 41, "width": 2, "solidStates": [0], "cells": {"col": 58, "row": 35, "w": 1, "h": 6}, "state": 0},
-    {"kind": "gate", "id": "westGuardPost", "asset": "bridgeGuardPost", "art": {"dx": 1.25, "flip": true}, "x": 44, "y": 41, "width": 2, "state": 0},
+    {"kind": "gate", "id": "westGuardPost", "asset": "bridgeGuardPost", "art": {"dx": -0.5}, "x": 44, "y": 41, "width": 2, "state": 0},
     {"kind": "gate", "id": "powerBridge", "asset": "powerBridge", "x": 51, "y": 41, "width": 12, "gapStates": [1], "cells": {"col": 45, "row": 41, "w": 12, "h": 1}, "state": 0},
     {"kind": "gate", "id": "radioGuard", "asset": "radioGuard", "x": 62.5, "y": 23, "width": 2, "height": 2.2, "solidStates": [0, 1], "cells": {"col": 62, "row": 17, "w": 1, "h": 6}, "state": 0, "fires": {"facing": 1, "burst": {"shots": 18, "ms": 560}, "pauseMs": 600, "states": [0]}, "shootable": {"hits": 12, "state": 2, "by": "beam", "gives": ["flag:guardDown"], "subtitle": "The guard is down. The walkie-talkie lies behind him."}},
     {"kind": "item", "item": "walkieTalkie", "x": 60.5, "y": 23},
