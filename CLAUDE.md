@@ -13,6 +13,7 @@ Phase 1b: engine core and movement sandbox built, feel signed off (2026-10-19). 
 - `docs/blueprints/` - recipes for repeating a built mechanic (walk-through cover, humanoid enemy kind `enemy-kind.md`), the map composition process, roles and rules for any mission (`map-composition.md`) and the quest list recipe for a mission (`quest-list.md`).
 - `docs/tours.md` - `moveto` check tours for the debug panel Tour box (mesto lift shafts).
 - `docs/rendering.md` - rendering engine: render modes, threads, layer canvases, tile cache, fog pipelines, speed tests. Read before changing anything under `src/game/render/`.
+- `docs/engine-competitors.md` - similar engines and remakes (Construct, Phaser, PixiJS, Excalibur, PrinceJS, Flashback, Another World, Spine), their speed techniques and ranked tweaks for our renderer.
 - `spikes/` - throwaway prototypes.
 
 ## Reporting work

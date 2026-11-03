@@ -193,6 +193,7 @@ Budget per frame at 30 fps: 33 ms. Measured with Playwright (`busyPerFrame` trac
 - WSL GPU (`--use-angle=gl`, D3D12 bridge) caps the game near 30 fps whatever the code does; a plain page reaches 57. Measure GPU numbers on Windows Chrome (`chrome.exe --headless=new --mute-audio --remote-debugging-port=...`, Playwright `connectOverCDP`), mirrored WSL networking reaches it on `localhost`. Without `--mute-audio` the headless run plays the game sounds on the Windows speakers.
 - `ctx.filter` costs Chrome about a second per frame on a software GPU; tint with a shaded palette instead.
 - Canvas to canvas copies cost per call, not per pixel; fewer, larger copies win.
+- Ideas from other engines, ranked for our renderer: `docs/engine-competitors.md`.
 
 ### How a run measures
 
