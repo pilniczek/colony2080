@@ -13892,16 +13892,14 @@ window.C28_CONFIG = {
      },
      {
       "id": "villageBackdrop",
-      "name": "Jungle and ruins backdrop",
+      "name": "Night jungle sky",
       "csName": null,
       "interactive": false,
       "marker": null,
       "task": null,
       "sheet": "buildings",
-      "description": "Parallax backdrop (LEV2.GRA frame 0, frame 1 near identical): palm trees and dark jungle over pale ruined concrete walls and ferns, a green strip and an orange band at the bottom. Same role as mesto skyBackground, different art.",
-      "states": [
-       "normal"
-      ],
+      "description": "Sky role. Night teal sky in flat tone bands, two rows of palm silhouettes, pale ruined concrete walls and bushes along the bottom; the original LEV2.GRA frame 0 backdrop in our own vector look. Drawn stretched over the whole map height.",
+      "states": [],
       "refs": [
        {
         "path": "docs/research/gamedata/png/lev2/f000.png",
@@ -13927,7 +13925,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Big rounded boulders spilling down the slope faces of the crate block masses; sized w and h in cells, flip mirrors it.",
+      "description": "Rubble role. Rounded tan boulders with moss, spilling down a slope from the full height at the left to the floor at the right (flip mirrors it), sized w and h in cells; the cliffs on the crate masses (cells 50-60 rows 14-24, 6-14 rows 34-49).",
       "states": [],
       "refs": [
        {
@@ -13958,18 +13956,31 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: east cliff by the spawn"
        }
+      ],
+      "sizes": [
+       [
+        6,
+        8
+       ],
+       [
+        4,
+        4
+       ]
       ]
      },
      {
       "id": "grassyWalkway",
-      "name": "Grassy girder walkway",
+      "name": "Grassy stone walkway",
       "csName": null,
       "interactive": false,
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Floor run (terrain ledge art): dry grass and dirt over grey stone curb blocks with a diagonal brace, 1 tile thick; every floor of the level.",
-      "states": [],
+      "description": "Floor role (terrain ledge). Dry grass tufts and dirt over a row of grey curb stones with moss, one cell thick, sized w; every floor row of the original (cells 58-66 row 23).",
+      "states": [
+       "grass",
+       "trampled"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M21.png",
@@ -13985,6 +13996,12 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: floor 32 plank"
        }
+      ],
+      "sizes": [
+       [
+        3,
+        1
+       ]
       ]
      },
      {
@@ -13995,7 +14012,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Thin double pipe with orange-striped clamps running along row 25-26 above floor 32 (cells 106-160), hung from short concrete blocks.",
+      "description": "Pipe role, hung from the ceiling (hangs). Double pipe with orange hazard clamps along rows 25-26, hung every 3 cells from a concrete housing with an amber lamp; sized w, drawn from the ceiling 8 cells above its floor (cells 118-150 rows 24-26).",
       "states": [],
       "refs": [
        {
@@ -14012,6 +14029,12 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: pipeline"
        }
+      ],
+      "sizes": [
+       [
+        9,
+        1
+       ]
       ]
      },
      {
@@ -14021,8 +14044,8 @@ window.C28_CONFIG = {
       "interactive": false,
       "marker": null,
       "task": null,
-      "sheet": "structures",
-      "description": "Squat brown riveted cylinder tanks with a top hatch (about 2 x 3 tiles) on floor 32 (cells 124-130); a pipe stack with lamps between them.",
+      "sheet": "machines",
+      "description": "Machine role. Squat rust-brown riveted cylinder with a lid and hatch, a pipe stack with an amber lamp beside it (cells 124-130 rows 27-31).",
       "states": [],
       "refs": [
        {
@@ -14048,8 +14071,8 @@ window.C28_CONFIG = {
       "interactive": false,
       "marker": null,
       "task": null,
-      "sheet": "structures",
-      "description": "Horizontal bronze tank with curled end pipes on short legs (about 4 x 2 tiles) on floors 32 and 41; mesto fuelTank role, without the trefoil.",
+      "sheet": "machines",
+      "description": "Machine role. Bronze tank on two steel legs with curled end pipes, a hatch and a gauge (cells 128-133 rows 37-40, 138-143 rows 28-31).",
       "states": [],
       "refs": [
        {
@@ -14076,7 +14099,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Large green-grey machine block with stacked coils, valves and cables on floor 41 (cells 121-127, rows 34-40); likely the power plant the fuse box feeds (inferred).",
+      "description": "Machine role. Green-grey transformer on a concrete plinth: cooling fins, a stacked chrome coil, porcelain bushings with wires, valve wheels, a high-voltage plate, oil leak (cells 121-127 rows 34-40).",
       "states": [],
       "refs": [
        {
@@ -14103,7 +14126,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Small wooden hut on a tall lattice frame behind the cannon on floor 41 (cells 37-40, rows 34-40).",
+      "description": "Support role. Timber hut with a slit window, a corrugated roof and a lamp on splayed braced legs with a ladder; behind the cannon (cells 36-40 rows 34-40).",
       "states": [],
       "refs": [
        {
@@ -14130,7 +14153,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "buildings",
-      "description": "Pale concrete houses with flat roofs, window grids and pillars (5-10 tiles wide) on floors 41, 50 and 68; some ruined with broken roofs.",
+      "description": "Building role. Pale concrete house, storeys of 3 cells, end piers, windows (some boarded, some sooted), sills with drips, a door; ruined: broken roof, shell breach with scorched rim and rebar, an arch hall, rubble. Sized w and h (cells 38-49 rows 43-49, 91-100 rows 61-68).",
       "states": [
        "concrete house",
        "ruined arch hall"
@@ -14164,20 +14187,30 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: house block, floor 50"
        }
+      ],
+      "sizes": [
+       [
+        6,
+        4
+       ],
+       [
+        11,
+        6
+       ]
       ]
      },
      {
       "id": "stiltBuilding",
-      "name": "Building on stilts",
+      "name": "Timber building on stilts",
       "csName": null,
       "interactive": false,
       "marker": null,
       "task": null,
       "sheet": "buildings",
-      "description": "Brown wooden building with window rows raised on posts, spanning a floor (cells 89-98, rows 51-58), and a smaller stilt hut with spiked roof on floor 50 (cells 74-86).",
+      "description": "Building role. Timber block with window rows and corner posts on braced concrete stilts, corrugated eave; burnt: charred lower walls, holes, broken roof planks. Sized w and h (cells 89-98 rows 50-58, 63-76 rows 34-40).",
       "states": [
        "timber block on posts",
-       "hut with broken roof"
+       "burnt, broken roof"
       ],
       "refs": [
        {
@@ -14208,17 +14241,23 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: stilt hut"
        }
+      ],
+      "sizes": [
+       [
+        8,
+        6
+       ]
       ]
      },
      {
       "id": "crateWall",
-      "name": "Crate block wall",
+      "name": "Crate block mass",
       "csName": null,
       "interactive": false,
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Terrain wall art: dark olive steel crate panels, one per cell, with a diagonal brace and a yellow seam strip under every row; the solid masses under the rock cliffs and the bedrock under the lower floors.",
+      "description": "Filler role (terrain wall). Olive steel crate panels, one per cell, with a diagonal brace, a stile and a yellow seam strip under every row, dents and rust; the solid masses under the cliffs and the never reached rock (cells 50-60 rows 15-24, 140-145 rows 50-58).",
       "states": [],
       "refs": [
        {
@@ -14235,6 +14274,16 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: crate blocks under the cliff"
        }
+      ],
+      "sizes": [
+       [
+        2,
+        6
+       ],
+       [
+        6,
+        2
+       ]
       ]
      },
      {
@@ -14245,7 +14294,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Thick bronze vertical pipe with ring joints, sized h (for example cell 60, rows 33-41 and cell 86, rows 24-32).",
+      "description": "Pipe role. Thick bronze vertical pipe with flanged ring joints every 2 cells, verdigris and rust, sized h (cell 60 rows 33-41, cell 85 rows 24-32).",
       "states": [],
       "refs": [
        {
@@ -14262,18 +14311,27 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: pipe column"
        }
+      ],
+      "sizes": [
+       [
+        1,
+        4
+       ]
       ]
      },
      {
       "id": "latticeMast",
-      "name": "Lattice mast",
+      "name": "Lattice column",
       "csName": null,
       "interactive": false,
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "X-braced steel post of the crate block steel, sized h; the free lattice posts and the power plant gantry legs.",
-      "states": [],
+      "description": "Support role. X-braced column of the crate steel with riveted chords, sized h; state 0 carries an amber lamp box every 3 cells like the original lamp tiles (cells 136, 141, 148 rows 12-30; 118 rows 27-31).",
+      "states": [
+       "with amber lamps",
+       "plain"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M21.png",
@@ -14289,6 +14347,12 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: lattice gantry"
        }
+      ],
+      "sizes": [
+       [
+        1,
+        4
+       ]
       ]
      },
      {
@@ -14299,7 +14363,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Coil banks, insulators with live arcs, a domed tank and a pipe gantry on floor 23 (cells 126-141, rows 12-22), fed by the fuse box (inferred).",
+      "description": "Machine role. Three lattice towers with two crossarm gantries, insulators with blue arcs, two coil banks, a grilled control cabinet with a high-voltage panel, a domed tank and a bronze pipe gantry on a concrete plinth (cells 126-141 rows 12-22).",
       "states": [],
       "refs": [
        {
@@ -14326,8 +14390,11 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Chain mesh panel between steel posts with a small grey sign plate, sized w; on most floors.",
-      "states": [],
+      "description": "Fence role. Grey-green mesh between steel tube posts every 3 cells, top and bottom rails, grey sign plates with red bars; torn: rusty hole with wire ends. Sized w (cells 58-66 rows 20-22, 62-75 rows 38-40).",
+      "states": [
+       "intact, sign plate",
+       "torn"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M21.png",
@@ -14343,6 +14410,12 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: fence on floor 23"
        }
+      ],
+      "sizes": [
+       [
+        2,
+        2
+       ]
       ]
      },
      {
@@ -14353,7 +14426,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Concrete pillars with burning braziers on top and AMMO crates with shells between them, sized w (cells 23-28 floor 41, cells 30-38 floor 32).",
+      "description": "Wall role. Concrete pillars with sooted fire baskets on top, AMMO plates and lying shells between them, sized w (cells 23-28 floor 41, cells 30-38 floor 32).",
       "states": [],
       "refs": [
        {
@@ -14384,7 +14457,392 @@ window.C28_CONFIG = {
         ],
         "caption": "map M21: depot, floor 32"
        }
+      ],
+      "sizes": [
+       [
+        3,
+        1
+       ]
       ]
+     },
+     {
+      "id": "farPalms",
+      "name": "Far palm grove",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "origin": "new",
+      "description": "Far role. Flat dark palm and bush silhouettes with grain, sized w and h; state 1 adds a ruined wall with window holes and a scorched breach. Fills open sky between floors.",
+      "states": [
+       "palms",
+       "palms over a ruined wall"
+      ],
+      "sizes": [
+       [
+        6,
+        6
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/lev2/f000.png",
+        "imgSize": [
+         320,
+         200
+        ],
+        "crop": [
+         0,
+         0,
+         320,
+         170
+        ],
+        "caption": "background frame 0"
+       }
+      ]
+     },
+     {
+      "id": "farRuins",
+      "name": "Far village ruin",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "origin": "new",
+      "description": "Far role. Flat dark silhouette of a ruined two-storey block with dark windows and a scorched hole, or a village water tower on braced legs; sized w and h.",
+      "states": [
+       "ruined block",
+       "water tower"
+      ],
+      "sizes": [
+       [
+        3,
+        5
+       ]
+      ],
+      "refs": []
+     },
+     {
+      "id": "rivetWall",
+      "name": "Riveted steel wall",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Wall role. Grey-blue riveted steel plates in offset courses with rust streaks and bullet holes; state 0 ends in a bolted I-beam post, state 1 is infill. Sized w and h; the original floor-end riveted blocks (cell 76 row 22, cells 93-99 row 58).",
+      "states": [
+       "plates with edge post",
+       "plain plates"
+      ],
+      "sizes": [
+       [
+        1,
+        8
+       ],
+       [
+        4,
+        2
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1776,
+         480,
+         144,
+         96
+        ],
+        "caption": "map M21: riveted block, floor 23"
+       }
+      ]
+     },
+     {
+      "id": "plankWall",
+      "name": "Timber plank wall",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Wall role. Vertical timber planks between posts with nailed battens, missing planks and rot; burnt: charred lower half, scorched holes. Sized w and h.",
+      "states": [
+       "planks",
+       "burnt"
+      ],
+      "sizes": [
+       [
+        2,
+        8
+       ]
+      ],
+      "refs": []
+     },
+     {
+      "id": "steelDeckPlate",
+      "name": "Riveted deck plate",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Floor role. Riveted grey-blue steel deck plates with tread lines, rust and a seam strip, sized w (cells 93-100 row 59).",
+      "states": [],
+      "sizes": [
+       [
+        2,
+        1
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2160,
+         1368,
+         288,
+         72
+        ],
+        "caption": "map M21: steel plates in floor 59"
+       }
+      ]
+     },
+     {
+      "id": "trussWalkway",
+      "name": "Truss walkway",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Girder role (terrain girder). Free-standing floor run: grassy stone deck over a bronze steel truss between two stone end piers, sized w.",
+      "states": [],
+      "sizes": [
+       [
+        4,
+        1
+       ]
+      ],
+      "refs": []
+     },
+     {
+      "id": "powerHouse",
+      "name": "Concrete power house",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Building role. Pale concrete utility house with barred vent grilles, a steel door with a green high-voltage panel, a cable run and insulators on the roof; damaged: broken roof with a blue arc, a breach. Sized w and h (cells 105-112 rows 35-40, 76-80 rows 19-22, 121-128 rows 55-58).",
+      "states": [
+       "intact, insulators",
+       "damaged roof, live arc"
+      ],
+      "sizes": [
+       [
+        5,
+        4
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2472,
+         816,
+         264,
+         168
+        ],
+        "caption": "map M21: power house, floor 41"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1776,
+         408,
+         192,
+         144
+        ],
+        "caption": "map M21: shed, floor 23"
+       }
+      ]
+     },
+     {
+      "id": "warningLamp",
+      "name": "Amber lamp box",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Mounted role. Dark iron box with a caged amber lamp and label strips, about 2 cells above its floor, on a wall, column or machine (the lamp tiles on the lattice columns, cells 130-148 rows 12-30).",
+      "states": [
+       "lit",
+       "dead"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         3096,
+         264,
+         336,
+         288
+        ],
+        "caption": "map M21: lamp tiles on the columns"
+       }
+      ]
+     },
+     {
+      "id": "junctionBox",
+      "name": "High-voltage junction box",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Mounted role. Green steel box with a yellow bolt on a conduit down to the floor; open: door hanging, torn wires (cell 79 row 21, cell 107 row 39).",
+      "states": [
+       "closed",
+       "open, torn wires"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M21.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1824,
+         432,
+         144,
+         120
+        ],
+        "caption": "map M21: green box, floor 23"
+       }
+      ]
+     },
+     {
+      "id": "rubbleHeap",
+      "name": "Rubble heap",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Rubble role. Low heap of broken stones, or of concrete slabs with bent rebar, on a scorched base.",
+      "states": [
+       "stone heap",
+       "concrete slabs and rebar"
+      ],
+      "refs": []
+     },
+     {
+      "id": "militaryWreck",
+      "name": "Military vehicle wreck",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Big clutter. Olive army truck with a torn canvas cover and flat tyres (about 5.5 cells), a burnt jeep on rims and blocks (about 3.3 cells) or a half-track with a shot hole (about 5 cells), all rusted and scorched.",
+      "states": [
+       "canvas army truck",
+       "burnt jeep",
+       "half-track"
+      ],
+      "refs": []
+     },
+     {
+      "id": "fuelDrum",
+      "name": "Fuel drums",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Small clutter. Olive steel drums with ribs, a stencil patch and rust; burst: torn lid and an oil stain.",
+      "states": [
+       "one drum",
+       "two drums and one lying",
+       "burst drum"
+      ],
+      "refs": []
+     },
+     {
+      "id": "sandbags",
+      "name": "Sandbags",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Small clutter. Dark khaki sandbags, a 3-2-1 stack or a two-row wall, with spilled sand.",
+      "states": [
+       "stack",
+       "low wall"
+      ],
+      "refs": []
+     },
+     {
+      "id": "shellCrate",
+      "name": "Shell boxes",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Small clutter. Dark olive steel shell boxes with stencil bars and loose shells (the depot shells), dark and stacked so they never read as a pickup.",
+      "states": [
+       "stacked boxes",
+       "broken box, spilled shells"
+      ],
+      "refs": []
+     },
+     {
+      "id": "brazier",
+      "name": "Brazier",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Sign role (light). Iron fire basket on a tripod with a fire and glow, painted still so it caches; the light of the village floors (the depot fire baskets, cells 30-38 row 30).",
+      "states": [],
+      "refs": []
+     },
+     {
+      "id": "warningSign",
+      "name": "Warning sign",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Sign role. Bent steel plate on a post with a pictogram (no text), rust, drips and bullet holes.",
+      "states": [
+       "high voltage",
+       "mines",
+       "arrow"
+      ],
+      "refs": []
      }
     ]
    }
