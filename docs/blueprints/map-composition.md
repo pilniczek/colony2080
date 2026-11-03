@@ -77,23 +77,23 @@ Every layout asset has one role (`[test]`). Each mission's design sheet fills it
 
 | Role | What | Mesto | Vesnice | Jungle | Jeskyne |
 |---|---|---|---|---|---|
-| sky | sky behind everything | `skyBackground` | | | |
-| far | far layer filling open sky between floors | `skylineTower`, `midgroundRuins` | | | |
-| filler | map edge and never reached solid (terrain wall) | `brickWall` | | | |
-| wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | | | |
-| fence | fences the hero walks along | `chainFence` | | | |
-| floor | floor runs and floor plates | `streetWalkway`, `tunnelFloor`, `hazardPlate`, `liftLanding` | | | |
-| girder | free-standing floor runs and elevated decks | `girderBridge` | | | |
-| building | buildings and towers | `windowBuilding`, `ruinedBuilding`, `colonnadeBuilding`, `facadeTower`, `gantryBuilding` | | | |
-| support | supports, columns, masts, stairs | `latticePylon`, `craneMast`, `staircase` | | | |
-| pipe | pipes and pipe columns | `pipeColumn`, `pipeBend`, `ceilingPipe` | | | |
-| machine | big machines and vehicles in the backdrop | `fuelTank`, `metroTrain` | | | |
-| rubble | heaps and fallen structure | `rubblePile`, `fallenGirders` | | | |
-| mounted | wall-mounted things | `floorVent` (props `wireBox`, `codeLock`) | | | |
-| bigClutter | big ground clutter | `carWreck` | | | |
-| smallClutter | small ground clutter | `barrel`, `tyres`, `brickPile` | | | |
-| sign | signs and lights | `signPost`, `barSign`, `stripLight` | | | |
-| panel | lift panel | `liftPanel` (prop `damagedLift`) | | | |
+| sky | sky behind everything | `skyBackground` | `villageBackdrop` | | |
+| far | far layer filling open sky between floors | `skylineTower`, `midgroundRuins` | `farPalms`, `farRuins` | | |
+| filler | map edge and never reached solid (terrain wall) | `brickWall` | `crateWall` | | |
+| wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | `rivetWall`, `plankWall`, `ammoDepot` | | |
+| fence | fences the hero walks along | `chainFence` | `villageFence` | | |
+| floor | floor runs and floor plates | `streetWalkway`, `tunnelFloor`, `hazardPlate`, `liftLanding` | `grassyWalkway`, `steelDeckPlate`, `liftLanding` | | |
+| girder | free-standing floor runs and elevated decks | `girderBridge` | `trussWalkway` | | |
+| building | buildings and towers | `windowBuilding`, `ruinedBuilding`, `colonnadeBuilding`, `facadeTower`, `gantryBuilding` | `villageHouse`, `stiltBuilding`, `powerHouse` | | |
+| support | supports, columns, masts, stairs | `latticePylon`, `craneMast`, `staircase` | `latticeMast`, `watchtower` | | |
+| pipe | pipes and pipe columns | `pipeColumn`, `pipeBend`, `ceilingPipe` | `bronzePipe`, `overheadPipeline` | | |
+| machine | big machines and vehicles in the backdrop | `fuelTank`, `metroTrain` | `transformer`, `horizontalTank`, `storageTank`, `powerPlant` | | |
+| rubble | heaps and fallen structure | `rubblePile`, `fallenGirders` | `rockCliff`, `rubbleHeap` | | |
+| mounted | wall-mounted things | `floorVent` (props `wireBox`, `codeLock`) | `warningLamp`, `junctionBox` | | |
+| bigClutter | big ground clutter | `carWreck` | `militaryWreck` | | |
+| smallClutter | small ground clutter | `barrel`, `tyres`, `brickPile` | `fuelDrum`, `sandbags`, `shellCrate` | | |
+| sign | signs and lights | `signPost`, `barSign`, `stripLight` | `brazier`, `warningSign` | | |
+| panel | lift panel | `liftPanel` (prop `damagedLift`) | `liftPanel` | | |
 
 Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLight`, `ceilingPipe`), the props that draw a lift panel, the clutter bar and named exemptions, each with its reason.
 

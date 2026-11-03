@@ -74,6 +74,33 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
     ],
     towersOnReach: [{ asset: "facadeTower", x: 11, why: "the crashed ship pad is its roof" }],
   },
+  vesnice: {
+    roles: {
+      sky: ["villageBackdrop"],
+      far: ["farPalms", "farRuins"],
+      filler: ["crateWall"],
+      wall: ["rivetWall", "plankWall", "ammoDepot"],
+      fence: ["villageFence"],
+      floor: ["grassyWalkway", "steelDeckPlate", "liftLanding"],
+      girder: ["trussWalkway"],
+      building: ["villageHouse", "stiltBuilding", "powerHouse"],
+      support: ["latticeMast", "watchtower"],
+      pipe: ["bronzePipe", "overheadPipeline"],
+      machine: ["transformer", "horizontalTank", "storageTank", "powerPlant"],
+      rubble: ["rockCliff", "rubbleHeap"],
+      mounted: ["warningLamp", "junctionBox"],
+      bigClutter: ["militaryWreck"],
+      smallClutter: ["fuelDrum", "sandbags", "shellCrate"],
+      sign: ["brazier", "warningSign"],
+      panel: ["liftPanel"],
+    },
+    hangs: ["overheadPipeline"],
+    panelProps: [],
+    clutter: { small: 14, big: 13 },
+    blockersUnderArt: false,
+    openEnds: [],
+    towersOnReach: [],
+  },
 };
 
 const rulesOf = (mission: MissionId): MissionRules => RULES[mission]!;
