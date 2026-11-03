@@ -186,10 +186,39 @@ const tube = (ctx: Ctx, x: number, y: number, w: number, h: number, t: Tones): v
   outline(ctx, x, y, w, h, t[4]);
 };
 
+const within = (ctx: Ctx, rects: readonly (readonly [number, number, number, number])[], draw: () => void): void => {
+  ctx.save();
+  ctx.beginPath();
+  for (const [x, y, w, h] of rects) ctx.rect(x, y, w, h);
+  ctx.clip();
+  draw();
+  ctx.restore();
+};
+
 const strut = (ctx: Ctx, ax: number, ay: number, bx: number, by: number, w: number, t: Tones): void => {
   line(ctx, [[ax, ay], [bx, by]], t[4], w + 1, "butt");
   line(ctx, [[ax, ay], [bx, by]], t[1], w, "butt");
   line(ctx, [[ax, ay], [bx, by]], t[2], w * 0.4, "butt");
+};
+
+const wornStrut = (ctx: Ctx, ax: number, ay: number, bx: number, by: number, w: number, t: Tones, seed: number): void => {
+  strut(ctx, ax, ay, bx, by, w, t);
+  const l = Math.hypot(bx - ax, by - ay) || 1;
+  const nx = (-(by - ay) / l) * (w / 2 + 0.5);
+  const ny = ((bx - ax) / l) * (w / 2 + 0.5);
+  const quad: Pt[] = [[ax + nx, ay + ny], [bx + nx, by + ny], [bx - nx, by - ny], [ax - nx, ay - ny]];
+  const r = rng(seed);
+  ctx.save();
+  path(ctx, quad);
+  ctx.clip();
+  G.grain(ctx, G.polyRegion(ctx, quad), seed, 1.3);
+  for (let k = 0; k < 3; k++) {
+    const u = r();
+    const len = 3 + r() * 6;
+    line(ctx, [[ax + (bx - ax) * u, ay + (by - ay) * u], [ax + (bx - ax) * (u + len / l), ay + (by - ay) * (u + len / l)]], k ? t[0] : G.DIRT, w * 0.7);
+  }
+  if (abs(by - ay) > 30) G.dirt(ctx, min(ax, bx) - w, max(ay, by) - 30, abs(bx - ax) + w * 2, 30, seed + 1, 0.6);
+  ctx.restore();
 };
 
 const jag = (x0: number, x1: number, y: number, amp: number, step: number, seed: number): Pt[] => {
@@ -790,8 +819,8 @@ export const trussWalkway: EnvAsset = {
   draw(ctx, _state, _t, { w = 144 } = {}) {
     const seed = 3800 + round(w);
     eachCell(ctx, 14, -17, w - 28, 13, 24, 13, (x) => {
-      strut(ctx, x + 1, -16, x + 23, -4, 2.6, BRONZE);
-      strut(ctx, x + 1, -4, x + 23, -16, 2.6, BRONZE);
+      wornStrut(ctx, x + 1, -16, x + 23, -4, 2.6, BRONZE, 3800 + x);
+      wornStrut(ctx, x + 1, -4, x + 23, -16, 2.6, BRONZE, 3900 + x);
     });
     band(ctx, 0, -5, w, 5, BRONZE);
     rivets(ctx, 0, -2.5, w, 8, BRONZE[3]);
@@ -803,13 +832,16 @@ export const trussWalkway: EnvAsset = {
       if (rng(seed + i)() < 0.4) flat(ctx, x + 1, -20.4, 9, 1, STONE[3]);
     });
     flat(ctx, 0, -16.5, w, 1.4, STONE[4]);
-    G.grain(ctx, G.rectRegion(ctx, 0, -24, w, 24), seed + 1);
+    G.grain(ctx, G.rectRegion(ctx, 0, -24, w, 8), seed + 1);
+    G.grain(ctx, G.rectRegion(ctx, 0, -5, w, 5), seed + 2);
     eachCell(ctx, 0, -24, w, 24, 96, 24, (x, _y, i) => {
       const cw = min(96, w - x);
       const r = rng(seed + 10 + i);
-      G.drips(ctx, x, -16, cw, 12, seed + 11 + i * 3, 3, false);
-      G.drips(ctx, x, -5, cw, 6, seed + 12 + i * 3, 2);
-      if (r() < 0.6) G.rustPatch(ctx, x + r() * cw, -3, 3, 1.2, seed + 13 + i * 3);
+      within(ctx, [[x, -24, cw, 8], [x, -5, cw, 5]], () => {
+        G.drips(ctx, x, -21, cw, 5, seed + 11 + i * 3, 3, false);
+        G.drips(ctx, x, -5, cw, 5, seed + 12 + i * 3, 2);
+        if (r() < 0.6) G.rustPatch(ctx, x + r() * cw, -3, 3, 1.2, seed + 13 + i * 3);
+      });
       G.chips(ctx, x, -23.6, cw, seed + 14 + i * 3, G.DIRT);
     });
     for (const x of [0, w - 14]) {
@@ -875,9 +907,12 @@ export const villageHouse: EnvAsset = {
             shape(ctx, arch, HOLE, CONC[4]);
             G.rim(ctx, arch, seed + 5, CONC[3], CONC[4]);
           } else {
-            flat(ctx, x + bw / 2 - 9, -sh * 0.7, 18, sh * 0.7, HOLE, CONC[4]);
-            shape(ctx, [[x + bw / 2 - 9, 0], [x + bw / 2 - 9, -sh * 0.7], [x + bw / 2 - 2, -sh * 0.66], [x + bw / 2 - 2, -2]], PLANK[2], PLANK[4]);
-            band(ctx, x + bw / 2 - 12, -sh * 0.7 - 4, 24, 4, CONC);
+            const dh = sh * 0.7;
+            const dw = dh * 0.5;
+            const dx = x + bw / 2 - dw / 2;
+            flat(ctx, dx, -dh, dw, dh, HOLE, CONC[4]);
+            shape(ctx, [[dx, 0], [dx, -dh], [dx + dw * 0.4, -dh * 0.95], [dx + dw * 0.4, -2]], PLANK[2], PLANK[4]);
+            band(ctx, dx - 3, -dh - 4, dw + 6, 4, CONC);
           }
           continue;
         }
@@ -934,7 +969,7 @@ export const stiltBuilding: EnvAsset = {
     const bodyH = -stilt - top;
     planks(ctx, 0, top, w, bodyH, seed + 1);
     band(ctx, -4, -stilt - 8, w + 8, 8, PLANK);
-    G.drips(ctx, -4, -stilt, w + 8, 18, seed + 2, round(w / 20));
+    for (const x of legs) within(ctx, [[x, -stilt, 16, stilt]], () => G.drips(ctx, x, -stilt, 16, 18, seed + 2 + round(x), 2));
     const rows = max(1, round(bodyH / 60));
     const rh = bodyH / rows;
     const cols = max(1, round((w - 24) / 26));
@@ -1007,12 +1042,13 @@ const boltSign = (ctx: Ctx, cx: number, cy: number, s: number): void => {
   shape(ctx, [[cx + 0.1 * s, cy - 0.5 * s], [cx - 0.3 * s, cy + 0.05 * s], [cx, cy + 0.05 * s], [cx - 0.15 * s, cy + 0.5 * s], [cx + 0.3 * s, cy - 0.1 * s], [cx, cy - 0.1 * s], [cx + 0.2 * s, cy - 0.5 * s]], SEAM[2], SEAM[4]);
 };
 
-const hvPanel = (ctx: Ctx, x: number, y: number, w: number, h: number, seed: number): void => {
+const hvPanel = (ctx: Ctx, x: number, y: number, w: number, h: number, seed: number, drip = true): void => {
   flat(ctx, x, y, w, h, "#16402e", "#06120c");
   flat(ctx, x + 2, y + 2, w - 4, h - 4, "#1e5a3e");
   flat(ctx, x + 2, y + 2, w - 4, 1, "#3a8a62");
   boltSign(ctx, x + w / 2, y + h / 2, min(w, h) * 0.7);
-  G.drips(ctx, x, y + h, w, 10, seed, 2);
+  if (drip) G.drips(ctx, x, y + h, w, 10, seed, 2);
+  else within(ctx, [[x, y, w, h]], () => G.drips(ctx, x, y + h * 0.5, w, h * 0.5, seed, 2));
   G.chips(ctx, x, y + 1, w, seed + 1, G.DIRT);
 };
 
@@ -1043,8 +1079,10 @@ export const powerHouse: EnvAsset = {
     for (let b = 0; b < bays; b++) {
       const x = b * bw;
       if (b === floor(bays / 2)) {
-        flat(ctx, x + bw / 2 - 10, -h * 0.5, 20, h * 0.5, "#3a4440", PLATE[4]);
-        flat(ctx, x + bw / 2 - 8, -h * 0.48, 16, h * 0.46, "#4c5852");
+        const dh = min(h * 0.5, 56);
+        const dw = min(dh * 0.5, bw - 8);
+        flat(ctx, x + bw / 2 - dw / 2, -dh, dw, dh, "#3a4440", PLATE[4]);
+        flat(ctx, x + bw / 2 - dw / 2 + 2, -dh + 2, dw - 4, dh - 3, "#4c5852");
         hvPanel(ctx, x + bw / 2 - 7, -h * 0.85, 14, 16, seed + 7);
         G.rustPatch(ctx, x + bw / 2, -h * 0.2, 4, 2, seed + 8);
         continue;
@@ -1091,7 +1129,7 @@ const lampBox = (ctx: Ctx, x: number, y: number, lit: boolean, seed: number): vo
   flat(ctx, x + 4, y + 12, 9, 1.2, AMBER[1]);
   flat(ctx, x + 4, y + 15, 14, 0.9, "#6a5a40");
   flat(ctx, x + 4, y + 17, 11, 0.9, "#6a5a40");
-  G.drips(ctx, x + 1, y + 20, 20, 10, seed, 2);
+  within(ctx, [[x, y, 22, 20]], () => G.drips(ctx, x + 1, y + 10, 20, 10, seed, 3));
   G.chips(ctx, x, y + 0.4, 22, seed + 1, G.DIRT);
 };
 
@@ -1154,35 +1192,79 @@ export const watchtower: EnvAsset = {
   draw(ctx) {
     const seed = 4500;
     const base = -112;
-    for (const [a, b] of [[4, 18], [80, 66]] as Pt[]) {
-      strut(ctx, a, 0, b, base, 4, PLANK);
-      G.drips(ctx, min(a, b), base, 14, 40, seed + a, 1, false);
-    }
+    const r = rng(seed);
+    for (const [a, b] of [[4, 18], [80, 66]] as Pt[]) wornStrut(ctx, a, 0, b, base, 4, PLANK, seed + a);
     for (let k = 0; k < 3; k++) {
       const y0 = -k * 37;
       const y1 = y0 - 37;
       const d0 = 14 * (k / 3);
       const d1 = 14 * ((k + 1) / 3);
-      strut(ctx, 4 + d0, y0, 80 - d1, y1, 2, PLANK);
-      strut(ctx, 80 - d0, y0, 4 + d1, y1, 2, PLANK);
+      wornStrut(ctx, 4 + d0, y0, 80 - d1, y1, 2, PLANK, seed + 10 + k);
+      if (k !== 1) wornStrut(ctx, 80 - d0, y0, 4 + d1, y1, 2, PLANK, seed + 20 + k);
+      else {
+        wornStrut(ctx, 80 - d0, y0, 58, y0 - 14, 2, PLANK, seed + 20 + k);
+        wornStrut(ctx, 4 + d1, y1, 24, y1 + 11, 2, PLANK, seed + 30 + k);
+      }
       flat(ctx, 4 + d1, y1 - 1, 76 - d1 * 2, 3, PLANK[2], PLANK[4]);
+      G.grain(ctx, G.rectRegion(ctx, 4 + d1, y1 - 1, 76 - d1 * 2, 3), seed + 40 + k, 1.2);
     }
-    for (const x of [36, 48]) flat(ctx, x, base, 2, -base, PLANK[3], PLANK[4]);
-    for (let y = -8; y > base; y -= 7) flat(ctx, 36, y, 14, 1.6, PLANK[2], PLANK[4]);
+    for (const x of [36, 48]) {
+      flat(ctx, x, base, 2, -base, PLANK[3], PLANK[4]);
+      G.grain(ctx, G.rectRegion(ctx, x, base, 2, -base), seed + x, 1.2);
+    }
+    for (let y = -8; y > base; y -= 7) {
+      if (y === -50) continue;
+      if (y === -71) {
+        flat(ctx, 36, y + 1, 6, 1.6, PLANK[2], PLANK[4]);
+        continue;
+      }
+      flat(ctx, 36, y, 14, 1.6, r() < 0.3 ? PLANK[1] : PLANK[2], PLANK[4]);
+    }
     planks(ctx, 14, base - 38, 58, 38, seed + 1, true);
     flat(ctx, 22, base - 30, 42, 10, HOLE, PLANK[4]);
     if (!simple()) for (let x = 26; x < 62; x += 8) flat(ctx, x, base - 30, 1.4, 10, PLANK[1]);
+    within(ctx, [[14, base - 38, 58, 38]], () => {
+      G.dirt(ctx, 14, base - 38, 58, 38, seed + 5, 0.55);
+      G.drips(ctx, 14, base - 20, 58, 18, seed + 6, 5, false);
+      shape(ctx, blob(20, base - 8, 6, 4, seed + 7, 9), PLANK[0]);
+      shape(ctx, blob(64, base - 14, 4, 6, seed + 8, 9), PLANK[0]);
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      shape(ctx, blob(58, base - 4, 8, 3, seed + 9, 9), LEAF[1]);
+      ctx.restore();
+    });
+    flat(ctx, 44, base - 12, 5, 12, HOLE, PLANK[4]);
     band(ctx, 8, base - 2, 70, 6, PLANK);
-    for (let x = 8; x <= 76; x += 17) flat(ctx, x, base - 18, 2, 16, PLANK[3], PLANK[4]);
-    flat(ctx, 8, base - 18, 70, 2, PLANK[3], PLANK[4]);
+    G.grain(ctx, G.rectRegion(ctx, 8, base - 2, 70, 6), seed + 50, 1.2);
+    G.chips(ctx, 8, base - 2, 70, seed + 51, G.DIRT);
+    within(ctx, [[8, base - 2, 70, 6]], () => G.drips(ctx, 8, base - 2, 70, 6, seed + 52, 6));
+    for (let x = 8; x <= 76; x += 17) {
+      if (x === 59) {
+        ctx.save();
+        ctx.translate(x + 1, base - 2);
+        ctx.rotate(0.35);
+        flat(ctx, -1, -11, 2, 11, PLANK[3], PLANK[4]);
+        ctx.restore();
+        continue;
+      }
+      flat(ctx, x, base - 18, 2, 16, PLANK[3], PLANK[4]);
+    }
+    flat(ctx, 8, base - 18, 50, 2, PLANK[3], PLANK[4]);
+    ctx.save();
+    ctx.translate(58, base - 17);
+    ctx.rotate(0.5);
+    flat(ctx, 0, -1, 14, 2, PLANK[3], PLANK[4]);
+    ctx.restore();
+    G.grain(ctx, G.rectRegion(ctx, 8, base - 18, 50, 2), seed + 53, 1.2);
     const roof: Pt[] = [[4, base - 38], [43, base - 62], [82, base - 38], [78, base - 36], [43, base - 56], [8, base - 36]];
     shape(ctx, roof, BRONZE[1], BRONZE[4]);
     shape(ctx, [[8, base - 36], [43, base - 56], [78, base - 36]], BRONZE[2]);
     if (!simple()) for (let x = 14; x < 74; x += 6) line(ctx, [[x, base - 36 - (20 * (1 - abs(x - 43) / 35))], [x, base - 36]], BRONZE[0], 0.5);
     G.grain(ctx, G.polyRegion(ctx, roof), seed + 2);
-    G.drips(ctx, 8, base - 36, 70, 20, seed + 3, 5);
+    within(ctx, [[14, base - 38, 58, 38]], () => G.drips(ctx, 8, base - 36, 70, 20, seed + 3, 7));
     G.rustPatch(ctx, 60, base - 42, 5, 2, seed + 4);
-    G.dirt(ctx, 14, base - 38, 58, 38, seed + 5, 0.35);
+    G.rustPatch(ctx, 28, base - 44, 4, 2, seed + 54);
+    G.chips(ctx, 4, base - 38, 78, seed + 55, G.DIRT);
     disc(ctx, 70, base - 26, 2.2, AMBER[1], "#0a0604");
     if (!simple()) glow(ctx, 70, base - 26, 8, AMBER[2], 0.35);
   },
@@ -1195,9 +1277,14 @@ export const bronzeColumn = (ctx: Ctx, h: number): void => {
   G.grain(ctx, G.rectRegion(ctx, 4, -h, 16, h), seed);
   eachCell(ctx, 4, -h, 16, h, 16, 48, (_x, y, _i, j) => {
     const r = rng(seed + j * 13);
+    G.streak(ctx, 6 + r() * 12, y, 20 + r() * 20, 3 + r() * 3, G.DIRT, 0.16 + r() * 0.1);
     pier(ctx, 1, y + 20, 22, 6, BRONZE);
-    if (!simple()) for (const bx of [3, 11, 19]) flat(ctx, bx, y + 22, 1.6, 1.6, BRONZE[3]);
-    G.drips(ctx, 2, y + 26, 20, 26, seed + j * 13 + 1, 2);
+    G.grain(ctx, G.rectRegion(ctx, 1, y + 20, 22, 6), seed + j * 13 + 4, 1.2);
+    G.dirt(ctx, 1, y + 20, 22, 6, seed + j * 13 + 5, 0.5);
+    G.chips(ctx, 1, y + 20, 22, seed + j * 13 + 6, G.DIRT);
+    if (r() < 0.7) G.rustPatch(ctx, 3 + r() * 16, y + 24, 2.5, 1.4, seed + j * 13 + 7);
+    if (!simple()) for (const bx of [3, 11, 19]) flat(ctx, bx, y + 22, 1.6, 1.6, r() < 0.5 ? RUSTY : BRONZE[1]);
+    within(ctx, [[4, y + 26, 16, 26]], () => G.drips(ctx, 3, y + 26, 18, 26, seed + j * 13 + 1, 2));
     if (r() < 0.6) {
       const patch = blob(8 + r() * 8, y + 8 + r() * 10, 3 + r() * 2, 4 + r() * 3, seed + j * 13 + 2, 9);
       ctx.save();
@@ -1223,13 +1310,13 @@ export const overheadPipeline: EnvAsset = {
     cylH(ctx, 0, -8, w, 2.4, "chrome", 1);
     cylH(ctx, 0, -4, w, 2.4, "chrome", 1);
     G.grain(ctx, G.rectRegion(ctx, 0, -8, w, 6.4), seed + 1, 0.5);
-    G.drips(ctx, 0, -1.6, w, 8, seed + 2, round(w / 24));
+    within(ctx, [[0, -8, w, 6.4]], () => G.drips(ctx, 0, -6, w, 5, seed + 2, round(w / 24)));
     for (let x = 6; x < w; x += 48) {
       hazard(ctx, x, -9.4, 14, 2, 2.4, { fill: "a1", line: "aLine" });
       hazard(ctx, x, -5.4, 14, 2, 2.4, { fill: "a1", line: "aLine" });
       for (const dx of [0, 13]) disc(ctx, x + dx, -6.8, 0.8, "c2", "mLine");
       G.chips(ctx, x, -9.4, 14, seed + 3 + x, G.DIRT);
-      if (rng(seed + x)() < 0.5) G.rustPatch(ctx, x + 30, -5, 3, 1.2, seed + 4 + x);
+      if (rng(seed + x)() < 0.5) within(ctx, [[0, -8, w, 6.4]], () => G.rustPatch(ctx, x + 30, -5, 3, 1.2, seed + 4 + x));
     }
   },
 };
@@ -1245,7 +1332,7 @@ const coilStack = (ctx: Ctx, x: number, y: number, w: number, n: number): void =
 
 const lamp = (ctx: Ctx, x: number, y: number, c: string, lit = true): void => {
   if (lit && !simple()) glow(ctx, x, y, 4, c, 0.6);
-  disc(ctx, x, y, 1.2, lit ? c : "k0", "mLine");
+  disc(ctx, x, y, simple() ? 1.8 : 1.2, lit ? c : "k0", "mLine");
 };
 
 export const transformer: EnvAsset = {
@@ -1261,7 +1348,7 @@ export const transformer: EnvAsset = {
     for (const [x, w] of [[8, 46], [62, 46], [116, 44]] as Pt[]) {
       box(ctx, x, -110, w, 56, "green", 1);
       box(ctx, x + 4, -106, w - 8, 48, "green", 0);
-      if (!simple()) for (let y = -100; y < -60; y += 6) flat(ctx, x + 6, y, w - 12, 1, "g2");
+      for (let y = -100; y < -60; y += 6) flat(ctx, x + 6, y, w - 12, simple() ? 1.4 : 1, "g2");
       G.grain(ctx, G.rectRegion(ctx, x, -110, w, 56), seed + 2 + x, 0.6);
       G.drips(ctx, x, -110, w, 24, seed + 3 + x, 3);
       G.rustPatch(ctx, x + w * 0.7, -60, 3, 1.6, seed + 4 + x);
@@ -1284,7 +1371,7 @@ export const transformer: EnvAsset = {
     G.dirt(ctx, 0, -20, 168, 20, seed + 7, 0.6);
     box(ctx, 120, -40, 34, 26, "steel", 0);
     flat(ctx, 124, -36, 26, 8, "screenOff", "gLine");
-    if (!simple()) for (let i = 0; i < 4; i++) flat(ctx, 126 + i * 6, -33 - abs(sin(t * 3 + i)) * 3, 3, 1 + abs(sin(t * 3 + i)) * 3, "screen");
+    for (let i = 0; i < 4; i++) flat(ctx, 126 + i * 6, -33 - abs(sin(t * 3 + i)) * 3, 3, 1 + abs(sin(t * 3 + i)) * 3, "screen");
     G.grain(ctx, G.rectRegion(ctx, 120, -40, 34, 26), seed + 8, 0.5);
     lamp(ctx, 128, -20, "screen", floor(t * 2) % 2 === 0);
     lamp(ctx, 136, -20, "a1");
@@ -1322,6 +1409,45 @@ const tank = (ctx: Ctx, x: number, w: number, h: number, seed: number): void => 
   G.chips(ctx, x + 6, -h + 14, 12, seed + 5, G.DIRT);
 };
 
+const tankHatch = (ctx: Ctx, cx: number, y: number, seed: number): void => {
+  const r = rng(seed);
+  flat(ctx, cx - 10, y - 2, 20, 3, BRONZE[1], BRONZE[4]);
+  pier(ctx, cx - 6, y - 8, 12, 6, BRONZE);
+  band(ctx, cx - 8, y - 11, 16, 3, BRONZE);
+  flat(ctx, cx - 3, y - 13, 6, 2, PLATE[2], PLATE[4]);
+  G.grain(ctx, G.rectRegion(ctx, cx - 10, y - 13, 20, 14), seed, 1.2);
+  G.dirt(ctx, cx - 6, y - 8, 12, 6, seed + 1, 0.5);
+  G.rustPatch(ctx, cx + 2 + r() * 2, y - 5, 2.4, 1.4, seed + 2);
+  G.drips(ctx, cx - 9, y + 1, 18, 8, seed + 3, 2);
+  for (const bx of [cx - 8, cx - 3, cx + 2, cx + 7]) flat(ctx, bx, y - 1.4, 1.4, 1.4, r() < 0.4 ? RUSTY : BRONZE[3]);
+  flat(ctx, cx + 6, y - 10.5, 3, 2, PLATE[1], PLATE[4]);
+};
+
+const tankGauge = (ctx: Ctx, cx: number, cy: number, seed: number): void => {
+  flat(ctx, cx - 1.2, cy + 4, 2.4, 6, TUBE[1], TUBE[4]);
+  flat(ctx, cx - 2.5, cy + 9, 5, 2, TUBE[0], TUBE[4]);
+  disc(ctx, cx, cy, 5.2, PLATE[1], PLATE[4]);
+  disc(ctx, cx, cy, 4.2, PORCELAIN[3], PORCELAIN[0]);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3.2, -PI * 0.25, PI * 0.25);
+  ctx.strokeStyle = color("#a8281c");
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+  for (let k = 0; k <= 6; k++) {
+    const a = PI * 0.75 + (k / 6) * PI * 1.5;
+    line(ctx, [[cx + cos(a) * 2.8, cy + sin(a) * 2.8], [cx + cos(a) * 3.8, cy + sin(a) * 3.8]], PORCELAIN[0], 0.5);
+  }
+  line(ctx, [[cx, cy], [cx + 2.8, cy - 2.2]], "#a8281c", 0.8);
+  disc(ctx, cx, cy, 0.8, PLATE[0]);
+  ctx.save();
+  ctx.globalAlpha = 0.35;
+  shape(ctx, blob(cx - 1.5, cy + 2.2, 2.6, 1.4, seed, 7), G.DIRT);
+  ctx.restore();
+  G.rustPatch(ctx, cx + 3.6, cy + 3, 1.4, 1, seed + 1);
+};
+
 const horizontalTank = (ctx: Ctx): void => {
   const seed = 4900;
   for (const x of [16, 76]) {
@@ -1355,9 +1481,8 @@ const horizontalTank = (ctx: Ctx): void => {
   G.rustPatch(ctx, 70, -56, 4, 2, seed + 3);
   G.dirt(ctx, 0, -66, 100, 48, seed + 4, 0.35);
   ctx.restore();
-  flat(ctx, 44, -72, 12, 6, BRONZE[1], BRONZE[4]);
-  disc(ctx, 64, -40, 4, TUBE[3], TUBE[4]);
-  if (!simple()) line(ctx, [[64, -40], [66.5, -42]], "#a8281c", 0.7);
+  tankHatch(ctx, 50, -66, seed + 5);
+  tankGauge(ctx, 64, -40, seed + 6);
 };
 
 export const storageTank: EnvAsset = {
@@ -1395,7 +1520,7 @@ export const powerPlant: EnvAsset = {
       eachCell(ctx, x, -264, 24, 246, 24, 24, (cx, cy, _i, j) => {
         strut(ctx, cx + 3, cy + 1, cx + 21, cy + 23, 2.2, CRATE);
         strut(ctx, cx + 21, cy + 1, cx + 3, cy + 23, 2.2, CRATE);
-        if (rng(seed + x + j)() < 0.3) G.rustPatch(ctx, cx + 12, cy + 12, 2.5, 2, seed + x + j);
+        if (rng(seed + x + j)() < 0.3) within(ctx, [[cx + 9, cy + 9, 6, 6]], () => G.rustPatch(ctx, cx + 12, cy + 12, 2.5, 2, seed + x + j));
       });
       for (const px of [x, x + 20]) {
         pier(ctx, px, -264, 4, 246, CRATE);
@@ -1407,7 +1532,7 @@ export const powerPlant: EnvAsset = {
     for (const y of [-232, -200]) {
       band(ctx, 30, y, 324, 8, CRATE);
       rivets(ctx, 30, y + 4, 324, 10, CRATE[3]);
-      G.drips(ctx, 30, y + 8, 324, 14, seed + 10 - y, 14);
+      within(ctx, [[30, y, 324, 8]], () => G.drips(ctx, 30, y + 1, 324, 7, seed + 10 - y, 14));
     }
     for (let x = 56; x < 340; x += 36) insulator(ctx, x, -232, 4);
     for (let x = 56; x < 340; x += 72) arc(ctx, x, -246, x + 36, -246, seed + x);
@@ -1421,7 +1546,8 @@ export const powerPlant: EnvAsset = {
     arc(ctx, 93, -148, 133, -148, seed + 30);
     pier(ctx, 210, -100, 54, 82, PLATE);
     for (let k = 0; k < 2; k++) grille(ctx, 216, -92 + k * 34, 42, 22, seed + 40 + k);
-    hvPanel(ctx, 230, -128, 14, 18, seed + 44);
+    pier(ctx, 235, -110, 4, 10, PLATE);
+    hvPanel(ctx, 230, -128, 14, 18, seed + 44, false);
     G.grain(ctx, G.rectRegion(ctx, 210, -100, 54, 82), seed + 45);
     const dome = (): void => {
       ctx.beginPath();
@@ -1449,10 +1575,16 @@ export const powerPlant: EnvAsset = {
     ctx.restore();
     tube(ctx, 140, -146, 200, 7, BRONZE);
     for (const x of [150, 290]) pier(ctx, x, -139, 6, 121, BRONZE);
-    G.drips(ctx, 140, -139, 200, 20, seed + 60, 8);
-    G.rustPatch(ctx, 250, -142, 5, 2, seed + 61);
+    for (const x of [150, 290]) within(ctx, [[x, -139, 6, 121]], () => G.drips(ctx, x, -139, 6, 20, seed + 60 + x, 2));
+    within(ctx, [[140, -146, 200, 7]], () => G.rustPatch(ctx, 250, -142, 5, 2, seed + 61));
   },
 };
+
+const STONES: readonly (readonly [number, number, number, number, number])[] = [
+  [12, 9, 5, 3.6, 1],
+  [24, 18, 10, 7, 0.75],
+  [40, 30, 17, 12, 0.5],
+];
 
 export const rockCliff: EnvAsset = {
   id: "rockCliff",
@@ -1460,16 +1592,25 @@ export const rockCliff: EnvAsset = {
   draw(ctx, _state, _t, { w = 144, h = 192 } = {}) {
     const seed = 5200 + round(w + h * 3);
     const slope: Pt[] = [[0, 0], [0, -h], [w * 0.25, -h + 8], [w, -6], [w, 0]];
-    eachCell(ctx, 0, -h, w, h, 26, 20, (x, y, i, j) => {
-      const r = rng(cellSeed(seed, i, j));
-      const cx = x + 13 + (r() - 0.5) * 8;
-      const cy = y + 10 + (r() - 0.5) * 6;
-      const u = cx / w;
-      const edge = u < 0.25 ? -h + 8 * (u / 0.25) : -h + 8 + (h - 14) * ((u - 0.25) / 0.75);
-      if (cy < edge - 4) return;
-      boulder(ctx, cx, cy, 13 + r() * 5, 9 + r() * 4, cellSeed(seed, i, j) + 1);
-      if (!simple() && r() < 0.35) flat(ctx, cx - 6, cy - 9, 8 + r() * 6, 1.8, LEAF[2]);
-      if (r() < 0.3) G.drips(ctx, cx - 6, cy + 4, 12, 10, cellSeed(seed, i, j) + 2, 1, false);
+    const edgeAt = (x: number): number => {
+      const u = x / w;
+      return u < 0.25 ? -h + 8 * (u / 0.25) : -h + 8 + (h - 14) * ((u - 0.25) / 0.75);
+    };
+    shape(ctx, [[0, 0], [0, -h + 8], [w * 0.25, -h + 16], [w - 8, -4], [w - 8, 0]], BOULDER[1]);
+    STONES.forEach(([cw, ch, rx, ry, odds], k) => {
+      eachCell(ctx, 0, -h, w, h, cw, ch, (x, y, i, j) => {
+        const s = cellSeed(seed + k * 7919, i, j);
+        const r = rng(s);
+        if (r() > odds) return;
+        const cx = x + cw / 2 + (r() - 0.5) * cw * 0.5;
+        const cy = y + ch / 2 + (r() - 0.5) * ch * 0.5;
+        const sx = rx * (0.75 + r() * 0.5);
+        const sy = ry * (0.75 + r() * 0.5);
+        if (cy - sy * 0.3 < edgeAt(cx)) return;
+        boulder(ctx, cx, cy, sx, sy, s + 1);
+        if (!simple() && sx > 8 && r() < 0.35) flat(ctx, cx - sx * 0.45, cy - sy, sx * (0.6 + r() * 0.4), 1.8, LEAF[2]);
+        if (sx > 8 && r() < 0.3) G.drips(ctx, cx - sx * 0.45, cy + sy * 0.4, sx, 10, s + 2, 1, false);
+      });
     });
     G.grain(ctx, G.polyRegion(ctx, slope), seed + 1, 0.7);
     G.dirt(ctx, 0, -h, w, h, seed + 2, min(0.3, 50 / h));
@@ -1522,14 +1663,64 @@ const clipped = (ctx: Ctx, pts: Pt[], draw: () => void): void => {
   ctx.restore();
 };
 
-const tyre = (ctx: Ctx, cx: number, cy: number, rad: number, flatK: number): void => {
-  ctx.fillStyle = color("#141412");
-  ctx.beginPath();
-  ctx.ellipse(cx, cy + rad * flatK * 0.15, rad, rad * (1 - flatK * 0.15), 0, 0, PI * 2);
+const tyre = (ctx: Ctx, cx: number, cy: number, rad: number, flatK: number, seed: number): void => {
+  const r = rng(seed);
+  const sag = rad * flatK * 0.18;
+  const outer = (): void => {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + sag * 0.5, rad + sag * 0.6, rad - sag * 0.5, 0, 0, PI * 2);
+  };
+  outer();
+  ctx.fillStyle = color("#181816");
   ctx.fill();
   stroke(ctx, "#060604");
-  disc(ctx, cx, cy, rad * 0.5, OLIVE[1], OLIVE[4]);
-  disc(ctx, cx, cy, rad * 0.18, OLIVE[3]);
+  ctx.save();
+  outer();
+  ctx.clip();
+  const n = 20;
+  for (let k = 0; k < n; k++) {
+    const a = (k / n) * PI * 2;
+    line(ctx, [[cx + cos(a) * rad * 0.86, cy + sin(a) * rad * 0.86], [cx + cos(a) * (rad + 1), cy + sin(a) * (rad + 1)]], "#060604", 0.9);
+  }
+  ctx.restore();
+  ctx.beginPath();
+  ctx.arc(cx, cy, rad * 0.78, 0, PI * 2);
+  ctx.strokeStyle = color("#2a2a24");
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+  disc(ctx, cx, cy, rad * 0.6, "#3a3e2a", "#0a0c06");
+  disc(ctx, cx, cy, rad * 0.5, OLIVE[2], OLIVE[4]);
+  ctx.beginPath();
+  ctx.arc(cx, cy, rad * 0.5, PI * 0.15, PI * 0.85);
+  ctx.strokeStyle = color(OLIVE[0]);
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+  for (let k = 0; k < 8; k++) {
+    const a = (k / 8) * PI * 2 + 0.2;
+    disc(ctx, cx + cos(a) * rad * 0.34, cy + sin(a) * rad * 0.34, 0.55, OLIVE[3], OLIVE[4]);
+  }
+  disc(ctx, cx, cy, rad * 0.2, OLIVE[1], OLIVE[4]);
+  disc(ctx, cx, cy, rad * 0.08, OLIVE[4]);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, rad * 0.5, 0, PI * 2);
+  ctx.clip();
+  G.rustPatch(ctx, cx + (r() - 0.5) * rad * 0.5, cy + rad * 0.2, rad * 0.18, rad * 0.12, seed + 1);
+  G.grain(ctx, G.rectRegion(ctx, cx - rad, cy - rad, rad * 2, rad * 2), seed + 2, 0.8);
+  ctx.restore();
+};
+
+const wheelArch = (ctx: Ctx, cx: number, cy: number, rad: number): void => {
+  ctx.beginPath();
+  ctx.arc(cx, cy, rad + 2, PI * 1.05, PI * 1.95);
+  ctx.strokeStyle = color(OLIVE[4]);
+  ctx.lineWidth = 2.4;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, rad + 2, PI * 1.05, PI * 1.95);
+  ctx.strokeStyle = color(OLIVE[1]);
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
 };
 
 const glassHole = (ctx: Ctx, pts: Pt[], seed: number): void => {
@@ -1574,11 +1765,15 @@ const armyTruck = (ctx: Ctx, seed: number): void => {
   for (let y = -29; y < -16; y += 3) flat(ctx, 131, y, 5, 1.2, OLIVE[1]);
   disc(ctx, 133.5, -14, 1.6, "#c8c0a0", OLIVE[4]);
   flat(ctx, 134, -12, 4, 4, OLIVE[1], OLIVE[4]);
-  for (const [x, f] of [[22, 0.6], [40, 0.4], [116, 0.2]] as Pt[]) tyre(ctx, x, -9, 9, f);
+  for (const [x, f] of [[21, 0.6], [41, 0.4], [116, 0.2]] as Pt[]) {
+    wheelArch(ctx, x, -9, 9);
+    tyre(ctx, x, -9, 9, f, seed + 30 + x);
+  }
 };
 
 const burntJeep = (ctx: Ctx, seed: number): void => {
-  for (const x of [24, 72]) flat(ctx, x - 6, -5, 12, 5, STONE[2], STONE[4]);
+  ctx.save();
+  ctx.translate(0, 4.5);
   const body: Pt[] = [[10, -10], [10, -26], [24, -28], [30, -36], [58, -36], [66, -28], [86, -26], [88, -10]];
   shape(ctx, body, "#6a3e22", "#1a0c06");
   flat(ctx, 10, -26, 78, 3, "#8a5634");
@@ -1589,9 +1784,6 @@ const burntJeep = (ctx: Ctx, seed: number): void => {
   ctx.globalAlpha = 0.5;
   shape(ctx, [[34, -36], [56, -36], [62, -26], [40, -22]], HOLE);
   ctx.restore();
-  line(ctx, [[30, -36], [34, -50], [40, -50]], "r3", 1.6);
-  line(ctx, [[30, -36], [34, -50], [40, -50]], "rLine", 0.5);
-  for (const x of [36, 48]) line(ctx, [[x, -36], [x + 4, -44]], "r1", 2);
   flat(ctx, 12, -16, 74, 2, "r0");
   line(ctx, [[46, -26], [46, -12]], "rLine", 0.8);
   for (const x of [24, 72]) {
@@ -1600,6 +1792,7 @@ const burntJeep = (ctx: Ctx, seed: number): void => {
     disc(ctx, x, -9, 4.5, "r1", "rLine");
     disc(ctx, x, -9, 1.6, "r0", "rLine");
   }
+  ctx.restore();
 };
 
 const halfTrack = (ctx: Ctx, seed: number): void => {
@@ -1613,14 +1806,13 @@ const halfTrack = (ctx: Ctx, seed: number): void => {
   for (let y = -34; y < -20; y += 4) flat(ctx, 112, y, 8, 1.2, OLIVE[1]);
   const hole: Pt[] = [[58, -34], [70, -36], [74, -24], [62, -18], [54, -24]];
   breach(ctx, hole, seed, OLIVE[3], OLIVE[4]);
-  const track: Pt[] = [[4, -14], [86, -14], [90, -8], [84, -1], [10, -1], [2, -8]];
+  const track: Pt[] = [[4, -14], [124, -14], [130, -8], [123, -1], [10, -1], [1, -8]];
   shape(ctx, track, "#22221a", "#060604");
-  if (!simple()) for (let x = 6; x < 88; x += 3) line(ctx, [[x, -14], [x, -12.6]], "#4a4a3a", 0.8);
-  for (let x = 14; x < 84; x += 12) {
+  if (!simple()) for (let x = 6; x < 126; x += 3) line(ctx, [[x, -14], [x, -12.6]], "#4a4a3a", 0.8);
+  for (let x = 14; x < 124; x += 12) {
     disc(ctx, x, -7.5, 5, OLIVE[2], OLIVE[4]);
     disc(ctx, x, -7.5, 1.6, OLIVE[3]);
   }
-  tyre(ctx, 110, -7, 7, 0.4);
 };
 
 export const militaryWreck: EnvAsset = {

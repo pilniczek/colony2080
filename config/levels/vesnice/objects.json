@@ -1734,11 +1734,11 @@
    "task": null,
    "sheet": "props",
    "origin": "new",
-   "description": "Big clutter. Olive army truck with a torn canvas cover and flat tyres (about 5.5 cells), a burnt jeep on rims and blocks (about 3.3 cells) or a half-track with a shot hole (about 5 cells), all rusted and scorched.",
+   "description": "Big clutter. Olive army truck with a torn canvas cover and flat tyres (about 5.5 cells), a burnt jeep sunk on its rims (about 3.3 cells) or a tracked carrier with a shot hole (about 5.5 cells), all rusted and scorched.",
    "states": [
     "canvas army truck",
     "burnt jeep",
-    "half-track"
+    "tracked carrier"
    ],
    "refs": []
   },

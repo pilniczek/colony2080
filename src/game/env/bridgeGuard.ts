@@ -1,11 +1,11 @@
-import { apply } from "../../engine/math/mat2d";
+import { apply, determinant } from "../../engine/math/mat2d";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
 import { locate, solve, type Pose, type Tint } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { createWeaponModel, toHook, type WeaponPart } from "../robot/weaponModel";
 import { buildSide, ROBOT } from "../robot/xbot";
 import { P, type EnvAsset } from "./paint";
-import { shadow, smoke, spark } from "./vesnice";
+import { shadow, spark } from "./vesnice";
 
 const { box, poly, glow } = P;
 
@@ -17,9 +17,20 @@ const GUARD_PAL: Palette = {
 };
 const GUARD_H = 60;
 const GUARD_WIDE = 1.18;
-const GUARD_POSE = { hipNear: -14, kneeNear: 18, ankleNear: -4, hipFar: 12, kneeFar: 6, ankleFar: -16, body: 3 };
+const SHIN_WIDE = 1.5;
+const FOOT_BACK = 0.7;
+const GUARD_POSE: Pose = {
+  hipNear: -14,
+  kneeNear: { rot: 18, sx: SHIN_WIDE },
+  ankleNear: { rot: -4, sx: FOOT_BACK },
+  hipFar: 12,
+  kneeFar: { rot: 6, sx: SHIN_WIDE },
+  ankleFar: { rot: -16, sx: FOOT_BACK },
+  body: 3,
+};
 const RIFLE_SUPPORT: Pt = [40, -14];
 const RIFLE_MUZZLE: Pt = [262, -44];
+const LIMP_ARMS: Pose = { arm: 6, fore: -8, armFar: -4, foreFar: -12 };
 const WRECK_TINT: Tint = { brightness: 0.55, saturate: 0.5 };
 
 const rifleParts = (): WeaponPart[] => [
@@ -45,6 +56,7 @@ const rifle = createWeaponModel({
 interface GuardRig {
   root: GroupNode;
   pose: Pose;
+  aim: number;
 }
 
 const rigs = new Map<boolean, GuardRig>();
@@ -56,8 +68,13 @@ const guardRig = (lod: boolean): GuardRig => {
   const carry = { ...GUARD_POSE, arm: -8, fore: -76 };
   const hand = locate(root, "hand", carry);
   if (!hand) throw new Error("guard rig has no hand hook");
-  const far = solve(root, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], apply(hand, toHook(RIFLE_SUPPORT)));
-  const rig = { root, pose: { ...carry, ...far } };
+  const [dx, dy] = toHook([1, 0]);
+  const tilt = Math.atan2(hand.b * dx + hand.d * dy, hand.a * dx + hand.c * dy);
+  const aim = determinant(hand) > 0 ? -tilt : tilt;
+  const [sx, sy] = RIFLE_SUPPORT;
+  const support: Pt = [sx * Math.cos(aim) - sy * Math.sin(aim), sx * Math.sin(aim) + sy * Math.cos(aim)];
+  const far = solve(root, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], apply(hand, toHook(support)));
+  const rig = { root, pose: { ...carry, ...far }, aim };
   rigs.set(lod, rig);
   return rig;
 };
@@ -68,7 +85,7 @@ const muzzleFlash = (ctx: CanvasRenderingContext2D, x: number, y: number, k: num
   poly(ctx, [[x, y - 8], [x + 40 * k + 14, y], [x, y + 8]], "y3", 2, { line: false });
 };
 
-const backpack: HookDraw = (ctx) => {
+const pack = (ctx: CanvasRenderingContext2D): void => {
   ctx.save();
   ctx.transform(0, 1, -1, 0, 0, 0);
   box(ctx, -40, -10, 150, 80, "olive", 1);
@@ -76,9 +93,16 @@ const backpack: HookDraw = (ctx) => {
   ctx.restore();
 };
 
+const backpack =
+  (tint?: Tint): HookDraw =>
+  (ctx) => {
+    if (tint) P.inShade({ brightness: tint.brightness ?? 1, saturate: tint.saturate ?? 1 }, () => pack(ctx));
+    else pack(ctx);
+  };
+
 const guardFigure = (ctx: CanvasRenderingContext2D, fire: number, tint?: Tint): void => {
   const lod = P.simple();
-  const { root, pose } = guardRig(lod);
+  const { root, pose, aim } = guardRig(lod);
   const k = GUARD_H / (ROBOT.FOOT_Y - 2);
   const palette = tint ? shade(GUARD_PAL, tint) : GUARD_PAL;
   ctx.save();
@@ -87,8 +111,10 @@ const guardFigure = (ctx: CanvasRenderingContext2D, fire: number, tint?: Tint): 
   const t = ctx.getTransform();
   const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
   const hand: HookDraw = (c) => {
+    if (tint) return;
     c.save();
     c.transform(0, 1, -1, 0, 0, 0);
+    c.rotate(aim);
     rifle.draw(c, { palette, lineW, simple: lod });
     if (fire >= 0) {
       c.translate(RIFLE_MUZZLE[0], RIFLE_MUZZLE[1]);
@@ -97,7 +123,19 @@ const guardFigure = (ctx: CanvasRenderingContext2D, fire: number, tint?: Tint): 
     }
     c.restore();
   };
-  drawRig(ctx, root, { palette, pose, hooks: { hand, back: backpack }, lineW, simple: lod });
+  drawRig(ctx, root, { palette, pose: tint ? { ...pose, ...LIMP_ARMS } : pose, hooks: { hand, back: backpack(tint) }, lineW, simple: lod });
+  ctx.restore();
+};
+
+const droppedRifle = (ctx: CanvasRenderingContext2D, x: number): void => {
+  const k = (GUARD_H / (ROBOT.FOOT_Y - 2)) * 0.9;
+  ctx.save();
+  ctx.translate(x, 0);
+  ctx.scale(k * GUARD_WIDE, k);
+  ctx.translate(0, -26);
+  const t = ctx.getTransform();
+  const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+  rifle.draw(ctx, { palette: shade(GUARD_PAL, WRECK_TINT), lineW, simple: P.simple() });
   ctx.restore();
 };
 
@@ -113,10 +151,8 @@ export const bridgeGuard: EnvAsset = {
       ctx.rotate(-Math.PI / 2);
       guardFigure(ctx, -1, WRECK_TINT);
       ctx.restore();
-      if (!P.simple()) {
-        smoke(ctx, -4, -10, t, 3, 24);
-        spark(ctx, 6, -6, t, 4);
-      }
+      droppedRifle(ctx, -36);
+      if (!P.simple()) spark(ctx, 6, -6, t, 4);
       return;
     }
     const ph = (t * 4) % 1;

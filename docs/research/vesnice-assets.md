@@ -34,7 +34,7 @@ Review the sheet at `spikes/env-design/index.html?mission=vesnice&scope=own`.
 | Loose rock fragments | 124-126 r61-67, 105-106 r58 | `rubbleHeap` | rubble | stone heap, concrete slabs |
 | Amber lamp boxes (dark plate, orange dome) | on the lattice columns, 130-148 r12-30 | `warningLamp` | mounted, sign | lit, dead |
 | Green high-voltage boxes with a bolt | 79 r21, 107 r39 | `junctionBox` (mesto `wireBox` on a pole) | mounted | closed, open |
-| Vehicles (none in the original) | - | `militaryWreck` | bigClutter | army truck, burnt jeep, half-track |
+| Vehicles (none in the original) | - | `militaryWreck` | bigClutter | army truck, burnt jeep, tracked carrier |
 | Barrels, sandbags (none in the original) | - | `fuelDrum`, `sandbags` | smallClutter | 3 and 2 |
 | Shells lying at the depot | 31-38 r31, 24-28 r40 | `shellCrate` | smallClutter | stacked, broken |
 | Sign plates (grey plate, red bars) | on the fences, 63 r20, 70 r39, 93 r57 | fence plate in `chainFence` mesh state | sign | - |
