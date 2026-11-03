@@ -55,9 +55,11 @@ export const enemyKinds = (id: MissionId): Record<string, DroidTuning> =>
 
 const hitsOf = (hp: number): number => Math.round((hp / 2) * DROID.hits);
 
+const OWN_KINDS: ReadonlySet<OtherMission> = new Set(["vesnice"]);
+
 function mapEnemies(id: OtherMission): EnemyJson[] {
   const kinds = enemyKinds(id);
-  return MAPS[id].enemies.flatMap((e) => droidsOf([e], { ...kinds[e.kind]!, hits: hitsOf(e.hp) }));
+  return MAPS[id].enemies.flatMap((e) => droidsOf([e], { ...kinds[e.kind]!, hits: hitsOf(e.hp), ...(OWN_KINDS.has(id) ? { kind: e.kind } : {}) }));
 }
 
 export function missionJson(id: MissionId): SandboxJson {

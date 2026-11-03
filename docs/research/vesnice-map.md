@@ -103,3 +103,21 @@ Every region also has: crate block masses (terrain `wall`, `crateWall`), grassy 
 | Middle, floors 23 to 41 | 11 | 10 | 1 |
 | West, floors 32 to 50 | 12 | 10 | 2 |
 | Lower floors 50 to 68 | 19 | 19 | 0 |
+
+## Enemies
+
+All 28 table enemies of report 14 stand at their original cells and patrols (`map.json` `enemies`) as their own game kinds, tuned by `config/enemies/kinds.json`: 15 `rocketRobot` (kneels, fires a rocket), 13 `greyTrooper` (rifle bursts). No flyers, no hover in level 2. The walkie-talkie guard is the `radioGuard` prop, not a table enemy.
+
+| Floor | Segment | Rocket robots (col) | Grey troopers (col) |
+|---|---|---|---|
+| 23 | 74-85 | 77 | - |
+| 23 | 127-142 | - | 137 |
+| 32 | 30-44 | 36 | 30 |
+| 32 | 119-141 | 122, 134 | 131 |
+| 41 | 59-79 | 65, 72 | 74 |
+| 41 | 101-114, 119-152 | 120 | 104, 125 |
+| 50 | 22-57 | 33, 50 | 24, 36 |
+| 50 | 73-87, 93-130 | 82, 106, 125 | 74, 112 |
+| 59 | 79-83 | 79 | - |
+| 59 | 121-132 | - | 126 |
+| 68 | 88-115 | 96, 110 | 88, 99 |

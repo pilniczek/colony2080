@@ -2,6 +2,7 @@ import jeskyneMap from "@config/levels/jeskyne/map.json";
 import jeskyneWorld from "@config/levels/jeskyne/world.json";
 import jungleMap from "@config/levels/jungle/map.json";
 import jungleWorld from "@config/levels/jungle/world.json";
+import vesniceMap from "@config/levels/vesnice/map.json";
 import vesniceWorld from "@config/levels/vesnice/world.json";
 import { describe, expect, it } from "vitest";
 import { createHero } from "../hero/hero";
@@ -114,6 +115,32 @@ describe("missions", () => {
     const rockets = missionJson("jungle").enemies.filter((e, i) => jungleMap.enemies[i]!.kind === "rocketDroid");
     expect(new Set(rockets.map((e) => e.hits))).toEqual(new Set([7, 11]));
     expect(missionJson("jeskyne").enemies.map((e) => e.hits)).toEqual(jeskyneMap.enemies.map((e) => Math.round((e.hp / 2) * 7)));
+  });
+
+  it("places every vesnice enemy as its own kind at its original cell and patrol", () => {
+    const enemies = missionJson("vesnice").enemies;
+    expect(enemies.map((e) => e.kind)).toEqual(vesniceMap.enemies.map((e) => e.kind));
+    expect(new Set(enemies.map((e) => e.kind))).toEqual(new Set(["rocketRobot", "greyTrooper"]));
+    expect(enemies.map((e) => [e.x, e.y])).toEqual(vesniceMap.enemies.map((e) => [e.cell[0]! + 0.5, e.cell[1]! + 1]));
+    expect(enemies.map((e) => e.patrol)).toEqual(vesniceMap.enemies.map((e) => [e.patrol[0]!, e.patrol[1]! + 1]));
+    expect(enemies.filter((e) => e.kind === "rocketRobot")).toHaveLength(15);
+    expect(enemies.filter((e) => e.kind === "greyTrooper")).toHaveLength(13);
+  });
+
+  it("stands every vesnice enemy in open air on a floor, inside its patrol", () => {
+    const world = loadMission("vesnice");
+    for (const e of world.enemies) {
+      const [x, y] = e.spot;
+      expect(world.grid.at(Math.floor(x), y - 1), `open at ${x},${y}`).toBe(".");
+      expect(["#", "="], `floor under ${x},${y}`).toContain(world.grid.at(Math.floor(x), y));
+      expect(x).toBeGreaterThanOrEqual(e.patrol[0]);
+      expect(x).toBeLessThanOrEqual(e.patrol[1]);
+    }
+  });
+
+  it("keeps the jungle and jeskyne enemies on the droid look until their design step", () => {
+    expect(missionJson("jungle").enemies.every((e) => e.kind === undefined)).toBe(true);
+    expect(missionJson("jeskyne").enemies.every((e) => e.kind === undefined)).toBe(true);
   });
 
   it("keeps a missing fall death height missing", () => {
