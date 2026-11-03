@@ -142,10 +142,11 @@ describe("immortal hero", () => {
   const lava = { id: "lava", kind: "death", col: 8, row: 7, w: 4, h: 1 };
   const immortal = (g: ReturnType<typeof game>) => Object.assign(g, { world: Object.assign(g.world, { immortal: true }) });
 
-  it("walks over a death rect at its top", () => {
+  it("falls into a death rect and lives", () => {
     const g = immortal(game({ x: 2.5, y: 7 }, level({ hazards: [{ ...lava, col: 4, w: 12 }] }, [...Array<string>(7).fill(open), `####${".".repeat(WIDTH - 5)}#`, solid, solid])));
-    runUntil(g, (h) => h.x > 13, ["moveRight"], 10);
-    expect(g.hero.y).toBe(7);
+    runUntil(g, (h) => h.x > 6, ["moveRight"]);
+    runUntil(g, (h) => h.onGround, [], 3);
+    expect(g.hero.y).toBe(8);
     expect(isDead(g.hero.state)).toBe(false);
   });
 
