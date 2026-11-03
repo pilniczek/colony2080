@@ -110,6 +110,7 @@ const STONE = ["#2e2e28", "#4c4c44", "#6c6a60", "#908c7e", "#121210"];
 const GRASS = ["#2a2810", "#4a4420", "#6e6230", "#9a8644", "#141206"];
 const LEAF = ["#1a2410", "#2a3a18", "#40542a", "#5e7238", "#0a0e06"];
 const CONC = ["#4e4a3e", "#706a58", "#948c76", "#b4ac92", "#1a1812"];
+const SLABS = [CONC, ["#46463e", "#64645a", "#86867a", "#a6a69a", "#16160f"], ["#54483a", "#766654", "#9a8870", "#bcaa8e", "#1c160e"]];
 const BRONZE = ["#2e1e0c", "#5a3e1e", "#8a6436", "#b88c54", "#120a04"];
 const PLATE = ["#20262a", "#343c40", "#4c565a", "#6e787a", "#0a0e10"];
 const TUBE = ["#3c4442", "#68706c", "#9aa29c", "#c8ceca", "#141816"];
@@ -1765,32 +1766,97 @@ const rockCliff = {
         tufts(ctx, 0, w, 0, seed + 3, 0.6, 6);
     },
 };
+const RUBBLE_HEAP = [[-2, 0], [6, -10], [20, -20], [36, -30], [52, -34], [66, -26], [80, -14], [94, 0]];
+const heapTop = (x) => {
+    for (let k = 1; k < RUBBLE_HEAP.length; k++) {
+        const [ax, ay] = RUBBLE_HEAP[k - 1];
+        const [bx, by] = RUBBLE_HEAP[k];
+        if (x <= bx)
+            return ay + ((by - ay) * (x - ax)) / (bx - ax);
+    }
+    return 0;
+};
+const rebar = (ctx, x, y, dir, r) => {
+    const out = 1.5 + r() * 2.5;
+    const bend = (r() - 0.5) * 4;
+    line(ctx, [[x, y], [x + dir * out, y + bend * 0.3], [x + dir * (out + 1 + r() * 2.5), y + bend - 1 - r() * 3]], RUSTY, 0.7);
+};
+const concreteSlab = (ctx, { x, y, len, thick, angle, tones, seed }) => {
+    const r = rng(seed);
+    const hl = len / 2;
+    const ht = thick / 2;
+    const brokenL = r() < 0.6;
+    const brokenR = r() < 0.6;
+    const chip = r() < 0.5 ? min(thick * 0.4, 1 + r() * 2) : 0;
+    const pts = [
+        ...(chip ? [[-hl, -ht + chip], [-hl + chip, -ht]] : [[-hl, -ht]]),
+        [hl, -ht],
+        ...(brokenR ? [[hl + 0.5 + r() * 2, -ht * 0.3], [hl - r() * 2, ht * 0.35]] : []),
+        [hl, ht],
+        [-hl, ht],
+        ...(brokenL ? [[-hl + r() * 2, ht * 0.3], [-hl - 0.5 - r() * 2, -ht * 0.35]] : []),
+    ];
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    shape(ctx, pts, tones[2], tones[4]);
+    clipped(ctx, pts, () => {
+        flat(ctx, -hl - 3, -ht, len + 6, min(2, thick / 4), tones[3]);
+        flat(ctx, -hl - 3, ht - min(3, thick / 4), len + 6, min(3, thick / 4), tones[1]);
+        G.grain(ctx, G.polyRegion(ctx, pts), seed + 1, 0.9);
+        if (len > 18 && r() < 0.5) {
+            const cx = -hl + len * (0.3 + r() * 0.4);
+            line(ctx, [[cx, -ht], [cx + 1.5, -ht * 0.2], [cx - 0.5, ht * 0.4], [cx + 1, ht]], tones[4], 0.6);
+        }
+        G.dirt(ctx, -hl, -ht, len, thick, seed + 2, 0.45);
+    });
+    if (len > 8)
+        G.chips(ctx, -hl, -ht, len, seed + 3, G.DIRT);
+    if (!simple()) {
+        if (brokenR && len > 10 && r() < 0.6)
+            rebar(ctx, hl, (r() - 0.5) * thick * 0.5, 1, r);
+        else if (brokenL && len > 10 && r() < 0.6)
+            rebar(ctx, -hl, (r() - 0.5) * thick * 0.5, -1, r);
+    }
+    ctx.restore();
+};
+const slabPile = (seed) => {
+    const r = rng(seed);
+    const tone = () => SLABS[floor(r() * SLABS.length)];
+    const lie = (len, thick, at = r()) => {
+        const x = len * 0.4 + at * (92 - len * 0.8);
+        const slope = Math.atan((heapTop(x + 1) - heapTop(x - 1)) / 2);
+        return { x, y: heapTop(x) + thick * (0.4 + r() * 0.4), len, thick, angle: slope * (0.4 + r() * 0.6) + (r() - 0.5) * 0.7, tones: tone(), seed: seed + floor(r() * 1000) };
+    };
+    const n = 5 + floor(r() * 3);
+    const big = Array.from({ length: n }, (_, k) => lie(12 + r() * 20, 4 + r() * 5, (k + 0.15 + r() * 0.7) / n)).sort((a, b) => b.len - a.len);
+    const stacked = Array.from({ length: 2 }, () => {
+        const under = big[floor(r() * big.length)];
+        const len = 8 + r() * 12;
+        const thick = 3 + r() * 3;
+        return { x: under.x + (r() - 0.5) * under.len * 0.4, y: max(-40, under.y - under.thick / 2 - thick / 2 + 1), len, thick, angle: under.angle + (r() - 0.5) * 0.6, tones: tone(), seed: seed + 2000 + floor(r() * 1000) };
+    });
+    const bits = Array.from({ length: 4 }, () => lie(3 + r() * 5, 2.5 + r() * 2));
+    return [...big, ...stacked, ...bits];
+};
 const rubbleHeap = {
     id: "rubbleHeap",
     box: [-4, -48, 100, 2],
     draw(ctx, state) {
         const seed = 5300 + state * 11;
         const r = rng(seed);
-        const heap = [[-2, 0], [6, -10], [20, -20], [36, -30], [52, -34], [66, -26], [80, -14], [94, 0]];
+        const heap = RUBBLE_HEAP;
         shape(ctx, heap, state === 1 ? CONC[1] : STONE[1], STONE[4]);
         clipped(ctx, heap, () => G.scorch(ctx, heap, seed + 1));
         G.grain(ctx, G.polyRegion(ctx, heap), seed + 2);
         if (state === 1) {
-            for (let k = 0; k < 5; k++) {
-                const x = 8 + k * 16 + r() * 4;
-                const y = -6 - sin((x / 92) * PI) * 22 * (0.5 + r() * 0.5);
-                ctx.save();
-                ctx.translate(x, y);
-                ctx.rotate((r() - 0.5) * 1.2);
-                band(ctx, -9, -4, 18 + r() * 6, 7, CONC);
-                G.chips(ctx, -9, -4, 18, seed + 10 + k, G.DIRT);
-                ctx.restore();
-            }
             if (!simple())
-                for (let k = 0; k < 6; k++) {
-                    const x = 14 + r() * 66;
-                    line(ctx, [[x, -10 - r() * 10], [x + (r() - 0.5) * 14, -24 - r() * 14]], RUSTY, 0.8);
+                for (let k = 0; k < 3; k++) {
+                    const x = 12 + r() * 70;
+                    rebar(ctx, x, heapTop(x) + 2, r() < 0.5 ? -1 : 1, r);
                 }
+            for (const s of slabPile(seed + 10))
+                concreteSlab(ctx, s);
         }
         else {
             for (let k = 0; k < 9; k++) {
@@ -1926,6 +1992,20 @@ const armyTruck = (ctx, seed) => {
         tyre(ctx, x, 0, 9, 0.6 + f, seed + 30 + x);
     }
 };
+const carWindow = (ctx, pts, seed) => {
+    const r = rng(seed);
+    shape(ctx, pts, HOLE, "#1a0c06");
+    if (simple())
+        return;
+    const [a, b, c, d] = pts;
+    if (r() < 0.7) {
+        const u = 0.2 + r() * 0.4;
+        const top = [d[0] + (c[0] - d[0]) * u, d[1]];
+        shape(ctx, [d, top, [top[0] - (top[0] - d[0]) * (0.3 + r() * 0.3), d[1] - (d[1] - a[1]) * (0.3 + r() * 0.4)]], "#3a4846");
+    }
+    if (r() < 0.5)
+        shape(ctx, [b, [b[0] - (b[0] - a[0]) * (0.2 + r() * 0.2), b[1]], [b[0] + (c[0] - b[0]) * 0.2, b[1] + (c[1] - b[1]) * (0.3 + r() * 0.3)]], "#2c3836");
+};
 const burntJeep = (ctx, seed) => {
     ctx.save();
     ctx.translate(0, 4.5);
@@ -1935,10 +2015,10 @@ const burntJeep = (ctx, seed) => {
     flat(ctx, 30, -36, 28, 2, "#8a5634");
     wreckSkin(ctx, body, 10, -36, 78, 26, seed);
     clipped(ctx, body, () => G.scorch(ctx, [[30, -30], [60, -32], [64, -18], [34, -16]], seed + 1));
-    ctx.save();
-    ctx.globalAlpha = 0.5;
-    shape(ctx, [[34, -36], [56, -36], [62, -26], [40, -22]], HOLE);
-    ctx.restore();
+    carWindow(ctx, [[30.4, -34.8], [32.4, -34.8], [28.6, -28.4], [25.5, -28.4]], seed + 5);
+    carWindow(ctx, [[34, -34.6], [44.4, -34.6], [44.4, -28.4], [30.6, -28.4]], seed + 6);
+    carWindow(ctx, [[47.6, -34.6], [56.6, -34.6], [61.4, -28.4], [47.6, -28.4]], seed + 7);
+    carWindow(ctx, [[58.6, -34.8], [60.4, -34.8], [65, -28.4], [63, -28.4]], seed + 8);
     flat(ctx, 12, -16, 74, 2, "r0");
     line(ctx, [[46, -26], [46, -12]], "rLine", 0.8);
     for (const x of [24, 72]) {
