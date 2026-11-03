@@ -54,6 +54,18 @@ describe("snapshot", () => {
     expect(g.world.subtitle?.text).toBe("Level complete");
   });
 
+  it("restores the bonus weapon kind, and an old save without one takes the first weapon prop", () => {
+    const saved = changed();
+    saved.world.bonus = "toaster";
+    const snap = JSON.parse(JSON.stringify(takeSnapshot(saved.world, saved.hero)));
+    const g = play();
+    expect(loadSnapshot(g.world, g.hero, snap, cfg)).toBeNull();
+    expect(g.world.bonus).toBe("toaster");
+    expect(loadSnapshot(g.world, g.hero, { ...snap, bonus: undefined }, cfg)).toBeNull();
+    expect(g.world.bonus).toBe("blaster");
+    expect(checkSnapshot(g.world, { ...snap, bonus: "nope" })).toBe("damaged");
+  });
+
   it("restores the difficulty, and an old save without one has no autosave", () => {
     const saved = changed();
     saved.world.autosave = true;

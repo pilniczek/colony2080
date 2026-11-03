@@ -480,9 +480,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
 
   const giveWeapon = (): string => {
-    const props = world.props.filter((p) => p.kind === "weapon");
-    if (!props.length) return "No special weapon in this mission";
-    for (const p of props) p.taken = true;
+    if (!world.props.some((p) => p.kind === "weapon")) return "No special weapon in this mission";
     hero.blaster = bonusAmmo(world, tuning().movement);
     return `Picked up ${BONUS_NAMES[world.bonus]}`;
   };

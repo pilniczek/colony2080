@@ -150,7 +150,7 @@ const nearest = (h: Hero, props: Prop[]): Prop | undefined =>
 
 function over(world: SandboxWorld, h: Hero, cfg: MovementConfig, p: Prop, airborne = 0): boolean {
   const y = p.y ?? world.spawn[1];
-  return USABLE.includes(p.kind) && onGround(p, h, world.flags) && Math.abs(p.x - h.x) <= (cfg.box.width + (p.width ?? 0)) / 2 && y > h.y - cfg.floorHeightCells && y < h.y + airborne + EPS;
+  return USABLE.includes(p.kind) && onGround(p, h, world.flags, world.bonus) && Math.abs(p.x - h.x) <= (cfg.box.width + (p.width ?? 0)) / 2 && y > h.y - cfg.floorHeightCells && y < h.y + airborne + EPS;
 }
 
 function usable(s: Step): Prop | undefined {
@@ -170,7 +170,7 @@ function touchedItem(s: Step): Prop | undefined {
   return nearest(h, world.props.filter((p) => {
     const y = p.y ?? world.spawn[1];
     const reach = Math.max(cfg.pickReach, (cfg.box.width + (p.width ?? 0)) / 2);
-    return PICKABLE.includes(p.kind) && onGround(p, h, world.flags) && Math.abs(p.x - h.x) <= reach && h.y > y - cfg.box.height && h.y <= y + EPS;
+    return PICKABLE.includes(p.kind) && onGround(p, h, world.flags, world.bonus) && Math.abs(p.x - h.x) <= reach && h.y > y - cfg.box.height && h.y <= y + EPS;
   }));
 }
 
@@ -681,11 +681,12 @@ function pickup(s: Step): void {
   if (isDead(s.h.state) || s.h.hidden || s.world.cutscene) return;
   const prop = touchedItem(s);
   if (!prop) return;
-  prop.taken = true;
   if (prop.kind === "weapon") {
+    s.world.bonus = prop.weapon ?? "blaster";
     s.h.blaster = bonusAmmo(s.world, s.cfg);
     say(s.world, `Picked up ${BONUS_NAMES[s.world.bonus]}`);
   } else {
+    prop.taken = true;
     pickUp(s.world, prop.item!);
     say(s.world, `Picked up ${ITEMS[prop.item!]!.name}`);
   }

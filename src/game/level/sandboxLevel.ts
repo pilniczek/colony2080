@@ -24,7 +24,7 @@ export interface Prop {
   width?: number;
   height?: number;
   item?: ItemId;
-  weapon?: "blaster";
+  weapon?: BonusWeapon;
   taken?: boolean;
   shownBy?: string;
   on?: boolean;
@@ -167,7 +167,9 @@ export type BonusWeapon = "blaster" | "toaster";
 
 export const BONUS_NAMES: Record<BonusWeapon, string> = { blaster: "E-Blaster", toaster: "Toaster" };
 
-const bonusOf = (props: Prop[]): BonusWeapon => (props.some((p) => p.kind === "weapon" && p.asset === "toaster") ? "toaster" : "blaster");
+const WEAPON_ASSETS: Record<BonusWeapon, AssetId> = { blaster: "eBlaster", toaster: "toaster" };
+
+export const firstBonus = (props: Prop[]): BonusWeapon => props.find((p) => p.kind === "weapon")?.weapon ?? "blaster";
 
 export interface TerrainArt {
   wall: AssetId;
@@ -231,11 +233,13 @@ export interface SandboxJson {
 
 function checkedProp(prop: Prop): Prop {
   if (prop.kind === "item" && !(prop.item && ITEMS[prop.item])) throw new Error(`unknown item: ${prop.item}`);
-  if (prop.kind === "weapon" && prop.weapon !== "blaster") throw new Error(`unknown weapon: ${prop.weapon}`);
+  if (prop.kind === "weapon" && !(prop.weapon !== undefined && prop.weapon in BONUS_NAMES)) throw new Error(`unknown weapon: ${prop.weapon}`);
   if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
   if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
   for (const id of [prop.cutscene, prop.shootable?.cutscene, prop.approach?.cutscene, prop.repels?.cutscene]) if (id !== undefined && !isCutsceneId(id)) throw new Error(`unknown cutscene: ${id}`);
-  return structuredClone(prop);
+  const copy = structuredClone(prop);
+  if (copy.kind === "weapon") copy.asset ??= WEAPON_ASSETS[copy.weapon!];
+  return copy;
 }
 
 function scenery(items: SceneryJson[]): Scenery[] {
@@ -294,7 +298,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     projectiles: [],
     beam: null,
     beamHits: new Set(),
-    bonus: bonusOf(data.props),
+    bonus: firstBonus(data.props),
     enemies: data.enemies.map((e) => createEnemy(e, grid, lifts, keepOutOf(data.props))),
     flags: new Set(),
     tasks: data.tasks === undefined ? [] : loadTasks(data.tasks),
@@ -315,14 +319,16 @@ export function loadSandbox(json: unknown): SandboxWorld {
 }
 
 export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
-  const { fog, immortal, allQuests, autosave, sounds } = world;
-  Object.assign(world, loadSandbox(world.source), { immortal, allQuests, autosave, sounds });
+  const { fog, immortal, allQuests, autosave, sounds, bonus } = world;
+  Object.assign(world, loadSandbox(world.source), { immortal, allQuests, autosave, sounds, bonus });
   const [x, y] = world.spawn;
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }
 
-export const onGround = (prop: Prop, hero: Pick<Hero, "blaster">, flags: ReadonlySet<string> = new Set()): boolean =>
-  !prop.taken && (prop.kind !== "weapon" || hero.blaster === null) && (prop.shownBy === undefined || flags.has(prop.shownBy));
+const held = (prop: Prop, hero: Pick<Hero, "blaster">, bonus: BonusWeapon | undefined): boolean => hero.blaster !== null && (bonus === undefined || bonus === prop.weapon);
+
+export const onGround = (prop: Prop, hero: Pick<Hero, "blaster">, flags: ReadonlySet<string> = new Set(), bonus?: BonusWeapon): boolean =>
+  (prop.kind === "weapon" ? !held(prop, hero, bonus) : !prop.taken) && (prop.shownBy === undefined || flags.has(prop.shownBy));
 
 export function startFilm(world: SandboxWorld, id: CutsceneId | undefined, prop: Prop | null = null): void {
   if (id && !world.cutscene) world.cutscene = { id, prop, t: 0 };

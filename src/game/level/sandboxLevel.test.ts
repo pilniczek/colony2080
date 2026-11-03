@@ -276,8 +276,30 @@ describe("inventory", () => {
 });
 
 describe("weapon prop", () => {
-  it("loads the E-Blaster prop of the sandbox", () => {
-    expect(loadSandbox(sandbox).props.filter((p) => p.kind === "weapon").map((p) => p.weapon)).toEqual(["blaster"]);
+  it("loads the E-Blaster and toaster props of the sandbox, each with its own asset", () => {
+    expect(loadSandbox(sandbox).props.filter((p) => p.kind === "weapon").map((p) => [p.weapon, p.asset])).toEqual([
+      ["blaster", "eBlaster"],
+      ["toaster", "toaster"],
+    ]);
+  });
+
+  it("starts with the first weapon prop as the bonus weapon", () => {
+    expect(loadSandbox(sandbox).bonus).toBe("blaster");
+    expect(loadSandbox({ ...sandbox, props: [{ kind: "weapon", x: 1, weapon: "toaster" }] }).bonus).toBe("toaster");
+  });
+
+  it("hides only the weapon prop of the held bonus weapon", () => {
+    const [blaster, toaster] = loadSandbox(sandbox).props.filter((p) => p.kind === "weapon");
+    expect(onGround(blaster!, { blaster: 400 }, new Set(), "toaster")).toBe(true);
+    expect(onGround(toaster!, { blaster: 250 }, new Set(), "toaster")).toBe(false);
+    expect(onGround(toaster!, { blaster: null }, new Set(), "toaster")).toBe(true);
+  });
+
+  it("keeps the held bonus weapon kind on reset", () => {
+    const world = loadSandbox(sandbox);
+    world.bonus = "toaster";
+    resetWorld(world, cfg);
+    expect(world.bonus).toBe("toaster");
   });
 
   it("rejects a weapon prop with an unknown weapon", () => {

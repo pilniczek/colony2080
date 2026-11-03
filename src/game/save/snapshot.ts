@@ -3,7 +3,7 @@ import type { MovementConfig } from "../hero/config";
 import { createHero, type Hero } from "../hero/hero";
 import { ITEMS, type ItemId } from "../items";
 import type { Enemy } from "../level/enemy";
-import { resetWorld, type Inventory, type Prop, type SandboxWorld } from "../level/sandboxLevel";
+import { BONUS_NAMES, firstBonus, resetWorld, type BonusWeapon, type Inventory, type Prop, type SandboxWorld } from "../level/sandboxLevel";
 import { applyBlocks } from "../level/tasks";
 
 export const SAVE_VERSION = 3;
@@ -29,6 +29,7 @@ export interface Snapshot {
   complete: boolean;
   subtitle: string | null;
   autosave?: boolean;
+  bonus?: BonusWeapon;
 }
 
 export type SaveProblem = "misfit" | "damaged";
@@ -74,6 +75,7 @@ export function takeSnapshot(world: SandboxWorld, hero: Hero): Snapshot {
     complete: world.complete,
     subtitle: world.subtitle?.text ?? null,
     autosave: world.autosave,
+    bonus: world.bonus,
   };
 }
 
@@ -135,7 +137,8 @@ export function checkSnapshot(world: SandboxWorld, snap: unknown): SaveProblem |
     (snap.fog === null || (typeof snap.fog === "string" && unpackBits(snap.fog, fogLength) !== null)) &&
     typeof snap.complete === "boolean" &&
     (snap.subtitle === null || typeof snap.subtitle === "string") &&
-    (snap.autosave === undefined || typeof snap.autosave === "boolean");
+    (snap.autosave === undefined || typeof snap.autosave === "boolean") &&
+    (snap.bonus === undefined || (typeof snap.bonus === "string" && snap.bonus in BONUS_NAMES));
   return ok ? null : "damaged";
 }
 
@@ -153,6 +156,7 @@ function apply(world: SandboxWorld, hero: Hero, snap: Snapshot, cfg: MovementCon
   world.inventory = clone(snap.inventory);
   world.complete = snap.complete;
   world.autosave = snap.autosave ?? false;
+  world.bonus = snap.bonus ?? firstBonus(world.props);
   world.subtitle = snap.subtitle === null ? null : { text: snap.subtitle, age: 0 };
   applyBlocks(world);
   if (world.fog && snap.fog) {

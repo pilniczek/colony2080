@@ -1,12 +1,13 @@
 import type { TileGrid } from "../../engine/world/tiles";
 import type { Fog } from "../fog";
-import type { Beam, Prop, SandboxWorld, Spark } from "../level/sandboxLevel";
+import type { Beam, BonusWeapon, Prop, SandboxWorld, Spark } from "../level/sandboxLevel";
 import type { Tune } from "./frame";
 
 export interface WorldSync {
   lifts: [number, number][];
   props: Prop[];
   beam: Beam | null;
+  bonus: BonusWeapon;
   sparks: Spark[];
   projectiles: SandboxWorld["projectiles"];
   flags?: string[];
@@ -28,7 +29,7 @@ interface Sent {
 export function syncer(): (world: SandboxWorld, tune: Tune) => WorldSync {
   const sent: Sent = { flags: null, flagCount: -1, grid: null, gridVersion: -1, fog: undefined, fogVersion: -1, tune: null };
   return (world, tune) => {
-    const sync: WorldSync = { lifts: world.lifts.map((l) => [l.y, l.vy]), props: world.props, beam: world.beam, sparks: world.sparks, projectiles: world.projectiles };
+    const sync: WorldSync = { lifts: world.lifts.map((l) => [l.y, l.vy]), props: world.props, beam: world.beam, bonus: world.bonus, sparks: world.sparks, projectiles: world.projectiles };
     if (sent.flags !== world.flags || sent.flagCount !== world.flags.size) {
       sync.flags = [...world.flags];
       sent.flags = world.flags;
@@ -60,6 +61,7 @@ export function applySync(world: SandboxWorld, fogCfg: Fog["cfg"], sync: WorldSy
   });
   world.props = sync.props;
   world.beam = sync.beam;
+  world.bonus = sync.bonus;
   world.sparks = sync.sparks;
   world.projectiles = sync.projectiles;
   if (sync.flags) world.flags = new Set(sync.flags);

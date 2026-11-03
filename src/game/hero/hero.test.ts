@@ -144,6 +144,29 @@ describe("blaster fire", () => {
   });
 });
 
+describe("bonus weapon swap", () => {
+  const spotOf = (g: Game, weapon: string): { x: number; y: number } => {
+    const prop = g.world.props.find((p) => p.kind === "weapon" && p.weapon === weapon)!;
+    return { x: prop.x, y: prop.y ?? g.world.spawn[1] };
+  };
+
+  it("holds the bonus weapon picked last, with its own ammo", () => {
+    const g = armed("gun", null);
+    Object.assign(g.hero, spotOf(g, "blaster"));
+    tick(g);
+    expect([g.world.bonus, g.hero.blaster]).toEqual(["blaster", cfg.blaster.ammo]);
+    g.hero.blaster = 5;
+    g.world.cutscene = null;
+    Object.assign(g.hero, spotOf(g, "toaster"));
+    tick(g);
+    expect([g.world.bonus, g.hero.blaster]).toEqual(["toaster", cfg.toaster.ammo]);
+    expect(g.world.subtitle?.text).toBe("Picked up Toaster");
+    Object.assign(g.hero, spotOf(g, "blaster"));
+    tick(g);
+    expect([g.world.bonus, g.hero.blaster]).toEqual(["blaster", cfg.blaster.ammo]);
+  });
+});
+
 describe("blaster pickup", () => {
   const spot = sandboxBlaster();
   it("takes the E-Blaster on touch with full ammo, keeping the selected weapon", () => {
