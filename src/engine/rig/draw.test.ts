@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { drawRig } from "./draw";
+import { drawRig, shade } from "./draw";
 import { createBuilder } from "./tree";
 
 const recorder = () => {
@@ -45,5 +45,17 @@ describe("drawRig", () => {
     const { ctx, fills } = recorder();
     drawRig(ctx, rig(), { palette: { a1: "#c0c0c0" } });
     expect(fills).toEqual(["#606060", "#606060", "#c0c0c0"]);
+  });
+});
+
+describe("shade", () => {
+  it("returns the same palette for the same tint until a colour changes", () => {
+    const palette = { a1: "#c0c0c0" };
+    const dim = shade(palette, { brightness: 0.5 });
+    expect(dim).toEqual({ a1: "#606060" });
+    expect(shade(palette, { brightness: 0.5 })).toBe(dim);
+    expect(shade(palette, { brightness: 0.5, saturate: 0.5 })).not.toBe(dim);
+    palette.a1 = "#808080";
+    expect(shade(palette, { brightness: 0.5 })).toEqual({ a1: "#404040" });
   });
 });

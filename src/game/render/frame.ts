@@ -94,12 +94,20 @@ const clipTo = (ctx: CanvasRenderingContext2D, { x, y, w, h }: Rect): void => {
   ctx.clip();
 };
 
+const ENEMY_POSE_HZ = 30;
+
+const atPoseRate = (body: Hero): Hero => ({
+  ...body,
+  time: Math.floor(body.time * ENEMY_POSE_HZ) / ENEMY_POSE_HZ,
+  gaitTime: Math.floor(body.gaitTime * ENEMY_POSE_HZ) / ENEMY_POSE_HZ,
+});
+
 function paintGame(target: Target, world: SandboxWorld, s: GameFrame, kit: Kit, { cfg, clips }: Tune, over?: Over): void {
   const { ctx, gl } = target;
   const look = heroLook(s.hero, clips, kit.rigs, kit.hold, cfg);
   const enemies = s.enemies.map((enemy) => {
     const kind = kindOf(enemy.kind);
-    return { enemy, look: heroLook(enemy.body, kind.clips ? { ...clips, ...kind.clips } : clips, kind.rigs, kind.hold, cfg), kind };
+    return { enemy, look: heroLook(atPoseRate(enemy.body), kind.clips ? { ...clips, ...kind.clips } : clips, kind.rigs, kind.hold, cfg), kind };
   });
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (gl) {

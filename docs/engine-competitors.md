@@ -120,6 +120,8 @@ Baking figures into bitmaps (tweaks 1 and 2) loses no sharpness on a high-DPI sc
 
 So high-DPI screens cost memory and first-draw time, not sharpness. A high-DPI screen also makes vector drawing slower in the first place (the `main` mode no-GPU row at DPR 2 runs at 25 fps against 59 at DPR 1), so these screens gain the most from the cache.
 
+Status (2026-11-03): 1, 4, 5 and 6 are built (`docs/rendering.md` Per-frame vector art, Render modes). Measured, 1 and 4 gain less than ranked above: without a GPU the frame is pixel-bound (native raster and compositing, fog and tile copies), figures are about 4% of CPU (`docs/rendering.md` Speed). 2, 3 and 7 wait for a case where figures are the bottleneck.
+
 Not worth it now: WebGPU (Pixi and Construct users report no gain or losses on some GPUs; our GPU rows already hold 60 fps), Construct render cells (our tile bucketing covers the static case), moving simulation into the worker (Construct's input and timing bugs).
 
 ## Migrate to a framework?

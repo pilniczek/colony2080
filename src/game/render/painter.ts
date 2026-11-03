@@ -38,6 +38,14 @@ function jpeg(quality: number, size: { w: number; h: number }, draw: (ctx: Canva
   return out.toDataURL("image/jpeg", quality);
 }
 
+export const SLOW_FRAME_MS = 50;
+export const SLOW_FRAMES = 100;
+
+export function slowWatch(): (ms: number) => boolean {
+  let run = 0;
+  return (ms) => (run = ms >= SLOW_FRAME_MS ? run + 1 : 0) >= SLOW_FRAMES;
+}
+
 const LAYER_STYLE = "position:fixed;inset:0;width:100vw;height:100vh;display:block;pointer-events:none";
 
 export function renderModeOf(search: string, canvas: HTMLCanvasElement): RenderMode {
@@ -99,7 +107,7 @@ function mainPainter(canvas: HTMLCanvasElement, world: SandboxWorld, over?: Over
   };
 }
 
-function workerPainter(canvas: HTMLCanvasElement, world: SandboxWorld, fogCfg: FogConfig, gl: boolean, over: Over | undefined, fallback: (reason: string) => void): Painter {
+function workerPainter(canvas: HTMLCanvasElement, world: SandboxWorld, fogCfg: FogConfig, gl: boolean, over: Over | undefined, fallback: (reason: string, slow: boolean) => void): Painter {
   const extra = gl ? { map: layerCanvas(canvas), back: layerCanvas(canvas), fog: layerCanvas(canvas) } : {};
   const overlay = over ? layerCanvas(canvas, true) : null;
   const overCtx = overlay?.getContext("2d") ?? null;
@@ -113,16 +121,20 @@ function workerPainter(canvas: HTMLCanvasElement, world: SandboxWorld, fogCfg: F
   let frames = 0;
   let thumb: ImageBitmap | null = null;
   let failed = false;
-  const fail = (reason: string): void => {
+  let sentAt: number | null = null;
+  const slow = slowWatch();
+  const fail = (reason: string, tooSlow = false): void => {
     if (failed) return;
     failed = true;
     worker.terminate();
     for (const c of [...Object.values(extra), overlay]) c?.remove();
-    fallback(reason);
+    fallback(reason, tooSlow);
   };
   worker.onmessage = ({ data }: MessageEvent<FromRenderer>) => {
-    if (data.kind === "done") busy = false;
-    else if (data.kind === "thumb") {
+    if (data.kind === "done") {
+      busy = false;
+      if (gl && sentAt !== null && slow(performance.now() - sentAt)) fail(`gl frames took over ${SLOW_FRAME_MS} ms`, true);
+    } else if (data.kind === "thumb") {
       thumb?.close();
       thumb = data.image;
     } else fail(data.reason);
@@ -158,6 +170,7 @@ function workerPainter(canvas: HTMLCanvasElement, world: SandboxWorld, fogCfg: F
       if (busy || failed) return;
       busy = true;
       frames++;
+      sentAt = state.kind === "game" && !paused ? performance.now() : null;
       const wantThumb = state.kind === "game" && !state.map && frames % THUMB_EVERY === 1;
       send({ kind: "frame", w, h, state, sync: sync(world, tune), paused, thumb: wantThumb && state.kind === "game" ? pictureSize(state.window) : null });
     },
@@ -175,13 +188,22 @@ function workerPainter(canvas: HTMLCanvasElement, world: SandboxWorld, fogCfg: F
   };
 }
 
+function startWorker(canvas: HTMLCanvasElement, world: SandboxWorld, fogCfg: FogConfig, gl: boolean, over: Over | undefined, onFallback: (painter: Painter) => void): Painter {
+  return workerPainter(canvas, world, fogCfg, gl, over, (reason, slow) => {
+    const fresh = canvas.cloneNode() as HTMLCanvasElement;
+    canvas.replaceWith(fresh);
+    if (slow && gl) {
+      console.warn(`${reason}, drawing in the worker with Canvas 2D`);
+      onFallback(startWorker(fresh, world, fogCfg, false, over, onFallback));
+    } else {
+      console.warn(`render worker failed, drawing on the main thread: ${reason}`);
+      onFallback(mainPainter(fresh, world, over));
+    }
+  });
+}
+
 export function createPainter(canvas: HTMLCanvasElement, world: SandboxWorld, fogCfg: FogConfig, over: Over | undefined, onFallback: (painter: Painter) => void): Painter {
   const mode = renderModeOf(location.search, canvas);
   if (mode === "main") return mainPainter(canvas, world, over);
-  return workerPainter(canvas, world, fogCfg, mode === "gl", over, (reason) => {
-    console.warn(`render worker failed, drawing on the main thread: ${reason}`);
-    const fresh = canvas.cloneNode() as HTMLCanvasElement;
-    canvas.replaceWith(fresh);
-    onFallback(mainPainter(fresh, world, over));
-  });
+  return startWorker(canvas, world, fogCfg, mode === "gl", over, onFallback);
 }

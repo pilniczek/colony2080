@@ -201,20 +201,31 @@ const shadeColor = (hex: string, brightness: number, saturate: number): string =
 
 const SHADE_MEMO = 32;
 
-const shaded = new WeakMap<Palette, Map<string, { sig: string; out: Palette }>>();
+interface ShadeMemo {
+  brightness: number;
+  saturate: number;
+  from: Palette;
+  out: Palette;
+}
+
+const shaded = new WeakMap<Palette, ShadeMemo[]>();
+
+const unchanged = (palette: Palette, from: Palette): boolean => {
+  for (const k in palette) if (palette[k] !== from[k]) return false;
+  return true;
+};
 
 export const shade = (palette: Palette, { brightness = 1, saturate = 1 }: Tint = {}): Palette => {
   if (brightness === 1 && saturate === 1) return palette;
   let memo = shaded.get(palette);
-  if (!memo) shaded.set(palette, (memo = new Map()));
-  const key = brightness + "," + saturate;
-  const sig = Object.values(palette).join();
-  const hit = memo.get(key);
-  if (hit && hit.sig === sig) return hit.out;
+  if (!memo) shaded.set(palette, (memo = []));
+  const hit = memo.find((m) => m.brightness === brightness && m.saturate === saturate);
+  if (hit && unchanged(palette, hit.from)) return hit.out;
   const out: Palette = {};
   for (const k in palette) out[k] = shadeColor(palette[k] as string, brightness, saturate);
-  if (memo.size >= SHADE_MEMO) memo.clear();
-  memo.set(key, { sig, out });
+  if (hit) memo.splice(memo.indexOf(hit), 1);
+  if (memo.length >= SHADE_MEMO) memo.length = 0;
+  memo.push({ brightness, saturate, from: { ...palette }, out });
   return out;
 };
 

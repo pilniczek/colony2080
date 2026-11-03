@@ -20,6 +20,7 @@ import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
 import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
 import { muzzleInRig, SPARK_LIFE } from "../shots";
+import { drawFigure, figureKey } from "./figures";
 import { drawProjectiles } from "./projectiles";
 import { BEAM_FRAMES, drawBeam } from "./beam";
 import { drawEnvironment } from "./environment";
@@ -139,7 +140,8 @@ function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, kind: EnemyKind, sc
   if (alive) {
     if (feetSeen(f.world.fog, enemy.body)) shadow(f, enemy.body, look);
     const flash = !!kind.muzzle && firing(enemy.body, fireRate);
-    heroFigure(f, body, pose, kind.rigs, scale, flash, kind.palette, kind.hooks?.(pose, f.lineW, fireOf(enemy.body)), kind.muzzle, kind.weapon);
+    const fire = fireOf(enemy.body);
+    heroFigure(f, body, pose, kind.rigs, scale, flash, kind.palette, kind.hooks?.(pose, f.lineW, fire), kind.muzzle, kind.weapon, kind.hooks && fire !== null ? null : kind);
   } else if (!kind.dying) scrap(f, enemy.body);
   if (age !== null) blast(f, body, age);
   return alive && age === null ? laserFrom(f, enemy.body, look, kind, scale) : null;
@@ -231,14 +233,19 @@ function heroFigure(
   hooks: Record<string, HookDraw> = weaponHooks(look, f.lineW),
   muzzle: Pt = MUZZLE_IN_HOOK,
   weapon: KindWeapon = MODELS[look.hand],
+  owner: object | null = rigs,
 ): void {
   const { ctx, cell, lineW } = f;
   const palette = look.tint ? shade(base, { brightness: 1 - look.tint * 0.68, saturate: 1 - look.tint * 0.7 }) : base;
   if (look.gun === "dropped") droppedGun(f, hero, look, scale, palette, weapon);
   ctx.save();
   toRigSpace(ctx, hero, look, cell, scale);
-  drawRig(ctx, rigFor(look, rigs), { palette, pose: look.pose, hooks, lineW, simple: true });
-  if (look.gun === "slung") weapon.slung(ctx, palette, { lineW, simple: true });
+  const rig = rigFor(look, rigs);
+  const key = owner && !look.hit ? figureKey([owner, rig, palette], look.pose, `${look.gun}${look.hand}${lineW}`) : null;
+  drawFigure(ctx, key, (c) => {
+    drawRig(c, rig, { palette, pose: look.pose, hooks, lineW, simple: true });
+    if (look.gun === "slung") weapon.slung(c, palette, { lineW, simple: true });
+  });
   if (flash) muzzleFlash(ctx, look, rigs, muzzle);
   if (look.hit) hitStar(ctx, look.hit);
   ctx.restore();

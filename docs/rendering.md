@@ -45,11 +45,12 @@ flowchart TD
 | Mode | Who draws | Canvases | When |
 |---|---|---|---|
 | `main` | main thread, Canvas 2D | `#game` | old browsers, `?render=main`, after a worker failure |
-| `worker` | render worker, Canvas 2D | `#game` (transferred) | no GPU, or `?render=worker` |
+| `worker` | render worker, Canvas 2D | `#game` (transferred) | no GPU, `?render=worker`, or after slow `gl` frames |
 | `gl` | render worker, WebGL2 map and fog, Canvas 2D for the rest | 3 layer canvases under `#game`, all transferred | hardware GPU |
 
 - `glLayersWork` (`render/gl.ts`) opens a WebGL2 context with `failIfMajorPerformanceCaveat` and rejects software renderers by name (`SOFTWARE_GL`: SwiftShader, llvmpipe, ...). Chrome without GPU still hands out SwiftShader WebGL, so the name check is what keeps a GPU-less machine on `worker`.
 - A worker error or a throw inside the worker posts `failed`; the painter drops the worker, swaps `#game` for a fresh canvas (a transferred canvas can't get a main thread context) and continues in `main` mode. Console: `render worker failed, drawing on the main thread`.
+- In `gl` mode the painter times each game frame from send to `done` (paused frames and films skipped). After `SLOW_FRAMES` (100) frames in a row of `SLOW_FRAME_MS` (50 ms) or more (`slowWatch`), it drops the worker the same way and restarts in `worker` mode, for slow or buggy GPU drivers. Console: `gl frames took over 50 ms, drawing in the worker with Canvas 2D`. A later worker failure still falls back to `main`.
 - `?render=main|worker|gl` is for speed tests and debugging.
 
 ## One frame
@@ -130,10 +131,12 @@ Drawn every frame, culled to the view:
 
 - Lift decks (`liftDeck` at the deck height), props and pickups. A prop without animation and not a guard draws from a sprite cached per asset, state, scale, lines and top (`putSprite`, 48 kept).
 - Hero and enemies: rig trees (`engine/rig/draw.ts`), flat tone bands, cached `Path2D` per part and LOD. Enemy kinds come from `robot/kinds.ts` (`kindOf`: rigs, palette, hooks, muzzle).
+- Figure sprites (`render/figures.ts`): `drawFigure` keys a figure by kind, rig view, palette, gun look, line width, pose (joint angles in half degrees, offsets in half units, scales in hundredths, tints) and the linear part of the device transform. The first time a key shows, the figure draws as vectors; the second time it is drawn into an `OffscreenCanvas` trimmed to its ink; after that it costs one `drawImage` at a whole device pixel. Sprites are kept in least recently used order up to `FIGURE_BYTES` (48 MB). Not cached: a figure in its hit flash, and a kind with hooks while it fires (its hooks draw the fire). Muzzle flash, hit star, shadow, dust and blasts stay live on top.
+- Enemy poses step at `ENEMY_POSE_HZ` (30 Hz, `render/frame.ts`: clip and gait time floored before `heroLook`) while their positions still follow the display rate, so their poses repeat and hit the sprite cache. The hero poses at display rate.
 - Effects: shadows, muzzle flash, hit star, landing dust, blasts and scrap, beam, sparks (beam and sparks clipped to `seenPath`, the seen cells).
 - Bodies are tweened between the last two 60 Hz steps (`render/tween.ts`), so motion follows the display rate.
 
-Measured on a GPU, these figures cost most of the GPU time: skipping hero and enemies raised WSL GPU fps 31 to 46, skipping tiles or fog changed nothing.
+Measured on the WSL GPU bridge, skipping hero and enemies raised fps 31 to 46. Without a GPU, figures are a small part: a CPU profile of `main` mode at 4x slowdown shows figure drawing at about 4% of CPU with the sprite cache (80-90% hits), against about 57% native canvas raster and compositing and 17% `drawImage` of fog and tiles.
 
 ## Fog of war
 
@@ -241,7 +244,46 @@ No GPU: WSL Playwright Chromium with `--disable-gpu --disable-gpu-compositing` (
 | 1x | 2 | `main` | 25 | 16 / 30 | 48% | 66.7 |
 | 1x | 2 | `worker` | 60 | 60 / 60 | 0% | 16.8 |
 
-- On a GPU every mode holds the 30 fps floor; `worker` and `gl` hold 60 even at 6x slowdown, `main` drops to 50.
-- Without a GPU `main` misses the floor at 4x slowdown and at DPR 2; `worker` holds 60 in every row.
+- On a GPU every mode holds the 30 fps floor; `main` drops to 50 at 6x slowdown.
+- Without a GPU `main` misses the floor at 4x slowdown and at DPR 2; in `worker` mode the main thread keeps 60 in every row (the worker itself: Worker draw time below).
 - The rAF times come from the main thread. In worker modes they show that input and simulation keep pace; the worker draws at its own pace and skips frames while busy (one frame in flight), so a slow worker shows as late pictures, not as low fps here.
-- `setCPUThrottlingRate` is not checked to slow worker threads as much as the main thread, so the worker rows at 4x and 6x may be optimistic. Real weak hardware is the open check.
+- `setCPUThrottlingRate` slows only the page main thread, not workers (checked 2026-11-03: a loop took 4.2x longer on the main thread at rate 4, no longer in a worker). So the `worker` and `gl` rows above only show that input and simulation keep pace; they say nothing about the worker on a slow CPU. Worker draw time is measured below instead.
+
+### Worker draw time (2026-11-03)
+
+The perf script wraps `Worker` in an init script: it timestamps each `frame` message and each `done` reply. `worker fps` is the rate of `done` replies, `draw ms` the mean send to `done` time (worker draw plus message hops). No CPU slowdown, since it does not reach workers; on a slower CPU, divide `worker fps` by the slowdown as an estimate. Spots: `81,44 30,59 44,59 62,70 128,44 107,44 start 24,70 121,16` (droids in view at most).
+
+| Machine | DPR | mode | worker fps | draw ms | draw p95 ms |
+|---|---|---|---|---|---|
+| Windows GPU | 1 | `worker` | 60 | 2.4 | 4.7 |
+| Windows GPU | 1 | `gl` | 60 | 3.2 | 5.5 |
+| no GPU | 1 | `worker` | 55 | 10.0 | 17.8 |
+| no GPU | 2 | `worker` | 24 | 31.0 | 54.7 |
+
+- On a GPU the worker uses under a fifth of a 60 fps frame, so even a 5x slower CPU stays near 60.
+- Without a GPU the worker misses the 30 fps floor at DPR 2 on this machine, and would at DPR 1 on a CPU about 2x slower. The cost grows with pixel count (DPR 2 is 3x DPR 1), so the next gain without a GPU is fewer pixels (render resolution scaling), not cheaper figures.
+
+### Figure sprites (2026-11-03)
+
+`main` mode, no GPU, rAF fps before (`HEAD` `7abe699`) and after the figure sprites and the 30 Hz enemy poses:
+
+| Spots | CPU slowdown | before | after |
+|---|---|---|---|
+| 14 standard spots | 2x | 31 | 34 |
+| 14 standard spots | 4x | 13 | 14 |
+| droid spots | 1x | 56 | 57 |
+| droid spots | 2x | 31 | 36 |
+| droid spots | 4x | 12 | 13 |
+
+No-GPU `worker` draw time moved from 10.9 to 10.0 ms at DPR 1 and 32.1 to 31.0 ms at DPR 2; GPU modes stay within noise (`worker` 2.3 to 2.4 ms, `gl` 2.7 to 3.2 ms).
+
+### Planned: render resolution scaling
+
+Not built. Without a GPU the frame cost grows with pixel count (Worker draw time above), so drawing fewer device pixels is the next gain there.
+
+- Render DPR: the game canvas draws at `devicePixelRatio * renderScale` instead of `devicePixelRatio`; CSS stretches it to the screen. The HUD (SVG) and React text stay at full DPR.
+- One value for every user: `fit`, `cameraView`, the `lines` of the frame state and the hero badge position in `run.ts` read `devicePixelRatio` today; all of them read the render DPR instead. `drawOverlays` already derives its DPR from canvas size over client size.
+- Steps: `renderScale` 1, 0.75, 0.5, never under 1 device pixel per CSS pixel unless DPR is 1. A step change refits and rebuilds the tile cache (its key holds the scale), so steps need hysteresis: step down after a run of slow frames (like `slowWatch`), step up only after a long run of fast ones.
+- Signal: worker modes use send to `done` time (the `slowWatch` path in `painter.ts`); `main` uses rAF frame time.
+- `?scale=` pins a step for tests.
+- Done when the no-GPU `worker` row at DPR 2 reaches 30 fps or more (today 24), measured as in Worker draw time, with a visual check that figures and fog edges stay sharp enough at 0.75.
