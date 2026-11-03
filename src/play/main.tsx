@@ -28,7 +28,7 @@ const run: Run = startRun({
   intro: startSlot === null && MISSION === "mesto" ? "missionStart" : undefined,
   mapItem: mapItemOf(MISSION),
   afterStep,
-  drawOver: (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx),
+  drawOver: import.meta.env.DEV ? (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx) : undefined,
   ui: (
     <>
       <Hud />

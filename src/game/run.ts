@@ -9,25 +9,19 @@ import { createRoot } from "react-dom/client";
 import { createMixer, type SoundCue } from "../engine/audio/mixer";
 import { Input } from "../engine/input";
 import { FIXED_STEP, FixedLoop } from "../engine/loop";
-import { followView, resizeCanvas, type ViewTransform } from "../engine/render/view";
+import { followView, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
 import { CheatInput } from "../sandbox/ui/CheatInput";
-import { runIdleJob, whenIdle } from "../engine/idle";
-import { filmOf, loadFilms, type Cutscene, type CutsceneId } from "./cutscene";
-import { lookAt } from "./cutscene/looks";
-import { drawRobotView } from "./cutscene/robotView";
-import { drawSkipHint } from "./cutscene/skipHint";
+import { runIdleJob } from "../engine/idle";
+import type { CutsceneId } from "./cutscene";
 import { tr } from "./i18n";
 import { playFilm, stepCutscene } from "./cutscene/play";
-import { drawSecurityCam } from "./cutscene/securityCam";
 import { cheatOf, isCheatKey } from "./cheats";
 import { createFog, loadFog, sightSpan } from "./fog";
 import { createSaveMenu, type SaveMenuOptions } from "./save/saveMenu";
 import type { Rect } from "./geometry";
 import type { Weapon } from "./hero/config";
 import { createHero, halt, type Hero } from "./hero/hero";
-import { createRigs, heroLook } from "./hero/look";
-import { kindOf } from "./robot/kinds";
 import { attrOf } from "./hud/pointer";
 import { canOpenScreen, closesMap, inventoryKey, openCursor, repeatsOnScreen, screenKey } from "./hud/inventoryKeys";
 import { newestFirst } from "./hud/inventory";
@@ -36,12 +30,9 @@ import type { ItemId } from "./items";
 import { activeQuests } from "./level/quests";
 import { resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
 import { openBlockers, pickAll, say } from "./level/tasks";
-import { drawFog, seenPath } from "./render/fog";
-import { drawMap } from "./render/map";
-import { askTiles } from "./render/environment";
+import { createPainter } from "./render/painter";
 import { paintTilesAside } from "./render/tilesAside";
-import { drawOverlays } from "./render/overlays";
-import { drawScene, viewCells, visibleEnemies } from "./render/scene";
+import { viewCells, visibleEnemies } from "./render/scene";
 import { momentOf, tween, type Moment } from "./render/tween";
 import { snapView } from "./render/snapView";
 import { SOUNDS, samplesOf } from "./sound";
@@ -49,7 +40,6 @@ import { prerender } from "./sound/prerender";
 import { saveSoundOn } from "./sound/settings";
 import { openInventory } from "./sound/ui";
 import { stopOnPause, stopOnSkip, stopWhenHidden, warmOnUnlock } from "./sound/voices";
-import { holdPoses } from "./robot/gun";
 import { stepWorld, subtitleOpacity } from "./stepWorld";
 
 const MAX_STEPS = 5;
@@ -58,10 +48,8 @@ const LOG_SIZE = 8;
 const FPS_SMOOTHING = 0.1;
 const MAX_PANEL_SHARE = 0.5;
 const MAP_HINT = "You have no map.";
-const PICTURE_W = 96;
 const PICTURE_QUALITY = 0.6;
 const HEAD_GAP = 0.25;
-const CACHE_PASSES = 2;
 const FILM_PRELOAD_MS = 1000;
 const SOUND_LOG_SIZE = 50;
 
@@ -105,8 +93,6 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const canvas = document.getElementById("game");
   const ui = document.getElementById("ui");
   if (!(canvas instanceof HTMLCanvasElement) || !ui) throw new Error("missing #game or #ui");
-  const ctx = canvas.getContext("2d", { alpha: false });
-  if (!ctx) throw new Error("no 2d context");
 
   const tuning = () => useSandbox.getState();
   const mapOn = (): boolean => !mapItem || world.inventory.items.includes(mapItem);
@@ -120,8 +106,10 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
   applyFog(tuning().fogOn);
   paintTilesAside(world);
-  const rigs = createRigs(true);
-  const hold = holdPoses(rigs.side, rigs.front);
+  let painter = createPainter(canvas, world, fogConfig, drawOver, (fallback) => {
+    painter = fallback;
+    fit();
+  });
   const input = new Input(controls.keyboard, () => performance.now(), tuning().movement.inputBufferMs);
   input.attach(window);
 
@@ -169,14 +157,14 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const freeWidth = (dpr: number): number => {
     const panel = ui.querySelector("[data-panel]");
     const reserved = panel ? panel.getBoundingClientRect().width * dpr : 0;
-    return reserved < canvas.width * MAX_PANEL_SHARE ? canvas.width - reserved : canvas.width;
+    return reserved < painter.w * MAX_PANEL_SHARE ? painter.w - reserved : painter.w;
   };
 
   const fit = (): void => {
     const dpr = devicePixelRatio || 1;
-    resizeCanvas(canvas, dpr);
+    painter.fit(dpr);
     filmWidth = freeWidth(dpr);
-    const hud = hudFit(filmWidth / dpr, canvas.height / dpr, reference.unit);
+    const hud = hudFit(filmWidth / dpr, painter.h / dpr, reference.unit);
     const r = viewRect(hud);
     gameWindow = { x: r.x * dpr, y: r.y * dpr, w: r.w * dpr, h: r.h * dpr };
     useSandbox.setState({ hud });
@@ -251,46 +239,15 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     });
   };
 
+  const tune = () => ({ cfg: tuning().movement, clips: tuning().clips });
+
   const drawFilm = (id: CutsceneId, t: number): void => {
-    const film = filmOf(id);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    if (!film) {
-      push();
-      return;
-    }
-    film.render(ctx, filmWidth, canvas.height, t);
-    if (lookAt(id, t) === "robot") drawRobotView(ctx, filmWidth, canvas.height, t);
-    else drawSecurityCam(ctx, filmWidth, canvas.height, t, film.camera);
-    drawSkipHint(ctx, filmWidth, canvas.height, tr("Press Enter to skip", tuning().lang));
+    const lines = devicePixelRatio || 1;
+    painter.paint({ kind: "film", id, t, width: filmWidth, skip: tr("Press Enter to skip", tuning().lang), ask: { view: cameraView(hero, tuning().movement), window: gameWindow, lines } }, tune(), loop.paused);
     push();
   };
 
-  const warmFilms = (films: Cutscene[]): void => {
-    const scratch = document.createElement("canvas");
-    scratch.width = Math.max(1, Math.round(filmWidth));
-    scratch.height = canvas.height;
-    const warm = scratch.getContext("2d");
-    if (!warm) return;
-    whenIdle(() => {
-      for (let pass = 0; pass < CACHE_PASSES; pass++) {
-        drawSecurityCam(warm, scratch.width, scratch.height, 0, "");
-        drawRobotView(warm, scratch.width, scratch.height, 0);
-      }
-    });
-    for (const film of films) whenIdle(() => {
-      for (let pass = 0; pass < CACHE_PASSES; pass++) film.render(warm, scratch.width, scratch.height, 0);
-    });
-  };
-
-  const picture = (): string => {
-    const shot = document.createElement("canvas");
-    shot.width = PICTURE_W;
-    shot.height = Math.max(1, Math.round((PICTURE_W * gameWindow.h) / gameWindow.w));
-    shot.getContext("2d")?.drawImage(canvas, gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h, 0, 0, shot.width, shot.height);
-    return shot.toDataURL("image/jpeg", PICTURE_QUALITY);
-  };
+  const picture = (): string => painter.picture(gameWindow, PICTURE_QUALITY);
 
   const saveMenu =
     saves &&
@@ -371,40 +328,37 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       if (loop.paused) runIdleJob();
       if (world.cutscene) {
         drawFilm(world.cutscene.id, world.cutscene.t);
-        askTiles(world, tuning().movement, devicePixelRatio || 1, cameraView(hero, tuning().movement), gameWindow);
         return;
       }
       if (tuning().menu?.screen === "settings") {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        painter.paint({ kind: "black" }, tune(), loop.paused);
         push();
         return;
       }
-      const { movement: cfg, clips, overlays } = tuning();
+      const { movement: cfg, overlays } = tuning();
       const shown = tween(prev, hero, alpha);
-      const look = heroLook(shown, clips, rigs, hold, cfg);
       const view = cameraView(shown, cfg);
       lastView = view;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(gameWindow.x, gameWindow.y, gameWindow.w, gameWindow.h);
-      ctx.clip();
-      const sight = world.fog && seenPath(world.fog, cfg.cellPx);
-      drawScene(ctx, world, shown, look, rigs, cfg, view, alpha, visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => {
-        const body = tween(prevEnemies.get(enemy.body) ?? momentOf(enemy.body), enemy.body, alpha);
-        const kind = kindOf(enemy.kind);
-        return { enemy: { ...enemy, body }, look: heroLook(body, kind.clips ? { ...clips, ...kind.clips } : clips, kind.rigs, kind.hold, cfg), kind };
-      }), sight, devicePixelRatio || 1, gameWindow, () => {
-        if (world.fog) drawFog(ctx, world.fog, view, cfg.cellPx, gameWindow, sightSpan(world.fog, cfg.sightCells, shown.x));
-      });
-      drawOverlays(ctx, world, shown, look, rigs, cfg, view, overlays, [gameWindow.x, gameWindow.y]);
-      drawOver?.(ctx, view, cfg.cellPx);
-      if (tuning().mapOpen) drawMap(ctx, world, shown, cfg.box.height, gameWindow, tuning().debugPanel);
-      ctx.restore();
+      const enemies = visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => ({
+        ...enemy,
+        body: tween(prevEnemies.get(enemy.body) ?? momentOf(enemy.body), enemy.body, alpha),
+      }));
+      painter.paint(
+        {
+          kind: "game",
+          alpha,
+          hero: shown,
+          enemies,
+          view,
+          window: gameWindow,
+          lines: devicePixelRatio || 1,
+          span: world.fog && sightSpan(world.fog, cfg.sightCells, shown.x),
+          overlays,
+          map: tuning().mapOpen ? { coords: tuning().debugPanel } : null,
+        },
+        tune(),
+        loop.paused,
+      );
       saveMenu?.flush();
       push();
     },
@@ -560,7 +514,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
 
   if (import.meta.env.VITE_START_CHEAT) enterCheat(import.meta.env.VITE_START_CHEAT);
   if (!saveMenu?.asking) begin();
-  setTimeout(() => void loadFilms().then(warmFilms), FILM_PRELOAD_MS);
+  setTimeout(() => painter.warm(filmWidth, painter.h), FILM_PRELOAD_MS);
   fit();
   window.addEventListener("resize", fit);
   new MutationObserver(fit).observe(ui, { childList: true });

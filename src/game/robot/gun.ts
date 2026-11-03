@@ -4,6 +4,7 @@ import { locate, solve, type Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { BARREL, createWeaponModel, MUZZLE, MUZZLE_IN_HOOK, SUPPORT, SUPPORT_IN_HOOK, toHook, type WeaponPart } from "./weaponModel";
 import { ROBOT } from "./xbot";
+import { context2d, surface } from "../../engine/render/surface";
 
 export type { WeaponOptions as GunOptions } from "./weaponModel";
 
@@ -73,10 +74,10 @@ const SCAN = { x: -600, w: 1600 };
 const silhouetteEdge = (robot: GroupNode, pose: Pose, hook: string): number => {
   const m = locate(robot, hook, pose);
   if (!m) throw new Error(`missing hook ${hook}`);
-  const canvas = document.createElement("canvas");
+  const canvas = surface(1, 1);
   canvas.width = SCAN.w;
   canvas.height = BAND.h;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const ctx = context2d(canvas, { willReadFrequently: true });
   if (!ctx) throw new Error("no 2d context");
   const toGun = new DOMMatrix([m.a, m.b, m.c, m.d, m.e, m.f]).multiply(new DOMMatrix([0, 1, -1, 0, 0, 0])).inverse();
   ctx.setTransform(new DOMMatrix().translate(-SCAN.x, -BAND.y).multiply(toGun));

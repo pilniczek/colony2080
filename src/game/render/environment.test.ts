@@ -246,3 +246,15 @@ describe("deep terrain", () => {
     expect(drawnTerrain(loadMission("jungle")).deep).toEqual([]);
   });
 });
+
+describe("lift shafts in gl mode", () => {
+  it("keep every ladder out of every lift shaft, so lift decks may draw over the above layer", () => {
+    for (const w of [world, loadMesto(), ...(["vesnice", "jungle", "jeskyne"] as const).map((id) => loadMission(id))]) {
+      for (const l of w.lifts) {
+        for (let col = l.x; col < l.x + l.w; col++) {
+          for (let row = l.top; row <= l.bottom; row++) expect(w.grid.at(col, row), `ladder at ${col},${row}`).not.toBe("H");
+        }
+      }
+    }
+  });
+});

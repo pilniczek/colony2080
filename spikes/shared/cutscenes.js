@@ -1,6 +1,8 @@
 (() => {
 const { buildSide, buildBack, render: renderBot, locate, solve, AX, SIDE_AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
 
+const surface = () => (typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(1, 1) : document.createElement("canvas"));
+
 const ease = {
   linear: t => t,
   in: t => t * t,
@@ -274,7 +276,7 @@ function grainTile(index, u, r) {
   }
   if (grainTiles.tiles[index]) return grainTiles.tiles[index];
   const size = CAM.grainTile;
-  const tile = document.createElement("canvas");
+  const tile = surface();
   tile.width = tile.height = size;
   const c = tile.getContext("2d");
   const random = grainRandom(index + 1);
@@ -334,7 +336,7 @@ function camScreen(ctx, w, h, r, u) {
     return;
   }
   if (!camScreens.canvas) {
-    const canvas = document.createElement("canvas");
+    const canvas = surface();
     canvas.width = w;
     canvas.height = h;
     camScreenPaint(canvas.getContext("2d"), r, u);
@@ -610,7 +612,7 @@ function stillLayer() {
       return;
     }
     if (!held.canvas) {
-      const canvas = document.createElement("canvas");
+      const canvas = surface();
       canvas.width = c.canvas.width;
       canvas.height = c.canvas.height;
       const cc = canvas.getContext("2d");
@@ -630,7 +632,7 @@ const rowStrip = { canvas: null };
 function rowFill(c, draw) {
   const m = c.getTransform();
   const w = c.canvas.width, h = c.canvas.height;
-  rowStrip.canvas ??= document.createElement("canvas");
+  rowStrip.canvas ??= surface();
   const strip = rowStrip.canvas;
   strip.width = 1;
   strip.height = h;
@@ -648,7 +650,7 @@ const sheets = new Map();
 function sheetDraw(c, slot, draw) {
   let canvas = sheets.get(slot);
   if (!canvas) {
-    canvas = document.createElement("canvas");
+    canvas = surface();
     sheets.set(slot, canvas);
   }
   if (canvas.width !== c.canvas.width || canvas.height !== c.canvas.height) {

@@ -6,6 +6,7 @@ import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { drawAsset, PALETTE, type EnvAsset, type EnvPalette } from "../env/paint";
 import { ROBOT } from "../robot/xbot";
 import type { Cutscene, CutsceneId } from "./index";
+import { context2d, surface, type Surface } from "../../engine/render/surface";
 
 export interface FilmConfig {
   camera: string;
@@ -231,7 +232,7 @@ export function reach(root: GroupNode, hook: string, keys: [string, string], tar
 export type StillLayer = (c: Ctx, parts: readonly (number | string)[], draw: (c: Ctx) => void) => void;
 
 export function stillLayer(): StillLayer {
-  const held: { key: string; canvas: HTMLCanvasElement | null } = { key: "", canvas: null };
+  const held: { key: string; canvas: Surface | null } = { key: "", canvas: null };
   return (c, parts, draw) => {
     const m = c.getTransform();
     const key = [c.canvas.width, c.canvas.height, m.a, m.b, m.c, m.d, m.e, m.f, ...parts].join(" ");
@@ -242,10 +243,10 @@ export function stillLayer(): StillLayer {
       return;
     }
     if (!held.canvas) {
-      const canvas = document.createElement("canvas");
+      const canvas = surface(1, 1);
       canvas.width = c.canvas.width;
       canvas.height = c.canvas.height;
-      const cc = canvas.getContext("2d")!;
+      const cc = context2d(canvas);
       cc.setTransform(m);
       draw(cc);
       held.canvas = canvas;
@@ -257,17 +258,17 @@ export function stillLayer(): StillLayer {
   };
 }
 
-const rowStrip: { canvas: HTMLCanvasElement | null } = { canvas: null };
+const rowStrip: { canvas: Surface | null } = { canvas: null };
 
 export function rowFill(c: Ctx, draw: (c: Ctx) => void): void {
   const m = c.getTransform();
   const w = c.canvas.width;
   const h = c.canvas.height;
-  rowStrip.canvas ??= document.createElement("canvas");
+  rowStrip.canvas ??= surface(1, 1);
   const strip = rowStrip.canvas;
   strip.width = 1;
   strip.height = h;
-  const g = strip.getContext("2d")!;
+  const g = context2d(strip);
   g.setTransform(m.a, 0, 0, m.d, m.e - Math.floor(w / 2), m.f);
   draw(g);
   c.save();
@@ -276,19 +277,19 @@ export function rowFill(c: Ctx, draw: (c: Ctx) => void): void {
   c.restore();
 }
 
-const sheets = new Map<string, HTMLCanvasElement>();
+const sheets = new Map<string, Surface>();
 
-export function sheetDraw(c: Ctx, slot: string, draw: (c: Ctx) => void): HTMLCanvasElement {
+export function sheetDraw(c: Ctx, slot: string, draw: (c: Ctx) => void): Surface {
   let canvas = sheets.get(slot);
   if (!canvas) {
-    canvas = document.createElement("canvas");
+    canvas = surface(1, 1);
     sheets.set(slot, canvas);
   }
   if (canvas.width !== c.canvas.width || canvas.height !== c.canvas.height) {
     canvas.width = c.canvas.width;
     canvas.height = c.canvas.height;
   }
-  const s = canvas.getContext("2d")!;
+  const s = context2d(canvas);
   s.clearRect(0, 0, canvas.width, canvas.height);
   s.save();
   s.setTransform(c.getTransform());
@@ -297,7 +298,7 @@ export function sheetDraw(c: Ctx, slot: string, draw: (c: Ctx) => void): HTMLCan
   return canvas;
 }
 
-export function sheetBlit(c: Ctx, canvas: HTMLCanvasElement): void {
+export function sheetBlit(c: Ctx, canvas: Surface): void {
   c.save();
   c.setTransform(1, 0, 0, 1, 0, 0);
   c.drawImage(canvas, 0, 0);
