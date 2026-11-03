@@ -81,18 +81,18 @@ Every layout asset has one role (`[test]`). Each mission's design sheet fills it
 | far | far layer filling open sky between floors | `skylineTower`, `midgroundRuins` | `farPalms`, `farRuins` | | |
 | filler | map edge and never reached solid (terrain wall) | `brickWall` | `crateWall` | | |
 | wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | `rivetWall`, `plankWall`, `ammoDepot` | | |
-| fence | fences the hero walks along | `chainFence` | `villageFence` | | |
+| fence | fences the hero walks along | `chainFence` | `chainFence` (mesh states) | | |
 | floor | floor runs and floor plates | `streetWalkway`, `tunnelFloor`, `hazardPlate`, `liftLanding` | `grassyWalkway`, `steelDeckPlate`, `liftLanding` | | |
 | girder | free-standing floor runs and elevated decks | `girderBridge` | `trussWalkway` | | |
 | building | buildings and towers | `windowBuilding`, `ruinedBuilding`, `colonnadeBuilding`, `facadeTower`, `gantryBuilding` | `villageHouse`, `stiltBuilding`, `powerHouse` | | |
 | support | supports, columns, masts, stairs | `latticePylon`, `craneMast`, `staircase` | `latticeMast`, `watchtower` | | |
-| pipe | pipes and pipe columns | `pipeColumn`, `pipeBend`, `ceilingPipe` | `bronzePipe`, `overheadPipeline` | | |
-| machine | big machines and vehicles in the backdrop | `fuelTank`, `metroTrain` | `transformer`, `horizontalTank`, `storageTank`, `powerPlant` | | |
+| pipe | pipes and pipe columns | `pipeColumn`, `pipeBend`, `ceilingPipe` | `pipeColumn` (bronze state), `overheadPipeline` | | |
+| machine | big machines and vehicles in the backdrop | `fuelTank`, `metroTrain` | `transformer`, `storageTank` (horizontal state), `fuelTank`, `powerPlant` | | |
 | rubble | heaps and fallen structure | `rubblePile`, `fallenGirders` | `rockCliff`, `rubbleHeap` | | |
 | mounted | wall-mounted things | `floorVent` (props `wireBox`, `codeLock`) | `warningLamp`, `junctionBox` | | |
 | bigClutter | big ground clutter | `carWreck` | `militaryWreck` | | |
 | smallClutter | small ground clutter | `barrel`, `tyres`, `brickPile` | `fuelDrum`, `sandbags`, `shellCrate` | | |
-| sign | signs and lights | `signPost`, `barSign`, `stripLight` | `brazier`, `warningSign` | | |
+| sign | signs and lights | `signPost`, `barSign`, `stripLight` | `warningLamp` | | |
 | panel | lift panel | `liftPanel` (prop `damagedLift`) | `liftPanel` | | |
 
 Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLight`, `ceilingPipe`), the props that draw a lift panel, the clutter bar and named exemptions, each with its reason.
