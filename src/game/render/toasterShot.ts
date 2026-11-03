@@ -1,7 +1,6 @@
-import { rng } from "../arcLook";
 import { TOASTER_CYCLE } from "../robot/toaster";
 
-export const SHOT = { cycle: TOASTER_CYCLE, step: 24, lead: 12, drift: 8, frames: 6 };
+export const SHOT = { cycle: TOASTER_CYCLE, step: 24, lead: 12, frames: 6 };
 
 const BALL: [string, number, number, number][] = [
   ["#ac2c0c", 7.5, 5, 0],
@@ -41,12 +40,11 @@ const flash = (ctx: CanvasRenderingContext2D, simple: boolean): void => {
 
 export const shotFrame = (tick: number): number => (tick % SHOT.cycle) - 1;
 
-export const shotDrift = (tick: number): number => Math.floor(rng(Math.floor(tick / SHOT.cycle) + 1)() * SHOT.drift) - SHOT.drift / 2;
 
 export const drawToasterShot = (ctx: CanvasRenderingContext2D, length: number, tick: number, simple = false): void => {
   const f = shotFrame(tick);
   if (f < 0) return;
   const x = SHOT.lead + f * SHOT.step;
   if (f === 0) flash(ctx, simple);
-  if (x <= length) ball(ctx, x, f * shotDrift(tick), simple);
+  if (x <= length) ball(ctx, x, 0, simple);
 };
