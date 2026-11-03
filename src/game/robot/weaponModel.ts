@@ -64,11 +64,12 @@ interface ModelSpec {
   buildParts: (length: number) => WeaponPart[];
   mat: Record<string, MatKeys>;
   colors?: Palette;
-  after?: (ctx: CanvasRenderingContext2D, length: number, simple: boolean) => void;
+  after?: (ctx: CanvasRenderingContext2D, length: number, simple: boolean, color: (key: string) => string) => void;
 }
 
 export interface WeaponModel {
   parts: WeaponPart[];
+  colors: Palette;
   draw: (ctx: CanvasRenderingContext2D, opts?: WeaponOptions) => void;
   hook: (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions) => void;
   slung: (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions) => void;
@@ -103,7 +104,7 @@ export const createWeaponModel = ({ buildParts, mat, colors = {}, after }: Model
 
   const draw: WeaponModel["draw"] = (ctx, { palette = ROBOT.palette, lineW = 1.4, simple = false, barrel = BARREL.length } = {}) => {
     for (const p of partsFor(barrel)) drawPart(ctx, p, palette, lineW, simple);
-    after?.(ctx, barrel, simple);
+    after?.(ctx, barrel, simple, (k) => (palette[k] ?? colors[k]) as string);
   };
 
   const hook: WeaponModel["hook"] = (ctx, palette = ROBOT.palette, opts = {}) => {
@@ -123,5 +124,5 @@ export const createWeaponModel = ({ buildParts, mat, colors = {}, after }: Model
     ctx.restore();
   };
 
-  return { parts: partsFor(BARREL.length), draw, hook, slung };
+  return { parts: partsFor(BARREL.length), colors, draw, hook, slung };
 };

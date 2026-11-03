@@ -40,11 +40,29 @@ const flash = (ctx: CanvasRenderingContext2D, simple: boolean): void => {
 
 export const shotFrame = (tick: number): number => (tick % SHOT.cycle) - 1;
 
-
 export const drawToasterShot = (ctx: CanvasRenderingContext2D, length: number, tick: number, simple = false): void => {
   const f = shotFrame(tick);
   if (f < 0) return;
   const x = SHOT.lead + f * SHOT.step;
   if (f === 0) flash(ctx, simple);
   if (x <= length) ball(ctx, x, 0, simple);
+};
+
+const SIGHT = { arm: 3.2, gap: 1.2, width: 0.7, idle: ["#e86418", 0.4], firing: ["#fce438", 0.85] } as const;
+const ARMS: [number, number][] = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
+export const drawToasterSight = (ctx: CanvasRenderingContext2D, firing = false, simple = false): void => {
+  const [color, alpha] = firing ? SIGHT.firing : SIGHT.idle;
+  const { arm, gap } = SIGHT;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = simple ? SIGHT.width * 1.4 : SIGHT.width;
+  ctx.beginPath();
+  for (const [dx, dy] of ARMS) {
+    ctx.moveTo(dx * gap, dy * gap);
+    ctx.lineTo(dx * (gap + arm), dy * (gap + arm));
+  }
+  ctx.stroke();
+  ctx.restore();
 };

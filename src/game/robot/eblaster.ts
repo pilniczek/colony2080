@@ -38,24 +38,25 @@ const MAT: Record<string, MatKeys> = {
 
 const EMITTER_ARC: Pt[] = [[-6, -62], [2, -54], [-4, -46], [4, -40], [-4, -34], [2, -26], [-6, -18]];
 
-const emitter = (ctx: CanvasRenderingContext2D, length: number, simple: boolean): void => {
+const emitter = (ctx: CanvasRenderingContext2D, length: number, simple: boolean, color: (key: string) => string): void => {
   const end = BARREL.x + length;
   const pts = EMITTER_ARC.map(([x, y]): Pt => [end + x, y]);
   ctx.save();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.globalAlpha = 0.5;
-  stroke(ctx, pts, ARC.glow, 16);
+  stroke(ctx, pts, color("glow"), 16);
   ctx.globalAlpha = 1;
-  stroke(ctx, pts, ARC.e1, 8);
-  if (!simple) stroke(ctx, pts, ARC.grey, 5);
-  stroke(ctx, pts, ARC.core, simple ? 3 : 2.4);
+  stroke(ctx, pts, color("e1"), 8);
+  if (!simple) stroke(ctx, pts, color("grey"), 5);
+  stroke(ctx, pts, color("core"), simple ? 3 : 2.4);
   ctx.restore();
 };
 
 const model = createWeaponModel({ buildParts, mat: MAT, colors: ARC as Palette, after: emitter });
 
 export const EBLASTER_PARTS = model.parts;
+export const EBLASTER_COLORS = model.colors;
 export const drawEBlaster = model.draw;
 export const eblasterHook = model.hook;
 export const eblasterSlung = model.slung;

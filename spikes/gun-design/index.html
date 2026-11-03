@@ -83,14 +83,14 @@
   </main>
 </section>
 <section data-for="toaster">
-  <h2>Shot (fireball, one per 7 ticks at 32 ticks per s, 1 cell per tick, random slope per shot)</h2>
+  <h2>Shot (fireball, one per 7 ticks at 32 ticks per s, 1 cell per tick, level; cross at the 6 cell range end)</h2>
   <main>
     <figure class="full"><figcaption>Full size: facing right and left, standing and ducking</figcaption><canvas id="shotFull" data-w="4400" data-h="3120"></canvas></figure>
   </main>
   <main class="game">
     <figure><figcaption>Game size, game LOD hero firing the toaster</figcaption><canvas id="shotGame" data-w="4400" data-h="3120"></canvas></figure>
   </main>
-  <h2>Shot frames, 6 per cycle (one shot with its random slope)</h2>
+  <h2>Shot frames, 6 per cycle</h2>
   <main id="shotFrames"></main>
   <h2>Ground pickup (toaster asset, mission 2)</h2>
   <main class="game">
@@ -236,7 +236,9 @@ function fireEffect(ctx, t) {
 
 function shotEffect(ctx, t, simple) {
   ctx.scale(1 / GAME_PX, 1 / GAME_PX);
-  TOASTER.shot(ctx, BEAM_LEN, Math.floor(t * EBLASTER.TICK_HZ), simple);
+  TOASTER.shot(ctx, TOASTER.RANGE, Math.floor(t * EBLASTER.TICK_HZ), simple);
+  ctx.translate(TOASTER.RANGE, 0);
+  TOASTER.sight(ctx, true, simple);
 }
 
 function firingRow(ctx, root, pose, simple, lineW, facing, t, weapon, effect) {

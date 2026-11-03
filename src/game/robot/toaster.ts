@@ -54,11 +54,11 @@ const buildParts = (length: number): WeaponPart[] => [
   { name: "cap", x: TOASTER_BARREL.x + length, y: -68, w: CAP, h: 53, mat: "k", tone: 2 },
 ];
 
-const heat = (ctx: CanvasRenderingContext2D, _length: number, simple: boolean): void => {
+const heat = (ctx: CanvasRenderingContext2D, _length: number, simple: boolean, color: (key: string) => string): void => {
   if (simple) return;
   ctx.save();
   ctx.globalAlpha = 0.3;
-  ctx.fillStyle = PALETTE.a2 as string;
+  ctx.fillStyle = color("o2");
   ctx.beginPath();
   ctx.ellipse(7, -80, 30, 6, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -74,6 +74,7 @@ export const TOASTER_MUZZLE_IN_HOOK = toHook(TOASTER_MUZZLE);
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? TOASTER_BARREL.length });
 
 export const TOASTER_PARTS = buildParts(TOASTER_BARREL.length);
+export const TOASTER_COLORS = model.colors;
 export const drawToaster = (ctx: CanvasRenderingContext2D, opts?: WeaponOptions): void => model.draw(ctx, sized(opts));
 export const toasterHook = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.hook(ctx, palette, sized(opts));
 export const toasterSlung = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.slung(ctx, palette, sized(opts));

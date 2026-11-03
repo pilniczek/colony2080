@@ -4,10 +4,11 @@ import { describe, expect, it } from "vitest";
 import { createFog, loadFog } from "./fog";
 import { cfg, clips, game, objectLevel, run, tick, withoutItems, type Game } from "./hero/testWorld";
 import { bonusAmmo } from "./hero/hero";
-import { spikeUnit } from "./hero/look";
+import { createRigs, heroLook, spikeUnit } from "./hero/look";
 import { FLYER_HALF, type Enemy } from "./level/enemy";
 import { resetWorld } from "./level/sandboxLevel";
-import { fireBeam, heroMuzzle, SPARK_LIFE } from "./shots";
+import { fireBeam, heroMuzzle, SPARK_LIFE, toasterSight } from "./shots";
+import { toasterHolds } from "./robot/toaster";
 
 const TARGET_TOP = 14 - 1.51;
 
@@ -560,6 +561,15 @@ describe("toaster fireball", () => {
     const g = toaster([3.5 + cfg.toaster.range + 1.5]);
     ticks(g, 7);
     expect(g.world.enemies[0]!.body.energy).toBe(7);
+  });
+
+  it("puts its sight at the range end, or at the first wall when nearer", () => {
+    const rigs = createRigs(true);
+    const aim = (g: Game) => toasterSight(g.world, g.hero, heroLook(g.hero, clips, rigs, toasterHolds(rigs.side, rigs.front), cfg), rigs, cfg);
+    const g = toaster();
+    expect(aim(g).end).toBeCloseTo(3.5 + cfg.toaster.range, 9);
+    g.hero.x = 26.5;
+    expect(aim(g).end).toBeCloseTo(29, 9);
   });
 
   it("gives its own ammo on pickup", () => {

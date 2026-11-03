@@ -14,17 +14,17 @@ import type { SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
-import { drawEBlaster, eblasterHook, eblasterSlung } from "../robot/eblaster";
+import { drawEBlaster, EBLASTER_COLORS, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
-import { drawToaster, TOASTER_FRONT_BARREL, toasterHook, toasterSlung } from "../robot/toaster";
+import { drawToaster, TOASTER_COLORS, TOASTER_FRONT_BARREL, toasterHook, toasterSlung } from "../robot/toaster";
 import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
 import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
-import { muzzleInRig, SPARK_LIFE } from "../shots";
+import { muzzleInRig, SPARK_LIFE, toasterSight } from "../shots";
 import { drawFigure, figureKey } from "./figures";
 import { drawProjectiles } from "./projectiles";
 import { BEAM_FRAMES, drawBeam } from "./beam";
-import { drawToasterShot } from "./toasterShot";
+import { drawToasterShot, drawToasterSight } from "./toasterShot";
 import { drawEnvironment } from "./environment";
 
 const DEG = Math.PI / 180;
@@ -38,6 +38,8 @@ const MODELS = {
   blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
   toaster: { draw: drawToaster, hook: toasterHook, slung: toasterSlung },
 } satisfies Record<GunModel, unknown>;
+const HERO_PALETTE: Palette = { ...EBLASTER_COLORS, ...TOASTER_COLORS, ...ROBOT.palette };
+
 const FRONT_BARRELS: Record<GunModel, number> = { gun: FRONT_BARREL, blaster: FRONT_BARREL, toaster: TOASTER_FRONT_BARREL };
 const LASER = { color: "#ff2a1a", width: 1, glow: 4, glowAlpha: 0.3 };
 const FLYER_HIT = { flash: 0.25, glow: 0.6, steps: 16 };
@@ -65,6 +67,21 @@ function beam(f: Frame): void {
   ctx.scale(b.facing * k, k);
   if (world.bonus === "toaster") drawToasterShot(ctx, Math.abs(b.end - b.x) * TILE, b.tick, true);
   else drawBeam(ctx, Math.abs(b.end - b.x) * TILE, b.tick % BEAM_FRAMES, b.tick);
+  ctx.restore();
+}
+
+const aimsToaster = (hero: Hero, look: HeroLook): boolean =>
+  look.gun === "hand" && look.hand === "toaster" && !hero.hidden && !isDead(hero.state);
+
+function toasterCross(f: Frame, hero: Hero, look: HeroLook, rigs: Rigs, cfg: MovementConfig): void {
+  const { ctx, world, cell } = f;
+  if (!aimsToaster(hero, look)) return;
+  const { y, end } = toasterSight(world, hero, look, rigs, cfg);
+  const k = cell / TILE;
+  ctx.save();
+  ctx.translate(end * cell, y * cell);
+  ctx.scale(k, k);
+  drawToasterSight(ctx, world.beam !== null, true);
   ctx.restore();
 }
 
@@ -234,7 +251,7 @@ function heroFigure(
   rigs: Rigs,
   scale: number,
   flash: boolean,
-  base: Palette = ROBOT.palette,
+  base: Palette = HERO_PALETTE,
   hooks: Record<string, HookDraw> = weaponHooks(look, f.lineW),
   muzzle: Pt = MUZZLE_IN_HOOK,
   weapon: KindWeapon = MODELS[look.hand],
@@ -337,6 +354,7 @@ export function drawScene(
   lasers(f, lasing, hero, cfg.box.height);
   drawProjectiles(ctx, world.projectiles, f.cell, f.unit);
   beam(f);
+  toasterCross(f, hero, look, rigs, cfg);
   impacts(f);
   ctx.restore();
 }

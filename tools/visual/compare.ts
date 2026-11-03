@@ -2,7 +2,7 @@ import { BEAM_FRAMES, drawBeam } from "../../src/game/render/beam";
 import { blasterIcon } from "../../src/game/hud/blasterIcon";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../../src/game/robot/eblaster";
 import { drawToaster, TOASTER_FRONT_BARREL, toasterHolds, toasterHook, toasterSlung } from "../../src/game/robot/toaster";
-import { drawToasterShot } from "../../src/game/render/toasterShot";
+import { drawToasterShot, drawToasterSight } from "../../src/game/render/toasterShot";
 import { toasterIcon } from "../../src/game/hud/toasterIcon";
 import { barrelFor, drawGun, FRONT_BARREL, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
@@ -58,6 +58,7 @@ interface SpikeEBlaster extends Omit<SpikeGun, "holdPoses"> {
 
 interface SpikeToaster extends SpikeGun {
   shot(ctx: CanvasRenderingContext2D, length: number, tick: number, simple?: boolean): void;
+  sight(ctx: CanvasRenderingContext2D, firing?: boolean, simple?: boolean): void;
   icon(x: number): string;
 }
 
@@ -333,6 +334,20 @@ const runShot = (tick: number, simple: boolean, out: HTMLElement): VisualResult 
   return report(`toaster shot ${JSON.stringify({ tick, lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
 };
 
+const runSight = (firing: boolean, simple: boolean, out: HTMLElement): VisualResult => {
+  const spike = canvas();
+  const own = canvas();
+  for (const c of [spike, own]) {
+    c.translate(...BEAM_SHIFT);
+    c.translate(40, 0);
+    c.scale(4, 4);
+  }
+  window.TOASTER.sight(spike, firing, simple);
+  drawToasterSight(own, firing, simple);
+  const diff = pixelDiff(spike, own);
+  return report(`toaster sight ${JSON.stringify({ firing, lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
+};
+
 const ICON_XS = [0, 37.5];
 
 const runToasterIcon = (out: HTMLElement): VisualResult => {
@@ -490,6 +505,7 @@ const toasterCases = [
     lods.map((lod) => (o: HTMLElement) => runCase(`toaster ${carry} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o, gunScene(carry, lod, "toaster"))),
   ),
   ...[1, 2, 3, 6, 9, 13].flatMap((tick) => lods.map((lod) => (o: HTMLElement) => runShot(tick, lod, o))),
+  ...[false, true].flatMap((firing) => lods.map((lod) => (o: HTMLElement) => runSight(firing, lod, o))),
   runToasterIcon,
   runToasterFrontBarrel,
 ];

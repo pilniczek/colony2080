@@ -214,10 +214,21 @@ function burn(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig)
   world.beamHits = burned;
 }
 
+function toasterReach(world: SandboxWorld, h: Hero, [x, y]: Pt, cfg: MovementConfig): { ray: Ray; end: number } {
+  const { ray } = openRay(world, h, y, cfg);
+  return { ray, end: ahead(h.facing, x, nearer(h.facing, ray.end, h.x + h.facing * cfg.toaster.range)) };
+}
+
+export function toasterSight(world: SandboxWorld, h: Hero, look: HeroLook, rigs: Rigs, cfg: MovementConfig): { x: number; y: number; end: number } {
+  const muzzle = rigPoint(h, look, rigs, TOASTER_MUZZLE_IN_HOOK, cfg);
+  const { ray, end } = toasterReach(world, h, muzzle, cfg);
+  const prop = nearestProp(world, { ...ray, end }, true);
+  return { x: muzzle[0], y: muzzle[1], end: prop ? ahead(h.facing, muzzle[0], prop.face) : end };
+}
+
 function toasterLine(world: SandboxWorld, h: Hero, clips: ClipSet, cfg: MovementConfig): BeamLine {
   const [x, y] = toasterMuzzle(h, clips, cfg);
-  const { ray } = openRay(world, h, y, cfg);
-  const end = ahead(h.facing, x, nearer(h.facing, ray.end, h.x + h.facing * cfg.toaster.range));
+  const { ray, end } = toasterReach(world, h, [x, y], cfg);
   const prop = nearestProp(world, { ...ray, end }, true);
   return prop ? { x, y, end: ahead(h.facing, x, prop.face), prop: prop.prop } : { x, y, end, prop: null };
 }
