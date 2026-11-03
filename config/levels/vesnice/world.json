@@ -99,7 +99,7 @@
     {"asset": "latticeMast", "x": 132, "y": 32, "h": 5, "state": 0},
     {"asset": "latticeMast", "x": 142, "y": 32, "h": 5, "state": 1},
     {"asset": "rivetWall", "x": 146, "y": 32, "w": 5, "h": 4, "state": 0},
-    {"asset": "powerPlant", "x": 128, "y": 23, "w": 14, "h": 11},
+    {"asset": "powerPlant", "x": 128, "y": 23, "w": 14, "h": 11, "state": 2},
     {"asset": "powerHouse", "x": 76, "y": 23, "w": 5, "h": 5, "state": 0},
     {"asset": "stiltBuilding", "x": 63, "y": 41, "w": 12, "h": 8, "state": 0},
     {"asset": "pipeColumn", "x": 60, "y": 41, "h": 8, "state": 1},

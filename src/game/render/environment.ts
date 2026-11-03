@@ -87,6 +87,7 @@ export interface Env {
   clip?: Rect;
   tile?: { col: number; row: number; px: number };
   drawn?: { count: number };
+  time?: number;
 }
 
 export function bucketByTile<T>(items: readonly T[], boxOf: (item: T) => Rect, tilePx: number): (col: number, row: number) => T[] {
@@ -687,12 +688,12 @@ export function prop(e: Env, p: Prop): void {
     e.ctx.save();
     e.ctx.translate(x, 0);
     e.ctx.scale(-1, 1);
-    put(e, id, 0, y, state, size, look?.t ?? 0);
+    put(e, id, 0, y, state, size, look?.t ?? e.time ?? 0);
     e.ctx.restore();
     return;
   }
   if (!look && !ASSETS[id].anim && putSprite(e, id, x, y, state, size)) return;
-  put(e, id, x, y, state, size, look?.t ?? 0);
+  put(e, id, x, y, state, size, look?.t ?? e.time ?? 0);
 }
 
 function artBox(e: Env, id: AssetId, x: number, y: number, rise: number): Rect {
@@ -735,9 +736,9 @@ export function drawEnvironment(
   const t = ctx.getTransform();
   const scale = Math.hypot(t.a, t.b);
   const clip = { x: (screen.x - t.e) / scale, y: (screen.y - t.f) / scale, w: screen.w / scale, h: screen.h / scale };
-  const e: Env = { ctx, world, hero, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen, clip };
+  const e: Env = { ctx, world, hero, cell: cfg.cellPx, unit: spikeUnit(cfg), lines, screen, clip, time: performance.now() / 1000 };
   cached(e, "below");
-  flowing(e, performance.now() / 1000);
+  flowing(e, e.time ?? 0);
   for (const l of e.world.lifts) if (near(e, grown(shaftBox(e, l), LIFT_CULL_PAD_CELLS * e.cell))) lift(e, l, alpha);
   cached(e, "above");
   for (const p of world.props) if (!isPickup(p)) prop(e, p);

@@ -131,7 +131,6 @@ const NIGHT = ["#0a1210", "#0f1b18", "#152520", "#1c3029", "#253c33"] as const;
 const SIL = ["#0a100d", "#101a15", "#16231c", "#1e2e24", "#283a2e"] as const;
 const AMBER = ["#5a2a08", "#c86a14", "#f0a030", "#ffe0a0"] as const;
 const PORCELAIN = ["#5a5448", "#8a8474", "#bab4a2", "#e0dccc"] as const;
-const SPARK = ["#3a6ad8", "#7ab4ff", "#e8f4ff"] as const;
 const HOLE = "#0a0c0a";
 const RUSTY = "#7a3a14";
 const MARGIN = 24;
@@ -1053,15 +1052,42 @@ const insulator = (ctx: Ctx, x: number, y: number, n: number): void => {
   }
 };
 
-const arc = (ctx: Ctx, ax: number, ay: number, bx: number, by: number, seed: number): void => {
-  const r = rng(seed);
-  const n = 6;
-  const pts: Pt[] = [];
-  for (let i = 0; i <= n; i++) pts.push([ax + ((bx - ax) * i) / n + (i % n ? (r() - 0.5) * 5 : 0), ay + ((by - ay) * i) / n + (i % n ? (r() - 0.5) * 5 : 0)]);
-  if (!simple()) glow(ctx, (ax + bx) / 2, (ay + by) / 2, 12, SPARK[1], 0.35);
-  line(ctx, pts, SPARK[0], 2);
-  line(ctx, pts, SPARK[2], 0.7);
+export const ZAP_HZ = 32;
+
+export const ZAP_LAYERS: readonly (readonly [string, number, number])[] = [["#202488", 5, 0.55], ["#6084a4", 3, 1], ["#c4cccc", 1.8, 1], ["#f4f4f4", 1, 1]];
+
+export const zap = (ctx: Ctx, ax: number, ay: number, bx: number, by: number, t: number, seed: number, k = 1, layers = ZAP_LAYERS): void => {
+  const r = rng(floor(t * ZAP_HZ) * 7 + seed * 101 + 1);
+  const len = Math.hypot(bx - ax, by - ay);
+  const nx = (ay - by) / len;
+  const ny = (bx - ax) / len;
+  const strands = r() < 0.5 ? 2 : 3;
+  const paths: Pt[][] = [];
+  for (let n = 0; n < strands; n++) {
+    const pts: Pt[] = [[ax, ay]];
+    let d = 0;
+    let side = n % 2 ? 1 : -1;
+    while (d < len) {
+      d = min(len, d + (5 + r() * 5) * k);
+      side = -side;
+      const off = d === len ? 0 : side * (1 + r() * 3.5) * k;
+      pts.push([ax + ((bx - ax) * d) / len + nx * off, ay + ((by - ay) * d) / len + ny * off]);
+    }
+    paths.push(pts);
+  }
+  if (!simple()) glow(ctx, (ax + bx) / 2, (ay + by) / 2, len * 0.45 + 6, ZAP_GLOW, 0.22 + r() * 0.12);
+  for (const [c, w, a] of layers) {
+    if (simple() && a < 1) continue;
+    ctx.save();
+    ctx.globalAlpha *= a;
+    for (const pts of paths) line(ctx, pts, c, w * k);
+    ctx.restore();
+  }
 };
+
+const ZAP_GLOW = "#7ae0ff";
+
+const arc = (ctx: Ctx, ax: number, ay: number, bx: number, by: number, seed: number, t: number): void => zap(ctx, ax, ay, bx, by, t, seed, 0.7);
 
 const boltSign = (ctx: Ctx, cx: number, cy: number, s: number): void => {
   shape(ctx, [[cx + 0.1 * s, cy - 0.5 * s], [cx - 0.3 * s, cy + 0.05 * s], [cx, cy + 0.05 * s], [cx - 0.15 * s, cy + 0.5 * s], [cx + 0.3 * s, cy - 0.1 * s], [cx, cy - 0.1 * s], [cx + 0.2 * s, cy - 0.5 * s]], SEAM[2], SEAM[4]);
@@ -1128,7 +1154,7 @@ export const powerHouse: EnvAsset = {
         const x = w * (0.48 + k * 0.08);
         line(ctx, [[x, -h + 12], [x + (r() - 0.5) * 10, -h - 6 - r() * 8]], RUSTY, 1);
       }
-      arc(ctx, w * 0.5, -h + 8, w * 0.6, -h - 10, seed + 40);
+      arc(ctx, w * 0.5, -h + 8, w * 0.6, -h - 10, seed + 40, 0);
       const hole = blob(w * 0.25, -h * 0.75, 9, 7, seed + 41, 10);
       outside(ctx, vents, () => breach(ctx, hole, seed + 42, CONC[3], CONC[4]));
       sootEdge(ctx, roof.slice(1), h * 0.22, seed + 43, body, vents);
@@ -1561,11 +1587,22 @@ export const storageTank: EnvAsset = {
   },
 };
 
+const PLANT_SEED = 5100;
+
+const plantArcs = (ctx: Ctx, t: number): void => {
+  for (let x = 56; x < 340; x += 72) arc(ctx, x, -246, x + 36, -246, PLANT_SEED + x, t);
+  arc(ctx, 93, -148, 133, -148, PLANT_SEED + 30, t);
+};
+
+export const PLANT_STATES = { running: 0, arcs: 1, cached: 2 } as const;
+
 export const powerPlant: EnvAsset = {
   id: "powerPlant",
   box: [-4, -272, 388, 0],
-  draw(ctx) {
-    const seed = 5100;
+  anim: true,
+  draw(ctx, state = PLANT_STATES.running, t = 0) {
+    if (state === PLANT_STATES.arcs) return plantArcs(ctx, t);
+    const seed = PLANT_SEED;
     band(ctx, 0, -18, 384, 18, CONC);
     G.surface(ctx, 0, -18, 384, 18, seed, { rise: 0.5, drip: 6, dripLen: 10 });
     const towers = [40, 172, 304];
@@ -1590,7 +1627,6 @@ export const powerPlant: EnvAsset = {
       within(ctx, [[30, y, 324, 8]], () => G.drips(ctx, 30, y + 1, 324, 7, seed + 10 - y, 14));
     }
     for (let x = 56; x < 340; x += 36) insulator(ctx, x, -232, 4);
-    for (let x = 56; x < 340; x += 72) arc(ctx, x, -246, x + 36, -246, seed + x);
     for (let x = 60; x < 340; x += 48) if (!simple()) curve(ctx, [[x, -200], [x + 24, -186], [x + 48, -200]], "#141410", 0.8);
     for (let b = 0; b < 2; b++) {
       const x = 78 + b * 40;
@@ -1602,7 +1638,6 @@ export const powerPlant: EnvAsset = {
       worn(ctx, x + 12, -130, 6, 112, seed + 80 + b);
       insulator(ctx, x + 15, -130, 4);
     }
-    arc(ctx, 93, -148, 133, -148, seed + 30);
     pier(ctx, 210, -100, 54, 82, PLATE);
     for (let k = 0; k < 2; k++) grille(ctx, 216, -92 + k * 34, 42, 22, seed + 40 + k);
     hvPanel(ctx, 230, -118, 14, 18, seed + 44, false);
@@ -1638,6 +1673,7 @@ export const powerPlant: EnvAsset = {
       worn(ctx, x, -139, 6, 121, seed + 60 + x);
     }
     within(ctx, [[140, -146, 200, 7]], () => G.rustPatch(ctx, 250, -142, 5, 2, seed + 61));
+    if (state === PLANT_STATES.running) plantArcs(ctx, t);
   },
 };
 

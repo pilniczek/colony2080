@@ -1,9 +1,9 @@
 import { G } from "./grime";
 import { P, TILE, type EnvAsset } from "./paint";
 import { craneKey } from "./props";
-import { PLANK, gateBlock, gateRuin, outside, planks, rectPts, shadow, smoke, spark, steelGate, within } from "./vesnice";
+import { PLANK, gateBlock, gateRuin, outside, planks, rectPts, shadow, smoke, spark, steelGate, within, zap } from "./vesnice";
 
-const { rng, color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, curve, slab, hazard, text } = P;
+const { color, flat, box, poly, cylV, cylH, disc, rivets, glow, stroke, shape, line, curve, slab, hazard, text } = P;
 const { PI, sin, cos, min, max, floor } = Math;
 
 type Pt = [number, number];
@@ -48,15 +48,6 @@ const ring = (ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number,
 const lamp = (ctx: CanvasRenderingContext2D, x: number, y: number, c: string, lit = true, r = 1.2, halo = 4): void => {
   if (lit && !simple()) glow(ctx, x, y, halo, c, 0.6);
   disc(ctx, x, y, r, lit ? c : "k0", "mLine");
-};
-
-const arcBolt = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: number, w: number, t: number, seed: number, c = "plasma", k = 1): void => {
-  const r = rng(Math.floor(t * 18) + seed * 101);
-  const pts: Pt[] = [];
-  const n = Math.max(4, Math.round((y1 - y0) / 6));
-  for (let i = 0; i <= n; i++) pts.push([x + (i === 0 || i === n ? 0 : (r() - 0.5) * w), y0 + ((y1 - y0) * i) / n]);
-  line(ctx, pts, c, 1.8 * k);
-  line(ctx, pts, "plasmaCore", 0.7 * k);
 };
 
 const beamColumn = (ctx: CanvasRenderingContext2D, x: number, y0: number, y1: number, w: number, t: number): void => {
@@ -450,10 +441,7 @@ const energyBarrier: EnvAsset = {
     const on = state === 0;
     hangerBar(ctx, size?.top ?? BAR_TOP);
     if (on && !simple()) glow(ctx, 12, -48, 30, "plasma", 0.25 + sin(t * 13) * 0.06);
-    if (on) {
-      arcBolt(ctx, 12, -86, -4, 10, t, 1);
-      arcBolt(ctx, 12, -86, -4, 8, t + 0.37, 2, "plasma", 0.6);
-    }
+    if (on) zap(ctx, 12, -84, 12, -6, t, 1);
     box(ctx, 0, -96, 24, 10, "steel", 1);
     box(ctx, 6, -86, 12, 3, "chrome", 1);
     flat(ctx, 2, -94, 20, 2, "hazard", "yLine");
