@@ -280,16 +280,25 @@ export function drawScene(
   lines = 1,
   screen?: Rect,
   veil: () => void = () => {},
+  back?: CanvasRenderingContext2D,
 ): void {
   const scale = heroScale(cfg);
   const unit = spikeUnit(cfg);
   const f: Frame = { ctx, world, cell: cfg.cellPx, unit, lineW: unit * view.scale * ROBOT.gameLine, lines };
-  ctx.save();
-  ctx.setTransform(view.scale, 0, 0, view.scale, view.offsetX, view.offsetY);
-  ctx.beginPath();
-  ctx.rect(0, 0, world.grid.width * f.cell, world.grid.height * f.cell);
-  ctx.clip();
-  drawEnvironment(ctx, world, hero, cfg, alpha, lines, screen);
+  const inWorld = (c: CanvasRenderingContext2D): void => {
+    c.save();
+    c.setTransform(view.scale, 0, 0, view.scale, view.offsetX, view.offsetY);
+    c.beginPath();
+    c.rect(0, 0, world.grid.width * f.cell, world.grid.height * f.cell);
+    c.clip();
+  };
+  if (back) {
+    inWorld(back);
+    drawEnvironment(back, world, hero, cfg, alpha, lines, screen, false);
+    back.restore();
+  }
+  inWorld(ctx);
+  if (!back) drawEnvironment(ctx, world, hero, cfg, alpha, lines, screen);
   veil();
   const drawHero = (): void => {
     const clips = coverClips(world.props, hero.x, hero.y);

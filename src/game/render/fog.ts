@@ -1,6 +1,7 @@
 import type { ViewTransform } from "../../engine/render/view";
 import { seenAt, type Fog, type SightSpan } from "../fog";
 import type { Rect } from "../geometry";
+import { context2d, surface, type Surface } from "../../engine/render/surface";
 
 const paths = new WeakMap<Fog, { version: number; cell: number; path: Path2D }>();
 
@@ -30,10 +31,10 @@ interface Layer {
   shown: number[];
   glide: Map<number, number>;
   image: ImageData | null;
-  mask: HTMLCanvasElement;
-  soft: HTMLCanvasElement;
-  hardY: HTMLCanvasElement;
-  window: HTMLCanvasElement;
+  mask: Surface;
+  soft: Surface;
+  hardY: Surface;
+  window: Surface;
   windowKey: string;
   left: number;
   top: number;
@@ -85,7 +86,7 @@ export function glideOf(fog: Fog, span: SightSpan | undefined): Map<number, numb
 const sameGlide = (a: Map<number, number>, b: Map<number, number>): boolean => a.size === b.size && [...a].every(([i, v]) => b.get(i) === v);
 
 function paintMask(fog: Fog, cached: Layer, box: CellBox): void {
-  const ctx = cached.mask.getContext("2d")!;
+  const ctx = context2d(cached.mask);
   const image = (cached.image ??= ctx.createImageData(fog.width, fog.height));
   const n = parseInt(fog.cfg.color.slice(1), 16);
   const rgb = ((n >> 16) & 0xff) | (n & 0xff00) | ((n & 0xff) << 16);
@@ -122,7 +123,7 @@ function grow(fog: Fog, box: CellBox, cells: number): CellBox {
 }
 
 function paintSoft(fog: Fog, cached: Layer, box: CellBox): CellBox {
-  const ctx = cached.soft.getContext("2d")!;
+  const ctx = context2d(cached.soft);
   const px = SOFT_CELL_PX;
   const blur = grow(fog, box, SOFT_BLUR_CELLS);
   const from = grow(fog, box, SOFT_BLUR_CELLS + SOFT_PAD_CELLS);
@@ -137,7 +138,7 @@ function paintSoft(fog: Fog, cached: Layer, box: CellBox): CellBox {
   const pixels = new Uint32Array(cached.image!.data.buffer);
   const hard = hardEdges(fog, (i) => pixels[i]! >>> 24, blur);
   if (hard.length) {
-    const hy = cached.hardY.getContext("2d")!;
+    const hy = context2d(cached.hardY);
     hy.clearRect(from.col, from.row * px, from.w, from.h * px);
     hy.imageSmoothingEnabled = false;
     hy.drawImage(cached.mask, from.col, from.row, from.w, from.h, from.col, from.row * px, from.w, from.h * px);
@@ -149,6 +150,21 @@ function paintSoft(fog: Fog, cached: Layer, box: CellBox): CellBox {
   }
   ctx.restore();
   return blur;
+}
+
+const texels = new WeakMap<Fog, { version: number; glide: Map<number, number>; cells: Uint8Array }>();
+
+export function fogCells(fog: Fog, span: SightSpan | undefined): Uint8Array {
+  const glide = glideOf(fog, span);
+  const known = texels.get(fog);
+  if (known && known.version === fog.version && sameGlide(glide, known.glide)) return known.cells;
+  const [covered, remembered] = [alphaOf(fog.cfg.opacity), alphaOf(fog.cfg.rememberedOpacity)];
+  const alpha = (i: number): number => glide.get(i) ?? (fog.seen[i] ? 0 : fog.revealed[i] ? remembered : covered);
+  const cells = new Uint8Array(fog.width * fog.height * 2);
+  for (let i = 0; i < fog.width * fog.height; i++) cells[2 * i] = alpha(i);
+  for (const [col, row] of hardEdges(fog, alpha, { col: 0, row: 0, w: fog.width, h: fog.height })) cells[2 * (row * fog.width + col) + 1] = 255;
+  texels.set(fog, { version: fog.version, glide, cells });
+  return cells;
 }
 
 const openCache = new WeakMap<Fog, { key: string; rects: CellBox[] }>();
@@ -214,7 +230,7 @@ const flipped = (before: number[], after: number[]): number[] => {
 function layer(fog: Fog, span: SightSpan | undefined): { cached: Layer; dirty: CellBox[] } {
   let cached = layers.get(fog);
   if (!cached) {
-    const canvas = () => document.createElement("canvas");
+    const canvas = () => surface(1, 1);
     cached = { version: NaN, shown: [], glide: new Map(), image: null, mask: canvas(), soft: canvas(), hardY: canvas(), window: canvas(), windowKey: "", left: 0, top: 0 };
     cached.mask.width = fog.width;
     cached.mask.height = fog.height;
@@ -238,7 +254,7 @@ function layer(fog: Fog, span: SightSpan | undefined): { cached: Layer; dirty: C
 
 function paintWindow(fog: Fog, cached: Layer, left: number, top: number, k: number, part?: Rect): void {
   const out = cached.window;
-  const ctx = out.getContext("2d")!;
+  const ctx = context2d(out);
   const r = part ?? { x: 0, y: 0, w: out.width, h: out.height };
   ctx.save();
   ctx.beginPath();
@@ -257,7 +273,7 @@ function paintWindow(fog: Fog, cached: Layer, left: number, top: number, k: numb
   ctx.restore();
 }
 
-function windowPart(fog: Fog, box: CellBox, left: number, top: number, k: number, out: HTMLCanvasElement): Rect | null {
+function windowPart(fog: Fog, box: CellBox, left: number, top: number, k: number, out: Surface): Rect | null {
   const sx = Math.round(fog.width * k) / fog.width;
   const sy = Math.round(fog.height * k) / fog.height;
   const x0 = Math.max(0, Math.floor(left + box.col * sx) - 1);

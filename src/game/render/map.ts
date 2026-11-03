@@ -3,6 +3,7 @@ import type { Rect } from "../geometry";
 import type { Hero } from "../hero/hero";
 import type { Lift, SandboxWorld } from "../level/sandboxLevel";
 import { filled } from "../level/terrain";
+import { context2d, surface, type Surface } from "../../engine/render/surface";
 
 export const MAP_CELLS = ["unknown", "open", "wall", "ladder"] as const;
 export type MapCell = (typeof MAP_CELLS)[number];
@@ -82,17 +83,17 @@ export function mapFit(cols: number, rows: number, rect: Rect): MapFit {
   return { x: rect.x + (rect.w - cols * cell) / 2, y: rect.y + (rect.h - rows * cell) / 2, cell };
 }
 
-const images = new WeakMap<MapWorld, { fog: MapWorld["fog"]; version: number; canvas: HTMLCanvasElement }>();
+const images = new WeakMap<MapWorld, { fog: MapWorld["fog"]; version: number; canvas: Surface }>();
 
-function mapImage(world: MapWorld): HTMLCanvasElement {
+function mapImage(world: MapWorld): Surface {
   const version = world.fog?.version ?? -1;
   const cached = images.get(world);
   if (cached && cached.fog === world.fog && cached.version === version) return cached.canvas;
   const { width, height } = world.grid;
-  const canvas = cached?.canvas ?? document.createElement("canvas");
+  const canvas = cached?.canvas ?? surface(1, 1);
   canvas.width = width;
   canvas.height = height;
-  const ctx = canvas.getContext("2d")!;
+  const ctx = context2d(canvas);
   const image = ctx.createImageData(width, height);
   mapCells(world).forEach((kind, i) => image.data.set(COLORS[MAP_CELLS[kind]!], i * 4));
   ctx.putImageData(image, 0, 0);

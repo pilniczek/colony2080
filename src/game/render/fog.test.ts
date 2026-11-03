@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Fog } from "../fog";
 import { TileGrid } from "../../engine/world/tiles";
-import { drawFog, glideOf, hardEdges, openRects } from "./fog";
+import { drawFog, fogCells, glideOf, hardEdges, openRects } from "./fog";
 
 interface FakeCanvas {
   width: number;
@@ -142,6 +142,20 @@ describe("openRects", () => {
   it("covers the whole box when covered fog lets the map show through", () => {
     const box = { col: 2, row: 3, w: 5, h: 4 };
     expect(openRects(fog(20, 20), box)).toEqual([box]);
+  });
+});
+
+describe("fogCells", () => {
+  it("packs each cell alpha and its hard top edge, and reuses them until the fog changes", () => {
+    const f = { ...fog(4, 4), grid: new TileGrid(["....", "##..", "....", "...."]) } as Fog;
+    for (const i of [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]) f.seen[i] = 1;
+    f.revealed[0] = 1;
+    const cells = fogCells(f, undefined);
+    expect([cells[0], cells[2], cells[8]]).toEqual([Math.round(0.6 * 255), Math.round(0.97 * 255), 0]);
+    expect([cells[9], cells[11], cells[13], cells[15]]).toEqual([255, 255, 0, 0]);
+    expect(fogCells(f, undefined)).toBe(cells);
+    f.version++;
+    expect(fogCells(f, undefined)).not.toBe(cells);
   });
 });
 

@@ -1,4 +1,5 @@
 import type { Rect } from "../geometry";
+import { context2d, surface, type Surface } from "../../engine/render/surface";
 
 const FILM = { w: 1600, h: 900 };
 const CAM = {
@@ -63,9 +64,9 @@ function grade(ctx: CanvasRenderingContext2D, r: Rect): void {
 export const grainCount = (r: Rect): number =>
   Math.min(Math.round((CAM.grains * CAM.grainTile * CAM.grainTile) / (r.w * r.h)), Math.floor((CAM.grainTile * CAM.grainTile) / CAM.grainCap));
 
-const grainTiles: { key: string; tiles: HTMLCanvasElement[] } = { key: "", tiles: [] };
+const grainTiles: { key: string; tiles: Surface[] } = { key: "", tiles: [] };
 
-function grainTile(index: number, u: number, r: Rect): HTMLCanvasElement {
+function grainTile(index: number, u: number, r: Rect): Surface {
   const key = `${r.w}x${r.h}`;
   if (grainTiles.key !== key) {
     grainTiles.key = key;
@@ -74,9 +75,9 @@ function grainTile(index: number, u: number, r: Rect): HTMLCanvasElement {
   const cached = grainTiles.tiles[index];
   if (cached) return cached;
   const size = CAM.grainTile;
-  const tile = document.createElement("canvas");
+  const tile = surface(1, 1);
   tile.width = tile.height = size;
-  const c = tile.getContext("2d")!;
+  const c = context2d(tile);
   const random = grainRandom(index + 1);
   const speck = Math.max(1, 2 * u);
   const count = grainCount(r);
@@ -173,7 +174,7 @@ function paintScreen(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
   corners(ctx, r, u);
 }
 
-const screens: { key: string; canvas: HTMLCanvasElement | null } = { key: "", canvas: null };
+const screens: { key: string; canvas: Surface | null } = { key: "", canvas: null };
 
 function screen(ctx: CanvasRenderingContext2D, w: number, h: number, r: Rect, u: number): void {
   const key = `${w}x${h}`;
@@ -184,10 +185,10 @@ function screen(ctx: CanvasRenderingContext2D, w: number, h: number, r: Rect, u:
     return;
   }
   if (!screens.canvas) {
-    const canvas = document.createElement("canvas");
+    const canvas = surface(1, 1);
     canvas.width = w;
     canvas.height = h;
-    paintScreen(canvas.getContext("2d")!, r, u);
+    paintScreen(context2d(canvas), r, u);
     screens.canvas = canvas;
   }
   ctx.drawImage(screens.canvas, 0, 0);

@@ -117,8 +117,8 @@ export function drawOverlays(
   view: ViewTransform,
   flags: OverlayFlags,
   textAt: Pt = [0, 0],
+  dpr = "clientWidth" in ctx.canvas && ctx.canvas.clientWidth ? ctx.canvas.width / ctx.canvas.clientWidth : 1,
 ): void {
-  const dpr = ctx.canvas.clientWidth ? ctx.canvas.width / ctx.canvas.clientWidth : 1;
   const px = dpr / view.scale;
   ctx.save();
   ctx.setTransform(view.scale, 0, 0, view.scale, view.offsetX, view.offsetY);

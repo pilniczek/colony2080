@@ -1,5 +1,6 @@
 import type { Rect } from "../geometry";
 import { filmRect } from "./securityCam";
+import { context2d, surface, type Surface } from "../../engine/render/surface";
 
 const FILM = { w: 1600, h: 900 };
 const VIEW = {
@@ -104,7 +105,7 @@ function paintScreen(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
   vignette(ctx, r);
 }
 
-const screens: { key: string; canvas: HTMLCanvasElement | null } = { key: "", canvas: null };
+const screens: { key: string; canvas: Surface | null } = { key: "", canvas: null };
 
 function screen(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
   const key = `${r.w}x${r.h}`;
@@ -115,10 +116,10 @@ function screen(ctx: CanvasRenderingContext2D, r: Rect, u: number): void {
     return;
   }
   if (!screens.canvas) {
-    const canvas = document.createElement("canvas");
+    const canvas = surface(1, 1);
     canvas.width = r.w;
     canvas.height = r.h;
-    paintScreen(canvas.getContext("2d")!, r, u);
+    paintScreen(context2d(canvas), r, u);
     screens.canvas = canvas;
   }
   ctx.drawImage(screens.canvas, 0, 0);
