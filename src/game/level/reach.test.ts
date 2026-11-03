@@ -253,22 +253,18 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
   },
   vesnice: {
     byTask: {
-      "middle floors behind the barrier col 99 or teleport 3: power off loads M22, or both teleport parts fitted (report 14)": [
-        ...["23,59", "32,63", "41,53", "50,73", "59,78", "59,116", "68,81"],
+      "middle floors behind the barrier col 99: smashed fuses turn it off (report 14 M22), teleport 3 links once the target is repaired and the power is back": [
+        ...["23,63", "23,74", "32,63", "32,83", "41,53", "41,92", "50,73", "50,135", "59,78", "59,87", "59,116", "59,120", "68,81"],
       ],
-      "west of the guard post code wall col 52, the walkie-talkie removes it (report 14 code wall)": ["41,23"],
-      "west of the barricade col 22, the cannon shot loads M24; floor 50 west by lift 9, wall 14 floor by teleport 13 (report 14)": [
-        ...["41,15", "50,15", "32,30"],
-      ],
-      "barricade col 22 top, gone once the cannon shot loads M24 (report 14)": ["36,22"],
+      "behind the bridge guard col 62, the toaster beam takes him down (report 14 marker 5)": ["23,59"],
+      "west of the bridge: the walkie-talkie calls the guard post away and the power brings the bridge back, both open col 52 (report 14 code wall, M22)": ["41,23"],
+      "west of the barricade col 22, the cannon shot blasts it (report 14 M24); floor 50 west by lift 9, wall 14 floor by teleport 13": ["41,15", "41,21", "50,15", "32,30"],
     },
     never: {
       "past the marker 14 wall col 29 that the dynamite blows to end the level (report 14 tasks)": ["32,7"],
-      "wall tops nobody reaches: the original rock and crate block masses, the barrier col 99 and wall 14 col 29 (levelmap.py patches)": [
+      "wall tops nobody reaches: the original rock and crate block masses and wall 14 col 29 (levelmap.py patches)": [
         ...["12,90", "13,153", "14,117", "15,50", "15,87", "15,120", "16,54", "16,121", "16,151", "17,55", "17,122", "18,56", "18,86"],
-        ...["18,123", "18,148", "24,0", "24,102", "25,49", "25,61", "25,154", "27,29", "27,46", "27,62", "27,86", "27,107", "27,152"],
-        ...["36,12", "36,99", "36,153", "43,13", "43,60", "43,69", "43,139", "44,70", "45,14", "45,58", "45,71", "45,137", "52,73"],
-        ...["52,105", "52,112", "53,113", "54,75", "54,103", "54,114", "63,78", "63,124"],
+        ...["18,123", "18,148", "24,0", "24,102", "25,49", "27,29", "27,46", "27,107"],
       ],
     },
   },

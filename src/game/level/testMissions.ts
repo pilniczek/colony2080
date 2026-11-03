@@ -10,9 +10,7 @@ const cfg = loadMovement(movementJson);
 
 const FINAL_VARIANT: Partial<Record<MissionId, string>> = { vesnice: "barricadeGone", jungle: "puzzleSteps", jeskyne: "tankShot" };
 
-const TASK_WALLS: Partial<Record<MissionId, Record<string, [number, number][]>>> = {
-  vesnice: { "guard post code wall, the walkie-talkie removes it (report 14)": [35, 36, 37, 38, 39, 40].map((row) => [52, row]) },
-};
+const TASK_WALLS: Partial<Record<MissionId, Record<string, [number, number][]>>> = {};
 
 export function patch(json: SandboxJson, cells: { col: number; row: number; ch: string }[]): SandboxJson {
   const rows = json.rows.map((row) => row.split(""));

@@ -74,7 +74,13 @@ EXTRAS = {
                     (140, 50, 140, 58, "#"), (107, 51, 111, 59, "#"), (137, 51, 139, 58, "#"), (68, 52, 73, 60, "#"), (105, 52, 106, 58, "#"), (112, 52, 112, 59, "#"), (74, 53, 74, 58, "#"),
                     (113, 53, 113, 58, "#"), (75, 54, 76, 58, "#"), (103, 54, 104, 58, "#"), (114, 54, 114, 58, "#"), (77, 55, 77, 58, "#"), (115, 55, 115, 58, "#"), (106, 59, 106, 59, "#"),
                     (145, 59, 145, 59, "#"), (74, 60, 77, 67, "#"), (127, 60, 135, 68, "#"), (69, 61, 73, 68, "#"), (78, 63, 79, 67, "#"), (124, 63, 126, 67, "#"), (80, 64, 80, 67, "#"),
-                    (74, 68, 76, 68, "#"), (0, 24, 6, 49, "#"), (0, 50, 10, 50, "#"), (156, 13, 159, 41, "#")],
+                    (74, 68, 76, 68, "#"), (0, 24, 6, 49, "#"), (0, 50, 10, 50, "#"), (156, 13, 159, 41, "#"),
+                    (52, 35, 52, 40, "."), (99, 36, 99, 40, "."), (22, 36, 22, 40, "."),
+                    (12, 33, 13, 35, "#"), (13, 42, 13, 42, "#"), (14, 33, 14, 35, "#"), (14, 42, 14, 44, "#"), (50, 24, 50, 24, "#"), (58, 42, 59, 44, "#"), (60, 42, 60, 42, "#"),
+                    (61, 24, 61, 24, "#"), (61, 42, 61, 42, "#"), (62, 24, 62, 26, "#"), (69, 42, 69, 42, "#"), (70, 42, 70, 43, "#"), (71, 42, 72, 44, "#"), (73, 51, 74, 51, "#"),
+                    (75, 51, 77, 53, "#"), (78, 60, 80, 62, "#"), (86, 24, 87, 26, "#"), (103, 51, 104, 53, "#"), (105, 51, 106, 51, "#"), (112, 51, 112, 51, "#"), (113, 51, 113, 52, "#"),
+                    (114, 51, 115, 53, "#"), (124, 60, 126, 62, "#"), (137, 42, 138, 44, "#"), (139, 42, 140, 42, "#"), (152, 24, 153, 26, "#"), (153, 33, 153, 35, "#"), (154, 24, 154, 24, "#"),
+                    (154, 33, 154, 35, "#")],
         "source": (
             "docs/research/reports/14-level2-layout.md, built by docs/research/tools/levelmap.py from MAPY/M21.MAP "
             "and gamedata/disasm/level2_layout.json: '=' one-way floor support tiles, '#' wall tiles (walls filled over the hero stand height), "
@@ -83,9 +89,13 @@ EXTRAS = {
             "(no jump reaches them), fill every original crate block and rock tile (sheet 10, not the lattice, deck or machine tiles) solid, so the cliffs and masses of the map image are walls, "
             "and wall the west edge (cols 0-6 rows 24-50) and the east edge (cols 156-159 rows 13-41) on to the map edge (map composition blueprint); unseen fills the never seen cells under the lower floors "
             "(bedrock under floors 50, 59 and 68 and east of the floor 41 to 59 masses) and the lattice slot in the col 87-95 mass, leaving the one-row strips under the floors open; "
+            "every wall column under a floor runs up to that floor, filling the one to three row gaps over the original masses and stand-row walls (map composition blueprint); "
+            "every lift shaft is open down to its bottom stop, whose floor alone stays (no floor tile in the shaft at the top stop, the deck stands there); "
+            "the guard post code wall (col 52), the electric barrier (col 99) and the barricade post (col 22) are open cells: world.json gate props block them while a task keeps them shut (the bridge blocker shares col 52 while the power is off); "
         )
         + ZONES_NOTE,
         "fallDeathCells": None,
+        "shaftBottomOnly": True,
         "hazardZones": {0: ("bridgeGap", "death")},
         "teleportZones": {1: "padUp", 2: "padDown", 3: "sourceTeleport", 4: "targetTeleport"},
         "teleportFlags": {"sourceTeleport": "flag:teleportLinked", "targetTeleport": "flag:teleportLinked"},
@@ -429,11 +439,12 @@ def tile_rows(data, layout):
     return grid
 
 
-def open_shafts(grid, lifts):
+def open_shafts(grid, lifts, bottom_only=False):
     changed = []
     for lift in lifts:
         for row in range(lift["stops"][0] - 2, lift["stops"][-1] + 1):
-            cell = "=" if row in lift["stops"] else "."
+            floor = row == lift["stops"][-1] if bottom_only else row in lift["stops"]
+            cell = "=" if floor else "."
             for col in range(lift["x"], lift["x"] + lift["width"]):
                 if grid[row][col] != cell:
                     changed.append((col, row, grid[row][col], cell))
@@ -568,7 +579,7 @@ def enemies_of(grid, enemies, kinds, hazards):
 def variant_grid(data, layout, cfg, name):
     drops = {layout.get("namedWalls", {})[wall] for wall in cfg.get("variantDrops", {}).get(name, [])}
     grid = tile_rows(data, {**layout, "wallCells": [w for w in layout["wallCells"] if w not in drops]})
-    open_shafts(grid, plain_lifts(layout["lifts"], cfg))
+    open_shafts(grid, plain_lifts(layout["lifts"], cfg), cfg.get("shaftBottomOnly", False))
     compose(grid, cfg)
     return grid
 
@@ -596,7 +607,7 @@ def variants(base, map_path, layout, cfg):
 def build_tiles(data, layout, cfg, raw, enemies, map_path):
     grid = tile_rows(data, layout)
     lifts = plain_lifts(layout["lifts"], cfg)
-    for col, row, was, now in open_shafts(grid, lifts):
+    for col, row, was, now in open_shafts(grid, lifts, cfg.get("shaftBottomOnly", False)):
         print(f"shaft cell {col},{row} {was} -> {now}", file=sys.stderr)
     compose(grid, cfg)
     found, sources = variants(grid, map_path, layout, cfg)

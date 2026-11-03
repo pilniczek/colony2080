@@ -195,7 +195,7 @@ describe("weapon props", () => {
     expect(behind.filter((r) => r.row === 10 && r.col >= lift.x && r.col < lift.x + lift.w).map((r) => r.asset)).toEqual(["girderBridge", "streetWalkway"]);
   });
 
-  it("leaves bare cells, lift stops and the cells under bottom stops out of the terrain runs and lands each = stop", () => {
+  it("leaves bare cells, lift stops and the cells under bottom stops out of the terrain runs and lands each = bottom stop", () => {
     const mesto = loadMesto();
     const { ledges: mestoLedges, behind, ...mestoRest } = drawnTerrain(mesto);
     expect(behind.every((r) => mesto.lifts.some((l) => r.col >= l.x && r.col < l.x + l.w && r.row >= l.top && r.row < l.bottom))).toBe(true);
@@ -211,9 +211,9 @@ describe("weapon props", () => {
     for (let col = 45; col < 57; col++) expect(covers(col, 41), String(col)).toBe(false);
     expect(covers(44, 41)).toBe(true);
     expect(covers(57, 41)).toBe(true);
-    for (const l of vesnice.lifts) for (const row of l.stops) {
-      expect(landings).toContainEqual({ row, col: l.x, w: l.w });
-      expect(covers(l.x, row)).toBe(false);
+    for (const l of vesnice.lifts) {
+      expect(landings).toContainEqual({ row: l.bottom, col: l.x, w: l.w });
+      for (const row of l.stops) expect(covers(l.x, row)).toBe(false);
     }
   });
 });
