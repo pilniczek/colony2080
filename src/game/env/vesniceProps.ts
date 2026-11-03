@@ -100,6 +100,7 @@ export const teleportPad: EnvAsset = {
       if (!simple()) glow(ctx, x + 6, -54, 6 + k * 3, "plasma", 0.4);
       disc(ctx, x + 6, -54, 2, "plasma", "mLine");
       G.grain(ctx, G.rectRegion(ctx, x, -64, 12, 60), 930 + x);
+      G.drips(ctx, x, -64, 12, 30, 932 + x, 2);
     }
     padPlate(ctx, 120, true, 931);
     if (!simple()) {
@@ -178,6 +179,8 @@ export const fuseBox: EnvAsset = {
     if (!simple()) for (const x of [26, 86]) for (let y = -32; y < -8; y += 4) flat(ctx, x, y, 8, 2, "m2");
     G.drips(ctx, 0, -86, 120, 30, 953, 6, false);
     G.dirt(ctx, 0, -100, 120, 100, 954, 0.25);
+    G.rustPatch(ctx, 60, -24, 4, 2, 955);
+    G.chips(ctx, 0, -99.6, 120, 956, G.DIRT);
   },
 };
 
@@ -334,6 +337,8 @@ export const energyBarrier: EnvAsset = {
     G.grain(ctx, G.rectRegion(ctx, 96, -150, 14, 150), 1010, 0.6);
     G.grain(ctx, G.rectRegion(ctx, 0, -150, 110, 12), 1012, 0.6);
     G.drips(ctx, 0, -138, 110, 20, 1011, 5);
+    G.rustPatch(ctx, 103, -60, 3, 5, 1013);
+    G.chips(ctx, 0, -149.6, 110, 1014, G.DIRT);
   },
 };
 
@@ -347,6 +352,7 @@ export const powerBridge: EnvAsset = {
         flat(ctx, min(x, x + d * 22), 0, 22, 4, "c0", "mLine");
         line(ctx, [[x + d * 22, 2], [x + d * 30, 10]], "m2", 1.4);
         spark(ctx, x + d * 22, 2, t, x);
+        G.rustPatch(ctx, x + d * 11, 2, 4, 1.4, 1034 + x);
       }
       return;
     }
@@ -363,6 +369,10 @@ export const powerBridge: EnvAsset = {
       glow(ctx, k * 288, 2, 10, "plasma", 0.6);
     }
     for (const x of [0, 280]) box(ctx, x, -4, 8, 14, "steel", 2);
+    G.grain(ctx, G.rectRegion(ctx, 0, 0, 288, 10), 1030);
+    G.drips(ctx, 0, 3.6, 288, 6, 1031, 12);
+    G.chips(ctx, 0, 0.2, 288, 1032, G.DIRT);
+    for (const x of [0, 280]) G.rustPatch(ctx, x + 4, 3, 2.5, 2, 1033 + x);
   },
 };
 
@@ -387,6 +397,8 @@ export const bridgeGuardPost: EnvAsset = {
     flat(ctx, 2, -100, 18, 10, "y1", "yLine");
     if (!simple()) text(ctx, "STOP", 11, -95, 5, "k0");
     G.drips(ctx, -2, -144, 26, 60, 1021, 3);
+    G.rustPatch(ctx, -2, -18, 2.5, 4, 1022);
+    G.chips(ctx, -4, -146, 30, 1023, G.DIRT);
   },
 };
 
