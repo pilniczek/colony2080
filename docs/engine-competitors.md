@@ -131,7 +131,6 @@ Asked 2026-11-03 before starting the tweaks. Answer: no, keep our engine and do 
 - **The fix is the same either way:** bake vectors into bitmaps (tweak 1). In a framework it would be built on top of their engine; here it reuses `putSprite`.
 - **Cost of moving:**
   - About 13,500 lines of Canvas 2D art would need porting to a different vector API: `src/game/env` 8,400, `src/game/cutscene` 5,200, with grime patterns, gradients and tone bands.
-  - The 1143 spike pixel checks (`npm run test:visual`) and the spikes as design source would be lost.
   - These would be rebuilt or kept as custom code: fog of war, tile collision, lifts and cover, input record and replay, sound synth, films, saves, the render worker.
 
 | | Tweak 1 (pose sprite cache) | Migrate to PixiJS or Phaser |
@@ -139,7 +138,6 @@ Asked 2026-11-03 before starting the tweaks. Answer: no, keep our engine and do 
 | Work | days | months (about 25,000 lines touched) |
 | Helps machines without a GPU | yes, the main target | no, same Canvas 2D fallback |
 | Look | kept, same drawing code | at risk, art redone |
-| Spike visual tests | kept | lost |
 
 Middle path for later: PixiJS only as the figure renderer inside the `gl` layer (tweak 7 with a library), if bitmaps ever fall short on GPUs.
 
@@ -148,7 +146,6 @@ Middle path for later: PixiJS only as the figure renderer inside the `gl` layer 
 ### What ours does that frameworks don't
 
 - **Art as code at any resolution.** Assets are TypeScript drawing functions with a state and a size (`size` option), so one asset makes every variant, every scale and every device pixel ratio. Frameworks centre on sprite sheets; their vector APIs (Pixi and Phaser `Graphics`) are documented as slow when complex.
-- **Spikes as a live design source, checked by pixel tests.** Assets are designed in plain HTML pages and ported 1:1, and `test:visual` proves the port matches. No framework pipeline has this.
 - **Deterministic fixed step with input record and replay** (`src/engine/input.ts`, `loop.ts`). Phaser and Pixi step with a smoothed variable delta; Phaser has a fixed step only inside Arcade physics.
 - **Render modes chosen per machine** (`main`, `worker`, `gl`, with fallback on worker failure). Construct is the only competitor with worker rendering, and it has turned it off twice for browser bugs.
 - **Built for this genre:** fog of war with matched 2D and WebGL pipelines, cinematic films in the engine, cover, lifts, rig poses solved from clip data, sounds synthesized from recipes (no audio files).
@@ -161,6 +158,7 @@ Middle path for later: PixiJS only as the figure renderer inside the `gl` layer 
 - **Sprite throughput:** batched WebGL or WebGPU sprites in the tens of thousands.
 - **Browser and device bug fixes** maintained by others: mobile GPUs, touch input, context loss, audio unlock quirks.
 - **Docs, community and hiring:** many developers already know Phaser or PixiJS.
+- **Not an advantage: the spike pipeline.** Designing assets in spike pages and porting them did not carry over smoothly; every port needed many in-game tweaks after it landed (user, 2026-11-03). The `test:visual` checks only prove the port matches the spike, not that it works in the game. Count the spikes as a cost, not a reason to keep the engine.
 
 ### When to reuse ours
 
