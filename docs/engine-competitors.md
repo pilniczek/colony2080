@@ -121,3 +121,66 @@ Baking figures into bitmaps (tweaks 1 and 2) loses no sharpness on a high-DPI sc
 So high-DPI screens cost memory and first-draw time, not sharpness. A high-DPI screen also makes vector drawing slower in the first place (the `main` mode no-GPU row at DPR 2 runs at 25 fps against 59 at DPR 1), so these screens gain the most from the cache.
 
 Not worth it now: WebGPU (Pixi and Construct users report no gain or losses on some GPUs; our GPU rows already hold 60 fps), Construct render cells (our tile bucketing covers the static case), moving simulation into the worker (Construct's input and timing bugs).
+
+## Migrate to a framework?
+
+Asked 2026-11-03 before starting the tweaks. Answer: no, keep our engine and do the tweaks.
+
+- **No framework fixes the slow case.** That case is a machine without a GPU, where `main` mode drops to 15 fps at 4x CPU slowdown. PixiJS (8.16) and Excalibur fall back to Canvas 2D there, the API we already use. Their speed comes from sprite batching on a GPU.
+- **On a GPU we already hold 60 fps** in `worker` and `gl` modes at 6x CPU slowdown.
+- **The fix is the same either way:** bake vectors into bitmaps (tweak 1). In a framework it would be built on top of their engine; here it reuses `putSprite`.
+- **Cost of moving:**
+  - About 13,500 lines of Canvas 2D art would need porting to a different vector API: `src/game/env` 8,400, `src/game/cutscene` 5,200, with grime patterns, gradients and tone bands.
+  - The 1143 spike pixel checks (`npm run test:visual`) and the spikes as design source would be lost.
+  - These would be rebuilt or kept as custom code: fog of war, tile collision, lifts and cover, input record and replay, sound synth, films, saves, the render worker.
+
+| | Tweak 1 (pose sprite cache) | Migrate to PixiJS or Phaser |
+|---|---|---|
+| Work | days | months (about 25,000 lines touched) |
+| Helps machines without a GPU | yes, the main target | no, same Canvas 2D fallback |
+| Look | kept, same drawing code | at risk, art redone |
+| Spike visual tests | kept | lost |
+
+Middle path for later: PixiJS only as the figure renderer inside the `gl` layer (tweak 7 with a library), if bitmaps ever fall short on GPUs.
+
+## Our engine against frameworks, for the next game
+
+### What ours does that frameworks don't
+
+- **Art as code at any resolution.** Assets are TypeScript drawing functions with a state and a size (`size` option), so one asset makes every variant, every scale and every device pixel ratio. Frameworks centre on sprite sheets; their vector APIs (Pixi and Phaser `Graphics`) are documented as slow when complex.
+- **Spikes as a live design source, checked by pixel tests.** Assets are designed in plain HTML pages and ported 1:1, and `test:visual` proves the port matches. No framework pipeline has this.
+- **Deterministic fixed step with input record and replay** (`src/engine/input.ts`, `loop.ts`). Phaser and Pixi step with a smoothed variable delta; Phaser has a fixed step only inside Arcade physics.
+- **Render modes chosen per machine** (`main`, `worker`, `gl`, with fallback on worker failure). Construct is the only competitor with worker rendering, and it has turned it off twice for browser bugs.
+- **Built for this genre:** fog of war with matched 2D and WebGL pipelines, cinematic films in the engine, cover, lifts, rig poses solved from clip data, sounds synthesized from recipes (no audio files).
+- **Small and owned.** `src/engine` is about 1,600 lines with no runtime dependency; React only for the UI shell. The page bundle (game, configs and React) is 214 KB gzipped, the render worker 93 KB. No framework upgrade can break it, and every hot path is ours to change.
+
+### What frameworks do better
+
+- **Editors and tooling:** scene, tilemap and animation editors (Construct, Phaser with Tiled, Spine). We edit JSON and code.
+- **Physics:** Arcade and Matter in Phaser, Box2D-style options elsewhere. We have tile collision only.
+- **Sprite throughput:** batched WebGL or WebGPU sprites in the tens of thousands.
+- **Browser and device bug fixes** maintained by others: mobile GPUs, touch input, context loss, audio unlock quirks.
+- **Docs, community and hiring:** many developers already know Phaser or PixiJS.
+
+### When to reuse ours
+
+| Next game | Pick |
+|---|---|
+| Vector or procedural art, cinematic platformer, adventure, few on-screen actors | our engine |
+| Needs exact replays, record and playback tests, or deterministic netcode | our engine |
+| Pixel art or hand-drawn sprite sheets with many actors | Phaser or PixiJS |
+| Physics puzzles, ragdolls, vehicles | Phaser (Matter) or a physics library on PixiJS |
+| Team of non-programmers, visual scripting | Construct |
+| Mobile first, many devices to support | a framework, for its device bug fixes |
+
+### Before reusing it
+
+**[inferred]** Today only `src/engine` is game-agnostic. The parts most worth reusing still live in `src/game`:
+
+- painter and render worker (`render/painter.ts`, `renderWorker.ts`, `sync.ts`)
+- tile cache (`render/tiles.ts`, `tileWorker.ts`)
+- fog (`fog.ts`, `render/fog.ts`, `render/gl.ts`)
+- sprite cache (`putSprite`)
+- sound mixer (`src/engine/audio` is already shared, the cues are not)
+
+Moving them under `src/engine` behind interfaces, with no Colony 28 names, is the step that turns this into a reusable engine. Without it, a second game starts as a fork.
