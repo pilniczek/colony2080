@@ -154,6 +154,8 @@ const pod = (ctx: CanvasRenderingContext2D, mode: PodMode, t: number, seed: numb
 
 const SOURCE_MODES: PodMode[] = ["idle", "off", "working"];
 
+const TARGET_MODES: PodMode[] = ["damaged", "off", "working"];
+
 const sourceTeleport: EnvAsset = {
   id: "sourceTeleport",
   box: [-2, -76, 51, 0],
@@ -168,7 +170,7 @@ const targetTeleport: EnvAsset = {
   box: [-2, -76, 51, 0],
   anim: true,
   draw(ctx, state, t) {
-    pod(ctx, state ? "working" : "damaged", t, 2120);
+    pod(ctx, TARGET_MODES[state] ?? "damaged", t, 2120);
   },
 };
 

@@ -13430,7 +13430,8 @@ window.C28_CONFIG = {
       "description": "Same teleport pod as marker 3 on floor 32 (use window map cells 63-67, art cells 65-66, rows 29-31). The navigation circuit repairs it (\"Opravil jsi rozbitý teleport\"); then it links to the marker 3 pod both ways while the fuse is fitted. The walkthrough map swaps markers 5 and 6 in height; code puts the guard on floor 23 and this pod on floor 32.",
       "states": [
        "damaged",
-       "repaired"
+       "repaired, no power",
+       "powered and linked"
       ],
       "refs": [
        {

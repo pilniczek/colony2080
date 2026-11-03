@@ -2509,6 +2509,7 @@ const pod = (ctx, mode, t, seed) => {
     podHood(ctx, POD_LAMP[mode], mode !== "off", seed);
 };
 const SOURCE_MODES = ["idle", "off", "working"];
+const TARGET_MODES = ["damaged", "off", "working"];
 const sourceTeleport = {
     id: "sourceTeleport",
     box: [-2, -76, 51, 0],
@@ -2522,7 +2523,7 @@ const targetTeleport = {
     box: [-2, -76, 51, 0],
     anim: true,
     draw(ctx, state, t) {
-        pod(ctx, state ? "working" : "damaged", t, 2120);
+        pod(ctx, TARGET_MODES[state] ?? "damaged", t, 2120);
     },
 };
 const brokenTeleport = {
