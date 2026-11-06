@@ -30,7 +30,7 @@ const MANUAL_KEYS: [string | Step[], string][] = [
   [["left", "right"], "MOVE"],
   [["up"], "JUMP, CLIMB UP"],
   [["down"], "DUCK, CLIMB DOWN"],
-  ["CTRL", "SHOOT / PUNCH"],
+  ["C", "SHOOT / PUNCH"],
   ["ENTER", "USE ITEM FROM INVENTORY"],
   ["I", "INVENTORY"],
   ["X", "HIDING MIGHT BE MORE THAN SHOOTING"],
@@ -255,7 +255,7 @@ const HELP_TEXTS: Record<HudPart, string> = {
 };
 const LEFT_PARTS: ReadonlySet<HudPart> = new Set(["menu", "weapon1", "weapon2", "weapon3"]);
 const ENERGY_LINES = ["ENERGY: HITS DRAIN IT, NO ENERGY = DEATH.", "E BLINKS RED WHEN LOW"];
-const PRO_TIP_LINES = ["HOLD MORE KEYS AT ONCE, E.G. CTRL AND X.", "WHILE HIDDEN, ARROWS TURN YOU AROUND."];
+const PRO_TIP_LINES = ["HOLD MORE KEYS AT ONCE, E.G. C AND X.", "WHILE HIDDEN, ARROWS TURN YOU AROUND."];
 const PRO_TIP = { w: 150, pad: 8, title: 10, lines: 2 };
 const BACK = { w: 50, h: 11, bottom: 10 };
 

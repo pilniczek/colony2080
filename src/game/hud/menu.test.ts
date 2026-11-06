@@ -116,7 +116,7 @@ describe("menuSvg", () => {
     expect(en).not.toContain(">MANUAL<");
     expect(menuSvg(400, 200, help, slots, robot, "City", "en", false, true)).toContain(">E-BLASTER<");
     const cs = menuSvg(400, 200, help, slots, robot, "City", "cs", false, true);
-    for (const entry of [">ZPĚT<", ">OTEVŘE MENU<", ">TIP PRO PROFÍKY<", ">DRŽ VÍC KLÁVES NARÁZ, NAPŘ. CTRL A X.<", ">E-BLASTER<", ">SKRÝVÁNÍ<"]) expect(cs).toContain(entry);
+    for (const entry of [">ZPĚT<", ">OTEVŘE MENU<", ">TIP PRO PROFÍKY<", ">DRŽ VÍC KLÁVES NARÁZ, NAPŘ. C A X.<", ">E-BLASTER<", ">SKRÝVÁNÍ<"]) expect(cs).toContain(entry);
   });
 
   it("keeps every help label clear of the other labels and of every arrow, on narrow and wide screens", () => {
