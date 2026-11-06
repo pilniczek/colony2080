@@ -53,6 +53,7 @@ figure canvas { aspect-ratio: 16 / 9; background: #000; }
 <script src="../shared/enemies.js"></script>
 <script src="../shared/cutscenes.js"></script>
 <script src="../shared/cutscenes/acid-guard-comes.js"></script>
+<script src="../shared/cutscenes/hull-cover-punch.js"></script>
 <script src="../shared/cutscenes/hull-cover.js"></script>
 <script src="../shared/cutscenes/mission-start.js"></script>
 <script src="../shared/cutscenes/open-door.js"></script>
@@ -78,7 +79,7 @@ figure canvas { aspect-ratio: 16 / 9; background: #000; }
 <script src="../movement/player.js"></script>
 <script>
 (() => {
-const ORDER = ["missionStart", "rebelShot", "talkRebel", "pickCrowbar", "pullWires", "wireSwitchboard", "crowbarDoor", "pickEBlaster", "takeTapHandle", "searchCorpse", "tradeHoloPlan", "hullCover", "pickShipPart", "tradeShipPart", "unlockPlasma", "pickController", "repairLift", "openDoor", "acidGuardComes", "useAcidTank", "pickCraneKey", "repairCrane"];
+const ORDER = ["missionStart", "rebelShot", "talkRebel", "pickCrowbar", "pullWires", "wireSwitchboard", "crowbarDoor", "pickEBlaster", "takeTapHandle", "searchCorpse", "tradeHoloPlan", "hullCover", "hullCoverPunch", "pickShipPart", "tradeShipPart", "unlockPlasma", "pickController", "repairLift", "openDoor", "acidGuardComes", "useAcidTank", "pickCraneKey", "repairCrane"];
 const FPS = 12;
 const grid = document.getElementById("grid");
 const cells = ORDER.map(id => {

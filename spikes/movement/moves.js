@@ -548,6 +548,7 @@ if (CATEGORY === "interaction") {
     ["Search corpse", "Enter at corpse, plays cutscene", "searchCorpse", useLead("corpse", 0, 1)],
     ["Show holo plan", "Enter at bar door, plays cutscene", "tradeHoloPlan", useLead("barDoor", 0, 0)],
     ["Shoot hull cover", "Shoot the ship, plays cutscene", "hullCover", standLead("crashedShip", 0, 1, "HULL HIT")],
+    ["Punch hull cover", "Punch the ship, plays cutscene", "hullCoverPunch", standLead("crashedShip", 0, 1, "HULL PUNCHED")],
     ["Pick up ship part", "Touch item, plays cutscene", "pickShipPart", pickLead("shipPart", 1)],
     ["Hand in ship part", "Enter at bar door, plays cutscene", "tradeShipPart", useLead("barDoor", 0, 0)],
     ["Decode plasma lock", "Enter at code lock, plays cutscene", "unlockPlasma", useLead("codeLock", 0, 1)],
