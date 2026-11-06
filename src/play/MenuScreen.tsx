@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { menuSvg } from "../game/hud/menu";
 import { missionName } from "../game/save/slots";
 import { useSandbox } from "../sandbox/store";
-import { art } from "../sandbox/ui/InventoryScreen";
+import { menuArt } from "../sandbox/ui/InventoryScreen";
 
 export function MenuScreen({ mission }: { mission: string }) {
   const menu = useSandbox((s) => s.menu);
@@ -12,7 +12,7 @@ export function MenuScreen({ mission }: { mission: string }) {
   const autosave = useSandbox((s) => s.autosave);
   const blaster = useSandbox((s) => s.blaster !== null);
   const svg = useMemo(
-    () => menu && menuSvg(fit.W, fit.H, menu, slots, art(), missionName(mission), lang, autosave, blaster),
+    () => menu && menuSvg(fit.W, fit.H, menu, slots, menuArt(), missionName(mission), lang, autosave, blaster),
     [menu, slots, fit.W, fit.H, mission, lang, autosave, blaster],
   );
   if (!svg) return null;

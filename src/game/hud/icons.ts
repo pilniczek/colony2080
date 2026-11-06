@@ -227,8 +227,10 @@ export function inventoryArtJobs(): { jobs: (() => void)[]; art: InventoryArt } 
       drawAsset(ctx, asset, { state: 0, lod: false, lines: 1 });
     }), TIP_ART.w, TIP_ART.h);
   });
-  return { jobs: [robotJob, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), ...tipJobs, ...itemJobs], art };
+  return { jobs: [robotJob, ...tipJobs, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), ...itemJobs], art };
 }
+
+export const MENU_ART_JOBS = 1 + Object.keys(TIP_ASSETS).length;
 
 export function inventoryArt(): InventoryArt {
   const { jobs, art } = inventoryArtJobs();

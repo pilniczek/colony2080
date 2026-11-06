@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from "react";
 import { whenIdle } from "../../engine/idle";
-import { inventoryArtJobs } from "../../game/hud/icons";
+import { inventoryArtJobs, MENU_ART_JOBS } from "../../game/hud/icons";
 import { inventorySvg, type InventoryArt } from "../../game/hud/inventory";
+import type { MenuArt } from "../../game/hud/menu";
 import { useSandbox } from "../store";
 
 let build: ReturnType<typeof inventoryArtJobs> | null = null;
@@ -9,11 +10,15 @@ let done = 0;
 
 const jobs = (): ReturnType<typeof inventoryArtJobs> => (build ??= inventoryArtJobs());
 
-export const art = (): InventoryArt => {
-  const { jobs: all, art: built } = jobs();
-  while (done < all.length) all[done++]!();
-  return built;
+const built = (count: number): InventoryArt => {
+  const { jobs: all, art: made } = jobs();
+  while (done < Math.min(count, all.length)) all[done++]!();
+  return made;
 };
+
+export const art = (): InventoryArt => built(Infinity);
+
+export const menuArt = (): MenuArt => built(MENU_ART_JOBS);
 
 const buildWhenIdle = (): void => {
   const { jobs: all } = jobs();
