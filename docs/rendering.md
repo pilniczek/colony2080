@@ -37,17 +37,20 @@ flowchart TD
   A -- worker --> W[worker]
   A -- none --> B{"Worker, OffscreenCanvas,<br/>transferControlToOffscreen?"}
   B -- no --> M
-  B -- yes --> W
+  B -- yes --> F{Firefox?}
+  F -- yes --> M
+  F -- no --> W
 ```
 
 | Mode | Who draws | Canvases | When |
 |---|---|---|---|
-| `main` | main thread, Canvas 2D | `#game` | old browsers, `?render=main`, after a worker failure |
-| `worker` | render worker, Canvas 2D | `#game` (transferred) | every browser with Worker, `OffscreenCanvas` and `transferControlToOffscreen` |
+| `main` | main thread, Canvas 2D | `#game` | Firefox, old browsers, `?render=main`, after a worker failure |
+| `worker` | render worker, Canvas 2D | `#game` (transferred) | every other browser with Worker, `OffscreenCanvas` and `transferControlToOffscreen` |
 
 - A worker error or a throw inside the worker posts `failed`; the painter drops the worker, swaps `#game` for a fresh canvas (a transferred canvas can't get a main thread context) and continues in `main` mode. Console: `render worker failed, drawing on the main thread`.
 - `?render=main|worker` is for speed tests and debugging.
-- A WebGL2 mode (map tiles as textures, fog as a shader) was built and removed on 2026-11-03: it measured no faster than `worker` (Windows GPU: 3.2 ms against 2.4 ms per frame, both 60 fps), and in Firefox it stalled about 100 ms every few cells of a run, so it only added code. Without it, Windows Firefox runs smooth (user check, 2026-11-03).
+- A WebGL2 mode (map tiles as textures, fog as a shader) was built and removed on 2026-11-03: it measured no faster than `worker` (Windows GPU: 3.2 ms against 2.4 ms per frame, both 60 fps), and in Firefox it stalled about 100 ms every few cells of a run, so it only added code.
+- Firefox draws an `OffscreenCanvas` onto a page canvas slowly, so a run there pans unevenly when offscreen canvases (fog window, tiles, sprites) are `OffscreenCanvas` (`slowOffscreen` in `engine/render/surface.ts`). On the Firefox main thread `surface()` returns DOM canvases and the painter picks `main`: Windows Firefox runs as smooth as before the worker; `worker` stays a step behind, since a worker has no DOM canvas (user check, 2026-11-06; found by bisect, introduced in `57b3e30`).
 
 ## One frame
 
@@ -154,9 +157,9 @@ Saves store a 96 px JPEG of the game window. `main` mode copies `#game`. `worker
 
 ## Code without a DOM
 
-Everything `paintFrame` reaches runs in a worker, so drawing code never calls `document`. Offscreen canvases come from `surface()` / `context2d()` (`engine/render/surface.ts`: `OffscreenCanvas`, else a DOM canvas for tests and old browsers). Debug overlays take the device pixel ratio as an argument.
+Everything `paintFrame` reaches runs in a worker, so drawing code never calls `document`. Offscreen canvases come from `surface()` / `context2d()` (`engine/render/surface.ts`: `OffscreenCanvas`, else a DOM canvas for tests, old browsers and the Firefox main thread). Debug overlays take the device pixel ratio as an argument.
 
-Every mode, the main thread too, uses `OffscreenCanvas`, so all modes draw the same pixels. `OffscreenCanvas` rasterises some gradients and stretched strips a few pixels differently from a DOM canvas, so the spike film caches (`spikes/shared/cutscenes.js` `surface`, `spikes/shared/robot-view.js`) use it too, and `npm run test:visual` compares like with like.
+Every mode outside Firefox, the main thread too, uses `OffscreenCanvas`, so all modes draw the same pixels. `OffscreenCanvas` rasterises some gradients and stretched strips a few pixels differently from a DOM canvas, so the spike film caches (`spikes/shared/cutscenes.js` `surface`, `spikes/shared/robot-view.js`) use it too, and `npm run test:visual` compares like with like.
 
 ## Speed
 

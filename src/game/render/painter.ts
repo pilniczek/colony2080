@@ -1,5 +1,5 @@
 import { whenIdle } from "../../engine/idle";
-import { context2d } from "../../engine/render/surface";
+import { context2d, slowOffscreen } from "../../engine/render/surface";
 import { resizeCanvas } from "../../engine/render/view";
 import { loadFilms } from "../cutscene";
 import { drawRobotView } from "../cutscene/robotView";
@@ -39,10 +39,11 @@ function jpeg(quality: number, size: { w: number; h: number }, draw: (ctx: Canva
 
 const LAYER_STYLE = "position:fixed;inset:0;width:100vw;height:100vh;display:block;pointer-events:none";
 
-export function renderModeOf(search: string, canvas: HTMLCanvasElement): RenderMode {
+export function renderModeOf(search: string, canvas: HTMLCanvasElement, agent = navigator.userAgent): RenderMode {
   const asked = new URLSearchParams(search).get("render");
   const workerWorks = typeof Worker !== "undefined" && typeof OffscreenCanvas !== "undefined" && "transferControlToOffscreen" in canvas;
-  return asked === "main" || !workerWorks ? "main" : "worker";
+  if (!workerWorks || asked === "main") return "main";
+  return asked === "worker" || !slowOffscreen(agent) ? "worker" : "main";
 }
 
 function overlayCanvas(under: Element): HTMLCanvasElement {
