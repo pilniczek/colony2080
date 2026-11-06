@@ -21,7 +21,7 @@ const props = world.props as WorldProp[];
 const rows = tasks.tasks as TaskRow[];
 const stateCount = (asset: string): number => Math.max(1, objects.objects.find((o) => o.id === asset)?.states.length ?? 1);
 const assetOf = (id: string): string | undefined => props.find((p) => p.id === id)?.asset;
-const ART_OF: Record<string, string> = { damagedLift: "liftPanel", metroTunnel: "tunnelGate" };
+const ART_OF: Record<string, string> = { damagedLift: "liftPanel", metroTunnel: "tunnelGate", metroLight: "stripLight" };
 
 describe("ASSETS", () => {
   it("has every collected asset under its id and nothing else", () => {

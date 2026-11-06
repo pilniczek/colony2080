@@ -103,11 +103,12 @@ describe("mesto props", () => {
   const { props } = world;
   const objects = ["dyingRebel", "wireBox", "switchboard", "trainDoor", "tapValveWheel", "corpse", "barDoor", "crashedShip", "codeLock", "damagedLift", "acidTank", "cardDoor", "crane"];
   const gates = ["trainCarriage", "metroTunnel", "waterPipe", "plasmaBarrier", "acidGuard", "shootGuard"];
+  const lights = props.filter((p) => p.id === "metroLight");
 
   it("places every interactive object once", () => {
     const ids = props.filter((p) => p.kind === "object").map((p) => p.id).sort();
     expect(ids).toEqual([...objects].sort());
-    expect(props.filter((p) => p.kind === "gate").map((p) => p.id).sort()).toEqual([...gates].sort());
+    expect([...new Set(props.filter((p) => p.kind === "gate").map((p) => p.id))].sort()).toEqual([...gates, "metroLight"].sort());
   });
 
   it("draws gate and pillar art up to the ceiling", () => {
@@ -173,7 +174,12 @@ describe("mesto props", () => {
 
   it("opens the tunnel wall with the train door only", () => {
     expect(world.tasks.find((t) => t.id === "openTrainDoor")!.sets).toEqual({ metroTunnel: 1 });
-    expect(world.tasks.find((t) => t.id === "wireSwitchboard")!.sets).toBeUndefined();
+    expect(world.tasks.find((t) => t.id === "wireSwitchboard")!.sets).toEqual({ metroLight: 0 });
+  });
+
+  it("keeps every metro strip light off until the switchboard is wired", () => {
+    expect(lights).toHaveLength(10);
+    for (const p of lights) expect(p).toMatchObject({ kind: "gate", asset: "stripLight", state: 1 });
   });
 });
 
