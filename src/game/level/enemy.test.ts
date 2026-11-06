@@ -1,8 +1,14 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
-import { cfg, clips, dt, game, run, tick, type Game } from "../hero/testWorld";
+import { cfg, clips, dt, game as sandboxGame, run, tick, type Game } from "../hero/testWorld";
 import { TileGrid } from "../../engine/world/tiles";
 import { createEnemy, FLYER_HALF, hitEnemy, isDead, updateEnemy, type Enemy, type EnemyJson } from "./enemy";
+
+const game = (...args: Parameters<typeof sandboxGame>): Game => {
+  const g = sandboxGame(...args);
+  for (const e of g.world.enemies) e.sightMs = 0;
+  return g;
+};
 
 const PATROL = { left: 1 + cfg.box.width / 2, right: 11 - cfg.box.width / 2 };
 
@@ -52,6 +58,32 @@ describe("sandbox enemy", () => {
     run(g, 1.1);
     expect(g.world.enemies[0]!.body.x).toBe(x);
     expect(g.hero.energy).toBeLessThan(cfg.energy.max);
+  });
+
+  it("stands sightMs once it starts seeing the hero, then shoots", () => {
+    const g = sandboxGame({ x: 9.5, y: 4 });
+    facingRight(g, 5.5);
+    const [enemy] = g.world.enemies as [Enemy];
+    const sight = sandbox.enemies[0]!.sightMs / 1000;
+    run(g, sight - 2 * dt);
+    expect(enemy.body.state).toBe("idle");
+    expect(hurt(g)).toBe(0);
+    run(g, 3 * dt);
+    expect(enemy.body.state).toBe("attack");
+    expect(hurt(g)).toBe(cfg.energy.hit);
+  });
+
+  it("stands sightMs again when the hero stops hiding", () => {
+    const g = sandboxGame({ x: 9.5, y: 4 });
+    facingRight(g, 5.5);
+    const [enemy] = g.world.enemies as [Enemy];
+    Object.assign(g.hero, { hidden: true, state: "hide" });
+    run(g, 1, ["hide"]);
+    Object.assign(g.hero, { hidden: false, state: "idle" });
+    run(g, sandbox.enemies[0]!.sightMs / 1000 - 2 * dt);
+    expect(enemy.body.state).not.toBe("attack");
+    run(g, 3 * dt);
+    expect(enemy.body.state).toBe("attack");
   });
 
   it("fires bursts of burst.shots in burst.ms with pauseMs standing between them", () => {

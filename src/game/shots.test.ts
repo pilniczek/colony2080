@@ -210,7 +210,8 @@ describe("enemy shots", () => {
   };
 
   it("hit the hero on the tick they fire", () => {
-    const { g } = facing(9.5, 5.5);
+    const { g, enemy } = facing(9.5, 5.5);
+    enemy.sightMs = 0;
     tick(g);
     expect(g.hero.energy).toBe(cfg.energy.max - cfg.energy.hit);
     expect(g.world.heroHits).toBe(0);

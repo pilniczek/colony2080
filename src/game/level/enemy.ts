@@ -21,6 +21,7 @@ export interface EnemyJson {
   hits: number;
   respawnMs: number | null;
   reactMs: number;
+  sightMs?: number;
   burst: Burst;
   pauseMs: number;
   patrol?: [number, number];
@@ -111,6 +112,7 @@ export interface Enemy {
   hits: number;
   respawnMs: number | null;
   reactMs: number;
+  sightMs: number;
   burst: Burst;
   pauseMs: number;
   patrol: [number, number];
@@ -118,6 +120,7 @@ export interface Enemy {
   alertAge: number | null;
   tracking: boolean;
   unseen: boolean;
+  seeing: boolean;
   pauseLeft: number;
   flight: Flight | null;
   rocket: RocketJson | null;
@@ -148,9 +151,13 @@ export function boxSeen(fog: Fog | null, box: BodyBox): boolean {
 
 function uncover(e: Enemy, fog: Fog | null, box: MovementConfig["box"]): void {
   const unseen = !boxSeen(fog, bodyBox(e, box));
-  if (e.unseen && !unseen) e.pauseLeft = Math.max(e.pauseLeft, e.reactMs / 1000);
+  if (e.unseen && !unseen) wait(e, e.sightMs);
   e.unseen = unseen;
 }
+
+const wait = (e: Enemy, ms: number): void => {
+  e.pauseLeft = Math.max(e.pauseLeft, ms / 1000);
+};
 
 const ground = (e: Enemy): number => (e.flight ? e.spot[1] : e.body.y);
 
@@ -221,6 +228,7 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
     damage: tune.damage ?? 1,
     respawnMs: json.respawnMs,
     reactMs: json.reactMs,
+    sightMs: json.sightMs ?? 0,
     burst: tune.burst ?? json.burst,
     pauseMs: tune.pauseMs ?? json.pauseMs,
     patrol,
@@ -229,6 +237,7 @@ export function createEnemy(json: EnemyJson, grid: TileGrid, shafts: Shaft[] = [
     alertAge: null,
     tracking: false,
     unseen: false,
+    seeing: false,
     pauseLeft: 0,
   };
 }
@@ -274,7 +283,10 @@ const inReach = (e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCel
   hero.x !== e.body.x && seesHero({ x: e.body.x, ground: ground(e), facing: hero.x > e.body.x ? 1 : -1 }, grid, hero, fog, sightCells);
 
 function track(e: Enemy, grid: TileGrid, hero: Hero, fog: Fog | null, sightCells: number): void {
-  if (sees(e, grid, hero, fog, sightCells)) e.tracking = true;
+  const seeing = sees(e, grid, hero, fog, sightCells);
+  if (seeing && !e.seeing) wait(e, e.sightMs);
+  e.seeing = seeing;
+  if (seeing) e.tracking = true;
   else if (e.tracking && inReach(e, grid, hero, fog, sightCells)) e.alertAge ??= 0;
   else e.tracking = false;
 }
@@ -357,7 +369,7 @@ function rising(e: Enemy, stance: Stance): boolean {
 function shoot(e: Enemy, dt: number): number {
   const { body, burst } = e;
   if (body.state !== "attack") {
-    if (e.pauseLeft > 0) {
+    if (e.pauseLeft > 1e-9) {
       setState(body, "idle");
       return 0;
     }
@@ -402,6 +414,7 @@ export function updateEnemy(e: Enemy, grid: TileGrid, fog: Fog | null, hero: Her
     e.alertAge = null;
     e.tracking = false;
     e.unseen = false;
+    e.seeing = false;
     e.pauseLeft = 0;
     return 0;
   }

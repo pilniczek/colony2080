@@ -182,7 +182,7 @@ describe("fog blocks shots", () => {
     expect(g.world.sparks).toHaveLength(0);
   });
 
-  it("stands reactMs before it fires when it comes out of fog", () => {
+  it("stands sightMs before it fires when it comes out of fog", () => {
     const g = fogged(game({ x: 9.5, y: 4 }));
     const [enemy] = g.world.enemies;
     Object.assign(enemy!.body, { x: 5.5, facing: 1 });
@@ -190,20 +190,24 @@ describe("fog blocks shots", () => {
     for (let i = 0; i < 5; i++) updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, dt);
     g.world.fog!.seen.fill(1);
     let fired = 0;
-    for (let i = 0; i < sandbox.enemies[0]!.reactMs / 1000 / dt - 2; i++) fired += updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, dt);
+    for (let i = 0; i < sandbox.enemies[0]!.sightMs / 1000 / dt - 2; i++) fired += updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, dt);
     expect(fired).toBe(0);
     for (let i = 0; i < 4; i++) fired += updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, dt);
     expect(fired).toBeGreaterThan(0);
   });
 
-  it("fires at once at a hero that stops hiding in front of an enemy in sight", () => {
+  it("stands sightMs before it fires at a hero that stops hiding in front of an enemy in sight", () => {
     const g = fogged(game({ x: 9.5, y: 4 }));
     const [enemy] = g.world.enemies;
     Object.assign(enemy!.body, { x: 5.5, facing: 1 });
     Object.assign(g.hero, { hidden: true, state: "hide" });
     for (let i = 0; i < 5; i++) updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, dt);
     Object.assign(g.hero, { hidden: false, state: "idle" });
-    expect(updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, dt)).toBeGreaterThan(0);
+    let fired = 0;
+    for (let i = 0; i < sandbox.enemies[0]!.sightMs / 1000 / dt - 2; i++) fired += updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, dt);
+    expect(fired).toBe(0);
+    for (let i = 0; i < 4; i++) fired += updateEnemy(enemy!, g.world.grid, g.world.fog, g.hero, clips, cfg, dt);
+    expect(fired).toBeGreaterThan(0);
   });
 
   it("keeps an enemy in a remembered cell from seeing the hero", () => {
