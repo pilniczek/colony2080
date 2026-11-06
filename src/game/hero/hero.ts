@@ -360,7 +360,7 @@ export function halt(h: Hero): void {
 function act(s: Step): boolean {
   if (use(s)) return true;
   if (!s.consume("shoot") && !(s.h.weapon === "fists" && s.input.held.has("shoot"))) return false;
-  startAttack(s, "attack");
+  startAttack(s, s.input.held.has("down") ? "duckAttack" : "attack");
   return true;
 }
 
@@ -562,9 +562,18 @@ function leaveAttack(s: Step): void {
   else gait(s);
 }
 
+function duckOrStand(s: Step): void {
+  const { h, input } = s;
+  const down = input.held.has("down");
+  if (down === (h.state === "duckAttack")) return;
+  if (down) s.consume("down");
+  h.state = down ? "duckAttack" : "attack";
+}
+
 function attack(s: Step): void {
   const { h, input } = s;
   if (takeCover(s)) return;
+  duckOrStand(s);
   if (holdsGun(h.weapon)) {
     const ducked = h.state === "duckAttack";
     if (ducked && input.dir !== 0) h.facing = input.dir;

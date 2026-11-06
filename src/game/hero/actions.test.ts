@@ -583,6 +583,32 @@ describe("attack", () => {
     expect(kinds(g, "shot")).toHaveLength(fired);
   });
 
+  it("ducks and stands up while the gun keeps firing", () => {
+    const g = game({ x: 11.5, y: 14, weapon: "gun" });
+    tick(g, ["shoot"], ["shoot"]);
+    tick(g, ["shoot", "down"], ["down"]);
+    expect(g.hero.state).toBe("duckAttack");
+    expect(g.hero.fireTime).not.toBeNull();
+    tick(g, ["shoot"]);
+    expect(g.hero.state).toBe("attack");
+    expect(g.hero.fireTime).not.toBeNull();
+  });
+
+  it("duck shoots at once when shoot comes with Down held", () => {
+    const g = game({ x: 11.5, y: 14, weapon: "gun" });
+    tick(g, ["down", "shoot"], ["down", "shoot"]);
+    expect(g.hero.state).toBe("duckAttack");
+  });
+
+  it("ducks and stands up mid-punch", () => {
+    const g = game({ x: 7.5, y: 14 });
+    tick(g, ["shoot"], ["shoot"]);
+    tick(g, ["shoot", "down"], ["down"]);
+    expect(g.hero.state).toBe("duckAttack");
+    tick(g, ["shoot"]);
+    expect(g.hero.state).toBe("attack");
+  });
+
   it("turns in place while duck shooting", () => {
     const g = game({ x: 11.5, y: 14, weapon: "gun" });
     run(g, 0.5, ["down"]);
