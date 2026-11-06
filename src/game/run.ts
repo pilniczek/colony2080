@@ -106,10 +106,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
   applyFog(tuning().fogOn);
   paintTilesAside(world);
-  let painter = createPainter(canvas, world, fogConfig, drawOver, (fallback) => {
-    painter = fallback;
-    fit();
-  });
+  const painter = createPainter(canvas, world, drawOver);
   const input = new Input(controls.keyboard, () => performance.now(), tuning().movement.inputBufferMs);
   input.attach(window);
 
@@ -244,7 +241,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
 
   const drawFilm = (id: CutsceneId, t: number): void => {
     const lines = devicePixelRatio || 1;
-    painter.paint({ kind: "film", id, t, width: filmWidth, skip: tr("Press Enter to skip", tuning().lang), ask: { view: cameraView(hero, tuning().movement), window: gameWindow, lines } }, tune(), loop.paused);
+    painter.paint({ kind: "film", id, t, width: filmWidth, skip: tr("Press Enter to skip", tuning().lang), ask: { view: cameraView(hero, tuning().movement), window: gameWindow, lines } }, tune());
     push();
   };
 
@@ -332,7 +329,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         return;
       }
       if (tuning().menu?.screen === "settings") {
-        painter.paint({ kind: "black" }, tune(), loop.paused);
+        painter.paint({ kind: "black" }, tune());
         push();
         return;
       }
@@ -358,7 +355,6 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
           map: tuning().mapOpen ? { coords: tuning().debugPanel } : null,
         },
         tune(),
-        loop.paused,
       );
       saveMenu?.flush();
       push();

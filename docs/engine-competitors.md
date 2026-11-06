@@ -129,11 +129,11 @@ Not worth it now: WebGPU (Pixi and Construct users report no gain or losses on s
 Asked 2026-11-03 before starting the tweaks. Answer: no, keep our engine and do the tweaks.
 
 - **No framework fixes the slow case.** That case is a machine without a GPU, where `main` mode drops to 15 fps at 4x CPU slowdown. PixiJS (8.16) and Excalibur fall back to Canvas 2D there, the API we already use. Their speed comes from sprite batching on a GPU.
-- **On a GPU we already hold 60 fps** in `worker` mode at 6x CPU slowdown.
+- **On a GPU we already hold 60 fps** at 4x CPU slowdown (`main` 58 fps, measured 2026-11-03).
 - **The fix is the same either way:** bake vectors into bitmaps (tweak 1). In a framework it would be built on top of their engine; here it reuses `putSprite`.
 - **Cost of moving:**
   - About 13,500 lines of Canvas 2D art would need porting to a different vector API: `src/game/env` 8,400, `src/game/cutscene` 5,200, with grime patterns, gradients and tone bands.
-  - These would be rebuilt or kept as custom code: fog of war, tile collision, lifts and cover, input record and replay, sound synth, films, saves, the render worker.
+  - These would be rebuilt or kept as custom code: fog of war, tile collision, lifts and cover, input record and replay, sound synth, films, saves, the tile worker.
 
 | | Tweak 1 (pose sprite cache) | Migrate to PixiJS or Phaser |
 |---|---|---|
@@ -181,7 +181,7 @@ flowchart LR
 
 1. **Boundary.** List what is generic and what is Colony 28.
 2. **Move generic parts into the engine:**
-    - render modes (`render/painter.ts`, `renderWorker.ts`, `sync.ts`, `frame.ts`)
+    - painter and frame drawing (`render/painter.ts`, `frame.ts`)
     - tile cache and tile worker (`render/tiles.ts`, `tileWorker.ts`, `tilesAside.ts`)
     - fog of war (`fog.ts`, `render/fog.ts`)
     - sprite cache (`putSprite`)

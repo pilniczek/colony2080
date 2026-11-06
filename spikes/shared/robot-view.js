@@ -113,7 +113,7 @@ function screen(ctx, r, u) {
     return;
   }
   if (!screens.canvas) {
-    const canvas = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(1, 1) : document.createElement("canvas");
+    const canvas = document.createElement("canvas");
     canvas.width = r.w;
     canvas.height = r.h;
     screenPaint(canvas.getContext("2d"), r, u);

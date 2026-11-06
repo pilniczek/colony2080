@@ -1,7 +1,7 @@
 (() => {
 const { buildSide, buildBack, render: renderBot, locate, solve, AX, SIDE_AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
 
-const surface = () => (typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(1, 1) : document.createElement("canvas"));
+const surface = () => document.createElement("canvas");
 
 const ease = {
   linear: t => t,

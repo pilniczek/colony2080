@@ -66,15 +66,6 @@ export class TileGrid {
     this.changes++;
   }
 
-  blocks(): Uint8Array {
-    return this.flags.slice();
-  }
-
-  adoptBlocks(flags: Uint8Array): void {
-    this.flags.set(flags);
-    this.changes++;
-  }
-
   clearBlocks(): void {
     for (let i = 0; i < this.flags.length; i++) this.flags[i]! &= ~(BLOCKED | SEE_THROUGH | GAP);
     this.changes++;
