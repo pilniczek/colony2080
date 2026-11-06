@@ -169,12 +169,12 @@ describe("bonus weapon swap", () => {
 
 describe("blaster pickup", () => {
   const spot = sandboxBlaster();
-  it("takes the E-Blaster on touch with full ammo, keeping the selected weapon", () => {
+  it("takes the E-Blaster on touch with full ammo and arms it", () => {
     for (const weapon of ["gun", "fists"] as const) {
       const g = armed(weapon, null);
       Object.assign(g.hero, spot);
       tick(g);
-      expect(g.hero).toMatchObject({ blaster: cfg.blaster.ammo, weapon });
+      expect(g.hero).toMatchObject({ blaster: cfg.blaster.ammo, weapon: "blaster", switchTo: "blaster" });
       expect(g.world.subtitle?.text).toBe("Picked up E-Blaster");
     }
   });

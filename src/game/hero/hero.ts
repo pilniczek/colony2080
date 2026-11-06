@@ -712,6 +712,7 @@ function pickup(s: Step): void {
   if (prop.kind === "weapon") {
     s.world.bonus = prop.weapon ?? "blaster";
     s.h.blaster = bonusAmmo(s.world, s.cfg);
+    if (s.h.state !== "weaponSwitch") arm(s.h, "blaster");
     say(s.world, prop.pickupText ?? `Picked up ${BONUS_NAMES[s.world.bonus]}`);
   } else if (prop.kind === "bonus") {
     prop.taken = true;

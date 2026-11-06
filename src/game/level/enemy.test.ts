@@ -467,6 +467,7 @@ describe("sandbox flyer", () => {
 
   const punchReady = (lift: number): { g: Game; e: Enemy } => {
     const g = game({ x: 40.5, y: floor });
+    g.world.props = g.world.props.filter((p) => p.kind !== "weapon");
     const e = flyerOf(g);
     Object.assign(e.body, { x: 40.5 + cfg.punch.reach, facing: -1 });
     e.patrol = [e.body.x, e.body.x];
