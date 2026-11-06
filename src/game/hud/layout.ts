@@ -33,7 +33,7 @@ const HIDE_INK_HALF = 4.6;
 export const HIDE_W = 2 * HIDE_INK_HALF * SPEAKER_SCALE;
 export const READOUT_SIZE = 5.6 * CONTENT_SCALE;
 export const MONO_ADVANCE = 0.54;
-export const WEAPON_W = [35, 20, 45.5].map((w) => w * CONTENT_SCALE);
+export const WEAPON_W = [20, 35, 45.5].map((w) => w * CONTENT_SCALE);
 export const WEAPON_GAP = 12 * CONTENT_SCALE;
 export const GRID_CELL = 3.2;
 export const SLOT = { pad: 2 * GRID_CELL, gap: WEAPON_GAP };

@@ -245,10 +245,10 @@ describe("world cues", () => {
 
   it("weapon key and auto switch cue click 20000 vol 45 on the ui bus", () => {
     const g = game({ x: 3.5, y: 8, weapon: "gun" }, arena());
-    tick(g, [], ["weapon2"]);
+    tick(g, [], ["weapon1"]);
     expect(g.hero.weapon).toBe("fists");
     expect(g.world.sounds).toEqual([{ id: "click", rate: 20000, vol: 45, bus: "ui" }]);
-    tick(g, [], ["weapon2"]);
+    tick(g, [], ["weapon1"]);
     expect(g.world.sounds).toHaveLength(1);
     const empty = game({ x: 3.5, y: 8, weapon: "gun" }, arena());
     empty.hero.ammo = 0;
@@ -257,7 +257,7 @@ describe("world cues", () => {
     expect(cues(empty, "click")).toHaveLength(1);
     const both = game({ x: 3.5, y: 8, weapon: "blaster" }, arena());
     Object.assign(both.hero, { blaster: 0 });
-    tick(both, [], ["weapon2"]);
+    tick(both, [], ["weapon1"]);
     expect(both.hero.weapon).toBe("fists");
     expect(cues(both, "click")).toHaveLength(1);
   });

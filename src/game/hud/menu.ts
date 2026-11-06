@@ -244,8 +244,8 @@ function gameOver(W: number, H: number, s: Extract<MenuState, { screen: "gameOve
 const HELP = { text: 5.2, row: 13, first: 16, leg: 6, gap: 2, tip: 1.2, head: 2.6, stroke: 0.6, line: 7, side: 8, clear: 0.3 };
 const HELP_TEXTS: Record<HudPart, string> = {
   menu: "OPENS THE MENU",
-  weapon1: "GUN, NUMBER = AMMO LEFT",
-  weapon2: "FISTS",
+  weapon1: "FISTS",
+  weapon2: "GUN, NUMBER = AMMO LEFT",
   weapon3: "E-BLASTER",
   sound: "SOUND ON / OFF",
   run: "RUN OR WALK",

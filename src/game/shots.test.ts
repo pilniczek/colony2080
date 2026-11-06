@@ -144,11 +144,11 @@ describe("hero shots", () => {
   it("keeps fists when the gun is picked with no ammo", () => {
     const g = game({ x: 10.5, y: 14, weapon: "fists" });
     g.hero.ammo = 0;
-    tick(g, [], ["weapon1"]);
+    tick(g, [], ["weapon2"]);
     run(g, 2);
     expect(g.hero).toMatchObject({ weapon: "fists", state: "idle" });
     g.hero.ammo = 5;
-    tick(g, [], ["weapon1"]);
+    tick(g, [], ["weapon2"]);
     run(g, 2);
     expect(g.hero.weapon).toBe("gun");
   });

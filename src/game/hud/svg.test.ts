@@ -19,7 +19,7 @@ describe("hudSvg", () => {
   });
 
   it("glows the active weapon and dims the others", () => {
-    const svg = hudSvg(320, 200, base, icons);
+    const svg = hudSvg(320, 200, { ...base, weapon: 1 }, icons);
     expect(count(svg, 'filter="url(#iconDim)"')).toBe(3);
     expect(svg).toContain('<g filter="url(#iconGlow)"><image href="gun.png"');
   });
@@ -173,7 +173,7 @@ describe("hudSvg", () => {
     for (const [ammo, text] of [[0, "0"], [99, "99"], [350, "350"], [109999, "109999"]] as const) {
       const m = counter(ammo)!;
       expect(m[2]).toBe(text);
-      expect(Number(m[1])).toBeCloseTo(weapons[0]! + WEAPON_W[0]!, 9);
+      expect(Number(m[1])).toBeCloseTo(weapons[1]! + WEAPON_W[1]!, 9);
     }
   });
 

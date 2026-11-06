@@ -22,7 +22,7 @@ const KEYS: HudKeys = {
 const ALARM_PULSES = 5;
 const ALARM_PULSE_MS = 700;
 
-const WEAPON_SLOTS: Record<Weapon, number> = { gun: 0, fists: 1, blaster: 2 };
+const WEAPON_SLOTS: Record<Weapon, number> = { fists: 0, gun: 1, blaster: 2 };
 
 export interface HudValues {
   energy: number;

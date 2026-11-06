@@ -376,7 +376,7 @@ function switchWeapon(s: Step, weapon: Weapon): void {
 
 function weaponSlot(s: Step): Weapon | null {
   const { h } = s;
-  const [gun, fists, blaster] = ["weapon1", "weapon2", "weapon3"].map((slot) => s.consume(slot));
+  const [fists, gun, blaster] = ["weapon1", "weapon2", "weapon3"].map((slot) => s.consume(slot));
   if (gun && ammoOf(h, "gun") > 0) return "gun";
   if (fists) return "fists";
   return blaster && ammoOf(h, "blaster") > 0 ? "blaster" : null;

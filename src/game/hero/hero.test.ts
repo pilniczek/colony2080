@@ -65,14 +65,14 @@ describe("hidden blaster switch", () => {
 
   it("holsters the blaster, then draws the gun", () => {
     const g = armed("blaster", cfg.blaster.ammo);
-    const trace = hiddenSwitch(g, "weapon1");
+    const trace = hiddenSwitch(g, "weapon2");
     expect(phases(trace)).toEqual([{ weapon: "blaster", rate: -1 }, { weapon: "gun", rate: 1 }]);
     expect(g.hero).toMatchObject({ state: "hide", hidden: true, weapon: "gun" });
   });
 
   it("holsters the blaster to fists", () => {
     const g = armed("blaster", cfg.blaster.ammo);
-    const trace = hiddenSwitch(g, "weapon2");
+    const trace = hiddenSwitch(g, "weapon1");
     expect(phases(trace.map((t) => t.rate))).toEqual([-1]);
     expect(g.hero).toMatchObject({ state: "hide", weapon: "fists" });
   });

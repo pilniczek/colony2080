@@ -257,8 +257,8 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${gridPanel(bar.menuX, bar.menuW, spans)}
   ${menuIcon(bar.menu + MENU_W / 2, s.menuOpen)}
   ${gridPanel(bar.gridX, bar.gridW, spans)}
-  ${weapon(image(icons.gun, wx[0]!, WEAPON_MID - icons.gun.h / 2), s.weapon === 0)}${counter(wx[0]! + WEAPON_W[0]!, s.ammo, "ammo")}
-  ${weapon(shrunk(icons.fist, FIST_SCALE, wx[1]!, WEAPON_MID - icons.fist.h / 2), s.weapon === 1)}
+  ${weapon(shrunk(icons.fist, FIST_SCALE, wx[0]!, WEAPON_MID - icons.fist.h / 2), s.weapon === 0)}
+  ${weapon(image(icons.gun, wx[1]!, WEAPON_MID - icons.gun.h / 2), s.weapon === 1)}${counter(wx[1]! + WEAPON_W[1]!, s.ammo, "ammo")}
   ${s.bonus ? weapon(`<g transform="translate(${wx[2]!} ${WEAPON_MID}) scale(${CONTENT_SCALE}) translate(0 ${-BLASTER_MID_Y})">${s.bonusModel === "toaster" ? toasterIcon(0) : blasterIcon(0)}</g>`, s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo, "bonusAmmo") : ""}
   ${badge(bar.badge, bar.plates[2]!)}
   ${gridPanel(bar.togglesX, bar.togglesW, spans)}
