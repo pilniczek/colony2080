@@ -282,7 +282,7 @@
     {"kind": "weapon", "weapon": "blaster", "pickupText": "You found an E-Blaster!", "x": 40.5, "y": 75, "cutscene": "pickEBlaster"},
     {"kind": "bonus", "bonus": "shield", "x": 24.5, "y": 23},
     {"kind": "bonus", "bonus": "energy", "x": 118.5, "y": 30},
-    {"kind": "object", "id": "crashedShip", "asset": "crashedShip", "art": {"dx": 1.4}, "x": 12.5, "y": 41, "width": 3, "height": 2, "shootable": {"hits": 7, "state": 1, "gives": ["flag:hullOpen"], "subtitle": "The hull cover falls off.", "cutscene": "hullCover"}, "state": 0},
+    {"kind": "object", "id": "crashedShip", "asset": "crashedShip", "art": {"dx": 1.4}, "x": 12.5, "y": 41, "width": 3, "height": 2, "shootable": {"hits": 1, "state": 1, "gives": ["flag:hullOpen"], "subtitle": "The hull cover falls off.", "cutscene": {"shot": "hullCover", "punch": "hullCoverPunch"}}, "state": 0},
     {"kind": "object", "id": "barDoor", "asset": "barDoor", "x": 39.5, "y": 37, "width": 2, "state": 0},
     {"kind": "object", "id": "damagedLift", "asset": "liftPanel", "x": 58.5, "y": 37, "width": 2, "state": 1},
     {"kind": "gate", "id": "plasmaBarrier", "asset": "plasmaBarrier", "art": {"top": 6}, "x": 102.5, "y": 44, "width": 1, "solidStates": [0], "cells": {"col": 102, "row": 38, "w": 1, "h": 6}, "state": 0},

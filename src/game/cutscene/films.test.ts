@@ -49,7 +49,7 @@ describe("films without a task", () => {
   });
 
   it("play when a shootable breaks", () => {
-    const w = loadSandbox(withProps(objectLevel, (p) => (p.id === "crane" ? { ...p, shootable: { hits: 2, state: 1, cutscene: "hullCover" } } : p)));
+    const w = loadSandbox(withProps(objectLevel, (p) => (p.id === "crane" ? { ...p, shootable: { hits: 2, state: 1, cutscene: { shot: "hullCover" } } } : p)));
     const crane = w.props.find((p) => p.id === "crane")!;
     hitShootable(w, crane);
     expect(w.cutscene).toBeNull();

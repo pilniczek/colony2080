@@ -7,7 +7,7 @@ import type { ClipSet, MovementConfig } from "./hero/config";
 import type { Hero, HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
 import { bodyBox, hitEnemy, isDead, shotBox, type Enemy } from "./level/enemy";
-import { startFilm, type Prop, type SandboxWorld } from "./level/sandboxLevel";
+import { startFilm, type Prop, type SandboxWorld, type Strike } from "./level/sandboxLevel";
 import { repelHero, updateGuard } from "./level/guards";
 import { flyMissile, launchMissile } from "./level/missiles";
 import { live, tick } from "./level/projectile";
@@ -127,7 +127,7 @@ function propFace(prop: Prop, ray: Ray, beam: boolean): number | null {
   return faceOf(ray, prop.x - half, prop.x + half);
 }
 
-export function hitShootable(world: SandboxWorld, prop: Prop): void {
+export function hitShootable(world: SandboxWorld, prop: Prop, by: Strike = "shot"): void {
   const { shootable: spec } = prop;
   if (!spec || !shootable(prop)) return;
   prop.hitsTaken = (prop.hitsTaken ?? 0) + 1;
@@ -138,7 +138,7 @@ export function hitShootable(world: SandboxWorld, prop: Prop): void {
   for (const flag of spec.gives ?? []) world.flags.add(flag);
   applyBlocks(world);
   if (spec.subtitle) say(world, spec.subtitle);
-  startFilm(world, spec.cutscene);
+  startFilm(world, spec.cutscene?.[by]);
 }
 
 function nearestProp(world: SandboxWorld, ray: Ray, beam = false): { prop: Prop; face: number } | null {
@@ -154,15 +154,15 @@ function harm(world: SandboxWorld, enemy: Enemy, damage: number, react?: boolean
   if (hitEnemy(enemy, damage, react) && isDead(enemy)) explode(world);
 }
 
-function strike(world: SandboxWorld, cfg: MovementConfig, ray: Ray, damage: number, props: boolean, span?: Span): boolean {
+function strike(world: SandboxWorld, cfg: MovementConfig, ray: Ray, damage: number, by: Strike, span?: Span): boolean {
   let struck: { enemy: Enemy; face: number } | null = null;
   for (const enemy of world.enemies) {
     const face = enemyFace(enemy, cfg, ray, span);
     if (face !== null && (!struck || Math.abs(face - ray.from) < Math.abs(struck.face - ray.from))) struck = { enemy, face };
   }
-  const prop = props ? nearestProp(world, ray) : null;
+  const prop = nearestProp(world, ray);
   if (prop && (!struck || Math.abs(prop.face - ray.from) < Math.abs(struck.face - ray.from))) {
-    hitShootable(world, prop.prop);
+    hitShootable(world, prop.prop, by);
     spark(world, prop.face, ray.y);
     return true;
   }
@@ -176,7 +176,7 @@ export function fireShots(world: SandboxWorld, h: Hero, events: HeroEvent[], cli
   for (const e of events) {
     if (e.kind !== "shot") continue;
     const { ray, wall } = openRay(world, h, heroMuzzle(h, clips, cfg)[1], cfg);
-    if (!strike(world, cfg, ray, cfg.shot.damage, true) && wall === ray.end) spark(world, wall, ray.y);
+    if (!strike(world, cfg, ray, cfg.shot.damage, "shot") && wall === ray.end) spark(world, wall, ray.y);
   }
 }
 
@@ -325,7 +325,7 @@ export function landPunches(world: SandboxWorld, h: Hero, events: HeroEvent[], c
     const y = h.y - cfg.box.duckHeight / 2;
     const height = h.state === "duckAttack" ? cfg.box.duckHeight : cfg.box.height;
     const ray: Ray = { from: h.x, y, dir: h.facing, end: sightEdge(world, h.x, y, h.facing, fist) };
-    strike(world, cfg, ray, cfg.punch.damage, false, [h.y - height, h.y]);
+    strike(world, cfg, ray, cfg.punch.damage, "punch", [h.y - height, h.y]);
   }
 }
 

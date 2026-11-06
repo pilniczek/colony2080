@@ -309,6 +309,35 @@ describe("shootable props", () => {
     run(g, 0.5);
     expect(shipOf(g).hitsTaken).toBe(1);
   });
+
+  const films = { shot: "hullCover", punch: "pickCrowbar" } as const;
+  const puncher = (props: unknown[]): Game => game({ x: 7, y: 8, weapon: "fists" }, { ...objectLevel, props });
+  const punch = (g: Game): void => {
+    tick(g, ["shoot"], ["shoot"]);
+    run(g, 0.2, ["shoot"]);
+  };
+
+  it("breaks at its hit count under fists too", () => {
+    const g = puncher([{ ...ship, shootable: { ...ship.shootable, hits: 1 } }]);
+    punch(g);
+    expect(shipOf(g).state).toBe(1);
+    expect(g.world.flags.has("flag:hullOpen")).toBe(true);
+  });
+
+  it("plays its punch film when punched and its shot film when shot", () => {
+    const punched = puncher([{ ...ship, shootable: { ...ship.shootable, hits: 1, cutscene: films } }]);
+    punch(punched);
+    expect(punched.world.cutscene?.id).toBe("pickCrowbar");
+    const shot = shooter([{ ...ship, shootable: { ...ship.shootable, hits: 1, cutscene: films } }]);
+    tick(shot, ["shoot"], ["shoot"]);
+    expect(shot.world.cutscene?.id).toBe("hullCover");
+  });
+
+  it("takes no punch when only a beam breaks it", () => {
+    const g = puncher([{ ...ship, shootable: { ...ship.shootable, by: "beam" } }]);
+    punch(g);
+    expect(shipOf(g).hitsTaken).toBeUndefined();
+  });
 });
 
 describe("blaster beam", () => {

@@ -166,9 +166,9 @@ describe("mesto props", () => {
     }
   });
 
-  it("opens the ship hull by gunfire", () => {
+  it("opens the ship hull on the first shot or punch, with a film for each", () => {
     const ship = props.find((p) => p.id === "crashedShip")!;
-    expect(ship.shootable).toMatchObject({ hits: 7, state: 1, gives: ["flag:hullOpen"] });
+    expect(ship.shootable).toMatchObject({ hits: 1, state: 1, gives: ["flag:hullOpen"], cutscene: { shot: "hullCover", punch: "hullCoverPunch" } });
     expect(typeof ship.shootable!.subtitle).toBe("string");
   });
 

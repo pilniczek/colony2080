@@ -2764,11 +2764,14 @@ exports[`missions > mesto json is unchanged 1`] = `
       "id": "crashedShip",
       "kind": "object",
       "shootable": {
-        "cutscene": "hullCover",
+        "cutscene": {
+          "punch": "hullCoverPunch",
+          "shot": "hullCover",
+        },
         "gives": [
           "flag:hullOpen",
         ],
-        "hits": 7,
+        "hits": 1,
         "state": 1,
         "subtitle": "The hull cover falls off.",
       },

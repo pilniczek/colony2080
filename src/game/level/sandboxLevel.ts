@@ -17,6 +17,8 @@ import { loadQuests, type Quest } from "./quests";
 import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
 import { terrain, type Rect as CellRect } from "./terrain";
 
+export type Strike = "shot" | "punch";
+
 export interface Prop {
   kind: string;
   x: number;
@@ -39,7 +41,7 @@ export interface Prop {
   seeThrough?: boolean;
   cells?: { col: number; row: number; w: number; h: number };
   cover?: Cover;
-  shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string; by?: "beam"; cutscene?: CutsceneId };
+  shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string; by?: "beam"; cutscene?: Partial<Record<Strike, CutsceneId>> };
   cutscene?: CutsceneId;
   approach?: { cells: number; cutscene: CutsceneId; gives: string };
   hitsTaken?: number;
@@ -249,7 +251,7 @@ function checkedProp(prop: Prop): Prop {
   if (prop.kind === "bonus" && !(BONUS_KINDS as readonly string[]).includes(prop.bonus ?? "")) throw new Error(`unknown bonus: ${prop.bonus}`);
   if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
   if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
-  for (const id of [prop.cutscene, prop.shootable?.cutscene, prop.approach?.cutscene, prop.repels?.cutscene]) if (id !== undefined && !isCutsceneId(id)) throw new Error(`unknown cutscene: ${id}`);
+  for (const id of [prop.cutscene, prop.shootable?.cutscene?.shot, prop.shootable?.cutscene?.punch, prop.approach?.cutscene, prop.repels?.cutscene]) if (id !== undefined && !isCutsceneId(id)) throw new Error(`unknown cutscene: ${id}`);
   const copy = structuredClone(prop);
   if (copy.kind === "weapon") copy.asset ??= WEAPON_ASSETS[copy.weapon!];
   if (copy.kind === "bonus") copy.asset ??= BONUS_ASSETS[copy.bonus!];
