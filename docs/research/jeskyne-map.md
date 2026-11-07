@@ -264,6 +264,18 @@ Step 5, in `config/levels/jeskyne/world.json` (`props`) and `config/levels/jesky
 
 Map changes of this phase (`levelmap.py`): the carts run at 5.5 cells/s (0.75 of the original, the ratio of our run to the original run), the lift 1 halves say their lock hint, and the middle platform over chasm 8 is two cells wide (cols 98-99, the original rock post): a running jump from floor 21 west reached the one-cell platform only with a 0.1-cell timing window.
 
+Fall rule (user): a fall of more than 7 rows kills in every mission, so `levelmap.py` adds seven one-way step ledges where the route dropped further. Each catches the fall and the hero walks off its other end to the old landing; walls hanging above a ledge end keep that end open.
+
+| Drop | Ledge | Check |
+|---|---|---|
+| floor 20 to 28, the rod | row 26, cols 15-18 | `moveto(17,26)` |
+| floor 28 to 36, the lift lock | row 33, cols 32-35 | `moveto(34,33)` |
+| floor 43 to 55 | row 49, cols 35-38 | `moveto(37,49)` |
+| floor 29 east end to 39 | row 34, cols 104-105 | `moveto(105,34)` |
+| floor 40 west end to the entry card stair | row 46, cols 86-88, then the col 89 rock top (row 48) | `moveto(87,46)` |
+| floor 40 east end to 48, the entry card | row 46, cols 132-134 | `moveto(133,46)` |
+| floor 51 to 64, the key route | row 57, cols 77-79 | `moveto(78,57)` |
+
 Play check (headless, `moveto` hops): the levers open door 1 and lever 1 closes it again, the rod releases the lock, both lift 1 halves and lift 2 ride, the stalactite shot smashes the crystal and shows the tank, 10 punches break the blocks, the tank shot opens floor 21 east, the levers open doors 3 and 4, three keys open door 12, the card opens the card door, and walking or jumping into the exit zone closes the airlocks and ends the level. Both warnings fire for a jumping hero. Running on the carts gains about 0.4 cells/s on them; running jumps reach the west end in a few seconds.
 
 Open items:

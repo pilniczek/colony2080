@@ -290,7 +290,7 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
   },
   jeskyne: {
     byTask: {
-      "behind lever door 1, the lever bank opens it": ["20,19", "28,15", "36,24", "43,20", "55,35"],
+      "behind lever door 1, the lever bank opens it": ["20,19", "26,15", "28,15", "33,32", "36,24", "43,20", "49,35", "55,35"],
       "behind lift 1, the rod unlocks it (report 16 lift lock); the generous model also passes the crystal (a running jump over the lift 1 upper shaft down to floor 37), the lever doors and the card door, so they open with the rod too": [
         ...["15,93", "16,126", "17,128", "18,126", "19,127", "20,47", "20,125", "21,89", "21,98", "21,101", "21,122", "21,132", "22,133"],
         ...["23,85", "23,135", "24,92", "24,134", "25,133", "26,135", "27,133", "28,134", "29,49", "29,55", "29,64", "29,75", "29,135"],
@@ -299,17 +299,18 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
         ...["53,117", "54,90", "54,120", "55,92", "55,116", "56,90", "56,116", "57,93", "58,92", "59,87", "59,110", "60,88", "60,108"],
         ...["61,86", "61,110", "62,88", "62,109", "63,16", "63,87", "63,111", "64,64", "64,86", "64,110", "65,88", "65,105", "66,86"],
         ...["66,100", "67,62", "74,21", "74,45", "74,50", "74,53", "74,56", "74,63", "74,66", "74,69", "74,76", "74,93", "74,105"],
+        ...["34,104", "46,86", "46,132", "48,89", "57,77"],
       ],
       "behind the stone blocks: floor 23 with the orange key": ["23,71"],
     },
     never: {
       "marker 13 energy ledge under floor 63, an exact jump (report 16 dead end 2)": ["72,16"],
-      "rock tops nobody reaches: hanging wall columns 76 and 89, kept hanging so falls pass them (requirements.md)": ["39,76", "48,89"],
+      "rock top nobody reaches: hanging wall column 76, kept hanging so falls pass it (requirements.md)": ["39,76"],
     },
   },
 };
 
-const START_CHAIN = ["28,15", "36,24", "43,20", "55,35"];
+const START_CHAIN = ["26,15", "28,15", "33,32", "36,24", "43,20", "49,35", "55,35"];
 
 function leversPulled(w: SandboxWorld): SandboxWorld {
   for (const lever of ["bankLever2", "bankLever3", "bankLever4"]) runUse(w, w.props.find((p) => p.id === lever)!);
