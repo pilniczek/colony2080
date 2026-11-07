@@ -18,8 +18,8 @@ function parseTf(str) {
   if (!str) return m;
   for (const [, op, raw] of str.matchAll(/(\w+)\(([^)]*)\)/g)) {
     const a = raw.trim().split(/[\s,]+/).map(Number);
-    if (op === "translate") m.translateSelf(a[0], a[1] || 0);
-    else if (op === "scale") m.scaleSelf(a[0], a.length > 1 ? a[1] : a[0]);
+    if (op === "translate") m.multiplySelf(new DOMMatrix([1, 0, 0, 1, a[0], a[1] || 0]));
+    else if (op === "scale") m.multiplySelf(new DOMMatrix([a[0], 0, 0, a.length > 1 ? a[1] : a[0], 0, 0]));
     else if (op === "rotate") m.translateSelf(a[1] || 0, a[2] || 0).rotateSelf(a[0]).translateSelf(-(a[1] || 0), -(a[2] || 0));
   }
   return m;
@@ -179,6 +179,8 @@ const FORE_SHIFT = PR.forearmShift;
 const SHOULDER_IN = PR.shoulderIn;
 const BADGE_R = PR.badgeRadius;
 const FOREARM_SX = PR.forearmScaleX;
+const FORE_S = PR.forearmScale;
+const HOLD_TF = `scale(${1 / FORE_S})`;
 const SIDE_TORSO_SX = PR.sideTorsoScaleX;
 const SS = PR.sideShoulder;
 const SIDE_SHOULDER_TF = `translate(${SS.cx} ${SS.cy}) scale(${SS.scaleX} ${SS.scaleY}) translate(${-SS.cx} ${-SS.cy})`;
@@ -279,17 +281,17 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   const sh = mirror ? [2 * AX - 100, 150] : [100, 150];
   const el = mirror ? [2 * AX - 90, 306] : [90, 306];
   const arm = G(parent, null, names.arm, sh);
-  const foreTf = `translate(${mirror ? -FORE_SHIFT : FORE_SHIFT} -22)`;
+  const foreTf = `translate(${mirror ? -FORE_SHIFT : FORE_SHIFT} -22) translate(${el[0]} ${el[1]}) scale(${FORE_S}) translate(${-el[0]} ${-el[1]})`;
   const under = foreUnder ? G(arm, foreTf, names.fore, el) : null;
   P(G(arm, `translate(${mirror ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
   const fore = under || G(foreParent ? G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirror ? 2 * AX - 89 : 89;
-  if (names.hand && propBehindArm) hook(G(fore, `translate(${fc} 440)`), names.hand);
+  if (names.hand && propBehindArm) hook(G(fore, `translate(${fc} 440) ${HOLD_TF}`), names.hand);
   const fa = G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
   P(fa, { pts: M(forearm), r: 1 });
   F(fa, M([[30, 354], [150, 352], [150, 356], [30, 358]]), "a0");
   F(fa, M([[30, 374], [150, 372], [150, 376], [30, 378]]), "a0");
-  const hand = G(fore, `translate(${mirror ? 2 * AX - 89 : 89} 440)`);
+  const hand = G(fore, `translate(${mirror ? 2 * AX - 89 : 89} 440) ${HOLD_TF}`);
   if (names.hand && !propBehindArm) hook(hand, names.hand);
   const hc = mirror ? 2 * AX - 89 : 89;
   frontHand(fore, flipHand ? p => mirrorPts(M(p), hc) : M, thumbFront);
@@ -425,13 +427,13 @@ function sideHand(parent) {
 function sideArm(parent, names, extra) {
   const arm = G(parent, "translate(2 -4)", names.arm, [300, 150], extra);
   P(arm, { pts: [[288, 274], [334, 274], [334, 294], [288, 294]], mat: "metal", shade: "cyl", r: 1 });
-  const lower = G(arm, "translate(0 -22) rotate(-18 311 288)", names.fore, [311, 288]);
-  if (names.hand && extra?.propBehindArm) hook(G(lower, "translate(312 438)"), names.hand);
+  const lower = G(arm, `translate(0 -22) rotate(-18 311 288) translate(311 288) scale(${FORE_S}) translate(-311 -288)`, names.fore, [311, 288]);
+  if (names.hand && extra?.propBehindArm) hook(G(lower, `translate(312 438) ${HOLD_TF}`), names.hand);
   const fa = G(lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
   P(fa, { pts: [[262, 290], [358, 286], [366, 302], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
   F(fa, [[264, 352], [366, 350], [366, 354], [264, 356]], "a0");
   F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
-  const hand = G(lower, "translate(312 438)");
+  const hand = G(lower, `translate(312 438) ${HOLD_TF}`);
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
   sideHand(lower);
   const bulbs = G(arm, SIDE_SHOULDER_TF);

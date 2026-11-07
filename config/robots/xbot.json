@@ -16,6 +16,7 @@
     "forearmShift": 10,
     "shoulderIn": 20,
     "forearmScaleX": 0.86,
+    "forearmScale": 0.8,
     "badgeRadius": 26,
     "sideTorsoScaleX": 0.8,
     "sideShoulder": { "cx": 306, "cy": 96, "scaleX": 0.75, "scaleY": 0.92 }

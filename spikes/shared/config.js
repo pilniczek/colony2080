@@ -292,6 +292,7 @@ window.C28_CONFIG = {
     "forearmShift": 10,
     "shoulderIn": 20,
     "forearmScaleX": 0.86,
+    "forearmScale": 0.8,
     "badgeRadius": 26,
     "sideTorsoScaleX": 0.8,
     "sideShoulder": {
