@@ -18,6 +18,11 @@
     "detonator": { "name": "detonator", "cs": "Rozbuška", "icon": { "asset": "detonator", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRROZB.GRA" },
     "dynamite": { "name": "dynamite", "cs": "Dynamit", "icon": { "asset": "dynamite", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRDYNA.GRA" },
     "navCircuit": { "name": "nav circuit", "cs": "Nav. obvod", "icon": { "asset": "navCircuit", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRNAV.GRA" },
-    "fuse": { "name": "fuse", "cs": "Pojistka", "icon": { "asset": "fuse", "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRPOJ.GRA" }
+    "fuse": { "name": "fuse", "cs": "Pojistka", "icon": { "asset": "fuse", "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRPOJ.GRA" },
+    "rod": { "name": "rod", "cs": "Tyč", "icon": { "asset": "rod", "tilt": 45, "scale": 1.25 }, "preview": "GRAFIKA/PRTYC2.GRA" },
+    "yellowKey": { "name": "yellow key", "cs": "Žlutý klíč", "icon": { "asset": "yellowKey", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRKLIC41.GRA" },
+    "orangeKey": { "name": "orange key", "cs": "Oranžový klíč", "icon": { "asset": "orangeKey", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRKLIC42.GRA" },
+    "blueKey": { "name": "blue key", "cs": "Modrý klíč", "icon": { "asset": "blueKey", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRKLIC43.GRA" },
+    "entryCard": { "name": "entry card", "cs": "Vstupní karta", "icon": { "asset": "entryCard", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRKLIC44.GRA" }
   }
 }

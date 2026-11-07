@@ -171,6 +171,56 @@ window.C28_CONFIG = {
     "scale": 1.25
    },
    "preview": "GRAFIKA/PRPOJ.GRA"
+  },
+  "rod": {
+   "name": "rod",
+   "cs": "Tyč",
+   "icon": {
+    "asset": "rod",
+    "tilt": 45,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRTYC2.GRA"
+  },
+  "yellowKey": {
+   "name": "yellow key",
+   "cs": "Žlutý klíč",
+   "icon": {
+    "asset": "yellowKey",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC41.GRA"
+  },
+  "orangeKey": {
+   "name": "orange key",
+   "cs": "Oranžový klíč",
+   "icon": {
+    "asset": "orangeKey",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC42.GRA"
+  },
+  "blueKey": {
+   "name": "blue key",
+   "cs": "Modrý klíč",
+   "icon": {
+    "asset": "blueKey",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC43.GRA"
+  },
+  "entryCard": {
+   "name": "entry card",
+   "cs": "Vstupní karta",
+   "icon": {
+    "asset": "entryCard",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC44.GRA"
   }
  },
  "robots": {
@@ -8976,6 +9026,50 @@ window.C28_CONFIG = {
       ]
      },
      {
+      "id": "shaftHead",
+      "name": "Lift shaft head",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Support role, dressing at the top of every lift shaft, centred on the shaft. Three dark green guide rods rise from a riveted green-grey clamp bar and fade into the dark; under the bar the lift chains run down and a mossy grey stone counterweight in an iron band hangs on the middle chain. One cell wide in the original (tiles over the shaft centre column), 3-4 rows above the top stop: cells 45 rows 15-18 (lift 2), 50 rows 24-26 (lift 1), 73 rows 24-26 (lift 3), 83 rows 16-18 (lift 4), 98 rows 59-61 (lift 5), 128 rows 50-52 (lift 6).",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1032,
+         312,
+         120,
+         168
+        ],
+        "caption": "map M41: lift 2 shaft head, cols 43-47 rows 13-19"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1920,
+         336,
+         144,
+         120
+        ],
+        "caption": "map M41: lift 4 shaft head, cols 80-85 rows 14-18"
+       }
+      ],
+      "sizes": []
+     },
+     {
       "id": "stalactite",
       "name": "Stalactite",
       "csName": "krápník",
@@ -11098,6 +11192,12 @@ window.C28_CONFIG = {
         ],
         "caption": "map: lattice tower"
        }
+      ],
+      "sizes": [
+       [
+        2,
+        6
+       ]
       ]
      },
      {
@@ -11201,6 +11301,12 @@ window.C28_CONFIG = {
         ],
         "caption": "demo: cave with capsule"
        }
+      ],
+      "sizes": [
+       [
+        3,
+        8
+       ]
       ]
      },
      {
@@ -11239,7 +11345,11 @@ window.C28_CONFIG = {
       "task": null,
       "sheet": "structures",
       "description": "Stacked rock ledges at cells 22-47, rows 20-37, one row apart: the hero climbs them with the jump (32 px rise) and drops between them (gravity).",
-      "states": [],
+      "states": [
+       "mass",
+       "overhang",
+       "cave"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M31.png",
@@ -11269,6 +11379,12 @@ window.C28_CONFIG = {
         ],
         "caption": "demo: rock ledges"
        }
+      ],
+      "sizes": [
+       [
+        6,
+        8
+       ]
       ]
      },
      {
@@ -11307,7 +11423,10 @@ window.C28_CONFIG = {
       "task": null,
       "sheet": "structures",
       "description": "Vertical girder at the west map edge (cell 22, rows 15-37); the west wall table entries (x 17) stop the hero here. Also the 1 cell riveted post under every girder platform (h in cells).",
-      "states": [],
+      "states": [
+       "wall stack",
+       "short post"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M31.png",
@@ -11323,6 +11442,16 @@ window.C28_CONFIG = {
         ],
         "caption": "map: girder column"
        }
+      ],
+      "sizes": [
+       [
+        1,
+        6
+       ],
+       [
+        1,
+        2
+       ]
       ]
      },
      {
@@ -11367,7 +11496,155 @@ window.C28_CONFIG = {
       ]
      },
      {
-      "id": "carWreck",
+      "id": "excavator",
+      "name": "Red excavator",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Abandoned mining excavator over the spawn at cells 131-137, rows 22-24.",
+      "states": [],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M31.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         3120,
+         504,
+         216,
+         120
+        ],
+        "caption": "map: excavator"
+       }
+      ]
+     },
+     {
+      "id": "jungleBuilding",
+      "name": "Overgrown building",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Small concrete buildings with barred windows on plank rows 20 and 32 (cells 37-44 and 50-57). State 1 adds a steel door and a roof vent with an antenna mast, state 2 a scorched shell hole with rubble below; sized by w and h.",
+      "states": [
+       "plain",
+       "door and roof vent",
+       "shell hole",
+       "two storeys"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M31.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1176,
+         648,
+         216,
+         144
+        ],
+        "caption": "map: building on row 32"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M31.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         888,
+         360,
+         192,
+         144
+        ],
+        "caption": "map: building on row 25"
+       }
+      ],
+      "sizes": [
+       [
+        5,
+        4
+       ],
+       [
+        12,
+        6
+       ]
+      ]
+     },
+     {
+      "id": "chainFence",
+      "name": "Fence",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Fence beside the door building on plank row 41; same as mesto.",
+      "states": [
+       "chain-link, toxic sign",
+       "mesh, sign plate",
+       "mesh, torn",
+       "mesh, overgrown"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M31.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2592,
+         912,
+         240,
+         96
+        ],
+        "caption": "map: fence"
+       }
+      ],
+      "sizes": [
+       [
+        3,
+        2
+       ]
+      ]
+     },
+     {
+      "id": "jungleSky",
+      "name": "Parallax sky",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Jungle backdrop from LEV3.GRA frame 0, scrolls slower than the playfield. Our variant: misty teal forest of trunk silhouettes, canopy blobs and mist bands, dark under the floors.",
+      "states": [],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/LEV3_f0.png",
+        "imgSize": [
+         320,
+         200
+        ],
+        "crop": [
+         0,
+         0,
+         320,
+         170
+        ],
+        "caption": "LEV3.GRA frame 0"
+       }
+      ]
+     },
+     {
+      "id": "overgrownWreck",
       "name": "Car wreck",
       "csName": null,
       "interactive": false,
@@ -11375,7 +11652,11 @@ window.C28_CONFIG = {
       "task": null,
       "sheet": "machines",
       "description": "Orange wrecked car at cells 103-109, rows 38-40, by the canister.",
-      "states": [],
+      "states": [
+       "sedan",
+       "pickup",
+       "jeep shell"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M31.png",
@@ -11408,42 +11689,18 @@ window.C28_CONFIG = {
       ]
      },
      {
-      "id": "excavator",
-      "name": "Red excavator",
-      "csName": null,
-      "interactive": false,
-      "marker": null,
-      "task": null,
-      "sheet": "machines",
-      "description": "Abandoned mining excavator over the spawn at cells 131-137, rows 22-24.",
-      "states": [],
-      "refs": [
-       {
-        "path": "docs/research/gamedata/png/maps/map_M31.png",
-        "imgSize": [
-         3840,
-         1920
-        ],
-        "crop": [
-         3120,
-         504,
-         216,
-         120
-        ],
-        "caption": "map: excavator"
-       }
-      ]
-     },
-     {
-      "id": "fuelTank",
-      "name": "Fuel tank",
+      "id": "chemTank",
+      "name": "Chemical tank",
       "csName": null,
       "interactive": false,
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Cylindrical tank on the camp floor by the waterfall (cells 85-89, row 19); same kind as mesto.",
-      "states": [],
+      "description": "Chrome horizontal tank with dome ends, orange valve saddles and a trefoil, single on the camp floor by the waterfall (cells 85-89, row 19) and a stacked pair at 58-72 r27-31.",
+      "states": [
+       "single",
+       "stacked pair"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M31.png",
@@ -11476,103 +11733,319 @@ window.C28_CONFIG = {
       ]
      },
      {
-      "id": "jungleBuilding",
-      "name": "Overgrown building",
-      "csName": null,
+      "id": "farTrees",
+      "name": "Far trees",
       "interactive": false,
       "marker": null,
       "task": null,
       "sheet": "buildings",
-      "description": "Small concrete buildings with barred windows on plank rows 20 and 32 (cells 37-44 and 50-57). State 1 adds a steel door and a roof vent with an antenna mast, state 2 a scorched shell hole with rubble below; sized by w and h.",
+      "origin": "new",
+      "description": "Flat dark trunk silhouettes `#0c3024` with canopy blobs `#184830`, under the haze; tall enough to pass behind the floor above.",
       "states": [
-       "plain",
-       "door and roof vent",
-       "shell hole"
+       "trunks",
+       "trunks with vines"
       ],
-      "refs": [
-       {
-        "path": "docs/research/gamedata/png/maps/map_M31.png",
-        "imgSize": [
-         3840,
-         1920
-        ],
-        "crop": [
-         1176,
-         648,
-         216,
-         144
-        ],
-        "caption": "map: building on row 32"
-       },
-       {
-        "path": "docs/research/gamedata/png/maps/map_M31.png",
-        "imgSize": [
-         3840,
-         1920
-        ],
-        "crop": [
-         888,
-         360,
-         192,
-         144
-        ],
-        "caption": "map: building on row 25"
-       }
+      "refs": [],
+      "sizes": [
+       [
+        3,
+        6
+       ],
+       [
+        6,
+        10
+       ]
       ]
      },
      {
-      "id": "chainFence",
-      "name": "Fence",
-      "csName": null,
+      "id": "farTowerRuin",
+      "name": "Far tower ruin",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "origin": "new",
+      "description": "Flat dark silhouettes `#0c3018` of an overgrown lattice tower and a broken bunker with vines.",
+      "states": [
+       "lattice tower",
+       "bunker ruin"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        4,
+        8
+       ]
+      ]
+     },
+     {
+      "id": "cobbleFill",
+      "name": "Cobble fill",
       "interactive": false,
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Fence beside the door building on plank row 41; same as mesto.",
-      "states": [],
-      "refs": [
-       {
-        "path": "docs/research/gamedata/png/maps/map_M31.png",
-        "imgSize": [
-         3840,
-         1920
-        ],
-        "crop": [
-         2592,
-         912,
-         240,
-         96
-        ],
-        "caption": "map: fence"
-       }
+      "origin": "new",
+      "description": "Rounded stones in staggered courses, two per cell: `#3c3c30`, `#3c483c`, `#303c3c`, light `#545448`, dark green grout `#182418`; mossy state adds moss tufts. World-anchored pattern like vesnice `stoneWall`.",
+      "states": [
+       "plain",
+       "mossy"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        5,
+        3
+       ],
+       [
+        2,
+        6
+       ]
       ]
      },
      {
-      "id": "jungleSky",
-      "name": "Parallax sky",
-      "csName": null,
+      "id": "jungleWalkway",
+      "name": "Jungle walkway",
       "interactive": false,
       "marker": null,
       "task": null,
-      "sheet": "buildings",
-      "description": "Jungle backdrop from LEV3.GRA frame 0, scrolls slower than the playfield. Our variant: misty teal forest of trunk silhouettes, canopy blobs and mist bands, dark under the floors.",
-      "states": [],
-      "refs": [
-       {
-        "path": "docs/research/gamedata/png/LEV3_f0.png",
-        "imgSize": [
-         320,
-         200
-        ],
-        "crop": [
-         0,
-         0,
-         320,
-         170
-        ],
-        "caption": "LEV3.GRA frame 0"
-       }
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Top half: alternating olive X-plate (`#484830`, `#303024`) and grey stone blocks (`#606054`, `#786c60`), a beaded orange-yellow trim strip under it; boulder state hangs a row of pale boulders (`#84786c`, light `#909078`, shade `#303024`); cave state a dark green band `#182418` with thin teal lines `#18483c`.",
+      "states": [
+       "boulder",
+       "cave",
+       "plain"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        3,
+        1
+       ]
       ]
+     },
+     {
+      "id": "plankBridge",
+      "name": "Plank bridge",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Riveted olive-brown top band `#483c24` with bolts and box insets, two brown planks `#604824`, `#6c3c18` under it, dark lower edge; ends rest on `girderColumn` posts.",
+      "states": [],
+      "refs": [],
+      "sizes": [
+       [
+        3,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "brassDeck",
+      "name": "Brass deck",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Two rows: brass L-brackets `#6c6030` with bright edges `#e4c048`, teal-grey panels `#243030`, `#3c483c`, small white lamp slots, dark legs.",
+      "states": [],
+      "refs": [],
+      "sizes": [
+       [
+        3,
+        2
+       ]
+      ]
+     },
+     {
+      "id": "brickRuin",
+      "name": "Brick ruin",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Dark brown bricks `#483024`, `#60543c`, `#6c603c` with a stepped broken top falling to one side, scorch and dirt.",
+      "states": [
+       "stepped break",
+       "low stub"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        3,
+        3
+       ],
+       [
+        8,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "stoneStack",
+      "name": "Stone stack",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Flat grey-tan boulders stacked and balanced, each slightly offset, moss on the top stone (`STONE` palette).",
+      "states": [
+       "3 stones",
+       "5 stones"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        2,
+        3
+       ]
+      ]
+     },
+     {
+      "id": "coolantPipe",
+      "name": "Coolant pipe",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Teal pipe `#18483c` with a light stripe `#3c8478`, steel posts `#546060` every cell, a brown lower plate `#3c3018`; vertical state a thin silver pipe.",
+      "states": [
+       "horizontal",
+       "vertical",
+       "L bend"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        8,
+        2
+       ]
+      ]
+     },
+     {
+      "id": "rockDebris",
+      "name": "Rock debris",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Loose stones and short broken trunk pieces `#604824` on a ledge.",
+      "states": [
+       "stones",
+       "stones with wood"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        3,
+        3
+       ]
+      ]
+     },
+     {
+      "id": "deckRailing",
+      "name": "Deck railing",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Brass handrail `#9c6c3c` with highlights `#e4c048`, dark girder posts, two rails.",
+      "states": [
+       "rail",
+       "bent"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        8,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "fernBush",
+      "name": "Fern bush",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "The berry bush at 54 r35 (`#304818`, `#3c6018`, `#243c18`, red berries) and the demo ferns, from `fern`, `frond`, `leafBlob`. Never reads like a pickup.",
+      "states": [
+       "fern",
+       "berry bush",
+       "broad leaf"
+      ],
+      "refs": []
+     },
+     {
+      "id": "logPile",
+      "name": "Log pile",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Cut logs, bark `#604824`, pale cut faces `#9c846c` with rings, moss.",
+      "states": [
+       "stack",
+       "single"
+      ],
+      "refs": []
+     },
+     {
+      "id": "oilDrum",
+      "name": "Oil drum",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Rust-brown drum `#604824` with moss `#3c6018`, a dark leak pool when tipped. Not light brown, so it never reads as the crate.",
+      "states": [
+       "upright",
+       "tipped leaking"
+      ],
+      "refs": []
+     },
+     {
+      "id": "rockVent",
+      "name": "Rock vent",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "origin": "new",
+      "description": "Oval steel rim `#546060` with horizontal slats in a rock face, rust drips; open state a dark hole with a bent slat.",
+      "states": [
+       "closed",
+       "rusted open"
+      ],
+      "refs": []
+     },
+     {
+      "id": "energySign",
+      "name": "Energy sign",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Yellow octagon `#e4c048` with a black E on a short bracket, rust at the edge.",
+      "states": [
+       "lit",
+       "faded"
+      ],
+      "refs": []
      }
     ]
    }
@@ -14968,7 +15441,8 @@ window.C28_CONFIG = {
       "states": [
        "chain-link, toxic sign",
        "mesh, sign plate",
-       "mesh, torn"
+       "mesh, torn",
+       "mesh, overgrown"
       ],
       "refs": [
        {
