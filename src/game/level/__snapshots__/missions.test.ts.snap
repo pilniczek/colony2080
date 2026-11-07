@@ -1916,7 +1916,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -1945,7 +1945,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -1974,7 +1974,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2003,7 +2003,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2032,7 +2032,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2061,7 +2061,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2090,7 +2090,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2119,7 +2119,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2148,7 +2148,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2177,7 +2177,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2206,7 +2206,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2235,7 +2235,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2264,7 +2264,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2293,7 +2293,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2322,7 +2322,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2351,7 +2351,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
@@ -2380,7 +2380,7 @@ exports[`missions > mesto json is unchanged 1`] = `
         "climb": 3,
         "closeCells": 3,
         "hoverLift": 2.8,
-        "speedScale": 2,
+        "speedScale": 2.4,
         "wave": {
           "cells": 0.25,
           "hz": 0.4,
