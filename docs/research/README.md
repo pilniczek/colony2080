@@ -2,6 +2,8 @@
 
 Research base for the colony2080 clone. Collected 2026-10-16 by parallel research agents. Every fact in `reports/` cites its source.
 
+A fact seen only in a video or review is a guess about the rule behind it. Before a game rule, gate or item behaviour rests on such a fact, check it in the disassembly (`gamedata/disasm/`, local only). Report 08 read the map screen as needing the holo plan because the plan was in hand in one clip; the code has no such check, and the gate built on it, with its HUD state, hint and item flag, was dead weight (removed 2026-11-07).
+
 ## What the game is
 
 - 1996/97 Czech MS-DOS cinematic side-scroller (5th Dimension / Napoleon Games), in the style of Another World and Flashback.
