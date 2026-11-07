@@ -31,8 +31,8 @@ const D = Math.PI / 180;
 export const LEG = { hipY: 344, farX: -24, thigh: 178, shin: 178, ankleY: 700, heel: 80 };
 
 export const RUN: Gait = {
-  cycle: 0.66, speed: 300, stance: 0.34, reach: 0.36, heelStrike: -6, flat: [0.15, 0.55], toeOff: 44,
-  drop: 4, bob: 2.4, lean: 12, leanPulse: 1.5, arm: 34, armPhase: 0.8, fore: -78,
+  cycle: 0.52, speed: 624.8, stance: 0.3, reach: 0.36, heelStrike: -6, flat: [0.15, 0.55], toeOff: 44,
+  drop: 10, bob: 2.4, lean: 16, leanPulse: 1.5, arm: 42, armPhase: 0.8, fore: -78,
   swing: [
     [0.5, { hip: 24, knee: 78, foot: 80 }],
     [0.62, { hip: -6, knee: 112, foot: 94 }],
@@ -42,11 +42,11 @@ export const RUN: Gait = {
 };
 
 export const WALK: Gait = {
-  cycle: 1.1, speed: 110, stance: 0.6, reach: 0.5, heelStrike: -14, flat: [0.18, 0.6], toeOff: 30,
-  drop: 3, bob: -2.6, lean: 0, leanPulse: 0, arm: 16, armPhase: 0.97, fore: -6,
+  cycle: 0.62, speed: 312.4, stance: 0.55, reach: 0.5, heelStrike: -14, flat: [0.18, 0.6], toeOff: 30,
+  drop: 10, bob: -2.6, lean: 4, leanPulse: 0, arm: 24, armPhase: 0.97, fore: -6,
   swing: [
-    [0.7, { hip: 0, knee: 58, foot: 22 }],
-    [0.82, { hip: -24, knee: 46, foot: -6 }],
+    [0.7, { hip: -4, knee: 66, foot: 24 }],
+    [0.82, { hip: -34, knee: 50, foot: -6 }],
   ],
   landing: { lead: 0.1, rise: 20 },
 };

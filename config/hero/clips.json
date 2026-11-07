@@ -10,15 +10,15 @@
       ]
     },
     "walk": {
-      "duration": 0.387,
+      "duration": 0.62,
       "loop": true,
-      "travel": 1.549,
+      "travel": 2.48,
       "gait": "walk"
     },
     "run": {
-      "duration": 0.317,
+      "duration": 0.52,
       "loop": true,
-      "travel": 2.535,
+      "travel": 4.16,
       "gait": "run"
     },
     "standJump": {
