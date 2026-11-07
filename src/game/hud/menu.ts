@@ -1,7 +1,7 @@
-import { ASSISTS, canToggle, costOf, difficultyOk, isCustom, LEVEL_IDS, levelLabel, PRESETS, reachable, START_DIFFICULTY, tierOf, type Difficulty } from "../difficulty";
+import { ASSISTS, canToggle, costOf, isCustom, LEVEL_IDS, levelLabel, PRESETS, reachable, START_DIFFICULTY, tierOf, type Difficulty } from "../difficulty";
 import type { Rect } from "../geometry";
 import { LANG_NAMES, LANGS, tr, type Lang } from "../i18n";
-import { AUTO_SLOT, savedStamp, slotLabel, type Slots } from "../save/slots";
+import { AUTO_SLOT, difficultyNote, difficultyOf, savedStamp, slotLabel, type SlotEntry, type Slots } from "../save/slots";
 import { BOLD, box, image, INV, INVENTORY_BOXES, INVENTORY_DEFS, label, MONO, type InventoryArt } from "./inventory";
 import { BAR_H, HUD_H, HUD_MIN_W, MONO_ADVANCE, VIEW_BOX, viewRect } from "./layout";
 import { changed, DIFFICULTY_ROWS, GAME_OVER_ACTIONS, PAUSE_ROWS, SETTINGS_ROWS, type DifficultyState, type MenuState } from "./menuKeys";
@@ -24,7 +24,7 @@ const CHOICE_ROW = 13;
 const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
-const ASK = { title: "RESTART?", lost: "UNSAVED PROGRESS IS LOST", keys: "ENTER / ESC", start: "START?", purge: ["DELETES SAVES OF", "OTHER DIFFICULTY:"], top: 17, pad: 6 };
+const ASK = { title: "RESTART?", lost: "UNSAVED PROGRESS IS LOST", keys: "ENTER / ESC", start: "START?", purge: ["DELETES THE AUTOSAVE", "OF ANOTHER DIFFICULTY"], top: 17, pad: 6 };
 const PICK_BOX = { w: 200, gap: 6, check: 4.4, checkGap: 4, pip: 3, pipGap: 1.4, pips: 5 };
 const REF = { w: 7, gap: 6, tick: 2.6, dot: 0.5, head: 7, text: 4.4 };
 const POINTS = { top: 17, size: 16, line: 8, pad: 6, restart: ["CHANGES RESTART", "THE MISSION"] };
@@ -202,13 +202,9 @@ function manual(rows: Row[], art: MenuArt, lang: Lang): string {
 
 const tipColumn = { x: MENU_BOX.x + MENU_BOX.w + TIP_BOX.gap, w: TIP_BOX.w, key: TIP_BOX.key, pitch: (MANUAL.pitch * (MANUAL_KEYS.length - 1)) / (TIPS.length - 1) };
 
-const purgeLines = (purge: number | undefined, lang: Lang): string[] => {
-  if (!purge) return [];
-  const [what, which] = ASK.purge;
-  return [tr(what!, lang), `${tr(which!, lang)} ${purge}`];
-};
+const purgeLines = (purge: boolean | undefined, lang: Lang): string[] => (purge ? ASK.purge.map((line) => tr(line, lang)) : []);
 
-const RESTART_ASK = (lang: Lang, purge?: number): string[] => [tr(ASK.lost, lang), ...purgeLines(purge, lang), tr(ASK.keys, lang)];
+const RESTART_ASK = (lang: Lang, purge?: boolean): string[] => [tr(ASK.lost, lang), ...purgeLines(purge, lang), tr(ASK.keys, lang)];
 
 function askBox(lang: Lang, at: Pick<Rect, "x" | "y" | "w"> = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w }, lines = RESTART_ASK(lang), title = tr(ASK.title, lang)): string {
   const b = { ...at, h: ASK.top + (lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };
@@ -293,8 +289,7 @@ function footer(s: Extract<MenuState, { screen: "save" | "load" }>, lang: Lang):
   return [tr("ENTER SELECTS  ESC BACK", lang), INV.frame];
 }
 
-const stampOf = (savedAt: number, difficulty: unknown, lang: Lang): string =>
-  difficultyOk(difficulty) ? `${savedStamp(savedAt)}  ${tr(levelLabel(difficulty.level), lang)} ${costOf(difficulty.assists)}` : savedStamp(savedAt);
+const stampOf = (slot: SlotEntry, lang: Lang): string => `${savedStamp(slot.savedAt)}  ${tr(difficultyNote(slot), lang)} ${costOf(difficultyOf(slot).assists)}`;
 
 function slotList(s: Extract<MenuState, { screen: "save" | "load" }>, slots: Slots, prefix: string, lang: Lang): string {
   const b = SLOT_BOX;
@@ -319,7 +314,7 @@ function slotList(s: Extract<MenuState, { screen: "save" | "load" }>, slots: Slo
       (on ? pick(b.x + 2, y, b.w - 4, row - 2) : "") +
       text(b.x + 6, y + 11, i === AUTO_SLOT ? LETTER.auto : LETTER.size, on ? "#fff" : INV.label, slotLabel(i)) +
       text(b.x + 18, y + 11, 6, on ? "#fff" : slot || typing ? INV.name : INV.frame, name.toUpperCase()) +
-      (slot ? text(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, stampOf(slot.savedAt, slot.snapshot.difficulty, lang)) : "") +
+      (slot ? text(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, stampOf(slot, lang)) : "") +
       picture,
     );
   }).join("");

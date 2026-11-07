@@ -196,12 +196,17 @@ describe("difficulty screen", () => {
 });
 
 describe("save purge warning", () => {
-  it("names how many saves of another difficulty a change deletes, in both languages", () => {
-    const start = menuSvg(320, 200, { screen: "settings", cursor: 4, autosave: true, difficulty: presetPicks("story"), confirm: true, purge: 2 }, slots, robot);
-    for (const entry of [">START?<", ">DELETES SAVES OF<", ">OTHER DIFFICULTY: 2<", ">ENTER / ESC<"]) expect(start).toContain(entry);
-    const pause = { ...(difficultyState({ screen: "pause", cursor: 3 }, D) as DifficultyState), picks: presetPicks("story"), confirm: true, purge: 1 };
+  it("warns that the autosave of another difficulty goes, in both languages", () => {
+    const start = menuSvg(320, 200, { screen: "settings", cursor: 4, autosave: true, difficulty: presetPicks("story"), confirm: true, purge: true }, slots, robot);
+    for (const entry of [">START?<", ">DELETES THE AUTOSAVE<", ">OF ANOTHER DIFFICULTY<", ">ENTER / ESC<"]) expect(start).toContain(entry);
+    const pause = { ...(difficultyState({ screen: "pause", cursor: 3 }, D) as DifficultyState), picks: presetPicks("story"), confirm: true, purge: true };
     const cs = menuSvg(320, 200, pause, slots, robot, "City", "cs");
-    for (const entry of [">NEULOŽENÝ POSTUP SE ZTRATÍ<", ">SMAŽE ULOŽENÉ POZICE<", ">S JINOU OBTÍŽNOSTÍ: 1<"]) expect(cs).toContain(entry);
-    expect(menuSvg(320, 200, { ...pause, purge: 0 }, slots, robot)).not.toContain("DELETES SAVES OF");
+    for (const entry of [">NEULOŽENÝ POSTUP SE ZTRATÍ<", ">SMAŽE AUTOMATICKOU POZICI<", ">S JINOU OBTÍŽNOSTÍ<"]) expect(cs).toContain(entry);
+    expect(menuSvg(320, 200, { ...pause, purge: false }, slots, robot)).not.toContain("DELETES THE AUTOSAVE");
+  });
+
+  it("notes the difficulty of every save, a save without one as NORMAL", () => {
+    const load = menuSvg(320, 200, { screen: "load", cursor: 0, typing: null, confirm: false, message: null }, slots, robot);
+    expect(load.match(/ NORMAL 7</g)).toHaveLength(slots.filter(Boolean).length);
   });
 });

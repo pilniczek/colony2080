@@ -9,7 +9,7 @@ import { sameDifficulty, type Difficulty } from "../difficulty";
 import { menuPointOf } from "../hud/pointer";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
-import { AUTO_SLOT, clearSlot, otherDifficulty, readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
+import { AUTO_SLOT, clearSlot, readSlots, staleAutosave, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
 import { checkSnapshot, loadSnapshot, takeSnapshot, type SaveProblem } from "./snapshot";
 
 const HOME = "index.html";
@@ -127,7 +127,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
 
   const setDifficulty = (difficulty: Difficulty): void => {
     refresh();
-    for (const i of otherDifficulty(slots(), d.mission, difficulty)) clearSlot(d.storage, i, d.mission);
+    if (staleAutosave(slots(), d.mission, difficulty)) clearSlot(d.storage, AUTO_SLOT, d.mission);
     refresh();
     d.world.difficulty = difficulty;
     useSandbox.setState({ difficulty });

@@ -209,14 +209,14 @@ describe("difficulty", () => {
     expect(menuKey(over, press("Enter"), [], "mesto", keys)).toMatchObject({ action: "restartWith", difficulty: presetPicks("story") });
   });
 
-  it("asks before a change that deletes saves of another difficulty and counts them", () => {
+  it("asks before a change that deletes the autosave of another difficulty", () => {
     const over = { ...(difficultyState(gameOverState(false) as DifficultyState["from"], D) as DifficultyState), cursor: DIFFICULTY_ROWS.done, picks: presetPicks("story") };
     const asking = step(over, "Enter").state as DifficultyState;
-    expect(asking).toMatchObject({ confirm: true, purge: 2 });
+    expect(asking).toMatchObject({ confirm: true, purge: true });
     expect(step(asking, "Enter")).toMatchObject({ action: "restartWith", difficulty: presetPicks("story") });
     const start = { ...settings, cursor: SETTINGS_ROWS.start, difficulty: presetPicks("story") };
     const starting = step(start, "Enter").state as Extract<MenuState, { screen: "settings" }>;
-    expect(starting).toMatchObject({ confirm: true, purge: 2 });
+    expect(starting).toMatchObject({ confirm: true, purge: true });
     expect(step(starting, "Escape").state).toMatchObject({ confirm: false });
     expect(step(starting, "Enter")).toMatchObject({ state: null, action: "difficulty", difficulty: presetPicks("story") });
     expect(step({ ...settings, cursor: SETTINGS_ROWS.start }, "Enter")).toMatchObject({ state: null, action: "difficulty" });

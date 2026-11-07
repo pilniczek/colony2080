@@ -794,8 +794,7 @@ function manual(rows) {
   return invBox(b) + invLabel(b.x + b.w / 2, top + MANUAL.title, 7.6, "MANUAL") + left.drawn + right.drawn;
 }
 
-const SAMPLE_PURGE = 2;
-const PURGE_LINES = ["DELETES SAVES OF", `OTHER DIFFICULTY: ${SAMPLE_PURGE}`];
+const PURGE_LINES = ["DELETES THE AUTOSAVE", "OF ANOTHER DIFFICULTY"];
 
 function askBox(at = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w }, lines = ASK.lines, title = ASK.title) {
   const b = { ...at, h: ASK.top + (lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };

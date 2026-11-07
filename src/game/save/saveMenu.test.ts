@@ -440,13 +440,15 @@ describe("difficulty", () => {
 });
 
 describe("saves of another difficulty", () => {
-  it("deletes only this mission's saves of another difficulty when the difficulty changes", () => {
+  it("deletes only this mission's autosave of another difficulty when the difficulty changes", () => {
     const storage = memory();
     const r = rig(storage);
     const normal = saveOf(r, 5);
     writeSlot(storage, 0, normal);
     writeSlot(storage, 1, { ...normal, snapshot: { ...normal.snapshot, difficulty: presetPicks("story") } });
     writeSlot(storage, 2, { ...normal, mission: "vesnice" });
+    writeSlot(storage, AUTO_SLOT, normal);
+    writeSlot(storage, AUTO_SLOT, { ...normal, mission: "vesnice" });
     r.input.keyDown("Escape");
     r.menu.step(DT);
     for (let i = 0; i < 3; i++) r.press("ArrowDown");
@@ -455,12 +457,14 @@ describe("saves of another difficulty", () => {
     r.press("ArrowLeft");
     for (let i = 0; i <= ASSISTS.length; i++) r.press("ArrowDown");
     r.press("Enter");
-    expect(useSandbox.getState().menu).toMatchObject({ confirm: true, purge: 1 });
+    expect(useSandbox.getState().menu).toMatchObject({ confirm: true, purge: true });
     r.press("Enter");
     const left = readSlots(storage, "mesto");
-    expect(left[0]).toBeNull();
+    expect(left[AUTO_SLOT]).toBeNull();
+    expect(left[0]?.name).toBe(normal.name);
     expect(left[1]?.snapshot.difficulty).toEqual(presetPicks("story"));
     expect(left[2]?.mission).toBe("vesnice");
+    expect(readSlots(storage, "vesnice")[AUTO_SLOT]?.mission).toBe("vesnice");
     expect(r.world.difficulty).toEqual(presetPicks("story"));
   });
 });
