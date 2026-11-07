@@ -835,7 +835,7 @@ function sectionPlate(parent) {
   P(parent, { pts: [[HAND.x0 + 4, 400 + HAND.thick - 6], [HAND.x1 - 4, 400 + HAND.thick - 6], [HAND.x1 - 4, 400 + HAND.thick + 2], [HAND.x0 + 4, 400 + HAND.thick + 2]], mat: "metal", shade: "cyl", r: 4 });
 }
 
-const THUMB_BASE = [124, 424];
+const THUMB_BASE = [HAND.x1 + 4, 424];
 const THUMB_SIDE = [HAND_FACE[0] + 12, THUMB_BASE[1]];
 const THUMB_OPEN = [30, 14];
 
@@ -879,7 +879,7 @@ function openHand(s, view) {
       const x = fingerX(i);
       P(s, { pts: [[x, 402], [x + 20, 402], [x + 20, 402 + FINGER.thick], [x, 402 + FINGER.thick]], shade: "cyl", r: 6, lw: FINGER_LW });
     }
-    P(s, { pts: [[112, 416], [132, 416], [132, 416 + THUMB.thick], [112, 416 + THUMB.thick]], shade: "cyl", r: 6 });
+    P(s, { pts: [[THUMB_BASE[0] - 10, 416], [THUMB_BASE[0] + 10, 416], [THUMB_BASE[0] + 10, 416 + THUMB.thick], [THUMB_BASE[0] - 10, 416 + THUMB.thick]], shade: "cyl", r: 6 });
   }
 }
 
