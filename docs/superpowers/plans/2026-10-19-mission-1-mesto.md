@@ -1,5 +1,7 @@
 # Mission 1 (mesto) Implementation Plan
 
+> 2026-11-07: ladders removed - the original game has none (`docs/requirements.md` No ladders). The `H` ladder legend below no longer applies; `map.json` has no ladder cell.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Playable level 1 (mesto) at original layout: walk the 160 x 80 map, ride lifts, pick items, use every task object, fight chrome droids, finish at the crane.

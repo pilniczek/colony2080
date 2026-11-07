@@ -56,7 +56,7 @@ Claude's call:
 - Shootable props: a prop with a `shootable` hit box stops hero bullets with a spark and counts hits; at its hit count it switches state (hull cover falls, ship part drops as a pickup). All other props stay transparent to bullets.
 - Interaction: ENTER uses the shown item on the object in reach, or uses the object when it needs no item. Pickup works as the sandbox crowbar does. An object used without the needed item shows a hint subtitle.
 - Scenery: non-interactive objects (`buildings`, `structures`, sky, ruins) placed from the original map regions with the closest env asset, tall non-blocking scenery in the backdrop under the haze, as in the sandbox.
-- Ladders and staircases only where the original map has them. The reach rule ("a lift's two stop floors connect only through it") and no-jump-on-moving-lift stay; where our jumps would bypass an original lift, the builder adds the smallest blocking obstacle.
+- Staircases only where the original map has them; no ladders, the original has none. The reach rule ("a lift's two stop floors connect only through it") and no-jump-on-moving-lift stay; where our jumps would bypass an original lift, the builder adds the smallest blocking obstacle.
 - Page: new entry `game.html` (or a `?level=mesto` route), HUD as in the sandbox, no debug panel, fog of war on. The sandbox stays as is.
 - Performance: the mesto map is about 8 times the sandbox area. The static cache tiles must not loop over all terrain and scenery per tile; add the spatial index noted in `docs/requirements.md` Known issues.
 

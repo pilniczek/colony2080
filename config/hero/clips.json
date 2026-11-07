@@ -196,14 +196,6 @@
       "rot": [[0, 0], [0.36, -89]],
       "gun": [[0, "hand"], [0.36, "dropped"]],
       "events": [[0.36, "dust"]]
-    },
-    "ladder": {
-      "duration": 0.44,
-      "loop": true,
-      "pose": [
-        [0, {}]
-      ],
-      "view": [[0, "back"]]
     }
   }
 }

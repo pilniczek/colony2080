@@ -46,17 +46,17 @@ export function muzzleInRig(look: HeroLook, rigs: Rigs, local: Pt = MUZZLE_IN_HO
 
 export function heroMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
   const { rigs, hold } = sim();
-  return rigPoint(h, heroLook(h, clips, rigs, hold, cfg), rigs, MUZZLE_IN_HOOK, cfg);
+  return rigPoint(h, heroLook(h, clips, rigs, hold), rigs, MUZZLE_IN_HOOK, cfg);
 }
 
 function toasterMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
   const { rigs, hold } = sim();
-  return rigPoint(h, heroLook(h, clips, rigs, hold, cfg), rigs, TOASTER_MUZZLE_IN_HOOK, cfg);
+  return rigPoint(h, heroLook(h, clips, rigs, hold), rigs, TOASTER_MUZZLE_IN_HOOK, cfg);
 }
 
 function flameMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
   const { rigs, hold } = sim();
-  return rigPoint(h, heroLook(h, clips, rigs, hold, cfg), rigs, FLAMETHROWER_MUZZLE_IN_HOOK, cfg);
+  return rigPoint(h, heroLook(h, clips, rigs, hold), rigs, FLAMETHROWER_MUZZLE_IN_HOOK, cfg);
 }
 
 function rigPoint(h: Hero, look: HeroLook, rigs: Rigs, inHand: Pt, cfg: MovementConfig): Pt {
@@ -411,7 +411,7 @@ function enemyFire(world: SandboxWorld, sound: "laser" | "cannon", count: number
 function launcherTip({ body, kind }: Enemy, clips: ClipSet, cfg: MovementConfig): Pt {
   const { launch: inHand, rigs, hold, clips: own } = kindOf(kind);
   if (!inHand) return [body.x, body.y - cfg.box.height / 2];
-  return rigPoint(body, heroLook(body, own ? { ...clips, ...own } : clips, rigs, hold, cfg), rigs, inHand, cfg);
+  return rigPoint(body, heroLook(body, own ? { ...clips, ...own } : clips, rigs, hold), rigs, inHand, cfg);
 }
 
 export function fireEnemy(world: SandboxWorld, enemy: Enemy, count: number, clips: ClipSet, cfg: MovementConfig): void {

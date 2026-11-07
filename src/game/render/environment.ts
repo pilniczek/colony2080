@@ -7,7 +7,7 @@ import { drawAsset, TILE, type EnvAsset, type Size } from "../env/paint";
 import { guardHidden, guardLook } from "../level/guards";
 import type { MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
-import { RUNG, spikeUnit } from "../hero/look";
+import { spikeUnit } from "../hero/look";
 import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
 import type { Rect as CellRect, Run } from "../level/terrain";
@@ -19,7 +19,6 @@ import { nearestFirst, TileCache, TILE_PX, visibleTiles, type TileCoord } from "
 const SKY_H = 170;
 const SKY_W = 320;
 const LIFT_HEAD = 32;
-const LADDER_W = 56;
 const UNDERGROUND = "rgba(4, 6, 10, 0.55)";
 const BEHIND_SHAFT = "rgba(6, 4, 2, 0.6)";
 
@@ -69,14 +68,6 @@ export function adoptTile(world: SandboxWorld, { layer, key, col, row }: TileJob
 type Lookup = (col: number, row: number) => readonly unknown[];
 
 const indexes = new WeakMap<SandboxWorld, { key: string; lookups: Map<string, Lookup> }>();
-
-interface LadderRun {
-  col: number;
-  row: number;
-  end: number;
-}
-
-const ladderRuns = new WeakMap<SandboxWorld, LadderRun[]>();
 
 export interface Env {
   ctx: CanvasRenderingContext2D;
@@ -353,7 +344,6 @@ export function below(e: Env): void {
 }
 
 export function above(e: Env): void {
-  ladders(e);
   clipped(e, e.world.lifts.map((l) => shaftBox(e, l)), true, () => scenery(e, "dressing", e.world.dressing));
 }
 
@@ -642,34 +632,6 @@ function shafts(e: Env): void {
   const { cell } = e;
   for (const l of e.world.lifts) {
     if (near(e, shaftBox(e, l))) put(e, liftShaft, l.x * cell, l.bottom * cell, 0, { w: px(e, l.w * cell), top: px(e, (l.top - l.bottom) * cell - LIFT_HEAD) });
-  }
-}
-
-function runsOf(world: SandboxWorld): LadderRun[] {
-  const known = ladderRuns.get(world);
-  if (known) return known;
-  const { grid } = world;
-  const runs: LadderRun[] = [];
-  for (let col = 0; col < grid.width; col++) {
-    for (let row = 0; row < grid.height; row++) {
-      if (!grid.ladderTop(col, row)) continue;
-      let end = row;
-      while (grid.at(col, end) === "H") end++;
-      runs.push({ col, row, end });
-    }
-  }
-  ladderRuns.set(world, runs);
-  return runs;
-}
-
-const ladderBox = ({ cell }: Env, { col, row, end }: LadderRun): Rect => ({ x: col * cell, y: row * cell, w: cell, h: (end - row) * cell });
-
-function ladders(e: Env): void {
-  const { cell, unit } = e;
-  for (const r of pick(e, "ladders", runsOf(e.world), ladderBox)) {
-    if (!near(e, ladderBox(e, r))) continue;
-    const size = { h: px(e, (r.end - r.row) * cell), w: px(e, LADDER_W * unit), rung: px(e, RUNG * unit) };
-    put(e, "ladder", (r.col + 0.5) * cell - (LADDER_W / 2) * unit, r.end * cell, 0, size);
   }
 }
 

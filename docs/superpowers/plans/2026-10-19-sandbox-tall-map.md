@@ -1,5 +1,7 @@
 # Sandbox Tall Map Implementation Plan
 
+> 2026-11-07: ladders removed - the original game has none (`docs/requirements.md` No ladders). Ladder mentions below no longer apply.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Sandbox map grows to 48 x 32 cells with more platforms and elevators, the camera follows the hero, the taken crowbar shows in the HUD, and docs catch up with the env reskin.

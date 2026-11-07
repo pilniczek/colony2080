@@ -30,7 +30,6 @@ export interface Hero {
   onGround: boolean;
   onLift: boolean;
   hidden: boolean;
-  climb: number;
   gaitTime: number;
   fallGait: GaitName | null;
   landing: Landing | null;
@@ -63,7 +62,6 @@ type Handler = (s: Step) => void;
 
 const EPS = 1e-3;
 const SHOT_EPS = 1e-6;
-const LADDER_REACH = 0.5;
 const PIT_MARGIN = 2;
 
 export function createHero(
@@ -94,7 +92,6 @@ export function createHero(
     onGround: true,
     onLift: false,
     hidden: false,
-    climb: 0,
     gaitTime: 0,
     fallGait: null,
     landing: null,
@@ -140,12 +137,6 @@ const boxOf = (h: Hero, cfg: MovementConfig): Box => ({ x: h.x, y: h.y, w: cfg.b
 
 const onMovingLift = ({ h, world, cfg }: Step): boolean => h.onLift && liftAt(world, h, cfg)?.target != null;
 
-function atLadderTop(s: Step): boolean {
-  const { h, world } = s;
-  const row = Math.round(h.y);
-  return h.onGround && Math.abs(h.y - row) <= EPS && world.grid.ladderTop(Math.floor(h.x), row);
-}
-
 const nearest = (h: Hero, props: Prop[]): Prop | undefined =>
   props.reduce<Prop | undefined>((best, p) => (best && Math.abs(best.x - h.x) <= Math.abs(p.x - h.x) ? best : p), undefined);
 
@@ -171,27 +162,6 @@ function touchedItem(s: Step, kinds: string[]): Prop | undefined {
 const USABLE = ["panel", "object"];
 const PICKED_BY_ENTER = ["item", "weapon"];
 const itemToPick = (s: Step): boolean => s.input.pressed.has("useItem") && touchedItem(s, PICKED_BY_ENTER) !== undefined;
-
-function ladderBottom(s: Step): number {
-  const { h, world } = s;
-  const col = Math.floor(h.x);
-  let row = Math.floor(h.y - EPS);
-  if (world.grid.at(col, row) !== "H") row++;
-  while (world.grid.at(col, row) === "H") row++;
-  return row;
-}
-
-function enterLadder(s: Step): void {
-  const { h } = s;
-  enter(h, "ladder");
-  h.fireTime = null;
-  h.x = Math.floor(h.x) + 0.5;
-  h.climb = ladderBottom(s) - h.y;
-  h.vx = 0;
-  h.vy = 0;
-  h.onGround = false;
-  h.onLift = false;
-}
 
 const travelSpeed = (clip: Clip): number => (clip.travel ?? 0) / clip.duration;
 
@@ -397,19 +367,16 @@ function stance(s: Step): boolean {
 const upHeld = (s: Step): boolean => s.consume("up") || (s.input.held.has("up") && s.h.landing?.age === 0);
 
 function standUp(s: Step, from: Jump): boolean {
-  const { h, world } = s;
   if (liftPress(s)) return false;
   if (padPress(s)) return true;
   if (!upHeld(s)) return false;
-  if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) enterLadder(s);
-  else jump(s, from);
+  jump(s, from);
   return true;
 }
 
 function idle(s: Step): void {
   const { input } = s;
   if (standUp(s, "standJump")) return;
-  if (!onMovingLift(s) && input.held.has("down") && atLadderTop(s)) return enterLadder(s);
   if (act(s) || stance(s)) return;
   if (input.dir !== 0) gait(s);
 }
@@ -512,14 +479,11 @@ function atPanel(h: Hero, lift: Lift, cfg: MovementConfig): boolean {
 }
 
 function moving(s: Step): void {
-  const { h, world } = s;
+  const { h } = s;
   if (takeCover(s)) return;
   if (liftPress(s)) return enter(h, "idle");
   if (padPress(s)) return;
-  if (upHeld(s)) {
-    if (world.grid.ladderAt(h.x, h.y - LADDER_REACH)) return enterLadder(s);
-    return jump(s, h.state === "run" ? "runJump" : "walkJump");
-  }
+  if (upHeld(s)) return jump(s, h.state === "run" ? "runJump" : "walkJump");
   if (holdsGun(h.weapon)) gunFire(s);
   if (use(s)) return;
   gait(s);
@@ -527,8 +491,7 @@ function moving(s: Step): void {
 }
 
 function airborne(s: Step): void {
-  const { h, input, world } = s;
-  if (world.grid.ladderAt(h.x, h.y - EPS) && s.consume("up")) return enterLadder(s);
+  const { h, input } = s;
   gunFire(s);
   if (input.dir === 0 || input.dir === h.facing) return;
   h.facing = input.dir;
@@ -630,39 +593,6 @@ function arm(h: Hero, weapon: Weapon): void {
   h.fireTime = null;
 }
 
-function ladder(s: Step): void {
-  const { h, input, world, cfg, dt } = s;
-  s.consume("up");
-  s.consume("down");
-  if (input.dir !== 0) return dropOffLadder(s, input.dir);
-  const dir = (input.held.has("down") ? 1 : 0) - (input.held.has("up") ? 1 : 0);
-  if (dir === 0) return;
-  const r = moveBox(boxOf(h, cfg), 0, dir * cfg.ladderSpeed * dt, world.grid, world.lifts, { ignoreOneWay: true });
-  h.climb -= r.y - h.y;
-  h.y = r.y;
-  if (dir > 0 && r.hitY) return leaveLadder(h);
-  if (dir < 0 && !world.grid.ladderAt(h.x, h.y - EPS)) {
-    h.y = Math.floor(h.y - EPS) + 1;
-    leaveLadder(h);
-  }
-}
-
-function dropOffLadder(s: Step, facing: -1 | 1): void {
-  const { h, clips } = s;
-  h.facing = facing;
-  enter(h, "fall");
-  h.fallGait = null;
-  h.gaitTime = 0;
-  h.fallFrom = h.y;
-  h.vx = h.facing * (clips.walk ? travelSpeed(clips.walk) : 0);
-  h.vy = 0;
-}
-
-function leaveLadder(h: Hero): void {
-  enter(h, "idle");
-  h.onGround = true;
-}
-
 function respawn(s: Step): void {
   const { h, world, cfg } = s;
   if (h.time * 1000 < cfg.respawnMs) return;
@@ -679,7 +609,6 @@ const transitions: Partial<Record<HeroState, Handler>> = {
   runJump: airborne,
   duckJump: airborne,
   fall: airborne,
-  ladder,
   duck,
   duckAttack: attack,
   use: toIdle,
@@ -876,7 +805,7 @@ export function updateHero(
   clipEvents(s);
   transitions[h.state]?.(s);
   if (isDead(h.state)) fallDead(s);
-  else if (h.state !== "ladder") {
+  else {
     const startY = h.y;
     h.vx = horizontalSpeed(s);
     physics(s);

@@ -117,12 +117,12 @@ function impacts(f: Frame): void {
   for (const s of world.sparks) star(ctx, [s.x * cell, s.y * cell], IMPACT.radius * unit, IMPACT.k + (1 - IMPACT.k) * (s.age / SPARK_LIFE));
 }
 
-export const castsShadow = (hero: Hero, look: HeroLook): boolean => hero.onGround && look.view !== "back";
+export const castsShadow = (hero: Hero): boolean => hero.onGround;
 
 export const feetSeen = (fog: Fog | null, body: Pick<Hero, "x" | "y">): boolean => !fog || visible(fog, body.x, body.y - 0.001);
 
-function shadow(f: Frame, hero: Hero, look: HeroLook): void {
-  if (!castsShadow(hero, look)) return;
+function shadow(f: Frame, hero: Hero): void {
+  if (!castsShadow(hero)) return;
   const { ctx, cell, unit } = f;
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.beginPath();
@@ -131,7 +131,7 @@ function shadow(f: Frame, hero: Hero, look: HeroLook): void {
 }
 
 export const rigFor = (look: HeroLook, rigs: Rigs): GroupNode =>
-  look.view === "side" ? rigs.side : look.view === "front" ? rigs.front : rigs.climber;
+  look.view === "side" ? rigs.side : rigs.front;
 
 function blast(f: Frame, body: Hero, age: number, centered = false): void {
   const { ctx, cell, unit } = f;
@@ -187,7 +187,7 @@ function enemyFigure(f: Frame, enemy: Enemy, look: HeroLook, kind: EnemyKind, sc
   const alive = age === null || age < BLAST.hideBody;
   const [body, pose] = age !== null && kind.dying ? dyingLook(enemy.body, look, kind.dying, age) : [enemy.body, look];
   if (alive) {
-    if (feetSeen(f.world.fog, enemy.body)) shadow(f, enemy.body, look);
+    if (feetSeen(f.world.fog, enemy.body)) shadow(f, enemy.body);
     const flash = !!kind.muzzle && firing(enemy.body, fireRate);
     const fire = fireOf(enemy.body);
     heroFigure(f, body, pose, kind.rigs, scale, flash, kind.palette, kind.hooks?.(pose, f.lineW, fire), kind.muzzle, kind.weapon, kind.hooks && fire !== null ? null : kind);
@@ -372,7 +372,7 @@ export function drawScene(
       for (const c of clips) ctx.rect(c.x[0] * f.cell, c.top * f.cell, (c.x[1] - c.x[0]) * f.cell, (c.floor + SHADOW_ROW - c.top) * f.cell);
       ctx.clip("evenodd");
     }
-    shadow(f, hero, look);
+    shadow(f, hero);
     heroFigure(f, hero, look, rigs, scale, firing(hero, cfg.fireRate));
     if (isDead(hero.state)) blast(f, hero, hero.time);
     ctx.restore();

@@ -134,6 +134,15 @@ describe("jumps", () => {
     }
   });
 
+  it("climbs the sandbox zigzag stair from floor 14 to floor 4 with Up held", () => {
+    const g = game({ x: 4, y: 14 });
+    tick(g, ["up"], ["up"]);
+    runUntil(g, (h) => h.y < 4, ["up"], 10);
+    runUntil(g, (h) => h.onGround, [], 2);
+    expect(g.hero).toMatchObject({ y: 4, onGround: true });
+    expect(g.hero.x).toBeCloseTo(4, 6);
+  });
+
   it("run jumps up through a one-way ledge and lands on it", () => {
     const shelf = roomOf(["#........#", "#........#", "#........#", "#........#", "#........#", "#..====..#", "##########"], [1.5, 6]);
     const g = game({ x: 1.5, y: 6 }, shelf);
@@ -409,104 +418,6 @@ describe("falls", () => {
       expect(g.hero.running).toBe(running);
     }
   });
-});
-
-describe("ladder", () => {
-  it("climbs from the floor to the platform at y 4 and returns to idle", () => {
-    const g = game({ x: 3.4, y: 14 });
-    tick(g, [], ["up"]);
-    expect(g.hero.state).toBe("ladder");
-    expect(g.hero.x).toBe(3.5);
-    runUntil(g, (h) => h.state !== "ladder", ["up"]);
-    expect(g.hero.state).toBe("idle");
-    expect(g.hero.y).toBeCloseTo(4, 6);
-    expect(g.hero.climb).toBeCloseTo(10, 6);
-    run(g, 0.5, ["up"]);
-    expect(g.hero.state).toBe("idle");
-    expect(g.hero.y).toBeCloseTo(4, 6);
-  });
-
-  it("climbs down from the ladder top through the one-way floor", () => {
-    const g = game({ x: 3.5, y: 4 });
-    run(g, 0.1);
-    expect(g.hero.state).toBe("idle");
-    tick(g, ["down"]);
-    expect(g.hero.state).toBe("ladder");
-    expect(g.hero.climb).toBeCloseTo(14 - g.hero.y, 6);
-    runUntil(g, (h) => h.state !== "ladder", ["down"]);
-    expect(g.hero.state).toBe("idle");
-    expect(g.hero.y).toBeCloseTo(14, 6);
-    expect(g.hero.climb).toBeCloseTo(0, 6);
-  });
-});
-
-describe("ladder from the air", () => {
-  const falling = { x: 3.5, y: 9, state: "fall" as const };
-
-  it("grabs the ladder on up from any fall height and climbs up without damage", () => {
-    const g = game(falling);
-    g.hero.fallFrom = -100;
-    tick(g, [], ["up"]);
-    expect(g.hero).toMatchObject({ state: "ladder", vy: 0 });
-    runUntil(g, (h) => h.state !== "ladder", ["up"]);
-    expect(g.hero).toMatchObject({ state: "idle", energy: cfg.energy.max });
-    expect(g.hero.y).toBeCloseTo(4, 6);
-  });
-
-  it("grabs the ladder on up during a jump", () => {
-    const g = game({ x: 3.5, y: 9, state: "walkJump" });
-    tick(g, [], ["up"]);
-    expect(g.hero.state).toBe("ladder");
-  });
-
-  it("keeps falling past the ladder without up", () => {
-    const g = game(falling);
-    g.hero.fallFrom = -100;
-    runUntil(g, (h) => h.state !== "fall");
-    expect(g.hero.state).toBe("fallDeath");
-  });
-});
-
-describe("ladder dismount", () => {
-  for (const [key, facing] of [["moveRight", 1], ["moveLeft", -1]] as const) {
-    it(`drops off the ladder on ${key}`, () => {
-      const g = game({ x: 3.5, y: 14 });
-      tick(g, [], ["up"]);
-      run(g, 1, ["up"]);
-      const y = g.hero.y;
-      tick(g, [key]);
-      expect(g.hero).toMatchObject({ state: "fall", facing, fallFrom: y });
-      expect(g.hero.vx).toBeCloseTo(facing * walkSpeed, 6);
-      runUntil(g, (h) => h.onGround);
-      expect(g.hero.y).toBeCloseTo(14, 6);
-      expect(Math.sign(g.hero.x - 3.5)).toBe(facing);
-      expect(g.hero.state).toBe("idle");
-    });
-  }
-});
-
-describe("ladder from a gait", () => {
-  for (const held of [["moveRight"], ["moveRight", RUNNING]]) {
-    it(`grabs the ladder on up while ${held.length > 1 ? "running" : "walking"}`, () => {
-      const g = game({ x: 3.15, y: 14, state: held.length > 1 ? "run" : "walk" });
-      tick(g, held, ["up"]);
-      expect(g.hero).toMatchObject({ state: "ladder", x: 3.5 });
-    });
-  }
-});
-
-describe("buffered up", () => {
-  it("drops an up tap made in the last frames of a climb", () => {
-    const g = game({ x: 3.5, y: 14 });
-    tick(g, [], ["up"]);
-    runUntil(g, (h) => h.y < 4.1, ["up"]);
-    tick(g, ["up"], ["up"]);
-    runUntil(g, (h) => h.state !== "ladder", ["up"]);
-    run(g, 0.5);
-    expect([...g.seen]).toEqual(["idle", "ladder"]);
-    expect(g.hero.y).toBeCloseTo(4, 6);
-  });
-
 });
 
 describe("lift", () => {

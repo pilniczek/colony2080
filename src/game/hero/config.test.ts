@@ -7,7 +7,7 @@ import { RUN, WALK } from "./gait";
 
 const states: HeroState[] = [
   "idle", "walk", "run", "standJump", "walkJump", "runJump", "duckJump", "fall", "fallDeath", "duck",
-  "duckAttack", "use", "hide", "attack", "weaponSwitch", "ladder", "death", "jumpDeath",
+  "duckAttack", "use", "hide", "attack", "weaponSwitch", "death", "jumpDeath",
 ];
 const weapons: Weapon[] = ["fists", "gun", "blaster"];
 

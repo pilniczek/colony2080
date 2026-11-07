@@ -261,17 +261,6 @@ define({
 });
 
 define({
-  id: "ladder",
-  box: [0, -168, 17.2, 0],
-  draw(ctx, state, t, { h = 168, w = 17.2, rung = 6.76 } = {}) {
-    box(ctx, 0, -h, 2.4, h, "steel", 2, { vertical: true });
-    box(ctx, w - 2.4, -h, 2.4, h, "steel", 2, { vertical: true });
-    for (let k = 1; -rung * k > -h; k++) box(ctx, 2.4, -rung * k - 0.7, w - 4.8, 1.4, "chrome", 2);
-    if (!window.ENV.simple) for (let k = 1; -rung * k > -h; k += 4) for (const x of [0.6, w - 1.8]) flat(ctx, x, -rung * k - 0.6, 1.2, 1.2, "m3");
-  }
-});
-
-define({
   id: "liftLanding",
   box: [0, -3, 72, 7],
   draw(ctx, state, t, { w = 72 } = {}) {

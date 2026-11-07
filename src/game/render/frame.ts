@@ -106,10 +106,10 @@ const atPoseRate = (body: Hero): Hero => ({
 
 function paintGame(target: Target, world: SandboxWorld, s: GameFrame, kit: Kit, { cfg, clips }: Tune, over?: Over): void {
   const { ctx } = target;
-  const look = bonusLook(world, heroLook(s.hero, clips, kit.rigs, kit.hold, cfg));
+  const look = bonusLook(world, heroLook(s.hero, clips, kit.rigs, kit.hold));
   const enemies = s.enemies.map((enemy) => {
     const kind = kindOf(enemy.kind);
-    return { enemy, look: heroLook(atPoseRate(enemy.body), kind.clips ? { ...clips, ...kind.clips } : clips, kind.rigs, kind.hold, cfg), kind };
+    return { enemy, look: heroLook(atPoseRate(enemy.body), kind.clips ? { ...clips, ...kind.clips } : clips, kind.rigs, kind.hold), kind };
   });
   fillBlack(target);
   clipTo(ctx, s.window);

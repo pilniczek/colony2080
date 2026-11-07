@@ -70,7 +70,7 @@ const CASES: Case[] = [
   { name: "side far arm", root: side, hook: "handFar", pose: { arm: 0, fore: -72 }, keys: ["armFar", "foreFar"], ranges: [[-160, 40], [-150, 30]], targets: [handAt(side, "hand", { arm: 0, fore: -72 }), [200, 80], [400, -300], [-50, 260]] },
   { name: "side near arm crouched", root: side, hook: "hand", pose: { thigh: -60, shin: 90, body: { dy: 40, rot: 12 } }, keys: ["arm", "fore"], ranges: [[-180, 60], [-150, 60]], targets: [[260, 300], [120, 180], [900, 900]] },
   { name: "front right arm", root: front, hook: "handR", pose: { armL: -24, foreL: -66 }, keys: ["armR", "foreR"], ranges: [[-40, 120], [-60, 150]], targets: [handAt(front, "handL", { armL: -24, foreL: -66 }), [300, 120], [-500, -500]] },
-  { name: "back climber", root: back, hook: "handL", pose: {}, keys: ["armL", "foreL"], ranges: [[90, 200], [0, 160]], targets: [[190, 110], [190, 35], [190, -40], [600, 600]] },
+  { name: "back arm reach", root: back, hook: "handL", pose: {}, keys: ["armL", "foreL"], ranges: [[90, 200], [0, 160]], targets: [[190, 110], [190, 35], [190, -40], [600, 600]] },
   { name: "lod enemy side", root: sideLod, hook: "handFar", pose: { arm: 30 }, keys: ["armFar", "foreFar"], ranges: [[-150, 90], [-140, 10]], targets: [[150, 100], [250, 50]] },
   { name: "missing hook", root: side, hook: "nothing", pose: {}, keys: ["arm", "fore"], ranges: [[-20, 20], [-20, 20]], targets: [[0, 0]] },
 ];

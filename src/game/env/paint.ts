@@ -11,7 +11,6 @@ export interface Size {
   h?: number;
   top?: number;
   py?: number;
-  rung?: number;
   at?: readonly [number, number];
   region?: (col: number, row: number) => boolean;
 }

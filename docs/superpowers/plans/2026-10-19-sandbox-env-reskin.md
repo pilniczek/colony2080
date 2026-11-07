@@ -1,5 +1,7 @@
 # Sandbox Environment Reskin Implementation Plan
 
+> 2026-11-07: ladders removed - the original game has none (`docs/requirements.md` No ladders). The `ladder` asset, `ladderRungs`, `rung` size option and ladder drawing below are gone.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Sandbox draws every environment element from ported spike env assets, same playground, bag and target dropped.

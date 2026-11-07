@@ -16,7 +16,7 @@ const cfg = loadMovement(movementJson);
 const { fallDeathCells } = cfg;
 const world = loadSandbox(sandbox);
 const { grid, lifts } = world;
-const { runs, runAt, landings, ladders, jumpCells, strict, generous, graph, reach } = reachOf(world, cfg);
+const { runs, runAt, landings, jumpCells, strict, generous, graph, reach } = reachOf(world, cfg);
 
 type Stop = "top" | "bottom";
 
@@ -39,7 +39,7 @@ describe("sandbox reachability", () => {
     for (const [drop, cells] of PROBED_JUMP_CELLS) expect(jumpCells(drop), `drop ${drop}`).toBeGreaterThanOrEqual(cells);
   });
 
-  it("reaches every floor from the spawn by walking, short jumps, ladders, lifts and survivable drops", () => {
+  it("reaches every floor from the spawn by walking, short jumps, lifts and survivable drops", () => {
     const from = reach(conservative, spawn);
     expect(runs.filter((r) => !from.has(id(r)))).toEqual([]);
   });
@@ -48,7 +48,7 @@ describe("sandbox reachability", () => {
     expect(runs.filter((r) => !reach(conservative, id(r)).has(spawn))).toEqual([]);
   });
 
-  it("joins the two stops of each lift only through that lift, counting long jumps and ladder drop-offs", () => {
+  it("joins the two stops of each lift only through that lift, counting long jumps", () => {
     lifts.forEach((l, i) => {
       expect(reach(permissive, stopId(i, l.top), i).has(stopId(i, l.bottom)), `lift ${i} top to bottom`).toBe(false);
       expect(reach(permissive, stopId(i, l.bottom), i).has(stopId(i, l.top)), `lift ${i} bottom to top`).toBe(false);
@@ -71,12 +71,6 @@ describe("sandbox reachability", () => {
         expect(landings(c, r.row, fallDeathCells), `${id(r)} edge ${c}`).toEqual([]);
       }
     }
-  });
-
-  it("keeps ladders rare: the original one plus at most one in the lower half", () => {
-    const all = ladders();
-    expect(all.filter((l) => l.top < 16)).toEqual([{ col: 3, top: 4, end: 14 }]);
-    expect(all.filter((l) => l.top >= 16).length).toBeLessThanOrEqual(1);
   });
 
   it("gives the lower half at least two lifts and three platforms", () => {

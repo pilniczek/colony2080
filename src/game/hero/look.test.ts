@@ -3,10 +3,7 @@ import { describe, expect, it } from "vitest";
 import { holdPoses } from "../robot/gun";
 import { gaitBob, gaitPose, RUN, SPIKE_K, TAU, WALK } from "./gait";
 import { createHero, damage, type Hero } from "./hero";
-import { apply } from "../../engine/math/mat2d";
-import { locate } from "../../engine/rig/pose";
-import { ROBOT } from "../robot/xbot";
-import { createRigs, heroLook, RUNG, spikeUnit } from "./look";
+import { createRigs, heroLook } from "./look";
 import { cfg, clips, dt, game, RUNNING, tick, type Game } from "./testWorld";
 
 const rigs = createRigs(true);
@@ -33,7 +30,7 @@ const legsOf = (pose: Record<string, number>): Record<string, number> => Object.
 
 describe("hero look", () => {
   it("idle is the standing pose on the ground", () => {
-    const look = heroLook(hero({ state: "idle", time: 1.3 }), clips, rigs, hold, cfg);
+    const look = heroLook(hero({ state: "idle", time: 1.3 }), clips, rigs, hold);
     expect(look.view).toBe("side");
     expect(look.gun).toBe("none");
     expect(Object.keys(look.pose).sort()).toEqual(Object.keys(STAND).sort());
@@ -41,64 +38,27 @@ describe("hero look", () => {
     expect(Math.abs(look.lift * cellsPerUnit)).toBeLessThan(0.01);
   });
 
-  it("ladder uses the back view with the gun slung", () => {
-    const look = heroLook(hero({ state: "ladder", weapon: "gun", climb: 0.3, onGround: false }), clips, rigs, hold, cfg);
-    expect(look.view).toBe("back");
-    expect(look.gun).toBe("slung");
-    expect(look.lift).toBe(0);
-    expect(look.pose.thighL).toBeTypeOf("object");
-    expect(look.pose.armL).toBeTypeOf("number");
-  });
-
-  const rungCells = (RUNG * spikeUnit(cfg)) / cfg.cellPx;
-  const ladderPose = (climb: number) => heroLook(hero({ state: "ladder", climb, onGround: false }), clips, rigs, hold, cfg).pose;
-  const aboveFeet = (pose: Record<string, unknown>, hook: string): number => (ROBOT.FOOT_Y - apply(locate(rigs.climber, hook, pose as never)!, [0, 0])[1]) * SPIKE_K;
-
-  it("ladder climb starts with one foot on the floor and the other on the first rung", () => {
-    const pose = ladderPose(0);
-    expect(pose.thighL).toEqual({ sy: 1 });
-    expect((pose.shinL as { dy: number }).dy).toBeCloseTo(0, 9);
-    expect(aboveFeet(pose, "footR") - aboveFeet(pose, "footL")).toBeCloseTo(RUNG, 0);
-  });
-
-  it("ladder hands stay on their rung while the body climbs, then move up two rungs", () => {
-    const heights = [0, 0.2, 0.4, 0.6, 0.8, 0.95].map((k) => {
-      const climb = k * RUNG;
-      return climb + aboveFeet(ladderPose((climb / RUNG) * rungCells), "handL");
-    });
-    for (const h of heights) expect(Math.abs(h - (7 * RUNG - 1.5))).toBeLessThan(3);
-    const moved = 2 * RUNG + aboveFeet(ladderPose(2 * rungCells), "handL");
-    expect(Math.abs(moved - (9 * RUNG - 1.5))).toBeLessThan(3);
-  });
-
-  it("ladder hands lock one rung apart and swap each rung", () => {
-    const a = ladderPose(0);
-    const b = ladderPose(rungCells);
-    expect(angle(a, "armL")).toBeCloseTo(-angle(b, "armR"), 3);
-    expect(angle(a, "foreL")).toBeCloseTo(-angle(b, "foreR"), 3);
-  });
-
   it("death ends lying on the back", () => {
-    const look = heroLook(hero({ state: "death", weapon: "gun", time: clips.death!.duration }), clips, rigs, hold, cfg);
+    const look = heroLook(hero({ state: "death", weapon: "gun", time: clips.death!.duration }), clips, rigs, hold);
     expect(look.rot).toBeCloseTo(-89, 6);
     expect(look.gun).toBe("dropped");
     expect(look.lift * cellsPerUnit).toBeLessThan(-0.05);
   });
 
   it("death carries the gun until it drops", () => {
-    const carried = heroLook(hero({ state: "death", weapon: "gun", time: 0.6 }), clips, rigs, hold, cfg);
+    const carried = heroLook(hero({ state: "death", weapon: "gun", time: 0.6 }), clips, rigs, hold);
     expect(carried.gun).toBe("hand");
     expect(angle(carried.pose, "body") + angle(carried.pose, "arm") + angle(carried.pose, "fore") - 18).toBeCloseTo(-90, 6);
     expect(carried.pose.carry).toBeUndefined();
-    const dropped = heroLook(hero({ state: "death", weapon: "gun", time: 1.05 }), clips, rigs, hold, cfg);
+    const dropped = heroLook(hero({ state: "death", weapon: "gun", time: 1.05 }), clips, rigs, hold);
     expect(dropped.gun).toBe("dropped");
-    expect(dropped.pose).not.toEqual(heroLook(hero({ state: "death", time: 1.05 }), clips, rigs, hold, cfg).pose);
-    const letGo = heroLook(hero({ state: "death", weapon: "gun", time: 1.3 }), clips, rigs, hold, cfg);
-    expect(letGo.pose).toEqual(heroLook(hero({ state: "death", time: 1.3 }), clips, rigs, hold, cfg).pose);
+    expect(dropped.pose).not.toEqual(heroLook(hero({ state: "death", time: 1.05 }), clips, rigs, hold).pose);
+    const letGo = heroLook(hero({ state: "death", weapon: "gun", time: 1.3 }), clips, rigs, hold);
+    expect(letGo.pose).toEqual(heroLook(hero({ state: "death", time: 1.3 }), clips, rigs, hold).pose);
   });
 
   it("drops the gun with a 20 px slide back in 0.3 s", () => {
-    const slide = (time: number) => heroLook(hero({ state: "death", weapon: "gun", time }), clips, rigs, hold, cfg).gunSlide;
+    const slide = (time: number) => heroLook(hero({ state: "death", weapon: "gun", time }), clips, rigs, hold).gunSlide;
     expect(slide(0.9)).toBe(0);
     expect(slide(1.15)).toBeCloseTo(0.5, 6);
     expect(slide(1.3)).toBe(1);
@@ -106,7 +66,7 @@ describe("hero look", () => {
 
   for (const [state, at] of [["fallDeath", 0], ["jumpDeath", 0.36]] as const) {
     it(`${state} raises the landing dust for 0.4 s`, () => {
-      const dust = (time: number, onGround = true) => heroLook(hero({ state, time, onGround }), clips, rigs, hold, cfg).dust;
+      const dust = (time: number, onGround = true) => heroLook(hero({ state, time, onGround }), clips, rigs, hold).dust;
       expect(dust(at + 0.2)).toBeCloseTo(0.5, 6);
       expect(dust(at + 0.2, false)).toBeNull();
       expect(dust(at + 0.45)).toBeNull();
@@ -114,7 +74,7 @@ describe("hero look", () => {
   }
 
   it("death raises no dust", () => {
-    for (let time = 0; time < 3; time += 0.1) expect(heroLook(hero({ state: "death", time }), clips, rigs, hold, cfg).dust).toBeNull();
+    for (let time = 0; time < 3; time += 0.1) expect(heroLook(hero({ state: "death", time }), clips, rigs, hold).dust).toBeNull();
   });
 
   for (const state of ["death", "fallDeath", "jumpDeath"] as const) {
@@ -124,26 +84,26 @@ describe("hero look", () => {
       const [fold, flat] = clip.pose.slice(-2).map(([t]) => t) as [number, number];
       expect(flat - fold).toBeCloseTo(0.4, 9);
       expect(clip.rot![clip.rot!.length - 1]![1]).toBe(-89);
-      const lifts = Array.from({ length: 60 }, (_, i) => heroLook(hero({ state, time: fold + i / 60 }), clips, rigs, hold, cfg).lift * SPIKE_K);
+      const lifts = Array.from({ length: 60 }, (_, i) => heroLook(hero({ state, time: fold + i / 60 }), clips, rigs, hold).lift * SPIKE_K);
       for (let i = 1; i < lifts.length; i++) expect(Math.abs(lifts[i]! - lifts[i - 1]!), `frame ${i}`).toBeLessThan(6);
     });
   }
 
   it("death with fists never shows a gun", () => {
-    expect(heroLook(hero({ state: "death", time: 0.2 }), clips, rigs, hold, cfg).gun).toBe("none");
-    expect(heroLook(hero({ state: "death", time: 4 }), clips, rigs, hold, cfg).gun).toBe("none");
+    expect(heroLook(hero({ state: "death", time: 0.2 }), clips, rigs, hold).gun).toBe("none");
+    expect(heroLook(hero({ state: "death", time: 4 }), clips, rigs, hold).gun).toBe("none");
   });
 
   it("front view is never mirrored", () => {
     for (const facing of [1, -1] as const) {
-      const look = heroLook(hero({ state: "hide", time: 0.05, facing }), clips, rigs, hold, cfg);
+      const look = heroLook(hero({ state: "hide", time: 0.05, facing }), clips, rigs, hold);
       expect(look).toMatchObject({ view: "front", flip: false });
     }
   });
 
   it("hidden hero turns its head toward the facing it leaves cover with", () => {
     const shift = (facing: 1 | -1) => {
-      const pose = heroLook(hero({ state: "hide", hidden: true, time: 0.05, facing }), clips, rigs, hold, cfg).pose;
+      const pose = heroLook(hero({ state: "hide", hidden: true, time: 0.05, facing }), clips, rigs, hold).pose;
       return [pose.head, pose.face].map((j) => (j as { dx: number }).dx);
     };
     for (const dx of shift(1)) expect(dx).toBeGreaterThan(0);
@@ -151,45 +111,38 @@ describe("hero look", () => {
   });
 
   it("front view with the gun uses the front carry", () => {
-    const look = heroLook(hero({ state: "hide", weapon: "gun", time: 0.05 }), clips, rigs, hold, cfg);
+    const look = heroLook(hero({ state: "hide", weapon: "gun", time: 0.05 }), clips, rigs, hold);
     expect(look.gun).toBe("hand");
     expect(look.pose).toMatchObject({ ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R });
   });
 
   it("holds the blaster with the gun carry and shows only the held weapon", () => {
-    const gun = heroLook(hero({ state: "attack", weapon: "gun", time: 0.2 }), clips, rigs, hold, cfg);
-    const blaster = heroLook(hero({ state: "attack", weapon: "blaster", blaster: 400, time: 0.2 }), clips, rigs, hold, cfg);
+    const gun = heroLook(hero({ state: "attack", weapon: "gun", time: 0.2 }), clips, rigs, hold);
+    const blaster = heroLook(hero({ state: "attack", weapon: "blaster", blaster: 400, time: 0.2 }), clips, rigs, hold);
     expect(blaster).toMatchObject({ gun: "hand", hand: "blaster", pose: gun.pose });
     expect(gun).toMatchObject({ gun: "hand", hand: "gun" });
-    expect(heroLook(hero({ state: "attack", weapon: "gun", blaster: 400, time: 0.2 }), clips, rigs, hold, cfg)).toMatchObject({ hand: "gun" });
-    expect(heroLook(hero({ state: "idle", weapon: "fists", blaster: 400 }), clips, rigs, hold, cfg)).toMatchObject({ gun: "none" });
+    expect(heroLook(hero({ state: "attack", weapon: "gun", blaster: 400, time: 0.2 }), clips, rigs, hold)).toMatchObject({ hand: "gun" });
+    expect(heroLook(hero({ state: "idle", weapon: "fists", blaster: 400 }), clips, rigs, hold)).toMatchObject({ gun: "none" });
     expect(blaster).not.toHaveProperty("back");
   });
 
-  it("slings only the held weapon on the ladder", () => {
-    for (const weapon of ["gun", "blaster"] as const) {
-      const look = heroLook(hero({ state: "ladder", weapon, blaster: 400, onGround: false }), clips, rigs, hold, cfg);
-      expect(look, weapon).toMatchObject({ gun: "slung", hand: weapon });
-    }
-  });
-
   it("weapon switch is a front view clip that blends to the front carry and drops the pseudo key", () => {
-    const look = heroLook(hero({ state: "weaponSwitch", weapon: "gun", time: 1 }), clips, rigs, hold, cfg);
+    const look = heroLook(hero({ state: "weaponSwitch", weapon: "gun", time: 1 }), clips, rigs, hold);
     expect(look.view).toBe("front");
     expect(look.pose.carry).toBeUndefined();
     expect(look.gun).toBe("hand");
     expect(look.pose).toMatchObject({ ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R });
-    expect(heroLook(hero({ state: "weaponSwitch", time: 0.05 }), clips, rigs, hold, cfg).gun).toBe("none");
+    expect(heroLook(hero({ state: "weaponSwitch", time: 0.05 }), clips, rigs, hold).gun).toBe("none");
   });
 
   it("keeps the hide tint while switching behind cover", () => {
-    expect(heroLook(hero({ state: "weaponSwitch", time: 0.5, hidden: true }), clips, rigs, hold, cfg).tint).toBe(1);
-    expect(heroLook(hero({ state: "weaponSwitch", time: 0.5 }), clips, rigs, hold, cfg).tint).toBe(0);
+    expect(heroLook(hero({ state: "weaponSwitch", time: 0.5, hidden: true }), clips, rigs, hold).tint).toBe(1);
+    expect(heroLook(hero({ state: "weaponSwitch", time: 0.5 }), clips, rigs, hold).tint).toBe(0);
   });
 
   for (const state of ["standJump", "walkJump", "duckJump", "runJump"] as const) {
     it(`${state} eases its lift out from take-off`, () => {
-      const at = (time: number) => heroLook(hero({ state, time, onGround: false }), clips, rigs, hold, cfg).lift * cellsPerUnit;
+      const at = (time: number) => heroLook(hero({ state, time, onGround: false }), clips, rigs, hold).lift * cellsPerUnit;
       for (let f = 0; f < 3; f++) {
         if (state === "duckJump") expect(Math.abs(at((f + 1) / 60)), `frame ${f}`).toBeLessThan(Math.abs(at(f / 60)));
         else expect(Math.abs(at((f + 1) / 60) - at(f / 60)), `frame ${f}`).toBeLessThan(0.1);
@@ -199,7 +152,7 @@ describe("hero look", () => {
   }
 
   it("weapon switch moves the hand from rest toward the carry without lifting it", () => {
-    const at = (time: number) => heroLook(hero({ state: "weaponSwitch", weapon: "gun", time }), clips, rigs, hold, cfg).pose;
+    const at = (time: number) => heroLook(hero({ state: "weaponSwitch", weapon: "gun", time }), clips, rigs, hold).pose;
     expect([at(0).armL ?? 0, at(0).foreL ?? 0]).toEqual([0, 0]);
     const drawAt = clips.weaponSwitch!.gun!.find(([, g]) => g === "hand")![0];
     for (const t of [drawAt, 0.3, 0.45]) {
@@ -210,16 +163,16 @@ describe("hero look", () => {
 
   it("is zero in the air and the same for the same input", () => {
     const h = hero({ state: "fall", time: 0.1, onGround: false });
-    expect(heroLook(h, clips, rigs, hold, cfg).lift).toBe(0);
+    expect(heroLook(h, clips, rigs, hold).lift).toBe(0);
     const d = hero({ state: "death", time: 1.4 });
-    expect(heroLook(d, clips, rigs, hold, cfg)).toEqual(heroLook(d, clips, rigs, hold, cfg));
+    expect(heroLook(d, clips, rigs, hold)).toEqual(heroLook(d, clips, rigs, hold));
   });
 
   for (const [state, g] of [["walk", WALK], ["run", RUN]] as const) {
     it(`${state} pose and height come from the gait engine`, () => {
       for (let i = 0; i < 12; i++) {
         const time = (i * g.cycle) / 12 + 0.01;
-        const look = heroLook(hero({ state, time }), clips, rigs, hold, cfg);
+        const look = heroLook(hero({ state, time }), clips, rigs, hold);
         const phase = (TAU * time) / clips[state]!.duration;
         expectPose(look.pose, gaitPose(g, phase));
         expect(look.lift).toBeCloseTo(gaitBob(g, phase) / SPIKE_K, 6);
@@ -228,7 +181,7 @@ describe("hero look", () => {
 
     it(`gun ${state} keeps the forearm at one world angle over a cycle`, () => {
       const world = Array.from({ length: 24 }, (_, i) => {
-        const look = heroLook(hero({ state, weapon: "gun", time: (i * g.cycle) / 24 }), clips, rigs, hold, cfg);
+        const look = heroLook(hero({ state, weapon: "gun", time: (i * g.cycle) / 24 }), clips, rigs, hold);
         expect(look.gun).toBe("hand");
         return angle(look.pose, "body") + angle(look.pose, "arm") + angle(look.pose, "fore");
       });
@@ -246,7 +199,7 @@ describe("hero look", () => {
       tick(g, [i < 10 ? "moveLeft" : "moveRight"]);
       expect(g.hero.state).toBe("walk");
       expect(g.hero.time).toBeCloseTo(before + 1 / 60, 9);
-      const look = heroLook(g.hero, clips, rigs, hold, cfg);
+      const look = heroLook(g.hero, clips, rigs, hold);
       expect(look.view).toBe("side");
       expect(look.flip).toBe(i < 10);
       expectPose(look.pose, gaitPose(WALK, (TAU * g.hero.time) / clips.walk!.duration));
@@ -256,9 +209,9 @@ describe("hero look", () => {
   it("hide is front view with full tint on the press frame", () => {
     const g = game();
     tick(g, ["hide"]);
-    expect(heroLook(g.hero, clips, rigs, hold, cfg)).toMatchObject({ view: "front", tint: 1 });
+    expect(heroLook(g.hero, clips, rigs, hold)).toMatchObject({ view: "front", tint: 1 });
     for (let i = 0; i < 27; i++) tick(g, ["hide"]);
-    expect(heroLook(g.hero, clips, rigs, hold, cfg)).toMatchObject({ view: "front", tint: 1 });
+    expect(heroLook(g.hero, clips, rigs, hold)).toMatchObject({ view: "front", tint: 1 });
   });
 
   const angleOr0 = (pose: Record<string, unknown>, k: string): number => (typeof pose[k] === "number" ? (pose[k] as number) : 0);
@@ -288,8 +241,8 @@ describe("hero look", () => {
       for (let i = 0; i < 90 && (landed < 0 || i < landed + 12); i++) {
         tick(g, [...held]);
         if (landed < 0 && g.hero.state !== state) landed = i;
-        looks.push(heroLook(g.hero, clips, rigs, hold, cfg).pose);
-        targets.push(heroLook({ ...g.hero, landing: null }, clips, rigs, hold, cfg).pose);
+        looks.push(heroLook(g.hero, clips, rigs, hold).pose);
+        targets.push(heroLook({ ...g.hero, landing: null }, clips, rigs, hold).pose);
       }
       expect(landed).toBeGreaterThan(0);
       expect(g.hero.state).toBe(end);
@@ -303,47 +256,47 @@ describe("hero look", () => {
 
   it("every jump uses the one leap pose after the shared 0.08 s blend", () => {
     for (const state of ["standJump", "duckJump", "walkJump", "runJump"] as const) {
-      expectPose(heroLook(hero({ state, time: 0.08, onGround: false }), clips, rigs, hold, cfg).pose, LEAP);
-      const early = heroLook(hero({ state, time: 0.04, onGround: false }), clips, rigs, hold, cfg).pose;
+      expectPose(heroLook(hero({ state, time: 0.08, onGround: false }), clips, rigs, hold).pose, LEAP);
+      const early = heroLook(hero({ state, time: 0.04, onGround: false }), clips, rigs, hold).pose;
       expect(Math.abs(angle(early, "arm") - LEAP.arm), state).toBeGreaterThan(1);
     }
   });
 
   it("fall and fall death share the fall pose", () => {
-    const fall = heroLook(hero({ state: "fall", time: 0.2, onGround: false }), clips, rigs, hold, cfg).pose;
-    const death = heroLook(hero({ state: "fallDeath", time: 0 }), clips, rigs, hold, cfg).pose;
+    const fall = heroLook(hero({ state: "fall", time: 0.2, onGround: false }), clips, rigs, hold).pose;
+    const death = heroLook(hero({ state: "fallDeath", time: 0 }), clips, rigs, hold).pose;
     expect(death).toEqual(fall);
   });
 
   it("duck, duck punch and duck shoot share the duck legs, with punch arms leveled to the stance lean", () => {
     const legs = (state: "duck" | "duckAttack", weapon: "fists" | "gun", time: number) =>
-      legsOf(heroLook(hero({ state, weapon, time }), clips, rigs, hold, cfg).pose as Record<string, number>);
+      legsOf(heroLook(hero({ state, weapon, time }), clips, rigs, hold).pose as Record<string, number>);
     const duck = legs("duck", "fists", clips.duck!.duration);
     expect(duck).toEqual(legsOf(DUCK));
     expect(legs("duckAttack", "fists", 0.5)).toEqual(duck);
     expect(legs("duckAttack", "gun", 0.5)).toEqual(duck);
     for (let i = 0; i < 24; i++) {
       const time = (i * 1.2) / 24;
-      const stand = heroLook(hero({ state: "attack", time }), clips, rigs, hold, cfg).pose as Record<string, number>;
-      const low = heroLook(hero({ state: "duckAttack", time }), clips, rigs, hold, cfg).pose as Record<string, number>;
+      const stand = heroLook(hero({ state: "attack", time }), clips, rigs, hold).pose as Record<string, number>;
+      const low = heroLook(hero({ state: "duckAttack", time }), clips, rigs, hold).pose as Record<string, number>;
       for (const k of ["arm", "armFar"]) expect(low.body! + low[k]!, `${k} at ${time}`).toBeCloseTo(stand.body! + stand[k]!, 6);
       for (const k of ["fore", "foreFar"]) expect(low[k], `${k} at ${time}`).toBeCloseTo(stand[k]!, 6);
     }
   });
 
   it("use lowers the gun and reaches with the far arm", () => {
-    const rest = heroLook(hero({ state: "use", weapon: "gun", time: 0 }), clips, rigs, hold, cfg);
+    const rest = heroLook(hero({ state: "use", weapon: "gun", time: 0 }), clips, rigs, hold);
     expect(rest).toMatchObject({ gun: "hand", pose: { arm: 4, fore: -6 } });
-    const reach = heroLook(hero({ state: "use", weapon: "fists", time: 0.25 }), clips, rigs, hold, cfg).pose;
-    expect(heroLook(hero({ state: "use", weapon: "gun", time: 0.25 }), clips, rigs, hold, cfg).pose).toMatchObject({ armFar: reach.arm, foreFar: reach.fore });
+    const reach = heroLook(hero({ state: "use", weapon: "fists", time: 0.25 }), clips, rigs, hold).pose;
+    expect(heroLook(hero({ state: "use", weapon: "gun", time: 0.25 }), clips, rigs, hold).pose).toMatchObject({ armFar: reach.arm, foreFar: reach.fore });
   });
 
   it("duck jump launches straight from the duck pose into the leap", () => {
-    const start = heroLook(hero({ state: "duckJump", time: 0, onGround: false }), clips, rigs, hold, cfg);
-    const ducked = heroLook(hero({ state: "duck", time: clips.duck!.duration }), clips, rigs, hold, cfg);
+    const start = heroLook(hero({ state: "duckJump", time: 0, onGround: false }), clips, rigs, hold);
+    const ducked = heroLook(hero({ state: "duck", time: clips.duck!.duration }), clips, rigs, hold);
     expectPose(start.pose, DUCK);
     expect(start.lift).toBeCloseTo(ducked.lift, 6);
-    expectPose(heroLook(hero({ state: "duckJump", time: 0.1, onGround: false }), clips, rigs, hold, cfg).pose, LEAP);
+    expectPose(heroLook(hero({ state: "duckJump", time: 0.1, onGround: false }), clips, rigs, hold).pose, LEAP);
   });
 
   it("duck jump landing with down held goes straight from the leap into the duck pose", () => {
@@ -354,7 +307,7 @@ describe("hero look", () => {
     while (g.hero.state === "duckJump") tick(g, ["down"]);
     expect(g.hero.state).toBe("duck");
     for (let i = 0; i < 10; i++) {
-      expectPose(heroLook(g.hero, clips, rigs, hold, cfg).pose, DUCK);
+      expectPose(heroLook(g.hero, clips, rigs, hold).pose, DUCK);
       tick(g, ["down"]);
     }
   });
@@ -364,19 +317,19 @@ describe("hero look", () => {
       const g0 = game();
       for (let i = 0; i < 23; i++) tick(g0, gait === "run" ? ["moveRight", RUNNING] : ["moveRight"]);
       expect(g0.hero.state).toBe(gait);
-      const before = heroLook({ ...g0.hero, time: g0.hero.time + dt }, clips, rigs, hold, cfg);
+      const before = heroLook({ ...g0.hero, time: g0.hero.time + dt }, clips, rigs, hold);
       tick(g0, gait === "run" ? ["moveRight", RUNNING] : ["moveRight"], ["up"]);
       expect(g0.hero.state).toBe(state);
-      const after = heroLook(g0.hero, clips, rigs, hold, cfg);
+      const after = heroLook(g0.hero, clips, rigs, hold);
       for (const k of LEGS) expect(Math.abs(angle(after.pose, k) - angle(before.pose, k)), k).toBeLessThan(15);
-      const flying = heroLook({ ...g0.hero, time: 0.1 }, clips, rigs, hold, cfg);
+      const flying = heroLook({ ...g0.hero, time: 0.1 }, clips, rigs, hold);
       expectPose(flying.pose, leap);
       expect(legsOf(flying.pose as Record<string, number>)).not.toEqual(legsOf(gaitPose(g, 0)));
     });
   }
 
   it("a hit flashes the chest and head and snaps the head back", () => {
-    const at = (hitAge: number) => heroLook(hero({ state: "attack", weapon: "gun", time: 0.3, hitAge }), clips, rigs, hold, cfg);
+    const at = (hitAge: number) => heroLook(hero({ state: "attack", weapon: "gun", time: 0.3, hitAge }), clips, rigs, hold);
     const first = at(0);
     expect(first.hit!.flash).toBe(1);
     expect(first.hit!.headSnap).toBeCloseTo(0, 9);
@@ -388,12 +341,12 @@ describe("hero look", () => {
     for (let age = 0.35; age <= 0.6; age += 0.01) expect(Math.abs(at(age).hit!.headSnap)).toBeLessThan(age >= 0.4 ? 1 : 1.5);
     expect(at(0.3).hit!.flash).toBe(0);
     expect(at(0.7).hit).toBeNull();
-    expect(heroLook(hero({ state: "idle" }), clips, rigs, hold, cfg).hit).toBeNull();
+    expect(heroLook(hero({ state: "idle" }), clips, rigs, hold).hit).toBeNull();
   });
 
   it("keeps the base move under a hit", () => {
-    const base = heroLook(hero({ state: "runJump", time: 0.2, onGround: false }), clips, rigs, hold, cfg);
-    const hit = heroLook(hero({ state: "runJump", time: 0.2, onGround: false, hitAge: 0.1 }), clips, rigs, hold, cfg);
+    const base = heroLook(hero({ state: "runJump", time: 0.2, onGround: false }), clips, rigs, hold);
+    const hit = heroLook(hero({ state: "runJump", time: 0.2, onGround: false, hitAge: 0.1 }), clips, rigs, hold);
     const { head, chest, ...rest } = hit.pose;
     expect(head).toBeTypeOf("object");
     expect(chest).toBeTypeOf("object");
@@ -402,7 +355,7 @@ describe("hero look", () => {
   });
 
   it("the hit star sits at the impact point and fades in 0.3 s", () => {
-    const at = (hitAge: number) => heroLook(hero({ state: "idle", hitAge }), clips, rigs, hold, cfg).hit!;
+    const at = (hitAge: number) => heroLook(hero({ state: "idle", hitAge }), clips, rigs, hold).hit!;
     expect(at(0).spark).toBe(0);
     expect(at(0.15).spark).toBeCloseTo(0.5, 6);
     expect(at(0.3).spark).toBe(1);
@@ -418,12 +371,12 @@ describe("hero look", () => {
     g.hero.energy = cfg.energy.hit;
     damage(g.hero, cfg);
     expect(g.hero.state).toBe("jumpDeath");
-    expect(heroLook(g.hero, clips, rigs, hold, cfg).gun).toBe("hand");
-    const limp = heroLook({ ...g.hero, time: 0.2 }, clips, rigs, hold, cfg);
+    expect(heroLook(g.hero, clips, rigs, hold).gun).toBe("hand");
+    const limp = heroLook({ ...g.hero, time: 0.2 }, clips, rigs, hold);
     expectPose(limp.pose, { body: 0, hipNear: -30, kneeNear: 40, ankleNear: 20 });
     expect(limp.gun).toBe("hand");
     for (let i = 0; i < 120; i++) tick(g);
-    const lying = heroLook(g.hero, clips, rigs, hold, cfg);
+    const lying = heroLook(g.hero, clips, rigs, hold);
     expect(lying.rot).toBeCloseTo(-89, 6);
     expect(lying.gun).toBe("dropped");
     expect(lying.lift * cellsPerUnit).toBeLessThan(-0.05);

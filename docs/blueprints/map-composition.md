@@ -43,7 +43,7 @@ Do the steps in order. A step starts only once the gate of the step before it pa
 ### 2. Check against the original
 
 - Crop the original map region by region with a cell grid: `node tools/map/crop.mjs <map png> <col> <row> <cols> <rows> <out.png> [scale]` (decoded maps in `docs/research/gamedata/png/maps/`, 24 px per cell, local only). [U]
-- List every feature of each region with its cells: floors, walls, lifts, ladders, buildings, pipes, clutter, signs, lights, objects.
+- List every feature of each region with its cells: floors, walls, lifts, buildings, pipes, clutter, signs, lights, objects.
 - Map each feature to a planned asset of the sheet, or state why it is skipped.
 - Gate: every feature has an asset or a stated skip.
 
@@ -108,8 +108,8 @@ Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLi
 
 ## Traversal
 
-- Lifts are the common way between floors; ladders are rare, a unique route. No pits or drops as an intended way to move; survivable floor edges may stay open. [R: Level traversal]
-- A lift's two stop floors connect only through that lift: no walk, ladder, other lift, jump or survivable drop between them. Each lift starts at its spawn-side stop. A reach test checks every lift. [R: Elevator at the hero's level]
+- Lifts are the common way between floors; no ladders, as in the original [R: No ladders]. No pits or drops as an intended way to move; survivable floor edges may stay open. [R: Level traversal]
+- A lift's two stop floors connect only through that lift: no walk, other lift, jump or survivable drop between them. Each lift starts at its spawn-side stop. A reach test checks every lift. [R: Elevator at the hero's level]
 - Every lift has two stops; a three-stop lift becomes two lifts side by side; an unused middle stop is dropped. [R: Lift stops] [T]
 - A floor beside a shaft on a row where its lift does not stop gets a wall up to the floor above, so it does not read as a landing. [R: Lift shaft sides]
 - A lift shaft is open from two rows above its top stop down to its bottom stop, and the bottom stop is solid, so the hero never drops through with the deck away. [R: Lift art] [test]
@@ -128,7 +128,7 @@ Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLi
 
 ## Walls, sky and edges
 
-- A cell the player never sees and that has something solid above it becomes filler. Sight is the game fog sight unioned over every reached floor, ladder and lift row (`unseen`). Check the union again after the fill: no cell seen before may turn unseen. [S]
+- A cell the player never sees and that has something solid above it becomes filler. Sight is the game fog sight unioned over every reached floor and lift row (`unseen`). Check the union again after the fill: no cell seen before may turn unseen. [S]
 - Open sky stays open: sky above the top floor of a column, and the explicit `sky` rects (mesto: the sky over the crashed ship). [S]
 - No ceiling row at the map top: the sky is open above the level; an invisible ceiling above the top row is fine. [H: 0841ea1e 2026-10-19]
 - An outer wall at the map edge fills solid on to the edge over cells the hero never reaches, so the view shows filler, not sky (`borderFills`). Edge walls are so thick that the view shows only filler. [R: Map borders] [H: 736b19e6 2026-10-20]

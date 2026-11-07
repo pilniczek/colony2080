@@ -73,7 +73,7 @@ async function longFall(p) {
     for (let y = 20; y < g.height; y++) for (let x = 2; x < g.width - 2; x++) {
       if (!g.solid(x, y) || g.solid(x, y - 1)) continue;
       let clear = 0;
-      while (clear < 14 && y - 1 - clear >= 0 && !g.solid(x, y - 1 - clear) && !g.oneWay(x, y - 1 - clear) && !g.ladderAt(x + 0.5, y - 1 - clear)) clear++;
+      while (clear < 14 && y - 1 - clear >= 0 && !g.solid(x, y - 1 - clear) && !g.oneWay(x, y - 1 - clear)) clear++;
       if (clear < 14 || g.solid(x - 1, y - 1) || g.solid(x + 1, y - 1)) continue;
       if (world.props.some((q) => (q.repels || q.fires || q.cutscene || q.kind !== "gate") && Math.abs(q.x - x) < 8)) continue;
       if (world.enemies.some((e) => Math.abs(e.body.x - x) < 10 && Math.abs(e.body.y - y) < 3)) continue;

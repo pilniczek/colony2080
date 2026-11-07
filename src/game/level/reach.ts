@@ -12,7 +12,6 @@ export interface Model {
   jumpCells: (drop: number) => number;
   blocked: (col: number, from: number, to: number) => boolean;
   landing: (col: number, row: number, from: number) => boolean;
-  fromLadders: boolean;
 }
 
 export interface Edge {
@@ -27,12 +26,6 @@ export type Graph = Map<string, Edge[]>;
 interface Origin {
   run: Run;
   key: string;
-}
-
-export interface Ladder {
-  col: number;
-  top: number;
-  end: number;
 }
 
 export const stopId = (lift: number, row: number): string => `lift ${lift} ${row}`;
@@ -101,7 +94,6 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
     jumpCells: () => STRICT_JUMP_CELLS,
     blocked: (col, from, to) => !clear(col, Math.min(from, to) - JUMP_CLEARANCE, Math.max(from, to) - 1),
     landing: (col, row, from) => clear(col, Math.min(from, row) - JUMP_CLEARANCE, row - 1),
-    fromLadders: false,
   };
 
   const generous: Model = {
@@ -109,7 +101,6 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
     jumpCells,
     blocked: (col, from) => grid.solid(col, from - 1) && grid.solid(col, from - 2),
     landing: () => true,
-    fromLadders: true,
   };
 
   function landings(col: number, from: number, maxDrop: number): string[] {
@@ -154,19 +145,6 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
     });
   }
 
-  function ladders(): Ladder[] {
-    const out: Ladder[] = [];
-    for (let col = 0; col < grid.width; col++) {
-      for (let top = 0; top < grid.height; top++) {
-        if (!grid.ladderTop(col, top)) continue;
-        let end = top;
-        while (grid.at(col, end) === "H") end++;
-        out.push({ col, top, end });
-      }
-    }
-    return out;
-  }
-
   function graph(m: Model): Graph {
     const out: Graph = new Map(floors.map((r) => [node(r), []]));
     const link = (from: string[], to: string[], lift?: number): void => {
@@ -190,17 +168,6 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
       const pads = runs.filter((r) => r.row === t.from[1] + 1 && r.col < t.col + t.w && r.col + r.w > t.col);
       const target = runAt(t.to[1] + 1, t.to[0]);
       if (target) link(pads.map(id), [id(target)]);
-    }
-    for (const { col, top, end } of ladders()) {
-      const group = [...touching(top, col, col), ...touching(end, col, col)].map(node);
-      both(group);
-      if (!m.fromLadders) continue;
-      for (let row = top; row < end; row++) {
-        const key = `ladder ${col},${row}`;
-        out.set(key, []);
-        link(group, [key]);
-        origins.push({ run: { row, col, w: 1 }, key });
-      }
     }
     for (const { run: r, key } of origins) {
       link([key], throughFloors(r).map(id));
@@ -241,7 +208,7 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
     return floors.filter((r) => r.row === row && r.col <= prop.x + reachX && r.col + r.w >= prop.x - reachX).map(node);
   }
 
-  return { runs, floors, decks, deckOf, node, runAt, landings, ladders, jumpCells, strict, generous, graph, reach, nodesAt };
+  return { runs, floors, decks, deckOf, node, runAt, landings, jumpCells, strict, generous, graph, reach, nodesAt };
 }
 
 export interface Ride {

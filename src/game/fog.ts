@@ -120,12 +120,10 @@ export function createFog(cfg: FogConfig, sight: Sight, hero: Pick<Hero, "x" | "
   return fog;
 }
 
-const settled = (h: Hero): boolean => h.onGround || h.state === "ladder";
-
 export function updateFog(fog: Fog, h: Hero, sight: Sight, dt: number): void {
   const { cfg } = fog;
   const outside = h.y > fog.anchorY + cfg.rowsBelow || h.y - sight.box.height < fog.anchorY - cfg.rowsAbove;
-  const floor = settled(h) || outside ? h.y : h.fallFrom;
+  const floor = h.onGround || outside ? h.y : h.fallFrom;
   fog.anchorY += (floor - fog.anchorY) * Math.min(1, cfg.followRate * dt);
   revealAround(fog, h.x, sight);
 }

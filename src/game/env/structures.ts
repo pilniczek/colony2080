@@ -290,24 +290,6 @@ export const girderBridge: EnvAsset = {
   },
 };
 
-export const ladderRungs = (h: number, rung: number): number[] => {
-  const ys: number[] = [];
-  for (let k = 1; -rung * k > -h; k++) ys.push(-rung * k);
-  return ys;
-};
-
-export const ladder: EnvAsset = {
-  id: "ladder",
-  box: [0, -168, 17.2, 0],
-  draw(ctx, _state, _t, { h = 168, w = 17.2, rung = 6.76 }: Size) {
-    box(ctx, 0, -h, 2.4, h, "steel", 2, { vertical: true });
-    box(ctx, w - 2.4, -h, 2.4, h, "steel", 2, { vertical: true });
-    const ys = ladderRungs(h, rung);
-    for (const y of ys) box(ctx, 2.4, y - 0.7, w - 4.8, 1.4, "chrome", 2);
-    if (!P.simple()) for (let k = 0; k < ys.length; k += 4) for (const x of [0.6, w - 1.8]) flat(ctx, x, (ys[k] as number) - 0.6, 1.2, 1.2, "m3");
-  },
-};
-
 const liftLanding: EnvAsset = {
   id: "liftLanding",
   box: [0, -3, 72, 7],
@@ -627,4 +609,4 @@ export const metroPlatformWall: EnvAsset = {
   },
 };
 
-export const structureAssets: EnvAsset[] = [streetWalkway, hazardPlate, girderBridge, ladder, liftLanding, pipeColumn, pipeBend, fuelTank, staircase, chainFence, latticePylon, stripLight, tunnelGate, tunnelFloor, tunnelWall, metroPlatformWall];
+export const structureAssets: EnvAsset[] = [streetWalkway, hazardPlate, girderBridge, liftLanding, pipeColumn, pipeBend, fuelTank, staircase, chainFence, latticePylon, stripLight, tunnelGate, tunnelFloor, tunnelWall, metroPlatformWall];

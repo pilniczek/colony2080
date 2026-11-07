@@ -14677,19 +14677,6 @@ window.C28_CONFIG = {
       ]
      },
      {
-      "id": "ladder",
-      "name": "Ladder",
-      "csName": null,
-      "interactive": false,
-      "origin": "new",
-      "marker": null,
-      "task": null,
-      "sheet": "structures",
-      "description": "Steel ladder with two rails and chrome rungs, climbed by the hero; height follows the ladder cells, rung spacing matches the game climb steps.",
-      "states": [],
-      "refs": []
-     },
-     {
       "id": "shieldCell",
       "name": "Shield bonus",
       "csName": "štít",

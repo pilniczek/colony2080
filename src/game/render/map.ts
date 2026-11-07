@@ -5,14 +5,13 @@ import type { Lift, SandboxWorld } from "../level/sandboxLevel";
 import { filled } from "../level/terrain";
 import { context2d, surface, type Surface } from "../../engine/render/surface";
 
-export const MAP_CELLS = ["unknown", "open", "wall", "ladder"] as const;
+export const MAP_CELLS = ["unknown", "open", "wall"] as const;
 export type MapCell = (typeof MAP_CELLS)[number];
 
 const COLORS: Record<MapCell, [number, number, number, number]> = {
   unknown: [0, 0, 0, 0],
   open: [0xc4, 0xc2, 0xbc, 255],
   wall: [0x2b, 0x29, 0x25, 255],
-  ladder: [0x55, 0x52, 0x4c, 255],
 };
 
 const code = (kind: MapCell): number => MAP_CELLS.indexOf(kind);
@@ -44,7 +43,7 @@ export function mapCells({ grid, fog }: Pick<MapWorld, "grid" | "fog">): Uint8Ar
   for (let row = 0; row < grid.height; row++) {
     for (let col = 0; col < grid.width; col++) {
       if (fog && !revealedAt(fog, col, row)) continue;
-      cells[row * grid.width + col] = code(filled(grid, col, row) ? "wall" : grid.at(col, row) === "H" ? "ladder" : "open");
+      cells[row * grid.width + col] = code(filled(grid, col, row) ? "wall" : "open");
     }
   }
   return cells;

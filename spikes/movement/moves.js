@@ -1,9 +1,7 @@
-const { buildSide, buildFront, buildBack, render, locate, shade, SIDE_AX, AX, FOOT_Y, LEVELS, PALETTE: P } = window.XBOT;
+const { buildSide, buildFront, render, locate, shade, SIDE_AX, AX, FOOT_Y, LEVELS, PALETTE: P } = window.XBOT;
 const side = buildSide({ farLimbs: true, propBehindArm: true, lod: true });
 const front = buildFront({ lod: true, rightArmFirst: true, propBehindArm: true });
-const back = buildBack({ lod: true });
-const climber = buildBack({ lod: true, thumbsBehind: true, forearmsUnder: true });
-const ROOTS = { side, front, back, climber };
+const ROOTS = { side, front };
 const MODELS = { gun: GUN, blaster: EBLASTER };
 let WEAPON = "fists";
 try { WEAPON = localStorage.getItem("xbotWeapon") || "fists"; } catch {}
@@ -690,69 +688,6 @@ move("fight", "Weapon switch", "1 / 2 / 3", Object.fromEntries(Object.entries(SW
   shadow(c, 160, FLOOR, 30);
   bot(c, { x: 160, y: FLOOR + lift(pose), pose, hold: false, hooks: inHand ? { hand: (hc, pal) => gun(hc, pal, MODELS[inHand]) } : {} });
   label(c, inHand ? SWITCH_LABEL[inHand] : "2  FISTS");
-});
-
-const CLIMB_REACH = Array.from({ length: 11 }, (_, i) =>
-  XBOT.solve(climber, "handL", {}, ["armL", "foreL"], [[90, 200], [0, 160]], new DOMPoint(190, 110 - 150 * i / 10)));
-
-function climbArm(rel) {
-  const f = clamp((110 - FOOT_Y + rel / K) / 150) * 10, i = Math.min(9, Math.floor(f)), k = f - i;
-  const a = CLIMB_REACH[i], b = CLIMB_REACH[i + 1];
-  return { arm: a.armL + (b.armL - a.armL) * k, fore: a.foreL + (b.foreL - a.foreL) * k };
-}
-
-const RUNG = 22;
-const legUp = r => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
-const footY = pose => locate(climber, "footL", pose).transformPoint(new DOMPoint(0, 0)).y;
-const STEP_UP = (footY({}) - footY({ thighL: legUp(1)[0], shinL: legUp(1)[1] })) * K;
-const CLIMB = { hands: [152.5, 130.5], feet: [RUNG, 0], height: 6 * RUNG };
-
-function rungHeight(climb, phase) {
-  const c = climb / (2 * RUNG) + phase / 2, n = Math.floor(c), k = c - n;
-  return 2 * RUNG * (n + (k < 0.5 ? 0 : ease(2 * k - 1)));
-}
-
-function ladderRails(c, lx) {
-  c.fillStyle = "#4a5c5f";
-  c.fillRect(lx - 28, 0, 5, FLOOR);
-  c.fillRect(lx + 23, 0, 5, FLOOR);
-  for (let y = FLOOR - RUNG; y > 0; y -= RUNG) c.fillRect(lx - 28, y, 56, 3);
-}
-
-function climbPose(climb) {
-  const rel = (phase, top) => rungHeight(climb, phase) + top - climb;
-  const l = climbArm(rel(0, CLIMB.hands[0])), r = climbArm(rel(1, CLIMB.hands[1]));
-  const [thighR, shinR] = legUp(rel(0, CLIMB.feet[0]) / STEP_UP), [thighL, shinL] = legUp(rel(1, CLIMB.feet[1]) / STEP_UP);
-  return { armL: l.arm, foreL: l.fore, armR: -r.arm, foreR: -r.fore, thighL, shinL, thighR, shinR };
-}
-
-move("movement", "Ladder", "Up / Down at ladder, back view", 4, (c, t) => {
-  backdrop(c);
-  const lx = 180;
-  ladderRails(c, lx);
-  const climb = CLIMB.height * clamp((t - 0.5) / 3.0);
-  c.save();
-  c.globalAlpha = span(t, 0, 0.3) * (1 - span(t, 3.6, 4));
-  bot(c, { view: "climber", x: lx, y: FLOOR - climb, pose: climbPose(climb) });
-  c.restore();
-});
-
-const LADDER_CATCH = { catchT: 0.7, from: 2 * RUNG, to: 6 * RUNG };
-
-move("movement", "Ladder catch", "Up while falling at ladder, any height, no damage", 4.2, (c, t) => {
-  backdrop(c);
-  const lx = 180, { catchT, from, to } = LADDER_CATCH;
-  ladderRails(c, lx);
-  c.save();
-  c.globalAlpha = 1 - span(t, 3.8, 4.2);
-  if (t < catchT) {
-    bot(c, { x: lx, y: -40 + (FLOOR - from + 40) * easeIn(t / catchT), pose: FALL });
-  } else {
-    const climb = from + (to - from) * clamp((t - catchT - 0.3) / 2.6);
-    bot(c, { view: "climber", x: lx, y: FLOOR - climb, pose: climbPose(climb) });
-  }
-  c.restore();
-  if (t > catchT - 0.05 && t < catchT + 0.6) label(c, "UP");
 });
 
 move("movement", "Lift ride", "stand on platform", 5, (c, t) => {

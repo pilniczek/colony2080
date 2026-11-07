@@ -1,12 +1,11 @@
 const SOLID = 1;
 const WALL = 2;
 const FLOOR = 4;
-const LADDER = 8;
 const BLOCKED = 16;
 const SEE_THROUGH = 32;
 const GAP = 64;
 
-const TILE_FLAGS: Record<string, number> = { "#": SOLID | WALL, "|": SOLID, "=": FLOOR, H: LADDER };
+const TILE_FLAGS: Record<string, number> = { "#": SOLID | WALL, "|": SOLID, "=": FLOOR };
 
 export class TileGrid {
   readonly width: number;
@@ -75,19 +74,11 @@ export class TileGrid {
     return (this.flagsAt(col, row) & WALL) !== 0;
   }
 
-  ladderAt(x: number, y: number): boolean {
-    return (this.flagsAt(Math.floor(x), Math.floor(y)) & LADDER) !== 0;
-  }
-
-  ladderTop(col: number, row: number): boolean {
-    return (this.flagsAt(col, row) & LADDER) !== 0 && (this.flagsAt(col, row - 1) & LADDER) === 0;
-  }
-
   floor(col: number, row: number): boolean {
     return (this.flagsAt(col, row) & (FLOOR | GAP)) === FLOOR;
   }
 
   oneWay(col: number, row: number): boolean {
-    return this.floor(col, row) || this.ladderTop(col, row);
+    return this.floor(col, row);
   }
 }

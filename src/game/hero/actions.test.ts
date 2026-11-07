@@ -380,17 +380,6 @@ describe("dead body", () => {
     expect(kinds(g, "died")).toHaveLength(1);
   });
 
-  it("falls off the ladder", () => {
-    const g = game({ x: 3.4, y: 14 });
-    tick(g, [], ["up"]);
-    run(g, 2, ["up"]);
-    expect(g.hero.state).toBe("ladder");
-    lethal(g);
-    run(g, 1);
-    expect(g.hero).toMatchObject({ state: "death", y: 14, onGround: true });
-    expect(kinds(g, "died")).toHaveLength(1);
-  });
-
   it("stops below the pit and still respawns", () => {
     const g = game({ x: 29.5, y: 14 }, bottomlessPits);
     runUntil(g, (h) => h.state === "fallDeath");
@@ -510,7 +499,6 @@ describe("damage", () => {
     ["punch", () => { const g = game(); tick(g, ["shoot"], ["shoot"]); run(g, 0.1, ["shoot"]); return g; }, ["shoot"]],
     ["gun fire", () => { const g = game({ x: 7.5, y: 14, weapon: "gun" }); tick(g, ["shoot"], ["shoot"]); run(g, 0.1, ["shoot"]); return g; }, ["shoot"]],
     ["jump", () => { const g = game(); tick(g, [], ["up"]); run(g, 0.1); return g; }, []],
-    ["ladder", () => { const g = game({ x: 3.4, y: 14 }); tick(g, [], ["up"]); run(g, 0.5, ["up"]); return g; }, ["up"]],
     ["use", () => { const g = game({ x: 21.5, y: 14 }); tick(g, [], ["useItem"]); run(g, 0.1); return g; }, []],
     ["runJump", () => { const g = game({ x: 7.5, y: 14, state: "run" }); tick(g, ["moveRight", RUNNING], ["up"]); run(g, 0.1); return g; }, []],
   ];

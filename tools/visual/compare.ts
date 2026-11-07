@@ -570,7 +570,6 @@ const envStates: Record<string, number[]> = { brickWall: [0, 1], stripLight: [0,
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
-  ["ladder", { h: 240, w: 17.2, rung: 6.76 }],
   ["brickWall", { w: 24, h: 384 }],
   ["brickWall", { w: 960, h: 48 }],
   ["lift", { w: 72, top: -272, py: -120 }],

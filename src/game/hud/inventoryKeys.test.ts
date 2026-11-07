@@ -38,7 +38,7 @@ describe("inventory keys", () => {
     expect(canOpenScreen("death", false)).toBe(false);
     expect(canOpenScreen("jumpDeath", false)).toBe(false);
     expect(canOpenScreen("fallDeath", false)).toBe(false);
-    expect(canOpenScreen("ladder", false)).toBe(true);
+    expect(canOpenScreen("duck", false)).toBe(true);
   });
 
   it("stays shut during a use so the used item cannot change", () => {

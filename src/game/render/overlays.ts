@@ -19,7 +19,6 @@ export interface OverlayFlags {
 const COLORS = {
   solid: "rgba(80,200,255,0.6)",
   oneWay: "rgba(160,255,200,0.7)",
-  ladder: "rgba(255,220,60,0.7)",
   lift: "rgba(255,140,40,0.8)",
   box: "#3cff6a",
   hidden: "#ff4fd8",
@@ -49,8 +48,8 @@ function tiles(ctx: CanvasRenderingContext2D, world: SandboxWorld, cell: number,
   for (let row = 0; row < grid.height; row++) {
     for (let col = 0; col < grid.width; col++) {
       const tile = grid.at(col, row);
-      if (tile !== "#" && tile !== "=" && tile !== "H") continue;
-      ctx.strokeStyle = tile === "#" ? COLORS.solid : tile === "=" ? COLORS.oneWay : COLORS.ladder;
+      if (tile !== "#" && tile !== "=") continue;
+      ctx.strokeStyle = tile === "#" ? COLORS.solid : COLORS.oneWay;
       ctx.strokeRect(col * cell, row * cell, cell, cell);
     }
   }

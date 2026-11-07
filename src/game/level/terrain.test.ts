@@ -9,7 +9,7 @@ const cellsOfRect = (r: Rect): string[] =>
 const cellsOfRun = (r: Run): string[] => cellsOfRect({ ...r, h: 1 });
 const solidCells = (grid: TileGrid): string[] => {
   const out: string[] = [];
-  for (let row = 0; row < grid.height; row++) for (let col = 0; col < grid.width; col++) if (grid.solid(col, row)) out.push(`${col},${row}`);
+  for (let row = 0; row < grid.height; row++) for (let col = 0; col < grid.width; col++) if (grid.solid(col, row) || grid.oneWay(col, row)) out.push(`${col},${row}`);
   return out;
 };
 
@@ -19,18 +19,19 @@ const t = terrain(grid);
 describe("terrain", () => {
   it("finds the free-standing platforms as girders", () => {
     expect(t.girders).toEqual([
-      { row: 4, col: 20, w: 4 }, { row: 11, col: 12, w: 4 }, { row: 18, col: 15, w: 7 }, { row: 25, col: 23, w: 7 },
+      { row: 4, col: 20, w: 4 }, { row: 6, col: 4, w: 3 }, { row: 8, col: 4, w: 3 }, { row: 10, col: 4, w: 3 },
+      { row: 11, col: 12, w: 4 }, { row: 12, col: 4, w: 3 }, { row: 18, col: 15, w: 7 }, { row: 25, col: 23, w: 7 },
     ]);
   });
 
   it("treats wall-backed runs as ledges", () => {
     expect(t.ledges).toEqual(expect.arrayContaining([
-      { row: 4, col: 1, w: 2 }, { row: 4, col: 4, w: 7 }, { row: 13, col: 26, w: 1 }, { row: 14, col: 1, w: 25 },
+      { row: 4, col: 1, w: 10 }, { row: 5, col: 1, w: 3 }, { row: 13, col: 1, w: 3 }, { row: 13, col: 26, w: 1 }, { row: 14, col: 4, w: 22 },
       { row: 14, col: 37, w: 10 }, { row: 21, col: 1, w: 4 }, { row: 21, col: 8, w: 39 }, { row: 28, col: 1, w: 46 },
     ]));
   });
 
-  it("covers every solid cell once as wall or girder", () => {
+  it("covers every solid or one-way cell once as wall or girder", () => {
     const cells = [...t.walls.flatMap(cellsOfRect), ...t.girders.flatMap(cellsOfRun)];
     expect(new Set(cells).size).toBe(cells.length);
     expect(new Set(cells)).toEqual(new Set(solidCells(grid)));

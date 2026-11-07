@@ -47,7 +47,7 @@ Mission 1 has no saves: a death resets every task. The user wants saves like the
 
 ## Builder check calls (Claude's, user said implement)
 
-- A save holds the full hero object (state machine state, ladder `climb`, lift link, hit age) and every lift's `y` and `target`, so a hero saved mid-jump or on a ladder loads exactly there. Save is greyed out while the hero is dead (death states) or a cutscene plays.
+- A save holds the full hero object (state machine state, lift link, hit age) and every lift's `y` and `target`, so a hero saved mid-jump loads exactly there. Save is greyed out while the hero is dead (death states) or a cutscene plays.
 - Game over is a `startRun` option: `game.html` uses it, the sandbox keeps its automatic respawn.
 - Restart mission is today's death reset (`resetWorld`, the hero keeps ammo, E-Blaster ammo, weapon and run mode).
 - Load from the mission select page: a mission bar with saves opens a dropdown (New game, saves newest first); a save opens `game.html?slot=X` (2026-10-20).

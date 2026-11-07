@@ -61,7 +61,7 @@ Research (`docs/research/reports/17-sound.md`, to write from this session's find
 | Electric hazard | `ZKRAT` @12000, every 10th tick | hero in hazard with `sound: "spark"` (original: one jeskyne zone only; field set through `levelmap.py` EXTRAS, other `damage` hazards stay silent) |
 | Item pickup, item use | film sound cues (`HYDRA` @11000 servo at frame 1 ...) | film cues |
 
-No sound in original, so none here: bullet hits wall, enemy hit, hero hit, hero death, jump start, ladder, lift travel, flyer engine, map screen, subtitle, inventory cursor and close.
+No sound in original, so none here: bullet hits wall, enemy hit, hero hit, hero death, jump start, lift travel, flyer engine, map screen, subtitle, inventory cursor and close.
 
 `land` (`SIGNAL`) is unused on user request: no cue at jump landing (original @8500 (44)) and none in films (`film-cues.mjs` skips `SIGNAL`). Its recipe stays in `SOUNDS` and the sound sheet.
 

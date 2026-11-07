@@ -24,14 +24,14 @@ User:
 - Twice the height, more platforms and elevators.
 - Camera: the hero stays in the middle of the view. At a map border the view stops and the hero keeps moving toward the edge. Same rule horizontally and vertically.
 - The invisible ceiling above row 0 stays.
-- An elevator is always at the hero's level when the hero reaches its shaft; the hero never stands beside an empty shaft. The map guarantees it: a lift's two stop floors connect only through that lift (no walk, ladder, other lift, jump or survivable drop between them in either direction). Each lift starts at the stop on the spawn side. Where a floor edge would allow such a path, solid obstacles (railings, parapets, walls) block it. A reachability test enforces the rule for every lift.
+- An elevator is always at the hero's level when the hero reaches its shaft; the hero never stands beside an empty shaft. The map guarantees it: a lift's two stop floors connect only through that lift (no walk, other lift, jump or survivable drop between them in either direction). Each lift starts at the stop on the spawn side. Where a floor edge would allow such a path, solid obstacles (railings, parapets, walls) block it. A reachability test enforces the rule for every lift.
 - Dead-end lift balconies are fine.
-- No intentional pits or drops as a way to move: the hero changes floors only by elevator or ladder. Elevators are the common way; ladders are rare, a unique route.
+- No intentional pits or drops as a way to move: the hero changes floors only by elevator or a one-row jump stair. Elevators are the common way.
 - Each lift has an optional `start` stop (`top` or `bottom`, default `bottom`) so it starts on the spawn side.
 - The hero cannot jump while standing on a moving lift (Claude's call; closes a jump-off bypass of the lift rule).
 - A few more enemies across the map that do not respawn after they die; the existing top-left enemy keeps its respawn.
 - When the hero dies, the whole map resets on respawn: lifts to their start stops, props (crowbar back on the ground, switchboard off), every enemy (killed non-respawning ones come back), bullets, sparks and fog (all cells covered again, fog on or off as the panel set it). Hero ammo carries over as today. A deadly fall therefore never strands a lift.
-- Widen the map slightly so horizontal camera movement shows. The extra width adds no interactive elements: no elevators, ladders, props or enemies there, only floor, walls and scenery.
+- Widen the map slightly so horizontal camera movement shows. The extra width adds no interactive elements: no elevators, props or enemies there, only floor, walls and scenery.
 
 Claude's call:
 

@@ -17,7 +17,7 @@ const play = (): { world: SandboxWorld; hero: Hero } => {
 
 const changed = (): { world: SandboxWorld; hero: Hero } => {
   const g = play();
-  Object.assign(g.hero, { x: 40.5, y: 75, energy: 37, ammo: 120, facing: -1, state: "ladder", climb: 2.5 });
+  Object.assign(g.hero, { x: 40.5, y: 75, energy: 37, ammo: 120, facing: -1, state: "duck" });
   pickUp(g.world, "crowbar");
   g.world.flags.add("flag:metroPowered");
   g.world.props.find((p) => p.id === "trainDoor")!.state = 2;

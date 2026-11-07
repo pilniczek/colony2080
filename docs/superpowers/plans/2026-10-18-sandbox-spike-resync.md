@@ -1,5 +1,7 @@
 # Sandbox spike re-sync implementation plan
 
+> 2026-11-07: ladders removed - the original game has none (`docs/requirements.md` No ladders). Ladder mentions below no longer apply.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Bring the phase 1b sandbox in line with the spikes and spec as they stand after the arcade-style and gait-engine changes on `master` (rebased onto `phase-1b`).

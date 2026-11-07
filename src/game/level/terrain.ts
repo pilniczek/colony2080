@@ -32,8 +32,6 @@ export const filled = (grid: TileGrid, col: number, row: number): boolean => gri
 const covered = (grid: TileGrid, col: number, row: number): boolean =>
   grid.wall(col, row - 1) || (grid.wall(col, row) && grid.floor(col, row - 1));
 
-const attached = (grid: TileGrid, col: number, row: number): boolean => filled(grid, col, row) || grid.at(col, row) === "H";
-
 export function terrain(grid: TileGrid): { walls: Rect[]; ledges: Run[]; girders: Run[] } {
   const ledges: Run[] = [];
   const girders: Run[] = [];
@@ -43,7 +41,7 @@ export function terrain(grid: TileGrid): { walls: Rect[]; ledges: Run[]; girders
     const surface = runsOf(grid.width, row, (col) => filled(grid, col, row) && !covered(grid, col, row));
     for (const run of surface) {
       const last = run.col + run.w - 1;
-      let free = !attached(grid, run.col - 1, row) && !attached(grid, last + 1, row);
+      let free = !filled(grid, run.col - 1, row) && !filled(grid, last + 1, row);
       for (let col = run.col; col <= last; col++) if (filled(grid, col, row + 1)) free = false;
       if (free) {
         girders.push(run);

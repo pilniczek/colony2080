@@ -191,7 +191,7 @@ flowchart LR
 3. **Cut game imports.** Those parts import `World`, `Hero`, enemy kinds, `ASSETS` and `config/` directly; replace them with interfaces or plugin hooks: a world adapter, an asset registry, a layer list. This and step 4 are the heaviest.
 4. **Generalise game-tied systems:**
     - tile grid with one-way floors
-    - lifts, ladders and cover as optional modules
+    - lifts and cover as optional modules
     - hero and enemy state machines as examples, not core
     - films as a timeline plus a scene API
 5. **One entry point:** `createEngine({ canvas, world, assets, modes, ... })`. Today `startRun` (`src/game/run.ts`) mixes engine, game, HUD and store setup.

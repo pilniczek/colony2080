@@ -4,13 +4,13 @@ import type { Fog } from "../fog";
 import type { Lift } from "../level/sandboxLevel";
 import { MAP_CELLS, coordMarks, mapCells, mapFit, mapLifts } from "./map";
 
-const ROWS = ["#....", "#H...", "#H..#", "#####"];
+const ROWS = ["#....", "#....", "#...#", "#####"];
 
 const kinds = (cells: Uint8Array): string[] => [...cells].map((c) => MAP_CELLS[c]!.charAt(0));
 
 describe("mapCells", () => {
   it("shows every cell without fog", () => {
-    expect(kinds(mapCells({ grid: new TileGrid(ROWS), fog: null })).join("")).toBe("woooo" + "wlooo" + "wloow" + "wwwww");
+    expect(kinds(mapCells({ grid: new TileGrid(ROWS), fog: null })).join("")).toBe("woooo" + "woooo" + "wooow" + "wwwww");
   });
 
   it("shows one-way floors as walls", () => {
@@ -22,7 +22,7 @@ describe("mapCells", () => {
     const revealed = new Uint8Array(grid.width * grid.height);
     revealed[6] = revealed[15] = 1;
     const fog = { width: grid.width, height: grid.height, revealed } as unknown as Fog;
-    expect(kinds(mapCells({ grid, fog })).join("")).toBe("uuuuu" + "uluuu" + "uuuuu" + "wuuuu");
+    expect(kinds(mapCells({ grid, fog })).join("")).toBe("uuuuu" + "uouuu" + "uuuuu" + "wuuuu");
   });
 });
 

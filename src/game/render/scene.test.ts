@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { holdPoses } from "../robot/gun";
 import { createHero, type Hero } from "../hero/hero";
 import { createRigs, heroLook } from "../hero/look";
-import { cfg, clips } from "../hero/testWorld";
+import { clips } from "../hero/testWorld";
 import type { Enemy } from "../level/enemy";
 import type { Fog } from "../fog";
 import { castsShadow, feetSeen, heroBehindEnemies, visibleEnemies, viewCells, weaponHooks } from "./scene";
@@ -13,7 +13,7 @@ const hold = holdPoses(rigs.side, rigs.front);
 const hero = (patch: Partial<Hero>): Hero => Object.assign(createHero([7.5, 14], "fists", 100), patch);
 const shadowed = (patch: Partial<Hero>): boolean => {
   const h = hero(patch);
-  return castsShadow(h, heroLook(h, clips, rigs, hold, cfg));
+  return castsShadow(h);
 };
 
 describe("shadow", () => {
@@ -23,10 +23,6 @@ describe("shadow", () => {
     for (const state of ["standJump", "duckJump", "walkJump", "runJump", "fall", "jumpDeath"] as const)
       expect(shadowed({ state, time: 0.2, onGround: false }), state).toBe(false);
     expect(shadowed({ state: "jumpDeath", time: 0.5 })).toBe(true);
-  });
-
-  it("is not cast on the ladder", () => {
-    expect(shadowed({ state: "ladder", climb: 2, onGround: false })).toBe(false);
   });
 
   it("shows for an enemy only when the cell above its feet is seen", () => {
@@ -60,7 +56,7 @@ describe("draw order", () => {
 describe("weapon hooks", () => {
   const hooks = (patch: Partial<Hero>): string[] => {
     const h = hero(patch);
-    return Object.keys(weaponHooks(heroLook(h, clips, rigs, hold, cfg), 1)).sort();
+    return Object.keys(weaponHooks(heroLook(h, clips, rigs, hold), 1)).sort();
   };
 
   it("draws only the held weapon, never the other owned one on the back", () => {
@@ -70,9 +66,8 @@ describe("weapon hooks", () => {
     expect(hooks({ state: "idle", weapon: "fists", blaster: 400 })).toEqual([]);
   });
 
-  it("uses the front hand hook in the front view and no hook on the ladder", () => {
+  it("uses the front hand hook in the front view", () => {
     expect(hooks({ state: "hide", hidden: true, weapon: "blaster", blaster: 400, time: 0.05 })).toEqual(["handL"]);
-    expect(hooks({ state: "ladder", weapon: "blaster", blaster: 400, onGround: false })).toEqual([]);
   });
 });
 

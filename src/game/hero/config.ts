@@ -2,9 +2,9 @@ import type { Keys } from "../../engine/anim/keyed";
 
 export type HeroState =
   | "idle" | "walk" | "run" | "standJump" | "walkJump" | "runJump" | "duckJump" | "fall" | "fallDeath" | "duck"
-  | "duckAttack" | "use" | "hide" | "attack" | "weaponSwitch" | "ladder" | "death" | "jumpDeath";
+  | "duckAttack" | "use" | "hide" | "attack" | "weaponSwitch" | "death" | "jumpDeath";
 export type Weapon = "fists" | "gun" | "blaster";
-export type View = "side" | "front" | "back";
+export type View = "side" | "front";
 export type GunTrack = "hand" | "none" | "dropped";
 export type GaitName = "walk" | "run";
 
@@ -36,7 +36,6 @@ export interface MovementConfig {
   maxFallSpeed: number;
   jump: { standHeight: number; runHeight: number; runSpeed: number; walkHeight: number };
   fallDeathCells: number;
-  ladderSpeed: number;
   liftSpeed: number;
   inputBufferMs: number;
   fireRate: number;
@@ -107,7 +106,6 @@ export function loadMovement(json: unknown): MovementConfig {
     maxFallSpeed: n("maxFallSpeed"),
     jump: group("jump", ["standHeight", "runHeight", "runSpeed", "walkHeight"]),
     fallDeathCells: n("fallDeathCells"),
-    ladderSpeed: n("ladderSpeed"),
     liftSpeed: n("liftSpeed"),
     inputBufferMs: n("inputBufferMs"),
     fireRate: n("fireRate"),
@@ -148,7 +146,7 @@ const track = <T>(read: (v: unknown, path: string) => T) => (v: unknown, path: s
 };
 
 const poseTrack = track(joints);
-const viewTrack = track(oneOf(["side", "front", "back"] as const));
+const viewTrack = track(oneOf(["side", "front"] as const));
 const numTrack = track(finite);
 const gunTrack = track(oneOf(["hand", "none", "dropped"] as const));
 const eventTrack = track(text);
