@@ -49,7 +49,7 @@ const capsule = ([x1, y1, r1]: [number, number, number], [x2, y2, r2]: [number, 
     });
   return [...arc(x1, y1, r1, dir + open, dir + 2 * Math.PI - open), ...arc(x2, y2, r2, dir - open, dir + open)];
 };
-const upperArm = capsule([102, 150, 60], [99, 234, 50]);
+const upperArm = capsule([100, 148, 50], [98, 236, 40]);
 const sideUpperArm = capsule([300, 156, 62], [314, 240, 48]);
 const elbow: Pt[] = [[60, 296], [128, 296], [128, 316], [60, 316]];
 const forearm: Pt[] = [[26, 310], [146, 308], [152, 320], [150, 394], [140, 404], [42, 406], [26, 390]];
