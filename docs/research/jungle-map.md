@@ -240,3 +240,18 @@ Terrain look: `terrainArt` `wall` `cobbleFill`, `deep` `cobbleFill` (mossy), `le
 - The chasm edge cells (89 and 92, row 49) are solid, so the floor row 48 and the bedrock below form separate wall rectangles.
 
 Floor ends left open are the original jump traversal (report 15: walk, jump and fall over floor runs): the west rock ledge stairs, the plank and step ends on floor 32, the puzzle ledge stair, the cave stair and slope, the spawn deck ends, the tree and spawn ledge wall tops. They need named `openEnds` exemptions when the mission joins `BUILT`.
+
+## Layout (step 4)
+
+Placed in `config/levels/jungle/world.json` from the placement plan, with these changes:
+
+- `rustBoiler` and `stoneParapet` are drawn; a stacked `jungleWalkway` read as a floor, so the parapet got its own asset.
+- Buildings, walls (`stoneParapet`, `brickRuin`), rock masses, the slope, planks and posts nobody walks on sit in the backdrop, so the hero walks in front of them and terrain ledges draw over the rock. Rock masses, cave fills and the parapet come before the big clutter, so the floor 37 and floor 20 wrecks show.
+- `ledgeArt` draws the reached plank runs as `plankBridge` (row 25 cols 27-40, row 31 cols 23-25, 71-75, 86-88, row 36 cols 26-28) and the cave floors as `caveWalkway` (row 32 cols 63-100, row 41 cols 86-147).
+- The waterfall ends in foam at the plank top, so the bridge over the gorge shows.
+- West girder column at col 21: col 22 is open on rows 25-30 and 35-36.
+- Spawn deck: the walls at cols 116 and 131 hide the deck west and east of them, so no scenery stands there (east tower 138 r12-24, deck plank 136-141 skipped). The west tower moved to col 115 to cover the col 116 wall, a girder column covers the col 131 wall, the excavator stands at col 132.
+- The two-storey bunker and the stone stack between its wings are part of the `flamethrowerDoor` art; the bottom station rail and silver pipe are part of the `towerLift` art.
+- The grass at the small key moved to the floor 32 bunker corner (col 56.6): clutter may not stand in front of a facade middle.
+- Cave: `cobbleFill` back walls at cols 83-88 and 93-98, `caveChasm` from row 38 to the map bottom between them.
+- Clutter on reached floors: 13 big (helicopter and 12 wrecks), 15 small.

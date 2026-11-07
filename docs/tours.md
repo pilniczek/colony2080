@@ -60,3 +60,19 @@ Lift bottom stops (walkway across the shaft) and stone fill edges.
 ```
 moveto(113,41) moveto(87,50) moveto(78,41) moveto(69,32) moveto(141,32) moveto(130,59) moveto(115,68) moveto(82,68) moveto(16,50) moveto(12,50) moveto(17,41) moveto(64,32) moveto(72,59) moveto(78,68) moveto(108,59)
 ```
+
+## Jungle regions
+
+One stop per region of `docs/research/jungle-map.md` (game page `game.html?mission=jungle`): spawn deck, floor 41 east, door and tower lift, cave stair and slope, cave, helicopter, floor 32 and 37 middle, west rock, floor 20 bunkers, camp, floor 11, puzzle ledge.
+
+```
+moveto(125,25) moveto(112,41) moveto(134,41) moveto(99,40) moveto(94,48) moveto(80,32) moveto(55,32) moveto(57,37) moveto(35,37) moveto(30,25) moveto(40,20) moveto(63,20) moveto(88,20) moveto(85,11) moveto(104,17)
+```
+
+## Jungle objects
+
+Interactive objects, pickups and hazards in route order: deck mine, tower lift top and bottom pads, floor 41 mine, door, canister, slope mine, turret, cabinet, crate, small key, tripwire, ammo, energy and shield bonuses, boulder, spikes, waterfall bridge, stone puzzle, jeep.
+
+```
+moveto(125,25) moveto(118,25) moveto(141,41) moveto(107,41) moveto(118,41) moveto(100,40) moveto(94,35) moveto(89,32) moveto(95,48) moveto(82,32) moveto(54,32) moveto(52,37) moveto(65,37) moveto(25,31) moveto(29,25) moveto(48,20) moveto(52,20) moveto(93,20) moveto(104,17) moveto(84,11)
+```
