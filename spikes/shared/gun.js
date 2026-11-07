@@ -86,7 +86,7 @@ const SUPPORT = [BARREL.x - 6, -10];
 const core = model({ buildParts });
 const PARTS = core.PARTS;
 
-const CARRY = { arm: 0, fore: -72 };
+const CARRY = { arm: 22, fore: -94 };
 const FRONT_CARRY = { armL: -24, foreL: -66 };
 
 const BAND = PARTS.find(p => p.name === "barrelBack");
