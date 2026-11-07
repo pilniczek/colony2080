@@ -769,29 +769,66 @@ define({
   }
 });
 
+const MINE_DOME = Array.from({ length: 15 }, (_, i) => [cos(PI + PI * i / 14) * 8.5, -3.4 + sin(PI + PI * i / 14) * 5.6]);
+const MINE_FLANGE = [[-11.5, -0.4], [-10.4, -3.6], [10.4, -3.6], [11.5, -0.4]];
+const MINE_SOIL = "#2a2214";
+const LAMP_OFF = "#4a0c08";
+
+function mineArmed(ctx, t) {
+  shape(ctx, blobPts(0, -0.2, 13, 2.2, 865, 10, 0.2), MINE_SOIL);
+  shape(ctx, MINE_FLANGE, "o0", "kLine");
+  within(ctx, MINE_FLANGE, () => {
+    flat(ctx, -12, -3.6, 24, 1, "o2");
+    flat(ctx, -12, -1.4, 24, 1, "#2c2410");
+    for (let x = -9; x <= 9; x += 4.5) disc(ctx, x, -2.2, 0.55, "m3", "mLine");
+    G.grain(ctx, G.polyRegion(ctx, MINE_FLANGE), 866, 0.8);
+    G.rustPatch(ctx, 6, -1.8, 2.4, 0.9, 867);
+  });
+  shape(ctx, MINE_DOME, "o1", "kLine");
+  within(ctx, MINE_DOME, () => {
+    flat(ctx, -9, -9.2, 18, 2.4, "o2");
+    flat(ctx, -4, -9.2, 4, 1.4, "o3");
+    hazard(ctx, -9, -6.2, 18, 2.2, 1.6, { line: "kLine" });
+    flat(ctx, -9, -4, 18, 0.6, "o0");
+    G.grain(ctx, G.polyRegion(ctx, MINE_DOME), 868, 0.7);
+    G.dirt(ctx, -9, -9, 18, 5.6, 869, 0.5);
+  });
+  G.chips(ctx, -10.4, -3.6, 20.8, 870, G.DIRT);
+  flat(ctx, -1.6, -10.4, 3.2, 1.6, "m1", "mLine");
+  flat(ctx, -4, -11.6, 8, 1.4, "m2", "mLine");
+  flat(ctx, -4, -11.6, 8, 0.5, "m3");
+  const lit = Math.floor(t * 2) % 2 === 0;
+  disc(ctx, 0, -12.6, 1.5, lit ? "neon" : LAMP_OFF, "kLine");
+  if (lit) {
+    glow(ctx, 0, -12.6, 7, "neonGlow", 0.75);
+    disc(ctx, -0.4, -13, 0.5, "#ffd0c0");
+  }
+  grass(ctx, -13, 3.5, 3, 863);
+  grass(ctx, 10, 3.5, 3, 864);
+}
+
+function mineBlown(ctx) {
+  shape(ctx, blobPts(0, -0.5, 11, 2.6, 861, 10, 0.3), "#0b0806");
+  G.scorch(ctx, [[-10, -1], [10, -1], [8, 0], [-8, 0]], 862);
+  for (const [x, y, a] of [[-8, -1.2, -0.5], [7, -1.4, 0.6], [2, -0.8, 0.2]]) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(a);
+    shape(ctx, [[-2.4, 0], [-1.6, -1.6], [1.8, -1.2], [2.6, 0]], "o0", "kLine");
+    flat(ctx, -1.6, -1.6, 3.2, 0.5, "o2");
+    ctx.restore();
+  }
+  grass(ctx, -13, 3.5, 3, 863);
+  grass(ctx, 10, 3.5, 3, 864);
+}
+
 define({
   id: "mine",
-  box: [-10, -8, 10, 1],
-  draw(ctx, state) {
-    if (state === 1) {
-      shape(ctx, blobPts(0, -0.5, 9, 2.4, 861, 10, 0.3), "#0b0806");
-      G.scorch(ctx, [[-8, -1], [8, -1], [6, 0], [-6, 0]], 862);
-      return;
-    }
-    ctx.beginPath();
-    ctx.ellipse(0, -1, 7, 4.6, 0, PI, PI * 2);
-    ctx.closePath();
-    ctx.fillStyle = color("o1");
-    ctx.fill();
-    stroke(ctx, "kLine");
-    flat(ctx, -1.6, -6.4, 3.2, 1.6, "m2", "mLine");
-    if (!simple()) {
-      flat(ctx, -0.5, -6.2, 1, 1, "neon");
-      glow(ctx, 0, -5.8, 3, "neonGlow", 0.5);
-      flat(ctx, -6, -3, 12, 0.6, "o0");
-    }
-    grass(ctx, -9, 6, 4, 863);
-    grass(ctx, 4, 6, 4, 864);
+  box: [-14, -20, 14, 1],
+  anim: true,
+  draw(ctx, state, t) {
+    if (state === 1) mineBlown(ctx);
+    else mineArmed(ctx, t);
   }
 });
 
