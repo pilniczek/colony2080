@@ -181,13 +181,62 @@ const leverBank = {
     hazard(ctx, -6, -5, 12, 3.4, 3);
     plate(ctx, -2.2, -23, 4.4, 9);
     studs(ctx, -8, -22.5, 16, 12);
+    line(ctx, [[8, -11], [10.5, -9], [10.5, 0]], SLINE, 2.4);
+    line(ctx, [[8, -11], [10.5, -9], [10.5, 0]], "#6c3c18", 1.4);
+    flat(ctx, 7.2, -12.4, 2.6, 3, STEEL[1], SLINE);
+    flat(ctx, -7, -24.2, 4, 1.6, "#a87c28", SLINE);
     worn(ctx, -8, -25, 16, 25, 970, 2, 0.4);
     const a = state === 0 ? 2.5 : state === 1 ? -0.65 : -PI / 2;
-    const tip = [cos(a) * 18, -18 + sin(a) * 18];
+    for (const n of [2.5, -0.65, -PI / 2])
+      line(ctx, [[cos(n) * 5.6, -18 + sin(n) * 5.6], [cos(n) * 8, -18 + sin(n) * 8]], STEEL[3], 0.7);
+    const at = (r) => [cos(a) * r, -18 + sin(a) * r];
+    const tip = at(18);
     line(ctx, [[0, -18], tip], SLINE, 3.4);
     line(ctx, [[0, -18], tip], STEEL[3], 2);
+    line(ctx, [at(3), at(15)], "#c0c4b8", 0.5);
+    line(ctx, [at(11), at(15.8)], SLINE, 3.8);
+    line(ctx, [at(11), at(15.8)], "#242418", 2.6);
+    if (!simple())
+      for (const r of [12, 13.4, 14.8]) {
+        const [x, y] = at(r);
+        line(ctx, [[x - sin(a) * 1.3, y + cos(a) * 1.3], [x + sin(a) * 1.3, y - cos(a) * 1.3]], "#4a4a3c", 0.5);
+      }
     disc(ctx, tip[0], tip[1], 2.6, "#b02818", SLINE);
-    disc(ctx, 0, -18, 2.2, STEEL[2], SLINE);
+    disc(ctx, tip[0] - 0.8, tip[1] - 0.8, 0.9, "#e05a3c");
+    disc(ctx, 0, -18, 3, STEEL[1], SLINE);
+    disc(ctx, 0, -18, 1.9, STEEL[2], SLINE);
+    disc(ctx, 0, -18, 0.7, STEEL[0]);
+    disc(ctx, -0.6, -18.6, 0.5, "#c0c4b8");
+    const [ux, uy] = [-sin(a) * 1.9, cos(a) * 1.9];
+    const end = at(16);
+    const handle = () => {
+      ctx.beginPath();
+      ctx.moveTo(ux, -18 + uy);
+      ctx.lineTo(end[0] + ux, end[1] + uy);
+      ctx.lineTo(end[0] - ux, end[1] - uy);
+      ctx.lineTo(-ux, -18 - uy);
+      ctx.closePath();
+      ctx.moveTo(tip[0] + 2.6, tip[1]);
+      ctx.arc(tip[0], tip[1], 2.6, 0, 2 * PI);
+      ctx.moveTo(3, -18);
+      ctx.arc(0, -18, 3, 0, 2 * PI);
+    };
+    G.grain(ctx, handle, 975);
+    G.inside(ctx, handle, () => {
+      const r = rng(976);
+      for (let i = 0; i < 6; i++) {
+        const [x, y] = at(2 + r() * 13);
+        disc(ctx, x + (r() - 0.5) * 1.6, y + (r() - 0.5) * 1.6, 0.3 + r() * 0.4, i % 2 ? G.RUST[2] : G.RUST[1]);
+      }
+      for (let i = 0; i < 4; i++) {
+        const k = r() * 2 * PI;
+        disc(ctx, tip[0] + cos(k) * 2.2, tip[1] + sin(k) * 2.2, 0.4 + r() * 0.4, "#5a1408");
+      }
+      for (let i = 0; i < 3; i++) {
+        const k = r() * 2 * PI;
+        disc(ctx, cos(k) * 2.6, -18 + sin(k) * 2.6, 0.3 + r() * 0.3, G.DIRT);
+      }
+    });
   },
 };
 const doorSlab = (ctx, top, h, seed) => {
