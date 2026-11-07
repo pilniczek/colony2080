@@ -18,28 +18,35 @@ function hidden(): Game {
 describe("pickup and duck", () => {
   const crowbar = (g: Game) => g.world.props.find((p) => p.item === "crowbar")!;
 
-  it("picks the item up on touch while walking and starts its film", () => {
-    const g = game();
-    runUntil(g, () => crowbar(g).taken === true, ["moveRight"], 1);
+  it("walks past an item without Enter", () => {
+    const g = game({ x: 9.5, y: 14 });
+    run(g, 0.3, ["moveRight"]);
+    expect(crowbar(g).taken).toBeFalsy();
+    expect(kinds(g, "pickup")).toHaveLength(0);
+  });
+
+  it("picks the item up on Enter while walking and starts its film", () => {
+    const g = game({ x: 9, y: 14 });
+    tick(g, ["moveRight"], ["useItem"]);
+    expect(crowbar(g).taken).toBe(true);
     expect(kinds(g, "pickup")).toHaveLength(1);
-    expect(g.hero.x).toBeGreaterThanOrEqual(9.5 - cfg.pickReach - 1e-9);
     expect(g.world.cutscene?.id).toBe("pickCrowbar");
     expect(g.hero).toMatchObject({ state: "idle", vx: 0 });
   });
 
   it("picks an item up to one tile away and not past that", () => {
     const near = game({ x: 8.6, y: 14 });
-    tick(near);
+    tick(near, [], ["useItem"]);
     expect(crowbar(near).taken).toBe(true);
     const far = game({ x: 8.4, y: 14 });
-    tick(far);
+    tick(far, [], ["useItem"]);
     expect(crowbar(far).taken).toBeFalsy();
   });
 
   it("picks the item up mid-air and keeps the jump", () => {
     const g = game({ x: 9.5, y: 13, state: "fall" });
     g.hero.onGround = false;
-    tick(g);
+    tick(g, [], ["useItem"]);
     expect(crowbar(g).taken).toBe(true);
     expect(g.hero.state).toBe("fall");
   });
@@ -47,18 +54,18 @@ describe("pickup and duck", () => {
   it("misses an item more than a hero height below the feet", () => {
     const g = game({ x: 9.5, y: 14 - cfg.box.height - 0.1, state: "fall" });
     g.hero.onGround = false;
-    tick(g);
+    tick(g, [], ["useItem"]);
     expect(crowbar(g).taken).toBeFalsy();
   });
 
   it("picks nothing while hidden or dead", () => {
     const hid = game({ x: 9.5, y: 14, state: "hide" });
     hid.hero.hidden = true;
-    tick(hid, ["hide"]);
+    tick(hid, ["hide"], ["useItem"]);
     expect(crowbar(hid).taken).toBeFalsy();
     const dead = game({ x: 9.5, y: 14 });
     kill(dead.hero);
-    tick(dead);
+    tick(dead, [], ["useItem"]);
     expect(crowbar(dead).taken).toBeFalsy();
   });
 
@@ -133,8 +140,7 @@ describe("use", () => {
 
   it("says the picked item", () => {
     const g = game({ x: 9.5, y: 14 });
-    tick(g, ["down"]);
-    run(g, 0.4);
+    tick(g, [], ["useItem"]);
     expect(g.world.subtitle?.text).toBe("Picked up crowbar");
   });
 

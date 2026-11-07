@@ -153,27 +153,27 @@ describe("bonus weapon swap", () => {
   it("holds the bonus weapon picked last, with its own ammo", () => {
     const g = armed("gun", null);
     Object.assign(g.hero, spotOf(g, "blaster"));
-    tick(g);
+    tick(g, [], ["useItem"]);
     expect([g.world.bonus, g.hero.blaster]).toEqual(["blaster", cfg.blaster.ammo]);
     g.hero.blaster = 5;
     g.world.cutscene = null;
     Object.assign(g.hero, spotOf(g, "toaster"));
-    tick(g);
+    tick(g, [], ["useItem"]);
     expect([g.world.bonus, g.hero.blaster]).toEqual(["toaster", cfg.toaster.ammo]);
     expect(g.world.subtitle?.text).toBe("Picked up Toaster");
     Object.assign(g.hero, spotOf(g, "blaster"));
-    tick(g);
+    tick(g, [], ["useItem"]);
     expect([g.world.bonus, g.hero.blaster]).toEqual(["blaster", cfg.blaster.ammo]);
   });
 });
 
 describe("blaster pickup", () => {
   const spot = sandboxBlaster();
-  it("takes the E-Blaster on touch with full ammo and arms it", () => {
+  it("takes the E-Blaster on Enter with full ammo and arms it", () => {
     for (const weapon of ["gun", "fists"] as const) {
       const g = armed(weapon, null);
       Object.assign(g.hero, spot);
-      tick(g);
+      tick(g, [], ["useItem"]);
       expect(g.hero).toMatchObject({ blaster: cfg.blaster.ammo, weapon: "blaster", switchTo: "blaster" });
       expect(g.world.subtitle?.text).toBe("Picked up E-Blaster");
     }
@@ -182,14 +182,14 @@ describe("blaster pickup", () => {
   it("cannot take it again, not even after death and respawn", () => {
     const g = armed("gun", null);
     Object.assign(g.hero, spot);
-    tick(g);
+    tick(g, [], ["useItem"]);
     g.hero.blaster = 5;
     tick(g, ["down"]);
     expect(g.hero.state).toBe("duck");
     kill(g.hero);
     run(g, cfg.respawnMs / 1000 + 0.1);
     Object.assign(g.hero, spot);
-    tick(g, ["down"]);
+    tick(g, ["down"], ["useItem"]);
     expect(g.hero).toMatchObject({ state: "duck", blaster: 5 });
     expect(count(g, "pickup")).toBe(1);
   });

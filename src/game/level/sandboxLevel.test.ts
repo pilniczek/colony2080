@@ -1,7 +1,7 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
 import { moveBox } from "../../engine/world/collide";
-import { cfg, game, run, runUntil, RUNNING, tick } from "../hero/testWorld";
+import { cfg, game, run, runUntil, RUNNING, tick, withoutItems } from "../hero/testWorld";
 import { KIND_TUNING } from "./enemy";
 import { callLift, loadSandbox, onGround, pickUp, resetWorld, updateLift } from "./sandboxLevel";
 
@@ -124,7 +124,7 @@ describe("several lifts", () => {
   });
 
   it("calls the second lift from its own shaft", () => {
-    const g = game({ x: 31.5, y: 14 }, twoLifts);
+    const g = withoutItems(game({ x: 31.5, y: 14 }, twoLifts));
     tick(g);
     tick(g, [], ["useItem"]);
     run(g, 0.5);
@@ -248,8 +248,7 @@ describe("inventory", () => {
   it("takes the crowbar from its prop and shows it", () => {
     const g = game({ x: 9.5, y: 14 });
     expect(g.world.inventory).toEqual({ items: [], shown: null });
-    tick(g, ["down"]);
-    runUntil(g, (h) => h.state === "idle");
+    tick(g, [], ["useItem"]);
     expect(g.world.inventory).toEqual({ items: ["crowbar"], shown: "crowbar" });
   });
 

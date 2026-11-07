@@ -8,6 +8,7 @@ const art = (): InventoryArt => ({
   liftDeck: { url: "lift.png", w: 8, h: 16 },
   wireBox: { url: "wires.png", w: 9, h: 16 },
   crashedShip: { url: "ship.png", w: 22, h: 7 },
+  crowbar: { url: "crowbar.png", w: 22, h: 4 },
   body: { url: "body.png", w: 20, h: 40 },
   gun: { url: "gun.png", w: 20, h: 8 },
   items: Object.fromEntries(Object.keys(ITEMS).map((id) => [id, { url: `${id}.png`, w: 40, h: 30 }])) as InventoryArt["items"],

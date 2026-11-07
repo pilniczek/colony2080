@@ -30,7 +30,8 @@ export function game(
 }
 
 export function withoutItems(g: Game): Game {
-  for (const p of g.world.props) if (p.kind === "item" || p.kind === "weapon") p.taken = true;
+  for (const p of g.world.props) if (p.kind === "item") p.taken = true;
+  g.world.props = g.world.props.filter((p) => p.kind !== "weapon");
   return g;
 }
 

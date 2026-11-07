@@ -1,7 +1,7 @@
 import sandbox from "@config/levels/sandbox.json";
 import { beforeAll, describe, expect, it } from "vitest";
 import { FIXED_STEP } from "../../engine/loop";
-import { game, objectLevel, run, tick } from "../hero/testWorld";
+import { game, objectLevel, tick } from "../hero/testWorld";
 import { approachFilms, loadSandbox, startFilm, type Prop } from "../level/sandboxLevel";
 import { hitShootable } from "../shots";
 import { MISSIONS } from "../level/missionIds";
@@ -31,8 +31,7 @@ describe("films without a task", () => {
 
   it("play after picking an item that names one", () => {
     const g = game({ x: 9.5, y: 14 }, withProps(sandbox, (p) => (p.item === "crowbar" ? { ...p, cutscene: "pickCrowbar" } : p)));
-    tick(g, ["down"]);
-    run(g, 0.4);
+    tick(g, [], ["useItem"]);
     expect(g.world.inventory.items).toContain("crowbar");
     expect(g.world.cutscene?.id).toBe("pickCrowbar");
     expect(g.hero).toMatchObject({ state: "idle", vx: 0 });

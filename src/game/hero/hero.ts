@@ -166,17 +166,18 @@ export function touchFilms(world: SandboxWorld, h: Hero, cfg: MovementConfig): v
   }
 }
 
-function touchedItem(s: Step): Prop | undefined {
+function touchedItem(s: Step, kinds: string[]): Prop | undefined {
   const { h, world, cfg } = s;
   return nearest(h, world.props.filter((p) => {
     const y = p.y ?? world.spawn[1];
     const reach = Math.max(cfg.pickReach, (cfg.box.width + (p.width ?? 0)) / 2);
-    return PICKABLE.includes(p.kind) && onGround(p, h, world.flags, world.bonus) && Math.abs(p.x - h.x) <= reach && h.y > y - cfg.box.height && h.y <= y + EPS;
+    return kinds.includes(p.kind) && onGround(p, h, world.flags, world.bonus) && Math.abs(p.x - h.x) <= reach && h.y > y - cfg.box.height && h.y <= y + EPS;
   }));
 }
 
 const USABLE = ["panel", "object"];
-const PICKABLE = ["item", "weapon", "bonus"];
+const PICKED_BY_ENTER = ["item", "weapon"];
+const itemToPick = (s: Step): boolean => s.input.pressed.has("useItem") && touchedItem(s, PICKED_BY_ENTER) !== undefined;
 
 function ladderBottom(s: Step): number {
   const { h, world } = s;
@@ -339,7 +340,7 @@ function startAttack(s: Step, state: "attack" | "duckAttack"): void {
 }
 
 function use(s: Step): boolean {
-  if (!s.input.pressed.has("useItem")) return false;
+  if (!s.input.pressed.has("useItem") || itemToPick(s)) return false;
   const prop = usable(s);
   if (!prop || !s.consume("useItem")) return false;
   const cutscene = prop.kind === "panel" ? undefined : openTask(s.world, prop)?.cutscene;
@@ -421,14 +422,14 @@ function idle(s: Step): void {
 }
 
 function liftPress(s: Step): boolean {
-  if (!s.input.pressed.has("useItem") || usable(s) || !(rideLift(s) || callFromPanel(s))) return false;
+  if (!s.input.pressed.has("useItem") || usable(s) || itemToPick(s) || !(rideLift(s) || callFromPanel(s))) return false;
   s.consume("useItem");
   return true;
 }
 
 function padPress(s: Step): boolean {
   const { world, h } = s;
-  const pad = s.input.pressed.has("useItem") ? padUnder(world, h) : null;
+  const pad = s.input.pressed.has("useItem") && !itemToPick(s) ? padUnder(world, h) : null;
   if (!pad) return false;
   const enabled = padEnabled(world, pad);
   const prop = usable(s);
@@ -716,8 +717,8 @@ export function takeBonus(s: Pick<Step, "h" | "world" | "cfg">, kind: BonusKind)
 
 function pickup(s: Step): void {
   if (isDead(s.h.state) || s.h.hidden || s.world.cutscene) return;
-  const prop = touchedItem(s);
-  if (!prop) return;
+  const prop = touchedItem(s, ["bonus"]) ?? (itemToPick(s) ? touchedItem(s, PICKED_BY_ENTER) : undefined);
+  if (!prop || (prop.kind !== "bonus" && !s.consume("useItem"))) return;
   if (prop.kind === "weapon") {
     s.world.bonus = prop.weapon ?? "blaster";
     s.h.blaster = bonusAmmo(s.world, s.cfg);

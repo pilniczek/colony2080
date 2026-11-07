@@ -5,7 +5,7 @@ import { helpLayout, helpTextW, menuSvg } from "./menu";
 import { hudFit } from "./layout";
 
 const icon = { url: "data:,", w: 10, h: 20 };
-const robot = { robot: icon, liftPanel: { url: "data:panel", w: 15, h: 14 }, liftDeck: { url: "data:lift", w: 8, h: 16 }, wireBox: { url: "data:wires", w: 9, h: 16 }, crashedShip: { url: "data:ship", w: 22, h: 7 } };
+const robot = { robot: icon, liftPanel: { url: "data:panel", w: 15, h: 14 }, liftDeck: { url: "data:lift", w: 8, h: 16 }, wireBox: { url: "data:wires", w: 9, h: 16 }, crashedShip: { url: "data:ship", w: 22, h: 7 }, crowbar: { url: "data:crowbar", w: 22, h: 4 } };
 const slot = (name: string): SlotEntry => ({ mission: "mesto", name, savedAt: Date.UTC(2026, 9, 20, 21, 14), picture: "data:image/jpeg;base64,AA", snapshot: {} } as unknown as SlotEntry);
 const slots: Slots = [slot("City - door"), null, null, null, null, slot("City - Autosave")];
 
@@ -61,7 +61,7 @@ describe("menuSvg", () => {
   it("shows the manual and the tips with their pictures under settings and the pause menu, in the chosen language", () => {
     for (const state of [{ screen: "settings", cursor: 2, autosave: true }, { screen: "pause", cursor: 0 }] as const) {
       const en = menuSvg(320, 200, state, slots, robot);
-      for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER<", ">USE ITEM FROM INVENTORY<", ">I<", ">INVENTORY<", ">ENTER CALLS A DISTANT LIFT<", ">X<", ">HIDING MIGHT BE MORE THAN SHOOTING<", ">TIPS<", ">ENTER TO USE THE LIFT<", ">ENTER TO USE THINGS<", ">SOME THINGS NEED TO BE DAMAGED<", 'href="data:panel"', 'href="data:lift"', 'href="data:wires"', 'href="data:ship"']) expect(en).toContain(entry);
+      for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER<", ">USE ITEM FROM INVENTORY<", ">I<", ">INVENTORY<", ">ENTER CALLS A DISTANT LIFT<", ">X<", ">HIDING MIGHT BE MORE THAN SHOOTING<", ">TIPS<", ">ENTER TO USE THE LIFT<", ">ENTER TO USE THINGS<", ">ENTER PICKS UP AN ITEM<", ">SOME THINGS NEED TO BE DAMAGED<", 'href="data:panel"', 'href="data:lift"', 'href="data:wires"', 'href="data:ship"', 'href="data:crowbar"']) expect(en).toContain(entry);
       const cs = menuSvg(320, 200, state, slots, robot, "City", "cs");
       for (const entry of [">OVLÁDÁNÍ<", ">POHYB<", ">POUŽITÍ PŘEDMĚTU Z INVENTÁŘE<", ">INVENTÁŘ<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<", ">SKRÝVÁNÍ MŮŽE BÝT VÍC NEŽ STŘÍLENÍ<", ">TIPY<", ">ENTER POUŽIJE VÝTAH<", ">ENTER POUŽIJE VĚCI<", ">NĚKTERÉ VĚCI JE TŘEBA POŠKODIT<"]) expect(cs).toContain(entry);
     }

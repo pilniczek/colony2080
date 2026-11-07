@@ -27,6 +27,7 @@ export interface InventoryArt {
   liftDeck: HudIcon;
   wireBox: HudIcon;
   crashedShip: HudIcon;
+  crowbar: HudIcon;
 }
 
 export type InventoryBox = "list" | "title" | "stats" | "ammo" | "item" | "robot" | "quests";

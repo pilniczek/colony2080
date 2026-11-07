@@ -35,16 +35,17 @@ const MANUAL_KEYS: [string | Step[], string][] = [
   ["I", "INVENTORY"],
   ["X", "HIDING MIGHT BE MORE THAN SHOOTING"],
 ];
-type TipArt = "liftDeck" | "liftPanel" | "wireBox" | "crashedShip";
+type TipArt = "liftDeck" | "liftPanel" | "wireBox" | "crashedShip" | "crowbar";
 const TIPS: [TipArt, string][] = [
   ["liftDeck", "ENTER TO USE THE LIFT"],
   ["liftPanel", "ENTER CALLS A DISTANT LIFT"],
+  ["crowbar", "ENTER PICKS UP AN ITEM"],
   ["wireBox", "ENTER TO USE THINGS"],
   ["crashedShip", "SOME THINGS NEED TO BE DAMAGED"],
 ];
 const ARROW_KEY = { len: 5.4, head: 1.6, stroke: 0.7, spread: 4.5 };
 const MANUAL = { gap: 8, text: 5.6, key: 14, keyGap: 10, top: 17, pitch: 10, pad: 6 };
-const TIP_BOX = { gap: 6, w: 138, key: 22, pitch: 18 };
+const TIP_BOX = { gap: 6, w: 138, key: 22, pitch: 14 };
 const CAPS_EM = 0.7;
 
 export type MenuArt = Pick<InventoryArt, "robot" | TipArt>;
