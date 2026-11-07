@@ -63,7 +63,7 @@ Per object of `config/levels/jungle/objects.json`. "Exists" means a drawing in `
 | `spikes` | exists | Original: thin pale steel spikes (`#a8b4b4`, teal tint `#54786c`) under a grey cap row, dark band below. Drop the blood, add state 1 (M33): boulder rubble over cols 56-58 that reads as a walkable heap. Crops `r02`, `v02`. |
 | `stonePuzzle` | exists | Original map: a square carved stone panel with a diamond relief (105 r16) on the rock ledge; demo close-up: angular slate stones, a pressed one gold (`#9c846c`). Draw a carved square panel with four angular stone faces, state 1 lights them gold. Crop `z05`, demo sheet 04. |
 | `waterfall` | exists | Original: flat grey-blue stripes (`#6c6c6c`, `#788478`, `#a8a8a8`, `#546060`), cols 94-99 rows 3-21, no rim stones. Make it greyer. State 1 today draws only the flow layer: give it the two stone blocks of M34 (96 r12, 98 r13, rough stone with a pale lit lip), keep the flow as `anim`. Crops `r04`, `v03`. |
-| `flamethrowerDoor` | exists | Original: greenish concrete (`#545448`, `#606054`, `#3c483c`), brown roof edge, a teal-grey steel door (119-122 r38-41) with the red X lamp on the door top, hazard stripe at the door foot, a stone stack between two wings (125-126). Retint `BUNKER` to the greenish concrete, move the lamp onto the door, add the second wing and the stone stack. Crop `z10`, demo sheet 03. |
+| `flamethrowerDoor` | exists | Original: greenish concrete (`#545448`, `#606054`, `#3c483c`), brown roof edge, a teal-grey steel door (119-122 r38-41) with the red X lamp on the door top, hazard stripe at the door foot; the demo shows plain wall with two pilasters between the wings (the map tiles at 125-126 show a stone stack, not drawn). Retint `BUNKER` to the greenish concrete, move the lamp onto the door, add the second wing. Crop `z10`, demo sheet 03. |
 | `flamethrower` | exists | Keep (item, clean). |
 | `crate` | exists (mesto `crate`) | Keep. Sits under the helicopter wreck. |
 | `cutters` | exists | Keep. |
@@ -159,7 +159,7 @@ Changes as in Interactive objects. Box is the current box.
 | `boulder` | new | 100 x 100 | standing, blown | Round cracked grey-tan boulder, moss cap; blown a low stump. | `v01`, `v02`, demo sheet 04 |
 | `spikes` | rework | 192 x 22 | open, rubble | Pale steel spikes, teal tint, no blood; rubble state heap over cols 56-58. | `r02`, `v02` |
 | `waterfall` | rework | 154 x 451 | plain, with stone steps | Greyer stripes; state 1 adds the two stone blocks. | `r04`, `v03` |
-| `flamethrowerDoor` | rework | 243 x 102 | locked, opened | Greenish concrete, teal-grey door with the red X lamp on it, second wing and stone stack. | `z10`, demo sheet 03 |
+| `flamethrowerDoor` | rework | 243 x 102 | locked, opened | Greenish concrete, teal-grey door with the red X lamp on it, second wing, two pilasters between the wings. | `z10`, demo sheet 03 |
 | `towerLift` | rework | 100 x 385 | at bottom, at top | Blue-grey chevron pole, hazard-striped cage station with the call panel, rails and silver pipe. | `z02`, `z03`, `z16` |
 | `cannonTurret` | rework | 62 x 47 | live, off | Teal-green dome with chrome rim, hazard band, wider base plate. | `z01`, `v05`, demo frame |
 | `distributionCabinet` | rework | 46 x 43 | intact, shot | Flush cave-wall box in conduit teal with the E sign; shot a black scorched hole. | `z14`, `z15` |

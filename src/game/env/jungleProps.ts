@@ -1,7 +1,7 @@
 import { G } from "./grime";
 import {
   BRASS, BUNKER, CLINE, CONDUIT, DOME, GOLD, MOSS, RED, ROCK, SLATE, SLINE, SPIKE, STONE, TEAL, WATER, WOOD, band, barredWindow, blobPts, blockGrime, bunkerBlock, column, conduit, door, eSign, eggPts,
-  fern, grass, mossCap, oval, simple, slab, stone, stoneStack, vine, within, type Ctx, type Pt,
+  fern, grass, mossCap, oval, simple, slab, stone, vine, within, type Ctx, type Pt,
 } from "./jungle";
 import { vehicle, type Wreck } from "./jungleClutter";
 import { P, type EnvAsset } from "./paint";
@@ -16,17 +16,17 @@ const flamethrowerDoor: EnvAsset = {
     const seed = 580 + round(w);
     const k = w / 240;
     const low = round(h * 0.75);
-    const tall = [44 * k, 76 * k] as const;
-    const stack = [120 * k, 48 * k] as const;
-    const wing = [168 * k, w - 168 * k] as const;
+    const back = [44 * k, w - 44 * k] as const;
+    const wing = 168 * k;
     const front = [0, 100 * k] as const;
-    bunkerBlock(ctx, tall[0], tall[1], h, seed);
-    barredWindow(ctx, tall[0] + tall[1] - 28, -h + 14, 22, 28, seed + 1);
-    bunkerBlock(ctx, wing[0], wing[1], h, seed + 2);
-    barredWindow(ctx, wing[0] + 12, -h + 16, wing[1] - 24, 34, seed + 3);
-    blockGrime(ctx, tall[0], tall[1], h, seed + 4);
-    blockGrime(ctx, wing[0], wing[1], h, seed + 5);
-    stoneStack(ctx, stack[0], stack[1], h, seed + 6);
+    bunkerBlock(ctx, back[0], back[1], h, seed);
+    for (const x of [124 * k, 154 * k]) {
+      flat(ctx, x, -h, 10, h - 5, BUNKER[2], CLINE);
+      if (!simple()) flat(ctx, x + 1, -h, 2, h - 5, BUNKER[3]);
+    }
+    barredWindow(ctx, 92 * k, -h + 14, 22, 28, seed + 1);
+    barredWindow(ctx, wing + 12, -h + 16, w - wing - 24, 34, seed + 3);
+    blockGrime(ctx, back[0], back[1], h, seed + 4);
     bunkerBlock(ctx, front[0], front[1], low, seed + 7);
     door(ctx, 22 * k, min(low - 20, 50), state === 1, 48);
     blockGrime(ctx, front[0], front[1], low, seed + 8);
