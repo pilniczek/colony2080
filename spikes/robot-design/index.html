@@ -24,6 +24,10 @@
   #palette { display: none; flex-wrap: wrap; gap: 6px 14px; padding: 8px 16px; background: var(--panel); }
   body.with-palette #palette { display: flex; }
   #palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
+  .hands { display: grid; grid-template-columns: 70px repeat(5, minmax(120px, 1fr)); gap: 12px; padding: 12px 16px; align-items: start; }
+  .hands .pose { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; align-self: center; }
+  .hands canvas.full { width: 100%; aspect-ratio: 140 / 150; display: block; }
+  .hands canvas.small { width: 84px; image-rendering: pixelated; display: block; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
 </style>
 </head>
@@ -48,8 +52,12 @@
   <figure><figcaption>Side, facing left</figcaption><canvas id="gSideLeft"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack"></canvas></figure>
 </main>
+<h2>Hands (full size, then game LOD at game size shown 3x)</h2>
+<section class="hands" id="hands"></section>
 <!-- originals -->
 <section id="refs">
+  <figure><figcaption>Open hand, POUZRUKU</figcaption><img src="../../docs/research/robot/cutscenes/POUZRUKU_f018_hand.png" alt="open hand"></figure>
+  <figure><figcaption>Fist, SUTR</figcaption><img src="../../docs/research/robot/cutscenes/SUTR_f048_hand.png" alt="fist"></figure>
   <figure><figcaption>Box cover</figcaption><img src="../../docs/research/robot/hires/archive_msdos_00cover.jpg" alt="box cover"></figure>
   <figure><figcaption>Front, VSTUP</figcaption><img src="../../docs/research/robot/cutscenes/VSTUP_f100_front.png" alt="front"></figure>
   <figure><figcaption>Front, SKALA3</figcaption><img src="../../docs/research/robot/cutscenes/SKALA3_f081_front.png" alt="front walking"></figure>
@@ -61,7 +69,7 @@
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
 <script>
-const { PALETTE, LEVELS, buildFront, buildSide, buildBack, render } = window.XBOT;
+const { PALETTE, LEVELS, buildFront, buildSide, buildBack, buildHand, HAND_VIEWS, HAND_POSES, render } = window.XBOT;
 
 const pal = { ...PALETTE };
 const views = { front: buildFront(), side: buildSide(), sideLeft: buildSide({ badge: true }), back: buildBack() };
@@ -71,7 +79,50 @@ Object.assign(views, gameViews);
 const mirrored = new Set(["sideLeft", "gSideLeft"]);
 const opts = { guides: true };
 
+const HAND_BOX = { x: 18, y: 336, w: 140, h: 150 };
+const HAND_LABEL = { palm: "Palm side", back: "Back side", thumb: "Thumb side", little: "Little finger side", tips: "From the fingertips" };
+const hands = [];
+const handsEl = document.getElementById("hands");
+for (const pose of HAND_POSES) {
+  const label = document.createElement("div");
+  label.className = "pose";
+  label.textContent = pose;
+  handsEl.append(label);
+  for (const view of HAND_VIEWS) {
+    const fig = document.createElement("figure");
+    const cap = document.createElement("figcaption");
+    cap.textContent = HAND_LABEL[view];
+    const full = document.createElement("canvas");
+    full.className = "full";
+    const small = document.createElement("canvas");
+    small.className = "small";
+    fig.append(cap, full, small);
+    handsEl.append(fig);
+    hands.push({ full, small, root: buildHand({ view, pose }), game: buildHand({ view, pose, lod: true }) });
+  }
+}
+
+function drawHand(c, root, scale, simple) {
+  const ctx = c.getContext("2d");
+  ctx.setTransform(scale, 0, 0, scale, -HAND_BOX.x * scale, -HAND_BOX.y * scale);
+  ctx.clearRect(HAND_BOX.x, HAND_BOX.y, HAND_BOX.w, HAND_BOX.h);
+  render(ctx, root, { pal, lineW: (simple ? window.XBOT.GAME_LINE : 1.4) * (devicePixelRatio || 1), simple });
+}
+
+function drawHands() {
+  const dpr = devicePixelRatio || 1;
+  for (const { full, small, root, game } of hands) {
+    full.width = Math.round(full.clientWidth * dpr);
+    full.height = Math.round(full.width * HAND_BOX.h / HAND_BOX.w);
+    drawHand(full, root, full.width / HAND_BOX.w, false);
+    small.width = Math.round(HAND_BOX.w * 0.2 * dpr);
+    small.height = Math.round(HAND_BOX.h * 0.2 * dpr);
+    drawHand(small, game, 0.2 * dpr, true);
+  }
+}
+
 function draw() {
+  drawHands();
   for (const [id, root] of Object.entries(views)) {
     const c = document.getElementById(id);
     const dpr = devicePixelRatio || 1;
