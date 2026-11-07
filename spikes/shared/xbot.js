@@ -785,8 +785,9 @@ const fingerX = i => HAND.x0 + i * FINGER.pitch;
 const fingerY = k => FINGER.base + FINGER.seg.slice(0, k).reduce((a, b) => a + b, 0);
 
 function bar([x, y], deg, len, w, ext = 0) {
+  const [e0, e1] = Array.isArray(ext) ? ext : [ext, ext];
   const a = deg * Math.PI / 180, dx = Math.sin(a), dy = Math.cos(a), nx = dy * w / 2, ny = -dx * w / 2;
-  const s = [x - dx * ext, y - dy * ext], e = [x + dx * (len + ext), y + dy * (len + ext)];
+  const s = [x - dx * e0, y - dy * e0], e = [x + dx * (len + e1), y + dy * (len + e1)];
   return { pts: [[s[0] + nx, s[1] + ny], [e[0] + nx, e[1] + ny], [e[0] - nx, e[1] - ny], [s[0] - nx, s[1] - ny]], end: [x + dx * len, y + dy * len] };
 }
 
@@ -795,7 +796,7 @@ function chain(parent, M, from, angles, lens, w, spec = {}, pads = false) {
   angles.forEach((deg, k) => {
     const b = bar(at, deg, lens[k], w, w / 2);
     P(parent, { pts: M(b.pts), r: w / 3, lw: FINGER_LW, ...spec });
-    if (pads) P(parent, { pts: M(bar(at, deg, lens[k] - 4, w - 6, w / 2 - 5).pts), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+    if (pads) P(parent, { pts: M(bar(at, deg, lens[k] - 4, w - 6, [k ? w / 2 - 5 : w / 2, w / 2 - 5]).pts), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
     at = b.end;
   });
 }
@@ -898,7 +899,6 @@ function fist(s, view) {
     palmPlate(s, M, knuckle - s2 - 6);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x + 2, knuckle - s2 - 8], [x + 18, knuckle - s2 - 8], [x + 18, knuckle - s2 + 2], [x + 2, knuckle - s2 + 2]], mat: "metal", shade: "dome", r: 4, lw: FINGER_LW });
       P(s, { pts: [[x, knuckle - s2], [x + 20, knuckle - s2], [x + 20, knuckle], [x, knuckle]], shade: "cyl", r: 3, lw: FINGER_LW });
       P(s, { pts: [[x, knuckle - 2], [x + 20, knuckle - 2], [x + 20, knuckle + cap - 4], [x, knuckle + cap - 4]], shade: "cyl", r: 7, lw: FINGER_LW });
     }

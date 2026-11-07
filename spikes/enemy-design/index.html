@@ -255,7 +255,7 @@ const VIEWS = {
   walker: {
     front: (ctx, lw, pal) => robot(ctx, { root: roots.front, pose: POSES.front, hook: "handL", barrel: hold.FRONT_BARREL, pal, lineW: lw * 1.4 }),
     side: (ctx, lw, pal) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, { root: roots.side, pose: POSES.side, hook: "hand", pal, lineW: lw * 1.4 }); },
-    back: (ctx, lw, pal) => { render(ctx, roots.back, { pal, lineW: lw * 1.4 }); GUN.slung(ctx, { pal, lineW: lw * 1.4 }); },
+    back: (ctx, lw, pal) => { render(ctx, roots.back, { pal, lineW: lw * 1.4 }); },
     walkWalker: (ctx, lw, pal, w, h, t) => {
       const { pose, drop, x } = GAIT.walkAt(t);
       ctx.translate(acrossX(x, w) - XBOT.SIDE_AX, drop);
@@ -276,7 +276,7 @@ const VIEWS = {
       facingLeft(ctx, w - 2 * SIDE_SHIFT, () => robot(ctx, { root: roots.gSide, pose: POSES.gSide, hook: "hand", pal, simple: true, lineW: lw * XBOT.GAME_LINE }));
     },
     gFront: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); robot(ctx, { root: roots.gFront, pose: POSES.gFront, hook: "handL", barrel: gHold.FRONT_BARREL, pal, simple: true, lineW: lw * XBOT.GAME_LINE }); },
-    gBack: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); render(ctx, roots.gBack, { pal, lineW: lw * XBOT.GAME_LINE, simple: true }); GUN.slung(ctx, { pal, lineW: lw * XBOT.GAME_LINE, simple: true }); }
+    gBack: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); render(ctx, roots.gBack, { pal, lineW: lw * XBOT.GAME_LINE, simple: true }); }
   },
   flyer: {
     flyerHover: (ctx, lw, pal, w, h, t) => enemy(ctx, FLYER, { x: w / 2, y: h / 2, t, pal, lineW: lw }),

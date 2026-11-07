@@ -4,7 +4,7 @@ import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset, P, PALETTE, type EnvAsset } from "../env/paint";
-import { gunHook, gunSlung, holdPoses, MUZZLE_IN_HOOK } from "../robot/gun";
+import { gunHook, holdPoses, MUZZLE_IN_HOOK } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
 import { camera, feet, fitStage, hookAt, LINE_W, lineFor, poly, random, shadow, stillLayer, tracks } from "./kit";
@@ -48,7 +48,7 @@ const legUp = (r: number): [Pose[string], Pose[string]] => [{ sy: 1 - 0.5 * r },
 let backRig: GroupNode | null = null;
 const back = (): GroupNode => (backRig ??= buildBack({}));
 
-export function hullCoverScene(film: HullConfig, strike: Strike, slung: boolean): Cutscene["render"] {
+export function hullCoverScene(film: HullConfig, strike: Strike): Cutscene["render"] {
   const S = film.stage;
   const { width: W, height: H } = S;
   const palette: Record<string, string> = { ...film.palette };
@@ -119,7 +119,6 @@ export function hullCoverScene(film: HullConfig, strike: Strike, slung: boolean)
     feet(ctx, x, y, k, k, ROBOT.AX);
     const lineW = lineFor(ctx, k);
     drawRig(ctx, back(), { palette: ROBOT.palette, pose, lineW });
-    if (slung) gunSlung(ctx, ROBOT.palette, { lineW });
     ctx.restore();
   }
 
@@ -246,4 +245,4 @@ const shoot: Strike = (ctx, t, { view: V, at, palette, hits }) => {
   if (firing && at("hits", t) >= 0.5) hits(frame);
 };
 
-export const hullCover: Cutscene = { id: "hullCover", duration: config.duration, camera: config.camera, render: hullCoverScene(config, shoot, true) };
+export const hullCover: Cutscene = { id: "hullCover", duration: config.duration, camera: config.camera, render: hullCoverScene(config, shoot) };

@@ -9,7 +9,7 @@ import { clipFor, holdsGun, type Clip, type ClipSet, type GaitName, type Movemen
 import { gaitBob, gaitPose, RUN, SPIKE_K, TAU, WALK, type Gait } from "./gait";
 import type { Hero } from "./hero";
 
-export type GunLook = "hand" | "slung" | "dropped" | "none";
+export type GunLook = "hand" | "dropped" | "none";
 export type GunModel = "gun" | "blaster" | "toaster" | "flamethrower";
 
 export interface HitLook {
@@ -133,7 +133,7 @@ const handModel = (h: Hero): GunModel => (h.weapon === "blaster" ? "blaster" : "
 const armed = (view: View, pose: Angles, hold: Hold): { pose: Angles; gun: GunLook } => {
   if (view === "side") return { pose: carry(pose, hold), gun: "hand" };
   if (view === "front") return { pose: frontCarry(pose, hold), gun: "hand" };
-  return { pose, gun: "slung" };
+  return { pose, gun: "none" };
 };
 
 const grounding = (h: Hero, clip: Clip, pose: Angles, rot: number, side: GroupNode, t: number): number => {

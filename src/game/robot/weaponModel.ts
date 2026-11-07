@@ -1,8 +1,6 @@
-import type { Mat2D } from "../../engine/math/mat2d";
 import type { Palette } from "../../engine/rig/draw";
-import { locate } from "../../engine/rig/pose";
 import type { Pt } from "../../engine/rig/tree";
-import { buildBack, ROBOT } from "./xbot";
+import { ROBOT } from "./xbot";
 
 export interface WeaponPart {
   name: string;
@@ -72,14 +70,7 @@ export interface WeaponModel {
   colors: Palette;
   draw: (ctx: CanvasRenderingContext2D, opts?: WeaponOptions) => void;
   hook: (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions) => void;
-  slung: (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions) => void;
 }
-
-const slungAt = (): Mat2D => {
-  const m = locate(buildBack(), "back", {});
-  if (!m) throw new Error("missing hook back");
-  return m;
-};
 
 export const createWeaponModel = ({ buildParts, mat, colors = {}, after }: ModelSpec): WeaponModel => {
   const partSets = new Map<number, WeaponPart[]>();
@@ -114,15 +105,5 @@ export const createWeaponModel = ({ buildParts, mat, colors = {}, after }: Model
     ctx.restore();
   };
 
-  let slungMatrix: Mat2D | null = null;
-
-  const slung: WeaponModel["slung"] = (ctx, palette = ROBOT.palette, opts = {}) => {
-    const m = (slungMatrix ??= slungAt());
-    ctx.save();
-    ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-    hook(ctx, palette, opts);
-    ctx.restore();
-  };
-
-  return { parts: partsFor(BARREL.length), colors, draw, hook, slung };
+  return { parts: partsFor(BARREL.length), colors, draw, hook };
 };

@@ -9,7 +9,7 @@ const part = kit.asset("shipPart");
 const plate = { draw: c => window.ENV.P.box(c, -COVER[2] / 2, -COVER[3] / 2, COVER[2], COVER[3], "steel", 2) };
 const legUp = r => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
 
-function hullCoverScene(CFG, palette, strike, slung) {
+function hullCoverScene(CFG, palette, strike) {
   const S = CFG.stage;
   const W = S.width, H = S.height;
   const at = kit.track(CFG.tracks);
@@ -72,7 +72,6 @@ function hullCoverScene(CFG, palette, strike, slung) {
     kit.feet(ctx, x, y, k, k, AX);
     const lineW = kit.lineFor(ctx, k);
     renderBot(ctx, back, { pose, lineW });
-    if (slung) window.GUN.slung(ctx, { lineW });
     ctx.restore();
   }
 
@@ -191,7 +190,7 @@ function shoot(ctx, t, { view: V, at, hits }) {
   if (firing && at("hits", t) >= 0.5) hits(frame);
 }
 
-const render = hullCoverScene(CFG, palette, shoot, true);
+const render = hullCoverScene(CFG, palette, shoot);
 
 window.CUTSCENES.hullCover = { name: CFG.title, camera: CFG.camera, duration: CFG.duration, palette, render, ref: kit.filmRef("hullCover", CFG.duration) };
 })();

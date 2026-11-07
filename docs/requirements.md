@@ -211,7 +211,7 @@ flowchart LR
 | `spikes/shared/xbot.js` | Shared robot model and renderer |
 | `spikes/shared/cutscenes.js` | Cutscene keyframe format, camera shots, two-handed lever prop handling, synced arms. An interaction triggers its cutscene in `spikes/movement/interaction.html` (cell plays both; click opens the player) |
 | `spikes/movement/` | Movement overview: movement, interaction and fight pages, every move looping in its own cell, Fists / Gun switch |
-| `spikes/gun-design/` | Gun design sheet: side, held side and front, slung back, game size, references |
+| `spikes/gun-design/` | Weapon design sheet: ground pickup (side view without one), held side and front, game size, HUD icon, references |
 | `spikes/enemy-design/` | Enemy design sheet: greyscale tint sliders, palette overrides, full and game size, face-off with the hero, references |
 | `spikes/shared/gun.js` | Shared gun model and hold poses |
 | `spikes/env-design/` | Level 1 environment sheet: vector variant per object state next to original crops, hero for scale and tile grid always on, `Video LOD` toggle |

@@ -37,7 +37,6 @@ export const GUN_PARTS = model.parts;
 export { MUZZLE, MUZZLE_IN_HOOK, SUPPORT, SUPPORT_IN_HOOK, toHook };
 export const drawGun = model.draw;
 export const gunHook = model.hook;
-export const gunSlung = model.slung;
 
 export const CARRY = { arm: 22, fore: -94 };
 export const FRONT_CARRY = { armL: 0, foreL: -90 };

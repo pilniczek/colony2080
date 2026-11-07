@@ -94,7 +94,7 @@ export const rocketRobot = (): EnemyKind => {
       lineW,
       (ctx) => {
         rack(ctx);
-        if (look.gun !== "hand" && look.gun !== "slung") return;
+        if (look.gun !== "hand") return;
         ctx.translate(0, DROP);
         launcher(ctx, fire === null || fire < SHOT.fire || (fire - SHOT.fire) % SHOT.reload > SHOT.empty);
       },
@@ -106,7 +106,6 @@ export const rocketRobot = (): EnemyKind => {
       c.translate(-LYING.x, -LYING.y);
       launcher(c, true);
     })(ctx, pal),
-    slung: () => {},
   };
   return { palette, rigs, hold, hooks, weapon, launch: apply(inHand, LAUNCH), clips: stanceShot(KNEEL, SHOT.settle) };
 };

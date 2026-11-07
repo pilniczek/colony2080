@@ -19,7 +19,7 @@ describe("figureKey", () => {
     const [a, b] = [{}, {}];
     expect(figureKey([a], {}, "hand")).toBe(figureKey([a], {}, "hand"));
     expect(figureKey([a], {}, "hand")).not.toBe(figureKey([b], {}, "hand"));
-    expect(figureKey([a], {}, "hand")).not.toBe(figureKey([a], {}, "slung"));
+    expect(figureKey([a], {}, "hand")).not.toBe(figureKey([a], {}, "none"));
   });
 });
 

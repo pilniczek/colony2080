@@ -59,4 +59,3 @@ export const EBLASTER_PARTS = model.parts;
 export const EBLASTER_COLORS = model.colors;
 export const drawEBlaster = model.draw;
 export const eblasterHook = model.hook;
-export const eblasterSlung = model.slung;

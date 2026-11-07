@@ -1,13 +1,13 @@
 import { BEAM_FRAMES, drawBeam } from "../../src/game/render/beam";
 import { blasterIcon } from "../../src/game/hud/blasterIcon";
-import { drawEBlaster, eblasterHook, eblasterSlung } from "../../src/game/robot/eblaster";
-import { drawToaster, TOASTER_WEAPON, toasterHook, toasterSlung } from "../../src/game/robot/toaster";
+import { drawEBlaster, eblasterHook } from "../../src/game/robot/eblaster";
+import { drawToaster, TOASTER_WEAPON, toasterHook } from "../../src/game/robot/toaster";
 import { drawToasterShot, drawToasterSight } from "../../src/game/render/toasterShot";
 import { toasterIcon } from "../../src/game/hud/toasterIcon";
-import { drawFlamethrower, FLAMETHROWER_WEAPON, flamethrowerHook, flamethrowerSlung } from "../../src/game/robot/flamethrower";
+import { drawFlamethrower, FLAMETHROWER_WEAPON, flamethrowerHook } from "../../src/game/robot/flamethrower";
 import { drawFlame, drawFlameStream } from "../../src/game/render/flameShot";
 import { flamethrowerIcon } from "../../src/game/hud/flamethrowerIcon";
-import { drawGun, frontBarrel, GUN_WEAPON, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
+import { drawGun, frontBarrel, GUN_WEAPON, gunHook, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
@@ -51,7 +51,6 @@ interface SpikeGun {
   holdPoses(side: SpikeNode, front: SpikeNode): { CARRY: Pose; CARRY_FAR: Pose; FRONT_CARRY: Pose; FRONT_CARRY_R: Pose; FRONT_BARREL: number };
   draw(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
   hook(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
-  slung(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
 }
 
 interface SpikeEBlaster extends SpikeGun {
@@ -132,16 +131,14 @@ const views: [View, Options][] = [
   ["back", { thumbsBehind: true, forearmsUnder: true, enemy: true }],
 ];
 
-type Carry = "side" | "front" | "slung";
+type Carry = "side" | "front";
 type WeaponKind = "gun" | "eblaster" | "toaster" | "flamethrower";
 
 const carries: [View, Options, Carry][] = [
   ["side", { farLimbs: true, propBehindArm: true }, "side"],
   ["front", { rightArmFirst: true, propBehindArm: true }, "front"],
-  ["back", { thumbsBehind: true, forearmsUnder: true }, "slung"],
 ];
 
-const CLIMB: Pose = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
 const HIT_TINT = { brightness: 1.6, saturate: 2 };
 const HIT: Pose = { head: { rot: -16, tint: HIT_TINT }, chest: { tint: HIT_TINT } };
 const GUN_ALONE_SHIFT: [number, number] = [250, 130];
@@ -232,15 +229,13 @@ interface Scene {
   portPose?: Pose;
   spikeHooks?: Record<string, SpikeHook>;
   portHooks?: Record<string, HookDraw>;
-  spikeAfter?: (ctx: CanvasRenderingContext2D) => void;
-  portAfter?: (ctx: CanvasRenderingContext2D) => void;
 }
 
 const weaponDraws = {
-  gun: { spike: () => window.GUN, hook: gunHook, slung: gunSlung, draw: drawGun },
-  eblaster: { spike: () => window.EBLASTER, hook: eblasterHook, slung: eblasterSlung, draw: drawEBlaster },
-  toaster: { spike: () => window.TOASTER, hook: toasterHook, slung: toasterSlung, draw: drawToaster },
-  flamethrower: { spike: () => window.FLAMETHROWER, hook: flamethrowerHook, slung: flamethrowerSlung, draw: drawFlamethrower },
+  gun: { spike: () => window.GUN, hook: gunHook, draw: drawGun },
+  eblaster: { spike: () => window.EBLASTER, hook: eblasterHook, draw: drawEBlaster },
+  toaster: { spike: () => window.TOASTER, hook: toasterHook, draw: drawToaster },
+  flamethrower: { spike: () => window.FLAMETHROWER, hook: flamethrowerHook, draw: drawFlamethrower },
 };
 
 const holdsOf = { gun: { spike: () => window.GUN, weapon: GUN_WEAPON }, eblaster: { spike: () => window.EBLASTER, weapon: GUN_WEAPON }, toaster: { spike: () => window.TOASTER, weapon: TOASTER_WEAPON }, flamethrower: { spike: () => window.FLAMETHROWER, weapon: FLAMETHROWER_WEAPON } };
@@ -260,18 +255,11 @@ const gunScene = (carry: Carry, simple: boolean, kind: WeaponKind = "gun"): Scen
       spikeHooks: { hand: spikeGun },
       portHooks: { hand: portGun },
     };
-  if (carry === "front")
-    return {
-      spikePose: { ...spikeHold.FRONT_CARRY, ...spikeHold.FRONT_CARRY_R },
-      portPose: { ...portHold.FRONT_CARRY, ...portHold.FRONT_CARRY_R },
-      spikeHooks: { handL: spikeGun },
-      portHooks: { handL: portGun },
-    };
   return {
-    spikePose: CLIMB,
-    portPose: CLIMB,
-    spikeAfter: (ctx) => weapon.spike().slung(ctx, { pal: ROBOT.palette, lineW: LINE_W, simple }),
-    portAfter: (ctx) => weapon.slung(ctx, ROBOT.palette, { lineW: LINE_W, simple }),
+    spikePose: { ...spikeHold.FRONT_CARRY, ...spikeHold.FRONT_CARRY_R },
+    portPose: { ...portHold.FRONT_CARRY, ...portHold.FRONT_CARRY_R },
+    spikeHooks: { handL: spikeGun },
+    portHooks: { handL: portGun },
   };
 };
 
@@ -293,11 +281,8 @@ const runCase = (label: string, view: View, opts: Options, out: HTMLElement, sce
   const simple = !!opts.lod;
   const spike = canvas();
   window.XBOT.render(spike, spikeTree, { pal: ROBOT.palette, lineW: LINE_W, simple, pose: scene.spikePose, hooks: scene.spikeHooks });
-  scene.spikeAfter?.(spike);
   const own = drawPort(portTree, simple, scene.portPose, scene.portHooks);
-  scene.portAfter?.(own);
   const copied = drawPort(copiedTree, simple, scene.portPose, scene.portHooks);
-  scene.portAfter?.(copied);
   const r = {
     mismatches: mismatches(spikeTree, portTree),
     copiedDiff: pixelDiff(spike, copied),

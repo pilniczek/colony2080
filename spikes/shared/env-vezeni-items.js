@@ -305,7 +305,7 @@ define({
   }
 });
 
-const GUN = { edge: "#141818", dark: "#2c3838", mid: "#64605c", lit: "#a8aca8", hi: "#c4cccc", white: "#fcfcfc", blue: "#7cc4e4" };
+const MGX_K = 0.075;
 
 define({
   id: "mgx800",
@@ -313,28 +313,13 @@ define({
   draw(ctx, state) {
     if (state) return scuff(ctx, 1, 26);
     shadow(ctx, 13, 26);
-    shape(ctx, [[3.6, -2.4], [5.6, -2.4], [4.4, 0], [2.2, 0]], GUN.dark, GUN.edge);
-    shape(ctx, [[0, -6.4], [9.4, -6.8], [9.4, -2.2], [1, -2.4]], GUN.mid, GUN.edge);
-    shape(ctx, [[9, -8], [17.4, -8], [17.4, -1.6], [9, -1.6]], GUN.lit, GUN.edge);
-    flat(ctx, 12.6, -8, 2.4, 6.4, GUN.white, GUN.edge);
-    shape(ctx, [[17.4, -6], [22.2, -5.8], [22.2, -3.6], [17.4, -3.4]], GUN.mid, GUN.edge);
-    if (!simple()) {
-      flat(ctx, 0.6, -6, 8.4, 0.9, GUN.lit);
-      flat(ctx, 1, -3.6, 8, 0.8, GUN.dark);
-      flat(ctx, 9.4, -7.6, 3, 1.1, GUN.hi);
-      flat(ctx, 9.4, -3.2, 7.6, 1.2, GUN.dark);
-      for (const x of [10.2, 11.4, 15.6, 16.6]) flat(ctx, x, -6, 0.45, 3.4, GUN.mid);
-      flat(ctx, 17.8, -5.6, 4, 0.6, GUN.hi);
-    }
-    glow(ctx, 25, -4.8, 4.2, GUN.blue, 0.35);
-    for (const s of [-1, 1]) {
-      const pts = [[22, -4.8 + s * 0.8], [24.4, -4.8 + s * 3.2], [27, -4.8 + s * 2.6], [26, -4.8 + s * 1.4]];
-      const e = lw(ctx, 1.4);
-      if (e) curve(ctx, pts, GUN.edge, 1.3 + e);
-      curve(ctx, pts, GUN.blue, 1.3);
-      if (!simple()) curve(ctx, pts, GUN.white, 0.4);
-    }
-    disc(ctx, 24.6, -4.8, 0.9, GUN.white);
+    const t = ctx.getTransform();
+    const lineW = lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+    ctx.save();
+    ctx.scale(MGX_K, MGX_K);
+    ctx.translate(132, -32);
+    window.MGX800.draw(ctx, { lineW, simple: simple() });
+    ctx.restore();
   }
 });
 

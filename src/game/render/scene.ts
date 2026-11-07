@@ -16,10 +16,10 @@ import type { Flame, SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
-import { drawEBlaster, EBLASTER_COLORS, eblasterHook, eblasterSlung } from "../robot/eblaster";
-import { drawGun, frontBarrel, GUN_WEAPON, gunHook, gunSlung, holdPoses, type HeroWeapon } from "../robot/gun";
-import { drawToaster, TOASTER_COLORS, TOASTER_WEAPON, toasterHook, toasterSlung } from "../robot/toaster";
-import { drawFlamethrower, FLAMETHROWER_COLORS, FLAMETHROWER_WEAPON, flamethrowerHook, flamethrowerSlung } from "../robot/flamethrower";
+import { drawEBlaster, EBLASTER_COLORS, eblasterHook } from "../robot/eblaster";
+import { drawGun, frontBarrel, GUN_WEAPON, gunHook, holdPoses, type HeroWeapon } from "../robot/gun";
+import { drawToaster, TOASTER_COLORS, TOASTER_WEAPON, toasterHook } from "../robot/toaster";
+import { drawFlamethrower, FLAMETHROWER_COLORS, FLAMETHROWER_WEAPON, flamethrowerHook } from "../robot/flamethrower";
 import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
 import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
@@ -38,10 +38,10 @@ const IMPACT = { radius: 7, k: 0.3 };
 const DUST = { back: 30, up: 6, radius: 18 };
 const DROPPED_GUN = { ahead: 24, slide: 20, up: 9 };
 const MODELS = {
-  gun: { draw: drawGun, hook: gunHook, slung: gunSlung },
-  blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
-  toaster: { draw: drawToaster, hook: toasterHook, slung: toasterSlung },
-  flamethrower: { draw: drawFlamethrower, hook: flamethrowerHook, slung: flamethrowerSlung },
+  gun: { draw: drawGun, hook: gunHook },
+  blaster: { draw: drawEBlaster, hook: eblasterHook },
+  toaster: { draw: drawToaster, hook: toasterHook },
+  flamethrower: { draw: drawFlamethrower, hook: flamethrowerHook },
 } satisfies Record<GunModel, unknown>;
 const HERO_PALETTE: Palette = { ...EBLASTER_COLORS, ...TOASTER_COLORS, ...FLAMETHROWER_COLORS, ...ROBOT.palette };
 
@@ -293,7 +293,6 @@ function heroFigure(
   const key = owner && !look.hit ? figureKey([owner, rig, palette], look.pose, `${look.gun}${look.hand}${lineW}`) : null;
   drawFigure(ctx, key, (c) => {
     drawRig(c, rig, { palette, pose: look.pose, hooks, lineW, simple: true });
-    if (look.gun === "slung") weapon.slung(c, palette, { lineW, simple: true });
   });
   if (flash) muzzleFlash(ctx, look, rigs, muzzle);
   if (look.hit) hitStar(ctx, look.hit);

@@ -1,6 +1,6 @@
 (() => {
 const { define, P, G } = window.ENV;
-const { rng, path, color, flat, box, poly, cylH, disc, glow, stroke, shape, line, curve, mesh, hazard } = P;
+const { rng, path, color, flat, box, poly, disc, glow, stroke, shape, line, curve, mesh, hazard } = P;
 const { PI, sin, cos, min, max, round, abs } = Math;
 
 const simple = () => window.ENV.simple;
@@ -792,19 +792,25 @@ define({
   }
 });
 
+const FLAMER_K = 0.12;
+const FLAMER_PARTS = [
+  [-100, -58, 44, 26, "steel", 0], [-16, -18, 30, 50, "steel", 0], [-58, -62, 142, 44, "steel", 1], [-58, -62, 142, 10, "steel", 2],
+  [-44, -116, 112, 54, "brick", 2], [-52, -110, 10, 42, "steel", 2], [66, -110, 10, 42, "steel", 2], [6, -118, 10, 58, "steel", 1],
+  [74, -84, 12, 24, "chrome", 2], [84, -52, 120, 24, "steel", 2], [204, -62, 30, 44, "chrome", 2], [218, -19, 20, 7, "chrome", 1]
+];
+const flamerAt = (x, y) => [(x + 100) * FLAMER_K, (y - 32) * FLAMER_K];
+const FLAMER_PILOT = [[0, 3.5], [0, -3.5], [5, -8], [8, -15], [7, -23], [11, -34], [14, -25], [19, -31], [21, -19], [18, -7], [11, 3]];
+const FLAMER_PILOT_CORE = [[0.5, 2], [0.5, -2], [4, -4.5], [7, -9], [10, -13], [11, -7], [9, -1], [5, 2]];
+const pilotAt = ([x, y]) => flamerAt(238 + x, -15.5 + y);
+
 define({
   id: "flamethrower",
-  box: [-1, -15, 43, 1],
+  box: [-1, -19, 44, 1],
   draw(ctx) {
-    cylH(ctx, 6, -13, 12, 8, "brick", 2);
-    flat(ctx, 16, -8, 22, 3, "m2", "mLine");
-    flat(ctx, 36, -9, 6, 5, "m1", "mLine");
-    flat(ctx, 10, -5, 4, 5, "m1", "mLine");
-    flat(ctx, 0, -9, 7, 3, "m1", "mLine");
-    if (!simple()) {
-      flat(ctx, 8, -12, 8, 1, "b3");
-      disc(ctx, 40, -6.5, 1, "a1");
-    }
+    for (const [x, y, w, h, mat, tone] of FLAMER_PARTS) box(ctx, ...flamerAt(x, y), w * FLAMER_K, h * FLAMER_K, mat, tone);
+    if (!simple()) glow(ctx, ...pilotAt([9, -10]), 3.4, "a2", 0.35);
+    shape(ctx, FLAMER_PILOT.map(pilotAt), "#c8401a");
+    shape(ctx, FLAMER_PILOT_CORE.map(pilotAt), "#fff1c4");
   }
 });
 

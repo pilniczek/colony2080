@@ -9,7 +9,7 @@ const NOZZLE = 30;
 
 const buildParts = length => [
   { name: "stock", x: -100, y: -58, w: 44, h: 26, mat: "s", tone: 0 },
-  { name: "grip", x: -16, y: -14, w: 30, h: 46, mat: "s", tone: 0 },
+  { name: "grip", x: -16, y: -18, w: 30, h: 50, mat: "s", tone: 0 },
   { name: "body", x: -58, y: -62, w: 142, h: 44, mat: "s", tone: 1 },
   { name: "bodyTop", x: -58, y: -62, w: 142, h: 10, mat: "s", tone: 2 },
   { name: "tank", x: -44, y: -116, w: 112, h: 54, mat: "r", tone: 2 },
@@ -19,17 +19,51 @@ const buildParts = length => [
   { name: "valve", x: 74, y: -84, w: 12, h: 24, mat: "k", tone: 2 },
   { name: "barrel", x: BARREL.x, y: -52, w: length, h: 24, mat: "s", tone: 2 },
   { name: "nozzle", x: BARREL.x + length, y: -62, w: NOZZLE, h: 44, mat: "k", tone: 2 },
-  { name: "pilot", x: BARREL.x + length + 4, y: -18, w: 20, h: 8, mat: "o", tone: 2 }
+  { name: "igniter", x: BARREL.x + length + 14, y: -19, w: 20, h: 7, mat: "k", tone: 1 }
 ];
 
-function pilotFlame(ctx, length, simple) {
-  if (simple) return;
-  ctx.save();
-  ctx.globalAlpha = 0.6;
-  ctx.fillStyle = ENV_PAL.a2;
+const PILOT = {
+  outer: [[0, 3.5], [0, -3.5], [5, -8], [8, -15], [7, -23], [11, -34], [14, -25], [19, -31], [21, -19], [18, -7], [11, 3]],
+  mid: [[0, 2.8], [0, -2.8], [4, -6.5], [7, -12], [7, -18], [11, -24], [13, -17], [16, -19], [16, -10], [13, -3], [8, 2.5]],
+  core: [[0.5, 2], [0.5, -2], [4, -4.5], [7, -9], [10, -13], [11, -7], [9, -1], [5, 2]],
+  blue: [[0, 3], [0, -3], [3.5, -4], [6.5, -2.5], [6.5, 1.5], [3.5, 3]]
+};
+const PILOT_TOP = -34;
+const PILOT_COLORS = { outer: "#c8401a", mid: ENV_PAL.a2, core: "#fff1c4", blue: "#3f7cff", glow: ENV_PAL.a2 };
+
+const rgba = (hex, a) => `rgba(${parseInt(hex.slice(1, 3), 16)},${parseInt(hex.slice(3, 5), 16)},${parseInt(hex.slice(5, 7), 16)},${a})`;
+
+function pilotLayer(ctx, pts, hex, alpha, fade) {
+  const g = ctx.createLinearGradient(0, 4, 0, PILOT_TOP * fade);
+  g.addColorStop(0, rgba(hex, alpha));
+  g.addColorStop(0.55, rgba(hex, alpha * 0.85));
+  g.addColorStop(1, rgba(hex, 0));
+  ctx.fillStyle = g;
   ctx.beginPath();
-  ctx.ellipse(BARREL.x + length + NOZZLE + 4, -14, 7, 3, 0, 0, Math.PI * 2);
+  ctx.moveTo(...pts[0]);
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [x, y] = pts[i], [nx, ny] = pts[i + 1];
+    ctx.quadraticCurveTo(x, y, (x + nx) / 2, (y + ny) / 2);
+  }
+  ctx.lineTo(...pts[pts.length - 1]);
+  ctx.closePath();
   ctx.fill();
+}
+
+function pilotFlame(ctx, length, simple) {
+  ctx.save();
+  ctx.translate(BARREL.x + length + NOZZLE + 4, -15.5);
+  if (!simple) {
+    const g = ctx.createRadialGradient(9, -10, 0, 9, -10, 28);
+    g.addColorStop(0, rgba(PILOT_COLORS.glow, 0.35));
+    g.addColorStop(1, rgba(PILOT_COLORS.glow, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(9, -10, 28, 0, Math.PI * 2); ctx.fill();
+  }
+  pilotLayer(ctx, PILOT.outer, PILOT_COLORS.outer, 0.95, 1);
+  if (!simple) pilotLayer(ctx, PILOT.mid, PILOT_COLORS.mid, 0.95, 0.75);
+  pilotLayer(ctx, PILOT.core, PILOT_COLORS.core, 1, 0.45);
+  if (!simple) pilotLayer(ctx, PILOT.blue, PILOT_COLORS.blue, 0.9, 0.15);
   ctx.restore();
 }
 
@@ -38,22 +72,18 @@ const BAND = { y: -62, h: 44 };
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
 const ICON_SCALE = 1.45;
-const ICON_RECTS = [
-  [0.4, -6.2, 3, 2.2, "#55636a"],
-  [5.4, -3.4, 2.2, 3.4, "#55636a"],
-  [3.2, -6.6, 9.4, 3.2, "#8e9aa0"],
-  [4.6, -8.6, 7.6, 2, ENV_PAL.b2],
-  [4.6, -8.6, 7.6, 0.6, ENV_PAL.b3],
-  [8, -8.6, 0.9, 2.2, "#c4ccd0"],
-  [12.6, -6, 7.8, 1.8, "#c4ccd0"],
-  [20.4, -6.8, 2.8, 3.4, "#dfe5e7"],
-  [20.8, -3.4, 1.6, 0.7, ENV_PAL.a1]
-];
+const ICON_K = 0.068;
 const n = v => +v.toFixed(2);
-const ICON_FLAME = { y: -5.1, layers: [["#c8300c", 26.6, 3, 1.8], ["#f09024", 26.2, 2.3, 1.3], ["#fce438", 25.6, 1.5, 0.85], ["#fcf0c4", 24.9, 0.8, 0.45]] };
+const iconX = x => n(0.4 + (x + 100) * ICON_K);
+const iconY = y => n((y - 32) * ICON_K);
+const iconRect = (x, y, w, h, fill, line = true) => `<rect x="${iconX(x)}" y="${iconY(y)}" width="${n(w * ICON_K)}" height="${n(h * ICON_K)}" fill="${fill}"${line ? "" : ' stroke="none"'}/>`;
+const iconParts = buildParts(BARREL.length).map(p => iconRect(p.x, p.y, p.w, p.h, COLORS[p.mat + p.tone]) + iconRect(p.x, p.y, p.w, p.h * 0.28, COLORS[p.mat + Math.min(3, p.tone + 1)], false)).join("");
+const ICON_PILOT = { x: BARREL.x + BARREL.length + NOZZLE + 4, y: -15.5 };
 const ICON = { w: n(23.2 * ICON_SCALE), arcEnd: n(29.6 * ICON_SCALE) };
-const iconFlame = ICON_FLAME.layers.map(([fill, cx, rx, ry]) => `<ellipse cx="${cx}" cy="${ICON_FLAME.y}" rx="${rx}" ry="${ry}" fill="${fill}" stroke="none"/>`).join("");
-const icon = x => `<g transform="translate(${x} 15.7) scale(${ICON_SCALE})" stroke="#202826" stroke-width=".2">${ICON_RECTS.map(([rx, ry, w, h, fill]) => `<rect x="${rx}" y="${ry}" width="${w}" height="${h}" fill="${fill}"${h < 1 ? ' stroke="none"' : ""}/>`).join("")}${iconFlame}</g>`;
+const iconPt = ([x, y]) => `${iconX(ICON_PILOT.x + x)} ${iconY(ICON_PILOT.y + y)}`;
+const iconPath = pts => `M${iconPt(pts[0])}${pts.slice(1, -1).map((p, i) => `Q${iconPt(p)} ${iconPt([(p[0] + pts[i + 2][0]) / 2, (p[1] + pts[i + 2][1]) / 2])}`).join("")}L${iconPt(pts[pts.length - 1])}Z`;
+const iconFlame = ["outer", "mid", "core", "blue"].map(k => `<path d="${iconPath(PILOT[k])}" fill="${PILOT_COLORS[k]}" stroke="none"/>`).join("");
+const icon = x => `<g transform="translate(${x} 15.7) scale(${ICON_SCALE})" stroke="#202826" stroke-width=".2">${iconParts}${iconFlame}</g>`;
 
 const STEPS = [2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2];
 const LIFE = STEPS.length;

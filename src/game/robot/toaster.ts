@@ -76,5 +76,4 @@ const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ .
 export const TOASTER_COLORS = model.colors;
 export const drawToaster = (ctx: CanvasRenderingContext2D, opts?: WeaponOptions): void => model.draw(ctx, sized(opts));
 export const toasterHook = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.hook(ctx, palette, sized(opts));
-export const toasterSlung = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.slung(ctx, palette, sized(opts));
 

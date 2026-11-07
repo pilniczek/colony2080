@@ -35,7 +35,7 @@ function punch(ctx, t, { view: V, at, hits }) {
 }
 
 let render = null;
-const draw = (ctx, w, h, t) => (render ||= window.CUTSCENES.hullCoverScene(CFG, palette, punch, false))(ctx, w, h, t);
+const draw = (ctx, w, h, t) => (render ||= window.CUTSCENES.hullCoverScene(CFG, palette, punch))(ctx, w, h, t);
 
 window.CUTSCENES.hullCoverPunch = { name: CFG.title, camera: CFG.camera, duration: CFG.duration, palette, render: draw };
 })();

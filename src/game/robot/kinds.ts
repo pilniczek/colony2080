@@ -28,7 +28,7 @@ export interface EnemyKind {
   weapon?: KindWeapon;
 }
 
-export type KindWeapon = Pick<WeaponModel, "draw" | "slung">;
+export type KindWeapon = Pick<WeaponModel, "draw">;
 
 export interface Dying {
   pose: Record<string, number>;

@@ -66,14 +66,11 @@ function carry(pose) {
   return { ...pose, arm: CARRY.arm - b, fore: CARRY.fore, armFar: CARRY_FAR.armFar - b, foreFar: CARRY_FAR.foreFar };
 }
 
-const slungGun = (c, pal) => model().slung(c, { pal, lineW: LINE, simple: true });
-
 function bot(c, { view = "side", x, y, pose = {}, hooks = {}, rot = 0, flip = false, tint = null, hold = true }) {
   let after = null;
   if (armed() && hold) {
     if (view === "side") { pose = carry(pose); hooks = { ...hooks, hand: gun }; }
     else if (view === "front") { pose = { ...pose, ...FRONT_CARRY, ...FRONT_CARRY_R }; hooks = { ...hooks, handL: frontGun }; }
-    else after = slungGun;
   }
   c.save();
   c.translate(x, y);

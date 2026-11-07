@@ -103,16 +103,6 @@ function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own =
     ctx.restore();
   }
 
-  let slungAt = null;
-
-  function slung(ctx, opts) {
-    slungAt ||= window.XBOT.locate(window.XBOT.buildBack(), "back");
-    ctx.save();
-    ctx.transform(slungAt.a, slungAt.b, slungAt.c, slungAt.d, slungAt.e, slungAt.f);
-    hook(ctx, opts);
-    ctx.restore();
-  }
-
   function holdPoses(side, front) {
     const { locate, solve } = window.XBOT;
     const grip = toHook(SUPPORT);
@@ -124,7 +114,7 @@ function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own =
     return { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R, FRONT_BARREL };
   }
 
-  return { PARTS: partsFor(own.length), BARREL: own, MUZZLE: muzzle, draw, hook, slung, toHook, muzzleInHook: toHook(muzzle), holdPoses };
+  return { PARTS: partsFor(own.length), BARREL: own, MUZZLE: muzzle, draw, hook, toHook, muzzleInHook: toHook(muzzle), holdPoses };
 }
 
 const MUZZLE = [BARREL.x + BARREL.length + 2, -40];

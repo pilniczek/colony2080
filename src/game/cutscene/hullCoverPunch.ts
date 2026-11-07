@@ -41,4 +41,4 @@ const punch: Strike = (ctx, t, { view: V, at, palette, hits }) => {
   if (at("hits", t) >= 0.5) hits(Math.floor(t / S.sparkSeconds));
 };
 
-export const hullCoverPunch: Cutscene = { id: "hullCoverPunch", duration: config.duration, camera: config.camera, render: hullCoverScene(config, punch, false) };
+export const hullCoverPunch: Cutscene = { id: "hullCoverPunch", duration: config.duration, camera: config.camera, render: hullCoverScene(config, punch) };

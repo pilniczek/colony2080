@@ -42,18 +42,44 @@
   <label><input id="lines" type="checkbox" checked> Outlines</label>
 </header>
 <p class="obtained" id="obtained" hidden></p>
+<main class="game" data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">
+  <figure data-for="fists gun"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200" data-scale="0.8"></canvas></figure>
+  <figure data-for="blaster"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="groundFull" data-w="26" data-h="11" data-scale="12"></canvas></figure>
+  <figure data-for="blaster"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="groundGame" data-w="26" data-h="11" data-scale="game"></canvas></figure>
+  <figure data-for="toaster"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="toasterFull" data-w="30" data-h="12" data-scale="12"></canvas></figure>
+  <figure data-for="toaster"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="toasterGame" data-w="30" data-h="12" data-scale="game"></canvas></figure>
+  <figure data-for="flamethrower"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="flamerFull" data-w="47" data-h="20" data-scale="12"></canvas></figure>
+  <figure data-for="flamethrower"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="flamerGame" data-w="47" data-h="20" data-scale="game"></canvas></figure>
+  <figure data-for="mgx800"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="mgxGroundFull" data-w="32" data-h="13" data-scale="12"></canvas></figure>
+  <figure data-for="mgx800"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="mgxGroundGame" data-w="32" data-h="13" data-scale="game"></canvas></figure>
+  <figure data-for="rocketLauncher"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="rocketGroundFull" data-w="32" data-h="14" data-scale="12"></canvas></figure>
+  <figure data-for="rocketLauncher"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="rocketGroundGame" data-w="32" data-h="14" data-scale="game"></canvas></figure>
+</main>
 <main data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">
-  <figure class="wide"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200"></canvas></figure>
   <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
-  <figure><figcaption>Slung, back (ladder pose)</figcaption><canvas id="slungBack" data-w="640" data-h="780"></canvas></figure>
-  <figure><figcaption>Slung, side (back hook)</figcaption><canvas id="slungSide" data-w="640" data-h="780"></canvas></figure>
 </main>
 <h2 data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">In-game, simplified (game size, scale 0.2)</h2>
 <main class="game" data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">
   <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
-  <figure><figcaption>Back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
+</main>
+<h2 data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">HUD icon</h2>
+<main data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">
+  <figure data-for="fists"><figcaption>Selected</figcaption><div id="fistLit"></div></figure>
+  <figure data-for="fists"><figcaption>Not selected</figcaption><div id="fistDim"></div></figure>
+  <figure data-for="gun"><figcaption>Selected</figcaption><div id="gunLit"></div></figure>
+  <figure data-for="gun"><figcaption>Not selected</figcaption><div id="gunDim"></div></figure>
+  <figure data-for="blaster"><figcaption>Selected</figcaption><div id="iconLit"></div></figure>
+  <figure data-for="blaster"><figcaption>Not selected</figcaption><div id="iconDim"></div></figure>
+  <figure data-for="toaster"><figcaption>Selected</figcaption><div id="toasterLit"></div></figure>
+  <figure data-for="toaster"><figcaption>Not selected</figcaption><div id="toasterDim"></div></figure>
+  <figure data-for="flamethrower"><figcaption>Selected</figcaption><div id="flamerLit"></div></figure>
+  <figure data-for="flamethrower"><figcaption>Not selected</figcaption><div id="flamerDim"></div></figure>
+  <figure data-for="mgx800"><figcaption>Selected</figcaption><div id="mgxLit"></div></figure>
+  <figure data-for="mgx800"><figcaption>Not selected</figcaption><div id="mgxDim"></div></figure>
+  <figure data-for="rocketLauncher"><figcaption>Selected</figcaption><div id="rocketLit"></div></figure>
+  <figure data-for="rocketLauncher"><figcaption>Not selected</figcaption><div id="rocketDim"></div></figure>
 </main>
 <section data-for="gun">
   <h2>Fire (12 flashes per s, hit spark 9 cells out)</h2>
@@ -74,16 +100,6 @@
   </main>
   <h2>Beam frames, 6 shapes</h2>
   <main id="frames"></main>
-  <h2>HUD slot 3 icon</h2>
-  <main>
-    <figure><figcaption>Selected</figcaption><div id="iconLit"></div></figure>
-    <figure><figcaption>Not selected</figcaption><div id="iconDim"></div></figure>
-  </main>
-  <h2>Ground pickup (eBlaster asset)</h2>
-  <main class="game">
-    <figure><figcaption>Full size (x 12)</figcaption><canvas id="groundFull" data-w="26" data-h="11" data-scale="12"></canvas></figure>
-    <figure><figcaption>Game size, game LOD</figcaption><canvas id="groundGame" data-w="26" data-h="11" data-scale="game"></canvas></figure>
-  </main>
 </section>
 <section data-for="toaster">
   <h2>Shot (fireball, one per 7 ticks at 32 ticks per s, 1 cell per tick, level; cross at the 6 cell range end)</h2>
@@ -95,16 +111,6 @@
   </main>
   <h2>Shot frames, 6 per cycle</h2>
   <main id="shotFrames"></main>
-  <h2>Ground pickup (toaster asset)</h2>
-  <main class="game">
-    <figure><figcaption>Full size (x 12)</figcaption><canvas id="toasterFull" data-w="30" data-h="12" data-scale="12"></canvas></figure>
-    <figure><figcaption>Game size, game LOD</figcaption><canvas id="toasterGame" data-w="30" data-h="12" data-scale="game"></canvas></figure>
-  </main>
-  <h2>HUD icon</h2>
-  <main>
-    <figure><figcaption>Selected</figcaption><div id="toasterLit"></div></figure>
-    <figure><figcaption>Not selected</figcaption><div id="toasterDim"></div></figure>
-  </main>
 </section>
 <section data-for="flamethrower">
   <h2>Flame (one particle per 2 ticks at 32 ticks per s, 26 frames, 88 px, grows and rises)</h2>
@@ -116,16 +122,6 @@
   </main>
   <h2>Particle frames 1-26</h2>
   <main id="flameFrames"></main>
-  <h2>Ground pickup (flamethrower asset)</h2>
-  <main class="game">
-    <figure><figcaption>Full size (x 12)</figcaption><canvas id="flamerFull" data-w="46" data-h="17" data-scale="12"></canvas></figure>
-    <figure><figcaption>Game size, game LOD</figcaption><canvas id="flamerGame" data-w="46" data-h="17" data-scale="game"></canvas></figure>
-  </main>
-  <h2>HUD icon</h2>
-  <main>
-    <figure><figcaption>Selected</figcaption><div id="flamerLit"></div></figure>
-    <figure><figcaption>Not selected</figcaption><div id="flamerDim"></div></figure>
-  </main>
 </section>
 <section data-for="mgx800">
   <h2>Shot (plasma crescent, one per 4 ticks at 32 ticks per s, 9 cell range; fire rules still open in the research)</h2>
@@ -135,16 +131,6 @@
   <main class="game">
     <figure><figcaption>Game size, game LOD hero firing the MGX 800</figcaption><canvas id="mgxGame" data-w="4400" data-h="3120"></canvas></figure>
   </main>
-  <h2>Ground pickup (mgx800 asset)</h2>
-  <main class="game">
-    <figure><figcaption>Full size (x 12)</figcaption><canvas id="mgxGroundFull" data-w="32" data-h="13" data-scale="12"></canvas></figure>
-    <figure><figcaption>Game size, game LOD</figcaption><canvas id="mgxGroundGame" data-w="32" data-h="13" data-scale="game"></canvas></figure>
-  </main>
-  <h2>HUD icon</h2>
-  <main>
-    <figure><figcaption>Selected</figcaption><div id="mgxLit"></div></figure>
-    <figure><figcaption>Not selected</figcaption><div id="mgxDim"></div></figure>
-  </main>
 </section>
 <section data-for="rocketLauncher">
   <h2>Shot (rocket with smoke trail, one per 24 ticks at 32 ticks per s, 12 cell range; fire rules still open in the research)</h2>
@@ -153,16 +139,6 @@
   </main>
   <main class="game">
     <figure><figcaption>Game size, game LOD hero firing the rocket launcher</figcaption><canvas id="rocketGame" data-w="4400" data-h="3120"></canvas></figure>
-  </main>
-  <h2>Ground pickup (rocketLauncher asset)</h2>
-  <main class="game">
-    <figure><figcaption>Full size (x 12)</figcaption><canvas id="rocketGroundFull" data-w="32" data-h="14" data-scale="12"></canvas></figure>
-    <figure><figcaption>Game size, game LOD</figcaption><canvas id="rocketGroundGame" data-w="32" data-h="14" data-scale="game"></canvas></figure>
-  </main>
-  <h2>HUD icon</h2>
-  <main>
-    <figure><figcaption>Selected</figcaption><div id="rocketLit"></div></figure>
-    <figure><figcaption>Not selected</figcaption><div id="rocketDim"></div></figure>
   </main>
 </section>
 <section data-for="enemies">
@@ -211,18 +187,15 @@
 <script src="../shared/enemies-jungle.js"></script>
 <script src="../shared/enemies-jeskyne.js"></script>
 <script>
-const { buildSide, buildFront, buildBack, render, locate, FOOT_Y, LEVELS } = window.XBOT;
+const { buildSide, buildFront, render, locate, FOOT_Y, LEVELS } = window.XBOT;
 const roots = {
   side: buildSide({ farLimbs: true, propBehindArm: true }),
   front: buildFront({ rightArmFirst: true, propBehindArm: true }),
-  back: buildBack({ thumbsBehind: true, forearmsUnder: true }),
   gSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true }),
-  gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true }),
-  gBack: buildBack({ thumbsBehind: true, forearmsUnder: true, lod: true })
+  gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true })
 };
 const MODELS = { gun: GUN, blaster: EBLASTER, toaster: TOASTER, flamethrower: FLAMETHROWER, mgx800: MGX800, rocketLauncher: ROCKET_LAUNCHER };
 const SPECIAL = { blaster: [1, "City"], toaster: [2, "Suburb"], flamethrower: [3, "Jungle"], mgx800: [5, "Prison Escape"], rocketLauncher: [6, "Warehouse"] };
-const CLIMB = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
 const DUCK = { body: 16, hipNear: -86, kneeNear: 124, ankleNear: -44, hipFar: -68, kneeFar: 128, ankleFar: -76 };
 const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
 const HOLDS = Object.fromEntries(Object.entries(MODELS).map(([id, m]) => [id, { hold: m.holdPoses(roots.side, roots.front), gHold: m.holdPoses(roots.gSide, roots.gFront) }]));
@@ -246,14 +219,6 @@ const held = (hookName, lineW, simple, barrel) => model() ? { [hookName]: c => m
 
 function robot(ctx, root, pose, hookName, simple, lineW, barrel) {
   render(ctx, root, { pose: model() ? pose : {}, lineW, simple, hooks: held(hookName, lineW, simple, barrel) });
-}
-
-function climber(ctx, root, simple, lineW) {
-  ctx.fillStyle = "#4a5c5f";
-  ctx.fillRect(170, 0, 20, 780);
-  ctx.fillRect(450, 0, 20, 780);
-  for (let y = 60; y < 780; y += 110) ctx.fillRect(170, y, 300, 14);
-  render(ctx, root, { pose: CLIMB, lineW, simple, hooks: held("back", lineW, simple) });
 }
 
 function footLift(root, pose) {
@@ -388,11 +353,8 @@ const VIEWS = {
   side: (ctx, lw) => model() ? (ctx.translate(250, 130), model().draw(ctx, { lineW: lw * 1.4 })) : fist(ctx, lw * 1.4),
   heldSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.side, carry({}, holds().hold), "hand", false, lw * 1.4); },
   heldFront: (ctx, lw) => { const h = holds().hold; robot(ctx, roots.front, { ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }, "handL", false, lw * 1.4, h.FRONT_BARREL); },
-  slungBack: (ctx, lw) => climber(ctx, roots.back, false, lw * 1.4),
-  slungSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); render(ctx, roots.side, { lineW: lw * 1.4, hooks: held("back", lw * 1.4, false) }); },
   gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, carry({}, holds().gHold), "hand", true, lw * XBOT.GAME_LINE); },
   gFront: (ctx, lw) => { const h = holds().gHold; robot(ctx, roots.gFront, { ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }, "handL", true, lw * XBOT.GAME_LINE, h.FRONT_BARREL); },
-  gBack: (ctx, lw) => climber(ctx, roots.gBack, true, lw * XBOT.GAME_LINE),
   beamFull: (ctx, lw, t) => beamRows(ctx, roots.side, hold, false, lw * 1.4, t),
   beamGame: (ctx, lw, t) => beamRows(ctx, roots.gSide, gHold, true, lw * XBOT.GAME_LINE, t),
   groundFull: ctx => ground(ctx, false),
@@ -403,8 +365,8 @@ const VIEWS = {
   fireGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, gHold, true, lw * XBOT.GAME_LINE, t, GUN, fireEffect),
   shotFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.toaster.hold, false, lw * 1.4, t, TOASTER, shotEffect),
   shotGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.toaster.gHold, true, lw * XBOT.GAME_LINE, t, TOASTER, shotEffect),
-  flamerFull: (ctx, lw, t) => ground(ctx, false, "flamethrower", 2, 16, t),
-  flamerGame: (ctx, lw, t) => ground(ctx, true, "flamethrower", 2, 16, t),
+  flamerFull: (ctx, lw, t) => ground(ctx, false, "flamethrower", 2, 19, t),
+  flamerGame: (ctx, lw, t) => ground(ctx, true, "flamethrower", 2, 19, t),
   flameFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.flamethrower.hold, false, lw * 1.4, t, FLAMETHROWER, flameEffect),
   flameGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.flamethrower.gHold, true, lw * XBOT.GAME_LINE, t, FLAMETHROWER, flameEffect),
   mgxFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.mgx800.hold, false, lw * 1.4, t, MGX800, mgxEffect),
@@ -510,7 +472,36 @@ const ICON_DEFS = `<defs>
 const iconSvg = (lit, n, model = EBLASTER, tag = "") => `<svg viewBox="0 0 65 20" xmlns="http://www.w3.org/2000/svg">${ICON_DEFS.replace(/id="(\w+)"/g, `id="$1${lit ? "L" : "D"}${tag}"`).replace(/url\(#(\w+)\)/g, `url(#$1${lit ? "L" : "D"}${tag})`)}
   <rect width="65" height="20" rx="1.4" fill="url(#grid${lit ? "L" : "D"}${tag})"/>
   <g filter="url(#icon${lit ? "GlowL" : "DimD"}${tag})">${model.icon(4)}</g>
-  <text x="${4 + model.ICON.arcEnd}" y="16" text-anchor="end" font-family="monospace" font-size="4.6" fill="#a8844a">${n}</text></svg>`;
+  ${n === null ? "" : `<text x="${4 + model.ICON.arcEnd}" y="16" text-anchor="end" font-family="monospace" font-size="4.6" fill="#a8844a">${n}</text>`}</svg>`;
+const ICON_RES = 12;
+function imageIcon(w, h, paint) {
+  const c = document.createElement("canvas");
+  c.width = w * ICON_RES;
+  c.height = h * ICON_RES;
+  const ctx = c.getContext("2d");
+  ctx.scale(ICON_RES, ICON_RES);
+  paint(ctx);
+  const url = c.toDataURL();
+  return { ICON: { arcEnd: w }, icon: x => `<image href="${url}" x="${x}" y="${10 - h / 2}" width="${w}" height="${h}"/>` };
+}
+const GUN_HUD = imageIcon(35, 14, ctx => {
+  ctx.scale(0.1, 0.1);
+  ctx.translate(84, 98);
+  GUN.draw(ctx);
+});
+const FIST_HUD = imageIcon(12, 9, ctx => {
+  ctx.scale(9 / 146, 9 / 146);
+  ctx.translate(-290, 386);
+  ctx.beginPath();
+  ctx.rect(290, -386, 194, 146);
+  ctx.clip();
+  ctx.rotate(-Math.PI / 2);
+  render(ctx, { ...FORE, m: null, name: null });
+});
+document.getElementById("fistLit").innerHTML = iconSvg(true, null, FIST_HUD, "H");
+document.getElementById("fistDim").innerHTML = iconSvg(false, null, FIST_HUD, "H");
+document.getElementById("gunLit").innerHTML = iconSvg(true, 350, GUN_HUD, "G");
+document.getElementById("gunDim").innerHTML = iconSvg(false, 212, GUN_HUD, "G");
 document.getElementById("iconLit").innerHTML = iconSvg(true, 400);
 document.getElementById("iconDim").innerHTML = iconSvg(false, 387);
 document.getElementById("toasterLit").innerHTML = iconSvg(true, 60, TOASTER, "T");
