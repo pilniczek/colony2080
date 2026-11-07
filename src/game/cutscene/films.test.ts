@@ -2,7 +2,7 @@ import sandbox from "@config/levels/sandbox.json";
 import { beforeAll, describe, expect, it } from "vitest";
 import { FIXED_STEP } from "../../engine/loop";
 import { game, objectLevel, tick } from "../hero/testWorld";
-import { approachFilms, loadSandbox, startFilm, type Prop } from "../level/sandboxLevel";
+import { stepApproaches, loadSandbox, startFilm, type Prop } from "../level/sandboxLevel";
 import { hitShootable } from "../shots";
 import { MISSIONS } from "../level/missionIds";
 import { CUTSCENE_IDS, filmsOf, loadFilms } from "./index";
@@ -58,21 +58,21 @@ describe("films without a task", () => {
 
   it("play once when the hero comes near on the same floor", () => {
     const w = loadSandbox(withProps(objectLevel, (p) => (p.id === "crane" ? { ...p, y: 8, approach: { cells: 3, cutscene: "rebelShot", gives: "flag:rebelShot" } } : p)));
-    approachFilms(w, { x: 13, y: 8 }, 1.9);
+    stepApproaches(w, { x: 13, y: 8 }, 1.9);
     expect(w.cutscene).toBeNull();
-    approachFilms(w, { x: 14.5, y: 6 }, 1.9);
+    stepApproaches(w, { x: 14.5, y: 6 }, 1.9);
     expect(w.cutscene).toBeNull();
-    approachFilms(w, { x: 14.5, y: 8 }, 1.9);
+    stepApproaches(w, { x: 14.5, y: 8 }, 1.9);
     expect(w.cutscene?.id).toBe("rebelShot");
     expect(w.flags.has("flag:rebelShot")).toBe(true);
     w.cutscene = null;
-    approachFilms(w, { x: 15, y: 8 }, 1.9);
+    stepApproaches(w, { x: 15, y: 8 }, 1.9);
     expect(w.cutscene).toBeNull();
   });
 
   it("play when the hero jumps over the approach spot", () => {
     const w = loadSandbox(withProps(objectLevel, (p) => (p.id === "crane" ? { ...p, y: 8, approach: { cells: 3, cutscene: "rebelShot", gives: "flag:rebelShot" } } : p)));
-    approachFilms(w, { x: 14.5, y: 6.9 }, 1.9);
+    stepApproaches(w, { x: 14.5, y: 6.9 }, 1.9);
     expect(w.cutscene?.id).toBe("rebelShot");
   });
 

@@ -11,6 +11,7 @@ import type { MovementConfig } from "../hero/config";
 import { isDead, type Hero } from "../hero/hero";
 import { burstStep, seesHero, type Burst } from "./enemy";
 import { startFilm, type Prop, type SandboxWorld } from "./sandboxLevel";
+import { applyBlocks } from "./tasks";
 
 export interface PropFire {
   facing: -1 | 1;
@@ -110,6 +111,7 @@ export function repelHero(prop: Prop, world: SandboxWorld, hero: Hero, cfg: Move
   prop.fireTime = 0;
   if (prop.shownBy && guardHidden(prop, world.flags)) {
     world.flags.add(prop.shownBy);
+    applyBlocks(world);
     startFilm(world, repel.cutscene);
   }
   const box = { x: hero.x, y: hero.y, w: cfg.box.width, h: cfg.box.height };

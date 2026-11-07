@@ -38,11 +38,11 @@ describe("missions", () => {
     expect(missionFromQuery("?mission=jungle", ["mesto"])).toBe("mesto");
   });
 
-  it("opens the map with the holo plan, from the start in vesnice", () => {
+  it("opens the map with the holo plan, from the start in vesnice and jeskyne", () => {
     expect(mapItemOf("mesto")).toBe("holoPlan");
     expect(mapItemOf("vesnice")).toBeUndefined();
     expect(mapItemOf("jungle")).toBe("holoPlan");
-    expect(mapItemOf("jeskyne")).toBe("holoPlan");
+    expect(mapItemOf("jeskyne")).toBeUndefined();
   });
 
   it.each(MISSIONS)("%s loads", (id) => {
