@@ -22,7 +22,6 @@ interface MissionMap {
   rows: string[];
   lifts: unknown[];
   spawn: number[];
-  fallDeathCells?: number | null;
   hazards?: unknown[];
   conveyors?: unknown[];
   teleports?: unknown[];
@@ -76,7 +75,6 @@ export function missionJson(id: MissionId): SandboxJson {
     props: (WORLDS[id].props ?? []) as SandboxJson["props"],
     enemies: mapEnemies(id),
     tasks: TASKS[id] ?? { tasks: [] },
-    ...(map.fallDeathCells === undefined ? {} : { fallDeathCells: map.fallDeathCells }),
     hazards: (map.hazards ?? []) as SandboxJson["hazards"],
     conveyors: (map.conveyors ?? []) as SandboxJson["conveyors"],
     teleports: (map.teleports ?? []) as SandboxJson["teleports"],

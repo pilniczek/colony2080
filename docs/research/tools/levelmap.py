@@ -94,7 +94,6 @@ EXTRAS = {
             "the guard post code wall (col 52), the electric barrier (col 99) and the barricade post (col 22) are open cells: world.json gate props block them while a task keeps them shut; the power bridge planks (cols 45-56, row 41) stay one-way floor: the powerBridge gate prop opens a gap in them while the power is off (gapStates), so the hero falls into the bridgeGap hazard as in the original, which covers the whole gap (cols 45-56) and the 4 rows under it (hazardRects; the layout zone covers only cols 47-56 of the stand row, so a hero stepping off the gap edge would land on floor 50 alive; user: death by fall); "
         )
         + ZONES_NOTE,
-        "fallDeathCells": None,
         "shaftBottomOnly": True,
         "hazardZones": {0: ("bridgeGap", "death")},
         "hazardRects": {"bridgeGap": {"col": 45, "row": 41, "w": 12, "h": 4}},
@@ -123,7 +122,6 @@ EXTRAS = {
             "stray floor tiles inside the building (42,17) and by the pipe (80 and 82, row 18) and the never seen planks under and on the spawn deck (row 28 cols 107-111, row 24 cols 135-141) are dropped; "
         )
         + ZONES_NOTE,
-        "fallDeathCells": None,
         "hazardZones": {0: ("cannonTurret", "damage"), 2: ("chasm", "death"), 3: ("spikes", "death"), 4: ("tripwire", "death")},
         "damage": {"cannonTurret": {"hit": 30, "push": 1, "clipFrames": 51, "clipJiffies": 3}},
         "variants": {"cabinetShot": "M32", "grenadeRubble": "M33", "puzzleSteps": "M34"},
@@ -152,7 +150,6 @@ EXTRAS = {
         + ZONES_NOTE,
         "liftEnabled": {49: ("flag:liftLock", [29, 44, 55])},
         "liftSplits": {49: [(49, [44, 55], 55), (52, [29, 44], 44)], 82: [(82, [23, 29], 29), (86, [21, 23], 23)]},
-        "fallDeathCells": None,
         "hazardZones": {0: ("stalactiteChasm", "death"), 1: ("middleChasm", "death"), 2: ("cartCrush", "death"), 3: ("lava", "death")},
         "soundZones": {"cartSparks": ({"x": [95, 119], "y": [30, 33]}, "spark")},
         "conveyorPxPerTick": 5.5,
@@ -635,7 +632,6 @@ def build_tiles(data, layout, cfg, raw, enemies, map_path):
         "lifts": [lift_json(lift, cfg) for lift in lifts],
         **({"taskWalls": [{"id": wid, "col": col, "top": top, "bottom": bottom} for wid, (col, top, bottom) in cfg["openCells"].items()]} if "openCells" in cfg else {}),
         "spawn": drop_spawn(grid, layout["spawn"]),
-        "fallDeathCells": cfg["fallDeathCells"],
         "hazards": zones,
         "conveyors": conveyors(data, raw["zones"], cfg),
         "teleports": teleports(grid, raw, cfg),

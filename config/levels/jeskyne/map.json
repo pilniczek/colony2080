@@ -97,7 +97,6 @@
     {"id": "crystal", "col": 63, "top": 24, "bottom": 28}
   ],
   "spawn": [34.5, 20],
-  "fallDeathCells": null,
   "hazards": [
     {"id": "stalactiteChasm", "kind": "death", "col": 60, "row": 20, "w": 8, "h": 3},
     {"id": "middleChasm", "kind": "death", "col": 91, "row": 21, "w": 14, "h": 1},

@@ -98,11 +98,9 @@ describe("missions", () => {
 
   it("keeps the map fields on the world", () => {
     const world = loadMission("jeskyne");
-    expect(world.fallDeathCells).toBeNull();
     expect(world.conveyors).toEqual([{ col: 97, row: 39, w: 34, vx: 5.5 }]);
     expect(world.hazards.map((h) => h.id)).toContain("lava");
     expect(Object.keys(world.variants)).toEqual(["stalactiteShot", "tankShot"]);
-    expect(loadMission("mesto").fallDeathCells).toBeUndefined();
     expect(loadMission("jungle").teleports.map((t) => t.id)).toEqual(["towerLiftUp", "towerLiftDown"]);
   });
 
@@ -149,9 +147,8 @@ describe("missions", () => {
     expect(missionJson("jeskyne").enemies.every((e) => e.kind === undefined)).toBe(true);
   });
 
-  it("keeps a missing fall death height missing", () => {
-    expect("fallDeathCells" in missionJson("mesto")).toBe(false);
-    expect(missionJson("vesnice").fallDeathCells).toBeNull();
+  it("leaves the fall death height to the hero config in every mission", () => {
+    for (const id of ["mesto", "vesnice", "jungle", "jeskyne"] as const) expect("fallDeathCells" in missionJson(id)).toBe(false);
   });
 
   it("places every map enemy with its kind tuning", () => {

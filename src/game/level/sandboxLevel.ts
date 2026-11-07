@@ -158,7 +158,6 @@ export interface CellPatch {
 
 export interface SandboxWorld {
   grid: TileGrid;
-  fallDeathCells: number | null | undefined;
   hazards: Hazard[];
   conveyors: Conveyor[];
   teleports: Teleport[];
@@ -260,7 +259,6 @@ export interface SandboxJson {
   props: Prop[];
   enemies: EnemyJson[];
   tasks?: unknown;
-  fallDeathCells?: number | null;
   hazards?: Hazard[];
   conveyors?: Conveyor[];
   teleports?: Teleport[];
@@ -305,7 +303,7 @@ function scenery(items: SceneryJson[]): Scenery[] {
 }
 
 export const fallLimit = (world: SandboxWorld, cfg: MovementConfig): number =>
-  picked(world.difficulty, "noFallDeath") ? Infinity : world.fallDeathCells === undefined ? cfg.fallDeathCells : (world.fallDeathCells ?? Infinity);
+  picked(world.difficulty, "noFallDeath") ? Infinity : cfg.fallDeathCells;
 
 export function floorsOf(world: SandboxWorld): Platform[] {
   if (!world.immortal) return world.lifts;
@@ -329,7 +327,6 @@ export function loadSandbox(json: unknown): SandboxWorld {
   }));
   const world: SandboxWorld = {
     grid,
-    fallDeathCells: data.fallDeathCells,
     hazards: structuredClone(data.hazards ?? []),
     conveyors: structuredClone(data.conveyors ?? []),
     teleports: structuredClone(data.teleports ?? []),
