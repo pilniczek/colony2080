@@ -175,6 +175,7 @@ define({
   box: [-2, -60, 194, 0],
   draw(ctx, state, t, size = {}) {
     const { w } = size;
+    if (state === 3) return window.ENV.JUNGLE_STRUCTURES.overgrownFence(ctx, w ?? 192);
     if (state) return window.ENV.VESNICE.meshFence(ctx, state - 1, w ?? 192);
     if (w !== undefined && w < 192) {
       fencePanel(ctx, 0, w);
