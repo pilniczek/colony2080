@@ -4,7 +4,7 @@ import { ITEMS } from "../items";
 import { loadMesto } from "../level/mesto";
 import { loadSandbox, type Prop } from "../level/sandboxLevel";
 import { loadMission, missionJson } from "../level/missions";
-import { above, askTiles, below, bucketByTile, drawnTerrain, paintTilesWith, prop, type Env, type TileJob } from "./environment";
+import { above, askTiles, below, bucketByTile, drawnTerrain, ledgeParts, paintTilesWith, prop, type Env, type TileJob } from "./environment";
 import movementJson from "@config/hero/movement.json";
 import { loadMovement } from "../hero/config";
 import type { Rect } from "../geometry";
@@ -243,6 +243,19 @@ describe("deep terrain", () => {
   });
 
   it("stays empty for a world without deep art", () => {
-    expect(drawnTerrain(loadMission("jungle")).deep).toEqual([]);
+    expect(drawnTerrain(loadMission("jeskyne")).deep).toEqual([]);
+  });
+});
+
+describe("ledge art regions", () => {
+  it("draws each ledge cell in its region's asset, else in the world ledge art", () => {
+    const jungle = loadMission("jungle");
+    const parts = ledgeParts(jungle, { row: 41, col: 84, w: 6 });
+    expect(parts).toEqual([
+      ["jungleWalkway", { row: 41, col: 84, w: 2 }],
+      ["caveWalkway", { row: 41, col: 86, w: 4 }],
+    ]);
+    expect(ledgeParts(jungle, { row: 25, col: 30, w: 2 })).toEqual([["plankBridge", { row: 25, col: 30, w: 2 }]]);
+    expect(ledgeParts(loadMesto(), { row: 59, col: 30, w: 3 })).toEqual([["streetWalkway", { row: 59, col: 30, w: 3 }]]);
   });
 });

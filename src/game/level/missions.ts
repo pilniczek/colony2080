@@ -40,6 +40,7 @@ interface MissionWorld {
   dressing: SandboxJson["dressing"];
   bare?: SandboxJson["bare"];
   terrainArt?: SandboxJson["terrainArt"];
+  ledgeArt?: SandboxJson["ledgeArt"];
   haze?: string;
   ground?: number;
   props?: unknown[];
@@ -83,6 +84,7 @@ export function missionJson(id: MissionId): SandboxJson {
     variants: (map.variants ?? {}) as SandboxJson["variants"],
     ...(WORLDS[id].bare === undefined ? {} : { bare: WORLDS[id].bare }),
     ...(WORLDS[id].terrainArt === undefined ? {} : { terrainArt: WORLDS[id].terrainArt }),
+    ...(WORLDS[id].ledgeArt === undefined ? {} : { ledgeArt: WORLDS[id].ledgeArt }),
     ...(WORLDS[id].haze === undefined ? {} : { haze: WORLDS[id].haze }),
     ...(WORLDS[id].ground === undefined ? {} : { ground: WORLDS[id].ground }),
   };

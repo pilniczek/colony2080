@@ -541,7 +541,7 @@ function terrain(e: Env): void {
   if (art.deep) for (const r of pick(e, "deep", deep, deepBox)) if (near(e, deepBox(e, r))) put(e, art.deep, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell), at: [r.col * TILE, (r.row + r.h) * TILE], region: deepAtOf(e.world) });
   for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "ledges", ledges, runBox)) {
-    if (near(e, runBox(e, r))) for (const [asset, run] of ledgeParts(e.world, r)) put(e, asset, run.col * cell, run.row * cell, 0, { w: px(e, run.w * cell) });
+    if (near(e, runBox(e, r))) for (const [asset, run] of ledgeParts(e.world, r)) put(e, asset, run.col * cell, (asset === art.girder ? run.row + 1 : run.row) * cell, 0, { w: px(e, run.w * cell) });
   }
   for (const r of pick(e, "girders", girders, runBox)) if (near(e, runBox(e, r))) put(e, art.girder, r.col * cell, (r.row + 1) * cell, 0, { w: px(e, r.w * cell) });
   for (const r of pick(e, "landings", landings, runBox)) if (near(e, runBox(e, r))) put(e, "liftLanding", r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
@@ -558,11 +558,12 @@ function terrain(e: Env): void {
   }
 }
 
-function ledgeParts({ grid, terrainArt: { ledge, top } }: SandboxWorld, r: Run): [AssetId, Run][] {
-  if (!top) return [[ledge, r]];
+export function ledgeParts({ grid, terrainArt: { ledge, top }, ledgeArt }: SandboxWorld, r: Run): [AssetId, Run][] {
+  if (!top && !ledgeArt.length) return [[ledge, r]];
   const parts: [AssetId, Run][] = [];
   for (let col = r.col; col < r.col + r.w; col++) {
-    const asset = grid.wall(col, r.row) ? top : ledge;
+    const region = ledgeArt.find((a) => col >= a.col && col < a.col + a.w && r.row >= a.row && r.row < a.row + a.h);
+    const asset = region ? region.asset : top && grid.wall(col, r.row) ? top : ledge;
     const last = parts[parts.length - 1];
     if (last && last[0] === asset) last[1].w++;
     else parts.push([asset, { row: r.row, col, w: 1 }]);
