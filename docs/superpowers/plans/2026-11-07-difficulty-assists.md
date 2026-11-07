@@ -41,3 +41,21 @@ flowchart LR
 ## Checks
 
 Unit tests per pick, `npm test`, lint, typecheck, in-game look at the health bar and the drop.
+
+## Verified
+
+`node tools/difficulty/ab.mjs` in the game page, assist off (A) against on (B), 2026-11-07:
+
+| Assist | A | B |
+|---|---|---|
+| EXTRA SHIELD | 0 shields | 1 |
+| MORE AMMO | 350 | 525 |
+| FOG OFF | fog | no fog |
+| SLOWER ENEMY REACTION | `sightMs` 250, first hit 342 ms | 400, 472 ms |
+| HALF DAMAGE TAKEN | 73 energy lost in 3 s | 36.5 |
+| STRONGER PUNCHES | 1 per punch | 2 |
+| NO FALL DEATH | 12-row fall kills | lands alive |
+| ENEMIES DROP ENERGY | no drop from a killed flyer | 1 |
+
+ENEMY HEALTH BARS checked by eye over a hit flyer.
+
