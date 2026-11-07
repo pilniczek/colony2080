@@ -39,7 +39,7 @@ flowchart LR
 - `rigs`, `hold` - see Pieces.
 - `muzzle` - hand-hook point for the yellow star; walker only.
 - `hooks(look, lineW, fire)` - replaces the gun hooks; draw the weapon on `hand` only while `look.gun === "hand"`; `fire` is seconds since the attack started, null otherwise.
-- `clips` - hero clip overrides; `stanceShot(stance, settle)` makes a `shoot` clip that settles into a kneel or brace and gets up from `STANCE_HOLD`.
+- `clips` - hero clip overrides; `stanceShot(stance, settle)` makes a `shoot` clip that settles into a kneel or brace and gets up from `STANCE_HOLD`. A kneel puts the front knee up and the back knee on the floor, back shin rising to the ankle, back foot upright on its toe (`hipFar + kneeFar + ankleFar` = 90, rocket robot `KNEEL`), never flat.
 - `laser` - hand-hook point; a red beam to the hero while it attacks.
 - `dying` - pose, `back` and `up` cells, `seconds`: replaces the pose while it explodes and flings it back and up; no scrap left.
 - `weapon` - the kind's own weapon (`draw` lying, `slung` on the back), used instead of the gun whenever the look drops or slings it; every humanoid kind but the walker must have one (`kinds.test.ts`).

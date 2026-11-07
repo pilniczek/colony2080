@@ -24,7 +24,7 @@ const { kneelMs, fireMs, reloadMs, emptyMs } = KIND_TUNING.rocketRobot!.rocket!;
 const SHOT = { settle: kneelMs / 1000, fire: fireMs / 1000, reload: reloadMs / 1000, empty: emptyMs / 1000 };
 const LAUNCH: Pt = [566, 62];
 const LYING = { x: 337, y: 136 };
-const KNEEL = { body: 0, hipNear: -76, kneeNear: 84, ankleNear: 0, hipFar: 12, kneeFar: 92, ankleFar: -80 };
+const KNEEL = { body: 0, hipNear: -76, kneeNear: 84, ankleNear: 0, hipFar: 12, kneeFar: 78, ankleFar: 0 };
 const GRIP = { near: [394, 112] as Pt, far: [478, 106] as Pt };
 const REACH: [[number, number], [number, number]] = [[-170, 40], [-160, 30]];
 
