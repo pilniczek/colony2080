@@ -889,12 +889,10 @@ function fist(s, view) {
   }
 }
 
-function buildHand({ view = "back", pose = "open", lod: low = false } = {}) {
-  return withLod(low, () => {
-    const root = { k: "g", kids: [] };
-    (pose === "fist" ? fist : openHand)(G(root, null, "hand", [89, 400]), view);
-    return root;
-  });
+function buildHand({ view = "back", pose = "open" } = {}) {
+  const root = { k: "g", kids: [] };
+  (pose === "fist" ? fist : openHand)(G(root, null, "hand", [89, 400]), view);
+  return root;
 }
 
 window.XBOT = { GAME_LINE: CFG.gameLod.lineW, locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, buildFront, buildBack, buildSide, buildHand, HAND_VIEWS, HAND_POSES, render, LEVELS };

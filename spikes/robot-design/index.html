@@ -27,7 +27,6 @@
   .hands { display: grid; grid-template-columns: 70px repeat(5, minmax(120px, 1fr)); gap: 12px; padding: 12px 16px; align-items: start; }
   .hands .pose { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; align-self: center; }
   .hands canvas.full { width: 100%; aspect-ratio: 140 / 150; display: block; }
-  .hands canvas.small { width: 84px; image-rendering: pixelated; display: block; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
 </style>
 </head>
@@ -52,7 +51,7 @@
   <figure><figcaption>Side, facing left</figcaption><canvas id="gSideLeft"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack"></canvas></figure>
 </main>
-<h2>Hands (full size, then game LOD at game size shown 3x)</h2>
+<h2>Hands</h2>
 <section class="hands" id="hands"></section>
 <!-- originals -->
 <section id="refs">
@@ -94,30 +93,22 @@ for (const pose of HAND_POSES) {
     cap.textContent = HAND_LABEL[view];
     const full = document.createElement("canvas");
     full.className = "full";
-    const small = document.createElement("canvas");
-    small.className = "small";
-    fig.append(cap, full, small);
+    fig.append(cap, full);
     handsEl.append(fig);
-    hands.push({ full, small, root: buildHand({ view, pose }), game: buildHand({ view, pose, lod: true }) });
+    hands.push({ full, root: buildHand({ view, pose }) });
   }
-}
-
-function drawHand(c, root, scale, simple) {
-  const ctx = c.getContext("2d");
-  ctx.setTransform(scale, 0, 0, scale, -HAND_BOX.x * scale, -HAND_BOX.y * scale);
-  ctx.clearRect(HAND_BOX.x, HAND_BOX.y, HAND_BOX.w, HAND_BOX.h);
-  render(ctx, root, { pal, lineW: (simple ? window.XBOT.GAME_LINE : 1.4) * (devicePixelRatio || 1), simple });
 }
 
 function drawHands() {
   const dpr = devicePixelRatio || 1;
-  for (const { full, small, root, game } of hands) {
+  for (const { full, root } of hands) {
     full.width = Math.round(full.clientWidth * dpr);
     full.height = Math.round(full.width * HAND_BOX.h / HAND_BOX.w);
-    drawHand(full, root, full.width / HAND_BOX.w, false);
-    small.width = Math.round(HAND_BOX.w * 0.2 * dpr);
-    small.height = Math.round(HAND_BOX.h * 0.2 * dpr);
-    drawHand(small, game, 0.2 * dpr, true);
+    const scale = full.width / HAND_BOX.w;
+    const ctx = full.getContext("2d");
+    ctx.setTransform(scale, 0, 0, scale, -HAND_BOX.x * scale, -HAND_BOX.y * scale);
+    ctx.clearRect(HAND_BOX.x, HAND_BOX.y, HAND_BOX.w, HAND_BOX.h);
+    render(ctx, root, { pal, lineW: 1.4 * dpr });
   }
 }
 
