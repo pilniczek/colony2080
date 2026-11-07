@@ -144,6 +144,9 @@ EXTRAS = {
             "spawn dropped from engine (28, 8) to floor 20; a cave has no sky: patches fill solid every cell no reached spot sees (fog sight from every reached floor and lift row and along every fall and jump, all task gates open) and the lava band from row 76, "
             "except the left lava shaft and the marker 13 ledge (cols 12-19, rows 64-75); the map clamp (columns 6 and 158) and the caps over bare wall tops are gone, three caps the hero lands on are rock (cols 81, 85, 107); "
             "free-hanging wall bits grow to the rock above (cols 55, 57, 81, 130), one-cell notches and slots under a ceiling are filled, rock tops nobody reaches grow up to the rock over them; the map ends at col 156, everything east of it is rock; "
+            "the shaft cells of every top stop are open, the deck and its landing draw the stop (shaftBottomOnly); the crystal code wall (col 63, rows 24-28) is a task wall the crystal prop blocks (openCells, taskWalls); "
+            "col 85 between the lift 4 halves is rock from the ceiling down to row 20, so the upper half stop 21 has a wall on its west side and floor 23 still runs under it; "
+            "rockUp grows rock up to the rock or floor above: over the floor 15 west end (col 92), east of the floor 15 stair (col 137) and the wall columns at cols 81 and 96; the hanging columns at cols 76 and 89 and every ledge stair, chasm, lava and drop edge stay open (map composition blueprint, docs/research/jeskyne-map.md); "
         )
         + ZONES_NOTE,
         "liftEnabled": {49: ("flag:liftLock", [29, 44, 55])},
@@ -155,6 +158,9 @@ EXTRAS = {
         "variants": {"stalactiteShot": "M42", "tankShot": "M43"},
         "enemyKinds": ("spiderWalker", "podWalker", "trooper"),
         "variantDrops": {"M42": ["crystal"], "M43": ["crystal"]},
+        "shaftBottomOnly": True,
+        "openCells": {"crystal": (63, 24, 28)},
+        "rockUp": [(85, 20), (92, 14), (137, 16), (81, 45), (96, 60)],
     },
 }
 CLAMP_COLS = (6, 158)
@@ -340,6 +346,12 @@ def compose(grid, cfg):
             for col in range(left, right + 1):
                 if covered[row][col] and not inside(sky, col, row):
                     grid[row][col] = "#"
+    for col, top, bottom in cfg.get("openCells", {}).values():
+        paint(grid, col, top, col, bottom, ".")
+    for col, row in cfg.get("rockUp", []):
+        while row >= 0 and grid[row][col] == ".":
+            grid[row][col] = "#"
+            row -= 1
 
 
 def pairs(tiles):
@@ -618,6 +630,7 @@ def build_tiles(data, layout, cfg, raw, enemies, map_path):
         "source": cfg["source"],
         "rows": ["".join(r[:cfg.get("width", W)]) for r in grid],
         "lifts": [lift_json(lift, cfg) for lift in lifts],
+        **({"taskWalls": [{"id": wid, "col": col, "top": top, "bottom": bottom} for wid, (col, top, bottom) in cfg["openCells"].items()]} if "openCells" in cfg else {}),
         "spawn": drop_spawn(grid, layout["spawn"]),
         "fallDeathCells": cfg["fallDeathCells"],
         "hazards": zones,
