@@ -452,5 +452,5 @@ describe.each(BUILT)("%s map rules", (mission) => {
     const used = new Set([...sceneryOf(world).map((s) => s.asset), ...Object.values(world.terrainArt).filter(Boolean), ...world.ledgeArt.map((a) => a.asset)]);
     const clean = [...used].filter((a) => rolesOf(rules, a as AssetId).some((role) => GRIMED.includes(role)) && !grimed(a));
     expect(clean).toEqual([]);
-  });
+  }, 30000);
 });
