@@ -13,9 +13,9 @@ import { flyMissile, launchMissile } from "./level/missiles";
 import { live, tick } from "./level/projectile";
 import { flyRocket, launchRocket } from "./level/rockets";
 import { applyEffects, say, unseen } from "./level/tasks";
-import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
-import { TOASTER_MUZZLE_IN_HOOK, toasterHolds } from "./robot/toaster";
-import { FLAME_LIFE, FLAME_STEPS, FLAMETHROWER_MUZZLE_IN_HOOK, flamethrowerHolds } from "./robot/flamethrower";
+import { heroHolds, MUZZLE_IN_HOOK } from "./robot/gun";
+import { TOASTER_MUZZLE_IN_HOOK, TOASTER_WEAPON } from "./robot/toaster";
+import { FLAME_LIFE, FLAME_STEPS, FLAMETHROWER_MUZZLE_IN_HOOK, FLAMETHROWER_WEAPON } from "./robot/flamethrower";
 import { kindOf } from "./robot/kinds";
 import { cue } from "./sound/cues";
 import { explode } from "./sound/triggers";
@@ -25,14 +25,14 @@ const DEG = Math.PI / 180;
 
 export const SPARK_LIFE = 0.15;
 
-type Holds = ReturnType<typeof holdPoses>;
+type Holds = ReturnType<typeof heroHolds>;
 
 let simRigs: { rigs: Rigs; hold: Holds; toasterHold: Holds; flameHold: Holds } | null = null;
 
 const sim = () => {
   if (!simRigs) {
     const rigs = createRigs(true);
-    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.front), toasterHold: toasterHolds(rigs.side, rigs.front), flameHold: flamethrowerHolds(rigs.side, rigs.front) };
+    simRigs = { rigs, hold: heroHolds(rigs.side, rigs.front), toasterHold: heroHolds(rigs.side, rigs.front, TOASTER_WEAPON), flameHold: heroHolds(rigs.side, rigs.front, FLAMETHROWER_WEAPON) };
   }
   return simRigs;
 };

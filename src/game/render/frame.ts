@@ -11,9 +11,9 @@ import type { Hero } from "../hero/hero";
 import { createRigs, heroLook, type HeroLook, type Rigs } from "../hero/look";
 import type { Enemy } from "../level/enemy";
 import type { BonusWeapon, SandboxWorld } from "../level/sandboxLevel";
-import { holdPoses, type HoldPoses } from "../robot/gun";
-import { toasterHolds } from "../robot/toaster";
-import { flamethrowerHolds } from "../robot/flamethrower";
+import { heroHolds, type HoldPoses } from "../robot/gun";
+import { TOASTER_WEAPON } from "../robot/toaster";
+import { FLAMETHROWER_WEAPON } from "../robot/flamethrower";
 import { kindOf } from "../robot/kinds";
 import { askTiles } from "./environment";
 import { drawFog, seenPath } from "./fog";
@@ -73,7 +73,7 @@ export interface Target {
 
 export function createKit(): Kit {
   const rigs = createRigs(true);
-  return { rigs, hold: holdPoses(rigs.side, rigs.front), bonusHolds: { toaster: toasterHolds(rigs.side, rigs.front), flamethrower: flamethrowerHolds(rigs.side, rigs.front) } };
+  return { rigs, hold: heroHolds(rigs.side, rigs.front), bonusHolds: { toaster: heroHolds(rigs.side, rigs.front, TOASTER_WEAPON), flamethrower: heroHolds(rigs.side, rigs.front, FLAMETHROWER_WEAPON) } };
 }
 
 function fillBlack({ ctx, w, h }: Target): void {

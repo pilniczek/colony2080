@@ -66,31 +66,37 @@ export const holdPoses = (side: GroupNode, front: GroupNode, carry = CARRY, supp
   };
 };
 
-export const heroHolds = (side: GroupNode, front: GroupNode, support: Pt): HoldPoses => holdPoses(side, front, CARRY, support, support);
+export interface HeroWeapon {
+  barrel: { x: number; length: number };
+  muzzle: Pt;
+  support: Pt;
+  band: { y: number; h: number };
+}
 
-export const FRONT_BARREL = 226;
+export const GUN_WEAPON: HeroWeapon = { barrel: BARREL, muzzle: MUZZLE, support: SUPPORT, band: GUN_PARTS.find((p) => p.name === "barrelBack") as WeaponPart };
 
-const BAND = GUN_PARTS.find((p) => p.name === "barrelBack") as WeaponPart;
+export const heroHolds = (side: GroupNode, front: GroupNode, weapon: HeroWeapon = GUN_WEAPON): HoldPoses => holdPoses(side, front, CARRY, toHook(weapon.support), toHook(weapon.support));
+
 const SCAN = { x: -600, w: 1600 };
 
-const silhouetteEdge = (robot: GroupNode, pose: Pose, hook: string): number => {
+const silhouetteEdge = (robot: GroupNode, pose: Pose, hook: string, band: HeroWeapon["band"]): number => {
   const m = locate(robot, hook, pose);
   if (!m) throw new Error(`missing hook ${hook}`);
   const canvas = surface(1, 1);
   canvas.width = SCAN.w;
-  canvas.height = BAND.h;
+  canvas.height = band.h;
   const ctx = context2d(canvas, { willReadFrequently: true });
   if (!ctx) throw new Error("no 2d context");
   const toGun = new DOMMatrix([m.a, m.b, m.c, m.d, m.e, m.f]).multiply(new DOMMatrix([0, 1, -1, 0, 0, 0])).inverse();
-  ctx.setTransform(new DOMMatrix().translate(-SCAN.x, -BAND.y).multiply(toGun));
+  ctx.setTransform(new DOMMatrix().translate(-SCAN.x, -band.y).multiply(toGun));
   drawRig(ctx, robot, { palette: ROBOT.palette, pose, lineW: 0 });
-  const { data } = ctx.getImageData(0, 0, SCAN.w, BAND.h);
+  const { data } = ctx.getImageData(0, 0, SCAN.w, band.h);
   let edge = -Infinity;
   for (let i = 3; i < data.length; i += 4) if (data[i]) edge = Math.max(edge, (i >> 2) % SCAN.w);
   return edge + SCAN.x;
 };
 
-export const barrelFor = (robot: GroupNode, pose: Pose, hook: string): number => {
-  const clear = silhouetteEdge(robot, pose, hook) + BAND.h;
-  return Math.max(BARREL.length, Math.ceil(BARREL.length + clear - MUZZLE[0]));
+export const frontBarrel = (front: GroupNode, hold: HoldPoses, weapon: HeroWeapon = GUN_WEAPON): number => {
+  const clear = silhouetteEdge(front, { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R }, "handL", weapon.band) + weapon.band.h;
+  return Math.max(weapon.barrel.length, Math.ceil(weapon.barrel.length + clear - weapon.muzzle[0]));
 };

@@ -1,7 +1,7 @@
 import type { Palette } from "../../engine/rig/draw";
-import type { GroupNode, Pt } from "../../engine/rig/tree";
+import type { Pt } from "../../engine/rig/tree";
 import { PALETTE } from "../env/paint";
-import { heroHolds, type HoldPoses } from "./gun";
+import type { HeroWeapon } from "./gun";
 import { createWeaponModel, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
 
 const tones = (k: string, from: string, line: string): Palette =>
@@ -69,6 +69,7 @@ const model = createWeaponModel({ buildParts, mat: MAT, colors: COLORS, after: h
 
 export const TOASTER_MUZZLE: Pt = [TOASTER_BARREL.x + TOASTER_BARREL.length + CAP, -41];
 const SUPPORT: Pt = [TOASTER_BARREL.x + 14, -23];
+export const TOASTER_WEAPON: HeroWeapon = { barrel: TOASTER_BARREL, muzzle: TOASTER_MUZZLE, support: SUPPORT, band: { y: -60, h: 37 } };
 export const TOASTER_MUZZLE_IN_HOOK = toHook(TOASTER_MUZZLE);
 
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? TOASTER_BARREL.length });
@@ -78,6 +79,3 @@ export const drawToaster = (ctx: CanvasRenderingContext2D, opts?: WeaponOptions)
 export const toasterHook = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.hook(ctx, palette, sized(opts));
 export const toasterSlung = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.slung(ctx, palette, sized(opts));
 
-export const toasterHolds = (side: GroupNode, front: GroupNode): HoldPoses => heroHolds(side, front, toHook(SUPPORT));
-
-export const TOASTER_FRONT_BARREL = 222;

@@ -1,13 +1,13 @@
 import { BEAM_FRAMES, drawBeam } from "../../src/game/render/beam";
 import { blasterIcon } from "../../src/game/hud/blasterIcon";
 import { drawEBlaster, eblasterHook, eblasterSlung } from "../../src/game/robot/eblaster";
-import { drawToaster, TOASTER_FRONT_BARREL, toasterHolds, toasterHook, toasterSlung } from "../../src/game/robot/toaster";
+import { drawToaster, TOASTER_WEAPON, toasterHook, toasterSlung } from "../../src/game/robot/toaster";
 import { drawToasterShot, drawToasterSight } from "../../src/game/render/toasterShot";
 import { toasterIcon } from "../../src/game/hud/toasterIcon";
-import { drawFlamethrower, FLAMETHROWER_FRONT_BARREL, flamethrowerHolds, flamethrowerHook, flamethrowerSlung } from "../../src/game/robot/flamethrower";
+import { drawFlamethrower, FLAMETHROWER_WEAPON, flamethrowerHook, flamethrowerSlung } from "../../src/game/robot/flamethrower";
 import { drawFlame, drawFlameStream } from "../../src/game/render/flameShot";
 import { flamethrowerIcon } from "../../src/game/hud/flamethrowerIcon";
-import { barrelFor, drawGun, FRONT_BARREL, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
+import { drawGun, frontBarrel, GUN_WEAPON, gunHook, gunSlung, heroHolds } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
@@ -54,7 +54,7 @@ interface SpikeGun {
   slung(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
 }
 
-interface SpikeEBlaster extends Omit<SpikeGun, "holdPoses"> {
+interface SpikeEBlaster extends SpikeGun {
   beam(ctx: CanvasRenderingContext2D, length: number, frame: number, seed: number): void;
   icon(x: number): string;
 }
@@ -243,14 +243,14 @@ const weaponDraws = {
   flamethrower: { spike: () => window.FLAMETHROWER, hook: flamethrowerHook, slung: flamethrowerSlung, draw: drawFlamethrower },
 };
 
-const holdsOf = { gun: { spike: () => window.GUN, port: holdPoses, front: FRONT_BARREL }, eblaster: { spike: () => window.GUN, port: holdPoses, front: FRONT_BARREL }, toaster: { spike: () => window.TOASTER, port: toasterHolds, front: TOASTER_FRONT_BARREL }, flamethrower: { spike: () => window.FLAMETHROWER, port: flamethrowerHolds, front: FLAMETHROWER_FRONT_BARREL } };
+const holdsOf = { gun: { spike: () => window.GUN, weapon: GUN_WEAPON }, eblaster: { spike: () => window.EBLASTER, weapon: GUN_WEAPON }, toaster: { spike: () => window.TOASTER, weapon: TOASTER_WEAPON }, flamethrower: { spike: () => window.FLAMETHROWER, weapon: FLAMETHROWER_WEAPON } };
 
 const gunScene = (carry: Carry, simple: boolean, kind: WeaponKind = "gun"): Scene => {
   const weapon = weaponDraws[kind];
   const holds = holdsOf[kind];
   const spikeHold = holds.spike().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
-  const portHold = holds.port(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }));
-  const barrel = carry === "front" ? (kind === "toaster" || kind === "flamethrower" ? spikeHold.FRONT_BARREL : holds.front) : undefined;
+  const portHold = heroHolds(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }), holds.weapon);
+  const barrel = carry === "front" ? spikeHold.FRONT_BARREL : undefined;
   const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => weapon.spike().hook(ctx, { pal, lineW: LINE_W, simple, barrel });
   const portGun: HookDraw = (ctx, pal) => weapon.hook(ctx, pal, { lineW: LINE_W, simple, barrel });
   if (carry === "side")
@@ -371,17 +371,6 @@ const runToasterIcon = (out: HTMLElement): VisualResult => {
   return { name, mismatches: differ.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: differ.length === 0 };
 };
 
-const runToasterFrontBarrel = (out: HTMLElement): VisualResult => {
-  const spike = window.TOASTER.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true, lod: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true, lod: true })).FRONT_BARREL;
-  const name = `toaster front barrel spike lod ${spike} TOASTER_FRONT_BARREL ${TOASTER_FRONT_BARREL}`;
-  const box = document.createElement("div");
-  box.className = "case";
-  box.append(name);
-  out.append(box);
-  const mismatches = Number(spike !== TOASTER_FRONT_BARREL);
-  return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
-};
-
 const runFlame = (age: number, seed: number, simple: boolean, out: HTMLElement): VisualResult => {
   const spike = canvas();
   const own = canvas();
@@ -417,17 +406,6 @@ const runFlamethrowerIcon = (out: HTMLElement): VisualResult => {
   return { name, mismatches: differ.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: differ.length === 0 };
 };
 
-const runFlamethrowerFrontBarrel = (out: HTMLElement): VisualResult => {
-  const spike = window.FLAMETHROWER.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true, lod: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true, lod: true })).FRONT_BARREL;
-  const name = `flamethrower front barrel spike lod ${spike} FLAMETHROWER_FRONT_BARREL ${FLAMETHROWER_FRONT_BARREL}`;
-  const box = document.createElement("div");
-  box.className = "case";
-  box.append(name);
-  out.append(box);
-  const mismatches = Number(spike !== FLAMETHROWER_FRONT_BARREL);
-  return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
-};
-
 const runBlasterIcon = (out: HTMLElement): VisualResult => {
   const differ = ICON_XS.filter((x) => window.EBLASTER.icon(x) !== blasterIcon(x));
   const name = `blaster icon ${JSON.stringify({ xs: ICON_XS })}, differ: ${differ.join(", ") || "none"}`;
@@ -438,19 +416,21 @@ const runBlasterIcon = (out: HTMLElement): VisualResult => {
   return { name, mismatches: differ.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: differ.length === 0 };
 };
 
-const runFrontBarrel = (out: HTMLElement): VisualResult => {
-  const spike = window.GUN.holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true })).FRONT_BARREL;
-  const front = buildFront({ rightArmFirst: true, propBehindArm: true });
-  const hold = holdPoses(buildSide({ farLimbs: true, propBehindArm: true }), front);
-  const measured = barrelFor(front, { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R }, "handL");
-  const mismatches = Number(measured !== spike) + Number(FRONT_BARREL !== spike);
-  const name = `front barrel spike ${spike} barrelFor ${measured} FRONT_BARREL ${FRONT_BARREL}`;
+const runFrontBarrel = (kind: WeaponKind, lod: boolean) => (out: HTMLElement): VisualResult => {
+  const { spike, weapon } = holdsOf[kind];
+  const spikeBarrel = spike().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true, lod }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true, lod })).FRONT_BARREL;
+  const front = buildFront({ rightArmFirst: true, propBehindArm: true, lod });
+  const port = frontBarrel(front, heroHolds(buildSide({ farLimbs: true, propBehindArm: true, lod }), front, weapon), weapon);
+  const mismatches = Number(port !== spikeBarrel);
+  const name = `${kind} front barrel ${JSON.stringify({ lod })} spike ${spikeBarrel} port ${port}`;
   const box = document.createElement("div");
   box.className = "case";
   box.append(`${name} mismatches ${mismatches}`);
   out.append(box);
   return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
 };
+
+const frontBarrelCases = (["gun", "eblaster", "toaster", "flamethrower"] as const).flatMap((kind) => [false, true].map((lod) => runFrontBarrel(kind, lod)));
 
 const envAssets: EnvAsset[] = assetList;
 const ENV_SCALE = 2;
@@ -564,7 +544,6 @@ const toasterCases = [
   ...[1, 2, 3, 6, 9, 13].flatMap((tick) => lods.map((lod) => (o: HTMLElement) => runShot(tick, lod, o))),
   ...[false, true].flatMap((firing) => lods.map((lod) => (o: HTMLElement) => runSight(firing, lod, o))),
   runToasterIcon,
-  runToasterFrontBarrel,
 ];
 const flamethrowerCases = [
   ...lods.map((lod) => (o: HTMLElement) => runGunAlone(lod, o, "flamethrower")),
@@ -574,7 +553,6 @@ const flamethrowerCases = [
   ...[1, 8, 14, 20, 26].flatMap((age) => lods.map((lod) => (o: HTMLElement) => runFlame(age, 3, lod, o))),
   ...[0, 9, 40].flatMap((tick) => lods.map((lod) => (o: HTMLElement) => runFlameStream(tick, lod, o))),
   runFlamethrowerIcon,
-  runFlamethrowerFrontBarrel,
 ];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
@@ -693,6 +671,6 @@ const runRobotView = (t: number, size: { w: number; h: number }, out: HTMLElemen
 };
 const robotViewCases = CUTSCENE_SIZES.flatMap((size) => ROBOT_VIEW_TS.map((t) => (o: HTMLElement) => runRobotView(t, size, o)));
 const onlyEnv = only ? envCases.slice(1).filter((_, i) => only.includes(envCaseIds[i] ?? "")) : [];
-const cases = only ? [...onlyEnv, ...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...flamethrowerCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases, ...robotViewCases];
+const cases = only ? [...onlyEnv, ...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...flamethrowerCases, ...beamCases, runBlasterIcon, ...frontBarrelCases, ...envCases, ...cutsceneCases, ...robotViewCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

@@ -1,7 +1,7 @@
 import type { Palette } from "../../engine/rig/draw";
-import type { GroupNode, Pt } from "../../engine/rig/tree";
+import type { Pt } from "../../engine/rig/tree";
 import { PALETTE } from "../env/paint";
-import { heroHolds, type HoldPoses } from "./gun";
+import type { HeroWeapon } from "./gun";
 import { createWeaponModel, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
 
 const tones = (k: string, from: string, line: string): Palette =>
@@ -49,6 +49,7 @@ const model = createWeaponModel({ buildParts, mat: MAT, colors: COLORS, after: p
 
 const MUZZLE: Pt = [FLAMETHROWER_BARREL.x + FLAMETHROWER_BARREL.length + NOZZLE, -40];
 const SUPPORT: Pt = [FLAMETHROWER_BARREL.x + 22, -28];
+export const FLAMETHROWER_WEAPON: HeroWeapon = { barrel: FLAMETHROWER_BARREL, muzzle: MUZZLE, support: SUPPORT, band: { y: -62, h: 44 } };
 export const FLAMETHROWER_MUZZLE_IN_HOOK = toHook(MUZZLE);
 
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? FLAMETHROWER_BARREL.length });
@@ -58,9 +59,6 @@ export const drawFlamethrower = (ctx: CanvasRenderingContext2D, opts?: WeaponOpt
 export const flamethrowerHook = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.hook(ctx, palette, sized(opts));
 export const flamethrowerSlung = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.slung(ctx, palette, sized(opts));
 
-export const flamethrowerHolds = (side: GroupNode, front: GroupNode): HoldPoses => heroHolds(side, front, toHook(SUPPORT));
-
-export const FLAMETHROWER_FRONT_BARREL = 218;
 
 export const FLAME_STEPS = [2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2];
 export const FLAME_LIFE = FLAME_STEPS.length;

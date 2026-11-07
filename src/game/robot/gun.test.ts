@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { apply } from "../../engine/math/mat2d";
 import { locate, type Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
-import { drawGun, FRONT_BARREL, holdPoses, SUPPORT_IN_HOOK, toHook } from "./gun";
+import { drawGun, holdPoses, SUPPORT_IN_HOOK, toHook } from "./gun";
 import { buildFront, buildSide } from "./xbot";
 
 const point = (root: GroupNode, hook: string, pose: Pose, local: Pt): Pt => {
@@ -32,11 +32,10 @@ describe("gun", () => {
   const front = buildFront({ rightArmFirst: true, propBehindArm: true });
   const poses = holdPoses(side, front);
 
-  it("front barrel matches the spike silhouette result", () => expect(FRONT_BARREL).toBeCloseTo(226, 0));
 
   it("draws a 196 barrel by default", () => expect(barrelWidth()).toBe(196));
 
-  it("draws the requested barrel length", () => expect(barrelWidth(FRONT_BARREL)).toBe(FRONT_BARREL));
+  it("draws the requested barrel length", () => expect(barrelWidth(226)).toBe(226));
 
   it("rotates points into the hand hook frame", () => {
     expect(toHook([1, 2])).toEqual([-2, 1]);

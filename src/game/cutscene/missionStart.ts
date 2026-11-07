@@ -4,7 +4,7 @@ import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
-import { FRONT_BARREL, gunHook, holdPoses } from "../robot/gun";
+import { frontBarrel, gunHook, holdPoses } from "../robot/gun";
 import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
 import { camera, feet, fitStage, hookAt, lineFor, oval, poly, random, rect, rowFill, scatter, sheetBlit, sheetDraw, stillLayer, stroke, tracks } from "./kit";
@@ -110,6 +110,8 @@ function robot(root: GroupNode, x: number, floorY: number, k: number, { ax = ROB
   ctx.restore();
 }
 
+let enemyBarrel: number | undefined;
+
 function guard(x: number, floorY: number, k: number, pal: Palette): void {
   const { enemyFront, hold } = robots();
   const pose = { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R };
@@ -119,7 +121,7 @@ function guard(x: number, floorY: number, k: number, pal: Palette): void {
     pose,
     pal,
     lineW,
-    hooks: { handL: (c) => gunHook(c, pal, { lineW, barrel: FRONT_BARREL }) },
+    hooks: { handL: (c) => gunHook(c, pal, { lineW, barrel: (enemyBarrel ??= frontBarrel(enemyFront, hold)) }) },
   });
 }
 
