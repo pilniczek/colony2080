@@ -21,7 +21,7 @@ Review the sheet at `spikes/env-design/index.html?mission=jungle&scope=own`.
 | Chain-link fence with grey sign plate and rust tear | 45-48 r18-20, 63-71 r17-20, 43-46 r29-31, 84-92 r9-11, 109-120 r38-41, 130-136 r38-41 | `chainFence` (shared mesh states, add overgrown state) | fence | mesh, mesh with sign, mesh torn, mesh overgrown (new) |
 | Brass handrails on the spawn deck | 123-130 r24, 141-145 r40 | `deckRailing` (new) | fence | rail, bent; sized w |
 | Stone ledge floors: X-plate and stone blocks, beaded orange trim, boulder row under | rows 11, 20, 32, 37 everywhere (e.g. 48-62 r20-21) | `jungleWalkway` (new) | floor (terrain ledge) | boulder underside, cave underside (dark green, teal lines), plain |
-| Floor over the cave cobble | 63-100 r32, 86-151 r41 | `jungleWalkway` cave state | floor | - |
+| Floor over the cave cobble | 63-100 r32, 86-151 r41 | `caveWalkway` (new, drawn by world `ledgeArt`) | floor | - |
 | Plank bridges: riveted olive top band, two brown planks | 30-38 r25, 24-29 r28, 36-44 r13, 50-62 r26, 65-73 r28, 84-100 r28, 86-90 r30, 98-104 r29, 104-112 r27, 136-143 r24 | `plankBridge` (new) | girder (terrain girder) | static, sized w |
 | Brass and teal industrial deck (spawn ledge) | 106-145 r25-26 | `brassDeck` (new) | girder | static, sized w |
 | Concrete bunkers, barred windows, brown roof edge | 37-44 r15-20, 49-57 r27-32, 71-81 r16-20, 120-131 r35-41 | `jungleBuilding` | building | plain, door and roof vent, shell hole, two storeys (new) |
@@ -95,7 +95,8 @@ Per object of `config/levels/jungle/objects.json`. "Exists" means a drawing in `
 - M32 stale design cells: the stone stair mass 62-70 r3-11, the erased jeep and tree, the column 74 r39-50 (report 15: stale design, never seen in play order).
 - Bottom orange strip of `LEV3.GRA` frame 0: not part of the sky picture.
 - `f25` dome turret sprite: unused in level 3.
-- Enemies (`rocketDroid`, `crawler`) and the flamethrower flame: in `spikes/shared/enemies-jungle.js` and the weapon code, not env assets.
+- Enemies (`rocketDroid`, `crawler`): in `spikes/shared/enemies-jungle.js`, not env assets.
+- The flamethrower weapon and its flame: weapon code, not env assets. The held model, flame particle and HUD icon are in `spikes/shared/flamethrower.js` (gun design sheet, Flamethrower), ported to `src/game/robot/flamethrower.ts`, `render/flameShot.ts` and `hud/flamethrowerIcon.ts`; the `flamethrower` env asset stays the ground pickup. The original particle bank is not decoded, so the flame follows the demo footage (report 15 Flamethrower).
 
 ## Drawing groups
 
@@ -114,6 +115,8 @@ Four groups for parallel agents, in `spikes/shared/env-jungle.js`. Every asset o
 | `brassDeck` | new | 24 x 48 per cell, sized w | static | Two rows: brass L-brackets `#6c6030` with bright edges `#e4c048`, teal-grey panels `#243030`, `#3c483c`, small white lamp slots, dark legs. | `z02`, `z16` |
 | `girderColumn` | new | 24 wide, sized h | wall stack, short post | Olive X-plate column `#484830`, `#303024`, dark `#182418`, a pale steel collar `#909078` at each cell top, a pale foot block with a brass grille at the base. | `z16`, `z12`, `r04` |
 | `brickRuin` | new | 120 x 120, sized w h | stepped break, low stub | Dark brown bricks `#483024`, `#60543c`, `#6c603c` with a stepped broken top falling to one side, scorch and dirt. | `z01` |
+| `caveWalkway` | new (added in the port) | 24 x 24 per cell, sized w | static | The cave underside of `jungleWalkway` as its own asset: the walkway top half over a dark green band `#182418` with thin teal lines `#18483c`, no grass. | `z04` |
+| `stoneParapet` | new (added in the layout) | 144 x 48 wall, 24 x 96 pillar, sized w h | low wall, pillar | Grey stone courses with the beaded orange trim of `jungleWalkway` under each, moss on top; a stacked `jungleWalkway` read as a floor. Low wall 79-84 r18-19, pillar 77-78 r16-19. | map 1848,384 |
 | `caveChasm` | rework | 96 x 240 | deadly | Keep the dark bands, add broken cobble edges from `cobbleFill` at both sides. | `v04`, `z04` |
 
 ### Group B: buildings, supports, pipes, rubble, rock
@@ -137,6 +140,7 @@ Four groups for parallel agents, in `spikes/shared/env-jungle.js`. Every asset o
 |---|---|---|---|---|---|
 | `chemTank` | new | 144 x 48 single, 144 x 96 pair | single, stacked pair | Chrome teal-grey horizontal tank `#303c3c`, `#3c4848`, `#546060` with white highlight bands and dome ends, orange valve bands `#6c3c18` on the saddles, a yellow trefoil sign (demo). | `z08`, `z11`, demo sheets 02-04 |
 | `excavator` | new | 144 x 72 | static | Red mining excavator `#90240c`, `#78240c`, dark `#542400` with a grey curved boom and bucket on the left, tracks, rust. | `r08`, `z02` |
+| `rustBoiler` | new (added in the layout) | 66 x 84 | static | Rust-brown riveted boiler block, red-brown top plate, fire door, gauge and stack, a chrome drum at its base, short pipe stubs into the cobble behind. Cells 58-59 r34-36, floor 37. | map 1392,816 |
 | `caveCapsule` | new | 30 x 48 | static | Ribbed silver dome capsule `#546060`, `#303c3c` with a white highlight strip, bolted base ring. | `z04`, demo sheet 01 |
 | `helicopterWreck` | new | 168 x 144 | static | Bronze-rust fuselage `#603018`, `#483018`, `#544830` tilted nose up, bent rotor blades, tail boom up to the right, overgrown with green foliage `#303c18`, `#243018`; the crate prop stands under it. | `z01`, demo sheet 02 |
 | `overgrownWreck` | new | 144 x 48 | sedan, pickup, jeep shell | State 0 is the original orange-rust crushed sedan `#784824`, `#9c6c18`, dark `#483018`, one wheel showing, ferns on the roof; the others are a pickup and a military jeep shell in the same rot. Mesto density needs 13 big clutter, so vary states. | `z09`, demo sheet 01 |

@@ -29,7 +29,7 @@ flowchart TD
   F -- a check fails --> C
 ```
 
-Do the steps in order. A step starts only once the gate of the step before it passes. Vesnice goes first; jungle and jeskyne start only once vesnice meets the definition of done. [U]
+Do the steps in order. A step starts only once the gate of the step before it passes. Missions go one at a time, each only once the one before meets the definition of done: vesnice, then jungle (both built), then jeskyne. [U]
 
 ### 1. Design sheet
 
@@ -55,7 +55,7 @@ Do the steps in order. A step starts only once the gate of the step before it pa
 
 ### 4. Layout
 
-- Lay out sky, far layer, buildings, walls, supports, pipes, clutter, signs, lights and lift panels in `config/levels/<id>/world.json`, the terrain look in `terrainArt` (`wall`, `ledge`, `girder`, `top`, `deep`) and the backdrop `haze`. [CLAUDE.md]
+- Lay out sky, far layer, buildings, walls, supports, pipes, clutter, signs, lights and lift panels in `config/levels/<id>/world.json`, the terrain look in `terrainArt` (`wall`, `ledge`, `girder`, `top`, `deep`) and per-region ledge looks in `ledgeArt` (cell rects with an asset) and the backdrop `haze`. [CLAUDE.md]
 - Apply the scenery, clutter and art rules below.
 - Gate: the mission joins `BUILT` in `mapRules.test.ts`, with its role table in `RULES`, and every rule passes.
 
@@ -77,25 +77,25 @@ Every layout asset has one role (`[test]`). Each mission's design sheet fills it
 
 | Role | What | Mesto | Vesnice | Jungle | Jeskyne |
 |---|---|---|---|---|---|
-| sky | sky behind everything | `skyBackground` | `villageBackdrop` | | `caveBackdrop` |
-| far | far layer filling open sky between floors | `skylineTower`, `midgroundRuins` | `farPalms`, `farRuins` | | `farStalagmites` |
-| filler | map edge and never reached solid (terrain wall) | `brickWall` | `crateWall` | | `caveRock` |
-| wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | `rivetWall`, `plankWall` | | `rockRibs`, `lavaFall` |
-| fence | fences the hero walks along | `chainFence` | `chainFence` (mesh states) | | `safetyRail` |
-| floor | floor runs and floor plates | `streetWalkway`, `tunnelFloor`, `hazardPlate`, `liftLanding` | `grassyWalkway`, `steelDeckPlate`, `liftLanding` | | `caveFloor`, `liftLanding` |
-| girder | free-standing floor runs and elevated decks | `girderBridge` | `trussWalkway` | | `rockLedge` |
-| building | buildings and towers | `windowBuilding`, `ruinedBuilding`, `colonnadeBuilding`, `facadeTower`, `gantryBuilding` | `villageHouse`, `stiltBuilding`, `powerHouse` | | `metalPillars` |
-| support | supports, columns, masts, stairs | `latticePylon`, `craneMast`, `staircase` | `latticeMast`, `watchtower` | | `ropeColumn` |
-| pipe | pipes and pipe columns | `pipeColumn`, `pipeBend`, `ceilingPipe` | `pipeColumn` (bronze state), `overheadPipeline` | | `minePipe` |
-| machine | big machines and vehicles in the backdrop | `fuelTank`, `metroTrain` | `transformer`, `storageTank` (horizontal state), `fuelTank`, `powerPlant` | | `pressureTank` |
-| rubble | heaps and fallen structure | `rubblePile`, `fallenGirders` | `rockCliff`, `rubbleHeap` | | `screeHeap` |
-| mounted | wall-mounted things | `floorVent` (props `wireBox`, `codeLock`) | `warningLamp`, `junctionBox` | | `caveLamp` |
-| bigClutter | big ground clutter | `carWreck` | `militaryWreck` | | `mineWreck` |
-| smallClutter | small ground clutter | `barrel`, `tyres`, `brickPile` | `fuelDrum`, `sandbags`, `shellCrate` | | `powderKeg`, `toolCrate` |
-| sign | signs and lights | `signPost`, `barSign`, `stripLight` | `warningLamp` | | `explosiveSign`, `caveLamp` |
-| panel | lift panel | `liftPanel` (prop `damagedLift`) | `liftPanel` | | `liftPanel` |
+| sky | sky behind everything | `skyBackground` | `villageBackdrop` | `jungleSky` | `caveBackdrop` |
+| far | far layer filling open sky between floors | `skylineTower`, `midgroundRuins` | `farPalms`, `farRuins` | `farTrees`, `farTowerRuin` | `farStalagmites` |
+| filler | map edge and never reached solid (terrain wall) | `brickWall` | `crateWall` | `cobbleFill` | `caveRock` |
+| wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | `rivetWall`, `plankWall` | `girderColumn`, `brickRuin`, `stoneParapet` | `rockRibs`, `lavaFall` |
+| fence | fences the hero walks along | `chainFence` | `chainFence` (mesh states) | `chainFence` (overgrown state), `deckRailing` | `safetyRail` |
+| floor | floor runs and floor plates | `streetWalkway`, `tunnelFloor`, `hazardPlate`, `liftLanding` | `grassyWalkway`, `steelDeckPlate`, `liftLanding` | `jungleWalkway`, `caveWalkway` | `caveFloor`, `liftLanding` |
+| girder | free-standing floor runs and elevated decks | `girderBridge` | `trussWalkway` | `plankBridge`, `brassDeck` | `rockLedge` |
+| building | buildings and towers | `windowBuilding`, `ruinedBuilding`, `colonnadeBuilding`, `facadeTower`, `gantryBuilding` | `villageHouse`, `stiltBuilding`, `powerHouse` | `jungleBuilding` | `metalPillars` |
+| support | supports, columns, masts, stairs | `latticePylon`, `craneMast`, `staircase` | `latticeMast`, `watchtower` | `jungleTower`, `stoneStack`, `girderColumn` | `ropeColumn` |
+| pipe | pipes and pipe columns | `pipeColumn`, `pipeBend`, `ceilingPipe` | `pipeColumn` (bronze state), `overheadPipeline` | `coolantPipe` | `minePipe` |
+| machine | big machines and vehicles in the backdrop | `fuelTank`, `metroTrain` | `transformer`, `storageTank` (horizontal state), `fuelTank`, `powerPlant` | `chemTank`, `excavator`, `caveCapsule`, `rustBoiler`, `towerLift` | `pressureTank` |
+| rubble | heaps and fallen structure | `rubblePile`, `fallenGirders` | `rockCliff`, `rubbleHeap` | `rockLedges`, `rockSlope`, `rockDebris`, `caveChasm`, `fallenTree` | `screeHeap` |
+| mounted | wall-mounted things | `floorVent` (props `wireBox`, `codeLock`) | `warningLamp`, `junctionBox` | `rockVent`, `junctionBox`, `energySign` | `caveLamp` |
+| bigClutter | big ground clutter | `carWreck` | `militaryWreck` | `overgrownWreck`, `helicopterWreck` | `mineWreck` |
+| smallClutter | small ground clutter | `barrel`, `tyres`, `brickPile` | `fuelDrum`, `sandbags`, `shellCrate` | `fernBush`, `logPile`, `oilDrum` | `powderKeg`, `toolCrate` |
+| sign | signs and lights | `signPost`, `barSign`, `stripLight` | `warningLamp` | `energySign` | `explosiveSign`, `caveLamp` |
+| panel | lift panel | `liftPanel` (prop `damagedLift`) | `liftPanel` | none: no lifts (`liftless`), the tower lift is a teleport pair | `liftPanel` |
 
-Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLight`, `ceilingPipe`), the props that draw a lift panel, the clutter bar and named exemptions, each with its reason.
+Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLight`, `ceilingPipe`), the props that draw a lift panel, the clutter bar and named exemptions, each with its reason: `liftless` (why a mission has no lifts, so it needs no panel), `openEnds`, `propsOffFloor` (props allowed off a floor).
 
 ## Source data
 

@@ -72,6 +72,7 @@ flowchart LR
 ```
 
 - Two layers, `below` (sky, backdrop, haze, terrain, underground shade, dressing, shaft art) and `above` (ladders, dressing outside lift shafts). Each tile paints only the items indexed to it (`bucketByTile`).
+- Terrain ledge runs split into parts by asset (`ledgeParts` in `render/environment.ts`): a cell inside a world `ledgeArt` rect takes that rect's asset, else `top` over a wall, else the world `ledge`. Each part paints as one sized asset, so a region look costs no more than the plain ledge.
 - Tiles of the game window paint at once on the drawing thread; the margin ring comes from the tile worker. Without Worker support the ring paints on the drawing thread, 1 tile per frame plus more while 4 ms (`PREFETCH_MS`) last.
 - The first view after start or a resize is never freed (`keepHome`), so a respawn at spawn paints nothing.
 - Key uses the float32 scale, the value Chromium keeps in the context transform, so a frame never misses its own tiles.
