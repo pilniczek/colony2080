@@ -61,9 +61,15 @@ describe("menuSvg", () => {
   it("shows the manual and the tips with their pictures under settings and the pause menu, in the chosen language", () => {
     for (const state of [{ screen: "settings", cursor: 2, autosave: true }, { screen: "pause", cursor: 0 }] as const) {
       const en = menuSvg(320, 200, state, slots, robot);
-      for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER<", ">USE ITEM FROM INVENTORY<", ">I<", ">INVENTORY<", ">ENTER CALLS A DISTANT LIFT<", ">X<", ">HIDING MIGHT BE MORE THAN SHOOTING<", ">TIPS<", ">ENTER TO USE THE LIFT<", ">ENTER TO USE THINGS<", ">ENTER PICKS UP AN ITEM<", ">SOME THINGS NEED TO BE DAMAGED<", 'href="data:panel"', 'href="data:lift"', 'href="data:wires"', 'href="data:ship"', 'href="data:crowbar"']) expect(en).toContain(entry);
+      for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER<", ">USE ITEM FROM INVENTORY<", ">I<", ">INVENTORY<", ">ENTER CALLS A DISTANT LIFT<", ">X<", ">HIDING MIGHT BE MORE THAN SHOOTING<", ">ENTER TO USE THE LIFT<", ">ENTER TO USE THINGS<", ">ENTER PICKS UP AN ITEM<", ">SOME THINGS NEED TO BE DAMAGED<", 'href="data:panel"', 'href="data:lift"', 'href="data:wires"', 'href="data:ship"', 'href="data:crowbar"']) expect(en).toContain(entry);
       const cs = menuSvg(320, 200, state, slots, robot, "City", "cs");
-      for (const entry of [">OVLÁDÁNÍ<", ">POHYB<", ">POUŽITÍ PŘEDMĚTU Z INVENTÁŘE<", ">INVENTÁŘ<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<", ">SKRÝVÁNÍ MŮŽE BÝT VÍC NEŽ STŘÍLENÍ<", ">TIPY<", ">ENTER POUŽIJE VÝTAH<", ">ENTER POUŽIJE VĚCI<", ">NĚKTERÉ VĚCI JE TŘEBA POŠKODIT<"]) expect(cs).toContain(entry);
+      for (const entry of [">OVLÁDÁNÍ<", ">POHYB<", ">POUŽITÍ PŘEDMĚTU Z INVENTÁŘE<", ">INVENTÁŘ<", ">ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH<", ">SKRÝVÁNÍ MŮŽE BÝT VÍC NEŽ STŘÍLENÍ<", ">ENTER POUŽIJE VÝTAH<", ">ENTER POUŽIJE VĚCI<", ">NĚKTERÉ VĚCI JE TŘEBA POŠKODIT<"]) expect(cs).toContain(entry);
+      expect(en).not.toContain(">TIPS<");
+      expect(cs.match(/>OVLÁDÁNÍ</g)).toHaveLength(1);
+      const rowY = (value: string): string | undefined => en.match(new RegExp(`y="([\\d.]+)"[^>]*>${value}<`))?.[1];
+      expect(rowY("SOME THINGS NEED TO BE DAMAGED")).toBe(rowY("HIDING MIGHT BE MORE THAN SHOOTING"));
+      expect(rowY("ENTER TO USE THE LIFT")).toBe(rowY("MOVE"));
+      expect(rowY("MOVE")).toBeDefined();
     }
   });
 

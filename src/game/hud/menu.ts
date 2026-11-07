@@ -44,8 +44,8 @@ const TIPS: [TipArt, string][] = [
   ["crashedShip", "SOME THINGS NEED TO BE DAMAGED"],
 ];
 const ARROW_KEY = { len: 5.4, head: 1.6, stroke: 0.7, spread: 4.5 };
-const MANUAL = { gap: 8, text: 5.6, key: 14, keyGap: 10, top: 17, pitch: 10, pad: 6 };
-const TIP_BOX = { gap: 6, w: 138, key: 22, pitch: 14 };
+const MANUAL = { gap: 8, text: 5.6, key: 14, keyGap: 10, top: 17, title: 10, clear: 4, pitch: 10, pad: 6 };
+const TIP_BOX = { gap: 6, w: 138, key: 22 };
 const CAPS_EM = 0.7;
 
 export type MenuArt = Pick<InventoryArt, "robot" | TipArt>;
@@ -134,29 +134,31 @@ const CAPS_MID = (MANUAL.text * CAPS_EM) / 2;
 
 type KeyRows = { drawn: string; h: number };
 
-function keyRows<K>(top: number, title: string, column: KeyColumn, rows: [K, string][], keyOf: (key: K, keyMid: number, mid: number) => string): KeyRows {
+function keyRows<K>(top: number, first: number, column: KeyColumn, rows: [K, string][], keyOf: (key: K, keyMid: number, mid: number) => string): KeyRows {
   const x = column.x + 10;
   const keyMid = x + column.key / 2;
   const actionX = x + column.key + MANUAL.keyGap;
-  const midOf = (i: number): number => top + MANUAL.top + i * column.pitch;
+  const midOf = (i: number): number => top + first + i * column.pitch;
   const drawn = rows.map(([key, value], i) => keyOf(key, keyMid, midOf(i)) + text(actionX, midOf(i) + CAPS_MID, MANUAL.text, INV.label, value)).join("");
   const h = midOf(rows.length - 1) + column.pitch / 2 - MANUAL.pitch / 2 + CAPS_MID + MANUAL.pad - top;
-  return { drawn: label(column.x + column.w / 2, top + 10, 7.6, title) + drawn, h };
+  return { drawn, h };
 }
 
 function manual(rows: Row[], art: MenuArt, lang: Lang): string {
   const top = MENU_BOX.y + rowsHeight(rows) + MANUAL.gap;
+  const [firstTip] = TIPS;
+  const first = Math.max(MANUAL.top, MANUAL.title + MANUAL.clear + (firstTip ? art[firstTip[0]].h / 2 : 0));
   const keys = MANUAL_KEYS.map(([key, value]): [string | Step[], string] => [key, tr(value, lang)]);
-  const left = keyRows(top, tr("MANUAL", lang), { ...MENU_BOX, key: MANUAL.key, pitch: MANUAL.pitch }, keys, (key, keyMid, mid) =>
+  const left = keyRows(top, first, { ...MENU_BOX, key: MANUAL.key, pitch: MANUAL.pitch }, keys, (key, keyMid, mid) =>
     typeof key === "string" ? text(keyMid, mid + CAPS_MID, MANUAL.text, INV.name, key, 'text-anchor="middle"') : arrowKeys(keyMid, mid, key),
   );
   const tips = TIPS.map(([id, value]): [TipArt, string] => [id, tr(value, lang)]);
-  const right = keyRows(top, tr("TIPS", lang), tipColumn, tips, (id, keyMid, mid) => image(art[id], keyMid - art[id].w / 2, mid - art[id].h / 2));
+  const right = keyRows(top, first, tipColumn, tips, (id, keyMid, mid) => image(art[id], keyMid - art[id].w / 2, mid - art[id].h / 2));
   const b = { x: MENU_BOX.x, y: top, w: tipColumn.x + tipColumn.w - MENU_BOX.x, h: Math.max(left.h, right.h) };
-  return box(b) + left.drawn + right.drawn;
+  return box(b) + label(b.x + b.w / 2, top + MANUAL.title, 7.6, tr("MANUAL", lang)) + left.drawn + right.drawn;
 }
 
-const tipColumn = { x: MENU_BOX.x + MENU_BOX.w + TIP_BOX.gap, w: TIP_BOX.w, key: TIP_BOX.key, pitch: TIP_BOX.pitch };
+const tipColumn = { x: MENU_BOX.x + MENU_BOX.w + TIP_BOX.gap, w: TIP_BOX.w, key: TIP_BOX.key, pitch: (MANUAL.pitch * (MANUAL_KEYS.length - 1)) / (TIPS.length - 1) };
 
 function askBox(lang: Lang): string {
   const b = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w, h: ASK.top + (ASK.lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };

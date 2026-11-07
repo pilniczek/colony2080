@@ -80,7 +80,6 @@ const CS: Record<string, string> = {
   "SHOOT / PUNCH": "STŘÍLENÍ / ÚDER",
   "USE ITEM FROM INVENTORY": "POUŽITÍ PŘEDMĚTU Z INVENTÁŘE",
   "ENTER CALLS A DISTANT LIFT": "ENTER PŘIVOLÁ VZDÁLENÝ VÝTAH",
-  TIPS: "TIPY",
   HELP: "NÁPOVĚDA",
   BACK: "ZPĚT",
   "PRO TIP": "TIP PRO PROFÍKY",
