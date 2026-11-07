@@ -413,6 +413,7 @@
     },
     {
       "id": "eBlaster",
+      "weapon": true,
       "name": "E-Blaster pickup",
       "csName": "E-BLASTER",
       "interactive": true,

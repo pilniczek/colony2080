@@ -5,6 +5,7 @@
  "objects": [
   {
    "id": "rocketLauncher",
+   "weapon": true,
    "name": "Rocket launcher weapon pickup",
    "csName": "raketomet",
    "interactive": true,

@@ -43,7 +43,6 @@ window.C28_CONFIG = {
   "holoPlan": {
    "name": "holoplan",
    "cs": "Holoplán",
-   "keep": true,
    "icon": {
     "asset": "holoPlan",
     "tilt": 0,
@@ -10974,6 +10973,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "flamethrower",
+      "weapon": true,
       "name": "Flamethrower",
       "csName": "plamenomet",
       "interactive": true,
@@ -12728,6 +12728,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "eBlaster",
+      "weapon": true,
       "name": "E-Blaster pickup",
       "csName": "E-BLASTER",
       "interactive": true,
@@ -14726,6 +14727,7 @@ window.C28_CONFIG = {
     "objects": [
      {
       "id": "rocketLauncher",
+      "weapon": true,
       "name": "Rocket launcher weapon pickup",
       "csName": "raketomet",
       "interactive": true,
@@ -16805,6 +16807,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "toaster",
+      "weapon": true,
       "name": "TOASTER weapon pickup",
       "csName": "toaster",
       "interactive": true,
@@ -18846,6 +18849,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "mgx800",
+      "weapon": true,
       "name": "MGX 800 weapon pickup",
       "csName": "MGX 800",
       "interactive": true,

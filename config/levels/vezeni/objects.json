@@ -327,6 +327,7 @@
     },
     {
       "id": "mgx800",
+      "weapon": true,
       "name": "MGX 800 weapon pickup",
       "csName": "MGX 800",
       "interactive": true,

@@ -501,6 +501,7 @@
   },
   {
    "id": "flamethrower",
+   "weapon": true,
    "name": "Flamethrower",
    "csName": "plamenomet",
    "interactive": true,

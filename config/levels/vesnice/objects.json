@@ -111,6 +111,7 @@
   },
   {
    "id": "toaster",
+   "weapon": true,
    "name": "TOASTER weapon pickup",
    "csName": "toaster",
    "interactive": true,
