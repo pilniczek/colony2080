@@ -62,7 +62,7 @@ Decoded in `docs/research/reports/18-level5-layout.md`. Machines and doors in `s
 | `chestPlate` | col 42 floor 50 after the login, `PRPLAT` | hidden; on ground; in inventory | engraved number unread, drawn as marks |
 | `idLockDoor` | door 43-44 r56-60, lock 40-43 floor 60 | closed; open | no film, designed |
 | `gateKey` | col 59 floor 55, `PRKLIC` | on ground; in inventory | - |
-| `mgx800` | col 50 floor 60, HUD plate `DESKA5` | on ground; taken | no HUD icon or held model yet |
+| `mgx800` | col 50 floor 60, HUD plate `DESKA5` | on ground; taken | held model, shot and HUD icon on the gun design sheet (`spikes/shared/mgx800.js`); fire rules open |
 | `jack` | col 103 floor 71, `PRZVED` | on ground; in inventory | post jack from the `ZVEDVRAT` film |
 | `paperScrap` | col 122 floor 72, reads 56133 | on ground; in inventory | - |
 | `gateDoor` | 111-113 r46-50 (M53 closed, M54 jammed, M55 open) | closed; jammed; open | shape from `ROZDVERE` and `ZVEDVRAT` |
