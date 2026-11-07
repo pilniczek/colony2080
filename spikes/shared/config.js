@@ -171,6 +171,36 @@ window.C28_CONFIG = {
     "scale": 1.25
    },
    "preview": "GRAFIKA/PRPOJ.GRA"
+  },
+  "canister": {
+   "name": "canister",
+   "cs": "Kanystr",
+   "icon": {
+    "asset": "canister",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PREKAN.GRA"
+  },
+  "cutters": {
+   "name": "cutters",
+   "cs": "Štípačky",
+   "icon": {
+    "asset": "cutters",
+    "tilt": 20,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRSTI.GRA"
+  },
+  "grenade": {
+   "name": "grenade",
+   "cs": "Granát",
+   "icon": {
+    "asset": "grenade",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PREGRAN.GRA"
   }
  },
  "robots": {
@@ -11723,6 +11753,25 @@ window.C28_CONFIG = {
        "cave",
        "plain"
       ],
+      "refs": [],
+      "sizes": [
+       [
+        3,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "caveWalkway",
+      "name": "Cave walkway",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "role": "floor",
+      "description": "Cave underside variant of jungleWalkway as its own asset (world terrainArt draws state 0): the walkway top half over a dark green band `#182418` with thin teal lines `#18483c`, no grass.",
+      "states": [],
       "refs": [],
       "sizes": [
        [

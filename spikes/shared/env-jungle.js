@@ -689,11 +689,29 @@ define({
 
 const BLOCK_PTS = [[0, 0], [-0.6, -10], [2, -14.4], [11, -15.2], [15, -12], [15.4, 0]];
 
+const STONE_AT = [26, -27];
+const WIRE_END = [94, -6];
+
 define({
   id: "tripwire",
-  box: [-2, -31, 98, 1],
+  box: [-2, -50, 98, 1],
   draw(ctx, state) {
     const cut = state === 1;
+    const board = [[2, 0], [2.6, -15.4], [21, -16.2], [21.6, 0]];
+    shape(ctx, board, WOOD[2], "rLine");
+    within(ctx, board, () => {
+      flat(ctx, 2, -17, 20, 2, WOOD[3]);
+      flat(ctx, 2, -3, 20, 3, WOOD[1]);
+      if (!simple()) for (const y of [-11, -6]) line(ctx, [[3, y], [21, y + 0.6]], WOOD[1], 0.5);
+      G.grain(ctx, G.polyRegion(ctx, board), 846, 0.6);
+    });
+    flat(ctx, 5, -13, 1.2, 1.2, "m3");
+    flat(ctx, 17.4, -13, 1.2, 1.2, "m3");
+    const post = [[38.6, 0], [39, -27.4], [41.4, -27.4], [41.8, 0]];
+    shape(ctx, post, WOOD[2], "rLine");
+    if (!simple()) flat(ctx, 39.2, -26, 0.8, 25, WOOD[3]);
+    ctx.save();
+    ctx.translate(STONE_AT[0], STONE_AT[1]);
     shape(ctx, BLOCK_PTS, ROCK[1]);
     within(ctx, BLOCK_PTS, () => {
       flat(ctx, -2, -16, 20, 5, ROCK[2]);
@@ -705,27 +723,24 @@ define({
     path(ctx, BLOCK_PTS);
     stroke(ctx, SLINE);
     mossCap(ctx, 1, -14.6, 9, 845, 1.6);
-    flat(ctx, 14, -11, 3, 2, "m2", "mLine");
-    const board = [[84, 0], [84.4, -20.6], [91.6, -21.4], [92, 0]];
-    shape(ctx, board, WOOD[2], "rLine");
-    within(ctx, board, () => {
-      flat(ctx, 84, -22, 1.6, 22, WOOD[3]);
-      flat(ctx, 90, -22, 2, 22, WOOD[1]);
-      if (!simple()) for (const y of [-16, -9, -4]) line(ctx, [[85, y], [91, y + 0.6]], WOOD[1], 0.5);
-    });
-    flat(ctx, 85.4, -15, 1.2, 1.2, "m3");
+    ctx.restore();
+    flat(ctx, 41.4, -15, 3, 2, "m2", "mLine");
+    flat(ctx, WIRE_END[0] - 1, WIRE_END[1], 2, -WIRE_END[1], "m1", "mLine");
     if (cut) {
-      curve(ctx, [[17, -10], [26, -6], [30, -1]], "c1", 0.6);
-      curve(ctx, [[84, -14], [76, -8], [72, -1]], "c1", 0.6);
+      curve(ctx, [[44, -14], [52, -8], [56, -1]], "c1", 0.6);
+      curve(ctx, [[WIRE_END[0], WIRE_END[1]], [86, -3], [82, -0.6]], "c1", 0.6);
     } else {
-      line(ctx, [[17, -10], [84, -14]], "c2", 0.6);
-      if (!simple()) line(ctx, [[17, -9.6], [84, -13.6]], "#00000060", 0.4);
+      line(ctx, [[44, -14], WIRE_END], "c2", 0.6);
+      if (!simple()) line(ctx, [[44, -13.6], [WIRE_END[0], WIRE_END[1] + 0.4]], "#00000060", 0.4);
+      ctx.save();
+      ctx.translate(48, -14);
+      shape(ctx, blobPts(0, 4.6, 3.4, 4.6, 841, 8, 0.05), "o1", "kLine");
+      if (!simple()) for (let y = 1.4; y < 7.4; y += 2) flat(ctx, -3, y, 6, 0.6, "o0");
+      flat(ctx, -1, -0.6, 2, 1.6, "m2");
+      ctx.restore();
     }
-    shape(ctx, blobPts(88, -25.6, 3.4, 4.6, 841, 8, 0.05), "o1", "kLine");
-    if (!simple()) for (let y = -28.6; y < -22.6; y += 2) flat(ctx, 85, y, 6, 0.6, "o0");
-    flat(ctx, 87, -31, 2, 1.6, "m2");
-    flat(ctx, 84.4, -22.4, 7.2, 2, "#a8a48c", "kLine");
-    grass(ctx, 0, 18, 7, 842);
+    grass(ctx, 0, 24, 7, 842);
+    grass(ctx, 34, 12, 8, 847);
     grass(ctx, 76, 20, 9, 843);
   }
 });
@@ -1342,38 +1357,49 @@ const caveBand = (ctx, w, seed) => {
   flat(ctx, 0, 38, w, 4, CAVE[0]);
   ctx.restore();
 };
+const walkway = (ctx, state, w) => {
+  const seed = 9800 + state * 7;
+  if (state === 0) hangBoulders(ctx, w, seed + 100);
+  if (state === 1) caveBand(ctx, w, seed + 200);
+  flat(ctx, 0, 15, w, 9, CAVE[1]);
+  eachCell(ctx, 0, 0, w, 24, 24, 24, (x, _y, i) => {
+    const s = seed + i * 37;
+    if (i % 2 === 0) {
+      xPlate(ctx, x, 0, 24, 15, s);
+      flat(ctx, x + 4, 18, 14, 6, XPLATE[2], J.CLINE);
+      if (!simple()) {
+        flat(ctx, x + 4.6, 18.6, 12.8, 1, XPLATE[3]);
+        flat(ctx, x + 10, 20, 2, 2, BOLT[1]);
+      }
+    } else stoneBlock(ctx, x, 0, 24, 15, s);
+  });
+  beads(ctx, 0, 15, w);
+  if (!simple()) eachCell(ctx, 0, 21, w, 3, 12, 3, (x, _y, i) => i % 2 && flat(ctx, x + 2, 21.6, 6, 1, CAVE[2]));
+  G.grain(ctx, G.rectRegion(ctx, 0, 0, w, 24), seed + 1);
+  G.chips(ctx, 0, 0.4, w, seed + 2, G.DIRT);
+  G.drips(ctx, 0, 18, w, 5, seed + 3, max(1, round(w / 30)), false);
+  G.dirt(ctx, 0, 4, w, 11, seed + 4, 0.4);
+  eachCell(ctx, 0, 0, w, 24, 72, 24, (x, _y, i) => {
+    const r = rng(seed + 50 + i);
+    const mx = x + r() * 50;
+    if (r() < 0.55 && mx < w - 4) J.mossCap(ctx, mx, 0, min(6 + r() * 14, w - mx), seed + 51 + i, 2);
+    const gx = x + 20 + r() * 40;
+    if (state !== 1 && r() < 0.4 && gx < w - 6) J.grass(ctx, gx, min(4 + r() * 6, w - gx), 4, seed + 52 + i);
+  });
+};
 define({
   id: "jungleWalkway",
   box: [0, -6, 120, 48],
   draw(ctx, state, _t, { w = 120 } = {}) {
-    const seed = 9800 + state * 7;
-    if (state === 0) hangBoulders(ctx, w, seed + 100);
-    if (state === 1) caveBand(ctx, w, seed + 200);
-    flat(ctx, 0, 15, w, 9, CAVE[1]);
-    eachCell(ctx, 0, 0, w, 24, 24, 24, (x, _y, i) => {
-      const s = seed + i * 37;
-      if (i % 2 === 0) {
-        xPlate(ctx, x, 0, 24, 15, s);
-        flat(ctx, x + 4, 18, 14, 6, XPLATE[2], J.CLINE);
-        if (!simple()) {
-          flat(ctx, x + 4.6, 18.6, 12.8, 1, XPLATE[3]);
-          flat(ctx, x + 10, 20, 2, 2, BOLT[1]);
-        }
-      } else stoneBlock(ctx, x, 0, 24, 15, s);
-    });
-    beads(ctx, 0, 15, w);
-    if (!simple()) eachCell(ctx, 0, 21, w, 3, 12, 3, (x, _y, i) => i % 2 && flat(ctx, x + 2, 21.6, 6, 1, CAVE[2]));
-    G.grain(ctx, G.rectRegion(ctx, 0, 0, w, 24), seed + 1);
-    G.chips(ctx, 0, 0.4, w, seed + 2, G.DIRT);
-    G.drips(ctx, 0, 18, w, 5, seed + 3, max(1, round(w / 30)), false);
-    G.dirt(ctx, 0, 4, w, 11, seed + 4, 0.4);
-    eachCell(ctx, 0, 0, w, 24, 72, 24, (x, _y, i) => {
-      const r = rng(seed + 50 + i);
-      const mx = x + r() * 50;
-      if (r() < 0.55 && mx < w - 4) J.mossCap(ctx, mx, 0, min(6 + r() * 14, w - mx), seed + 51 + i, 2);
-      const gx = x + 20 + r() * 40;
-      if (state !== 1 && r() < 0.4 && gx < w - 6) J.grass(ctx, gx, min(4 + r() * 6, w - gx), 4, seed + 52 + i);
-    });
+    walkway(ctx, state, w);
+  },
+});
+
+define({
+  id: "caveWalkway",
+  box: [0, -6, 120, 48],
+  draw(ctx, _state, _t, { w = 120 } = {}) {
+    walkway(ctx, 1, w);
   },
 });
 

@@ -1,4 +1,5 @@
 import { G } from "./grime";
+import { MOSS, blobPts, fern, grass, leafBlob, vine } from "./jungle";
 import { P, TILE, type EnvAsset, type Size } from "./paint";
 import { bronzeColumn, meshFence } from "./vesnice";
 
@@ -175,10 +176,36 @@ const fencePosts = (ctx: CanvasRenderingContext2D, xs: number[]): void => {
 
 const TEAR: Pt[] = [[0, -46], [30, -46], [26, -40], [31, -36], [22, -31], [25, -24], [14, -20], [16, -12], [6, -9], [0, -4]];
 
+const overgrownFence = (ctx: CanvasRenderingContext2D, w: number): void => {
+  meshFence(ctx, 2, w);
+  const seed = 5900 + Math.round(w);
+  const r = P.rng(seed);
+  for (let x = 0; x < w; x += 72) {
+    const px = Math.min(x, w - 3) + 1.5;
+    vine(ctx, px + (r() - 0.5) * 2, -56, 44 + r() * 10, seed + x);
+    leafBlob(ctx, px + (r() - 0.5) * 6, -6, 9 + r() * 4, 6, seed + 1 + x);
+    if (!P.simple()) fern(ctx, px + 4, 10 + r() * 6, seed + 2 + x);
+  }
+  for (let x = 6 + r() * 10; x < w - 6; x += 16 + r() * 22) {
+    if (r() < 0.7) vine(ctx, x, -51, 10 + r() * 30, seed + 3 + Math.round(x));
+    if (r() < 0.55) leafBlob(ctx, x, -52 + r() * 3, 7 + r() * 5, 4 + r() * 2, seed + 4 + Math.round(x));
+  }
+  if (!P.simple()) {
+    const pts: Pt[] = [];
+    for (let x = 0; x <= w; x += 12) pts.push([x, -30 - Math.sin(x / 20 + seed) * 10 - (x / w) * 8]);
+    P.curve(ctx, pts, MOSS[1], 1);
+    pts.forEach(([x, y], i) => {
+      if (i % 2) P.shape(ctx, blobPts(x + 2, y, 2.6, 1.6, seed + 5 + i, 6, 0.2), i % 4 === 1 ? MOSS[2] : MOSS[3]);
+    });
+    grass(ctx, 0, w, 7, seed + 6);
+  }
+};
+
 export const chainFence: EnvAsset = {
   id: "chainFence",
   box: [-2, -60, 194, 0],
   draw(ctx, state, _t, { w }: Size) {
+    if (state === 3) return overgrownFence(ctx, w ?? 192);
     if (state) return meshFence(ctx, state - 1, w ?? 192);
     if (w !== undefined && w < 192) {
       fencePanel(ctx, 0, w);

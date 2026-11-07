@@ -9,7 +9,11 @@ import { structureAssets } from "./structures";
 import { VESNICE_IDS, vesniceSceneryAssets } from "./vesnice";
 import { radioGuard } from "./radioGuard";
 import { JESKYNE_IDS, jeskyneAssets } from "./jeskyne";
-import { JUNGLE_IDS, jungleAssets } from "./jungle";
+import { JUNGLE_IDS } from "./jungle";
+import { jungleClutterAssets } from "./jungleClutter";
+import { junglePropAssets } from "./jungleProps";
+import { jungleSceneryAssets } from "./jungleScenery";
+import { jungleTerrainAssets } from "./jungleTerrain";
 import { vesnicePropAssets } from "./vesniceProps";
 
 const BASE_IDS = [
@@ -24,7 +28,7 @@ const ASSET_IDS = [...BASE_IDS, ...VESNICE_IDS, ...JUNGLE_IDS, ...JESKYNE_IDS] a
 
 export type AssetId = (typeof ASSET_IDS)[number];
 
-const list: EnvAsset[] = [...structureAssets, ...buildingAssets, ...machineAssets, ...propAssets, ...guardAssets, flyer, shootGuard, radioGuard, ...vesnicePropAssets, ...vesniceSceneryAssets, ...jungleAssets, ...jeskyneAssets];
+const list: EnvAsset[] = [...structureAssets, ...buildingAssets, ...machineAssets, ...propAssets, ...guardAssets, flyer, shootGuard, radioGuard, ...vesnicePropAssets, ...vesniceSceneryAssets, ...junglePropAssets, ...jungleTerrainAssets, ...jungleSceneryAssets, ...jungleClutterAssets, ...jeskyneAssets];
 
 export const ASSETS = Object.fromEntries(list.map((a) => [a.id, a])) as Record<AssetId, EnvAsset>;
 

@@ -511,7 +511,17 @@ const toasterCases = [
 ];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { brickWall: [0, 1], stripLight: [0, 1], tunnelGate: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], acidGuard: [0, 1, 2], flyer: [0, 1], shootGuard: [0, 1, 2], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1], sourceTeleport: [0, 1, 2], targetTeleport: [0, 1], brokenTeleport: [0, 1], fuseBox: [0, 1, 2], electricCabinet: [0, 1], cannon: [0, 1], energyBarrier: [0, 1], fireBarricade: [0, 1], dynamiteWall: [0, 1], powerBridge: [0, 1], bridgeGuardPost: [0, 1], radioGuard: [0, 1, 2], smoulderingRemains: [0, 1], smallKey: [0, 1], walkieTalkie: [0, 1], detonator: [0, 1], projectile: [0, 1], fuse: [0, 1], dynamite: [0, 1, 2], navCircuit: [0, 1], toaster: [0, 1], energyPickup: [0, 1], ammoPickup: [0, 1], shieldPickup: [0, 1], projectileCrate: [0, 1], flamethrowerDoor: [0, 1], jeep: [0, 1], cannonTurret: [0, 1], distributionCabinet: [0, 1], waterfall: [0, 1], stonePuzzle: [0, 1], tripwire: [0, 1], mine: [0, 1], towerLift: [0, 1], stalactite: [0, 1, 2], crystal: [0, 1], leverBank: [0, 1, 2], leverDoor: [0, 1, 2, 3], keyDoors: [0, 1, 2], caveCardDoor: [0, 1, 2], airlock: [0, 1, 2], liftLock: [0, 1], keySlots: [0, 1, 2], stoneBlocks: [0, 1, 2], explosiveTank: [0, 1, 2], farPalms: [0, 1], farRuins: [0, 1], rivetWall: [0, 1], plankWall: [0, 1], grassyWalkway: [0, 1], villageHouse: [0, 1], stiltBuilding: [0, 1], powerHouse: [0, 1], latticeMast: [0, 1], warningLamp: [0, 1], junctionBox: [0, 1], rubbleHeap: [0, 1], militaryWreck: [0, 1, 2], fuelDrum: [0, 1, 2], sandbags: [0, 1], shellCrate: [0, 1], chainFence: [0, 1, 2], pipeColumn: [0, 1], storageTank: [0, 1] };
+const jungleStates: Record<string, number[]> = {
+  flamethrowerDoor: [0, 1], waterfall: [0, 1], spikes: [0, 1], boulder: [0, 1], jeep: [0, 1, 2], cannonTurret: [0, 1], distributionCabinet: [0, 1], stonePuzzle: [0, 1], tripwire: [0, 1], mine: [0, 1], canister: [0, 1, 2], flamethrower: [0, 1], bonusPickup: [0, 1], towerLift: [0, 1],
+  farTrees: [0, 1], farTowerRuin: [0, 1], cobbleFill: [0, 1], jungleWalkway: [0, 1, 2], girderColumn: [0, 1], brickRuin: [0, 1],
+  jungleBuilding: [0, 1, 2, 3], stoneStack: [0, 1], coolantPipe: [0, 1, 2], rockLedges: [0, 1, 2], rockDebris: [0, 1], deckRailing: [0, 1],
+  chemTank: [0, 1], overgrownWreck: [0, 1, 2], fernBush: [0, 1, 2], logPile: [0, 1], oilDrum: [0, 1], rockVent: [0, 1], energySign: [0, 1],
+};
+const jungleSizes: [string, Size][] = [
+  ["farTrees", { w: 144, h: 192 }], ["farTowerRuin", { w: 96, h: 216 }], ["cobbleFill", { w: 96, h: 72 }], ["jungleWalkway", { w: 72 }], ["caveWalkway", { w: 72 }], ["plankBridge", { w: 72 }], ["brassDeck", { w: 72 }], ["girderColumn", { h: 96 }], ["brickRuin", { w: 72, h: 96 }],
+  ["jungleBuilding", { w: 144, h: 96 }], ["jungleTower", { h: 192 }], ["stoneStack", { h: 72 }], ["coolantPipe", { w: 96 }], ["rockLedges", { w: 144, h: 192 }], ["rockDebris", { w: 72 }], ["deckRailing", { w: 72 }], ["waterfall", { w: 96, h: 240 }],
+];
+const envStates: Record<string, number[]> = { brickWall: [0, 1], stripLight: [0, 1], tunnelGate: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], acidGuard: [0, 1, 2], flyer: [0, 1], shootGuard: [0, 1, 2], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1], sourceTeleport: [0, 1, 2], targetTeleport: [0, 1], brokenTeleport: [0, 1], fuseBox: [0, 1, 2], electricCabinet: [0, 1], cannon: [0, 1], energyBarrier: [0, 1], fireBarricade: [0, 1], dynamiteWall: [0, 1], powerBridge: [0, 1], bridgeGuardPost: [0, 1], radioGuard: [0, 1, 2], smoulderingRemains: [0, 1], smallKey: [0, 1], walkieTalkie: [0, 1], detonator: [0, 1], projectile: [0, 1], fuse: [0, 1], dynamite: [0, 1, 2], navCircuit: [0, 1], toaster: [0, 1], energyPickup: [0, 1], ammoPickup: [0, 1], shieldPickup: [0, 1], projectileCrate: [0, 1], stalactite: [0, 1, 2], crystal: [0, 1], leverBank: [0, 1, 2], leverDoor: [0, 1, 2, 3], keyDoors: [0, 1, 2], caveCardDoor: [0, 1, 2], airlock: [0, 1, 2], liftLock: [0, 1], keySlots: [0, 1, 2], stoneBlocks: [0, 1, 2], explosiveTank: [0, 1, 2], farPalms: [0, 1], farRuins: [0, 1], rivetWall: [0, 1], plankWall: [0, 1], grassyWalkway: [0, 1], villageHouse: [0, 1], stiltBuilding: [0, 1], powerHouse: [0, 1], latticeMast: [0, 1], warningLamp: [0, 1], junctionBox: [0, 1], rubbleHeap: [0, 1], militaryWreck: [0, 1, 2], fuelDrum: [0, 1, 2], sandbags: [0, 1], shellCrate: [0, 1], chainFence: [0, 1, 2, 3], pipeColumn: [0, 1], storageTank: [0, 1], ...jungleStates };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
@@ -547,13 +557,15 @@ const envSizes: [string, Size][] = [
   ["pipeColumn", { h: 96 }],
   ["overheadPipeline", { w: 216 }],
   ["rockCliff", { w: 96, h: 96 }],
+  ...jungleSizes,
 ];
-const envCases = [
-  runEnvCoverage,
-  ...envAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod) => (o: HTMLElement) => runEnvCase(a.id, state, lod, undefined, o)))),
-  ...envSizes.flatMap(([id, size]) => lods.map((lod) => (o: HTMLElement) => runEnvCase(id, 0, lod, size, o))),
-  ...envAssets.filter((a) => a.anim).flatMap((a) => (envStates[a.id] ?? [0]).map((state) => (o: HTMLElement) => runEnvCase(a.id, state, false, undefined, o, ENV_ANIM_T))),
+const envSpecs: [string, number, boolean, Size | undefined, number][] = [
+  ...envAssets.flatMap((a) => (envStates[a.id] ?? [0]).flatMap((state) => lods.map((lod): [string, number, boolean, Size | undefined, number] => [a.id, state, lod, undefined, 0]))),
+  ...envSizes.flatMap(([id, size]) => lods.map((lod): [string, number, boolean, Size | undefined, number] => [id, 0, lod, size, 0])),
+  ...envAssets.filter((a) => a.anim).flatMap((a) => (envStates[a.id] ?? [0]).map((state): [string, number, boolean, Size | undefined, number] => [a.id, state, false, undefined, ENV_ANIM_T])),
 ];
+const envCaseIds = envSpecs.map(([id]) => id);
+const envCases = [runEnvCoverage, ...envSpecs.map(([id, state, lod, size, t]) => (o: HTMLElement) => runEnvCase(id, state, lod, size, o, t))];
 const filmParity = (id: CutsceneId): VisualResult => {
   const spike = window.CUTSCENES[id];
   const own = CUTSCENES[id];
@@ -597,6 +609,7 @@ const runRobotView = (t: number, size: { w: number; h: number }, out: HTMLElemen
   return { name, mismatches: 0, copiedDiff: 0, diff, matrixDelta: 0, pass: diff === 0 };
 };
 const robotViewCases = CUTSCENE_SIZES.flatMap((size) => ROBOT_VIEW_TS.map((t) => (o: HTMLElement) => runRobotView(t, size, o)));
-const cases = only ? [...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases, ...robotViewCases];
+const onlyEnv = only ? envCases.slice(1).filter((_, i) => only.includes(envCaseIds[i] ?? "")) : [];
+const cases = only ? [...onlyEnv, ...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...beamCases, runBlasterIcon, runFrontBarrel, ...envCases, ...cutsceneCases, ...robotViewCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));
