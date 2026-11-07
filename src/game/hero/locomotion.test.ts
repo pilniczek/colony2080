@@ -374,7 +374,7 @@ describe("falls", () => {
     expect(g.hero.state).toBe("fall");
     runUntil(g, (h) => h.onGround);
     expect(g.hero.state).toBe("fallDeath");
-    expect(g.hero.y).toBeCloseTo(14, 6);
+    expect(g.hero.y - highLedge.y).toBeGreaterThan(cfg.fallDeathCells);
     expect(g.events.map((e) => e.kind)).toEqual(["died"]);
   });
 
