@@ -1,5 +1,6 @@
 import { G } from "./grime";
 import { jeskyneClutterAssets } from "./jeskyneClutter";
+import { jeskyneExtraAssets } from "./jeskyneExtra";
 import { jeskyneStructureAssets } from "./jeskyneStructures";
 import { jag, jeskyneTerrainAssets } from "./jeskyneTerrain";
 import { P, type EnvAsset } from "./paint";
@@ -604,11 +605,11 @@ export const JESKYNE_IDS = [
   "lavaPit", "chasm", "rod", "yellowKey", "orangeKey", "blueKey", "entryCard",
   "caveBackdrop", "farStalagmites", "caveRock", "rockRibs", "lavaFall",
   "caveFloor", "rockLedge", "ropeColumn", "minePipe", "metalPillars", "safetyRail",
-  "pressureTank", "screeHeap", "caveLamp", "explosiveSign", "mineWreck", "powderKeg", "toolCrate",
+  "pressureTank", "screeHeap", "caveLamp", "explosiveSign", "mineWreck", "powderKeg", "toolCrate", "shaftHead",
 ] as const;
 
 export const jeskyneAssets: EnvAsset[] = [
   stalactite, crystal, leverBank, leverDoor, keyDoors, caveCardDoor, airlock, liftLock, keySlots, stoneBlocks, explosiveTank, mineCarts, cartCrusher, lavaPit, chasm, rod,
   keyCard(KEY_COLOURS[0], "yellowKey"), keyCard(KEY_COLOURS[1], "orangeKey"), keyCard(KEY_COLOURS[2], "blueKey"), entryCard,
-  ...jeskyneTerrainAssets, ...jeskyneStructureAssets, ...jeskyneClutterAssets,
+  ...jeskyneTerrainAssets, ...jeskyneStructureAssets, ...jeskyneClutterAssets, ...jeskyneExtraAssets,
 ];
