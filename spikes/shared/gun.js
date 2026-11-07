@@ -41,7 +41,23 @@ function toHook(pt) {
 }
 
 const CARRY = { arm: 22, fore: -94 };
-const FRONT_CARRY = { armL: -24, foreL: -66 };
+const FRONT_CARRY = { armL: 0, foreL: -90 };
+const FRONT_REACH = [40, 140];
+
+function frontGrip(front, gripX) {
+  const { locate } = window.XBOT;
+  const m = locate(front, "handL", FRONT_CARRY);
+  const det = m.a * m.d - m.b * m.c;
+  const miss = fore => {
+    const h = locate(front, "handR", { ...FRONT_CARRY, armR: 0, foreR: fore });
+    return Math.abs((m.d * (h.e - m.e) - m.c * (h.f - m.f)) / det - gripX);
+  };
+  let coarse = FRONT_REACH[0];
+  for (let f = FRONT_REACH[0]; f <= FRONT_REACH[1]; f++) if (miss(f) < miss(coarse)) coarse = f;
+  let best = coarse;
+  for (let i = -20; i <= 20; i++) if (miss(coarse + i / 20) < miss(best)) best = coarse + i / 20;
+  return { armR: 0, foreR: best };
+}
 const SCAN = { x: -600, w: 1600 };
 
 function silhouetteEdge(root, hookName, pose, band) {
@@ -101,7 +117,7 @@ function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own =
     const { locate, solve } = window.XBOT;
     const grip = toHook(SUPPORT);
     const CARRY_FAR = solve(side, "handFar", CARRY, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(side, "hand", CARRY).transformPoint(new DOMPoint(...grip)));
-    const FRONT_CARRY_R = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], locate(front, "handL", FRONT_CARRY).transformPoint(new DOMPoint(...grip)));
+    const FRONT_CARRY_R = frontGrip(front, grip[0]);
     const edge = band || partsFor(own.length).find(p => p.name === "barrelBack");
     const clear = silhouetteEdge(front, "handL", { ...FRONT_CARRY, ...FRONT_CARRY_R }, edge) + edge.h;
     const FRONT_BARREL = Math.max(own.length, Math.ceil(own.length + clear - muzzle[0]));

@@ -48,8 +48,16 @@ describe("gun", () => {
     expect(solved).toBeLessThan(1);
   });
 
-  it("front right hand reaches the support grip", () => {
+  it("front upper arms hang straight down", () => {
+    expect(poses.FRONT_CARRY.armL).toBe(0);
+    expect(poses.FRONT_CARRY_R.armR).toBe(0);
+  });
+
+  it("front right hand grips the weapon at the support height", () => {
     const pose = { ...poses.FRONT_CARRY, ...poses.FRONT_CARRY_R };
-    expect(gap(point(front, "handR", pose, [0, 0]), point(front, "handL", pose, SUPPORT_IN_HOOK))).toBeLessThan(1);
+    const [ax, ay] = point(front, "handL", pose, [SUPPORT_IN_HOOK[0], 0]);
+    const [bx, by] = point(front, "handL", pose, [SUPPORT_IN_HOOK[0], 100]);
+    const [hx, hy] = point(front, "handR", pose, [0, 0]);
+    expect(Math.abs((bx - ax) * (hy - ay) - (by - ay) * (hx - ax)) / Math.hypot(bx - ax, by - ay)).toBeLessThan(1);
   });
 });

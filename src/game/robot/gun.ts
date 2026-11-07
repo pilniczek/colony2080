@@ -40,7 +40,8 @@ export const gunHook = model.hook;
 export const gunSlung = model.slung;
 
 export const CARRY = { arm: 22, fore: -94 };
-export const FRONT_CARRY = { armL: -24, foreL: -66 };
+export const FRONT_CARRY = { armL: 0, foreL: -90 };
+const FRONT_REACH = [40, 140] as const;
 
 export interface HoldPoses {
   CARRY: typeof CARRY;
@@ -55,14 +56,30 @@ const gripTarget = (root: GroupNode, hook: string, pose: Pose, support: Pt): Pt 
   return apply(m, support);
 };
 
+const frontGrip = (front: GroupNode, gripX: number): { armR: number; foreR: number } => {
+  const m = locate(front, "handL", FRONT_CARRY);
+  if (!m) throw new Error("missing hook handL");
+  const det = m.a * m.d - m.b * m.c;
+  const miss = (fore: number): number => {
+    const h = locate(front, "handR", { ...FRONT_CARRY, armR: 0, foreR: fore });
+    if (!h) throw new Error("missing hook handR");
+    return Math.abs((m.d * (h.e - m.e) - m.c * (h.f - m.f)) / det - gripX);
+  };
+  let coarse: number = FRONT_REACH[0];
+  for (let f = FRONT_REACH[0]; f <= FRONT_REACH[1]; f++) if (miss(f) < miss(coarse)) coarse = f;
+  let best = coarse;
+  for (let i = -20; i <= 20; i++) if (miss(coarse + i / 20) < miss(best)) best = coarse + i / 20;
+  return { armR: 0, foreR: best };
+};
+
 export const holdPoses = (side: GroupNode, front: GroupNode, carry = CARRY, support = SUPPORT_IN_HOOK, frontSupport = SUPPORT_IN_HOOK): HoldPoses => {
   const far = solve(side, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], gripTarget(side, "hand", carry, support));
-  const right = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], gripTarget(front, "handL", FRONT_CARRY, frontSupport));
+
   return {
     CARRY: carry,
     CARRY_FAR: { armFar: far.armFar as number, foreFar: far.foreFar as number },
     FRONT_CARRY,
-    FRONT_CARRY_R: { armR: right.armR as number, foreR: right.foreR as number },
+    FRONT_CARRY_R: frontGrip(front, frontSupport[0]),
   };
 };
 

@@ -166,7 +166,7 @@ function capsule([x1, y1, r1], [x2, y2, r2], neck, steps = 10) {
   });
   return [...arc(x1, y1, r1, dir + top, dir + 2 * Math.PI - top), ...arc(x2, y2, r2, dir - bottom, dir + bottom)];
 }
-const upperArm = capsule([100, 148, 50], [98, 236, 40], 56);
+const upperArm = capsule([100, 148, 46], [100, 236, 46], 56);
 const sideUpperArm = capsule([300, 156, 62], [314, 240, 48], 60);
 const elbow = [[60, 296], [128, 296], [128, 316], [60, 316]];
 const forearm = [[26, 310], [146, 308], [152, 320], [150, 394], [140, 404], [42, 406], [26, 390]];
