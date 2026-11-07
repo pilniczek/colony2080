@@ -11771,7 +11771,7 @@ window.C28_CONFIG = {
       "sheet": "structures",
       "origin": "new",
       "role": "floor",
-      "description": "Cave underside variant of jungleWalkway as its own asset (world terrainArt draws state 0): the walkway top half over a dark green band `#182418` with thin teal lines `#18483c`, no grass.",
+      "description": "Cave underside variant of jungleWalkway as its own asset (placed on the cave floors through world ledgeArt): the walkway top half over a dark green band `#182418` with thin teal lines `#18483c`, no grass.",
       "states": [],
       "refs": [],
       "sizes": [
