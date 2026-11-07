@@ -826,13 +826,13 @@ function palmPlate(parent, M, padBottom) {
 
 function profilePlate(parent, S) {
   const [a, b] = HAND_FACE;
-  P(parent, { pts: S([[a + 6, HAND.top], [b, HAND.top], [b, HAND.bottom], [a + 6, HAND.bottom]]), r: 3 });
-  P(parent, { pts: S([[a - 3, HAND.top + 6], [a + HAND.thick / 2, HAND.top + 6], [a + HAND.thick / 2, HAND.bottom - 2], [a - 3, HAND.bottom - 2]]), mat: "metal", shade: "cyl", r: 6 });
+  P(parent, { pts: S([[a + 3, HAND.top], [b, HAND.top], [b, HAND.bottom], [a + 3, HAND.bottom]]), r: 3 });
+  P(parent, { pts: S([[a - 2, HAND.top + 6], [a + 6, HAND.top + 6], [a + 6, HAND.bottom - 2], [a - 2, HAND.bottom - 2]]), mat: "metal", shade: "cyl", r: 4 });
 }
 
 function sectionPlate(parent) {
   P(parent, { pts: [[HAND.x0, 400], [HAND.x1, 400], [HAND.x1, 400 + HAND.thick], [HAND.x0, 400 + HAND.thick]], r: 3 });
-  P(parent, { pts: [[HAND.x0 + 4, 400 + HAND.thick / 2], [HAND.x1 - 4, 400 + HAND.thick / 2], [HAND.x1 - 4, 400 + HAND.thick + 3], [HAND.x0 + 4, 400 + HAND.thick + 3]], mat: "metal", shade: "cyl", r: 6 });
+  P(parent, { pts: [[HAND.x0 + 4, 400 + HAND.thick - 6], [HAND.x1 - 4, 400 + HAND.thick - 6], [HAND.x1 - 4, 400 + HAND.thick + 2], [HAND.x0 + 4, 400 + HAND.thick + 2]], mat: "metal", shade: "cyl", r: 4 });
 }
 
 const THUMB_BASE = [124, 440];
