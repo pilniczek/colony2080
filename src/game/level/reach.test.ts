@@ -274,9 +274,9 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
         ...["14,100", "15,101", "16,100", "17,104", "18,101", "19,103", "20,61"],
       ],
       "row 11 jeep ledge: waterfall steps after the stone puzzle, M34 (report 15 task 6)": ["11,76"],
-      "spike pit floor under row 20, a long jump from the M33 rubble drops into it (report 15 hazards)": ["21,45"],
     },
     never: {
+      "spike pit floor under row 20: only the original 8 cells/s running jump from the M33 rubble drops into it, ours is 6 (report 15 hazards)": ["21,45"],
       "past the spawn ledge wall tables (112,19) col 116 and (124,19) col 131 (report 15 wall tables)": ["25,104", "25,132"],
       "wall tops under the open sky: pillar col 107, tree col 75, spawn ledge walls cols 116 and 131, border walls cols 21 and 148, rock col 82 (levelmap.py borderFills, patches)": [
         ...["4,107", "6,75", "11,0", "20,116", "20,131", "35,148", "39,82"],

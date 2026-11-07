@@ -12,7 +12,7 @@ function legs(body, near, far) {
 const TAU = Math.PI * 2;
 const LEG = { hipY: 344, farX: -24, thigh: 178, shin: 178, ankleY: 700, heel: 80 };
 const RUN = {
-  cycle: 0.52, speed: 624.8, stance: 0.25, reach: 0.36, heelStrike: -6, flat: [0.15, 0.55], toeOff: 44,
+  cycle: 0.55, speed: 468.63, stance: 0.3, reach: 0.36, heelStrike: -6, flat: [0.15, 0.55], toeOff: 44,
   drop: 10, bob: 2.4, lean: 16, leanPulse: 1.5, arm: 42, armPhase: 0.8, fore: -78,
   swing: [
     [0.5, { hip: 24, knee: 78, foot: 80 }],

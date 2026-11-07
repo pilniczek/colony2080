@@ -192,10 +192,10 @@ describe("moving lift", () => {
     const g = game({ x: 17.8, y: 14 });
     tick(g);
     tick(g, [], ["useItem"]);
-    run(g, 1);
+    run(g, 0.5);
     const lift = g.world.lifts[0]!;
     expect(lift.target).toBe(4);
-    for (let i = 0; i < 8; i++) tick(g, ["moveRight", RUNNING]);
+    for (let i = 0; i < 12; i++) tick(g, ["moveRight", RUNNING]);
     expect(g.hero.state).toBe("run");
     tick(g, ["moveRight", RUNNING], ["up"]);
     expect(g.hero.state).toBe("runJump");

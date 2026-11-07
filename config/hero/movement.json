@@ -7,7 +7,7 @@
   "box": { "width": 0.7, "height": 1.9, "duckHeight": 1.2 },
   "gravity": 30,
   "maxFallSpeed": 18,
-  "jump": { "standHeight": 1.1, "runHeight": 1.2, "runSpeed": 6.5, "walkHeight": 0.47 },
+  "jump": { "standHeight": 1.1, "runHeight": 1.2, "runSpeed": 6, "walkHeight": 0.47 },
   "fallDeathCells": 7,
   "ladderSpeed": 2.0,
   "liftSpeed": 5,
