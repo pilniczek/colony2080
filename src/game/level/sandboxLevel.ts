@@ -86,6 +86,15 @@ export interface Beam {
   tick: number;
   cycle?: number;
   clock?: number;
+  flames?: Flame[];
+}
+
+export interface Flame {
+  x: number;
+  y: number;
+  facing: 1 | -1;
+  age: number;
+  seed: number;
 }
 
 export interface Inventory {
@@ -152,6 +161,7 @@ export interface SandboxWorld {
   terrainArt: TerrainArt;
   haze: string;
   bare: CellRect[];
+  ledgeArt: LedgeArt[];
   ground: number | null;
   fog: Fog | null;
   heroHits: number;
@@ -176,15 +186,19 @@ export interface SandboxWorld {
   source: SandboxJson;
 }
 
-export type BonusWeapon = "blaster" | "toaster";
+export type BonusWeapon = "blaster" | "toaster" | "flamethrower";
 
-export const BONUS_NAMES: Record<BonusWeapon, string> = { blaster: "E-Blaster", toaster: "Toaster" };
+export const BONUS_NAMES: Record<BonusWeapon, string> = { blaster: "E-Blaster", toaster: "Toaster", flamethrower: "Flamethrower" };
 
-const WEAPON_ASSETS: Record<BonusWeapon, AssetId> = { blaster: "eBlaster", toaster: "toaster" };
+const WEAPON_ASSETS: Record<BonusWeapon, AssetId> = { blaster: "eBlaster", toaster: "toaster", flamethrower: "flamethrower" };
 
 const BONUS_ASSETS: Record<BonusKind, AssetId> = { ammo: "ammoBox", energy: "energyCell", shield: "shieldCell" };
 
 export const firstBonus = (props: Prop[]): BonusWeapon => props.find((p) => p.kind === "weapon")?.weapon ?? "blaster";
+
+export interface LedgeArt extends CellRect {
+  asset: AssetId;
+}
 
 export interface TerrainArt {
   wall: AssetId;
@@ -242,6 +256,7 @@ export interface SandboxJson {
   variants?: Record<string, CellPatch[]>;
   bare?: CellRect[];
   terrainArt?: Partial<Record<keyof TerrainArt, string>>;
+  ledgeArt?: (CellRect & { asset: string })[];
   haze?: string;
   ground?: number;
 }
@@ -257,6 +272,13 @@ function checkedProp(prop: Prop): Prop {
   if (copy.kind === "weapon") copy.asset ??= WEAPON_ASSETS[copy.weapon!];
   if (copy.kind === "bonus") copy.asset ??= BONUS_ASSETS[copy.bonus!];
   return copy;
+}
+
+function ledgeArtOf(items: SandboxJson["ledgeArt"] = []): LedgeArt[] {
+  return items.map((item) => {
+    if (!isAssetId(item.asset)) throw new Error(`unknown asset: ${item.asset}`);
+    return { ...item, asset: item.asset };
+  });
 }
 
 function scenery(items: SceneryJson[]): Scenery[] {
@@ -307,6 +329,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     terrainArt: terrainArtOf(data.terrainArt),
     haze: data.haze ?? MESTO_HAZE,
     bare: structuredClone(data.bare ?? []),
+    ledgeArt: ledgeArtOf(data.ledgeArt),
     ground: data.ground ?? null,
     fog: null,
     heroHits: 0,

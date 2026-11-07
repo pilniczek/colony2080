@@ -15,6 +15,7 @@ export const ORIGINAL_OF: Partial<Record<SoundId, string>> = {
   cannon: "P1_CANN.SND",
   laser: "LASER2.SND",
   beam: "LASER3.SND",
+  flame: "PLAM.SND",
   punch: "UDER.SND",
   explosion: "VYBUCH6.SND",
   step: "KROK3.SND",

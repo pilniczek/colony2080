@@ -1,10 +1,9 @@
 import { itemName, tr, type Lang } from "../i18n";
 import type { Rect } from "../geometry";
 import type { ItemId } from "../items";
-import { blasterIcon } from "./blasterIcon";
-import { toasterIcon } from "./toasterIcon";
 import { HUD_H, HUD_MIN_W } from "./layout";
-import { SHIELDS_MAX, type HudIcon } from "./svg";
+import { bonusIcon, SHIELDS_MAX, type HudIcon } from "./svg";
+import type { BonusWeapon } from "../level/sandboxLevel";
 
 export interface InventoryState {
   items: ItemId[];
@@ -13,7 +12,7 @@ export interface InventoryState {
   shields: number;
   ammo: number;
   blaster: number | null;
-  bonusModel?: "blaster" | "toaster";
+  bonusModel?: BonusWeapon;
   quests?: string[];
   lang?: Lang;
 }
@@ -150,7 +149,7 @@ function ammo(s: InventoryState, art: InventoryArt): string {
   const extra =
     s.blaster === null
       ? ""
-      : `<g transform="translate(${b.x + 4} ${b.y + 19.5}) scale(${GUN_SCALE}) translate(0 -5.2)">${s.bonusModel === "toaster" ? toasterIcon(0) : blasterIcon(0)}</g>` +
+      : `<g transform="translate(${b.x + 4} ${b.y + 19.5}) scale(${GUN_SCALE}) translate(0 -5.2)">${bonusIcon(s.bonusModel)}</g>` +
         text(right, b.y + b.h - 6, INV.name, `EXTRA x${s.blaster}`, 'text-anchor="end"');
   return box(b) + gun + extra;
 }

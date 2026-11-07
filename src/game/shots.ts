@@ -2,12 +2,12 @@ import { clamp } from "../engine/anim/keyed";
 import { apply } from "../engine/math/mat2d";
 import { locate } from "../engine/rig/pose";
 import type { Pt } from "../engine/rig/tree";
-import { fogEdge } from "./fog";
+import { fogEdge, visible } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import type { Hero, HeroEvent } from "./hero/hero";
 import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
 import { bodyBox, hitEnemy, isDead, shotBox, type Enemy } from "./level/enemy";
-import { startFilm, type Prop, type SandboxWorld, type Strike } from "./level/sandboxLevel";
+import { startFilm, type Flame, type Prop, type SandboxWorld, type Strike } from "./level/sandboxLevel";
 import { repelHero, updateGuard } from "./level/guards";
 import { flyMissile, launchMissile } from "./level/missiles";
 import { live, tick } from "./level/projectile";
@@ -15,6 +15,7 @@ import { flyRocket, launchRocket } from "./level/rockets";
 import { applyBlocks, say, setStates } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { TOASTER_MUZZLE_IN_HOOK, toasterHolds } from "./robot/toaster";
+import { FLAME_LIFE, FLAME_STEPS, FLAMETHROWER_MUZZLE_IN_HOOK, flamethrowerHolds } from "./robot/flamethrower";
 import { kindOf } from "./robot/kinds";
 import { cue } from "./sound/cues";
 import { explode } from "./sound/triggers";
@@ -24,12 +25,14 @@ const DEG = Math.PI / 180;
 
 export const SPARK_LIFE = 0.15;
 
-let simRigs: { rigs: Rigs; hold: ReturnType<typeof holdPoses>; toasterHold: ReturnType<typeof holdPoses> } | null = null;
+type Holds = ReturnType<typeof holdPoses>;
+
+let simRigs: { rigs: Rigs; hold: Holds; toasterHold: Holds; flameHold: Holds } | null = null;
 
 const sim = () => {
   if (!simRigs) {
     const rigs = createRigs(true);
-    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.front), toasterHold: toasterHolds(rigs.side, rigs.front) };
+    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.front), toasterHold: toasterHolds(rigs.side, rigs.front), flameHold: flamethrowerHolds(rigs.side, rigs.front) };
   }
   return simRigs;
 };
@@ -49,6 +52,11 @@ export function heroMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
 function toasterMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
   const { rigs, toasterHold } = sim();
   return rigPoint(h, heroLook(h, clips, rigs, toasterHold, cfg), rigs, TOASTER_MUZZLE_IN_HOOK, cfg);
+}
+
+function flameMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
+  const { rigs, flameHold } = sim();
+  return rigPoint(h, heroLook(h, clips, rigs, flameHold, cfg), rigs, FLAMETHROWER_MUZZLE_IN_HOOK, cfg);
 }
 
 function rigPoint(h: Hero, look: HeroLook, rigs: Rigs, inHand: Pt, cfg: MovementConfig): Pt {
@@ -284,8 +292,71 @@ function flightTicks(world: SandboxWorld, dt: number, cfg: MovementConfig): { ti
 
 const inFlight = (world: SandboxWorld, h: Hero): boolean => world.bonus === "toaster" && h.weapon === "blaster" && !!world.beam?.cycle;
 
+const FLAME_PX = 24;
+
+function flameStop(world: SandboxWorld, f: Flame): Prop | "wall" | null {
+  if (world.grid.solid(Math.floor(f.x), Math.floor(f.y)) || (world.fog && !visible(world.fog, f.x, f.y))) return "wall";
+  return world.props.find((p) => shootable(p) && Math.abs(p.x - f.x) <= (p.width ?? 1) / 2 && f.y <= (p.y ?? 0) && f.y >= (p.y ?? 0) - (p.height ?? 1)) ?? null;
+}
+
+function advanceFlame(world: SandboxWorld, h: Hero, f: Flame): boolean {
+  f.age += 1;
+  if (f.age > FLAME_LIFE) return false;
+  const carried = h.onGround && Math.sign(h.vx) === f.facing ? 2 : 1;
+  f.x += (f.facing * carried * FLAME_STEPS[f.age - 1]!) / FLAME_PX;
+  const stop = flameStop(world, f);
+  if (stop && stop !== "wall") {
+    hitShootable(world, stop);
+    spark(world, f.x, f.y);
+  }
+  return !stop;
+}
+
+function scorch(world: SandboxWorld, flames: Flame[], cfg: MovementConfig): void {
+  const { reach, damage } = cfg.flamethrower;
+  const burned = new Set<Enemy>();
+  for (const enemy of world.enemies) {
+    if (isDead(enemy)) continue;
+    const { top, bottom } = shotBox(enemy, cfg.box);
+    const col = Math.floor(enemy.body.x);
+    const near = flames.filter((f) => Math.abs(Math.floor(f.x) - col) <= reach && f.y >= top && f.y <= bottom);
+    if (!near.length) continue;
+    harm(world, enemy, near.length * damage, !world.beamHits.has(enemy));
+    if (!isDead(enemy)) burned.add(enemy);
+    spark(world, near[near.length - 1]!.x, near[near.length - 1]!.y);
+  }
+  world.beamHits = burned;
+}
+
+function fireFlames(world: SandboxWorld, h: Hero, ticks: number, clips: ClipSet, cfg: MovementConfig, dt: number): void {
+  const { spawnTicks, soundTicks } = cfg.flamethrower;
+  const firing = h.weapon === "blaster" && h.fireTime !== null;
+  const flames = world.beam?.flames ?? [];
+  const flight = firing ? { ticks, clock: 0 } : flightTicks(world, dt, cfg);
+  let tick = firing ? (world.beam?.tick ?? 0) : 0;
+  const [x, y] = flameMuzzle(h, clips, cfg);
+  let live = flames;
+  for (let i = 0; i < flight.ticks; i++) {
+    if (firing && (h.blaster ?? 0) > 0 && tick % spawnTicks === 0) {
+      live.push({ x, y, facing: h.facing, age: 0, seed: tick });
+      h.blaster = (h.blaster ?? 0) - 1;
+      if (tick % soundTicks === 0) cue(world, "flame", 6500);
+    }
+    if (firing) tick += 1;
+    live = live.filter((f) => advanceFlame(world, h, f));
+    scorch(world, live, cfg);
+  }
+  if (!firing && !live.length) {
+    world.beam = null;
+    world.beamHits.clear();
+    return;
+  }
+  world.beam = { x, y, end: x, facing: h.facing, tick, clock: flight.clock, flames: live };
+}
+
 export function fireBeam(world: SandboxWorld, h: Hero, events: HeroEvent[], clips: ClipSet, cfg: MovementConfig, dt = 0): void {
   const ticks = events.filter((e) => e.kind === "beam").length;
+  if (world.bonus === "flamethrower") return fireFlames(world, h, ticks, clips, cfg, dt);
   if (!ticks && h.fireTime === null && inFlight(world, h)) {
     const flight = flightTicks(world, dt, cfg);
     return fireToaster(world, h, flight.ticks, clips, cfg, flight.clock);
@@ -309,6 +380,7 @@ export const BONUS_LOW = "flag:bonusLow";
 export const BONUS_LOW_TEXT: Record<SandboxWorld["bonus"], string> = {
   blaster: "E-Blaster ammo is running low. Save it: some obstacles fall only to the E-Blaster.",
   toaster: "Toaster ammo is running low. Save it: some obstacles fall only to the Toaster.",
+  flamethrower: "Flamethrower ammo is running low. Save it: some obstacles fall only to the Flamethrower.",
 };
 
 const beamOnlyLeft = (world: SandboxWorld): boolean => world.props.some((p) => p.shootable?.by === "beam" && p.state !== p.shootable.state);

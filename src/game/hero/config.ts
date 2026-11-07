@@ -49,6 +49,7 @@ export interface MovementConfig {
   ammo: number;
   blaster: { tickHz: number; damage: number; ammo: number; lowWarn: number };
   toaster: { cycle: number; hitFrame: number; ammoFrame: number; range: number; damage: number; ammo: number; lowWarn: number };
+  flamethrower: { spawnTicks: number; reach: number; damage: number; soundTicks: number; ammo: number; lowWarn: number };
   bonuses: Record<BonusKind, { add: number; cap: number }>;
   respawnMs: number;
   deathSlide: number;
@@ -118,6 +119,7 @@ export function loadMovement(json: unknown): MovementConfig {
     ammo: n("ammo"),
     blaster: group("blaster", ["tickHz", "damage", "ammo", "lowWarn"]),
     toaster: group("toaster", ["cycle", "hitFrame", "ammoFrame", "range", "damage", "ammo", "lowWarn"]),
+    flamethrower: group("flamethrower", ["spawnTicks", "reach", "damage", "soundTicks", "ammo", "lowWarn"]),
     bonuses: bonusesOf(obj(o.bonuses, "movement.bonuses")),
     respawnMs: n("respawnMs"),
     deathSlide: n("deathSlide"),

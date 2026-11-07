@@ -36,18 +36,18 @@
 <body>
 <header>
   <h1>Weapon design sheet</h1>
-  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button><button data-weapon="enemies">Enemy weapons</button></div>
+  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button><button data-weapon="flamethrower">Flamethrower</button><button data-weapon="enemies">Enemy weapons</button></div>
   <label><input id="lines" type="checkbox" checked> Outlines</label>
 </header>
-<main data-for="fists gun blaster toaster">
+<main data-for="fists gun blaster toaster flamethrower">
   <figure class="wide"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200"></canvas></figure>
   <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Slung, back (ladder pose)</figcaption><canvas id="slungBack" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Slung, side (back hook)</figcaption><canvas id="slungSide" data-w="640" data-h="780"></canvas></figure>
 </main>
-<h2 data-for="fists gun blaster toaster">In-game, simplified (game size, scale 0.2)</h2>
-<main class="game" data-for="fists gun blaster toaster">
+<h2 data-for="fists gun blaster toaster flamethrower">In-game, simplified (game size, scale 0.2)</h2>
+<main class="game" data-for="fists gun blaster toaster flamethrower">
   <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack" data-w="640" data-h="780"></canvas></figure>
@@ -103,6 +103,27 @@
     <figure><figcaption>Not selected</figcaption><div id="toasterDim"></div></figure>
   </main>
 </section>
+<section data-for="flamethrower">
+  <h2>Flame (one particle per 2 ticks at 32 ticks per s, 26 frames, 88 px, grows and rises)</h2>
+  <main>
+    <figure class="full"><figcaption>Full size: facing right and left, standing and ducking</figcaption><canvas id="flameFull" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <main class="game">
+    <figure><figcaption>Game size, game LOD hero firing the flamethrower</figcaption><canvas id="flameGame" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <h2>Particle frames 1-26</h2>
+  <main id="flameFrames"></main>
+  <h2>Ground pickup (flamethrower asset, mission 3)</h2>
+  <main class="game">
+    <figure><figcaption>Full size (x 12)</figcaption><canvas id="flamerFull" data-w="46" data-h="17" data-scale="12"></canvas></figure>
+    <figure><figcaption>Game size, game LOD</figcaption><canvas id="flamerGame" data-w="46" data-h="17" data-scale="game"></canvas></figure>
+  </main>
+  <h2>HUD icon</h2>
+  <main>
+    <figure><figcaption>Selected</figcaption><div id="flamerLit"></div></figure>
+    <figure><figcaption>Not selected</figcaption><div id="flamerDim"></div></figure>
+  </main>
+</section>
 <section data-for="enemies">
   <h2>Enemy weapons firing (full size)</h2>
   <main class="game" id="enemyFull"></main>
@@ -136,7 +157,9 @@
 <script src="../shared/env-props.js"></script>
 <script src="../shared/env-machines.js"></script>
 <script src="../shared/env-vesnice.js"></script>
+<script src="../shared/env-jungle.js"></script>
 <script src="../shared/toaster.js"></script>
+<script src="../shared/flamethrower.js"></script>
 <script src="../shared/gait.js"></script>
 <script src="../shared/enemies.js"></script>
 <script src="../shared/enemies-vesnice.js"></script>
@@ -152,16 +175,17 @@ const roots = {
   gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true }),
   gBack: buildBack({ thumbsBehind: true, forearmsUnder: true, lod: true })
 };
-const MODELS = { gun: GUN, blaster: EBLASTER, toaster: TOASTER };
+const MODELS = { gun: GUN, blaster: EBLASTER, toaster: TOASTER, flamethrower: FLAMETHROWER };
 const CLIMB = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
 const DUCK = { body: 16, hipNear: -86, kneeNear: 124, ankleNear: -44, hipFar: -68, kneeFar: 128, ankleFar: -76 };
 const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
 const HOLDS = {
   gun: { hold: GUN.holdPoses(roots.side, roots.front), gHold: GUN.holdPoses(roots.gSide, roots.gFront) },
-  toaster: { hold: TOASTER.holdPoses(roots.side, roots.front), gHold: TOASTER.holdPoses(roots.gSide, roots.gFront) }
+  toaster: { hold: TOASTER.holdPoses(roots.side, roots.front), gHold: TOASTER.holdPoses(roots.gSide, roots.gFront) },
+  flamethrower: { hold: FLAMETHROWER.holdPoses(roots.side, roots.front), gHold: FLAMETHROWER.holdPoses(roots.gSide, roots.gFront) }
 };
 const { hold, gHold } = HOLDS.gun;
-const holds = () => HOLDS[WEAPON === "toaster" ? "toaster" : "gun"];
+const holds = () => HOLDS[HOLDS[WEAPON] ? WEAPON : "gun"];
 const carry = (pose, h) => {
   const b = pose.body || 0;
   return { ...pose, arm: h.CARRY.arm - b, fore: h.CARRY.fore, armFar: h.CARRY_FAR.armFar - b, foreFar: h.CARRY_FAR.foreFar };
@@ -240,6 +264,11 @@ function shotEffect(ctx, t, simple) {
   TOASTER.shot(ctx, TOASTER.RANGE, tick, simple);
   ctx.translate(TOASTER.RANGE, 0);
   TOASTER.sight(ctx, TOASTER.shotFrame(tick) === TOASTER.SHOT.frames - 1, simple);
+}
+
+function flameEffect(ctx, t, simple) {
+  ctx.scale(1 / GAME_PX, 1 / GAME_PX);
+  FLAMETHROWER.stream(ctx, Math.floor(t * EBLASTER.TICK_HZ), simple);
 }
 
 function firingRow(ctx, root, pose, simple, lineW, facing, t, weapon, effect) {
@@ -325,11 +354,16 @@ const VIEWS = {
   fireFull: (ctx, lw, t) => firingRows(ctx, roots.side, hold, false, lw * 1.4, t, GUN, fireEffect),
   fireGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, gHold, true, lw * XBOT.GAME_LINE, t, GUN, fireEffect),
   shotFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.toaster.hold, false, lw * 1.4, t, TOASTER, shotEffect),
-  shotGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.toaster.gHold, true, lw * XBOT.GAME_LINE, t, TOASTER, shotEffect)
+  shotGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.toaster.gHold, true, lw * XBOT.GAME_LINE, t, TOASTER, shotEffect),
+  flamerFull: (ctx, lw, t) => ground(ctx, false, "flamethrower", 2, 16, t),
+  flamerGame: (ctx, lw, t) => ground(ctx, true, "flamethrower", 2, 16, t),
+  flameFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.flamethrower.hold, false, lw * 1.4, t, FLAMETHROWER, flameEffect),
+  flameGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.flamethrower.gHold, true, lw * XBOT.GAME_LINE, t, FLAMETHROWER, flameEffect)
 };
 const ANIMATED = new Set(["beamFull", "beamGame"]);
 const TOASTER_VIEWS = new Set(["toasterFull", "toasterGame", "shotFull", "shotGame"]);
 const GUN_VIEWS = new Set(["fireFull", "fireGame"]);
+const FLAME_VIEWS = new Set(["flameFull", "flameGame"]);
 const ENEMY_VIEWS = new Set();
 
 const SHOT_W = BEAM_LEN + 16, SHOT_H = 24;
@@ -343,6 +377,20 @@ for (let f = 0; f < TOASTER.SHOT.frames; f++) {
     ctx.fillRect(0, 0, SHOT_W, SHOT_H);
     ctx.translate(4, SHOT_H / 2);
     TOASTER.shot(ctx, BEAM_LEN, f + 1, false);
+  };
+}
+
+const FLAME_W = 48, FLAME_H = 48;
+const flameFrames = document.getElementById("flameFrames");
+for (let age = 1; age <= FLAMETHROWER.LIFE; age++) {
+  const fig = document.createElement("figure");
+  fig.innerHTML = `<figcaption>Frame ${age}</figcaption><canvas id="flame${age}" data-w="${FLAME_W}" data-h="${FLAME_H}" data-scale="3"></canvas>`;
+  flameFrames.append(fig);
+  VIEWS["flame" + age] = ctx => {
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, FLAME_W, FLAME_H);
+    ctx.translate(FLAME_W * 0.55, FLAME_H * 0.65);
+    FLAMETHROWER.flame(ctx, age, 0, false);
   };
 }
 
@@ -409,6 +457,8 @@ document.getElementById("iconLit").innerHTML = iconSvg(true, 400);
 document.getElementById("iconDim").innerHTML = iconSvg(false, 387);
 document.getElementById("toasterLit").innerHTML = iconSvg(true, 60, TOASTER, "T");
 document.getElementById("toasterDim").innerHTML = iconSvg(false, 42, TOASTER, "T");
+document.getElementById("flamerLit").innerHTML = iconSvg(true, 500, FLAMETHROWER, "F");
+document.getElementById("flamerDim").innerHTML = iconSvg(false, 213, FLAMETHROWER, "F");
 
 function refs() {
   const list = window.ORIGINALS.on && window.ORIGINALS.weapons?.[WEAPON];
@@ -449,6 +499,7 @@ function setWeapon(w) {
 function tick() {
   if (WEAPON === "blaster") paint([...ANIMATED], SPIKE_CLOCK.seconds());
   if (WEAPON === "toaster") paint([...TOASTER_VIEWS], SPIKE_CLOCK.seconds());
+  if (WEAPON === "flamethrower") paint([...FLAME_VIEWS], SPIKE_CLOCK.seconds());
   if (WEAPON === "gun") paint([...GUN_VIEWS], SPIKE_CLOCK.seconds());
   if (WEAPON === "enemies") paint([...ENEMY_VIEWS], SPIKE_CLOCK.seconds());
   requestAnimationFrame(tick);

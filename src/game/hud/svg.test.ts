@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { BLASTER_BODY_W } from "./blasterIcon";
+import { BLASTER_BODY_W, blasterIcon } from "./blasterIcon";
+import { flamethrowerIcon } from "./flamethrowerIcon";
+import { toasterIcon } from "./toasterIcon";
 import { CONTENT_SCALE, HAND_BOX, HAND_INK_H, HIDE_W, ICON_H, MAP_W, MENU_W, MONO_ADVANCE, READOUT_SIZE, SLOT, SPEAKER_H, SPEAKER_INK, SPEAKER_INK_H, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, WEAPON_W } from "./layout";
 import { applyLive, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
@@ -29,6 +31,12 @@ describe("hudSvg", () => {
     const svg = hudSvg(320, 200, { ...base, bonus: true, bonusAmmo: 12, weapon: 2 }, icons);
     expect(svg).toContain(">12</text>");
     expect(count(svg, 'filter="url(#iconDim)"')).toBe(4);
+  });
+
+  it("draws the bonus slot with the held bonus weapon's own icon", () => {
+    for (const [model, icon] of [["blaster", blasterIcon], ["toaster", toasterIcon], ["flamethrower", flamethrowerIcon]] as const) {
+      expect(hudSvg(320, 200, { ...base, bonus: true, bonusModel: model }, icons)).toContain(icon(0));
+    }
   });
 
   it("shows a running figure instead of the RUN text, glowing in run mode and dimmed when walking", () => {

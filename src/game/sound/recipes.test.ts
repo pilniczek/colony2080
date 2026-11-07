@@ -7,6 +7,7 @@ const LENGTHS: Record<SoundId, number> = {
   cannon: 19106,
   laser: 17362,
   beam: 3866,
+  flame: 6697,
   punch: 3999,
   explosion: 29710,
   step: 9222,

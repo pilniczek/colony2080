@@ -41,7 +41,7 @@
 window.SOUND_ORIGINALS = {
   file: id => window.ORIGINALS.src(`gamedata/raw/CD/ZVUKY/${window.SOUND_ORIGINALS.of[id]}`),
   of: {
-    gunShot: "STRELBA.SND", cannon: "P1_CANN.SND", laser: "LASER2.SND", beam: "LASER3.SND", punch: "UDER.SND",
+    gunShot: "STRELBA.SND", cannon: "P1_CANN.SND", laser: "LASER2.SND", beam: "LASER3.SND", flame: "PLAM.SND", punch: "UDER.SND",
     explosion: "VYBUCH6.SND", step: "KROK3.SND", land: "SIGNAL.SND", click: "IKONA.SND", inventory: "INVEND.SND",
     power: "GATE.SND", siren: "SIRENA3.SND", liftStart: "VYTAH1.SND", liftStop: "VYTAH2.SND", door: "DVERE.SND",
     grate: "MRIZ2.SND", thunder: "HROM.SND", teleport: "TELEPORT.SND", spark: "ZKRAT.SND", servo: "HYDRA.SND",
@@ -69,6 +69,7 @@ const GROUPS = [
     cannon: [15000, 63, "Droid shot, missions 2-4"],
     laser: [15000, 63, "Flyer shot"],
     beam: [8000, 63, "E-Blaster beam, every firing tick"],
+    flame: [6500, 63, "Flamethrower roar, while fire is held"],
     punch: [13000, 63, "Punch, hit or miss"],
     explosion: [9000, 63, "Enemy or guard explodes, rate 8000-9999"]
   }],

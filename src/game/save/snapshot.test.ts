@@ -64,6 +64,8 @@ describe("snapshot", () => {
     expect(loadSnapshot(g.world, g.hero, { ...snap, bonus: undefined }, cfg)).toBeNull();
     expect(g.world.bonus).toBe("blaster");
     expect(checkSnapshot(g.world, { ...snap, bonus: "nope" })).toBe("damaged");
+    expect(loadSnapshot(g.world, g.hero, { ...snap, bonus: "flamethrower" }, cfg)).toBeNull();
+    expect(g.world.bonus).toBe("flamethrower");
   });
 
   it("restores the difficulty, and an old save without one has no autosave", () => {

@@ -279,7 +279,7 @@ function emit(s: Step, kind: HeroEvent["kind"]): void {
   s.events.push({ kind, x: s.h.x, y: s.h.y });
 }
 
-export const bonusAmmo = (world: SandboxWorld, cfg: MovementConfig): number => (world.bonus === "toaster" ? cfg.toaster.ammo : cfg.blaster.ammo);
+export const bonusAmmo = (world: SandboxWorld, cfg: MovementConfig): number => cfg[world.bonus].ammo;
 
 const ammoOf = (h: Hero, weapon: Weapon): number => (weapon === "gun" ? h.ammo : weapon === "blaster" ? (h.blaster ?? 0) : 0);
 
@@ -295,7 +295,7 @@ const fireRate = ({ h, cfg }: Step): number => (h.weapon === "blaster" ? cfg.bla
 function shoot(s: Step): void {
   const { h } = s;
   if (h.weapon === "blaster") {
-    if (s.world.bonus !== "toaster") {
+    if (s.world.bonus === "blaster") {
       h.blaster = ammoOf(h, "blaster") - 1;
       cue(s.world, "beam", 8000);
     }

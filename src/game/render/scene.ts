@@ -10,13 +10,14 @@ import type { Rect } from "../geometry";
 import { bodyBox, boxSeen, type Enemy } from "../level/enemy";
 import { visible, type Fog } from "../fog";
 import { coverClips } from "../level/cover";
-import type { SandboxWorld } from "../level/sandboxLevel";
+import type { Flame, SandboxWorld } from "../level/sandboxLevel";
 import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
 import { drawEBlaster, EBLASTER_COLORS, eblasterHook, eblasterSlung } from "../robot/eblaster";
 import { drawGun, FRONT_BARREL, gunHook, gunSlung } from "../robot/gun";
 import { drawToaster, TOASTER_COLORS, TOASTER_FRONT_BARREL, toasterHook, toasterSlung } from "../robot/toaster";
+import { drawFlamethrower, FLAMETHROWER_COLORS, FLAMETHROWER_FRONT_BARREL, flamethrowerHook, flamethrowerSlung } from "../robot/flamethrower";
 import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
 import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
@@ -25,6 +26,7 @@ import { drawFigure, figureKey } from "./figures";
 import { drawProjectiles } from "./projectiles";
 import { BEAM_FRAMES, drawBeam } from "./beam";
 import { drawToasterShot, drawToasterSight } from "./toasterShot";
+import { drawFlame } from "./flameShot";
 import { drawEnvironment } from "./environment";
 
 const DEG = Math.PI / 180;
@@ -37,10 +39,11 @@ const MODELS = {
   gun: { draw: drawGun, hook: gunHook, slung: gunSlung },
   blaster: { draw: drawEBlaster, hook: eblasterHook, slung: eblasterSlung },
   toaster: { draw: drawToaster, hook: toasterHook, slung: toasterSlung },
+  flamethrower: { draw: drawFlamethrower, hook: flamethrowerHook, slung: flamethrowerSlung },
 } satisfies Record<GunModel, unknown>;
-const HERO_PALETTE: Palette = { ...EBLASTER_COLORS, ...TOASTER_COLORS, ...ROBOT.palette };
+const HERO_PALETTE: Palette = { ...EBLASTER_COLORS, ...TOASTER_COLORS, ...FLAMETHROWER_COLORS, ...ROBOT.palette };
 
-const FRONT_BARRELS: Record<GunModel, number> = { gun: FRONT_BARREL, blaster: FRONT_BARREL, toaster: TOASTER_FRONT_BARREL };
+const FRONT_BARRELS: Record<GunModel, number> = { gun: FRONT_BARREL, blaster: FRONT_BARREL, toaster: TOASTER_FRONT_BARREL, flamethrower: FLAMETHROWER_FRONT_BARREL };
 const LASER = { color: "#ff2a1a", width: 1, glow: 4, glowAlpha: 0.3 };
 const FLYER_HIT = { flash: 0.25, glow: 0.6, steps: 16 };
 
@@ -57,10 +60,23 @@ interface Frame {
   lines: number;
 }
 
+function flames(f: Frame, list: Flame[]): void {
+  const { ctx, cell } = f;
+  const k = cell / TILE;
+  for (const fl of list) {
+    ctx.save();
+    ctx.translate(fl.x * cell, fl.y * cell);
+    ctx.scale(fl.facing * k, k);
+    drawFlame(ctx, fl.age, fl.seed, true);
+    ctx.restore();
+  }
+}
+
 function beam(f: Frame): void {
   const { ctx, world, cell } = f;
   const b = world.beam;
   if (!b) return;
+  if (b.flames) return flames(f, b.flames);
   const k = cell / TILE;
   ctx.save();
   ctx.translate(b.x * cell, b.y * cell);

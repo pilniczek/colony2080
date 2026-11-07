@@ -105,6 +105,19 @@ Whether the cannon really blocks the key and the crate (the turret zone covers c
 
 4 stones, all raised at start. Left/right moves over raised stones, Enter presses one. A counter c runs 1-4 (it steps after each press) with a flag f (starts 0). The full rule table is in the JSON. With all four pressed the game prints Z VODOPADU NAD TEBOU SE VYSUNULY DVA KAMENNE BLOKY and loads M34. Otherwise it prints NIC SE NESTALO. **[code]** A search over those rules gives the shortest solution: press 3, 4, 2, 1, 3. **[inferred]**
 
+## Flamethrower (weapon 3, `7:0x28D7-0x3234`, `5:0x7F67-0x80F9`)
+
+Runs in levels 3 and 4 (`[0xDC78]` 3 or 4) while weapon 3 is held and `[0xDB38] > 0`. **[code]**
+
+- **Spawn.** With fire held, a particle goes into a 40-slot ring `ds:0x4996` (18 bytes each) on every tick where the counter `[0xDB41]` is even, so one per 2 ticks. Each spawn takes 1 ammo. None spawns in hero states 0x78 and 0x460. States over 1000 fire right, others left. **[code]**
+- **Start point.** It starts 1 cell ahead of the hero (`[0xDB1D] ± 1`), one row up, at `[0xDB44] + 0x14` px facing right or `+ 0x0C` px facing left. Its y is `[0xDB48] + 1 + Random(2)`, 9 px lower in duck states 0x444-0x449 and 0x452-0x45D. **[code]**
+- **Sound.** Every spawn plays `PLAM` (S16) at 6500 Hz, vol 63 (`7:0x2A60`, `0x2C1A`). Our game replays it once per 32 ticks instead, since a new copy every 2 ticks would fill the voices. **[code]** / ours
+- **Flight.** A particle lives 26 frames and is drawn with its frame number from the bank at `[0xDF64]`. Its x moves 2, 3, 4, 5, 4, 3, 2 px per frame over frames 1-3, 4-8, 9-12, 13-16, 17-20, 21-23 and 24-26, 88 px (3.7 cells) in all. It moves level. While the hero walks (states below 0x19 facing left, 0x3E8-0x400 facing right), each frame moves twice, so the flame keeps pace with him. A right particle also takes the extra step in left states. That looks like a bug, and we skip it. **[code]**
+- **No wall check.** The update loop never reads the map, so a particle flies through walls. **[code]** Our game stops it at the first wall, fog-covered cell or shootable prop, like every other shot. ours
+- **Damage.** In the enemy loop, each live particle whose x cell is the enemy cell or one to either side takes 0.03 hp per tick while hp ≥ 1.0 and adds a spark. No row check was found. **[code]** A 2.0 hp enemy (dies below 1.0) takes about 34 particle-ticks, the level 4 trooper 0.1 per particle (`16-level4-layout.md`). Ours: 0.2 of the 7 hits per particle-tick, and the particle y must lie in the enemy shot box. **[inferred]**
+- **Ammo.** The door task gives 500 (`3:0x970B`). **[code]**
+- **Look.** The particle frames come from bank `[0xDF64]`, which is also passed to the enemy draw at `4:0xB941`. They were not found in the decoded `LEV3.GRA` frames. **[code]** / open. Demo footage D 3:46-3:48 (`video/frames-best/DEMO_jungle_flamethrower_stream.png`) shows a chain of swept orange tongues from the nozzle that grow into big rising fire clouds about 4 cells out. **[footage]** The HUD slot 3 art is `DESKA2.GRA`: a dark gun with a long barrel and an orange flame (`video/frames-best/GRA_DESKA2_hud_slot3_flamethrower.png`). **[code]**
+
 ## Blocking
 
 - **Wall tiles.** The stand-row list has one entry, `(8,27)`, in the 15-45 px check `[0xDFCD]` (`3:0x5AB3`). It occurs once, at cell (84, 46) in the cave. **[code] [map]**

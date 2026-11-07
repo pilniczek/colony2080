@@ -11,6 +11,7 @@ import { BONUS_LOW, BONUS_LOW_TEXT, fireBeam, heroMuzzle, SPARK_LIFE, toasterSig
 import { loadMesto } from "./level/mesto";
 import { loadMission } from "./level/missions";
 import { toasterHolds } from "./robot/toaster";
+import { FLAME_LIFE, FLAME_STEPS } from "./robot/flamethrower";
 
 const TARGET_TOP = 14 - 1.51;
 
@@ -637,6 +638,121 @@ describe("toaster fireball", () => {
     expect(bonusAmmo(g.world, cfg)).toBe(250);
     g.world.bonus = "blaster";
     expect(bonusAmmo(g.world, cfg)).toBe(cfg.blaster.ammo);
+  });
+});
+
+describe("flamethrower", () => {
+  const open = `#${".".repeat(28)}#`;
+  const solid = "#".repeat(30);
+  const level = (enemies: number[], rows = [solid, open, open, open, solid]) => ({
+    rows,
+    spawn: [3.5, 4],
+    sky: "skyBackground",
+    backdrop: [],
+    dressing: [],
+    lifts: [],
+    props: [],
+    enemies: enemies.map((x) => ({ x, y: 4, facing: -1, hits: 7, respawnMs: null, reactMs: 250, burst: { shots: 9, ms: 280 }, pauseMs: 400 })),
+  });
+  const flamer = (enemies: number[] = [], rows?: string[]): Game => {
+    const g = game({ x: 3.5, y: 4, weapon: "blaster", state: "attack" }, level(enemies, rows));
+    g.world.bonus = "flamethrower";
+    Object.assign(g.hero, { facing: 1, blaster: cfg.flamethrower.ammo, fireTime: 0, onGround: true, vx: 0 });
+    return g;
+  };
+  const beamTicks = (g: Game, n: number): void => {
+    for (let i = 0; i < n; i++) fireBeam(g.world, g.hero, [{ kind: "beam", x: g.hero.x, y: g.hero.y }], clips, cfg);
+  };
+  const flightTicks = (g: Game, n: number): void => {
+    g.hero.fireTime = null;
+    for (let i = 0; i < n; i++) fireBeam(g.world, g.hero, [], clips, cfg, 1 / cfg.blaster.tickHz);
+  };
+  const flames = (g: Game) => g.world.beam?.flames ?? [];
+
+  it("lets out one flame per 2 ticks for 1 ammo each, each living 26 ticks", () => {
+    const g = flamer();
+    beamTicks(g, 40);
+    expect(g.hero.blaster).toBe(cfg.flamethrower.ammo - 20);
+    expect(flames(g)).toHaveLength(13);
+    expect(Math.max(...flames(g).map((f) => f.age))).toBe(FLAME_LIFE);
+  });
+
+  it("flies a flame 88 px along the original step table, then drops it", () => {
+    const g = flamer();
+    beamTicks(g, 1);
+    const from = flames(g)[0]!.x - FLAME_STEPS[0]! / 24;
+    flightTicks(g, FLAME_LIFE - 1);
+    expect(flames(g)[0]!.x - from).toBeCloseTo(88 / 24, 9);
+    flightTicks(g, 1);
+    expect(g.world.beam).toBeNull();
+  });
+
+  it("flies twice as far while the hero walks the same way", () => {
+    const g = flamer();
+    beamTicks(g, 1);
+    const x = flames(g)[0]!.x;
+    g.hero.vx = 1;
+    flightTicks(g, 1);
+    expect(flames(g)[0]!.x - x).toBeCloseTo((2 * FLAME_STEPS[1]!) / 24, 9);
+  });
+
+  it("burns an enemy within one column of a flame for 0.2 a flame each tick, not one past its reach", () => {
+    const near = flamer([6.5]);
+    beamTicks(near, 12);
+    expect(near.world.enemies[0]!.body.energy).toBeLessThan(7);
+    const far = flamer([11.5]);
+    beamTicks(far, 60);
+    expect(far.world.enemies[0]!.body.energy).toBe(7);
+  });
+
+  it("kills a 7 hit enemy with 35 flame ticks", () => {
+    const g = flamer([6.5]);
+    let hits = 0;
+    while (g.world.enemies[0]!.body.energy > 0 && hits < 200) {
+      const before = g.world.enemies[0]!.body.energy;
+      beamTicks(g, 1);
+      hits += Math.round((before - Math.max(0, g.world.enemies[0]!.body.energy)) / cfg.flamethrower.damage);
+    }
+    expect(hits).toBeGreaterThanOrEqual(34);
+    expect(hits).toBeLessThanOrEqual(35);
+  });
+
+  it("stops a flame at a wall", () => {
+    const g = flamer([], [solid, "#....#" + ".".repeat(23) + "#", "#....#" + ".".repeat(23) + "#", "#....#" + ".".repeat(23) + "#", solid]);
+    beamTicks(g, 1);
+    flightTicks(g, FLAME_LIFE);
+    expect(g.world.beam).toBeNull();
+    const g2 = flamer([], [solid, "#....#" + ".".repeat(23) + "#", "#....#" + ".".repeat(23) + "#", "#....#" + ".".repeat(23) + "#", solid]);
+    beamTicks(g2, 1);
+    flightTicks(g2, 6);
+    expect(flames(g2).every((f) => f.x < 5)).toBe(true);
+  });
+
+  it("keeps burning after fire is released until the last flame dies", () => {
+    const g = flamer([6.5]);
+    beamTicks(g, 4);
+    const energy = g.world.enemies[0]!.body.energy;
+    flightTicks(g, 10);
+    expect(g.world.enemies[0]!.body.energy).toBeLessThan(energy);
+    expect(g.hero.blaster).toBe(cfg.flamethrower.ammo - 2);
+    flightTicks(g, FLAME_LIFE);
+    expect(g.world.beam).toBeNull();
+  });
+
+  it("roars on the first flame and every soundTicks ticks while fire is held", () => {
+    const g = flamer();
+    g.world.sounds = [];
+    beamTicks(g, cfg.flamethrower.soundTicks + 1);
+    expect(g.world.sounds.filter((s) => s.id === "flame")).toEqual([
+      { id: "flame", rate: 6500, vol: 63, bus: "world" },
+      { id: "flame", rate: 6500, vol: 63, bus: "world" },
+    ]);
+  });
+
+  it("gives 500 ammo on pickup and is the jungle bonus weapon", () => {
+    const g = flamer();
+    expect(bonusAmmo(g.world, cfg)).toBe(500);
+    expect(loadMission("jungle").bonus).toBe("flamethrower");
   });
 });
 

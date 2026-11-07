@@ -493,6 +493,27 @@ var C28_SOUNDS = (function(exports) {
 		]);
 		return render(2.695, (t) => clip(level(t) * 6 * rumble(noise()), 1));
 	}
+	function flame() {
+		const noise = seeded(18);
+		const roar = biquad("low", 700, .6);
+		const level = envelope([
+			[0, .55],
+			[.015, .82],
+			[.045, .9],
+			[.06, .74],
+			[.17, .86],
+			[.3, .68],
+			[.33, .56],
+			[.39, .31],
+			[.41, .44],
+			[.45, .27],
+			[.5, .13],
+			[.55, .05],
+			[.58, .012],
+			[.607, 0]
+		]);
+		return render(.607, (t) => clip(level(t) * 6 * roar(noise()), 1));
+	}
 	//#endregion
 	//#region src/game/sound/recipes/film.ts
 	function servo() {
@@ -2704,6 +2725,7 @@ var C28_SOUNDS = (function(exports) {
 		cannon,
 		laser,
 		beam,
+		flame,
 		punch,
 		explosion,
 		step,

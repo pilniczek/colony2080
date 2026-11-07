@@ -16,7 +16,7 @@
     {"kind": "item", "item": "canister", "pickupText": "You found a canister of fuel.", "x": 100.5, "y": 40},
     {"kind": "gate", "id": "mineWreck", "asset": "mine", "x": 108.5, "y": 41, "width": 1, "cells": {"col": 108, "row": 40, "w": 1, "h": 1}, "state": 0, "repels": {"col": 108, "w": 1, "facing": 1, "hits": 15, "push": 0, "ms": 900, "states": [0], "after": 1}},
     {"kind": "object", "id": "flamethrowerDoor", "asset": "flamethrowerDoor", "art": {"dx": 2}, "x": 121, "y": 41, "width": 4, "state": 0},
-    {"kind": "weapon", "weapon": "toaster", "asset": "flamethrower", "shownBy": "flag:doorOpen", "pickupText": "Behind the door you found a flamethrower.", "x": 120.5, "y": 41},
+    {"kind": "weapon", "weapon": "flamethrower", "asset": "flamethrower", "shownBy": "flag:doorOpen", "pickupText": "Behind the door you found a flamethrower.", "x": 120.5, "y": 41},
     {"kind": "gate", "id": "mineDeck", "asset": "mine", "x": 126.5, "y": 25, "width": 1, "cells": {"col": 126, "row": 24, "w": 1, "h": 1}, "state": 0, "repels": {"col": 126, "w": 1, "facing": 1, "hits": 15, "push": 0, "ms": 900, "states": [0], "after": 1}},
     {"kind": "object", "id": "boulder", "asset": "boulder", "art": {"dx": 0.58}, "x": 50.5, "y": 20, "width": 4, "state": 0},
     {"kind": "gate", "id": "spikes", "asset": "spikes", "x": 57, "y": 21, "width": 8, "solidStates": [1], "cells": {"col": 54, "row": 20, "w": 6, "h": 1}, "state": 0},

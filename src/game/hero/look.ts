@@ -10,7 +10,7 @@ import { gaitBob, gaitPose, RUN, SPIKE_K, TAU, WALK, type Gait } from "./gait";
 import type { Hero } from "./hero";
 
 export type GunLook = "hand" | "slung" | "dropped" | "none";
-export type GunModel = "gun" | "blaster" | "toaster";
+export type GunModel = "gun" | "blaster" | "toaster" | "flamethrower";
 
 export interface HitLook {
   star: Pt;
