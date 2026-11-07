@@ -66,6 +66,8 @@ export const holdPoses = (side: GroupNode, front: GroupNode, carry = CARRY, supp
   };
 };
 
+export const heroHolds = (side: GroupNode, front: GroupNode, support: Pt): HoldPoses => holdPoses(side, front, CARRY, support, support);
+
 export const FRONT_BARREL = 226;
 
 const BAND = GUN_PARTS.find((p) => p.name === "barrelBack") as WeaponPart;

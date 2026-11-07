@@ -52,7 +52,7 @@ function emitter(ctx, length, simple) {
   ctx.restore();
 }
 
-const core = window.GUN.model({ buildParts, mat: MAT, colors: ARC, after: emitter });
+const core = window.GUN.model({ buildParts, mat: MAT, colors: ARC, after: emitter, band: window.GUN.PARTS.find(p => p.name === "barrelBack") });
 
 const FRAMES = 6;
 const TICK_HZ = 32;

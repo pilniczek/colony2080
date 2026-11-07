@@ -33,40 +33,10 @@ function pilotFlame(ctx, length, simple) {
   ctx.restore();
 }
 
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame });
 const MUZZLE = [BARREL.x + BARREL.length + NOZZLE, -40];
 const SUPPORT = [BARREL.x + 22, -28];
 const BAND = { y: -62, h: 44 };
-const SCAN = { x: -600, w: 1600 };
-const toHook = pt => [-pt[1], pt[0]];
-
-function silhouetteEdge(root, hookName, pose) {
-  const { locate, render } = window.XBOT;
-  const canvas = document.createElement("canvas");
-  canvas.width = SCAN.w;
-  canvas.height = BAND.h;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  const toGun = locate(root, hookName, pose).multiply(new DOMMatrix([0, 1, -1, 0, 0, 0])).inverse();
-  ctx.setTransform(new DOMMatrix().translate(-SCAN.x, -BAND.y).multiply(toGun));
-  render(ctx, root, { pose, lineW: 0 });
-  const { data } = ctx.getImageData(0, 0, SCAN.w, BAND.h);
-  let edge = -Infinity;
-  for (let i = 3; i < data.length; i += 4) if (data[i]) edge = Math.max(edge, (i >> 2) % SCAN.w);
-  return edge + SCAN.x;
-}
-
-const CARRY = { arm: 22, fore: -94 };
-const FRONT_CARRY = { armL: -24, foreL: -66 };
-
-function holdPoses(side, front) {
-  const { locate, solve } = window.XBOT;
-  const grip = toHook(SUPPORT);
-  const CARRY_FAR = solve(side, "handFar", CARRY, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(side, "hand", CARRY).transformPoint(new DOMPoint(...grip)));
-  const FRONT_CARRY_R = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], locate(front, "handL", FRONT_CARRY).transformPoint(new DOMPoint(...grip)));
-  const clear = silhouetteEdge(front, "handL", { ...FRONT_CARRY, ...FRONT_CARRY_R }) + BAND.h;
-  const FRONT_BARREL = Math.max(BARREL.length, Math.ceil(BARREL.length + clear - MUZZLE[0]));
-  return { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R, FRONT_BARREL };
-}
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame, barrel: BARREL, muzzle: MUZZLE, support: SUPPORT, band: BAND });
 
 const ICON_SCALE = 1.45;
 const ICON_RECTS = [
@@ -143,7 +113,6 @@ function stream(ctx, tick, simple = false) {
 }
 
 const RANGE = travel(LIFE);
-const sized = fn => (ctx, opts = {}) => fn(ctx, { ...opts, barrel: opts.barrel ?? BARREL.length });
 
-window.FLAMETHROWER = { ...core, draw: sized(core.draw), hook: sized(core.hook), slung: sized(core.slung), BARREL, MUZZLE, muzzleInHook: toHook(MUZZLE), holdPoses, ICON, icon, LIFE, RANGE, flame, stream };
+window.FLAMETHROWER = { ...core, ICON, icon, LIFE, RANGE, flame, stream };
 })();

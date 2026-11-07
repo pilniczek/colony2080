@@ -225,13 +225,7 @@ const SPECIAL = { blaster: [1, "City"], toaster: [2, "Suburb"], flamethrower: [3
 const CLIMB = { armL: 149, foreL: 101, armR: -149, foreR: -140, thighR: { sy: 0.6 }, shinR: { dy: -68 } };
 const DUCK = { body: 16, hipNear: -86, kneeNear: 124, ankleNear: -44, hipFar: -68, kneeFar: 128, ankleFar: -76 };
 const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
-const HOLDS = {
-  gun: { hold: GUN.holdPoses(roots.side, roots.front), gHold: GUN.holdPoses(roots.gSide, roots.gFront) },
-  toaster: { hold: TOASTER.holdPoses(roots.side, roots.front), gHold: TOASTER.holdPoses(roots.gSide, roots.gFront) },
-  flamethrower: { hold: FLAMETHROWER.holdPoses(roots.side, roots.front), gHold: FLAMETHROWER.holdPoses(roots.gSide, roots.gFront) },
-  mgx800: { hold: MGX800.holdPoses(roots.side, roots.front), gHold: MGX800.holdPoses(roots.gSide, roots.gFront) },
-  rocketLauncher: { hold: ROCKET_LAUNCHER.holdPoses(roots.side, roots.front), gHold: ROCKET_LAUNCHER.holdPoses(roots.gSide, roots.gFront) }
-};
+const HOLDS = Object.fromEntries(Object.entries(MODELS).map(([id, m]) => [id, { hold: m.holdPoses(roots.side, roots.front), gHold: m.holdPoses(roots.gSide, roots.gFront) }]));
 const { hold, gHold } = HOLDS.gun;
 const holds = () => HOLDS[HOLDS[WEAPON] ? WEAPON : "gun"];
 const carry = (pose, h) => {

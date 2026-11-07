@@ -1,10 +1,8 @@
 import type { Palette } from "../../engine/rig/draw";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { PALETTE } from "../env/paint";
-import { holdPoses, type HoldPoses } from "./gun";
+import { heroHolds, type HoldPoses } from "./gun";
 import { createWeaponModel, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
-
-const CARRY = { arm: 22, fore: -94 };
 
 const tones = (k: string, from: string, line: string): Palette =>
   Object.fromEntries([...[0, 1, 2, 3].map((i) => [k + i, PALETTE[from + i] as string]), [k + "Line", PALETTE[line] as string]]);
@@ -60,7 +58,7 @@ export const drawFlamethrower = (ctx: CanvasRenderingContext2D, opts?: WeaponOpt
 export const flamethrowerHook = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.hook(ctx, palette, sized(opts));
 export const flamethrowerSlung = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.slung(ctx, palette, sized(opts));
 
-export const flamethrowerHolds = (side: GroupNode, front: GroupNode): HoldPoses => holdPoses(side, front, CARRY, toHook(SUPPORT), toHook(SUPPORT));
+export const flamethrowerHolds = (side: GroupNode, front: GroupNode): HoldPoses => heroHolds(side, front, toHook(SUPPORT));
 
 export const FLAMETHROWER_FRONT_BARREL = 218;
 
