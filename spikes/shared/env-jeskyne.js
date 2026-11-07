@@ -334,10 +334,12 @@ const keySlots = {
       const x = 8 + i * 7.5;
       flat(ctx, x, -34, 5, 14, c, SLINE);
       flat(ctx, x + 1.5, -32, 2, 10, "#050403");
-      G.chips(ctx, x, -34, 5, 1033 + i, G.DIRT);
+      G.inside(ctx, G.rectRegion(ctx, x, -34, 5, 14), () => worn(ctx, x, -34, 5, 14, 1033 + i, 1, 0.35), [G.rectPts(x + 1.5, -32, 2, 10)]);
       const full = state === 2 || (state === 1 && i === 0);
-      if (full)
+      if (full) {
         flat(ctx, x + 1, -36, 3, 6, c, SLINE);
+        G.inside(ctx, G.rectRegion(ctx, x + 1, -36, 3, 6), () => worn(ctx, x + 1, -36, 3, 6, 1040 + i, 0, 0.3));
+      }
       disc(ctx, x + 2.5, -17.5, 1.1, full ? LAMP_ON : "#3a1410");
     });
   },

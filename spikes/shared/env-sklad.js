@@ -619,17 +619,50 @@ const doorLever = {
   id: "doorLever",
   box: [-4, -46, 22, 1],
   draw(ctx, state) {
+    const down = state === 1;
+    plate(ctx, 0, -42, 16, 32, CAB);
+    for (const [x, y] of [[1.8, -40.2], [14.2, -40.2], [1.8, -11.8], [14.2, -11.8]])
+      screw(ctx, x, y);
+    curve(ctx, [[14.3, -38], [17, -40], [17, -46]], LINE, 2.4);
+    curve(ctx, [[14.3, -38], [17, -40], [17, -46]], CABLE[0], 1.5);
+    flat(ctx, 13, -39.4, 2.6, 2.8, GREY[1], LINE);
+    plate(ctx, 7, -42, 5.6, 5);
+    flat(ctx, 7.4, -42.6, 4.8, 1, GREY[3], LINE);
     plate(ctx, 2, -36, 12, 22);
-    flat(ctx, 6.6, -33, 2.8, 16, "#0a0806", LINE);
+    flat(ctx, 6.4, -33.4, 3.2, 16.8, GREY[0], LINE);
+    flat(ctx, 6.9, -33, 2.2, 16, "#0a0806");
+    flat(ctx, 9.1, -33, 0.5, 16, SHINE);
+    for (let y = -32; y <= -18; y += 2) {
+      const major = y === -32 || y === -18 || y === -25;
+      line(ctx, [[major ? 3.4 : 4.4, y], [5.8, y]], GREY[3], 0.5);
+      line(ctx, [[10.2, y], [major ? 12.6 : 11.6, y]], GREY[3], 0.5);
+    }
+    flat(ctx, 3.2, -33.4, 2.4, 1.6, LAMP_RED, LINE);
+    flat(ctx, 10.4, -18.2, 2.4, 1.6, LAMP_GREEN, LINE);
+    slits(ctx, 3, -17.4, 10, 3, 1.4);
     hazard(ctx, 2, -14, 12, 3, 3);
-    const a = state === 0 ? -PI / 2 - 0.35 : PI / 2 + 0.35;
-    const tip = [8 + cos(a) * 14, -25 + sin(a) * 14];
+    G.inside(ctx, G.rectRegion(ctx, 0, -42, 16, 32), () => worn(ctx, 0, -42, 16, 32, 6200, 2, 0.3), [G.rectPts(6.4, -33.4, 3.2, 16.8)]);
+    disc(ctx, 9.8, -39.4, 1.5, down ? LAMP_GREEN : LAMP_RED, LINE);
+    glow(ctx, 9.8, -39.4, 4.5, down ? LAMP_GREEN : LAMP_RED, 0.35);
+    const a = down ? PI / 2 + 0.35 : -PI / 2 - 0.35;
+    const at = (r) => [8 + cos(a) * r, -25 + sin(a) * r];
+    const tip = at(14);
     line(ctx, [[8, -25], tip], LINE, 3.2);
     line(ctx, [[8, -25], tip], GREY[3], 1.8);
+    line(ctx, [at(3), at(12)], SHINE, 0.5);
+    line(ctx, [at(8.5), at(12.6)], LINE, 3.6);
+    line(ctx, [at(8.5), at(12.6)], "#242418", 2.4);
+    if (!simple())
+      for (const r of [9.4, 10.6, 11.8]) {
+        const [x, y] = at(r);
+        line(ctx, [[x - sin(a) * 1.1, y + cos(a) * 1.1], [x + sin(a) * 1.1, y - cos(a) * 1.1]], "#4a4a3c", 0.5);
+      }
     disc(ctx, tip[0], tip[1], 2.4, "#b02818", LINE);
-    disc(ctx, 8, -25, 2.2, GREY[2], LINE);
-    disc(ctx, 8, -39.5, 1.4, state === 1 ? LAMP_GREEN : LAMP_RED, LINE);
-    G.inside(ctx, G.rectRegion(ctx, 2, -36, 12, 25), () => worn(ctx, 2, -36, 12, 25, 6200, 2, 0.3), [G.rectPts(6.6, -33, 2.8, 16)]);
+    disc(ctx, tip[0] - 0.7, tip[1] - 0.7, 0.8, "#e05a3c");
+    disc(ctx, 8, -25, 3, GREY[1], LINE);
+    disc(ctx, 8, -25, 1.8, GREY[2], LINE);
+    disc(ctx, 8, -25, 0.7, GREY[0]);
+    disc(ctx, 7.4, -25.6, 0.5, SHINE);
   },
 };
 for (const asset of [depotLocker, shaftCover, depotCannon, alienOfficer, alienDesk, liftCallBox, circuitBox, depotComputer, liftController, depotDoor, doorLever])

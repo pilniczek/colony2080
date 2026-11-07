@@ -255,6 +255,38 @@ const rivets = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, 
   for (let i = x + step / 2; i < x + w; i += step) flat(ctx, i - 0.75, y - 0.75, 1.5, 1.5, c);
 };
 
+const hazardWear = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void => {
+  const r = rng(Math.round(x * 31 + y * 17 + w * 7 + h * 3) + 4099);
+  const n = Math.max(3, Math.round((w * h) / 7));
+  ctx.fillStyle = "#4a463c";
+  for (let i = 0; i < n; i++) {
+    const cx = x + r() * w;
+    const cy = r() < 0.6 ? (r() < 0.5 ? y : y + h) : y + r() * h;
+    ctx.globalAlpha = 0.6 + r() * 0.35;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 0.8 + r() * Math.min(3.5, w * 0.25), 0.5 + r() * Math.min(2, h * 0.45), r() * Math.PI, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+  ctx.strokeStyle = "#8c8678";
+  ctx.lineWidth = 0.3;
+  ctx.globalAlpha = 0.4;
+  for (let i = 0; i < n / 2; i++) {
+    const sx = x + r() * w;
+    const sy = y + r() * h;
+    const len = 1.5 + r() * 2.5;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx + len, sy + (r() - 0.5) * len * 0.6);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "#140c06";
+  ctx.globalAlpha = 0.3;
+  for (let i = 0; i < n * 2; i++) ctx.fillRect(x + r() * w, y + r() * h, 0.5, 0.5);
+  ctx.globalAlpha = 0.28;
+  ctx.fillRect(x, y + h * 0.6, w, h * 0.4);
+  ctx.globalAlpha = 1;
+};
+
 interface HazardColors {
   fill?: string;
   dark?: string;
@@ -277,6 +309,7 @@ const hazard = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, 
     ctx.closePath();
     ctx.fill();
   }
+  hazardWear(ctx, x, y, w, h);
   ctx.restore();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
