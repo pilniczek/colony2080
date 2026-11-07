@@ -39,8 +39,18 @@ const leg: Record<"piston" | "thigh" | "knee" | "shin" | "foot" | "toe", PartSpe
   toe: { pts: [[152, 688], [276, 688], [282, 706], [146, 706]], r: 1 },
 };
 const holes: [number, number, number][] = [[176, 478, 7], [211, 476, 7], [246, 478, 7], [192, 500, 5], [230, 500, 5]];
-const pauldron: Pt[] = [[56, 100], [100, 90], [146, 98], [162, 128], [162, 170], [148, 198], [102, 210], [60, 200], [42, 170], [42, 126]];
-const bicep: Pt[] = [[58, 184], [134, 184], [150, 207], [148, 248], [132, 276], [102, 284], [70, 278], [54, 250], [48, 209]];
+const capsule = ([x1, y1, r1]: [number, number, number], [x2, y2, r2]: [number, number, number], steps = 10): Pt[] => {
+  const dir = Math.atan2(y2 - y1, x2 - x1);
+  const open = Math.acos((r1 - r2) / Math.hypot(x2 - x1, y2 - y1));
+  const arc = (x: number, y: number, r: number, from: number, to: number): Pt[] =>
+    Array.from({ length: steps + 1 }, (_, i): Pt => {
+      const a = from + ((to - from) * i) / steps;
+      return [x + r * Math.cos(a), y + r * Math.sin(a)];
+    });
+  return [...arc(x1, y1, r1, dir + open, dir + 2 * Math.PI - open), ...arc(x2, y2, r2, dir - open, dir + open)];
+};
+const upperArm = capsule([102, 150, 60], [99, 234, 50]);
+const sideUpperArm = capsule([300, 156, 62], [314, 240, 48]);
 const elbow: Pt[] = [[60, 296], [128, 296], [128, 316], [60, 316]];
 const forearm: Pt[] = [[26, 310], [146, 308], [152, 320], [150, 394], [140, 404], [42, 406], [26, 390]];
 
@@ -181,8 +191,6 @@ const frontArm = (
   const foreTf = `translate(${mirrored ? -FORE_SHIFT : FORE_SHIFT} -22)`;
   const under = foreUnder ? k.G(arm, foreTf, names.fore, el) : null;
   k.P(k.G(arm, `translate(${mirrored ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
-  const domes = k.G(arm, `translate(${sh[0]} 0) scale(${k.bulk("arms")} 1) translate(${-sh[0]} 0)`);
-  k.P(domes, { pts: M(bicep), r: 18, shade: "dome" });
   const fore = under || k.G(foreParent ? k.G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirrored ? 2 * AX - 89 : 89;
   if (names.hand && propBehindArm) k.hook(k.G(fore, `translate(${fc} 440)`), names.hand);
@@ -196,10 +204,10 @@ const frontArm = (
   frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront);
 };
 
-const shoulder = (k: Kit, parent: GroupNode, mirrored: boolean): void => {
+const shoulder = (k: Kit, parent: GroupNode, mirrored: boolean, name: string): void => {
   const x = mirrored ? 2 * AX - 100 : 100;
-  const domes = k.G(parent, `translate(${x} 0) scale(${k.bulk("arms")} 1) translate(${-x} 0)`);
-  k.P(domes, { pts: mirrored ? mirror(pauldron) : pauldron, r: 20, shade: "dome" });
+  const domes = k.G(k.G(parent, null, name, [x, 150]), `translate(${x} 0) scale(${k.bulk("arms")} 1) translate(${-x} 0)`);
+  k.P(domes, { pts: mirrored ? mirror(upperArm) : upperArm, r: 2, shade: "dome" });
 };
 
 const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy: boolean): GroupNode => {
@@ -253,8 +261,8 @@ const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy
     left();
     right();
   }
-  shoulder(k, armGroup(k, s, false), false);
-  shoulder(k, armGroup(k, s, true), true);
+  shoulder(k, armGroup(k, s, false), false, "armL");
+  shoulder(k, armGroup(k, s, true), true, "armR");
   return root;
 };
 
@@ -311,8 +319,8 @@ const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, thum
     { arm: "armR", fore: "foreR", hand: "handR" },
     { thumbFront: !rightForeBehind && !thumbsBehind, foreParent: behindRight, flipHand: rightForeBehind, foreUnder: forearmsUnder },
   );
-  shoulder(k, armGroup(k, s, false), false);
-  shoulder(k, armGroup(k, s, true), true);
+  shoulder(k, armGroup(k, s, false), false, "armL");
+  shoulder(k, armGroup(k, s, true), true, "armR");
   k.hook(k.G(s, `translate(330 236) rotate(${(-0.95 * 180) / Math.PI}) translate(-40 -60)`), "back");
   return root;
 };
@@ -376,8 +384,7 @@ const sideArm = (k: Kit, parent: GroupNode, names: Required<ArmNames>, { dim, pr
   if (!propBehindArm) k.hook(hand, names.hand);
   sideHand(k, lower);
   const bulbs = k.G(arm, `translate(${SS.cx} 0) scale(${k.bulk("arms")} 1) translate(${-SS.cx} 0) ${SIDE_SHOULDER_TF}`);
-  k.P(bulbs, { pts: [[276, 196], [346, 196], [364, 220], [360, 257], [340, 279], [308, 286], [280, 278], [264, 254], [264, 217]], r: 18, shade: "dome" });
-  k.P(bulbs, { pts: [[248, 106], [292, 96], [336, 102], [362, 126], [370, 164], [358, 196], [330, 212], [292, 216], [256, 206], [234, 182], [230, 146], [236, 122]], r: 22, shade: "dome" });
+  k.P(bulbs, { pts: sideUpperArm, r: 2, shade: "dome" });
 };
 
 const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: boolean, enemy: boolean): GroupNode => {
