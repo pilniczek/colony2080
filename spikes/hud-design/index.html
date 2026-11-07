@@ -83,8 +83,8 @@
 </main>
 <h2>Film looks</h2>
 <div class="bar">
-  <label><input id="filmScrub" type="checkbox"> Scrub</label>
-  <label>Film time <input id="filmTime" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+  <label><input id="filmScrub" type="checkbox" data-url> Scrub</label>
+  <label>Film time <input id="filmTime" type="range" data-url min="0" max="1" step="0.01" value="0.8"></label>
 </div>
 <main>
   <figure><figcaption>Third person: security camera</figcaption><canvas id="camFilm" width="800" height="450"></canvas><figcaption>Grey-green grade, grain, dead pixels, REC dot and date clock. For shots that watch the robot from outside.</figcaption></figure>
@@ -116,6 +116,8 @@
 <script src="../shared/env-machines.js"></script>
 <script src="../shared/env-structures.js"></script>
 <script src="../shared/env-buildings.js"></script>
+<script src="../shared/env-vesnice.js"></script>
+<script src="../shared/env-jeskyne.js"></script>
 <script src="../shared/enemies.js"></script>
 <script src="../shared/cutscenes.js"></script>
 <script src="../shared/cutscenes/pick-controller.js"></script>
@@ -807,5 +809,6 @@ function frame() {
 document.fonts.ready.then(() => requestAnimationFrame(frame));
 })();
 </script>
+<script src="../shared/url-state.js"></script>
 </body>
 </html>

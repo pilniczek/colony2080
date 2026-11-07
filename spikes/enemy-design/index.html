@@ -48,7 +48,6 @@
   <button id="palToggle">Palette</button>
   <button id="resetPal">Reset overrides</button>
   <button id="copy">Copy palette JSON</button>
-  <label><input id="lines" type="checkbox" checked> Outlines</label>
   <label><input id="hero" type="checkbox" checked> Hero beside</label>
   <label class="guardOnly"><input id="guides" type="checkbox" checked> Level guides</label>
 </header>
@@ -167,7 +166,7 @@ const K = (FOOT_Y - Object.fromEntries(LEVELS).head) / (HERO_CELLS * ENV.TILE);
 const LOW_FLYER = 32;
 const tint = { brightness: 1.1, saturate: 0 };
 const overrides = { walker: {}, flyer: {}, guard: {}, shooter: {} };
-const opts = { lines: true, hero: true, guides: true, kind: "walker" };
+const opts = { hero: true, guides: true, kind: "walker" };
 const ENEMY_KINDS = {};
 const GUIDED = new Set(["guardFront", "guardFire", "guardAcid", "guardWreck", "guardScale"]);
 
@@ -372,7 +371,7 @@ function draw(t = SPIKE_CLOCK.seconds()) {
     const ctx = c.getContext("2d");
     ctx.setTransform(c.width / w, 0, 0, c.width / w, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    view(ctx, opts.lines ? dpr : 0, pal, w, h, t);
+    view(ctx, dpr, pal, w, h, t);
     if (opts.guides && GUIDED.has(id)) guides(ctx, w, h - 50);
   }
 }
@@ -472,7 +471,6 @@ document.getElementById("copy").onclick = () => {
   const extra = opts.kind === "walker" ? { tint } : {};
   navigator.clipboard.writeText(JSON.stringify({ kind: opts.kind, ...extra, overrides: overrides[opts.kind], palette: pick(PALETTES[opts.kind](), OWN_KEYS[opts.kind]) }, null, 2));
 };
-document.getElementById("lines").onchange = e => { opts.lines = e.target.checked; draw(); };
 document.getElementById("hero").onchange = e => { opts.hero = e.target.checked; draw(); };
 document.getElementById("guides").onchange = e => { opts.guides = e.target.checked; draw(); };
 addEventListener("resize", () => draw());
@@ -481,5 +479,6 @@ addEventListener("hashchange", () => setKind(kindFromHash()));
 setKind(kindFromHash());
 requestAnimationFrame(animate);
 </script>
+<script src="../shared/url-state.js"></script>
 </body>
 </html>

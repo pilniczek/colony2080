@@ -37,7 +37,6 @@
 <header>
   <h1>Weapon design sheet</h1>
   <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button><button data-weapon="enemies">Enemy weapons</button></div>
-  <label><input id="lines" type="checkbox" checked> Outlines</label>
 </header>
 <main data-for="fists gun blaster toaster">
   <figure class="wide"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200"></canvas></figure>
@@ -171,7 +170,6 @@ const GAME_PX = (1.9 * 24) / (FOOT_Y - LEVELS.find(([k]) => k === "head")[1]);
 const SHEET_SCALE = 0.2;
 const BEAM_LEN = 9 * 24;
 const ROW_H = 780;
-const opts = { lines: true };
 let WEAPON = "gun";
 try { WEAPON = localStorage.getItem("weaponSheet") || "gun"; } catch {}
 if (!MODELS[WEAPON] && WEAPON !== "fists" && WEAPON !== "enemies") WEAPON = "gun";
@@ -304,7 +302,7 @@ function fist(ctx, lineW) {
 function ground(ctx, lod, id = "eBlaster", x = 2, y = 10.5, t = 0) {
   const def = ENV.ASSETS.find(a => a.id === id);
   ctx.translate(x, y);
-  ENV.draw(ctx, def, { state: 0, t, lod, lines: opts.lines ? 1 : 0 });
+  ENV.draw(ctx, def, { state: 0, t, lod, lines: 1 });
 }
 
 const VIEWS = {
@@ -431,7 +429,7 @@ function paint(ids, t) {
     const s = c.width / w;
     ctx.setTransform(s, 0, 0, s, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    VIEWS[id](ctx, opts.lines ? dpr : 0, t);
+    VIEWS[id](ctx, dpr, t);
   }
 }
 
@@ -455,10 +453,10 @@ function tick() {
 }
 
 for (const btn of document.querySelectorAll("[data-weapon]")) btn.onclick = () => setWeapon(btn.dataset.weapon);
-document.getElementById("lines").onchange = e => { opts.lines = e.target.checked; draw(); };
 addEventListener("resize", draw);
 setWeapon(WEAPON);
 requestAnimationFrame(tick);
 </script>
+<script src="../shared/url-state.js"></script>
 </body>
 </html>

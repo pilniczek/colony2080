@@ -2,7 +2,7 @@
 
 Every kind of feature in the original map `docs/research/gamedata/png/maps/map_M21.png` (24 px per cell), cropped region by region with `tools/map/crop.mjs`, with the asset of the design sheet that draws it. Cells are `col, row` (rows are map rows; floors are rows 23, 32, 41, 50, 59, 68). Role is the role of `docs/blueprints/map-composition.md`. The demo footage in `docs/research/video/` covers mesto and jungle only; no vesnice frame was found, so the sky follows `LEV2.GRA` frame 0 (`docs/research/gamedata/png/lev2/f000.png`).
 
-Review the sheet at `spikes/env-design/index.html?mission=vesnice&scope=own`.
+Review the sheet at `spikes/env-design/index.html?mission=vesnice`.
 
 ## Layout features
 
