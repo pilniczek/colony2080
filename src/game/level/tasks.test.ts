@@ -2,7 +2,6 @@ import tasksJson from "@config/levels/mesto/tasks.json";
 import { describe, expect, it } from "vitest";
 import { cfg, objectLevel } from "../hero/testWorld";
 import { loadSandbox, onGround, pickUp, resetWorld, showItem, stepApproaches, useShown, type SandboxWorld } from "./sandboxLevel";
-import { ITEMS } from "../items";
 import { loadMesto } from "./mesto";
 import { loadMission } from "./missions";
 import { loadQuests } from "./quests";
@@ -126,12 +125,12 @@ describe("runUse", () => {
     expect(w.inventory).toEqual({ items: [], shown: null });
   });
 
-  it("keeps the holoplan, the map, after its last use", () => {
+  it("drops the holoplan once the bar man takes it", () => {
     const w = loadMesto();
     pickUp(w, "holoPlan");
     runUse(w, w.props.find((p) => p.id === "barDoor")!);
     expect(w.flags.has("task:tradeHoloPlan")).toBe(true);
-    expect(w.inventory.items).toEqual(["holoPlan", "shipPlan"]);
+    expect(w.inventory.items).toEqual(["shipPlan"]);
   });
 
   it("never puts a spent item back on the ground", () => {
@@ -312,7 +311,7 @@ describe("loadTasks", () => {
   });
 
   it("waits on no item a task can spend in any quest", () => {
-    const used = new Set(loadTasks(tasksJson).flatMap((t) => t.requires).filter((t) => t.startsWith("item:") && !ITEMS[t.slice(5)]!.keep));
+    const used = new Set(loadTasks(tasksJson).flatMap((t) => t.requires).filter((t) => t.startsWith("item:")));
     const quests = loadQuests(tasksJson);
     for (const q of quests) for (const t of [...q.after, ...(q.any ?? []), q.until ?? ""]) expect(used.has(t), `${q.text}: ${t}`).toBe(false);
   });

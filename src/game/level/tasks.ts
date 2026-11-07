@@ -167,7 +167,7 @@ export function setStates(world: SandboxWorld, sets: Record<string, number> = {}
 
 const spent = (world: SandboxWorld, id: ItemId): boolean => {
   const users = world.tasks.filter((t) => t.requires.includes(`${ITEM}${id}`));
-  return !ITEMS[id]?.keep && users.length > 0 && users.every((t) => world.flags.has(doneToken(t)));
+  return users.length > 0 && users.every((t) => world.flags.has(doneToken(t)));
 };
 
 export function applyEffects(world: SandboxWorld, { gives = [], sets = {}, subtitle }: Effects): void {

@@ -6,7 +6,7 @@
     "wires": { "name": "wires", "cs": "Dráty", "icon": { "asset": "wires", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRDRAT.GRA" },
     "tapHandle": { "name": "tap handle", "cs": "Kohout uzávěru", "icon": { "asset": "tapHandle", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRKOH.GRA" },
     "card": { "name": "card", "cs": "Karta", "icon": { "asset": "card", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRKART.GRA" },
-    "holoPlan": { "name": "holoplan", "cs": "Holoplán", "keep": true, "icon": { "asset": "holoPlan", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRHOLO.GRA" },
+    "holoPlan": { "name": "holoplan", "cs": "Holoplán", "icon": { "asset": "holoPlan", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRHOLO.GRA" },
     "shipPlan": { "name": "ship plan", "cs": "Nákres", "icon": { "asset": "shipPlan", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRPLAN.GRA" },
     "shipPart": { "name": "ship part", "cs": "Součástka", "icon": { "asset": "shipPart", "state": 1, "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRSOUC.GRA" },
     "decoder": { "name": "decoder", "cs": "Dekodér", "icon": { "asset": "decoder", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRDEKOD.GRA" },
