@@ -12,7 +12,7 @@ function legs(body, near, far) {
 const TAU = Math.PI * 2;
 const LEG = { hipY: 344, farX: -24, thigh: 178, shin: 178, ankleY: 700, heel: 80 };
 const RUN = {
-  cycle: 0.52, speed: 624.8, stance: 0.3, reach: 0.36, heelStrike: -6, flat: [0.15, 0.55], toeOff: 44,
+  cycle: 0.52, speed: 624.8, stance: 0.25, reach: 0.36, heelStrike: -6, flat: [0.15, 0.55], toeOff: 44,
   drop: 10, bob: 2.4, lean: 16, leanPulse: 1.5, arm: 42, armPhase: 0.8, fore: -78,
   swing: [
     [0.5, { hip: 24, knee: 78, foot: 80 }],
@@ -22,11 +22,11 @@ const RUN = {
   ]
 };
 const WALK = {
-  cycle: 0.633, speed: 234.3, stance: 0.58, reach: 0.5, heelStrike: -14, flat: [0.18, 0.6], toeOff: 30,
-  drop: 6, bob: -2.6, lean: 2, leanPulse: 0, arm: 20, armPhase: 0.97, fore: -6,
+  cycle: 0.68, speed: 195.26, stance: 0.6, reach: 0.5, heelStrike: -14, flat: [0.18, 0.6], toeOff: 30,
+  drop: 5, bob: -2.6, lean: 0, leanPulse: 0, arm: 16, armPhase: 0.97, fore: -6,
   swing: [
-    [0.7, { hip: -2, knee: 62, foot: 23 }],
-    [0.82, { hip: -29, knee: 48, foot: -6 }]
+    [0.7, { hip: 0, knee: 58, foot: 22 }],
+    [0.82, { hip: -24, knee: 46, foot: -6 }]
   ],
   landing: { lead: 0.1, rise: 20 }
 };

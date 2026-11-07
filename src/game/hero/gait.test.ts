@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import fixture from "./gait.fixture.json";
-import { footContacts, gaitBob, gaitLean, gaitPose, RUN, WALK, type Gait } from "./gait";
+import { footContacts, gaitBob, gaitLean, gaitPose, RUN, TAU, WALK, type Gait } from "./gait";
 
 const gaits: [string, Gait, typeof fixture.walk][] = [
   ["walk", WALK, fixture.walk],
@@ -17,6 +17,18 @@ describe("gait engine", () => {
         for (const [k, v] of Object.entries(s.pose)) expect(Math.abs(pose[k]! - v), `${k} at ${s.u}`).toBeLessThan(1e-6);
         expect(Math.abs(gaitBob(g, s.phase) - s.bob)).toBeLessThan(1e-6);
         expect(Math.abs(gaitLean(g, s.u) - s.lean)).toBeLessThan(1e-6);
+      }
+    });
+  }
+});
+
+describe("gait legs", () => {
+  for (const [name, g] of [["walk", WALK], ["run", RUN]] as const) {
+    it(`${name} never locks a knee straight, so the leg never snaps`, () => {
+      for (let i = 0; i <= 2000; i++) {
+        const pose = gaitPose(g, (i / 2000) * TAU);
+        expect(pose.kneeNear).toBeGreaterThan(2);
+        expect(pose.kneeFar).toBeGreaterThan(2);
       }
     });
   }
