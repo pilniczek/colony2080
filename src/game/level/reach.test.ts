@@ -6,7 +6,7 @@ import { game, objectLevel, run } from "../hero/testWorld";
 import { loadMesto, mestoJson } from "./mesto";
 import { MISSIONS, type MissionId } from "./missionIds";
 import { loadMission } from "./missions";
-import { id, inShaft, reachOf, stopId, stopsAt } from "./reach";
+import { id, inShaft, reachable, reachOf, stopId, stopsAt } from "./reach";
 import { loadSandbox, type SandboxWorld } from "./sandboxLevel";
 import { openGraph, opened } from "./testMissions";
 import { runUse } from "./tasks";
@@ -342,5 +342,20 @@ describe("mission reach", () => {
     const lower = r.runs.filter((run) => run.row >= 46 && from.has(id(run))).map(id);
     expect(lower.length).toBeGreaterThan(0);
     expect(oneWay(open, () => stopId(0, open.lifts[0]!.top))).toEqual(lower.filter((n) => !START_CHAIN.includes(n)));
+  });
+});
+
+describe("lift calls", () => {
+  it("calls a lift to the stop the hero stands beside, then rides it down", () => {
+    const shaft = {
+      ...objectLevel,
+      rows: ["#............#", "#............#", "#####...######", ...Array<string>(8).fill("#............#"), "##############"],
+      spawn: [2.5, 2],
+      lifts: [{ x: 5, width: 3, top: 2, bottom: 11, start: "bottom" }],
+    };
+    const w = loadSandbox(shaft);
+    const at = { row: 2, col: 2, ys: w.lifts.map((l) => l.y) };
+    expect(w.lifts[0]!.y).toBe(11);
+    expect([...reachable(w, cfg, at).keys()]).toContain("11,1");
   });
 });

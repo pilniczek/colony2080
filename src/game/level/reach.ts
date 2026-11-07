@@ -247,6 +247,11 @@ export interface Ride {
   ys: number[];
 }
 
+const besideStop = (l: Lift, run: Run): boolean =>
+  stopsAt(l, run.row) && (inRun(run, l.x - 1) || inRun(run, l.x + l.w));
+
+const inRun = (run: Run, col: number): boolean => col >= run.col && col < run.col + run.w;
+
 export function reachable(world: SandboxWorld, cfg: MovementConfig, from: Ride): Map<string, Ride> {
   const r = reachOf(world, cfg);
   const g = r.graph(r.strict);
@@ -259,10 +264,15 @@ export function reachable(world: SandboxWorld, cfg: MovementConfig, from: Ride):
   const seen = new Set([key(at0)]);
   const todo = [at0];
   for (let at = todo.shift(); at !== undefined; at = todo.shift()) {
-    if (!found.has(at.node)) {
-      const run = r.floors.find((f) => r.node(f) === at.node)!;
-      found.set(at.node, { row: run.row, col: run.col, ys: at.ys });
-    }
+    const run = r.floors.find((f) => r.node(f) === at.node)!;
+    if (!found.has(at.node)) found.set(at.node, { row: run.row, col: run.col, ys: at.ys });
+    world.lifts.forEach((l, i) => {
+      if (!open[i] || at.ys[i] === run.row || !besideStop(l, run)) return;
+      const called = { node: at.node, ys: at.ys.map((y, j) => (j === i ? run.row : y)) };
+      if (seen.has(key(called))) return;
+      seen.add(key(called));
+      todo.push(called);
+    });
     for (const { to, lift, hole } of g.get(at.node) ?? []) {
       const deck = r.deckOf.get(to);
       if (hole && at.ys[hole.lift] === hole.row) continue;
