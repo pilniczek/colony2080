@@ -9507,8 +9507,11 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Small rock ledges with a green top, one row apart and offset 1-3 columns, forming zigzag stairs (for example columns 126-136 rows 16-31, 116-121 rows 31-38). The hero climbs them by jumping one row at a time; they replace the ladders of other levels.",
-      "states": [],
+      "description": "Girder role (terrain girder). Free-standing rock ledge 2-3 cells wide and a third of a cell thick: the pebble floor strip with a ragged hanging underside, and a dark teal-green slab (#243024, #243030) about 1 cell wide lying on its left end. Ledges stand one row apart and 1-3 columns offset as zigzag stairs: cells 126-136 rows 16-31, 133-138 rows 21-29, 116-121 rows 31-38, 116-121 rows 48-55, 89-95 rows 52-58, 86-90 rows 60-65, 108-114 rows 60-64. They replace the ladders of other levels. State 1 has no slab. Sized w.",
+      "states": [
+       "with teal slab",
+       "plain"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M41.png",
@@ -9517,13 +9520,37 @@ window.C28_CONFIG = {
          1920
         ],
         "crop": [
-         2760,
-         336,
-         576,
-         648
+         3024,
+         360,
+         264,
+         408
         ],
         "caption": "map M41: ledge stairs above the carts"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2040,
+         1416,
+         240,
+         168
+        ],
+        "caption": "map M41: ledges west of lift 5"
        }
+      ],
+      "sizes": [
+       [
+        3,
+        1
+       ],
+       [
+        2,
+        1
+       ]
       ]
      },
      {
@@ -9534,8 +9561,11 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Thin vertical chain or root strands hanging between floors, with dark caps (tiles (10,36) and neighbours). Scenery next to lifts and in shafts.",
-      "states": [],
+      "description": "Support role. State 0: thin knobbly vertical strand of crusty rock or root, about a third of a cell wide, dark brown with orange and pale grey nodules (#18180c, #30180c, #3c180c), hanging between floors next to lifts and shafts: cells 13 rows 16-28, 43 rows 20-40, 47 rows 20-40, 52 rows 29-44, 65 rows 20-24, 76 rows 30-38, 82 rows 43-60, 102 rows 29-38, 107 rows 24-36, 113 rows 42-65, 123 rows 31-38, 132 rows 20-29, 137 rows 15-29, 151 rows 43-46. State 1: thick twisted cable 2 cells wide of overlapping rounded grey-green strands (#303024, #3c3018, #182418), cells 62-63 rows 52-58 on floor 59. Sized h.",
+      "states": [
+       "knobbly strand",
+       "twisted cable"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M41.png",
@@ -9544,13 +9574,37 @@ window.C28_CONFIG = {
          1920
         ],
         "crop": [
-         3024,
-         720,
-         168,
-         456
+         2424,
+         576,
+         192,
+         312
         ],
-        "caption": "map M41: vertical strands"
+        "caption": "map M41: strands beside the shale pillar"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1416,
+         1200,
+         168,
+         240
+        ],
+        "caption": "map M41: twisted cable at cols 62-63"
        }
+      ],
+      "sizes": [
+       [
+        1,
+        8
+       ],
+       [
+        2,
+        6
+       ]
       ]
      },
      {
@@ -9561,7 +9615,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Orange and brown curved rock masses and dark fill between floors (sheets 7 and 9). Rock fill tiles (9,61)-(9,64) and (9,66)-(9,69) are the level wall tiles.",
+      "description": "Filler role (terrain wall and deep art). Shale rock: stacked horizontal flakes of rust brown (#30180c, #483018) with orange highlights and dark gaps on the near-black cave brown (#13100c), the original wall tiles (9,61)-(9,64) and (9,66)-(9,69). The free-standing shale pillars 2-4 cells wide are the same rock: cells 15-19 rows 20-25, 33-36 rows 7-15, 104-107 rows 24-36, 75-78 rows 40-48, 79-82 rows 51-61, 86-89 rows 55-58, 109-112 rows 55-58, 116-119 rows 44-47, 136-139 rows 17-20. Sized w and h in cells.",
       "states": [],
       "refs": [
        {
@@ -9571,13 +9625,37 @@ window.C28_CONFIG = {
          1920
         ],
         "crop": [
-         1344,
-         744,
-         600,
-         192
+         2424,
+         576,
+         192,
+         312
         ],
-        "caption": "map M41: rock masses on floor 37"
+        "caption": "map M41: shale pillar at cols 104-107"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         336,
+         480,
+         144,
+         144
+        ],
+        "caption": "map M41: shale pillar at the west end of floor 20"
        }
+      ],
+      "sizes": [
+       [
+        3,
+        8
+       ],
+       [
+        6,
+        4
+       ]
       ]
      },
      {
@@ -9588,8 +9666,11 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Thin pebbled rock floor strip, tiles (7,1)-(7,4) with end caps (7,22) (7,23) (7,103) (7,104). Every walkable plank is one of the floor-list tiles.",
-      "states": [],
+      "description": "Floor role (terrain ledge). Thin pebbled floor strip about a third of a cell thick: rounded olive-grey and brown pebbles (#303024, #30240c, #3c3018) with a lighter top edge and a ragged dark underside. Every floor row has it (for example 19-39 row 20, 27-36 row 36, 131-150 row 48, the bottom corridor row 74 and the lower strip row 76). State 1 is the end cap of a run (tiles (7,22) (7,23) (7,103) (7,104)): the strip ends in a rounded broken stone. Sized w.",
+      "states": [
+       "pebble strip",
+       "end cap"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M41.png",
@@ -9604,7 +9685,27 @@ window.C28_CONFIG = {
          96
         ],
         "caption": "map M41: floor 20"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         3024,
+         1080,
+         624,
+         96
+        ],
+        "caption": "map M41: floor 48 to its east end"
        }
+      ],
+      "sizes": [
+       [
+        6,
+        1
+       ]
       ]
      },
      {
@@ -9614,9 +9715,13 @@ window.C28_CONFIG = {
       "interactive": false,
       "marker": null,
       "task": null,
-      "sheet": "structures",
-      "description": "Grey-green riveted metal columns and pipes set in the rock (for example floor 63 columns 17-23, floor 44 columns 57-61).",
-      "states": [],
+      "sheet": "buildings",
+      "description": "Building role. Riveted machine-room front, 4-5 rows tall, standing on a floor: dark green-grey steel (#303c24, #3c3c30, #243024) in square bays with bevelled diagonal panels, vertical I-beam posts with round rivets, a horizontal rail with thin pipes along the top. State 1 adds a curved hull section (an arched green-grey plate with a rivet row); state 2 a broken bay with a bent riveted strut hanging askew. Cells 108-122 rows 10-14 and 100-103 rows 10-14 (floor 15), 110-121 rows 16-20 (floor 21), 49-53 rows 15-19 (floor 20), 65-71 rows 32-36 (floor 37), 28-36 rows 39-42 (floor 43, EXPLOSIVE plate), 41-50 rows 50-54 (floor 55, around the lift lock), 16-24 rows 58-62 (floor 63, broken strut), 69-73 rows 60-63 (floor 64), 58-62 rows 70-73 (floor 74). Sized w and h in cells.",
+      "states": [
+       "panel bays",
+       "with curved hull",
+       "broken strut"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M41.png",
@@ -9625,12 +9730,12 @@ window.C28_CONFIG = {
          1920
         ],
         "crop": [
+         2592,
+         192,
          384,
-         1392,
-         216,
-         168
+         288
         ],
-        "caption": "map M41: machinery at the west end of floor 63"
+        "caption": "map M41: machine-room fronts on floors 15 and 21"
        },
        {
         "path": "docs/research/gamedata/png/maps/map_M41.png",
@@ -9639,13 +9744,37 @@ window.C28_CONFIG = {
          1920
         ],
         "crop": [
-         1344,
-         936,
-         168,
+         336,
+         1368,
+         288,
+         192
+        ],
+        "caption": "map M41: broken strut at the west end of floor 63"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         648,
+         912,
+         240,
          168
         ],
-        "caption": "map M41: pillars on floor 44"
+        "caption": "map M41: front with the EXPLOSIVE plate on floor 43"
        }
+      ],
+      "sizes": [
+       [
+        8,
+        4
+       ],
+       [
+        5,
+        5
+       ]
       ]
      },
      {
@@ -9656,8 +9785,10 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "structures",
-      "description": "Orange striped glowing block at columns 37-42, rows 68-73 (sheet 1 tile 3) and orange strips in the bottom corridor floor (sheet 1 tiles 4-7). Ours: a lava cascade in a cleft of the back wall, its pool hidden behind a lit rock sill; sized by w and h. Effect on the hero not traced.",
-      "states": [],
+      "description": "Wall role. Lava curtain at cells 37-42 rows 68-73 over the bottom corridor floor 74 (sheet 1 tile 3): six stacked one-row bands of dark red (#78240c, #542400, #6c300c) with fine vertical orange and yellow streaks and a dark seam between bands. Ours: a lava cascade in a cleft of the back wall, its pool hidden behind a lit rock sill; animated flow; sized w and h. The lava strips in the corridor floor are the lavaPit hazard. Effect on the hero not traced.",
+      "states": [
+       "flowing"
+      ],
       "refs": [
        {
         "path": "docs/research/gamedata/png/maps/map_M41.png",
@@ -9666,13 +9797,19 @@ window.C28_CONFIG = {
          1920
         ],
         "crop": [
-         816,
+         840,
          1584,
-         408,
+         288,
          264
         ],
         "caption": "map M41: lava curtain over the bottom corridor"
        }
+      ],
+      "sizes": [
+       [
+        6,
+        6
+       ]
       ]
      },
      {
@@ -9683,7 +9820,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "buildings",
-      "description": "Full-screen backdrop: mossy rock ceiling, a dark band, stalagmites on a pale ground and a glowing lava strip at the bottom (LEV4.GRA frame 0).",
+      "description": "Sky role. Full-screen backdrop (LEV4.GRA frame 0): the top two thirds a mossy rock ceiling in olive and brown (#484830, #483c24, #303024) with darker cracks, then a near-black band, then pale grey-brown ground (#6c603c, #484830) with eleven conical stalagmites of light tan (#846c54, #a87854) casting short dark shadows, and at the bottom a glowing lava stripe of orange and yellow flecks (#e48418, #f0b430, #e46018).",
       "states": [],
       "refs": [
        {
@@ -9713,6 +9850,354 @@ window.C28_CONFIG = {
       "sheet": "machines",
       "description": "Toothed crushing rollers in a steel frame at the east end of the mine cart conveyor, the cart crush death zone (columns 123-125, report 16 zones), with sparks.",
       "states": [],
+      "refs": []
+     },
+     {
+      "id": "farStalagmites",
+      "name": "Far dripstone cave",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "origin": "new",
+      "description": "Far role. Flat dark silhouettes of a far cave hall: rows of stalagmites rising from a ground line and stalactites hanging from a ceiling line, in the brown and olive of the backdrop under haze, sized w and h; state 1 adds a dripstone curtain and a pale far lava glow at the bottom. Fills the open void between floors, which is plain near-black brown (#13100c) in the original.",
+      "states": [
+       "stalagmites",
+       "dripstone curtain with lava glow"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/lev4/f000.png",
+        "imgSize": [
+         320,
+         200
+        ],
+        "crop": [
+         0,
+         0,
+         320,
+         190
+        ],
+        "caption": "background frame 0"
+       }
+      ],
+      "sizes": [
+       [
+        6,
+        6
+       ]
+      ]
+     },
+     {
+      "id": "rockRibs",
+      "name": "Curved rock rib band",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Wall role. Band 3-5 rows tall above a floor of big curved rock ribs bowing right like a row of crescents, rust brown and orange (#30180c, #483018, #6c3c18) with grey-green highlights on their edges, and a row of grey-brown diagonal scree slabs along the foot. State 1 has a dark hollow: a black oval opening the ribs frame. Cells 47-56 rows 16-19 (floor 20), 20-35 rows 23-27 (floor 28), 27-38 rows 30-35 (floor 36, hollow at 27-31), 54-79 rows 25-28 (floor 29, hollow at 59-71), 85-104 rows 25-28 (floor 29), 96-110 rows 10-14 (floor 15), 101-108 rows 16-20 (floor 21), 58-75 rows 32-36 (floor 37), 116-127 rows 27-31 (floor 32), 91-102 rows 47-51 (floor 52), 97-108 rows 53-57 (floor 58), 123-148 rows 43-47 (floor 48), 37-56 rows 50-54 (floor 55), 19-50 rows 58-62 (floor 63, hollow at 47-52), 64-75 rows 59-63 (floor 64), 16-35 rows 66-73 and 45-120 rows 69-73 (floor 74, hollows at 19-24 and 117-123). Sized w and h in cells.",
+      "states": [
+       "ribs",
+       "ribs with dark hollow"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         624,
+         696,
+         240,
+         192
+        ],
+        "caption": "map M41: rib band and dark hollow on floor 36"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2784,
+         624,
+         288,
+         144
+        ],
+        "caption": "map M41: rib band on floor 32"
+       }
+      ],
+      "sizes": [
+       [
+        10,
+        4
+       ],
+       [
+        6,
+        5
+       ]
+      ]
+     },
+     {
+      "id": "pressureTank",
+      "name": "Steel pressure cylinder",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Machine role. Upright brushed steel cylinder 2 cells wide and 4 rows tall (#546060, #3c4848, #485454) with a dark shaded right side, a cap ring of olive and dark checker squares (#786c3c, #545448) with a bright white lamp glare on its front, and a slim curved blue-grey strap one cell to its right. It stands in the rib bands: cells 20-21 rows 23-27 (strap 22, floor 28), 96-97 rows 11-14 (strap 98, floor 15), 57-58 and 61-62 rows 40-43 (floor 44), 70-71 and 86-87 rows 70-73 (floor 74). Sized h.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         432,
+         504,
+         240,
+         216
+        ],
+        "caption": "map M41: cylinder on floor 28"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2280,
+         192,
+         336,
+         192
+        ],
+        "caption": "map M41: cylinder on floor 15"
+       }
+      ],
+      "sizes": [
+       [
+        2,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "caveLamp",
+      "name": "Cave work lamp",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Mounted and sign role. Bright white lamp glare (#fcfcfc) with a long thin horizontal lens streak, lighting a curved green-grey glass dome behind it (#485430, #3c4830), set into the rib bands about 2 rows above the floor. Cells 24 and 26 rows 24-26 (floor 28), 91, 94, 96 and 98 rows 25-27 (floor 29), 64-68 rows 40-43 (floor 44), 77-80 rows 70-72 (floor 74). State 1 is dead: dark glass, no glare.",
+      "states": [
+       "lit",
+       "dead"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2136,
+         552,
+         288,
+         144
+        ],
+        "caption": "map M41: four lamps on floor 29"
+       }
+      ]
+     },
+     {
+      "id": "explosiveSign",
+      "name": "EXPLOSIVE plate",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Sign role. Grey steel plate about 3 cells wide and half a row tall with the stencil EXPLOSIVE in olive letters (#545448 on #3c483c), mounted on the machine-room front at cells 28-30 row 39 (floor 43), over a small grey box. State 1 is a red hazard plate with the same stencil.",
+      "states": [
+       "grey stencil",
+       "red hazard"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         648,
+         912,
+         240,
+         96
+        ],
+        "caption": "map M41: EXPLOSIVE plate on floor 43"
+       }
+      ]
+     },
+     {
+      "id": "minePipe",
+      "name": "Mine pipe run",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Pipe role. Thin dark green-grey pipes with flange rings and a rivet clamp, like the pipes along the top rail of the machine-room fronts (cells 30-35 row 39) and the curved strap beside each pressure cylinder; state 0 a horizontal run, state 1 a vertical riser with an elbow at the top. Sized w or h.",
+      "states": [
+       "horizontal run",
+       "riser with elbow"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         648,
+         912,
+         240,
+         96
+        ],
+        "caption": "map M41: pipes on the front on floor 43"
+       }
+      ],
+      "sizes": [
+       [
+        6,
+        1
+       ],
+       [
+        1,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "screeHeap",
+      "name": "Scree heap",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Rubble role. Heap of angular grey-brown rock slabs leaning on each other (#30180c, #483018, #30240c with pale grey edges), like the scree at the foot of every rib band (for example cells 27-34 rows 34-35); state 1 a heap of broken shale flakes with pale crystal chips. Sized w.",
+      "states": [
+       "slab scree",
+       "shale and crystal chips"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         624,
+         792,
+         240,
+         72
+        ],
+        "caption": "map M41: scree at the foot of the rib band on floor 36"
+       }
+      ],
+      "sizes": [
+       [
+        3,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "safetyRail",
+      "name": "Mine safety railing",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "origin": "new",
+      "description": "Fence role. Rusted steel posts every 2 cells with two sagging chain rails and a red and white tag, for chasm and lava edges; state 1 broken: one post bent down and the chain hanging loose. Sized w.",
+      "states": [
+       "intact",
+       "broken"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "mineWreck",
+      "name": "Mine wreck",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Big clutter. State 0: an olive ore cart like the conveyor carts tipped on its side off its rails, wheels up, spilling ore lumps (about 3 cells wide); state 1: an abandoned rock drill on caterpillar tracks with a long rusted drill boom and a broken lamp (about 5 cells wide).",
+      "states": [
+       "tipped ore cart",
+       "abandoned rock drill"
+      ],
+      "refs": []
+     },
+     {
+      "id": "powderKeg",
+      "name": "Powder kegs",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Small clutter. Wooden kegs with iron hoops and a stencilled red mark, matching the EXPLOSIVE store; state 0 a single keg, state 1 a stack of three, state 2 a burst keg with scorched staves.",
+      "states": [
+       "single",
+       "stack of three",
+       "burst"
+      ],
+      "refs": []
+     },
+     {
+      "id": "toolCrate",
+      "name": "Miner's crate",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Small clutter. Wooden crate with iron corners; state 0 open with a pickaxe and a shovel leaning on it, state 1 full of olive ore lumps, state 2 a smashed crate.",
+      "states": [
+       "tools",
+       "ore",
+       "smashed"
+      ],
       "refs": []
      }
     ]
