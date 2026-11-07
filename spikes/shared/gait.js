@@ -22,8 +22,8 @@ const RUN = {
   ]
 };
 const WALK = {
-  cycle: 0.68, speed: 195.26, stance: 0.6, reach: 0.5, heelStrike: -14, flat: [0.18, 0.6], toeOff: 30,
-  drop: 5, bob: -2.6, lean: 0, leanPulse: 0, arm: 16, armPhase: 0.97, fore: -6,
+  cycle: 0.7, speed: 195.26, stance: 0.6, reach: 0.5, heelStrike: -14, flat: [0.18, 0.6], toeOff: 30,
+  drop: 6, bob: -2.6, lean: 0, leanPulse: 0, arm: 16, armPhase: 0.97, fore: -6,
   swing: [
     [0.7, { hip: 0, knee: 58, foot: 22 }],
     [0.82, { hip: -24, knee: 46, foot: -6 }]

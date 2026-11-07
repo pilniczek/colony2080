@@ -10,9 +10,9 @@
       ]
     },
     "walk": {
-      "duration": 0.68,
+      "duration": 0.7,
       "loop": true,
-      "travel": 1.7,
+      "travel": 1.75,
       "gait": "walk"
     },
     "run": {

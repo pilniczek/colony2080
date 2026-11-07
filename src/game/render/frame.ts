@@ -102,7 +102,7 @@ const clipTo = (ctx: CanvasRenderingContext2D, { x, y, w, h }: Rect): void => {
   ctx.clip();
 };
 
-const ENEMY_POSE_HZ = 30;
+export const ENEMY_POSE_HZ = 60;
 
 const atPoseRate = (body: Hero): Hero => ({
   ...body,
