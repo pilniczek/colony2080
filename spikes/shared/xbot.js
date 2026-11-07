@@ -911,7 +911,7 @@ function fist(s, view) {
     const thumb = () => {
       const end = bar([HAND_FACE[0] + 2, 410], -53, THUMB.seg[0], 0).end;
       chain(s, S, [HAND_FACE[0] + 2, 410], [-53], [THUMB.seg[0]], THUMB.thick, { shade: "cyl" });
-      P(s, { pts: S([[end[0] - 13, end[1] - 6], [end[0] + 5, end[1] - 6], [end[0] + 5, end[1] + 12], [end[0] - 13, end[1] + 12]]), shade: "dome", r: 6 });
+      if (view === "little") P(s, { pts: S([[end[0] - 13, end[1] - 6], [end[0] + 5, end[1] - 6], [end[0] + 5, end[1] + 12], [end[0] - 13, end[1] + 12]]), shade: "dome", r: 6 });
     };
     handStub(s);
     if (view === "little") thumb();
