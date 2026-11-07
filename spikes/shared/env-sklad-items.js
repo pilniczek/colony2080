@@ -272,7 +272,7 @@ const timeBomb = {
   }
 };
 
-const LAUNCHER = ["#3c3c30", "#606054", "#848478", "#b4b4a8"];
+const LAUNCHER_K = 0.08;
 
 const rocketLauncher = {
   id: "rocketLauncher",
@@ -280,22 +280,13 @@ const rocketLauncher = {
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 28);
     shadow(ctx, 13, 26);
-    shape(ctx, [[13.4, -3.6], [15.2, -3.6], [14.8, -0.2], [13, -0.2]], "#303024", LINE);
-    shape(ctx, [[16.2, -3.6], [17, -3.6], [17.4, -1.8], [16.4, -1.6]], "#303024", LINE);
-    shape(ctx, [[3, -3.6], [3.6, -3.6], [2.6, 0], [1.8, 0]], LAUNCHER[1], LINE);
-    shape(ctx, [[0.2, -9.2], [2.6, -8.4], [2.6, -3.4], [0.2, -2.6]], LAUNCHER[0], LINE);
-    rod(ctx, 2.6, -8.4, 21, 5, LAUNCHER);
-    rod(ctx, 7, -8.6, 4, 5.4, ["#2a2a1e", "#484830", "#606048", "#787860"]);
-    rod(ctx, 22.4, -8.8, 1.8, 5.8, LAUNCHER, { vertical: true });
-    shape(ctx, [[24.2, -7.4], [26.6, -6.6], [27.4, -5.9], [26.6, -5.2], [24.2, -4.4]], "#c03c24", LINE);
-    if (!simple()) shape(ctx, [[24.4, -7.1], [26.4, -6.4], [24.4, -6.3]], "#e4704c");
-    shape(ctx, [[12, -8.4], [12.6, -10.2], [17.4, -10.2], [18, -8.4]], LAUNCHER[2], LINE);
-    flat(ctx, 17.2, -10.1, 0.9, 1.1, "#6c909c", LINE);
-    if (!simple()) {
-      flat(ctx, 3.2, -8.1, 3.4, 0.5, "#e8c21a");
-      for (let x = 3.6; x < 6.6; x += 1) flat(ctx, x, -8.1, 0.45, 0.5, "#141414");
-      flat(ctx, 19, -5.2, 2.6, 0.35, "#3c3c30");
-    }
+    const t = ctx.getTransform();
+    const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+    ctx.save();
+    ctx.scale(LAUNCHER_K, LAUNCHER_K);
+    ctx.translate(112, -32);
+    window.ROCKET_LAUNCHER.draw(ctx, { lineW, simple: simple() });
+    ctx.restore();
   }
 };
 
