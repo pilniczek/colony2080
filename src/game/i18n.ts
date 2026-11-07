@@ -61,7 +61,6 @@ const CS: Record<string, string> = {
   "The lift is broken.": "Výtah je rozbitý.",
   "Something is missing here.": "Tady něco chybí.",
   "Nothing more to do here.": "Tady už není co dělat.",
-  "You have no map.": "Nemáš mapu.",
   "Saved.": "Uloženo.",
   "Save failed.": "Uložení selhalo.",
   "Game saved.": "Hra uložena.",

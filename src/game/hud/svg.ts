@@ -20,7 +20,6 @@ export interface HudState {
   shields: number;
   running: boolean;
   soundOn: boolean;
-  mapOn: boolean;
   mapOpen: boolean;
   hidden: boolean;
   menuOpen: boolean;
@@ -111,8 +110,6 @@ const speaker = (on: boolean): string => `<path d="${SPEAKER_CONE}" fill="${READ
 const MAP_SHEET = "M-4.5 -3.1L-1.5 -4.1L1.5 -3.1L4.5 -4.1V3.1L1.5 4.1L-1.5 3.1L-4.5 4.1Z";
 const MAP_FOLDS = "M-1.5 -4.1V3.1M1.5 -3.1V4.1";
 
-const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0 .3V1.4" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
 const EYE = `<path d="M-4 0Q0 -3.6 4 0Q0 3.6 -4 0Z" fill="none" stroke="${READOUT}" stroke-width="1.1" stroke-linejoin="round"/>
   <circle r="1.3" fill="${READOUT}"/>`;
 const EYE_SLASH = `<path d="M-3.3 3.3L3.3 -3.3" stroke="${LO}" stroke-width="2"/>
@@ -271,7 +268,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${soundIcon(bar.sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
   ${runIcon(s.running ? icons.run : icons.walk, bar.run + TOGGLE_W / 2, s.running)}
   ${hideIcon(bar.hide + HIDE_W / 2, s.hidden)}
-  ${mapIcon(bar.map + MAP_W / 2, s.mapOn, s.mapOpen)}
+  ${mapIcon(bar.map + MAP_W / 2, s.mapOpen)}
   ${gridPanel(bar.inv, bar.invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -310,8 +307,8 @@ const hideIcon = (x: number, hidden: boolean): string =>
 const menuIcon = (x: number, open: boolean): string =>
   `<g${open ? ' filter="url(#iconGlow)"' : ""} data-icon="menu">${readout(x, MENU_LABEL)}</g>`;
 
-const mapIcon = (x: number, held: boolean, open: boolean): string =>
-  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap : QUESTION}</g></g>`;
+const mapIcon = (x: number, open: boolean): string =>
+  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"><g transform="translate(${x} ${CONTENT_MID}) scale(${SPEAKER_SCALE})">${foldedMap}</g></g>`;
 
 const readout = (x: number, label: string): string =>
   `<text x="${x}" y="${CONTENT_MID + READOUT_SIZE * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="${READOUT_SIZE}" fill="${READOUT}">${label}</text>`;

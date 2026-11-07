@@ -28,7 +28,6 @@ import { attrOf } from "./hud/pointer";
 import { canOpenScreen, closesMap, inventoryKey, openCursor, repeatsOnScreen, screenKey } from "./hud/inventoryKeys";
 import { newestFirst } from "./hud/inventory";
 import { hudFit, viewRect } from "./hud/layout";
-import type { ItemId } from "./items";
 import { activeQuests } from "./level/quests";
 import { BONUS_NAMES, resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
 import { openBlockers, pickAll, say } from "./level/tasks";
@@ -49,7 +48,6 @@ const ENEMY_MARGIN_CELLS = 2;
 const LOG_SIZE = 8;
 const FPS_SMOOTHING = 0.1;
 const MAX_PANEL_SHARE = 0.5;
-const MAP_HINT = "You have no map.";
 const PICTURE_QUALITY = 0.6;
 const HEAD_GAP = 0.25;
 const FILM_PRELOAD_MS = 1000;
@@ -76,7 +74,6 @@ export interface Run {
 export interface RunOptions {
   world: SandboxWorld;
   ui: ReactNode;
-  mapItem?: ItemId;
   afterStep?: () => void;
   drawOver?: (ctx: CanvasRenderingContext2D, view: ViewTransform, cellPx: number) => void;
   saves?: SaveMenuOptions;
@@ -91,7 +88,7 @@ const modified = (e: KeyboardEvent): boolean => e.ctrlKey || e.metaKey || e.altK
 const sameItems = (a: readonly string[], b: readonly string[]): boolean => a.length === b.length && a.every((id, i) => id === b[i]);
 
 
-export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves, intro }: RunOptions): Run {
+export function startRun({ world, ui: tree, afterStep, drawOver, saves, intro }: RunOptions): Run {
   const canvas = document.getElementById("game");
   const ui = document.getElementById("ui");
   if (!(canvas instanceof HTMLCanvasElement) || !ui) throw new Error("missing #game or #ui");
@@ -99,7 +96,6 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   const tuning = () => useSandbox.getState();
   const movement = (): MovementConfig => assisted(tuning().movement, world.difficulty);
   applyAssists(world);
-  const mapOn = (): boolean => !mapItem || world.inventory.items.includes(mapItem);
   const fogConfig = loadFog(cameraJson);
   const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: number; zoom: number }; referenceScreen: { width: number; height: number } };
   const reference = hudFit(cameraConfig.referenceScreen.width, cameraConfig.referenceScreen.height);
@@ -236,7 +232,6 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       weapon: hero.weapon,
       running: hero.running,
       hidden: hero.hidden,
-      mapOn: mapOn(),
       fps: Math.round(fps),
       inputLog,
     });
@@ -315,11 +310,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         return;
       }
       if (input.consume("map") && canOpen) {
-        if (mapOn()) {
-          useSandbox.setState({ mapOpen: true });
-          return;
-        }
-        say(world, MAP_HINT);
+        useSandbox.setState({ mapOpen: true });
+        return;
       }
       logInput(frame.held);
       stepWorld(world, hero, frame, cfg, clips, dt, (action) => input.consume(action));

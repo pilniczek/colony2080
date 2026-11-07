@@ -1,4 +1,4 @@
-import { mapItemOf, missionFromQuery, MISSIONS } from "../game/level/missionIds";
+import { missionFromQuery, MISSIONS } from "../game/level/missionIds";
 import { loadMesto } from "../game/level/mesto";
 import { startRun, type Run, type RunOptions } from "../game/run";
 import { browserStorage } from "../game/save/saveMenu";
@@ -26,7 +26,6 @@ const run: Run = startRun({
   world: import.meta.env.DEV ? (await import("../game/level/missions")).loadMission(MISSION) : loadMesto(),
   saves: { mission: MISSION, storage: browserStorage(), startSlot, askDifficulty: true },
   intro: startSlot === null && MISSION === "mesto" ? "missionStart" : undefined,
-  mapItem: mapItemOf(MISSION),
   afterStep,
   drawOver: import.meta.env.DEV ? (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx) : undefined,
   ui: (

@@ -14,7 +14,7 @@ Status: draft. Machine-readable copies (local only): `gamedata/disasm/level2_lay
 
 - Same frame as reports 10 and 13. Floor rows 23, 32, 41, 50, 59, 68 = engine y 17, 26, 35, 44, 53, 62. Map clamp is shared code (`1:0x403A`). **[code]**
 - Spawn: engine (146, 33) = column 152, row 39. That is 2 rows above floor 41 with no plank under it, so the hero drops onto floor 41 (column 152) at the start. **[code]** for the values, **[inferred]** for the drop.
-- Started with `-level2`: energy 98, shields 1, ammo 350 and 350 (`[0xDB36]`, `[0xDB3A]`), no bonus weapon, holo plan owned (map screen available). With `-level1 loadmision` these are kept from the save. **[code]**
+- Started with `-level2`: energy 98, shields 1, ammo 350 and 350 (`[0xDB36]`, `[0xDB3A]`), no bonus weapon, holo plan owned. With `-level1 loadmision` these are kept from the save. **[code]**
 
 ## Lifts
 

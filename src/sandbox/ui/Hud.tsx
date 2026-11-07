@@ -34,7 +34,6 @@ export interface HudValues {
   weapon: Weapon;
   running: boolean;
   soundOn: boolean;
-  mapOn: boolean;
   mapOpen: boolean;
   hidden: boolean;
   menuOpen: boolean;
@@ -42,7 +41,7 @@ export interface HudValues {
   lang?: Lang;
 }
 
-export const hudState = ({ energy, max, shields, ammo, blaster, bonusModel = "blaster", weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang }: HudValues): HudState => ({
+export const hudState = ({ energy, max, shields, ammo, blaster, bonusModel = "blaster", weapon, running, soundOn, mapOpen, hidden, menuOpen, item, lang }: HudValues): HudState => ({
   weapon: WEAPON_SLOTS[weapon],
   bonus: blaster !== null,
   bonusAmmo: blaster ?? 0,
@@ -51,7 +50,6 @@ export const hudState = ({ energy, max, shields, ammo, blaster, bonusModel = "bl
   shields,
   running,
   soundOn,
-  mapOn,
   mapOpen,
   hidden,
   menuOpen,
@@ -73,7 +71,6 @@ export function Hud() {
   const weapon = useSandbox((s) => s.weapon);
   const running = useSandbox((s) => s.running);
   const soundOn = useSandbox((s) => s.soundOn);
-  const mapOn = useSandbox((s) => s.mapOn);
   const mapOpen = useSandbox((s) => s.mapOpen);
   const hidden = useSandbox((s) => s.hidden);
   const menuOpen = useSandbox((s) => s.menu !== null && s.menu.screen !== "gameOver");
@@ -81,13 +78,13 @@ export function Hud() {
   const filming = useSandbox((s) => s.cutscene);
   const lang = useSandbox((s) => s.lang);
   const alarmAt = useSandbox((s) => s.alarmAt);
-  const state = hudState({ energy, max, shields, ammo, blaster, bonusModel, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang });
+  const state = hudState({ energy, max, shields, ammo, blaster, bonusModel, weapon, running, soundOn, mapOpen, hidden, menuOpen, item, lang });
   const live = useRef(state);
   live.current = state;
   const armed = blaster !== null;
   const svg = useMemo(
     () => hudSvg(fit.W, fit.H, live.current, icons, KEYS),
-    [fit.W, fit.H, shields, armed, bonusModel, max, weapon, running, soundOn, mapOn, mapOpen, hidden, menuOpen, item, lang, icons],
+    [fit.W, fit.H, shields, armed, bonusModel, max, weapon, running, soundOn, mapOpen, hidden, menuOpen, item, lang, icons],
   );
   const html = useMemo(() => ({ __html: svg }), [svg]);
   useLayoutEffect(() => {

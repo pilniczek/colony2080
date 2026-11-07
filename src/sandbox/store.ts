@@ -32,7 +32,6 @@ export interface SandboxState {
   quests: string[];
   inventory: { open: boolean; cursor: number };
   mapOpen: boolean;
-  mapOn: boolean;
   cheatOpen: boolean;
   debugPanel: boolean;
   soundOn: boolean;
@@ -135,7 +134,6 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   quests: [],
   inventory: { open: false, cursor: 0 },
   mapOpen: false,
-  mapOn: true,
   cheatOpen: false,
   debugPanel: false,
   soundOn: loadSoundOn(),

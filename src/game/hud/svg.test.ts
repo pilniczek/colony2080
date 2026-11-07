@@ -7,7 +7,7 @@ import { applyLive, hudSvg as render, keyLabel, type HudIcons, type HudKeys, typ
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
 const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, run: { url: "run.png", w: 4, h: ICON_H }, walk: { url: "walk.png", w: 4, h: ICON_H }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
-const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, soundOn: true, mapOn: true, mapOpen: false, hidden: false, menuOpen: false, item: null };
+const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, soundOn: true, mapOpen: false, hidden: false, menuOpen: false, item: null };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", sound: "S", hide: "X", map: "M", menu: "ESC", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
 const count = (svg: string, text: string): number => svg.split(text).length - 1;
@@ -124,21 +124,14 @@ describe("hudSvg", () => {
   });
 
   describe("map slot", () => {
-    const mapIcon = (svg: string): RegExpExecArray | null => /<g filter="url\(#(icon\w+)\)" data-icon="map"( data-map="none")?><g transform="translate\(([\d.]+) /.exec(svg);
+    const mapIcon = (svg: string): RegExpExecArray | null => /<g filter="url\(#(icon\w+)\)" data-icon="map"><g transform="translate\(([\d.]+) /.exec(svg);
 
     it("draws the folded map centred on the map slot, glowing only while the map screen is open", () => {
       const { map } = topBar(320);
       const shut = mapIcon(hudSvg(320, 200, base, icons))!;
       expect(shut[1]).toBe("iconDim");
-      expect(shut[2]).toBeUndefined();
-      expect(Number(shut[3])).toBeCloseTo(map + MAP_W / 2, 9);
+      expect(Number(shut[2])).toBeCloseTo(map + MAP_W / 2, 9);
       expect(mapIcon(hudSvg(320, 200, { ...base, mapOpen: true }, icons))![1]).toBe("iconGlow");
-    });
-
-    it("draws a question mark instead of the map while the hero has no map", () => {
-      const m = mapIcon(hudSvg(320, 200, { ...base, mapOn: false }, icons))!;
-      expect(m[1]).toBe("iconDim");
-      expect(m[2]).toBe(' data-map="none"');
     });
   });
 

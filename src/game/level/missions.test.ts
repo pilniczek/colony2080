@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { createHero } from "../hero/hero";
 import { cfg } from "../hero/testWorld";
 import { checkSnapshot, takeSnapshot } from "../save/snapshot";
-import { mapItemOf, missionFromQuery, MISSIONS } from "./missionIds";
+import { missionFromQuery, MISSIONS } from "./missionIds";
 import { enemyKinds, loadMission, missionJson } from "./missions";
 import { loadSandbox, type SandboxWorld } from "./sandboxLevel";
 
@@ -36,13 +36,6 @@ describe("missions", () => {
 
   it("falls back to mesto for a mission outside the open list", () => {
     expect(missionFromQuery("?mission=jungle", ["mesto"])).toBe("mesto");
-  });
-
-  it("opens the map with the holo plan, from the start in vesnice and jeskyne", () => {
-    expect(mapItemOf("mesto")).toBe("holoPlan");
-    expect(mapItemOf("vesnice")).toBeUndefined();
-    expect(mapItemOf("jungle")).toBeUndefined();
-    expect(mapItemOf("jeskyne")).toBeUndefined();
   });
 
   it.each(MISSIONS)("%s loads", (id) => {

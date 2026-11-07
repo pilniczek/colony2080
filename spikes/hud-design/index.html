@@ -36,7 +36,6 @@
   <label>Life <input id="life" type="range" min="0" max="100" value="55"></label>
   <label><input id="running" type="checkbox" checked> Run</label>
   <label><input id="soundOn" type="checkbox" checked> Sound</label>
-  <label><input id="mapOn" type="checkbox" checked> Map</label>
   <label><input id="mapOpen" type="checkbox"> Map open</label>
   <label><input id="hidden" type="checkbox"> Hidden</label>
   <label>Shields <input id="shields" type="number" min="0" max="5" value="3"></label>
@@ -336,7 +335,7 @@ function topBar(W, s) {
   ${soundIcon(sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
   ${runIcon(run + TOGGLE_W / 2, s.running)}
   ${hideIcon(hide + HIDE_W / 2, s.hidden)}
-  ${mapIcon(map + MAP_W / 2, s.mapOn, s.mapOpen)}
+  ${mapIcon(map + MAP_W / 2, s.mapOpen)}
   ${gridPanel(inv, invW, spans)}${item}
   ${tabs.map(keyTab).join("")}`;
 }
@@ -375,8 +374,6 @@ const soundIcon = (x, on) =>
 
 const MAP_SHEET = "M-4.5 -3.1L-1.5 -4.1L1.5 -3.1L4.5 -4.1V3.1L1.5 4.1L-1.5 3.1L-4.5 4.1Z";
 const MAP_FOLDS = "M-1.5 -4.1V3.1M1.5 -3.1V4.1";
-const QUESTION = `<path d="M-2.2 -1.9Q-2.2 -4.1 0 -4.1Q2.3 -4.1 2.3 -2Q2.3 -.6 0 .3V1.4" fill="none" stroke="${READOUT}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cy="3.4" r=".85" fill="${READOUT}"/>`;
 const foldedMap = () => `<path d="${MAP_SHEET}" fill="${READOUT}"/>
   <path d="${MAP_FOLDS}" stroke="${LO}" stroke-width=".6"/>`;
 const EYE = `<path d="M-4 0Q0 -3.6 4 0Q0 3.6 -4 0Z" fill="none" stroke="${READOUT}" stroke-width="1.1" stroke-linejoin="round"/>
@@ -387,8 +384,8 @@ const hideIcon = (x, hidden) =>
   `<g filter="url(#${hidden ? "iconGlow" : "iconDim"})" data-icon="hide"><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${EYE}${hidden ? EYE_SLASH : ""}</g></g>`;
 const menuIcon = (x, open) =>
   `<g${open ? ' filter="url(#iconGlow)"' : ""} data-icon="menu">${readout(x, "MENU")}</g>`;
-const mapIcon = (x, held, open) =>
-  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"${held ? "" : ' data-map="none"'}><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${held ? foldedMap() : QUESTION}</g></g>`;
+const mapIcon = (x, open) =>
+  `<g filter="url(#${open ? "iconGlow" : "iconDim"})" data-icon="map"><g transform="translate(${x} ${MID}) scale(${SPEAKER_SCALE})">${foldedMap()}</g></g>`;
 
 const readout = (x, label) =>
   `<text x="${x}" y="${MID + READOUT_SIZE * 0.35}" text-anchor="middle" font-family="${MONO}" font-size="${READOUT_SIZE}" fill="${READOUT}">${label}</text>`;
@@ -888,7 +885,6 @@ function state() {
     shields: +$("shields").value,
     running: $("running").checked,
     soundOn: $("soundOn").checked,
-    mapOn: $("mapOn").checked,
     mapOpen: $("mapOpen").checked,
     hidden: $("hidden").checked,
     item: $("item").value,

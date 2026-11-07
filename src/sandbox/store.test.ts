@@ -111,7 +111,7 @@ describe("blaster ammo", () => {
 });
 
 describe("hud state", () => {
-  const base = { energy: 50, shields: 2, ammo: 30, running: true, soundOn: true, mapOn: true, mapOpen: false, hidden: false, menuOpen: false, item: null, max: 100 } as const;
+  const base = { energy: 50, shields: 2, ammo: 30, running: true, soundOn: true, mapOpen: false, hidden: false, menuOpen: false, item: null, max: 100 } as const;
 
   it("hides slot 3 until the hero owns the E-Blaster", () => {
     expect(hudState({ ...base, weapon: "fists", blaster: null })).toMatchObject({ bonus: false, weapon: 0 });
@@ -129,8 +129,8 @@ describe("hud state", () => {
   });
 
   it("passes whether the hero has the map and whether the map screen is open to the map slot", () => {
-    expect(hudState({ ...base, weapon: "gun", blaster: null })).toMatchObject({ mapOn: true, mapOpen: false });
-    expect(hudState({ ...base, mapOn: false, mapOpen: true, weapon: "gun", blaster: null })).toMatchObject({ mapOn: false, mapOpen: true });
+    expect(hudState({ ...base, weapon: "gun", blaster: null })).toMatchObject({ mapOpen: false });
+    expect(hudState({ ...base, mapOpen: true, weapon: "gun", blaster: null })).toMatchObject({ mapOpen: true });
   });
 
   it("passes whether the menu is open to the menu slot", () => {

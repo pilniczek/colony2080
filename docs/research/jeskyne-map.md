@@ -382,7 +382,6 @@ Solid arrows are the shortest route the route test must walk; dotted arrows are 
 - Conveyor against the hero: the carts move east at 7.33 cells/s and our run is 6.0 cells/s (the original run beat the carts, 8 cells/s). A hero landing on the carts at cols 104-106 may not reach their west end to drop to the bottom corridor; check with running jumps in game, else lower the cart speed or move the landing.
 - The original kills a tank shot fired from too close (cols 100-104); not modelled, so no warning is needed.
 - Lever doors 3 and 4: the ruling puts both levers between the doors (door at col 121 with its lever east, door at col 131 with its lever west), where only the floor 15 loop reaches them, and that loop starts between the doors. The original has each lever on the outer side (lever col 123 west of door col 125, lever col 132 east of door col 130). Put lever 3 at col 120 (west of door col 121) and lever 4 on the col 132 rock cap (east of door col 131), or confirm the ruling.
-- `mapItemOf` asks for the `holoPlan` on every mission but mesto and vesnice; jeskyne has none, so its map screen never opens. Start jeskyne like vesnice (no map item).
 
 ## Region tour
 
