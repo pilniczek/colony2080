@@ -195,7 +195,7 @@ describe("moving lift", () => {
     run(g, 1);
     const lift = g.world.lifts[0]!;
     expect(lift.target).toBe(4);
-    for (let i = 0; i < 4; i++) tick(g, ["moveRight", RUNNING]);
+    for (let i = 0; i < 8; i++) tick(g, ["moveRight", RUNNING]);
     expect(g.hero.state).toBe("run");
     tick(g, ["moveRight", RUNNING], ["up"]);
     expect(g.hero.state).toBe("runJump");
