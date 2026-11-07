@@ -13,7 +13,7 @@ import type { Lift, SandboxWorld, Scenery } from "./sandboxLevel";
 import { terrain, type Run } from "./terrain";
 import { openGraph, opened } from "./testMissions";
 
-const BUILT: MissionId[] = ["mesto", "vesnice"];
+const BUILT: MissionId[] = ["mesto", "vesnice", "jeskyne"];
 
 type Role =
   | "sky" | "far" | "filler" | "wall" | "fence" | "floor" | "girder" | "building" | "support" | "pipe"
@@ -34,13 +34,14 @@ interface Cells {
 }
 
 interface MissionRules {
-  roles: Record<Role, AssetId[]>;
+  roles: Record<Role, AssetId[]> & { hazard?: AssetId[] };
   hangs: AssetId[];
   panelProps: string[];
   clutter: { small: number; big: number };
   blockersUnderArt: boolean;
   openEnds: Cells[];
   towersOnReach: { asset: AssetId; x: number; why: string }[];
+  seenFrom?: Cells[];
 }
 
 const RULES: Partial<Record<MissionId, MissionRules>> = {
@@ -109,6 +110,64 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
     ],
     towersOnReach: [],
   },
+  jeskyne: {
+    roles: {
+      sky: ["caveBackdrop"],
+      far: ["farStalagmites"],
+      filler: ["caveRock"],
+      wall: ["rockRibs", "lavaFall"],
+      fence: ["safetyRail"],
+      floor: ["caveFloor", "liftLanding"],
+      girder: ["rockLedge", "mineCarts"],
+      building: ["metalPillars"],
+      support: ["ropeColumn", "shaftHead"],
+      pipe: ["minePipe"],
+      machine: ["pressureTank", "cartCrusher"],
+      rubble: ["screeHeap"],
+      mounted: ["caveLamp"],
+      bigClutter: ["mineWreck"],
+      smallClutter: ["powderKeg", "toolCrate"],
+      sign: ["explosiveSign", "caveLamp"],
+      panel: ["liftPanel"],
+      hazard: ["lavaPit", "chasm"],
+    },
+    hangs: ["ropeColumn", "shaftHead", "cartCrusher", "lavaPit", "chasm"],
+    panelProps: [],
+    clutter: { small: 14, big: 13 },
+    blockersUnderArt: false,
+    openEnds: [
+      { col: 18, row: 19, w: 1, h: 1, why: "start drop from floor 20 to floor 28 (report 16 start chain)" },
+      { col: 32, row: 27, w: 1, h: 1, why: "start drop from floor 28 to floor 36 (report 16 start chain)" },
+      { col: 23, row: 35, w: 1, h: 1, why: "start drop from floor 36 to floor 43 (report 16 start chain)" },
+      { col: 35, row: 42, w: 1, h: 1, why: "start drop from floor 43 to floor 55 (report 16 start chain)" },
+      { col: 61, row: 19, w: 1, h: 1, why: "stalactite chasm edge, floor 20 east (report 16 zones)" },
+      { col: 95, row: 20, w: 6, h: 1, why: "middle chasm edges and its one-cell platform, floor 21 (report 16 chasm 8)" },
+      { col: 101, row: 23, w: 1, h: 1, why: "floor 24 under the middle chasm, the jump back to the platform (report 16 chasm 8)" },
+      { col: 124, row: 14, w: 6, h: 6, why: "ledge stair from floor 15 down to floor 21 (map M41)" },
+      { col: 130, row: 20, w: 7, h: 10, why: "east ledge stair from floor 31 up to floor 21 (map M41)" },
+      { col: 117, row: 30, w: 5, h: 8, why: "ledge stair from the carts up to floor 31 (map M41)" },
+      { col: 104, row: 28, w: 1, h: 1, why: "drop from the floor 29 east end to the carts (report 16 route)" },
+      { col: 75, row: 38, w: 3, h: 1, why: "hanging wall col 76, kept short so falls pass it (requirements.md)" },
+      { col: 88, row: 47, w: 3, h: 1, why: "hanging wall col 89, kept short so falls pass it (requirements.md)" },
+      { col: 87, row: 38, w: 5, h: 2, why: "cart conveyor west end, the drop to the bottom corridor (report 16 route)" },
+      { col: 131, row: 38, w: 2, h: 2, why: "cart conveyor east end at the crusher (report 16 zones)" },
+      { col: 71, row: 43, w: 1, h: 1, why: "drop from floor 44 to floor 51, the key door route (report 16)" },
+      { col: 116, row: 47, w: 7, h: 8, why: "ledge stair from floor 56 up to floor 48 (map M41)" },
+      { col: 77, row: 50, w: 1, h: 1, why: "drop from floor 51 to floor 64 (report 16 key route)" },
+      { col: 84, row: 51, w: 12, h: 14, why: "ledge stair from floor 66 up to the entry card (map M41); the col 85 wall stays short so the drop from floor 51 passes it" },
+      { col: 104, row: 57, w: 9, h: 8, why: "ledge stair from floor 66 up to floor 58 (map M41)" },
+      { col: 62, row: 62, w: 2, h: 2, why: "floor 63 and floor 64 ends over the row 67 ledge (map M41)" },
+      { col: 15, row: 62, w: 1, h: 1, why: "lava shaft lip, floor 63 west end, the marker 13 jump (report 16 dead end 2)" },
+      { col: 15, row: 71, w: 1, h: 1, why: "lava shaft lip of the marker 13 ledge (report 16 dead end 2)" },
+      { col: 21, row: 71, w: 1, h: 1, why: "marker 13 ledge east end over the lava pit (report 16 dead end 2)" },
+      { col: 44, row: 73, w: 49, h: 1, why: "lava gaps in the bottom corridor floor (report 16 lava)" },
+    ],
+    towersOnReach: [],
+    seenFrom: [
+      { col: 21, row: 74, w: 23, h: 1, why: "bottom corridor west of the lava gaps, reached by running jumps the strict graph leaves out (report 16 lava)" },
+      { col: 17, row: 72, w: 3, h: 1, why: "marker 13 energy ledge over the lava shaft, an exact jump no reach graph models (report 16 dead end 2)" },
+    ],
+  },
 };
 
 const rulesOf = (mission: MissionId): MissionRules => RULES[mission]!;
@@ -143,7 +202,7 @@ const inShaft = (lifts: Lift[], col: number, row: number): boolean => lifts.some
 
 const sceneryOf = (world: SandboxWorld): Scenery[] => [...world.backdrop, ...world.dressing];
 
-const rolesOf = (rules: MissionRules, asset: AssetId): Role[] => (Object.keys(rules.roles) as Role[]).filter((role) => rules.roles[role].includes(asset));
+const rolesOf = (rules: MissionRules, asset: AssetId): string[] => Object.entries(rules.roles).filter(([, assets]) => assets.includes(asset)).map(([role]) => role);
 
 const label = (s: Scenery): string => `${s.asset} ${s.x},${s.y}`;
 
@@ -166,6 +225,7 @@ function reached(mission: MissionId): Reached {
   const spots: [number, number][] = [];
   for (const run of strict.r.runs.filter((run) => strict.from.has(id(run)))) for (let col = run.col; col < run.col + run.w; col++) spots.push([col + 0.5, run.row]);
   for (const l of world.lifts) for (let row = l.top; row <= l.bottom; row++) spots.push([l.x + l.w / 2, row]);
+  for (const c of rulesOf(mission).seenFrom ?? []) for (let col = c.col; col < c.col + c.w; col++) spots.push([col + 0.5, c.row]);
   const fog = loadFog(cameraJson);
   const seen = new Uint8Array(world.grid.width * world.grid.height);
   for (const [x, y] of spots) for (const i of createFog(fog, cfg, { x, y }, world.grid).seenCells) seen[i] = 1;
@@ -224,7 +284,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
   it("gives every layout asset a role and fills every role", () => {
     const used = new Set([...sceneryOf(world).map((s) => s.asset), ...Object.values(world.terrainArt).filter(Boolean), world.sky]);
     expect([...used].filter((a) => !rolesOf(rules, a as AssetId).length)).toEqual([]);
-    expect((Object.keys(rules.roles) as Role[]).filter((role) => !rules.roles[role].length)).toEqual([]);
+    expect(Object.entries(rules.roles).filter(([, assets]) => !assets.length)).toEqual([]);
   });
 
   it("closes every floor end with a wall", () => {
@@ -257,11 +317,13 @@ describe.each(BUILT)("%s map rules", (mission) => {
 
   it("runs every wall column above the ground up to the floor above", () => {
     const liftFloor = (col: number, row: number): boolean => lifts.some((l) => l.bottom === row && col >= l.x && col < l.x + l.w);
+    const { runs } = reached(mission);
+    const walked = (col: number, row: number): boolean => runs.some((run) => run.row === row && col >= run.col && col < run.col + run.w);
     const short: string[] = [];
     for (const wall of terrain(grid).walls.filter((w) => w.h > 1 && w.row < (world.ground ?? grid.height))) {
       for (let col = wall.col; col < wall.col + wall.w; col++) {
         const floorAbove = Array.from({ length: wall.row }, (_, row) => ground(col, row)).some(Boolean);
-        if (floorAbove && !ground(col, wall.row - 1) && !liftFloor(col, wall.row - 1) && !inCells(rules.openEnds, col, wall.row - 1)) short.push(`${col},${wall.row}`);
+        if (floorAbove && !ground(col, wall.row - 1) && !liftFloor(col, wall.row - 1) && !walked(col, wall.row) && !inCells(rules.openEnds, col, wall.row - 1)) short.push(`${col},${wall.row}`);
       }
     }
     expect(short).toEqual([]);
@@ -284,7 +346,8 @@ describe.each(BUILT)("%s map rules", (mission) => {
       for (const stop of l.stops) {
         for (const side of [l.x - 1, l.x + l.w]) {
           const floor = firm(side, stop) && !inCells(world.bare, side, stop);
-          if (!floor && !firm(side, stop - 1)) pits.push(`lift ${l.x} stop ${stop} side ${side}`);
+          const deck = lifts.some((o) => o !== l && o.stops.includes(stop) && side >= o.x && side < o.x + o.w);
+          if (!floor && !deck && !firm(side, stop - 1)) pits.push(`lift ${l.x} stop ${stop} side ${side}`);
         }
       }
     }
@@ -349,7 +412,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
   });
 
   it(`overlaps no two front or two back dressing items by more than ${OVERLAP_SHARE * 100}% of the smaller`, () => {
-    const back = (s: Scenery): boolean => rolesOf(rules, s.asset).some((role) => BACK.includes(role));
+    const back = (s: Scenery): boolean => rolesOf(rules, s.asset).some((role) => (BACK as string[]).includes(role));
     const items = world.dressing.filter((s) => !rules.hangs.includes(s.asset) && !rules.roles.filler.includes(s.asset)).map((s) => ({ s, b: boxOf(world, s), back: back(s) }));
     const clash: string[] = [];
     items.forEach((a, i) => {
@@ -397,7 +460,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
 
   it("grimes every structure and building asset of the layout", () => {
     const used = new Set([...sceneryOf(world).map((s) => s.asset), ...Object.values(world.terrainArt).filter(Boolean)]);
-    const clean = [...used].filter((a) => rolesOf(rules, a as AssetId).some((role) => GRIMED.includes(role)) && !grimed(a));
+    const clean = [...used].filter((a) => rolesOf(rules, a as AssetId).some((role) => (GRIMED as string[]).includes(role)) && !grimed(a));
     expect(clean).toEqual([]);
   });
 });

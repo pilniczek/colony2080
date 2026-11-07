@@ -60,3 +60,19 @@ Lift bottom stops (walkway across the shaft) and stone fill edges.
 ```
 moveto(113,41) moveto(87,50) moveto(78,41) moveto(69,32) moveto(141,32) moveto(130,59) moveto(115,68) moveto(82,68) moveto(16,50) moveto(12,50) moveto(17,41) moveto(64,32) moveto(72,59) moveto(78,68) moveto(108,59)
 ```
+
+## Jeskyne regions
+
+One stop per region of `docs/research/jeskyne-map.md` (game page `game.html?mission=jeskyne`): start, west drop chain, middle hub, east floors, cart strip and exit, lower west, lower east.
+
+```
+moveto(34,20) moveto(40,55) moveto(68,29) moveto(115,21) moveto(128,48) moveto(40,63) moveto(100,74)
+```
+
+## Jeskyne lift stops
+
+One stop beside each lift stop, on the panel side: lift 1 lower and upper halves, lift 2, lift 3, lift 4 lower and upper halves, lift 5, lift 6.
+
+```
+moveto(48,44) moveto(48,55) moveto(55,29) moveto(55,44) moveto(47,20) moveto(47,44) moveto(71,29) moveto(71,37) moveto(85,23) moveto(81,29) moveto(89,21) moveto(89,23) moveto(100,66) moveto(96,74) moveto(126,56) moveto(126,74)
+```

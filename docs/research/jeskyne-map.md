@@ -190,15 +190,55 @@ Floors the hero walks: 15, 20, 21, 23, 24, 28, 29, 31, 36, 37, 39 (carts), 40, 4
 
 ## Map passes
 
-What `levelmap.py` still needs (step 3). The scratch run of `mapRules.test.ts` with jeskyne in `BUILT` names the cells:
+Step 3, done in `levelmap.py` (`EXTRAS[4]`); `map.json` is generated, never edited.
 
-- Lift shafts open above the top stop: every top stop row still holds `=` deck tiles in the shaft (lift 1 halves 49-51 row 44 and 52-54 row 29, lift 2 44-46 row 20, lift 3 72-74 row 29, lift 4 halves 82-84 row 23 and 86-88 row 21, lift 5 97-99 row 66, lift 6 127-129 row 56). Open them; the deck and `liftLanding` draw the stop.
-- Lift stop sides: lift 4 upper half, stop 21, west side col 85 is bare. Put rock or floor at 85, 21.
-- Task walls: the crystal blocker (col 63, rows 24-28) leaves `rows` for `taskWalls`; the `crystal` gate prop blocks it. The tank cells (103-104, rows 16-20) stay out of `rows` (M41 base), the `explosiveTank` prop blocks them. `variants` stay the converter's record, since the game does not apply them.
-- Floor ends without a wall (105 cells). Most are the cave's own design and need named `openEnds` with reasons, or a ruling: the one-way start drops (18,19; 32,27; 23,35; 35,42), the chasm edges (61,19; 95-100,20), the lava gap edges on row 73, every ledge stair (`rockLedge` runs at 85-93, 108-122 and 125-137), the cart floor ends (87,39; 91,38; 131-132,38-39), the lava shaft lips (15,62; 15,71) the marker 13 jump needs. Check the rest one by one and close them with rock where no route uses the edge: 91,14; 126,14; 128,15; 136,16; 124,19; 133,20; 135,21; 62-64,23; 101,23; 104,28; 75-77,38; 71,43; 80-82,45.
-- Wall columns short of the floor above: hanging bits at 137,17; 76,39; 81,46; 89,48; 85,53; 96,61 (cols 76 and 89 stay hanging by ruling, so they need exemptions); 63,24 is the crystal (task wall). Rows 43 (cols 20-34), 74 (cols 21-129) and 76 are `=` one-way floors lying on solid rock: draw them as `#` (no gameplay change) and treat the rock under a floor as cave ground, or set a world `ground` row of 74.
-- Sky: none (`caveBackdrop` fills open cells). `width` 157, `borderFills`, `unseen` and `liftSplits` are done.
-- World `haze` and `terrainArt` (`wall` and `deep` `caveRock`, `ledge` `caveFloor`, `girder` `rockLedge`) go in `world.json` with the layout.
+- Every lift top stop row is open in the shaft (`shaftBottomOnly`); the deck and `liftLanding` draw the stop.
+- The crystal code wall (col 63, rows 24-28) is out of `rows` and listed in `taskWalls` (`openCells`); the `crystal` gate prop blocks it. Until that prop exists, the reach test opens floor 29 on both sides of it with the rod (`GATED`).
+- Col 85 between the lift 4 halves is rock from the ceiling down to row 20, so the upper half stop 21 has a wall on its west side and floor 23 still runs under it.
+- `rockUp` grows rock up to the rock or floor above at the floor 15 west end (col 92), east of the floor 15 stair (col 137) and the wall columns at cols 81 and 96.
+- Left open, each named in `openEnds` of `mapRules.test.ts` with its reason: the start drops, both chasms, every ledge stair, the cart ends, the floor 29 drop to the carts, the floor 44 drop to floor 51 and the floor 51 drop (key route), the lava shaft lips, the corridor lava gaps, and the hanging columns at cols 76 and 89 (ruling). The col 85 wall at rows 53-65 stays short: growing it cuts the drop from floor 51. The doc list also named the stair tops (126,14; 128,15; 124,19; 133,20; 135,21), 101,23, 104,28 and 71,43: closing them cuts a route edge, so they stay open.
+- Rock masses whose top is a floor the hero walks (rows 29, 43, 44, 56) count as ground in the wall rule; the world `ground` is row 74, so the corridor floor and the lava band under it need no wall rule exemption.
+- `width` 157, `borderFills`, `unseen` and `liftSplits` were done before. No sky (`caveBackdrop` fills open cells).
+
+## Layout
+
+Step 4, in `config/levels/jeskyne/world.json`: sky `caveBackdrop`, haze `rgba(16, 10, 6, 0.45)`, `ground` 74, `terrainArt` wall and deep `caveRock`, ledge `caveFloor`, girder `rockLedge`. 184 scenery items: backdrop 96, dressing 88.
+
+| Region | Items | What |
+|---|---|---|
+| Start, floors 20 and 28 | 11 | rib bands, machine room with two tanks and two lamps, floor 28 end cap, strand, far cave |
+| West drop chain and floor 44 | 33 | hollow rib band and scree, machine front with EXPLOSIVE sign, riser pipe and lamp, hull front on floor 55, tanks and lamps over floor 44, strands, shaft heads of lift 1 and 2 |
+| Middle, floors 20 east to 37 | 21 | rib bands and fronts over floors 20 east, 23, 29 and 37, lamps over floor 29 east, stalactite chasm mist, strand, shaft heads of lifts 3 and 4 |
+| East, floors 15 to 31 | 25 | tank, rib bands and fronts over floors 15 and 21 (hull and broken strut states), middle chasm mist, platform post, rib band over floor 31, far cave |
+| Cart strip and exit | 21 | mine carts and the crusher, rib bands over floor 48 between the airlocks, rib band on floor 56, strand, shaft head of lift 6 |
+| Lower west | 47 | rib bands over floors 63 and 64, hull and bays fronts, lava fall, corridor ribs, tank and lamp, lava in every corridor gap and the lava shaft |
+| Lower east | 26 | rib bands over floors 52, 58, 66 and the corridor, tank and lamps, strands, lava strips under the corridor, shaft head of lift 5 |
+
+Every lift stop has a panel (16); every shaft has a `shaftHead` (8). Clutter on reached floors: 14 `mineWreck`, 19 `powderKeg` and `toolCrate`.
+
+Layout choices:
+
+- Rock ribs, fronts, tanks, lamps, pipes and signs stand in the backdrop under the haze; the dressing holds the scree, the floor end caps, strands, carts, crusher, lava, chasm mist, shaft heads, small clutter and panels, plus one rib band over the marker 13 ledge.
+- The backdrop draws the far cave, then the rock ribs and the lava fall, then the mine wrecks, then the rest: a rib band runs along the whole floor behind it, so a wreck drawn before it would vanish.
+- New role `hazard` (`lavaPit`, `chasm`): lava and mist drawn as scenery, not grimed. `mineCarts` is a girder (the walkable conveyor deck). `ropeColumn`, `shaftHead`, `cartCrusher`, `lavaPit` and `chasm` are in `hangs`: strands and heads hang from the cave roof, the crusher frame over the conveyor, lava and mist fill gaps.
+- `seenFrom` adds the corridor west of the lava gaps and the marker 13 ledge as sight spots: running jumps and an exact jump reach them, the strict reach graph does not.
+- `farStalagmites` and `lavaFall` got grime (grain on the far ground line and on the lava band seams), spike and port.
+- Key door 12 takes col 57 on floor 44, so the two pressure tanks there move 2 cells east (cols 59 and 62).
+
+Skipped, with reason:
+
+- Shale pillars (31-36, 15-19, 20-23, 36-39, 72-75, 76-80, 87-91, 109-112, 116-120, 134-137): each stands behind a floor the hero walks or a drop he falls through, and shale behind the hero reads as a wall (map composition: background art never looks like a movement blocker).
+- Strands at cols 41, 43, 47, 115, 137, 152 and 113: our map is rock there. Strand 52: lift 1 upper shaft. Strand 130: door 4 cell.
+- Rib band 34-37 rows 39-42: floor 43 ends at col 34.
+- Lower pebble strip, row 76: rock in our map.
+- Lava under the marker 13 ledge (16-19, rows 73-75): no reached spot sees it.
+
+Open items:
+
+- The carts draw on rows 38-39 like the original, while the conveyor floor is row 39, so a riding hero stands waist deep in them; check in play.
+- Key slots (57-59, floor 37): floor 37 starts at col 58, col 57 is open under rock; the props phase should put the slots at 58-60.
+- The sky stretches over the whole map height, so its stalagmite ground and lava stripe show through open cells in rows 60-75; the rib bands cover most of the corridor.
+- `src/game/level/zzScratch.test.ts` (a scratch dump of this session) is still in the tree and should be deleted.
 
 ## Tasks
 
@@ -301,7 +341,7 @@ Solid arrows are the shortest route the route test must walk; dotted arrows are 
 
 ## Region tour
 
-One `moveto` per region, on a cell the hero stands on:
+One `moveto` per region, on a cell the hero stands on (also in `docs/tours.md`):
 
 `moveto(34,20) moveto(40,55) moveto(68,29) moveto(115,21) moveto(128,48) moveto(40,63) moveto(100,74)`
 

@@ -86,7 +86,8 @@ describe("missions", () => {
   it("hazes the backdrop in the world haze colour, else in the mesto default", () => {
     expect(loadSandbox({ ...missionJson("vesnice"), haze: "rgba(28, 22, 12, 0.4)" }).haze).toBe("rgba(28, 22, 12, 0.4)");
     expect(loadMission("vesnice").haze).toBe(vesniceWorld.haze);
-    for (const id of MISSIONS.filter((m) => m !== "vesnice")) expect(loadMission(id).haze, id).toBe("rgba(26, 12, 8, 0.45)");
+    expect(loadMission("jeskyne").haze).toBe(jeskyneWorld.haze);
+    for (const id of MISSIONS.filter((m) => m !== "vesnice" && m !== "jeskyne")) expect(loadMission(id).haze, id).toBe("rgba(26, 12, 8, 0.45)");
   });
 
   it("refuses a vesnice snapshot in mesto", () => {

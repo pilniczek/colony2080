@@ -301,6 +301,7 @@ const farStalagmites: EnvAsset = {
       ctx.restore();
     }
     dripstones(ctx, w, h, seed, FAR);
+    G.grain(ctx, G.rectRegion(ctx, 0, -4, w, 4), seed + 13, 0.5);
     if (state === 1) {
       curtain(ctx, w, h, seed + 5, FAR);
       ctx.save();
@@ -437,6 +438,7 @@ const lavaFall: EnvAsset = {
       flat(ctx, 0, y0 - seam, w, seam, "#100b07");
       flat(ctx, 0, y0, w, 1, "#24100a");
     }
+    G.grain(ctx, G.rectsRegion(ctx, Array.from({ length: bands }, (_, b) => [0, -h + b * bh, w, seam + 1] as const)), 7890, 0.8);
     ctx.restore();
   },
 };
