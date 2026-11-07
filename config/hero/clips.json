@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "spikes/movement/moves.js; walk and run poses come from the gait engine (src/game/hero/gait.ts) and travel is the spec speed x cycle in cells; walk plays its stride at 2.5 cells/s and run at the original 6 px per tick (8.0 cells/s at about 32 ticks per s; docs/requirements.md Walk and run speed); every jump blends from its base or gait into LEAP in JUMP.in; duck and use share ACTION_TIME with no hold; deaths fold into FLAT_BACK in COLLAPSE; jumpDeath follows JUMP_DEATH (lands 0.36 s after the hit); a dust event starts landingDust",
+  "source": "spikes/movement/moves.js; walk and run poses come from the gait engine (src/game/hero/gait.ts) and travel is the spec speed x cycle in cells; walk plays its stride at 2.5 cells/s and run at 6.0 cells/s (docs/requirements.md Walk and run speed); every jump blends from its base or gait into LEAP in JUMP.in; duck and use share ACTION_TIME with no hold; deaths fold into FLAT_BACK in COLLAPSE; jumpDeath follows JUMP_DEATH (lands 0.36 s after the hit); a dust event starts landingDust",
   "clips": {
     "idle": {
       "duration": 3,
