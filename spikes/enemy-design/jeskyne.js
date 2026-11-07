@@ -69,7 +69,7 @@
     return (ctx, lw, pal, w, h, t) => {
       const floor = h - 60;
       cave(ctx, w, h, floor);
-      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
+      hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
       enemy(ctx, asset, { x, y: floor, state, t, pal, lineW: lw, lod: true, facing: -1 });
     };
   }
@@ -92,7 +92,7 @@
       { id: "swFire", caption: "Spider walker, firing", w: 1100, h: 700, draw: at(SPIDER_WALKER, 2, { x: 520 }) },
       { id: "swBlast", caption: "Spider walker, explosion", w: 1100, h: 700, draw: at(SPIDER_WALKER, 3, { x: 520 }) },
       { id: "swWreck", caption: "Spider walker, wreck", w: 1100, h: 700, draw: at(SPIDER_WALKER, 4, { x: 520 }) },
-      { id: "swScale", caption: "Scale, hero and spider walker", w: 1700, h: 900, hero: true, draw: scale(SPIDER_WALKER, 2, 1250) }
+      { id: "swScale", caption: "Scale, hero and spider walker", w: 1700, h: 900, draw: scale(SPIDER_WALKER, 2, 1250) }
     ],
     game: [
       { id: "gSwDuel", caption: "Face-off, cave", w: 2000, h: 1000, draw: faceOff(SPIDER_WALKER, 2, 1500) },
@@ -111,7 +111,7 @@
       { id: "pwFire", caption: "Pod walker, firing", w: 1000, h: 800, draw: at(POD_WALKER, 2, { x: 480 }) },
       { id: "pwBlast", caption: "Pod walker, explosion", w: 1000, h: 800, draw: at(POD_WALKER, 3, { x: 480 }) },
       { id: "pwWreck", caption: "Pod walker, wreck", w: 1000, h: 800, draw: at(POD_WALKER, 4, { x: 480 }) },
-      { id: "pwScale", caption: "Scale, hero and pod walker", w: 1700, h: 900, hero: true, draw: scale(POD_WALKER, 2, 1250) }
+      { id: "pwScale", caption: "Scale, hero and pod walker", w: 1700, h: 900, draw: scale(POD_WALKER, 2, 1250) }
     ],
     game: [
       { id: "gPwDuel", caption: "Face-off, cave", w: 2000, h: 1000, draw: faceOff(POD_WALKER, 2, 1450) },
@@ -131,7 +131,7 @@
       { id: "ctHit", caption: "Cave trooper, death fling (thrown back and up as it explodes)", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 3, { x: 600 }) },
       { id: "ctBlast", caption: "Cave trooper, explosion", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 4, { x: 640 }) },
       { id: "ctWreck", caption: "Cave trooper, wreck", w: 1400, h: 1100, draw: at(CAVE_TROOPER, 5, { x: 640 }) },
-      { id: "ctScale", caption: "Scale, hero and cave trooper", w: 2000, h: 1100, hero: true, draw: scale(CAVE_TROOPER, 0, 1500) }
+      { id: "ctScale", caption: "Scale, hero and cave trooper", w: 2000, h: 1100, draw: scale(CAVE_TROOPER, 0, 1500) }
     ],
     game: [
       { id: "gCtDuel", caption: "Face-off, cave", w: 2200, h: 1200, draw: faceOff(CAVE_TROOPER, 2, 1650) },

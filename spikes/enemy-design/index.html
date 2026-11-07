@@ -48,7 +48,6 @@
   <button id="palToggle">Palette</button>
   <button id="resetPal">Reset overrides</button>
   <button id="copy">Copy palette JSON</button>
-  <label><input id="hero" type="checkbox" checked> Hero beside</label>
   <label class="guardOnly"><input id="guides" type="checkbox" checked> Level guides</label>
 </header>
 <div id="palette"></div>
@@ -60,7 +59,7 @@
   <figure><figcaption>Enemy, walk</figcaption><canvas id="walkWalker" data-w="1600" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, explosion</figcaption><canvas id="blastWalker" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Enemy, wreck</figcaption><canvas id="wreckWalker" data-w="640" data-h="780"></canvas></figure>
-  <figure class="heroOnly"><figcaption>Hero, side, carry</figcaption><canvas id="heroSide" data-w="640" data-h="780"></canvas></figure>
+  <figure><figcaption>Hero, side, carry</figcaption><canvas id="heroSide" data-w="640" data-h="780"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
 <main class="game">
@@ -82,7 +81,7 @@
   <figure><figcaption>Flyer, hover</figcaption><canvas id="flyerHover" data-w="1000" data-h="420"></canvas></figure>
   <figure><figcaption>Flyer, firing</figcaption><canvas id="flyerFire" data-w="1000" data-h="420"></canvas></figure>
   <figure><figcaption>Flyer, explosion (no wreck)</figcaption><canvas id="flyerBlast" data-w="1000" data-h="900"></canvas></figure>
-  <figure class="heroOnly"><figcaption>Scale, hero and low flyer</figcaption><canvas id="flyerScale" data-w="1700" data-h="900"></canvas></figure>
+  <figure><figcaption>Scale, hero and low flyer</figcaption><canvas id="flyerScale" data-w="1700" data-h="900"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
 <main class="game">
@@ -106,7 +105,7 @@
   <figure><figcaption>Acid guard, firing</figcaption><canvas id="guardFire" data-w="1300" data-h="1400"></canvas></figure>
   <figure><figcaption>Acid guard, acid (guess)</figcaption><canvas id="guardAcid" data-w="1300" data-h="1400"></canvas></figure>
   <figure><figcaption>Acid guard, wreck</figcaption><canvas id="guardWreck" data-w="1300" data-h="1400"></canvas></figure>
-  <figure class="heroOnly"><figcaption>Scale, hero and guard</figcaption><canvas id="guardScale" data-w="2300" data-h="1400"></canvas></figure>
+  <figure><figcaption>Scale, hero and guard</figcaption><canvas id="guardScale" data-w="2300" data-h="1400"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
 <main class="game">
@@ -128,7 +127,7 @@
   <figure><figcaption>Shoot guard, idle</figcaption><canvas id="shooterIdle" data-w="1300" data-h="1400"></canvas></figure>
   <figure><figcaption>Shoot guard, firing</figcaption><canvas id="shooterFire" data-w="1300" data-h="1400"></canvas></figure>
   <figure><figcaption>Shoot guard, explosion</figcaption><canvas id="shooterBlast" data-w="1300" data-h="1400"></canvas></figure>
-  <figure class="heroOnly"><figcaption>Scale, guard and hero</figcaption><canvas id="shooterScale" data-w="2300" data-h="1400"></canvas></figure>
+  <figure><figcaption>Scale, guard and hero</figcaption><canvas id="shooterScale" data-w="2300" data-h="1400"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2, sandbox backdrop)</h2>
 <main class="game">
@@ -166,7 +165,7 @@ const K = (FOOT_Y - Object.fromEntries(LEVELS).head) / (HERO_CELLS * ENV.TILE);
 const LOW_FLYER = 32;
 const tint = { brightness: 1.1, saturate: 0 };
 const overrides = { walker: {}, flyer: {}, guard: {}, shooter: {} };
-const opts = { hero: true, guides: true, kind: "walker" };
+const opts = { guides: true, kind: "walker" };
 const ENEMY_KINDS = {};
 const GUIDED = new Set(["guardFront", "guardFire", "guardAcid", "guardWreck", "guardScale"]);
 
@@ -273,7 +272,7 @@ const VIEWS = {
     gDuel: (ctx, lw, pal, w, h) => {
       backdrop(ctx, w, h);
       ctx.translate(SIDE_SHIFT, 0);
-      if (opts.hero) robot(ctx, { root: roots.gHeroSide, pose: POSES.gSide, hook: "hand", pal: PALETTE, simple: true, lineW: lw * XBOT.GAME_LINE });
+      robot(ctx, { root: roots.gHeroSide, pose: POSES.gSide, hook: "hand", pal: PALETTE, simple: true, lineW: lw * XBOT.GAME_LINE });
       facingLeft(ctx, w - 2 * SIDE_SHIFT, () => robot(ctx, { root: roots.gSide, pose: POSES.gSide, hook: "hand", pal, simple: true, lineW: lw * XBOT.GAME_LINE }));
     },
     gFront: (ctx, lw, pal, w, h) => { backdrop(ctx, w, h); robot(ctx, { root: roots.gFront, pose: POSES.gFront, hook: "handL", barrel: gHold.FRONT_BARREL, pal, simple: true, lineW: lw * XBOT.GAME_LINE }); },
@@ -292,7 +291,7 @@ const VIEWS = {
     gFlyer: (ctx, lw, pal, w, h, t) => {
       backdrop(ctx, w, h);
       const floor = h - 100;
-      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
+      hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
       enemy(ctx, FLYER, { x: 1250, y: floor - LOW_FLYER * K, state: 1, t, pal, lineW: lw, lod: true, facing: -1 });
       enemy(ctx, FLYER, { x: 950, y: floor - (LOW_FLYER + 2 * ENV.TILE) * K, t: t + 0.7, pal, lineW: lw, lod: true, facing: -1 });
     }
@@ -311,7 +310,7 @@ const VIEWS = {
     gGuard: (ctx, lw, pal, w, h, t) => {
       backdrop(ctx, w, h);
       const floor = h - 50;
-      if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
+      hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
       enemy(ctx, GUARD, { x: w - 150, y: floor, state: 1, t, pal, lineW: lw, lod: true });
     },
     gGuardWreck: (ctx, lw, pal, w, h, t) => { backdrop(ctx, w, h); enemy(ctx, GUARD, { x: 1000, y: h - 50, state: 3, t, pal, lineW: lw, lod: true }); }
@@ -330,7 +329,7 @@ const VIEWS = {
       backdrop(ctx, w, h);
       const floor = h - 50;
       enemy(ctx, TROOPER, { x: 450, y: floor, state: 1, t, pal, lineW: lw, lod: true });
-      if (opts.hero) facingLeft(ctx, w, () => hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true }));
+      facingLeft(ctx, w, () => hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true }));
     }
   }
 };
@@ -363,7 +362,6 @@ function fit(c, dpr) {
 function draw(t = SPIKE_CLOCK.seconds()) {
   const dpr = devicePixelRatio || 1;
   const pal = PALETTES[opts.kind]();
-  for (const fig of document.querySelectorAll(".heroOnly")) fig.hidden = !opts.hero;
   for (const [id, view] of Object.entries(VIEWS[opts.kind])) {
     const c = document.getElementById(id);
     if (c.closest("[hidden]")) continue;
@@ -422,7 +420,7 @@ function setKind(kind) {
 
 function kindSection(kind, { figures, game = [] }) {
   const refs = ORIGINALS.enemies?.[kind] ?? [];
-  const figure = ({ id, caption, w, h, hero }) => `<figure${hero ? ' class="heroOnly"' : ""}><figcaption>${caption}</figcaption><canvas id="${id}" data-w="${w}" data-h="${h}"></canvas></figure>`;
+  const figure = ({ id, caption, w, h }) => `<figure><figcaption>${caption}</figcaption><canvas id="${id}" data-w="${w}" data-h="${h}"></canvas></figure>`;
   const ref = ([caption, path]) => `<figure><figcaption>${caption}</figcaption><img src="${ORIGINALS.src(path)}" alt="${caption}"></figure>`;
   const section = document.createElement("section");
   section.dataset.kind = kind;
@@ -471,7 +469,6 @@ document.getElementById("copy").onclick = () => {
   const extra = opts.kind === "walker" ? { tint } : {};
   navigator.clipboard.writeText(JSON.stringify({ kind: opts.kind, ...extra, overrides: overrides[opts.kind], palette: pick(PALETTES[opts.kind](), OWN_KEYS[opts.kind]) }, null, 2));
 };
-document.getElementById("hero").onchange = e => { opts.hero = e.target.checked; draw(); };
 document.getElementById("guides").onchange = e => { opts.guides = e.target.checked; draw(); };
 addEventListener("resize", () => draw());
 const kindFromHash = () => VIEWS[location.hash.slice(1)] ? location.hash.slice(1) : "walker";

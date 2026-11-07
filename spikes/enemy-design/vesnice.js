@@ -25,7 +25,7 @@
   const faceOff = (asset, state, x) => (ctx, lw, pal, w, h, t) => {
     backdrop(ctx, w, h);
     const floor = h - 50;
-    if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
+    hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
     enemy(ctx, asset, { x, y: floor, state, t, pal, lineW: lw, lod: true, facing: -1 });
   };
   const aimed = (asset, x, heroX = 360) => ({ ...asset, draw: (c, state, t) => asset.draw(c, state, t, { target: (x - heroX) / K }) });
@@ -45,7 +45,7 @@
       { id: "rrBlast", caption: "Rocket robot, explosion", w: 1300, h: 1100, draw: single(ROCKET_ROBOT, 3) },
       { id: "rrWreck", caption: "Rocket robot, burning wreck", w: 1300, h: 1100, draw: single(ROCKET_ROBOT, 4) },
       { id: "rrLod", caption: "Rocket robot, game LOD, full size", w: 2000, h: 1100, draw: lodFull(ROCKET_ROBOT, 2, 650) },
-      { id: "rrScale", caption: "Scale, hero and rocket robot", w: 2300, h: 1100, hero: true, draw: scale(ROCKET_ROBOT, 0, 1800) }
+      { id: "rrScale", caption: "Scale, hero and rocket robot", w: 2300, h: 1100, draw: scale(ROCKET_ROBOT, 0, 1800) }
     ],
     game: [
       { id: "gRocketRobot", caption: "Face-off: kneel, a rocket every 0.9 s at 22 cells/s, hit on the hero; hero lost at 2.4 s, gets up", w: 3600, h: 1100, draw: faceOff(aimed(ROCKET_ROBOT, 3000), 2, 3000) },
@@ -65,7 +65,7 @@
       { id: "gtBlast", caption: "Grey trooper, explosion", w: 1500, h: 1100, draw: single(GREY_TROOPER, 3, 650) },
       { id: "gtWreck", caption: "Grey trooper, scrap pile", w: 1500, h: 1100, draw: single(GREY_TROOPER, 4, 650) },
       { id: "gtLod", caption: "Grey trooper, game LOD, full size", w: 1500, h: 1100, draw: lodFull(GREY_TROOPER, 2) },
-      { id: "gtScale", caption: "Scale, hero and grey trooper", w: 2300, h: 1100, hero: true, draw: scale(GREY_TROOPER, 0, 1650) }
+      { id: "gtScale", caption: "Scale, hero and grey trooper", w: 2300, h: 1100, draw: scale(GREY_TROOPER, 0, 1650) }
     ],
     game: [
       { id: "gGreyTrooper", caption: "Face-off, burst", w: 2600, h: 1100, draw: faceOff(GREY_TROOPER, 2, 1900) },
@@ -82,7 +82,7 @@
       { id: "bgIdle", caption: "Walkie-talkie guard, idle", w: 1300, h: 1300, draw: single(RADIO_GUARD, 0) },
       { id: "bgFire", caption: "Walkie-talkie guard, firing", w: 1300, h: 1300, draw: single(RADIO_GUARD, 1) },
       { id: "bgDead", caption: "Walkie-talkie guard, dead", w: 1300, h: 1300, draw: single(RADIO_GUARD, 2, 650) },
-      { id: "bgScale", caption: "Scale, hero and walkie-talkie guard", w: 2300, h: 1300, hero: true, draw: scale(RADIO_GUARD, 0, 1650) }
+      { id: "bgScale", caption: "Scale, hero and walkie-talkie guard", w: 2300, h: 1300, draw: scale(RADIO_GUARD, 0, 1650) }
     ],
     game: [
       { id: "gBridgeGuard", caption: "Face-off", w: 2600, h: 1300, draw: faceOff(RADIO_GUARD, 1, 1900) },
