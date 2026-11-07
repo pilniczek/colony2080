@@ -206,7 +206,7 @@ const frontArm = (
 
 const shoulder = (k: Kit, parent: GroupNode, mirrored: boolean, name: string): void => {
   const x = mirrored ? 2 * AX - 100 : 100;
-  const domes = k.G(k.G(parent, null, name, [x, 150]), `translate(${x} 0) scale(${k.bulk("arms")} 1) translate(${-x} 0)`);
+  const domes = k.G(parent, null, name, [x, 150]);
   k.P(domes, { pts: mirrored ? mirror(upperArm) : upperArm, r: 2, shade: "dome" });
 };
 
@@ -383,7 +383,7 @@ const sideArm = (k: Kit, parent: GroupNode, names: Required<ArmNames>, { dim, pr
   const hand = k.G(lower, "translate(312 438)");
   if (!propBehindArm) k.hook(hand, names.hand);
   sideHand(k, lower);
-  const bulbs = k.G(arm, `translate(${SS.cx} 0) scale(${k.bulk("arms")} 1) translate(${-SS.cx} 0) ${SIDE_SHOULDER_TF}`);
+  const bulbs = k.G(arm, SIDE_SHOULDER_TF);
   k.P(bulbs, { pts: sideUpperArm, r: 2, shade: "dome" });
 };
 

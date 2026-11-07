@@ -297,7 +297,7 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
 
 function shoulder(parent, mirror, name) {
   const x = mirror ? 2 * AX - 100 : 100;
-  const domes = G(G(parent, null, name, [x, 150]), `translate(${x} 0) scale(${bulk("arms")} 1) translate(${-x} 0)`);
+  const domes = G(parent, null, name, [x, 150]);
   P(domes, { pts: mirror ? mirrorPts(upperArm) : upperArm, r: 2, shade: "dome" });
 }
 
@@ -434,7 +434,7 @@ function sideArm(parent, names, extra) {
   const hand = G(lower, "translate(312 438)");
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
   sideHand(lower);
-  const bulbs = G(arm, `translate(${SS.cx} 0) scale(${bulk("arms")} 1) translate(${-SS.cx} 0) ${SIDE_SHOULDER_TF}`);
+  const bulbs = G(arm, SIDE_SHOULDER_TF);
   P(bulbs, { pts: sideUpperArm, r: 2, shade: "dome" });
 }
 

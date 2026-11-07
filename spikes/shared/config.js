@@ -307,8 +307,7 @@ window.C28_CONFIG = {
     "minArea": 400,
     "minRadius": 8,
     "bulk": {
-     "sideLegs": 1.45,
-     "arms": 1.3
+     "sideLegs": 1.45
     }
    },
    "levels": {
