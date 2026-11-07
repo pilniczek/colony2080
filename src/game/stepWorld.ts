@@ -1,3 +1,4 @@
+import { dropEnergy, pickDrops } from "./level/drops";
 import type { InputFrame } from "../engine/input";
 import { updateFog } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
@@ -61,6 +62,8 @@ export function stepWorld(
   fireBeam(world, hero, events, clips, cfg, dt);
   warnLowBonus(world, hero, cfg);
   landPunches(world, hero, events, cfg);
+  dropEnergy(world);
+  pickDrops(world, hero, cfg);
   worldSounds(world, hero, events, dt);
   if (events.some((e) => e.kind === "respawned")) resetWorld(world, cfg);
   if (!filming && world.cutscene) {

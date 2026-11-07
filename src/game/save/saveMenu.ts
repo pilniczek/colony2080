@@ -5,7 +5,7 @@ import type { MovementConfig } from "../hero/config";
 import { isDead, type Hero } from "../hero/hero";
 import { saveLang } from "../i18n";
 import { difficultyState, gameOverState, menuKey, menuPoint, settingsState, type DifficultyState, type MenuResult, type MenuState } from "../hud/menuKeys";
-import type { Difficulty } from "../difficulty";
+import { sameDifficulty, type Difficulty } from "../difficulty";
 import { menuPointOf } from "../hud/pointer";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
@@ -156,8 +156,11 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
       return close();
     }
     if (r.action === "difficulty") {
+      if (r.difficulty && !sameDifficulty(r.difficulty, d.world.difficulty)) {
+        setDifficulty(r.difficulty);
+        d.restart();
+      }
       d.world.autosave = r.autosave ?? false;
-      if (r.difficulty) setDifficulty(r.difficulty);
       track();
       close();
       return d.begin();

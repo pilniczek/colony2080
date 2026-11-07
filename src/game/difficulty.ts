@@ -28,6 +28,10 @@ const assistOf = (id: string): Assist | undefined => ASSISTS.find((a) => a.id ==
 
 const presetOf = (id: string): Level | undefined => PRESETS.find((l) => l.id === id);
 
+export const EFFECTS = difficultyJson.effects;
+
+export const picked = (d: Difficulty, id: string): boolean => d.assists.includes(id);
+
 export const isCustom = (d: Difficulty): boolean => d.level === CUSTOM.id;
 
 export const levelLabel = (id: string): string => presetOf(id)?.label ?? CUSTOM.label;

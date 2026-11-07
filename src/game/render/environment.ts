@@ -1,3 +1,4 @@
+import type { Drop } from "../level/drops";
 import { FIXED_STEP } from "../../engine/loop";
 import { context2d, surface, type Surface } from "../../engine/render/surface";
 import { ASSETS, type AssetId } from "../env/assets";
@@ -748,6 +749,15 @@ export function drawEnvironment(
   cached(e, "above");
   for (const p of world.props) if (!isPickup(p)) prop(e, p);
   for (const p of world.props) if (isPickup(p)) prop(e, p);
+  for (const d of world.drops) if (!d.taken) drop(e, d);
+}
+
+function drop(e: Env, d: Drop): void {
+  const [left, , right] = ASSETS.energyDrop.box;
+  const x = d.x * e.cell - ((left + right) / 2) * k(e);
+  const y = d.y * e.cell;
+  if (!near(e, artBox(e, "energyDrop", x, y, 0))) return;
+  if (!putSprite(e, "energyDrop", x, y, 0)) put(e, "energyDrop", x, y);
 }
 
 const isPickup = (p: Prop): boolean => p.kind === "item" || p.kind === "weapon" || p.kind === "bonus";

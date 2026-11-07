@@ -1,4 +1,6 @@
-import { START_DIFFICULTY, type Difficulty } from "../difficulty";
+import type { Drop } from "./drops";
+import { applyAssists } from "../assists";
+import { picked, START_DIFFICULTY, type Difficulty } from "../difficulty";
 import type { SoundCue } from "../../engine/audio/mixer";
 import { isCutsceneId, type CutsceneId } from "../cutscene";
 import type { Platform } from "../../engine/world/collide";
@@ -193,6 +195,7 @@ export interface SandboxWorld {
   allQuests: boolean;
   autosave: boolean;
   difficulty: Difficulty;
+  drops: Drop[];
   sounds: SoundCue[];
   sfx: SoundClock;
   source: SandboxJson;
@@ -302,7 +305,7 @@ function scenery(items: SceneryJson[]): Scenery[] {
 }
 
 export const fallLimit = (world: SandboxWorld, cfg: MovementConfig): number =>
-  world.fallDeathCells === undefined ? cfg.fallDeathCells : (world.fallDeathCells ?? Infinity);
+  picked(world.difficulty, "noFallDeath") ? Infinity : world.fallDeathCells === undefined ? cfg.fallDeathCells : (world.fallDeathCells ?? Infinity);
 
 export function floorsOf(world: SandboxWorld): Platform[] {
   if (!world.immortal) return world.lifts;
@@ -362,6 +365,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     allQuests: false,
     autosave: false,
     difficulty: START_DIFFICULTY,
+    drops: [],
     boarding: null,
     sounds: [],
     sfx: createSoundClock(),
@@ -374,6 +378,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
 export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
   const { fog, immortal, allQuests, autosave, difficulty, sounds, bonus } = world;
   Object.assign(world, loadSandbox(world.source), { immortal, allQuests, autosave, difficulty, sounds, bonus });
+  applyAssists(world);
   const [x, y] = world.spawn;
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }

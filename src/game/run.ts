@@ -1,3 +1,5 @@
+import { applyAssists, assisted, fogWanted } from "./assists";
+import type { MovementConfig } from "./hero/config";
 import "@fontsource/orbitron/900.css";
 import "@fontsource/share-tech-mono/400.css";
 import "@fontsource/oxanium/latin-ext-400.css";
@@ -95,19 +97,21 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   if (!(canvas instanceof HTMLCanvasElement) || !ui) throw new Error("missing #game or #ui");
 
   const tuning = () => useSandbox.getState();
+  const movement = (): MovementConfig => assisted(tuning().movement, world.difficulty);
+  applyAssists(world);
   const mapOn = (): boolean => !mapItem || world.inventory.items.includes(mapItem);
   const fogConfig = loadFog(cameraJson);
   const cameraConfig = cameraJson as { view: { widthCells: number; heightCells: number; zoom: number }; referenceScreen: { width: number; height: number } };
   const reference = hudFit(cameraConfig.referenceScreen.width, cameraConfig.referenceScreen.height);
   const referenceWindow = viewRect(reference);
-  const hero = createHero(world.spawn, "gun", tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, true);
+  const hero = createHero(world.spawn, "gun", movement().energy.max, movement().energy.shields, movement().ammo, true);
   const applyFog = (on: boolean): void => {
-    world.fog = on ? createFog(fogConfig, tuning().movement, hero, world.grid) : null;
+    world.fog = on ? createFog(fogConfig, movement(), hero, world.grid) : null;
   };
-  applyFog(tuning().fogOn);
+  applyFog(tuning().fogOn && fogWanted(world.difficulty));
   paintTilesAside(world);
   const painter = createPainter(canvas, world, drawOver);
-  const input = new Input(controls.keyboard, () => performance.now(), tuning().movement.inputBufferMs);
+  const input = new Input(controls.keyboard, () => performance.now(), movement().inputBufferMs);
   input.attach(window);
 
   const mixer = createMixer(samplesOf);
@@ -238,11 +242,11 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     });
   };
 
-  const tune = () => ({ cfg: tuning().movement, clips: tuning().clips });
+  const tune = () => ({ cfg: movement(), clips: tuning().clips });
 
   const drawFilm = (id: CutsceneId, t: number): void => {
     const lines = devicePixelRatio || 1;
-    painter.paint({ kind: "film", id, t, width: filmWidth, skip: tr("Press Enter to skip", tuning().lang), ask: { view: cameraView(hero, tuning().movement), window: gameWindow, lines } }, tune());
+    painter.paint({ kind: "film", id, t, width: filmWidth, skip: tr("Press Enter to skip", tuning().lang), ask: { view: cameraView(hero, movement()), window: gameWindow, lines } }, tune());
     push();
   };
 
@@ -257,8 +261,10 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       input,
       keys: controls.keyboard,
       picture,
-      movement: () => tuning().movement,
+      movement,
       moved: () => {
+        const fogOn = tuning().fogOn && fogWanted(world.difficulty);
+        if ((world.fog !== null) !== fogOn) applyFog(fogOn);
         prev = momentOf(hero);
       },
       leave: (href) => location.assign(href),
@@ -267,12 +273,12 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
       playUi: play,
       bodyAt: () => {
         if (!lastView) return null;
-        const { cellPx } = tuning().movement;
+        const { cellPx } = movement();
         const { unit } = tuning().hud;
         const dpr = devicePixelRatio || 1;
         return {
           x: (lastView.offsetX + hero.x * cellPx * lastView.scale) / dpr / unit,
-          y: (lastView.offsetY + (hero.y - tuning().movement.box.height - HEAD_GAP) * cellPx * lastView.scale) / dpr / unit,
+          y: (lastView.offsetY + (hero.y - movement().box.height - HEAD_GAP) * cellPx * lastView.scale) / dpr / unit,
         };
       },
     });
@@ -281,7 +287,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
     step: FIXED_STEP,
     maxSteps: MAX_STEPS,
     update(dt) {
-      const { movement: cfg, clips } = tuning();
+      const { clips } = tuning();
+      const cfg = movement();
       prev = momentOf(hero);
       for (const { body } of world.enemies) prevEnemies.set(body, momentOf(body));
       input.bufferMs = cfg.inputBufferMs;
@@ -334,7 +341,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
         push();
         return;
       }
-      const { movement: cfg, overlays } = tuning();
+      const { overlays } = tuning();
+      const cfg = movement();
       const shown = tween(prev, hero, alpha);
       const view = cameraView(shown, cfg);
       lastView = view;
@@ -363,8 +371,8 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   });
 
   const restart = ({ weapon, running, blaster, fogOn }: RunStart): void => {
-    resetWorld(world, tuning().movement);
-    Object.assign(hero, createHero(world.spawn, weapon, tuning().movement.energy.max, tuning().movement.energy.shields, tuning().movement.ammo, running, blaster));
+    resetWorld(world, movement());
+    Object.assign(hero, createHero(world.spawn, weapon, movement().energy.max, movement().energy.shields, movement().ammo, running, blaster));
     applyFog(fogOn);
     prev = momentOf(hero);
     useSandbox.setState({ inventory: { open: false, cursor: 0 }, mapOpen: false });
@@ -375,7 +383,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
   };
 
   const restartMission = (): void => {
-    restart({ weapon: "gun", running: true, blaster: null, fogOn: world.fog !== null });
+    restart({ weapon: "gun", running: true, blaster: null, fogOn: tuning().fogOn && fogWanted(world.difficulty) });
     if (filmsOff) debug();
   };
 
@@ -478,7 +486,7 @@ export function startRun({ world, ui: tree, mapItem, afterStep, drawOver, saves,
 
   const giveWeapon = (): string => {
     if (!world.props.some((p) => p.kind === "weapon")) return "No special weapon in this mission";
-    hero.blaster = bonusAmmo(world, tuning().movement);
+    hero.blaster = bonusAmmo(world, movement());
     return `Picked up ${BONUS_NAMES[world.bonus]}`;
   };
 

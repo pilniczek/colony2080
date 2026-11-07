@@ -31,6 +31,7 @@ const CS: Record<string, string> = {
   "You found an E-Blaster!": "Našel jsi E-Blaster!",
   "You found a crowbar.": "Našel jsi páčidlo.",
   "You found ammunition.": "Našel jsi munici.",
+  "You found a small energy cell.": "Našel jsi malý energetický článek.",
   "You found an energy cell. Energy refilled.": "Našel jsi energetický článek. Energie doplněna.",
   "You found a shield unit. One more shield is ready.": "Našel jsi štítový modul. Další štít je připraven.",
   OBJECTIVES: "ÚKOLY",

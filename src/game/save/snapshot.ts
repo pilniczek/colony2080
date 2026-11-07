@@ -1,5 +1,6 @@
 import { difficultyOk, START_DIFFICULTY, type Difficulty } from "../difficulty";
 import { createFog } from "../fog";
+import type { Drop } from "../level/drops";
 import type { MovementConfig } from "../hero/config";
 import { createHero, type Hero } from "../hero/hero";
 import { ITEMS, type ItemId } from "../items";
@@ -31,8 +32,14 @@ export interface Snapshot {
   subtitle: string | null;
   autosave?: boolean;
   difficulty?: Difficulty;
+  drops?: Drop[];
   bonus?: BonusWeapon;
 }
+
+const dropOk = (d: unknown): boolean => {
+  const { x, y, from, taken } = (d ?? {}) as Partial<Record<keyof Drop, unknown>>;
+  return [x, y, from].every((v) => typeof v === "number" && Number.isFinite(v)) && typeof taken === "boolean";
+};
 
 export type SaveProblem = "misfit" | "damaged";
 
@@ -78,6 +85,7 @@ export function takeSnapshot(world: SandboxWorld, hero: Hero): Snapshot {
     subtitle: world.subtitle?.text ?? null,
     autosave: world.autosave,
     difficulty: world.difficulty,
+    drops: clone(world.drops),
     bonus: world.bonus,
   };
 }
@@ -142,6 +150,7 @@ export function checkSnapshot(world: SandboxWorld, snap: unknown): SaveProblem |
     (snap.subtitle === null || typeof snap.subtitle === "string") &&
     (snap.autosave === undefined || typeof snap.autosave === "boolean") &&
     (snap.difficulty === undefined || difficultyOk(snap.difficulty)) &&
+    (snap.drops === undefined || (Array.isArray(snap.drops) && snap.drops.every(dropOk))) &&
     (snap.bonus === undefined || (typeof snap.bonus === "string" && snap.bonus in BONUS_NAMES));
   return ok ? null : "damaged";
 }
@@ -161,6 +170,7 @@ function apply(world: SandboxWorld, hero: Hero, snap: Snapshot, cfg: MovementCon
   world.complete = snap.complete;
   world.autosave = snap.autosave ?? false;
   world.difficulty = snap.difficulty ?? START_DIFFICULTY;
+  world.drops = clone(snap.drops ?? []);
   world.bonus = snap.bonus ?? firstBonus(world.props);
   world.subtitle = snap.subtitle === null ? null : { text: snap.subtitle, age: 0 };
   applyBlocks(world);
