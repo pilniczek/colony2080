@@ -1,6 +1,7 @@
 import jeskyneMap from "@config/levels/jeskyne/map.json";
 import jeskyneWorld from "@config/levels/jeskyne/world.json";
 import jungleMap from "@config/levels/jungle/map.json";
+import jungleTasks from "@config/levels/jungle/tasks.json";
 import jungleWorld from "@config/levels/jungle/world.json";
 import vesniceMap from "@config/levels/vesnice/map.json";
 import vesniceTasks from "@config/levels/vesnice/tasks.json";
@@ -46,7 +47,7 @@ interface MissionWorld {
 
 const WORLDS: Record<OtherMission, MissionWorld> = { vesnice: vesniceWorld, jungle: jungleWorld, jeskyne: jeskyneWorld };
 
-const TASKS: Partial<Record<OtherMission, unknown>> = { vesnice: vesniceTasks };
+const TASKS: Partial<Record<OtherMission, unknown>> = { vesnice: vesniceTasks, jungle: jungleTasks };
 
 const MESTO_KINDS: Record<string, DroidTuning> = { chromeDroid: DROID, flyer: FLYER };
 

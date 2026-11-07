@@ -60,7 +60,10 @@ export function reachOf(world: SandboxWorld, cfg: MovementConfig) {
   const deadlyFall = (col: number, from: number, land: number): boolean =>
     world.hazards.some((z) => z.kind === "death" && col >= z.col && col < z.col + z.w && land - 1 >= z.row && from < z.row + z.h);
   const deadly = (col: number, row: number): boolean => deadlyFall(col, row - 1, row);
-  const runs: Run[] = [...world.terrain.ledges, ...world.terrain.girders].flatMap((r) =>
+  const propFloors: Run[] = world.props.flatMap(({ cells, solidStates, state = 0 }) =>
+    cells && solidStates?.includes(state) && !solidStates.includes(0) ? [{ row: cells.row, col: cells.col, w: cells.w }] : [],
+  );
+  const runs: Run[] = [...world.terrain.ledges, ...world.terrain.girders, ...propFloors].flatMap((r) =>
     standable(r, (col) => !grid.solid(col, r.row - 1) && !deadly(col, r.row)),
   );
   const decks = new Map<Run, string>(

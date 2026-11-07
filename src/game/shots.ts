@@ -12,7 +12,7 @@ import { repelHero, updateGuard } from "./level/guards";
 import { flyMissile, launchMissile } from "./level/missiles";
 import { live, tick } from "./level/projectile";
 import { flyRocket, launchRocket } from "./level/rockets";
-import { applyBlocks, say } from "./level/tasks";
+import { applyBlocks, say, setStates } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { TOASTER_MUZZLE_IN_HOOK, toasterHolds } from "./robot/toaster";
 import { kindOf } from "./robot/kinds";
@@ -136,6 +136,7 @@ export function hitShootable(world: SandboxWorld, prop: Prop, by: Strike = "shot
   prop.brokenAge = 0;
   if (prop.fires) explode(world);
   for (const flag of spec.gives ?? []) world.flags.add(flag);
+  setStates(world, spec.sets);
   applyBlocks(world);
   if (spec.subtitle) say(world, spec.subtitle);
   startFilm(world, spec.cutscene?.[by]);

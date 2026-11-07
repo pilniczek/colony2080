@@ -38,10 +38,11 @@ export interface Prop {
   state?: number;
   solidStates?: number[];
   gapStates?: number[];
+  hazardStates?: number[];
   seeThrough?: boolean;
   cells?: { col: number; row: number; w: number; h: number };
   cover?: Cover;
-  shootable?: { hits: number; state: number; gives?: string[]; subtitle?: string; by?: "beam"; cutscene?: Partial<Record<Strike, CutsceneId>> };
+  shootable?: { hits: number; state: number; gives?: string[]; sets?: Record<string, number>; subtitle?: string; by?: "beam"; cutscene?: Partial<Record<Strike, CutsceneId>> };
   cutscene?: CutsceneId;
   approach?: { cells: number; cutscene: CutsceneId; gives: string };
   hitsTaken?: number;

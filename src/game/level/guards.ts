@@ -27,6 +27,7 @@ export interface PropRepel {
   push: number;
   ms: number;
   states: number[];
+  after?: number;
   cutscene?: CutsceneId;
 }
 
@@ -41,6 +42,8 @@ const ART: Partial<Record<AssetId, GuardArt>> = {
   acidGuard: { firing: ACID_GUARD_FIRING },
   shootGuard: { firing: SHOOT_GUARD_FIRING, explode: SHOOT_GUARD_EXPLODE },
   radioGuard: { firing: RADIO_GUARD_FIRING },
+  cannonTurret: { firing: 0 },
+  mine: { firing: 0 },
 };
 
 const artOf = (prop: Prop): GuardArt => {
@@ -108,6 +111,7 @@ export function repelHero(prop: Prop, world: SandboxWorld, hero: Hero, cfg: Move
   }
   if (!alive(prop) || prop.fireTime != null || world.cutscene !== null || isDead(hero.state) || !inZone(prop, hero, cfg)) return 0;
   prop.fireTime = 0;
+  if (repel.after !== undefined) prop.state = repel.after;
   if (prop.shownBy && guardHidden(prop, world.flags)) {
     world.flags.add(prop.shownBy);
     startFilm(world, repel.cutscene);

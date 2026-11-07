@@ -53,6 +53,20 @@ const VESNICE: Step[] = [
   { use: "dynamiteWall", with: "detonator" },
 ];
 
+const JUNGLE: Step[] = [
+  { shoot: "distributionCabinet" },
+  { pick: "canister" },
+  { use: "crate" },
+  { pick: "smallKey" },
+  { use: "tripwire", with: "cutters" },
+  { use: "boulder", with: "grenade" },
+  { use: "stonePuzzle" },
+  { use: "flamethrowerDoor", with: "smallKey" },
+  { pick: "flamethrower" },
+  { use: "jeep", with: "canister" },
+  { use: "jeep" },
+];
+
 const name = (step: Step): string => Object.entries(step).map((e) => e.join(" ")).join(" ");
 
 function propOf(world: SandboxWorld, step: Step): Prop {
@@ -71,6 +85,7 @@ function act(world: SandboxWorld, step: Step, prop: Prop): void {
   } else if ("shoot" in step) {
     for (let hit = 0; hit < (prop.shootable?.hits ?? 0); hit++) hitShootable(world, prop);
   } else {
+    world.inventory.shown = null;
     if (step.with) showItem(world, step.with);
     expect(world.inventory.shown, name(step)).toBe(step.with ?? world.inventory.shown);
     runUse(world, prop);
@@ -92,6 +107,52 @@ function walkThrough(world: SandboxWorld, order: Step[]): void {
     done.push(name(step));
   }
   expect(world.complete).toBe(true);
+}
+
+function finishesFromEveryState(mission: "vesnice" | "jungle", order: Step[]): boolean {
+  const fresh = loadMission(mission);
+  const [x, y] = fresh.spawn;
+  const replay = (done: Step[]): SandboxWorld => {
+    const world = loadMission(mission);
+    for (const step of done) act(world, step, propOf(world, step));
+    return world;
+  };
+  const runs = (world: SandboxWorld, step: Step, prop: Prop): boolean => {
+    if ("pick" in step) return onGround(prop, { blaster: null }, world.flags);
+    if ("shoot" in step) return !!prop.shootable && (prop.state ?? 0) !== prop.shootable.state;
+    if (step.with && !world.inventory.items.includes(step.with)) return false;
+    const shown = world.inventory.shown;
+    world.inventory.shown = null;
+    if (step.with) showItem(world, step.with);
+    const task = openTask(world, prop);
+    world.inventory.shown = shown;
+    return task !== undefined;
+  };
+  const propFor = (world: SandboxWorld, step: Step): Prop | undefined =>
+    world.props.find((p) => ("pick" in step ? (p.item ?? p.asset) === step.pick : p.id === ("use" in step ? step.use : step.shoot)));
+  const seen = new Map<string, boolean>();
+  const finishes = (done: Step[], at: Ride): boolean => {
+    const world = replay(done);
+    if (world.complete) return true;
+    const area = reachable(world, cfg, at);
+    const key = `${done.map(name).sort().join(";")}@${[...area.keys()].sort().join(";")}`;
+    const known = seen.get(key);
+    if (known !== undefined) return known;
+    seen.set(key, true);
+    const r = reachOf(world, cfg);
+    let moved = false;
+    let ok = true;
+    for (const step of order.filter((s) => !done.includes(s))) {
+      const prop = propFor(world, step);
+      const next = prop && r.nodesAt(prop).map((n) => area.get(n)).find((ride) => ride !== undefined);
+      if (!prop || !next || !runs(world, step, prop)) continue;
+      moved = true;
+      if (!finishes([...done, step], next)) ok = false;
+    }
+    seen.set(key, moved && ok);
+    return moved && ok;
+  };
+  return finishes([], { row: y, col: Math.floor(x), ys: fresh.lifts.map((l) => l.y) });
 }
 
 describe("mesto route", () => {
@@ -156,48 +217,7 @@ describe("vesnice route", () => {
   });
 
   it("reaches the level end from every state any order of uses can reach", () => {
-    const fresh = loadMission("vesnice");
-    const [x, y] = fresh.spawn;
-    const replay = (done: Step[]): SandboxWorld => {
-      const world = loadMission("vesnice");
-      for (const step of done) act(world, step, propOf(world, step));
-      return world;
-    };
-    const runs = (world: SandboxWorld, step: Step, prop: Prop): boolean => {
-      if ("pick" in step) return onGround(prop, { blaster: null }, world.flags);
-      if ("shoot" in step) return !!prop.shootable && (prop.state ?? 0) !== prop.shootable.state;
-      if (step.with && !world.inventory.items.includes(step.with)) return false;
-      const shown = world.inventory.shown;
-      if (step.with) showItem(world, step.with);
-      const task = openTask(world, prop);
-      world.inventory.shown = shown;
-      return task !== undefined;
-    };
-    const propFor = (world: SandboxWorld, step: Step): Prop | undefined =>
-      world.props.find((p) => ("pick" in step ? (p.item ?? p.asset) === step.pick : p.id === ("use" in step ? step.use : step.shoot)));
-    const seen = new Map<string, boolean>();
-    const finishes = (done: Step[], at: Ride): boolean => {
-      const world = replay(done);
-      if (world.complete) return true;
-      const area = reachable(world, cfg, at);
-      const key = `${done.map(name).sort().join(";")}@${[...area.keys()].sort().join(";")}`;
-      const known = seen.get(key);
-      if (known !== undefined) return known;
-      seen.set(key, true);
-      const r = reachOf(world, cfg);
-      let moved = false;
-      let ok = true;
-      for (const step of VESNICE.filter((s) => !done.includes(s))) {
-        const prop = propFor(world, step);
-        const next = prop && r.nodesAt(prop).map((n) => area.get(n)).find((ride) => ride !== undefined);
-        if (!prop || !next || !runs(world, step, prop)) continue;
-        moved = true;
-        if (!finishes([...done, step], next)) ok = false;
-      }
-      seen.set(key, moved && ok);
-      return moved && ok;
-    };
-    expect(finishes([], { row: y, col: Math.floor(x), ys: fresh.lifts.map((l) => l.y) })).toBe(true);
+    expect(finishesFromEveryState("vesnice", VESNICE)).toBe(true);
   }, 600000);
 
   it("opens the bridge gap while the power is off, so the hero falls into the bridgeGap hazard", () => {
@@ -207,5 +227,41 @@ describe("vesnice route", () => {
     for (let col = 45; col <= 56; col++) expect(world.grid.oneWay(col, 41), `${col}`).toBe(false);
     expect(world.grid.oneWay(44, 41)).toBe(true);
     expect(world.hazards.find((h) => h.id === "bridgeGap")).toMatchObject({ kind: "death", row: 41 });
+  });
+});
+
+describe("jungle route", () => {
+  it("completes the jungle in one pickup and use order, each object reachable from the last by floors and the tower lift", () => {
+    walkThrough(loadMission("jungle"), JUNGLE);
+  });
+
+  it("reaches the level end from every state any order of uses can reach", () => {
+    expect(finishesFromEveryState("jungle", JUNGLE)).toBe(true);
+  }, 600000);
+
+  it("keeps the puzzle ledge behind the boulder rubble and the jeep behind the waterfall steps", () => {
+    const world = loadMission("jungle");
+    const [x, y] = world.spawn;
+    const at: Ride = { row: y, col: Math.floor(x), ys: [] };
+    const reaches = (id: string): boolean => route(world, cfg, at, (r) => r.nodesAt(world.props.find((p) => p.id === id)!)) !== null;
+    expect([reaches("stonePuzzle"), reaches("jeep")]).toEqual([false, false]);
+    pickUp(world, "grenade");
+    runUse(world, world.props.find((p) => p.id === "boulder")!);
+    expect([reaches("stonePuzzle"), reaches("jeep")]).toEqual([true, false]);
+    runUse(world, world.props.find((p) => p.id === "stonePuzzle")!);
+    expect(reaches("jeep")).toBe(true);
+  });
+
+  it("switches the cannon off with the cabinet shot and disarms the tripwire once it is cut", () => {
+    const world = loadMission("jungle");
+    const prop = (id: string) => world.props.find((p) => p.id === id)!;
+    hitShootable(world, prop("distributionCabinet"));
+    expect(prop("cannonTurret").state).toBe(1);
+    expect(world.flags.has("flag:cannonOff")).toBe(true);
+    expect(prop("tripwire").hazardStates).toEqual([0]);
+    pickUp(world, "cutters");
+    runUse(world, prop("tripwire"));
+    expect(prop("tripwire").state).toBe(1);
+    expect(world.inventory.items).toEqual(["grenade"]);
   });
 });

@@ -148,6 +148,10 @@ function setState(world: SandboxWorld, id: string, state: number): void {
   for (const prop of world.props) if (prop.id === id) moveProp(world, prop, state, false);
 }
 
+export function setStates(world: SandboxWorld, sets: Record<string, number> = {}): void {
+  for (const [id, state] of Object.entries(sets)) setState(world, id, state);
+}
+
 const spent = (world: SandboxWorld, id: ItemId): boolean => {
   const users = world.tasks.filter((t) => t.requires.includes(`${ITEM}${id}`));
   return !ITEMS[id]?.keep && users.length > 0 && users.every((t) => world.flags.has(doneToken(t)));
@@ -206,7 +210,7 @@ export function runUse(world: SandboxWorld, prop: Prop, { filmed = false } = {})
     else pickUp(world, item);
   }
   if (task.state !== undefined) moveProp(world, prop, task.state, filmed);
-  for (const [id, state] of Object.entries(task.sets ?? {})) setState(world, id, state);
+  setStates(world, task.sets);
   applyBlocks(world);
   say(world, task.subtitle);
   if (world.flags.has(COMPLETE)) world.complete = true;

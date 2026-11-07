@@ -8,7 +8,7 @@ import { applyBlocks } from "./tasks";
 
 const cfg = loadMovement(movementJson);
 
-const FINAL_VARIANT: Partial<Record<MissionId, string>> = { vesnice: "barricadeGone", jungle: "puzzleSteps", jeskyne: "tankShot" };
+const FINAL_VARIANT: Partial<Record<MissionId, string>> = { vesnice: "barricadeGone", jeskyne: "tankShot" };
 
 const TASK_WALLS: Partial<Record<MissionId, Record<string, [number, number][]>>> = {};
 
@@ -26,7 +26,7 @@ export function opened(mission: MissionId): SandboxWorld {
   const walls = Object.values(TASK_WALLS[mission] ?? {}).flat();
   const w = loadSandbox(patch(json, walls.map(([col, row]) => ({ col, row, ch: "." }))));
   for (const gate of [...w.lifts, ...w.teleports]) if (gate.enabledBy) w.flags.add(gate.enabledBy);
-  for (const prop of w.props) if (prop.solidStates) prop.state = Math.max(...prop.solidStates) + 1;
+  for (const prop of w.props) if (prop.solidStates) prop.state = Math.max(...prop.solidStates) + (prop.solidStates.includes(0) ? 1 : 0);
   applyBlocks(w);
   return w;
 }

@@ -105,6 +105,26 @@ describe("hazards", () => {
     tick(g);
     expect(isDead(g.hero.state)).toBe(false);
   });
+
+  it("arms a hazard only while the prop of its id is in one of its hazardStates", () => {
+    const trap = (state: number) => ({ kind: "gate", id: "lava", x: 9.5, y: 8, hazardStates: [0], state });
+    const armed = game({ x: 9.5, y: 8 }, level({ hazards: [lava], props: [trap(0)] }));
+    tick(armed);
+    expect(isDead(armed.hero.state)).toBe(true);
+    const cut = game({ x: 9.5, y: 8 }, level({ hazards: [lava], props: [trap(1)] }));
+    run(cut, 0.5);
+    expect(isDead(cut.hero.state)).toBe(false);
+  });
+
+  it("fires a one shot repel once and leaves its prop in the after state", () => {
+    const mine = { kind: "gate", id: "mine", asset: "mine", x: 9.5, y: 8, cells: { col: 9, row: 7, w: 1, h: 1 }, state: 0, repels: { col: 9, w: 1, facing: 1, hits: 15, push: 0, ms: 100, states: [0], after: 1 } };
+    const g = game({ x: 9.5, y: 8 }, level({ props: [mine] }));
+    tick(g);
+    expect(g.hero.energy).toBe(cfg.energy.max - 15);
+    expect(g.world.props[0]!.state).toBe(1);
+    run(g, 0.5);
+    expect(g.hero.energy).toBe(cfg.energy.max - 15);
+  });
 });
 
 describe("conveyors", () => {

@@ -121,4 +121,15 @@ describe("quests", () => {
     runUse(vesnice, fuseBox);
     expect(now()).toEqual(["Find a way out of the village."]);
   });
+
+  it("reminds every jungle hint until its task is done and never shows a jungle quest for an item alone", () => {
+    const jungle = loadMission("jungle");
+    const reminded = (token: string) => jungle.quests.some((q) => [...q.after, ...(q.any ?? [])].includes(token));
+    expect(jungle.tasks.filter((t) => t.hint !== undefined).map((t) => `flag:tried:${t.object}`).filter((token) => !reminded(token))).toEqual([]);
+    expect(jungle.quests.filter((q) => q.until === undefined)).toEqual([]);
+    expect(jungle.quests.flatMap((q) => [...q.after, ...(q.any ?? [])]).filter((t) => t.startsWith("item:"))).toEqual([]);
+    expect(activeQuests(jungle.quests, jungle)).toEqual(["Find a way out of the jungle."]);
+    runUse(jungle, jungle.props.find((p) => p.id === "boulder")!);
+    expect(activeQuests(jungle.quests, jungle)).toEqual(["Find a way out of the jungle.", "Find a way past the boulder."]);
+  });
 });

@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "source": "config/levels/mesto/tasks.json task graph, docs/research/reports/06-cz-walkthroughs.md; preview is the original inventory preview (rotating 3D render) the asset follows, file names from KLEV1.EXE; craneKey assumed PRKLIC (PRKLIC1 looks alike); keep: the item stays after its last use (the holoplan is the map)",
+  "source": "config/levels/mesto/tasks.json task graph, docs/research/reports/06-cz-walkthroughs.md; preview is the original inventory preview (rotating 3D render) the asset follows, file names from KLEV1.EXE; craneKey assumed PRKLIC (PRKLIC1 looks alike); jungle canister PREKAN (jerrycan frames) and grenade PREGRAN assumed, cutters PRSTI (STIPACKY); keep: the item stays after its last use (the holoplan is the map)",
   "items": {
     "crowbar": { "name": "crowbar", "cs": "Páčidlo", "icon": { "asset": "crowbar", "tilt": 45, "scale": 1.25 }, "preview": "GRAFIKA/PRPAC.GRA" },
     "wires": { "name": "wires", "cs": "Dráty", "icon": { "asset": "wires", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRDRAT.GRA" },
@@ -18,6 +18,9 @@
     "detonator": { "name": "detonator", "cs": "Rozbuška", "icon": { "asset": "detonator", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRROZB.GRA" },
     "dynamite": { "name": "dynamite", "cs": "Dynamit", "icon": { "asset": "dynamite", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRDYNA.GRA" },
     "navCircuit": { "name": "nav circuit", "cs": "Nav. obvod", "icon": { "asset": "navCircuit", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PRNAV.GRA" },
-    "fuse": { "name": "fuse", "cs": "Pojistka", "icon": { "asset": "fuse", "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRPOJ.GRA" }
+    "fuse": { "name": "fuse", "cs": "Pojistka", "icon": { "asset": "fuse", "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRPOJ.GRA" },
+    "canister": { "name": "canister", "cs": "Kanystr", "icon": { "asset": "canister", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PREKAN.GRA" },
+    "cutters": { "name": "cutters", "cs": "Štípačky", "icon": { "asset": "cutters", "tilt": 20, "scale": 1.25 }, "preview": "GRAFIKA/PRSTI.GRA" },
+    "grenade": { "name": "grenade", "cs": "Granát", "icon": { "asset": "grenade", "tilt": 0, "scale": 1.25 }, "preview": "GRAFIKA/PREGRAN.GRA" }
   }
 }

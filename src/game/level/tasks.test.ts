@@ -210,8 +210,33 @@ describe("runUse", () => {
   });
 
   it("gives every mission task that needs something a hint", () => {
-    const needy = loadMesto().tasks.filter((t) => t.requires.length);
+    const needy = [loadMesto(), loadMission("vesnice"), loadMission("jungle")].flatMap((w) => w.tasks.filter((t) => t.requires.length));
     expect(needy.filter((t) => !t.hint).map((t) => t.id)).toEqual([]);
+  });
+
+  it("asks the jungle jeep for fuel until it is fueled, then winches the tree away to end the level", () => {
+    const w = loadMission("jungle");
+    use(w, "jeep");
+    expect(w.subtitle?.text).toBe("The jeep's tank is empty.");
+    pickUp(w, "canister");
+    use(w, "jeep");
+    expect(w.flags.has("flag:jeepFueled")).toBe(true);
+    expect(w.inventory.items).toEqual([]);
+    expect(w.complete).toBe(false);
+    use(w, "jeep");
+    expect(w.complete).toBe(true);
+  });
+
+  it("lays the jungle boulder rubble on the spikes as a floor and slides the waterfall steps out", () => {
+    const w = loadMission("jungle");
+    const solid = (cells: [number, number][]) => cells.map(([col, row]) => w.grid.solid(col, row));
+    const floors: [number, number][] = [[54, 20], [59, 20], [98, 13], [96, 12]];
+    expect(solid(floors)).toEqual([false, false, false, false]);
+    pickUp(w, "grenade");
+    use(w, "boulder");
+    use(w, "stonePuzzle");
+    expect(solid(floors)).toEqual([true, true, true, true]);
+    expect(solid([[53, 20], [60, 20]])).toEqual([false, false]);
   });
 
   it("blocks cells while the object is in a solid state", () => {

@@ -10,6 +10,9 @@ const inside = (z: Hazard, [col, row]: [number, number]): boolean =>
 
 const live = (world: SandboxWorld, h: Hero): boolean => world.cutscene === null && !isDead(h.state);
 
+const armed = (world: SandboxWorld, z: Hazard): boolean =>
+  world.props.every((p) => p.id !== z.id || !p.hazardStates || p.hazardStates.includes(p.state ?? 0));
+
 function carry(world: SandboxWorld, h: Hero, cfg: MovementConfig, dx: number): void {
   if (dx === 0) return;
   h.x = moveBox({ x: h.x, y: h.y, w: cfg.box.width, h: cfg.box.height }, dx, 0, world.grid, world.lifts).x;
@@ -19,7 +22,7 @@ export function stepHazards(world: SandboxWorld, h: Hero, cfg: MovementConfig, d
   if (!live(world, h) || world.immortal) return;
   const cell = footCell(h);
   for (const z of world.hazards) {
-    if (isDead(h.state) || !inside(z, cell)) continue;
+    if (isDead(h.state) || !inside(z, cell) || !armed(world, z)) continue;
     if (z.kind === "death") events.push(...kill(h));
     else {
       events.push(...drain(h, cfg, (z.perSecond ?? 0) * dt));
@@ -30,7 +33,7 @@ export function stepHazards(world: SandboxWorld, h: Hero, cfg: MovementConfig, d
 }
 
 export const inSparks = (world: SandboxWorld, h: Hero): boolean =>
-  live(world, h) && world.hazards.some((z) => z.sound === "spark" && inside(z, footCell(h)));
+  live(world, h) && world.hazards.some((z) => z.sound === "spark" && inside(z, footCell(h)) && armed(world, z));
 
 export function conveyorVx(world: SandboxWorld, h: Hero): number {
   if (!live(world, h) || !h.onGround || h.onLift) return 0;

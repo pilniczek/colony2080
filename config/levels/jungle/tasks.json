@@ -1,0 +1,20 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/15-level3-layout.md Tasks, Hazards and Map variants; the map variants M32 to M34 are prop states: the shot cabinet switches the cannon off (cannonTurret state 1, its repel stops), the grenade drops the boulder rubble on the spikes (spikes state 1, a floor over cols 54-59 of row 20, so the hero jumps the open cells 53 and 60), the solved stone puzzle slides the two waterfall steps out (waterfall and waterfallStep state 1, cells 98,13 and 96,12); the stone puzzle panel screen is not built, one use solves it; the crate is an object that gives the cutters (original item record renamed); the door opens to the flamethrower pickup, which fires as the toaster until the flamethrower weapon exists",
+  "tasks": [
+    { "id": "openCrate", "object": "crate", "requires": [], "gives": ["item:cutters"], "state": 1, "subtitle": "Inside the crate you found cutters." },
+    { "id": "cutTripwire", "object": "tripwire", "requires": ["item:cutters"], "gives": ["item:grenade", "flag:trapCut"], "state": 1, "hint": "A tight wire is stretched across the path. Touching it would set off the trap.", "subtitle": "You cut the wire and took the grenade out of the trap." },
+    { "id": "blowRock", "object": "boulder", "requires": ["item:grenade"], "gives": ["flag:rockBlown"], "state": 1, "sets": { "spikes": 1 }, "hint": "A massive boulder. It won't move by hand.", "subtitle": "After the explosion, part of the obstacle collapsed." },
+    { "id": "solvePuzzle", "object": "stonePuzzle", "requires": [], "gives": ["flag:puzzleSolved"], "state": 1, "sets": { "waterfall": 1, "waterfallStep": 1 }, "subtitle": "Two stone blocks slid out of the waterfall above you." },
+    { "id": "openDoor", "object": "flamethrowerDoor", "requires": ["item:smallKey"], "gives": ["flag:doorOpen"], "state": 1, "hint": "The door is locked.", "subtitle": "You unlocked the door." },
+    { "id": "fuelJeep", "object": "jeep", "requires": ["item:canister"], "gives": ["flag:jeepFueled"], "state": 1, "hint": "The jeep's tank is empty.", "subtitle": "You poured the fuel into the jeep's tank." },
+    { "id": "winchTree", "object": "jeep", "requires": ["flag:jeepFueled"], "gives": ["flag:levelComplete"], "state": 2, "hint": "The jeep's tank is empty.", "subtitle": "The jeep's winch pulled the fallen tree away. The way is open." }
+  ],
+  "quests": [
+    { "text": "Find a way out of the jungle.", "after": [], "until": "flag:levelComplete" },
+    { "text": "Find a way past the tripwire.", "after": ["flag:tried:tripwire"], "until": "flag:trapCut" },
+    { "text": "Find a way past the boulder.", "after": ["flag:tried:boulder"], "until": "flag:rockBlown" },
+    { "text": "Find a way to open the locked door.", "after": ["flag:tried:flamethrowerDoor"], "until": "flag:doorOpen" },
+    { "text": "Get the jeep going.", "after": ["flag:tried:jeep"], "until": "flag:jeepFueled" }
+  ]
+}
