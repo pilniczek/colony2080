@@ -29,6 +29,8 @@
   .kinds label { padding: 4px 10px; cursor: pointer; color: var(--muted); }
   .kinds input { display: none; }
   .kinds label:has(input:checked) { background: #2f4140; color: var(--text); }
+  .kinds .role { margin-left: 6px; padding: 0 4px; border-radius: 3px; font-size: 10px; text-transform: uppercase; background: #2f3f3e; }
+  .kinds .role.special { background: #7a5a12; color: #f5e3a0; }
   section[hidden], .walkerOnly[hidden], .guardOnly[hidden] { display: none; }
 </style>
 </head>
@@ -448,8 +450,13 @@ function registerKinds() {
 <script src="vesnice.js"></script>
 <script src="jungle.js"></script>
 <script src="jeskyne.js"></script>
+<script src="assists.js"></script>
 <script>
 registerKinds();
+for (const input of document.querySelectorAll("input[name=kind]")) {
+  const role = C28_CONFIG.enemies?.[input.value]?.role;
+  if (role) input.parentElement.insertAdjacentHTML("beforeend", `<span class="role ${role}" title="${role === "special" ? "drops energy with the SPECIAL ENEMIES DROP ENERGY assist" : "base enemy, drops nothing"}">${role}</span>`);
+}
 for (const key of ["brightness", "saturate"]) {
   const input = document.getElementById(key);
   const out = document.getElementById(key + "Out");

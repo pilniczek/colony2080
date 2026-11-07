@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { ASSISTS, presetPicks, START_DIFFICULTY as D } from "../difficulty";
+import { tr } from "../i18n";
 import type { SlotEntry, Slots } from "../save/slots";
 import { VIEW_BOX } from "./layout";
 import { helpLayout, helpTextW, menuSvg } from "./menu";
+import { difficultyState, gameOverState, type DifficultyState } from "./menuKeys";
 import { hudFit } from "./layout";
 
 const icon = { url: "data:,", w: 10, h: 20 };
@@ -59,7 +62,7 @@ describe("menuSvg", () => {
   });
 
   it("shows the manual and the tips with their pictures under settings and the pause menu, in the chosen language", () => {
-    for (const state of [{ screen: "settings", cursor: 2, autosave: true }, { screen: "pause", cursor: 0 }] as const) {
+    for (const state of [{ screen: "settings", cursor: 2, autosave: true, difficulty: D }, { screen: "pause", cursor: 0 }] as const) {
       const en = menuSvg(320, 200, state, slots, robot);
       for (const entry of [">MANUAL<", ">MOVE<", ">JUMP, CLIMB UP<", ">DUCK, CLIMB DOWN<", ">SHOOT / PUNCH<", ">ENTER<", ">USE ITEM FROM INVENTORY<", ">I<", ">INVENTORY<", ">ENTER CALLS A DISTANT LIFT<", ">X<", ">HIDING MIGHT BE MORE THAN SHOOTING<", ">ENTER TO USE THE LIFT<", ">ENTER TO USE THINGS<", ">ENTER PICKS UP AN ITEM<", ">SOME THINGS NEED TO BE DAMAGED<", 'href="data:panel"', 'href="data:lift"', 'href="data:wires"', 'href="data:ship"', 'href="data:crowbar"']) expect(en).toContain(entry);
       const cs = menuSvg(320, 200, state, slots, robot, "City", "cs");
@@ -74,17 +77,17 @@ describe("menuSvg", () => {
   });
 
   it("shows settings with the active options lit, in the chosen language", () => {
-    const svg = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: false }, slots, robot);
+    const svg = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: false, difficulty: D }, slots, robot);
     for (const entry of ["SETTINGS", ">AUTOSAVE<", ">NO AUTOSAVE<", ">ENGLISH<", ">ČESKY<", ">START<"]) expect(svg).toContain(entry);
     expect(svg).toContain('<tspan fill="#f2e7a0" data-option="1" text-decoration="underline">NO AUTOSAVE</tspan>');
     expect(svg).toContain('<tspan fill="#5aa9a0" data-option="0">AUTOSAVE</tspan>');
-    const cs = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: true }, slots, robot, "City", "cs");
+    const cs = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: true, difficulty: D }, slots, robot, "City", "cs");
     for (const entry of ["NASTAVENÍ", ">AUTOUKLÁDÁNÍ<", ">UKLÁDÁNÍ RUČNĚ<", ">SPUSTIT<"]) expect(cs).toContain(entry);
     expect(cs).toContain('<tspan fill="#f2e7a0" data-option="1" text-decoration="underline">ČESKY</tspan>');
   });
 
   it("marks only the switch rows with a left and right triangle", () => {
-    const settings = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: true }, slots, robot);
+    const settings = menuSvg(320, 200, { screen: "settings", cursor: 2, autosave: true, difficulty: D }, slots, robot);
     expect(settings.match(/data-arrow="left"/g)).toHaveLength(2);
     expect(settings.match(/data-arrow="right"/g)).toHaveLength(2);
     const pause = menuSvg(320, 200, { screen: "pause", cursor: 0 }, slots, robot);
@@ -110,7 +113,7 @@ describe("menuSvg", () => {
   });
 
   it("adds a HELP row to settings and the pause menu", () => {
-    expect(menuSvg(320, 200, { screen: "settings", cursor: 3, autosave: true }, slots, robot)).toContain(">HELP<");
+    expect(menuSvg(320, 200, { screen: "settings", cursor: 3, autosave: true, difficulty: D }, slots, robot)).toContain(">HELP<");
     expect(menuSvg(320, 200, { screen: "pause", cursor: 0 }, slots, robot, "City", "cs")).toContain(">NÁPOVĚDA<");
   });
 
@@ -151,5 +154,43 @@ describe("menuSvg", () => {
         }
       }
     }
+  });
+});
+
+describe("difficulty screen", () => {
+  const pause = { screen: "pause", cursor: 3 } as const;
+  const open = (picks = D) => ({ ...(difficultyState(pause, D) as DifficultyState), picks });
+  const custom = { level: "custom", assists: ["hideAnywhere", "fogOff", "strongPunches", "moreAmmo"] };
+
+  it("lists the levels with HARD dimmed, every assist, the points and READ ONLY for a preset", () => {
+    const svg = menuSvg(320, 200, open(), slots, robot);
+    for (const entry of [">DIFFICULTY<", ">STORY<", ">EASY<", ">NORMAL<", ">CUSTOM<", ">POINTS<", ">7<", ">READ ONLY<", ">BACK<", ...ASSISTS.map((a) => `>${a.label}<`)]) expect(svg).toContain(entry);
+    expect(svg).toMatch(/<tspan opacity="[\d.]+"><tspan fill="[^"]+">HARD<\/tspan><\/tspan>/);
+    expect(svg).not.toContain("RESTART?");
+  });
+
+  it("shows the preset columns and the tier the CUSTOM points reach", () => {
+    const svg = menuSvg(320, 200, open(custom), slots, robot);
+    expect(svg).toContain(">10<");
+    expect(svg).toContain(">LIKE EASY<");
+    for (const head of [">S<", ">E<", ">N<", ">H<"]) expect(svg).toContain(head);
+    expect(menuSvg(320, 200, open(custom), slots, robot, "City", "cs")).toContain(">JAKO LEHKÁ<");
+  });
+
+  it("offers a restart once the picks change and asks before it", () => {
+    const story = open({ level: "story", assists: presetPicks("story").assists });
+    expect(menuSvg(320, 200, story, slots, robot)).toContain(">APPLY AND RESTART<");
+    expect(menuSvg(320, 200, { ...story, confirm: true }, slots, robot)).toContain("RESTART?");
+  });
+
+  it("names the level on the settings and pause rows and the game over choice, in Czech too", () => {
+    expect(menuSvg(320, 200, { screen: "settings", cursor: 0, autosave: true, difficulty: D }, slots, robot)).toContain(">DIFFICULTY: NORMAL<");
+    expect(menuSvg(320, 200, pause, slots, robot, "City", "cs", false, false, presetPicks("easy"))).toContain(">OBTÍŽNOST: LEHKÁ<");
+    expect(menuSvg(320, 200, gameOverState(false), slots, robot)).toContain(">CHANGE DIFFICULTY<");
+  });
+
+  it("fits every assist name left of the preset columns and cost pips, in both languages", () => {
+    const columns = 3 * 3 + 2 * 1.4 + 6 + 4 * 7;
+    for (const lang of ["en", "cs"] as const) for (const a of ASSISTS) expect(10 + 4.4 + 4 + helpTextW(tr(a.label, lang)) * (6.4 / 5.2) + columns + 10 + 2).toBeLessThanOrEqual(200);
   });
 });

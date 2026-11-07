@@ -2384,6 +2384,19 @@
         "on ground"
       ],
       "refs": []
+    },
+    {
+      "id": "energyDrop",
+      "name": "Energy drop",
+      "csName": null,
+      "interactive": true,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Difficulty assist SPECIAL ENEMIES DROP ENERGY: a special enemy kill (mesto flyer, vesnice rocket robot) drops it, taken on touch: energy +50, half the level energy bonus, so it is a smaller cell with half its gauge lit (user, 2026-11-07).",
+      "states": [
+        "on ground"
+      ],
+      "refs": []
     }
   ]
 }

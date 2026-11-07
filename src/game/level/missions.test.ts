@@ -99,7 +99,7 @@ describe("missions", () => {
   it("keeps the map fields on the world", () => {
     const world = loadMission("jeskyne");
     expect(world.fallDeathCells).toBeNull();
-    expect(world.conveyors).toEqual([{ col: 97, row: 39, w: 34, vx: 7.33 }]);
+    expect(world.conveyors).toEqual([{ col: 97, row: 39, w: 34, vx: 5.5 }]);
     expect(world.hazards.map((h) => h.id)).toContain("lava");
     expect(Object.keys(world.variants)).toEqual(["stalactiteShot", "tankShot"]);
     expect(loadMission("mesto").fallDeathCells).toBeUndefined();

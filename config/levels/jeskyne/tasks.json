@@ -1,0 +1,21 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/16-level4-layout.md Blocking, Shots that change the map and Zones, docs/research/jeskyne-map.md Tasks; the lever bank opens door 1 by its combination (leftmost lever down, the three right ones up) and the lever doors 3 and 4 by their one lever each (toggle levers, combo gates), the stalactite and the explosive tank break to gun shots and the stone blocks to punches (shootable), the exit is a walk-in zone (approach); each key fits the slots alone, the last of the three opens the key doors (tasks sharing an id are alternatives); no mission 4 film is built, so no task plays one",
+  "tasks": [
+    { "id": "releaseLiftLock", "object": "liftLock", "requires": ["item:rod"], "gives": ["flag:liftLock"], "state": 1, "hint": "A mechanical safety lock holds the lift. It needs something to switch it.", "subtitle": "You switched the mechanical safety lock with the rod. The lift works now." },
+    { "id": "insertYellowKey", "object": "keySlots", "requires": ["item:yellowKey", "flag:orangeKeyIn", "flag:blueKeyIn"], "gives": ["flag:yellowKeyIn", "flag:keyDoorsOpen"], "state": 2, "sets": { "keyDoors": 2 }, "hint": "Three key slots, each with its own colour.", "subtitle": "You used the yellow key. The key doors opened." },
+    { "id": "insertYellowKey", "object": "keySlots", "requires": ["item:yellowKey"], "gives": ["flag:yellowKeyIn"], "state": 1, "hint": "Three key slots, each with its own colour.", "subtitle": "You used the yellow key." },
+    { "id": "insertOrangeKey", "object": "keySlots", "requires": ["item:orangeKey", "flag:yellowKeyIn", "flag:blueKeyIn"], "gives": ["flag:orangeKeyIn", "flag:keyDoorsOpen"], "state": 2, "sets": { "keyDoors": 2 }, "hint": "Three key slots, each with its own colour.", "subtitle": "You used the orange key. The key doors opened." },
+    { "id": "insertOrangeKey", "object": "keySlots", "requires": ["item:orangeKey"], "gives": ["flag:orangeKeyIn"], "state": 1, "hint": "Three key slots, each with its own colour.", "subtitle": "You used the orange key." },
+    { "id": "insertBlueKey", "object": "keySlots", "requires": ["item:blueKey", "flag:yellowKeyIn", "flag:orangeKeyIn"], "gives": ["flag:blueKeyIn", "flag:keyDoorsOpen"], "state": 2, "sets": { "keyDoors": 2 }, "hint": "Three key slots, each with its own colour.", "subtitle": "You used the blue key. The key doors opened." },
+    { "id": "insertBlueKey", "object": "keySlots", "requires": ["item:blueKey"], "gives": ["flag:blueKeyIn"], "state": 1, "hint": "Three key slots, each with its own colour.", "subtitle": "You used the blue key." },
+    { "id": "openCardDoor", "object": "caveCardDoor", "requires": ["item:entryCard"], "gives": ["flag:cardDoorOpen"], "state": 2, "hint": "The door is locked. You have nothing to open it with.", "subtitle": "You opened the door with the entry card." }
+  ],
+  "quests": [
+    { "text": "Find a way out of the caves.", "after": [], "until": "flag:levelComplete" },
+    { "text": "Find out how the levers open the door.", "after": [], "until": "flag:leverDoor1Open" },
+    { "text": "Release the lift safety lock.", "after": ["flag:tried:liftLock"], "until": "flag:liftLock" },
+    { "text": "Open the key doors.", "after": ["flag:tried:keySlots"], "until": "flag:keyDoorsOpen" },
+    { "text": "Get through the locked door.", "after": ["flag:tried:caveCardDoor"], "until": "flag:cardDoorOpen" }
+  ]
+}

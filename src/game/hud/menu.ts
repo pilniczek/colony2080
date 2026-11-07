@@ -1,22 +1,23 @@
+import { ASSISTS, canToggle, costOf, difficultyOk, isCustom, LEVEL_IDS, levelLabel, PRESETS, reachable, START_DIFFICULTY, tierOf, type Difficulty } from "../difficulty";
 import type { Rect } from "../geometry";
 import { LANG_NAMES, LANGS, tr, type Lang } from "../i18n";
 import { AUTO_SLOT, savedStamp, slotLabel, type Slots } from "../save/slots";
 import { BOLD, box, image, INV, INVENTORY_BOXES, INVENTORY_DEFS, label, MONO, type InventoryArt } from "./inventory";
 import { BAR_H, HUD_H, HUD_MIN_W, MONO_ADVANCE, VIEW_BOX, viewRect } from "./layout";
-import { PAUSE_ROWS, SETTINGS_ROWS, type MenuState } from "./menuKeys";
+import { changed, DIFFICULTY_ROWS, GAME_OVER_ACTIONS, PAUSE_ROWS, SETTINGS_ROWS, type DifficultyState, type MenuState } from "./menuKeys";
 import { hudTabs, sideMarks, TAB_BOTTOM, type HudIcon, type HudPart } from "./svg";
 
 const MENU = { back: "#0a1f14", grid: "#5a1a14", over: "#ffffff", overEdge: "#2438d0" };
 const AUTOSAVES = ["AUTOSAVE", "NO AUTOSAVE"];
 const MENU_BOX: Rect = { x: 22, y: 8, w: 148, h: 68 };
 const SLOT_BOX: Rect = { x: 10, y: 8, w: 210, h: 184 };
-const CHOICE_BOX: Rect = { x: 106, y: 146, w: 108, h: 45 };
+const CHOICE_BOX: Rect = { x: 106, y: 133, w: 108, h: 58 };
 const OVER = { size: 9, stroke: 1.2, fallback: { y: 100 } };
 const SLOT_ROW = 30;
 const SLOT_ROOM = 26;
 const LETTER = { size: 7.2, auto: 4.4 };
-const MENU_ROW = 12;
-const MENU_ROOM = 20;
+const MENU_ROW = 11;
+const MENU_ROOM = 18;
 const BUTTON_GAP = 6;
 const ARROW = { w: 3, h: 4.4, inset: 2.4 };
 const CHOICE_ROW = 13;
@@ -24,6 +25,11 @@ const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
 const ASK = { title: "RESTART?", lines: ["UNSAVED PROGRESS IS LOST", "ENTER / ESC"], top: 17, pad: 6 };
+const PICK_BOX = { w: 200, gap: 6, check: 4.4, checkGap: 4, pip: 3, pipGap: 1.4, pips: 5 };
+const REF = { w: 7, gap: 6, tick: 2.6, dot: 0.5, head: 7, text: 4.4 };
+const POINTS = { top: 17, size: 16, line: 8, pad: 6, restart: ["CHANGES RESTART", "THE MISSION"] };
+const UNREACHABLE = 0.35;
+const LOCKED_OPACITY = 0.55;
 const STEPS = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] } as const;
 type Step = keyof typeof STEPS;
 const MANUAL_KEYS: [string | Step[], string][] = [
@@ -44,13 +50,14 @@ const TIPS: [TipArt, string][] = [
   ["crashedShip", "SOME THINGS NEED TO BE DAMAGED"],
 ];
 const ARROW_KEY = { len: 5.4, head: 1.6, stroke: 0.7, spread: 4.5 };
-const MANUAL = { gap: 8, text: 5.6, key: 14, keyGap: 10, top: 17, title: 10, clear: 4, pitch: 10, pad: 6 };
+const MANUAL = { gap: 5, text: 5.6, key: 14, keyGap: 10, top: 17, title: 10, clear: 4, pitch: 10, pad: 6 };
 const TIP_BOX = { gap: 6, w: 138, key: 22 };
 const CAPS_EM = 0.7;
 
 export type MenuArt = Pick<InventoryArt, "robot" | TipArt>;
 
-type Row = { entry: string; gap?: boolean } | { options: string[]; on: number };
+type CheckRow = { check: boolean; name: string; cost: number; off: boolean; refs?: boolean[]; head?: string[] };
+type Row = { entry: string; gap?: boolean } | { options: string[]; on: number; dim?: number[] } | CheckRow;
 
 const DEFS = `<defs><pattern id="menuGrid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M0 16V0H16" fill="none" stroke="${MENU.grid}" stroke-width=".6"/></pattern></defs>`;
 
@@ -81,10 +88,42 @@ function backdrop(view: Rect, robot: HudIcon): string {
 const tspan = (fill: string, value: string, active = false, option?: number): string =>
   `<tspan fill="${fill}"${option === undefined ? "" : ` data-option="${option}"`}${active ? ' text-decoration="underline"' : ""}>${escaped(value)}</tspan>`;
 
-function rowText(row: Row, x: number, y: number, on: boolean): string {
+const refX = (b: Rect, i: number, count: number): number => {
+  const { pip, pipGap, pips } = PICK_BOX;
+  const pipsLeft = b.x + b.w - 10 - pips * pip - (pips - 1) * pipGap;
+  return pipsLeft - REF.gap - (count - i - 0.5) * REF.w;
+};
+
+function refTicks(refs: boolean[], b: Rect, y: number, colour: string): string {
+  return refs
+    .map((has, i) => {
+      const cx = refX(b, i, refs.length);
+      const cy = y - REF.tick / 2 - 0.6;
+      return has
+        ? `<rect x="${cx - REF.tick / 2}" y="${cy - REF.tick / 2}" width="${REF.tick}" height="${REF.tick}" fill="${colour}"/>`
+        : `<circle cx="${cx}" cy="${cy}" r="${REF.dot}" fill="${colour}"/>`;
+    })
+    .join("");
+}
+
+const refHead = (head: string[], b: Rect, y: number): string => head.map((value, i) => text(refX(b, i, head.length), y, REF.text, INV.label, value, 'text-anchor="middle"')).join("");
+
+function checkText(row: CheckRow, b: Rect, x: number, y: number, on: boolean): string {
+  const colour = on ? "#fff" : row.check ? INV.name : INV.label;
+  const { check, checkGap, pip, pipGap } = PICK_BOX;
+  const top = y - check;
+  const tick = row.check ? `<rect x="${x + 1}" y="${top + 1}" width="${check - 2}" height="${check - 2}" fill="${colour}"/>` : "";
+  const pips = Array.from({ length: row.cost }, (_, i) => `<rect x="${b.x + b.w - 10 - (i + 1) * pip - i * pipGap}" y="${y - pip - 0.6}" width="${pip}" height="${pip}" fill="${colour}"/>`).join("");
+  const refs = row.refs ? refTicks(row.refs, b, y, on ? "#fff" : INV.label) : "";
+  const body = `<rect x="${x}" y="${top}" width="${check}" height="${check}" fill="none" stroke="${colour}" stroke-width=".6"/>${tick}${text(x + check + checkGap, y, 6.4, colour, row.name)}${pips}`;
+  return (row.off ? `<g opacity="${LOCKED_OPACITY}">${body}</g>` : body) + refs;
+}
+
+function rowText(row: Row, b: Rect, x: number, y: number, on: boolean): string {
   const bright = on ? "#fff" : INV.name;
+  if ("check" in row) return checkText(row, b, x, y, on);
   if ("entry" in row) return text(x, y, 6.4, bright, row.entry);
-  const parts = row.options.map((option, i) => tspan(i === row.on ? bright : INV.frame, option, i === row.on, i)).join(tspan(INV.frame, " / "));
+  const parts = row.options.map((option, i) => (row.dim?.includes(i) ? `<tspan opacity="${UNREACHABLE}">${tspan(INV.frame, option)}</tspan>` : tspan(i === row.on ? bright : INV.frame, option, i === row.on, i))).join(tspan(INV.frame, " / "));
   return `<text x="${x}" y="${y}" font-family="${MONO}" font-size="6.4" xml:space="preserve">${parts}</text>`;
 }
 
@@ -101,17 +140,20 @@ function arrows(b: Rect, y: number, on: boolean): string {
   );
 }
 
-const rowsHeight = (rows: Row[]): number => MENU_ROOM + rows.length * MENU_ROW + rows.filter((row) => "entry" in row && row.gap).length * BUTTON_GAP;
+const rowsHeight = (rows: Row[]): number =>
+  MENU_ROOM + rows.length * MENU_ROW + rows.filter((row) => "entry" in row && row.gap).length * BUTTON_GAP + rows.filter((row) => "check" in row && row.head).length * REF.head;
 
-function rowsBox(title: string, rows: Row[], cursor: number): string {
-  const b = { ...MENU_BOX, h: rowsHeight(rows) };
+function rowsBox(title: string, rows: Row[], cursor: number, w = MENU_BOX.w): string {
+  const b = { ...MENU_BOX, w, h: rowsHeight(rows) };
   let y = b.y + 16;
   const drawn = rows.map((row, i) => {
     if ("entry" in row && row.gap) y += BUTTON_GAP;
+    const head = "check" in row && row.head ? refHead(row.head, b, y + REF.head - 1.6) : "";
+    if (head) y += REF.head;
     const on = i === cursor;
-    const out = hit(i, b.x + 2, y, b.w - 4, MENU_ROW - 1, (on ? pick(b.x + 2, y, b.w - 4, MENU_ROW - 1) : "") + rowText(row, b.x + 10, y + MENU_ROW * 0.66, on) + ("options" in row ? arrows(b, y, on) : ""));
+    const out = hit(i, b.x + 2, y, b.w - 4, MENU_ROW - 1, (on ? pick(b.x + 2, y, b.w - 4, MENU_ROW - 1) : "") + rowText(row, b, b.x + 10, y + MENU_ROW * 0.66, on) + ("options" in row ? arrows(b, y, on) : ""));
     y += MENU_ROW;
-    return out;
+    return head + out;
   }).join("");
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, title) + drawn;
 }
@@ -160,8 +202,8 @@ function manual(rows: Row[], art: MenuArt, lang: Lang): string {
 
 const tipColumn = { x: MENU_BOX.x + MENU_BOX.w + TIP_BOX.gap, w: TIP_BOX.w, key: TIP_BOX.key, pitch: (MANUAL.pitch * (MANUAL_KEYS.length - 1)) / (TIPS.length - 1) };
 
-function askBox(lang: Lang): string {
-  const b = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w, h: ASK.top + (ASK.lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };
+function askBox(lang: Lang, at: Pick<Rect, "x" | "y" | "w"> = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w }): string {
+  const b = { ...at, h: ASK.top + (ASK.lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };
   const lines = ASK.lines.map((value, i) => text(b.x + b.w / 2, b.y + ASK.top + i * MANUAL.pitch + CAPS_MID, MANUAL.text, INV.stat, tr(value, lang), 'text-anchor="middle"')).join("");
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr(ASK.title, lang)) + lines;
 }
@@ -170,22 +212,65 @@ const autosaveRow = (autosave: boolean, lang: Lang): Row => ({ options: AUTOSAVE
 
 const langRow = (lang: Lang): Row => ({ options: LANGS.map((l) => LANG_NAMES[l]), on: LANGS.indexOf(lang) });
 
+const difficultyRow = (difficulty: Difficulty, lang: Lang): Row => ({ entry: `${tr("DIFFICULTY", lang)}: ${tr(levelLabel(difficulty.level), lang)}` });
+
+const POINTS_X = MENU_BOX.x + PICK_BOX.w + PICK_BOX.gap;
+const POINTS_W = tipColumn.x + tipColumn.w - POINTS_X;
+
+const pointsLines = (s: DifficultyState, lang: Lang): string[] => [
+  isCustom(s.picks) ? `${tr("LIKE", lang)} ${tr(tierOf(s.picks.assists).label, lang)}` : tr("READ ONLY", lang),
+  ...(s.from.screen === "settings" ? [] : POINTS.restart.map((value) => tr(value, lang))),
+];
+
+const pointsHeight = (count: number): number => POINTS.top + POINTS.size + 4 + (count - 1) * POINTS.line + CAPS_MID + POINTS.pad;
+
+function pointsBox(s: DifficultyState, lang: Lang): string {
+  const words = pointsLines(s, lang);
+  const b = { x: POINTS_X, y: MENU_BOX.y, w: POINTS_W, h: pointsHeight(words.length) };
+  const mid = b.x + b.w / 2;
+  const lines = words.map((value, i) => text(mid, b.y + POINTS.top + POINTS.size + 4 + i * POINTS.line, MANUAL.text, i === 0 ? INV.name : INV.label, value, 'text-anchor="middle"')).join("");
+  const spent = `<text x="${mid}" y="${b.y + POINTS.top + POINTS.size * 0.8}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${POINTS.size}" fill="${INV.name}">${costOf(s.picks.assists)}</text>`;
+  return box(b) + label(mid, b.y + 10, 7.6, tr("POINTS", lang)) + spent + lines;
+}
+
+function difficulty(s: DifficultyState, lang: Lang): string {
+  const rows: Row[] = [];
+  rows[DIFFICULTY_ROWS.level] = {
+    options: LEVEL_IDS.map((id) => tr(levelLabel(id), lang)),
+    on: LEVEL_IDS.indexOf(s.picks.level),
+    dim: LEVEL_IDS.flatMap((id, i) => (reachable(id) ? [] : [i])),
+  };
+  const custom = isCustom(s.picks);
+  ASSISTS.forEach((a, i) => {
+    const row: CheckRow = { check: s.picks.assists.includes(a.id), name: tr(a.label, lang), cost: a.cost, off: custom && !canToggle(s.picks, a.id) };
+    if (custom) row.refs = PRESETS.map((l) => l.picks.includes(a.id));
+    if (custom && i === 0) row.head = PRESETS.map((l) => [...tr(l.label, lang)][0]!);
+    rows[DIFFICULTY_ROWS.first + i] = row;
+  });
+  const done = s.from.screen === "settings" || !changed(s) ? "BACK" : "APPLY AND RESTART";
+  rows[DIFFICULTY_ROWS.done] = { entry: tr(done, lang), gap: true };
+  const ask = s.confirm ? askBox(lang, { x: POINTS_X, y: MENU_BOX.y + pointsHeight(pointsLines(s, lang).length) + PICK_BOX.gap, w: POINTS_W }) : "";
+  return rowsBox(tr("DIFFICULTY", lang), rows, s.cursor, PICK_BOX.w) + pointsBox(s, lang) + ask;
+}
+
 function settings(s: Extract<MenuState, { screen: "settings" }>, lang: Lang, art: MenuArt): string {
   const rows: Row[] = [];
   rows[SETTINGS_ROWS.autosave] = autosaveRow(s.autosave, lang);
   rows[SETTINGS_ROWS.lang] = langRow(lang);
+  rows[SETTINGS_ROWS.difficulty] = difficultyRow(s.difficulty, lang);
   rows[SETTINGS_ROWS.help] = { entry: tr("HELP", lang) };
   rows[SETTINGS_ROWS.start] = { entry: tr("START", lang), gap: true };
   return rowsBox(tr("SETTINGS", lang), rows, s.cursor) + manual(rows, art, lang);
 }
 
-function pause(s: Extract<MenuState, { screen: "pause" }>, lang: Lang, autosave: boolean, art: MenuArt): string {
+function pause(s: Extract<MenuState, { screen: "pause" }>, lang: Lang, autosave: boolean, current: Difficulty, art: MenuArt): string {
   const rows: Row[] = [];
   rows[PAUSE_ROWS.save] = { entry: tr("SAVE GAME", lang) };
   rows[PAUSE_ROWS.load] = { entry: tr("LOAD GAME", lang) };
   rows[PAUSE_ROWS.autosave] = autosaveRow(autosave, lang);
   rows[PAUSE_ROWS.lang] = langRow(lang);
   rows[PAUSE_ROWS.restart] = { entry: tr("RESTART MISSION", lang) };
+  rows[PAUSE_ROWS.difficulty] = difficultyRow(current, lang);
   rows[PAUSE_ROWS.help] = { entry: tr("HELP", lang) };
   return rowsBox(tr("MENU", lang), rows, s.cursor) + (s.confirm ? askBox(lang) : "") + manual(rows, art, lang);
 }
@@ -196,6 +281,9 @@ function footer(s: Extract<MenuState, { screen: "save" | "load" }>, lang: Lang):
   if (s.typing !== null) return [tr("TYPE A NAME  ENTER SAVES  ESC BACK", lang), INV.frame];
   return [tr("ENTER SELECTS  ESC BACK", lang), INV.frame];
 }
+
+const stampOf = (savedAt: number, difficulty: unknown, lang: Lang): string =>
+  difficultyOk(difficulty) ? `${savedStamp(savedAt)}  ${tr(levelLabel(difficulty.level), lang)} ${costOf(difficulty.assists)}` : savedStamp(savedAt);
 
 function slotList(s: Extract<MenuState, { screen: "save" | "load" }>, slots: Slots, prefix: string, lang: Lang): string {
   const b = SLOT_BOX;
@@ -220,7 +308,7 @@ function slotList(s: Extract<MenuState, { screen: "save" | "load" }>, slots: Slo
       (on ? pick(b.x + 2, y, b.w - 4, row - 2) : "") +
       text(b.x + 6, y + 11, i === AUTO_SLOT ? LETTER.auto : LETTER.size, on ? "#fff" : INV.label, slotLabel(i)) +
       text(b.x + 18, y + 11, 6, on ? "#fff" : slot || typing ? INV.name : INV.frame, name.toUpperCase()) +
-      (slot ? text(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, savedStamp(slot.savedAt)) : "") +
+      (slot ? text(b.x + 18, y + 21, 5, on ? "#fff" : INV.frame, stampOf(slot.savedAt, slot.snapshot.difficulty, lang)) : "") +
       picture,
     );
   }).join("");
@@ -228,8 +316,10 @@ function slotList(s: Extract<MenuState, { screen: "save" | "load" }>, slots: Slo
   return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr(s.screen === "save" ? "SAVE GAME" : "LOAD GAME", lang)) + rows + text(b.x + b.w / 2, b.y + b.h - 4, 5.2, colour, hint, 'text-anchor="middle"');
 }
 
+const GAME_OVER_TEXTS: Record<(typeof GAME_OVER_ACTIONS)[number], string> = { load: "LOAD LAST SAVE", restart: "RESTART MISSION", chooseDifficulty: "CHANGE DIFFICULTY", end: "EXIT" };
+
 function gameOver(W: number, H: number, s: Extract<MenuState, { screen: "gameOver" }>, lang: Lang): string {
-  const choices = ["LOAD LAST SAVE", "RESTART MISSION", "EXIT"].map((choice) => tr(choice, lang));
+  const choices = GAME_OVER_ACTIONS.map((action) => tr(GAME_OVER_TEXTS[action], lang));
   const rows = choices.map((choice, i) => {
     const y = CHOICE_BOX.y + 4 + i * CHOICE_ROW;
     const on = i === s.cursor;
@@ -349,14 +439,21 @@ function help(W: number, H: number, blaster: boolean, lang: Lang): string {
   return lines + words + box(tip) + label(W / 2, tip.y + 8, 6.6, tr("PRO TIP", lang)) + tipLines + button;
 }
 
-export function menuSvg(W: number, H: number, state: MenuState, slots: Slots, art: MenuArt, prefix = "City", lang: Lang = "en", autosave = false, blaster = false): string {
+export function menuSvg(W: number, H: number, state: MenuState, slots: Slots, art: MenuArt, prefix = "City", lang: Lang = "en", autosave = false, blaster = false, current: Difficulty = START_DIFFICULTY): string {
   const open = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${INVENTORY_DEFS}${DEFS}`;
   if (state.screen === "gameOver") return `${open}${gameOver(W, H, state, lang)}</svg>`;
   if (state.screen === "help") {
     const view = viewRect({ W, H, unit: 1 });
     return `${open}${area(view, MENU.back)}${area(view, "url(#menuGrid)")}${help(W, H, blaster, lang)}</svg>`;
   }
-  const body = state.screen === "settings" ? settings(state, lang, art) : state.screen === "pause" ? pause(state, lang, autosave, art) : slotList(state, slots, prefix, lang);
+  const body =
+    state.screen === "settings"
+      ? settings(state, lang, art)
+      : state.screen === "pause"
+        ? pause(state, lang, autosave, current, art)
+        : state.screen === "difficulty"
+          ? difficulty(state, lang)
+          : slotList(state, slots, prefix, lang);
   const view = viewRect({ W, H, unit: 1 });
   return `${open}${backdrop(view, art.robot)}<g transform="${fitIn(view)}">${body}</g></svg>`;
 }

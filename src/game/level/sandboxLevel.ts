@@ -1,3 +1,4 @@
+import { START_DIFFICULTY, type Difficulty } from "../difficulty";
 import type { SoundCue } from "../../engine/audio/mixer";
 import { isCutsceneId, type CutsceneId } from "../cutscene";
 import type { Platform } from "../../engine/world/collide";
@@ -191,6 +192,7 @@ export interface SandboxWorld {
   immortal: boolean;
   allQuests: boolean;
   autosave: boolean;
+  difficulty: Difficulty;
   sounds: SoundCue[];
   sfx: SoundClock;
   source: SandboxJson;
@@ -359,6 +361,7 @@ export function loadSandbox(json: unknown): SandboxWorld {
     immortal: false,
     allQuests: false,
     autosave: false,
+    difficulty: START_DIFFICULTY,
     boarding: null,
     sounds: [],
     sfx: createSoundClock(),
@@ -369,8 +372,8 @@ export function loadSandbox(json: unknown): SandboxWorld {
 }
 
 export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
-  const { fog, immortal, allQuests, autosave, sounds, bonus } = world;
-  Object.assign(world, loadSandbox(world.source), { immortal, allQuests, autosave, sounds, bonus });
+  const { fog, immortal, allQuests, autosave, difficulty, sounds, bonus } = world;
+  Object.assign(world, loadSandbox(world.source), { immortal, allQuests, autosave, difficulty, sounds, bonus });
   const [x, y] = world.spawn;
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }

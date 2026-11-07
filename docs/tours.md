@@ -76,3 +76,11 @@ One stop beside each lift stop, on the panel side: lift 1 lower and upper halves
 ```
 moveto(48,44) moveto(48,55) moveto(55,29) moveto(55,44) moveto(47,20) moveto(47,44) moveto(71,29) moveto(71,37) moveto(85,23) moveto(81,29) moveto(89,21) moveto(89,23) moveto(100,66) moveto(96,74) moveto(126,56) moveto(126,74)
 ```
+
+## Jeskyne objects
+
+Props in route order (`docs/research/jeskyne-map.md` Props): lever bank and door 1, rod, drop warning, lift lock, stalactite, crystal, stone blocks, orange key, explosive tank, blue key, lever doors 3 and 4, yellow key, key slots, key door 12, carts, lava warning, bonus pickups (energy, ammo, shield), entry card, card door, airlocks.
+
+```
+moveto(29,20) moveto(27,28) moveto(30,28) moveto(37,55) moveto(58,20) moveto(61,29) moveto(85,23) moveto(73,23) moveto(99,21) moveto(117,21) moveto(120,21) moveto(132.6,21) moveto(135,31) moveto(60,37) moveto(59,44) moveto(100,39) moveto(20,63) moveto(19,72) moveto(59,63) moveto(87,66) moveto(99,52) moveto(102,74) moveto(131,48)
+```

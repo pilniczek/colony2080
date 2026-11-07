@@ -132,7 +132,7 @@ export function hintFor(prop: Prop, world: SandboxWorld): string {
   return first.hints?.find((h) => !world.flags.has(h.until))?.text ?? first.hint ?? MISSING;
 }
 
-const unseen = (world: SandboxWorld, prop: Prop): boolean => prop.shownBy !== undefined && !world.flags.has(prop.shownBy) && !prop.repels;
+export const unseen = (world: SandboxWorld, prop: Prop): boolean => prop.shownBy !== undefined && !world.flags.has(prop.shownBy) && !prop.repels;
 
 export function applyBlocks(world: SandboxWorld): void {
   world.grid.clearBlocks();

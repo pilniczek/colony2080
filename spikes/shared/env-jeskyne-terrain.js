@@ -6,8 +6,6 @@ const simple = () => window.ENV.simple;
 const VOID = "#13100c";
 const SHALE = ["#1e1209", "#30180c", "#483018", "#6c3c18", "#a85c20", "#d08a34"];
 const MOSS = ["#26261a", "#303024", "#3c3c2a", "#484830", "#483c24", "#565236", "#1a1810"];
-const GROUND = ["#3c3424", "#484830", "#5c5238", "#6c603c", "#7c6e4c", "#8c7c58"];
-const TAN = ["#3a2e22", "#5c4834", "#846c54", "#a87854", "#c8a070"];
 const FLARE = ["#e46018", "#e48418", "#f0b430", "#fff0a0", "#a83008"];
 const FAR = ["#16120c", "#211a12", "#2c2318", "#382c1e", "#4a3c28"];
 const LAVA = ["#3a1004", "#542400", "#78240c", "#6c300c", "#c8501c", "#f0b430", "#ffe890"];
@@ -170,72 +168,14 @@ const ceilingRock = (ctx, w, top, bot) => {
     flat(ctx, 0, bot - 5, w, 5, "#2a2418");
     shape(ctx, [[0, bot], ...jag(0, w, bot - 4, 2, 7, 4402), [w, bot]], "#201a12");
 };
-const STALAGMITES = [[2, -42, -24, 0.9], [28, -56, -42, 0.7], [75, -51, -30, 0.8], [52, -40, -36, 0.6], [122, -71, -35, 0.9], [185, -71, -42, 0.8], [217, -70, -27, 0.85], [268, -52, -25, 0.8], [311, -61, -32, 0.8], [318, -36, -24, 0.8], [92, -42, -14, 0.85]];
-const stalagmite = (ctx, x, tip, foot, wide, seed, tones) => {
-    const r = rng(seed);
-    const h = foot - tip;
-    const half = h * 0.26 * wide;
-    const n = 9;
-    const prof = Array.from({ length: n + 1 }, (_, k) => {
-        const u = k / n;
-        return 1.6 + half * (0.35 * u + 0.65 * u * u * u) + sin(u * 11 + seed) * half * 0.2 * u + (r() - 0.5) * 1.2;
-    });
-    const left = prof.map((pw, k) => [x - pw, tip + (h * k) / n]);
-    const right = prof.map((pw, k) => [x + pw * 0.85, tip + (h * k) / n]);
-    const body = [[x, tip - 1.5], ...right, [x + half * 1.4, foot], [x - half * 1.5, foot], ...left.slice().reverse()];
-    shape(ctx, [[x - half * 2.4, foot + 0.5], [x - half * 1.2, foot - 3], [x + half * 1.1, foot - 2.5], [x + half * 2.2, foot + 0.5]], tones[1]);
-    shape(ctx, body, tones[2]);
-    shape(ctx, [[x, tip - 1.5], ...right, [x + half * 1.4, foot], [x + half * 0.3, foot], ...right.map(([px, py]) => [x + (px - x) * 0.25, py]).reverse()], tones[3]);
-    shape(ctx, [[x, tip - 1.5], ...left, [x - half * 1.5, foot], [x - half * 0.8, foot], ...left.map(([px, py]) => [x + (px - x) * 0.5, py]).reverse()], tones[1]);
-    flat(ctx, x - 0.3, tip, 1.6, h * 0.25, tones[4]);
-    if (!simple())
-        for (let k = 2; k < n; k += 2) {
-            const [lx, ly] = left[k];
-            const [rx] = right[k];
-            line(ctx, [[lx + 0.5, ly], [x, ly + 1], [rx - 0.5, ly]], k % 4 ? tones[4] : tones[0], 0.6);
-        }
-};
 const caveBackdrop = {
     id: "caveBackdrop",
     box: [0, -182, 320, 0],
-    draw(ctx, _state, t = 0) {
+    draw(ctx) {
         const w = 320;
         ctx.save();
         clipRect(ctx, 0, -182, w, 182);
-        ceilingRock(ctx, w, -182, -82);
-        flat(ctx, 0, -78, w, 32, "#1c150e");
-        flat(ctx, 0, -66, w, 18, "#17110b");
-        flat(ctx, 0, -48, w, 34, GROUND[3]);
-        const r = rng(4420);
-        for (let i = 0; i < 60; i++) {
-            const cy = -47 + r() * 32;
-            const cx = r() * w;
-            const far = (cy + 47) / 32;
-            shape(ctx, blob(cx, cy, 8 + r() * 24, 1 + far * 2.5, 4430 + i, 8), GROUND[[1, 2, 4, 5, 4, 2][floor(r() * 6)]]);
-        }
-        ctx.save();
-        ctx.globalAlpha = 0.5;
-        shape(ctx, [[0, -48], ...jag(0, w, -44, 2, 12, 4411), [w, -48]], GROUND[0]);
-        ctx.restore();
-        G.grain(ctx, G.rectRegion(ctx, 0, -48, w, 34), 4421, 0.6);
-        STALAGMITES.forEach(([x, tip, foot, wide], k) => {
-            const base = foot;
-            const len = (base - tip) * 1.2;
-            ctx.save();
-            ctx.globalAlpha = 0.6;
-            shape(ctx, [[x - 3, base], [x + 5, base], [x - len * 0.9, base + len * 0.2], [x - len * 1.05, base + len * 0.13]], "#2a2216");
-            ctx.restore();
-            stalagmite(ctx, x, tip, base, wide, 4440 + k * 7, base > -22 ? ["#2e241a", TAN[0], TAN[1], TAN[2], TAN[3]] : TAN);
-        });
-        flat(ctx, 0, -14, w, 14, FLARE[4]);
-        const lr = rng(4460);
-        const flick = floor(t * 4);
-        for (let y = -14; y < 0; y += 1.5) {
-            for (let x = -4; x < w; x += 4 + lr() * 10) {
-                const c = (lr() * 4 + flick) % 4;
-                flat(ctx, x, y, 3 + lr() * 9, 1.1, FLARE[floor(c)]);
-            }
-        }
+        ceilingRock(ctx, w, -182, 0);
         ctx.restore();
     },
 };

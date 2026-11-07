@@ -233,12 +233,45 @@ Skipped, with reason:
 - Lower pebble strip, row 76: rock in our map.
 - Lava under the marker 13 ledge (16-19, rows 73-75): no reached spot sees it.
 
+Fixed in the props phase: the carts draw on rows 39-40, so a riding hero stands on their top; the sky (`caveBackdrop`) is the far cave rock over its whole height, no stalagmite ground or lava stripe; the key slots stand at cols 58-60.
+
+## Props
+
+Step 5, in `config/levels/jeskyne/world.json` (`props`) and `config/levels/jeskyne/tasks.json`. No film is built, so no task plays one. 31 props, 8 tasks (3 key slot tasks with 2 alternatives each), 5 quests.
+
+| Prop | Kind | Cells | Spot |
+|---|---|---|---|
+| `bankLever1`-`bankLever4`, `leverDoor1` | toggle levers, combo gate | levers 28.5, 30.5, 36.5, 38.5 (col 40 is rock); door col 26, rows 17-19 | `moveto(29,20)` |
+| `rod` | item | 27.5, 28 | `moveto(27,28)` |
+| `dropWarning` | approach, no art | 31.5, 28; quiet with the rod or the lock released | `moveto(30,28)` |
+| `liftLock` | object | 35-37, floor 55 (floor 55 starts at col 35) | `moveto(37,55)` |
+| `stalactite` | shootable gate, `sets` crystal 1 | 62-63, rows 16-18, hung from the roof at row 13 (`art.top`) | `moveto(58,20)` |
+| `crystal` | gate | col 63, rows 24-28 | `moveto(61,29)` |
+| `stoneBlocks` | punch-only gate, 10 hits | col 81, rows 21-22 | `moveto(85,23)` |
+| `orangeKey` | item | 72.5, 23 | `moveto(73,23)` |
+| `explosiveTank` | shootable gate, `shownBy` `flag:stalactiteShot` | 103-104, rows 16-20 | `moveto(99,21)` |
+| `blueKey` | item | 117.5, 21 | `moveto(117,21)` |
+| `doorLever3`, `leverDoor3` | toggle lever, combo gate | lever 120.3; door col 121, rows 16-20 | `moveto(120,21)` |
+| `leverDoor4`, `doorLever4` | combo gate, toggle lever | door col 131, rows 16-20; lever 132.6 on the rock cap | `moveto(132.6,21)` |
+| `yellowKey` | item | 135.5, 31 | `moveto(135,31)` |
+| `keySlots` | object | 58-60, floor 37 | `moveto(60,37)` |
+| `keyDoors` | gate | col 57, rows 39-43 | `moveto(59,44)` |
+| bonuses | energy, ammo, shield | 19.5, 72; 59.5, 63; 87.5, 66 (2 cells west of the original: a stair ledge covers col 89) | `moveto(19,72)` `moveto(59,63)` `moveto(87,66)` |
+| `lavaWarning` | approach, no art | 17.5, 63 | `moveto(20,63)` |
+| `entryCard` | item | 99.5, 52 | `moveto(99,52)` |
+| `caveCardDoor` | object | door col 104, rows 69-73; used from cols 101-103 | `moveto(102,74)` |
+| `airlockWest`, `airlockEast`, `exitAirlock` | gates, approach | doors cols 133 and 141, rows 43-47; exit zone cols 136-139 | `moveto(131,48)` |
+
+Map changes of this phase (`levelmap.py`): the carts run at 5.5 cells/s (0.75 of the original, the ratio of our run to the original run), the lift 1 halves say their lock hint, and the middle platform over chasm 8 is two cells wide (cols 98-99, the original rock post): a running jump from floor 21 west reached the one-cell platform only with a 0.1-cell timing window.
+
+Play check (headless, `moveto` hops): the levers open door 1 and lever 1 closes it again, the rod releases the lock, both lift 1 halves and lift 2 ride, the stalactite shot smashes the crystal and shows the tank, 10 punches break the blocks, the tank shot opens floor 21 east, the levers open doors 3 and 4, three keys open door 12, the card opens the card door, and walking or jumping into the exit zone closes the airlocks and ends the level. Both warnings fire for a jumping hero. Running on the carts gains about 0.4 cells/s on them; running jumps reach the west end in a few seconds.
+
 Open items:
 
-- The carts draw on rows 38-39 like the original, while the conveyor floor is row 39, so a riding hero stands waist deep in them; check in play.
-- Key slots (57-59, floor 37): floor 37 starts at col 58, col 57 is open under rock; the props phase should put the slots at 58-60.
-- The sky stretches over the whole map height, so its stalagmite ground and lava stripe show through open cells in rows 60-75; the rib bands cover most of the corridor.
-- `src/game/level/zzScratch.test.ts` (a scratch dump of this session) is still in the tree and should be deleted.
+- Floor 31 ends at col 136 over open cave, so walking off its east end drops onto floor 48 in the exit zone: carts, ledges, yellow key floor, exit, skipping the card, the card door and lift 6. The original map has the same drop (M41, cols 137-141, rows 31-47 open); the report 16 route takes the card door. Keep or wall it off: user call.
+- Key slots state 1 lights the yellow slot only, whichever key went in first.
+- The tops of lever door 4 and key door 12 stand free of rock (the asset is one height).
+- The chasm 8 jumps stay exact jumps: take off within about a cell of the floor 21 west edge.
 
 ## Tasks
 

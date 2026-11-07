@@ -1,23 +1,30 @@
 import type { Bindings } from "../../engine/input";
+import { ASSISTS, sameDifficulty, switched, toggled, type Difficulty } from "../difficulty";
 import type { Lang } from "../i18n";
 import { AUTO_SLOT, type Slots } from "../save/slots";
 
 export const NAME_MAX = 16;
-const GAME_OVER_ROWS = 3;
-export const PAUSE_ROWS = { save: 0, load: 1, restart: 2, autosave: 3, lang: 4, help: 5 } as const;
-export const SETTINGS_ROWS = { autosave: 0, lang: 1, help: 2, start: 3 } as const;
+export const GAME_OVER_ACTIONS = ["load", "restart", "chooseDifficulty", "end"] as const;
+export const PAUSE_ROWS = { save: 0, load: 1, restart: 2, difficulty: 3, autosave: 4, lang: 5, help: 6 } as const;
+export const SETTINGS_ROWS = { autosave: 0, lang: 1, difficulty: 2, help: 3, start: 4 } as const;
+export const DIFFICULTY_ROWS = { level: 0, first: 1, done: ASSISTS.length + 1 } as const;
 const PAUSE_COUNT = Object.keys(PAUSE_ROWS).length;
 const SETTINGS_COUNT = Object.keys(SETTINGS_ROWS).length;
 
 type ListScreen = { screen: "save" | "load"; cursor: number; typing: string | null; confirm: boolean; message: string | null };
 
-type HelpFrom = { screen: "settings"; cursor: number; autosave: boolean } | { screen: "pause"; cursor: number; confirm?: boolean };
+type SettingsState = { screen: "settings"; cursor: number; autosave: boolean; difficulty: Difficulty };
+type PauseState = { screen: "pause"; cursor: number; confirm?: boolean };
+type GameOverState = { screen: "gameOver"; cursor: number; canLoad: boolean; message?: string | null; at?: { x: number; y: number } | null };
+type HelpFrom = SettingsState | PauseState;
+export type DifficultyState = { screen: "difficulty"; cursor: number; picks: Difficulty; was: Difficulty; from: SettingsState | PauseState | GameOverState; confirm?: boolean };
 
 export type MenuState =
   | HelpFrom
   | { screen: "help"; cursor: number; from: HelpFrom }
+  | DifficultyState
   | ListScreen
-  | { screen: "gameOver"; cursor: number; canLoad: boolean; message?: string | null; at?: { x: number; y: number } | null };
+  | GameOverState;
 
 export const gameOverState = (canLoad: boolean, message: string | null = null, at: { x: number; y: number } | null = null): MenuState => ({
   screen: "gameOver",
@@ -27,7 +34,7 @@ export const gameOverState = (canLoad: boolean, message: string | null = null, a
   at,
 });
 
-export type MenuAction = "save" | "load" | "restart" | "end" | "home" | "difficulty" | "autosave" | "lang";
+export type MenuAction = "save" | "load" | "restart" | "end" | "home" | "difficulty" | "chooseDifficulty" | "restartWith" | "autosave" | "lang";
 
 export interface MenuResult {
   state: MenuState | null;
@@ -36,9 +43,14 @@ export interface MenuResult {
   name?: string;
   autosave?: boolean;
   lang?: Lang;
+  difficulty?: Difficulty;
 }
 
-export const settingsState = (): MenuState => ({ screen: "settings", cursor: SETTINGS_ROWS.start, autosave: true });
+export const settingsState = (difficulty: Difficulty): MenuState => ({ screen: "settings", cursor: SETTINGS_ROWS.start, autosave: true, difficulty });
+
+export const difficultyState = (from: DifficultyState["from"], current: Difficulty): MenuState => ({ screen: "difficulty", cursor: DIFFICULTY_ROWS.level, picks: current, was: current, from });
+
+export const changed = (state: DifficultyState): boolean => !sameDifficulty(state.picks, state.was);
 
 const listOf = (screen: "save" | "load"): ListScreen => ({ screen, cursor: 0, typing: null, confirm: false, message: null });
 
@@ -69,11 +81,37 @@ function list(s: ListScreen, key: { code: string; key: string }, slots: Slots, m
   return slots[s.cursor]?.mission === mission ? { state: s, action: "load", slot: s.cursor } : { state: s };
 }
 
-function gameOver(state: Extract<MenuState, { screen: "gameOver" }>, is: (action: string) => boolean): MenuResult {
+function gameOver(state: GameOverState, is: (action: string) => boolean): MenuResult {
   const first = state.canLoad ? 0 : 1;
-  if (is("up") || is("down")) return { state: { ...state, cursor: Math.max(first, moved(state.cursor, GAME_OVER_ROWS, is("up") ? -1 : 1)) } };
+  if (is("up") || is("down")) return { state: { ...state, cursor: Math.max(first, moved(state.cursor, GAME_OVER_ACTIONS.length, is("up") ? -1 : 1)) } };
   if (!is("useItem")) return { state };
-  return { state, action: (["load", "restart", "end"] as const)[state.cursor] };
+  return { state, action: GAME_OVER_ACTIONS[state.cursor] };
+}
+
+function difficulty(state: DifficultyState, is: (action: string) => boolean): MenuResult {
+  if (state.confirm) {
+    if (is("useItem")) return { state, action: "restartWith", difficulty: state.picks };
+    if (is("menu")) return { state: { ...state, confirm: false } };
+    return { state };
+  }
+  const side = sideways(is);
+  if (is("up") || is("down")) return { state: { ...state, cursor: moved(state.cursor, DIFFICULTY_ROWS.done + 1, is("up") ? -1 : 1) } };
+  if (is("menu")) return { state: state.from };
+  if (side && state.cursor === DIFFICULTY_ROWS.level) {
+    const picks = switched(state.picks, side);
+    return { state: picks === state.picks ? state : { ...state, picks } };
+  }
+  if (!is("useItem")) return { state };
+  const assist = ASSISTS[state.cursor - DIFFICULTY_ROWS.first];
+  if (assist) {
+    const picks = toggled(state.picks, assist.id);
+    return { state: picks === state.picks ? state : { ...state, picks } };
+  }
+  if (state.cursor !== DIFFICULTY_ROWS.done) return { state };
+  if (state.from.screen === "settings") return { state: { ...state.from, difficulty: state.picks } };
+  if (!changed(state)) return { state: state.from };
+  if (state.from.screen === "pause") return { state: { ...state, confirm: true } };
+  return { state, action: "restartWith", difficulty: state.picks };
 }
 
 const helpOf = (from: HelpFrom): MenuState => ({ screen: "help", cursor: 0, from });
@@ -83,18 +121,19 @@ const help = (state: Extract<MenuState, { screen: "help" }>, is: (action: string
 
 const sideways = (is: (action: string) => boolean): -1 | 1 | 0 => (is("moveLeft") ? -1 : is("moveRight") ? 1 : 0);
 
-function settings(state: Extract<MenuState, { screen: "settings" }>, is: (action: string) => boolean): MenuResult {
+function settings(state: SettingsState, is: (action: string) => boolean): MenuResult {
   const side = sideways(is);
   if (is("up") || is("down")) return { state: { ...state, cursor: moved(state.cursor, SETTINGS_COUNT, is("up") ? -1 : 1) } };
   if (is("menu")) return { state, action: "home" };
   if (side && state.cursor === SETTINGS_ROWS.autosave) return { state: { ...state, autosave: side < 0 } };
   if (side && state.cursor === SETTINGS_ROWS.lang) return { state, action: "lang", lang: side < 0 ? "en" : "cs" };
   if (is("useItem") && state.cursor === SETTINGS_ROWS.help) return { state: helpOf(state) };
+  if (is("useItem") && state.cursor === SETTINGS_ROWS.difficulty) return { state: difficultyState(state, state.difficulty) };
   if (!is("useItem") || state.cursor !== SETTINGS_ROWS.start) return { state };
-  return { state: null, action: "difficulty", autosave: state.autosave };
+  return { state: null, action: "difficulty", autosave: state.autosave, difficulty: state.difficulty };
 }
 
-function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: string) => boolean): MenuResult {
+function pause(state: PauseState, is: (action: string) => boolean): MenuResult {
   if (state.confirm) {
     if (is("useItem")) return { state, action: "restart" };
     if (is("menu")) return { state: { screen: "pause", cursor: state.cursor } };
@@ -110,6 +149,7 @@ function pause(state: Extract<MenuState, { screen: "pause" }>, is: (action: stri
   if (state.cursor === PAUSE_ROWS.load) return { state: listOf("load") };
   if (state.cursor === PAUSE_ROWS.restart) return { state: { ...state, confirm: true } };
   if (state.cursor === PAUSE_ROWS.help) return { state: helpOf(state) };
+  if (state.cursor === PAUSE_ROWS.difficulty) return { state, action: "chooseDifficulty" };
   return { state };
 }
 
@@ -119,6 +159,7 @@ export function menuKey(state: MenuState, key: { code: string; key: string }, sl
   if (state.screen === "gameOver") return gameOver(state, is);
   if (state.screen === "pause") return pause(state, is);
   if (state.screen === "help") return help(state, is);
+  if (state.screen === "difficulty") return difficulty(state, is);
   return list(state, key, slots, mission, is);
 }
 
@@ -130,7 +171,7 @@ export interface MenuPoint {
 }
 
 const held = (state: MenuState): boolean =>
-  ((state.screen === "save" || state.screen === "load") && (state.typing !== null || state.confirm)) || (state.screen === "pause" && !!state.confirm);
+  ((state.screen === "save" || state.screen === "load") && (state.typing !== null || state.confirm)) || ((state.screen === "pause" || state.screen === "difficulty") && !!state.confirm);
 
 function pointed(state: MenuState, row: number): MenuState | null {
   if (row === state.cursor) return state;

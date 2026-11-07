@@ -131,7 +131,7 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
       panel: ["liftPanel"],
       hazard: ["lavaPit", "chasm"],
     },
-    hangs: ["ropeColumn", "shaftHead", "cartCrusher", "lavaPit", "chasm"],
+    hangs: ["ropeColumn", "shaftHead", "cartCrusher", "lavaPit", "chasm", "stalactite"],
     panelProps: [],
     clutter: { small: 14, big: 13 },
     blockersUnderArt: false,
@@ -429,7 +429,8 @@ describe.each(BUILT)("%s map rules", (mission) => {
   });
 
   it("stands every prop on a floor", () => {
-    const off = world.props.filter((p) => p.y === undefined || !ground(Math.floor(p.x), p.y) || ground(Math.floor(p.x), p.y - 1));
+    const stands = world.props.filter((p) => p.asset === undefined || !rules.hangs.includes(p.asset));
+    const off = stands.filter((p) => p.y === undefined || !ground(Math.floor(p.x), p.y) || ground(Math.floor(p.x), p.y - 1));
     expect(off.map((p) => p.id ?? p.item)).toEqual([]);
   });
 

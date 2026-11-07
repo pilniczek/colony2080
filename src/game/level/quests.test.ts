@@ -122,3 +122,24 @@ describe("quests", () => {
     expect(now()).toEqual(["Find a way out of the village."]);
   });
 });
+
+describe("jeskyne quests", () => {
+  const jeskyne = loadMission("jeskyne");
+
+  it("reminds every hint until its task is done and shows none for an item picked up alone", () => {
+    const tokens = jeskyne.quests.flatMap((q) => [...q.after, ...(q.any ?? [])]);
+    const objects = jeskyne.tasks.filter((t) => t.hint !== undefined).map((t) => `flag:tried:${t.object}`);
+    const lifts = jeskyne.lifts.filter((l) => l.hint !== undefined).map((l) => `flag:tried:${l.enabledBy!.slice("flag:".length)}`);
+    expect([...objects, ...lifts].filter((token) => !tokens.includes(token))).toEqual([]);
+    expect(jeskyne.quests.filter((q) => q.until === undefined)).toEqual([]);
+    expect(tokens.filter((t) => t.startsWith("item:"))).toEqual([]);
+  });
+
+  it("starts with the way out and the lever door, and asks for the lift lock once the locked lift is tried", () => {
+    const world = loadMission("jeskyne");
+    expect(activeQuests(world.quests, world)).toEqual(["Find a way out of the caves.", "Find out how the levers open the door."]);
+    world.flags.add("flag:leverDoor1Open");
+    world.flags.add("flag:tried:liftLock");
+    expect(activeQuests(world.quests, world)).toEqual(["Find a way out of the caves.", "Release the lift safety lock."]);
+  });
+});

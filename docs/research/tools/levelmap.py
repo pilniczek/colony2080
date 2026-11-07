@@ -133,7 +133,7 @@ EXTRAS = {
     4: {
         "borderFills": [],
         "width": 157,
-        "patches": [(85, 21, 85, 22, "."), (89, 23, 90, 23, "="), (49, 30, 51, 39, "#"), (0, 0, 159, 7, "#"), (0, 8, 86, 12, "#"), (130, 8, 159, 10, "#"), (138, 11, 159, 29, "#"), (0, 13, 14, 55, "#"), (24, 13, 31, 13, "#"), (40, 13, 43, 47, "#"), (67, 13, 86, 13, "#"), (24, 14, 26, 16, "#"), (67, 14, 81, 15, "#"), (68, 16, 70, 22, "#"), (36, 21, 43, 35, "#"), (48, 21, 51, 21, "#"), (57, 21, 60, 21, "#"), (107, 21, 111, 31, "#"), (48, 22, 48, 39, "#"), (112, 22, 116, 31, "#"), (15, 29, 19, 55, "#"), (55, 30, 57, 36, "#"), (76, 30, 103, 31, "#"), (138, 30, 138, 30, "#"), (142, 30, 159, 40, "#"), (55, 37, 55, 40, "#"), (101, 40, 122, 40, "#"), (101, 41, 115, 50, "#"), (152, 41, 159, 79, "#"), (20, 44, 34, 55, "#"), (44, 45, 47, 47, "#"), (53, 45, 70, 49, "#"), (81, 46, 81, 63, "#"), (130, 49, 159, 79, "#"), (53, 50, 64, 55, "#"), (113, 51, 115, 66, "#"), (85, 53, 85, 65, "#"), (52, 55, 64, 55, "#"), (0, 56, 11, 79, "#"), (62, 56, 64, 56, "#"), (116, 57, 126, 65, "#"), (25, 64, 44, 66, "#"), (116, 66, 117, 66, "#"), (123, 66, 126, 66, "#"), (20, 75, 43, 79, "#"), (45, 75, 45, 79, "#"), (50, 75, 51, 79, "#"), (53, 75, 54, 79, "#"), (56, 75, 61, 79, "#"), (63, 75, 63, 79, "#"), (66, 75, 66, 79, "#"), (69, 75, 74, 79, "#"), (76, 75, 91, 79, "#"), (93, 75, 159, 79, "#"), (12, 76, 159, 79, "#"), (137, 16, 137, 16, "."), (63, 23, 66, 23, "."), (76, 38, 118, 38, "."), (89, 47, 100, 47, "."), (96, 60, 105, 60, "."), (25, 67, 61, 73, ".")],
+        "patches": [(85, 21, 85, 22, "."), (89, 23, 90, 23, "="), (98, 21, 98, 21, "="), (49, 30, 51, 39, "#"), (0, 0, 159, 7, "#"), (0, 8, 86, 12, "#"), (130, 8, 159, 10, "#"), (138, 11, 159, 29, "#"), (0, 13, 14, 55, "#"), (24, 13, 31, 13, "#"), (40, 13, 43, 47, "#"), (67, 13, 86, 13, "#"), (24, 14, 26, 16, "#"), (67, 14, 81, 15, "#"), (68, 16, 70, 22, "#"), (36, 21, 43, 35, "#"), (48, 21, 51, 21, "#"), (57, 21, 60, 21, "#"), (107, 21, 111, 31, "#"), (48, 22, 48, 39, "#"), (112, 22, 116, 31, "#"), (15, 29, 19, 55, "#"), (55, 30, 57, 36, "#"), (76, 30, 103, 31, "#"), (138, 30, 138, 30, "#"), (142, 30, 159, 40, "#"), (55, 37, 55, 40, "#"), (101, 40, 122, 40, "#"), (101, 41, 115, 50, "#"), (152, 41, 159, 79, "#"), (20, 44, 34, 55, "#"), (44, 45, 47, 47, "#"), (53, 45, 70, 49, "#"), (81, 46, 81, 63, "#"), (130, 49, 159, 79, "#"), (53, 50, 64, 55, "#"), (113, 51, 115, 66, "#"), (85, 53, 85, 65, "#"), (52, 55, 64, 55, "#"), (0, 56, 11, 79, "#"), (62, 56, 64, 56, "#"), (116, 57, 126, 65, "#"), (25, 64, 44, 66, "#"), (116, 66, 117, 66, "#"), (123, 66, 126, 66, "#"), (20, 75, 43, 79, "#"), (45, 75, 45, 79, "#"), (50, 75, 51, 79, "#"), (53, 75, 54, 79, "#"), (56, 75, 61, 79, "#"), (63, 75, 63, 79, "#"), (66, 75, 66, 79, "#"), (69, 75, 74, 79, "#"), (76, 75, 91, 79, "#"), (93, 75, 159, 79, "#"), (12, 76, 159, 79, "#"), (137, 16, 137, 16, "."), (63, 23, 66, 23, "."), (76, 38, 118, 38, "."), (89, 47, 100, 47, "."), (96, 60, 105, 60, "."), (25, 67, 61, 73, ".")],
         "source": (
             "docs/research/reports/16-level4-layout.md, built by docs/research/tools/levelmap.py from MAPY/M41.MAP "
             "and gamedata/disasm/level4_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
@@ -146,7 +146,7 @@ EXTRAS = {
             "free-hanging wall bits grow to the rock above (cols 55, 57, 81, 130), one-cell notches and slots under a ceiling are filled, rock tops nobody reaches grow up to the rock over them; the map ends at col 156, everything east of it is rock; "
             "the shaft cells of every top stop are open, the deck and its landing draw the stop (shaftBottomOnly); the crystal code wall (col 63, rows 24-28) is a task wall the crystal prop blocks (openCells, taskWalls); "
             "col 85 between the lift 4 halves is rock from the ceiling down to row 20, so the upper half stop 21 has a wall on its west side and floor 23 still runs under it; "
-            "rockUp grows rock up to the rock or floor above: over the floor 15 west end (col 92), east of the floor 15 stair (col 137) and the wall columns at cols 81 and 96; the hanging columns at cols 76 and 89 and every ledge stair, chasm, lava and drop edge stay open (map composition blueprint, docs/research/jeskyne-map.md); "
+            "rockUp grows rock up to the rock or floor above: over the floor 15 west end (col 92), east of the floor 15 stair (col 137) and the wall columns at cols 81 and 96; the hanging columns at cols 76 and 89 and every ledge stair, chasm, lava and drop edge stay open (map composition blueprint, docs/research/jeskyne-map.md); the middle platform over chasm 8 is two cells wide (cols 98-99) like the original rock post, so a running jump from floor 21 west reaches it; the carts run at 0.75 of the original speed, the ratio of our run to the original run, so plain running gains on them as in the original; "
         )
         + ZONES_NOTE,
         "liftEnabled": {49: ("flag:liftLock", [29, 44, 55])},
@@ -155,6 +155,8 @@ EXTRAS = {
         "hazardZones": {0: ("stalactiteChasm", "death"), 1: ("middleChasm", "death"), 2: ("cartCrush", "death"), 3: ("lava", "death")},
         "soundZones": {"cartSparks": ({"x": [95, 119], "y": [30, 33]}, "spark")},
         "conveyorPxPerTick": 5.5,
+        "conveyorScale": 0.75,
+        "liftHints": {49: "The lift is held by a mechanical safety lock.", 52: "The lift is held by a mechanical safety lock."},
         "variants": {"stalactiteShot": "M42", "tankShot": "M43"},
         "enemyKinds": ("spiderWalker", "podWalker", "trooper"),
         "variantDrops": {"M42": ["crystal"], "M43": ["crystal"]},
@@ -524,7 +526,7 @@ def conveyors(data, zones, cfg):
     if not carry:
         return []
     tiles = pairs(carry[0]["tiles"])
-    vx = round(cfg["conveyorPxPerTick"] * TICKS_PER_S / CELL_PX, 2)
+    vx = round(cfg["conveyorPxPerTick"] * TICKS_PER_S / CELL_PX * cfg.get("conveyorScale", 1), 2)
     cells = [(col, row) for row in range(H) for col in range(W) if tile_at(data, col, row) in tiles]
     return [{**run, "vx": vx} for run in runs(cells)]
 

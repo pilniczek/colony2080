@@ -12,7 +12,7 @@ import { repelHero, updateGuard } from "./level/guards";
 import { flyMissile, launchMissile } from "./level/missiles";
 import { live, tick } from "./level/projectile";
 import { flyRocket, launchRocket } from "./level/rockets";
-import { applyEffects, say } from "./level/tasks";
+import { applyEffects, say, unseen } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { TOASTER_MUZZLE_IN_HOOK, toasterHolds } from "./robot/toaster";
 import { kindOf } from "./robot/kinds";
@@ -145,6 +145,7 @@ export function hitShootable(world: SandboxWorld, prop: Prop, by: Strike = "shot
 function nearestProp(world: SandboxWorld, ray: Ray, hit: Hit): { prop: Prop; face: number } | null {
   let best: { prop: Prop; face: number } | null = null;
   for (const prop of world.props) {
+    if (unseen(world, prop)) continue;
     const face = propFace(prop, ray, hit);
     if (face !== null && (!best || Math.abs(face - ray.from) < Math.abs(best.face - ray.from))) best = { prop, face };
   }

@@ -378,6 +378,16 @@ describe("shootable props", () => {
     fire(g, 0.3);
     expect(blocksOf(g).hitsTaken).toBeUndefined();
   });
+
+  it("takes no shot while its shownBy flag does not hold", () => {
+    const hidden = { ...ship, shownBy: "flag:shown", shootable: { ...ship.shootable, hits: 1 } };
+    const g = shooter([hidden]);
+    fire(g, 0.3);
+    expect(shipOf(g).hitsTaken).toBeUndefined();
+    g.world.flags.add("flag:shown");
+    fire(g, 0.3);
+    expect(shipOf(g).state).toBe(1);
+  });
 });
 
 describe("blaster beam", () => {

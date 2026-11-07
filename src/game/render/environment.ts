@@ -11,6 +11,7 @@ import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
 import type { Rect as CellRect, Run } from "../level/terrain";
 import { onGround, type Lift, type Prop, type SandboxWorld, type Scenery } from "../level/sandboxLevel";
+import { unseen } from "../level/tasks";
 import { openRects } from "./fog";
 import { nearestFirst, TileCache, TILE_PX, visibleTiles, type TileCoord } from "./tiles";
 
@@ -678,7 +679,7 @@ export function prop(e: Env, p: Prop): void {
   const [left, , right] = ASSETS[id].box;
   const { dx = 0, dy = 0, top, flip } = p.art ?? {};
   const look = guardLook(p);
-  if (look === "gone" || guardHidden(p, e.world.flags)) return;
+  if (look === "gone" || guardHidden(p, e.world.flags) || unseen(e.world, p)) return;
   const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
   const size = top === undefined ? undefined : { top: -px(e, top * e.cell) };
   const x = (p.x + dx) * e.cell + (flip ? 1 : -1) * ((left + right) / 2) * k(e);

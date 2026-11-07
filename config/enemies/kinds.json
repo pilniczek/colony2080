@@ -1,9 +1,12 @@
 {
   "status": "draft",
-  "source": "Enemy kind tuning shared by the game (src/game/level/enemy.ts, rockets.ts, missiles.ts, src/game/robot/kinds) and the enemy design spikes. Rocket and missile timing, look and flight: user tuning 2026-11-03. Damage and fire frequency match the original energy per second at 0 shields (docs/research/reports/14-level2-layout.md, 15-level3-layout.md, 16-level4-layout.md): L2 rocket robot and grey trooper 18 per burst every 0.75 s (24/s), L3 rocket droid 18 every 0.72 s (25/s), L4 trooper 4 fire ticks of 3 every about 1.4 s (8.5/s); hits scale the original hp to the 7-hit walker: 2.0 hp 7, L4 trooper 10.0 hp at one gun hit each 10.",
+  "source": "role: every mission has base and special enemy kinds, only a special kind drops energy with the SPECIAL ENEMIES DROP ENERGY assist (mesto flyer, vesnice rocket robot; jungle and jeskyne not decided, user 2026-11-07); the flyer is the walker kind with a flight block in the game, its entry here only carries its role. Enemy kind tuning shared by the game (src/game/level/enemy.ts, rockets.ts, missiles.ts, src/game/robot/kinds) and the enemy design spikes. Rocket and missile timing, look and flight: user tuning 2026-11-03. Damage and fire frequency match the original energy per second at 0 shields (docs/research/reports/14-level2-layout.md, 15-level3-layout.md, 16-level4-layout.md): L2 rocket robot and grey trooper 18 per burst every 0.75 s (24/s), L3 rocket droid 18 every 0.72 s (25/s), L4 trooper 4 fire ticks of 3 every about 1.4 s (8.5/s); hits scale the original hp to the 7-hit walker: 2.0 hp 7, L4 trooper 10.0 hp at one gun hit each 10.",
   "units": "ms milliseconds, cells map cells, hits enemy hits taken (walker 7), damage and rocket or missile hits hero energy per shot, degrees for climb and turn",
   "kinds": {
+    "walker": { "role": "base" },
+    "flyer": { "role": "special" },
     "rocketRobot": {
+      "role": "special",
       "hits": 7,
       "rocket": {
         "kneelMs": 120,
@@ -36,6 +39,7 @@
       }
     },
     "greyTrooper": {
+      "role": "base",
       "hits": 7,
       "burst": { "shots": 9, "ms": 280 },
       "pauseMs": 470,
