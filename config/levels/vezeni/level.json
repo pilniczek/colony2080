@@ -1,0 +1,17 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/18-level5-layout.md",
+  "id": "vezeni",
+  "order": 5,
+  "name": { "cs": "Útěk z vězení", "en": "Prison Escape" },
+  "map": {
+    "source": "MAPY/M51.MAP",
+    "widthTiles": 160,
+    "heightTiles": 80,
+    "tileSize": 24,
+    "tileset": "LEV5.GRA",
+    "floorHeightTiles": null
+  },
+  "originalPlayfield": { "width": 290, "height": 169 },
+  "next": "sklad"
+}

@@ -75,7 +75,7 @@ Unconfirmed: whether door 17 must come before acid tank 14, and whether the ship
 ## Open gaps
 
 - Player and enemy sprite sizes and offsets (likely a table inside `KLEV1.EXE`).
-- Object and trigger placement for levels 5-9. `KLEV1.EXE` runs every level (`-levelN`, level number `[0xDC78]`, init dispatch `4:0x80D6`); levels 1-4 are decoded (reports 10, 13-16).
+- Object and trigger placement for levels 6-9. `KLEV1.EXE` runs every level (`-levelN`, level number `[0xDC78]`, init dispatch `4:0x80D6`); levels 1-5 are decoded (reports 10, 13-16, 18). Level 5 still lacks the MGX 800 fire rules, its enemy damage constants and most of its films (missing from `GRAFIKA`).
 - Level 1 floors (report 13, Floor tiles): the floor test, fall and jump run in level 1, but M11 has no hole or ledge a reached floor meets, so the hero never falls. Open: what an empty lift stop shows (its deck tiles stay floor).
 - Physics values (jump distance, speeds), animation frame counts. No jump, ladder or melee seen in level 1 footage.
 - Invasion year: 2013 vs 2018 vs 2028 across sources.
@@ -101,6 +101,7 @@ Binary and media folders are local only (copyrighted, large); the list lives in 
 | `reports/15-level3-layout.md` | Level 3 (jungle) layout, tasks, stone puzzle, hazards and enemies, decoded from `KLEV1.EXE` and `M31..M34` |
 | `reports/16-level4-layout.md` | Level 4 (jeskyne) layout, doors and levers, death zones, dead ends and enemies, decoded from `KLEV1.EXE` and `M41..M43` |
 | `reports/17-sound.md` | Sound effects: play model, slot loads, event table, mission 1 film cues, acoustics, decoded from `KLEV1.EXE` and matched to footage |
+| `reports/18-level5-layout.md` | Level 5 (vezeni) layout, lifts, items, use chain, map variants M51..M56, vent shaft exit and enemies, decoded from `KLEV1.EXE` |
 | `tools/` | Python decoders: FLI (`fli.py`), map renderer (`rendermap.py`), tiles, strings; `tools/sound/` SND extract, play-call and film-table dumps, video audio match |
 | `sources/steam/` | Steam API and store page snapshots |
 | `sources/cz-walkthroughs/` | Walkthrough pages and level map images |
