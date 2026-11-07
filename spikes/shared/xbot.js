@@ -800,8 +800,26 @@ function chain(parent, M, from, angles, lens, w, spec = {}, pads = false) {
   });
 }
 
-function handThumb(parent, M, from, angles, w = THUMB.w, pads = false) {
-  chain(parent, M, from, angles, THUMB.seg, w, { shade: "cyl" }, pads);
+function thumbWedge(from, deg, len, w) {
+  const [, eo, ei] = bar(from, deg, len, w).pts;
+  const a = deg * Math.PI / 180, dx = Math.sin(a), dy = Math.cos(a);
+  const edge = HAND.x1 - 2, top = from[1] - 14;
+  const outer = Math.max(edge + 2, eo[0] - dx * (eo[1] - top) / dy);
+  return [[edge, top], [outer, top], eo, ei, [edge, ei[1]]];
+}
+
+function inset(pts, k) {
+  const c = pts.reduce(([x, y], p) => [x + p[0] / pts.length, y + p[1] / pts.length], [0, 0]);
+  return pts.map(p => [c[0] + (p[0] - c[0]) * k, c[1] + (p[1] - c[1]) * k]);
+}
+
+function handThumb(parent, M, from, angles, w = THUMB.w, pads = false, wedge = false) {
+  if (!wedge) return chain(parent, M, from, angles, THUMB.seg, w, { shade: "cyl" }, pads);
+  from = [from[0] + Math.max(0, HAND.x1 - 2 - bar(from, angles[0], THUMB.seg[0], w).pts[2][0]), from[1]];
+  const root = thumbWedge(from, angles[0], THUMB.seg[0], w);
+  P(parent, { pts: M(root), shade: "cyl", r: 3, lw: FINGER_LW });
+  if (pads) P(parent, { pts: M(inset(root, 0.6)), mat: "metal", shade: "cyl", r: 3, lw: FINGER_LW });
+  if (angles.length > 1) chain(parent, M, bar(from, angles[0], THUMB.seg[0], 0).end, angles.slice(1), THUMB.seg.slice(1), w, { shade: "cyl" }, pads);
 }
 
 function handStub(parent) {
@@ -859,7 +877,7 @@ function openHand(s, view) {
         for (const [a, b] of [[FINGER.base - 1, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 3]]) P(s, { pts: [[x + 3, a], [x + 17, a], [x + 17, b], [x + 3, b]], mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
       }
     }
-    handThumb(s, S, THUMB_BASE, THUMB_OPEN, THUMB.w, view === "palm");
+    handThumb(s, S, THUMB_BASE, THUMB_OPEN, THUMB.w, view === "palm", true);
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
     const fx = HAND_FACE[1] - 2 - FINGER.thick;
@@ -893,7 +911,7 @@ function fist(s, view) {
   if (view === "back") {
     handStub(s);
     backPlate(s);
-    chain(s, M, THUMB_BASE, [14], [THUMB.seg[0]], THUMB.w, { shade: "cyl" });
+    handThumb(s, M, THUMB_BASE, [14], THUMB.w, false, true);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 6, lw: FINGER_LW });
@@ -907,7 +925,7 @@ function fist(s, view) {
       P(s, { pts: [[x, pip - s2], [x + 20, pip - s2], [x + 20, pip], [x, pip]], shade: "cyl", r: 3, lw: FINGER_LW });
       P(s, { pts: [[x, knuckle], [x + 20, knuckle], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
-    handThumb(s, W, THUMB_BASE, [-5, -90]);
+    handThumb(s, W, THUMB_BASE, [-5, -90], THUMB.w, false, true);
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
     const joint = [HAND_FACE[1] - 2 - FINGER.thick / 2, pip];
