@@ -528,7 +528,7 @@ const WRECKS: Wreck[] = [
     seat: [[42, -25], [40, -40], [44.5, -41.5], [47, -25]],
     wheelPost: [[57, -26], [52, -35.5]],
     grille: [89, 93, -28, -15],
-    spare: [-1, -21, 8],
+    spare: [0, -21, 7.5],
     head: [90, -26, 3.4, 3.4],
     bumpers: [[-3, -14, 5, 3], [92, -14, 6, 3]],
     moss: [[12, -55.8, 20, 1.6], [60, -32.8, 26, 1.8], [54, -53.6, 5, 1.2]],
@@ -746,7 +746,7 @@ const overgrow = (ctx: Ctx, c: Wreck, body: Pt[]): void => {
 
 const overgrownWreck: EnvAsset = {
   id: "overgrownWreck",
-  box: [-12, -62, 118, 2],
+  box: [-9, -62, 118, 2],
   draw(ctx, state) {
     const c = WRECKS[state] ?? (WRECKS[0] as Wreck);
     const w = max(...c.top.map((p) => p[0]));
