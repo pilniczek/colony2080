@@ -26,7 +26,7 @@
   #palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
   .hands { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; padding: 8px 16px 12px; align-items: start; }
   h3 { font-size: 12px; font-weight: 600; margin: 8px 16px 0; color: var(--text); text-transform: capitalize; }
-  .hands canvas.full { width: 100%; aspect-ratio: 140 / 150; display: block; }
+  .hands canvas.full { width: 100%; aspect-ratio: 140 / 172; display: block; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
 </style>
 </head>
@@ -78,7 +78,7 @@ Object.assign(views, gameViews);
 const mirrored = new Set(["sideLeft", "gSideLeft"]);
 const opts = { guides: true };
 
-const HAND_BOX = { x: 18, y: 336, w: 140, h: 150 };
+const HAND_BOX = { x: 18, y: 336, w: 140, h: 172 };
 const HAND_LABEL = { palm: "Palm side", back: "Back side", thumb: "Thumb side", little: "Little finger side", tips: "From the fingertips" };
 const hands = [];
 const handsEl = document.getElementById("hands");
