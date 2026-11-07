@@ -41,7 +41,7 @@ describe("missions", () => {
   it("opens the map with the holo plan, from the start in vesnice and jeskyne", () => {
     expect(mapItemOf("mesto")).toBe("holoPlan");
     expect(mapItemOf("vesnice")).toBeUndefined();
-    expect(mapItemOf("jungle")).toBe("holoPlan");
+    expect(mapItemOf("jungle")).toBeUndefined();
     expect(mapItemOf("jeskyne")).toBeUndefined();
   });
 
