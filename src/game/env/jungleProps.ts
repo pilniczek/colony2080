@@ -1,8 +1,9 @@
 import { G } from "./grime";
 import {
-  ARMY, BRASS, BUNKER, CLINE, CONDUIT, DOME, GOLD, MOSS, RED, ROCK, SLATE, SLINE, SPIKE, STONE, TEAL, WATER, WOOD, band, barredWindow, blobPts, blockGrime, bunkerBlock, column, conduit, door, eSign, eggPts,
+  BRASS, BUNKER, CLINE, CONDUIT, DOME, GOLD, MOSS, RED, ROCK, SLATE, SLINE, SPIKE, STONE, TEAL, WATER, WOOD, band, barredWindow, blobPts, blockGrime, bunkerBlock, column, conduit, door, eSign, eggPts,
   fern, grass, mossCap, oval, simple, slab, stone, stoneStack, vine, within, type Ctx, type Pt,
 } from "./jungle";
+import { vehicle, type Wreck } from "./jungleClutter";
 import { P, type EnvAsset } from "./paint";
 
 const { rng, path, flat, box, poly, cylH, disc, glow, stroke, shape, line, curve, hazard } = P;
@@ -230,61 +231,66 @@ const strut = (ctx: Ctx, a: Pt, b: Pt, w: number, c: string): void => {
   line(ctx, [a, b], c, w, "butt");
 };
 
-const JEEP_BODY: Pt[] = [[0, -12], [0, -31], [52, -31], [56, -29], [84, -27], [88, -22], [88, -12]];
-const CAMO: readonly (readonly [number, number, number, number])[] = [[12, -26, 8, 3], [32, -20, 7, 3.4], [50, -25, 6, 2.6], [68, -18, 9, 3], [78, -24, 5, 2]];
-
-const jeepWheel = (ctx: Ctx, x: number, y: number, r: number): void => {
-  disc(ctx, x, y, r, "#141412", "kLine");
-  disc(ctx, x, y, r * 0.45, ARMY[1], "mLine");
-  if (!simple()) disc(ctx, x - r * 0.12, y - r * 0.12, r * 0.18, ARMY[3]);
+const JEEP: Wreck = {
+  top: [[0, -10], [0, -30], [2, -31.5], [40, -31.5], [42.5, -25], [55.5, -25], [58, -32.5], [89, -31], [93, -28], [94, -10]],
+  base: -10,
+  belt: -25,
+  roof: [58, 89, -32.5],
+  wheels: [[20, 10.5, "tyre"], [76, 10.5, "tyre"]],
+  glass: [],
+  doors: [42.5, 55.5],
+  handles: [[49, -21.5]],
+  holes: [],
+  seams: [[[58, -32.5], [59.5, -18]], [[86, -31], [87, -18]]],
+  bars: [
+    [[3, -30], [-6, -54]],
+    [[15, -30], [-6, -54]],
+    [[-1, -42], [9, -42]],
+    [[58.5, -32.5], [56, -50], [58, -51.5], [62, -51.5], [64.5, -32.5]],
+  ],
+  screen: [[59.5, -33], [57.4, -49.6], [61.2, -49.6], [63.2, -33]],
+  seats: [
+    { pts: [[22, -30], [20.5, -41.5], [26, -43], [29, -30]], lit: [18, -44, 4, 16] },
+    { pts: [[42, -25], [40, -40], [44.5, -41.5], [47, -25]], lit: [38, -42, 4, 18] },
+  ],
+  wheelPost: [[57, -26], [52, -35.5]],
+  grille: [89, 93, -28, -15],
+  tail: [0.4, -29, 2.4, 3.4],
+  head: [90, -26, 3.4, 3.4],
+  bumpers: [[-3, -14, 5, 3], [92, -14, 6, 3]],
+  moss: [],
+  leaves: [],
+  vines: [],
+  ferns: [],
+  tones: ["#14302a", "#24543f", "#34704f", "#68a080", "#08120e"],
+  mid: "#2c624a",
+  camo: [[12, -24, 8, 3.4, "#122a20"], [33, -19, 7, 3, "#122a20"], [50, -21, 4, 2.4, "#4c6a38"], [68, -27.5, 9, 3, "#122a20"], [83, -19, 6, 2.6, "#4c6a38"], [25, -27.5, 6, 2.2, "#4c6a38"], [72, -17, 6, 2.2, "#122a20"]],
+  rust: 14,
+  seed: 7560,
 };
 
 const jeep: EnvAsset = {
   id: "jeep",
-  box: [-16, -58, 92, 1],
+  box: [-16, -58, 100, 1],
   draw(ctx, state) {
-    const seed = 740;
-    const winching = state === 2;
-    strut(ctx, [3, -30], [-6, -54], 2.2, ARMY[1]);
-    strut(ctx, [15, -30], [-6, -54], 2.2, ARMY[2]);
-    strut(ctx, [-1, -42], [9, -42], 1.4, ARMY[1]);
-    for (const x of [16, 70]) jeepWheel(ctx, x, -9, 9);
-    shape(ctx, JEEP_BODY, ARMY[2]);
-    within(ctx, JEEP_BODY, () => {
-      flat(ctx, 0, -32, 90, 3, ARMY[3]);
-      flat(ctx, 0, -16, 90, 4, ARMY[1]);
-      for (const [x, y, rx, ry] of CAMO) oval(ctx, x, y, rx, ry, ARMY[1]);
-      for (const x of [16, 70]) disc(ctx, x, -9, 10.6, ARMY[0]);
-      G.grain(ctx, G.polyRegion(ctx, JEEP_BODY), seed);
-      G.drips(ctx, 2, -30, 84, 12, seed + 2, 4);
-      G.dirt(ctx, 0, -30, 88, 18, seed + 3, 0.6);
-    });
-    path(ctx, JEEP_BODY);
-    stroke(ctx, "kLine");
-    for (const x of [16, 70]) jeepWheel(ctx, x, -9, 8);
-    for (const [x, y, s] of [[40, -22, 2.6], [76, -20, 2], [8, -27, 1.8]] as const) G.rustPatch(ctx, x, y, s, s * 0.7, seed + x);
-    for (const x of [22, 36]) flat(ctx, x, -39, 6, 8, "#1c1c14", "kLine");
-    line(ctx, [[45, -31], [48, -37]], "#141412", 1.2);
-    oval(ctx, 48.4, -37.4, 2.6, 0.9, "#141412", null, -0.4);
-    shape(ctx, [[52, -31], [55.4, -31], [51.4, -47], [48, -47]], ARMY[1], "kLine");
-    if (!simple()) shape(ctx, [[53, -32], [54, -32], [50.6, -45.6], [49.6, -45.6]], "glass");
-    flat(ctx, 85, -26, 3, 10, ARMY[1], "kLine");
-    if (!simple()) for (let y = -25; y < -17; y += 2) flat(ctx, 85.4, y, 2.2, 0.7, "#0c140e");
-    disc(ctx, 84, -23.4, 1.6, "c2", "mLine");
+    const c = JEEP;
+    vehicle(ctx, c);
     flat(ctx, -8, -24, 10, 10, "m1", "mLine");
     disc(ctx, -4, -19, 4, "m2", "mLine");
     if (!simple()) for (let a = 0; a < PI * 2; a += PI / 3) flat(ctx, -4 + cos(a) * 2.5 - 0.5, -19 + sin(a) * 2.5 - 0.5, 1, 1, "m3");
+    G.inside(ctx, G.rectRegion(ctx, -8, -24, 10, 10), () => G.dirt(ctx, -8, -24, 10, 10, c.seed + 150, 0.5));
     disc(ctx, -6, -54, 2.6, "m2", "mLine");
     line(ctx, [[-4, -23], [-5, -52]], "#1a1a18", 0.7);
-    if (winching) line(ctx, [[-8, -54], [-16, -46]], "#1a1a18", 0.8);
+    if (state === 2) line(ctx, [[-8, -54], [-16, -46]], "#1a1a18", 0.8);
     else {
       line(ctx, [[-8.4, -54], [-9, -38]], "#1a1a18", 0.6);
       curve(ctx, [[-9, -38], [-9, -34.6], [-7, -34.2], [-6.6, -36]], "m3", 0.9);
     }
-    flat(ctx, 24, -32.6, 4, 1.6, state === 0 ? "m1" : "m3", "mLine");
-    if (!simple()) flat(ctx, 82, -30, 3, 2, state === 0 ? RED[1] : "y2");
-    mossCap(ctx, 58, -29.5, 18, seed + 4, 1.5);
-    G.chips(ctx, 0, -31, 52, seed + 5, G.DIRT);
+    flat(ctx, 33, -33, 4, 1.6, state === 0 ? "m1" : "m3", "mLine");
+    if (!simple()) flat(ctx, 80, -33.2, 3, 2, state === 0 ? "#86200e" : "y2", c.tones?.[4]);
+    mossCap(ctx, 66, -32.6, 9, c.seed + 41, 1.2);
+    mossCap(ctx, 4, -31.8, 6, c.seed + 42, 1);
+    grass(ctx, 30, 36, 3, c.seed + 130);
   },
 };
 

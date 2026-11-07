@@ -430,11 +430,18 @@ const SEAT = ["#1c1810", "#2e2818", "#443a24"] as const;
 const RUST_HOLE = "#5a2a10";
 const RUST_LIGHT = "#b8682c";
 const MID = "#8a5a1e";
+const SCREEN = ["#1c3034", "#3c5c5c", "#a8c8c0"] as const;
 
 type Rect = [number, number, number, number];
 type WheelKind = "tyre" | "flat" | "rim";
 
-interface Wreck {
+interface Seat {
+  pts: Pt[];
+  lit: Rect;
+  rust?: Pt;
+}
+
+export interface Wreck {
   top: Pt[];
   base: number;
   belt: number;
@@ -447,7 +454,8 @@ interface Wreck {
   seams: Pt[][];
   bed?: [number, number, number];
   bars?: Pt[][];
-  seat?: Pt[];
+  seats?: Seat[];
+  screen?: Pt[];
   wheelPost?: [Pt, Pt];
   grille?: Rect;
   spare?: [number, number, number];
@@ -458,6 +466,10 @@ interface Wreck {
   leaves: Rect[];
   vines: [number, number, number][];
   ferns: Pt[];
+  tones?: Five;
+  mid?: string;
+  camo?: [number, number, number, number, string][];
+  rust?: number;
   seed: number;
 }
 
@@ -525,7 +537,7 @@ const WRECKS: Wreck[] = [
       [[14, -54], [36.5, -33]],
       [[58.5, -32.5], [53, -51], [55, -53], [59, -53], [65, -32.5]],
     ],
-    seat: [[42, -25], [40, -40], [44.5, -41.5], [47, -25]],
+    seats: [{ pts: [[42, -25], [40, -40], [44.5, -41.5], [47, -25]], lit: [38, -42, 4, 18], rust: [44, -34] }],
     wheelPost: [[57, -26], [52, -35.5]],
     grille: [89, 93, -28, -15],
     spare: [0, -21, 7.5],
@@ -539,22 +551,22 @@ const WRECKS: Wreck[] = [
   },
 ];
 
-const tube = (ctx: Ctx, pts: Pt[], seed: number): void => {
+const tube = (ctx: Ctx, pts: Pt[], seed: number, T: Five = CAR, rust = 6): void => {
   const r = rng(seed);
   const shift = (d: number): Pt[] => pts.map(([x, y]) => [x - d, y - d] as Pt);
-  line(ctx, pts, CAR[4], 3.6);
-  line(ctx, pts, CAR[0], 2.8);
-  line(ctx, shift(0.45), CAR[1], 1.5);
-  line(ctx, shift(0.8), CAR[3], 0.6);
+  line(ctx, pts, T[4], 3.6);
+  line(ctx, pts, T[0], 2.8);
+  line(ctx, shift(0.45), T[1], 1.5);
+  line(ctx, shift(0.8), T[3], 0.6);
   for (let i = 1; i < pts.length; i++) {
     const [ax, ay] = pts[i - 1] as Pt;
     const [bx, by] = pts[i] as Pt;
-    const n = max(1, round(Math.hypot(bx - ax, by - ay) / 6));
+    const n = max(1, round(Math.hypot(bx - ax, by - ay) / rust));
     for (let k = 0; k < n; k++) {
       const t = (k + r()) / n;
       const px = ax + (bx - ax) * t;
       const py = ay + (by - ay) * t;
-      disc(ctx, px, py, 0.5 + r() * 0.4, r() < 0.6 ? RUST_HOLE : CAR[0]);
+      disc(ctx, px, py, 0.5 + r() * 0.4, r() < 0.6 ? RUST_HOLE : T[0]);
       if (r() < 0.4) disc(ctx, px - 0.3, py - 0.4, 0.35, RUST_LIGHT);
     }
   }
@@ -565,7 +577,7 @@ const round2 = (ctx: Ctx, cx: number, cy: number, rr: number) => (): void => {
   ctx.arc(cx, cy, rr, 0, PI * 2);
 };
 
-const tyre = (ctx: Ctx, x: number, rr: number, kind: WheelKind, seed: number): void => {
+const tyre = (ctx: Ctx, x: number, rr: number, kind: WheelKind, seed: number, T: Five = CAR): void => {
   const cy = kind === "rim" ? -rr * 0.62 : -rr;
   if (kind !== "rim") {
     disc(ctx, x, cy, rr, TYRE[1], TYRE[0]);
@@ -577,22 +589,22 @@ const tyre = (ctx: Ctx, x: number, rr: number, kind: WheelKind, seed: number): v
     disc(ctx, x, cy, rr * 0.66, TYRE[2]);
   }
   const rim = kind === "rim" ? rr * 0.62 : rr * 0.5;
-  disc(ctx, x, cy, rim, CAR[1], CAR[4]);
+  disc(ctx, x, cy, rim, T[1], T[4]);
   G.inside(ctx, round2(ctx, x, cy, rim), () => {
-    flat(ctx, x - rim, cy - rim, rim * 2, rim * 0.7, CAR[2]);
-    flat(ctx, x - rim, cy + rim * 0.35, rim * 2, rim * 0.65, CAR[0]);
+    flat(ctx, x - rim, cy - rim, rim * 2, rim * 0.7, T[2]);
+    flat(ctx, x - rim, cy + rim * 0.35, rim * 2, rim * 0.65, T[0]);
   });
   if (kind === "rim")
     for (let k = 0; k < 4; k++) {
       const a = PI / 4 + (k * PI) / 2;
       disc(ctx, x + cos(a) * rim * 0.62, cy + sin(a) * rim * 0.62, rim * 0.16, HOLE);
     }
-  disc(ctx, x, cy, rim * 0.42, CAR[0], CAR[4]);
+  disc(ctx, x, cy, rim * 0.42, T[0], T[4]);
   for (let k = 0; k < 5; k++) {
     const a = k * PI * 0.4 - PI / 2;
-    disc(ctx, x + cos(a) * rim * 0.26, cy + sin(a) * rim * 0.26, 0.45, CAR[3]);
+    disc(ctx, x + cos(a) * rim * 0.26, cy + sin(a) * rim * 0.26, 0.45, T[3]);
   }
-  disc(ctx, x, cy, rim * 0.12, CAR[3]);
+  disc(ctx, x, cy, rim * 0.12, T[3]);
   G.rustPatch(ctx, x + rim * 0.3, cy - rim * 0.2, rim * 0.35, rim * 0.22, seed);
   G.inside(ctx, round2(ctx, x, cy, kind === "rim" ? rim : rr), () => G.dirt(ctx, x - rr, cy - rr, rr * 2, rr * 2, seed + 1, 0.55));
   if (kind === "flat") {
@@ -601,14 +613,14 @@ const tyre = (ctx: Ctx, x: number, rr: number, kind: WheelKind, seed: number): v
   }
 };
 
-const well = (ctx: Ctx, cx: number, base: number, rr: number, seed: number): void => {
+const well = (ctx: Ctx, cx: number, base: number, rr: number, seed: number, T: Five = CAR): void => {
   const arch = ovalPts(cx, base, rr, rr, PI, PI * 2, 10);
   shape(ctx, arch, WELL);
   clipped(ctx, arch, () => {
     oval(ctx, cx, base, rr * 0.75, rr * 0.7, HOLE);
     G.grain(ctx, G.polyRegion(ctx, arch), seed, 0.8);
-    for (let k = 0; k < 4; k++) line(ctx, [[cx - rr * 0.55, base - rr * 0.85 + k * 2], [cx - rr * 0.3, base - rr * 0.85 + k * 2 + 1.2]], CAR[0], 0.9);
-    line(ctx, [[cx - rr, base - 1], [cx + rr, base - 1.6]], CAR[0], 1);
+    for (let k = 0; k < 4; k++) line(ctx, [[cx - rr * 0.55, base - rr * 0.85 + k * 2], [cx - rr * 0.3, base - rr * 0.85 + k * 2 + 1.2]], T[0], 0.9);
+    line(ctx, [[cx - rr, base - 1], [cx + rr, base - 1.6]], T[0], 1);
   });
 };
 
@@ -616,31 +628,46 @@ const wreckBody = (ctx: Ctx, c: Wreck): Pt[] => {
   const w = max(...c.top.map((p) => p[0]));
   const top = min(...c.top.map((p) => p[1]));
   const arches = c.wheels.map(([x, rr]) => [x, rr + 1.8] as Pt);
+  const T = c.tones ?? CAR;
+  const mid = c.mid ?? MID;
   const body = hull(c.top, c.base, arches);
-  for (const [x, rr] of arches) well(ctx, x, c.base, rr, c.seed + x);
-  if (c.seat && c.wheelPost) {
-    const seat = c.seat;
-    shape(ctx, seat, SEAT[1], CAR[4]);
-    clipped(ctx, seat, () => {
-      flat(ctx, 38, -42, 4, 18, SEAT[2]);
-      G.grain(ctx, G.polyRegion(ctx, seat), c.seed + 3, 0.9);
-      G.rustPatch(ctx, 44, -34, 1.6, 2.4, c.seed + 4);
+  for (const [x, rr] of arches) well(ctx, x, c.base, rr, c.seed + x, T);
+  for (const [i, s] of (c.seats ?? []).entries()) {
+    shape(ctx, s.pts, SEAT[1], T[4]);
+    clipped(ctx, s.pts, () => {
+      flat(ctx, ...s.lit, SEAT[2]);
+      G.grain(ctx, G.polyRegion(ctx, s.pts), c.seed + 3 + i * 10, 0.9);
+      if (s.rust) G.rustPatch(ctx, ...s.rust, 1.6, 2.4, c.seed + 4 + i * 10);
     });
-    line(ctx, c.wheelPost, CAR[4], 1.4);
-    line(ctx, ovalPts(c.wheelPost[1][0], c.wheelPost[1][1], 1.4, 4, 0, PI * 2, 12), CAR[4], 1);
   }
-  for (const [i, pts] of (c.bars ?? []).entries()) tube(ctx, pts, c.seed + 70 + i);
-  flat(ctx, 4, c.base, w - 8, 2.6, CAR[0], CAR[4]);
+  const screen = c.screen;
+  if (screen) {
+    shape(ctx, screen, SCREEN[0], T[4]);
+    clipped(ctx, screen, () => {
+      shape(ctx, screen.map(([x, y]) => [x - 1.6, y] as Pt), SCREEN[1]);
+      line(ctx, [screen[0] as Pt, screen[1] as Pt].map(([x, y]) => [x + 1.4, y - 2] as Pt), SCREEN[2], 0.6);
+      const sx = screen.map((p) => p[0]);
+      const sy = screen.map((p) => p[1]);
+      G.dirt(ctx, min(...sx), min(...sy), max(...sx) - min(...sx), max(...sy) - min(...sy), c.seed + 25, 0.5);
+    });
+  }
+  if (c.wheelPost) {
+    line(ctx, c.wheelPost, T[4], 1.4);
+    line(ctx, ovalPts(c.wheelPost[1][0], c.wheelPost[1][1], 1.4, 4, 0, PI * 2, 12), T[4], 1);
+  }
+  for (const [i, pts] of (c.bars ?? []).entries()) tube(ctx, pts, c.seed + 70 + i, T, c.rust);
+  flat(ctx, 4, c.base, w - 8, 2.6, T[0], T[4]);
   flat(ctx, 4, c.base + 1.8, w - 8, 0.8, HOLE);
-  shape(ctx, body, CAR[1], CAR[4]);
+  shape(ctx, body, T[1], T[4]);
   clipped(ctx, body, () => {
-    flat(ctx, 0, top - 2, w, c.belt - top + 2, MID);
-    flat(ctx, 0, c.belt, w, 2.4, CAR[3]);
-    flat(ctx, 0, c.belt + 2.4, w, 1, MID);
-    flat(ctx, 0, c.base - 5, w, 5, CAR[0]);
-    flat(ctx, 0, c.base - 5.4, w, 0.8, CAR[4]);
-    flat(ctx, 0, c.belt + 7, w, 0.8, CAR[0]);
-    line(ctx, c.top.slice(1, -1).map(([x, y]) => [x, y + 0.9] as Pt), CAR[3], 0.8);
+    flat(ctx, 0, top - 2, w, c.belt - top + 2, mid);
+    for (const [i, [x, y, rx, ry, k]] of (c.camo ?? []).entries()) shape(ctx, blobPts(x, y, rx, ry, c.seed + 140 + i, 9, 0.3), k);
+    flat(ctx, 0, c.belt, w, 2.4, T[3]);
+    flat(ctx, 0, c.belt + 2.4, w, 1, mid);
+    flat(ctx, 0, c.base - 5, w, 5, T[0]);
+    flat(ctx, 0, c.base - 5.4, w, 0.8, T[4]);
+    flat(ctx, 0, c.belt + 7, w, 0.8, T[0]);
+    line(ctx, c.top.slice(1, -1).map(([x, y]) => [x, y + 0.9] as Pt), T[3], 0.8);
   });
   G.inside(
     ctx,
@@ -659,49 +686,49 @@ const wreckBody = (ctx: Ctx, c: Wreck): Pt[] => {
     },
     c.glass,
   );
-  for (const [i, h] of c.holes.entries()) G.inside(ctx, G.polyRegion(ctx, body), () => G.rim(ctx, h, c.seed + 12 + i, CAR[3], CAR[4]));
-  for (const pts of c.seams) line(ctx, pts, CAR[4], 0.7);
+  for (const [i, h] of c.holes.entries()) G.inside(ctx, G.polyRegion(ctx, body), () => G.rim(ctx, h, c.seed + 12 + i, T[3], T[4]));
+  for (const pts of c.seams) line(ctx, pts, T[4], 0.7);
   for (const x of c.doors) {
-    line(ctx, [[x, c.belt + 0.5], [x, c.base - 1]], CAR[4], 0.8);
-    line(ctx, [[x + 0.7, c.belt + 0.5], [x + 0.7, c.base - 1]], CAR[3], 0.4);
+    line(ctx, [[x, c.belt + 0.5], [x, c.base - 1]], T[4], 0.8);
+    line(ctx, [[x + 0.7, c.belt + 0.5], [x + 0.7, c.base - 1]], T[3], 0.4);
   }
-  for (const [x, y] of c.handles) flat(ctx, x, y, 3.4, 1.1, CAR[3], CAR[4]);
+  for (const [x, y] of c.handles) flat(ctx, x, y, 3.4, 1.1, T[3], T[4]);
   for (const [x, rr] of arches) {
     const lip = ovalPts(x, c.base, rr + 0.4, rr + 0.4, PI, PI * 2, 12);
     G.inside(ctx, G.polyRegion(ctx, body), () => G.scorch(ctx, ovalPts(x, c.base, rr, rr, PI, PI * 2, 10), c.seed + 30 + x));
-    line(ctx, lip, CAR[4], 1.8);
-    line(ctx, ovalPts(x, c.base, rr + 1.3, rr + 1.3, PI * 1.1, PI * 1.9, 10), CAR[2], 0.6);
+    line(ctx, lip, T[4], 1.8);
+    line(ctx, ovalPts(x, c.base, rr + 1.3, rr + 1.3, PI * 1.1, PI * 1.9, 10), T[2], 0.6);
   }
   for (const [i, g] of c.glass.entries())
     clipped(ctx, body, () => {
       G.scorch(ctx, g, c.seed + 10 + i);
       shape(ctx, g, HOLE);
-      G.rim(ctx, g, c.seed + 11 + i, CAR[3], CAR[4]);
+      G.rim(ctx, g, c.seed + 11 + i, T[3], T[4]);
     });
   if (c.bed) {
     const [b0, b1, by] = c.bed;
-    flat(ctx, b0, by - 1, b1 - b0, 2.2, CAR[3], CAR[4]);
+    flat(ctx, b0, by - 1, b1 - b0, 2.2, T[3], T[4]);
     for (let x = b0 + 8; x < b1 - 2; x += 12) flat(ctx, x, by + 1.6, 2, 2.4, HOLE);
   }
   if (c.grille) {
     const [g0, g1, gy0, gy1] = c.grille;
     flat(ctx, g0, gy0, g1 - g0, gy1 - gy0, HOLE);
-    for (let x = g0 + 0.8; x < g1; x += 1.6) line(ctx, [[x, gy0], [x, gy1]], CAR[0], 0.8);
+    for (let x = g0 + 0.8; x < g1; x += 1.6) line(ctx, [[x, gy0], [x, gy1]], T[0], 0.8);
   }
-  if (c.tail) flat(ctx, ...c.tail, "#5a160c", CAR[4]);
+  if (c.tail) flat(ctx, ...c.tail, "#5a160c", T[4]);
   if (c.head) {
     const [hx, hy, hw, hh] = c.head;
-    flat(ctx, hx, hy, hw, hh, "#2c2a22", CAR[4]);
+    flat(ctx, hx, hy, hw, hh, "#2c2a22", T[4]);
     flat(ctx, hx + 0.5, hy + 0.5, hw * 0.4, hh * 0.4, "#8c8c78");
   }
   for (const [i, [bx, by, bw, bh]] of c.bumpers.entries()) {
-    flat(ctx, bx, by, bw, bh, CAR[0], CAR[4]);
-    flat(ctx, bx, by, bw, 0.7, CAR[2]);
+    flat(ctx, bx, by, bw, bh, T[0], T[4]);
+    flat(ctx, bx, by, bw, 0.7, T[2]);
     G.rustPatch(ctx, bx + bw * 0.5, by + bh * 0.5, bw * 0.3, bh * 0.3, c.seed + 50 + i);
   }
   G.chips(ctx, c.roof[0], c.roof[2], c.roof[1] - c.roof[0], c.seed + 9, G.DIRT);
   G.chips(ctx, 0, c.belt, w, c.seed + 15, G.DIRT);
-  for (const [i, [x, rr, kind]] of c.wheels.entries()) tyre(ctx, x, rr, kind, c.seed + 20 + i * 3);
+  for (const [i, [x, rr, kind]] of c.wheels.entries()) tyre(ctx, x, rr, kind, c.seed + 20 + i * 3, T);
   if (c.spare) {
     ctx.save();
     ctx.translate(0, c.spare[1] + c.spare[2]);
@@ -714,6 +741,15 @@ const wreckBody = (ctx: Ctx, c: Wreck): Pt[] => {
 const windowSpan = (g: Pt[]): [number, number, number] => {
   const gx = g.map((p) => p[0]);
   return [min(...gx), max(...gx), max(...g.map((p) => p[1]))];
+};
+
+export const vehicle = (ctx: Ctx, c: Wreck): Pt[] => {
+  const w = max(...c.top.map((p) => p[0]));
+  ctx.save();
+  ctx.globalAlpha = 0.45;
+  flat(ctx, -2, -2, w + 4, 2, HOLE);
+  ctx.restore();
+  return wreckBody(ctx, c);
 };
 
 const overgrow = (ctx: Ctx, c: Wreck, body: Pt[]): void => {
@@ -749,12 +785,7 @@ const overgrownWreck: EnvAsset = {
   box: [-9, -62, 118, 2],
   draw(ctx, state) {
     const c = WRECKS[state] ?? (WRECKS[0] as Wreck);
-    const w = max(...c.top.map((p) => p[0]));
-    ctx.save();
-    ctx.globalAlpha = 0.45;
-    flat(ctx, -2, -2, w + 4, 2, HOLE);
-    ctx.restore();
-    overgrow(ctx, c, wreckBody(ctx, c));
+    overgrow(ctx, c, vehicle(ctx, c));
   },
 };
 

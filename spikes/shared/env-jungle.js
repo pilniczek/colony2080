@@ -510,64 +510,6 @@ function strut(ctx, a, b, w, c) {
   line(ctx, [a, b], c, w, "butt");
 }
 
-const JEEP_BODY = [[0, -12], [0, -31], [52, -31], [56, -29], [84, -27], [88, -22], [88, -12]];
-const CAMO = [[12, -26, 8, 3], [32, -20, 7, 3.4], [50, -25, 6, 2.6], [68, -18, 9, 3], [78, -24, 5, 2]];
-
-function jeepWheel(ctx, x, y, r) {
-  disc(ctx, x, y, r, "#141412", "kLine");
-  disc(ctx, x, y, r * 0.45, ARMY[1], "mLine");
-  if (!simple()) disc(ctx, x - r * 0.12, y - r * 0.12, r * 0.18, ARMY[3]);
-}
-
-define({
-  id: "jeep",
-  box: [-16, -58, 92, 1],
-  draw(ctx, state) {
-    const seed = 740;
-    const winching = state === 2;
-    strut(ctx, [3, -30], [-6, -54], 2.2, ARMY[1]);
-    strut(ctx, [15, -30], [-6, -54], 2.2, ARMY[2]);
-    strut(ctx, [-1, -42], [9, -42], 1.4, ARMY[1]);
-    for (const x of [16, 70]) jeepWheel(ctx, x, -9, 9);
-    shape(ctx, JEEP_BODY, ARMY[2]);
-    within(ctx, JEEP_BODY, () => {
-      flat(ctx, 0, -32, 90, 3, ARMY[3]);
-      flat(ctx, 0, -16, 90, 4, ARMY[1]);
-      for (const [x, y, rx, ry] of CAMO) oval(ctx, x, y, rx, ry, ARMY[1]);
-      for (const x of [16, 70]) disc(ctx, x, -9, 10.6, ARMY[0]);
-      G.grain(ctx, G.polyRegion(ctx, JEEP_BODY), seed);
-      G.drips(ctx, 2, -30, 84, 12, seed + 2, 4);
-      G.dirt(ctx, 0, -30, 88, 18, seed + 3, 0.6);
-    });
-    path(ctx, JEEP_BODY);
-    stroke(ctx, "kLine");
-    for (const x of [16, 70]) jeepWheel(ctx, x, -9, 8);
-    for (const [x, y, s] of [[40, -22, 2.6], [76, -20, 2], [8, -27, 1.8]]) G.rustPatch(ctx, x, y, s, s * 0.7, seed + x);
-    for (const x of [22, 36]) flat(ctx, x, -39, 6, 8, "#1c1c14", "kLine");
-    line(ctx, [[45, -31], [48, -37]], "#141412", 1.2);
-    oval(ctx, 48.4, -37.4, 2.6, 0.9, "#141412", null, -0.4);
-    shape(ctx, [[52, -31], [55.4, -31], [51.4, -47], [48, -47]], ARMY[1], "kLine");
-    if (!simple()) shape(ctx, [[53, -32], [54, -32], [50.6, -45.6], [49.6, -45.6]], "glass");
-    flat(ctx, 85, -26, 3, 10, ARMY[1], "kLine");
-    if (!simple()) for (let y = -25; y < -17; y += 2) flat(ctx, 85.4, y, 2.2, 0.7, "#0c140e");
-    disc(ctx, 84, -23.4, 1.6, "c2", "mLine");
-    flat(ctx, -8, -24, 10, 10, "m1", "mLine");
-    disc(ctx, -4, -19, 4, "m2", "mLine");
-    if (!simple()) for (let a = 0; a < PI * 2; a += PI / 3) flat(ctx, -4 + cos(a) * 2.5 - 0.5, -19 + sin(a) * 2.5 - 0.5, 1, 1, "m3");
-    disc(ctx, -6, -54, 2.6, "m2", "mLine");
-    line(ctx, [[-4, -23], [-5, -52]], "#1a1a18", 0.7);
-    if (winching) line(ctx, [[-8, -54], [-16, -46]], "#1a1a18", 0.8);
-    else {
-      line(ctx, [[-8.4, -54], [-9, -38]], "#1a1a18", 0.6);
-      curve(ctx, [[-9, -38], [-9, -34.6], [-7, -34.2], [-6.6, -36]], "m3", 0.9);
-    }
-    flat(ctx, 24, -32.6, 4, 1.6, state === 0 ? "m1" : "m3", "mLine");
-    if (!simple()) flat(ctx, 82, -30, 3, 2, state === 0 ? RED[1] : "y2");
-    mossCap(ctx, 58, -29.5, 18, seed + 4, 1.5);
-    G.chips(ctx, 0, -31, 52, seed + 5, G.DIRT);
-  }
-});
-
 const DOME_PTS = [[9, -26], [11, -32], [17, -36.6], [24, -38], [31, -36.6], [37, -32], [39, -26]];
 
 function turretFlash(ctx, x, y, t) {
@@ -2993,6 +2935,7 @@ const SEAT = ["#1c1810", "#2e2818", "#443a24"];
 const RUST_HOLE = "#5a2a10";
 const RUST_LIGHT = "#b8682c";
 const MID = "#8a5a1e";
+const SCREEN = ["#1c3034", "#3c5c5c", "#a8c8c0"];
 
 function hull(top, base, arches) {
   const pts = [...top];
@@ -3047,7 +2990,7 @@ const WRECKS = [
       [[14, -54], [36.5, -33]],
       [[58.5, -32.5], [53, -51], [55, -53], [59, -53], [65, -32.5]]
     ],
-    seat: [[42, -25], [40, -40], [44.5, -41.5], [47, -25]],
+    seats: [{ pts: [[42, -25], [40, -40], [44.5, -41.5], [47, -25]], lit: [38, -42, 4, 18], rust: [44, -34] }],
     wheelPost: [[57, -26], [52, -35.5]],
     grille: [89, 93, -28, -15],
     spare: [0, -21, 7.5],
@@ -3061,20 +3004,20 @@ const WRECKS = [
   }
 ];
 
-function tube(ctx, pts, seed) {
+function tube(ctx, pts, seed, T = CAR, rust = 6) {
   const r = rng(seed);
   const shift = (d) => pts.map(([x, y]) => [x - d, y - d]);
-  line(ctx, pts, CAR[4], 3.6);
-  line(ctx, pts, CAR[0], 2.8);
-  line(ctx, shift(0.45), CAR[1], 1.5);
-  line(ctx, shift(0.8), CAR[3], 0.6);
+  line(ctx, pts, T[4], 3.6);
+  line(ctx, pts, T[0], 2.8);
+  line(ctx, shift(0.45), T[1], 1.5);
+  line(ctx, shift(0.8), T[3], 0.6);
   for (let i = 1; i < pts.length; i++) {
     const [ax, ay] = pts[i - 1], [bx, by] = pts[i];
-    const n = max(1, round(Math.hypot(bx - ax, by - ay) / 6));
+    const n = max(1, round(Math.hypot(bx - ax, by - ay) / rust));
     for (let k = 0; k < n; k++) {
       const t = (k + r()) / n;
       const px = ax + (bx - ax) * t, py = ay + (by - ay) * t;
-      disc(ctx, px, py, 0.5 + r() * 0.4, r() < 0.6 ? RUST_HOLE : CAR[0]);
+      disc(ctx, px, py, 0.5 + r() * 0.4, r() < 0.6 ? RUST_HOLE : T[0]);
       if (r() < 0.4) disc(ctx, px - 0.3, py - 0.4, 0.35, RUST_LIGHT);
     }
   }
@@ -3087,7 +3030,7 @@ function round2(ctx, cx, cy, rr) {
   };
 }
 
-function tyre(ctx, x, rr, kind, seed) {
+function tyre(ctx, x, rr, kind, seed, T = CAR) {
   const cy = kind === "rim" ? -rr * 0.62 : -rr;
   if (kind !== "rim") {
     disc(ctx, x, cy, rr, TYRE[1], TYRE[0]);
@@ -3099,21 +3042,21 @@ function tyre(ctx, x, rr, kind, seed) {
     disc(ctx, x, cy, rr * 0.66, TYRE[2]);
   }
   const rim = kind === "rim" ? rr * 0.62 : rr * 0.5;
-  disc(ctx, x, cy, rim, CAR[1], CAR[4]);
+  disc(ctx, x, cy, rim, T[1], T[4]);
   G.inside(ctx, round2(ctx, x, cy, rim), () => {
-    flat(ctx, x - rim, cy - rim, rim * 2, rim * 0.7, CAR[2]);
-    flat(ctx, x - rim, cy + rim * 0.35, rim * 2, rim * 0.65, CAR[0]);
+    flat(ctx, x - rim, cy - rim, rim * 2, rim * 0.7, T[2]);
+    flat(ctx, x - rim, cy + rim * 0.35, rim * 2, rim * 0.65, T[0]);
   });
   if (kind === "rim") for (let k = 0; k < 4; k++) {
     const a = PI / 4 + k * PI / 2;
     disc(ctx, x + cos(a) * rim * 0.62, cy + sin(a) * rim * 0.62, rim * 0.16, HOLE);
   }
-  disc(ctx, x, cy, rim * 0.42, CAR[0], CAR[4]);
+  disc(ctx, x, cy, rim * 0.42, T[0], T[4]);
   for (let k = 0; k < 5; k++) {
     const a = k * PI * 0.4 - PI / 2;
-    disc(ctx, x + cos(a) * rim * 0.26, cy + sin(a) * rim * 0.26, 0.45, CAR[3]);
+    disc(ctx, x + cos(a) * rim * 0.26, cy + sin(a) * rim * 0.26, 0.45, T[3]);
   }
-  disc(ctx, x, cy, rim * 0.12, CAR[3]);
+  disc(ctx, x, cy, rim * 0.12, T[3]);
   G.rustPatch(ctx, x + rim * 0.3, cy - rim * 0.2, rim * 0.35, rim * 0.22, seed);
   G.inside(ctx, round2(ctx, x, cy, kind === "rim" ? rim : rr), () => G.dirt(ctx, x - rr, cy - rr, rr * 2, rr * 2, seed + 1, 0.55));
   if (kind === "flat") {
@@ -3122,14 +3065,14 @@ function tyre(ctx, x, rr, kind, seed) {
   }
 }
 
-function well(ctx, cx, base, rr, seed) {
+function well(ctx, cx, base, rr, seed, T = CAR) {
   const arch = ovalPts(cx, base, rr, rr, PI, PI * 2, 10);
   shape(ctx, arch, WELL);
   clipped(ctx, arch, () => {
     oval(ctx, cx, base, rr * 0.75, rr * 0.7, HOLE);
     G.grain(ctx, G.polyRegion(ctx, arch), seed, 0.8);
-    for (let k = 0; k < 4; k++) line(ctx, [[cx - rr * 0.55, base - rr * 0.85 + k * 2], [cx - rr * 0.3, base - rr * 0.85 + k * 2 + 1.2]], CAR[0], 0.9);
-    line(ctx, [[cx - rr, base - 1], [cx + rr, base - 1.6]], CAR[0], 1);
+    for (let k = 0; k < 4; k++) line(ctx, [[cx - rr * 0.55, base - rr * 0.85 + k * 2], [cx - rr * 0.3, base - rr * 0.85 + k * 2 + 1.2]], T[0], 0.9);
+    line(ctx, [[cx - rr, base - 1], [cx + rr, base - 1.6]], T[0], 1);
   });
 }
 
@@ -3138,30 +3081,44 @@ function wreckBody(ctx, c) {
   const w = max(...xs);
   const top = min(...c.top.map(p => p[1]));
   const arches = c.wheels.map(([x, rr]) => [x, rr + 1.8]);
+  const T = c.tones ?? CAR;
+  const mid = c.mid ?? MID;
   const body = hull(c.top, c.base, arches);
-  for (const [x, rr] of arches) well(ctx, x, c.base, rr, c.seed + x);
-  if (c.seat) {
-    shape(ctx, c.seat, SEAT[1], CAR[4]);
-    clipped(ctx, c.seat, () => {
-      flat(ctx, 38, -42, 4, 18, SEAT[2]);
-      G.grain(ctx, G.polyRegion(ctx, c.seat), c.seed + 3, 0.9);
-      G.rustPatch(ctx, 44, -34, 1.6, 2.4, c.seed + 4);
+  for (const [x, rr] of arches) well(ctx, x, c.base, rr, c.seed + x, T);
+  for (const [i, s] of (c.seats ?? []).entries()) {
+    shape(ctx, s.pts, SEAT[1], T[4]);
+    clipped(ctx, s.pts, () => {
+      flat(ctx, ...s.lit, SEAT[2]);
+      G.grain(ctx, G.polyRegion(ctx, s.pts), c.seed + 3 + i * 10, 0.9);
+      if (s.rust) G.rustPatch(ctx, ...s.rust, 1.6, 2.4, c.seed + 4 + i * 10);
     });
-    line(ctx, c.wheelPost, CAR[4], 1.4);
-    line(ctx, ovalPts(c.wheelPost[1][0], c.wheelPost[1][1], 1.4, 4, 0, PI * 2, 12), CAR[4], 1);
   }
-  for (const [i, pts] of (c.bars ?? []).entries()) tube(ctx, pts, c.seed + 70 + i);
-  flat(ctx, 4, c.base, w - 8, 2.6, CAR[0], CAR[4]);
+  if (c.screen) {
+    shape(ctx, c.screen, SCREEN[0], T[4]);
+    clipped(ctx, c.screen, () => {
+      shape(ctx, c.screen.map(([x, y]) => [x - 1.6, y]), SCREEN[1]);
+      line(ctx, [c.screen[0], c.screen[1]].map(([x, y]) => [x + 1.4, y - 2]), SCREEN[2], 0.6);
+      const sx = c.screen.map(p => p[0]), sy = c.screen.map(p => p[1]);
+      G.dirt(ctx, min(...sx), min(...sy), max(...sx) - min(...sx), max(...sy) - min(...sy), c.seed + 25, 0.5);
+    });
+  }
+  if (c.wheelPost) {
+    line(ctx, c.wheelPost, T[4], 1.4);
+    line(ctx, ovalPts(c.wheelPost[1][0], c.wheelPost[1][1], 1.4, 4, 0, PI * 2, 12), T[4], 1);
+  }
+  for (const [i, pts] of (c.bars ?? []).entries()) tube(ctx, pts, c.seed + 70 + i, T, c.rust);
+  flat(ctx, 4, c.base, w - 8, 2.6, T[0], T[4]);
   flat(ctx, 4, c.base + 1.8, w - 8, 0.8, HOLE);
-  shape(ctx, body, CAR[1], CAR[4]);
+  shape(ctx, body, T[1], T[4]);
   clipped(ctx, body, () => {
-    flat(ctx, 0, top - 2, w, c.belt - top + 2, MID);
-    flat(ctx, 0, c.belt, w, 2.4, CAR[3]);
-    flat(ctx, 0, c.belt + 2.4, w, 1, MID);
-    flat(ctx, 0, c.base - 5, w, 5, CAR[0]);
-    flat(ctx, 0, c.base - 5.4, w, 0.8, CAR[4]);
-    flat(ctx, 0, c.belt + 7, w, 0.8, CAR[0]);
-    line(ctx, c.top.slice(1, -1).map(([x, y]) => [x, y + 0.9]), CAR[3], 0.8);
+    flat(ctx, 0, top - 2, w, c.belt - top + 2, mid);
+    for (const [i, [x, y, rx, ry, k]] of (c.camo ?? []).entries()) shape(ctx, J.blobPts(x, y, rx, ry, c.seed + 140 + i, 9, 0.3), k);
+    flat(ctx, 0, c.belt, w, 2.4, T[3]);
+    flat(ctx, 0, c.belt + 2.4, w, 1, mid);
+    flat(ctx, 0, c.base - 5, w, 5, T[0]);
+    flat(ctx, 0, c.base - 5.4, w, 0.8, T[4]);
+    flat(ctx, 0, c.belt + 7, w, 0.8, T[0]);
+    line(ctx, c.top.slice(1, -1).map(([x, y]) => [x, y + 0.9]), T[3], 0.8);
   });
   G.inside(ctx, G.polyRegion(ctx, body), () => {
     G.grain(ctx, G.polyRegion(ctx, body), c.seed);
@@ -3175,48 +3132,48 @@ function wreckBody(ctx, c) {
     G.drips(ctx, 0, c.belt + 1, w, (c.base - c.belt) * 0.7, c.seed + 7, round(w / 10));
     G.dirt(ctx, 0, top, w, c.base - top, c.seed + 8, 0.45);
   }, c.glass);
-  for (const [i, h] of c.holes.entries()) G.inside(ctx, G.polyRegion(ctx, body), () => G.rim(ctx, h, c.seed + 12 + i, CAR[3], CAR[4]));
-  for (const pts of c.seams) line(ctx, pts, CAR[4], 0.7);
+  for (const [i, h] of c.holes.entries()) G.inside(ctx, G.polyRegion(ctx, body), () => G.rim(ctx, h, c.seed + 12 + i, T[3], T[4]));
+  for (const pts of c.seams) line(ctx, pts, T[4], 0.7);
   for (const x of c.doors) {
-    line(ctx, [[x, c.belt + 0.5], [x, c.base - 1]], CAR[4], 0.8);
-    line(ctx, [[x + 0.7, c.belt + 0.5], [x + 0.7, c.base - 1]], CAR[3], 0.4);
+    line(ctx, [[x, c.belt + 0.5], [x, c.base - 1]], T[4], 0.8);
+    line(ctx, [[x + 0.7, c.belt + 0.5], [x + 0.7, c.base - 1]], T[3], 0.4);
   }
-  for (const [x, y] of c.handles) flat(ctx, x, y, 3.4, 1.1, CAR[3], CAR[4]);
+  for (const [x, y] of c.handles) flat(ctx, x, y, 3.4, 1.1, T[3], T[4]);
   for (const [x, rr] of arches) {
     const lip = ovalPts(x, c.base, rr + 0.4, rr + 0.4, PI, PI * 2, 12);
     G.inside(ctx, G.polyRegion(ctx, body), () => G.scorch(ctx, ovalPts(x, c.base, rr, rr, PI, PI * 2, 10), c.seed + 30 + x));
-    line(ctx, lip, CAR[4], 1.8);
-    line(ctx, ovalPts(x, c.base, rr + 1.3, rr + 1.3, PI * 1.1, PI * 1.9, 10), CAR[2], 0.6);
+    line(ctx, lip, T[4], 1.8);
+    line(ctx, ovalPts(x, c.base, rr + 1.3, rr + 1.3, PI * 1.1, PI * 1.9, 10), T[2], 0.6);
   }
   for (const [i, g] of c.glass.entries()) clipped(ctx, body, () => {
     G.scorch(ctx, g, c.seed + 10 + i);
     shape(ctx, g, HOLE);
-    G.rim(ctx, g, c.seed + 11 + i, CAR[3], CAR[4]);
+    G.rim(ctx, g, c.seed + 11 + i, T[3], T[4]);
   });
   if (c.bed) {
     const [b0, b1, by] = c.bed;
-    flat(ctx, b0, by - 1, b1 - b0, 2.2, CAR[3], CAR[4]);
+    flat(ctx, b0, by - 1, b1 - b0, 2.2, T[3], T[4]);
     for (let x = b0 + 8; x < b1 - 2; x += 12) flat(ctx, x, by + 1.6, 2, 2.4, HOLE);
   }
   if (c.grille) {
     const [g0, g1, gy0, gy1] = c.grille;
     flat(ctx, g0, gy0, g1 - g0, gy1 - gy0, HOLE);
-    for (let x = g0 + 0.8; x < g1; x += 1.6) line(ctx, [[x, gy0], [x, gy1]], CAR[0], 0.8);
+    for (let x = g0 + 0.8; x < g1; x += 1.6) line(ctx, [[x, gy0], [x, gy1]], T[0], 0.8);
   }
-  if (c.tail) flat(ctx, ...c.tail, "#5a160c", CAR[4]);
+  if (c.tail) flat(ctx, ...c.tail, "#5a160c", T[4]);
   if (c.head) {
     const [hx, hy, hw, hh] = c.head;
-    flat(ctx, hx, hy, hw, hh, "#2c2a22", CAR[4]);
+    flat(ctx, hx, hy, hw, hh, "#2c2a22", T[4]);
     flat(ctx, hx + 0.5, hy + 0.5, hw * 0.4, hh * 0.4, "#8c8c78");
   }
   for (const [i, [bx, by, bw, bh]] of c.bumpers.entries()) {
-    flat(ctx, bx, by, bw, bh, CAR[0], CAR[4]);
-    flat(ctx, bx, by, bw, 0.7, CAR[2]);
+    flat(ctx, bx, by, bw, bh, T[0], T[4]);
+    flat(ctx, bx, by, bw, 0.7, T[2]);
     G.rustPatch(ctx, bx + bw * 0.5, by + bh * 0.5, bw * 0.3, bh * 0.3, c.seed + 50 + i);
   }
   G.chips(ctx, c.roof[0], c.roof[2], c.roof[1] - c.roof[0], c.seed + 9, G.DIRT);
   G.chips(ctx, 0, c.belt, w, c.seed + 15, G.DIRT);
-  for (const [i, [x, rr, kind]] of c.wheels.entries()) tyre(ctx, x, rr, kind, c.seed + 20 + i * 3);
+  for (const [i, [x, rr, kind]] of c.wheels.entries()) tyre(ctx, x, rr, kind, c.seed + 20 + i * 3, T);
   if (c.spare) {
     ctx.save();
     ctx.translate(0, c.spare[1] + c.spare[2]);
@@ -3224,6 +3181,15 @@ function wreckBody(ctx, c) {
     ctx.restore();
   }
   return body;
+}
+
+function vehicle(ctx, c) {
+  const w = max(...c.top.map(p => p[0]));
+  ctx.save();
+  ctx.globalAlpha = 0.45;
+  flat(ctx, -2, -2, w + 4, 2, HOLE);
+  ctx.restore();
+  return wreckBody(ctx, c);
 }
 
 function overgrow(ctx, c, body) {
@@ -3259,12 +3225,62 @@ define({
   box: [-9, -62, 118, 2],
   draw(ctx, state) {
     const c = WRECKS[state] ?? WRECKS[0];
-    const w = max(...c.top.map(p => p[0]));
-    ctx.save();
-    ctx.globalAlpha = 0.45;
-    flat(ctx, -2, -2, w + 4, 2, HOLE);
-    ctx.restore();
-    overgrow(ctx, c, wreckBody(ctx, c));
+    overgrow(ctx, c, vehicle(ctx, c));
+  }
+});
+
+const JEEP = {
+  top: [[0, -10], [0, -30], [2, -31.5], [40, -31.5], [42.5, -25], [55.5, -25], [58, -32.5], [89, -31], [93, -28], [94, -10]],
+  base: -10, belt: -25, roof: [58, 89, -32.5],
+  wheels: [[20, 10.5, "tyre"], [76, 10.5, "tyre"]],
+  glass: [],
+  doors: [42.5, 55.5], handles: [[49, -21.5]],
+  holes: [],
+  seams: [[[58, -32.5], [59.5, -18]], [[86, -31], [87, -18]]],
+  bars: [
+    [[3, -30], [-6, -54]],
+    [[15, -30], [-6, -54]],
+    [[-1, -42], [9, -42]],
+    [[58.5, -32.5], [56, -50], [58, -51.5], [62, -51.5], [64.5, -32.5]]
+  ],
+  screen: [[59.5, -33], [57.4, -49.6], [61.2, -49.6], [63.2, -33]],
+  seats: [
+    { pts: [[22, -30], [20.5, -41.5], [26, -43], [29, -30]], lit: [18, -44, 4, 16] },
+    { pts: [[42, -25], [40, -40], [44.5, -41.5], [47, -25]], lit: [38, -42, 4, 18] }
+  ],
+  wheelPost: [[57, -26], [52, -35.5]],
+  grille: [89, 93, -28, -15],
+  tail: [0.4, -29, 2.4, 3.4], head: [90, -26, 3.4, 3.4],
+  bumpers: [[-3, -14, 5, 3], [92, -14, 6, 3]],
+  tones: ["#14302a", "#24543f", "#34704f", "#68a080", "#08120e"],
+  mid: "#2c624a",
+  camo: [[12, -24, 8, 3.4, "#122a20"], [33, -19, 7, 3, "#122a20"], [50, -21, 4, 2.4, "#4c6a38"], [68, -27.5, 9, 3, "#122a20"], [83, -19, 6, 2.6, "#4c6a38"], [25, -27.5, 6, 2.2, "#4c6a38"], [72, -17, 6, 2.2, "#122a20"]],
+  rust: 14,
+  seed: 7560
+};
+
+define({
+  id: "jeep",
+  box: [-16, -58, 100, 1],
+  draw(ctx, state) {
+    const c = JEEP;
+    vehicle(ctx, c);
+    flat(ctx, -8, -24, 10, 10, "m1", "mLine");
+    disc(ctx, -4, -19, 4, "m2", "mLine");
+    if (!simple()) for (let a = 0; a < PI * 2; a += PI / 3) flat(ctx, -4 + cos(a) * 2.5 - 0.5, -19 + sin(a) * 2.5 - 0.5, 1, 1, "m3");
+    G.inside(ctx, G.rectRegion(ctx, -8, -24, 10, 10), () => G.dirt(ctx, -8, -24, 10, 10, c.seed + 150, 0.5));
+    disc(ctx, -6, -54, 2.6, "m2", "mLine");
+    line(ctx, [[-4, -23], [-5, -52]], "#1a1a18", 0.7);
+    if (state === 2) line(ctx, [[-8, -54], [-16, -46]], "#1a1a18", 0.8);
+    else {
+      line(ctx, [[-8.4, -54], [-9, -38]], "#1a1a18", 0.6);
+      curve(ctx, [[-9, -38], [-9, -34.6], [-7, -34.2], [-6.6, -36]], "m3", 0.9);
+    }
+    flat(ctx, 33, -33, 4, 1.6, state === 0 ? "m1" : "m3", "mLine");
+    if (!simple()) flat(ctx, 80, -33.2, 3, 2, state === 0 ? "#86200e" : "y2", c.tones[4]);
+    J.mossCap(ctx, 66, -32.6, 9, c.seed + 41, 1.2);
+    J.mossCap(ctx, 4, -31.8, 6, c.seed + 42, 1);
+    J.grass(ctx, 30, 36, 3, c.seed + 130);
   }
 });
 
