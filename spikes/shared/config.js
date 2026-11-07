@@ -351,7 +351,14 @@ window.C28_CONFIG = {
   }
  },
  "enemies": {
+  "walker": {
+   "role": "base"
+  },
+  "flyer": {
+   "role": "special"
+  },
   "rocketRobot": {
+   "role": "special",
    "hits": 7,
    "rocket": {
     "kneelMs": 120,
@@ -387,6 +394,7 @@ window.C28_CONFIG = {
    }
   },
   "greyTrooper": {
+   "role": "base",
    "hits": 7,
    "burst": {
     "shots": 9,
@@ -14439,6 +14447,19 @@ window.C28_CONFIG = {
        "on ground"
       ],
       "refs": []
+     },
+     {
+      "id": "energyDrop",
+      "name": "Energy drop",
+      "csName": null,
+      "interactive": true,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Difficulty assist SPECIAL ENEMIES DROP ENERGY: a special enemy kill (mesto flyer, vesnice rocket robot) drops it, taken on touch: energy +50, half the level energy bonus, so it is a smaller cell with half its gauge lit (user, 2026-11-07).",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
      }
     ]
    }
@@ -16247,6 +16268,19 @@ window.C28_CONFIG = {
       "interactive": true,
       "sheet": "props",
       "description": "Bonus pickup, taken on touch once per level: shields +1, cap 5 (KLEV1.EXE 5:0x5D0B). Original look unknown; ours is a blue hex emitter on a stand. Level 1 cell 24, floor 23; level 2 cell 41, floor 41.",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
+     },
+     {
+      "id": "energyDrop",
+      "name": "Energy drop",
+      "csName": null,
+      "interactive": true,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Difficulty assist SPECIAL ENEMIES DROP ENERGY: a special enemy kill (mesto flyer, vesnice rocket robot) drops it, taken on touch: energy +50, half the level energy bonus, so it is a smaller cell with half its gauge lit (user, 2026-11-07).",
       "states": [
        "on ground"
       ],
