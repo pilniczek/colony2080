@@ -906,16 +906,16 @@ function fist(s, view) {
     handThumb(s, W, THUMB_BASE, [-40, -90]);
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
-    const joint = [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base + FINGER.thick / 2];
-    const tilt = -56;
-    const front = bar(joint, tilt, s1, 0).end;
-    const thumb = () => handThumb(s, S, [HAND_FACE[0] + 2, 410], [-20, 60], THUMB.thick);
+    const joint = [HAND_FACE[1] - 2 - FINGER.thick / 2, bottom - FINGER.thick / 2];
+    const front = [joint[0] - s1, joint[1]];
+    const thumb = () => handThumb(s, S, [HAND_FACE[0] + 2, 410], [-20, 80], THUMB.thick);
     handStub(s);
     if (view === "little") thumb();
     profilePlate(s, S);
     chain(s, S, [front[0], front[1] - s2], [90], [s3], FINGER.thick);
     chain(s, S, front, [180], [s2], FINGER.thick, { shade: "cyl" });
-    chain(s, S, joint, [tilt], [s1], FINGER.thick, { shade: "cyl" });
+    chain(s, S, [joint[0], FINGER.base], [0], [joint[1] - FINGER.base], FINGER.thick, { shade: "cyl" });
+    chain(s, S, joint, [-90], [s1], FINGER.thick, { shade: "cyl" });
     if (view === "thumb") thumb();
   } else {
     forearmEnd(s);
