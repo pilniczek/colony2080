@@ -157,17 +157,17 @@ const leg = {
   toe: { pts: [[152, 688], [276, 688], [282, 706], [146, 706]], r: 1 }
 };
 const holes = [[176, 478, 7], [211, 476, 7], [246, 478, 7], [192, 500, 5], [230, 500, 5]];
-function capsule([x1, y1, r1], [x2, y2, r2], steps = 10) {
+function capsule([x1, y1, r1], [x2, y2, r2], neck, steps = 10) {
   const dir = Math.atan2(y2 - y1, x2 - x1);
-  const open = Math.acos((r1 - r2) / Math.hypot(x2 - x1, y2 - y1));
+  const top = Math.asin(neck / 2 / r1), bottom = Math.PI - Math.asin(neck / 2 / r2);
   const arc = (x, y, r, from, to) => Array.from({ length: steps + 1 }, (_, i) => {
     const a = from + (to - from) * i / steps;
     return [x + r * Math.cos(a), y + r * Math.sin(a)];
   });
-  return [...arc(x1, y1, r1, dir + open, dir + 2 * Math.PI - open), ...arc(x2, y2, r2, dir - open, dir + open)];
+  return [...arc(x1, y1, r1, dir + top, dir + 2 * Math.PI - top), ...arc(x2, y2, r2, dir - bottom, dir + bottom)];
 }
-const upperArm = capsule([100, 148, 50], [98, 236, 40]);
-const sideUpperArm = capsule([300, 156, 62], [314, 240, 48]);
+const upperArm = capsule([100, 148, 50], [98, 236, 40], 56);
+const sideUpperArm = capsule([300, 156, 62], [314, 240, 48], 60);
 const elbow = [[60, 296], [128, 296], [128, 316], [60, 316]];
 const forearm = [[26, 310], [146, 308], [152, 320], [150, 394], [140, 404], [42, 406], [26, 390]];
 
