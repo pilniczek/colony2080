@@ -835,7 +835,8 @@ function sectionPlate(parent) {
   P(parent, { pts: [[HAND.x0 + 4, 400 + HAND.thick - 6], [HAND.x1 - 4, 400 + HAND.thick - 6], [HAND.x1 - 4, 400 + HAND.thick + 2], [HAND.x0 + 4, 400 + HAND.thick + 2]], mat: "metal", shade: "cyl", r: 4 });
 }
 
-const THUMB_BASE = [124, 440];
+const THUMB_BASE = [124, 424];
+const THUMB_SIDE = [HAND_FACE[0] + 12, THUMB_BASE[1]];
 const THUMB_OPEN = [30, 14];
 
 function openHand(s, view) {
@@ -862,7 +863,7 @@ function openHand(s, view) {
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
     const fx = HAND_FACE[1] - 2 - FINGER.thick;
-    const thumb = () => handThumb(s, S, [HAND_FACE[0] + 2, THUMB_BASE[1]], [-14, -4], THUMB.thick);
+    const thumb = () => handThumb(s, S, THUMB_SIDE, [-14, -4], THUMB.thick);
     handStub(s);
     if (view === "little") thumb();
     profilePlate(s, S);
@@ -878,7 +879,7 @@ function openHand(s, view) {
       const x = fingerX(i);
       P(s, { pts: [[x, 402], [x + 20, 402], [x + 20, 402 + FINGER.thick], [x, 402 + FINGER.thick]], shade: "dome", r: 6, lw: FINGER_LW });
     }
-    P(s, { pts: [[112, 426], [132, 426], [132, 426 + THUMB.thick], [112, 426 + THUMB.thick]], shade: "dome", r: 6 });
+    P(s, { pts: [[112, 416], [132, 416], [132, 416 + THUMB.thick], [112, 416 + THUMB.thick]], shade: "dome", r: 6 });
   }
 }
 
@@ -907,14 +908,14 @@ function fist(s, view) {
       P(s, { pts: [[x, knuckle - s2], [x + 20, knuckle - s2], [x + 20, knuckle], [x, knuckle]], shade: "cyl", r: 3, lw: FINGER_LW });
       P(s, { pts: [[x, knuckle - 2], [x + 20, knuckle - 2], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
-    handThumb(s, W, THUMB_BASE, [-40, -90]);
+    handThumb(s, W, THUMB_BASE, [-5, -90]);
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
     const joint = [HAND_FACE[1] - 2 - FINGER.thick / 2, bottom - FINGER.thick / 2];
     const front = [joint[0] - s1, joint[1]];
     const thumb = () => {
-      const end = bar([HAND_FACE[0] + 2, THUMB_BASE[1]], -53, THUMB.seg[0], 0).end;
-      chain(s, S, [HAND_FACE[0] + 2, THUMB_BASE[1]], [-53], [THUMB.seg[0]], THUMB.thick, { shade: "cyl" });
+      const end = bar(THUMB_SIDE, -53, THUMB.seg[0], 0).end;
+      chain(s, S, THUMB_SIDE, [-53], [THUMB.seg[0]], THUMB.thick, { shade: "cyl" });
       if (view === "little") P(s, { pts: S([[end[0] - 13, end[1] - 6], [end[0] + 5, end[1] - 6], [end[0] + 5, end[1] + 12], [end[0] - 13, end[1] + 12]]), shade: "dome", r: 6 });
     };
     handStub(s);
