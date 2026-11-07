@@ -73,7 +73,7 @@ Per object of `config/levels/jungle/objects.json`. "Exists" means a drawing in `
 | `fallenTree` | exists | Original: a long straight brown trunk (`#604824`, `#483018`, dark `#18180c`) from 69 r6 down to 81 r10, rocks around its foot. Keep the shape, retint bark from the `rust` palette to brown wood, add bark lines and broken branch stubs. Crop `z06`, demo sheet 05. |
 | `towerLift` | exists | Original: a blue-grey steel pole (`#243030`, `#3c4848`) with brass chevron plates every cell (142 r26-39, 118 r21-24), a cage deck with hazard stripes, thin rails and a silver pipe at each stop. Today a rust mesh cage: rework to the blue-grey pole and the cage station; the station carries the call panel. Crops `z02`, `z03`, `z16`. |
 | `jungleTower` | missing | New, see Drawing groups. |
-| `mine` | exists | Original picture unknown (report 15). Keep. |
+| `mine` | reworked | Original picture unknown (report 15). Our own design, easy to spot: soil mound, riveted flange, olive dome with a yellow and black hazard band, steel pressure plate, red lamp blinking at 1 Hz; exploded state a scorched crater. A running jump clears it, as in the original. |
 | `bonusPickup` | exists | The game draws bonus props with `ammoBox`, `energyCell`, `shieldCell`. Keep for the sheet only, or drop it. |
 | `caveChasm` | exists | Original: the pit shaft cols 89-92 r49-79 cut in green cobble. Keep the dark bands, add broken cobble edges at both sides. Crop `v04`. |
 | `caveCapsule` | missing | New. |

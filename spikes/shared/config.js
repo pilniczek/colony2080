@@ -10938,7 +10938,7 @@ window.C28_CONFIG = {
       "marker": 8,
       "task": "fuelJeep",
       "sheet": "machines",
-      "description": "Jeep on plank row 11 at cells 80-83, rows 9-10, east of the fallen tree. Canister used at cells 78-84: napln.anm, DO NADRZE AUTOMOBILU JSI NALIL PALIVO. Then any use at cells 76-80 runs the winch (navijak.anm, sutr.anm), pulls the tree away and ends the level (3:0x97CC).",
+      "description": "Jeep on plank row 11 at cells 80-83, rows 9-10, east of the fallen tree. Canister used at cells 78-84: napln.anm, DO NADRZE AUTOMOBILU JSI NALIL PALIVO. Then any use at cells 76-80 runs the winch (navijak.anm, sutr.anm), pulls the tree away and ends the level (3:0x97CC). Ours: the jeep shell body of overgrownWreck intact, teal-green camo, two seats, windscreen up, winch A-frame of tubes.",
       "states": [
        "empty tank",
        "fueled",
@@ -11145,7 +11145,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "props",
-      "description": "One-shot mines at cells 126,25 (spawn ledge), 108,41 and 97,35 (rock slope). Stepping on one takes (6 - shields)/6 x 15 energy with 3 blasts (7:0x9EAE). Drawn from far pointer ds:0xDF00; picture [open].",
+      "description": "One-shot mines at cells 126,25 (spawn ledge), 108,41 and 97,35 (rock slope). Stepping on one takes (6 - shields)/6 x 15 energy with 3 blasts (7:0x9EAE); the trigger checks the hero row exactly, so a jump clears it (7:0xA104), and nothing disarms it. Drawn from far pointer ds:0xDF00; picture [open]. Ours: hazard band dome and a blinking red lamp, so it is easy to spot.",
       "states": [
        "armed",
        "exploded"
@@ -11588,7 +11588,7 @@ window.C28_CONFIG = {
       "marker": null,
       "task": null,
       "sheet": "machines",
-      "description": "Orange wrecked car at cells 103-109, rows 38-40, by the canister.",
+      "description": "Orange wrecked car at cells 103-109, rows 38-40, by the canister. Ours is drawn from the mesto carWreck proportions and detail (cut wheel arches, tyres with rims, panel lines, rust holes, grime) with jungle overgrowth: moss, vines, leaves in the windows, ferns at the wheels.",
       "states": [
        "sedan",
        "pickup",
