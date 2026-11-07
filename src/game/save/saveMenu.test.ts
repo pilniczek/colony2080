@@ -438,3 +438,29 @@ describe("difficulty", () => {
     expect(takeSnapshot(r.world, r.hero).difficulty).toEqual(presetPicks("easy"));
   });
 });
+
+describe("saves of another difficulty", () => {
+  it("deletes only this mission's saves of another difficulty when the difficulty changes", () => {
+    const storage = memory();
+    const r = rig(storage);
+    const normal = saveOf(r, 5);
+    writeSlot(storage, 0, normal);
+    writeSlot(storage, 1, { ...normal, snapshot: { ...normal.snapshot, difficulty: presetPicks("story") } });
+    writeSlot(storage, 2, { ...normal, mission: "vesnice" });
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    for (let i = 0; i < 3; i++) r.press("ArrowDown");
+    r.press("Enter");
+    r.press("ArrowLeft");
+    r.press("ArrowLeft");
+    for (let i = 0; i <= ASSISTS.length; i++) r.press("ArrowDown");
+    r.press("Enter");
+    expect(useSandbox.getState().menu).toMatchObject({ confirm: true, purge: 1 });
+    r.press("Enter");
+    const left = readSlots(storage, "mesto");
+    expect(left[0]).toBeNull();
+    expect(left[1]?.snapshot.difficulty).toEqual(presetPicks("story"));
+    expect(left[2]?.mission).toBe("vesnice");
+    expect(r.world.difficulty).toEqual(presetPicks("story"));
+  });
+});

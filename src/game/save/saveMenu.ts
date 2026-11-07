@@ -9,7 +9,7 @@ import { sameDifficulty, type Difficulty } from "../difficulty";
 import { menuPointOf } from "../hud/pointer";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
-import { AUTO_SLOT, readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
+import { AUTO_SLOT, clearSlot, otherDifficulty, readSlots, slotName, writeSlot, type SlotEntry, type Slots } from "./slots";
 import { checkSnapshot, loadSnapshot, takeSnapshot, type SaveProblem } from "./snapshot";
 
 const HOME = "index.html";
@@ -126,6 +126,9 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   };
 
   const setDifficulty = (difficulty: Difficulty): void => {
+    refresh();
+    for (const i of otherDifficulty(slots(), d.mission, difficulty)) clearSlot(d.storage, i, d.mission);
+    refresh();
     d.world.difficulty = difficulty;
     useSandbox.setState({ difficulty });
   };
@@ -159,7 +162,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
       if (r.difficulty && !sameDifficulty(r.difficulty, d.world.difficulty)) {
         setDifficulty(r.difficulty);
         d.restart();
-      }
+      } else if (r.difficulty) setDifficulty(r.difficulty);
       d.world.autosave = r.autosave ?? false;
       track();
       close();
@@ -204,7 +207,10 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   const opened = d.startSlot != null ? (refresh(), slots()[d.startSlot]) : null;
   if (opened?.mission === d.mission) load(opened, { screen: "load", cursor: d.startSlot!, typing: null, confirm: false, message: null });
   const asking = !!d.askDifficulty && opened?.mission !== d.mission;
-  if (asking) show(settingsState(d.world.difficulty));
+  if (asking) {
+    refresh();
+    show(settingsState(d.world.difficulty));
+  }
 
   return {
     asking,

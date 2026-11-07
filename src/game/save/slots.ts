@@ -1,3 +1,4 @@
+import { sameDifficulty, START_DIFFICULTY, type Difficulty } from "../difficulty";
 import type { Snapshot } from "./snapshot";
 
 export const SLOT_IDS = ["A", "B", "C", "D", "E"] as const;
@@ -69,6 +70,17 @@ function readOne(storage: Storage, k: string): SlotEntry | null {
 
 export const readSlots = (storage: Storage | null, mission: string, prefix = "c2080.save."): Slots =>
   Array.from({ length: AUTO_SLOT + 1 }, (_, i) => (storage ? readOne(storage, key(prefix, i, mission)) : null));
+
+export const otherDifficulty = (slots: Slots, mission: string, d: Difficulty): number[] =>
+  slots.flatMap((slot, i) => (slot?.mission === mission && !sameDifficulty(slot.snapshot.difficulty ?? START_DIFFICULTY, d) ? [i] : []));
+
+export function clearSlot(storage: Storage | null, i: number, mission: string, prefix = "c2080.save."): void {
+  try {
+    storage?.removeItem(key(prefix, i, mission));
+  } catch {
+    return;
+  }
+}
 
 export function writeSlot(storage: Storage | null, i: number, entry: SlotEntry, prefix = "c2080.save."): boolean {
   if (!storage) return false;

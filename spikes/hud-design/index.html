@@ -794,10 +794,13 @@ function manual(rows) {
   return invBox(b) + invLabel(b.x + b.w / 2, top + MANUAL.title, 7.6, "MANUAL") + left.drawn + right.drawn;
 }
 
-function askBox(at = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w }) {
-  const b = { ...at, h: ASK.top + (ASK.lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };
-  const lines = ASK.lines.map((v, i) => invText(b.x + b.w / 2, b.y + ASK.top + i * MANUAL.pitch + CAPS_MID, MANUAL.text, INV.stat, v, 'text-anchor="middle"')).join("");
-  return invBox(b) + invLabel(b.x + b.w / 2, b.y + 10, 7.6, ASK.title) + lines;
+const SAMPLE_PURGE = 2;
+const PURGE_LINES = ["DELETES SAVES OF", `OTHER DIFFICULTY: ${SAMPLE_PURGE}`];
+
+function askBox(at = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w }, lines = ASK.lines, title = ASK.title) {
+  const b = { ...at, h: ASK.top + (lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };
+  const drawn = lines.map((v, i) => invText(b.x + b.w / 2, b.y + ASK.top + i * MANUAL.pitch + CAPS_MID, MANUAL.text, INV.stat, v, 'text-anchor="middle"')).join("");
+  return invBox(b) + invLabel(b.x + b.w / 2, b.y + 10, 7.6, title) + drawn;
 }
 
 const autosaveRow = (m) => ({ options: ["AUTOSAVE", "NO AUTOSAVE"], on: m.autosave ? 0 : 1 });
@@ -806,7 +809,7 @@ const difficultyRow = (m) => ({ entry: `DIFFICULTY: ${levelLabel(m.level)}` });
 
 function settingsScreen(m) {
   const rows = [autosaveRow(m), langRow(), difficultyRow(m), { entry: "HELP" }, { entry: "START", gap: true }];
-  return rowsBox("SETTINGS", rows, m.cursor) + manual(rows);
+  return rowsBox("SETTINGS", rows, m.cursor) + (m.confirm ? askBox(undefined, [...PURGE_LINES, "ENTER / ESC"], "START?") : "") + manual(rows);
 }
 
 function pauseMenu(m) {
@@ -830,7 +833,8 @@ function difficultyScreen(m) {
   const words = pointsLines(m, picks), b = { x: POINTS_X, y: MENU_BOX.y, w: POINTS_W, h: pointsHeight(words.length) }, mid = b.x + b.w / 2;
   const lines = words.map((v, i) => invText(mid, b.y + POINTS.top + POINTS.size + 4 + i * POINTS.line, MANUAL.text, i === 0 ? INV.name : INV.label, v, 'text-anchor="middle"')).join("");
   const points = invBox(b) + invLabel(mid, b.y + 10, 7.6, "POINTS") + `<text x="${mid}" y="${b.y + POINTS.top + POINTS.size * .8}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${POINTS.size}" fill="${INV.name}">${costOf(picks)}</text>` + lines;
-  const ask = m.confirm ? askBox({ x: POINTS_X, y: MENU_BOX.y + b.h + PICK_BOX.gap, w: POINTS_W }) : "";
+  const lines = m.from === "pause" ? [ASK.lines[0], ...PURGE_LINES, ASK.lines[1]] : [...PURGE_LINES, "ENTER / ESC"];
+  const ask = m.confirm ? askBox({ x: POINTS_X, y: MENU_BOX.y + b.h + PICK_BOX.gap, w: POINTS_W }, lines) : "";
   return rowsBox("DIFFICULTY", rows, m.cursor, PICK_BOX.w) + points + ask;
 }
 

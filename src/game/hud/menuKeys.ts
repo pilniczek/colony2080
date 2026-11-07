@@ -1,7 +1,7 @@
 import type { Bindings } from "../../engine/input";
 import { ASSISTS, sameDifficulty, switched, toggled, type Difficulty } from "../difficulty";
 import type { Lang } from "../i18n";
-import { AUTO_SLOT, type Slots } from "../save/slots";
+import { AUTO_SLOT, otherDifficulty, type Slots } from "../save/slots";
 
 export const NAME_MAX = 16;
 export const GAME_OVER_ACTIONS = ["load", "restart", "chooseDifficulty", "end"] as const;
@@ -13,11 +13,11 @@ const SETTINGS_COUNT = Object.keys(SETTINGS_ROWS).length;
 
 type ListScreen = { screen: "save" | "load"; cursor: number; typing: string | null; confirm: boolean; message: string | null };
 
-type SettingsState = { screen: "settings"; cursor: number; autosave: boolean; difficulty: Difficulty };
+type SettingsState = { screen: "settings"; cursor: number; autosave: boolean; difficulty: Difficulty; confirm?: boolean; purge?: number };
 type PauseState = { screen: "pause"; cursor: number; confirm?: boolean };
 type GameOverState = { screen: "gameOver"; cursor: number; canLoad: boolean; message?: string | null; at?: { x: number; y: number } | null };
 type HelpFrom = SettingsState | PauseState;
-export type DifficultyState = { screen: "difficulty"; cursor: number; picks: Difficulty; was: Difficulty; from: SettingsState | PauseState | GameOverState; confirm?: boolean };
+export type DifficultyState = { screen: "difficulty"; cursor: number; picks: Difficulty; was: Difficulty; from: SettingsState | PauseState | GameOverState; confirm?: boolean; purge?: number };
 
 export type MenuState =
   | HelpFrom
@@ -88,7 +88,7 @@ function gameOver(state: GameOverState, is: (action: string) => boolean): MenuRe
   return { state, action: GAME_OVER_ACTIONS[state.cursor] };
 }
 
-function difficulty(state: DifficultyState, is: (action: string) => boolean): MenuResult {
+function difficulty(state: DifficultyState, is: (action: string) => boolean, purge: (d: Difficulty) => number): MenuResult {
   if (state.confirm) {
     if (is("useItem")) return { state, action: "restartWith", difficulty: state.picks };
     if (is("menu")) return { state: { ...state, confirm: false } };
@@ -110,7 +110,8 @@ function difficulty(state: DifficultyState, is: (action: string) => boolean): Me
   if (state.cursor !== DIFFICULTY_ROWS.done) return { state };
   if (state.from.screen === "settings") return { state: { ...state.from, difficulty: state.picks } };
   if (!changed(state)) return { state: state.from };
-  if (state.from.screen === "pause") return { state: { ...state, confirm: true } };
+  const doomed = purge(state.picks);
+  if (state.from.screen === "pause" || doomed > 0) return { state: { ...state, confirm: true, purge: doomed } };
   return { state, action: "restartWith", difficulty: state.picks };
 }
 
@@ -121,7 +122,12 @@ const help = (state: Extract<MenuState, { screen: "help" }>, is: (action: string
 
 const sideways = (is: (action: string) => boolean): -1 | 1 | 0 => (is("moveLeft") ? -1 : is("moveRight") ? 1 : 0);
 
-function settings(state: SettingsState, is: (action: string) => boolean): MenuResult {
+function settings(state: SettingsState, is: (action: string) => boolean, purge: (d: Difficulty) => number): MenuResult {
+  if (state.confirm) {
+    if (is("useItem")) return { state: null, action: "difficulty", autosave: state.autosave, difficulty: state.difficulty };
+    if (is("menu")) return { state: { ...state, confirm: false } };
+    return { state };
+  }
   const side = sideways(is);
   if (is("up") || is("down")) return { state: { ...state, cursor: moved(state.cursor, SETTINGS_COUNT, is("up") ? -1 : 1) } };
   if (is("menu")) return { state, action: "home" };
@@ -130,6 +136,8 @@ function settings(state: SettingsState, is: (action: string) => boolean): MenuRe
   if (is("useItem") && state.cursor === SETTINGS_ROWS.help) return { state: helpOf(state) };
   if (is("useItem") && state.cursor === SETTINGS_ROWS.difficulty) return { state: difficultyState(state, state.difficulty) };
   if (!is("useItem") || state.cursor !== SETTINGS_ROWS.start) return { state };
+  const doomed = purge(state.difficulty);
+  if (doomed > 0) return { state: { ...state, confirm: true, purge: doomed } };
   return { state: null, action: "difficulty", autosave: state.autosave, difficulty: state.difficulty };
 }
 
@@ -155,11 +163,12 @@ function pause(state: PauseState, is: (action: string) => boolean): MenuResult {
 
 export function menuKey(state: MenuState, key: { code: string; key: string }, slots: Slots, mission: string, keys: Bindings): MenuResult {
   const is = (action: string): boolean => keys[action]?.includes(key.code) ?? false;
-  if (state.screen === "settings") return settings(state, is);
+  const purge = (d: Difficulty): number => otherDifficulty(slots, mission, d).length;
+  if (state.screen === "settings") return settings(state, is, purge);
   if (state.screen === "gameOver") return gameOver(state, is);
   if (state.screen === "pause") return pause(state, is);
   if (state.screen === "help") return help(state, is);
-  if (state.screen === "difficulty") return difficulty(state, is);
+  if (state.screen === "difficulty") return difficulty(state, is, purge);
   return list(state, key, slots, mission, is);
 }
 
@@ -171,7 +180,7 @@ export interface MenuPoint {
 }
 
 const held = (state: MenuState): boolean =>
-  ((state.screen === "save" || state.screen === "load") && (state.typing !== null || state.confirm)) || ((state.screen === "pause" || state.screen === "difficulty") && !!state.confirm);
+  ((state.screen === "save" || state.screen === "load") && (state.typing !== null || state.confirm)) || ((state.screen === "pause" || state.screen === "difficulty" || state.screen === "settings") && !!state.confirm);
 
 function pointed(state: MenuState, row: number): MenuState | null {
   if (row === state.cursor) return state;

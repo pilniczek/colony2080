@@ -24,7 +24,7 @@ const CHOICE_ROW = 13;
 const PICTURE = { aspect: 5 / 3, pad: 6 };
 const ROBOT_OPACITY = 0.3;
 const DIM = 0.25;
-const ASK = { title: "RESTART?", lines: ["UNSAVED PROGRESS IS LOST", "ENTER / ESC"], top: 17, pad: 6 };
+const ASK = { title: "RESTART?", lost: "UNSAVED PROGRESS IS LOST", keys: "ENTER / ESC", start: "START?", purge: ["DELETES SAVES OF", "OTHER DIFFICULTY:"], top: 17, pad: 6 };
 const PICK_BOX = { w: 200, gap: 6, check: 4.4, checkGap: 4, pip: 3, pipGap: 1.4, pips: 5 };
 const REF = { w: 7, gap: 6, tick: 2.6, dot: 0.5, head: 7, text: 4.4 };
 const POINTS = { top: 17, size: 16, line: 8, pad: 6, restart: ["CHANGES RESTART", "THE MISSION"] };
@@ -202,10 +202,18 @@ function manual(rows: Row[], art: MenuArt, lang: Lang): string {
 
 const tipColumn = { x: MENU_BOX.x + MENU_BOX.w + TIP_BOX.gap, w: TIP_BOX.w, key: TIP_BOX.key, pitch: (MANUAL.pitch * (MANUAL_KEYS.length - 1)) / (TIPS.length - 1) };
 
-function askBox(lang: Lang, at: Pick<Rect, "x" | "y" | "w"> = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w }): string {
-  const b = { ...at, h: ASK.top + (ASK.lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };
-  const lines = ASK.lines.map((value, i) => text(b.x + b.w / 2, b.y + ASK.top + i * MANUAL.pitch + CAPS_MID, MANUAL.text, INV.stat, tr(value, lang), 'text-anchor="middle"')).join("");
-  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, tr(ASK.title, lang)) + lines;
+const purgeLines = (purge: number | undefined, lang: Lang): string[] => {
+  if (!purge) return [];
+  const [what, which] = ASK.purge;
+  return [tr(what!, lang), `${tr(which!, lang)} ${purge}`];
+};
+
+const RESTART_ASK = (lang: Lang, purge?: number): string[] => [tr(ASK.lost, lang), ...purgeLines(purge, lang), tr(ASK.keys, lang)];
+
+function askBox(lang: Lang, at: Pick<Rect, "x" | "y" | "w"> = { x: tipColumn.x, y: MENU_BOX.y, w: tipColumn.w }, lines = RESTART_ASK(lang), title = tr(ASK.title, lang)): string {
+  const b = { ...at, h: ASK.top + (lines.length - 1) * MANUAL.pitch + CAPS_MID + ASK.pad };
+  const drawn = lines.map((value, i) => text(b.x + b.w / 2, b.y + ASK.top + i * MANUAL.pitch + CAPS_MID, MANUAL.text, INV.stat, value, 'text-anchor="middle"')).join("");
+  return box(b) + label(b.x + b.w / 2, b.y + 10, 7.6, title) + drawn;
 }
 
 const autosaveRow = (autosave: boolean, lang: Lang): Row => ({ options: AUTOSAVES.map((o) => tr(o, lang)), on: autosave ? 0 : 1 });
@@ -249,7 +257,9 @@ function difficulty(s: DifficultyState, lang: Lang): string {
   });
   const done = s.from.screen === "settings" || !changed(s) ? "BACK" : "APPLY AND RESTART";
   rows[DIFFICULTY_ROWS.done] = { entry: tr(done, lang), gap: true };
-  const ask = s.confirm ? askBox(lang, { x: POINTS_X, y: MENU_BOX.y + pointsHeight(pointsLines(s, lang).length) + PICK_BOX.gap, w: POINTS_W }) : "";
+  const at = { x: POINTS_X, y: MENU_BOX.y + pointsHeight(pointsLines(s, lang).length) + PICK_BOX.gap, w: POINTS_W };
+  const lines = s.from.screen === "pause" ? RESTART_ASK(lang, s.purge) : [...purgeLines(s.purge, lang), tr(ASK.keys, lang)];
+  const ask = s.confirm ? askBox(lang, at, lines) : "";
   return rowsBox(tr("DIFFICULTY", lang), rows, s.cursor, PICK_BOX.w) + pointsBox(s, lang) + ask;
 }
 
@@ -260,7 +270,8 @@ function settings(s: Extract<MenuState, { screen: "settings" }>, lang: Lang, art
   rows[SETTINGS_ROWS.difficulty] = difficultyRow(s.difficulty, lang);
   rows[SETTINGS_ROWS.help] = { entry: tr("HELP", lang) };
   rows[SETTINGS_ROWS.start] = { entry: tr("START", lang), gap: true };
-  return rowsBox(tr("SETTINGS", lang), rows, s.cursor) + manual(rows, art, lang);
+  const ask = s.confirm ? askBox(lang, undefined, [...purgeLines(s.purge, lang), tr(ASK.keys, lang)], tr(ASK.start, lang)) : "";
+  return rowsBox(tr("SETTINGS", lang), rows, s.cursor) + ask + manual(rows, art, lang);
 }
 
 function pause(s: Extract<MenuState, { screen: "pause" }>, lang: Lang, autosave: boolean, current: Difficulty, art: MenuArt): string {
