@@ -5,13 +5,7 @@ import { locate, type Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { drawAsset, PALETTE, type EnvAsset, type EnvPalette } from "../env/paint";
 import { ROBOT } from "../robot/xbot";
-import type { Cutscene, CutsceneId } from "./index";
 import { context2d, surface, type Surface } from "../../engine/render/surface";
-
-export interface FilmConfig {
-  camera: string;
-  duration: number;
-}
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -20,16 +14,6 @@ const FULL_LINE_PX = 500;
 export const RAD = Math.PI / 180;
 export const ORIGIN: Pt = [0, 0];
 export const STAND: Record<string, number> = { hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
-
-export const placeholder = (id: CutsceneId, config: FilmConfig): Cutscene => ({
-  id,
-  duration: config.duration,
-  camera: config.camera,
-  render(ctx, w, h) {
-    ctx.fillStyle = "#101418";
-    ctx.fillRect(0, 0, w, h);
-  },
-});
 
 export const tracks = (keys: unknown) => {
   const all = keys as Record<string, TrackKey[]>;

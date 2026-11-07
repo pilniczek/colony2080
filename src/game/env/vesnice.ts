@@ -47,25 +47,6 @@ export const spark = (ctx: CanvasRenderingContext2D, x: number, y: number, t: nu
   }
 };
 
-export const flame = (ctx: CanvasRenderingContext2D, x: number, base: number, w: number, h: number, t: number, seed = 0): void => {
-  const f = 0.85 + sin(t * 11 + seed * 2.3) * 0.08 + sin(t * 17.3 + seed) * 0.07;
-  const tip = h * f;
-  const lean = sin(t * 6 + seed) * w * 0.12;
-  const pts = (k: number, s: number): Pt[] => [
-    [x + w * (0.5 - s / 2), base],
-    [x + w * (0.5 - s / 2) + w * 0.05, base - tip * k * 0.45],
-    [x + w / 2 + lean * k - w * s * 0.18, base - tip * k * 0.75],
-    [x + w / 2 + lean * k, base - tip * k],
-    [x + w / 2 + lean * k + w * s * 0.2, base - tip * k * 0.7],
-    [x + w * (0.5 + s / 2) - w * 0.04, base - tip * k * 0.4],
-    [x + w * (0.5 + s / 2), base],
-  ];
-  if (!simple()) glow(ctx, x + w / 2, base - tip * 0.4, w * 1.3, "a1", 0.35);
-  shape(ctx, pts(1, 1), "fire0");
-  shape(ctx, pts(0.75, 0.7), "fire1");
-  shape(ctx, pts(0.45, 0.42), "fire2");
-};
-
 export const blob = (cx: number, cy: number, rx: number, ry: number, seed: number, n = 12): Pt[] => {
   const r = rng(seed);
   return Array.from({ length: n }, (_, i) => {
@@ -74,8 +55,6 @@ export const blob = (cx: number, cy: number, rx: number, ry: number, seed: numbe
     return [cx + cos(a) * rx * k, cy + sin(a) * ry * k] as Pt;
   });
 };
-
-export const RUIN = ["#4a4840", "#6e6a5c", "#8e8a78", "#aca692", "#1c1a16"] as const;
 
 const BOULDER = ["#2a2620", "#4c463a", "#6e6654", "#968c74", "#b4aa8e"] as const;
 
@@ -105,13 +84,6 @@ export const planks = (ctx: CanvasRenderingContext2D, x: number, y: number, w: n
   }
   G.grain(ctx, G.rectRegion(ctx, x, y, w, h), seed + 1);
   G.dirt(ctx, x, y, w, h, seed + 2, 0.3);
-};
-
-export const concreteBlock = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, seed: number): void => {
-  flat(ctx, x, y, w, h, RUIN[2], RUIN[4]);
-  flat(ctx, x, y, w, 1.6, RUIN[3]);
-  flat(ctx, x + w - 2, y, 2, h, RUIN[1]);
-  G.grain(ctx, G.rectRegion(ctx, x, y, w, h), seed);
 };
 
 const CRATE: Tones = ["#161a12", "#262c20", "#384030", "#525c46", "#0a0c08"];

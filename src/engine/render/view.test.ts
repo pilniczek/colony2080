@@ -1,28 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fitView, followView } from "./view";
-
-describe("fitView", () => {
-  it("letterboxes a wide screen top and bottom", () => {
-    const view = fitView(1920, 1080, 960, 384);
-    expect(view.scale).toBe(2);
-    expect(view.offsetX).toBe(0);
-    expect(view.offsetY).toBe(156);
-  });
-
-  it("fits the width of a square screen and centers vertically", () => {
-    const view = fitView(800, 800, 960, 384);
-    expect(view.scale).toBeCloseTo(800 / 960, 12);
-    expect(view.offsetX).toBe(0);
-    expect(view.offsetY).toBeCloseTo((800 - 384 * (800 / 960)) / 2, 12);
-  });
-
-  it("centers horizontally when the screen is wider than the world", () => {
-    const view = fitView(1000, 192, 960, 384);
-    expect(view.scale).toBe(0.5);
-    expect(view.offsetX).toBe(260);
-    expect(view.offsetY).toBe(0);
-  });
-});
+import { followView } from "./view";
 
 describe("followView", () => {
   const W = 400, H = 160;
@@ -45,7 +22,7 @@ describe("followView", () => {
     expect(v.scale).toBe(1);
     expect(v.offsetX).toBe(200);
   });
-  it("matches fitView when the world fits the view", () => {
-    expect(followView(W, H, 400, 160, 400, 160, 0, 0)).toEqual(fitView(W, H, 400, 160));
+  it("shows the whole world unshifted when it fits the view", () => {
+    expect(followView(W, H, 400, 160, 400, 160, 0, 0)).toEqual({ scale: 1, offsetX: 0, offsetY: 0 });
   });
 });

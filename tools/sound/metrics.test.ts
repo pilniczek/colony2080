@@ -3,7 +3,7 @@ import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BASE_RATE, onePole, seeded } from "../../src/engine/audio/synth";
-import { centroids, envelope, envelopeCorrelation, readSnd, spectralDistance } from "./metrics";
+import { envelope, envelopeCorrelation, readSnd, spectralDistance } from "./metrics";
 
 const burst = (length: number, offset: number, total: number): Float32Array => {
   const rand = seeded(7);
@@ -57,12 +57,6 @@ describe("metrics", () => {
     expect(out.length).toBe(2);
     expect(out[0]).toBeCloseTo(0.5, 6);
     expect(out[1]).toBeCloseTo(0.5, 6);
-  });
-
-  it("centroids rise with frequency", () => {
-    const low = centroids(sine(440, 0.1));
-    const high = centroids(sine(2000, 0.1));
-    expect(high[0]!).toBeGreaterThan(low[0]!);
   });
 
   it("readSnd maps 128 to 0 and 255 to ~1", () => {

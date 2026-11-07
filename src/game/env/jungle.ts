@@ -20,7 +20,6 @@ export const ROCK: Tones = ["#303024", "#6c6254", "#84786c", "#a4a08c"];
 export const TEAL: Tones = ["#182424", "#243030", "#3c4848", "#5c6c6c"];
 export const DOME: Tones = ["#0c3024", "#1c4c3c", "#3c6c60", "#8ca8a0"];
 export const BRASS: Tones = ["#3c3018", "#6c6030", "#9c8448", "#e4c048"];
-export const ARMY: Tones = ["#1c3424", "#244830", "#3c6c48", "#5c8c64"];
 export const CONDUIT: Tones = ["#101c1c", "#18483c", "#303c3c", "#3c8478"];
 export const SPIKE: Tones = ["#1c2c28", "#54786c", "#a8b4b4", "#dce4e4"];
 export const GOLD: Tones = ["#5c4c30", "#9c846c", "#c8a860", "#eed890"];
@@ -81,12 +80,6 @@ export const eggPts = (cx: number, cy: number, rx: number, ry: number, rot: numb
     pts.push([cx + x * cos(rot) - y * sin(rot), min(0, cy + x * sin(rot) + y * cos(rot))]);
   }
   return pts;
-};
-
-export const beads = (ctx: Ctx, x: number, y: number, w: number): void => {
-  flat(ctx, x, y, w, 3, "#6c4824", CLINE);
-  if (simple()) return;
-  for (let px = x + 2; px < x + w - 1; px += 4) flat(ctx, px, y + 0.8, 1.6, 1.4, px % 8 < 4 ? BRASS[3] : "#c87830");
 };
 
 export const blobPts = (cx: number, cy: number, rx: number, ry: number, seed: number, n = 9, jag = 0.18): Pt[] => {
@@ -244,11 +237,6 @@ export const bunkerGrime = (ctx: Ctx, w: number, h: number, seed: number): void 
   if (!simple()) for (const vx of [6 + r() * 10, w - 10 - r() * 10]) vine(ctx, vx, -h - 2, h * (0.4 + r() * 0.4), seed + round(vx));
 };
 
-export const bunkerWindows = (ctx: Ctx, w: number, h: number, from: number, to: number, seed: number, skip: Pt | null = null): void => {
-  const wh = min(26, h - 34);
-  for (let x = from; x + 30 <= to; x += 40) if (!skip || x + 30 < skip[0] || x > skip[1]) barredWindow(ctx, x, -h + 14, 30, wh, seed + x);
-};
-
 export const door = (ctx: Ctx, x: number, h: number, open: boolean, w = 28): void => {
   flat(ctx, x - 3, -h - 3, w + 6, h + 3, TEAL[0], CLINE);
   if (open) {
@@ -291,20 +279,6 @@ export const blockGrime = (ctx: Ctx, x: number, w: number, h: number, seed: numb
   ctx.translate(x, 0);
   bunkerGrime(ctx, w, h, seed);
   ctx.restore();
-};
-
-export const stoneStack = (ctx: Ctx, x: number, w: number, h: number, seed: number): void => {
-  const r = rng(seed);
-  flat(ctx, x, -h + 6, w, h - 6, "#141810");
-  const n = 3;
-  const sh = (h - 10) / n;
-  const cw = w * 0.47;
-  for (const cx of [x, x + w - cw]) for (let i = 0; i < n; i++) slab(ctx, cx + (r() - 0.5) * 3, -sh * (i + 1) + 1, cw, sh - 1, seed + i * 5 + round(cx), false);
-  beads(ctx, x - 2, -h + 6, w + 4);
-  for (const cx of [x + w * 0.25, x + w * 0.75]) stone(ctx, cx, -h + 4, w * 0.22, 4.5, seed + 40 + round(cx));
-  mossCap(ctx, x + 2, -h + 1, w * 0.6, seed + 50, 2.5);
-  G.grain(ctx, G.rectRegion(ctx, x, -h, w, h), seed + 59, 0.5);
-  G.dirt(ctx, x, -h, w, h, seed + 60, 0.3);
 };
 
 const signPts = (cx: number, cy: number, r: number): Pt[] => Array.from({ length: 8 }, (_, i) => [cx + cos(PI / 8 + (i * PI) / 4) * r, cy + sin(PI / 8 + (i * PI) / 4) * r] as Pt);

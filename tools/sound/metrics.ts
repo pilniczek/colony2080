@@ -136,15 +136,3 @@ export function rms(samples: Float32Array): number {
   return samples.length === 0 ? 0 : Math.sqrt(sum / samples.length);
 }
 
-export function centroids(samples: Float32Array): Float32Array {
-  return Float32Array.from(spectrogram(samples), (bins) => {
-    let weight = 0;
-    let moment = 0;
-    for (let k = 0; k < bins.length; k++) {
-      const power = bins[k]!;
-      weight += power;
-      moment += power * ((k * BASE_RATE) / FRAME);
-    }
-    return moment / weight;
-  });
-}

@@ -105,7 +105,7 @@ describe("missions", () => {
   });
 
   it("gives each enemy the hits of its own hit points", () => {
-    const rockets = missionJson("jungle").enemies.filter((e, i) => jungleMap.enemies[i]!.kind === "rocketDroid");
+    const rockets = missionJson("jungle").enemies.filter((_, i) => jungleMap.enemies[i]!.kind === "rocketDroid");
     expect(new Set(rockets.map((e) => e.hits))).toEqual(new Set([7, 11]));
     expect(missionJson("jeskyne").enemies.map((e) => e.hits)).toEqual(jeskyneMap.enemies.map((e) => Math.round((e.hp / 2) * 7)));
   });

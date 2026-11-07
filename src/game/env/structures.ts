@@ -52,14 +52,6 @@ const chamfer = (x: number, y: number, w: number, h: number, c: number): Pt[] =>
   [x + c, y], [x + w - c, y], [x + w, y + c], [x + w, y + h - c], [x + w - c, y + h], [x + c, y + h], [x, y + h - c], [x, y + c],
 ];
 
-export const wire = (ctx: CanvasRenderingContext2D, pts: Pt[], color: string, k = 1.4): void => {
-  ctx.beginPath();
-  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
-  ctx.lineCap = "round";
-  stroke(ctx, "rLine", k + 1.4);
-  stroke(ctx, color, k);
-};
-
 const speckle = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, colors: string[], per: number, seed = 1): void => {
   if (P.simple()) return;
   let s = seed * 9301 + 49297;

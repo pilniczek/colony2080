@@ -4,11 +4,6 @@ export interface ViewTransform {
   offsetY: number;
 }
 
-export function fitView(canvasW: number, canvasH: number, worldW: number, worldH: number): ViewTransform {
-  const scale = Math.min(canvasW / worldW, canvasH / worldH);
-  return { scale, offsetX: (canvasW - worldW * scale) / 2, offsetY: (canvasH - worldH * scale) / 2 };
-}
-
 function followAxis(canvas: number, world: number, scale: number, focus: number): number {
   const size = world * scale;
   if (size <= canvas) return (canvas - size) / 2;

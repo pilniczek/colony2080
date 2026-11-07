@@ -15,7 +15,6 @@ const ROCK = ["#303024", "#6c6254", "#84786c", "#a4a08c"];
 const TEAL = ["#182424", "#243030", "#3c4848", "#5c6c6c"];
 const DOME = ["#0c3024", "#1c4c3c", "#3c6c60", "#8ca8a0"];
 const BRASS = ["#3c3018", "#6c6030", "#9c8448", "#e4c048"];
-const ARMY = ["#1c3424", "#244830", "#3c6c48", "#5c8c64"];
 const CONDUIT = ["#101c1c", "#18483c", "#303c3c", "#3c8478"];
 const SPIKE = ["#1c2c28", "#54786c", "#a8b4b4", "#dce4e4"];
 const GOLD = ["#5c4c30", "#9c846c", "#c8a860", "#eed890"];
@@ -73,12 +72,6 @@ function eggPts(cx, cy, rx, ry, rot, egg, seed, n = 30) {
     pts.push([cx + x * cos(rot) - y * sin(rot), min(0, cy + x * sin(rot) + y * cos(rot))]);
   }
   return pts;
-}
-
-function beads(ctx, x, y, w) {
-  flat(ctx, x, y, w, 3, "#6c4824", CLINE);
-  if (simple()) return;
-  for (let px = x + 2; px < x + w - 1; px += 4) flat(ctx, px, y + 0.8, 1.6, 1.4, px % 8 < 4 ? BRASS[3] : "#c87830");
 }
 
 function blobPts(cx, cy, rx, ry, seed, n = 9, jag = 0.18) {
@@ -236,11 +229,6 @@ function bunkerGrime(ctx, w, h, seed) {
   if (!simple()) for (const vx of [6 + r() * 10, w - 10 - r() * 10]) vine(ctx, vx, -h - 2, h * (0.4 + r() * 0.4), seed + round(vx));
 }
 
-function bunkerWindows(ctx, w, h, from, to, seed, skip = null) {
-  const wh = min(26, h - 34);
-  for (let x = from; x + 30 <= to; x += 40) if (!skip || x + 30 < skip[0] || x > skip[1]) barredWindow(ctx, x, -h + 14, 30, wh, seed + x);
-}
-
 function door(ctx, x, h, open, w = 28) {
   flat(ctx, x - 3, -h - 3, w + 6, h + 3, TEAL[0], CLINE);
   if (open) {
@@ -282,18 +270,6 @@ function blockGrime(ctx, x, w, h, seed) {
   ctx.translate(x, 0);
   bunkerGrime(ctx, w, h, seed);
   ctx.restore();
-}
-
-function stoneStack(ctx, x, w, h, seed) {
-  const r = rng(seed);
-  flat(ctx, x, -h + 6, w, h - 6, "#141810");
-  const n = 3, sh = (h - 10) / n, cw = w * 0.47;
-  for (const cx of [x, x + w - cw]) for (let i = 0; i < n; i++) slab(ctx, cx + (r() - 0.5) * 3, -sh * (i + 1) + 1, cw, sh - 1, seed + i * 5 + round(cx), false);
-  beads(ctx, x - 2, -h + 6, w + 4);
-  for (const cx of [x + w * 0.25, x + w * 0.75]) stone(ctx, cx, -h + 4, w * 0.22, 4.5, seed + 40 + round(cx));
-  mossCap(ctx, x + 2, -h + 1, w * 0.6, seed + 50, 2.5);
-  G.grain(ctx, G.rectRegion(ctx, x, -h, w, h), seed + 59, 0.5);
-  G.dirt(ctx, x, -h, w, h, seed + 60, 0.3);
 }
 
 define({
@@ -898,7 +874,7 @@ define({
     liftStation(ctx, 945 + state);
   }
 });
-window.ENV.jungle = { STONE, MOSS, LEAF, BUNKER, RED, WATER, ROCK, TEAL, DOME, BRASS, ARMY, CONDUIT, SPIKE, GOLD, SLATE, WOOD, ROOF, SLINE, CLINE, band, column, oval, within, eggPts, beads, bunkerBlock, blockGrime, stoneStack, eSign, conduit, blobPts, stone, mossCap, leafBlob, frond, fern, grass, vine, slab, barredWindow, bunkerBody, bunkerGrime, bunkerWindows, door };
+window.ENV.jungle = { STONE, MOSS, LEAF, BUNKER, RED, WATER, ROCK, TEAL, DOME, BRASS, CONDUIT, SPIKE, GOLD, SLATE, WOOD, ROOF, SLINE, CLINE, band, column, oval, within, eggPts, bunkerBlock, blockGrime, eSign, conduit, blobPts, stone, mossCap, leafBlob, frond, fern, grass, vine, slab, barredWindow, bunkerBody, bunkerGrime, door };
 })();
 
 (() => {

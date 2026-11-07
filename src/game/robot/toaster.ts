@@ -74,7 +74,6 @@ export const TOASTER_MUZZLE_IN_HOOK = toHook(TOASTER_MUZZLE);
 
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? TOASTER_BARREL.length });
 
-export const TOASTER_PARTS = buildParts(TOASTER_BARREL.length);
 export const TOASTER_COLORS = model.colors;
 export const drawToaster = (ctx: CanvasRenderingContext2D, opts?: WeaponOptions): void => model.draw(ctx, sized(opts));
 export const toasterHook = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.hook(ctx, palette, sized(opts));

@@ -232,8 +232,3 @@ export function inventoryArtJobs(): { jobs: (() => void)[]; art: InventoryArt } 
 
 export const MENU_ART_JOBS = 1 + Object.keys(TIP_ASSETS).length;
 
-export function inventoryArt(): InventoryArt {
-  const { jobs, art } = inventoryArtJobs();
-  for (const job of jobs) job();
-  return art;
-}
