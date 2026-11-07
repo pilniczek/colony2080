@@ -123,12 +123,11 @@ const views: [View, Options][] = [
   ["side", { farLimbs: true }],
   ["back", {}],
   ["back", { leftArmBehind: true, rightForeBehind: true }],
-  ["back", { thumbsBehind: true, forearmsUnder: true }],
+  ["back", { enemy: true }],
   ["front", { rightArmFirst: true, propBehindArm: true }],
   ["side", { farLimbs: true, badge: true, propBehindArm: true }],
   ["front", { rightArmFirst: true, propBehindArm: true, enemy: true }],
   ["side", { farLimbs: true, badge: true, propBehindArm: true, enemy: true }],
-  ["back", { thumbsBehind: true, forearmsUnder: true, enemy: true }],
 ];
 
 type Carry = "side" | "front";

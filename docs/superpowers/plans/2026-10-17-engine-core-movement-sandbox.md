@@ -1,6 +1,6 @@
 # Engine core and movement sandbox implementation plan
 
-> 2026-11-07: ladders removed - the original game has none (`docs/requirements.md` No ladders). The `H` tile, `ladder` state, `ladderSpeed`, climb pose and ladder tests below are gone; the sandbox col 3 ladder is now a zigzag stair of one-way steps.
+> 2026-11-07: ladders removed - the original game has none (`docs/requirements.md` No ladders). The `H` tile, `ladder` state, `ladderSpeed`, climb pose, climber rig with `buildBack` options `thumbsBehind` and `forearmsUnder`, and ladder tests below are gone; the sandbox col 3 ladder is now a zigzag stair of one-way steps.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

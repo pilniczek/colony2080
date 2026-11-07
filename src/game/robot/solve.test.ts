@@ -63,7 +63,7 @@ interface Case {
 
 const side = buildSide({ farLimbs: true, propBehindArm: true });
 const front = buildFront({ rightArmFirst: true, propBehindArm: true });
-const back = buildBack({ thumbsBehind: true, forearmsUnder: true });
+const back = buildBack();
 const sideLod = buildSide({ farLimbs: true, lod: true, enemy: true });
 
 const CASES: Case[] = [

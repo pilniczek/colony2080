@@ -176,7 +176,6 @@ interface FrontArmOptions {
   thumbFront?: boolean;
   foreParent?: GroupNode | null;
   flipHand?: boolean;
-  foreUnder?: boolean;
   propBehindArm?: boolean;
 }
 
@@ -185,16 +184,15 @@ const frontArm = (
   parent: GroupNode,
   mirrored: boolean,
   names: ArmNames,
-  { thumbFront = false, foreParent = null, flipHand = false, foreUnder = false, propBehindArm = false }: FrontArmOptions = {},
+  { thumbFront = false, foreParent = null, flipHand = false, propBehindArm = false }: FrontArmOptions = {},
 ): void => {
   const M: Mirror = (p) => (mirrored ? mirror(p) : p);
   const sh: Pt = mirrored ? [2 * AX - 100, 150] : [100, 150];
   const el: Pt = mirrored ? [2 * AX - 90, 306] : [90, 306];
   const arm = k.G(parent, null, names.arm, sh);
   const foreTf = `translate(${mirrored ? -FORE_SHIFT : FORE_SHIFT} -22) translate(${el[0]} ${el[1]}) scale(${FORE_S}) translate(${-el[0]} ${-el[1]})`;
-  const under = foreUnder ? k.G(arm, foreTf, names.fore, el) : null;
   k.P(k.G(arm, `translate(${mirrored ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
-  const fore = under || k.G(foreParent ? k.G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
+  const fore = k.G(foreParent ? k.G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirrored ? 2 * AX - 89 : 89;
   if (names.hand && propBehindArm) k.hook(k.G(fore, `translate(${fc} 440) ${HOLD_TF}`), names.hand);
   const fa = k.G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
@@ -279,8 +277,6 @@ export const buildFront = ({
 interface BackOptions {
   leftArmBehind?: boolean;
   rightForeBehind?: boolean;
-  thumbsBehind?: boolean;
-  forearmsUnder?: boolean;
   lod?: boolean;
   enemy?: boolean;
 }
@@ -296,11 +292,11 @@ const backDetail = (k: Kit, b: GroupNode): void => {
     k.F(b, [[x, y], [x + 4, y], [x + 3, y + h], [x + 1, y + h]], "a0");
 };
 
-const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, thumbsBehind = false, forearmsUnder = false, enemy = false }: BackOptions): GroupNode => {
+const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, enemy = false }: BackOptions): GroupNode => {
   const root = k.root();
   const s = k.G(root, null, "body", [AX, 344]);
   const left = { arm: "armL", fore: "foreL", hand: "handL" };
-  if (leftArmBehind) frontArm(k, armGroup(k, s, false), false, left, { thumbFront: !thumbsBehind });
+  if (leftArmBehind) frontArm(k, armGroup(k, s, false), false, left, { thumbFront: true });
   const behindRight = rightForeBehind ? armGroup(k, s, true) : null;
   k.P(bodyGroup(k, s), { pts: [[198, 318], [442, 318], [442, 372], [198, 372]], mat: "chrome", shade: "hcyl", r: 6 });
   backLeg(k, s, false, enemy);
@@ -314,13 +310,13 @@ const backTree = (k: Kit, { leftArmBehind = false, rightForeBehind = false, thum
   });
   if (!enemy) backDetail(k, b);
   headFront(k, s, true, enemy);
-  if (!leftArmBehind) frontArm(k, armGroup(k, s, false), false, left, { thumbFront: !thumbsBehind, foreUnder: forearmsUnder });
+  if (!leftArmBehind) frontArm(k, armGroup(k, s, false), false, left, { thumbFront: true });
   frontArm(
     k,
     armGroup(k, s, true),
     true,
     { arm: "armR", fore: "foreR", hand: "handR" },
-    { thumbFront: !rightForeBehind && !thumbsBehind, foreParent: behindRight, flipHand: rightForeBehind, foreUnder: forearmsUnder },
+    { thumbFront: !rightForeBehind, foreParent: behindRight, flipHand: rightForeBehind },
   );
   shoulder(k, armGroup(k, s, false), false, "armL");
   shoulder(k, armGroup(k, s, true), true, "armR");
