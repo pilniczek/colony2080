@@ -6,7 +6,7 @@ import {
 import { P, type EnvAsset } from "./paint";
 
 const { rng, path, color, flat, box, poly, cylH, disc, glow, stroke, shape, line, curve, hazard } = P;
-const { PI, sin, cos, min, max, round, abs } = Math;
+const { PI, sin, cos, min, max, round } = Math;
 
 const flamethrowerDoor: EnvAsset = {
   id: "flamethrowerDoor",
