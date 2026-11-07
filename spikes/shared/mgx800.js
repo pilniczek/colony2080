@@ -8,21 +8,21 @@ const COLORS = {
 };
 const MAT = { g: ["g0", "g1", "g2", "g3", "gLine"], w: ["w0", "w1", "w2", "w3", "gLine"], b: ["b0", "b1", "b2", "b3", "gLine"], k: ["k0", "k1", "k2", "k3", "gLine"] };
 
-const BARREL = { x: 82, length: 64 };
-const EMITTER = 16;
+const BARREL = { x: 112, length: 104 };
+const EMITTER = 22;
 
 const buildParts = length => [
-  { name: "stock", x: -96, y: -70, w: 90, h: 44, mat: "g", tone: 1 },
-  { name: "stockTop", x: -96, y: -70, w: 90, h: 9, mat: "g", tone: 2 },
+  { name: "stock", x: -132, y: -84, w: 126, h: 56, mat: "g", tone: 1 },
+  { name: "stockTop", x: -132, y: -84, w: 126, h: 11, mat: "g", tone: 2 },
   { name: "grip", x: -16, y: -14, w: 30, h: 46, mat: "g", tone: 0 },
-  { name: "body", x: -6, y: -84, w: 88, h: 68, mat: "g", tone: 2 },
-  { name: "bodyLow", x: -6, y: -34, w: 88, h: 18, mat: "g", tone: 0 },
-  { name: "band", x: 30, y: -84, w: 22, h: 68, mat: "w", tone: 2 },
-  { name: "vent", x: 60, y: -74, w: 16, h: 30, mat: "k", tone: 0 },
-  { name: "barrel", x: BARREL.x, y: -62, w: length, h: 24, mat: "g", tone: 1 },
-  { name: "barrelTop", x: BARREL.x, y: -62, w: length, h: 6, mat: "g", tone: 3 },
-  { name: "coil", x: BARREL.x + length * 0.45, y: -66, w: 10, h: 32, mat: "b", tone: 2 },
-  { name: "emitter", x: BARREL.x + length, y: -72, w: EMITTER, h: 44, mat: "k", tone: 2 }
+  { name: "body", x: -6, y: -104, w: 118, h: 90, mat: "g", tone: 2 },
+  { name: "bodyLow", x: -6, y: -38, w: 118, h: 24, mat: "g", tone: 0 },
+  { name: "band", x: 40, y: -104, w: 30, h: 90, mat: "w", tone: 2 },
+  { name: "vent", x: 82, y: -92, w: 20, h: 40, mat: "k", tone: 0 },
+  { name: "barrel", x: BARREL.x, y: -76, w: length, h: 32, mat: "g", tone: 1 },
+  { name: "barrelTop", x: BARREL.x, y: -76, w: length, h: 8, mat: "g", tone: 3 },
+  { name: "coil", x: BARREL.x + length * 0.45, y: -82, w: 14, h: 44, mat: "b", tone: 2 },
+  { name: "emitter", x: BARREL.x + length, y: -90, w: EMITTER, h: 60, mat: "k", tone: 2 }
 ];
 
 function idleGlow(ctx, length, simple) {
@@ -31,15 +31,15 @@ function idleGlow(ctx, length, simple) {
   ctx.globalAlpha = 0.35;
   ctx.fillStyle = COLORS.b2;
   ctx.beginPath();
-  ctx.ellipse(BARREL.x + length + EMITTER + 4, -50, 8, 12, 0, 0, Math.PI * 2);
+  ctx.ellipse(BARREL.x + length + EMITTER + 5, -60, 10, 16, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
 
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: idleGlow });
-const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -50];
-const SUPPORT = [BARREL.x + 10, -38];
-const BAND = { y: -72, h: 44 };
+const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -60];
+const SUPPORT = [BARREL.x + 14, -44];
+const BAND = { y: -90, h: 60 };
 const SCAN = { x: -600, w: 1600 };
 const toHook = pt => [-pt[1], pt[0]];
 
