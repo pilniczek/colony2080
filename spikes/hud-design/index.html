@@ -119,6 +119,7 @@
 <script src="../shared/env-structures.js"></script>
 <script src="../shared/env-buildings.js"></script>
 <script src="../shared/env-vesnice.js"></script>
+<script src="../shared/env-jungle.js"></script>
 <script src="../shared/env-jeskyne.js"></script>
 <script src="../shared/enemies.js"></script>
 <script src="../shared/cutscenes.js"></script>
@@ -829,8 +830,8 @@ function difficultyScreen(m) {
   const words = pointsLines(m, picks), b = { x: POINTS_X, y: MENU_BOX.y, w: POINTS_W, h: pointsHeight(words.length) }, mid = b.x + b.w / 2;
   const lines = words.map((v, i) => invText(mid, b.y + POINTS.top + POINTS.size + 4 + i * POINTS.line, MANUAL.text, i === 0 ? INV.name : INV.label, v, 'text-anchor="middle"')).join("");
   const points = invBox(b) + invLabel(mid, b.y + 10, 7.6, "POINTS") + `<text x="${mid}" y="${b.y + POINTS.top + POINTS.size * .8}" text-anchor="middle" font-family="${BOLD}" font-weight="900" font-size="${POINTS.size}" fill="${INV.name}">${costOf(picks)}</text>` + lines;
-  const lines = m.from === "pause" ? [ASK.lines[0], ...PURGE_LINES, ASK.lines[1]] : [...PURGE_LINES, "ENTER / ESC"];
-  const ask = m.confirm ? askBox({ x: POINTS_X, y: MENU_BOX.y + b.h + PICK_BOX.gap, w: POINTS_W }, lines) : "";
+  const askLines = m.from === "pause" ? [ASK.lines[0], ...PURGE_LINES, ASK.lines[1]] : [...PURGE_LINES, "ENTER / ESC"];
+  const ask = m.confirm ? askBox({ x: POINTS_X, y: MENU_BOX.y + b.h + PICK_BOX.gap, w: POINTS_W }, askLines) : "";
   return rowsBox("DIFFICULTY", rows, m.cursor, PICK_BOX.w) + points + ask;
 }
 
