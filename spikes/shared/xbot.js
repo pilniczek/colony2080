@@ -826,13 +826,13 @@ function palmPlate(parent, M, padBottom) {
 
 function profilePlate(parent, S) {
   const [a, b] = HAND_FACE;
-  P(parent, { pts: S([[a, HAND.top], [b, HAND.top], [b, HAND.bottom], [a, HAND.bottom]]), r: 3 });
-  P(parent, { pts: S([[a + 3, HAND.top + 6], [a + HAND.thick / 2, HAND.top + 6], [a + HAND.thick / 2, HAND.bottom - 6], [a + 3, HAND.bottom - 6]]), mat: "metal", shade: "none", r: 4 });
+  P(parent, { pts: S([[a + 6, HAND.top], [b, HAND.top], [b, HAND.bottom], [a + 6, HAND.bottom]]), r: 3 });
+  P(parent, { pts: S([[a - 3, HAND.top + 6], [a + HAND.thick / 2, HAND.top + 6], [a + HAND.thick / 2, HAND.bottom - 2], [a - 3, HAND.bottom - 2]]), mat: "metal", shade: "cyl", r: 6 });
 }
 
 function sectionPlate(parent) {
   P(parent, { pts: [[HAND.x0, 400], [HAND.x1, 400], [HAND.x1, 400 + HAND.thick], [HAND.x0, 400 + HAND.thick]], r: 3 });
-  P(parent, { pts: [[HAND.x0 + 6, 400 + HAND.thick / 2], [HAND.x1 - 6, 400 + HAND.thick / 2], [HAND.x1 - 6, 400 + HAND.thick - 3], [HAND.x0 + 6, 400 + HAND.thick - 3]], mat: "metal", shade: "none", r: 4 });
+  P(parent, { pts: [[HAND.x0 + 4, 400 + HAND.thick / 2], [HAND.x1 - 4, 400 + HAND.thick / 2], [HAND.x1 - 4, 400 + HAND.thick + 3], [HAND.x0 + 4, 400 + HAND.thick + 3]], mat: "metal", shade: "cyl", r: 6 });
 }
 
 const THUMB_BASE = [124, 440];
@@ -869,6 +869,7 @@ function openHand(s, view) {
     P(s, { pts: S([[fx, FINGER.base], [fx + FINGER.thick, FINGER.base - 6], [fx + FINGER.thick, y1], [fx, y1]]), shade: "cyl", r: 3, lw: FINGER_LW });
     P(s, { pts: S([[fx, y1], [fx + FINGER.thick, y1], [fx + FINGER.thick, y2], [fx, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
     P(s, { pts: S([[fx, y2], [fx + FINGER.thick, y2], [fx + FINGER.thick, y3 - 4], [fx + 9, y3], [fx, y3 - 4]]), r: 3, lw: FINGER_LW });
+    for (const [t, u] of [[FINGER.base + 2, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 5]]) P(s, { pts: S([[fx - 4, t], [fx + 6, t], [fx + 6, u], [fx - 4, u]]), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
     if (view === "thumb") thumb();
   } else {
     forearmEnd(s);
