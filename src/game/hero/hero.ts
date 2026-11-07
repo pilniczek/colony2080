@@ -149,9 +149,9 @@ function atLadderTop(s: Step): boolean {
 const nearest = (h: Hero, props: Prop[]): Prop | undefined =>
   props.reduce<Prop | undefined>((best, p) => (best && Math.abs(best.x - h.x) <= Math.abs(p.x - h.x) ? best : p), undefined);
 
-function over(world: SandboxWorld, h: Hero, cfg: MovementConfig, p: Prop, airborne = 0): boolean {
+function over(world: SandboxWorld, h: Hero, cfg: MovementConfig, p: Prop): boolean {
   const y = p.y ?? world.spawn[1];
-  return USABLE.includes(p.kind) && onGround(p, h, world.flags, world.bonus) && Math.abs(p.x - h.x) <= (cfg.box.width + (p.width ?? 0)) / 2 && y > h.y - cfg.floorHeightCells && y < h.y + airborne + EPS;
+  return USABLE.includes(p.kind) && onGround(p, h, world.flags, world.bonus) && Math.abs(p.x - h.x) <= (cfg.box.width + (p.width ?? 0)) / 2 && y > h.y - cfg.floorHeightCells && y < h.y + EPS;
 }
 
 function usable(s: Step): Prop | undefined {
