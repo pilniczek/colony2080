@@ -34,9 +34,8 @@ function pilotFlame(ctx, length, simple) {
 }
 
 const MUZZLE = [BARREL.x + BARREL.length + NOZZLE, -40];
-const SUPPORT = [BARREL.x + 22, -28];
 const BAND = { y: -62, h: 44 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame, barrel: BARREL, muzzle: MUZZLE, support: SUPPORT, band: BAND });
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
 const ICON_SCALE = 1.45;
 const ICON_RECTS = [

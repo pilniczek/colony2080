@@ -13,9 +13,9 @@ import { flyMissile, launchMissile } from "./level/missiles";
 import { live, tick } from "./level/projectile";
 import { flyRocket, launchRocket } from "./level/rockets";
 import { applyEffects, say, unseen } from "./level/tasks";
-import { heroHolds, MUZZLE_IN_HOOK } from "./robot/gun";
-import { TOASTER_MUZZLE_IN_HOOK, TOASTER_WEAPON } from "./robot/toaster";
-import { FLAME_LIFE, FLAME_STEPS, FLAMETHROWER_MUZZLE_IN_HOOK, FLAMETHROWER_WEAPON } from "./robot/flamethrower";
+import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
+import { TOASTER_MUZZLE_IN_HOOK } from "./robot/toaster";
+import { FLAME_LIFE, FLAME_STEPS, FLAMETHROWER_MUZZLE_IN_HOOK } from "./robot/flamethrower";
 import { kindOf } from "./robot/kinds";
 import { cue } from "./sound/cues";
 import { explode } from "./sound/triggers";
@@ -25,14 +25,14 @@ const DEG = Math.PI / 180;
 
 export const SPARK_LIFE = 0.15;
 
-type Holds = ReturnType<typeof heroHolds>;
+type Holds = ReturnType<typeof holdPoses>;
 
-let simRigs: { rigs: Rigs; hold: Holds; toasterHold: Holds; flameHold: Holds } | null = null;
+let simRigs: { rigs: Rigs; hold: Holds } | null = null;
 
 const sim = () => {
   if (!simRigs) {
     const rigs = createRigs(true);
-    simRigs = { rigs, hold: heroHolds(rigs.side, rigs.front), toasterHold: heroHolds(rigs.side, rigs.front, TOASTER_WEAPON), flameHold: heroHolds(rigs.side, rigs.front, FLAMETHROWER_WEAPON) };
+    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.front) };
   }
   return simRigs;
 };
@@ -50,13 +50,13 @@ export function heroMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
 }
 
 function toasterMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
-  const { rigs, toasterHold } = sim();
-  return rigPoint(h, heroLook(h, clips, rigs, toasterHold, cfg), rigs, TOASTER_MUZZLE_IN_HOOK, cfg);
+  const { rigs, hold } = sim();
+  return rigPoint(h, heroLook(h, clips, rigs, hold, cfg), rigs, TOASTER_MUZZLE_IN_HOOK, cfg);
 }
 
 function flameMuzzle(h: Hero, clips: ClipSet, cfg: MovementConfig): Pt {
-  const { rigs, flameHold } = sim();
-  return rigPoint(h, heroLook(h, clips, rigs, flameHold, cfg), rigs, FLAMETHROWER_MUZZLE_IN_HOOK, cfg);
+  const { rigs, hold } = sim();
+  return rigPoint(h, heroLook(h, clips, rigs, hold, cfg), rigs, FLAMETHROWER_MUZZLE_IN_HOOK, cfg);
 }
 
 function rigPoint(h: Hero, look: HeroLook, rigs: Rigs, inHand: Pt, cfg: MovementConfig): Pt {

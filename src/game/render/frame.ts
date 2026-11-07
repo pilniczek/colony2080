@@ -10,10 +10,8 @@ import type { ClipSet, MovementConfig } from "../hero/config";
 import type { Hero } from "../hero/hero";
 import { createRigs, heroLook, type HeroLook, type Rigs } from "../hero/look";
 import type { Enemy } from "../level/enemy";
-import type { BonusWeapon, SandboxWorld } from "../level/sandboxLevel";
-import { heroHolds, type HoldPoses } from "../robot/gun";
-import { TOASTER_WEAPON } from "../robot/toaster";
-import { FLAMETHROWER_WEAPON } from "../robot/flamethrower";
+import type { SandboxWorld } from "../level/sandboxLevel";
+import { holdPoses, type HoldPoses } from "../robot/gun";
 import { kindOf } from "../robot/kinds";
 import { askTiles } from "./environment";
 import { drawFog, seenPath } from "./fog";
@@ -53,16 +51,10 @@ export interface Tune {
 export interface Kit {
   rigs: Rigs;
   hold: HoldPoses;
-  bonusHolds: Record<OwnHold, HoldPoses>;
 }
 
-type OwnHold = Exclude<BonusWeapon, "blaster">;
-
-export function bonusLook(world: SandboxWorld, hero: Hero, look: (hold: HoldPoses) => HeroLook, kit: Pick<Kit, "hold" | "bonusHolds">): HeroLook {
-  const { bonus } = world;
-  if (bonus === "blaster") return look(kit.hold);
-  const seen = look(hero.weapon === "blaster" ? kit.bonusHolds[bonus] : kit.hold);
-  return seen.hand === "blaster" ? { ...seen, hand: bonus } : seen;
+export function bonusLook(world: SandboxWorld, seen: HeroLook): HeroLook {
+  return seen.hand === "blaster" ? { ...seen, hand: world.bonus } : seen;
 }
 
 export interface Target {
@@ -73,7 +65,7 @@ export interface Target {
 
 export function createKit(): Kit {
   const rigs = createRigs(true);
-  return { rigs, hold: heroHolds(rigs.side, rigs.front), bonusHolds: { toaster: heroHolds(rigs.side, rigs.front, TOASTER_WEAPON), flamethrower: heroHolds(rigs.side, rigs.front, FLAMETHROWER_WEAPON) } };
+  return { rigs, hold: holdPoses(rigs.side, rigs.front) };
 }
 
 function fillBlack({ ctx, w, h }: Target): void {
@@ -114,7 +106,7 @@ const atPoseRate = (body: Hero): Hero => ({
 
 function paintGame(target: Target, world: SandboxWorld, s: GameFrame, kit: Kit, { cfg, clips }: Tune, over?: Over): void {
   const { ctx } = target;
-  const look = bonusLook(world, s.hero, (hold) => heroLook(s.hero, clips, kit.rigs, hold, cfg), kit);
+  const look = bonusLook(world, heroLook(s.hero, clips, kit.rigs, kit.hold, cfg));
   const enemies = s.enemies.map((enemy) => {
     const kind = kindOf(enemy.kind);
     return { enemy, look: heroLook(atPoseRate(enemy.body), kind.clips ? { ...clips, ...kind.clips } : clips, kind.rigs, kind.hold, cfg), kind };

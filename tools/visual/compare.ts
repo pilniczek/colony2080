@@ -7,7 +7,7 @@ import { toasterIcon } from "../../src/game/hud/toasterIcon";
 import { drawFlamethrower, FLAMETHROWER_WEAPON, flamethrowerHook, flamethrowerSlung } from "../../src/game/robot/flamethrower";
 import { drawFlame, drawFlameStream } from "../../src/game/render/flameShot";
 import { flamethrowerIcon } from "../../src/game/hud/flamethrowerIcon";
-import { drawGun, frontBarrel, GUN_WEAPON, gunHook, gunSlung, heroHolds } from "../../src/game/robot/gun";
+import { drawGun, frontBarrel, GUN_WEAPON, gunHook, gunSlung, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
@@ -249,7 +249,7 @@ const gunScene = (carry: Carry, simple: boolean, kind: WeaponKind = "gun"): Scen
   const weapon = weaponDraws[kind];
   const holds = holdsOf[kind];
   const spikeHold = holds.spike().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
-  const portHold = heroHolds(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }), holds.weapon);
+  const portHold = holdPoses(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }));
   const barrel = carry === "front" ? spikeHold.FRONT_BARREL : undefined;
   const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => weapon.spike().hook(ctx, { pal, lineW: LINE_W, simple, barrel });
   const portGun: HookDraw = (ctx, pal) => weapon.hook(ctx, pal, { lineW: LINE_W, simple, barrel });
@@ -420,7 +420,7 @@ const runFrontBarrel = (kind: WeaponKind, lod: boolean) => (out: HTMLElement): V
   const { spike, weapon } = holdsOf[kind];
   const spikeBarrel = spike().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true, lod }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true, lod })).FRONT_BARREL;
   const front = buildFront({ rightArmFirst: true, propBehindArm: true, lod });
-  const port = frontBarrel(front, heroHolds(buildSide({ farLimbs: true, propBehindArm: true, lod }), front, weapon), weapon);
+  const port = frontBarrel(front, holdPoses(buildSide({ farLimbs: true, propBehindArm: true, lod }), front), weapon);
   const mismatches = Number(port !== spikeBarrel);
   const name = `${kind} front barrel ${JSON.stringify({ lod })} spike ${spikeBarrel} port ${port}`;
   const box = document.createElement("div");

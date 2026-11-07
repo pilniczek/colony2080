@@ -48,8 +48,7 @@ const pilotFlame = (ctx: CanvasRenderingContext2D, length: number, simple: boole
 const model = createWeaponModel({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame });
 
 const MUZZLE: Pt = [FLAMETHROWER_BARREL.x + FLAMETHROWER_BARREL.length + NOZZLE, -40];
-const SUPPORT: Pt = [FLAMETHROWER_BARREL.x + 22, -28];
-export const FLAMETHROWER_WEAPON: HeroWeapon = { barrel: FLAMETHROWER_BARREL, muzzle: MUZZLE, support: SUPPORT, band: { y: -62, h: 44 } };
+export const FLAMETHROWER_WEAPON: HeroWeapon = { barrel: FLAMETHROWER_BARREL, muzzle: MUZZLE, band: { y: -62, h: 44 } };
 export const FLAMETHROWER_MUZZLE_IN_HOOK = toHook(MUZZLE);
 
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? FLAMETHROWER_BARREL.length });

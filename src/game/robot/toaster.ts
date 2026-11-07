@@ -68,8 +68,7 @@ const heat = (ctx: CanvasRenderingContext2D, _length: number, simple: boolean, c
 const model = createWeaponModel({ buildParts, mat: MAT, colors: COLORS, after: heat });
 
 export const TOASTER_MUZZLE: Pt = [TOASTER_BARREL.x + TOASTER_BARREL.length + CAP, -41];
-const SUPPORT: Pt = [TOASTER_BARREL.x + 14, -23];
-export const TOASTER_WEAPON: HeroWeapon = { barrel: TOASTER_BARREL, muzzle: TOASTER_MUZZLE, support: SUPPORT, band: { y: -60, h: 37 } };
+export const TOASTER_WEAPON: HeroWeapon = { barrel: TOASTER_BARREL, muzzle: TOASTER_MUZZLE, band: { y: -60, h: 37 } };
 export const TOASTER_MUZZLE_IN_HOOK = toHook(TOASTER_MUZZLE);
 
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? TOASTER_BARREL.length });

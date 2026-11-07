@@ -17,7 +17,7 @@ import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
 import { drawEBlaster, EBLASTER_COLORS, eblasterHook, eblasterSlung } from "../robot/eblaster";
-import { drawGun, frontBarrel, GUN_WEAPON, gunHook, gunSlung, heroHolds, type HeroWeapon } from "../robot/gun";
+import { drawGun, frontBarrel, GUN_WEAPON, gunHook, gunSlung, holdPoses, type HeroWeapon } from "../robot/gun";
 import { drawToaster, TOASTER_COLORS, TOASTER_WEAPON, toasterHook, toasterSlung } from "../robot/toaster";
 import { drawFlamethrower, FLAMETHROWER_COLORS, FLAMETHROWER_WEAPON, flamethrowerHook, flamethrowerSlung } from "../robot/flamethrower";
 import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
@@ -51,7 +51,7 @@ const frontBarrelOf = (hand: GunModel): number => {
   const known = frontBarrels.get(hand);
   if (known !== undefined) return known;
   const rigs = createRigs(true);
-  const barrel = frontBarrel(rigs.front, heroHolds(rigs.side, rigs.front, WEAPONS[hand]), WEAPONS[hand]);
+  const barrel = frontBarrel(rigs.front, holdPoses(rigs.side, rigs.front), WEAPONS[hand]);
   frontBarrels.set(hand, barrel);
   return barrel;
 };

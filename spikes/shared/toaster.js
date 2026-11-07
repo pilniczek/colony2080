@@ -33,9 +33,8 @@ function heat(ctx, length, simple) {
 }
 
 const MUZZLE = [BARREL.x + BARREL.length + CAP, -41];
-const SUPPORT = [BARREL.x + 14, -23];
 const BAND = { y: -60, h: 37 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: heat, barrel: BARREL, muzzle: MUZZLE, support: SUPPORT, band: BAND });
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: heat, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
 const ICON_SCALE = 1.45;
 const ICON_RECTS = [

@@ -59,7 +59,7 @@ function silhouetteEdge(root, hookName, pose, band) {
   return edge + SCAN.x;
 }
 
-function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own = BARREL, muzzle = MUZZLE, support = SUPPORT, band = null }) {
+function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own = BARREL, muzzle = MUZZLE, band = null }) {
   const partSets = new Map();
   const partsFor = length => partSets.get(length) || partSets.set(length, buildParts(length)).get(length);
 
@@ -99,7 +99,7 @@ function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own =
 
   function holdPoses(side, front) {
     const { locate, solve } = window.XBOT;
-    const grip = toHook(support);
+    const grip = toHook(SUPPORT);
     const CARRY_FAR = solve(side, "handFar", CARRY, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(side, "hand", CARRY).transformPoint(new DOMPoint(...grip)));
     const FRONT_CARRY_R = solve(front, "handR", FRONT_CARRY, ["armR", "foreR"], [[-40, 120], [-60, 150]], locate(front, "handL", FRONT_CARRY).transformPoint(new DOMPoint(...grip)));
     const edge = band || partsFor(own.length).find(p => p.name === "barrelBack");

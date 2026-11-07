@@ -69,13 +69,11 @@ export const holdPoses = (side: GroupNode, front: GroupNode, carry = CARRY, supp
 export interface HeroWeapon {
   barrel: { x: number; length: number };
   muzzle: Pt;
-  support: Pt;
   band: { y: number; h: number };
 }
 
-export const GUN_WEAPON: HeroWeapon = { barrel: BARREL, muzzle: MUZZLE, support: SUPPORT, band: GUN_PARTS.find((p) => p.name === "barrelBack") as WeaponPart };
+export const GUN_WEAPON: HeroWeapon = { barrel: BARREL, muzzle: MUZZLE, band: GUN_PARTS.find((p) => p.name === "barrelBack") as WeaponPart };
 
-export const heroHolds = (side: GroupNode, front: GroupNode, weapon: HeroWeapon = GUN_WEAPON): HoldPoses => holdPoses(side, front, CARRY, toHook(weapon.support), toHook(weapon.support));
 
 const SCAN = { x: -600, w: 1600 };
 

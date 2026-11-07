@@ -10,8 +10,7 @@ import { resetWorld } from "./level/sandboxLevel";
 import { BONUS_LOW, BONUS_LOW_TEXT, fireBeam, heroMuzzle, SPARK_LIFE, toasterSight, warnLowBonus } from "./shots";
 import { loadMesto } from "./level/mesto";
 import { loadMission } from "./level/missions";
-import { heroHolds } from "./robot/gun";
-import { TOASTER_WEAPON } from "./robot/toaster";
+import { holdPoses } from "./robot/gun";
 import { FLAME_LIFE, FLAME_STEPS } from "./robot/flamethrower";
 
 const TARGET_TOP = 14 - 1.51;
@@ -649,7 +648,7 @@ describe("toaster fireball", () => {
 
   it("puts its sight at the range end, or at the first wall when nearer", () => {
     const rigs = createRigs(true);
-    const aim = (g: Game) => toasterSight(g.world, g.hero, heroLook(g.hero, clips, rigs, heroHolds(rigs.side, rigs.front, TOASTER_WEAPON), cfg), rigs, cfg);
+    const aim = (g: Game) => toasterSight(g.world, g.hero, heroLook(g.hero, clips, rigs, holdPoses(rigs.side, rigs.front), cfg), rigs, cfg);
     const g = toaster();
     expect(aim(g).end).toBeCloseTo(3.5 + cfg.toaster.range, 9);
     g.hero.x = 26.5;

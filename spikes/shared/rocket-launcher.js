@@ -30,9 +30,8 @@ const buildParts = length => [
 ];
 
 const MUZZLE = [BARREL.x + BARREL.length + WARHEAD, -61];
-const SUPPORT = [BARREL.x + 29, -20];
 const BAND = { y: -88, h: 54 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, barrel: BARREL, muzzle: MUZZLE, support: SUPPORT, band: BAND });
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
 const ICON_SCALE = 1.45;
 const ICON_RECTS = [

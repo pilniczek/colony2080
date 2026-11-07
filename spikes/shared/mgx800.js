@@ -37,9 +37,8 @@ function idleGlow(ctx, length, simple) {
 }
 
 const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -60];
-const SUPPORT = [BARREL.x + 14, -44];
 const BAND = { y: -90, h: 60 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: idleGlow, barrel: BARREL, muzzle: MUZZLE, support: SUPPORT, band: BAND });
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: idleGlow, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
 const ICON_SCALE = 1.45;
 const ICON_RECTS = [
