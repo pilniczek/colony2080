@@ -25,13 +25,37 @@ const buildParts = length => [
   { name: "tube", x: BARREL.x, y: -84, w: length, h: 46, mat: "t", tone: 1 },
   { name: "tubeTop", x: BARREL.x, y: -84, w: length, h: 8, mat: "t", tone: 3 },
   { name: "foreGrip", x: BARREL.x + 18, y: -38, w: 22, h: 36, mat: "o", tone: 0 },
-  { name: "ring", x: BARREL.x + length - 18, y: -88, w: 18, h: 54, mat: "o", tone: 1 },
-  { name: "warhead", x: BARREL.x + length, y: -76, w: WARHEAD, h: 30, mat: "r", tone: 2 }
+  { name: "ring", x: BARREL.x + length - 18, y: -88, w: 18, h: 54, mat: "o", tone: 1 }
 ];
+
+function warhead(ctx, length, simple, { pal, lineW }) {
+  const tone = k => pal[k] ?? COLORS[k];
+  const x = BARREL.x + length;
+  const cone = (pts, fill) => {
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    pts.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+    ctx.closePath();
+    ctx.fill();
+  };
+  cone([[x, -76], [x + WARHEAD, -61], [x, -46]], tone("r2"));
+  if (!simple) cone([[x, -76], [x + WARHEAD, -61], [x, -68]], tone("r3"));
+  if (!lineW) return;
+  const t = ctx.getTransform();
+  ctx.strokeStyle = tone("oLine");
+  ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(x, -76);
+  ctx.lineTo(x + WARHEAD, -61);
+  ctx.lineTo(x, -46);
+  ctx.closePath();
+  ctx.stroke();
+}
 
 const MUZZLE = [BARREL.x + BARREL.length + WARHEAD, -61];
 const BAND = { y: -88, h: 54 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, barrel: BARREL, muzzle: MUZZLE, band: BAND });
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: warhead, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
 const ICON_SCALE = 1.45;
 const ICON_RECTS = [
