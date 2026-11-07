@@ -905,7 +905,7 @@ function fist(s, view) {
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, pip - s2], [x + 20, pip - s2], [x + 20, pip], [x, pip]], shade: "cyl", r: 3, lw: FINGER_LW });
-      P(s, { pts: [[x, knuckle], [x + 20, knuckle], [x + 20, bottom], [x, bottom]], shade: "dome", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle], [x + 20, knuckle], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
     handThumb(s, W, THUMB_BASE, [-5, -90]);
   } else if (view === "thumb" || view === "little") {
@@ -931,7 +931,7 @@ function fist(s, view) {
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face], [x, face]], shade: "cyl", r: 3, lw: FINGER_LW });
-      P(s, { pts: [[x, face - 2], [x + 20, face - 2], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "dome", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x, face - 2], [x + 20, face - 2], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
   }
 }
