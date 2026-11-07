@@ -15,7 +15,6 @@ const OLIVE = ["#2e2e0e", "#5c5e1c", "#8e8e30", "#c2c05a", "#141404"];
 const WOOD = ["#2a180a", "#4a2e14", "#6e4620", "#94683a", "#120a04"];
 const IRON = ["#141818", "#262c2c", "#3e4646", "#626c6a", "#060808"];
 const ORE = ["#2a2a12", "#4e4e1e", "#74702e", "#a49c4a"];
-const RUST = "#7a3414";
 const HOLE = "#0a0604";
 const clipped = (ctx, pts, draw) => {
   ctx.save();

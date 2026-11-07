@@ -46,14 +46,6 @@ function chamfer(x, y, w, h, c) {
   return [[x + c, y], [x + w - c, y], [x + w, y + c], [x + w, y + h - c], [x + w - c, y + h], [x + c, y + h], [x, y + h - c], [x, y + c]];
 }
 
-function wire(ctx, pts, color, k = 1.4) {
-  ctx.beginPath();
-  pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-  ctx.lineCap = "round";
-  stroke(ctx, "rLine", k + 1.4);
-  stroke(ctx, color, k);
-}
-
 function speckle(ctx, x, y, w, h, colors, per, seed = 1) {
   if (window.ENV.simple) return;
   let s = seed * 9301 + 49297;

@@ -133,5 +133,5 @@ const icon = x => `<g transform="translate(${x} 5.2)" stroke="#202826" stroke-wi
   <rect x="29.4" y="-.4" width="1.2" height="4.8" fill="#55636a"/><rect x="30.4" y="-.4" width="3.6" height="1.1" fill="#c4ccd0"/><rect x="30.4" y="3.3" width="3.6" height="1.1" fill="#c4ccd0"/></g>
   <g transform="translate(${x} 5.2)" fill="none" stroke-linecap="round" stroke-linejoin="round">${ICON_BEAM}</g>`;
 
-window.EBLASTER = { ...core, FRAMES, TICK_HZ, BEAM_H, ARC, ICON, beam, frameAt, icon };
+window.EBLASTER = { ...core, FRAMES, TICK_HZ, BEAM_H, ICON, beam, frameAt, icon };
 })();

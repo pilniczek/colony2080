@@ -820,12 +820,6 @@ function trooperArm(ctx, fire) {
   P.line(ctx, [[23.3, 28.6], [32.5, 28.6]], "trim", TROOPER_TRIM, "butt");
 }
 
-function trooperMuzzle() {
-  const m = XBOT.locate(armNode(false), "hand", ARM_POSE);
-  const p = m.transformPoint(new DOMPoint(-RIFLE_MUZZLE[1] / ARM_PX, RIFLE_MUZZLE[0] / ARM_PX));
-  return [ARM_SHOULDER[0] + (p.x - ARM_PIVOT[0]) * ARM_PX, ARM_SHOULDER[1] + (p.y - ARM_PIVOT[1]) * ARM_PX - TROOPER_RAISE];
-}
-
 function trooperBody(ctx, fire) {
   ctx.translate(-TROOPER_ORIGIN[0], -TROOPER_ORIGIN[1]);
   trooperLegs(ctx);
@@ -903,10 +897,6 @@ ENV.define({
 
 window.ENEMIES = {
   FLYER, GUARD, GUARD_FRONT, GUARD_LEVELS, TROOPER, FLYER_PALETTE, GUARD_PALETTE, TROOPER_PALETTE, HEALTH_BAR,
-  BLAST, BLAST_PX, blast, scrap, inBlastUnits,
-  FLYER_STATES: ["hover", "firing", "explode"],
-  GUARD_STATES: ["idle", "firing", "acid (guess)", "wreck"],
-  TROOPER_STATES: ["idle", "firing", "explode"],
-  TROOPER_MUZZLE: trooperMuzzle()
+  BLAST, BLAST_PX, blast, scrap, inBlastUnits
 };
 })();

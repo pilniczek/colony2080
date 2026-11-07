@@ -841,5 +841,4 @@ define({
   }
 });
 
-window.ENV.PROPS = { facets };
 })();

@@ -670,9 +670,6 @@ window.ENV.define({ id: "crawler", box: [-30, -35, 64, 35], anim: true, draw: (c
 
 Object.assign(window.ENEMIES, {
   ROCKET_DROID, CRAWLER, ROCKET_PALETTE, CRAWLER_PALETTE,
-  ROCKET_DROID_STATES: ["idle", "walk", "firing", "explode", "wreck"],
-  CRAWLER_STATES: ["idle", "walk", "firing", "explode", "wreck"],
-  ROCKET_LOOP: VOLLEY.loop,
   drawRocketDroidRig,
   drawDroidVolley,
   CRAWLER_SPEED: ((2 * CR.stride) / (CR.stance * CR.period)) * CRAWLER_SIZE

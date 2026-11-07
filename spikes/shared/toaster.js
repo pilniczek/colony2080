@@ -149,5 +149,5 @@ function sight(ctx, hit = false, simple = false) {
 
 const sized = fn => (ctx, opts = {}) => fn(ctx, { ...opts, barrel: opts.barrel ?? BARREL.length });
 
-window.TOASTER = { ...core, draw: sized(core.draw), hook: sized(core.hook), slung: sized(core.slung), BARREL, MUZZLE, SUPPORT, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT), holdPoses, ICON, icon, SHOT, shot, shotFrame, RANGE, sight };
+window.TOASTER = { ...core, draw: sized(core.draw), hook: sized(core.hook), slung: sized(core.slung), BARREL, MUZZLE, muzzleInHook: toHook(MUZZLE), holdPoses, ICON, icon, SHOT, shot, shotFrame, RANGE, sight };
 })();

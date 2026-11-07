@@ -597,7 +597,6 @@ window.ENV = {
   TILE, PALETTE, MAT, ASSETS, define, draw,
   P: { rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw, shape, line, curve, beam, slab, inShade },
   G,
-  shadeHex,
   get pal() { return pal; },
   get simple() { return simple; }
 };

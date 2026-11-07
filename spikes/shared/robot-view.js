@@ -232,5 +232,5 @@ function draw(ctx, w, h, t) {
   ctx.restore();
 }
 
-window.ROBOT_VIEW = { draw, readoutLine, VIEW };
+window.ROBOT_VIEW = { draw };
 })();

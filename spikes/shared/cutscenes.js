@@ -403,20 +403,6 @@ function filmRef(id, duration) {
   return r && { label: r.label, frame: t => r.frame(Math.min(duration, Math.max(0, t)), duration) };
 }
 
-function placeholder(id, CFG) {
-  return {
-    name: CFG.title,
-    camera: CFG.camera,
-    duration: CFG.duration,
-    palette: { ...CFG.palette },
-    render(ctx, w, h) {
-      ctx.fillStyle = "#101418";
-      ctx.fillRect(0, 0, w, h);
-    },
-    ref: filmRef(id, CFG.duration)
-  };
-}
-
 const LINE_W = 1.4;
 const FULL_LINE_PX = 500;
 const RAD = Math.PI / 180;
@@ -674,10 +660,10 @@ function sheetBlit(c, canvas) {
 }
 
 const kit = {
-  ease, sample, track, asset, recolor, filmRef, placeholder, FILM, LINE_W, RAD, ORIGIN, STAND,
+  ease, sample, track, asset, recolor, filmRef, FILM, LINE_W, RAD, ORIGIN, STAND,
   unitScale, lineFor, rect, poly, stroke, oval, cloud, shadow, pool, random, scatter, bank,
   fitStage, camera, feet, placeRobot, layer, toModel, armChain, reach, stillLayer, rowFill, sheetDraw, sheetBlit
 };
 
-window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor), securityCam, filmRect, camClock, kit };
+window.CUTSCENES = { crowbarDoor: crowbarDoor(window.C28_CONFIG.cutscenes.crowbarDoor), securityCam, filmRect, kit };
 })();

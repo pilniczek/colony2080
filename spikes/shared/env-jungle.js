@@ -874,7 +874,7 @@ define({
     liftStation(ctx, 945 + state);
   }
 });
-window.ENV.jungle = { STONE, MOSS, LEAF, BUNKER, RED, WATER, ROCK, TEAL, DOME, BRASS, CONDUIT, SPIKE, GOLD, SLATE, WOOD, ROOF, SLINE, CLINE, band, column, oval, within, eggPts, bunkerBlock, blockGrime, eSign, conduit, blobPts, stone, mossCap, leafBlob, frond, fern, grass, vine, slab, barredWindow, bunkerBody, bunkerGrime, door };
+window.ENV.jungle = { MOSS, LEAF, DOME, SLINE, CLINE, band, oval, within, blobPts, stone, mossCap, leafBlob, frond, fern, grass, vine, slab, door };
 })();
 
 (() => {

@@ -145,5 +145,5 @@ function stream(ctx, tick, simple = false) {
 const RANGE = travel(LIFE);
 const sized = fn => (ctx, opts = {}) => fn(ctx, { ...opts, barrel: opts.barrel ?? BARREL.length });
 
-window.FLAMETHROWER = { ...core, draw: sized(core.draw), hook: sized(core.hook), slung: sized(core.slung), BARREL, MUZZLE, SUPPORT, muzzleInHook: toHook(MUZZLE), supportInHook: toHook(SUPPORT), holdPoses, ICON, icon, STEPS, LIFE, SPAWN_TICKS, RANGE, flame, stream };
+window.FLAMETHROWER = { ...core, draw: sized(core.draw), hook: sized(core.hook), slung: sized(core.slung), BARREL, MUZZLE, muzzleInHook: toHook(MUZZLE), holdPoses, ICON, icon, LIFE, RANGE, flame, stream };
 })();

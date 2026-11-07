@@ -11,5 +11,5 @@ function overlay(ctx, w, h, t, scene) {
   else window.CUTSCENES.securityCam(ctx, w, h, t, scene.camera);
 }
 
-window.FILM_LOOK = { lookAt, overlay };
+window.FILM_LOOK = { overlay };
 })();

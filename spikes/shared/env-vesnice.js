@@ -69,7 +69,6 @@ const blob = (cx, cy, rx, ry, seed, n = 12) => {
         return [cx + cos(a) * rx * k, cy + sin(a) * ry * k];
     });
 };
-const RUIN = ["#4a4840", "#6e6a5c", "#8e8a78", "#aca692", "#1c1a16"];
 const BOULDER = ["#2a2620", "#4c463a", "#6e6654", "#968c74", "#b4aa8e"];
 const boulder = (ctx, cx, cy, rx, ry, seed) => {
     shape(ctx, blob(cx, cy, rx, ry, seed, 10), BOULDER[1], BOULDER[0]);
@@ -98,12 +97,6 @@ const planks = (ctx, x, y, w, h, seed, vertical = false) => {
     }
     G.grain(ctx, G.rectRegion(ctx, x, y, w, h), seed + 1);
     G.dirt(ctx, x, y, w, h, seed + 2, 0.3);
-};
-const concreteBlock = (ctx, x, y, w, h, seed) => {
-    flat(ctx, x, y, w, h, RUIN[2], RUIN[4]);
-    flat(ctx, x, y, w, 1.6, RUIN[3]);
-    flat(ctx, x + w - 2, y, 2, h, RUIN[1]);
-    G.grain(ctx, G.rectRegion(ctx, x, y, w, h), seed);
 };
 const CRATE = ["#161a12", "#262c20", "#384030", "#525c46", "#0a0c08"];
 const SEAM = ["#4a3810", "#a07e28", "#c8a040", "#e8cc78", "#0c0a04"];
@@ -2369,14 +2362,8 @@ const vesniceSceneryAssets = [
     latticeMast, warningLamp, junctionBox, watchtower, overheadPipeline, transformer, storageTank, powerPlant, rockCliff, stoneWall, rubbleHeap, militaryWreck, fuelDrum,
     sandbags, shellCrate,
 ];
-const VESNICE_IDS = [
-    "villageBackdrop", "farPalms", "farRuins", "crateWall", "rivetWall", "plankWall", "grassyWalkway", "steelDeckPlate", "trussWalkway", "villageHouse", "stiltBuilding", "powerHouse", "latticeMast", "warningLamp", "junctionBox", "watchtower", "overheadPipeline", "transformer", "storageTank", "powerPlant", "rockCliff", "stoneWall", "rubbleHeap", "militaryWreck", "fuelDrum", "sandbags", "shellCrate",
-    "sourceTeleport", "targetTeleport", "teleportPad", "brokenTeleport", "fuseBox", "electricCabinet", "cannon", "fireBarricade", "dynamiteWall", "energyBarrier", "powerBridge",
-    "bridgeGuardPost", "smoulderingRemains", "smallKey", "walkieTalkie", "detonator", "projectileCrate", "projectile", "fuse", "dynamite", "navCircuit", "toaster", "energyPickup",
-    "ammoPickup", "shieldPickup",
-];
 for (const asset of vesniceSceneryAssets) define(asset);
-window.ENV.VESNICE = { ellipse, shadow, smoke, spark, flame, blob, RUIN, boulder, PLANK, planks, concreteBlock, within, outside, rectPts, villageBackdrop, farPalms, farRuins, crateWall, rivetWall, plankWall, steelGate, gateBlock, gateRuin, meshFence, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, ZAP_HZ, ZAP_LAYERS, zap, powerHouse, latticeMast, warningLamp, junctionBox, watchtower, bronzeColumn, overheadPipeline, transformer, storageTank, PLANT_STATES, powerPlant, rockCliff, STONE_TILE, stoneWall, rubbleHeap, militaryWreck, fuelDrum, sandbags, shellCrate, vesniceSceneryAssets, VESNICE_IDS };
+window.ENV.VESNICE = { ellipse, shadow, smoke, spark, flame, blob, PLANK, planks, within, outside, rectPts, farPalms, farRuins, crateWall, rivetWall, plankWall, steelGate, gateBlock, gateRuin, meshFence, grassyWalkway, steelDeckPlate, trussWalkway, villageHouse, stiltBuilding, zap, powerHouse, latticeMast, bronzeColumn, overheadPipeline, rockCliff, stoneWall };
 })();
 
 (() => {

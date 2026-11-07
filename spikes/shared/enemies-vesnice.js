@@ -558,8 +558,6 @@ const GREY_TROOPER = {
 };
 
 Object.assign(window.ENEMIES, {
-  ROCKET_ROBOT, GREY_TROOPER, ROCKET_PALETTE, GREY_PALETTE,
-  ROCKET_STATES: ["idle", "walk", "firing", "explode", "wreck"],
-  GREY_STATES: ["idle", "walk", "firing", "explode", "wreck"]
+  ROCKET_ROBOT, GREY_TROOPER, ROCKET_PALETTE, GREY_PALETTE
 });
 })();

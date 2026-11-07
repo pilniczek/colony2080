@@ -308,7 +308,6 @@ function spiderWreck(ctx, t) {
   spark(ctx, -17, -12, t, 3);
 }
 
-const SPIDER_STATES = ["idle", "walk", "firing", "explode", "wreck"];
 
 const SPIDER_WALKER = {
   id: "spiderWalker",
@@ -476,7 +475,6 @@ function podWreck(ctx, t) {
   spark(ctx, 9, -18, t, 5);
 }
 
-const POD_STATES = ["idle", "walk", "firing", "explode", "wreck"];
 
 const POD_WALKER = {
   id: "podWalker",
@@ -743,7 +741,6 @@ function trooperWreck(ctx, t) {
   spark(ctx, -16, -12, t, 6);
 }
 
-const TROOPER_STATES = ["idle", "walk", "firing", "death fling", "explode", "wreck"];
 
 const CAVE_TROOPER = {
   id: "caveTrooper",
@@ -762,7 +759,6 @@ for (const [asset, box] of [[SPIDER_WALKER, [-27, -37, 57, 37]], [POD_WALKER, [-
 Object.assign(window.ENEMIES, {
   SPIDER_WALKER, POD_WALKER, CAVE_TROOPER,
   SPIDER_PALETTE, POD_PALETTE, CAVE_TROOPER_PALETTE: TROOPER_PALETTE,
-  SPIDER_STATES, POD_STATES, CAVE_TROOPER_STATES: TROOPER_STATES,
   caveTrooperWalk: trooperWalk, caveTrooperRig
 });
 })();
