@@ -4,7 +4,7 @@ import { PALETTE } from "../env/paint";
 import { holdPoses, type HoldPoses } from "./gun";
 import { createWeaponModel, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
 
-const CARRY = { arm: 0, fore: -72 };
+const CARRY = { arm: 22, fore: -94 };
 
 const tones = (k: string, from: string, line: string): Palette =>
   Object.fromEntries([...[0, 1, 2, 3].map((i) => [k + i, PALETTE[from + i] as string]), [k + "Line", PALETTE[line] as string]]);

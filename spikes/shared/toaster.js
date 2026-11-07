@@ -54,7 +54,7 @@ function silhouetteEdge(root, hookName, pose) {
   return edge + SCAN.x;
 }
 
-const CARRY = { arm: 0, fore: -72 };
+const CARRY = { arm: 22, fore: -94 };
 const FRONT_CARRY = { armL: -24, foreL: -66 };
 
 function holdPoses(side, front) {

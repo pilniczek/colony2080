@@ -69,7 +69,7 @@ const model = createWeaponModel({ buildParts, mat: MAT, colors: COLORS, after: h
 
 export const TOASTER_MUZZLE: Pt = [TOASTER_BARREL.x + TOASTER_BARREL.length + CAP, -41];
 const SUPPORT: Pt = [TOASTER_BARREL.x + 14, -23];
-const CARRY = { arm: 0, fore: -72 };
+const CARRY = { arm: 22, fore: -94 };
 export const TOASTER_MUZZLE_IN_HOOK = toHook(TOASTER_MUZZLE);
 
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? TOASTER_BARREL.length });
