@@ -7,7 +7,7 @@ import { apply } from "../../engine/math/mat2d";
 import { locate } from "../../engine/rig/pose";
 import { ROBOT } from "../robot/xbot";
 import { createRigs, heroLook, RUNG, spikeUnit } from "./look";
-import { cfg, clips, game, RUNNING, tick, type Game } from "./testWorld";
+import { cfg, clips, dt, game, RUNNING, tick, type Game } from "./testWorld";
 
 const rigs = createRigs(true);
 const hold = holdPoses(rigs.side, rigs.front);
@@ -364,7 +364,7 @@ describe("hero look", () => {
       const g0 = game();
       for (let i = 0; i < 23; i++) tick(g0, gait === "run" ? ["moveRight", RUNNING] : ["moveRight"]);
       expect(g0.hero.state).toBe(gait);
-      const before = heroLook(g0.hero, clips, rigs, hold, cfg);
+      const before = heroLook({ ...g0.hero, time: g0.hero.time + dt }, clips, rigs, hold, cfg);
       tick(g0, gait === "run" ? ["moveRight", RUNNING] : ["moveRight"], ["up"]);
       expect(g0.hero.state).toBe(state);
       const after = heroLook(g0.hero, clips, rigs, hold, cfg);

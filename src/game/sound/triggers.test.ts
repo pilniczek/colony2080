@@ -1,6 +1,6 @@
 import sandbox from "@config/levels/sandbox.json";
 import { describe, expect, it } from "vitest";
-import { cfg, dt, game, run, runUntil, tick, type Game } from "../hero/testWorld";
+import { cfg, clips, dt, game, run, runUntil, tick, type Game } from "../hero/testWorld";
 import { missionJson } from "../level/missions";
 import { loadSandbox, type Prop } from "../level/sandboxLevel";
 import { runUse } from "../level/tasks";
@@ -165,7 +165,7 @@ describe("hero state cues", () => {
   });
 
   it("steps alternate rates 10000 and 9400 at vol 33, two per gait cycle", () => {
-    for (const [mode, cycle] of [["walk", 1.1], ["run", 0.5]] as const) {
+    for (const [mode, cycle] of [["walk", clips.walk!.duration], ["run", clips.run!.duration]] as const) {
       const g = game({ x: 3.5, y: 8 }, arena());
       g.hero.running = mode === "run";
       run(g, cycle * 3, ["moveRight"]);

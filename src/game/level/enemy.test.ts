@@ -78,7 +78,7 @@ describe("sandbox enemy", () => {
     facingRight(g, 5.5);
     const [enemy] = g.world.enemies as [Enemy];
     Object.assign(g.hero, { hidden: true, state: "hide" });
-    run(g, 1, ["hide"]);
+    run(g, 0.2, ["hide"]);
     Object.assign(g.hero, { hidden: false, state: "idle" });
     run(g, sandbox.enemies[0]!.sightMs / 1000 - 2 * dt);
     expect(enemy.body.state).not.toBe("attack");
@@ -163,7 +163,7 @@ describe("sandbox enemy", () => {
     for (let i = 0; i < 0.2 / dt; i++) updateEnemy(g.world.enemies[0]!, g.world.grid, null, g.hero, clips, cfg, dt);
     expect(isDead(g.world.enemies[0]!)).toBe(false);
     expect(g.world.enemies[0]!.body).toMatchObject({ energy: sandbox.enemies[0]!.hits, hitAge: null, state: "walk", facing: sandbox.enemies[0]!.facing });
-    expect(Math.abs(g.world.enemies[0]!.body.x - sandbox.enemies[0]!.x)).toBeLessThan(0.2);
+    expect(Math.abs(g.world.enemies[0]!.body.x - sandbox.enemies[0]!.x)).toBeLessThan(0.2 * (clips.walk!.travel! / clips.walk!.duration));
   });
 
   it("takes hero shots on its floor with a spark where they hit", () => {
@@ -253,7 +253,7 @@ describe("sandbox enemy", () => {
     hitEnemy(enemy);
     for (let i = 0; i < sandbox.enemies[0]!.reactMs / 1000 / dt + 1; i++) updateEnemy(enemy, g.world.grid, null, g.hero, clips, cfg, dt);
     const x = enemy.body.x;
-    for (let i = 0; i < 0.5 / dt; i++) updateEnemy(enemy, g.world.grid, null, g.hero, clips, cfg, dt);
+    for (let i = 0; i < 0.1 / dt; i++) updateEnemy(enemy, g.world.grid, null, g.hero, clips, cfg, dt);
     expect(enemy.body).toMatchObject({ facing: 1, state: "walk" });
     expect(enemy.body.x).toBeGreaterThan(x);
   });
