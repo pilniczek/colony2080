@@ -1,0 +1,17 @@
+{
+  "status": "draft",
+  "source": "docs/research/reports/19-level6-layout.md",
+  "id": "sklad",
+  "order": 6,
+  "name": { "cs": "Sklad", "en": "Warehouse" },
+  "map": {
+    "source": "MAPY/M61.MAP",
+    "widthTiles": 160,
+    "heightTiles": 80,
+    "tileSize": 24,
+    "tileset": "LEV6.GRA",
+    "floorHeightTiles": null
+  },
+  "originalPlayfield": { "width": 290, "height": 169 },
+  "next": "raketa"
+}
