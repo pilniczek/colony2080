@@ -1,7 +1,7 @@
 import type { InputFrame } from "../engine/input";
 import { updateFog } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
-import { halt, isDead, touchFilms, updateHero, type Hero, type HeroEvent } from "./hero/hero";
+import { halt, isDead, updateHero, type Hero, type HeroEvent } from "./hero/hero";
 import { inSparks, stepConveyors, stepHazards } from "./level/hazards";
 import { approachFilms, resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
@@ -56,7 +56,6 @@ export function stepWorld(
   stepHazards(world, hero, cfg, dt, events);
   if (!isDead(hero.state)) {
     approachFilms(world, hero, cfg.box.height);
-    touchFilms(world, hero, cfg);
   }
   fireShots(world, hero, events, clips, cfg);
   fireBeam(world, hero, events, clips, cfg, dt);

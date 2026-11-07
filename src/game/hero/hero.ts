@@ -159,13 +159,6 @@ function usable(s: Step): Prop | undefined {
   return nearest(h, world.props.filter((p) => over(world, h, cfg, p)));
 }
 
-export function touchFilms(world: SandboxWorld, h: Hero, cfg: MovementConfig): void {
-  for (const p of world.props) {
-    const task = over(world, h, cfg, p, cfg.box.height) ? openTask(world, p) : undefined;
-    if (task?.touch) startFilm(world, task.cutscene, p);
-  }
-}
-
 function touchedItem(s: Step, kinds: string[]): Prop | undefined {
   const { h, world, cfg } = s;
   return nearest(h, world.props.filter((p) => {
