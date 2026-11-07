@@ -288,7 +288,8 @@ function firingRow(ctx, root, pose, simple, lineW, facing, t, weapon, effect) {
   if (facing > 0) ctx.translate(SIDE_SHIFT, 0);
   else { ctx.translate(+ctx.canvas.dataset.w - SIDE_SHIFT, 0); ctx.scale(-1, 1); }
   ctx.translate(0, footLift(root, pose));
-  render(ctx, root, { pose, lineW, simple, hooks: { hand: c => weapon.hook(c, { lineW, simple }) } });
+  const loaded = weapon.loadedAt?.(Math.floor(t * EBLASTER.TICK_HZ)) ?? true;
+  render(ctx, root, { pose, lineW, simple, hooks: { hand: c => weapon.hook(c, { lineW, simple, loaded }) } });
   const m = locate(root, "hand", pose).transformPoint(new DOMPoint(...weapon.muzzleInHook));
   ctx.translate(m.x, m.y);
   effect(ctx, t, simple);
@@ -468,7 +469,7 @@ const ICON_DEFS = `<defs>
   <filter id="iconGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="b"/><feFlood flood-color="#ffb21c" flood-opacity=".6"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <filter id="iconDim"><feColorMatrix type="saturate" values=".25"/><feComponentTransfer><feFuncR type="linear" slope=".55"/><feFuncG type="linear" slope=".55"/><feFuncB type="linear" slope=".55"/></feComponentTransfer></filter>
 </defs>`;
-const iconSvg = (lit, n, model = EBLASTER, tag = "") => `<svg viewBox="0 0 65 20" xmlns="http://www.w3.org/2000/svg">${ICON_DEFS.replace(/id="(\w+)"/g, `id="$1${lit ? "L" : "D"}${tag}"`).replace(/url\(#(\w+)\)/g, `url(#$1${lit ? "L" : "D"}${tag})`)}
+const iconSvg = (lit, n, model, tag) => `<svg viewBox="0 0 65 20" xmlns="http://www.w3.org/2000/svg">${ICON_DEFS.replace(/id="(\w+)"/g, `id="$1${lit ? "L" : "D"}${tag}"`).replace(/url\(#(\w+)\)/g, `url(#$1${lit ? "L" : "D"}${tag})`)}
   <rect width="65" height="20" rx="1.4" fill="url(#grid${lit ? "L" : "D"}${tag})"/>
   <g filter="url(#icon${lit ? "GlowL" : "DimD"}${tag})">${model.icon(4)}</g>
   ${n === null ? "" : `<text x="${4 + model.ICON.arcEnd}" y="16" text-anchor="end" font-family="monospace" font-size="4.6" fill="#a8844a">${n}</text>`}</svg>`;
@@ -501,16 +502,22 @@ document.getElementById("fistLit").innerHTML = iconSvg(true, null, FIST_HUD, "H"
 document.getElementById("fistDim").innerHTML = iconSvg(false, null, FIST_HUD, "H");
 document.getElementById("gunLit").innerHTML = iconSvg(true, 350, GUN_HUD, "G");
 document.getElementById("gunDim").innerHTML = iconSvg(false, 212, GUN_HUD, "G");
-document.getElementById("iconLit").innerHTML = iconSvg(true, 400);
-document.getElementById("iconDim").innerHTML = iconSvg(false, 387);
-document.getElementById("toasterLit").innerHTML = iconSvg(true, 60, TOASTER, "T");
-document.getElementById("toasterDim").innerHTML = iconSvg(false, 42, TOASTER, "T");
-document.getElementById("flamerLit").innerHTML = iconSvg(true, 500, FLAMETHROWER, "F");
-document.getElementById("flamerDim").innerHTML = iconSvg(false, 213, FLAMETHROWER, "F");
-document.getElementById("mgxLit").innerHTML = iconSvg(true, 300, MGX800, "M");
-document.getElementById("mgxDim").innerHTML = iconSvg(false, 128, MGX800, "M");
-document.getElementById("rocketLit").innerHTML = iconSvg(true, 250, ROCKET_LAUNCHER, "R");
-document.getElementById("rocketDim").innerHTML = iconSvg(false, 97, ROCKET_LAUNCHER, "R");
+const BONUS_BOX = { w: 45.5, h: 14 };
+function pickupHud(id) {
+  const def = ENV.ASSETS.find(a => a.id === id);
+  const [x0, y0, x1, y1] = def.box;
+  const s = Math.min(BONUS_BOX.w / (x1 - x0), BONUS_BOX.h / (y1 - y0));
+  return imageIcon((x1 - x0) * s, (y1 - y0) * s, ctx => {
+    ctx.scale(s, s);
+    ctx.translate(-x0, -y0);
+    ENV.draw(ctx, def, { state: 0, lod: false, lines: 1 });
+  });
+}
+for (const [prefix, asset, lit, dim] of [["icon", "eBlaster", 400, 387], ["toaster", "toaster", 60, 42], ["flamer", "flamethrower", 500, 213], ["mgx", "mgx800", 300, 128], ["rocket", "rocketLauncher", 250, 97]]) {
+  const hud = pickupHud(asset);
+  document.getElementById(prefix + "Lit").innerHTML = iconSvg(true, lit, hud, prefix);
+  document.getElementById(prefix + "Dim").innerHTML = iconSvg(false, dim, hud, prefix);
+}
 
 function refs() {
   const list = window.ORIGINALS.on && window.ORIGINALS.weapons?.[WEAPON];

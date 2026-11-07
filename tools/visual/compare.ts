@@ -1,12 +1,9 @@
 import { BEAM_FRAMES, drawBeam } from "../../src/game/render/beam";
-import { blasterIcon } from "../../src/game/hud/blasterIcon";
 import { drawEBlaster, eblasterHook } from "../../src/game/robot/eblaster";
 import { drawToaster, TOASTER_WEAPON, toasterHook } from "../../src/game/robot/toaster";
 import { drawToasterShot, drawToasterSight } from "../../src/game/render/toasterShot";
-import { toasterIcon } from "../../src/game/hud/toasterIcon";
 import { drawFlamethrower, FLAMETHROWER_WEAPON, flamethrowerHook } from "../../src/game/robot/flamethrower";
 import { drawFlame, drawFlameStream } from "../../src/game/render/flameShot";
-import { flamethrowerIcon } from "../../src/game/hud/flamethrowerIcon";
 import { drawGun, frontBarrel, GUN_WEAPON, gunHook, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
@@ -55,19 +52,16 @@ interface SpikeGun {
 
 interface SpikeEBlaster extends SpikeGun {
   beam(ctx: CanvasRenderingContext2D, length: number, frame: number, seed: number): void;
-  icon(x: number): string;
 }
 
 interface SpikeToaster extends SpikeGun {
   shot(ctx: CanvasRenderingContext2D, length: number, tick: number, simple?: boolean): void;
   sight(ctx: CanvasRenderingContext2D, firing?: boolean, simple?: boolean): void;
-  icon(x: number): string;
 }
 
 interface SpikeFlamethrower extends SpikeGun {
   flame(ctx: CanvasRenderingContext2D, age: number, seed: number, simple?: boolean): void;
   stream(ctx: CanvasRenderingContext2D, tick: number, simple?: boolean): void;
-  icon(x: number): string;
 }
 
 interface SpikeEnvAsset {
@@ -343,18 +337,6 @@ const runSight = (firing: boolean, simple: boolean, out: HTMLElement): VisualRes
   return report(`toaster sight ${JSON.stringify({ firing, lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
 };
 
-const ICON_XS = [0, 37.5];
-
-const runToasterIcon = (out: HTMLElement): VisualResult => {
-  const differ = ICON_XS.filter((x) => window.TOASTER.icon(x) !== toasterIcon(x));
-  const name = `toaster icon ${JSON.stringify({ xs: ICON_XS })}, differ: ${differ.join(", ") || "none"}`;
-  const box = document.createElement("div");
-  box.className = "case";
-  box.append(name);
-  out.append(box);
-  return { name, mismatches: differ.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: differ.length === 0 };
-};
-
 const runFlame = (age: number, seed: number, simple: boolean, out: HTMLElement): VisualResult => {
   const spike = canvas();
   const own = canvas();
@@ -378,26 +360,6 @@ const runFlameStream = (tick: number, simple: boolean, out: HTMLElement): Visual
   drawFlameStream(own, tick, simple);
   const diff = pixelDiff(spike, own);
   return report(`flame stream ${JSON.stringify({ tick, lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
-};
-
-const runFlamethrowerIcon = (out: HTMLElement): VisualResult => {
-  const differ = ICON_XS.filter((x) => window.FLAMETHROWER.icon(x) !== flamethrowerIcon(x));
-  const name = `flamethrower icon ${JSON.stringify({ xs: ICON_XS })}, differ: ${differ.join(", ") || "none"}`;
-  const box = document.createElement("div");
-  box.className = "case";
-  box.append(name);
-  out.append(box);
-  return { name, mismatches: differ.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: differ.length === 0 };
-};
-
-const runBlasterIcon = (out: HTMLElement): VisualResult => {
-  const differ = ICON_XS.filter((x) => window.EBLASTER.icon(x) !== blasterIcon(x));
-  const name = `blaster icon ${JSON.stringify({ xs: ICON_XS })}, differ: ${differ.join(", ") || "none"}`;
-  const box = document.createElement("div");
-  box.className = "case";
-  box.append(name);
-  out.append(box);
-  return { name, mismatches: differ.length, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: differ.length === 0 };
 };
 
 const runFrontBarrel = (kind: WeaponKind, lod: boolean) => (out: HTMLElement): VisualResult => {
@@ -527,7 +489,6 @@ const toasterCases = [
   ),
   ...[1, 2, 3, 6, 9, 13].flatMap((tick) => lods.map((lod) => (o: HTMLElement) => runShot(tick, lod, o))),
   ...[false, true].flatMap((firing) => lods.map((lod) => (o: HTMLElement) => runSight(firing, lod, o))),
-  runToasterIcon,
 ];
 const flamethrowerCases = [
   ...lods.map((lod) => (o: HTMLElement) => runGunAlone(lod, o, "flamethrower")),
@@ -536,7 +497,6 @@ const flamethrowerCases = [
   ),
   ...[1, 8, 14, 20, 26].flatMap((age) => lods.map((lod) => (o: HTMLElement) => runFlame(age, 3, lod, o))),
   ...[0, 9, 40].flatMap((tick) => lods.map((lod) => (o: HTMLElement) => runFlameStream(tick, lod, o))),
-  runFlamethrowerIcon,
 ];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
@@ -654,6 +614,6 @@ const runRobotView = (t: number, size: { w: number; h: number }, out: HTMLElemen
 };
 const robotViewCases = CUTSCENE_SIZES.flatMap((size) => ROBOT_VIEW_TS.map((t) => (o: HTMLElement) => runRobotView(t, size, o)));
 const onlyEnv = only ? envCases.slice(1).filter((_, i) => only.includes(envCaseIds[i] ?? "")) : [];
-const cases = only ? [...onlyEnv, ...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...flamethrowerCases, ...beamCases, runBlasterIcon, ...frontBarrelCases, ...envCases, ...cutsceneCases, ...robotViewCases];
+const cases = only ? [...onlyEnv, ...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...flamethrowerCases, ...beamCases, ...frontBarrelCases, ...envCases, ...cutsceneCases, ...robotViewCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

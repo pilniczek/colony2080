@@ -71,20 +71,6 @@ const MUZZLE = [BARREL.x + BARREL.length + NOZZLE, -40];
 const BAND = { y: -62, h: 44 };
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
-const ICON_SCALE = 1.45;
-const ICON_K = 0.068;
-const n = v => +v.toFixed(2);
-const iconX = x => n(0.4 + (x + 100) * ICON_K);
-const iconY = y => n((y - 32) * ICON_K);
-const iconRect = (x, y, w, h, fill, line = true) => `<rect x="${iconX(x)}" y="${iconY(y)}" width="${n(w * ICON_K)}" height="${n(h * ICON_K)}" fill="${fill}"${line ? "" : ' stroke="none"'}/>`;
-const iconParts = buildParts(BARREL.length).map(p => iconRect(p.x, p.y, p.w, p.h, COLORS[p.mat + p.tone]) + iconRect(p.x, p.y, p.w, p.h * 0.28, COLORS[p.mat + Math.min(3, p.tone + 1)], false)).join("");
-const ICON_PILOT = { x: BARREL.x + BARREL.length + NOZZLE + 4, y: -15.5 };
-const ICON = { w: n(23.2 * ICON_SCALE), arcEnd: n(29.6 * ICON_SCALE) };
-const iconPt = ([x, y]) => `${iconX(ICON_PILOT.x + x)} ${iconY(ICON_PILOT.y + y)}`;
-const iconPath = pts => `M${iconPt(pts[0])}${pts.slice(1, -1).map((p, i) => `Q${iconPt(p)} ${iconPt([(p[0] + pts[i + 2][0]) / 2, (p[1] + pts[i + 2][1]) / 2])}`).join("")}L${iconPt(pts[pts.length - 1])}Z`;
-const iconFlame = ["outer", "mid", "core", "blue"].map(k => `<path d="${iconPath(PILOT[k])}" fill="${PILOT_COLORS[k]}" stroke="none"/>`).join("");
-const icon = x => `<g transform="translate(${x} 15.7) scale(${ICON_SCALE})" stroke="#202826" stroke-width=".2">${iconParts}${iconFlame}</g>`;
-
 const STEPS = [2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2];
 const LIFE = STEPS.length;
 const SPAWN_TICKS = 2;
@@ -143,5 +129,5 @@ function stream(ctx, tick, simple = false) {
 
 const RANGE = travel(LIFE);
 
-window.FLAMETHROWER = { ...core, ICON, icon, LIFE, RANGE, flame, stream };
+window.FLAMETHROWER = { ...core, LIFE, RANGE, flame, stream };
 })();

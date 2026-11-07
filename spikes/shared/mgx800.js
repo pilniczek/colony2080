@@ -40,25 +40,6 @@ const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -60];
 const BAND = { y: -90, h: 60 };
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: idleGlow, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
-const ICON_SCALE = 1.45;
-const ICON_RECTS = [
-  [0.4, -7, 7.6, 3.6, "#64605c"],
-  [0.4, -7, 7.6, 0.8, "#a8aca8"],
-  [5.4, -3.4, 2.2, 3.4, "#55636a"],
-  [8, -8.4, 8.6, 6.4, "#a8aca8"],
-  [8, -3.6, 8.6, 1.6, "#2c3838"],
-  [11.4, -8.4, 2.2, 6.4, "#fcfcfc"],
-  [16.6, -6.4, 5.2, 2.6, "#8e9aa0"],
-  [18.6, -6.8, 1, 3.4, COLORS.b2],
-  [21.8, -7.2, 1.6, 4.2, "#dfe5e7"]
-];
-const n = v => +v.toFixed(2);
-const ICON_BURST = { x: 25.6, y: -5.1 };
-const ICON = { w: n(23.4 * ICON_SCALE), arcEnd: n((ICON_BURST.x + 3.6) * ICON_SCALE) };
-const crescentPath = (x, y, r) => `M${n(x - r * 0.3)} ${n(y - r)}Q${n(x + r * 1.5)} ${y} ${n(x - r * 0.3)} ${n(y + r)}Q${n(x + r * 0.5)} ${y} ${n(x - r * 0.3)} ${n(y - r)}Z`;
-const iconBurst = `<path d="${crescentPath(ICON_BURST.x, ICON_BURST.y, 3.4)}" fill="${COLORS.b2}" stroke="none"/><path d="${crescentPath(ICON_BURST.x + 0.4, ICON_BURST.y, 2.4)}" fill="#fcfcfc" stroke="none"/>`;
-const icon = x => `<g transform="translate(${x} 15.7) scale(${ICON_SCALE})" stroke="#202826" stroke-width=".2">${ICON_RECTS.map(([rx, ry, w, h, fill]) => `<rect x="${rx}" y="${ry}" width="${w}" height="${h}" fill="${fill}"${h < 1 ? ' stroke="none"' : ""}/>`).join("")}${iconBurst}</g>`;
-
 const SHOT = { cycle: 4, step: 36, lead: 8, r: 7 };
 const RANGE = 9 * 24;
 
@@ -101,6 +82,5 @@ function shot(ctx, length, tick, simple = false) {
   }
 }
 
-
-window.MGX800 = { ...core, ICON, icon, SHOT, RANGE, shot };
+window.MGX800 = { ...core, SHOT, RANGE, shot };
 })();

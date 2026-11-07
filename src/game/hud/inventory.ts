@@ -2,7 +2,7 @@ import { itemName, tr, type Lang } from "../i18n";
 import type { Rect } from "../geometry";
 import type { ItemId } from "../items";
 import { HUD_H, HUD_MIN_W } from "./layout";
-import { bonusIcon, SHIELDS_MAX, type HudIcon } from "./svg";
+import { SHIELDS_MAX, type HudIcon } from "./svg";
 import type { BonusWeapon } from "../level/sandboxLevel";
 
 export interface InventoryState {
@@ -21,6 +21,7 @@ export interface InventoryArt {
   robot: HudIcon;
   body: HudIcon;
   gun: HudIcon;
+  bonus: Record<BonusWeapon, HudIcon>;
   items: Record<ItemId, HudIcon>;
   liftPanel: HudIcon;
   liftDeck: HudIcon;
@@ -149,7 +150,7 @@ function ammo(s: InventoryState, art: InventoryArt): string {
   const extra =
     s.blaster === null
       ? ""
-      : `<g transform="translate(${b.x + 4} ${b.y + 19.5}) scale(${GUN_SCALE}) translate(0 -5.2)">${bonusIcon(s.bonusModel)}</g>` +
+      : image(art.bonus[s.bonusModel ?? "blaster"], b.x + 4, b.y + 15) +
         text(right, b.y + b.h - 6, INV.name, `EXTRA x${s.blaster}`, 'text-anchor="end"');
   return box(b) + gun + extra;
 }

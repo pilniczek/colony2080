@@ -36,24 +36,6 @@ const MUZZLE = [BARREL.x + BARREL.length + CAP, -41];
 const BAND = { y: -60, h: 37 };
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: heat, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
-const ICON_SCALE = 1.45;
-const ICON_RECTS = [
-  [3, -3.4, 2.6, 3.4, "#55636a"],
-  [0.6, -8, 9.4, 4.8, "#c4ccd0"],
-  [0.6, -8, 9.4, 1, "#eef2f2"],
-  [2.6, -8.6, 4.6, 0.9, "#0c0806"],
-  [3, -8.5, 3.8, 0.4, ENV_PAL.a2],
-  [1.6, -6, 3.4, 1.2, ENV_PAL.hazard],
-  [10, -7, 11.6, 2.8, "#8e9aa0"],
-  ...[11.2, 12.7, 14.2, 15.7, 17.2, 18.7, 20.2].map(x => [x, -7, 0.6, 2.8, ENV_PAL.a1]),
-  [21.6, -7.6, 1.6, 4, "#dfe5e7"]
-];
-const n = v => +v.toFixed(2);
-const ICON_BALL = { x: 25.4, y: -5.6, layers: [["#c8300c", 2.6, 1.8, 0], ["#f09024", 2, 1.3, 0.2], ["#fce438", 1.4, 0.9, 0.4], ["#fcf0c4", 0.8, 0.45, 0.6]] };
-const ICON = { w: n(23.2 * ICON_SCALE), arcEnd: n((ICON_BALL.x + 2.6) * ICON_SCALE) };
-const iconBall = ICON_BALL.layers.map(([fill, rx, ry, ahead]) => `<ellipse cx="${n(ICON_BALL.x + ahead)}" cy="${ICON_BALL.y}" rx="${rx}" ry="${ry}" fill="${fill}" stroke="none"/>`).join("");
-const icon = x => `<g transform="translate(${x} 15.7) scale(${ICON_SCALE})" stroke="#202826" stroke-width=".2">${ICON_RECTS.map(([rx, ry, w, h, fill]) => `<rect x="${rx}" y="${ry}" width="${w}" height="${h}" fill="${fill}"${h < 1 ? ' stroke="none"' : ""}/>`).join("")}${iconBall}</g>`;
-
 const SHOT = { cycle: 7, step: 24, lead: 12, frames: 6 };
 const BALL = [["#ac2c0c", 7.5, 5, 0], ["#c8300c", 7, 4.4, 0], ["#e86418", 6.4, 3.8, 0.4], ["#f09024", 5.6, 3.2, 0.8], ["#f4b82c", 4.8, 2.6, 1.2], ["#fce438", 3.8, 2, 1.6], ["#fcf0c4", 2.4, 1.1, 2]];
 const TAIL = [["#ac2c0c", 2.4, 1.8], ["#e86418", 1.4, 1]];
@@ -116,6 +98,5 @@ function sight(ctx, hit = false, simple = false) {
   ctx.restore();
 }
 
-
-window.TOASTER = { ...core, ICON, icon, SHOT, shot, shotFrame, RANGE, sight };
+window.TOASTER = { ...core, SHOT, shot, shotFrame, RANGE, sight };
 })();

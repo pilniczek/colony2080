@@ -1,14 +1,7 @@
 import { itemName, tr, type Lang } from "../i18n";
 import { type ItemId } from "../items";
-import { blasterIcon, BLASTER_BODY_W, BLASTER_MID_Y } from "./blasterIcon";
-import { toasterIcon } from "./toasterIcon";
-import { flamethrowerIcon } from "./flamethrowerIcon";
 import type { BonusWeapon } from "../level/sandboxLevel";
 import { BAR_H, CONTENT_SCALE, GRID_CELL, HAND_BOX, HAND_DRAWN, HAND_SCALE, HIDE_W, HUD_H, MAP_W, MENU_LABEL, MENU_W, PANEL_EDGE, READOUT_SIZE, readoutW, SIDE_ART, SLOT, slotW, SPEAKER_INK, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, VIEW_BOX, WEAPON_W, type Span } from "./layout";
-
-const BONUS_ICONS: Record<BonusWeapon, (x: number) => string> = { blaster: blasterIcon, toaster: toasterIcon, flamethrower: flamethrowerIcon };
-
-export const bonusIcon = (model: BonusWeapon = "blaster"): string => BONUS_ICONS[model](0);
 
 export interface HudState {
   weapon: number;
@@ -39,6 +32,7 @@ export interface HudIcons {
   run: HudIcon;
   walk: HudIcon;
   items: Record<ItemId, HudIcon>;
+  bonus: Record<BonusWeapon, HudIcon>;
 }
 
 export interface HudKeys {
@@ -94,7 +88,7 @@ const DEFS = `<defs>
   <g id="screw"><circle r="1.15" fill="#120e0b"/><circle r=".9" fill="url(#screwHead)"/><path d="M-.6 .35L.6 -.35" stroke="#2a221a" stroke-width=".3"/><path d="M-.55 .5L.65 -.2" stroke="#e6d8c0" stroke-width=".12" opacity=".6"/></g>
 </defs>`;
 
-const keyCentre = (i: number): number => (i === 2 ? BLASTER_BODY_W * CONTENT_SCALE : WEAPON_W[i]!) / 2;
+const keyCentre = (i: number): number => WEAPON_W[i]! / 2;
 
 const HAND = `<g fill="${READOUT}" stroke="#6a4206" stroke-width=".3">
   <path d="M3 13c-2-2-3-4-3-6l1-1 2 2V2.2a1 1 0 0 1 2 0V6V1a1 1 0 0 1 2 0v5V1.6a1 1 0 0 1 2 0V6V3a1 1 0 0 1 2 0v6c0 2.6-1.4 4-3 4z"/></g>`;
@@ -262,7 +256,7 @@ function top(W: number, s: HudState, icons: HudIcons, keys: HudKeys): string {
   ${gridPanel(bar.gridX, bar.gridW, spans)}
   ${weapon(shrunk(icons.fist, FIST_SCALE, wx[0]!, WEAPON_MID - icons.fist.h / 2), s.weapon === 0)}
   ${weapon(image(icons.gun, wx[1]!, WEAPON_MID - icons.gun.h / 2), s.weapon === 1)}${counter(wx[1]! + WEAPON_W[1]!, s.ammo, "ammo")}
-  ${s.bonus ? weapon(`<g transform="translate(${wx[2]!} ${WEAPON_MID}) scale(${CONTENT_SCALE}) translate(0 ${-BLASTER_MID_Y})">${bonusIcon(s.bonusModel)}</g>`, s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo, "bonusAmmo") : ""}
+  ${s.bonus ? weapon(image(icons.bonus[s.bonusModel ?? "blaster"], wx[2]!, WEAPON_MID - icons.bonus[s.bonusModel ?? "blaster"].h / 2), s.weapon === 2) + counter(wx[2]! + WEAPON_W[2]!, s.bonusAmmo, "bonusAmmo") : ""}
   ${badge(bar.badge, bar.plates[2]!)}
   ${gridPanel(bar.togglesX, bar.togglesW, spans)}
   ${soundIcon(bar.sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}

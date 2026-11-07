@@ -91,9 +91,9 @@ function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own =
     }
   }
 
-  function draw(ctx, { pal = PALETTE, lineW = 1.4, simple = false, barrel = own.length } = {}) {
+  function draw(ctx, { pal = PALETTE, lineW = 1.4, simple = false, barrel = own.length, loaded = true } = {}) {
     for (const p of partsFor(barrel)) part(ctx, p, pal, lineW, simple);
-    if (after) after(ctx, barrel, simple, { pal, lineW });
+    if (after) after(ctx, barrel, simple, { pal, lineW, loaded });
   }
 
   function hook(ctx, opts) {

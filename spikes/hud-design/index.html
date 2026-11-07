@@ -259,6 +259,13 @@ for (const [id, item] of Object.entries(ITEMS)) {
 const READOUT_SIZE = 5.6 * K, MONO_ADVANCE = .54, GRID_CELL = 3.2, SLOT = { pad: 2 * GRID_CELL, gap: 12 * K };
 const MENU_W = 4 * READOUT_SIZE * MONO_ADVANCE;
 
+const BONUS_BOX = { w: 45.5, h: 14 };
+const bonusArt = (scale) => {
+  const def = window.ENV.ASSETS.find((a) => a.id === "eBlaster"), [x0, y0, x1, y1] = def.box;
+  const s = Math.min(BONUS_BOX.w / (x1 - x0), BONUS_BOX.h / (y1 - y0)) * scale, w = (x1 - x0) * s, h = (y1 - y0) * s;
+  return { w, h, url: icon(w, h, (ctx) => { ctx.scale(s, s); ctx.translate(-x0, -y0); window.ENV.draw(ctx, def, { state: 0, lod: false, lines: 1 }); }) };
+};
+const BONUS_ICON = bonusArt(K), BONUS_INV = bonusArt(.55);
 const GUN = (x) => `<image href="${GUN_ICON.url}" x="${x}" y="${WEAPON_MID - GUN_ICON.h / 2}" width="${GUN_ICON.w}" height="${GUN_ICON.h}"/>`;
 const FIST_SCALE = 0.6;
 const FIST = (x) => `<image href="${FIST_ICON.url}" x="${x + FIST_ICON.w * (1 - FIST_SCALE) / 2}" y="${WEAPON_MID - FIST_ICON.h / 2 + FIST_ICON.h * (1 - FIST_SCALE) / 2}" width="${FIST_ICON.w * FIST_SCALE}" height="${FIST_ICON.h * FIST_SCALE}"/>`;
@@ -314,7 +321,7 @@ function topBar(W, s) {
   const wx = WEAPON_W.map((_, i) => gridX + WEAPON_GAP * (i + 1) + WEAPON_W.slice(0, i).reduce((x, y) => x + y, 0));
   const tabs = [
     { cx: menu + MENU_W / 2, label: "ESC", active: !!s.menuOpen },
-    ...WEAPON_KEYS.slice(0, s.bonus ? 3 : 2).map((label, i) => ({ cx: wx[i] + (i === 2 ? 17 * K : WEAPON_W[i] / 2), label, active: s.weapon === i })),
+    ...WEAPON_KEYS.slice(0, s.bonus ? 3 : 2).map((label, i) => ({ cx: wx[i] + WEAPON_W[i] / 2, label, active: s.weapon === i })),
     { cx: sound + SPEAKER_W / 2, label: "S", active: s.soundOn },
     { cx: run + TOGGLE_W / 2, label: "ALT", active: s.running },
     { cx: hide + HIDE_W / 2, label: "X", active: s.hidden },
@@ -330,7 +337,7 @@ function topBar(W, s) {
   ${gridPanel(gridX, gridW, spans)}
   ${weapon(FIST(wx[0]), s.weapon === 0)}
   ${weapon(GUN(wx[1]), s.weapon === 1)}${counter(wx[1] + WEAPON_W[1], s.ammo)}
-  ${s.bonus ? weapon(`<g transform="translate(${wx[2]} ${WEAPON_MID}) scale(${K}) translate(0 -9.5)">${window.EBLASTER.icon(0)}</g>`, s.weapon === 2) + counter(wx[2] + WEAPON_W[2], s.bonusAmmo) : ""}
+  ${s.bonus ? weapon(`<image href="${BONUS_ICON.url}" x="${wx[2]}" y="${WEAPON_MID - BONUS_ICON.h / 2}" width="${BONUS_ICON.w}" height="${BONUS_ICON.h}"/>`, s.weapon === 2) + counter(wx[2] + WEAPON_W[2], s.bonusAmmo) : ""}
   ${badgeArt(badge, plates[2])}
   ${gridPanel(togglesX, togglesW, spans)}
   ${soundIcon(sound + SPEAKER_INK.left * SPEAKER_SCALE, s.soundOn)}
@@ -634,7 +641,7 @@ function ammoBox(s) {
   const b = INV_BOXES.ammo, right = b.x + b.w - 4;
   const gunArt = { url: GUN_ICON.url, w: GUN_ICON.w * .55, h: GUN_ICON.h * .55 };
   const gun = img(gunArt, b.x + 4, b.y + 3) + invText(right, b.y + 11, 5.6, INV.name, `x${s.ammo}`, 'text-anchor="end"');
-  const extra = s.bonus ? `<g transform="translate(${b.x + 4} ${b.y + 19.5}) scale(.55) translate(0 -5.2)">${window.EBLASTER.icon(0)}</g>` +
+  const extra = s.bonus ? img(BONUS_INV, b.x + 4, b.y + 15) +
     invText(right, b.y + b.h - 6, 5.6, INV.name, `EXTRA x${s.bonusAmmo}`, 'text-anchor="end"') : "";
   return invBox(b) + gun + extra;
 }

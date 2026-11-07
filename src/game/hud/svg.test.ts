@@ -1,12 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { BLASTER_BODY_W, blasterIcon } from "./blasterIcon";
-import { flamethrowerIcon } from "./flamethrowerIcon";
-import { toasterIcon } from "./toasterIcon";
 import { CONTENT_SCALE, HAND_BOX, HAND_INK_H, HIDE_W, ICON_H, MAP_W, MENU_W, MONO_ADVANCE, READOUT_SIZE, SLOT, SPEAKER_H, SPEAKER_INK, SPEAKER_INK_H, SPEAKER_SCALE, SPEAKER_W, TOGGLE_W, topBar, WEAPON_W } from "./layout";
 import { applyLive, hudSvg as render, keyLabel, type HudIcons, type HudKeys, type HudState } from "./svg";
 
 const ICON = { w: HAND_BOX.w, h: HAND_BOX.h };
-const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, run: { url: "run.png", w: 4, h: ICON_H }, walk: { url: "walk.png", w: 4, h: ICON_H }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } } };
+const icons: HudIcons = { gun: { url: "gun.png", w: 35, h: 14 }, fist: { url: "fist.png", w: 20, h: 15 }, run: { url: "run.png", w: 4, h: ICON_H }, walk: { url: "walk.png", w: 4, h: ICON_H }, items: { crowbar: { url: "crowbar.png", ...ICON }, craneKey: { url: "craneKey.png", ...ICON }, wires: { url: "wires.png", ...ICON } }, bonus: { blaster: { url: "blaster.png", w: 27, h: 10 }, toaster: { url: "toaster.png", w: 28, h: 10 }, flamethrower: { url: "flamethrower.png", w: 24, h: 10 } } };
 const base: HudState = { weapon: 0, bonus: false, ammo: 350, bonusAmmo: 0, life: 50, shields: 3, running: true, soundOn: true, mapOpen: false, hidden: false, menuOpen: false, item: null };
 const keys: HudKeys = { weapons: ["1", "2", "3"], run: "ALT", sound: "S", hide: "X", map: "M", menu: "ESC", item: "ENTER" };
 const hudSvg = (W: number, H: number, s: HudState, i: HudIcons): string => render(W, H, s, i, keys);
@@ -34,8 +31,8 @@ describe("hudSvg", () => {
   });
 
   it("draws the bonus slot with the held bonus weapon's own icon", () => {
-    for (const [model, icon] of [["blaster", blasterIcon], ["toaster", toasterIcon], ["flamethrower", flamethrowerIcon]] as const) {
-      expect(hudSvg(320, 200, { ...base, bonus: true, bonusModel: model }, icons)).toContain(icon(0));
+    for (const model of ["blaster", "toaster", "flamethrower"] as const) {
+      expect(hudSvg(320, 200, { ...base, bonus: true, bonusModel: model }, icons)).toContain(`<image href="${model}.png"`);
     }
   });
 
@@ -183,17 +180,17 @@ describe("hudSvg", () => {
       [...svg.matchAll(/<text x="([\d.]+)" y="[\d.]+" text-anchor="middle"[^>]*font-size="3\.4" fill="(#[0-9a-f]+)"[^>]*>([^<]*)<\/text>/g)].map((m) => ({ x: Number(m[1]), label: m[3]!, lit: m[2] === "#ff4a26" }));
     const slotKey = (svg: string): { x: number; label: string; lit: boolean } | undefined => {
       const { weapons } = topBar(320);
-      return tabLetters(svg).find((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + (BLASTER_BODY_W * CONTENT_SCALE) / 2)) < 1e-6 && t.lit);
+      return tabLetters(svg).find((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + WEAPON_W[2]! / 2)) < 1e-6 && t.lit);
     };
     const slotKeyAny = (svg: string): boolean => {
       const { weapons } = topBar(320);
-      return tabLetters(svg).some((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + (BLASTER_BODY_W * CONTENT_SCALE) / 2)) < 1e-6);
+      return tabLetters(svg).some((t) => t.label === "3" && Math.abs(t.x - (weapons[2]! + WEAPON_W[2]! / 2)) < 1e-6);
     };
 
     it("renders the icon, counter and lit key 3 when the bonus weapon is active", () => {
       const svg = hudSvg(320, 200, { ...base, bonus: true, weapon: 2, bonusAmmo: 400 }, icons);
       expect(svg).toContain(">400</text>");
-      expect(svg).toContain('fill="#7ae0ff"');
+      expect(svg).toContain('<image href="blaster.png"');
       expect(slotKey(svg)).toBeDefined();
     });
 

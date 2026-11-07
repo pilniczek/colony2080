@@ -28,7 +28,8 @@ const buildParts = length => [
   { name: "ring", x: BARREL.x + length - 18, y: -88, w: 18, h: 54, mat: "o", tone: 1 }
 ];
 
-function warhead(ctx, length, simple, { pal, lineW }) {
+function warhead(ctx, length, simple, { pal, lineW, loaded }) {
+  if (!loaded) return;
   const tone = k => pal[k] ?? COLORS[k];
   const x = BARREL.x + length;
   const cone = (pts, fill) => {
@@ -57,24 +58,7 @@ const MUZZLE = [BARREL.x + BARREL.length + WARHEAD, -61];
 const BAND = { y: -88, h: 54 };
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: warhead, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
-const ICON_SCALE = 1.45;
-const ICON_RECTS = [
-  [0, -8.8, 1, 5.8, "#3c3c30"],
-  [1, -8.2, 25.2, 4.6, "#606054"],
-  [1, -8.2, 25.2, 1, "#b4b4a8"],
-  [1.6, -9.6, 6, 7.2, "#484830"],
-  [1.6, -9.6, 6, 1.2, "#606048"],
-  [8.8, -10.6, 4.4, 2.4, "#848478"],
-  [12.6, -10.4, 0.9, 1, COLORS.l3],
-  [6, -3.6, 2.2, 3.6, "#484830"],
-  [12, -3.6, 1.8, 2.8, "#484830"],
-  [22.4, -8.6, 1.8, 5.4, "#606048"]
-];
-const n = v => +v.toFixed(2);
-const ICON = { w: n(26.2 * ICON_SCALE), arcEnd: n(26.2 * ICON_SCALE) };
-const icon = x => `<g transform="translate(${x} 15.7) scale(${ICON_SCALE})" stroke="#202826" stroke-width=".2">${ICON_RECTS.map(([rx, ry, w, h, fill]) => `<rect x="${rx}" y="${ry}" width="${w}" height="${h}" fill="${fill}"${h < 1 ? ' stroke="none"' : ""}/>`).join("")}</g>`;
-
-const SHOT = { cycle: 24, speed: 12, smoke: 0.08 * 24, trail: 60 };
+const SHOT = { cycle: 24, empty: 4, speed: 12, smoke: 0.08 * 24, trail: 60 };
 const RANGE = 12 * 24;
 
 function rocket(ctx, x, simple) {
@@ -125,6 +109,7 @@ function shot(ctx, length, tick, simple = false) {
   ctx.restore();
 }
 
+const loadedAt = tick => tick % SHOT.cycle >= SHOT.empty;
 
-window.ROCKET_LAUNCHER = { ...core, ICON, icon, SHOT, RANGE, shot };
+window.ROCKET_LAUNCHER = { ...core, SHOT, loadedAt, RANGE, shot };
 })();

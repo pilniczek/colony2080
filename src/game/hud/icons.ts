@@ -7,6 +7,7 @@ import { drawAsset } from "../env/paint";
 import { drawGun } from "../robot/gun";
 import { buildFront, buildSide, ROBOT } from "../robot/xbot";
 import { ITEMS, type Item, type ItemId } from "../items";
+import type { BonusWeapon } from "../level/sandboxLevel";
 import { BODY_BOX, GUN_SCALE, INVENTORY_BOXES, ITEM_FILL, STAT_COLOR, type InventoryArt } from "./inventory";
 import { CONTENT_SCALE, HAND_BOX, ICON_H, TOGGLE_W } from "./layout";
 import { READOUT, type HudIcon, type HudIcons } from "./svg";
@@ -83,6 +84,23 @@ function itemIcon({ icon: { asset, state, tilt, scale } }: Item): HudIcon {
   return icon(w, h, (ctx) => assetIcon(ctx, asset, state, tilt, w, h), true);
 }
 
+const BONUS_ASSETS: Record<BonusWeapon, AssetId> = { blaster: "eBlaster", toaster: "toaster", flamethrower: "flamethrower" };
+const BONUS_BOX = { w: 45.5, h: 14 };
+
+const bonusIcon = (model: BonusWeapon, scale: number): HudIcon => {
+  const def = ASSETS[BONUS_ASSETS[model]];
+  const [x0, y0, x1, y1] = def.box;
+  const s = Math.min(BONUS_BOX.w / (x1 - x0), BONUS_BOX.h / (y1 - y0)) * scale;
+  return icon((x1 - x0) * s, (y1 - y0) * s, (ctx) => {
+    ctx.scale(s, s);
+    ctx.translate(-x0, -y0);
+    drawAsset(ctx, def, { state: 0, lod: false, lines: 1 });
+  });
+};
+
+const bonusIcons = (scale: number): Record<BonusWeapon, HudIcon> =>
+  Object.fromEntries(Object.keys(BONUS_ASSETS).map((m) => [m, bonusIcon(m as BonusWeapon, scale)])) as Record<BonusWeapon, HudIcon>;
+
 const gunIcon = (scale = 1): HudIcon =>
   icon(35 * scale, 14 * scale, (ctx) => {
     ctx.scale(0.1 * scale, 0.1 * scale);
@@ -104,7 +122,7 @@ export function hudIcons(): HudIcons {
     ctx.rotate(-Math.PI / 2);
     drawRig(ctx, { ...fore, m: null, name: undefined }, { palette: ROBOT.palette });
   });
-  return { gun, fist, run: robotIcon(RUN_POSE), walk: robotIcon(WALK_POSE), items: Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, itemIcon(item)])) };
+  return { gun, fist, run: robotIcon(RUN_POSE), walk: robotIcon(WALK_POSE), items: Object.fromEntries(Object.entries(ITEMS).map(([id, item]) => [id, itemIcon(item)])), bonus: bonusIcons(CONTENT_SCALE) };
 }
 
 function robotIcon(pose: Pose): HudIcon {
@@ -227,7 +245,7 @@ export function inventoryArtJobs(): { jobs: (() => void)[]; art: InventoryArt } 
       drawAsset(ctx, asset, { state: 0, lod: false, lines: 1 });
     }), TIP_ART.w, TIP_ART.h);
   });
-  return { jobs: [robotJob, ...tipJobs, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), ...itemJobs], art };
+  return { jobs: [robotJob, ...tipJobs, bodyJob, () => (art.gun = gunIcon(GUN_SCALE)), () => (art.bonus = bonusIcons(GUN_SCALE)), ...itemJobs], art };
 }
 
 export const MENU_ART_JOBS = 1 + Object.keys(TIP_ASSETS).length;

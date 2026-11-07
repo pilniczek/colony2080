@@ -42,7 +42,7 @@ const buildParts = (length: number): WeaponPart[] => [
   { name: "igniter", x: FLAMETHROWER_BARREL.x + length + 14, y: -19, w: 20, h: 7, mat: "k", tone: 1 },
 ];
 
-export const PILOT: Record<"outer" | "mid" | "core" | "blue", Pt[]> = {
+const PILOT: Record<"outer" | "mid" | "core" | "blue", Pt[]> = {
   outer: [[0, 3.5], [0, -3.5], [5, -8], [8, -15], [7, -23], [11, -34], [14, -25], [19, -31], [21, -19], [18, -7], [11, 3]],
   mid: [[0, 2.8], [0, -2.8], [4, -6.5], [7, -12], [7, -18], [11, -24], [13, -17], [16, -19], [16, -10], [13, -3], [8, 2.5]],
   core: [[0.5, 2], [0.5, -2], [4, -4.5], [7, -9], [10, -13], [11, -7], [9, -1], [5, 2]],
@@ -98,8 +98,6 @@ export const FLAMETHROWER_MUZZLE_IN_HOOK = toHook(MUZZLE);
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? FLAMETHROWER_BARREL.length });
 
 export const FLAMETHROWER_COLORS = model.colors;
-export const FLAMETHROWER_PARTS = buildParts(FLAMETHROWER_BARREL.length);
-export const PILOT_AT: Pt = [FLAMETHROWER_BARREL.x + FLAMETHROWER_BARREL.length + NOZZLE + 4, -15.5];
 export const drawFlamethrower = (ctx: CanvasRenderingContext2D, opts?: WeaponOptions): void => model.draw(ctx, sized(opts));
 export const flamethrowerHook = (ctx: CanvasRenderingContext2D, palette?: Palette, opts?: HookOptions): void => model.hook(ctx, palette, sized(opts));
 
