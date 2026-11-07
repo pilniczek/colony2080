@@ -777,7 +777,31 @@ const LEVELS = Object.entries(CFG.levels);
 const HAND_AX = 87.5;
 const HAND_VIEWS = ["palm", "back", "thumb", "little", "tips"];
 const HAND_POSES = ["open", "fist"];
-const fingerX = i => 46 + i * 21;
+const HAND = { x0: 46, x1: 130, top: 398, bottom: 436, thick: 34 };
+const FINGER = { w: 20, pitch: 21, thick: 18, base: 428, seg: [22, 18, 14] };
+const THUMB = { w: 20, thick: 18, seg: [24, 20] };
+const HAND_FACE = [HAND.x0 + HAND.x1 - HAND.thick, HAND.x0 + HAND.x1 + HAND.thick].map(v => v / 2);
+const fingerX = i => HAND.x0 + i * FINGER.pitch;
+const fingerY = k => FINGER.base + FINGER.seg.slice(0, k).reduce((a, b) => a + b, 0);
+
+function bar([x, y], deg, len, w, ext = 0) {
+  const a = deg * Math.PI / 180, dx = Math.sin(a), dy = Math.cos(a), nx = dy * w / 2, ny = -dx * w / 2;
+  const s = [x - dx * ext, y - dy * ext], e = [x + dx * (len + ext), y + dy * (len + ext)];
+  return { pts: [[s[0] + nx, s[1] + ny], [e[0] + nx, e[1] + ny], [e[0] - nx, e[1] - ny], [s[0] - nx, s[1] - ny]], end: [x + dx * len, y + dy * len] };
+}
+
+function chain(parent, M, from, angles, lens, w, spec = {}) {
+  let at = from;
+  angles.forEach((deg, k) => {
+    const b = bar(at, deg, lens[k], w, w / 2);
+    P(parent, { pts: M(b.pts), r: w / 3, lw: FINGER_LW, ...spec });
+    at = b.end;
+  });
+}
+
+function handThumb(parent, M, from, angles, w = THUMB.w) {
+  chain(parent, M, from, angles, THUMB.seg, w);
+}
 
 function handStub(parent) {
   const fa = G(parent, `translate(89 0) scale(${FOREARM_SX} 1) translate(-89 0)`);
@@ -785,107 +809,121 @@ function handStub(parent) {
   F(fa, [[30, 374], [150, 372], [150, 376], [30, 378]], "a0");
 }
 
-function backFingers(parent, M) {
-  for (let i = 0; i < 4; i++) {
-    const x = fingerX(i);
-    P(parent, { pts: M([[x, 428], [x + 10, 422], [x + 20, 428], [x + 20, 444], [x, 444]]), shade: "cyl", r: 3, lw: FINGER_LW });
-    P(parent, { pts: M([[x, 444], [x + 20, 444], [x + 20, 463], [x, 463]]), shade: "cyl", r: 2, lw: FINGER_LW });
-    P(parent, { pts: M([[x, 463], [x + 20, 463], [x + 20, 478], [x, 478]]), r: 2, lw: FINGER_LW });
-  }
+function forearmEnd(parent) {
+  P(parent, { pts: [[34, 365], [142, 365], [142, 469], [34, 469]], r: 8 });
 }
 
-function palmFingers(parent, M) {
-  for (let i = 0; i < 4; i++) {
-    const x = fingerX(i);
-    P(parent, { pts: M([[x, 424], [x + 20, 424], [x + 20, 478], [x, 478]]), r: 4, lw: FINGER_LW });
-    for (const [y0, y1] of [[427, 443], [446, 462], [465, 475]]) P(parent, { pts: M([[x + 3, y0], [x + 17, y0], [x + 17, y1], [x + 3, y1]]), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
-  }
+function backPlate(parent) {
+  P(parent, { pts: [[HAND.x0, HAND.top + 2], [HAND.x1, HAND.top], [HAND.x1, HAND.bottom - 2], [HAND.x0, HAND.bottom]], mat: "metal", r: 2 });
 }
 
-const THUMB = [[112, 412], [134, 408], [142, 430], [134, 452], [118, 448], [110, 430]];
-function handThumb(parent, M, pts = THUMB, crease = [[116, 430], [136, 428], [136, 431], [116, 433]]) {
-  P(parent, { pts: M(pts), r: 4 });
-  F(parent, M(crease), "a0");
+function palmPlate(parent, M, padBottom) {
+  P(parent, { pts: [[HAND.x0, HAND.top], [HAND.x1, HAND.top], [HAND.x1, HAND.bottom], [HAND.x0, HAND.bottom]], r: 3 });
+  P(parent, { pts: M([[HAND.x0 + 8, HAND.top + 6], [HAND.x1 - 8, HAND.top + 6], [HAND.x1 - 8, padBottom], [HAND.x0 + 8, padBottom]]), mat: "metal", shade: "none", r: 6 });
 }
+
+function profilePlate(parent, S) {
+  const [a, b] = HAND_FACE;
+  P(parent, { pts: S([[a, HAND.top], [b, HAND.top], [b, HAND.bottom], [a, HAND.bottom]]), mat: "metal", r: 3 });
+}
+
+function sectionPlate(parent) {
+  P(parent, { pts: [[HAND.x0, 400], [HAND.x1, 400], [HAND.x1, 400 + HAND.thick], [HAND.x0, 400 + HAND.thick]], mat: "metal", r: 3 });
+}
+
+const THUMB_BASE = [124, 410];
+const THUMB_OPEN = [20, 8];
 
 function openHand(s, view) {
   const M = p => p;
   const W = p => mirrorPts(p, HAND_AX);
-  if (view === "back") {
+  const [y1, y2, y3] = [1, 2, 3].map(fingerY);
+  if (view === "back" || view === "palm") {
+    const S = view === "palm" ? W : M;
     handStub(s);
-    handThumb(s, M);
-    P(s, { pts: [[46, 400], [129, 398], [129, 434], [46, 436]], mat: "metal", r: 2 });
-    backFingers(s, M);
-  } else if (view === "palm") {
-    handStub(s);
-    P(s, { pts: [[46, 398], [129, 398], [129, 436], [46, 436]], r: 3 });
-    P(s, { pts: [[54, 404], [121, 404], [121, 430], [54, 430]], mat: "metal", shade: "none", r: 6 });
-    palmFingers(s, M);
-    handThumb(s, W);
-  } else if (view === "thumb" || view === "little") {
-    const S = view === "little" ? W : M;
-    handStub(s);
-    if (view === "little") handThumb(s, S, [[62, 410], [80, 406], [84, 430], [78, 454], [64, 450], [60, 430]], [[64, 430], [82, 428], [82, 431], [64, 433]]);
-    P(s, { pts: S([[75, 398], [100, 398], [100, 436], [75, 436]]), mat: "metal", r: 2 });
-    P(s, { pts: S([[79, 428], [93, 428], [97, 422], [97, 444], [79, 444]]), shade: "cyl", r: 3, lw: FINGER_LW });
-    P(s, { pts: S([[79, 444], [97, 444], [97, 463], [79, 463]]), shade: "cyl", r: 2, lw: FINGER_LW });
-    P(s, { pts: S([[79, 463], [97, 463], [97, 474], [88, 478], [79, 474]]), r: 3, lw: FINGER_LW });
-    if (view === "thumb") handThumb(s, S, [[62, 410], [80, 406], [84, 430], [78, 454], [64, 450], [60, 430]], [[64, 430], [82, 428], [82, 431], [64, 433]]);
-  } else {
-    P(s, { pts: [[33, 365], [142, 365], [142, 469], [33, 469]], r: 8 });
-    P(s, { pts: [[46, 405], [129, 405], [129, 429], [46, 429]], mat: "metal", r: 3 });
+    if (view === "back") { handThumb(s, M, THUMB_BASE, THUMB_OPEN); backPlate(s); }
+    else palmPlate(s, M, HAND.bottom - 6);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, 409], [x + 20, 409], [x + 20, 427], [x, 427]], shade: "dome", r: 6, lw: FINGER_LW });
+      if (view === "back") {
+        P(s, { pts: [[x, FINGER.base + 6], [x + 10, FINGER.base], [x + 20, FINGER.base + 6], [x + 20, y1], [x, y1]], shade: "cyl", r: 3, lw: FINGER_LW });
+        P(s, { pts: [[x, y1], [x + 20, y1], [x + 20, y2], [x, y2]], shade: "cyl", r: 2, lw: FINGER_LW });
+        P(s, { pts: [[x, y2], [x + 20, y2], [x + 20, y3], [x, y3]], r: 2, lw: FINGER_LW });
+      } else {
+        P(s, { pts: [[x, FINGER.base - 4], [x + 20, FINGER.base - 4], [x + 20, y3], [x, y3]], r: 4, lw: FINGER_LW });
+        for (const [a, b] of [[FINGER.base - 1, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 3]]) P(s, { pts: [[x + 3, a], [x + 17, a], [x + 17, b], [x + 3, b]], mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+      }
     }
-    P(s, { pts: [[110, 430], [130, 430], [130, 448], [110, 448]], shade: "dome", r: 6 });
+    if (view === "palm") handThumb(s, W, THUMB_BASE, THUMB_OPEN);
+  } else if (view === "thumb" || view === "little") {
+    const S = view === "little" ? W : M;
+    const fx = HAND_FACE[1] - 2 - FINGER.thick;
+    const thumb = () => handThumb(s, S, [HAND_FACE[0] + 2, 410], [-14, -4], THUMB.thick);
+    handStub(s);
+    if (view === "little") thumb();
+    profilePlate(s, S);
+    P(s, { pts: S([[fx, FINGER.base], [fx + FINGER.thick, FINGER.base - 6], [fx + FINGER.thick, y1], [fx, y1]]), shade: "cyl", r: 3, lw: FINGER_LW });
+    P(s, { pts: S([[fx, y1], [fx + FINGER.thick, y1], [fx + FINGER.thick, y2], [fx, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
+    P(s, { pts: S([[fx, y2], [fx + FINGER.thick, y2], [fx + FINGER.thick, y3 - 4], [fx + 9, y3], [fx, y3 - 4]]), r: 3, lw: FINGER_LW });
+    if (view === "thumb") thumb();
+  } else {
+    forearmEnd(s);
+    sectionPlate(s);
+    for (let i = 0; i < 4; i++) {
+      const x = fingerX(i);
+      P(s, { pts: [[x, 402], [x + 20, 402], [x + 20, 402 + FINGER.thick], [x, 402 + FINGER.thick]], shade: "dome", r: 6, lw: FINGER_LW });
+    }
+    P(s, { pts: [[112, 426], [132, 426], [132, 426 + THUMB.thick], [112, 426 + THUMB.thick]], shade: "dome", r: 6 });
   }
 }
 
 function fist(s, view) {
   const M = p => p;
   const W = p => mirrorPts(p, HAND_AX);
-  const across = [[40, 420], [60, 414], [100, 416], [110, 428], [100, 440], [60, 440], [42, 432]];
+  const [s1, s2, s3] = FINGER.seg;
+  const cap = FINGER.thick + 2;
   if (view === "back") {
     handStub(s);
-    handThumb(s, M, [[120, 420], [136, 416], [142, 436], [134, 452], [122, 448]], [[124, 434], [138, 432], [138, 435], [124, 437]]);
-    P(s, { pts: [[46, 400], [129, 398], [129, 434], [46, 436]], mat: "metal", r: 2 });
+    chain(s, M, THUMB_BASE, [14], [THUMB.seg[0]], THUMB.w);
+    backPlate(s);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, 430], [x + 20, 430], [x + 20, 452], [x, 452]], shade: "cyl", r: 7, lw: FINGER_LW });
-      F(s, [[x + 3, 443], [x + 17, 443], [x + 17, 445], [x + 3, 445]], "a0");
+      P(s, { pts: [[x, FINGER.base], [x + 20, FINGER.base], [x + 20, FINGER.base + cap], [x, FINGER.base + cap]], shade: "cyl", r: 7, lw: FINGER_LW });
+      F(s, [[x + 3, FINGER.base + cap - 7], [x + 17, FINGER.base + cap - 7], [x + 17, FINGER.base + cap - 5], [x + 3, FINGER.base + cap - 5]], "a0");
     }
   } else if (view === "palm") {
+    const knuckle = FINGER.base + cap;
     handStub(s);
-    P(s, { pts: [[46, 398], [129, 398], [129, 436], [46, 436]], r: 3 });
-    P(s, { pts: [[54, 402], [121, 402], [121, 418], [54, 418]], mat: "metal", shade: "none", r: 6 });
+    palmPlate(s, M, knuckle - s2 - 6);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x + 2, 414], [x + 18, 414], [x + 18, 424], [x + 2, 424]], mat: "metal", shade: "dome", r: 4, lw: FINGER_LW });
-      P(s, { pts: [[x, 422], [x + 20, 422], [x + 20, 446], [x, 446]], shade: "cyl", r: 3, lw: FINGER_LW });
-      P(s, { pts: [[x, 446], [x + 20, 446], [x + 20, 462], [x, 462]], shade: "cyl", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x + 2, knuckle - s2 - 8], [x + 18, knuckle - s2 - 8], [x + 18, knuckle - s2 + 2], [x + 2, knuckle - s2 + 2]], mat: "metal", shade: "dome", r: 4, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle - s2], [x + 20, knuckle - s2], [x + 20, knuckle], [x, knuckle]], shade: "cyl", r: 3, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle - 2], [x + 20, knuckle - 2], [x + 20, knuckle + cap - 4], [x, knuckle + cap - 4]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
-    handThumb(s, M, across, [[66, 426], [96, 426], [96, 429], [66, 429]]);
+    handThumb(s, W, THUMB_BASE, [-40, -90]);
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
-    const thumbPts = [[56, 412], [74, 408], [80, 426], [74, 448], [58, 446], [52, 428]];
-    const crease = [[58, 428], [76, 426], [76, 429], [58, 431]];
+    const knuckle = [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base + FINGER.thick / 2];
+    const front = [knuckle[0] - s1, knuckle[1]];
+    const thumb = () => handThumb(s, S, [HAND_FACE[0] + 2, 410], [-20, 60], THUMB.thick);
     handStub(s);
-    if (view === "little") handThumb(s, S, thumbPts, crease);
-    P(s, { pts: S([[75, 398], [100, 398], [100, 436], [75, 436]]), mat: "metal", r: 2 });
-    P(s, { pts: S([[60, 418], [76, 418], [76, 442], [60, 442]]), r: 4, lw: FINGER_LW });
-    P(s, { pts: S([[58, 440], [82, 440], [82, 458], [58, 458]]), shade: "cyl", r: 6, lw: FINGER_LW });
-    P(s, { pts: S([[79, 430], [99, 430], [99, 452], [79, 452]]), shade: "cyl", r: 7, lw: FINGER_LW });
-    if (view === "thumb") handThumb(s, S, thumbPts, crease);
+    if (view === "little") thumb();
+    profilePlate(s, S);
+    chain(s, S, [front[0], front[1] - s2], [90], [s3], FINGER.thick);
+    chain(s, S, front, [180], [s2], FINGER.thick, { shade: "cyl" });
+    chain(s, S, knuckle, [-90], [s1], FINGER.thick, { shade: "cyl" });
+    if (view === "thumb") thumb();
   } else {
-    P(s, { pts: [[33, 356], [142, 356], [142, 460], [33, 460]], r: 8 });
-    P(s, { pts: [[46, 396], [129, 396], [129, 420], [46, 420]], mat: "metal", r: 3 });
+    forearmEnd(s);
+    sectionPlate(s);
+    const face = 400 + HAND.thick;
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, 426], [x, 426]], shade: "dome", r: 7, lw: FINGER_LW });
-      P(s, { pts: [[x, 424], [x + 20, 424], [x + 20, 446], [x, 446]], shade: "cyl", r: 3, lw: FINGER_LW });
+      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face], [x, face]], shade: "cyl", r: 3, lw: FINGER_LW });
+      P(s, { pts: [[x, face - 2], [x + 20, face - 2], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "dome", r: 7, lw: FINGER_LW });
     }
-    handThumb(s, M, [[42, 438], [110, 434], [124, 442], [112, 456], [46, 458], [36, 448]], [[56, 446], [104, 444], [104, 447], [56, 449]]);
+    handThumb(s, M, [130, face + 6], [-60, -90], THUMB.thick);
   }
 }
 
