@@ -13,7 +13,7 @@ import type { Lift, SandboxWorld, Scenery } from "./sandboxLevel";
 import { terrain, type Run } from "./terrain";
 import { openGraph, opened } from "./testMissions";
 
-const BUILT: MissionId[] = ["mesto", "vesnice"];
+const BUILT: MissionId[] = ["mesto", "vesnice", "jungle"];
 
 type Role =
   | "sky" | "far" | "filler" | "wall" | "fence" | "floor" | "girder" | "building" | "support" | "pipe"
@@ -35,12 +35,14 @@ interface Cells {
 
 interface MissionRules {
   roles: Record<Role, AssetId[]>;
+  liftless?: string;
   hangs: AssetId[];
   panelProps: string[];
   clutter: { small: number; big: number };
   blockersUnderArt: boolean;
   openEnds: Cells[];
   towersOnReach: { asset: AssetId; x: number; why: string }[];
+  propsOffFloor: { id: string; why: string }[];
 }
 
 const RULES: Partial<Record<MissionId, MissionRules>> = {
@@ -73,6 +75,7 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
       { col: 6, row: 11, w: 17, h: 40, why: "open sky over the crashed ship (levelmap.py sky)" },
     ],
     towersOnReach: [{ asset: "facadeTower", x: 11, why: "the crashed ship pad is its roof" }],
+    propsOffFloor: [],
   },
   vesnice: {
     roles: {
@@ -108,6 +111,54 @@ const RULES: Partial<Record<MissionId, MissionRules>> = {
       { col: 28, row: 26, w: 3, h: 1, why: "top of the col 29 wall the dynamite blows to end the level (report 14 marker 14)" },
     ],
     towersOnReach: [],
+    propsOffFloor: [],
+  },
+  jungle: {
+    roles: {
+      sky: ["jungleSky"],
+      far: ["farTrees", "farTowerRuin"],
+      filler: ["cobbleFill"],
+      wall: ["girderColumn", "brickRuin", "stoneParapet"],
+      fence: ["chainFence", "deckRailing"],
+      floor: ["jungleWalkway", "caveWalkway"],
+      girder: ["plankBridge", "brassDeck"],
+      building: ["jungleBuilding"],
+      support: ["jungleTower", "stoneStack", "girderColumn"],
+      pipe: ["coolantPipe"],
+      machine: ["chemTank", "excavator", "caveCapsule", "rustBoiler", "towerLift"],
+      rubble: ["rockLedges", "rockSlope", "rockDebris", "caveChasm", "fallenTree"],
+      mounted: ["rockVent", "junctionBox", "energySign"],
+      bigClutter: ["overgrownWreck", "helicopterWreck"],
+      smallClutter: ["fernBush", "logPile", "oilDrum"],
+      sign: ["energySign"],
+      panel: [],
+    },
+    liftless: "no lifts: the tower lift is the teleport pair towerLiftUp / towerLiftDown, its stations are scenery",
+    hangs: ["caveChasm", "rockLedges", "coolantPipe", "fallenTree"],
+    panelProps: [],
+    clutter: { small: 14, big: 13 },
+    blockersUnderArt: false,
+    openEnds: [
+      { col: 22, row: 19, w: 20, h: 17, why: "west rock ledge stairs, the original jump route from floor 20 down to floor 37 (report 15)" },
+      { col: 45, row: 26, w: 12, h: 2, why: "steps and bunker roof between floors 20 and 32, jumped in the original (map M31)" },
+      { col: 53, row: 19, w: 8, h: 1, why: "spike pit edges on floor 20, jumped over once the rubble lies on the spikes (map M33)" },
+      { col: 61, row: 33, w: 3, h: 3, why: "rust stair from floor 32 down to floor 37 by the boiler (map M31)" },
+      { col: 70, row: 30, w: 20, h: 1, why: "low planks on floor 32 by the helicopter and the turret, stepped on and off (map M31)" },
+      { col: 85, row: 31, w: 17, h: 18, why: "cave slope and stair from floor 32 down to floors 41 and 48, the original jump route (report 15)" },
+      { col: 99, row: 13, w: 8, h: 6, why: "puzzle rock ledge stair east of the waterfall (map M34 stone steps)" },
+      { col: 94, row: 10, w: 1, h: 1, why: "floor 11 east end at the waterfall, the drop onto the stone steps (map M34)" },
+      { col: 74, row: 5, w: 3, h: 1, why: "top of the col 75 wall under the fallen tree, nobody reaches it (map M31)" },
+      { col: 115, row: 19, w: 3, h: 1, why: "top of the col 116 spawn ledge wall inside the west lattice tower (map M31)" },
+      { col: 130, row: 19, w: 3, h: 1, why: "top of the col 131 spawn ledge wall under the excavator (map M31)" },
+      { col: 144, row: 24, w: 1, h: 1, why: "spawn deck east end over the tower lift, the original drop edge (map M31)" },
+    ],
+    towersOnReach: [],
+    propsOffFloor: [
+      { id: "waterfall", why: "falls past floor 20 into the gorge, its art ends under the plank bridge (map M31)" },
+      { id: "waterfallStep", why: "stone step block inside the waterfall, solid only once the waterfall is stopped (map M34)" },
+      { id: "distributionCabinet", why: "mounted on the cave east wall over floor 48 (map M31)" },
+      { id: "mineSlope", why: "lies on the cave slope under a one-way slab step (map M31)" },
+    ],
   },
 };
 
@@ -222,9 +273,10 @@ describe.each(BUILT)("%s map rules", (mission) => {
   const ground = (col: number, row: number): boolean => grid.wall(col, row) || grid.floor(col, row);
 
   it("gives every layout asset a role and fills every role", () => {
-    const used = new Set([...sceneryOf(world).map((s) => s.asset), ...Object.values(world.terrainArt).filter(Boolean), world.sky]);
+    const used = new Set([...sceneryOf(world).map((s) => s.asset), ...Object.values(world.terrainArt).filter(Boolean), ...world.ledgeArt.map((a) => a.asset), world.sky]);
     expect([...used].filter((a) => !rolesOf(rules, a as AssetId).length)).toEqual([]);
-    expect((Object.keys(rules.roles) as Role[]).filter((role) => !rules.roles[role].length)).toEqual([]);
+    expect((Object.keys(rules.roles) as Role[]).filter((role) => !rules.roles[role].length && !(role === "panel" && rules.liftless))).toEqual([]);
+    if (rules.liftless) expect(lifts).toEqual([]);
   });
 
   it("closes every floor end with a wall", () => {
@@ -308,7 +360,8 @@ describe.each(BUILT)("%s map rules", (mission) => {
 
   it("draws lift panels last in the dressing", () => {
     const panel = world.dressing.map((s) => rules.roles.panel.includes(s.asset));
-    expect(panel.slice(panel.indexOf(true)).every(Boolean)).toBe(true);
+    const first = panel.indexOf(true);
+    expect(first < 0 || panel.slice(first).every(Boolean)).toBe(true);
   });
 
   it("stands every scenery item on solid floor, a girder deck, a lift shaft or hung from the ceiling", () => {
@@ -366,7 +419,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
   });
 
   it("stands every prop on a floor", () => {
-    const off = world.props.filter((p) => p.y === undefined || !ground(Math.floor(p.x), p.y) || ground(Math.floor(p.x), p.y - 1));
+    const off = world.props.filter((p) => !rules.propsOffFloor.some((o) => o.id === p.id) && (p.y === undefined || !ground(Math.floor(p.x), p.y) || ground(Math.floor(p.x), p.y - 1)));
     expect(off.map((p) => p.id ?? p.item)).toEqual([]);
   });
 
@@ -396,7 +449,7 @@ describe.each(BUILT)("%s map rules", (mission) => {
   });
 
   it("grimes every structure and building asset of the layout", () => {
-    const used = new Set([...sceneryOf(world).map((s) => s.asset), ...Object.values(world.terrainArt).filter(Boolean)]);
+    const used = new Set([...sceneryOf(world).map((s) => s.asset), ...Object.values(world.terrainArt).filter(Boolean), ...world.ledgeArt.map((a) => a.asset)]);
     const clean = [...used].filter((a) => rolesOf(rules, a as AssetId).some((role) => GRIMED.includes(role)) && !grimed(a));
     expect(clean).toEqual([]);
   });
