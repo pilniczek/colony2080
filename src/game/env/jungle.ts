@@ -329,7 +329,7 @@ export const conduit = (ctx: Ctx, pts: Pt[]): void => {
 
 export const JUNGLE_IDS = [
   "flamethrowerDoor", "waterfall", "spikes", "boulder", "jeep", "cannonTurret", "distributionCabinet", "stonePuzzle", "tripwire", "mine", "canister", "cutters", "grenade", "flamethrower", "bonusPickup", "towerLift",
-  "jungleSky", "farTrees", "farTowerRuin", "cobbleFill", "jungleWalkway", "caveWalkway", "plankBridge", "brassDeck", "girderColumn", "brickRuin", "caveChasm",
+  "jungleSky", "farTrees", "farTowerRuin", "cobbleFill", "jungleWalkway", "caveWalkway", "plankBridge", "brassDeck", "girderColumn", "stoneParapet", "brickRuin", "caveChasm",
   "jungleBuilding", "jungleTower", "stoneStack", "coolantPipe", "rockLedges", "rockSlope", "rockDebris", "deckRailing", "fallenTree",
-  "chemTank", "excavator", "caveCapsule", "helicopterWreck", "overgrownWreck", "fernBush", "logPile", "oilDrum", "rockVent", "energySign",
+  "chemTank", "excavator", "caveCapsule", "rustBoiler", "helicopterWreck", "overgrownWreck", "fernBush", "logPile", "oilDrum", "rockVent", "energySign",
 ] as const;

@@ -100,20 +100,25 @@ const spike = (ctx: Ctx, x: number, hh: number, lean: number): void => {
 const rubble = (ctx: Ctx, x0: number, x1: number, seed: number): void => {
   const r = rng(seed);
   const mid = (x0 + x1) / 2;
-  const top: Pt[] = [[x0, -2], [x0 + 10, -9], [x0 + 20, -18], [mid - 24, -21], [mid + 22, -21.5], [x1 - 18, -17], [x1 - 8, -8], [x1, -2], [x1, 0], [x0, 0]];
+  const top: Pt[] = [[x0 - 7, 0], [x0 - 5, -10], [x0 - 1, -19], [x0 + 4, -22]];
+  for (let x = x0 + 16; x < x1 - 10; x += 14 + r() * 8) top.push([x, -21.4 - r() * 1.6]);
+  top.push([x1 - 4, -22], [x1 + 1, -19], [x1 + 5, -10], [x1 + 7, 0]);
   shape(ctx, top, ROCK[0], SLINE);
-  for (let i = 0; i < (simple() ? 7 : 16); i++) {
-    const cx = x0 + 8 + r() * (x1 - x0 - 16);
-    const edge = 1 - abs(cx - mid) / ((x1 - x0) / 2);
-    stone(ctx, cx, -3 - r() * 15 * edge, 4 + r() * 5, 3 + r() * 3, seed + i * 3, ROCK);
+  for (let i = 0; i < (simple() ? 8 : round((x1 - x0) / 7)); i++) {
+    const cx = x0 + 2 + r() * (x1 - x0 - 4);
+    stone(ctx, cx, -3 - r() * 13, 4 + r() * 5, 3 + r() * 3, seed + i * 3, ROCK);
   }
-  const deck: Pt[] = [[mid - 26, -19], [mid - 18, -22.6], [mid + 4, -23], [mid + 22, -22], [mid + 26, -18.6], [mid + 6, -16.6], [mid - 16, -17]];
-  shape(ctx, deck, ROCK[2], SLINE);
-  within(ctx, deck, () => {
-    flat(ctx, mid - 28, -24, 56, 2, ROCK[3]);
-    flat(ctx, mid - 28, -18.4, 56, 3, ROCK[1]);
-  });
+  for (let x = x0; x < x1 - 4; x += 24) {
+    const w = min(24, x1 - x);
+    const deck: Pt[] = [[x + 0.6, -19.4], [x + 3.4, -22.6 - r() * 0.6], [x + w - 4, -23], [x + w - 0.6, -19.2], [x + w * 0.6, -16.8], [x + w * 0.2, -17.2]];
+    shape(ctx, deck, ROCK[2], SLINE);
+    within(ctx, deck, () => {
+      flat(ctx, x, -24, w, 2, ROCK[3]);
+      flat(ctx, x, -18.4, w, 3, ROCK[1]);
+    });
+  }
   mossCap(ctx, mid - 14, -22.4, 16, seed + 40, 1.5);
+  mossCap(ctx, x0 + 10, -22.4, 10, seed + 44, 1.2);
   G.grain(ctx, G.polyRegion(ctx, top), seed + 41, 0.7);
   G.dirt(ctx, x0, -21, x1 - x0, 21, seed + 42, 0.4);
   G.scorch(ctx, [[mid + 8, -20], [mid + 22, -20], [mid + 20, -12], [mid + 6, -13]], seed + 43);
@@ -125,12 +130,12 @@ const spikes: EnvAsset = {
   draw(ctx, state, _t, { w = 192 }) {
     const seed = 640 + round(w);
     const r = rng(seed);
-    const heap: Pt | null = state === 1 ? [64, 156] : null;
+    const heap: Pt | null = state === 1 ? [24, 168] : null;
     flat(ctx, 0, -6, w, 6, "#0a100e");
     for (let x = 1; x < w - 3; x += 4.6) {
       const hh = 15 + r() * 4;
       const bend = r();
-      if (heap && x > heap[0] + 6 && x < heap[1] - 8) continue;
+      if (heap && x > heap[0] - 6 && x < heap[1] + 2) continue;
       const near = heap && x > heap[0] - 10 && x < heap[1] + 4 && bend < 0.7;
       spike(ctx, x, hh, near && heap ? (x < (heap[0] + heap[1]) / 2 ? -0.3 : 0.3) * bend : 0);
     }
@@ -277,10 +282,19 @@ const jeep: EnvAsset = {
 const DOME_PTS: Pt[] = [[9, -26], [11, -32], [17, -36.6], [24, -38], [31, -36.6], [37, -32], [39, -26]];
 const RIM = ["#303c3c", "#485454", "#6c8480", "#a8b4b4"] as const;
 
+const turretFlash = (ctx: Ctx, x: number, y: number, t: number): void => {
+  const heat = 1 - Math.floor((t % 0.36) / 0.06) / 6;
+  const len = 9 + 7 * heat;
+  if (!simple()) glow(ctx, x + len * 0.4, y, 9 + 6 * heat, "#ffb040", 0.55 * heat + 0.2);
+  shape(ctx, [[x, y - 4.4], [x + len * 0.55, y - 5.6], [x + len * 0.5, y - 1.6], [x + len, y], [x + len * 0.5, y + 1.6], [x + len * 0.55, y + 5.6], [x, y + 4.4]], "#e0601c");
+  shape(ctx, [[x, y - 2.6], [x + len * 0.7, y], [x, y + 2.6]], "#ffd060");
+  oval(ctx, x + 1.6, y, 2 + heat, 1.6 + heat * 0.6, "#fff4c8");
+};
+
 const cannonTurret: EnvAsset = {
   id: "cannonTurret",
   box: [-4, -46, 60, 1],
-  draw(ctx, state) {
+  draw(ctx, state, t = 0) {
     const off = state === 1;
     band(ctx, -2, -6, 50, 6, BUNKER, 2);
     if (!simple()) for (let x = 2; x < 46; x += 8) flat(ctx, x, -4, 1.4, 1.4, BUNKER[0]);
@@ -306,6 +320,7 @@ const cannonTurret: EnvAsset = {
     G.drips(ctx, 17, -24, 14, 12, 782, 3);
     G.dirt(ctx, 16, -24, 16, 18, 783, 0.6);
     G.dirt(ctx, -2, -6, 50, 6, 786, 0.5);
+    if (state === 2) turretFlash(ctx, 55, -18.9, t);
     if (!off) return;
     ctx.save();
     ctx.globalAlpha *= 0.4;

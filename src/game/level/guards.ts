@@ -42,7 +42,7 @@ const ART: Partial<Record<AssetId, GuardArt>> = {
   acidGuard: { firing: ACID_GUARD_FIRING },
   shootGuard: { firing: SHOOT_GUARD_FIRING, explode: SHOOT_GUARD_EXPLODE },
   radioGuard: { firing: RADIO_GUARD_FIRING },
-  cannonTurret: { firing: 0 },
+  cannonTurret: { firing: 2 },
   mine: { firing: 0 },
 };
 

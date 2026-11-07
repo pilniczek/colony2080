@@ -669,6 +669,36 @@ const girderColumn: EnvAsset = {
   },
 };
 
+const stoneParapet: EnvAsset = {
+  id: "stoneParapet",
+  box: [0, -96, 144, 0],
+  draw(ctx, state, _t, { w = state === 1 ? 24 : 144, h = state === 1 ? 96 : 48 }) {
+    const seed = 10300 + state * 11;
+    const n = max(1, round(h / 24));
+    const cw = state === 1 ? w : 24;
+    clipRect(ctx, 0, -h, w, h, () => {
+      for (let j = 0; j < n; j++) {
+        const y = -h + j * 24;
+        const off = state === 0 && j % 2 ? 12 : 0;
+        eachCell(ctx, -off, y, w + off, 20, cw, 20, (x, _y, i) => stoneBlock(ctx, x, y, cw, 20, cellSeed(seed, i, j)));
+        beads(ctx, 0, y + 20, w);
+        flat(ctx, 0, y + 23.2, w, 0.8, CAVE[0]);
+      }
+    });
+    edge(ctx, 0, -h, w, h, CLINE);
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed + 1, 0.6);
+    G.drips(ctx, 0, -h + 20, w, h - 20, seed + 2, max(1, round(w / 20)), false);
+    G.dirt(ctx, 0, -h, w, h, seed + 3, 0.35);
+    G.chips(ctx, 0, -h + 0.4, w, seed + 4, G.DIRT);
+    eachCell(ctx, 0, -h, w, 2, 48, 2, (x, _y, i) => {
+      const r = rng(seed + 50 + i);
+      const mx = x + r() * 24;
+      if (mx < w - 4) mossCap(ctx, mx, -h, min(8 + r() * 16, w - mx), seed + 51 + i, 2.4);
+    });
+    if (state === 0) grass(ctx, 1, min(10, w - 2), 4, seed + 5);
+  },
+};
+
 const BRICK_W = 8;
 const BRICK_H = 4;
 
@@ -781,4 +811,4 @@ const caveChasm: EnvAsset = {
   },
 };
 
-export const jungleTerrainAssets: EnvAsset[] = [jungleSky, farTrees, farTowerRuin, cobbleFill, jungleWalkway, caveWalkway, plankBridge, brassDeck, girderColumn, brickRuin, caveChasm];
+export const jungleTerrainAssets: EnvAsset[] = [jungleSky, farTrees, farTowerRuin, cobbleFill, jungleWalkway, caveWalkway, plankBridge, brassDeck, girderColumn, stoneParapet, brickRuin, caveChasm];

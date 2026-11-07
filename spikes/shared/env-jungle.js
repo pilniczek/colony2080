@@ -385,20 +385,25 @@ function spike(ctx, x, hh, lean) {
 function rubble(ctx, x0, x1, seed) {
   const r = rng(seed);
   const mid = (x0 + x1) / 2;
-  const top = [[x0, -2], [x0 + 10, -9], [x0 + 20, -18], [mid - 24, -21], [mid + 22, -21.5], [x1 - 18, -17], [x1 - 8, -8], [x1, -2], [x1, 0], [x0, 0]];
+  const top = [[x0 - 7, 0], [x0 - 5, -10], [x0 - 1, -19], [x0 + 4, -22]];
+  for (let x = x0 + 16; x < x1 - 10; x += 14 + r() * 8) top.push([x, -21.4 - r() * 1.6]);
+  top.push([x1 - 4, -22], [x1 + 1, -19], [x1 + 5, -10], [x1 + 7, 0]);
   shape(ctx, top, ROCK[0], SLINE);
-  for (let i = 0; i < (simple() ? 7 : 16); i++) {
-    const cx = x0 + 8 + r() * (x1 - x0 - 16);
-    const edge = 1 - abs(cx - mid) / ((x1 - x0) / 2);
-    stone(ctx, cx, -3 - r() * 15 * edge, 4 + r() * 5, 3 + r() * 3, seed + i * 3, ROCK);
+  for (let i = 0; i < (simple() ? 8 : round((x1 - x0) / 7)); i++) {
+    const cx = x0 + 2 + r() * (x1 - x0 - 4);
+    stone(ctx, cx, -3 - r() * 13, 4 + r() * 5, 3 + r() * 3, seed + i * 3, ROCK);
   }
-  const deck = [[mid - 26, -19], [mid - 18, -22.6], [mid + 4, -23], [mid + 22, -22], [mid + 26, -18.6], [mid + 6, -16.6], [mid - 16, -17]];
-  shape(ctx, deck, ROCK[2], SLINE);
-  within(ctx, deck, () => {
-    flat(ctx, mid - 28, -24, 56, 2, ROCK[3]);
-    flat(ctx, mid - 28, -18.4, 56, 3, ROCK[1]);
-  });
+  for (let x = x0; x < x1 - 4; x += 24) {
+    const w = min(24, x1 - x);
+    const deck = [[x + 0.6, -19.4], [x + 3.4, -22.6 - r() * 0.6], [x + w - 4, -23], [x + w - 0.6, -19.2], [x + w * 0.6, -16.8], [x + w * 0.2, -17.2]];
+    shape(ctx, deck, ROCK[2], SLINE);
+    within(ctx, deck, () => {
+      flat(ctx, x, -24, w, 2, ROCK[3]);
+      flat(ctx, x, -18.4, w, 3, ROCK[1]);
+    });
+  }
   mossCap(ctx, mid - 14, -22.4, 16, seed + 40, 1.5);
+  mossCap(ctx, x0 + 10, -22.4, 10, seed + 44, 1.2);
   G.grain(ctx, G.polyRegion(ctx, top), seed + 41, 0.7);
   G.dirt(ctx, x0, -21, x1 - x0, 21, seed + 42, 0.4);
   G.scorch(ctx, [[mid + 8, -20], [mid + 22, -20], [mid + 20, -12], [mid + 6, -13]], seed + 43);
@@ -410,12 +415,12 @@ define({
   draw(ctx, state, t, { w = 192 } = {}) {
     const seed = 640 + round(w);
     const r = rng(seed);
-    const heap = state === 1 ? [64, 156] : null;
+    const heap = state === 1 ? [24, 168] : null;
     flat(ctx, 0, -6, w, 6, "#0a100e");
     for (let x = 1; x < w - 3; x += 4.6) {
       const hh = 15 + r() * 4;
       const bend = r();
-      if (heap && x > heap[0] + 6 && x < heap[1] - 8) continue;
+      if (heap && x > heap[0] - 6 && x < heap[1] + 2) continue;
       const near = heap && x > heap[0] - 10 && x < heap[1] + 4 && bend < 0.7;
       spike(ctx, x, hh, near ? (x < (heap[0] + heap[1]) / 2 ? -0.3 : 0.3) * bend : 0);
     }
@@ -556,10 +561,19 @@ define({
 
 const DOME_PTS = [[9, -26], [11, -32], [17, -36.6], [24, -38], [31, -36.6], [37, -32], [39, -26]];
 
+function turretFlash(ctx, x, y, t) {
+  const heat = 1 - Math.floor((t % 0.36) / 0.06) / 6;
+  const len = 9 + 7 * heat;
+  if (!simple()) glow(ctx, x + len * 0.4, y, 9 + 6 * heat, "#ffb040", 0.55 * heat + 0.2);
+  shape(ctx, [[x, y - 4.4], [x + len * 0.55, y - 5.6], [x + len * 0.5, y - 1.6], [x + len, y], [x + len * 0.5, y + 1.6], [x + len * 0.55, y + 5.6], [x, y + 4.4]], "#e0601c");
+  shape(ctx, [[x, y - 2.6], [x + len * 0.7, y], [x, y + 2.6]], "#ffd060");
+  oval(ctx, x + 1.6, y, 2 + heat, 1.6 + heat * 0.6, "#fff4c8");
+}
+
 define({
   id: "cannonTurret",
   box: [-4, -46, 60, 1],
-  draw(ctx, state) {
+  draw(ctx, state, t = 0) {
     const off = state === 1;
     band(ctx, -2, -6, 50, 6, BUNKER, 2);
     if (!simple()) for (let x = 2; x < 46; x += 8) flat(ctx, x, -4, 1.4, 1.4, BUNKER[0]);
@@ -585,6 +599,7 @@ define({
     G.drips(ctx, 17, -24, 14, 12, 782, 3);
     G.dirt(ctx, 16, -24, 16, 18, 783, 0.6);
     G.dirt(ctx, -2, -6, 50, 6, 786, 0.5);
+    if (state === 2) turretFlash(ctx, 55, -18.9, t);
     if (!off) return;
     ctx.save();
     ctx.globalAlpha *= 0.4;
@@ -1557,6 +1572,36 @@ define({
       flat(ctx, x - 2, -2, w + 4, 2, XPLATE[0], J.CLINE);
       J.grass(ctx, x - 3, w + 6, 4, seed + 3);
     }
+  },
+});
+
+define({
+  id: "stoneParapet",
+  box: [0, -96, 144, 0],
+  draw(ctx, state, _t, { w = state === 1 ? 24 : 144, h = state === 1 ? 96 : 48 } = {}) {
+    const seed = 10300 + state * 11;
+    const n = max(1, round(h / 24));
+    const cw = state === 1 ? w : 24;
+    clipRect(ctx, 0, -h, w, h, () => {
+      for (let j = 0; j < n; j++) {
+        const y = -h + j * 24;
+        const off = state === 0 && j % 2 ? 12 : 0;
+        eachCell(ctx, -off, y, w + off, 20, cw, 20, (x, _y, i) => stoneBlock(ctx, x, y, cw, 20, cellSeed(seed, i, j)));
+        beads(ctx, 0, y + 20, w);
+        flat(ctx, 0, y + 23.2, w, 0.8, CAVE[0]);
+      }
+    });
+    edge(ctx, 0, -h, w, h, J.CLINE);
+    G.grain(ctx, G.rectRegion(ctx, 0, -h, w, h), seed + 1, 0.6);
+    G.drips(ctx, 0, -h + 20, w, h - 20, seed + 2, max(1, round(w / 20)), false);
+    G.dirt(ctx, 0, -h, w, h, seed + 3, 0.35);
+    G.chips(ctx, 0, -h + 0.4, w, seed + 4, G.DIRT);
+    eachCell(ctx, 0, -h, w, 2, 48, 2, (x, _y, i) => {
+      const r = rng(seed + 50 + i);
+      const mx = x + r() * 24;
+      if (mx < w - 4) J.mossCap(ctx, mx, -h, min(8 + r() * 16, w - mx), seed + 51 + i, 2.4);
+    });
+    if (state === 0) J.grass(ctx, 1, min(10, w - 2), 4, seed + 5);
   },
 });
 
@@ -2739,6 +2784,61 @@ define({
     G.grain(ctx, G.rectRegion(ctx, 0, -7, 30, 7), seed + 5);
     G.dirt(ctx, 0, -7, 30, 7, seed + 6, 0.8);
     G.chips(ctx, 2, -7, 26, seed + 7, G.DIRT);
+  }
+});
+
+const BOILER = ["#2a160a", "#483018", "#604824", "#6c3c18", "#120a04"];
+const BOILER_TOP = ["#5a2410", "#7a3418", "#a24e28"];
+
+define({
+  id: "rustBoiler",
+  box: [-2, -84, 64, 0],
+  draw(ctx) {
+    const seed = 7400;
+    ctx.save();
+    ctx.globalAlpha = 0.45;
+    flat(ctx, 2, -2, 56, 2, HOLE);
+    ctx.restore();
+    for (const [py, ph] of [[-56, 5], [-40, 4]]) {
+      flat(ctx, 50, py, 12, ph, CHROME[2], CHROME[4]);
+      if (!simple()) flat(ctx, 50, py, 12, 1, CHROME[3]);
+      flat(ctx, 58, py - 1.5, 3, ph + 3, CHROME[1], CHROME[4]);
+    }
+    flat(ctx, 4, -68, 48, 54, BOILER[2], BOILER[4]);
+    flat(ctx, 4, -68, 6, 54, BOILER[3]);
+    flat(ctx, 44, -68, 8, 54, BOILER[1]);
+    for (const sx of [16, 28, 40]) {
+      flat(ctx, sx, -68, 1.2, 54, BOILER[0]);
+      if (!simple()) for (let ry = -65; ry < -15; ry += 5) disc(ctx, sx + 2.6, ry, 0.7, BOILER[3], BOILER[4]);
+    }
+    flat(ctx, 8, -44, 16, 14, BOILER[0], BOILER[4]);
+    flat(ctx, 10, -42, 12, 2, BOILER[1]);
+    if (!simple()) for (let gx = 11; gx < 22; gx += 3) flat(ctx, gx, -38, 1.4, 6, "#1a0c04");
+    disc(ctx, 36, -54, 4.4, "#b8b09a", BOILER[4]);
+    disc(ctx, 36, -54, 3.2, "#d8d0b8");
+    line(ctx, [[36, -54], [38.4, -56.4]], "#60140a", 0.8);
+    flat(ctx, 2, -75, 52, 7, BOILER_TOP[1], BOILER[4]);
+    if (!simple()) flat(ctx, 2, -75, 52, 1.4, BOILER_TOP[2]);
+    flat(ctx, 2, -69.4, 52, 1.4, BOILER_TOP[0]);
+    flat(ctx, 20, -82, 8, 7, BOILER[1], BOILER[4]);
+    flat(ctx, 18, -83, 12, 2, BOILER[3], BOILER[4]);
+    G.grain(ctx, G.rectsRegion(ctx, [[4, -68, 48, 54], [2, -75, 52, 7], [20, -82, 8, 7]]), seed, 0.8);
+    within(ctx, [[4, -68, 48, 54]], () => {
+      G.drips(ctx, 4, -68, 48, 36, seed + 1, 5);
+      G.rustPatch(ctx, 30, -30, 6, 4, seed + 2);
+      G.rustPatch(ctx, 12, -60, 3, 2, seed + 3);
+      G.dirt(ctx, 4, -68, 48, 54, seed + 4, 0.5);
+    });
+    G.chips(ctx, 2, -75, 52, seed + 5, G.DIRT);
+    flat(ctx, 6, -15, 44, 15, CHROME[2], CHROME[4]);
+    bands(ctx, 6, -15, 44, 15, [[0, 0.14, CHROME[3]], [0.14, 0.3, SHINE], [0.3, 0.62, CHROME[2]], [0.62, 0.84, CHROME[1]], [0.84, 1, CHROME[0]]]);
+    for (const ex of [6, 50]) oval(ctx, ex, -7.5, 2.4, 7.5, CHROME[1], CHROME[4]);
+    if (!simple()) for (const bx of [14, 28, 42]) flat(ctx, bx, -15, 1.2, 15, CHROME[0]);
+    G.grain(ctx, G.rectRegion(ctx, 6, -15, 44, 15), seed + 6, 0.5);
+    within(ctx, [[6, -15, 44, 15]], () => {
+      G.rustPatch(ctx, 20, -3, 5, 2, seed + 7);
+      G.dirt(ctx, 6, -15, 44, 15, seed + 8, 0.6);
+    });
   }
 });
 

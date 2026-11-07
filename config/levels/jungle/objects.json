@@ -72,7 +72,8 @@
    "description": "Dome gun turret on a short pedestal at the east end of plank row 32 (cell 90,31), map tiles. While the cabinet is intact, a hero at cells 90-98 on that floor gets strilna.anm, 3 blasts, (6 - shields)/6 x 30 energy and a push one cell right and one row down (3:0xE42D). Cannot be destroyed; the cabinet shot switches it off. LEV3.GRA f25 holds a dome turret sprite (8 frames, firing right) that level 3 does not use as a guard.",
    "states": [
     "live (fires at the floor)",
-    "off (base tile replaced)"
+    "off (base tile replaced)",
+    "firing (repels the hero)"
    ],
    "refs": [
     {
@@ -1763,6 +1764,75 @@
     "faded"
    ],
    "refs": []
+  },
+  {
+   "id": "rustBoiler",
+   "name": "Rust boiler",
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "machines",
+   "origin": "new",
+   "role": "machine",
+   "description": "Rust-brown riveted boiler block with a red-brown top plate, fire door, gauge and stack, a chrome drum at its base and short pipe stubs into the cobble behind; original cells 58-59, rows 34-36, on floor 37.",
+   "states": [],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1392,
+      816,
+      96,
+      72
+     ],
+     "caption": "map: rust boiler"
+    }
+   ]
+  },
+  {
+   "id": "stoneParapet",
+   "name": "Stone parapet",
+   "interactive": false,
+   "marker": null,
+   "task": null,
+   "sheet": "structures",
+   "origin": "new",
+   "role": "wall",
+   "description": "Grey stone blocks in courses with the beaded orange trim of jungleWalkway under each course, moss on top; low wall 79-84 rows 18-19 and pillar 77-78 rows 16-19, both on floor 20.",
+   "states": [
+    "low wall",
+    "pillar"
+   ],
+   "refs": [
+    {
+     "path": "docs/research/gamedata/png/maps/map_M31.png",
+     "imgSize": [
+      3840,
+      1920
+     ],
+     "crop": [
+      1848,
+      384,
+      192,
+      96
+     ],
+     "caption": "map: stone pillar and low wall"
+    }
+   ],
+   "sizes": [
+    [
+     6,
+     2
+    ],
+    [
+     1,
+     4
+    ]
+   ]
   }
  ]
 }
