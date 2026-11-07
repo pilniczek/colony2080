@@ -32,6 +32,14 @@ const flamethrowerDoor: EnvAsset = {
   },
 };
 
+const FALL_FOOT = 24;
+
+const fallFoam = (ctx: Ctx, w: number, seed: number): void => {
+  const r = rng(seed);
+  flat(ctx, 0, -FALL_FOOT - 3, w, 4, "#b4bcb6");
+  for (let x = 0; x < w; x += 4 + r() * 5) oval(ctx, x + 2, -FALL_FOOT - 2 + r() * 2, 3 + r() * 3, 1.6 + r() * 1.4, r() < 0.5 ? "#dce0dc" : WATER[3]);
+};
+
 const waterFlow = (ctx: Ctx, w: number, h: number, t: number): void => {
   const r = rng(630 + round(w));
   ctx.save();
@@ -42,7 +50,7 @@ const waterFlow = (ctx: Ctx, w: number, h: number, t: number): void => {
     const len = 10 + r() * 18;
     const width = 1 + r() * 1.6;
     const shift = (r() * gap + t * speed) % gap;
-    for (let y = -h - gap + shift; y < -len; y += gap) if (y > -h) flat(ctx, x, y, width, len, "#c8ccc8");
+    for (let y = -h - gap + shift; y < -FALL_FOOT - len; y += gap) if (y > -h) flat(ctx, x, y, width, len, "#c8ccc8");
     if (simple()) x += 6;
   }
   ctx.restore();
@@ -73,19 +81,20 @@ const fallStone = (ctx: Ctx, x: number, y: number, seed: number): void => {
 
 const waterfall: EnvAsset = {
   id: "waterfall",
-  box: [-10, -441, 154, 10],
+  box: [-10, -441, 154, -18],
   anim: true,
   draw(ctx, state, t, { w = 144, h = 432 }) {
     const seed = 620 + round(w);
     const r = rng(seed);
-    flat(ctx, 0, -h, w, h, WATER[2]);
+    flat(ctx, 0, -h, w, h - FALL_FOOT, WATER[2]);
     for (let x = 0; x < w; x += 3 + r() * 4) {
       const k = r();
-      flat(ctx, x, -h, 1 + r() * 2.4, h, k < 0.15 ? WATER[0] : k < 0.45 ? WATER[1] : k < 0.75 ? "#909c94" : WATER[3]);
+      flat(ctx, x, -h, 1 + r() * 2.4, h - FALL_FOOT, k < 0.15 ? WATER[0] : k < 0.45 ? WATER[1] : k < 0.75 ? "#909c94" : WATER[3]);
     }
-    if (!simple()) for (let x = 2; x < w; x += 5 + r() * 6) for (let y = -h + r() * 24; y < -6; y += 12 + r() * 16) flat(ctx, x, y, 1.2, 3 + r() * 5, r() < 0.5 ? WATER[0] : "#909c94");
+    if (!simple()) for (let x = 2; x < w; x += 5 + r() * 6) for (let y = -h + r() * 24; y < -FALL_FOOT - 6; y += 12 + r() * 16) flat(ctx, x, y, 1.2, 3 + r() * 5, r() < 0.5 ? WATER[0] : "#909c94");
     flat(ctx, 0, -h, w, 2, WATER[3]);
     waterFlow(ctx, w, h, t);
+    fallFoam(ctx, w, seed + 7);
     if (state === 1) for (const [x, y] of STEPS) fallStone(ctx, (x * w) / 144, -h + y, seed + x);
   },
 };
