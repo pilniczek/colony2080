@@ -815,7 +815,9 @@ function inset(pts, k) {
 
 function handThumb(parent, M, from, angles, w = THUMB.w, pads = false, wedge = false) {
   if (!wedge) return chain(parent, M, from, angles, THUMB.seg, w, { shade: "cyl" }, pads);
-  from = [from[0] + Math.max(0, HAND.x1 - 2 - bar(from, angles[0], THUMB.seg[0], w).pts[2][0]), from[1]];
+  const edge = HAND.x1 - 2, joint = bar(from, angles[0], THUMB.seg[0], 0).end;
+  const reach = Math.min(bar(from, angles[0], THUMB.seg[0], w).pts[2][0], ...bar(joint, angles[1], THUMB.seg[1], w, [w / 2, 0]).pts.map(p => p[0]));
+  from = [from[0] + Math.max(0, edge - reach), from[1]];
   const root = thumbWedge(from, angles[0], THUMB.seg[0], w);
   P(parent, { pts: M(root), shade: "cyl", r: 3, lw: FINGER_LW });
   if (pads) P(parent, { pts: M(inset(root, 0.6)), mat: "metal", shade: "cyl", r: 3, lw: FINGER_LW });
@@ -911,7 +913,7 @@ function fist(s, view) {
   if (view === "back") {
     handStub(s);
     backPlate(s);
-    handThumb(s, M, THUMB_BASE, [14], THUMB.w, false, true);
+    chain(s, M, THUMB_BASE, [14], [THUMB.seg[0]], THUMB.w, { shade: "cyl" });
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 6, lw: FINGER_LW });
@@ -925,7 +927,7 @@ function fist(s, view) {
       P(s, { pts: [[x, pip - s2], [x + 20, pip - s2], [x + 20, pip], [x, pip]], shade: "cyl", r: 3, lw: FINGER_LW });
       P(s, { pts: [[x, knuckle], [x + 20, knuckle], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
-    handThumb(s, W, THUMB_BASE, [-5, -90], THUMB.w, false, true);
+    handThumb(s, W, THUMB_BASE, [-5, -90]);
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
     const joint = [HAND_FACE[1] - 2 - FINGER.thick / 2, pip];
