@@ -135,7 +135,7 @@ const HOLE = "#0a0c0a";
 const RUSTY = "#7a3a14";
 const MARGIN = 24;
 
-const shown = (ctx: Ctx): [number, number, number, number] => {
+export const shown = (ctx: Ctx): [number, number, number, number] => {
   const m = ctx.getTransform();
   if (m.b || m.c || !m.a || !m.d) return [-Infinity, -Infinity, Infinity, Infinity];
   const xa = -m.e / m.a;
@@ -145,7 +145,7 @@ const shown = (ctx: Ctx): [number, number, number, number] => {
   return [min(xa, xb) - MARGIN, min(ya, yb) - MARGIN, max(xa, xb) + MARGIN, max(ya, yb) + MARGIN];
 };
 
-const eachCell = (ctx: Ctx, x: number, y: number, w: number, h: number, cw: number, ch: number, draw: (cx: number, cy: number, i: number, j: number) => void, pad = 0): void => {
+export const eachCell = (ctx: Ctx, x: number, y: number, w: number, h: number, cw: number, ch: number, draw: (cx: number, cy: number, i: number, j: number) => void, pad = 0): void => {
   const [vx0, vy0, vx1, vy1] = shown(ctx).map((v, k) => (k < 2 ? v - pad : v + pad)) as [number, number, number, number];
   const i0 = max(0, floor((vx0 - x) / cw));
   const i1 = min(ceil(w / cw - 0.001), ceil((vx1 - x) / cw));

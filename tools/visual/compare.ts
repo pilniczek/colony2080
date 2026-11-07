@@ -511,7 +511,7 @@ const toasterCases = [
 ];
 const beamCases = BEAM_SEEDS.flatMap((seed) => Array.from({ length: BEAM_FRAMES }, (_, frame) => (o: HTMLElement) => runBeam(frame, seed, o)));
 const hitCases = lods.map((lod) => (o: HTMLElement) => runCase(`side hit ${JSON.stringify({ lod })}`, "side", { lod }, o, { spikePose: HIT, portPose: HIT }));
-const envStates: Record<string, number[]> = { brickWall: [0, 1], stripLight: [0, 1], tunnelGate: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], acidGuard: [0, 1, 2], flyer: [0, 1], shootGuard: [0, 1, 2], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1], sourceTeleport: [0, 1, 2], targetTeleport: [0, 1], brokenTeleport: [0, 1], fuseBox: [0, 1, 2], electricCabinet: [0, 1], cannon: [0, 1], energyBarrier: [0, 1], fireBarricade: [0, 1], dynamiteWall: [0, 1], powerBridge: [0, 1], bridgeGuardPost: [0, 1], radioGuard: [0, 1, 2], smoulderingRemains: [0, 1], smallKey: [0, 1], walkieTalkie: [0, 1], detonator: [0, 1], projectile: [0, 1], fuse: [0, 1], dynamite: [0, 1, 2], navCircuit: [0, 1], toaster: [0, 1], energyPickup: [0, 1], ammoPickup: [0, 1], shieldPickup: [0, 1], projectileCrate: [0, 1], flamethrowerDoor: [0, 1], jeep: [0, 1], cannonTurret: [0, 1], distributionCabinet: [0, 1], waterfall: [0, 1], stonePuzzle: [0, 1], tripwire: [0, 1], mine: [0, 1], towerLift: [0, 1], stalactite: [0, 1, 2], crystal: [0, 1], leverBank: [0, 1, 2], leverDoor: [0, 1, 2, 3], keyDoors: [0, 1, 2], caveCardDoor: [0, 1, 2], airlock: [0, 1, 2], liftLock: [0, 1], keySlots: [0, 1, 2], stoneBlocks: [0, 1, 2], explosiveTank: [0, 1, 2], farPalms: [0, 1], farRuins: [0, 1], rivetWall: [0, 1], plankWall: [0, 1], grassyWalkway: [0, 1], villageHouse: [0, 1], stiltBuilding: [0, 1], powerHouse: [0, 1], latticeMast: [0, 1], warningLamp: [0, 1], junctionBox: [0, 1], rubbleHeap: [0, 1], militaryWreck: [0, 1, 2], fuelDrum: [0, 1, 2], sandbags: [0, 1], shellCrate: [0, 1], chainFence: [0, 1, 2], pipeColumn: [0, 1], storageTank: [0, 1] };
+const envStates: Record<string, number[]> = { brickWall: [0, 1], stripLight: [0, 1], tunnelGate: [0, 1], skyBackground: [0, 1], barSign: [0, 1], barDoor: [0, 1], crashedShip: [0, 1, 2], lift: [0, 1, 2], wireBox: [0, 1], switchboard: [0, 1], trainDoor: [0, 1, 2], tapValveWheel: [0, 1], waterPipe: [0, 1], plasmaBarrier: [0, 1], codeLock: [0, 1], acidTank: [0, 1, 2, 3], acidGuard: [0, 1, 2], flyer: [0, 1], shootGuard: [0, 1, 2], crane: [0, 1, 2], cardDoor: [0, 1], liftPanel: [0, 1], damagedLift: [0, 1, 2], dyingRebel: [0, 1], corpse: [0, 1], crowbar: [0, 1], eBlaster: [0, 1], craneKey: [0, 2], shipPart: [0, 1, 2], controller: [0, 1], wires: [0, 1], tapHandle: [0, 1], card: [0, 1], holoPlan: [0, 1], shipPlan: [0, 1], decoder: [0, 1], sourceTeleport: [0, 1, 2], targetTeleport: [0, 1], brokenTeleport: [0, 1], fuseBox: [0, 1, 2], electricCabinet: [0, 1], cannon: [0, 1], energyBarrier: [0, 1], fireBarricade: [0, 1], dynamiteWall: [0, 1], powerBridge: [0, 1], bridgeGuardPost: [0, 1], radioGuard: [0, 1, 2], smoulderingRemains: [0, 1], smallKey: [0, 1], walkieTalkie: [0, 1], detonator: [0, 1], projectile: [0, 1], fuse: [0, 1], dynamite: [0, 1, 2], navCircuit: [0, 1], toaster: [0, 1], energyPickup: [0, 1], ammoPickup: [0, 1], shieldPickup: [0, 1], projectileCrate: [0, 1], flamethrowerDoor: [0, 1], jeep: [0, 1], cannonTurret: [0, 1], distributionCabinet: [0, 1], waterfall: [0, 1], stonePuzzle: [0, 1], tripwire: [0, 1], mine: [0, 1], towerLift: [0, 1], stalactite: [0, 1, 2], crystal: [0, 1], leverBank: [0, 1, 2], leverDoor: [0, 1, 2, 3], keyDoors: [0, 1, 2], caveCardDoor: [0, 1, 2], airlock: [0, 1, 2], liftLock: [0, 1], keySlots: [0, 1, 2], stoneBlocks: [0, 1, 2], explosiveTank: [0, 1, 2], farPalms: [0, 1], farRuins: [0, 1], rivetWall: [0, 1], plankWall: [0, 1], grassyWalkway: [0, 1], villageHouse: [0, 1], stiltBuilding: [0, 1], powerHouse: [0, 1], latticeMast: [0, 1], warningLamp: [0, 1], junctionBox: [0, 1], rubbleHeap: [0, 1], militaryWreck: [0, 1, 2], fuelDrum: [0, 1, 2], sandbags: [0, 1], shellCrate: [0, 1], chainFence: [0, 1, 2], pipeColumn: [0, 1], storageTank: [0, 1], farStalagmites: [0, 1], rockRibs: [0, 1], caveFloor: [0, 1], rockLedge: [0, 1], ropeColumn: [0, 1], minePipe: [0, 1], metalPillars: [0, 1, 2], safetyRail: [0, 1], caveLamp: [0, 1], explosiveSign: [0, 1], screeHeap: [0, 1], mineWreck: [0, 1], powderKeg: [0, 1, 2], toolCrate: [0, 1, 2], rod: [0, 1, 2], yellowKey: [0, 1, 2], orangeKey: [0, 1, 2], blueKey: [0, 1, 2], entryCard: [0, 1, 2] };
 const envSizes: [string, Size][] = [
   ["streetWalkway", { w: 96 }],
   ["girderBridge", { w: 96 }],
@@ -547,6 +547,22 @@ const envSizes: [string, Size][] = [
   ["pipeColumn", { h: 96 }],
   ["overheadPipeline", { w: 216 }],
   ["rockCliff", { w: 96, h: 96 }],
+  ["mineCarts", { w: 240 }],
+  ["lavaPit", { w: 96 }],
+  ["farStalagmites", { w: 96, h: 96 }],
+  ["caveRock", { w: 48, h: 96, at: [24, 48] }],
+  ["caveRock", { w: 96, h: 48 }],
+  ["caveRock", { w: 72, h: 72, region: (c: number, r: number) => c >= 0 && c < 3 && r >= -3 && r < 0 && !(c === 2 && r === -3) }],
+  ["rockRibs", { w: 144, h: 72 }],
+  ["lavaFall", { w: 72, h: 96 }],
+  ["caveFloor", { w: 72 }],
+  ["rockLedge", { w: 48 }],
+  ["ropeColumn", { h: 96 }],
+  ["minePipe", { w: 96 }],
+  ["metalPillars", { w: 144, h: 72 }],
+  ["safetyRail", { w: 144 }],
+  ["pressureTank", { h: 72 }],
+  ["screeHeap", { w: 48 }],
 ];
 const envCases = [
   runEnvCoverage,

@@ -536,7 +536,7 @@ function terrain(e: Env): void {
   const art = e.world.terrainArt;
   const { walls, ledges, girders, landings, bases, behind, deep } = drawnTerrain(e.world);
   for (const r of pick(e, "walls", walls, wallBox)) {
-    if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
+    if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell), at: [r.col * TILE, (r.row + r.h) * TILE] });
   }
   if (art.deep) for (const r of pick(e, "deep", deep, deepBox)) if (near(e, deepBox(e, r))) put(e, art.deep, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell), at: [r.col * TILE, (r.row + r.h) * TILE], region: deepAtOf(e.world) });
   for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
@@ -719,7 +719,11 @@ function flowing(e: Env, t: number): void {
     ctx.clip();
     ctx.globalAlpha = 1 - hazeAlpha(world.haze);
     const [x, y] = sceneryAt(e, s);
-    put(e, s.asset, x, y, 1, { w: s.w && s.w * TILE, h: s.h && s.h * TILE }, t);
+    if (s.flip) {
+      ctx.translate(x, 0);
+      ctx.scale(-1, 1);
+    }
+    put(e, s.asset, s.flip ? 0 : x, y, 1, { w: s.w && s.w * TILE, h: s.h && s.h * TILE }, t);
     ctx.restore();
   }
 }
