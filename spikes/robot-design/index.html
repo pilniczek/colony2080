@@ -24,8 +24,8 @@
   #palette { display: none; flex-wrap: wrap; gap: 6px 14px; padding: 8px 16px; background: var(--panel); }
   body.with-palette #palette { display: flex; }
   #palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
-  .hands { display: grid; grid-template-columns: 70px repeat(5, minmax(120px, 1fr)); gap: 12px; padding: 12px 16px; align-items: start; }
-  .hands .pose { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; align-self: center; }
+  .hands { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; padding: 8px 16px 12px; align-items: start; }
+  h3 { font-size: 12px; font-weight: 600; margin: 8px 16px 0; color: var(--text); text-transform: capitalize; }
   .hands canvas.full { width: 100%; aspect-ratio: 140 / 150; display: block; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
 </style>
@@ -52,7 +52,7 @@
   <figure><figcaption>Back</figcaption><canvas id="gBack"></canvas></figure>
 </main>
 <h2>Hands</h2>
-<section class="hands" id="hands"></section>
+<section id="hands"></section>
 <!-- originals -->
 <section id="refs">
   <figure><figcaption>Open hand, POUZRUKU</figcaption><img src="../../docs/research/robot/cutscenes/POUZRUKU_f018_hand.png" alt="open hand"></figure>
@@ -83,10 +83,11 @@ const HAND_LABEL = { palm: "Palm side", back: "Back side", thumb: "Thumb side", 
 const hands = [];
 const handsEl = document.getElementById("hands");
 for (const pose of HAND_POSES) {
-  const label = document.createElement("div");
-  label.className = "pose";
-  label.textContent = pose;
-  handsEl.append(label);
+  const title = document.createElement("h3");
+  title.textContent = pose;
+  const grid = document.createElement("div");
+  grid.className = "hands";
+  handsEl.append(title, grid);
   for (const view of HAND_VIEWS) {
     const fig = document.createElement("figure");
     const cap = document.createElement("figcaption");
@@ -94,7 +95,7 @@ for (const pose of HAND_POSES) {
     const full = document.createElement("canvas");
     full.className = "full";
     fig.append(cap, full);
-    handsEl.append(fig);
+    grid.append(fig);
     hands.push({ full, root: buildHand({ view, pose }) });
   }
 }
