@@ -1,12 +1,12 @@
 import tasksJson from "@config/levels/mesto/tasks.json";
 import { describe, expect, it } from "vitest";
 import { cfg, objectLevel } from "../hero/testWorld";
-import { loadSandbox, onGround, pickUp, resetWorld, showItem, useShown, type SandboxWorld } from "./sandboxLevel";
+import { loadSandbox, onGround, pickUp, resetWorld, showItem, stepApproaches, useShown, type SandboxWorld } from "./sandboxLevel";
 import { ITEMS } from "../items";
 import { loadMesto } from "./mesto";
 import { loadMission } from "./missions";
 import { loadQuests } from "./quests";
-import { loadTasks, openBlockers, pickAll, runUse } from "./tasks";
+import { applyBlocks, loadTasks, openBlockers, pickAll, runUse } from "./tasks";
 
 const world = (): SandboxWorld => loadSandbox(objectLevel);
 const prop = (w: SandboxWorld, id: string) => w.props.find((p) => p.id === id)!;
@@ -335,5 +335,122 @@ describe("task cutscene", () => {
 
   it("rejects an unknown cutscene id", () => {
     expect(() => loadTasks({ tasks: [{ ...task, cutscene: "nope" }] })).toThrow("task t: unknown cutscene: nope");
+  });
+});
+
+describe("lever combination", () => {
+  const lever = (id: string, x: number) => ({ kind: "object", id, x, width: 1, state: 0, toggle: { subtitle: "The lever moved." } });
+  const door = { kind: "gate", id: "door", x: 2, width: 1, state: 0, solidStates: [0], cells: { col: 2, row: 5, w: 1, h: 3 }, combo: { levers: { leverA: 0, leverB: 1, leverC: 1 }, open: 2, closed: 0, gives: ["flag:doorOpen"], subtitle: "The door opened." } };
+  const levers = () => loadSandbox({ ...objectLevel, props: [lever("leverA", 6), lever("leverB", 8), lever("leverC", 10), door] });
+
+  it("flips a lever between its two states on every use", () => {
+    const w = levers();
+    use(w, "leverA");
+    expect(prop(w, "leverA").state).toBe(1);
+    expect(w.subtitle?.text).toBe("The lever moved.");
+    use(w, "leverA");
+    expect(prop(w, "leverA").state).toBe(0);
+  });
+
+  it("opens the gate once its levers match the combination, and closes it when they no longer do", () => {
+    const w = levers();
+    use(w, "leverB");
+    expect(prop(w, "door").state).toBe(0);
+    expect(w.grid.solid(2, 6)).toBe(true);
+    use(w, "leverC");
+    expect(prop(w, "door").state).toBe(2);
+    expect(w.grid.solid(2, 6)).toBe(false);
+    expect(w.flags.has("flag:doorOpen")).toBe(true);
+    expect(w.subtitle?.text).toBe("The door opened.");
+    use(w, "leverA");
+    expect(prop(w, "door").state).toBe(0);
+    expect(w.grid.solid(2, 6)).toBe(true);
+    use(w, "leverA");
+    expect(prop(w, "door").state).toBe(2);
+  });
+
+  it("rejects a combination lever that does not toggle", () => {
+    expect(() => loadSandbox({ ...objectLevel, props: [lever("leverA", 6), { ...lever("leverB", 8), toggle: undefined }, lever("leverC", 10), door] })).toThrow("door: leverB is not a toggle");
+  });
+
+  it("rejects sets naming an unknown prop", () => {
+    const shot = { kind: "gate", id: "rock", x: 4, width: 1, shootable: { hits: 1, state: 1, sets: { nowhere: 1 } } };
+    expect(() => loadSandbox({ ...objectLevel, props: [shot] })).toThrow("rock: unknown prop nowhere");
+  });
+
+  it("rejects an unknown shootable by", () => {
+    const shot = { kind: "gate", id: "rock", x: 4, width: 1, shootable: { hits: 1, state: 1, by: "kick" } };
+    expect(() => loadSandbox({ ...objectLevel, props: [shot] })).toThrow("rock: unknown shootable by: kick");
+  });
+
+  it("lets the cheat open a combination gate", () => {
+    const w = levers();
+    openBlockers(w);
+    expect(prop(w, "door").state).toBe(2);
+  });
+});
+
+describe("hidden blockers", () => {
+  const hidden = { kind: "gate", id: "tank", x: 12, width: 1, state: 0, solidStates: [0], shownBy: "flag:shown", cells: { col: 12, row: 5, w: 1, h: 3 } };
+
+  it("block only once their shownBy flag holds", () => {
+    const w = loadSandbox({ ...objectLevel, props: [hidden] });
+    expect(w.grid.solid(12, 6)).toBe(false);
+    w.flags.add("flag:shown");
+    applyBlocks(w);
+    expect(w.grid.solid(12, 6)).toBe(true);
+  });
+
+  it("block while hidden when they repel, since the zone shows them before the hero reaches their cells", () => {
+    const w = loadMesto();
+    const guard = prop(w, "acidGuard");
+    expect(w.flags.has(guard.shownBy!)).toBe(false);
+    expect(w.grid.solid(guard.cells!.col, guard.cells!.row)).toBe(true);
+  });
+});
+
+describe("approach without a film", () => {
+  const spot = (approach: object) => loadSandbox({ ...objectLevel, props: [{ kind: "object", id: "edge", x: 14, y: 8, width: 1, approach }] });
+
+  it("says its subtitle once when the hero comes near", () => {
+    const w = spot({ cells: 2, gives: "flag:warned", subtitle: "Careful." });
+    stepApproaches(w, { x: 11, y: 8 }, cfg.box.height);
+    expect(w.subtitle).toBeNull();
+    stepApproaches(w, { x: 13, y: 8 }, cfg.box.height);
+    expect(w.subtitle?.text).toBe("Careful.");
+    expect(w.cutscene).toBeNull();
+    w.subtitle = null;
+    stepApproaches(w, { x: 13, y: 8 }, cfg.box.height);
+    expect(w.subtitle).toBeNull();
+  });
+
+  it("says it for a jumping hero too", () => {
+    const w = spot({ cells: 2, gives: "flag:warned", subtitle: "Careful." });
+    stepApproaches(w, { x: 13, y: 7 }, cfg.box.height);
+    expect(w.subtitle?.text).toBe("Careful.");
+  });
+
+  it("stays silent while one of its unless tokens holds", () => {
+    const w = spot({ cells: 2, gives: "flag:warned", subtitle: "Careful.", unless: ["item:crowbar", "flag:safe"] });
+    pickUp(w, "crowbar");
+    pickUp(w, "wires");
+    stepApproaches(w, { x: 13, y: 8 }, cfg.box.height);
+    expect(w.subtitle).toBeNull();
+    useShown(w);
+    useShown(w);
+    w.flags.add("flag:safe");
+    stepApproaches(w, { x: 13, y: 8 }, cfg.box.height);
+    expect(w.subtitle).toBeNull();
+    w.flags.delete("flag:safe");
+    stepApproaches(w, { x: 13, y: 8 }, cfg.box.height);
+    expect(w.flags.has("flag:warned")).toBe(true);
+  });
+
+  it("ends the level and moves props by its sets", () => {
+    const w = loadSandbox({ ...objectLevel, props: [{ kind: "object", id: "edge", x: 14, y: 8, width: 1, approach: { cells: 2, gives: "flag:levelComplete", sets: { gate: 2 } } }, ...objectLevel.props] });
+    stepApproaches(w, { x: 14, y: 8 }, cfg.box.height);
+    expect(w.complete).toBe(true);
+    expect(prop(w, "gate").state).toBe(2);
+    expect(w.grid.solid(10, 6)).toBe(false);
   });
 });

@@ -16,22 +16,14 @@ const ledge = `#${"#".repeat(4)}${".".repeat(WIDTH - 6)}#`;
 const tower = [...Array<string>(4).fill(open), ledge, ...Array<string>(20).fill(open), solid, solid];
 
 describe("fall limit", () => {
-  it("reads the hero config when the world leaves it out and Infinity for null", () => {
-    expect(fallLimit(loadSandbox(level()), cfg)).toBe(cfg.fallDeathCells);
-    expect(fallLimit(loadSandbox(level({ fallDeathCells: null })), cfg)).toBe(Infinity);
-    expect(fallLimit(loadSandbox(level({ fallDeathCells: 3 })), cfg)).toBe(3);
+  it("reads the hero config in every map, Infinity with NO FALL DEATH", () => {
+    const world = loadSandbox(level());
+    expect(fallLimit(world, cfg)).toBe(cfg.fallDeathCells);
+    world.difficulty = { level: "custom", assists: ["hideAnywhere", "noFallDeath"] };
+    expect(fallLimit(world, cfg)).toBe(Infinity);
   });
 
-  it("null fallDeathCells survives a 20 row drop", () => {
-    const g = game({ x: 4.5, y: 4 }, level({ fallDeathCells: null }, tower));
-    runUntil(g, (h) => h.x > 6, ["moveRight"]);
-    runUntil(g, (h) => h.onGround);
-    run(g, 0.5);
-    expect(g.hero.y).toBe(25);
-    expect(isDead(g.hero.state)).toBe(false);
-  });
-
-  it("missing fallDeathCells keeps the config limit", () => {
+  it("a fall over the config limit kills", () => {
     const g = game({ x: 4.5, y: 4 }, level({}, tower));
     runUntil(g, (h) => h.x > 6, ["moveRight"]);
     runUntil(g, (h) => h.onGround);

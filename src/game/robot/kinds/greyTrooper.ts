@@ -3,7 +3,7 @@ import type { Pt } from "../../../engine/rig/tree";
 import { P } from "../../env/paint";
 import { createRigs, type HeroLook } from "../../hero/look";
 import { KIND_TUNING } from "../../level/enemy";
-import { CARRY, holdPoses } from "../gun";
+import { holdPoses } from "../gun";
 import { addHooks, backToBody, paintHook, rigKeys, type EnemyKind } from "../kinds";
 import { createWeaponModel, toHook, type WeaponPart } from "../weaponModel";
 
@@ -24,6 +24,7 @@ const BURST = { shots, gap: ms / (shots - 1) / 1000, frames: 3, flash: 40, casin
 const IN_HAND = { a: 0, b: 1, c: -1, d: 0, e: 0, f: 0 };
 const MUZZLE: Pt = [328, -52];
 const SUPPORT: Pt = [150, -24];
+const GT_CARRY = { arm: 0, fore: -72 };
 
 const rifleParts = (): WeaponPart[] => [
   { name: "stockPad", x: -124, y: -72, w: 14, h: 46, mat: "m", tone: 0 },
@@ -106,7 +107,7 @@ const burst = (ctx: CanvasRenderingContext2D, fire: number | null): void => {
 export const greyTrooper = (): EnemyKind => {
   const rigs = createRigs(true, true);
   addHooks(rigs.side, { head: ["helmet"], arm: ["pauldron"] });
-  const hold = holdPoses(rigs.side, rigs.front, CARRY, toHook(SUPPORT));
+  const hold = holdPoses(rigs.side, rigs.front, GT_CARRY, toHook(SUPPORT));
   const palette: Palette = { ...rigKeys(OWN, "gt"), ...OWN };
   const back = backToBody();
   const hooks = (look: HeroLook, lineW: number, fire: number | null): Record<string, HookDraw> => {

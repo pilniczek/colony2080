@@ -5,10 +5,11 @@ import { loadMovement } from "../hero/config";
 import { game, objectLevel, run } from "../hero/testWorld";
 import { loadMesto, mestoJson } from "./mesto";
 import { MISSIONS, type MissionId } from "./missionIds";
-import { loadMission, missionJson } from "./missions";
-import { id, inShaft, reachOf, stopId, stopsAt } from "./reach";
+import { loadMission } from "./missions";
+import { id, inShaft, reachable, reachOf, stopId, stopsAt } from "./reach";
 import { loadSandbox, type SandboxWorld } from "./sandboxLevel";
-import { openGraph, opened, variant } from "./testMissions";
+import { openGraph, opened } from "./testMissions";
+import { runUse } from "./tasks";
 
 const PROBED_JUMP_CELLS: [number, number][] = [[-1, 3], [0, 4], [3, 6], [7, 7]];
 const cfg = loadMovement(movementJson);
@@ -282,29 +283,32 @@ const GATED: Record<MissionId, { byTask: Record<string, string[]>; never: Record
   },
   jeskyne: {
     byTask: {
-      "behind lift 1, the rod unlocks it (report 16 lift lock)": ["20,44", "29,49", "44,44", "51,71"],
-      "model differs from report 16 dead end 4 [inferred]: wall columns stop falls, so these open only with the rod": [
-        ...["48,122", "49,117", "50,118", "51,116", "52,95", "52,120", "53,91", "53,117", "54,90", "54,120", "55,92", "55,116", "56,90"],
-        ...["56,116", "57,93", "58,92", "59,87", "59,110", "60,88", "60,108", "61,86", "61,110", "62,88", "62,109", "63,16", "63,87"],
-        ...["63,111", "64,64", "64,86", "64,110", "65,88", "65,105", "66,86", "66,97", "67,62", "74,21", "74,45", "74,50", "74,53"],
-        ...["74,56", "74,63", "74,66", "74,69", "74,76", "74,93", "46,81", "53,85"],
+      "behind lever door 1, the lever bank opens it": ["20,19", "26,15", "28,15", "33,32", "36,24", "43,20", "49,35", "55,35"],
+      "behind lift 1, the rod unlocks it (report 16 lift lock); the generous model also passes the crystal (a running jump over the lift 1 upper shaft down to floor 37), the lever doors and the card door, so they open with the rod too": [
+        ...["15,93", "16,126", "17,128", "18,126", "19,127", "20,47", "20,125", "21,89", "21,98", "21,101", "21,122", "21,132", "22,133"],
+        ...["23,85", "23,135", "24,92", "24,134", "25,133", "26,135", "27,133", "28,134", "29,49", "29,55", "29,64", "29,75", "29,135"],
+        ...["30,131", "31,122", "32,119", "33,117", "34,119", "35,118", "36,117", "37,58", "37,120", "38,119", "39,92", "39,126", "40,88"],
+        ...["40,126", "44,44", "44,52", "44,58", "48,122", "49,117", "50,118", "51,71", "51,116", "52,95", "52,120", "53,85", "53,91"],
+        ...["53,117", "54,90", "54,120", "55,92", "55,116", "56,90", "56,116", "57,93", "58,92", "59,87", "59,110", "60,88", "60,108"],
+        ...["61,86", "61,110", "62,88", "62,109", "63,16", "63,87", "63,111", "64,64", "64,86", "64,110", "65,88", "65,105", "66,86"],
+        ...["66,100", "67,62", "74,21", "74,45", "74,50", "74,53", "74,56", "74,63", "74,66", "74,69", "74,76", "74,93", "74,105"],
+        ...["34,104", "46,86", "46,132", "48,89", "57,77"],
       ],
-      "east of the crystal on floor 29, the stalactite shot loads M42 (report 16 shots)": [
-        ...["15,92", "16,126", "17,128", "18,126", "19,127", "20,125", "21,86", "21,99", "21,101", "22,133", "23,71", "23,135", "24,134"],
-        ...["25,133", "26,135", "27,133", "28,134", "29,64", "29,135", "30,131", "31,122", "32,119", "33,117", "34,119", "35,118"],
-        ...["36,117", "37,58", "37,120", "38,119", "39,92", "39,126", "40,88", "40,126", "24,63", "24,92"],
-      ],
+      "behind the stone blocks: floor 23 with the orange key": ["23,71"],
     },
     never: {
       "marker 13 energy ledge under floor 63, an exact jump (report 16 dead end 2)": ["72,16"],
-      "rock tops nobody reaches: hanging wall columns 76 and 89, the col 96 wall and the alcove over the east ledge stair (levelmap.py patches)": [
-        ...["17,137", "39,76", "48,89", "61,96"],
-      ],
+      "rock top nobody reaches: hanging wall column 76, kept hanging so falls pass it (requirements.md)": ["39,76"],
     },
   },
 };
 
-const START_CHAIN = ["28,15", "36,24", "43,20", "55,35"];
+const START_CHAIN = ["26,15", "28,15", "33,32", "36,24", "43,20", "49,35", "55,35"];
+
+function leversPulled(w: SandboxWorld): SandboxWorld {
+  for (const lever of ["bankLever2", "bankLever3", "bankLever4"]) runUse(w, w.props.find((p) => p.id === lever)!);
+  return w;
+}
 
 function oneWay(w: SandboxWorld, back: (spawn: string) => string): string[] {
   const { r, g, spawn, from } = openGraph(w);
@@ -326,12 +330,26 @@ describe("mission reach", () => {
   });
 
   it("jeskyne one-way drops match report 16", () => {
-    expect(oneWay(loadMission("jeskyne"), (spawn) => spawn)).toEqual(START_CHAIN);
-    const open = loadSandbox(variant(missionJson("jeskyne"), "tankShot"));
-    open.flags.add(open.lifts[0]!.enabledBy!);
+    expect(oneWay(leversPulled(loadMission("jeskyne")), (spawn) => spawn)).toEqual(START_CHAIN);
+    const open = opened("jeskyne");
     const { r, from } = openGraph(open);
     const lower = r.runs.filter((run) => run.row >= 46 && from.has(id(run))).map(id);
     expect(lower.length).toBeGreaterThan(0);
     expect(oneWay(open, () => stopId(0, open.lifts[0]!.top))).toEqual(lower.filter((n) => !START_CHAIN.includes(n)));
+  });
+});
+
+describe("lift calls", () => {
+  it("calls a lift to the stop the hero stands beside, then rides it down", () => {
+    const shaft = {
+      ...objectLevel,
+      rows: ["#............#", "#............#", "#####...######", ...Array<string>(8).fill("#............#"), "##############"],
+      spawn: [2.5, 2],
+      lifts: [{ x: 5, width: 3, top: 2, bottom: 11, start: "bottom" }],
+    };
+    const w = loadSandbox(shaft);
+    const at = { row: 2, col: 2, ys: w.lifts.map((l) => l.y) };
+    expect(w.lifts[0]!.y).toBe(11);
+    expect([...reachable(w, cfg, at).keys()]).toContain("11,1");
   });
 });

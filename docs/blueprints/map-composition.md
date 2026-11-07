@@ -75,27 +75,27 @@ Do the steps in order. A step starts only once the gate of the step before it pa
 
 Every layout asset has one role (`[test]`). Each mission's design sheet fills its column; the same table lives as `RULES` in `mapRules.test.ts`.
 
-| Role | What | Mesto | Vesnice | Jungle | Jeskyne |
-|---|---|---|---|---|---|
-| sky | sky behind everything | `skyBackground` | `villageBackdrop` | `jungleSky` | `caveBackdrop` |
-| far | far layer filling open sky between floors | `skylineTower`, `midgroundRuins` | `farPalms`, `farRuins` | `farTrees`, `farTowerRuin` | `farStalagmites` |
-| filler | map edge and never reached solid (terrain wall) | `brickWall` | `crateWall` | `cobbleFill` | `caveRock` |
-| wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | `rivetWall`, `plankWall` | `girderColumn`, `brickRuin`, `stoneParapet` | `rockRibs`, `lavaFall` |
-| fence | fences the hero walks along | `chainFence` | `chainFence` (mesh states) | `chainFence` (overgrown state), `deckRailing` | `safetyRail` |
-| floor | floor runs and floor plates | `streetWalkway`, `tunnelFloor`, `hazardPlate`, `liftLanding` | `grassyWalkway`, `steelDeckPlate`, `liftLanding` | `jungleWalkway`, `caveWalkway` | `caveFloor`, `liftLanding` |
-| girder | free-standing floor runs and elevated decks | `girderBridge` | `trussWalkway` | `plankBridge`, `brassDeck` | `rockLedge` |
-| building | buildings and towers | `windowBuilding`, `ruinedBuilding`, `colonnadeBuilding`, `facadeTower`, `gantryBuilding` | `villageHouse`, `stiltBuilding`, `powerHouse` | `jungleBuilding` | `metalPillars` |
-| support | supports, columns, masts, stairs | `latticePylon`, `craneMast`, `staircase` | `latticeMast`, `watchtower` | `jungleTower`, `stoneStack`, `girderColumn` | `ropeColumn` |
-| pipe | pipes and pipe columns | `pipeColumn`, `pipeBend`, `ceilingPipe` | `pipeColumn` (bronze state), `overheadPipeline` | `coolantPipe` | `minePipe` |
-| machine | big machines and vehicles in the backdrop | `fuelTank`, `metroTrain` | `transformer`, `storageTank` (horizontal state), `fuelTank`, `powerPlant` | `chemTank`, `excavator`, `caveCapsule`, `rustBoiler`, `towerLift` | `pressureTank` |
-| rubble | heaps and fallen structure | `rubblePile`, `fallenGirders` | `rockCliff`, `rubbleHeap` | `rockLedges`, `rockSlope`, `rockDebris`, `caveChasm`, `fallenTree` | `screeHeap` |
-| mounted | wall-mounted things | `floorVent` (props `wireBox`, `codeLock`) | `warningLamp`, `junctionBox` | `rockVent`, `junctionBox`, `energySign` | `caveLamp` |
-| bigClutter | big ground clutter | `carWreck` | `militaryWreck` | `overgrownWreck`, `helicopterWreck` | `mineWreck` |
-| smallClutter | small ground clutter | `barrel`, `tyres`, `brickPile` | `fuelDrum`, `sandbags`, `shellCrate` | `fernBush`, `logPile`, `oilDrum` | `powderKeg`, `toolCrate` |
-| sign | signs and lights | `signPost`, `barSign`, `stripLight` | `warningLamp` | `energySign` | `explosiveSign`, `caveLamp` |
-| panel | lift panel | `liftPanel` (prop `damagedLift`) | `liftPanel` | none: no lifts (`liftless`), the tower lift is a teleport pair | `liftPanel` |
+| Role | What | Mesto | Vesnice | Jungle | Jeskyne | Vezeni | Sklad |
+|---|---|---|---|---|---|---|---|
+| sky | sky behind everything | `skyBackground` | `villageBackdrop` | `jungleSky` | `caveBackdrop` | `prisonSky` | `depotBackdrop` |
+| far | far layer filling open sky between floors | `skylineTower`, `midgroundRuins` | `farPalms`, `farRuins` | `farTrees`, `farTowerRuin` | `farStalagmites` | `farPrisonBlocks` | `farAirfield` |
+| filler | map edge and never reached solid (terrain wall) | `brickWall` | `crateWall` | `cobbleFill` | `caveRock` | `prisonBrick` | `depotBlockWall` |
+| wall | structure walls the hero walks along | `brickWall`, `graffitiWall`, `tunnelWall`, `metroPlatformWall` | `rivetWall`, `plankWall` | `girderColumn`, `brickRuin`, `stoneParapet` | `rockRibs`, `lavaFall` | `shaftMasonry`, `cellBlockWall` | `depotInnerWall`, `brickPier`, `rollerShutter`, `loadingBay`, `plankDoor` |
+| fence | fences the hero walks along | `chainFence` | `chainFence` (mesh states) | `chainFence` (overgrown state), `deckRailing` | `safetyRail` | `prisonFence` | `chainFence` |
+| floor | floor runs and floor plates | `streetWalkway`, `tunnelFloor`, `hazardPlate`, `liftLanding` | `grassyWalkway`, `steelDeckPlate`, `liftLanding` | `jungleWalkway`, `caveWalkway` | `caveFloor`, `liftLanding` | `meshFloor`, `wallWalk`, `liftLanding` | `depotFloor`, `liftLanding` |
+| girder | free-standing floor runs and elevated decks | `girderBridge` | `trussWalkway` | `plankBridge`, `brassDeck` | `rockLedge` | `scrapCatwalk` | `steelCatwalk`, `latticeGirder` |
+| building | buildings and towers | `windowBuilding`, `ruinedBuilding`, `colonnadeBuilding`, `facadeTower`, `gantryBuilding` | `villageHouse`, `stiltBuilding`, `powerHouse` | `jungleBuilding` | `metalPillars` | `prisonTower`, `pillarHall` | `depotHangar`, `depotOffice` |
+| support | supports, columns, masts, stairs | `latticePylon`, `craneMast`, `staircase` | `latticeMast`, `watchtower` | `jungleTower`, `stoneStack`, `girderColumn` | `ropeColumn` | `concretePillar` | `scaffoldTower`, `rivetColumn`, `concretePost` |
+| pipe | pipes and pipe columns | `pipeColumn`, `pipeBend`, `ceilingPipe` | `pipeColumn` (bronze state), `overheadPipeline` | `coolantPipe` | `minePipe` | `corridorPipe`, `ventPipe` | `yardPipe`, `wallConduit` |
+| machine | big machines and vehicles in the backdrop | `fuelTank`, `metroTrain` | `transformer`, `storageTank` (horizontal state), `fuelTank`, `powerPlant` | `chemTank`, `excavator`, `caveCapsule`, `rustBoiler`, `towerLift` | `pressureTank` | `ventMachinery` | `boilerTank`, `controlBank`, `robotBay`, `labBench`, `greenLocker` |
+| rubble | heaps and fallen structure | `rubblePile`, `fallenGirders` | `rockCliff`, `rubbleHeap` | `rockLedges`, `rockSlope`, `rockDebris`, `caveChasm`, `fallenTree` | `screeHeap` | `prisonDump` | `scrapHeap` |
+| mounted | wall-mounted things | `floorVent` (props `wireBox`, `codeLock`) | `warningLamp`, `junctionBox` | `rockVent`, `junctionBox`, `energySign` | `caveLamp` | `ceilingStrip`, `wallGrille`, `wallBeacon` | `wallTerminal`, `hoodLamp` |
+| bigClutter | big ground clutter | `carWreck` | `militaryWreck` | `overgrownWreck`, `helicopterWreck` | `mineWreck` | `cellBunk` | `depotWreck` |
+| smallClutter | small ground clutter | `barrel`, `tyres`, `brickPile` | `fuelDrum`, `sandbags`, `shellCrate` | `fernBush`, `logPile`, `oilDrum` | `powderKeg`, `toolCrate` | `cellLocker`, `slopBin` | `cargoCrate`, `ammoCrate` |
+| sign | signs and lights | `signPost`, `barSign`, `stripLight` | `warningLamp` | `energySign` | `explosiveSign`, `caveLamp` | `subSign`, `wallBeacon` | `yardLamp`, `hoodLamp`, `ammoCrate` |
+| panel | lift panel | `liftPanel` (prop `damagedLift`) | `liftPanel` | none: no lifts (`liftless`), the tower lift is a teleport pair | `liftPanel` | `liftPanel` | `liftPanel` |
 
-Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLight`, `ceilingPipe`), the props that draw a lift panel, the clutter bar and named exemptions, each with its reason: `liftless` (why a mission has no lifts, so it needs no panel), `openEnds`, `propsOffFloor` (props allowed off a floor).
+Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLight`, `ceilingPipe`), the props that draw a lift panel, the clutter bar and named exemptions, each with its reason: `liftless` (why a mission has no lifts, so it needs no panel), `openEnds`, `propsOffFloor` (props allowed off a floor). A mission may add the role `hazard` (lava and chasm mist drawn as scenery, not grimed; jeskyne `lavaPit`, `chasm`) and `seenFrom`: spots a jump reaches that the strict reach graph leaves out, added to the sight union.
 
 ## Source data
 
@@ -113,7 +113,7 @@ Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLi
 - Every lift has two stops; a three-stop lift becomes two lifts side by side; an unused middle stop is dropped. [R: Lift stops] [T]
 - A floor beside a shaft on a row where its lift does not stop gets a wall up to the floor above, so it does not read as a landing. [R: Lift shaft sides]
 - A lift shaft is open from two rows above its top stop down to its bottom stop, and the bottom stop is solid, so the hero never drops through with the deck away. [R: Lift art] [test]
-- Every lift stop shows a floor or a wall on both sides of the shaft: no bare pit around a top or bottom stop. [U] [test]
+- Every lift stop shows a floor or a wall on both sides of the shaft: no bare pit around a top or bottom stop. The shaft of a split lift half that stops on the same row counts. [U] [test]
 - Map obstacles stop the hero from falling past a lift to its other stop, so a lift always waits at the hero's level. [H: 0841ea1e 2026-10-19]
 - A wall beside a lift is as high as the lift. [H: 736b19e6 2026-10-20]
 - Every panel calls its lift from the other end of the shaft, since the hero can ride and then jump down. [H: b21fdc09 2026-10-23]
@@ -141,7 +141,7 @@ Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLi
 - Every edge the hero touches shows a wall; every blocker the hero can touch has visible art. [R: Mesto map art] [F]
 - Every floor end closes with a wall (named exemptions: mesto crane gap, open sky over the crashed ship). [S] [test]
 - No invisible blockers (`|`). Mesto keeps its old ones only under a lift bottom stop or visible art; every other mission has none. [S] [test]
-- Walls mostly reach the floor above; a wall column above the ground reaches the floor above it. The test splits walls into row rectangles, so a fill that makes two rows end at the same column can merge them into one tall wall whose top lands on a lift landing; shape the fill so it does not. [H: 51ca5370 2026-10-19] [T] [S] [test]
+- Walls mostly reach the floor above; a wall column above the ground reaches the floor above it. The test splits walls into row rectangles, so a fill that makes two rows end at the same column can merge them into one tall wall whose top lands on a lift landing; shape the fill so it does not. A wall whose top is a floor the hero walks counts as ground (cave rock masses). [H: 51ca5370 2026-10-19] [T] [S] [test]
 - A nook a removed lift stop leaves behind is filled down to the floor. [H: 17637e34 2026-10-23]
 
 ## Scenery placement (`world.json`)
@@ -171,7 +171,7 @@ Per mission, `RULES` also lists the assets hung from the ceiling (mesto `stripLi
 | Layer | Role | Place |
 |---|---|---|
 | Back | far | first in `backdrop` |
-| Behind all assets | bigClutter | `backdrop`, right after the far layer |
+| Behind all assets | bigClutter | `backdrop`, right after the far layer (jeskyne: after the rock ribs too, which run behind whole floors) |
 | In front of all assets | smallClutter | end of `dressing`, before the panel block |
 | Front | panel | last in `dressing` [test] |
 

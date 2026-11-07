@@ -17,6 +17,7 @@ const config = {
   items: read("config/items.json").items,
   robots: { xbot: read("config/robots/xbot.json") },
   enemies: read("config/enemies/kinds.json").kinds,
+  difficulty: read("config/difficulty.json"),
   cutscenes: Object.fromEntries(
     readdirSync(join(root, "config/cutscenes"))
       .filter(f => f.endsWith(".json"))

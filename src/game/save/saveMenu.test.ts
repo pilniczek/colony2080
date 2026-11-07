@@ -1,5 +1,6 @@
 import controls from "@config/controls.json";
 import { beforeEach, describe, expect, it } from "vitest";
+import { ASSISTS, presetPicks, START_DIFFICULTY } from "../difficulty";
 import type { SoundCue } from "../../engine/audio/mixer";
 import { Input } from "../../engine/input";
 import { useSandbox } from "../../sandbox/store";
@@ -253,13 +254,15 @@ describe("save menu", () => {
 describe("settings", () => {
   it("asks on a new game and starts the intro only from START", () => {
     const r = rig(memory(), null, true);
-    expect(useSandbox.getState().menu).toEqual({ screen: "settings", cursor: 3, autosave: true });
+    expect(useSandbox.getState().menu).toEqual({ screen: "settings", cursor: 4, autosave: true, difficulty: START_DIFFICULTY });
+    r.press("ArrowUp");
     r.press("ArrowUp");
     r.press("ArrowUp");
     r.press("ArrowUp");
     r.press("ArrowRight");
     r.press("Enter");
     expect(r.begins).toBe(0);
+    r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("ArrowDown");
@@ -282,7 +285,7 @@ describe("settings", () => {
     expect(useSandbox.getState().lang).toBe("cs");
     r.point("click", {});
     expect(r.begins).toBe(0);
-    r.point("click", { "data-menu-row": "3" });
+    r.point("click", { "data-menu-row": "4" });
     expect(useSandbox.getState().menu).toBeNull();
     expect(r.world.autosave).toBe(false);
     expect(r.begins).toBe(1);
@@ -290,6 +293,7 @@ describe("settings", () => {
 
   it("switches and remembers the language", () => {
     const r = rig(memory(), null, true);
+    r.press("ArrowUp");
     r.press("ArrowUp");
     r.press("ArrowUp");
     r.press("ArrowRight");
@@ -303,6 +307,7 @@ describe("settings", () => {
     const r = rig();
     r.input.keyDown("Escape");
     r.menu.step(DT);
+    r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("ArrowDown");
     r.press("ArrowDown");
@@ -370,7 +375,9 @@ describe("autosave", () => {
     off.press("ArrowUp");
     off.press("ArrowUp");
     off.press("ArrowUp");
+    off.press("ArrowUp");
     off.press("ArrowRight");
+    off.press("ArrowDown");
     off.press("ArrowDown");
     off.press("ArrowDown");
     off.press("ArrowDown");
@@ -409,5 +416,25 @@ describe("autosave", () => {
     r.menu.step(DT);
     r.menu.flush();
     expect(auto(r)).toBeNull();
+  });
+});
+
+describe("difficulty", () => {
+  it("restarts the mission with new picks from the pause menu and saves them", () => {
+    const r = rig();
+    r.input.keyDown("Escape");
+    r.menu.step(DT);
+    for (let i = 0; i < 3; i++) r.press("ArrowDown");
+    r.press("Enter");
+    expect(useSandbox.getState().menu).toMatchObject({ screen: "difficulty", picks: START_DIFFICULTY });
+    r.press("ArrowLeft");
+    for (let i = 0; i <= ASSISTS.length; i++) r.press("ArrowDown");
+    r.press("Enter");
+    expect(r.restarts).toBe(0);
+    r.press("Enter");
+    expect(r.restarts).toBe(1);
+    expect(r.world.difficulty).toEqual(presetPicks("easy"));
+    expect(useSandbox.getState().menu).toBeNull();
+    expect(takeSnapshot(r.world, r.hero).difficulty).toEqual(presetPicks("easy"));
   });
 });

@@ -22,7 +22,7 @@
     backdrop(ctx, w, h);
     const floor = h - 50;
     floorLine(ctx, w, floor);
-    if (opts.hero) hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
+    hero(ctx, { x: 360, floor, lineW: lw * XBOT.GAME_LINE, simple: true });
     enemy(ctx, asset, { x: w - gap, y: floor, state, t, pal, lineW: lw, lod: true, facing: -1 });
     for (const [x, s, dt, walks] of extra) enemy(ctx, asset, { x: walks ? crawlerAt(x, w, t, -1) : x, y: floor, state: s, t: t + dt, pal, lineW: lw, lod: true, facing: -1 });
   };
@@ -31,7 +31,7 @@
     const floor = ground(ctx, w, h);
     const cell = ENV.TILE * K;
     const heroX = droidX - gap * cell;
-    if (opts.hero) hero(ctx, lod ? { x: heroX, floor, lineW: lw * XBOT.GAME_LINE, simple: true } : { x: heroX, floor, lineW: lw * 1.4 });
+    hero(ctx, lod ? { x: heroX, floor, lineW: lw * XBOT.GAME_LINE, simple: true } : { x: heroX, floor, lineW: lw * 1.4 });
     enemy(ctx, ROCKET_DROID, { x: droidX, y: floor, state: 2, t, pal, lineW: lw, lod, facing: -1 });
     ENEMIES.drawDroidVolley(ctx, { x: droidX, floor, facing: -1, heroX, cell, t });
   };
@@ -51,7 +51,7 @@
       { id: "rdFire", caption: "Close face-off, 1.5 cells: brace, mortar salvos, get-up", w: 2000, h: 1500, draw: duel(1.5, 1350, false) },
       { id: "rdBlast", caption: "Rocket droid, explosion", w: 1000, h: 1000, draw: solo(ROCKET_DROID, 3, 480) },
       { id: "rdWreck", caption: "Rocket droid, burning wreck", w: 1000, h: 1000, draw: solo(ROCKET_DROID, 4, 480) },
-      { id: "rdScale", caption: "Scale, hero and droid", w: 1800, h: 1000, hero: true, draw: scale(ROCKET_DROID) }
+      { id: "rdScale", caption: "Scale, hero and droid", w: 1800, h: 1000, draw: scale(ROCKET_DROID) }
     ],
     game: [
       { id: "gRdDuel", caption: "Face-off, 8 cells: brace, missile salvos, get-up", w: 3800, h: 1800, draw: duel(8, 3500, true) },
@@ -77,7 +77,7 @@
       { id: "crFire", caption: "Crawler, burst", w: 1100, h: 800, draw: solo(CRAWLER, 2, 440) },
       { id: "crBlast", caption: "Crawler, explosion", w: 1100, h: 800, draw: solo(CRAWLER, 3, 520) },
       { id: "crWreck", caption: "Crawler, wreck", w: 1100, h: 800, draw: solo(CRAWLER, 4, 520) },
-      { id: "crScale", caption: "Scale, hero and crawler", w: 1600, h: 1000, hero: true, draw: scale(CRAWLER) }
+      { id: "crScale", caption: "Scale, hero and crawler", w: 1600, h: 1000, draw: scale(CRAWLER) }
     ],
     game: [
       { id: "gCrawler", caption: "Face-off, burst and walk", w: 2400, h: 1000, draw: faceOff(CRAWLER, 2, 400, [[1700, 1, 0, true]]) },

@@ -201,6 +201,56 @@ window.C28_CONFIG = {
     "scale": 1.25
    },
    "preview": "GRAFIKA/PREGRAN.GRA"
+  },
+  "rod": {
+   "name": "rod",
+   "cs": "Tyč",
+   "icon": {
+    "asset": "rod",
+    "tilt": 45,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRTYC2.GRA"
+  },
+  "yellowKey": {
+   "name": "yellow key",
+   "cs": "Žlutý klíč",
+   "icon": {
+    "asset": "yellowKey",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC41.GRA"
+  },
+  "orangeKey": {
+   "name": "orange key",
+   "cs": "Oranžový klíč",
+   "icon": {
+    "asset": "orangeKey",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC42.GRA"
+  },
+  "blueKey": {
+   "name": "blue key",
+   "cs": "Modrý klíč",
+   "icon": {
+    "asset": "blueKey",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC43.GRA"
+  },
+  "entryCard": {
+   "name": "entry card",
+   "cs": "Vstupní karta",
+   "icon": {
+    "asset": "entryCard",
+    "tilt": 0,
+    "scale": 1.25
+   },
+   "preview": "GRAFIKA/PRKLIC44.GRA"
   }
  },
  "robots": {
@@ -331,7 +381,14 @@ window.C28_CONFIG = {
   }
  },
  "enemies": {
+  "walker": {
+   "role": "base"
+  },
+  "flyer": {
+   "role": "special"
+  },
   "rocketRobot": {
+   "role": "special",
    "hits": 7,
    "rocket": {
     "kneelMs": 120,
@@ -367,6 +424,7 @@ window.C28_CONFIG = {
    }
   },
   "greyTrooper": {
+   "role": "base",
    "hits": 7,
    "burst": {
     "shots": 9,
@@ -384,6 +442,139 @@ window.C28_CONFIG = {
    "pauseMs": 1300,
    "damage": 3
   }
+ },
+ "difficulty": {
+  "status": "draft",
+  "source": "docs/requirements.md difficulty (user, 2026-11-07): each assist is a binary choice costing 1 nice to have, 2 good, 3 heavy boost, 5 exceptional; NORMAL is today's game; hideAnywhere is locked on, so HARD is out of reach until hiding gets cover spots; presets STORY, EASY, NORMAL, HARD are read-only, each containing the one below it; points is the custom tier mark: CUSTOM has no cap and shows the highest preset whose points its picks reach; HARD has extra shield while NORMAL does not (user), the one break in the preset ladder; effects: values each pick changes (lateEnemies and noFallDeath give the value used when the pick is off)",
+  "assists": [
+   {
+    "id": "hideAnywhere",
+    "label": "HIDE ANYWHERE",
+    "cost": 5,
+    "locked": true
+   },
+   {
+    "id": "halfDamage",
+    "label": "HALF DAMAGE TAKEN",
+    "cost": 3
+   },
+   {
+    "id": "specialDrops",
+    "label": "ENEMIES DROP ENERGY",
+    "cost": 3
+   },
+   {
+    "id": "lateEnemies",
+    "label": "SLOWER ENEMY REACTION",
+    "cost": 2
+   },
+   {
+    "id": "strongPunches",
+    "label": "STRONGER PUNCHES",
+    "cost": 2
+   },
+   {
+    "id": "fogOff",
+    "label": "FOG OFF",
+    "cost": 2
+   },
+   {
+    "id": "extraShield",
+    "label": "EXTRA SHIELD",
+    "cost": 1
+   },
+   {
+    "id": "moreAmmo",
+    "label": "MORE AMMO",
+    "cost": 1
+   },
+   {
+    "id": "noFallDeath",
+    "label": "NO FALL DEATH",
+    "cost": 1
+   },
+   {
+    "id": "healthBars",
+    "label": "ENEMY HEALTH BARS",
+    "cost": 1
+   }
+  ],
+  "levels": [
+   {
+    "id": "story",
+    "label": "STORY",
+    "points": 16,
+    "picks": [
+     "hideAnywhere",
+     "halfDamage",
+     "lateEnemies",
+     "fogOff",
+     "extraShield",
+     "moreAmmo",
+     "noFallDeath",
+     "healthBars"
+    ]
+   },
+   {
+    "id": "easy",
+    "label": "EASY",
+    "points": 10,
+    "picks": [
+     "hideAnywhere",
+     "lateEnemies",
+     "extraShield",
+     "moreAmmo",
+     "noFallDeath"
+    ]
+   },
+   {
+    "id": "normal",
+    "label": "NORMAL",
+    "points": 7,
+    "picks": [
+     "hideAnywhere",
+     "lateEnemies"
+    ]
+   },
+   {
+    "id": "hard",
+    "label": "HARD",
+    "points": 3,
+    "picks": [
+     "lateEnemies",
+     "extraShield"
+    ]
+   }
+  ],
+  "custom": {
+   "id": "custom",
+   "label": "CUSTOM"
+  },
+  "effects": {
+   "extraShield": {
+    "shields": 1
+   },
+   "moreAmmo": {
+    "scale": 1.5,
+    "ammoCap": 1500
+   },
+   "halfDamage": {
+    "scale": 0.5
+   },
+   "strongPunches": {
+    "scale": 2
+   },
+   "lateEnemies": {
+    "offSightMs": 250
+   },
+   "specialDrops": {
+    "energy": 50
+   },
+   "noFallDeath": {
+    "offCells": 7
+   }
+  },
+  "start": "normal"
  },
  "cutscenes": {
   "acidGuardComes": {
@@ -9006,6 +9197,50 @@ window.C28_CONFIG = {
       ]
      },
      {
+      "id": "shaftHead",
+      "name": "Lift shaft head",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Support role, dressing at the top of every lift shaft, centred on the shaft. Three dark green guide rods rise from a riveted green-grey clamp bar and fade into the dark; under the bar the lift chains run down and a mossy grey stone counterweight in an iron band hangs on the middle chain. One cell wide in the original (tiles over the shaft centre column), 3-4 rows above the top stop: cells 45 rows 15-18 (lift 2), 50 rows 24-26 (lift 1), 73 rows 24-26 (lift 3), 83 rows 16-18 (lift 4), 98 rows 59-61 (lift 5), 128 rows 50-52 (lift 6).",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1032,
+         312,
+         120,
+         168
+        ],
+        "caption": "map M41: lift 2 shaft head, cols 43-47 rows 13-19"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M41.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1920,
+         336,
+         144,
+         120
+        ],
+        "caption": "map M41: lift 4 shaft head, cols 80-85 rows 14-18"
+       }
+      ],
+      "sizes": []
+     },
+     {
       "id": "stalactite",
       "name": "Stalactite",
       "csName": "krápník",
@@ -14464,6 +14699,1992 @@ window.C28_CONFIG = {
        "on ground"
       ],
       "refs": []
+     },
+     {
+      "id": "energyDrop",
+      "name": "Energy drop",
+      "csName": null,
+      "interactive": true,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Difficulty assist SPECIAL ENEMIES DROP ENERGY: a special enemy kill (mesto flyer, vesnice rocket robot) drops it, taken on touch: energy +50, half the level energy bonus, so it is a smaller cell with half its gauge lit (user, 2026-11-07).",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
+     }
+    ]
+   }
+  },
+  "sklad": {
+   "order": 6,
+   "name": "Warehouse",
+   "objects": {
+    "status": "draft",
+    "source": "docs/research/reports/19-level6-layout.md",
+    "units": "original pixels, 1 tile = 24",
+    "objects": [
+     {
+      "id": "rocketLauncher",
+      "name": "Rocket launcher weapon pickup",
+      "csName": "raketomet",
+      "interactive": true,
+      "marker": 1,
+      "task": "takeRocketLauncher",
+      "sheet": "props",
+      "description": "Bonus weapon (slot 3) on floor 58, engine (74, 52) = cell 80, floor 58 (5:0x4A58). No preview or film exists; ours is a shoulder launcher tube in the depot steel with a grip, sight and red warhead tip.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1824,
+         1320,
+         192,
+         96
+        ],
+        "caption": "map M61: pickup spot, floor 58 (item not in tiles)"
+       }
+      ]
+     },
+     {
+      "id": "handGrenade",
+      "name": "Grenade",
+      "csName": "granát",
+      "interactive": true,
+      "marker": 2,
+      "task": "takeGrenade",
+      "sheet": "props",
+      "description": "Item 1 at cell 88, floor 58, beside a grey steel crate and torn teal debris. Pickup sebgran2.anm. Thrown through the open shaft grille, kills the cannon (M63). PREGRAN: squashed olive ball (#606048, #787860), mid ring band, steel pin cap on top.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PREGRAN_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         600
+        ],
+        "caption": "PREGRAN preview sheet: grenade"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2016,
+         1320,
+         192,
+         96
+        ],
+        "caption": "map M61: grenade spot, floor 58"
+       }
+      ]
+     },
+     {
+      "id": "depotLocker",
+      "name": "Locker with key and screwdriver",
+      "csName": "skříň",
+      "interactive": true,
+      "marker": 3,
+      "task": "searchLocker",
+      "sheet": "machines",
+      "description": "Lockers 3 (cols 74-82, floor 74, behind door 1; key B and screwdriver) and 5 (cols 120-126, floor 74; lift controller). Film sebskr2.anm (missing locally). Wall-mounted grey cabinets with vent slits, a dark window with a red tangle of cables, red cables on the floor. No open state in any map variant; ours opens on use.",
+      "states": [
+       "closed",
+       "open, items inside",
+       "open, empty"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1752,
+         1680,
+         240,
+         120
+        ],
+        "caption": "map M61: locker 3, floor 74"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2856,
+         1680,
+         216,
+         120
+        ],
+        "caption": "map M61: locker 5, floor 74"
+       }
+      ]
+     },
+     {
+      "id": "keyB",
+      "family": "Security keys",
+      "name": "Security key B",
+      "csName": "klíč B",
+      "interactive": true,
+      "marker": 3,
+      "task": null,
+      "sheet": "props",
+      "description": "Item 5 from locker 3. PRKLICB: steel plug key, fat barrel and a finned grooved tail (#545448, #9c9c90, #ccccc0), green cap (#244830), length about 4.5 times the diameter. Used at the lift controller (ksklad2.anm).",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PRKLICB_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         600
+        ],
+        "caption": "PRKLICB preview sheet: key B"
+       }
+      ]
+     },
+     {
+      "id": "keyA",
+      "family": "Security keys",
+      "name": "Security key A",
+      "csName": "klíč A",
+      "interactive": true,
+      "marker": 4,
+      "task": null,
+      "sheet": "props",
+      "description": "Item 4: appears at cell 134, floor 66 when the alien dies. PRKLICA: same steel plug key as key B with a red cap (#783024). Used at the lift controller (ksklad1.anm).",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PRKLICA_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         600
+        ],
+        "caption": "PRKLICA preview sheet: key A"
+       }
+      ]
+     },
+     {
+      "id": "screwdriver",
+      "name": "Screwdriver",
+      "csName": "šroubovák",
+      "interactive": true,
+      "marker": 3,
+      "task": null,
+      "sheet": "props",
+      "description": "Item 6 from locker 3. PRSROUB: knurled brown handle (#483024, #544848), thin steel shaft (#6c6c60), bright tip (#c0c0a8). Unscrews the shaft cover (otplech2.anm).",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PRSROUB_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         600
+        ],
+        "caption": "PRSROUB preview sheet: screwdriver"
+       }
+      ]
+     },
+     {
+      "id": "shaftCover",
+      "name": "Shaft cover over the cannon",
+      "csName": "kryt šachty",
+      "interactive": true,
+      "marker": null,
+      "task": "openShaft",
+      "sheet": "structures",
+      "description": "Floor plate cols 119-125, floor 61, reached by the crate stair from floor 66. M61: slatted grey vent plate with a bracket (#6c6c60), screwed to the floor (KRYT SACHTY JE PEVNE PRISROUBOVAN K PODLAZE). Screwdriver: otplech2.anm, ODSROUBOVAL JSI KRYT SACHTY, M64 open grille, the cannon visible below. Grenade: granvyb.anm, ZNICIL JSI DELO, M63. M62: hole, cells 122-123 lose their floor.",
+      "states": [
+       "screwed cover (M61)",
+       "open grille (M64)",
+       "hole (M62)"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2856,
+         1416,
+         168,
+         96
+        ],
+        "caption": "map M61: cover plate cols 122-123 r61"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M64.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2856,
+         1416,
+         168,
+         96
+        ],
+        "caption": "map M64: open grille"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M62.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2856,
+         1416,
+         168,
+         96
+        ],
+        "caption": "map M62: hole"
+       }
+      ]
+     },
+     {
+      "id": "depotCannon",
+      "name": "Ceiling cannon guard",
+      "csName": "dělo",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "enemies",
+      "description": "Guard turret cols 122-124 rows 63-65 under the shaft. M61/M64: silver cone pedestal with a mast in a dark hole; its zone cols 118-136 floor 66 hits the hero and pushes him 1 cell west per tick (delozab.anm). M62/M63 after the grenade: scorched wreck head on the cone (ZNICIL JSI DELO). The live head is not in the map tiles; ours follows LEV6 frame 25 colours (guess).",
+      "states": [
+       "armed",
+       "firing",
+       "wreck"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2880,
+         1488,
+         144,
+         96
+        ],
+        "caption": "map M61: cannon in its hole"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M63.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2880,
+         1488,
+         144,
+         96
+        ],
+        "caption": "map M63: cannon wreck"
+       }
+      ]
+     },
+     {
+      "id": "alienOfficer",
+      "name": "Alien",
+      "csName": "mimozemšťan",
+      "interactive": true,
+      "marker": 4,
+      "task": "shootAlien",
+      "sheet": "enemies",
+      "description": "Alien at cols 129-133 rows 63-65, by his desk. Kills a hero entering cols 128-136 floor 66 (elzab.anm, game over) while alive. Shot with the gun from cols 125-128 facing right once the cannon is dead (mimoz01.anm, zabijmim.anm, ZABIL JSI MIMOZEMSTANA, M62), drops key A. Sprite LEV6 frames 21-22: grey bald head, olive suit (#54543c, #6c6c54), rifle. Dead (SEBRUKU film): grey body, black rotary gun, orange blood; his hand is later shot off (RUKA).",
+      "states": [
+       "alive",
+       "firing",
+       "dead"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M63.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         3048,
+         1488,
+         192,
+         96
+        ],
+        "caption": "map M63: alien behind the cannon"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M62.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         3048,
+         1488,
+         192,
+         96
+        ],
+        "caption": "map M62: dead alien, computer desk"
+       }
+      ]
+     },
+     {
+      "id": "alienDesk",
+      "name": "Alien desk computer",
+      "csName": "počítač mimozemšťana",
+      "interactive": true,
+      "marker": 4,
+      "task": "takeDisk",
+      "sheet": "machines",
+      "description": "Desk computer cols 129-133, floor 66, only in M62 (after the kill): grey CRTs with broken red screens and a terminal box with a yellow-grid keypad. Use: sebdisk.anm, Z POCITACE JSI VYTAHL DISKETU, gives the floppy disk.",
+      "states": [
+       "with floppy",
+       "floppy taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M62.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         3048,
+         1464,
+         216,
+         120
+        ],
+        "caption": "map M62: desk computer"
+       }
+      ]
+     },
+     {
+      "id": "floppyDisk",
+      "name": "Floppy disk",
+      "csName": "disketa",
+      "interactive": true,
+      "marker": 4,
+      "task": null,
+      "sheet": "props",
+      "description": "Item 2 from the alien desk. PRDISK: 3.5 inch floppy, blue body (#303c54), white label (#c0cccc), metal shutter (#a8a8a8). After computer 9 it is the virus disk (DISK S VIREM, same art, ours adds a red label mark).",
+      "states": [
+       "blank disk",
+       "virus disk"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PRDISK_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         600
+        ],
+        "caption": "PRDISK preview sheet: floppy"
+       }
+      ]
+     },
+     {
+      "id": "alienHand",
+      "name": "Alien hand",
+      "csName": "ruka",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Item 3: appears at cell 133, floor 66 once both keys are in the controller (MRTVEMU MIMOZEMSTANOVI JSI USTRELIL RUKU). PRRUKA: grey wrinkled bark-like hand, long fingers, torn orange-red wrist (#545448, #786c60, wound #6c3c18). Held to the controller sensor (pouzruku.anm).",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PRRUKA_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         600
+        ],
+        "caption": "PRRUKA preview sheet: hand"
+       }
+      ]
+     },
+     {
+      "id": "liftRemote",
+      "name": "Lift controller",
+      "csName": "ovladač výtahu",
+      "interactive": true,
+      "marker": 5,
+      "task": null,
+      "sheet": "props",
+      "description": "Item 7 from locker 5. PROVL: grey slab about 2.5:1 (#606054), a 4-prong comb at one end, a white bevelled cap (#c0c0b4) at the other, red button (#843018). Used at the lift control (marker 6).",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PROVL_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         600
+        ],
+        "caption": "PROVL preview sheet: controller"
+       }
+      ]
+     },
+     {
+      "id": "liftCallBox",
+      "name": "Lift control",
+      "csName": "ovládání výtahu",
+      "interactive": true,
+      "marker": 6,
+      "task": "callLift",
+      "sheet": "machines",
+      "description": "Lift 3 control at cols 77-81, floor 50: small dark wall box with an orange light (#a84800). Without the controller: MUSIS PRIVOLAT VYTAH. With it: oprvyt2.anm, PRIVOLAL JSI VYTAH, lift 3 gets stops 18, 26, 50; controller consumed.",
+      "states": [
+       "dead",
+       "controller fitted"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1824,
+         1104,
+         168,
+         120
+        ],
+        "caption": "map M61: lift control, floor 50"
+       }
+      ]
+     },
+     {
+      "id": "circuitBox",
+      "name": "Damaged electric circuit",
+      "csName": "elektrický obvod",
+      "interactive": true,
+      "marker": 7,
+      "task": "fixCircuit",
+      "sheet": "machines",
+      "description": "Wall box at cols 71-75, floor 26, gold lit (#cca854). Use opens the circuit puzzle (6:0x9055, img/obvod.gif: 3 x 3 panels of 4 x 4 dark cells, grid #30180c, #3c3018, the yellow path #e4d818 must join the left and right arrows). Solved opens doors 2 and 3.",
+      "states": [
+       "broken",
+       "repaired"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1680,
+         528,
+         168,
+         120
+        ],
+        "caption": "map M61: circuit box, floor 26"
+       },
+       {
+        "path": "docs/research/sources/cz-walkthroughs/img/obvod.gif",
+        "imgSize": [
+         320,
+         200
+        ],
+        "crop": [
+         0,
+         0,
+         320,
+         200
+        ],
+        "caption": "walkthrough: solved circuit"
+       }
+      ]
+     },
+     {
+      "id": "depotComputer",
+      "name": "Depot computer",
+      "csName": "počítač",
+      "interactive": true,
+      "marker": 9,
+      "task": "logIn",
+      "sheet": "machines",
+      "description": "Computer 9 at cols 68-72, floor 18, behind the guard robot: grey grated box with a CRT (COMP01: bezel #788460, glass #303c24, green text #6c9054). Three uses: comp01.anm SPOJIL JSI SE S REBELY; comp02.anm MAS PRINEST DISKETU; diskuse.anm NA DISKETU JSI NAHRAL VIR.",
+      "states": [
+       "idle",
+       "rebels online",
+       "virus loaded"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1584,
+         336,
+         192,
+         120
+        ],
+        "caption": "map M61: computer, floor 18"
+       },
+       {
+        "path": "docs/research/gamedata/png/COMP01_sheet.png",
+        "imgSize": [
+         960,
+         800
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         800
+        ],
+        "caption": "COMP01 film sheet: screen"
+       }
+      ]
+     },
+     {
+      "id": "liftController",
+      "name": "Depot lift controller",
+      "csName": "řízení výtahu",
+      "interactive": true,
+      "marker": 8,
+      "task": "unlockDepot",
+      "sheet": "machines",
+      "description": "Controller 8 at cols 105-109, floor 18 beside lift 6: dark recess with a steel bar, grey keypad panel with a yellow display (#c0a848, LEV6 frame 12), two key slots and a hand sensor (RUKA film: grey disc #484848, five white oval pads). Order: key A and key B (ksklad1/2.anm), hand (pouzruku.anm), virus disk (OTEVREL SE MUNICNI SKLAD, lift 6 reaches floor 50).",
+      "states": [
+       "locked",
+       "keys in",
+       "hand scanned",
+       "depot open"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2496,
+         336,
+         168,
+         120
+        ],
+        "caption": "map M61: controller 8, floor 18"
+       }
+      ]
+     },
+     {
+      "id": "depotDoor",
+      "name": "Steel door",
+      "csName": "dveře",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Doors: 1 at col 67 floor 74 (opened by its lever, col 64), 2 at col 80 and 3 at col 86, floor 18 (opened by the circuit). One cell wide, three rows tall, brown planks with a rust-red edge and a teal band, like the plank doors of the map, in steel jambs with a hazard sill.",
+      "states": [
+       "closed",
+       "open"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1488,
+         1680,
+         192,
+         120
+        ],
+        "caption": "map M61: door 1 and lever, floor 74"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1872,
+         336,
+         240,
+         120
+        ],
+        "caption": "map M61: doors 2 and 3, floor 18"
+       }
+      ]
+     },
+     {
+      "id": "doorLever",
+      "name": "Door lever",
+      "csName": "páka",
+      "interactive": true,
+      "marker": null,
+      "task": "pullLever",
+      "sheet": "machines",
+      "description": "Wall lever at col 64, floor 74, opens door 1.",
+      "states": [
+       "up",
+       "down"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1488,
+         1680,
+         120,
+         120
+        ],
+        "caption": "map M61: lever col 64, floor 74"
+       }
+      ]
+     },
+     {
+      "id": "timeBomb",
+      "name": "Time bomb",
+      "csName": "bomba",
+      "interactive": true,
+      "marker": 10,
+      "task": "setBomb",
+      "sheet": "props",
+      "description": "Cas stage (level 9) item, in hand at its start. PRBOMBA: khaki block (#786c54), two red straps (#e43c0c), grey timer box with an LCD and a red button. Set at the stored robots, cols 6-66 floor 74 (polbomb.anm, SPUSTIL JSI CASOVANOU BOMBU. MUSIS SE CO NEJRYCHLEJI DOSTAT VEN), timer 11:40.",
+      "states": [
+       "carried",
+       "armed, counting"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PRBOMBA_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         0,
+         0,
+         960,
+         600
+        ],
+        "caption": "PRBOMBA preview sheet: bomb"
+       }
+      ]
+     },
+     {
+      "id": "ammoBox",
+      "name": "Ammo bonus",
+      "csName": "munice",
+      "interactive": true,
+      "sheet": "props",
+      "description": "Bonus pickup, taken on touch once per level: +350 machine-gun ammo, cap 999 (KLEV1.EXE 5:0x5493). Original look unknown (not in the map tiles); ours is an olive ammo can with rounds on top. Level 6 ammo cell 41, floor 42 (ammo type 3).",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
+     },
+     {
+      "id": "energyCell",
+      "name": "Energy bonus",
+      "csName": "baterie",
+      "interactive": true,
+      "sheet": "props",
+      "description": "Bonus pickup (battery), taken on touch once per level: energy +90 of the 90 max, a full refill (KLEV1.EXE 5:0x4F0E). Original look unknown; ours is an upright green cell with a lit gauge. Level 6 energy cell 119, floor 74.",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
+     },
+     {
+      "id": "shieldCell",
+      "name": "Shield bonus",
+      "csName": "štít",
+      "interactive": true,
+      "sheet": "props",
+      "description": "Bonus pickup, taken on touch once per level: shields +1, cap 5 (KLEV1.EXE 5:0x5D0B). Original look unknown; ours is a blue hex emitter on a stand. Level 1 cell 24, floor 23; level 2 cell 41, floor 41. Level 6 shield cell 68, floor 42.",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
+     },
+     {
+      "id": "depotBackdrop",
+      "name": "Burning depot sky",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Sky role. LEV6 frame 0: black and orange burning cloud sky (#0c0c0c, #30180c, #603018, #d86c24), a dark olive barracks block with barred windows (#303c24, #242424), a fire strip at the bottom (#e48418, #f0b430, #c04818). State 1 is frame 1: a grey-olive four-prop transport plane (#484830, #6c3c18) on a grey concrete runway (#545448, #60543c) under fire clouds (#a83c18, #f09024).",
+      "states": [
+       "barracks",
+       "airfield"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/LEV6_f0.png",
+        "imgSize": [
+         320,
+         200
+        ],
+        "crop": [
+         0,
+         0,
+         320,
+         200
+        ],
+        "caption": "LEV6.GRA frame 0: backdrop"
+       },
+       {
+        "path": "docs/research/gamedata/png/lev6/f001.png",
+        "imgSize": [
+         320,
+         200
+        ],
+        "crop": [
+         0,
+         0,
+         320,
+         200
+        ],
+        "caption": "LEV6.GRA frame 1: plane on the airfield"
+       }
+      ]
+     },
+     {
+      "id": "farAirfield",
+      "name": "Far airfield",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "origin": "new",
+      "description": "Far role, none in the original (open outdoor cells are black). Dark silhouettes under the fire sky haze: state 0 a row of curved-roof hangars, state 1 a control tower with a radar mast and lit windows, state 2 a parked transport plane. Sized w and h in cells.",
+      "states": [
+       "hangar row",
+       "control tower with radar",
+       "parked transport plane"
+      ],
+      "refs": [],
+      "sizes": [
+       [
+        8,
+        4
+       ],
+       [
+        5,
+        6
+       ]
+      ]
+     },
+     {
+      "id": "depotBlockWall",
+      "name": "Sandstone block wall",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Filler role (terrain wall, deep). Sandstone blocks in rows with deep black mortar gaps (#544830, #483c24, #6c603c on #0c0c0c). Every never reached and wall cell, e.g. 54-120 r9-13, 85-101 r27-41, 25-31 r41-75, 134-147 r39-75. Sized w and h in cells.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2040,
+         648,
+         240,
+         192
+        ],
+        "caption": "map M61: block wall 85-94 r27-34"
+       }
+      ],
+      "sizes": [
+       [
+        6,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "brickPier",
+      "name": "Brick pier",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Wall role. One-cell dark brown brick strip at a block edge (#30240c, #483c24). Cells 62 r9-17, 70 r19-26, 89 r19-42, 32 r31-42, 98 r43-50, 90 r48-57, 86 r67-74, 117 r66-74, 131 r43-49, 138 r59-74. Sized h in cells.",
+      "states": [
+       "edge strip"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2112,
+         456,
+         96,
+         576
+        ],
+        "caption": "map M61: brick pier col 89, rows 19-42"
+       }
+      ],
+      "sizes": [
+       [
+        1,
+        8
+       ]
+      ]
+     },
+     {
+      "id": "depotInnerWall",
+      "name": "Depot inner wall",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Wall role. Olive concrete inner walls (#483c24, #3c3018, #604824) with yellow-black hazard bands at top and foot, conduit runs and mossy green patches (#182418, #3c483c); state 3 a window grid of 2 x 2 black panes in a grey steel frame (#606060, #a8a884). Every indoor storey, e.g. 63-108 r14-17, 33-57 r44-49, 59-90 r53-57; windows 74-76 r15-16, 100-102 r15-16, 50-52 and 78-80 r47-48, 71-73 r55-56, 121-123 r62-64. Sized w and h in cells.",
+      "states": [
+       "plain",
+       "conduit",
+       "mossy",
+       "window"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1512,
+         312,
+         384,
+         120
+        ],
+        "caption": "map M61: inner wall and window, floor 18"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1056,
+         1032,
+         336,
+         168
+        ],
+        "caption": "map M61: inner wall, floor 50"
+       }
+      ],
+      "sizes": [
+       [
+        8,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "rollerShutter",
+      "name": "Roller shutter door",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Wall role. Ribbed brown slats in a riveted angled steel frame (#483024, #484830, #60543c). Cells 63-67 r14-17, 88-93 r14-17, 37-41 r60-65, 55-59 r54-57, 81-84 r54-57, 105-108 r44-49, 102-106 r62-65. Sized w in cells.",
+      "states": [
+       "closed",
+       "half open"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2064,
+         312,
+         216,
+         120
+        ],
+        "caption": "map M61: roller shutter 88-93, floor 18"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2472,
+         1032,
+         168,
+         168
+        ],
+        "caption": "map M61: roller shutter 105-108, floor 50"
+       }
+      ],
+      "sizes": [
+       [
+        5,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "loadingBay",
+      "name": "Loading bay portal",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Wall role. Concrete portal frame: pale slab lintel (#6c603c), heavy posts and steel pipe stubs around a dark storage opening. Cells 61-75 r44-49, 44-50 r53-57, 76-86 r60-65, 110-116 r43-46. Sized w and h in cells.",
+      "states": [
+       "open bay"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1440,
+         1032,
+         408,
+         168
+        ],
+        "caption": "map M61: loading bay 61-75, floor 50"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1800,
+         1416,
+         312,
+         168
+        ],
+        "caption": "map M61: loading bay 76-86, floor 66 (two stacked openings with a sill, drawn as two bays)"
+       }
+      ],
+      "sizes": [
+       [
+        7,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "plankDoor",
+      "name": "Plank door",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Wall role. Brown plank door with a teal band (#483018, #603018, #244848), 1 cell wide, 3-4 rows tall. Cells 79 and 85 r15-17, 77 r71-73, 128 r62-65.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1848,
+         336,
+         240,
+         96
+        ],
+        "caption": "map M61: plank doors 79 and 85, floor 18"
+       }
+      ]
+     },
+     {
+      "id": "depotFloor",
+      "name": "Steel I-beam floor",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Floor role (terrain ledge). Steel I-beam floor: grey top rail (#84786c, #484830) over a dark web (#182418) with hanging bolts. Every floor row: 18, 26, 34, 42, 50, 58, 66, 74. Sized w in cells.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1440,
+         1152,
+         288,
+         72
+        ],
+        "caption": "map M61: floor 50"
+       }
+      ],
+      "sizes": [
+       [
+        6,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "steelCatwalk",
+      "name": "Steel catwalk",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Girder role (terrain girder). Steel catwalk out of the building over the west yard, 30-62 r18, and the short plank pair 66-72 r29-30. Sized w in cells.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         720,
+         360,
+         384,
+         120
+        ],
+        "caption": "map M61: catwalk over the west yard"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1536,
+         648,
+         240,
+         120
+        ],
+        "caption": "map M61: plank pair 66-72 r29-30"
+       }
+      ],
+      "sizes": [
+       [
+        6,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "latticeGirder",
+      "name": "Lattice girder",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Girder role (terrain girder). X-braced lattice girder 1 row deep (#484830, #60543c), 46-90 r37. Sized w in cells.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1104,
+         840,
+         336,
+         120
+        ],
+        "caption": "map M61: lattice girder r37-38"
+       }
+      ],
+      "sizes": [
+       [
+        8,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "depotHangar",
+      "name": "Depot hangar wall",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Building role. Green corrugated hangar wall (#3c483c, #303024) over a silver ribbed shutter band (#6c6054, #84786c), posts above it. Cells 25-31 r36-39 (west end), 95-128 r59-61 (long hangar roof band). Sized w in cells.",
+      "states": [
+       "wall with band",
+       "band only"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2280,
+         1368,
+         384,
+         144
+        ],
+        "caption": "map M61: hangar band 95-110 r59-61"
+       }
+      ],
+      "sizes": [
+       [
+        8,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "depotOffice",
+      "name": "Depot office block",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Building role. Beige concrete office block (#60543c, #544830) with teal glass windows and teal-capped pillars (#48786c, #3c4854). Cells 70-86 r22-26, 79-86 r14-17, 78-91 r70-73, 118-137 r70-73. Sized w and h in cells.",
+      "states": [
+       "windows",
+       "pillar row"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1656,
+         504,
+         432,
+         144
+        ],
+        "caption": "map M61: office block 70-86 r22-26"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2808,
+         1656,
+         504,
+         144
+        ],
+        "caption": "map M61: office block 118-137 r70-73"
+       }
+      ],
+      "sizes": [
+       [
+        8,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "scaffoldTower",
+      "name": "Scaffold tower",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Support role. Stack of catwalk tiles at the catwalk west end, 30-32 r9-23. Sized h in cells.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         672,
+         192,
+         168,
+         384
+        ],
+        "caption": "map M61: scaffold tower 30-32"
+       }
+      ],
+      "sizes": [
+       [
+        3,
+        8
+       ]
+      ]
+     },
+     {
+      "id": "rivetColumn",
+      "name": "Riveted column",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Support role. Riveted steel column blocks with a dark star mark (#545448, #483c24), 50 r33-41, 45 r39-41. Sized h in cells.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1032,
+         768,
+         240,
+         240
+        ],
+        "caption": "map M61: riveted columns 45 and 50"
+       }
+      ],
+      "sizes": [
+       [
+        1,
+        6
+       ]
+      ]
+     },
+     {
+      "id": "concretePost",
+      "name": "Concrete post",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Support role. Concrete post with moss, 116 r43-49, 121 r43-49. Sized h in cells.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2688,
+         1008,
+         288,
+         192
+        ],
+        "caption": "map M61: posts 116 and 121, floor 50"
+       }
+      ],
+      "sizes": [
+       [
+        1,
+        6
+       ]
+      ]
+     },
+     {
+      "id": "yardPipe",
+      "name": "Yard pipe",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Pipe role. Tall steel stack pipe with an X-brace (#545448, #483c24), 46 r30-40; horizontal run with rusty broken flanges and bent elbows, 44-49 r39-41. Sized w or h in cells.",
+      "states": [
+       "vertical stack",
+       "horizontal run with flanges",
+       "elbow"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1008,
+         696,
+         240,
+         312
+        ],
+        "caption": "map M61: yard pipe stack and run"
+       }
+      ],
+      "sizes": [
+       [
+        1,
+        8
+       ],
+       [
+        6,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "wallConduit",
+      "name": "Wall conduit",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Pipe role, hung from the ceiling. Conduit pipes under every indoor ceiling, e.g. 64-108 r14, 35-57 r46, 35-90 r54, 95-116 r62. Sized w in cells.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1536,
+         312,
+         336,
+         72
+        ],
+        "caption": "map M61: conduit under the ceiling, r14"
+       }
+      ],
+      "sizes": [
+       [
+        8,
+        1
+       ]
+      ]
+     },
+     {
+      "id": "boilerTank",
+      "name": "Boiler tank",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Machine role. Horizontal boiler tank with curved end caps and an orange gauge, 65-69 r39-41.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1512,
+         912,
+         216,
+         96
+        ],
+        "caption": "map M61: boiler tank 65-69"
+       }
+      ],
+      "sizes": [
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "id": "controlBank",
+      "name": "Control bank",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Machine role. Yellow-orange lamp matrix (#c09c48, #9c9c48, #6c6030) on grey steel stands, 128-136 r62-65 (the alien desk; M62 swaps it for a computer desk).",
+      "states": [
+       "lit",
+       "dead"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         3048,
+         1464,
+         240,
+         120
+        ],
+        "caption": "map M61: control bank 128-136"
+       }
+      ]
+     },
+     {
+      "id": "robotBay",
+      "name": "Stored robot bay",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Machine role. Yellow-orange mechs (#e49018, #c07824, #f0b430) on racks in a blue-grey machine bay (#303c3c, #3c6060) with red cables (#78240c, #542400) and white light tubes, 35-66 r70-73. The bomb target. Sized w in cells.",
+      "states": [
+       "stored mechs",
+       "empty rack"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         816,
+         1656,
+         384,
+         144
+        ],
+        "caption": "map M61: stored robots 35-49"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1176,
+         1656,
+         432,
+         144
+        ],
+        "caption": "map M61: stored robots 50-66"
+       }
+      ],
+      "sizes": [
+       [
+        8,
+        4
+       ]
+      ]
+     },
+     {
+      "id": "labBench",
+      "name": "Lab bench",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Machine role. Lab bench with grey monitors showing a red creature, blood smears (#786048, #b48460), 121-125 r72-73.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2880,
+         1680,
+         168,
+         96
+        ],
+        "caption": "map M61: lab bench 120-126 r70-73"
+       }
+      ]
+     },
+     {
+      "id": "greenLocker",
+      "name": "Green locker",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Machine role. Dark green steel lockers and cabinets (#182418, #48786c glass), 104-106 r24-25, 99-101 r33, 105-107 r40-41, 76-77 r64-65, 95-100 r65.",
+      "states": [
+       "closed",
+       "open"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2448,
+         528,
+         216,
+         96
+        ],
+        "caption": "map M61: lockers 104-108 r24-25"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2256,
+         1512,
+         192,
+         72
+        ],
+        "caption": "map M61: cabinets 95-100 r65"
+       }
+      ]
+     },
+     {
+      "id": "scrapHeap",
+      "name": "Scrap heap",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Rubble role. Rusty debris wedge and loose steel bits, 47-48 r41.",
+      "states": [
+       "debris",
+       "bent beams"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1080,
+         936,
+         144,
+         72
+        ],
+        "caption": "map M61: scrap 47-48 r41"
+       }
+      ]
+     },
+     {
+      "id": "wallTerminal",
+      "name": "Wall terminal",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Mounted role. Grey framed wall terminal with a green text screen, 36 r72-73; state 2 the small grey louvred box (#6c6c60), 71 r17, 136 r64.",
+      "states": [
+       "on",
+       "off",
+       "louvred box"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         816,
+         1680,
+         120,
+         96
+        ],
+        "caption": "map M61: wall terminal 36 r72-73"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1656,
+         360,
+         120,
+         72
+        ],
+        "caption": "map M61: louvred box 71 r17"
+       }
+      ]
+     },
+     {
+      "id": "hoodLamp",
+      "name": "Hood lamp",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Mounted and sign role, hung from the ceiling. Ceiling hood lamp with a glare in a dark alcove, 100-101 r32-33, 106 r39.",
+      "states": [
+       "lit",
+       "dead"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2352,
+         744,
+         120,
+         72
+        ],
+        "caption": "map M61: hood lamp 100-101 r32-33"
+       }
+      ]
+     },
+     {
+      "id": "yardLamp",
+      "name": "Yard lamp post",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Sign role. Grey T-arm lamp post with a guard kiosk door below, 126-127 r46-49.",
+      "states": [
+       "lit",
+       "dead"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2952,
+         1056,
+         168,
+         144
+        ],
+        "caption": "map M61: lamp post 126-127"
+       }
+      ]
+     },
+     {
+      "id": "cargoCrate",
+      "name": "Cargo crates",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Small clutter. Orange wooden crates with a yellow arrow (#603018, #6c3c18, #905430), stacked two high: 97 r23-25, 95 r63-65, 113 r63-65 (the crates the walkthrough climbs to the crawl duct).",
+      "states": [
+       "single",
+       "stack of two",
+       "broken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2232,
+         1488,
+         144,
+         96
+        ],
+        "caption": "map M61: crates 95 r63-65"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2664,
+         1488,
+         120,
+         96
+        ],
+        "caption": "map M61: crates 113 r63-65"
+       }
+      ]
+     },
+     {
+      "id": "ammoCrate",
+      "name": "AMMO crate",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Small clutter and sign. Crate with an AMMO stencil, 70 r17.",
+      "states": [
+       "static"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1632,
+         360,
+         120,
+         72
+        ],
+        "caption": "map M61: AMMO crate 70 r17"
+       }
+      ]
+     },
+     {
+      "id": "depotWreck",
+      "name": "Depot vehicle wrecks",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Big clutter, none in the original. Burnt depot vehicles in the rot style: state 0 a forklift with bent forks, state 1 a fuel bowser trailer, state 2 an aircraft tug.",
+      "states": [
+       "burnt forklift",
+       "fuel bowser",
+       "aircraft tug"
+      ],
+      "refs": []
+     },
+     {
+      "id": "chainFence",
+      "name": "Chain-link fence",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Fence role, shared mesh fence. Chain-link fence on posts, grey sign plate with red text, blood smear, 33-42 r39-41, 109-131 r47-49. Sized w.",
+      "states": [
+       "chain-link, toxic sign",
+       "mesh, sign plate",
+       "mesh, torn",
+       "mesh, overgrown"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2616,
+         1104,
+         288,
+         96
+        ],
+        "caption": "map M61: fence 109-120 r47-49"
+       }
+      ],
+      "sizes": [
+       [
+        3,
+        2
+       ]
+      ]
+     },
+     {
+      "id": "lift",
+      "name": "Lift platform and shaft",
+      "csName": "výtah",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Shared lift machine. Twin guide rails with a yellow rung strip (#604824, #6c6030). Shafts 81-83 r18-50 (stops 18, 26, 50), 102-104 r18-50 (stops 18, 26, 34, 42, 50), 55-57 r42-50, 57-59 r58-66, 36-38 r50-74 (stops 50, 58, 66, 74), 133-135 r66-74; a lift panel tile with a red arrow beside each stop.",
+      "states": [
+       "idle at floor",
+       "moving up",
+       "moving down",
+       "locked"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M61.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2400,
+         384,
+         168,
+         864
+        ],
+        "caption": "map M61: lift shaft 102-104"
+       }
+      ]
      }
     ]
    }
@@ -16274,6 +18495,1473 @@ window.C28_CONFIG = {
       "description": "Bonus pickup, taken on touch once per level: shields +1, cap 5 (KLEV1.EXE 5:0x5D0B). Original look unknown; ours is a blue hex emitter on a stand. Level 1 cell 24, floor 23; level 2 cell 41, floor 41.",
       "states": [
        "on ground"
+      ],
+      "refs": []
+     },
+     {
+      "id": "energyDrop",
+      "name": "Energy drop",
+      "csName": null,
+      "interactive": true,
+      "sheet": "props",
+      "origin": "new",
+      "description": "Difficulty assist SPECIAL ENEMIES DROP ENERGY: a special enemy kill (mesto flyer, vesnice rocket robot) drops it, taken on touch: energy +50, half the level energy bonus, so it is a smaller cell with half its gauge lit (user, 2026-11-07).",
+      "states": [
+       "on ground"
+      ],
+      "refs": []
+     }
+    ]
+   }
+  },
+  "vezeni": {
+   "order": 5,
+   "name": "Prison Escape",
+   "objects": {
+    "status": "draft",
+    "source": "docs/research/reports/18-level5-layout.md",
+    "units": "original pixels, 1 tile = 24",
+    "objects": [
+     {
+      "id": "prisonDump",
+      "name": "Scrap heap (dump)",
+      "csName": "skládka",
+      "interactive": true,
+      "marker": 1,
+      "task": "searchScrapHeap",
+      "sheet": "props",
+      "description": "Heap of scrapped robot parts in the start cell, map tiles at columns 36-41, rows 46-50 (floor 50), about 6 x 4 cells. Item record 1 (SKLÁDKA) at engine (34, 44) = column 40: the pick key on it plays skladka.anm, says PO PROHLEDÁNÍ SKLÁDKY JSI NAŠEL KLÁVESNICI and renames the record to KLÁVESNICE (4:0xA087). Look: olive and khaki robot limbs, a rusty red-brown frame and a grey mesh panel heaped against the cell wall, a pale tubular frame at the west end.",
+      "states": [
+       "full",
+       "searched (unchanged art)",
+       "low heap (scenery)"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         840,
+         1080,
+         192,
+         144
+        ],
+        "caption": "map M51: scrap heap, columns 36-41, rows 46-50"
+       }
+      ],
+      "sizes": [
+       [
+        6,
+        4
+       ],
+       [
+        3,
+        2
+       ]
+      ]
+     },
+     {
+      "id": "keyboard",
+      "name": "Keyboard",
+      "csName": "klávesnice",
+      "interactive": true,
+      "marker": 1,
+      "task": "searchScrapHeap",
+      "sheet": "props",
+      "description": "Inventory item found in the scrap heap (record 1 renamed). Logs the hero into the prison network at the panel under the cover. Never on the ground as its own sprite. Preview PRKLAV: a slim light grey computer keyboard.",
+      "states": [
+       "in inventory"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/PRKLAV_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         165,
+         60,
+         70,
+         40
+        ],
+        "caption": "inventory preview PRKLAV (keyboard)"
+       }
+      ]
+     },
+     {
+      "id": "coverPanel",
+      "name": "Wall cover and prison network panel",
+      "csName": "kryt / ovládací panel",
+      "interactive": true,
+      "marker": 2,
+      "task": "openCover",
+      "sheet": "machines",
+      "description": "Wall cover in the start cell at columns 41-44, rows 49-50 (floor 50), hero engine x 35-37 (columns 41-43). Use with no item on map M51: otplech1.anm, POD KRYTEM JSI OBJEVIL OVLÁDACÍ PANEL, M52 loads and shows the panel. Keyboard on the panel (map M52): M53 loads, srot.anm plays, ŠROTOVAČEM JSI SI UVOLNIL CESTU VEN (6:0x4F42-0x549D). Look: small metal wall plate, about 2 x 1 cells; open it shows a pale grey key or switch block.",
+      "states": [
+       "closed",
+       "open, panel shown",
+       "logged in"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         936,
+         1128,
+         168,
+         96
+        ],
+        "caption": "map M51: cover closed"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M52.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         936,
+         1128,
+         168,
+         96
+        ],
+        "caption": "map M52: cover open, panel at columns 41-44 rows 49-50"
+       }
+      ]
+     },
+     {
+      "id": "cellBars",
+      "name": "Prison cell bars",
+      "csName": "mříže cely",
+      "interactive": false,
+      "marker": null,
+      "task": "openCover",
+      "sheet": "structures",
+      "description": "East wall of the start cell at column 45, rows 46-50 (floor 50): wall tiles (12,5) (12,18) (12,31) (12,44) (12,57) block the hero in M51 and M52. M53 replaces them with the scrapper crash. Look: grey steel vertical bars, one cell wide, 5 rows high.",
+      "states": [
+       "closed",
+       "broken (scrapper)"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M52.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1032,
+         1080,
+         120,
+         144
+        ],
+        "caption": "map M52: bars at column 45"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M53.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1032,
+         1080,
+         120,
+         144
+        ],
+        "caption": "map M53: bars gone, scrapper in the gap"
+       }
+      ]
+     },
+     {
+      "id": "scrapper",
+      "name": "Scrapper transporter",
+      "csName": "šrotovač (transportér)",
+      "interactive": false,
+      "marker": null,
+      "task": "loginNetwork",
+      "sheet": "machines",
+      "description": "Machine started by the keyboard login. It drives in from the other side of the corridor and smashes the cell wall (srot.anm, film missing from GRAFIKA). From M53 on its map tiles stand at columns 45-48, rows 47-50, with a crushed guard robot at columns 41-44 row 49 (the chest plate drops there, column 42). Look: light grey heavy tracked vehicle, four big road wheels, boxy raised body with a grabber arm on top, about 4 x 4 cells, facing west.",
+      "states": [
+       "away (M51, M52)",
+       "crashed into the cell (M53 on)"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M53.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         960,
+         1080,
+         264,
+         144
+        ],
+        "caption": "map M53: scrapper at columns 45-48 and the guard wreck at 41-44"
+       }
+      ]
+     },
+     {
+      "id": "chestPlate",
+      "name": "Chest plate",
+      "csName": "hrudní plát",
+      "interactive": true,
+      "marker": null,
+      "task": "takeChestPlate",
+      "sheet": "props",
+      "description": "Item record 2 (HRUDNÍ PLÁT). Starts off the map (200, 200); the keyboard use moves it to engine (36, 44) = column 42, floor 50, at the crushed guard robot (6:0x5195). Pickup sebplat.anm, ZE ZEMĚ JSI SEBRAL HRUDNÍ PLÁT. Used on the ID door lock. Preview PRPLAT: a pale cyan bent armour plate with an engraved ID number.",
+      "states": [
+       "hidden",
+       "on ground",
+       "in inventory"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M53.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         960,
+         1128,
+         144,
+         96
+        ],
+        "caption": "map M53: guard wreck, plate spot column 42"
+       },
+       {
+        "path": "docs/research/gamedata/png/PRPLAT_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         165,
+         60,
+         70,
+         40
+        ],
+        "caption": "inventory preview PRPLAT (chest plate)"
+       }
+      ]
+     },
+     {
+      "id": "idLockDoor",
+      "name": "ID lock door",
+      "csName": "dveře s počítačem",
+      "interactive": true,
+      "marker": 4,
+      "task": "enterId",
+      "sheet": "machines",
+      "description": "Door on floor 60 at columns 43-44, rows 56-60, with a lock computer at hero engine x 34-37 (columns 40-43). Closed from M53 (wall tiles (8,47) (8,60) (8,73) (8,86)). Chest plate on map M53: vezdver.anm, DO POČÍTAČE JSI ZADAL IDENTIFIKAČNÍ ČÍSLO Z HRUDNÍHO PLÁTU, M56 loads with the door open. Other item: POČÍTAČ U DVEŘÍ TĚ POŽÁDAL O ZADÁNÍ TVÉHO IDENTIFIKAČNÍHO ČÍSLA. No door in M51/M52; M54 reverts the cells to plain wall art (passable). Look: narrow dark steel door, 2 cells wide, 5 rows high, grey lock box.",
+      "states": [
+       "closed",
+       "open"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M53.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         912,
+         1296,
+         240,
+         168
+        ],
+        "caption": "map M53: door closed at columns 43-44"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M56.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         912,
+         1296,
+         240,
+         168
+        ],
+        "caption": "map M56: door open"
+       }
+      ]
+     },
+     {
+      "id": "gateKey",
+      "name": "Small key",
+      "csName": "klíč",
+      "interactive": true,
+      "marker": 3,
+      "task": "takeKey",
+      "sheet": "props",
+      "description": "Item record 3 (KLÍČ) at engine (53, 49) = column 59, floor 55. Pickup sebkvez.anm, NAŠEL JSI MALÝ KLÍČ. Used on the gate it jams the mechanism (M54); not consumed. Preview PRKLIC: a small flat silver key with a round bow.",
+      "states": [
+       "on ground",
+       "in inventory"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1320,
+         1224,
+         216,
+         120
+        ],
+        "caption": "map M51: floor 55, key at column 59 (sprite, not in tiles)"
+       },
+       {
+        "path": "docs/research/gamedata/png/PRKLIC_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         178,
+         60,
+         52,
+         34
+        ],
+        "caption": "inventory preview PRKLIC (key)"
+       }
+      ]
+     },
+     {
+      "id": "mgx800",
+      "name": "MGX 800 weapon pickup",
+      "csName": "MGX 800",
+      "interactive": true,
+      "marker": 5,
+      "task": "takeMgx800",
+      "sheet": "props",
+      "description": "Special weapon of the level at engine (44, 54) = column 50, floor 60, behind the ID door. Picked within 10 px on the same row (5:0x4A3D): NAŠEL JSI MGX 800 and HUD plate DESKA5.GRA. Not in the map tiles. Look of the HUD icon: grey heavy gun with a white-blue muzzle burst. Fire rules open.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1104,
+         1344,
+         216,
+         120
+        ],
+        "caption": "map M51: floor 60, weapon spot column 50"
+       },
+       {
+        "path": "docs/research/gamedata/png/DESKA5_f0.png",
+        "imgSize": [
+         320,
+         200
+        ],
+        "crop": [
+         0,
+         0,
+         320,
+         28
+        ],
+        "caption": "HUD with the MGX 800 icon in slot 3"
+       }
+      ]
+     },
+     {
+      "id": "jack",
+      "name": "Mechanical jack",
+      "csName": "mechanický zvedák",
+      "interactive": true,
+      "marker": 6,
+      "task": "takeJack",
+      "sheet": "props",
+      "description": "Item record 5 (MECH. ZVEDÁK) at engine (97, 65) = column 103, floor 71 (bottom corridor). Pickup sebzved.anm, NAŠEL JSI MECHANICKÝ ZVEDÁK. Lifts the jammed gate (M55); not consumed. Preview PRZVED: grey trolley jack, a low wheeled base with a raised arm and a long handle. In the ZVEDVRAT film the robot sets a grey post jack with a flat head under the gate.",
+      "states": [
+       "on ground",
+       "in inventory"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2376,
+         1608,
+         216,
+         120
+        ],
+        "caption": "map M51: floor 71, jack at column 103 (sprite)"
+       },
+       {
+        "path": "docs/research/gamedata/png/PRZVED_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         165,
+         55,
+         70,
+         45
+        ],
+        "caption": "inventory preview PRZVED (jack)"
+       }
+      ]
+     },
+     {
+      "id": "paperScrap",
+      "name": "Paper scrap with a number",
+      "csName": "útržek s číslem",
+      "interactive": true,
+      "marker": 7,
+      "task": "takePaperScrap",
+      "sheet": "props",
+      "description": "Item record 4 (ÚTRŽEK) at engine (116, 66) = column 122, floor 72. Pickup sebkod.anm, NAŠEL JSI ÚTRŽEK PAPÍRU S ČÍSLEM. It is the vent control password. Preview PRKOD: white torn paper strip with 56133 handwritten on it.",
+      "states": [
+       "on ground",
+       "in inventory"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2832,
+         1632,
+         216,
+         120
+        ],
+        "caption": "map M51: floor 72, scrap at column 122 (sprite)"
+       },
+       {
+        "path": "docs/research/gamedata/png/PRKOD_sheet.png",
+        "imgSize": [
+         960,
+         600
+        ],
+        "crop": [
+         165,
+         60,
+         70,
+         40
+        ],
+        "caption": "inventory preview PRKOD (paper scrap)"
+       }
+      ]
+     },
+     {
+      "id": "gateDoor",
+      "name": "Steel gate",
+      "csName": "dveře (vrata)",
+      "interactive": true,
+      "marker": 8,
+      "task": "openGate",
+      "sheet": "machines",
+      "description": "Gate on floor 50 at columns 111-113, rows 46-50; use spot hero engine x 105-109 (columns 111-115). Exists from M53 (closed, wall tiles at column 112). Key on map M56: rozdvere.anm, MECHANISMUS U DVEŘÍ SE ZASEKL, M54 (jammed, still blocks). Jack on map M54: zvedvrat.anm, MECHANICKÝM ZVEDÁKEM SE TI PODAŘILO DVEŘE OTEVŘÍT, M55 (open). Hints: U DVEŘÍ JE ZDÍŘKA NA KLÍČ (M56, other item), NEMÁŠ DOSTATEK SÍLY NA OTEVŘENÍ DVEŘÍ (M54, other item). Look (films): heavy blue-grey steel door that slides up, a yellow-black hazard stripe band near its foot, set in a recess between rough brown concrete pillars; in the map 3 cells wide, 5 rows high with a steel post on its west side and a keyhole plate. Films ROZDVERE.ANM and ZVEDVRAT.ANM are in GRAFIKA (dump with tools/dumpframes.py).",
+      "states": [
+       "closed",
+       "jammed (slightly raised)",
+       "open"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M53.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2592,
+         1056,
+         216,
+         192
+        ],
+        "caption": "map M53: gate closed"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M54.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2592,
+         1056,
+         216,
+         192
+        ],
+        "caption": "map M54: gate jammed"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M55.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2592,
+         1056,
+         216,
+         192
+        ],
+        "caption": "map M55: gate open"
+       }
+      ]
+     },
+     {
+      "id": "ventControl",
+      "name": "Vent shaft control panel",
+      "csName": "ovládání větracích šachet",
+      "interactive": true,
+      "marker": 9,
+      "task": "stopFan",
+      "sheet": "machines",
+      "description": "Control panel on floor 20 (top hall) at hero engine x 98-102 = columns 104-108, by the chain-link fence (columns 90-107, rows 17-18). Paper scrap: sets flag 0x5481, plays vytahop.anm then vrtstop.anm, V POSLEDNÍ VĚTRACÍ ŠACHTĚ SE ZASTAVIL VĚTRÁK. Other item: DO OVLÁDACÍHO PANELU MUSÍŠ ZADAT NĚJAKÉ HESLO. Not in the map tiles (sprite or invisible); the only tile change near it is (106, 19) in M55 (open).",
+      "states": [
+       "locked",
+       "fan stopped"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2400,
+         360,
+         264,
+         168
+        ],
+        "caption": "map M51: floor 20, control spot columns 104-108"
+       }
+      ]
+     },
+     {
+      "id": "ventShaft",
+      "name": "Vent shaft with fan",
+      "csName": "větrací šachta s vrtulí",
+      "interactive": false,
+      "marker": null,
+      "task": "stopFan",
+      "sheet": "machines",
+      "description": "Four vent shafts drop from floor 20 at columns 67-69, 72-74, 77-79 and 85-87, each with a small fan motor box with a red light on row 19 (columns 68, 73, 78, 86) and a thin pipe beside it. Zones on floor 22 (3:0xEE20): the first three always kill (zabvet.anm, game over); the fourth kills until the fan is stopped, then it is the exit to level 6. Look: tan corrugated duct, 3 cells wide, with a dark green machinery wall between shafts; the fan propeller is not in the map tiles (sprite or film only).",
+      "states": [
+       "fan spinning (deadly)",
+       "fan stopped (exit, fourth shaft only)"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1536,
+         384,
+         624,
+         240
+        ],
+        "caption": "map M51: floor 20, four shafts at columns 67-87"
+       }
+      ]
+     },
+     {
+      "id": "lift",
+      "name": "Lift platform and shaft",
+      "csName": "výtah",
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Eleven lifts, none locked. Deck tiles (7,100) (7,101) (7,102) at every stop, tile (10,36) on the stand row of bottom stops. Lift 4 (columns 90-92) has three stops 60, 65, 71; the rest two. Lifts 2/3 (columns 33-35), 1/6 (80-82) and 4/10 (90-92) stack in one shaft. Full table in report 18.",
+      "states": [
+       "idle at floor",
+       "moving up",
+       "moving down"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1896,
+         1152,
+         120,
+         432
+        ],
+        "caption": "map M51: lifts 6 and 1 stacked, columns 80-82, floors 50-65"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2136,
+         1032,
+         120,
+         720
+        ],
+        "caption": "map M51: lifts 10 and 4, columns 90-92, floors 45-71"
+       }
+      ]
+     },
+     {
+      "id": "energyPickup",
+      "name": "Energy pickup",
+      "csName": null,
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Bonus at engine (113, 39) = column 119, floor 45, once (5:0x4F84). Amount as level 4 (inferred). Not in the map tiles.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2760,
+         984,
+         216,
+         120
+        ],
+        "caption": "map M51: floor 45, spot column 119"
+       }
+      ]
+     },
+     {
+      "id": "ammoPickup",
+      "name": "Ammo pickup",
+      "csName": null,
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Bonus at engine (32, 65) = column 38, floor 71, once (5:0x57C1). Amount as level 4 (inferred). Not in the map tiles.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         816,
+         1608,
+         216,
+         120
+        ],
+        "caption": "map M51: floor 71, spot column 38"
+       }
+      ]
+     },
+     {
+      "id": "shieldPickup",
+      "name": "Shield pickup",
+      "csName": null,
+      "interactive": true,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Bonus at engine (50, 32) = column 56, floor 38, once (5:0x5D81). Amount as level 4 (inferred). Not in the map tiles.",
+      "states": [
+       "on ground",
+       "taken"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1248,
+         816,
+         216,
+         120
+        ],
+        "caption": "map M51: floor 38, spot column 56"
+       }
+      ]
+     },
+     {
+      "id": "prisonSky",
+      "name": "Storm sky over the prison",
+      "csName": "obloha",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "LEV5.GRA frame 0 backdrop: rust-brown storm clouds (#603018, #483018, #303024) over black, a thin burning horizon band (#e48418, #f0b430, #c04818).",
+      "states": [],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/lev5/f000.png",
+        "imgSize": [
+         320,
+         200
+        ],
+        "crop": [
+         0,
+         0,
+         320,
+         200
+        ],
+        "caption": "LEV5.GRA frame 0"
+       }
+      ]
+     },
+     {
+      "id": "farPrisonBlocks",
+      "name": "Far cell blocks",
+      "csName": "vzdálené bloky",
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Far layer for open gaps between floors (plain near-black in the original). Flat-roofed cell blocks with dim slit windows; a searchlight tower. Sized w h.",
+      "states": [
+       "cell blocks with slit windows",
+       "searchlight tower"
+      ],
+      "sizes": [
+       [
+        8,
+        4
+       ],
+       [
+        4,
+        6
+       ]
+      ],
+      "refs": []
+     },
+     {
+      "id": "prisonBrick",
+      "name": "Prison brick fill",
+      "csName": "cihly",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Filler: dark rust brick (#30180c, mortar #18180c) with olive stone quoins (#483c24), towers 23-24 r9-35, 114-115 r8-21, vent room 116-123 r61-62 and r69-70.",
+      "states": [],
+      "sizes": [
+       [
+        4,
+        4
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         528,
+         216,
+         144,
+         192
+        ],
+        "caption": "map M51: west tower brick, cols 23-24"
+       }
+      ]
+     },
+     {
+      "id": "shaftMasonry",
+      "name": "Lift shaft masonry",
+      "csName": "zdivo šachty",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Green-grey stone blocks (#303c3c, #3c483c, #243030) with a chrome pipe on one edge: every lift shaft wall, 29-30 r20-38, 33 r20-74, 85-88 r43-58, 98-101 r66-72, 111-114 r59-74, 122-124 r34-74.",
+      "states": [
+       "with chrome pipe",
+       "plain"
+      ],
+      "sizes": [
+       [
+        1,
+        6
+       ],
+       [
+        2,
+        6
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         648,
+         456,
+         192,
+         240
+        ],
+        "caption": "map M51: shaft walls cols 29-33"
+       }
+      ]
+     },
+     {
+      "id": "cellBlockWall",
+      "name": "Cell block wall",
+      "csName": "zeď cel",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Corridor back wall rows 46-64, cols 33-123: rust plate bays (#844824, #784830), dark green-grey steel panels (#303c3c, #3c3c30), sooty bays (#000c0c, #18180c), olive cross rails. Barred cell windows: 9 grey rods (#606054) over black with an orange rail, 63-69 r46-47, 50-55, 63-68, 93-98 r61-62.",
+      "states": [
+       "rust plate bay",
+       "steel panel bay",
+       "sooty bay",
+       "barred window"
+      ],
+      "sizes": [
+       [
+        6,
+        4
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1440,
+         1080,
+         288,
+         144
+        ],
+        "caption": "map M51: corridor wall with barred window 63-69 r46-47"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1152,
+         1440,
+         528,
+         120
+        ],
+        "caption": "map M51: barred windows r61-62"
+       }
+      ]
+     },
+     {
+      "id": "meshFloor",
+      "name": "Mesh grating floor",
+      "csName": "rošt",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Teal steel mesh (#243024, #243030, #3c483c) on a green rail (#3c4830, #304824), a third of a cell thick: corridor floors r45, r50, r55, r60, r65 of cols 33-123, hall floor r37 cols 30-62.",
+      "states": [
+       "grating",
+       "end cap"
+      ],
+      "sizes": [
+       [
+        6,
+        1
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         792,
+         1152,
+         336,
+         96
+        ],
+        "caption": "map M51: corridor floor r50"
+       }
+      ]
+     },
+     {
+      "id": "wallWalk",
+      "name": "Wall-top walkway",
+      "csName": "ochoz",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Riveted brown girder with dark square bays (#483024, #3c3018, #606054), 28-108 r19-20. M55 opens a grate hole at 106 r19.",
+      "states": [
+       "walkway",
+       "with grate hole"
+      ],
+      "sizes": [
+       [
+        6,
+        2
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1536,
+         384,
+         528,
+         144
+        ],
+        "caption": "map M51: walkway r19-20 with beacons"
+       }
+      ]
+     },
+     {
+      "id": "scrapCatwalk",
+      "name": "Rusty catwalk plank",
+      "csName": "lávka",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Thin brown rail (#3c3018, #30240c) over a zigzag truss, one plank per row: 44-131 r22-36, the big hall.",
+      "states": [
+       "straight",
+       "bent"
+      ],
+      "sizes": [
+       [
+        6,
+        1
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1056,
+         504,
+         720,
+         216
+        ],
+        "caption": "map M51: plank stack r22-28"
+       }
+      ]
+     },
+     {
+      "id": "prisonTower",
+      "name": "Prison wall tower",
+      "csName": "věž",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Tan concrete pier (#60543c, #6c603c) beside the brick, a row of steel spikes (#545448) on the yard side, a chrome edge rail: west tower 23-27 r9-35 (spikes east), east tower 109-113 r8-21 (flipped). Sized h.",
+      "states": [
+       "spiked",
+       "spikes broken"
+      ],
+      "sizes": [
+       [
+        5,
+        20
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         504,
+         192,
+         192,
+         672
+        ],
+        "caption": "map M51: west tower"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2568,
+         168,
+         192,
+         360
+        ],
+        "caption": "map M51: east tower"
+       }
+      ]
+     },
+     {
+      "id": "pillarHall",
+      "name": "Pillared hall bay",
+      "csName": "sloupová hala",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "buildings",
+      "description": "Brown concrete posts (#483024) with a white lamp glare under a teal hood (#3c4848), a heavy beam over them: 30-62 r33-37, 48-123 r41-45.",
+      "states": [
+       "lamp lit",
+       "lamp dead"
+      ],
+      "sizes": [
+       [
+        8,
+        4
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         720,
+         768,
+         528,
+         144
+        ],
+        "caption": "map M51: hall r33-37"
+       },
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1440,
+         960,
+         528,
+         144
+        ],
+        "caption": "map M51: hall r41-45"
+       }
+      ]
+     },
+     {
+      "id": "concretePillar",
+      "name": "Concrete pillar",
+      "csName": "pilíř",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Tan concrete column (#60543c, #6c603c), 2 cols wide: under the walkway 67-79 r20-29, 85-92 r24-25, in the vent room 116-117, 120-121 r63-68.",
+      "states": [],
+      "sizes": [
+       [
+        3,
+        10
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1536,
+         456,
+         432,
+         264
+        ],
+        "caption": "map M51: pillars under the walkway"
+       }
+      ]
+     },
+     {
+      "id": "corridorPipe",
+      "name": "Copper corridor pipe",
+      "csName": "potrubí",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Copper-orange pipes (#a87830, #906c30, #784824) along each corridor wall bottom, rows 48, 53, 58, 63 of cols 33-123; thin riser (#604824) e.g. 58 r46-49.",
+      "states": [
+       "horizontal run",
+       "vertical riser"
+      ],
+      "sizes": [
+       [
+        6,
+        1
+       ],
+       [
+        1,
+        4
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1248,
+         1080,
+         336,
+         120
+        ],
+        "caption": "map M51: copper pipe r48, riser 58"
+       }
+      ]
+     },
+     {
+      "id": "ventPipe",
+      "name": "Brass ventilation pipe",
+      "csName": "vzduchotechnika",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Brass pipe (#6c603c, #60543c, #483c24) with rusty flanged valve heads, 113-124 r65-66.",
+      "states": [
+       "run",
+       "run with valve head"
+      ],
+      "sizes": [
+       [
+        6,
+        1
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         2640,
+         1488,
+         360,
+         168
+        ],
+        "caption": "map M51: vent room pipes"
+       }
+      ]
+     },
+     {
+      "id": "ventMachinery",
+      "name": "Ventilation machinery",
+      "csName": "ventilační stroje",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Blue-grey steel frames (#303c3c, #243030, #3c4848), braces, screw rods, olive rails (#484830), a fan behind a grille: 33-110 r66-71 (fan 51-52 r67-68).",
+      "states": [
+       "frame",
+       "frame with fan"
+      ],
+      "sizes": [
+       [
+        8,
+        5
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         960,
+         1560,
+         576,
+         168
+        ],
+        "caption": "map M51: machine hall r66-71, fan at 51-52"
+       }
+      ]
+     },
+     {
+      "id": "ceilingStrip",
+      "name": "Ceiling strip light",
+      "csName": "zářivka",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "White tube (#fcfcfc) in a dark housing on every corridor ceiling, e.g. 50-51 r46, 61 r51, 102 r46.",
+      "states": [
+       "lit",
+       "dead"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1104,
+         1080,
+         240,
+         72
+        ],
+        "caption": "map M51: ceiling tubes r46"
+       }
+      ]
+     },
+     {
+      "id": "wallGrille",
+      "name": "Wall grille box",
+      "csName": "mřížka",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Small dark steel box with three slats beside each SUB plate, e.g. 33 r20, 53 r44, 32 r37.",
+      "states": [],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         720,
+         432,
+         144,
+         96
+        ],
+        "caption": "map M51: grille and SUB 4 at r20"
+       }
+      ]
+     },
+     {
+      "id": "wallBeacon",
+      "name": "Walkway warning lamp",
+      "csName": "výstražné světlo",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Red lamp box on a steel post with a green cap on the walkway top: lamps 69, 75, 79 r18, posts 73 and 82 r18-19.",
+      "states": [
+       "lit",
+       "dark"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         1584,
+         384,
+         432,
+         96
+        ],
+        "caption": "map M51: beacons r18"
+       }
+      ]
+     },
+     {
+      "id": "subSign",
+      "name": "SUB stencil plate",
+      "csName": "nápis SUB",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Rust plate (#844824) with ochre stencil letters (#9c6c18): SUB 4 at each lift stop (30-32 r20 and r37, 50-52 r44, 90-92 r44 and r49, 116-118 r60 and r72), SUB 1 38-40 r53, SUB 2 38-40 r58, SUB 3 93-95 r63.",
+      "states": [
+       "SUB 1",
+       "SUB 2",
+       "SUB 3",
+       "SUB 4"
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         864,
+         1224,
+         192,
+         216
+        ],
+        "caption": "map M51: SUB 1 and SUB 2"
+       }
+      ]
+     },
+     {
+      "id": "prisonFence",
+      "name": "Walkway chain fence",
+      "csName": "plot",
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "structures",
+      "description": "Grey chain mesh (#546060, #78786c) on thin posts every 5 cols with a dark red stain: 28-48 and 88-108 r17-18.",
+      "states": [
+       "intact",
+       "torn"
+      ],
+      "sizes": [
+       [
+        5,
+        2
+       ]
+      ],
+      "refs": [
+       {
+        "path": "docs/research/gamedata/png/maps/map_M51.png",
+        "imgSize": [
+         3840,
+         1920
+        ],
+        "crop": [
+         624,
+         360,
+         576,
+         120
+        ],
+        "caption": "map M51: fence r17-18"
+       }
+      ]
+     },
+     {
+      "id": "cellBunk",
+      "name": "Steel double bunk",
+      "csName": "palanda",
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Big ground clutter (none in the original): rust-grey steel double bunk with a torn mattress.",
+      "states": [
+       "standing",
+       "collapsed"
+      ],
+      "refs": []
+     },
+     {
+      "id": "cellLocker",
+      "name": "Steel locker",
+      "csName": "skříňka",
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Small ground clutter (none in the original): narrow green-grey steel locker.",
+      "states": [
+       "closed",
+       "open",
+       "dented"
+      ],
+      "refs": []
+     },
+     {
+      "id": "slopBin",
+      "name": "Slop bin",
+      "csName": "kbelík",
+      "interactive": false,
+      "origin": "new",
+      "marker": null,
+      "task": null,
+      "sheet": "props",
+      "description": "Small ground clutter (none in the original): dented steel bin, tipped with spilled slop.",
+      "states": [
+       "upright",
+       "tipped"
       ],
       "refs": []
      }

@@ -4,7 +4,8 @@ import { useSandbox } from "../../sandbox/store";
 import type { MovementConfig } from "../hero/config";
 import { isDead, type Hero } from "../hero/hero";
 import { saveLang } from "../i18n";
-import { gameOverState, menuKey, menuPoint, settingsState, type MenuResult, type MenuState } from "../hud/menuKeys";
+import { difficultyState, gameOverState, menuKey, menuPoint, settingsState, type DifficultyState, type MenuResult, type MenuState } from "../hud/menuKeys";
+import { sameDifficulty, type Difficulty } from "../difficulty";
 import { menuPointOf } from "../hud/pointer";
 import type { SandboxWorld } from "../level/sandboxLevel";
 import { MENU_CUE } from "../sound/ui";
@@ -100,7 +101,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   };
 
   const withMessage = (state: MenuState | null, message: string): MenuState | null => {
-    if (!state || state.screen === "pause" || state.screen === "settings" || state.screen === "help") return state;
+    if (!state || state.screen === "pause" || state.screen === "settings" || state.screen === "help" || state.screen === "difficulty") return state;
     if (state.screen === "gameOver") return gameOverState(loadableNow(), message, state.at ?? null);
     return { ...state, message };
   };
@@ -124,6 +125,11 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
     show(withMessage(r.state, ok ? SAVED : SAVE_FAILED));
   };
 
+  const setDifficulty = (difficulty: Difficulty): void => {
+    d.world.difficulty = difficulty;
+    useSandbox.setState({ difficulty });
+  };
+
   const act = (r: MenuResult): void => {
     if (r.action === "save") return save(r);
     if (r.action === "load") return load(r.state?.screen === "gameOver" ? latestLoadable(slots(), d.mission, d.world) : slots()[r.slot!], r.state);
@@ -142,7 +148,18 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
       useSandbox.setState({ autosave: d.world.autosave });
       return show(r.state);
     }
+    if (r.action === "chooseDifficulty" && r.state) return show(difficultyState(r.state as DifficultyState["from"], d.world.difficulty));
+    if (r.action === "restartWith" && r.difficulty) {
+      setDifficulty(r.difficulty);
+      d.restart();
+      track();
+      return close();
+    }
     if (r.action === "difficulty") {
+      if (r.difficulty && !sameDifficulty(r.difficulty, d.world.difficulty)) {
+        setDifficulty(r.difficulty);
+        d.restart();
+      }
       d.world.autosave = r.autosave ?? false;
       track();
       close();
@@ -187,7 +204,7 @@ export function createSaveMenu(d: SaveMenuDeps): SaveMenu {
   const opened = d.startSlot != null ? (refresh(), slots()[d.startSlot]) : null;
   if (opened?.mission === d.mission) load(opened, { screen: "load", cursor: d.startSlot!, typing: null, confirm: false, message: null });
   const asking = !!d.askDifficulty && opened?.mission !== d.mission;
-  if (asking) show(settingsState());
+  if (asking) show(settingsState(d.world.difficulty));
 
   return {
     asking,

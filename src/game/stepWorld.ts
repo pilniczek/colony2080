@@ -1,9 +1,10 @@
+import { dropEnergy, pickDrops } from "./level/drops";
 import type { InputFrame } from "../engine/input";
 import { updateFog } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import { halt, isDead, updateHero, type Hero, type HeroEvent } from "./hero/hero";
 import { inSparks, stepConveyors, stepHazards } from "./level/hazards";
-import { approachFilms, resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
+import { stepApproaches, resetWorld, updateLift, type SandboxWorld } from "./level/sandboxLevel";
 import { updateEnemy } from "./level/enemy";
 import { cue } from "./sound/cues";
 import { explode, siren, spark } from "./sound/triggers";
@@ -55,12 +56,14 @@ export function stepWorld(
   stepConveyors(world, hero, cfg, dt);
   stepHazards(world, hero, cfg, dt, events);
   if (!isDead(hero.state)) {
-    approachFilms(world, hero, cfg.box.height);
+    stepApproaches(world, hero, cfg.box.height);
   }
   fireShots(world, hero, events, clips, cfg);
   fireBeam(world, hero, events, clips, cfg, dt);
   warnLowBonus(world, hero, cfg);
   landPunches(world, hero, events, cfg);
+  dropEnergy(world);
+  pickDrops(world, hero, cfg);
   worldSounds(world, hero, events, dt);
   if (events.some((e) => e.kind === "respawned")) resetWorld(world, cfg);
   if (!filming && world.cutscene) {

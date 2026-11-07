@@ -1,3 +1,4 @@
+import { START_DIFFICULTY, type Difficulty } from "../game/difficulty";
 import cameraJson from "@config/camera.json";
 import clipsJson from "@config/hero/clips.json";
 import movementJson from "@config/hero/movement.json";
@@ -38,6 +39,7 @@ export interface SandboxState {
   alarmAt: number | null;
   lang: Lang;
   autosave: boolean;
+  difficulty: Difficulty;
   cutscene: boolean;
   menu: MenuState | null;
   slots: Slots;
@@ -140,6 +142,7 @@ export const useSandbox = create<SandboxState>()((set, get) => ({
   alarmAt: null,
   lang: storedLang(),
   autosave: false,
+  difficulty: START_DIFFICULTY,
   cutscene: false,
   menu: null,
   slots: [],

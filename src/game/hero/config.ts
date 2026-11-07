@@ -53,6 +53,7 @@ export interface MovementConfig {
   bonuses: Record<BonusKind, { add: number; cap: number }>;
   respawnMs: number;
   deathSlide: number;
+  damageScale: number;
 }
 
 type Obj = Record<string, unknown>;
@@ -123,6 +124,7 @@ export function loadMovement(json: unknown): MovementConfig {
     bonuses: bonusesOf(obj(o.bonuses, "movement.bonuses")),
     respawnMs: n("respawnMs"),
     deathSlide: n("deathSlide"),
+    damageScale: o.damageScale === undefined ? 1 : finite(o.damageScale, "movement.damageScale"),
   };
 }
 

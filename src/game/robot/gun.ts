@@ -39,7 +39,7 @@ export const drawGun = model.draw;
 export const gunHook = model.hook;
 export const gunSlung = model.slung;
 
-export const CARRY = { arm: 0, fore: -72 };
+export const CARRY = { arm: 22, fore: -94 };
 export const FRONT_CARRY = { armL: -24, foreL: -66 };
 
 export interface HoldPoses {

@@ -6,7 +6,7 @@ Sources: map crops of M31-M34, `LEV3.GRA` frame 0 (`docs/research/gamedata/png/L
 
 The jungle has no lifts: `map.json` `lifts` is empty. The tower lift is two teleport pads (`towerLiftUp` col 140-143 row 41, `towerLiftDown` col 116-119 row 25).
 
-Review the sheet at `spikes/env-design/index.html?mission=jungle&scope=own`.
+Review the sheet at `spikes/env-design/index.html?mission=jungle`.
 
 ## Layout features
 

@@ -7,7 +7,9 @@ import { isDead, type Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
 import { heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Rect } from "../geometry";
-import { bodyBox, boxSeen, type Enemy } from "../level/enemy";
+import { bodyBox, boxSeen, isDead as isEnemyDead, type Enemy } from "../level/enemy";
+import { picked } from "../difficulty";
+import { HEALTH_BAR } from "../env/healthBar";
 import { visible, type Fog } from "../fog";
 import { coverClips } from "../level/cover";
 import type { Flame, SandboxWorld } from "../level/sandboxLevel";
@@ -305,6 +307,22 @@ export const visibleEnemies = (enemies: Enemy[], view: Rect, margin: number): En
       body.x >= view.x - margin && body.x <= view.x + view.w + margin && body.y >= view.y - margin && body.y <= view.y + view.h + margin,
   );
 
+function healthBars(f: Frame, enemies: Enemy[], cfg: MovementConfig): void {
+  const { ctx, cell, lines, world } = f;
+  const k = cell / TILE;
+  for (const enemy of enemies) {
+    const left = enemy.body.energy / enemy.hits;
+    if (isEnemyDead(enemy) || left >= 1) continue;
+    const box = bodyBox(enemy, cfg.box);
+    if (!boxSeen(world.fog, box)) continue;
+    ctx.save();
+    ctx.translate(enemy.body.x * cell, box.top * cell - HEALTH_BAR.lift * k);
+    ctx.scale(k, k);
+    drawAsset(ctx, ASSETS.healthBar, { state: Math.ceil(left * HEALTH_BAR.segments), lod: true, lines });
+    ctx.restore();
+  }
+}
+
 export interface EnemyView {
   enemy: Enemy;
   look: HeroLook;
@@ -357,6 +375,7 @@ export function drawScene(
     .map(({ enemy, look: enemyLook, kind }) => enemyFigure(f, enemy, enemyLook, kind, scale, cfg.fireRate))
     .filter((p): p is Pt => p !== null);
   if (!behind) drawHero();
+  if (picked(world.difficulty, "healthBars")) healthBars(f, enemyViews.map(({ enemy }) => enemy), cfg);
   if (sight) ctx.clip(sight);
   lasers(f, lasing, hero, cfg.box.height);
   drawProjectiles(ctx, world.projectiles, f.cell, f.unit);

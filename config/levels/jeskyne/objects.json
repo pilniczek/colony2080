@@ -188,6 +188,50 @@
       ]
     },
     {
+      "id": "shaftHead",
+      "name": "Lift shaft head",
+      "csName": null,
+      "interactive": false,
+      "marker": null,
+      "task": null,
+      "sheet": "machines",
+      "description": "Support role, dressing at the top of every lift shaft, centred on the shaft. Three dark green guide rods rise from a riveted green-grey clamp bar and fade into the dark; under the bar the lift chains run down and a mossy grey stone counterweight in an iron band hangs on the middle chain. One cell wide in the original (tiles over the shaft centre column), 3-4 rows above the top stop: cells 45 rows 15-18 (lift 2), 50 rows 24-26 (lift 1), 73 rows 24-26 (lift 3), 83 rows 16-18 (lift 4), 98 rows 59-61 (lift 5), 128 rows 50-52 (lift 6).",
+      "states": [
+        "static"
+      ],
+      "refs": [
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1032,
+            312,
+            120,
+            168
+          ],
+          "caption": "map M41: lift 2 shaft head, cols 43-47 rows 13-19"
+        },
+        {
+          "path": "docs/research/gamedata/png/maps/map_M41.png",
+          "imgSize": [
+            3840,
+            1920
+          ],
+          "crop": [
+            1920,
+            336,
+            144,
+            120
+          ],
+          "caption": "map M41: lift 4 shaft head, cols 80-85 rows 14-18"
+        }
+      ],
+      "sizes": []
+    },
+    {
       "id": "stalactite",
       "name": "Stalactite",
       "csName": "krápník",

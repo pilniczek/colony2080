@@ -2,7 +2,7 @@ import { isCutsceneId, type CutsceneId } from "../cutscene";
 import { ITEMS, type ItemId } from "../items";
 import { cue } from "../sound/cues";
 import { OPEN_SOUND } from "../sound/props";
-import { pickUp, useShown, type Prop, type SandboxWorld } from "./sandboxLevel";
+import { pickUp, useShown, type Combo, type Prop, type SandboxWorld } from "./sandboxLevel";
 
 export interface Task {
   id: string;
@@ -21,6 +21,12 @@ export interface Task {
 export interface TaskHint {
   text: string;
   until: string;
+}
+
+export interface Effects {
+  gives?: string[];
+  sets?: Record<string, number>;
+  subtitle?: string;
 }
 
 export interface Subtitle {
@@ -106,6 +112,11 @@ const met = (world: SandboxWorld, token: string): boolean => {
   return item === null ? world.flags.has(token) : world.inventory.shown === item;
 };
 
+export const holds = (world: SandboxWorld, token: string): boolean => {
+  const item = itemOf(token);
+  return item === null ? world.flags.has(token) : world.inventory.items.includes(item);
+};
+
 const open = (world: SandboxWorld, prop: Prop) =>
   world.tasks.filter((t) => t.object === prop.id && !world.flags.has(doneToken(t)));
 
@@ -121,13 +132,15 @@ export function hintFor(prop: Prop, world: SandboxWorld): string {
   return first.hints?.find((h) => !world.flags.has(h.until))?.text ?? first.hint ?? MISSING;
 }
 
+export const unseen = (world: SandboxWorld, prop: Prop): boolean => prop.shownBy !== undefined && !world.flags.has(prop.shownBy) && !prop.repels;
+
 export function applyBlocks(world: SandboxWorld): void {
   world.grid.clearBlocks();
   for (const prop of world.props) {
     const { cells, solidStates, gapStates } = prop;
     const state = prop.state ?? 0;
     const solid = solidStates?.includes(state);
-    if (!cells || !(solid || gapStates?.includes(state))) continue;
+    if (!cells || !(solid || gapStates?.includes(state)) || unseen(world, prop)) continue;
     for (let row = cells.row; row < cells.row + cells.h; row++) {
       for (let col = cells.col; col < cells.col + cells.w; col++) {
         if (solid) world.grid.block(col, row, true, prop.seeThrough);
@@ -157,6 +170,35 @@ const spent = (world: SandboxWorld, id: ItemId): boolean => {
   return !ITEMS[id]?.keep && users.length > 0 && users.every((t) => world.flags.has(doneToken(t)));
 };
 
+export function applyEffects(world: SandboxWorld, { gives = [], sets = {}, subtitle }: Effects): void {
+  for (const flag of gives) world.flags.add(flag);
+  for (const [id, state] of Object.entries(sets)) setState(world, id, state);
+  applyBlocks(world);
+  if (subtitle) say(world, subtitle);
+  if (world.flags.has(COMPLETE)) world.complete = true;
+}
+
+const matches = (world: SandboxWorld, combo: Combo): boolean =>
+  Object.entries(combo.levers).every(([id, state]) => world.props.some((p) => p.id === id && (p.state ?? 0) === state));
+
+function toggle(world: SandboxWorld, lever: Prop): void {
+  moveProp(world, lever, (lever.state ?? 0) === 0 ? 1 : 0, false);
+  let text = lever.toggle?.subtitle;
+  for (const gate of world.props) {
+    const { combo } = gate;
+    if (!combo || lever.id === undefined || !(lever.id in combo.levers)) continue;
+    const opens = matches(world, combo);
+    const state = opens ? combo.open : combo.closed;
+    if ((gate.state ?? 0) === state) continue;
+    moveProp(world, gate, state, false);
+    if (!opens) continue;
+    for (const flag of combo.gives ?? []) world.flags.add(flag);
+    text = combo.subtitle ?? text;
+  }
+  applyBlocks(world);
+  if (text) say(world, text);
+}
+
 export const pending = (world: SandboxWorld, prop: Prop): boolean => open(world, prop).length > 0;
 
 export const openTask = (world: SandboxWorld, prop: Prop): Task | undefined => open(world, prop).find((t) => t.requires.every((token) => met(world, token)));
@@ -172,7 +214,13 @@ export function pickAll(world: SandboxWorld): number {
 
 function openState(world: SandboxWorld, prop: Prop): number {
   const solid = prop.solidStates ?? [];
-  const known = [...world.tasks.flatMap((t) => (t.object === prop.id ? [t.state] : []).concat(prop.id === undefined ? [] : [t.sets?.[prop.id]])), prop.shootable?.state];
+  const setBy = (sets?: Record<string, number>) => (prop.id === undefined ? undefined : sets?.[prop.id]);
+  const known = [
+    ...world.tasks.flatMap((t) => (t.object === prop.id ? [t.state] : []).concat([setBy(t.sets)])),
+    ...world.props.flatMap((p) => [setBy(p.shootable?.sets), setBy(p.approach?.sets)]),
+    prop.shootable?.state,
+    prop.combo?.open,
+  ];
   const opened = known.find((state): state is number => state !== undefined && !solid.includes(state));
   if (opened !== undefined) return opened;
   let state = 0;
@@ -191,6 +239,7 @@ export function openBlockers(world: SandboxWorld): number {
 
 export function runUse(world: SandboxWorld, prop: Prop, { filmed = false } = {}): void {
   if (prop.id !== undefined) world.flags.add(tried(prop.id));
+  if (prop.toggle) return toggle(world, prop);
   const task = openTask(world, prop);
   if (!task) {
     if (prop.id !== undefined) world.flags.add(refused(prop.id));

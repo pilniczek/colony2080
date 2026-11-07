@@ -12,7 +12,7 @@ import { repelHero, updateGuard } from "./level/guards";
 import { flyMissile, launchMissile } from "./level/missiles";
 import { live, tick } from "./level/projectile";
 import { flyRocket, launchRocket } from "./level/rockets";
-import { applyBlocks, say, setStates } from "./level/tasks";
+import { applyEffects, say, unseen } from "./level/tasks";
 import { holdPoses, MUZZLE_IN_HOOK } from "./robot/gun";
 import { TOASTER_MUZZLE_IN_HOOK, toasterHolds } from "./robot/toaster";
 import { FLAME_LIFE, FLAME_STEPS, FLAMETHROWER_MUZZLE_IN_HOOK, flamethrowerHolds } from "./robot/flamethrower";
@@ -127,8 +127,11 @@ const sparkY = (enemy: Enemy, cfg: MovementConfig, y: number): number => {
 
 const shootable = (prop: Prop): boolean => !!prop.shootable && (prop.hitsTaken ?? 0) < prop.shootable.hits;
 
-function propFace(prop: Prop, ray: Ray, beam: boolean): number | null {
-  if (!shootable(prop) || (prop.shootable!.by === "beam" && !beam)) return null;
+type Hit = Strike | "beam";
+
+function propFace(prop: Prop, ray: Ray, hit: Hit): number | null {
+  const only = prop.shootable?.by;
+  if (!shootable(prop) || (only !== undefined && only !== hit)) return null;
   const half = (prop.width ?? 1) / 2;
   const floor = prop.y ?? 0;
   if (ray.y < floor - (prop.height ?? 1) || ray.y > floor || !across(ray, prop.x - half, prop.x + half)) return null;
@@ -143,17 +146,15 @@ export function hitShootable(world: SandboxWorld, prop: Prop, by: Strike = "shot
   prop.state = spec.state;
   prop.brokenAge = 0;
   if (prop.fires) explode(world);
-  for (const flag of spec.gives ?? []) world.flags.add(flag);
-  setStates(world, spec.sets);
-  applyBlocks(world);
-  if (spec.subtitle) say(world, spec.subtitle);
+  applyEffects(world, spec);
   startFilm(world, spec.cutscene?.[by]);
 }
 
-function nearestProp(world: SandboxWorld, ray: Ray, beam = false): { prop: Prop; face: number } | null {
+function nearestProp(world: SandboxWorld, ray: Ray, hit: Hit): { prop: Prop; face: number } | null {
   let best: { prop: Prop; face: number } | null = null;
   for (const prop of world.props) {
-    const face = propFace(prop, ray, beam);
+    if (unseen(world, prop)) continue;
+    const face = propFace(prop, ray, hit);
     if (face !== null && (!best || Math.abs(face - ray.from) < Math.abs(best.face - ray.from))) best = { prop, face };
   }
   return best;
@@ -169,7 +170,7 @@ function strike(world: SandboxWorld, cfg: MovementConfig, ray: Ray, damage: numb
     const face = enemyFace(enemy, cfg, ray, span);
     if (face !== null && (!struck || Math.abs(face - ray.from) < Math.abs(struck.face - ray.from))) struck = { enemy, face };
   }
-  const prop = nearestProp(world, ray);
+  const prop = nearestProp(world, ray, by);
   if (prop && (!struck || Math.abs(prop.face - ray.from) < Math.abs(struck.face - ray.from))) {
     hitShootable(world, prop.prop, by);
     spark(world, prop.face, ray.y);
@@ -202,7 +203,7 @@ function beamLine(world: SandboxWorld, h: Hero, clips: ClipSet, cfg: MovementCon
   const [x, y] = heroMuzzle(h, clips, cfg);
   const { ray } = openRay(world, h, y, cfg);
   const end = ahead(h.facing, x, ray.end);
-  const prop = nearestProp(world, { ...ray, end }, true);
+  const prop = nearestProp(world, { ...ray, end }, "beam");
   return prop ? { x, y, end: ahead(h.facing, x, prop.face), prop: prop.prop } : { x, y, end, prop: null };
 }
 
@@ -231,14 +232,14 @@ function toasterReach(world: SandboxWorld, h: Hero, [x, y]: Pt, cfg: MovementCon
 export function toasterSight(world: SandboxWorld, h: Hero, look: HeroLook, rigs: Rigs, cfg: MovementConfig): { x: number; y: number; end: number } {
   const muzzle = rigPoint(h, look, rigs, TOASTER_MUZZLE_IN_HOOK, cfg);
   const { ray, end } = toasterReach(world, h, muzzle, cfg);
-  const prop = nearestProp(world, { ...ray, end }, true);
+  const prop = nearestProp(world, { ...ray, end }, "beam");
   return { x: muzzle[0], y: muzzle[1], end: prop ? ahead(h.facing, muzzle[0], prop.face) : end };
 }
 
 function toasterLine(world: SandboxWorld, h: Hero, clips: ClipSet, cfg: MovementConfig): BeamLine {
   const [x, y] = toasterMuzzle(h, clips, cfg);
   const { ray, end } = toasterReach(world, h, [x, y], cfg);
-  const prop = nearestProp(world, { ...ray, end }, true);
+  const prop = nearestProp(world, { ...ray, end }, "beam");
   return prop ? { x, y, end: ahead(h.facing, x, prop.face), prop: prop.prop } : { x, y, end, prop: null };
 }
 

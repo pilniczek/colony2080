@@ -103,10 +103,22 @@ const stalactiteLip = (ctx, broken) => {
   G.chips(ctx, 0, 15, 48, 934, G.DUST);
   G.drips(ctx, 4, 17, 40, 10, 935, 3, false);
 };
+const stalactiteStem = (ctx, top) => {
+  const pts = [[6, top], [44, top], [40, 2], [10, 2]];
+  shape(ctx, pts, ROCK[2]);
+  shape(ctx, [[30, top], [44, top], [40, 2], [32, 2]], ROCK[1]);
+  for (let y = top + 10; y < -4; y += 14)
+    line(ctx, [[10, y], [24, y + 3], [40, y - 1]], ROCK[3], 0.8);
+  G.grain(ctx, G.polyRegion(ctx, pts), 937, 0.6);
+  path(ctx, pts);
+  stroke(ctx, RLINE, 1.1);
+};
 const stalactite = {
   id: "stalactite",
   box: [-6, -2, 54, 92],
-  draw(ctx, state) {
+  draw(ctx, state, _t, { top } = {}) {
+    if (top !== undefined && top < 0)
+      stalactiteStem(ctx, top);
     if (state !== 1)
       for (const s of state === 2 ? [] : SHARDS)
         shard(ctx, ...s);
@@ -451,7 +463,7 @@ const crateRow = (ctx, x0, w, y, seed) => {
 };
 const mineCarts = {
   id: "mineCarts",
-  box: [-122, -50, 194, 2],
+  box: [-122, -26, 194, 26],
   draw(ctx, _state, _t, { w = 192 } = {}) {
     const seed = 1060 + round(w);
     const stub = [-120, -24, 120, 8];
@@ -464,11 +476,11 @@ const mineCarts = {
     flat(ctx, -120, -24, 120, 1.2, "#e4ece0");
     flat(ctx, -120, -17.2, 120, 1.2, "#888484");
     G.grain(ctx, G.rectRegion(ctx, ...stub), seed + 5, 0.6);
-    crateRow(ctx, 0, w, -48, seed);
-    crateRow(ctx, 6 - 72, w, -24, seed + 40);
-    outline(ctx, 0, -48, w, 48);
-    G.grain(ctx, G.rectRegion(ctx, 0, -48, w, 48), seed + 1, 0.35);
-    G.dirt(ctx, 0, -24, w, 24, seed + 2, 0.3);
+    crateRow(ctx, 0, w, -24, seed);
+    crateRow(ctx, 6 - 72, w, 0, seed + 40);
+    outline(ctx, 0, -24, w, 48);
+    G.grain(ctx, G.rectRegion(ctx, 0, -24, w, 48), seed + 1, 0.35);
+    G.dirt(ctx, 0, 0, w, 24, seed + 2, 0.3);
   },
 };
 const cartCrusher = {

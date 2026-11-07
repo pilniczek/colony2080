@@ -58,6 +58,7 @@ export interface MissilesJson {
 }
 
 export interface KindTuning {
+  role?: "base" | "special";
   hits?: number;
   burst?: Burst;
   pauseMs?: number;

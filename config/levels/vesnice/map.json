@@ -95,7 +95,6 @@
     {"x": 18, "width": 3, "top": 41, "bottom": 50, "start": "top"}
   ],
   "spawn": [152.5, 41],
-  "fallDeathCells": null,
   "hazards": [
     {"id": "bridgeGap", "kind": "death", "col": 45, "row": 41, "w": 12, "h": 4}
   ],

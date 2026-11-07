@@ -1,3 +1,4 @@
+import type { Drop } from "../level/drops";
 import { FIXED_STEP } from "../../engine/loop";
 import { context2d, surface, type Surface } from "../../engine/render/surface";
 import { ASSETS, type AssetId } from "../env/assets";
@@ -11,6 +12,7 @@ import type { Rect } from "../geometry";
 import { ITEMS } from "../items";
 import type { Rect as CellRect, Run } from "../level/terrain";
 import { onGround, type Lift, type Prop, type SandboxWorld, type Scenery } from "../level/sandboxLevel";
+import { unseen } from "../level/tasks";
 import { openRects } from "./fog";
 import { nearestFirst, TileCache, TILE_PX, visibleTiles, type TileCoord } from "./tiles";
 
@@ -536,7 +538,7 @@ function terrain(e: Env): void {
   const art = e.world.terrainArt;
   const { walls, ledges, girders, landings, bases, behind, deep } = drawnTerrain(e.world);
   for (const r of pick(e, "walls", walls, wallBox)) {
-    if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell) });
+    if (near(e, wallBox(e, r))) put(e, art.wall, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell), at: [r.col * TILE, (r.row + r.h) * TILE] });
   }
   if (art.deep) for (const r of pick(e, "deep", deep, deepBox)) if (near(e, deepBox(e, r))) put(e, art.deep, r.col * cell, (r.row + r.h) * cell, 0, { w: px(e, r.w * cell), h: px(e, r.h * cell), at: [r.col * TILE, (r.row + r.h) * TILE], region: deepAtOf(e.world) });
   for (const r of pick(e, "bases", bases, runBox)) if (near(e, runBox(e, r))) put(e, art.ledge, r.col * cell, r.row * cell, 0, { w: px(e, r.w * cell) });
@@ -679,7 +681,7 @@ export function prop(e: Env, p: Prop): void {
   const [left, , right] = ASSETS[id].box;
   const { dx = 0, dy = 0, top, flip } = p.art ?? {};
   const look = guardLook(p);
-  if (look === "gone" || guardHidden(p, e.world.flags)) return;
+  if (look === "gone" || guardHidden(p, e.world.flags) || unseen(e.world, p)) return;
   const state = look?.state ?? icon?.state ?? (p.kind === "panel" && p.on ? 1 : (p.state ?? 0));
   const size = top === undefined ? undefined : { top: -px(e, top * e.cell) };
   const x = (p.x + dx) * e.cell + (flip ? 1 : -1) * ((left + right) / 2) * k(e);
@@ -720,7 +722,11 @@ function flowing(e: Env, t: number): void {
     ctx.clip();
     ctx.globalAlpha = 1 - hazeAlpha(world.haze);
     const [x, y] = sceneryAt(e, s);
-    put(e, s.asset, x, y, 1, { w: s.w && s.w * TILE, h: s.h && s.h * TILE }, t);
+    if (s.flip) {
+      ctx.translate(x, 0);
+      ctx.scale(-1, 1);
+    }
+    put(e, s.asset, s.flip ? 0 : x, y, 1, { w: s.w && s.w * TILE, h: s.h && s.h * TILE }, t);
     ctx.restore();
   }
 }
@@ -744,6 +750,15 @@ export function drawEnvironment(
   cached(e, "above");
   for (const p of world.props) if (!isPickup(p)) prop(e, p);
   for (const p of world.props) if (isPickup(p)) prop(e, p);
+  for (const d of world.drops) if (!d.taken) drop(e, d);
+}
+
+function drop(e: Env, d: Drop): void {
+  const [left, , right] = ASSETS.energyDrop.box;
+  const x = d.x * e.cell - ((left + right) / 2) * k(e);
+  const y = d.y * e.cell;
+  if (!near(e, artBox(e, "energyDrop", x, y, 0))) return;
+  if (!putSprite(e, "energyDrop", x, y, 0)) put(e, "energyDrop", x, y);
 }
 
 const isPickup = (p: Prop): boolean => p.kind === "item" || p.kind === "weapon" || p.kind === "bonus";

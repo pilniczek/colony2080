@@ -6,7 +6,7 @@ Sources: map crops of M41-M43, `LEV4.GRA` frame 0 (`docs/research/gamedata/png/l
 
 The open cells of the map are plain near-black brown (`#13100c`): the backdrop shows there in the game. Rows 0-5 and the cells east of col 145 are outside the map (black).
 
-Review the sheet at `spikes/env-design/index.html?mission=jeskyne&scope=own`.
+Review the sheet at `spikes/env-design/index.html?mission=jeskyne`.
 
 ## Layout features
 

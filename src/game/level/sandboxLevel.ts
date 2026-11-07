@@ -1,3 +1,6 @@
+import type { Drop } from "./drops";
+import { applyAssists } from "../assists";
+import { picked, START_DIFFICULTY, type Difficulty } from "../difficulty";
 import type { SoundCue } from "../../engine/audio/mixer";
 import { isCutsceneId, type CutsceneId } from "../cutscene";
 import type { Platform } from "../../engine/world/collide";
@@ -14,10 +17,29 @@ import type { Missile } from "./missiles";
 import type { Rocket } from "./rockets";
 import type { PropFire, PropRepel } from "./guards";
 import { loadQuests, type Quest } from "./quests";
-import { applyBlocks, loadTasks, type Subtitle, type Task } from "./tasks";
+import { applyBlocks, applyEffects, holds, loadTasks, type Effects, type Subtitle, type Task } from "./tasks";
 import { terrain, type Rect as CellRect } from "./terrain";
 
 export type Strike = "shot" | "punch";
+
+const ONLY_BY = ["beam", "punch"] as const;
+
+export type OnlyBy = (typeof ONLY_BY)[number];
+
+export interface Combo {
+  levers: Record<string, number>;
+  open: number;
+  closed: number;
+  gives?: string[];
+  subtitle?: string;
+}
+
+export interface Approach extends Omit<Effects, "gives"> {
+  cells: number;
+  gives: string;
+  cutscene?: CutsceneId;
+  unless?: string[];
+}
 
 export interface Prop {
   kind: string;
@@ -37,14 +59,17 @@ export interface Prop {
   art?: { dx?: number; dy?: number; top?: number; flip?: boolean };
   state?: number;
   solidStates?: number[];
+  floor?: boolean;
   gapStates?: number[];
   hazardStates?: number[];
   seeThrough?: boolean;
   cells?: { col: number; row: number; w: number; h: number };
   cover?: Cover;
-  shootable?: { hits: number; state: number; gives?: string[]; sets?: Record<string, number>; subtitle?: string; by?: "beam"; cutscene?: Partial<Record<Strike, CutsceneId>> };
+  shootable?: { hits: number; state: number; gives?: string[]; sets?: Record<string, number>; subtitle?: string; by?: OnlyBy; cutscene?: Partial<Record<Strike, CutsceneId>> };
   cutscene?: CutsceneId;
-  approach?: { cells: number; cutscene: CutsceneId; gives: string };
+  approach?: Approach;
+  toggle?: { subtitle?: string };
+  combo?: Combo;
   hitsTaken?: number;
   fires?: PropFire;
   repels?: PropRepel;
@@ -144,7 +169,6 @@ export interface CellPatch {
 
 export interface SandboxWorld {
   grid: TileGrid;
-  fallDeathCells: number | null | undefined;
   hazards: Hazard[];
   conveyors: Conveyor[];
   teleports: Teleport[];
@@ -181,6 +205,8 @@ export interface SandboxWorld {
   immortal: boolean;
   allQuests: boolean;
   autosave: boolean;
+  difficulty: Difficulty;
+  drops: Drop[];
   sounds: SoundCue[];
   sfx: SoundClock;
   source: SandboxJson;
@@ -249,7 +275,6 @@ export interface SandboxJson {
   props: Prop[];
   enemies: EnemyJson[];
   tasks?: unknown;
-  fallDeathCells?: number | null;
   hazards?: Hazard[];
   conveyors?: Conveyor[];
   teleports?: Teleport[];
@@ -267,6 +292,8 @@ function checkedProp(prop: Prop): Prop {
   if (prop.kind === "bonus" && !(BONUS_KINDS as readonly string[]).includes(prop.bonus ?? "")) throw new Error(`unknown bonus: ${prop.bonus}`);
   if (prop.kind === "object" && !prop.id) throw new Error("object prop without id");
   if (prop.asset !== undefined && !isAssetId(prop.asset)) throw new Error(`unknown asset: ${prop.asset}`);
+  const by = prop.shootable?.by;
+  if (by !== undefined && !(ONLY_BY as readonly string[]).includes(by)) throw new Error(`${prop.id}: unknown shootable by: ${by}`);
   for (const id of [prop.cutscene, prop.shootable?.cutscene?.shot, prop.shootable?.cutscene?.punch, prop.approach?.cutscene, prop.repels?.cutscene]) if (id !== undefined && !isCutsceneId(id)) throw new Error(`unknown cutscene: ${id}`);
   const copy = structuredClone(prop);
   if (copy.kind === "weapon") copy.asset ??= WEAPON_ASSETS[copy.weapon!];
@@ -281,6 +308,17 @@ function ledgeArtOf(items: SandboxJson["ledgeArt"] = []): LedgeArt[] {
   });
 }
 
+function checkLinks(props: Prop[]): Prop[] {
+  const byId = new Map(props.flatMap((p) => (p.id === undefined ? [] : [[p.id, p] as const])));
+  for (const prop of props) {
+    for (const id of Object.keys({ ...prop.shootable?.sets, ...prop.approach?.sets, ...prop.combo?.levers })) {
+      if (!byId.has(id)) throw new Error(`${prop.id}: unknown prop ${id}`);
+    }
+    for (const id of Object.keys(prop.combo?.levers ?? {})) if (!byId.get(id)!.toggle) throw new Error(`${prop.id}: ${id} is not a toggle`);
+  }
+  return props;
+}
+
 function scenery(items: SceneryJson[]): Scenery[] {
   return items.map((item) => {
     if (!isAssetId(item.asset)) throw new Error(`unknown asset: ${item.asset}`);
@@ -289,7 +327,7 @@ function scenery(items: SceneryJson[]): Scenery[] {
 }
 
 export const fallLimit = (world: SandboxWorld, cfg: MovementConfig): number =>
-  world.fallDeathCells === undefined ? cfg.fallDeathCells : (world.fallDeathCells ?? Infinity);
+  picked(world.difficulty, "noFallDeath") ? Infinity : cfg.fallDeathCells;
 
 export function floorsOf(world: SandboxWorld): Platform[] {
   if (!world.immortal) return world.lifts;
@@ -313,13 +351,12 @@ export function loadSandbox(json: unknown): SandboxWorld {
   }));
   const world: SandboxWorld = {
     grid,
-    fallDeathCells: data.fallDeathCells,
     hazards: structuredClone(data.hazards ?? []),
     conveyors: structuredClone(data.conveyors ?? []),
     teleports: structuredClone(data.teleports ?? []),
     variants: structuredClone(data.variants ?? {}),
     lifts,
-    props: data.props.map(checkedProp),
+    props: checkLinks(data.props.map(checkedProp)),
     inventory: { items: [], shown: null },
     spawn: [data.spawn[0], data.spawn[1]],
     sky: scenery([{ asset: data.sky, x: 0 }])[0]!.asset,
@@ -349,6 +386,8 @@ export function loadSandbox(json: unknown): SandboxWorld {
     immortal: false,
     allQuests: false,
     autosave: false,
+    difficulty: START_DIFFICULTY,
+    drops: [],
     boarding: null,
     sounds: [],
     sfx: createSoundClock(),
@@ -359,8 +398,9 @@ export function loadSandbox(json: unknown): SandboxWorld {
 }
 
 export function resetWorld(world: SandboxWorld, cfg: MovementConfig): void {
-  const { fog, immortal, allQuests, autosave, sounds, bonus } = world;
-  Object.assign(world, loadSandbox(world.source), { immortal, allQuests, autosave, sounds, bonus });
+  const { fog, immortal, allQuests, autosave, difficulty, sounds, bonus } = world;
+  Object.assign(world, loadSandbox(world.source), { immortal, allQuests, autosave, difficulty, sounds, bonus });
+  applyAssists(world);
   const [x, y] = world.spawn;
   world.fog = fog && createFog(fog.cfg, cfg, { x, y }, world.grid);
 }
@@ -376,12 +416,13 @@ export function startFilm(world: SandboxWorld, id: CutsceneId | undefined, prop:
 
 const FLOOR_EPS = 0.01;
 
-export function approachFilms(world: SandboxWorld, hero: Pick<Hero, "x" | "y">, height: number): void {
+export function stepApproaches(world: SandboxWorld, hero: Pick<Hero, "x" | "y">, height: number): void {
   for (const prop of world.props) {
     const near = prop.approach;
     const floor = prop.y ?? 0;
-    if (!near || world.flags.has(near.gives) || hero.y > floor + FLOOR_EPS || hero.y <= floor - height || Math.abs(hero.x - prop.x) > near.cells) continue;
-    world.flags.add(near.gives);
+    if (!near || world.flags.has(near.gives) || near.unless?.some((token) => holds(world, token))) continue;
+    if (hero.y > floor + FLOOR_EPS || hero.y <= floor - height || Math.abs(hero.x - prop.x) > near.cells) continue;
+    applyEffects(world, { ...near, gives: [near.gives] });
     startFilm(world, near.cutscene);
   }
 }

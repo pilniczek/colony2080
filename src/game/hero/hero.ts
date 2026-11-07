@@ -252,13 +252,13 @@ export function damage(h: Hero, cfg: MovementConfig): HeroEvent[] {
   const events: HeroEvent[] = [];
   if (h.hidden || isDead(h.state)) return events;
   h.hitAge = 0;
-  spend(h, cfg, cfg.energy.hit, events);
+  spend(h, cfg, cfg.energy.hit * cfg.damageScale, events);
   return events;
 }
 
 export function drain(h: Hero, cfg: MovementConfig, amount: number): HeroEvent[] {
   const events: HeroEvent[] = [];
-  if (!isDead(h.state)) spend(h, cfg, amount, events);
+  if (!isDead(h.state)) spend(h, cfg, amount * cfg.damageScale, events);
   return events;
 }
 

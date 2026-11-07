@@ -339,6 +339,56 @@ describe("shootable props", () => {
     punch(g);
     expect(shipOf(g).hitsTaken).toBeUndefined();
   });
+
+  const crystal = { kind: "gate", id: "crystal", x: 15.5, y: 8, width: 1, height: 3, state: 0, solidStates: [0], cells: { col: 15, row: 5, w: 1, h: 3 } };
+  const tank = { kind: "gate", id: "tank", x: 17.5, y: 8, width: 1, state: 0, solidStates: [0], shownBy: "flag:stalactiteShot", cells: { col: 17, row: 5, w: 1, h: 3 } };
+
+  it("moves other props by its sets when it breaks and rebuilds their blockers", () => {
+    const g = shooter([{ ...ship, shootable: { ...ship.shootable, hits: 1, gives: ["flag:stalactiteShot"], sets: { crystal: 1 } } }, crystal, tank]);
+    expect(g.world.grid.solid(15, 6)).toBe(true);
+    expect(g.world.grid.solid(17, 6)).toBe(false);
+    tick(g, ["shoot"], ["shoot"]);
+    expect(g.world.props.find((p) => p.id === "crystal")!.state).toBe(1);
+    expect(g.world.grid.solid(15, 6)).toBe(false);
+    expect(g.world.grid.solid(17, 6)).toBe(true);
+  });
+
+  const blocks = { kind: "gate", id: "stoneBlocks", x: 12.5, y: 8, width: 1, height: 2, state: 0, solidStates: [0], cells: { col: 12, row: 6, w: 1, h: 2 }, shootable: { hits: 3, state: 2, by: "punch", gives: ["flag:blocksBroken"] } };
+  const blocksOf = (g: Game) => g.world.props.find((p) => p.id === "stoneBlocks")!;
+
+  it("takes only punches when fists alone break it", () => {
+    const shot = shooter([blocks]);
+    fire(shot, 0.5);
+    expect(blocksOf(shot).hitsTaken).toBeUndefined();
+    const g = game({ x: 9, y: 8, weapon: "fists" }, { ...objectLevel, props: [blocks] });
+    run(g, 1, ["moveRight"]);
+    expect(g.hero.x).toBeLessThan(12);
+    for (let i = 0; i < 3; i++) {
+      punch(g);
+      run(g, 0.3);
+    }
+    expect(blocksOf(g).state).toBe(2);
+    expect(g.world.flags.has("flag:blocksBroken")).toBe(true);
+    expect(g.world.grid.solid(12, 7)).toBe(false);
+  });
+
+  it("lets the beam pass a punch-only prop", () => {
+    const g = shooter([blocks]);
+    g.hero.blaster = 100;
+    g.hero.weapon = "blaster";
+    fire(g, 0.3);
+    expect(blocksOf(g).hitsTaken).toBeUndefined();
+  });
+
+  it("takes no shot while its shownBy flag does not hold", () => {
+    const hidden = { ...ship, shownBy: "flag:shown", shootable: { ...ship.shootable, hits: 1 } };
+    const g = shooter([hidden]);
+    fire(g, 0.3);
+    expect(shipOf(g).hitsTaken).toBeUndefined();
+    g.world.flags.add("flag:shown");
+    fire(g, 0.3);
+    expect(shipOf(g).state).toBe(1);
+  });
 });
 
 describe("blaster beam", () => {

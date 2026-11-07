@@ -26,7 +26,6 @@
 <body>
 <header>
   <h1>Item sheet</h1>
-  <label><input id="lines" type="checkbox" checked> Outlines</label>
 <!-- originals -->
   <label><input id="spin" type="checkbox" checked> Spin original</label>
 <!-- /originals -->
@@ -38,7 +37,11 @@
 <script src="../shared/xbot.js"></script>
 <script src="../shared/env.js"></script>
 <script src="../shared/env-props.js"></script>
+<script src="../shared/env-machines.js"></script>
+<script src="../shared/env-structures.js"></script>
 <script src="../shared/env-buildings.js"></script>
+<script src="../shared/env-vesnice.js"></script>
+<script src="../shared/env-jeskyne.js"></script>
 <script>
 const ITEMS = window.C28_CONFIG.items;
 const OBJECTS = Object.fromEntries(window.C28_CONFIG.levels.mesto.objects.objects.map((o) => [o.id, o]));
@@ -78,7 +81,7 @@ function assetView(def, state, scale, lod) {
   const [c, ctx] = canvas((x1 - x0 + 2 * pad) * scale, (y1 - y0 + 2 * pad) * scale);
   ctx.scale(scale, scale);
   ctx.translate(pad - x0, pad - y0);
-  window.ENV.draw(ctx, def, { state, lod, lines: $("lines").checked ? 1 : 0 });
+  window.ENV.draw(ctx, def, { state, lod, lines: 1 });
   return c;
 }
 
@@ -147,7 +150,6 @@ function render() {
   }
 }
 
-$("lines").onchange = render;
 render();
 setInterval(() => {
   if (!$("spin")?.checked || SPIKE_CLOCK.paused) return;
@@ -157,5 +159,6 @@ setInterval(() => {
   }
 }, 100);
 </script>
+<script src="../shared/url-state.js"></script>
 </body>
 </html>

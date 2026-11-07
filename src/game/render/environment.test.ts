@@ -243,7 +243,7 @@ describe("deep terrain", () => {
   });
 
   it("stays empty for a world without deep art", () => {
-    expect(drawnTerrain(loadMission("jeskyne")).deep).toEqual([]);
+    expect(drawnTerrain(loadMesto()).deep).toEqual([]);
   });
 });
 

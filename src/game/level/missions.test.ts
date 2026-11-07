@@ -38,11 +38,11 @@ describe("missions", () => {
     expect(missionFromQuery("?mission=jungle", ["mesto"])).toBe("mesto");
   });
 
-  it("opens the map with the holo plan, from the start in vesnice", () => {
+  it("opens the map with the holo plan, from the start in vesnice and jeskyne", () => {
     expect(mapItemOf("mesto")).toBe("holoPlan");
     expect(mapItemOf("vesnice")).toBeUndefined();
     expect(mapItemOf("jungle")).toBe("holoPlan");
-    expect(mapItemOf("jeskyne")).toBe("holoPlan");
+    expect(mapItemOf("jeskyne")).toBeUndefined();
   });
 
   it.each(MISSIONS)("%s loads", (id) => {
@@ -87,7 +87,8 @@ describe("missions", () => {
     expect(loadSandbox({ ...missionJson("vesnice"), haze: "rgba(28, 22, 12, 0.4)" }).haze).toBe("rgba(28, 22, 12, 0.4)");
     expect(loadMission("vesnice").haze).toBe(vesniceWorld.haze);
     expect(loadMission("jungle").haze).toBe(jungleWorld.haze);
-    for (const id of MISSIONS.filter((m) => m !== "vesnice" && m !== "jungle")) expect(loadMission(id).haze, id).toBe("rgba(26, 12, 8, 0.45)");
+    expect(loadMission("jeskyne").haze).toBe(jeskyneWorld.haze);
+    for (const id of MISSIONS.filter((m) => m !== "vesnice" && m !== "jungle" && m !== "jeskyne")) expect(loadMission(id).haze, id).toBe("rgba(26, 12, 8, 0.45)");
   });
 
   it("refuses a vesnice snapshot in mesto", () => {
@@ -98,11 +99,9 @@ describe("missions", () => {
 
   it("keeps the map fields on the world", () => {
     const world = loadMission("jeskyne");
-    expect(world.fallDeathCells).toBeNull();
-    expect(world.conveyors).toEqual([{ col: 97, row: 39, w: 34, vx: 7.33 }]);
+    expect(world.conveyors).toEqual([{ col: 97, row: 39, w: 34, vx: 5.5 }]);
     expect(world.hazards.map((h) => h.id)).toContain("lava");
     expect(Object.keys(world.variants)).toEqual(["stalactiteShot", "tankShot"]);
-    expect(loadMission("mesto").fallDeathCells).toBeUndefined();
     expect(loadMission("jungle").teleports.map((t) => t.id)).toEqual(["towerLiftUp", "towerLiftDown"]);
   });
 
@@ -149,9 +148,8 @@ describe("missions", () => {
     expect(missionJson("jeskyne").enemies.every((e) => e.kind === undefined)).toBe(true);
   });
 
-  it("keeps a missing fall death height missing", () => {
-    expect("fallDeathCells" in missionJson("mesto")).toBe(false);
-    expect(missionJson("vesnice").fallDeathCells).toBeNull();
+  it("leaves the fall death height to the hero config in every mission", () => {
+    for (const id of ["mesto", "vesnice", "jungle", "jeskyne"] as const) expect("fallDeathCells" in missionJson(id)).toBe(false);
   });
 
   it("places every map enemy with its kind tuning", () => {

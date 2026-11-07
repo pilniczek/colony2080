@@ -41,12 +41,8 @@
 <header>
   <h1>Environment sheet</h1>
   <label>Mission <select id="mission"></select></label>
-  <label>Assets <select id="scope"><option value="">all</option><option value="shared">shared</option><option value="own">this mission only</option></select></label>
   <label>Show <select id="filter"><option value="">all</option><option value="only-interactive">interactive</option><option value="only-static">non-interactive</option></select></label>
-  <label><input id="lines" type="checkbox" checked> Outlines</label>
-  <label><input id="lod" type="checkbox"> Game LOD</label>
-  <label><input id="hero" type="checkbox" checked> Hero for scale</label>
-  <label><input id="grid" type="checkbox"> Tile grid</label>
+  <label title="off: in-game detail, on: full detail for in-game videos"><input id="video" type="checkbox"> Video LOD</label>
 </header>
 <nav id="toc"></nav>
 <div id="sheet"></div>
@@ -65,13 +61,24 @@
 <script src="../shared/env-jeskyne-terrain.js"></script>
 <script src="../shared/env-jeskyne-structures.js"></script>
 <script src="../shared/env-jeskyne-clutter.js"></script>
+<script src="../shared/env-jeskyne-extra.js"></script>
+<script src="../shared/env-vezeni.js"></script>
+<script src="../shared/env-vezeni-items.js"></script>
+<script src="../shared/env-vezeni-terrain.js"></script>
+<script src="../shared/env-vezeni-structures.js"></script>
+<script src="../shared/env-vezeni-clutter.js"></script>
+<script src="../shared/env-sklad.js"></script>
+<script src="../shared/env-sklad-items.js"></script>
+<script src="../shared/env-sklad-terrain.js"></script>
+<script src="../shared/env-sklad-structures.js"></script>
+<script src="../shared/env-sklad-clutter.js"></script>
 <script src="../shared/enemies.js"></script>
 <script>
 const LEVELS = Object.entries(window.C28_CONFIG.levels).map(([id, l]) => ({ id, ...l })).sort((a, b) => a.order - b.order);
 const USED_IN = new Map();
 for (const l of LEVELS) for (const o of l.objects.objects) USED_IN.set(o.id, [...(USED_IN.get(o.id) ?? []), l]);
 const params = new URLSearchParams(location.search);
-const view = { mission: LEVELS.some(l => l.id === params.get("mission")) ? params.get("mission") : LEVELS[0].id, scope: params.get("scope") ?? "" };
+const view = { mission: LEVELS.some(l => l.id === params.get("mission")) ? params.get("mission") : LEVELS[0].id };
 const { TILE } = ENV;
 const HERO_H = 45.6;
 const HERO_GAP = 6;
@@ -80,7 +87,7 @@ const MAX_SCALE = 4;
 const REF_H = 150;
 const GAME_SCALE = 60 / 24;
 const hero = XBOT.buildSide({ farLimbs: true, lod: true });
-const opts = { lines: true, lod: false, hero: true, grid: false };
+const opts = { video: false };
 const assets = new Map(ENV.ASSETS.map(a => [a.id, a]));
 const views = [];
 const root = "../../";
@@ -98,7 +105,7 @@ function drawHero(ctx, x) {
   ctx.translate(x, 0);
   ctx.scale(k, k);
   ctx.translate(-XBOT.SIDE_AX, -XBOT.FOOT_Y);
-  XBOT.render(ctx, hero, { lineW: opts.lines ? XBOT.GAME_LINE : 0, simple: true });
+  XBOT.render(ctx, hero, { lineW: XBOT.GAME_LINE, simple: true });
   ctx.restore();
 }
 
@@ -107,8 +114,8 @@ function frame(asset, size) {
   const x1 = Math.max(right, size?.w ?? -Infinity);
   const y0 = Math.min(top, size?.h ? -size.h : Infinity);
   const heroX = x1 + HERO_GAP + 10;
-  const bx1 = opts.hero ? Math.max(x1, heroX + 12) : x1;
-  const by0 = opts.hero ? Math.min(y0, -HERO_H - 2) : y0;
+  const bx1 = Math.max(x1, heroX + 12);
+  const by0 = Math.min(y0, -HERO_H - 2);
   return { x0, y0: by0, x1: bx1, y1, heroX };
 }
 
@@ -128,16 +135,14 @@ function paint(view, t) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(s * dpr, 0, 0, s * dpr, -f.x0 * s * dpr, -f.y0 * s * dpr);
-  if (opts.grid) {
-    ctx.strokeStyle = "rgba(63,208,224,0.25)";
-    ctx.lineWidth = 1 / (s * dpr);
-    ctx.beginPath();
-    for (let x = Math.ceil(f.x0 / TILE) * TILE; x <= f.x1; x += TILE) { ctx.moveTo(x, f.y0); ctx.lineTo(x, f.y1); }
-    for (let y = Math.ceil(f.y0 / TILE) * TILE; y <= f.y1; y += TILE) { ctx.moveTo(f.x0, y); ctx.lineTo(f.x1, y); }
-    ctx.stroke();
-  }
-  ENV.draw(ctx, asset, { state, t, lines: opts.lines ? dpr : 0, lod: game || opts.lod, size });
-  if (opts.hero) drawHero(ctx, f.heroX);
+  ctx.strokeStyle = "rgba(63,208,224,0.25)";
+  ctx.lineWidth = 1 / (s * dpr);
+  ctx.beginPath();
+  for (let x = Math.ceil(f.x0 / TILE) * TILE; x <= f.x1; x += TILE) { ctx.moveTo(x, f.y0); ctx.lineTo(x, f.y1); }
+  for (let y = Math.ceil(f.y0 / TILE) * TILE; y <= f.y1; y += TILE) { ctx.moveTo(f.x0, y); ctx.lineTo(f.x1, y); }
+  ctx.stroke();
+  ENV.draw(ctx, asset, { state, t, lines: dpr, lod: !opts.video, size });
+  drawHero(ctx, f.heroX);
 }
 
 function refCanvas(ref) {
@@ -170,11 +175,6 @@ function tags(o) {
   ];
 }
 
-function inScope(o) {
-  if (!view.scope) return true;
-  return (others(o).length > 0) === (view.scope === "shared");
-}
-
 const GROUPS = [
   ["Interactive", o => o.interactive],
   ["Non-interactive, original", o => !o.interactive && o.origin !== "new"],
@@ -187,7 +187,7 @@ function build() {
   toc.replaceChildren();
   sheet.replaceChildren();
   views.length = 0;
-  const objects = LEVELS.find(l => l.id === view.mission).objects.objects.filter(inScope);
+  const objects = LEVELS.find(l => l.id === view.mission).objects.objects;
   for (const [title, inGroup] of GROUPS) {
     const members = objects.filter(inGroup);
     if (!members.length) continue;
@@ -233,7 +233,7 @@ function section(o, kin) {
   return el("section", { id: family ? "family-" + o.family : o.id, className: "asset " + (o.interactive ? "interactive" : "static") },
     ...head,
     el("div", { className: "label", textContent: "Our variant" }), ours,
-    ...(game.children.length ? [el("div", { className: "label", textContent: "Game size, game LOD" }), game] : []),
+    ...(game.children.length ? [el("div", { className: "label", textContent: "Game size" }), game] : []),
     ...(refs.length ? [el("div", { className: "label", textContent: "Original" }), el("div", { className: "row refs" }, ...refs)] : []));
 }
 
@@ -247,16 +247,14 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-for (const id of ["lines", "lod", "hero", "grid"]) document.getElementById(id).onchange = e => { opts[id] = e.target.checked; paintAll(); };
+document.getElementById("video").onchange = e => { opts.video = e.target.checked; paintAll(); };
 document.getElementById("filter").onchange = e => { document.body.className = e.target.value; };
-for (const id of ["mission", "scope"]) {
-  const select = document.getElementById(id);
-  if (id === "mission") select.append(...LEVELS.map(l => el("option", { value: l.id, textContent: l.order + ". " + l.name })));
-  select.value = view[id];
+{
+  const select = document.getElementById("mission");
+  select.append(...LEVELS.map(l => el("option", { value: l.id, textContent: l.order + ". " + l.name })));
+  select.value = view.mission;
   select.onchange = e => {
-    view[id] = e.target.value;
-    const query = new URLSearchParams({ mission: view.mission, ...(view.scope && { scope: view.scope }) });
-    history.replaceState(null, "", "?" + query);
+    view.mission = e.target.value;
     build();
     paintAll();
   };
@@ -266,5 +264,6 @@ build();
 paintAll();
 loop();
 </script>
+<script src="../shared/url-state.js"></script>
 </body>
 </html>

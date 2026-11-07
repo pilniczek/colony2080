@@ -1,4 +1,5 @@
 import jeskyneMap from "@config/levels/jeskyne/map.json";
+import jeskyneTasks from "@config/levels/jeskyne/tasks.json";
 import jeskyneWorld from "@config/levels/jeskyne/world.json";
 import jungleMap from "@config/levels/jungle/map.json";
 import jungleTasks from "@config/levels/jungle/tasks.json";
@@ -22,7 +23,6 @@ interface MissionMap {
   rows: string[];
   lifts: unknown[];
   spawn: number[];
-  fallDeathCells?: number | null;
   hazards?: unknown[];
   conveyors?: unknown[];
   teleports?: unknown[];
@@ -48,7 +48,7 @@ interface MissionWorld {
 
 const WORLDS: Record<OtherMission, MissionWorld> = { vesnice: vesniceWorld, jungle: jungleWorld, jeskyne: jeskyneWorld };
 
-const TASKS: Partial<Record<OtherMission, unknown>> = { vesnice: vesniceTasks, jungle: jungleTasks };
+  const TASKS: Partial<Record<OtherMission, unknown>> = { vesnice: vesniceTasks, jungle: jungleTasks, jeskyne: jeskyneTasks };
 
 const MESTO_KINDS: Record<string, DroidTuning> = { chromeDroid: DROID, flyer: FLYER };
 
@@ -77,7 +77,6 @@ export function missionJson(id: MissionId): SandboxJson {
     props: (WORLDS[id].props ?? []) as SandboxJson["props"],
     enemies: mapEnemies(id),
     tasks: TASKS[id] ?? { tasks: [] },
-    ...(map.fallDeathCells === undefined ? {} : { fallDeathCells: map.fallDeathCells }),
     hazards: (map.hazards ?? []) as SandboxJson["hazards"],
     conveyors: (map.conveyors ?? []) as SandboxJson["conveyors"],
     teleports: (map.teleports ?? []) as SandboxJson["teleports"],

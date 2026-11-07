@@ -830,6 +830,21 @@ export const energyCell: EnvAsset = {
   },
 };
 
+export const energyDrop: EnvAsset = {
+  id: "energyDrop",
+  box: [-1, -13, 11, 0],
+  draw(ctx) {
+    box(ctx, 0, -2, 9, 2, "steel", 1);
+    cylV(ctx, 1.5, -11, 6, 9, "green", 2);
+    flat(ctx, 3.3, -12.2, 2.4, 1.4, "chrome", "kLine");
+    flat(ctx, 3.2, -9.6, 2.6, 6, "screenOff", "kLine");
+    for (let y = -5.4; y > -7; y -= 1.8) flat(ctx, 3.5, y, 2, 1, "acid");
+    if (!P.simple()) P.glow(ctx, 4.5, -5, 4, "acid", 0.25);
+    G.grain(ctx, G.rectRegion(ctx, 1.5, -11, 6, 9), 3113, 0.7);
+    G.chips(ctx, 0, -2, 9, 3114, G.DIRT);
+  },
+};
+
 const SHIELD_PLATE: Pt[] = [[7, -18], [12.6, -15], [12.6, -9], [7, -6], [1.4, -9], [1.4, -15]];
 
 export const shieldCell: EnvAsset = {
@@ -847,4 +862,4 @@ export const shieldCell: EnvAsset = {
   },
 };
 
-export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, brickPile, tyres, carWreck, fallenGirders, ammoBox, energyCell, shieldCell];
+export const propAssets: EnvAsset[] = [barrel, dyingRebel, corpse, crowbar, eBlaster, craneKey, shipPart, controller, wires, tapHandle, card, holoPlan, shipPlan, decoder, crate, signPost, floorVent, rubblePile, brickPile, tyres, carWreck, fallenGirders, ammoBox, energyCell, energyDrop, shieldCell];

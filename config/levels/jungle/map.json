@@ -85,7 +85,6 @@
   ],
   "lifts": [],
   "spawn": [130.5, 25],
-  "fallDeathCells": null,
   "hazards": [
     {"id": "cannonTurret", "kind": "damage", "col": 90, "row": 31, "w": 9, "h": 1, "perSecond": 13.7, "push": 0.46},
     {"id": "chasm", "kind": "death", "col": 84, "row": 48, "w": 76, "h": 32},

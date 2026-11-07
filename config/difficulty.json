@@ -1,0 +1,33 @@
+{
+  "status": "draft",
+  "source": "docs/requirements.md difficulty (user, 2026-11-07): each assist is a binary choice costing 1 nice to have, 2 good, 3 heavy boost, 5 exceptional; NORMAL is today's game; hideAnywhere is locked on, so HARD is out of reach until hiding gets cover spots; presets STORY, EASY, NORMAL, HARD are read-only, each containing the one below it; points is the custom tier mark: CUSTOM has no cap and shows the highest preset whose points its picks reach; HARD has extra shield while NORMAL does not (user), the one break in the preset ladder; effects: values each pick changes (lateEnemies and noFallDeath give the value used when the pick is off)",
+  "assists": [
+    { "id": "hideAnywhere", "label": "HIDE ANYWHERE", "cost": 5, "locked": true },
+    { "id": "halfDamage", "label": "HALF DAMAGE TAKEN", "cost": 3 },
+    { "id": "specialDrops", "label": "ENEMIES DROP ENERGY", "cost": 3 },
+    { "id": "lateEnemies", "label": "SLOWER ENEMY REACTION", "cost": 2 },
+    { "id": "strongPunches", "label": "STRONGER PUNCHES", "cost": 2 },
+    { "id": "fogOff", "label": "FOG OFF", "cost": 2 },
+    { "id": "extraShield", "label": "EXTRA SHIELD", "cost": 1 },
+    { "id": "moreAmmo", "label": "MORE AMMO", "cost": 1 },
+    { "id": "noFallDeath", "label": "NO FALL DEATH", "cost": 1 },
+    { "id": "healthBars", "label": "ENEMY HEALTH BARS", "cost": 1 }
+  ],
+  "levels": [
+    { "id": "story", "label": "STORY", "points": 16, "picks": ["hideAnywhere", "halfDamage", "lateEnemies", "fogOff", "extraShield", "moreAmmo", "noFallDeath", "healthBars"] },
+    { "id": "easy", "label": "EASY", "points": 10, "picks": ["hideAnywhere", "lateEnemies", "extraShield", "moreAmmo", "noFallDeath"] },
+    { "id": "normal", "label": "NORMAL", "points": 7, "picks": ["hideAnywhere", "lateEnemies"] },
+    { "id": "hard", "label": "HARD", "points": 3, "picks": ["lateEnemies", "extraShield"] }
+  ],
+  "custom": { "id": "custom", "label": "CUSTOM" },
+  "effects": {
+    "extraShield": { "shields": 1 },
+    "moreAmmo": { "scale": 1.5, "ammoCap": 1500 },
+    "halfDamage": { "scale": 0.5 },
+    "strongPunches": { "scale": 2 },
+    "lateEnemies": { "offSightMs": 250 },
+    "specialDrops": { "energy": 50 },
+    "noFallDeath": { "offCells": 7 }
+  },
+  "start": "normal"
+}
