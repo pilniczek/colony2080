@@ -163,7 +163,7 @@ Changes as in Interactive objects. Box is the current box.
 | `towerLift` | rework | 100 x 385 | at bottom, at top | Blue-grey chevron pole, hazard-striped cage station with the call panel, rails and silver pipe. | `z02`, `z03`, `z16` |
 | `cannonTurret` | rework | 62 x 47 | live, off | Teal-green dome with chrome rim, hazard band, wider base plate. | `z01`, `v05`, demo frame |
 | `distributionCabinet` | rework | 46 x 43 | intact, shot | Flush cave-wall box in conduit teal with the E sign; shot a black scorched hole. | `z14`, `z15` |
-| `jeep` | rework | 104 x 51 | empty tank, fueled, winching | Teal-green, winch A-frame and hook, spare wheel. | `z06`, demo sheet 05 |
+| `jeep` | rework | 104 x 51 | empty tank, fueled, winching | The jeep wreck body intact, teal-green camo, winch A-frame of tubes with drum and hook at the back. | `z06`, demo sheet 05 |
 | `stonePuzzle` | rework | 54 x 33 | unsolved, solved | Carved square panel with four angular stones, gold when solved. | `z05`, demo sheet 04 |
 | `tripwire` | rework | 100 x 32 | armed, cut | Stone block and board posts, the wire and grenade kept. | `z13` |
 | `canister`, `cutters`, `grenade`, `flamethrower`, `mine`, `bonusPickup`, `crate`, `smallKey` | keep | as today | as today | Items stay clean; check sizes against the sheet hero only. | - |
