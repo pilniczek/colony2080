@@ -104,23 +104,37 @@ EXTRAS = {
         "enemyKinds": ("rocketRobot", "greyTrooper"),
     },
     3: {
-        "borderFills": [(0, 11, 21, 79), (148, 35, 159, 79)],
+        "borderFills": [(0, 0, 21, 79), (148, 0, 159, 79)],
         "width": 152,
         "unseen": [(22, 38, 75, 79), (76, 39, 80, 48), (81, 46, 81, 48), (82, 47, 82, 47), (97, 42, 147, 45), (99, 46, 147, 47), (99, 48, 147, 79), (76, 49, 79, 79), (98, 49, 98, 49),
-                   (80, 50, 86, 79), (96, 50, 98, 79)],
+                   (80, 50, 86, 79), (96, 50, 98, 79), (75, 11, 75, 11), (75, 12, 86, 12), (66, 21, 102, 23), (104, 21, 107, 24), (98, 24, 102, 24),
+                   (106, 26, 143, 26), (107, 27, 143, 32), (110, 33, 143, 33), (67, 33, 80, 36), (86, 33, 86, 33)],
         "patches": [(6, 0, 6, 10, "."), (21, 10, 21, 10, "."), (75, 5, 75, 5, "."), (107, 3, 107, 3, "."), (116, 19, 116, 19, "."), (131, 19, 131, 19, "."),
                     (82, 39, 82, 39, "#"), (96, 42, 96, 42, "#"), (76, 37, 80, 38, "#"), (83, 43, 83, 43, "#"), (84, 45, 84, 45, "#"), (84, 47, 84, 47, "#"), (82, 48, 85, 48, "#"), (80, 49, 88, 49, "#"), (87, 50, 88, 79, "#"),
                     (93, 49, 95, 79, "#"), (96, 49, 97, 49, "#"), (97, 46, 98, 47, "#"), (42, 17, 42, 17, "."), (80, 18, 80, 18, "."), (82, 18, 82, 18, "."),
-                    (107, 28, 111, 28, "."), (135, 24, 141, 24, ".")],
+                    (107, 28, 111, 28, "."), (135, 24, 141, 24, "."),
+                    (37, 13, 44, 13, "."), (37, 16, 40, 16, "."), (70, 16, 76, 16, "."), (49, 25, 62, 25, "."), (65, 28, 73, 28, "."), (84, 28, 100, 28, "."),
+                    (97, 30, 103, 30, "."), (122, 37, 128, 37, "."), (120, 38, 122, 38, "."),
+                    (107, 0, 107, 3, "#"), (29, 26, 29, 27, "#"), (40, 26, 40, 29, "#"), (35, 21, 35, 21, "#"), (39, 21, 39, 22, "#"), (100, 17, 100, 17, "#"),
+                    (82, 33, 82, 38, "#"), (83, 33, 85, 40, "#"), (91, 33, 91, 38, "#"), (92, 33, 92, 35, "#"), (93, 33, 93, 33, "#"), (96, 36, 97, 36, "#"),
+                    (97, 37, 97, 37, "#"), (103, 21, 103, 24, "#"), (45, 21, 48, 21, "."), (49, 21, 52, 21, "#"), (61, 21, 65, 21, "#"),
+                    (50, 22, 65, 24, "#"), (86, 33, 90, 37, "#"), (89, 49, 89, 49, "#"), (92, 49, 92, 49, "#"), (22, 0, 22, 24, "#"), (22, 31, 22, 34, "#")],
         "source": (
             "docs/research/reports/15-level3-layout.md, built by docs/research/tools/levelmap.py from MAPY/M31.MAP "
             "and gamedata/disasm/level3_layout.json: '=' one-way floor tiles, '#' wall tiles and wall table columns (west x+4, east x+7, "
             "filled over the hero stand height), '|' map clamp (columns 6 and 158) and a cap over each bare wall top (wall tiles hold no hero); no lifts (the tower lift is a scripted teleport); "
-            "spawn on the spawn ledge; the clamp at column 6 and the wall caps (cols 21, 75, 107, 116, 131) are dropped; borderFills fill solid from the west girder column (col 21, from row 11) "
-            "and the east wall col 148 (from row 35) on to the map edge, and the map ends at col 151; unseen fills the never seen ground under floors 37 and 41 and around the cave solid; "
+            "spawn on the spawn ledge; the clamp at column 6 and the wall caps (cols 21, 75, 107, 116, 131) are dropped; borderFills fill solid from the west wall col 21 "
+            "and the east girder column col 148 on to the map edge, up to the map top, and the map ends at col 151; the west girder column (col 22) is solid from the map top to row 24 and on rows 31-34, "
+            "open where the row 28 ledge and floor 37 meet it, and the pillar east of the waterfall (col 107) runs up to the map top; unseen fills the never seen ground under floors 37 and 41 and around the cave solid, "
+            "and the never seen cells under floor 11 (row 12), under floor 20 east (rows 21-24), under the spawn deck (rows 26-33) and the floor 37 pocket east of the col 66 wall that only the generous reach graph enters (cols 67-80, rows 33-36); "
             "the dip east of floor 37 (cols 76-80, rows 37-38) is ground, the rock west of the cave stair and the cave floor are solid except the pit under its gaps (cols 89-92), "
             "the cabinet niche behind the col 96 wall (cols 97-98, rows 46-47) is solid, since the cabinet stands on the wall face 2 cells west (user), the cell over the col 96 wall and the col 82 rock top are solid; "
             "stray floor tiles inside the building (42,17) and by the pipe (80 and 82, row 18) and the never seen planks under and on the spawn deck (row 28 cols 107-111, row 24 cols 135-141) are dropped; "
+            "never reached planks and roofs off the report 15 floor flowchart are dropped (building roofs row 13 cols 37-44, row 16 cols 37-40 and 70-76, the bunker roof tiles rows 37-38 cols 120-128, "
+            "the planks row 25 cols 49-62, row 28 cols 65-73 and 84-100, row 30 cols 97-103), world.json draws them as scenery; the second row of floor 20 (row 21) is open beside the spike pit (cols 45-48) "
+            "and solid around it (cols 49-52, 61-65), so only the pit floor (cols 53-60) stays a floor, and the pocket over the bunker under floor 20 (cols 50-65, rows 22-24) is solid; "
+            "rock fills the original rock masses under the ledges where no hero stands, jumps or falls (west rock cols 29, 35, 39, 40; puzzle ledge col 100; west of the cave stair cols 82-90 rows 33-40; "
+            "the cave slope cols 91-93 and 96-97; col 103 under floor 20 west of the spawn deck), and the chasm edge cells (89 and 92, row 49) are solid; "
         )
         + ZONES_NOTE,
         "fallDeathCells": None,
