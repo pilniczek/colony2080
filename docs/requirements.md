@@ -173,6 +173,7 @@ flowchart LR
 | Unseen cells | Mission 1: every open cell under a solid cell that no reached spot ever sees (fog sight, all task gates open) is solid wall, no scenery is kept there; sky above the top floors and the open sky over the crashed ship stay clear (`unseen` in `levelmap.py`, 2026-10-27); the map ends at col 142 while the left columns stay (a left crop would shift every x coordinate), the never reached roofs (west roof, roof over floor 16) are dropped, the corner east of the col 127 skyscraper is wall, and the crashed ship pad is walkable up to a wall at col 22 | user |
 | Lift shaft sides | A floor beside a lift shaft on a row where the lift does not stop gets a wall from that floor up to the floor above, so it does not look like a landing (`wall_passed_floors` in `levelmap.py`; today only mesto lift 67, row 44) |
 | Mesto map art | Art meets the ceiling where the structure does (pillars, gates, pipe columns run through floors); girders end on a leg, column or building; never reached sealed pockets are solid and drawn as the original towers; every edge the hero touches shows a wall; a lift panel (a slim floor cabinet half the hero height, its screen in the top half: a warning triangle, down at the top stop and up elsewhere, with two short lines beside it, centred on it) stands right beside the shaft at every lift stop, on the original side where the original has one (2026-10-21, panel face 2026-10-23); the controller item looks like that panel screen, since it fits the panel (2026-10-23). Spec: `docs/superpowers/specs/2026-10-21-mesto-map-fixes-design.md` | user |
+| Spike sheet options | Outlines, tile grid and hero for scale always on, no asset scope filter; env sheet `Video LOD` off by default (every view at game LOD), on for full detail used by in-game videos; every sheet keeps its settings in the URL query (`spikes/shared/url-state.js`) (2026-11-07) | user |
 
 ## Config drafts
 
@@ -212,7 +213,7 @@ flowchart LR
 | `spikes/gun-design/` | Gun design sheet: side, held side and front, slung back, game size, references |
 | `spikes/enemy-design/` | Enemy design sheet: greyscale tint sliders, palette overrides, full and game size, face-off with the hero, references |
 | `spikes/shared/gun.js` | Shared gun model and hold poses |
-| `spikes/env-design/` | Level 1 environment sheet: vector variant per object state next to original crops, hero for scale, LOD and tile grid toggles |
+| `spikes/env-design/` | Level 1 environment sheet: vector variant per object state next to original crops, hero for scale and tile grid always on, `Video LOD` toggle |
 | `spikes/shared/env.js` | Shared environment asset registry and drawing primitives; assets in `env-props.js`, `env-structures.js`, `env-buildings.js`, `env-machines.js` |
 | `spikes/items-design/` | Item look: every `config/items.json` item with its spinning original preview, our asset, HUD icon, game LOD and other states |
 | `spikes/hud-design/` | HUD frame look: controls for aspect, weapon, ammo, life, run, shields and item; side by side with original screenshots |
