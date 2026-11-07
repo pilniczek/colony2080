@@ -800,20 +800,8 @@ function chain(parent, M, from, angles, lens, w, spec = {}, pads = false) {
   });
 }
 
-function thumbRoot(from, deg, len, w) {
-  const [so, eo, ei, si] = bar(from, deg, len, w, w / 2).pts;
-  const centre = [HAND_AX, (HAND.top + HAND.bottom) / 2];
-  const flip = Math.hypot(so[0] - centre[0], so[1] - centre[1]) < Math.hypot(si[0] - centre[0], si[1] - centre[1]);
-  const [out, end, edge, root] = flip ? [si, ei, eo, so] : [so, eo, ei, si];
-  const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
-  const wide = lerp(out, root, 1.5);
-  return [out, end, edge, lerp(edge, root, 0.55), wide];
-}
-
 function handThumb(parent, M, from, angles, w = THUMB.w, pads = false) {
-  P(parent, { pts: M(thumbRoot(from, angles[0], THUMB.seg[0], w)), shade: "cyl", r: w / 3, lw: FINGER_LW });
-  if (pads) P(parent, { pts: M(bar(from, angles[0], THUMB.seg[0] - 4, w - 6, [w / 2, w / 2 - 5]).pts), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
-  if (angles.length > 1) chain(parent, M, bar(from, angles[0], THUMB.seg[0], 0).end, angles.slice(1), THUMB.seg.slice(1), w, { shade: "cyl" }, pads);
+  chain(parent, M, from, angles, THUMB.seg, w, { shade: "cyl" }, pads);
 }
 
 function handStub(parent) {
@@ -905,7 +893,7 @@ function fist(s, view) {
   if (view === "back") {
     handStub(s);
     backPlate(s);
-    handThumb(s, M, THUMB_BASE, [14]);
+    chain(s, M, THUMB_BASE, [14], [THUMB.seg[0]], THUMB.w, { shade: "cyl" });
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 6, lw: FINGER_LW });
@@ -926,7 +914,7 @@ function fist(s, view) {
     const front = [joint[0] - s1, pip];
     const thumb = () => {
       const end = bar(THUMB_SIDE, -53, THUMB.seg[0], 0).end;
-      handThumb(s, S, THUMB_SIDE, [-53], THUMB.thick);
+      chain(s, S, THUMB_SIDE, [-53], [THUMB.seg[0]], THUMB.thick, { shade: "cyl" });
       if (view === "little") P(s, { pts: S([[end[0] - 13, end[1] - 6], [end[0] + 5, end[1] - 6], [end[0] + 5, end[1] + 12], [end[0] - 13, end[1] + 12]]), shade: "cyl", r: 6 });
     };
     handStub(s);
