@@ -28,6 +28,7 @@ export interface PropRepel {
   ms: number;
   states: number[];
   after?: number;
+  grounded?: boolean;
   cutscene?: CutsceneId;
 }
 
@@ -97,6 +98,7 @@ export function updateGuard(prop: Prop, grid: TileGrid, fog: Fog | null, hero: H
 function inZone(prop: Prop, hero: Hero, cfg: MovementConfig): boolean {
   const { repels, cells } = prop;
   if (!repels || !cells) throw new Error(`guard ${prop.id} needs cells and repels`);
+  if (repels.grounded && !hero.onGround) return false;
   const half = cfg.box.width / 2;
   const row = Math.floor(hero.y - 0.001);
   return hero.x + half > repels.col && hero.x - half < repels.col + repels.w && row >= cells.row && row < cells.row + cells.h;

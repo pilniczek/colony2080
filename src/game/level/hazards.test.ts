@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isDead } from "../hero/hero";
-import { cfg, game, run, runUntil, tick } from "../hero/testWorld";
+import { cfg, game, run, RUNNING, runUntil, tick } from "../hero/testWorld";
 import { fallLimit, loadSandbox, resetWorld } from "./sandboxLevel";
 import { conveyorVx } from "./hazards";
 
@@ -124,6 +124,26 @@ describe("hazards", () => {
     expect(g.world.props[0]!.state).toBe(1);
     run(g, 0.5);
     expect(g.hero.energy).toBe(cfg.energy.max - 15);
+  });
+
+  const groundMine = { kind: "gate", id: "mine", asset: "mine", x: 10.5, y: 8, cells: { col: 10, row: 7, w: 1, h: 1 }, state: 0, repels: { col: 10, w: 1, facing: 1, hits: 15, push: 0, ms: 100, states: [0], after: 1, grounded: true } };
+
+  it("lets a hero jump over a grounded repel without harm", () => {
+    const g = game({ x: 6.5, y: 8 }, level({ props: [groundMine] }));
+    runUntil(g, (h) => h.x > 8.8, ["moveRight", RUNNING]);
+    tick(g, ["moveRight", RUNNING], ["up"]);
+    runUntil(g, (h) => !h.onGround, ["moveRight", RUNNING]);
+    runUntil(g, (h) => h.onGround, ["moveRight", RUNNING]);
+    expect(g.hero.x).toBeGreaterThan(11.5);
+    expect(g.hero.energy).toBe(cfg.energy.max);
+    expect(g.world.props[0]!.state).toBe(0);
+  });
+
+  it("fires a grounded repel on a walking hero", () => {
+    const g = game({ x: 6.5, y: 8 }, level({ props: [groundMine] }));
+    runUntil(g, (h) => h.x > 12, ["moveRight"]);
+    expect(g.hero.energy).toBe(cfg.energy.max - 15);
+    expect(g.world.props[0]!.state).toBe(1);
   });
 });
 
