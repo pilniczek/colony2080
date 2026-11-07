@@ -883,37 +883,39 @@ function fist(s, view) {
   const W = p => mirrorPts(p, HAND_AX);
   const [s1, s2, s3] = FINGER.seg;
   const cap = FINGER.thick + 2;
-  const bottom = FINGER.base + cap;
+  const knuckle = FINGER.base + cap;
+  const bottom = knuckle + FINGER.thick - 2;
   if (view === "back") {
     handStub(s);
     backPlate(s);
     chain(s, M, THUMB_BASE, [14], [THUMB.seg[0]], THUMB.w, { shade: "cyl" });
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, FINGER.base], [x + 20, FINGER.base], [x + 20, FINGER.base + cap], [x, FINGER.base + cap]], shade: "cyl", r: 7, lw: FINGER_LW });
-      F(s, [[x + 3, FINGER.base + cap - 7], [x + 17, FINGER.base + cap - 7], [x + 17, FINGER.base + cap - 5], [x + 3, FINGER.base + cap - 5]], "a0");
+      P(s, { pts: [[x, knuckle - 4], [x + 20, knuckle - 4], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 6, lw: FINGER_LW });
+      P(s, { pts: [[x, FINGER.base], [x + 20, FINGER.base], [x + 20, knuckle], [x, knuckle]], shade: "cyl", r: 7, lw: FINGER_LW });
+      F(s, [[x + 3, knuckle - 7], [x + 17, knuckle - 7], [x + 17, knuckle - 5], [x + 3, knuckle - 5]], "a0");
     }
   } else if (view === "palm") {
-    const knuckle = bottom - cap;
     handStub(s);
     palmPlate(s, M, HAND.bottom - 6);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, knuckle - s2], [x + 20, knuckle - s2], [x + 20, knuckle + 2], [x, knuckle + 2]], shade: "cyl", r: 3, lw: FINGER_LW });
-      P(s, { pts: [[x, knuckle], [x + 20, knuckle], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle - s2], [x + 20, knuckle - s2], [x + 20, knuckle], [x, knuckle]], shade: "cyl", r: 3, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle - 2], [x + 20, knuckle - 2], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
     handThumb(s, W, THUMB_BASE, [-40, -90]);
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
-    const knuckle = [HAND_FACE[1] - 2 - FINGER.thick / 2, bottom - FINGER.thick / 2];
-    const front = [knuckle[0] - s1, knuckle[1]];
-    const thumb = () => handThumb(s, S, [HAND_FACE[0] + 2, 410], [-20, 80], THUMB.thick);
+    const joint = [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base + FINGER.thick / 2];
+    const tilt = -56;
+    const front = bar(joint, tilt, s1, 0).end;
+    const thumb = () => handThumb(s, S, [HAND_FACE[0] + 2, 410], [-20, 60], THUMB.thick);
     handStub(s);
     if (view === "little") thumb();
     profilePlate(s, S);
     chain(s, S, [front[0], front[1] - s2], [90], [s3], FINGER.thick);
     chain(s, S, front, [180], [s2], FINGER.thick, { shade: "cyl" });
-    chain(s, S, knuckle, [-90], [s1], FINGER.thick, { shade: "cyl" });
+    chain(s, S, joint, [tilt], [s1], FINGER.thick, { shade: "cyl" });
     if (view === "thumb") thumb();
   } else {
     forearmEnd(s);
