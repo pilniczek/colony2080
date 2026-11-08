@@ -29,7 +29,7 @@ export const BARREL = { x: 70, length: 196 };
 export const MUZZLE: Pt = [BARREL.x + BARREL.length + 2, -40];
 export const SUPPORT: Pt = [BARREL.x + 14, -10];
 
-export const WEAPON_GRIP: readonly Pt[] = [[14, -14], [-16, -14], [-34, 52], [-6, 52]];
+export const WEAPON_GRIP: readonly Pt[] = [[16, -24], [-14, -24], [-34, 52], [-6, 52]];
 
 export const grip = (mat: string, tone: number): WeaponPart => {
   const xs = WEAPON_GRIP.map(([x]) => x);

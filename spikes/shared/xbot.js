@@ -1105,7 +1105,7 @@ const CROWBAR = {
   end: () => {}
 };
 
-const WEAPON_GRIP = [[14, -14], [-16, -14], [-34, 52], [-6, 52]];
+const WEAPON_GRIP = [[16, -24], [-14, -24], [-34, 52], [-6, 52]];
 
 const PISTOL_R = 11;
 const PISTOL_SLIDE = { x0: HAND.x1, x1: HAND.x1 + 24, top: 404, muzzle: 566 };
