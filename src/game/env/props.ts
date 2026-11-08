@@ -212,7 +212,7 @@ export const corpse: EnvAsset = {
       suit: tones("denim"),
       arm: state ? 0.28 : 0,
       pocket: state
-        ? (c) => flat(c, 25, -6.6, 4, 2.6, "hole")
+        ? null
         : (c) => {
             flat(c, 25.5, -8.6, 3, 2.4, "c3", "mLine");
             if (!P.simple()) flat(c, 26, -8, 2, 0.4, "neon");
