@@ -1019,25 +1019,26 @@ function cup(s, view) {
   } else fist(s, view);
 }
 
-const GRIP_Y = 478;
-const GRIP_TF = `translate(88 ${GRIP_Y}) scale(5) translate(-13 1.5)`;
+const GRIP_K = 20;
+const GRIP_R = 0.9 * GRIP_K;
+const GRIP_C = [HAND_FACE[0] - GRIP_R, 455];
+const GRIP_CURL = [-35, -95, -120];
+const gripTf = y => `translate(88 ${y}) scale(${GRIP_K}) translate(-13 1.5)`;
 
 function grip(s, view) {
   const M = p => p;
   const W = p => mirrorPts(p, HAND_AX);
-  const [s1, s2, s3] = FINGER.seg;
   const knuckle = FINGER.base;
-  const bend = knuckle + s1;
-  const bottom = bend + FINGER.thick / 2;
-  const curl = bend - s3;
+  const [cx, cy] = GRIP_C;
+  const near = cy + GRIP_R + FINGER.thick / 2 + 4;
   if (view === "back") {
-    itemAt(s, GRIP_TF);
+    itemAt(s, gripTf(cy));
     handStub(s);
     P(s, { pts: fistThumb(), shade: "cyl", r: 6, lw: FINGER_LW });
     backPlate(s);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 6, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, near], [x, near]], shade: "cyl", r: 6, lw: FINGER_LW });
       P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, knuckle + 10], [x, knuckle + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
   } else if (view === "palm") {
@@ -1045,36 +1046,33 @@ function grip(s, view) {
     palmPlate(s, M, HAND.bottom - 6);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, knuckle - 4], [x + 20, knuckle - 4], [x + 20, bend], [x, bend]], shade: "cyl", r: 3, lw: FINGER_LW });
-      P(s, { pts: [[x + 3, knuckle - 1], [x + 17, knuckle - 1], [x + 17, bend - 3], [x + 3, bend - 3]], mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle - 4], [x + 20, knuckle - 4], [x + 20, near - 8], [x, near - 8]], shade: "cyl", r: 3, lw: FINGER_LW });
     }
-    itemAt(s, GRIP_TF);
+    itemAt(s, gripTf(cy));
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, curl], [x + 20, curl], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x, cy - 4], [x + 20, cy - 4], [x + 20, near], [x, near]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
     P(s, { pts: W(fistThumb(-4)), shade: "cyl", r: 6, lw: FINGER_LW });
     chain(s, W, bar(THUMB_BASE, -5, THUMB.seg[0], 0).end, [-90], [THUMB.seg[1]], THUMB.w, { shade: "cyl" });
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
-    const kx = HAND_FACE[1] - 2 - FINGER.thick / 2;
     const thumb = () => chain(s, S, THUMB_SIDE, [-40], [THUMB.seg[0]], THUMB.thick, { shade: "cyl" });
     handStub(s);
     if (view === "little") thumb();
     profilePlate(s, S);
-    P(s, { pts: S([[kx - 19, curl - 3], [kx - 5, curl - 3], [kx - 5, curl + 11], [kx - 19, curl + 11]]), mat: "chrome", shade: "cyl", r: 7 });
-    chain(s, S, [kx, knuckle], [0, -90, 180], [s1, s2, s3], FINGER.thick, { shade: "cyl" });
+    P(s, { pts: S([[cx - GRIP_R, cy - GRIP_R], [cx + GRIP_R, cy - GRIP_R], [cx + GRIP_R, cy + GRIP_R], [cx - GRIP_R, cy + GRIP_R]]), mat: "chrome", shade: "cyl", r: GRIP_R });
+    chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, knuckle], GRIP_CURL, FINGER.seg, FINGER.thick, { shade: "cyl" });
     if (view === "thumb") thumb();
   } else {
     forearmEnd(s);
     sectionPlate(s);
-    itemAt(s, `translate(88 423) scale(5) translate(-13 1.5)`);
-    const face = 400 + HAND.thick;
-    handThumb(s, M, [130, face + FINGER.thick - 2], [-60, -90], THUMB.thick);
+    const depth = 400 + HAND_FACE[1] - cx;
+    itemAt(s, gripTf(depth));
+    handThumb(s, M, [130, depth + 10], [-60, -90], THUMB.thick);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face], [x, face]], shade: "cyl", r: 3, lw: FINGER_LW });
-      P(s, { pts: [[x, face - 2], [x + 20, face - 2], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "cyl", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, depth + GRIP_R], [x, depth + GRIP_R]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
   }
 }
