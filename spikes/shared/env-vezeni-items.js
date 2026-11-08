@@ -317,7 +317,7 @@ define({
     const lineW = lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
     ctx.save();
     ctx.scale(MGX_K, MGX_K);
-    ctx.translate(132, -32);
+    ctx.translate(68, -32);
     window.MGX800.draw(ctx, { lineW, simple: simple() });
     ctx.restore();
   }

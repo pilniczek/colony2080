@@ -8,21 +8,22 @@ const COLORS = {
 };
 const MAT = { g: ["g0", "g1", "g2", "g3", "gLine"], w: ["w0", "w1", "w2", "w3", "gLine"], b: ["b0", "b1", "b2", "b3", "gLine"], k: ["k0", "k1", "k2", "k3", "gLine"] };
 
-const BARREL = { x: 112, length: 104 };
+const BARREL = { x: 100, length: 140 };
 const EMITTER = 22;
 
+const RING = { first: 12, step: 18, w: 7 };
+
 const buildParts = length => [
-  { name: "stock", x: -132, y: -84, w: 126, h: 56, mat: "g", tone: 1 },
-  { name: "stockTop", x: -132, y: -84, w: 126, h: 11, mat: "g", tone: 2 },
   { name: "grip", x: -16, y: -14, w: 30, h: 46, mat: "g", tone: 0 },
-  { name: "body", x: -6, y: -104, w: 118, h: 90, mat: "g", tone: 2 },
-  { name: "bodyLow", x: -6, y: -38, w: 118, h: 24, mat: "g", tone: 0 },
-  { name: "band", x: 40, y: -104, w: 30, h: 90, mat: "w", tone: 2 },
-  { name: "vent", x: 82, y: -92, w: 20, h: 40, mat: "k", tone: 0 },
-  { name: "barrel", x: BARREL.x, y: -50, w: length, h: 32, mat: "g", tone: 1 },
-  { name: "barrelTop", x: BARREL.x, y: -50, w: length, h: 8, mat: "g", tone: 3 },
-  { name: "coil", x: BARREL.x + length * 0.45, y: -56, w: 14, h: 44, mat: "b", tone: 2 },
-  { name: "emitter", x: BARREL.x + length, y: -64, w: EMITTER, h: 60, mat: "k", tone: 2 }
+  { name: "body", x: -52, y: -76, w: 152, h: 62, mat: "g", tone: 2 },
+  { name: "bodyTop", x: -52, y: -76, w: 152, h: 12, mat: "g", tone: 3 },
+  { name: "bodyLow", x: -52, y: -30, w: 152, h: 16, mat: "g", tone: 0 },
+  { name: "band", x: 22, y: -80, w: 26, h: 70, mat: "w", tone: 2 },
+  { name: "vent", x: 66, y: -64, w: 22, h: 26, mat: "k", tone: 0 },
+  { name: "barrel", x: BARREL.x, y: -55, w: length, h: 37, mat: "g", tone: 1 },
+  { name: "barrelTop", x: BARREL.x, y: -55, w: length, h: 8, mat: "g", tone: 3 },
+  ...Array.from({ length: Math.max(0, Math.floor((length - RING.first - RING.w) / RING.step) + 1) }, (_, i) => ({ name: "ring" + i, x: BARREL.x + RING.first + i * RING.step, y: -57, w: RING.w, h: 41, mat: "b", tone: 2 })),
+  { name: "emitter", x: BARREL.x + length, y: -63, w: EMITTER, h: 53, mat: "k", tone: 2 }
 ];
 
 function idleGlow(ctx, length, simple) {
@@ -31,12 +32,12 @@ function idleGlow(ctx, length, simple) {
   ctx.globalAlpha = 0.35;
   ctx.fillStyle = COLORS.b2;
   ctx.beginPath();
-  ctx.ellipse(BARREL.x + length + EMITTER + 5, -34, 10, 16, 0, 0, Math.PI * 2);
+  ctx.ellipse(BARREL.x + length + EMITTER + 5, -36, 10, 16, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
 
-const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -34];
+const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -36];
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: idleGlow, barrel: BARREL, muzzle: MUZZLE });
 
 const SHOT = { cycle: 4, step: 36, lead: 8, r: 7 };

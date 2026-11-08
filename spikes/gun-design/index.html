@@ -187,14 +187,16 @@
 <script src="../shared/enemies-jeskyne.js"></script>
 <script>
 const { buildSide, buildFront, render, locate, FOOT_Y, LEVELS } = window.XBOT;
-const rigSet = armed => ({
-  side: buildSide({ farLimbs: true, propBehindArm: true, armed }),
-  front: buildFront({ rightArmFirst: true, propBehindArm: true, armed }),
-  gSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true, armed }),
-  gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true, armed })
+const rigSet = hands => ({
+  side: buildSide({ farLimbs: true, propBehindArm: true, ...hands }),
+  front: buildFront({ rightArmFirst: true, propBehindArm: true, ...hands }),
+  gSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true, ...hands }),
+  gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true, ...hands })
 });
-const roots = rigSet(true);
-const bareRoots = rigSet(false);
+const roots = rigSet({ armed: true });
+const bareRoots = rigSet({ fists: true });
+const PUNCH_HIT = { body: 2, hipNear: -16, kneeNear: 10, ankleNear: 2.8, hipFar: 14, kneeFar: 6, ankleFar: -15.4, arm: -88, fore: 12, armFar: -30, foreFar: -96 };
+const FRONT_JAB = { armL: -30, supportL: 30, armR: 55, supportR: -55 };
 const armedRoots = () => WEAPON === "fists" ? bareRoots : roots;
 const MODELS = { gun: GUN, blaster: EBLASTER, toaster: TOASTER, flamethrower: FLAMETHROWER, mgx800: MGX800, rocketLauncher: ROCKET_LAUNCHER };
 const SPECIAL = { blaster: [1, "City"], toaster: [2, "Suburb"], flamethrower: [3, "Jungle"], mgx800: [5, "Prison Escape"], rocketLauncher: [6, "Warehouse"] };
@@ -220,7 +222,7 @@ const model = () => MODELS[WEAPON];
 const held = (hookName, lineW, simple, barrel) => model() ? { [hookName]: c => model().hook(c, { lineW, simple, barrel }) } : {};
 
 function robot(ctx, root, pose, hookName, simple, lineW, barrel) {
-  render(ctx, root, { pose: model() ? pose : {}, lineW, simple, hooks: held(hookName, lineW, simple, barrel) });
+  render(ctx, root, { pose: model() ? pose : hookName === "hand" ? PUNCH_HIT : FRONT_JAB, lineW, simple, hooks: held(hookName, lineW, simple, barrel) });
 }
 
 function footLift(root, pose) {
@@ -333,7 +335,7 @@ function findNode(node, name) {
   return null;
 }
 
-const FORE = findNode(buildSide(), "fore");
+const FORE = findNode(buildSide({ fists: true }), "fore");
 
 function fist(ctx, lineW) {
   ctx.translate(300, 100);
