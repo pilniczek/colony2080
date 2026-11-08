@@ -120,8 +120,32 @@ function todo(text, w, h) {
   return d;
 }
 
-function guides(ctx, def, view, [x0, y0, x1, y1]) {
-  const [sx0, sy0, sx1, sy1] = window.ENV.viewBox(def, "side");
+const INK_K = 8;
+const inks = new Map();
+
+function inkExtent(def, state) {
+  const key = `${def.id}:${state}`;
+  if (inks.has(key)) return inks.get(key);
+  const [x0, y0, x1, y1] = window.ENV.viewBox(def, "side");
+  const m = 4;
+  const w = Math.ceil((x1 - x0 + 2 * m) * INK_K), h = Math.ceil((y1 - y0 + 2 * m) * INK_K);
+  const c = new OffscreenCanvas(w, h);
+  const ctx = c.getContext("2d");
+  ctx.scale(INK_K, INK_K);
+  ctx.translate(m - x0, m - y0);
+  window.ENV.draw(ctx, def, { state, lines: 1, view: "side" });
+  const px = ctx.getImageData(0, 0, w, h).data;
+  let ix0 = w, iy0 = h, ix1 = -1, iy1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (px[(y * w + x) * 4 + 3] > 64) {
+    ix0 = Math.min(ix0, x); ix1 = Math.max(ix1, x); iy0 = Math.min(iy0, y); iy1 = Math.max(iy1, y);
+  }
+  const ink = ix1 < 0 ? [x0, y0, x1, y1] : [ix0 / INK_K + x0 - m, iy0 / INK_K + y0 - m, (ix1 + 1) / INK_K + x0 - m, (iy1 + 1) / INK_K + y0 - m];
+  inks.set(key, ink);
+  return ink;
+}
+
+function guides(ctx, def, state, view, [x0, y0, x1, y1]) {
+  const [sx0, sy0, sx1, sy1] = inkExtent(def, state);
   ctx.save();
   ctx.setLineDash([1, 1]);
   ctx.strokeStyle = "rgba(63,208,224,0.6)";
@@ -143,7 +167,7 @@ function assetView(def, state, scale, lod, view = "side") {
   const [c, ctx] = canvas((x1 - x0 + 2 * PAD) * scale, (y1 - y0 + 2 * PAD) * scale);
   ctx.scale(scale, scale);
   ctx.translate(PAD - x0, PAD - y0);
-  if (!lod) guides(ctx, def, view, box);
+  if (!lod) guides(ctx, def, state, view, box);
   window.ENV.draw(ctx, def, { state, lod, lines: 1, view });
   return c;
 }
