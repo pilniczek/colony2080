@@ -903,8 +903,8 @@ function openHand(s, view) {
   }
 }
 
-function fistThumb() {
-  return [[-4, 0], [8, 0], [14, 38], [-8, 38], [-9, 18]].map(([x, y]) => [HAND.x1 + x, THUMB_BASE[1] - 11 + y]);
+function fistThumb(dx = 0) {
+  return [[-4, 0], [8, 0], [14, 38], [-8, 38], [-9, 18]].map(([x, y]) => [HAND.x1 + dx + x, THUMB_BASE[1] - 11 + y]);
 }
 
 function fist(s, view) {
@@ -931,7 +931,7 @@ function fist(s, view) {
       P(s, { pts: [[x, pip - s2], [x + 20, pip - s2], [x + 20, pip], [x, pip]], shade: "cyl", r: 3, lw: FINGER_LW });
       P(s, { pts: [[x, knuckle], [x + 20, knuckle], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
-    P(s, { pts: W(fistThumb()), shade: "cyl", r: 6, lw: FINGER_LW });
+    P(s, { pts: W(fistThumb(-4)), shade: "cyl", r: 6, lw: FINGER_LW });
     chain(s, W, bar(THUMB_BASE, -5, THUMB.seg[0], 0).end, [-90], [THUMB.seg[1]], THUMB.w, { shade: "cyl" });
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
