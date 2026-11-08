@@ -7556,7 +7556,6 @@ window.C28_CONFIG = {
    "title": "Holo plan shown at the bar",
    "camera": "CAM 07 BAR",
    "duration": 8.73,
-   "caption": 3.07,
    "sounds": [
     [
      3.07,
@@ -7564,7 +7563,7 @@ window.C28_CONFIG = {
      11000
     ],
     [
-     4.366,
+     3.672,
      "servo",
      11000
     ],
@@ -7589,6 +7588,7 @@ window.C28_CONFIG = {
      11000
     ]
    ],
+   "caption": 3.07,
    "items": {
     "robotBefore": null,
     "robotAfter": "shipPlan",
