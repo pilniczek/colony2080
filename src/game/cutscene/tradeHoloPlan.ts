@@ -4,7 +4,7 @@ import { drawRig, type HookDraw } from "../../engine/rig/draw";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS, type AssetId } from "../env/assets";
 import { drawAsset } from "../env/paint";
-import { buildBack, buildFront, ROBOT } from "../robot/xbot";
+import { buildBack, buildFront, ROBOT, type ArmHold } from "../robot/xbot";
 import type { Cutscene } from "./index";
 import { camera, feet, fitStage, fromDom, hookAt, LINE_W, lineFor, ORIGIN, oval, placeRobot, poly, rect, tracks } from "./kit";
 
@@ -13,10 +13,14 @@ export interface DoorItems {
   robotAfter: string | null;
   manBefore: string | null;
   manAfter: string | null;
+  holdBefore: string | null;
+  holdAfter: string | null;
 }
 
 const ST = config.stage;
 const DOOR = config.door;
+const GRIP = DOOR.grip as unknown as Record<string, Pt>;
+const HOLD_HOOK: Record<string, string> = { pinch: "item", carry: "handL" };
 const ITEM_STATES: Record<string, number> = DOOR.itemStates;
 const W = ST.width;
 const H = ST.height;
@@ -34,9 +38,10 @@ const PLAN_ROOMS: Pt[][] = [
 ];
 let ctx: CanvasRenderingContext2D;
 let lineW = LINE_W;
-let rigs: { front: GroupNode; back: GroupNode } | null = null;
+let rigs: { front: GroupNode; back: Record<string, GroupNode> } | null = null;
 
-const robots = () => (rigs ??= { front: buildFront(), back: buildBack({ leftArmBehind: false }) });
+const robots = () => (rigs ??= { front: buildFront({ holdL: "pinch" }), back: {} });
+const backRig = (hold: string | null): GroupNode => (robots().back[hold ?? "open"] ??= buildBack({ leftArmBehind: false, holdL: hold as ArmHold | null }));
 const { num: at } = tracks(config.tracks);
 const { num: atDoor } = tracks(config.door.tracks);
 
@@ -66,14 +71,15 @@ function begin(c: CanvasRenderingContext2D, w: number, h: number): void {
   fitStage(ctx, w, h, W, H);
 }
 
-function drawItem(c: CanvasRenderingContext2D, id: string, k: number): void {
+function drawItem(c: CanvasRenderingContext2D, id: string, k: number, [gx, gy]: Pt = [0.5, 0.5], at: Pt = [0, 0]): void {
   const item = ASSETS[id as AssetId];
-  const m = c.getTransform();
   c.save();
-  c.rotate(-Math.atan2(m.b, m.a));
-  c.scale(k, k);
+  c.translate(at[0], at[1]);
+  const m = c.getTransform();
+  const s = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k;
+  c.setTransform(s, 0, 0, s, m.e, m.f);
   const [x0, y0, x1, y1] = item.box;
-  c.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+  c.translate(-(x0 + (x1 - x0) * gx), -(y0 + (y1 - y0) * gy));
   drawAsset(c, item, { state: ITEM_STATES[id] ?? 0, lines: lineW });
   c.restore();
 }
@@ -202,7 +208,7 @@ function drawHolo(t: number): void {
   lineW = lineFor(ctx, ST.robotScale);
   const pose = { armL: at("armL", t), foreL: at("foreL", t) };
   const m = new DOMMatrix().translate(ROBOT_X, ROBOT_FEET).scale(ST.robotScale).translate(-ROBOT.AX, -ROBOT.FOOT_Y);
-  placeRobot(ctx, front, m, { pose, hooks: { handL: (c) => drawItem(c, "holoPlan", ST.itemScale) }, lineW });
+  placeRobot(ctx, front, m, { pose, hooks: { item: (c) => drawItem(c, "holoPlan", ST.itemScale / ST.pinchScale, ST.holoGrip as Pt, ST.pinchAt as Pt) }, lineW });
   const shoulder = m.transformPoint(new DOMPoint(...SHOULDER));
   const lamp = at("lamp", t);
   oval(ctx, shoulder.x, shoulder.y, 9, 9, palette.lamp);
@@ -247,17 +253,20 @@ function drawLeaf(t: number): void {
   poly(ctx, [[fx, ft], [fx - edge, ft + 6], [fx - edge, fb], [fx, fb]], palette.doorEdge);
 }
 
-function drawDoorRobot(t: number, item: string | null): void {
-  const { back } = robots();
-  const pose = { armL: atDoor("armL", t), foreL: atDoor("foreL", t), armR: 10, foreR: 20 };
+function drawDoorRobot(t: number, item: string | null, hold: string | null): void {
+  const back = backRig(hold);
+  const pose: Record<string, number> = { armL: atDoor("armL", t), foreL: atDoor("foreL", t), armR: 10, foreR: 20 };
+  if (hold === "carry") pose.wristL = DOOR.carryWrist - pose.armL! - pose.foreL!;
   const x = DOOR.robotX + atDoor("robotShift", t);
   ctx.globalAlpha = 0.45;
   oval(ctx, x + 230, 520, 200, 420, palette.shadow);
   ctx.globalAlpha = 1;
   ctx.save();
   feet(ctx, x, DOOR.robotY, DOOR.robotScale, DOOR.robotScale, ROBOT.AX);
-  const handL: HookDraw | undefined = item ? (c) => drawItem(c, item, DOOR.itemScale) : undefined;
-  drawRig(ctx, back, { palette: ROBOT.palette, pose, hooks: { handL }, lineW });
+  const hook = item && hold ? HOLD_HOOK[hold] : undefined;
+  const pinched = hook === "item";
+  const held: HookDraw = (c) => drawItem(c, item!, DOOR.itemScale / (pinched ? ST.pinchScale : 1), GRIP[hold!], pinched ? (ST.pinchAt as Pt) : [0, 0]);
+  drawRig(ctx, back, { palette: ROBOT.palette, pose, hooks: hook ? { [hook]: held } : {}, lineW });
   ctx.restore();
 }
 
@@ -275,7 +284,7 @@ export function drawDoorShot(c: CanvasRenderingContext2D, w: number, h: number, 
   ctx.globalAlpha = 1;
   drawManArm(t, swapped ? items.manAfter : items.manBefore);
   drawLeaf(t);
-  drawDoorRobot(t, swapped ? items.robotAfter : items.robotBefore);
+  drawDoorRobot(t, swapped ? items.robotAfter : items.robotBefore, swapped ? items.holdAfter : items.holdBefore);
   ctx.restore();
 }
 

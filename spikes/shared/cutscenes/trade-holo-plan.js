@@ -24,7 +24,9 @@ let ctx;
 let lineW = LINE_W;
 let rigs = null;
 
-const robots = () => (rigs ??= { front: buildFront(), back: buildBack({ leftArmBehind: false }) });
+const robots = () => (rigs ??= { front: buildFront({ holdL: "pinch" }), back: {} });
+const backRig = hold => robots().back[hold ?? "open"] ??= buildBack({ leftArmBehind: false, holdL: hold });
+const HOLD_HOOK = { pinch: "item", carry: "handL" };
 
 function glow(x, y, r, color, alpha) {
   const g = ctx.createRadialGradient(x, y, 0, x, y, r);
@@ -51,13 +53,14 @@ function begin(c, w, h) {
   kit.fitStage(ctx, w, h, W, H);
 }
 
-function drawItem(c, id, k) {
-  const m = c.getTransform();
+function drawItem(c, id, k, [gx, gy] = [0.5, 0.5], at = [0, 0]) {
   c.save();
-  c.rotate(-Math.atan2(m.b, m.a));
-  c.scale(k, k);
+  c.translate(...at);
+  const m = c.getTransform();
+  const s = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * k;
+  c.setTransform(s, 0, 0, s, m.e, m.f);
   const [x0, y0, x1, y1] = asset(id).box;
-  c.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+  c.translate(-(x0 + (x1 - x0) * gx), -(y0 + (y1 - y0) * gy));
   window.ENV.draw(c, asset(id), { state: DOOR.itemStates[id] ?? 0, lines: lineW });
   c.restore();
 }
@@ -185,7 +188,7 @@ function drawHolo(t) {
   lineW = kit.lineFor(ctx, ST.robotScale);
   const pose = { armL: at("armL", t), foreL: at("foreL", t) };
   const m = new DOMMatrix().translate(ROBOT_X, ROBOT_FEET).scale(ST.robotScale).translate(-AX, -FOOT_Y);
-  kit.placeRobot(ctx, front, m, { pose, hooks: { handL: c => drawItem(c, "holoPlan", ST.itemScale) }, lineW });
+  kit.placeRobot(ctx, front, m, { pose, hooks: { item: c => drawItem(c, "holoPlan", ST.itemScale / ST.pinchScale, ST.holoGrip, ST.pinchAt) }, lineW });
   const shoulder = m.transformPoint(new DOMPoint(...SHOULDER));
   const lamp = at("lamp", t);
   oval(ctx, shoulder.x, shoulder.y, 9, 9, palette.lamp);
@@ -226,16 +229,20 @@ function drawLeaf(t) {
   poly(ctx, [[fx, ft], [fx - edge, ft + 6], [fx - edge, fb], [fx, fb]], palette.doorEdge);
 }
 
-function drawDoorRobot(t, item) {
-  const { back } = robots();
+function drawDoorRobot(t, item, hold) {
+  const back = backRig(hold);
   const pose = { armL: atDoor("armL", t), foreL: atDoor("foreL", t), armR: 10, foreR: 20 };
+  if (hold === "carry") pose.wristL = DOOR.carryWrist - pose.armL - pose.foreL;
   const x = DOOR.robotX + atDoor("robotShift", t);
   ctx.globalAlpha = 0.45;
   oval(ctx, x + 230, 520, 200, 420, palette.shadow);
   ctx.globalAlpha = 1;
   ctx.save();
   kit.feet(ctx, x, DOOR.robotY, DOOR.robotScale, DOOR.robotScale, AX);
-  renderBot(ctx, back, { pose, hooks: { handL: item ? c => drawItem(c, item, DOOR.itemScale) : null }, lineW });
+  const hook = item && HOLD_HOOK[hold];
+  const pinched = hook === "item";
+  const held = hook && (c => drawItem(c, item, DOOR.itemScale / (pinched ? ST.pinchScale : 1), DOOR.grip[hold], pinched ? ST.pinchAt : [0, 0]));
+  renderBot(ctx, back, { pose, hooks: hook ? { [hook]: held } : {}, lineW });
   ctx.restore();
 }
 
@@ -253,7 +260,7 @@ function doorShot(c, w, h, t, items) {
   ctx.globalAlpha = 1;
   drawManArm(t, swapped ? items.manAfter : items.manBefore);
   drawLeaf(t);
-  drawDoorRobot(t, swapped ? items.robotAfter : items.robotBefore);
+  drawDoorRobot(t, swapped ? items.robotAfter : items.robotBefore, swapped ? items.holdAfter : items.holdBefore);
   ctx.restore();
 }
 
