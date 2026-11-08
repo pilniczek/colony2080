@@ -158,7 +158,7 @@ const THUMB_OPEN = [30, 14] as const;
 const SIDE_HAND_DX = 224;
 const FRONT_HAND_DY = 16;
 const ELBOW_R: Pt = [2 * AX - 100, 236];
-const ELBOW_DROP = 26;
+const ELBOW_DROP = -20;
 export const SIDE_FORE_TURN = 18;
 const SIDE_SUPPORT_LIFT = 10;
 const SIDE_SUPPORT: Pt = [312, 438];
@@ -410,9 +410,9 @@ const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy
   if (armed) {
     shoulder(k, armGroup(k, s, true), true, "armR");
     right();
+    shoulder(k, armGroup(k, s, false), false, "armL");
     left();
     supportFingers(k, k.G(k.G(k.G(armGroup(k, s, true), null, "armR", [2 * AX - 100, 150]), null, "supportR", ELBOW_R), SUPPORT_TF));
-    shoulder(k, armGroup(k, s, false), false, "armL");
     return root;
   }
   if (rightArmFirst) {

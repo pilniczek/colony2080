@@ -40,7 +40,7 @@ export const CARRY = { arm: 22, fore: -94 };
 export const FRONT_CARRY = { armL: 0, foreL: -90 };
 const FRONT_REACH = [40, 140] as const;
 const FRONT_SUPPORT: Pt = [164, -20];
-const BOTH_ARMS = { grip: [0, 60], support: [0, 90] } as const;
+const BOTH_ARMS = { grip: [0, 60], support: [-40, 90] } as const;
 
 export interface HoldPoses {
   CARRY: typeof CARRY;

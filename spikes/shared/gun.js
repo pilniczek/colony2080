@@ -51,7 +51,7 @@ const CARRY = { arm: 22, fore: -94 };
 const FRONT_CARRY = { armL: 0, foreL: -90 };
 const FRONT_REACH = [40, 140];
 const FRONT_SUPPORT = [164, -20];
-const BOTH_ARMS = { grip: [0, 60], support: [0, 90] };
+const BOTH_ARMS = { grip: [0, 60], support: [-40, 90] };
 
 function frontGrip(front, gripX) {
   const { locate } = window.XBOT;

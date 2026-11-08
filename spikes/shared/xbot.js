@@ -167,7 +167,7 @@ const sideUpperArm = capsule([300, 156, 62], [314, 240, 48], 60);
 const elbow = [[60, 296], [128, 296], [128, 316], [60, 316]];
 const FRONT_HAND_DY = 16;
 const ELBOW_R = [2 * AX - 100, 236];
-const ELBOW_DROP = 26;
+const ELBOW_DROP = -20;
 const SIDE_FORE_TURN = 18;
 const JAB_DROP = 10;
 const JAB_NEAR = 1.3;
@@ -375,9 +375,9 @@ function frontTree({ rightArmFirst, propBehindArm, enemy, armed, fists }) {
   if (armed) {
     shoulder(armGroup(s, true), true, "armR");
     right();
+    shoulder(armGroup(s, false), false, "armL");
     left();
     cupFingertips(G(G(G(armGroup(s, true), null, "armR", [2 * AX - 100, 150]), null, "supportR", ELBOW_R), SUPPORT_TF));
-    shoulder(armGroup(s, false), false, "armL");
     return root;
   }
   if (rightArmFirst) { right(); left(); } else { left(); right(); }
