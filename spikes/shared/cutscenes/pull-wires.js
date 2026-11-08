@@ -49,12 +49,16 @@ function drawDoor(angle) {
   if (Math.cos(a) > 0.2) {
     const k = Math.cos(a);
     poly(ctx, [[x0 + 1.5 * k, y0 + 1.5], [x1 - 1.5 * k, y0 - spread + 1.5], [x1 - 1.5 * k, y0 + INNER + spread - 1.5], [x0 + 1.5 * k, y0 + INNER - 1.5]], pal.g1);
+    const leaf = (u, v) => [x0 + (x1 - x0) * u, y0 + v * INNER + u * spread * (2 * v - 1)];
+    ENV.draw(ctx, { id: "wireBoxDoor", box: [0, -40, 22, 0], draw: c => ENV.WIRE_BOX.bolt(c, leaf) }, { lines: lineW });
     ctx.fillStyle = pal.c1;
     ctx.beginPath();
     ctx.arc(x0 + (x1 - x0) * 0.82, y0 + INNER / 2, 0.9, 0, Math.PI * 2);
     ctx.fill();
   }
 }
+
+const INSIDE = { id: "wireBoxInside", box: [0, -40, 22, 0], draw: (c, state) => ENV.WIRE_BOX.inside(c, INSET, PANEL_TOP + INSET, INNER, state === 1) };
 
 function drawBox(t) {
   const s = BOX.scale;
@@ -64,7 +68,8 @@ function drawBox(t) {
   ctx.globalAlpha = 0.35;
   rect(ctx, 1.5, PANEL_TOP + 2.5, 22, 22, palette.shadow);
   ctx.globalAlpha = 1;
-  ENV.draw(ctx, asset("wireBox"), { state: at("torn", t) >= 0.5 ? 1 : 0, lines: lineW });
+  ENV.draw(ctx, asset("wireBox"), { state: 0, lines: lineW });
+  ENV.draw(ctx, INSIDE, { state: at("torn", t) >= 0.5 ? 1 : 0, lines: lineW });
   drawDoor(at("door", t));
   ctx.restore();
 }

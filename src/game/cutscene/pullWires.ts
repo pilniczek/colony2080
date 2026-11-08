@@ -2,7 +2,8 @@ import config from "@config/cutscenes/pull-wires.json";
 import { drawRig, type HookDraw } from "../../engine/rig/draw";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
-import { drawAsset, PALETTE as ENV_PALETTE } from "../env/paint";
+import { doorBolt, wireBoxInside } from "../env/machines";
+import { drawAsset, PALETTE as ENV_PALETTE, type EnvAsset } from "../env/paint";
 import { buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
 import { camera, feet, fitStage, LINE_W, lineFor, poly, random, reach, rect, STAND, toModel, tracks } from "./kit";
@@ -51,12 +52,16 @@ function drawDoor(ctx: CanvasRenderingContext2D, angle: number): void {
   if (Math.cos(a) > 0.2) {
     const k = Math.cos(a);
     poly(ctx, [[x0 + 1.5 * k, y0 + 1.5], [x1 - 1.5 * k, y0 - spread + 1.5], [x1 - 1.5 * k, y0 + INNER + spread - 1.5], [x0 + 1.5 * k, y0 + INNER - 1.5]], ENV_PALETTE.g1!);
+    const leaf = (u: number, v: number): Pt => [x0 + (x1 - x0) * u, y0 + v * INNER + u * spread * (2 * v - 1)];
+    drawAsset(ctx, { id: "wireBoxDoor", box: [0, -40, 22, 0], draw: (c) => doorBolt(c, leaf) }, { lines: lineW });
     ctx.fillStyle = ENV_PALETTE.c1!;
     ctx.beginPath();
     ctx.arc(x0 + (x1 - x0) * 0.82, y0 + INNER / 2, 0.9, 0, Math.PI * 2);
     ctx.fill();
   }
 }
+
+const INSIDE: EnvAsset = { id: "wireBoxInside", box: [0, -40, 22, 0], draw: (c, state) => wireBoxInside(c, INSET, PANEL_TOP + INSET, INNER, state === 1) };
 
 function drawBox(ctx: CanvasRenderingContext2D, t: number): void {
   const s = BOX.scale;
@@ -66,7 +71,8 @@ function drawBox(ctx: CanvasRenderingContext2D, t: number): void {
   ctx.globalAlpha = 0.35;
   rect(ctx, 1.5, PANEL_TOP + 2.5, 22, 22, palette.shadow);
   ctx.globalAlpha = 1;
-  drawAsset(ctx, ASSETS.wireBox, { state: at("torn", t) >= 0.5 ? 1 : 0, lines: lineW });
+  drawAsset(ctx, ASSETS.wireBox, { state: 0, lines: lineW });
+  drawAsset(ctx, INSIDE, { state: at("torn", t) >= 0.5 ? 1 : 0, lines: lineW });
   drawDoor(ctx, at("door", t));
   ctx.restore();
 }

@@ -71,7 +71,7 @@ const fit = (pts: Pt[], x: number, y: number, w: number, h: number): Pt[] => pts
 
 const BOLT: Pt[] = [[0.58, 0], [0.18, 0.56], [0.46, 0.56], [0.34, 1], [0.82, 0.4], [0.54, 0.4], [0.72, 0]];
 
-const greenPanel = (ctx: CanvasRenderingContext2D, x: number, y: number, s: number, seed: number, inner: PanelInner): void => {
+const greenPanel = (ctx: CanvasRenderingContext2D, x: number, y: number, s: number, seed: number, inner: PanelInner, drips = true): void => {
   box(ctx, x, y, s, s, "green", 0);
   flat(ctx, x, y, s, 1.5, "c1");
   flat(ctx, x, y, 1.5, s, "c1");
@@ -86,7 +86,7 @@ const greenPanel = (ctx: CanvasRenderingContext2D, x: number, y: number, s: numb
   flat(ctx, x + i + n - 1, y + i + 1, 1, n - 1, "g2");
   G.grain(ctx, G.rectRegion(ctx, x, y, s, s), seed);
   G.dirt(ctx, x, y, s, s, seed + 1, 0.3);
-  G.drips(ctx, x + i, y + i + n, n, i, seed + 2, 2);
+  if (drips) G.drips(ctx, x + i, y + i + n, n, i, seed + 2, 2);
   G.chips(ctx, x, y + 0.2, s, seed + 3);
   if (!P.simple()) {
     for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]] as Pt[]) disc(ctx, x + 2.5 + a * (s - 5), y + 2.5 + b * (s - 5), 0.6, "g3");
@@ -116,9 +116,18 @@ export const wireBox: EnvAsset = {
     greenPanel(ctx, 0, -40, 22, 100, (x, y, n) => {
       if (state === 1) return torn(ctx, x, y, n);
       boltIcon(ctx, x, y, n);
-      if (!P.simple()) for (const k of [0.3, 0.6]) cable(ctx, [[x + n * k, y + n], [x + n * k + 1, y + n + 2.5]], "a1", 0.8);
-    });
+    }, false);
   },
+};
+
+export const wireBoxInside = (ctx: CanvasRenderingContext2D, x: number, y: number, n: number, broken: boolean): void => {
+  flat(ctx, x, y, n, n, "g0", "gLine");
+  if (broken) torn(ctx, x, y, n);
+  else wires(ctx, x, y, n);
+};
+
+export const doorBolt = (ctx: CanvasRenderingContext2D, at: (u: number, v: number) => Pt): void => {
+  poly(ctx, BOLT.map(([u, v]) => at(0.2 + u * 0.6, 0.12 + v * 0.76)), "y2", 2, { line: true });
 };
 
 export const switchboard: EnvAsset = {

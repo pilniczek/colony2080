@@ -71,7 +71,7 @@ function shape(pts, x, y, w, h) {
 
 const BOLT = [[0.58, 0], [0.18, 0.56], [0.46, 0.56], [0.34, 1], [0.82, 0.4], [0.54, 0.4], [0.72, 0]];
 
-function greenPanel(ctx, x, y, s, seed, inner) {
+function greenPanel(ctx, x, y, s, seed, inner, drips = true) {
   box(ctx, x, y, s, s, "green", 0);
   flat(ctx, x, y, s, 1.5, "c1");
   flat(ctx, x, y, 1.5, s, "c1");
@@ -85,7 +85,7 @@ function greenPanel(ctx, x, y, s, seed, inner) {
   flat(ctx, x + i + n - 1, y + i + 1, 1, n - 1, "g2");
   G.grain(ctx, G.rectRegion(ctx, x, y, s, s), seed);
   G.dirt(ctx, x, y, s, s, seed + 1, 0.3);
-  G.drips(ctx, x + i, y + i + n, n, i, seed + 2, 2);
+  if (drips) G.drips(ctx, x + i, y + i + n, n, i, seed + 2, 2);
   G.chips(ctx, x, y + 0.2, s, seed + 3);
   if (!simple()) for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]]) disc(ctx, x + 2.5 + a * (s - 5), y + 2.5 + b * (s - 5), 0.6, "g3");
   inner?.(x + i, y + i, n);
@@ -113,10 +113,21 @@ define({
     greenPanel(ctx, 0, -40, 22, 100, (x, y, n) => {
       if (state === 1) return torn(ctx, x, y, n);
       boltIcon(ctx, x, y, n);
-      if (!simple()) for (const k of [0.3, 0.6]) cable(ctx, [[x + n * k, y + n], [x + n * k + 1, y + n + 2.5]], "a1", 0.8);
-    });
+    }, false);
   }
 });
+
+function wireBoxInside(ctx, x, y, n, broken) {
+  flat(ctx, x, y, n, n, "g0", "gLine");
+  if (broken) torn(ctx, x, y, n);
+  else wires(ctx, x, y, n);
+}
+
+function doorBolt(ctx, at) {
+  poly(ctx, BOLT.map(([u, v]) => at(0.2 + u * 0.6, 0.12 + v * 0.76)), "y2", 2, { line: true });
+}
+
+window.ENV.WIRE_BOX = { inside: wireBoxInside, bolt: doorBolt };
 
 define({
   id: "switchboard",
