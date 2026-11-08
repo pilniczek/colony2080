@@ -1,5 +1,5 @@
 (() => {
-const { define, P } = window.ENV;
+const { define, P, itemViews } = window.ENV;
 const { color, flat, disc, glow, stroke, shape, line, curve, path } = P;
 const { PI, sin, floor } = Math;
 
@@ -74,13 +74,7 @@ function lit(ctx, pts, [c0, c1, c2, c3], { light = 0.32, dark = 0.3, edge = LINE
 
 const quad = ([ox, oy], [ux, uy], [vx, vy]) => [[ox, oy], [ox + ux, oy + uy], [ox + ux + vx, oy + uy + vy], [ox + vx, oy + vy]];
 
-function securityKey(id, cap) {
-  return {
-    id,
-    box: [-2, -6, 16, 0],
-    draw(ctx, state) {
-      if (state) return scuff(ctx, 0, 14);
-      shadow(ctx, 7, 14);
+function keyBody(ctx, cap) {
       shape(ctx, [[0, -2.6], [1.2, -2.6], [1.2, -0.6], [0.6, -0.6], [0.6, -1.3], [0, -1.3]], STEEL[1], LINE);
       rod(ctx, 1.2, -3, 5.6, 2.6, STEEL);
       for (const y of [-3.7, -0.6]) flat(ctx, 1.4, y, 5.2, 0.7, STEEL[y < -2 ? 2 : 0], LINE);
@@ -90,6 +84,30 @@ function securityKey(id, cap) {
       ellipse(ctx, 12.6, -2, 0.75, 2, cap[1], LINE);
       ellipse(ctx, 12.75, -2.5, 0.45, 1.1, cap[2]);
       if (!simple()) ellipse(ctx, 12.8, -2.9, 0.22, 0.45, cap[3]);
+}
+
+function securityKey(id, cap) {
+  return {
+    id,
+    box: [-2, -6, 16, 0],
+    views: itemViews([-2, -6, 16, 0], 4, {
+      top(ctx) {
+        ctx.save();
+        ctx.translate(0, 2);
+        keyBody(ctx, cap);
+        ctx.restore();
+      },
+      front(ctx) {
+        ellipse(ctx, 0, -2, 2, 2, STEEL[1], LINE);
+        ellipse(ctx, 0, -2, 1.6, 1.6, cap[1], LINE);
+        ellipse(ctx, -0.3, -2.5, 0.9, 0.9, cap[2]);
+        if (!simple()) ellipse(ctx, -0.4, -2.9, 0.35, 0.35, cap[3]);
+      }
+    }),
+    draw(ctx, state) {
+      if (state) return scuff(ctx, 0, 14);
+      shadow(ctx, 7, 14);
+      keyBody(ctx, cap);
     }
   };
 }
@@ -100,6 +118,22 @@ const keyB = securityKey("keyB", GREEN_CAP);
 const screwdriver = {
   id: "screwdriver",
   box: [-2, -6, 22, 0],
+  views: itemViews([-2, -6, 22, 0], 3.6, {
+    top(ctx) {
+      shape(ctx, [[8, -0.45], [17.6, -0.35], [17.6, 0.35], [8, 0.45]], "#8a8a7c", LINE);
+      shape(ctx, [[17.6, -0.35], [19.6, -0.35], [19.6, 0.35], [17.6, 0.35]], "#c0c0a8", LINE);
+      rod(ctx, 6.8, -1.2, 1.4, 2.4, STEEL, { vertical: true });
+      ellipse(ctx, 1.3, 0, 1.2, 1.75, BROWN[1], LINE);
+      rod(ctx, 1.3, -1.75, 5.6, 3.5, BROWN);
+      for (let x = 2.1; x < 6.6; x += simple() ? 1.6 : 0.8) flat(ctx, x, -1.45, 0.32, 2.9, "#242418");
+    },
+    front(ctx) {
+      ellipse(ctx, 0, -1.8, 1.75, 1.75, BROWN[1], LINE);
+      ellipse(ctx, 0, -1.8, 1.2, 1.2, STEEL[2], LINE);
+      flat(ctx, -0.4, -2.4, 0.8, 2.2, "#8a8a7c", LINE);
+      flat(ctx, -0.35, -0.65, 0.7, 0.5, "#c0c0a8", LINE);
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 20);
     shadow(ctx, 9, 18);
@@ -118,6 +152,25 @@ const LIFT_REMOTE = { o: [1, -0.4], u: [13, 0], v: [2.6, -2.6], h: 1.6 };
 const liftRemote = {
   id: "liftRemote",
   box: [-2, -6, 20, 0],
+  views: itemViews([-2, -6, 20, 0], 4.5, {
+    top(ctx) {
+      for (let i = 0; i < 4; i++) shape(ctx, quad([-2.4, -2.25 + 4.5 * (0.08 + i * 0.25)], [3.6, 0], [0, 0.6]), DEPOT[3], LINE);
+      shape(ctx, quad([1, -2.25], [13, 0], [0, 4.5]), "#606054", LINE);
+      shape(ctx, quad([11.4, -2.25], [2.6, 0], [0, 4.5]), "#c0c0b4", LINE);
+      if (!simple()) for (const d of [-1, 0, 1]) line(ctx, [[2, d], [7.8, d]], "#3c3c34", 0.2);
+      shape(ctx, quad([8.4, -1.1], [2.2, 0], [0, 2.2]), "#843018", LINE);
+    },
+    front(ctx) {
+      shape(ctx, quad([-2.25, -2], [4.5, 0], [0, 1.6]), "#909084", LINE);
+      shape(ctx, quad([-1.1, -2.4], [2.2, 0], [0, 0.4]), "#84240c", LINE);
+    },
+    flat(ctx) {
+      shape(ctx, quad([-2.4, -1.6], [3.6, 0], [0, 0.8]), DEPOT[1], LINE);
+      shape(ctx, quad([1, -2], [13, 0], [0, 1.6]), "#303030", LINE);
+      shape(ctx, quad([11.4, -2], [2.6, 0], [0, 1.6]), "#909084", LINE);
+      shape(ctx, quad([8.4, -2.4], [2.2, 0], [0, 0.4]), "#84240c", LINE);
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 18);
     shadow(ctx, 9, 18);
@@ -144,9 +197,28 @@ const liftRemote = {
 
 const DISK = { o: [1, -0.2], u: [11, 0], v: [3.4, -5], h: 0.8 };
 
+function diskFace(ctx, state) {
+  const at = (a, b) => [1 + 11 * a, 5.5 - 11 * b];
+  shape(ctx, [at(0, 0), at(1, 0), at(1, 1), at(0, 1)], "#303c54", LINE);
+  shape(ctx, [at(0.1, 0.38), at(0.9, 0.38), at(0.9, 0.94), at(0.1, 0.94)], "#c0cccc", LINE);
+  if (!simple()) for (const b of [0.6, 0.72, 0.84]) line(ctx, [at(0.18, b), at(0.7, b)], "#90a0a4", 0.2);
+  shape(ctx, [at(0.28, 0), at(0.72, 0), at(0.72, 0.3), at(0.28, 0.3)], "#a8a8a8", LINE);
+  shape(ctx, [at(0.42, 0.04), at(0.58, 0.04), at(0.58, 0.24), at(0.42, 0.24)], "#2a2c34");
+  if (state === 1) {
+    shape(ctx, [at(0.66, 0.44), at(0.86, 0.44), at(0.86, 0.88), at(0.66, 0.88)], "#c0281c", LINE);
+    line(ctx, [at(0.7, 0.52), at(0.82, 0.8)], "#ffd0b0", 0.35);
+    line(ctx, [at(0.82, 0.52), at(0.7, 0.8)], "#ffd0b0", 0.35);
+  }
+}
+
 const floppyDisk = {
   id: "floppyDisk",
   box: [-2, -8, 18, 0],
+  views: itemViews([-2, -8, 18, 0], 11, {
+    top: diskFace,
+    front: (ctx) => shape(ctx, quad([-5.5, -0.8], [11, 0], [0, 0.8]), "#24304a", LINE),
+    flat: (ctx) => shape(ctx, quad([1, -0.8], [11, 0], [0, 0.8]), "#1c2434", LINE)
+  }),
   draw(ctx, state) {
     shadow(ctx, 8, 16, 0.35);
     const { o: [ox, oy], u, v, h } = DISK;
@@ -179,12 +251,7 @@ const FINGERS = [
 const PALM = [[2.6, -9.4], [5.4, -8.6], [8.4, -7.6], [9.8, -5.4], [9.2, -3.2], [6.8, -1.8], [4.8, -3], [2.8, -5.4]];
 const WOUND = [[1.4, -9.6], [1.8, -11.2], [2.6, -9.8], [3.2, -11.6], [3.6, -9.6], [4.4, -10.6], [4.2, -8.8], [5.4, -8.4], [3.8, -7.4], [4.6, -6.4], [3.2, -5.8], [3.2, -4.6], [2, -5.4], [0.8, -7.6]];
 
-const alienHand = {
-  id: "alienHand",
-  box: [-2, -13, 20, 0],
-  draw(ctx, state) {
-    if (state) return scuff(ctx, 0, 18);
-    shadow(ctx, 8, 17);
+function alienHandBody(ctx) {
     for (const f of FINGERS) {
       curve(ctx, f, LINE, 1.9);
       curve(ctx, f, SKIN[1], 1.3);
@@ -201,12 +268,64 @@ const alienHand = {
     shape(ctx, WOUND, "#6c3c18", LINE);
     shape(ctx, WOUND.map(([x, y]) => [x + (x - 2.6) * -0.35, y + (y + 8.4) * -0.3]), "#b44818");
     if (!simple()) ellipse(ctx, 2.4, -8, 0.6, 1.2, "#783c24");
+}
+
+const alienHand = {
+  id: "alienHand",
+  box: [-2, -13, 20, 0],
+  views: itemViews([-2, -13, 20, 0], 12, {
+    top(ctx) {
+      ctx.save();
+      ctx.translate(0, 6);
+      alienHandBody(ctx);
+      ctx.restore();
+    },
+    front(ctx) {
+      lit(ctx, [[-5, 0], [-4.2, -1.6], [-1, -2.4], [2.4, -2], [5, -0.8], [5, 0]], SKIN, { light: 0.35, dark: 0.25 });
+      for (const x of [-3.4, -1.2, 1, 3]) disc(ctx, x, -0.6, 0.55, SKIN[2]);
+    },
+    flat(ctx) {
+      lit(ctx, [[0.8, 0], [1.2, -2.2], [5, -2.6], [9.6, -2], [12.6, -1.2], [15.4, -0.6], [15.4, 0]], SKIN, { light: 0.35, dark: 0.25 });
+      shape(ctx, [[0.6, 0], [0.8, -2.4], [1.8, -2.4], [1.6, 0]], "#6c3c18", LINE);
+    }
+  }),
+  draw(ctx, state) {
+    if (state) return scuff(ctx, 0, 18);
+    shadow(ctx, 8, 17);
+    alienHandBody(ctx);
   }
 };
 
 const grenade = {
   id: "handGrenade",
   box: [-2, -11, 12, 0],
+  views: itemViews([-2, -11, 12, 0], 7.6, {
+    top(ctx) {
+      ellipse(ctx, 5, 0, 3.8, 3.8, OLIVE[1], LINE);
+      if (!simple()) ellipse(ctx, 4.2, -0.8, 2, 2, OLIVE[2]);
+      shape(ctx, [[3.3, -0.3], [8.2, -0.3], [8.2, 0.3], [3.3, 0.3]], "#a8a8a8", LINE);
+      rod(ctx, 3.9, -1.1, 2.2, 2.2, ["#848478", "#a8a8a8", "#c0c0b4", "#e0e0d4"]);
+      ctx.beginPath();
+      ctx.ellipse(3, 0, 1, 1, 0, 0, PI * 2);
+      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = LINE;
+      ctx.stroke();
+    },
+    front(ctx) {
+      ellipse(ctx, 0, -3.3, 3.8, 3.3, OLIVE[1]);
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(0, -3.3, 3.8, 3.3, 0, 0, PI * 2);
+      ctx.clip();
+      ellipse(ctx, -0.8, -4.4, 2.8, 2.2, OLIVE[2]);
+      ellipse(ctx, 0.8, -0.6, 4.2, 1.6, OLIVE[0]);
+      ctx.restore();
+      ellipse(ctx, 0, -3.3, 3.8, 3.3, "rgba(0,0,0,0)", LINE);
+      shape(ctx, [[-3.8, -3.9], [3.8, -3.9], [3.7, -2.9], [-3.7, -2.9]], OLIVE[2], LINE);
+      rod(ctx, -1.1, -7.6, 2.2, 1.2, ["#848478", "#a8a8a8", "#c0c0b4", "#e0e0d4"], { vertical: true });
+      shape(ctx, [[-0.4, -7], [0.4, -7], [0.4, -5.4], [-0.4, -5.4]], "#a8a8a8", LINE);
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 10);
     shadow(ctx, 5, 9);
@@ -238,10 +357,35 @@ const grenade = {
 const BOMB = { o: [1, -0.4], u: [15, 0], v: [3, -3], h: 5 };
 const STRAPS = [3, 11];
 
+function bombScreen(state) {
+  return state === 1 ? "#3c1808" : "#a8ac98";
+}
+
 const timeBomb = {
   id: "timeBomb",
   box: [-2, -11, 20, 0],
   anim: true,
+  views: itemViews([-2, -11, 20, 0], 6, {
+    top(ctx, state) {
+      shape(ctx, quad([1, -3], [15, 0], [0, 6]), KHAKI[2], LINE);
+      for (const x of STRAPS) shape(ctx, quad([1 + x, -3], [1.6, 0], [0, 6]), "#b4300c", LINE);
+      shape(ctx, quad([6.2, -1.8], [5.2, 0], [0, 4.8]), "#9c9c90", LINE);
+      shape(ctx, quad([6.8, -0.8], [3.4, 0], [0, 2.4]), bombScreen(state), LINE);
+      shape(ctx, quad([9.1, -1.6], [0.9, 0], [0, 0.6]), "#e43c0c", LINE);
+    },
+    front(ctx, state) {
+      shape(ctx, quad([-3, -5.4], [6, 0], [0, 5]), KHAKI[0], LINE);
+      shape(ctx, quad([-3, -7.5], [4.8, 0], [0, 2.1]), "#848478", LINE);
+      shape(ctx, quad([-2.4, -8.1], [2.4, 0], [0, 0.6]), bombScreen(state), LINE);
+    },
+    flat(ctx, state) {
+      lit(ctx, quad([1, -5.4], [15, 0], [0, 5]), KHAKI, { light: 0.15, dark: 0.28 });
+      for (const x of STRAPS) flat(ctx, 1 + x, -5.4, 1.6, 5, "#e43c0c", LINE);
+      shape(ctx, quad([6.2, -7.5], [5.2, 0], [0, 2.1]), "#848478", LINE);
+      shape(ctx, quad([6.8, -8.1], [3.4, 0], [0, 0.6]), bombScreen(state), LINE);
+      shape(ctx, quad([9.1, -8.4], [0.9, 0], [0, 0.3]), "#e43c0c", LINE);
+    }
+  }),
   draw(ctx, state, t) {
     shadow(ctx, 9, 18);
     const { o: [ox, oy], u, v, h } = BOMB;
