@@ -1,35 +1,25 @@
 import config from "@config/cutscenes/unlock-plasma.json";
-import { drawRig } from "../../engine/rig/draw";
-import type { GroupNode, Pt, RigNode } from "../../engine/rig/tree";
+import { apply } from "../../engine/math/mat2d";
+import { drawRig, type HookDraw } from "../../engine/rig/draw";
+import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset, PALETTE as ENV_PALETTE } from "../env/paint";
-import { buildSide, ROBOT } from "../robot/xbot";
+import { buildHand, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, fitStage, LINE_W, lineFor, poly, random, rect, tracks } from "./kit";
+import { camera, fitStage, hookAt, LINE_W, lineFor, poly, random, rect, tracks } from "./kit";
 
 const { width: W, height: H, grid: GRID } = config.stage;
 const LOCK = config.lock;
 const S = LOCK.scale;
 const HAND = config.hand;
 const DECODER: Pt = [LOCK.x + (LOCK.decoderAt[0]! - 11) * S, LOCK.y + (LOCK.decoderAt[1]! + 36) * S];
-const HAND_HOOK: Pt = [312, 438];
 const FORE_LEN = 190;
 const palette = { ...config.palette };
 let lineW = LINE_W;
-let forearm: GroupNode | null = null;
+let hands: { pinch: GroupNode; reach: GroupNode } | null = null;
 let speckles: [number, number, number, number, boolean][] | null = null;
 
 const { num: at } = tracks(config.tracks);
-
-const findGroup = (node: RigNode, name: string): GroupNode | null => {
-  if (node.k !== "g") return null;
-  if (node.name === name) return node;
-  for (const kid of node.kids) {
-    const hit = findGroup(kid, name);
-    if (hit) return hit;
-  }
-  return null;
-};
 
 const makeSpeckles = (): [number, number, number, number, boolean][] => {
   const rnd = random((2080 * 2654435761) >>> 0);
@@ -77,14 +67,31 @@ function drawDecoder(ctx: CanvasRenderingContext2D, t: number): void {
 }
 
 function drawHand(ctx: CanvasRenderingContext2D, t: number): void {
-  forearm ??= { k: "g", m: null, kids: findGroup(buildSide(), "fore")!.kids };
+  hands ??= {
+    pinch: buildHand({ view: "thumb", pose: "pinch", forearm: true }),
+    reach: buildHand({ view: "thumb", pose: "reach", forearm: true }),
+  };
+  const placed = at("placed", t) >= 0.5;
+  const [gx, gy] = apply(hookAt(hands.pinch, "item", {}), HAND.pinchAt as Pt);
   const [dx, dy] = decoderAt(t);
+  const base = ctx.getTransform();
+  const held: HookDraw = (c) => {
+    c.save();
+    c.setTransform(base);
+    drawDecoder(c, t);
+    c.restore();
+  };
   ctx.save();
-  ctx.translate(dx + HAND.grip[0]! + at("handX", t), dy + HAND.grip[1]! + at("handY", t));
-  ctx.rotate((at("rot", t) * Math.PI) / 180);
+  ctx.translate(dx + HAND.grip[0]! * S + at("handX", t), dy + HAND.grip[1]! * S + at("handY", t));
+  ctx.rotate(((at("rot", t) + HAND.turn) * Math.PI) / 180);
   ctx.scale(HAND.scale, HAND.scale);
-  ctx.translate(-HAND_HOOK[0], -HAND_HOOK[1]);
-  drawRig(ctx, forearm, { palette: ROBOT.palette, lineW });
+  ctx.translate(-gx, -gy);
+  if (placed) {
+    ctx.translate(HAND.palm[0]!, HAND.palm[1]!);
+    ctx.rotate(-Math.PI / 2);
+    ctx.translate(-HAND.palm[0]!, -HAND.palm[1]!);
+  }
+  drawRig(ctx, placed ? hands.reach : hands.pinch, { palette: ROBOT.palette, hooks: { item: placed ? undefined : held }, lineW });
   ctx.restore();
 }
 
@@ -123,7 +130,7 @@ function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number):
   lineW = lineFor(ctx, HAND.scale, FORE_LEN);
   drawWall(ctx);
   drawLock(ctx, t);
-  drawDecoder(ctx, t);
+  if (at("placed", t) >= 0.5) drawDecoder(ctx, t);
   drawHand(ctx, t);
   ctx.restore();
   drawHud(ctx, t);

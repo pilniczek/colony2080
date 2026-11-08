@@ -1,33 +1,22 @@
 (() => {
 const { kit } = window.CUTSCENES;
 const { rect, poly, LINE_W, asset } = kit;
-const { buildSide, render: renderBot } = window.XBOT;
+const { buildHand, render: renderBot, locate } = window.XBOT;
 const CFG = window.C28_CONFIG.cutscenes.unlockPlasma;
 const ENV = window.ENV;
 const W = CFG.stage.width, H = CFG.stage.height, GRID = CFG.stage.grid;
 const LOCK = CFG.lock, S = LOCK.scale;
 const HAND = CFG.hand;
 const DECODER = [LOCK.x + (LOCK.decoderAt[0] - 11) * S, LOCK.y + (LOCK.decoderAt[1] + 36) * S];
-const HAND_HOOK = [312, 438];
 const FORE_LEN = 190;
 const palette = { ...CFG.palette };
 const at = kit.track(CFG.tracks);
 let lineW = LINE_W;
-let forearm = null;
+let hands = null;
 let speckles = null;
 let ctx;
 
 const random = seed => kit.random(seed * 2654435761 >>> 0);
-
-function findGroup(node, name) {
-  if (node.k !== "g") return null;
-  if (node.name === name) return node;
-  for (const kid of node.kids) {
-    const hit = findGroup(kid, name);
-    if (hit) return hit;
-  }
-  return null;
-}
 
 function drawWall() {
   rect(ctx, -200, -200, 2000, 1300, palette.wall);
@@ -75,16 +64,31 @@ function drawDecoder(t) {
 }
 
 function drawHand(t) {
-  forearm ??= { k: "g", m: null, kids: findGroup(buildSide(), "fore").kids };
+  hands ??= {
+    pinch: buildHand({ view: "thumb", pose: "pinch", forearm: true }),
+    reach: buildHand({ view: "thumb", pose: "reach", forearm: true })
+  };
+  const placed = at("placed", t) >= 0.5;
+  const grip = locate(hands.pinch, "item").transformPoint(new DOMPoint(...HAND.pinchAt));
   const [dx, dy] = decoderAt(t);
-  const x = dx + HAND.grip[0] + at("handX", t);
-  const y = dy + HAND.grip[1] + at("handY", t);
+  const base = ctx.getTransform();
+  const held = c => {
+    c.save();
+    c.setTransform(base);
+    drawDecoder(t);
+    c.restore();
+  };
   ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(at("rot", t) * Math.PI / 180);
+  ctx.translate(dx + HAND.grip[0] * S + at("handX", t), dy + HAND.grip[1] * S + at("handY", t));
+  ctx.rotate((at("rot", t) + HAND.turn) * Math.PI / 180);
   ctx.scale(HAND.scale, HAND.scale);
-  ctx.translate(-HAND_HOOK[0], -HAND_HOOK[1]);
-  renderBot(ctx, forearm, { lineW });
+  ctx.translate(-grip.x, -grip.y);
+  if (placed) {
+    ctx.translate(...HAND.palm);
+    ctx.rotate(-Math.PI / 2);
+    ctx.translate(-HAND.palm[0], -HAND.palm[1]);
+  }
+  renderBot(ctx, placed ? hands.reach : hands.pinch, { hooks: { item: placed ? null : held }, lineW });
   ctx.restore();
 }
 
@@ -124,7 +128,7 @@ function render(c, w, h, t) {
   lineW = kit.lineFor(ctx, HAND.scale, FORE_LEN);
   drawWall();
   drawLock(t);
-  drawDecoder(t);
+  if (at("placed", t) >= 0.5) drawDecoder(t);
   drawHand(t);
   ctx.restore();
   drawHud(t);

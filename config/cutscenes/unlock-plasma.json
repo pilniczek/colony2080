@@ -9,7 +9,7 @@
   "sounds": [[0.294, "servo", 11000], [1.163, "servo", 11000], [1.815, "punch", 13000], [2.104, "servo", 11000]],
   "stage": { "width": 1600, "height": 900, "grid": 72, "speckles": 520 },
   "lock": { "x": 700, "y": 450, "scale": 22, "decoderAt": [4, -27] },
-  "hand": { "scale": 5.4, "grip": [170, 90] },
+  "hand": { "scale": 5.4, "grip": [14, -4], "pinchAt": [2.2, -2.6], "turn": 90, "palm": [88, 470] },
   "palette": {
     "wall": "#8c857a", "speckDark": "#6e675c", "speckLight": "#aaa397", "shadow": "#0f1c14",
     "grid": "#e2481c", "readout": "#d83a1e", "monitor": "#c9d6d2", "monitorEdge": "#55635f", "monitorInk": "#2a3634", "monitorGlow": "#5fd8d0"
