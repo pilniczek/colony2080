@@ -149,12 +149,10 @@ const headFront = (k: Kit, body: GroupNode, back: boolean, enemy: boolean): void
 
 const HAND = { x0: 46, x1: 130, top: 398, bottom: 470 };
 const FINGER = { pitch: 21, thick: 18, base: 462, seg: [30, 24, 18] };
-const THUMB = { w: 20, thick: 18, seg: [24, 20] as const };
+const THUMB = { thick: 18, seg: [24, 20] as const };
 const HAND_AX = 87.5;
 const HAND_FACE: Pt = [71, 105];
 const THUMB_SIDE: Pt = [HAND_FACE[0] + 12, 424];
-const THUMB_BASE: Pt = [124, 424];
-const THUMB_OPEN = [30, 14] as const;
 const SIDE_HAND_DX = 224;
 const FRONT_HAND_DY = 16;
 const fingerX = (i: number): number => HAND.x0 + i * FINGER.pitch;
@@ -169,25 +167,6 @@ const bar = ([x, y]: Pt, deg: number, len: number, w: number, [e0, e1]: [number,
   const s: Pt = [x - dx * e0, y - dy * e0];
   const e: Pt = [x + dx * (len + e1), y + dy * (len + e1)];
   return { pts: [[s[0] + nx, s[1] + ny], [e[0] + nx, e[1] + ny], [e[0] - nx, e[1] - ny], [s[0] - nx, s[1] - ny]], end: [x + dx * len, y + dy * len] };
-};
-
-const thumbWedge = (from: Pt, deg: number, len: number, w: number, edge: number): Pt[] => {
-  const [, eo, ei] = bar(from, deg, len, w).pts;
-  const a = (deg * Math.PI) / 180;
-  const top = from[1] - 14;
-  const outer = Math.max(edge + 2, eo[0] - (Math.sin(a) * (eo[1] - top)) / Math.cos(a));
-  return [[edge, top], [outer, top], eo, ei, [edge, ei[1]]];
-};
-
-const openThumb = (k: Kit, parent: GroupNode, M: Mirror): void => {
-  const [a0, a1] = THUMB_OPEN;
-  const edge = HAND.x1 - 2;
-  const joint = bar(THUMB_BASE, a0, THUMB.seg[0], 0).end;
-  const reach = Math.min(bar(THUMB_BASE, a0, THUMB.seg[0], THUMB.w).pts[2][0], ...bar(joint, a1, THUMB.seg[1], THUMB.w, [THUMB.w / 2, 0]).pts.map((p) => p[0]));
-  const from: Pt = [THUMB_BASE[0] + Math.max(0, edge - reach), THUMB_BASE[1]];
-  k.P(parent, { pts: M(thumbWedge(from, a0, THUMB.seg[0], THUMB.w, edge)), shade: "cyl", r: 3, lw: FINGER_LW });
-  const seg = bar(bar(from, a0, THUMB.seg[0], 0).end, a1, THUMB.seg[1], THUMB.w, [THUMB.w / 2, THUMB.w / 2]);
-  k.P(parent, { pts: M(seg.pts), shade: "cyl", r: THUMB.w / 3, lw: FINGER_LW });
 };
 
 const chain = (k: Kit, parent: GroupNode, M: Mirror, from: Pt, angles: readonly number[], lens: readonly number[], w: number): void => {
@@ -231,7 +210,6 @@ const robotHand = (k: Kit, parent: GroupNode, M: Mirror): void => {
     k.P(parent, { pts: M([[x, y1], [x + 20, y1], [x + 20, y2], [x, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
     k.P(parent, { pts: M([[x, y2], [x + 20, y2], [x + 20, y3], [x, y3]]), r: 2, lw: FINGER_LW });
   }
-  openThumb(k, parent, M);
 };
 
 const frontHand = (k: Kit, parent: GroupNode, M: Mirror, thumbBehind: boolean): void =>
