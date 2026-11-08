@@ -19,7 +19,7 @@ const buildParts = length => [
   { name: "magazine", x: -82, y: -84, w: 64, h: 76, mat: "o", tone: 1 },
   { name: "magazineTop", x: -82, y: -84, w: 64, h: 12, mat: "o", tone: 2 },
   { name: "hazard", x: -76, y: -66, w: 34, h: 6, mat: "y", tone: 2 },
-  { name: "trigger", x: -20, y: -22, w: 44, h: 10, mat: "t", tone: 0 },
+  { name: "trigger", x: -20, y: -22, w: 44, h: 12, mat: "t", tone: 0 },
   { name: "sight", x: 14, y: -90, w: 44, h: 26, mat: "t", tone: 2 },
   { name: "lens", x: 54, y: -88, w: 9, h: 11, mat: "l", tone: 2 },
   { name: "tube", x: BARREL.x, y: -64, w: length, h: 46, mat: "t", tone: 1 },

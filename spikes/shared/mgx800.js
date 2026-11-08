@@ -13,9 +13,9 @@ const EMITTER = 22;
 
 const buildParts = length => [
   window.GUN.grip("g", 0),
-  { name: "body", x: -52, y: -76, w: 152, h: 62, mat: "g", tone: 2 },
+  { name: "body", x: -52, y: -76, w: 152, h: 66, mat: "g", tone: 2 },
   { name: "bodyTop", x: -52, y: -76, w: 152, h: 12, mat: "g", tone: 3 },
-  { name: "bodyLow", x: -52, y: -30, w: 152, h: 16, mat: "g", tone: 0 },
+  { name: "bodyLow", x: -52, y: -30, w: 152, h: 20, mat: "g", tone: 0 },
   { name: "band", x: 22, y: -80, w: 26, h: 70, mat: "w", tone: 2 },
   { name: "vent", x: 66, y: -64, w: 22, h: 26, mat: "k", tone: 0 },
   { name: "barrel", x: BARREL.x, y: -50, w: length, h: 32, mat: "g", tone: 1 },

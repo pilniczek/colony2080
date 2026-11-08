@@ -586,7 +586,7 @@ const grenade: EnvAsset = {
 
 const FLAMER_K = 0.12;
 const FLAMER_PARTS: [number, number, number, number, string, number][] = [
-  [-100, -58, 44, 26, "steel", 0], [-58, -62, 142, 44, "steel", 1], [-58, -62, 142, 10, "steel", 2],
+  [-100, -58, 44, 26, "steel", 0], [-58, -62, 142, 52, "steel", 1], [-58, -62, 142, 10, "steel", 2],
   [-44, -116, 112, 54, "brick", 2], [-52, -110, 10, 42, "steel", 2], [66, -110, 10, 42, "steel", 2], [6, -118, 10, 58, "steel", 1],
   [74, -84, 12, 24, "chrome", 2], [84, -42, 120, 24, "steel", 2], [204, -52, 30, 44, "chrome", 2], [218, -9, 20, 7, "chrome", 1],
 ];
