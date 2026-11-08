@@ -187,12 +187,15 @@
 <script src="../shared/enemies-jeskyne.js"></script>
 <script>
 const { buildSide, buildFront, render, locate, FOOT_Y, LEVELS } = window.XBOT;
-const roots = {
-  side: buildSide({ farLimbs: true, propBehindArm: true }),
-  front: buildFront({ rightArmFirst: true, propBehindArm: true }),
-  gSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true }),
-  gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true })
-};
+const rigSet = armed => ({
+  side: buildSide({ farLimbs: true, propBehindArm: true, armed }),
+  front: buildFront({ rightArmFirst: true, propBehindArm: true, armed }),
+  gSide: buildSide({ farLimbs: true, propBehindArm: true, lod: true, armed }),
+  gFront: buildFront({ lod: true, rightArmFirst: true, propBehindArm: true, armed })
+});
+const roots = rigSet(true);
+const bareRoots = rigSet(false);
+const armedRoots = () => WEAPON === "fists" ? bareRoots : roots;
 const MODELS = { gun: GUN, blaster: EBLASTER, toaster: TOASTER, flamethrower: FLAMETHROWER, mgx800: MGX800, rocketLauncher: ROCKET_LAUNCHER };
 const SPECIAL = { blaster: [1, "City"], toaster: [2, "Suburb"], flamethrower: [3, "Jungle"], mgx800: [5, "Prison Escape"], rocketLauncher: [6, "Warehouse"] };
 const DUCK = { body: 16, hipNear: -86, kneeNear: 124, ankleNear: -44, hipFar: -68, kneeFar: 128, ankleFar: -76 };
@@ -351,10 +354,10 @@ function ground(ctx, lod, id = "eBlaster", x = 2, y = 10.5, t = 0) {
 
 const VIEWS = {
   side: (ctx, lw) => model() ? (ctx.translate(250, 130), model().draw(ctx, { lineW: lw * 1.4 })) : fist(ctx, lw * 1.4),
-  heldSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.side, carry({}, holds().hold), "hand", false, lw * 1.4); },
-  heldFront: (ctx, lw) => { const h = holds().hold; robot(ctx, roots.front, { ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }, "handL", false, lw * 1.4, h.FRONT_BARREL); },
-  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, roots.gSide, carry({}, holds().gHold), "hand", true, lw * XBOT.GAME_LINE); },
-  gFront: (ctx, lw) => { const h = holds().gHold; robot(ctx, roots.gFront, { ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }, "handL", true, lw * XBOT.GAME_LINE, h.FRONT_BARREL); },
+  heldSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, armedRoots().side, carry({}, holds().hold), "hand", false, lw * 1.4); },
+  heldFront: (ctx, lw) => { const h = holds().hold; robot(ctx, armedRoots().front, { ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }, "handL", false, lw * 1.4, h.FRONT_BARREL); },
+  gSide: (ctx, lw) => { ctx.translate(SIDE_SHIFT, 0); robot(ctx, armedRoots().gSide, carry({}, holds().gHold), "hand", true, lw * XBOT.GAME_LINE); },
+  gFront: (ctx, lw) => { const h = holds().gHold; robot(ctx, armedRoots().gFront, { ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }, "handL", true, lw * XBOT.GAME_LINE, h.FRONT_BARREL); },
   beamFull: (ctx, lw, t) => beamRows(ctx, roots.side, hold, false, lw * 1.4, t),
   beamGame: (ctx, lw, t) => beamRows(ctx, roots.gSide, gHold, true, lw * XBOT.GAME_LINE, t),
   groundFull: ctx => ground(ctx, false),

@@ -36,6 +36,8 @@ export interface HeroLook {
 export interface Rigs {
   side: GroupNode;
   front: GroupNode;
+  armedSide?: GroupNode;
+  armedFront?: GroupNode;
 }
 
 type Hold = ReturnType<typeof holdPoses>;
@@ -56,6 +58,12 @@ export const heroScale = (cfg: MovementConfig): number =>
 export const createRigs = (lod: boolean, enemy = false): Rigs => ({
   side: buildSide({ lod, enemy, farLimbs: true, propBehindArm: true }),
   front: buildFront({ lod, enemy, rightArmFirst: true, propBehindArm: true }),
+  ...(enemy
+    ? {}
+    : {
+        armedSide: buildSide({ lod, farLimbs: true, propBehindArm: true, armed: true }),
+        armedFront: buildFront({ lod, rightArmFirst: true, propBehindArm: true, armed: true }),
+      }),
 });
 
 const step = <T>(track: [number, T][], t: number): T => {

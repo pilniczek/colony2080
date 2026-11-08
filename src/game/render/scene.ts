@@ -130,8 +130,11 @@ function shadow(f: Frame, hero: Hero): void {
   ctx.fill();
 }
 
-export const rigFor = (look: HeroLook, rigs: Rigs): GroupNode =>
-  look.view === "side" ? rigs.side : rigs.front;
+export const rigFor = (look: HeroLook, rigs: Rigs): GroupNode => {
+  const armed = look.gun === "hand";
+  if (look.view === "side") return (armed && rigs.armedSide) || rigs.side;
+  return (armed && rigs.armedFront) || rigs.front;
+};
 
 function blast(f: Frame, body: Hero, age: number, centered = false): void {
   const { ctx, cell, unit } = f;

@@ -148,6 +148,7 @@ const headFront = (k: Kit, body: GroupNode, back: boolean, enemy: boolean): void
 };
 
 const HAND = { x0: 46, x1: 130, top: 398, bottom: 470 };
+const HAND_THICK = 34;
 const FINGER = { pitch: 21, thick: 18, base: 462, seg: [30, 24, 18] };
 const THUMB = { w: 20, thick: 18, seg: [24, 20] as const };
 const HAND_AX = 87.5;
@@ -179,8 +180,7 @@ const thumbWedge = (from: Pt, deg: number, len: number, w: number, edge: number)
   return [[edge, top], [outer, top], eo, ei, [edge, ei[1]]];
 };
 
-const openThumb = (k: Kit, parent: GroupNode, M: Mirror): void => {
-  const [a0, a1] = THUMB_OPEN;
+const openThumb = (k: Kit, parent: GroupNode, M: Mirror, [a0, a1]: readonly [number, number] = THUMB_OPEN): void => {
   const edge = HAND.x1 - 2;
   const joint = bar(THUMB_BASE, a0, THUMB.seg[0], 0).end;
   const reach = Math.min(bar(THUMB_BASE, a0, THUMB.seg[0], THUMB.w).pts[2][0], ...bar(joint, a1, THUMB.seg[1], THUMB.w, [THUMB.w / 2, 0]).pts.map((p) => p[0]));
@@ -218,12 +218,64 @@ const profileHand = (k: Kit, parent: GroupNode, S: Mirror, thumbBehind: boolean)
   if (!thumbBehind) thumb();
 };
 
+const backPlate = (k: Kit, parent: GroupNode, M: Mirror = (p) => p): void => {
+  k.P(parent, { pts: M([[HAND.x0, HAND.top + 2], [HAND.x1, HAND.top], [HAND.x1, HAND.bottom - 2], [HAND.x0, HAND.bottom]]), r: 2 });
+  k.P(parent, { pts: M([[HAND.x0 + 7, HAND.top + 9], [HAND.x1 - 7, HAND.top + 8], [HAND.x1 - 7, HAND.bottom - 12], [HAND.x0 + 7, HAND.bottom - 11]]), shade: "cyl", r: 6 });
+};
+
+const PALM_MID = (HAND.top + 8 + HAND.bottom) / 2;
+const GRIP_R = 11;
+const CUP = [-30, -75, -125];
+const CUP_THUMB = [28, 4] as const;
+const box = (x0: number, y0: number, x1: number, y1: number): Pt[] => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+
+const gunGripHand = (k: Kit, parent: GroupNode): void => {
+  const knuckle = FINGER.base;
+  const cy = PALM_MID + 6;
+  const near = cy + GRIP_R + FINGER.thick / 2 + 4;
+  const pull = cy + GRIP_R + 14;
+  const ix = fingerX(3);
+  backPlate(k, parent);
+  k.P(parent, { pts: box(ix, knuckle + 4, ix + 20, pull + 12), shade: "cyl", r: 7, lw: FINGER_LW });
+  for (let i = 0; i < 3; i++) {
+    const x = fingerX(i);
+    k.P(parent, { pts: box(x, knuckle + 4, x + 20, near), shade: "cyl", r: 6, lw: FINGER_LW });
+    k.P(parent, { pts: box(x, knuckle - 8, x + 20, knuckle + 10), shade: "cyl", r: 7, lw: FINGER_LW });
+  }
+};
+
+const cupHand = (k: Kit, parent: GroupNode, view: "back" | "tips"): void => {
+  if (view === "tips") {
+    const face = HAND.top + 2 + HAND_THICK;
+    k.P(parent, { pts: box(HAND.x0, 400, HAND.x1, 400 + HAND_THICK), r: 3 });
+    k.P(parent, { pts: box(HAND.x0 + 4, 400 + HAND_THICK - 6, HAND.x1 - 4, 400 + HAND_THICK + 2), mat: "metal", shade: "cyl", r: 4 });
+    for (let i = 0; i < 4; i++) k.P(parent, { pts: box(fingerX(i), 404, fingerX(i) + 20, face + 10), shade: "cyl", r: 7, lw: FINGER_LW });
+    k.P(parent, { pts: box(HAND.x1 - 2, 420, HAND.x1 + 18, 420 + THUMB.thick), shade: "cyl", r: 6 });
+    return;
+  }
+  const tip = FINGER.base + Math.round((FINGER.seg[0] ?? 0) * Math.cos(((CUP[0] ?? 0) * Math.PI) / 180));
+  backPlate(k, parent);
+  for (let i = 0; i < 4; i++) {
+    const x = fingerX(i);
+    k.P(parent, { pts: box(x, FINGER.base - 4, x + 20, tip), shade: "cyl", r: 3, lw: FINGER_LW });
+    k.P(parent, { pts: box(x, tip - 4, x + 20, tip + 10), shade: "cyl", r: 7, lw: FINGER_LW });
+  }
+  openThumb(k, parent, (p) => p, CUP_THUMB);
+};
+
+type HeldPose = "gunGrip" | "cup";
+
+const heldHand = (k: Kit, parent: GroupNode, pose: HeldPose, view: "back" | "tips", tf: string): void => {
+  const g = k.G(parent, tf);
+  if (pose === "gunGrip") gunGripHand(k, g);
+  else cupHand(k, g, view);
+};
+
 const robotHand = (k: Kit, parent: GroupNode, M: Mirror): void => {
   const y1 = fingerY(1);
   const y2 = fingerY(2);
   const y3 = fingerY(3);
-  k.P(parent, { pts: M([[HAND.x0, HAND.top + 2], [HAND.x1, HAND.top], [HAND.x1, HAND.bottom - 2], [HAND.x0, HAND.bottom]]), r: 2 });
-  k.P(parent, { pts: M([[HAND.x0 + 7, HAND.top + 9], [HAND.x1 - 7, HAND.top + 8], [HAND.x1 - 7, HAND.bottom - 12], [HAND.x0 + 7, HAND.bottom - 11]]), shade: "cyl", r: 6 });
+  backPlate(k, parent, M);
   if (k.low) k.P(parent, { pts: M([[HAND.x0, FINGER.base], [HAND.x1 - 1, FINGER.base], [HAND.x1 - 1, y3], [HAND.x0, y3]]), shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = fingerX(i);
@@ -244,6 +296,7 @@ interface ArmNames {
 }
 
 interface FrontArmOptions {
+  hold?: HeldPose | null;
   thumbFront?: boolean;
   foreParent?: GroupNode | null;
   flipHand?: boolean;
@@ -255,7 +308,7 @@ const frontArm = (
   parent: GroupNode,
   mirrored: boolean,
   names: ArmNames,
-  { thumbFront = false, foreParent = null, flipHand = false, propBehindArm = false }: FrontArmOptions = {},
+  { thumbFront = false, foreParent = null, flipHand = false, propBehindArm = false, hold = null }: FrontArmOptions = {},
 ): void => {
   const M: Mirror = (p) => (mirrored ? mirror(p) : p);
   const sh: Pt = mirrored ? [2 * AX - 100, 150] : [100, 150];
@@ -273,7 +326,8 @@ const frontArm = (
   const hand = k.G(fore, `translate(${mirrored ? 2 * AX - 89 : 89} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`);
   if (names.hand && !propBehindArm) k.hook(hand, names.hand);
   const hc = mirrored ? 2 * AX - 89 : 89;
-  frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront && !flipHand);
+  if (hold) heldHand(k, fore, hold, hold === "gunGrip" ? "back" : "tips", `${mirrored ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
+  else frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront && !flipHand);
 };
 
 const shoulder = (k: Kit, parent: GroupNode, mirrored: boolean, name: string): void => {
@@ -282,7 +336,7 @@ const shoulder = (k: Kit, parent: GroupNode, mirrored: boolean, name: string): v
   k.P(domes, { pts: mirrored ? mirror(upperArm) : upperArm, r: 2, shade: "dome" });
 };
 
-const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy: boolean): GroupNode => {
+const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy: boolean, armed: boolean): GroupNode => {
   const root = k.root();
   const s = k.G(root, null, "body", [AX, 344]);
   k.P(bodyGroup(k, s), { pts: [[248, 316], [392, 316], [398, 352], [374, 392], [320, 404], [266, 392], [242, 352]], r: 18 });
@@ -324,8 +378,8 @@ const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy
   k.P(b, { pts: [[300, 160], [340, 160], [344, 182], [330, 196], [310, 196], [296, 182]], r: 12, shade: "dome" });
   if (!enemy) k.trefoil(b, 418, 150, BADGE_R, 1 / BODY_SX);
   headFront(k, s, false, enemy);
-  const left = (): void => frontArm(k, armGroup(k, s, false), false, { arm: "armL", fore: "foreL", hand: "handL" }, { propBehindArm });
-  const right = (): void => frontArm(k, armGroup(k, s, true), true, { arm: "armR", fore: "foreR", hand: "handR" });
+  const left = (): void => frontArm(k, armGroup(k, s, false), false, { arm: "armL", fore: "foreL", hand: "handL" }, { propBehindArm, hold: armed ? "gunGrip" : null });
+  const right = (): void => frontArm(k, armGroup(k, s, true), true, { arm: "armR", fore: "foreR", hand: "handR" }, { hold: armed ? "cup" : null });
   if (rightArmFirst) {
     right();
     left();
@@ -343,7 +397,9 @@ export const buildFront = ({
   rightArmFirst = false,
   propBehindArm = false,
   enemy = false,
-}: { lod?: boolean; rightArmFirst?: boolean; propBehindArm?: boolean; enemy?: boolean } = {}): GroupNode => frontTree(kit(lod), rightArmFirst, propBehindArm, enemy);
+  armed = false,
+}: { lod?: boolean; rightArmFirst?: boolean; propBehindArm?: boolean; enemy?: boolean; armed?: boolean } = {}): GroupNode =>
+  frontTree(kit(lod), rightArmFirst, propBehindArm, enemy, armed);
 
 interface BackOptions {
   leftArmBehind?: boolean;
@@ -429,7 +485,12 @@ const sideLeg = (k: Kit, parent: GroupNode, names: LegNames, enemy: boolean, dim
 
 const sideHand = (k: Kit, parent: GroupNode): void => robotHand(k, parent, (pts) => pts.map(([x, y]): Pt => [x + SIDE_HAND_DX, y]));
 
-const sideArm = (k: Kit, parent: GroupNode, names: Required<ArmNames>, { dim, propBehindArm = false }: { dim?: number; propBehindArm?: boolean } = {}): void => {
+const sideArm = (
+  k: Kit,
+  parent: GroupNode,
+  names: Required<ArmNames>,
+  { dim, propBehindArm = false, hold = null }: { dim?: number; propBehindArm?: boolean; hold?: HeldPose | null } = {},
+): void => {
   const arm = k.G(parent, "translate(2 -4)", names.arm, [300, 150], { dim });
   k.P(arm, { pts: [[288, 274], [334, 274], [334, 294], [288, 294]], mat: "metal", shade: "cyl", r: 1 });
   const lower = k.G(arm, `translate(0 -22) rotate(-18 311 288) translate(311 288) scale(${FORE_S}) translate(-311 -288)`, names.fore, [311, 288]);
@@ -440,17 +501,18 @@ const sideArm = (k: Kit, parent: GroupNode, names: Required<ArmNames>, { dim, pr
   k.F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
   const hand = k.G(lower, `translate(312 438) ${HOLD_TF}`);
   if (!propBehindArm) k.hook(hand, names.hand);
-  sideHand(k, lower);
+  if (hold) heldHand(k, lower, hold, "back", `translate(${SIDE_HAND_DX} 0)`);
+  else sideHand(k, lower);
   const bulbs = k.G(arm, SIDE_SHOULDER_TF);
   k.P(bulbs, { pts: sideUpperArm, r: 2, shade: "dome" });
 };
 
-const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: boolean, enemy: boolean): GroupNode => {
+const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: boolean, enemy: boolean, armed: boolean): GroupNode => {
   const root = k.root();
   const s = k.G(root, null, "body", [SIDE_AX, 344]);
   if (farLimbs) {
     const dim = 0.55;
-    sideArm(k, k.G(s, "translate(-20 0)"), { arm: "armFar", fore: "foreFar", hand: "handFar" }, { dim });
+    sideArm(k, k.G(s, "translate(-20 0)"), { arm: "armFar", fore: "foreFar", hand: "handFar" }, { dim, hold: armed ? "cup" : null });
     sideLeg(k, k.G(s, "translate(-24 0)"), { hip: "hipFar", knee: "kneeFar", ankle: "ankleFar", heel: "heelFar", toe: "toeFar" }, enemy, dim);
   }
   const lowerTorso = k.G(s, SIDE_TORSO_TF);
@@ -477,7 +539,7 @@ const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: bool
   k.F(head, [[368, 56], [388, 56], [388, 63], [368, 63]], "visor", 1);
   k.P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });
   if (!enemy) k.P(head, { pts: [[308, 4], [318, 4], [320, 70], [306, 70]], r: 4, shade: "cyl" });
-  sideArm(k, s, { arm: "arm", fore: "fore", hand: "hand" }, { propBehindArm });
+  sideArm(k, s, { arm: "arm", fore: "fore", hand: "hand" }, { propBehindArm, hold: armed ? "gunGrip" : null });
   return root;
 };
 
@@ -487,5 +549,6 @@ export const buildSide = ({
   propBehindArm = false,
   lod = false,
   enemy = false,
-}: { farLimbs?: boolean; badge?: boolean; propBehindArm?: boolean; lod?: boolean; enemy?: boolean } = {}): GroupNode =>
-  sideTree(kit(lod), farLimbs, badge, propBehindArm, enemy);
+  armed = false,
+}: { farLimbs?: boolean; badge?: boolean; propBehindArm?: boolean; lod?: boolean; enemy?: boolean; armed?: boolean } = {}): GroupNode =>
+  sideTree(kit(lod), farLimbs, badge, propBehindArm, enemy, armed);
