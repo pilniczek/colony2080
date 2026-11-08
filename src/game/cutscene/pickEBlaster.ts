@@ -2,7 +2,7 @@ import config from "@config/cutscenes/pick-e-blaster.json";
 import { drawRig } from "../../engine/rig/draw";
 import type { GroupNode } from "../../engine/rig/tree";
 import { drawEBlasterTop, EBLASTER_TOP_BOX } from "../robot/eblaster";
-import { buildHand, ROBOT } from "../robot/xbot";
+import { buildPalmHand, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
 import { fitStage, lineFor, random, tracks } from "./kit";
 
@@ -13,7 +13,6 @@ const { width: W, height: H } = S;
 const [SHADOW_DX, SHADOW_DY, SHADOW_ALPHA] = S.shadow as [number, number, number];
 const palette = { ...config.palette };
 const HAND_AT = [88, 438] as const;
-const PALM_UP = [88, 470] as const;
 const EDGE = [70, 130] as const;
 const STRIPE = 60;
 const [BOX_X0, , BOX_X1] = EBLASTER_TOP_BOX;
@@ -25,7 +24,7 @@ const blots: Blot[] = [];
 for (let i = 0; i < S.blots; i++) blots.push({ x: -300 + pick() * 2200, y: -200 + pick() * 1300, rx: 20 + pick() * 110, ry: 10 + pick() * 50, dark: pick() < 0.5 });
 
 let tree: GroupNode | null = null;
-const hand = (): GroupNode => (tree ??= buildHand({ view: "palm", pose: "carry", forearm: true }));
+const hand = (): GroupNode => (tree ??= buildPalmHand());
 
 function drawFloor(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = palette.floor;
@@ -85,9 +84,7 @@ function drawHands(ctx: CanvasRenderingContext2D, lineW: number): void {
     ctx.save();
     ctx.translate(side * S.spread, 0);
     ctx.scale(-side, -1);
-    ctx.translate(PALM_UP[0] - HAND_AT[0], PALM_UP[1] - HAND_AT[1]);
-    ctx.rotate(-Math.PI / 2);
-    ctx.translate(-PALM_UP[0], -PALM_UP[1]);
+    ctx.translate(-HAND_AT[0], -HAND_AT[1]);
     drawRig(ctx, hand(), { palette: ROBOT.palette, lineW });
     ctx.restore();
   }
