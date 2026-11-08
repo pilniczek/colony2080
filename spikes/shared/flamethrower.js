@@ -129,5 +129,20 @@ function stream(ctx, tick, simple = false) {
 
 const RANGE = travel(LIFE);
 
-window.FLAMETHROWER = { ...core, LIFE, RANGE, flame, stream };
+const HUD_K = 1.45;
+const HUD_FLAME = [["#c8300c", 3.4, 3, 1.8], ["#f09024", 3, 2.3, 1.3], ["#fce438", 2.4, 1.5, 0.85], ["#fcf0c4", 1.7, 0.8, 0.45]];
+function hudOvals(ctx, layers) {
+  ctx.save();
+  ctx.scale(HUD_K, HUD_K);
+  for (const [color, x, rx, ry] of layers) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(x, 0, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+const hudShot = ctx => hudOvals(ctx, HUD_FLAME);
+
+window.FLAMETHROWER = { ...core, hudShot, LIFE, RANGE, flame, stream };
 })();

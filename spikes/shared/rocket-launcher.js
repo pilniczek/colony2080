@@ -58,41 +58,12 @@ const MUZZLE = [BARREL.x + BARREL.length + WARHEAD, -61];
 const BAND = { y: -88, h: 54 };
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: warhead, barrel: BARREL, muzzle: MUZZLE, band: BAND });
 
-const SHOT = { cycle: 24, empty: 4, speed: 12, smoke: 0.08 * 24, trail: 60 };
+const SHOT = { cycle: 24, empty: 4, hz: 32 };
 const RANGE = 12 * 24;
+const HUD_ROCKET = { nose: 9.5, scale: 0.7 };
 
-function rocket(ctx, x, simple) {
-  ctx.fillStyle = COLORS.t1;
-  ctx.fillRect(x - 14, -2, 14, 4);
-  ctx.fillStyle = COLORS.r2;
-  ctx.beginPath();
-  ctx.moveTo(x, -2.4);
-  ctx.lineTo(x + 5, 0);
-  ctx.lineTo(x, 2.4);
-  ctx.fill();
-  ctx.fillStyle = COLORS.t0;
-  ctx.fillRect(x - 15, -4, 4, 8);
-  if (simple) return;
-  ctx.fillStyle = COLORS.t3;
-  ctx.fillRect(x - 13, -2, 12, 0.8);
-}
-
-function smoke(ctx, x, simple) {
-  const from = Math.max(0, x - SHOT.trail);
-  for (let px = x - 15; px > from; px -= simple ? SHOT.smoke * 2 : SHOT.smoke) {
-    const k = (x - px) / SHOT.trail;
-    ctx.globalAlpha = 0.55 * (1 - k);
-    ctx.fillStyle = k < 0.15 ? ENV_PAL.a2 : "#a8a49c";
-    ctx.beginPath();
-    ctx.arc(px, Math.sin(px * 0.7) * k * 2, 1.5 + k * 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-}
-
-function shot(ctx, length, tick, simple = false) {
+function shot(ctx, length, tick) {
   const age = tick % SHOT.cycle;
-  const x = 16 + age * SHOT.speed;
   ctx.save();
   if (age < 2) {
     ctx.globalAlpha = 0.7;
@@ -102,14 +73,19 @@ function shot(ctx, length, tick, simple = false) {
     ctx.fill();
     ctx.globalAlpha = 1;
   }
-  if (x <= length) {
-    smoke(ctx, x, simple);
-    rocket(ctx, x, simple);
-  }
+  window.ENEMIES.rocketFlight(ctx, [0, 0], age / SHOT.hz, length + 0.35 * window.ENV.TILE);
+  ctx.restore();
+}
+
+function hudShot(ctx) {
+  ctx.save();
+  ctx.translate(HUD_ROCKET.nose, 0);
+  ctx.scale(HUD_ROCKET.scale, HUD_ROCKET.scale);
+  window.ENEMIES.missile(ctx, 0, 0, 0);
   ctx.restore();
 }
 
 const loadedAt = tick => tick % SHOT.cycle >= SHOT.empty;
 
-window.ROCKET_LAUNCHER = { ...core, SHOT, loadedAt, RANGE, shot };
+window.ROCKET_LAUNCHER = { ...core, SHOT, loadedAt, RANGE, shot, hudShot };
 })();

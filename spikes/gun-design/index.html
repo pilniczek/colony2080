@@ -503,18 +503,29 @@ document.getElementById("fistDim").innerHTML = iconSvg(false, null, FIST_HUD, "H
 document.getElementById("gunLit").innerHTML = iconSvg(true, 350, GUN_HUD, "G");
 document.getElementById("gunDim").innerHTML = iconSvg(false, 212, GUN_HUD, "G");
 const BONUS_BOX = { w: 45.5, h: 14 };
-function pickupHud(id) {
-  const def = ENV.ASSETS.find(a => a.id === id);
+const BONUS_ART = {
+  icon: { asset: "eBlaster", muzzle: [19.6, -4.8], model: EBLASTER },
+  toaster: { asset: "toaster", muzzle: [23.2, -5.6], model: TOASTER },
+  flamer: { asset: "flamethrower", muzzle: [40.1, -8.6], model: FLAMETHROWER },
+  mgx: { asset: "mgx800", muzzle: [27.75, -6.9], model: MGX800 },
+  rocket: { asset: "rocketLauncher", state: 2, muzzle: [27.84, -7.44], model: ROCKET_LAUNCHER }
+};
+function pickupHud({ asset, state = 0, muzzle: [mx, my], model }) {
+  const def = ENV.ASSETS.find(a => a.id === asset);
   const [x0, y0, x1, y1] = def.box;
   const s = Math.min(BONUS_BOX.w / (x1 - x0), BONUS_BOX.h / (y1 - y0));
-  return imageIcon((x1 - x0) * s, (y1 - y0) * s, ctx => {
+  return imageIcon(BONUS_BOX.w, (y1 - y0) * s, ctx => {
+    ctx.save();
     ctx.scale(s, s);
     ctx.translate(-x0, -y0);
-    ENV.draw(ctx, def, { state: 0, lod: false, lines: 1 });
+    ENV.draw(ctx, def, { state, lod: false, lines: 1 });
+    ctx.restore();
+    ctx.translate((mx - x0) * s, (my - y0) * s);
+    model.hudShot(ctx);
   });
 }
-for (const [prefix, asset, lit, dim] of [["icon", "eBlaster", 400, 387], ["toaster", "toaster", 60, 42], ["flamer", "flamethrower", 500, 213], ["mgx", "mgx800", 300, 128], ["rocket", "rocketLauncher", 250, 97]]) {
-  const hud = pickupHud(asset);
+for (const [prefix, lit, dim] of [["icon", 400, 387], ["toaster", 60, 42], ["flamer", 500, 213], ["mgx", 300, 128], ["rocket", 250, 97]]) {
+  const hud = pickupHud(BONUS_ART[prefix]);
   document.getElementById(prefix + "Lit").innerHTML = iconSvg(true, lit, hud, prefix);
   document.getElementById(prefix + "Dim").innerHTML = iconSvg(false, dim, hud, prefix);
 }

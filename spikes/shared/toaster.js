@@ -98,5 +98,20 @@ function sight(ctx, hit = false, simple = false) {
   ctx.restore();
 }
 
-window.TOASTER = { ...core, SHOT, shot, shotFrame, RANGE, sight };
+const HUD_K = 1.45;
+const HUD_BALL = [["#c8300c", 2.2, 2.6, 1.8], ["#f09024", 2.4, 2, 1.3], ["#fce438", 2.6, 1.4, 0.9], ["#fcf0c4", 2.8, 0.8, 0.45]];
+function hudOvals(ctx, layers) {
+  ctx.save();
+  ctx.scale(HUD_K, HUD_K);
+  for (const [color, x, rx, ry] of layers) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(x, 0, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+const hudShot = ctx => hudOvals(ctx, HUD_BALL);
+
+window.TOASTER = { ...core, hudShot, SHOT, shot, shotFrame, RANGE, sight };
 })();

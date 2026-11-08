@@ -1,9 +1,10 @@
 import { drawRig } from "../../engine/rig/draw";
 import type { Pose } from "../../engine/rig/pose";
-import type { GroupNode, RigNode } from "../../engine/rig/tree";
+import type { GroupNode, Pt, RigNode } from "../../engine/rig/tree";
 import { ASSETS, type AssetId } from "../env/assets";
 import { liftDeck } from "../env/machines";
 import { drawAsset } from "../env/paint";
+import { ARC, bolt, LAYERS, stroke } from "../arcLook";
 import { drawGun } from "../robot/gun";
 import { buildFront, buildSide, ROBOT } from "../robot/xbot";
 import { ITEMS, type Item, type ItemId } from "../items";
@@ -84,22 +85,76 @@ function itemIcon({ icon: { asset, state, tilt, scale } }: Item): HudIcon {
   return icon(w, h, (ctx) => assetIcon(ctx, asset, state, tilt, w, h), true);
 }
 
-const BONUS_ASSETS: Record<BonusWeapon, AssetId> = { blaster: "eBlaster", toaster: "toaster", flamethrower: "flamethrower" };
+const HUD_K = 1.45;
+const HUD_BEAM = { reach: 11.5, scale: 0.5, frame: 2 };
+type Oval = [string, number, number, number];
+const HUD_BALL: Oval[] = [["#c8300c", 2.2, 2.6, 1.8], ["#f09024", 2.4, 2, 1.3], ["#fce438", 2.6, 1.4, 0.9], ["#fcf0c4", 2.8, 0.8, 0.45]];
+const HUD_FLAME: Oval[] = [["#c8300c", 3.4, 3, 1.8], ["#f09024", 3, 2.3, 1.3], ["#fce438", 2.4, 1.5, 0.85], ["#fcf0c4", 1.7, 0.8, 0.45]];
+
+const hudOvals = (ctx: CanvasRenderingContext2D, layers: Oval[]): void => {
+  ctx.save();
+  ctx.scale(HUD_K, HUD_K);
+  for (const [color, x, rx, ry] of layers) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(x, 0, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+};
+
+const hudBeam = (ctx: CanvasRenderingContext2D): void => {
+  const { reach, scale, frame } = HUD_BEAM;
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  const strands = bolt(reach / scale, frame).map((pts) => pts.map(([x, y]): Pt => [x * scale, y * scale]));
+  for (const [color, width, alpha] of LAYERS) {
+    ctx.globalAlpha = alpha;
+    for (const pts of strands) stroke(ctx, pts, color, width * scale);
+  }
+  ctx.globalAlpha = 0.6;
+  ctx.fillStyle = ARC.glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, 4 * scale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  stroke(ctx, [[-1.5, -1.5], [1.5, 1.5]], ARC.core, scale);
+  stroke(ctx, [[-1.5, 1.5], [1.5, -1.5]], ARC.core, scale);
+  ctx.restore();
+};
+
+interface BonusArt {
+  asset: AssetId;
+  muzzle: Pt;
+  shot: (ctx: CanvasRenderingContext2D) => void;
+}
+
+const BONUS_ART: Record<BonusWeapon, BonusArt> = {
+  blaster: { asset: "eBlaster", muzzle: [19.6, -4.8], shot: hudBeam },
+  toaster: { asset: "toaster", muzzle: [23.2, -5.6], shot: (ctx) => hudOvals(ctx, HUD_BALL) },
+  flamethrower: { asset: "flamethrower", muzzle: [40.1, -8.6], shot: (ctx) => hudOvals(ctx, HUD_FLAME) },
+};
 const BONUS_BOX = { w: 45.5, h: 14 };
 
-const bonusIcon = (model: BonusWeapon, scale: number): HudIcon => {
-  const def = ASSETS[BONUS_ASSETS[model]];
+const bonusIcon = ({ asset, muzzle: [mx, my], shot }: BonusArt, scale: number): HudIcon => {
+  const def = ASSETS[asset];
   const [x0, y0, x1, y1] = def.box;
   const s = Math.min(BONUS_BOX.w / (x1 - x0), BONUS_BOX.h / (y1 - y0)) * scale;
-  return icon((x1 - x0) * s, (y1 - y0) * s, (ctx) => {
+  return icon(BONUS_BOX.w * scale, (y1 - y0) * s, (ctx) => {
+    ctx.save();
     ctx.scale(s, s);
     ctx.translate(-x0, -y0);
     drawAsset(ctx, def, { state: 0, lod: false, lines: 1 });
+    ctx.restore();
+    ctx.translate((mx - x0) * s, (my - y0) * s);
+    ctx.scale(scale, scale);
+    shot(ctx);
   });
 };
 
 const bonusIcons = (scale: number): Record<BonusWeapon, HudIcon> =>
-  Object.fromEntries(Object.keys(BONUS_ASSETS).map((m) => [m, bonusIcon(m as BonusWeapon, scale)])) as Record<BonusWeapon, HudIcon>;
+  Object.fromEntries(Object.entries(BONUS_ART).map(([m, art]) => [m, bonusIcon(art, scale)])) as Record<BonusWeapon, HudIcon>;
 
 const gunIcon = (scale = 1): HudIcon =>
   icon(35 * scale, 14 * scale, (ctx) => {

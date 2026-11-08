@@ -114,5 +114,28 @@ function beam(ctx, length, frame, seed) {
   ctx.restore();
 }
 
-window.EBLASTER = { ...core, FRAMES, TICK_HZ, BEAM_H, beam, frameAt };
+const HUD_BEAM = { reach: 11.5, scale: 0.5, frame: 2 };
+
+function hudShot(ctx) {
+  const { reach, scale, frame } = HUD_BEAM;
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  const strands = bolt(reach / scale, frame).map(pts => pts.map(([x, y]) => [x * scale, y * scale]));
+  for (const [color, width, alpha] of LAYERS) {
+    ctx.globalAlpha = alpha;
+    for (const pts of strands) stroke(ctx, pts, color, width * scale);
+  }
+  ctx.globalAlpha = 0.6;
+  ctx.fillStyle = ARC.glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, 4 * scale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  stroke(ctx, [[-1.5, -1.5], [1.5, 1.5]], ARC.core, scale);
+  stroke(ctx, [[-1.5, 1.5], [1.5, -1.5]], ARC.core, scale);
+  ctx.restore();
+}
+
+window.EBLASTER = { ...core, FRAMES, TICK_HZ, BEAM_H, beam, frameAt, hudShot };
 })();

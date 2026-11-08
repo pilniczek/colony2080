@@ -278,14 +278,14 @@ const rocketLauncher = {
   id: "rocketLauncher",
   box: [-2, -12, 30, 0],
   draw(ctx, state) {
-    if (state) return scuff(ctx, 0, 28);
+    if (state === 1) return scuff(ctx, 0, 28);
     shadow(ctx, 13, 26);
     const t = ctx.getTransform();
     const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
     ctx.save();
     ctx.scale(LAUNCHER_K, LAUNCHER_K);
     ctx.translate(112, -32);
-    window.ROCKET_LAUNCHER.draw(ctx, { lineW, simple: simple() });
+    window.ROCKET_LAUNCHER.draw(ctx, { lineW, simple: simple(), loaded: state !== 2 });
     ctx.restore();
   }
 };

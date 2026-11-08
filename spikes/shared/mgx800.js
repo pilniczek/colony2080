@@ -82,5 +82,15 @@ function shot(ctx, length, tick, simple = false) {
   }
 }
 
-window.MGX800 = { ...core, SHOT, RANGE, shot };
+const HUD_K = 1.45;
+const HUD_BURST = [[COLORS.b2, 2.2, 3.4], ["#fcfcfc", 2.6, 2.4]];
+
+function hudShot(ctx) {
+  ctx.save();
+  ctx.scale(HUD_K, HUD_K);
+  for (const [color, x, r] of HUD_BURST) crescent(ctx, x, r, color);
+  ctx.restore();
+}
+
+window.MGX800 = { ...core, SHOT, RANGE, shot, hudShot };
 })();
