@@ -34,10 +34,9 @@ const NEAR_GRAVEL = gravelBed(29, 420, -20, 920, 34);
 let lineW = LINE_W;
 const closeBack = stillLayer();
 
-let rigs: Record<"reach" | "grip" | "near" | "far" | "wheelHand" | "backHand" | "palmHand", GroupNode> | null = null;
+let rigs: Record<"grip" | "near" | "far" | "wheelHand" | "backHand" | "palmHand", GroupNode> | null = null;
 const robots = () =>
   (rigs ??= {
-    reach: buildSide({ farLimbs: true, hold: "reach", farHold: "reach" }),
     grip: buildSide({ farLimbs: true, hold: "grip", farHold: "grip" }),
     near: buildSide({ farLimbs: true, hold: "grip" }),
     far: buildSide({ farLimbs: true, farHold: "grip" }),
@@ -108,7 +107,7 @@ function drawWheel(c: CanvasRenderingContext2D, t: number): void {
 }
 
 function drawHero(c: CanvasRenderingContext2D, t: number): void {
-  const { reach: reachRig, grip: gripRig, near, far } = robots();
+  const { grip: gripRig, near, far } = robots();
   const K = RB.scale;
   const m = new DOMMatrix().translate(RB.x, FLOOR).rotate(num("lean", t)).scale(-K, K).translate(-ROBOT.SIDE_AX, -ROBOT.FOOT_Y);
   const pose: Pose = { ...STAND, arm: 0, fore: 0, armFar: 0, foreFar: 0 };
@@ -123,7 +122,6 @@ function drawHero(c: CanvasRenderingContext2D, t: number): void {
   hold(near, ["arm", "fore"], grip);
   hold(far, ["armFar", "foreFar"], grip + WHEEL.farGrip);
   pool(c, RB.x - 20, FLOOR + 4, 170, 18, "#000000", 0.6);
-  if (blend < 1) return placeRobot(c, reachRig, m, { pose, hooks: {}, lineW });
   const base = c.getTransform();
   const behind = (): void => {
     c.save();
@@ -147,7 +145,7 @@ function rimHand(c: CanvasRenderingContext2D, root: GroupNode, hook: DOMMatrix, 
   const at = hook.transformPoint(new DOMPoint(0, 0));
   const along = Math.atan2(hook.b, hook.a) / RAD + turn;
   const k = Math.hypot(hook.a, hook.b);
-  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(k, k * flip).multiply(domOf(hookAt(root, "rod", {})).inverse());
+  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(-k, k * flip).multiply(domOf(hookAt(root, "rod", {})).inverse());
   placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
 }
 

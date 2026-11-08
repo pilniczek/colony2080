@@ -31,7 +31,6 @@ const closeBack = kit.stillLayer();
 
 let rigs = null;
 const robots = () => rigs || (rigs = {
-  reach: buildSide({ farLimbs: true, hold: "reach", farHold: "reach" }),
   grip: buildSide({ farLimbs: true, hold: "grip", farHold: "grip" }),
   near: buildSide({ farLimbs: true, hold: "grip" }),
   far: buildSide({ farLimbs: true, farHold: "grip" }),
@@ -107,7 +106,7 @@ function drawWheel(c, t) {
 }
 
 function drawHero(c, t) {
-  const { reach, grip: gripRig, near, far } = robots();
+  const { grip: gripRig, near, far } = robots();
   const K = RB.scale;
   const m = new DOMMatrix().translate(RB.x, FLOOR).rotate(at("lean", t)).scale(-K, K).translate(-SIDE_AX, -FOOT_Y);
   const pose = { ...STAND, arm: 0, fore: 0, armFar: 0, foreFar: 0 };
@@ -122,7 +121,6 @@ function drawHero(c, t) {
   hold(near, ["arm", "fore"], grip);
   hold(far, ["armFar", "foreFar"], grip + WHEEL.farGrip);
   kit.pool(c, RB.x - 20, FLOOR + 4, 170, 18, "#000000", 0.6);
-  if (blend < 1) return kit.placeRobot(c, reach, m, { pose, hooks: {}, lineW });
   const base = c.getTransform();
   const behind = () => {
     c.save();
@@ -144,7 +142,7 @@ function rimHand(c, root, hook, flip, turn) {
   const at = hook.transformPoint(new DOMPoint(0, 0));
   const along = Math.atan2(hook.b, hook.a) / kit.RAD + turn;
   const k = Math.hypot(hook.a, hook.b);
-  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(k, k * flip).multiply(locate(root, "rod").inverse());
+  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(-k, k * flip).multiply(locate(root, "rod").inverse());
   kit.placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
 }
 
