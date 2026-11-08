@@ -67,6 +67,9 @@
 <!-- /originals -->
 <script src="../shared/config.js"></script>
 <script src="../shared/xbot.js"></script>
+<script src="../shared/env.js"></script>
+<script src="../shared/env-props.js"></script>
+<script src="../shared/env-vesnice.js"></script>
 <script>
 const { PALETTE, LEVELS, buildFront, buildSide, buildBack, buildHand, HAND_VIEWS, HAND_POSES, render } = window.XBOT;
 
@@ -80,11 +83,14 @@ const opts = { guides: true };
 
 const HAND_BOX = { x: 18, y: 336, w: 140, h: 210 };
 const HAND_LABEL = { palm: "Palm side", back: "Back side", thumb: "Thumb side", little: "Little finger side", tips: "From the fingertips" };
+const HAND_LABEL_POSE = { carry: "Carry on the palm", cup: "Hold a small item", grip: "Grip a crowbar" };
+const HAND_ITEMS = { carry: "shipPart", cup: "fuse", grip: "crowbar" };
+const drawItem = id => ctx => window.ENV.draw(ctx, window.ENV.ASSETS.find(a => a.id === id), { state: id === "shipPart" ? 1 : 0, lines: 0.3 });
 const hands = [];
 const handsEl = document.getElementById("hands");
 for (const pose of HAND_POSES) {
   const title = document.createElement("h3");
-  title.textContent = pose;
+  title.textContent = HAND_LABEL_POSE[pose] || pose;
   const grid = document.createElement("div");
   grid.className = "hands";
   handsEl.append(title, grid);
@@ -96,20 +102,20 @@ for (const pose of HAND_POSES) {
     full.className = "full";
     fig.append(cap, full);
     grid.append(fig);
-    hands.push({ full, root: buildHand({ view, pose }) });
+    hands.push({ full, root: buildHand({ view, pose }), hooks: HAND_ITEMS[pose] ? { item: drawItem(HAND_ITEMS[pose]) } : {} });
   }
 }
 
 function drawHands() {
   const dpr = devicePixelRatio || 1;
-  for (const { full, root } of hands) {
+  for (const { full, root, hooks } of hands) {
     full.width = Math.round(full.clientWidth * dpr);
     full.height = Math.round(full.width * HAND_BOX.h / HAND_BOX.w);
     const scale = full.width / HAND_BOX.w;
     const ctx = full.getContext("2d");
     ctx.setTransform(scale, 0, 0, scale, -HAND_BOX.x * scale, -HAND_BOX.y * scale);
     ctx.clearRect(HAND_BOX.x, HAND_BOX.y, HAND_BOX.w, HAND_BOX.h);
-    render(ctx, root, { pal, lineW: 1.4 * dpr });
+    render(ctx, root, { pal, hooks, lineW: 1.4 * dpr });
   }
 }
 
