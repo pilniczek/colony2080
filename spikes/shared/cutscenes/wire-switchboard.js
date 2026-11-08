@@ -66,7 +66,7 @@ function drawPillar(t) {
 function drawRobot(t) {
   const held = at("wire", t) >= 0.5;
   const hold = held ? "grip" : "reach";
-  const side = rigs[hold] ??= buildSide({ farLimbs: true, hold, farHold: "reach" });
+  const side = rigs[hold] ??= buildSide({ farLimbs: true, hold, farHold: "reach", backHand: true, farBackHand: true });
   const k = at("lunge", t);
   const pose = { arm: at("arm", t), fore: at("fore", t), armFar: at("armFar", t), foreFar: at("foreFar", t), head: at("head", t) };
   for (const name in STAND) pose[name] = STAND[name] + (LUNGE[name] - STAND[name]) * k;
