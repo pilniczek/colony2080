@@ -158,7 +158,7 @@ const THUMB_BASE: Pt = [124, 424];
 const THUMB_OPEN = [30, 14] as const;
 const SIDE_HAND_DX = 224;
 const FRONT_HAND_DY = 16;
-const SUPPORT_TURN = 85;
+const SUPPORT_Y = 277;
 const fingerX = (i: number): number => HAND.x0 + i * FINGER.pitch;
 const fingerY = (k: number): number => FINGER.base + FINGER.seg.slice(0, k).reduce((a, b) => a + b, 0);
 
@@ -321,15 +321,18 @@ const frontArm = (
   const fore = k.G(foreParent ? k.G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirrored ? 2 * AX - 89 : 89;
   if (names.hand && propBehindArm) k.hook(k.G(fore, `translate(${fc} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`), names.hand);
-  const fa = k.G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
-  k.P(fa, { pts: M(forearm), r: 1 });
-  k.F(fa, M([[38, 359], [141, 357], [141, 362], [38, 364]]), "a0");
-  k.F(fa, M([[38, 384], [141, 381], [141, 386], [38, 388]]), "a0");
+  const support = hold === "cup";
+  if (!support) {
+    const fa = k.G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
+    k.P(fa, { pts: M(forearm), r: 1 });
+    k.F(fa, M([[38, 359], [141, 357], [141, 362], [38, 364]]), "a0");
+    k.F(fa, M([[38, 384], [141, 381], [141, 386], [38, 388]]), "a0");
+  }
   const hand = k.G(fore, `translate(${mirrored ? 2 * AX - 89 : 89} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`);
   if (names.hand && !propBehindArm) k.hook(hand, names.hand);
   const hc = mirrored ? 2 * AX - 89 : 89;
   if (hold === "gunGrip") heldHand(k, fore, hold, "back", `${mirrored ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
-  else if (hold) heldHand(k, fore, hold, "tips", `translate(${mirrored ? 2 * AX - 2 * HAND_AX : 0} ${FRONT_HAND_DY}) rotate(${SUPPORT_TURN} 88 434) translate(${2 * HAND_AX} 0) scale(-1 1)`);
+  else if (support) heldHand(k, arm, hold, "tips", `translate(${sh[0]} ${SUPPORT_Y}) scale(${FORE_S} ${-FORE_S}) translate(-88 -434)`);
   else frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront && !flipHand);
 };
 

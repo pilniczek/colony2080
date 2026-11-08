@@ -170,7 +170,7 @@ const upperArm = capsule([100, 148, 46], [100, 236, 46], 56);
 const sideUpperArm = capsule([300, 156, 62], [314, 240, 48], 60);
 const elbow = [[60, 296], [128, 296], [128, 316], [60, 316]];
 const FRONT_HAND_DY = 16;
-const SUPPORT_TURN = 85;
+const SUPPORT_Y = 277;
 const forearm = [[35, 306], [138, 304], [143, 318], [141, 408], [133, 420], [49, 422], [35, 403]];
 
 const PR = CFG.proportions;
@@ -275,15 +275,18 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   const fore = G(foreParent ? G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirror ? 2 * AX - 89 : 89;
   if (names.hand && propBehindArm) hook(G(fore, `translate(${fc} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`), names.hand);
-  const fa = G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
-  P(fa, { pts: M(forearm), r: 1 });
-  F(fa, M([[38, 359], [141, 357], [141, 362], [38, 364]]), "a0");
-  F(fa, M([[38, 384], [141, 381], [141, 386], [38, 388]]), "a0");
+  const support = hold === "cup";
+  if (!support) {
+    const fa = G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
+    P(fa, { pts: M(forearm), r: 1 });
+    F(fa, M([[38, 359], [141, 357], [141, 362], [38, 364]]), "a0");
+    F(fa, M([[38, 384], [141, 381], [141, 386], [38, 388]]), "a0");
+  }
   const hand = G(fore, `translate(${mirror ? 2 * AX - 89 : 89} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`);
   if (names.hand && !propBehindArm) hook(hand, names.hand);
   const hc = mirror ? 2 * AX - 89 : 89;
   if (hold === "gunGrip") heldHand(fore, hold, "back", `${mirror ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
-  else if (hold) heldHand(fore, hold, "tips", `translate(${mirror ? 2 * AX - 2 * HAND_AX : 0} ${FRONT_HAND_DY}) rotate(${SUPPORT_TURN} 88 434) translate(${2 * HAND_AX} 0) scale(-1 1)`);
+  else if (support) heldHand(arm, hold, "tips", `translate(${sh[0]} ${SUPPORT_Y}) scale(${FORE_S} ${-FORE_S}) translate(-88 -434)`);
   else frontHand(fore, flipHand ? p => mirrorPts(M(p), hc) : M, thumbFront && !flipHand);
 }
 
