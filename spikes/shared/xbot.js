@@ -1014,7 +1014,16 @@ function cup(s, view) {
     itemAt(s, `${view === "thumb" ? `translate(${2 * HAND_AX} 0) scale(-1 1) ` : ""}translate(${HAND_FACE[0] - 9} ${PALM_MID}) scale(2.4) rotate(90) translate(-7 3.5)`);
     chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base], CUP, [s1, s2, s3], FINGER.thick, { shade: "cyl" });
     if (view === "thumb") thumb();
-  } else fist(s, view);
+  } else {
+    forearmEnd(s);
+    sectionPlate(s);
+    const face = 400 + HAND.thick;
+    for (let i = 0; i < 4; i++) {
+      const x = fingerX(i);
+      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face + 10], [x, face + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
+    }
+    P(s, { pts: [[HAND.x1 - 2, 420], [HAND.x1 + 18, 420], [HAND.x1 + 18, 420 + THUMB.thick], [HAND.x1 - 2, 420 + THUMB.thick]], shade: "cyl", r: 6 });
+  }
 }
 
 const GRIP_K = 16;
