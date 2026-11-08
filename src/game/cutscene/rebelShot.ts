@@ -437,7 +437,7 @@ function shotFire(ctx: Ctx, t: number): void {
   const fall = num("droidFall", t);
   const hit = num("droidHit", t);
   const dx = 1300;
-  const dy = 470;
+  const dy = 440;
   droid(ctx, dx, dy + fall * 6, 0.17, fall * 60, t);
   if (hit > 0) {
     ctx.globalAlpha = hit;
@@ -448,7 +448,7 @@ function shotFire(ctx: Ctx, t: number): void {
   const aim = num("aim", t);
   const firing = num("fire", t) > 0;
   const flash = firing ? (Math.floor(t * 24) % 2 ? 1 : 0.4) : 0;
-  const pose = { armR: -6 - 82 * aim, foreR: -4 * aim, armL: 6, foreL: 4, body: -4 * aim };
+  const pose = { armR: -6 - 80 * aim, foreR: -0.8 * aim, armL: 6, foreL: 4, body: -4 * aim };
   const bx = 560 + num("recoil", t) * Math.sin(t * 80) * 4;
   const by = 960;
   const k = 0.95;
@@ -464,9 +464,8 @@ function shotFire(ctx: Ctx, t: number): void {
       const a = (u + t * 6) % 1;
       const b = Math.min(1, a + 0.12);
       const tx = dx + v * 20;
-      const ty = dy - 90 + v * 30;
-      ctx.moveTo(mx + (tx - mx) * a, my + (ty - my) * a);
-      ctx.lineTo(mx + (tx - mx) * b, my + (ty - my) * b);
+      ctx.moveTo(mx + (tx - mx) * a, my);
+      ctx.lineTo(mx + (tx - mx) * b, my);
     }
     ctx.stroke();
   }

@@ -364,7 +364,7 @@ function shotFire(ctx, t) {
   battlefield(ctx, t);
   const fall = at("droidFall", t);
   const hit = at("droidHit", t);
-  const dx = 1300, dy = 470;
+  const dx = 1300, dy = 440;
   droid(ctx, dx, dy + fall * 6, 0.17, fall * 60, t);
   if (hit > 0) {
     ctx.globalAlpha = hit;
@@ -375,7 +375,7 @@ function shotFire(ctx, t) {
   const aim = at("aim", t);
   const firing = at("fire", t) > 0;
   const flash = firing ? (Math.floor(t * 24) % 2 ? 1 : 0.4) : 0;
-  const pose = { armR: -6 - 82 * aim, foreR: -4 * aim, armL: 6, foreL: 4, body: -4 * aim };
+  const pose = { armR: -6 - 80 * aim, foreR: -0.8 * aim, armL: 6, foreL: 4, body: -4 * aim };
   const bx = 560 + at("recoil", t) * Math.sin(t * 80) * 4, by = 960, k = 0.95;
   placeBot(ctx, heroBack, bx, by, k, AX, 1, pose, { handR: GUN_HOOK(k, flash) }, BOT_PALETTE);
   if (firing) {
@@ -387,9 +387,9 @@ function shotFire(ctx, t) {
     for (const [u, , v] of TRACERS) {
       const a = (u + t * 6) % 1;
       const b = Math.min(1, a + 0.12);
-      const tx = dx + v * 20, ty = dy - 90 + v * 30;
-      ctx.moveTo(mx + (tx - mx) * a, my + (ty - my) * a);
-      ctx.lineTo(mx + (tx - mx) * b, my + (ty - my) * b);
+      const tx = dx + v * 20;
+      ctx.moveTo(mx + (tx - mx) * a, my);
+      ctx.lineTo(mx + (tx - mx) * b, my);
     }
     ctx.stroke();
   }
