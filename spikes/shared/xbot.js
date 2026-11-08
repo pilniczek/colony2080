@@ -809,7 +809,7 @@ const LEVELS = Object.entries(CFG.levels);
 
 const HAND_AX = 87.5;
 const HAND_VIEWS = ["palm", "back", "thumb", "little", "tips"];
-const HAND_POSES = ["open", "fist", "carry", "cup", "grip", "gunGrip"];
+const HAND_POSES = ["open", "fist", "carry", "cup", "grip", "pinch", "gunGrip"];
 const HAND = { x0: 46, x1: 130, top: 398, bottom: 470, thick: 34 };
 const FINGER = { w: 20, pitch: 21, thick: 18, base: 462, seg: [30, 24, 18] };
 const THUMB = { w: 20, thick: 18, seg: [24, 20] };
@@ -1244,7 +1244,92 @@ function grip(s, view, rod = CROWBAR) {
   }
 }
 
-const HAND_BUILDERS = { open: openHand, fist, carry, cup, grip, gunGrip: (s, view) => grip(s, view, PISTOL) };
+const PINCH_INDEX = [-60, -150, -200];
+const PINCH_THUMB = [-15, -10];
+const PINCH_AT = [70, 478];
+const PINCH_PIVOT = [HAND.x1 - 2, THUMB_BASE[1] - 11];
+const PINCH_TIP = [HAND.x1 - 1, THUMB_BASE[1] + 24];
+const PINCH_TILT = 12;
+const PINCH_EDGE = HAND.x1 - 1;
+const PINCH_K = 6;
+const PINCH_KEY = [2.2, -2.6, 7.6];
+const keyEdge = x => [[x - 3, PINCH_AT[1] - PINCH_KEY[0] * PINCH_K], [x + 3, PINCH_AT[1] - PINCH_KEY[0] * PINCH_K], [x + 3, PINCH_AT[1] + PINCH_KEY[2] * PINCH_K], [x - 3, PINCH_AT[1] + PINCH_KEY[2] * PINCH_K]];
+
+function pinchThumb(s, M) {
+  const a = PINCH_TILT * Math.PI / 180, [ox, oy] = PINCH_PIVOT;
+  const turn = ([x, y]) => [ox + (x - ox) * Math.cos(a) + (y - oy) * Math.sin(a), oy - (x - ox) * Math.sin(a) + (y - oy) * Math.cos(a)];
+  P(s, { pts: M(fistThumb(-4).map(turn)), shade: "cyl", r: 6, lw: FINGER_LW });
+  chain(s, M, turn(PINCH_TIP), [PINCH_TILT], [THUMB.seg[1]], THUMB.w, { shade: "cyl" });
+}
+
+function pinch(s, view) {
+  const M = p => p;
+  const W = p => mirrorPts(p, HAND_AX);
+  const [s1, s2] = FINGER.seg;
+  const knuckle = FINGER.base;
+  const bottom = knuckle + FINGER.thick;
+  const pip = knuckle + FINGER.thick / 2;
+  if (view === "back") {
+    handStub(s);
+    backPlate(s);
+    for (let i = 0; i < 4; i++) {
+      const x = fingerX(i);
+      P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, bottom + (i === 3 ? 6 : 0)], [x, bottom + (i === 3 ? 6 : 0)]], shade: "cyl", r: 6, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, knuckle + 10], [x, knuckle + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
+    }
+    slab(s, keyEdge(PINCH_EDGE));
+    pinchThumb(s, M);
+  } else if (view === "palm") {
+    handStub(s);
+    palmPlate(s, M, HAND.bottom - 6);
+    for (let i = 0; i < 4; i++) {
+      const x = fingerX(i);
+      P(s, { pts: [[x, pip - s2], [x + 20, pip - s2], [x + 20, pip], [x, pip]], shade: "cyl", r: 3, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle], [x + 20, knuckle], [x + 20, bottom + (i === 0 ? 6 : 0)], [x, bottom + (i === 0 ? 6 : 0)]], shade: "cyl", r: 7, lw: FINGER_LW });
+    }
+    slab(s, keyEdge(2 * HAND_AX - PINCH_EDGE));
+    pinchThumb(s, W);
+  } else if (view === "thumb" || view === "little") {
+    const S = view === "thumb" ? W : M;
+    const joint = [HAND_FACE[1] - 2 - FINGER.thick / 2, pip];
+    const fingers = () => {
+      chain(s, S, [joint[0] - s1, pip], [180], [s2], FINGER.thick, { shade: "cyl" });
+      chain(s, S, joint, [-90], [s1], FINGER.thick, { shade: "cyl" });
+    };
+    const index = () => chain(s, S, [joint[0], knuckle], PINCH_INDEX, FINGER.seg, FINGER.thick, { shade: "cyl" });
+    const key = () => itemAt(s, `${view === "thumb" ? `translate(${2 * HAND_AX} 0) scale(-1 1) ` : ""}translate(${PINCH_AT[0]} ${PINCH_AT[1]}) rotate(90) scale(${PINCH_K}) translate(${-PINCH_KEY[0]} ${-PINCH_KEY[1]})`);
+    const thumb = () => chain(s, S, THUMB_SIDE, PINCH_THUMB, THUMB.seg, THUMB.thick, { shade: "cyl" });
+    handStub(s);
+    if (view === "little") {
+      thumb();
+      key();
+      profilePlate(s, S);
+      index();
+      fingers();
+    } else {
+      profilePlate(s, S);
+      fingers();
+      index();
+      key();
+      thumb();
+    }
+  } else {
+    forearmEnd(s);
+    sectionPlate(s);
+    const face = 400 + HAND.thick;
+    for (let i = 0; i < 4; i++) {
+      const x = fingerX(i);
+      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face], [x, face]], shade: "cyl", r: 3, lw: FINGER_LW });
+      P(s, { pts: [[x, face - 2], [x + 20, face - 2], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "cyl", r: 7, lw: FINGER_LW });
+    }
+    const depth = 400 + HAND_FACE[1] - PINCH_AT[0];
+    const half = PINCH_KEY[0] * PINCH_K;
+    slab(s, [[HAND.x1 - 2, depth - half], [HAND.x1 + 4, depth - half], [HAND.x1 + 4, depth + half], [HAND.x1 - 2, depth + half]]);
+    P(s, { pts: [[HAND.x1 + 2, depth - THUMB.thick / 2], [HAND.x1 + 22, depth - THUMB.thick / 2], [HAND.x1 + 22, depth + THUMB.thick / 2], [HAND.x1 + 2, depth + THUMB.thick / 2]], shade: "cyl", r: 6 });
+  }
+}
+
+const HAND_BUILDERS = { open: openHand, fist, carry, cup, grip, pinch, gunGrip: (s, view) => grip(s, view, PISTOL) };
 
 const PALM_UP = { palm: "rotate(90 88 470)", back: "rotate(90 88 470)", thumb: "rotate(-90 88 470)", little: "rotate(90 88 470)", tips: "rotate(180 88 434)" };
 
@@ -1255,7 +1340,7 @@ const REST_UP = { ...PALM_UP, palm: "rotate(-90 88 470)" };
 
 function buildHand({ view = "back", pose = "open", rest = false } = {}) {
   const root = { k: "g", kids: [] };
-  const up = rest && pose === "carry" ? REST_UP[view] : (pose === "carry" || pose === "cup") ? PALM_UP[view] : pose === "grip" ? FINGERS_LEFT[view] : pose === "gunGrip" ? GUN_UP[view] : null;
+  const up = rest && pose === "carry" ? REST_UP[view] : (pose === "carry" || pose === "cup") ? PALM_UP[view] : (pose === "grip" || pose === "pinch") ? FINGERS_LEFT[view] : pose === "gunGrip" ? GUN_UP[view] : null;
   const hand = G(up ? G(root, up) : root, null, "hand", [89, 400]);
   if (pose === "carry") carry(hand, view, rest);
   else HAND_BUILDERS[pose](hand, view);

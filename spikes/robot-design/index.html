@@ -83,8 +83,8 @@ const opts = { guides: true };
 
 const HAND_BOX = { x: 18, y: 336, w: 140, h: 210 };
 const HAND_LABEL = { palm: "Palm", back: "Back", thumb: "Thumb", little: "Little finger", tips: "From the fingertips" };
-const HAND_LABEL_POSE = { carry: "Carry on the palm", cup: "Hold a small item", grip: "Grip a crowbar", gunGrip: "Gun grip" };
-const HAND_ITEMS = { carry: "shipPart", cup: "fuse", grip: "crowbar" };
+const HAND_LABEL_POSE = { carry: "Carry on the palm", cup: "Hold a small item", grip: "Grip a crowbar", pinch: "Pinch a key or card", gunGrip: "Gun grip" };
+const HAND_ITEMS = { carry: "shipPart", cup: "fuse", grip: "crowbar", pinch: "craneKey" };
 const drawItem = id => ctx => window.ENV.draw(ctx, window.ENV.ASSETS.find(a => a.id === id), { state: id === "shipPart" ? 1 : 0, lines: 0.3 });
 const hands = [];
 const handsEl = document.getElementById("hands");
