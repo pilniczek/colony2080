@@ -10,7 +10,7 @@
   },
   "frame": { "width": 640, "height": 780, "axis": 320, "sideAxis": 300, "footY": 744 },
   "proportions": {
-    "legShift": 26,
+    "legShift": 42,
     "legCenterX": 211,
     "bodyScaleX": 0.8,
     "forearmShift": 10,

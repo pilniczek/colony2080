@@ -286,7 +286,7 @@ window.C28_CONFIG = {
     "footY": 744
    },
    "proportions": {
-    "legShift": 26,
+    "legShift": 42,
     "legCenterX": 211,
     "bodyScaleX": 0.8,
     "forearmShift": 10,
