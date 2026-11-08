@@ -31,7 +31,8 @@ A fact seen only in a video or review is a guess about the rule behind it. Befor
 | Enemies (level 1) | 44 regular enemies (27 chrome droids = engine type 1, 17 flyers = type 2, confirmed in draw code), 2.0 hp each, dead below 1.0 = 7 machine-gun hits or 3 punches (the E-blaster beam kills in 5 ticks, report 12), each patrols a fixed range on its floor. Flyers hover 4 rows up, move twice as fast and leave no wreck. Neither fires projectiles: both deal instant damage during a 9-frame fire animation, 9 of the 98 start energy per burst with no shields; a new burst starts with chance 1/13 per tick. They ignore hits and turn to a player behind them with chance 1/7 per tick. The player gun is instant hit-scan, 1 shot per 2 ticks, no random miss; the tick rate depends on the CPU (about 32 per s in the videos). Plus 2 guards: marker 15 shoot-only (80 hp), marker 14 acid-only. Placement is hard-coded in `KLEV1.EXE`; map column = engine x + 6. Full table: `config/levels/mesto/enemies.json` | 10 |
 | Map screen | `M` opens the automap in every level, no item needed; it shows explored blocks of a 40 x 40 grid filled from the hero position | 08, disassembly `a1:0x8f8` |
 | Saves | Manual, any time, 5 slots | 07, 09 |
-| Carry-over | Ammo, energy, shield carry between levels. Bonus weapons do not | 07 |
+| Carry-over | Ammo, energy, shield carry between levels. Bonus weapons do not, except the level 3 flamethrower, kept through level 4 | 07, 20 |
+| Special weapons | One per level 1-8 in slot 3; level 4 keeps the level 3 flamethrower, level 9 has none. Toaster, MGX 800, rocket launcher, flamestream and laser cannon share one fire routine (7-tick shot, 6 cell range); only sound, damage and sprite differ | 20 |
 | Audio | Dark ambient soundtrack (S3M). Sound effects: raw 8-bit mono `ZVUKY/*.SND`, `play(id, vol 1-63, rateHz)` with its own rate per call, 31 ids, slots 12-19 swapped per film; films carry per-frame cue tables. Event and film cue tables in report 17 | 04, 17 |
 
 ## Level 1 (mesto) task graph
@@ -77,7 +78,7 @@ Unconfirmed: whether door 17 must come before acid tank 14, and whether the ship
 ## Open gaps
 
 - Player and enemy sprite sizes and offsets (likely a table inside `KLEV1.EXE`).
-- Object and trigger placement for levels 7-9. `KLEV1.EXE` runs every level (`-levelN`, level number `[0xDC78]`, init dispatch `4:0x80D6`); levels 1-6 are decoded (reports 10, 13-16, 18, 19). Level 5 still lacks the MGX 800 fire rules, its enemy damage constants and most of its films (missing from `GRAFIKA`). Level 6 lacks its timer duration, cannon damage constant, enemy looks and most films; level 9 door 3 route is open.
+- Object and trigger placement for levels 7-9. `KLEV1.EXE` runs every level (`-levelN`, level number `[0xDC78]`, init dispatch `4:0x80D6`); levels 1-6 are decoded (reports 10, 13-16, 18, 19). Level 5 still lacks its enemy damage constants and most of its films (missing from `GRAFIKA`). Level 6 lacks its timer duration, cannon damage constant, enemy looks and most films; level 9 door 3 route is open.
 - Level 1 floors (report 13, Floor tiles): the floor test, fall and jump run in level 1, but M11 has no hole or ledge a reached floor meets, so the hero never falls. Open: what an empty lift stop shows (its deck tiles stay floor).
 - Physics values (jump distance, speeds), animation frame counts. No jump, ladder or melee seen in level 1 footage.
 - Invasion year: 2013 vs 2018 vs 2028 across sources.
@@ -105,6 +106,7 @@ Binary and media folders are local only (copyrighted, large); the list lives in 
 | `reports/17-sound.md` | Sound effects: play model, slot loads, event table, mission 1 film cues, acoustics, decoded from `KLEV1.EXE` and matched to footage |
 | `reports/18-level5-layout.md` | Level 5 (vezeni) layout, lifts, items, use chain, map variants M51..M56, vent shaft exit and enemies, decoded from `KLEV1.EXE` |
 | `reports/19-level6-layout.md` | Level 6 (sklad) layout, lifts, items, doors, zones, map variants M61..M64, task chain and enemies, decoded from `KLEV1.EXE`; riding lift 6 down starts level 9 (`cas`) |
+| `reports/20-special-weapons.md` | Special weapon of every level: source, ammo, fire code, damage, sound, HUD plate and shot frames; levels 3 and 4 share the flamethrower, five weapons share one fire routine |
 | `tools/` | Python decoders: FLI (`fli.py`), map renderer (`rendermap.py`), tiles, strings; `tools/sound/` SND extract, play-call and film-table dumps, video audio match |
 | `sources/steam/` | Steam API and store page snapshots |
 | `sources/cz-walkthroughs/` | Walkthrough pages and level map images |

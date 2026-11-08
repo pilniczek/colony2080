@@ -54,12 +54,12 @@
 - One unique bonus weapon per level (each of 8 levels): only the walkthrough names:
   - L1 E-Blaster (ground pickup in subway)
   - L2 TOASTER (toustovac) at the bridge start
-  - L3 flamethrower (plamenomet), behind door opened with small key; "save it, lasts to next level" (Score 44) - contradicts "lost each level" claim, probably carries within that tip's context, unresolved
+  - L3 flamethrower (plamenomet), behind door opened with small key; "save it, lasts to next level" (Score 44): true, level 4 keeps it (report 20)
   - L5 MGX 800
   - L6 rocket launcher (raketomet)
   - L7 flamestream
   - L8 laser
-  - L4, L9 not named in walkthrough. abclinuxu also lists paprskomet (beam gun). High-voltage lists rocket launchers, flamethrowers, laser cannons, plasma rifles, electro guns.
+  - L4 keeps the L3 flamethrower, L9 has none (report 20). abclinuxu also lists paprskomet (beam gun). High-voltage lists rocket launchers, flamethrowers, laser cannons, plasma rifles, electro guns.
 - Kimimi blog (2026): each stage has one ammo crate.
 
 ## Items and their use (Score 44 walkthrough)

@@ -78,7 +78,7 @@ Weapon and bonuses (`5:0x4A3D-0x5DE9`, hero within 10 px, same row): **[code]**
 | ammo | 32, 65 | 38, 71 | as level 4 |
 | shield | 50, 32 | 56, 38 | as level 4 |
 
-The MGX 800 HUD icon is a grey heavy gun with a white-blue muzzle burst. Its fire rules are **[open]**.
+The MGX 800 HUD icon is a grey heavy gun with a white-blue muzzle burst. It fires by the shared toaster routine (report 20).
 
 ## Use handler (`6:0x45A2-0x549D`)
 
@@ -176,7 +176,7 @@ How the hero gets from floor 50 east of the gate up to floor 20 (lifts 10 and 11
 
 ## Not decoded
 
-- MGX 800 fire rules, enemy damage constants and hover for level 5.
+- Enemy damage constants and hover for level 5.
 - Readers of the second wall tile list.
 - The sheet 7 tiles 11-12 / 24-25 and sheet 11 tiles 89-90 wall positions.
 - The (106, 19) tile in M55.
