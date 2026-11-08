@@ -53,7 +53,7 @@ const capsule = ([x1, y1, r1]: [number, number, number], [x2, y2, r2]: [number, 
 const upperArm = capsule([100, 148, 46], [100, 236, 46], 56);
 const sideUpperArm = capsule([300, 156, 62], [314, 240, 48], 60);
 const elbow: Pt[] = [[60, 296], [128, 296], [128, 316], [60, 316]];
-const forearm: Pt[] = [[26, 310], [146, 308], [152, 320], [150, 394], [140, 404], [42, 406], [26, 390]];
+const forearm: Pt[] = [[35, 306], [138, 304], [143, 318], [141, 408], [133, 420], [49, 422], [35, 403]];
 
 const PR = config.proportions;
 const LEG_SHIFT = PR.legShift;
@@ -147,24 +147,95 @@ const headFront = (k: Kit, body: GroupNode, back: boolean, enemy: boolean): void
   k.F(face, mirror([[280, 56], [312, 56], [312, 63], [280, 63]]), "visor", 1);
 };
 
-const frontHand = (k: Kit, parent: GroupNode, M: Mirror, thumbFront: boolean): void => {
-  const thumb = (): void => {
-    k.P(parent, { pts: M([[112, 412], [134, 408], [142, 430], [134, 452], [118, 448], [110, 430]]), r: 4 });
-    k.F(parent, M([[116, 430], [136, 428], [136, 431], [116, 433]]), "a0");
-  };
-  if (!thumbFront) thumb();
-  k.P(parent, { pts: M([[46, 400], [129, 398], [129, 434], [46, 436]]), mat: "metal", r: 2 });
-  if (k.low)
-    for (let i = 0; i < 4; i++)
-      k.P(parent, { pts: M([[46 + i * 21, 422], [65 + i * 21, 422], [65 + i * 21, 478], [46 + i * 21, 478]]), shade: "cyl", r: 4 });
-  for (let i = 0; i < 4; i++) {
-    const x = 46 + i * 21;
-    k.P(parent, { pts: M([[x, 428], [x + 10, 422], [x + 20, 428], [x + 20, 444], [x, 444]]), shade: "cyl", r: 3, lw: FINGER_LW });
-    k.P(parent, { pts: M([[x, 444], [x + 20, 444], [x + 20, 463], [x, 463]]), shade: "cyl", r: 2, lw: FINGER_LW });
-    k.P(parent, { pts: M([[x, 463], [x + 20, 463], [x + 20, 478], [x, 478]]), r: 2, lw: FINGER_LW });
-  }
-  if (thumbFront) thumb();
+const HAND = { x0: 46, x1: 130, top: 398, bottom: 470 };
+const FINGER = { pitch: 21, thick: 18, base: 462, seg: [30, 24, 18] };
+const THUMB = { w: 20, thick: 18, seg: [24, 20] as const };
+const HAND_AX = 87.5;
+const HAND_FACE: Pt = [71, 105];
+const THUMB_SIDE: Pt = [HAND_FACE[0] + 12, 424];
+const THUMB_BASE: Pt = [124, 424];
+const THUMB_OPEN = [30, 14] as const;
+const SIDE_HAND_DX = 224;
+const FRONT_HAND_DY = 16;
+const fingerX = (i: number): number => HAND.x0 + i * FINGER.pitch;
+const fingerY = (k: number): number => FINGER.base + FINGER.seg.slice(0, k).reduce((a, b) => a + b, 0);
+
+const bar = ([x, y]: Pt, deg: number, len: number, w: number, [e0, e1]: [number, number] = [0, 0]): { pts: [Pt, Pt, Pt, Pt]; end: Pt } => {
+  const a = (deg * Math.PI) / 180;
+  const dx = Math.sin(a);
+  const dy = Math.cos(a);
+  const nx = (dy * w) / 2;
+  const ny = (-dx * w) / 2;
+  const s: Pt = [x - dx * e0, y - dy * e0];
+  const e: Pt = [x + dx * (len + e1), y + dy * (len + e1)];
+  return { pts: [[s[0] + nx, s[1] + ny], [e[0] + nx, e[1] + ny], [e[0] - nx, e[1] - ny], [s[0] - nx, s[1] - ny]], end: [x + dx * len, y + dy * len] };
 };
+
+const thumbWedge = (from: Pt, deg: number, len: number, w: number, edge: number): Pt[] => {
+  const [, eo, ei] = bar(from, deg, len, w).pts;
+  const a = (deg * Math.PI) / 180;
+  const top = from[1] - 14;
+  const outer = Math.max(edge + 2, eo[0] - (Math.sin(a) * (eo[1] - top)) / Math.cos(a));
+  return [[edge, top], [outer, top], eo, ei, [edge, ei[1]]];
+};
+
+const openThumb = (k: Kit, parent: GroupNode, M: Mirror): void => {
+  const [a0, a1] = THUMB_OPEN;
+  const edge = HAND.x1 - 2;
+  const joint = bar(THUMB_BASE, a0, THUMB.seg[0], 0).end;
+  const reach = Math.min(bar(THUMB_BASE, a0, THUMB.seg[0], THUMB.w).pts[2][0], ...bar(joint, a1, THUMB.seg[1], THUMB.w, [THUMB.w / 2, 0]).pts.map((p) => p[0]));
+  const from: Pt = [THUMB_BASE[0] + Math.max(0, edge - reach), THUMB_BASE[1]];
+  k.P(parent, { pts: M(thumbWedge(from, a0, THUMB.seg[0], THUMB.w, edge)), shade: "cyl", r: 3, lw: FINGER_LW });
+  const seg = bar(bar(from, a0, THUMB.seg[0], 0).end, a1, THUMB.seg[1], THUMB.w, [THUMB.w / 2, THUMB.w / 2]);
+  k.P(parent, { pts: M(seg.pts), shade: "cyl", r: THUMB.w / 3, lw: FINGER_LW });
+};
+
+const chain = (k: Kit, parent: GroupNode, M: Mirror, from: Pt, angles: readonly number[], lens: readonly number[], w: number): void => {
+  let at = from;
+  angles.forEach((deg, i) => {
+    const b = bar(at, deg, lens[i] ?? 0, w, [w / 2, w / 2]);
+    k.P(parent, { pts: M(b.pts), r: w / 3, lw: FINGER_LW, shade: "cyl" });
+    at = b.end;
+  });
+};
+
+const profileHand = (k: Kit, parent: GroupNode, S: Mirror, thumbBehind: boolean): void => {
+  const [a, b] = HAND_FACE;
+  const y1 = fingerY(1);
+  const y2 = fingerY(2);
+  const y3 = fingerY(3);
+  const fx = b - 2 - FINGER.thick;
+  const t = FINGER.thick;
+  const thumb = (): void => chain(k, parent, S, THUMB_SIDE, [-14, -4], THUMB.seg, THUMB.thick);
+  if (thumbBehind) thumb();
+  k.P(parent, { pts: S([[a + 3, HAND.top], [b, HAND.top], [b, HAND.bottom], [a + 3, HAND.bottom]]), r: 3 });
+  k.P(parent, { pts: S([[a - 2, HAND.top + 6], [a + 6, HAND.top + 6], [a + 6, HAND.bottom - 2], [a - 2, HAND.bottom - 2]]), mat: "metal", shade: "cyl", r: 4 });
+  k.P(parent, { pts: S([[fx, FINGER.base], [fx + t, FINGER.base - 6], [fx + t, y1], [fx, y1]]), shade: "cyl", r: 3, lw: FINGER_LW });
+  k.P(parent, { pts: S([[fx, y1], [fx + t, y1], [fx + t, y2], [fx, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
+  k.P(parent, { pts: S([[fx, y2], [fx + t, y2], [fx + t, y3 - 4], [fx + 9, y3], [fx, y3 - 4]]), r: 3, lw: FINGER_LW });
+  for (const [top, bottom] of [[FINGER.base + 2, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 5]] as const)
+    k.P(parent, { pts: S([[fx - 4, top], [fx + 6, top], [fx + 6, bottom], [fx - 4, bottom]]), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+  if (!thumbBehind) thumb();
+};
+
+const robotHand = (k: Kit, parent: GroupNode, M: Mirror): void => {
+  const y1 = fingerY(1);
+  const y2 = fingerY(2);
+  const y3 = fingerY(3);
+  k.P(parent, { pts: M([[HAND.x0, HAND.top + 2], [HAND.x1, HAND.top], [HAND.x1, HAND.bottom - 2], [HAND.x0, HAND.bottom]]), r: 2 });
+  k.P(parent, { pts: M([[HAND.x0 + 7, HAND.top + 9], [HAND.x1 - 7, HAND.top + 8], [HAND.x1 - 7, HAND.bottom - 12], [HAND.x0 + 7, HAND.bottom - 11]]), shade: "cyl", r: 6 });
+  if (k.low) k.P(parent, { pts: M([[HAND.x0, FINGER.base], [HAND.x1 - 1, FINGER.base], [HAND.x1 - 1, y3], [HAND.x0, y3]]), shade: "cyl", r: 4 });
+  for (let i = 0; i < 4; i++) {
+    const x = fingerX(i);
+    k.P(parent, { pts: M([[x, FINGER.base + 6], [x + 10, FINGER.base], [x + 20, FINGER.base + 6], [x + 20, y1], [x, y1]]), shade: "cyl", r: 3, lw: FINGER_LW });
+    k.P(parent, { pts: M([[x, y1], [x + 20, y1], [x + 20, y2], [x, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
+    k.P(parent, { pts: M([[x, y2], [x + 20, y2], [x + 20, y3], [x, y3]]), r: 2, lw: FINGER_LW });
+  }
+  openThumb(k, parent, M);
+};
+
+const frontHand = (k: Kit, parent: GroupNode, M: Mirror, thumbBehind: boolean): void =>
+  profileHand(k, parent, (pts) => M(mirror(pts, HAND_AX).map(([x, y]): Pt => [x, y + FRONT_HAND_DY])), thumbBehind);
 
 interface ArmNames {
   arm?: string;
@@ -194,15 +265,15 @@ const frontArm = (
   k.P(k.G(arm, `translate(${mirrored ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
   const fore = k.G(foreParent ? k.G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirrored ? 2 * AX - 89 : 89;
-  if (names.hand && propBehindArm) k.hook(k.G(fore, `translate(${fc} 440) ${HOLD_TF}`), names.hand);
+  if (names.hand && propBehindArm) k.hook(k.G(fore, `translate(${fc} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`), names.hand);
   const fa = k.G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
   k.P(fa, { pts: M(forearm), r: 1 });
-  k.F(fa, M([[30, 354], [150, 352], [150, 356], [30, 358]]), "a0");
-  k.F(fa, M([[30, 374], [150, 372], [150, 376], [30, 378]]), "a0");
-  const hand = k.G(fore, `translate(${mirrored ? 2 * AX - 89 : 89} 440) ${HOLD_TF}`);
+  k.F(fa, M([[38, 359], [141, 357], [141, 362], [38, 364]]), "a0");
+  k.F(fa, M([[38, 384], [141, 381], [141, 386], [38, 388]]), "a0");
+  const hand = k.G(fore, `translate(${mirrored ? 2 * AX - 89 : 89} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`);
   if (names.hand && !propBehindArm) k.hook(hand, names.hand);
   const hc = mirrored ? 2 * AX - 89 : 89;
-  frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront);
+  frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront && !flipHand);
 };
 
 const shoulder = (k: Kit, parent: GroupNode, mirrored: boolean, name: string): void => {
@@ -356,19 +427,7 @@ const sideLeg = (k: Kit, parent: GroupNode, names: LegNames, enemy: boolean, dim
   k.P(kn, { pts: [[300, 448], [340, 452], [362, 478], [362, 510], [344, 534], [318, 532], [310, 500]], mat: enemy ? "armor" : "chrome", r: 1 });
 };
 
-const sideHand = (k: Kit, parent: GroupNode): void => {
-  k.P(parent, { pts: [[342, 410], [366, 406], [374, 428], [366, 448], [350, 444], [340, 428]], r: 4 });
-  k.P(parent, { pts: [[270, 398], [353, 396], [353, 434], [270, 436]], mat: "metal", r: 2 });
-  if (k.low)
-    for (let i = 0; i < 4; i++)
-      k.P(parent, { pts: [[270 + i * 21, 422], [289 + i * 21, 422], [289 + i * 21, 478], [270 + i * 21, 478]], shade: "cyl", r: 4 });
-  for (let i = 0; i < 4; i++) {
-    const x = 270 + i * 21;
-    k.P(parent, { pts: [[x, 428], [x + 10, 422], [x + 20, 428], [x + 20, 444], [x, 444]], shade: "cyl", r: 3, lw: FINGER_LW });
-    k.P(parent, { pts: [[x, 444], [x + 20, 444], [x + 20, 463], [x, 463]], shade: "cyl", r: 2, lw: FINGER_LW });
-    k.P(parent, { pts: [[x, 463], [x + 20, 463], [x + 20, 478], [x, 478]], r: 2, lw: FINGER_LW });
-  }
-};
+const sideHand = (k: Kit, parent: GroupNode): void => robotHand(k, parent, (pts) => pts.map(([x, y]): Pt => [x + SIDE_HAND_DX, y]));
 
 const sideArm = (k: Kit, parent: GroupNode, names: Required<ArmNames>, { dim, propBehindArm = false }: { dim?: number; propBehindArm?: boolean } = {}): void => {
   const arm = k.G(parent, "translate(2 -4)", names.arm, [300, 150], { dim });
