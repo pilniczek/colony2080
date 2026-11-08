@@ -1232,6 +1232,7 @@ const PISTOL = {
 };
 
 const BARE_GUN = { ...CROWBAR, r: PISTOL_R, trigger: true, across: () => {}, section: () => {} };
+const BARE_ROD = { ...CROWBAR, across: () => {}, section: () => {} };
 
 function heldHand(parent, pose, view, tf, suffix = "") {
   const g = G(parent, tf);
@@ -1319,7 +1320,11 @@ function grip(s, view, rod = CROWBAR) {
     sectionPlate(s);
     const depth = 400 + HAND_FACE[1] - cx - 10;
     rod.across(s, M, depth, true);
-    handThumb(s, M, [130, depth + 10], [-60, -90], THUMB.thick);
+    hook(G(s, `translate(${HAND_AX} ${depth})`), "rod");
+    const thumbJoint = bar([130, depth + 10], -60, THUMB.seg[0], 0).end;
+    chain(s, M, [130, depth + 10], [-60], [THUMB.seg[0]], THUMB.thick, { shade: "cyl" });
+    hook(G(s, `translate(${thumbJoint.join(" ")})`), "thumbTip");
+    chain(s, M, thumbJoint, [-90], [THUMB.seg[1]], THUMB.thick, { shade: "cyl" });
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, depth + R], [x, depth + R]], shade: "cyl", r: 7, lw: FINGER_LW });
@@ -1459,20 +1464,21 @@ const GUN_UP = { ...FINGERS_LEFT, back: "rotate(-90 88 470)" };
 
 const REST_UP = { ...PALM_UP, palm: "rotate(-90 88 470)" };
 
-function buildHand({ view = "back", pose = "open", rest = false, forearm = false, lod: low = false } = {}) {
+function buildHand({ view = "back", pose = "open", rest = false, forearm = false, bare = false, lod: low = false } = {}) {
   longForearm = forearm;
   try {
-    return withLod(low, () => handTree(view, pose, rest));
+    return withLod(low, () => handTree(view, pose, rest, bare));
   } finally {
     longForearm = false;
   }
 }
 
-function handTree(view, pose, rest) {
+function handTree(view, pose, rest, bare) {
   const root = { k: "g", kids: [] };
   const up = rest && pose === "carry" ? REST_UP[view] : (pose === "carry" || pose === "cup") ? PALM_UP[view] : (pose === "grip" || pose === "pinch") ? FINGERS_LEFT[view] : pose === "gunGrip" ? GUN_UP[view] : null;
   const hand = G(up ? G(root, up) : root, null, "hand", [89, 400]);
   if (pose === "carry") carry(hand, view, rest);
+  else if (bare && pose === "grip") grip(hand, view, BARE_ROD);
   else HAND_BUILDERS[pose](hand, view);
   return root;
 }

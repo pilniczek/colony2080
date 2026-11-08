@@ -10,7 +10,7 @@
   "stage": {
     "width": 1600,
     "height": 900,
-    "close": { "x": 800, "y": 430, "rx": 380, "tilt": 0.34, "arm": 3.6, "shoulder": [-60, 1000], "rim": 4.6 },
+    "close": { "x": 800, "y": 430, "rx": 380, "tilt": 0.34 },
     "melt": { "x": 800, "guardX": 975, "floorY": 800, "guardScale": 7.4, "pipeX": 772, "pipeW": 70, "outlet": 330 }
   },
   "palette": {

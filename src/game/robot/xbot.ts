@@ -570,6 +570,7 @@ const PISTOL: Rod = {
 };
 
 const BARE_GUN: Rod = { ...CROWBAR, r: PISTOL_R, trigger: true, across: () => {}, section: () => {} };
+const BARE_ROD: Rod = { ...CROWBAR, across: () => {}, section: () => {} };
 
 const at = (S: Mirror, c: Pt): string => {
   const [x, y] = S([c])[0] ?? c;
@@ -641,7 +642,11 @@ const grip = (k: Kit, s: GroupNode, view: HandView, rod: Rod = CROWBAR): void =>
     sectionPlate(k, s);
     const depth = 400 + HAND_FACE[1] - cx - 10;
     rod.across(k, s, same, depth, true);
-    handThumb(k, s, same, [130, depth + 10], [-60, -90], THUMB.thick);
+    k.hook(k.G(s, `translate(${HAND_AX} ${depth})`), "rod");
+    const thumbJoint = bar([130, depth + 10], -60, THUMB.seg[0] ?? 0, 0).end;
+    chain(k, s, same, [130, depth + 10], [-60], THUMB.seg.slice(0, 1), THUMB.thick, { shade: "cyl" });
+    k.hook(k.G(s, `translate(${thumbJoint.join(" ")})`), "thumbTip");
+    chain(k, s, same, thumbJoint, [-90], THUMB.seg.slice(1), THUMB.thick, { shade: "cyl" });
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
       k.P(s, { pts: box(x, 404, x + 20, depth + R), shade: "cyl", r: 7, lw: FINGER_LW });
@@ -808,11 +813,12 @@ const upOf = (view: HandView, pose: HandPose, rest: boolean): string | null => {
   return null;
 };
 
-const handTree = (k: Kit, view: HandView, pose: HandPose, rest: boolean): GroupNode => {
+const handTree = (k: Kit, view: HandView, pose: HandPose, rest: boolean, bareRod: boolean): GroupNode => {
   const root = k.root();
   const up = upOf(view, pose, rest);
   const hand = k.G(up ? k.G(root, up) : root, null, "hand", [89, 400]);
   if (pose === "carry") carry(k, hand, view, rest);
+  else if (bareRod && pose === "grip") grip(k, hand, view, BARE_ROD);
   else handBuilders[pose](k, hand, view);
   return root;
 };
@@ -822,12 +828,13 @@ export const buildHand = ({
   pose = "open",
   rest = false,
   forearm: long = false,
+  bare: bareRod = false,
   lod = false,
-}: { view?: HandView; pose?: HandPose; rest?: boolean; forearm?: boolean; lod?: boolean } = {}): GroupNode => {
+}: { view?: HandView; pose?: HandPose; rest?: boolean; forearm?: boolean; bare?: boolean; lod?: boolean } = {}): GroupNode => {
   const k = kit(lod);
   let tree: GroupNode | null = null;
   const build = (): void => {
-    tree = handTree(k, view, pose, rest);
+    tree = handTree(k, view, pose, rest, bareRod);
   };
   if (long) longForearm(k, build);
   else build();

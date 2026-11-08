@@ -205,8 +205,96 @@ function restBounds(root, def, view) {
   return [bx0, by0, bx1, by1];
 }
 
+const GRIP_VIEW = { top: "thumb", front: "back", side: "tips" };
+const GRIP_HOOK = { front: "rod", side: "thumbTip" };
+
+function gripHands(def, view) {
+  const k = RIG_PER_UNIT * handScale(def);
+  const root = window.XBOT.buildHand({ view: GRIP_VIEW[view], pose: "grip", bare: true });
+  const rod = window.XBOT.locate(root, "rod").inverse();
+  return def.views.grip[view].map(([x, y, deg, mirror]) => ({
+    root,
+    at: [x, y],
+    place: new DOMMatrix().translate(x * k, y * k).scale(mirror ? -1 : 1, 1).rotate(deg).multiply(rod)
+  }));
+}
+
+function gripView(def, state, view) {
+  const k = RIG_PER_UNIT * handScale(def);
+  const hands = gripHands(def, view);
+  const [ix0, iy0, ix1, iy1] = window.ENV.viewBox(def, view);
+  let [x0, y0, x1, y1] = [ix0 * k - 4, iy0 * k - 4, ix1 * k + 4, iy1 * k + 4];
+  const reach = Math.hypot(RIG_BOX.w, RIG_BOX.h);
+  for (const { at: [x, y] } of hands) {
+    x0 = Math.min(x0, x * k - reach); y0 = Math.min(y0, y * k - reach);
+    x1 = Math.max(x1, x * k + reach); y1 = Math.max(y1, y * k + reach);
+  }
+  const layer = () => {
+    const [lc, lctx] = canvas((x1 - x0) * HAND_PX, (y1 - y0) * HAND_PX);
+    lctx.scale(HAND_PX, HAND_PX);
+    lctx.translate(-x0, -y0);
+    return [lc, lctx];
+  };
+  const [c, ctx] = layer();
+  const fronts = [];
+  for (const { root, place } of hands) {
+    const [back, bctx] = layer();
+    const [front, fctx] = layer();
+    let to = bctx;
+    bctx.transform(place.a, place.b, place.c, place.d, place.e, place.f);
+    fctx.transform(place.a, place.b, place.c, place.d, place.e, place.f);
+    window.XBOT.render(split(bctx, fctx, () => to), root, { hooks: GRIP_HOOK[view] ? { [GRIP_HOOK[view]]: () => { to = fctx; } } : {}, lineW: 1.4 * (devicePixelRatio || 1) });
+    ctx.save();
+    ctx.resetTransform();
+    ctx.drawImage(back, 0, 0);
+    ctx.restore();
+    fronts.push(front);
+  }
+  ctx.save();
+  ctx.scale(k, k);
+  window.ENV.draw(ctx, def, { state, lines: devicePixelRatio || 1, view });
+  ctx.restore();
+  ctx.resetTransform();
+  for (const front of fronts) ctx.drawImage(front, 0, 0);
+  return trimmed(c);
+}
+
+const PAINTS = new Set(["fill", "stroke", "fillRect", "strokeRect", "fillText", "strokeText", "drawImage", "clearRect"]);
+
+function split(a, b, target) {
+  return new Proxy(a, {
+    get(t, key) {
+      if (typeof t[key] !== "function") return t[key];
+      if (PAINTS.has(key)) return (...args) => target()[key](...args);
+      return (...args) => (b[key](...args), a[key](...args));
+    },
+    set(t, key, v) {
+      a[key] = v;
+      b[key] = v;
+      return true;
+    }
+  });
+}
+
+function trimmed(src) {
+  const { width: w, height: h } = src;
+  const ink = src.getContext("2d").getImageData(0, 0, w, h).data;
+  let [x0, y0, x1, y1] = [w, h, 0, 0];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!ink[(y * w + x) * 4 + 3]) continue;
+    x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + 1); y1 = Math.max(y1, y + 1);
+  }
+  const dpr = devicePixelRatio || 1;
+  const s = Math.min(1, HAND_SPAN * dpr / (x1 - x0), HAND_SPAN * dpr / (y1 - y0));
+  const [c, ctx] = canvas((x1 - x0) * s / dpr, (y1 - y0) * s / dpr);
+  ctx.scale(s / dpr, s / dpr);
+  ctx.drawImage(src, x0, y0, x1 - x0, y1 - y0, 0, 0, x1 - x0, y1 - y0);
+  return c;
+}
+
 function handView(def, state, view) {
   if (!window.ENV.viewBox(def, view)) return todo("not drawn yet", RIG_BOX.w * HAND_PX, RIG_BOX.h * HAND_PX);
+  if (def.views.grip?.[view]) return gripView(def, state, view);
   const root = window.XBOT.buildHand({ view: HAND_VIEW[view], pose: "carry", rest: true });
   const [x0, y0, x1, y1] = restBounds(root, def, view);
   const s = Math.min(HAND_PX, HAND_SPAN / (x1 - x0), HAND_SPAN / (y1 - y0));

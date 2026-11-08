@@ -284,7 +284,6 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     ctx.rect(x, y, w, h);
     ctx.clip();
     ctx.translate(x + w / 2, y + h / 2);
-    ctx.rotate((at("panelSpin", t) * Math.PI) / 180);
     ctx.scale(k, k);
     ctx.translate(-(ix0 + ix1) / 2, -(iy0 + iy1) / 2);
     drawAsset(ctx, item, { state: S.itemState, t, lines: 1, palette: scanPalette });

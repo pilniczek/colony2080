@@ -1,16 +1,13 @@
 import config from "@config/cutscenes/use-acid-tank.json";
-import type { Pose } from "../../engine/rig/pose";
-import type { GroupNode, Pt } from "../../engine/rig/tree";
+import type { Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset, P, PALETTE, type EnvPalette } from "../env/paint";
-import { buildSide } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { armChain, fitStage, layer, LINE_W, placeRobot, pool, RAD, reach, recolor, STAND, stillLayer, toModel, tracks } from "./kit";
-import { drawGrid, drawTap, TAP_CENTER } from "./takeTapHandle";
+import { fitStage, layer, LINE_W, pool, RAD, recolor, stillLayer, tracks } from "./kit";
+import { drawGrid, drawTap, TAP_CENTER, wheelHands } from "./takeTapHandle";
 
 const { width: W, height: H, close: CLOSE, melt: MELT } = config.stage;
 const palette: Record<string, string> = { ...config.palette };
-const ARM_KEYS: [string, string] = ["arm", "fore"];
 const GUARD_TOP = 41;
 const SPOUT = { dx: 130, dy: 190, w: 46 };
 const SHADOW_PALETTE = recolor("#000000");
@@ -25,8 +22,6 @@ const rotted = (k: number): EnvPalette => Object.fromEntries(Object.entries(LIFT
 const { num, text } = tracks(config.tracks);
 const valveBack = stillLayer();
 
-let armRig: GroupNode | null = null;
-const robotArm = (): GroupNode => (armRig ??= buildSide({ hold: "grip" }));
 
 function pour(c: CanvasRenderingContext2D, mid: number, top: number, bottom: number, w: number, t: number): void {
   if (w <= 0) return;
@@ -47,17 +42,6 @@ function pour(c: CanvasRenderingContext2D, mid: number, top: number, bottom: num
     P.flat(c, mid - w / 2 + w * (0.7 - k * 0.4), y + 16, w * 0.1, 16, "acidDark");
   }
   c.restore();
-}
-
-function closeArm(c: CanvasRenderingContext2D, side: number, target: Pt): void {
-  const arm = robotArm();
-  const k = CLOSE.arm;
-  const [sx, sy] = CLOSE.shoulder as Pt;
-  const shoulder: Pt = side < 0 ? [sx, sy] : [W - sx, sy];
-  const { s } = armChain(arm, "hand", ARM_KEYS);
-  const m = new DOMMatrix().translate(shoulder[0], shoulder[1]).rotate(side * 58).scale(-side * k, k).translate(-s[0], -s[1]);
-  const pose: Pose = { ...STAND, ...reach(arm, "rod", ARM_KEYS, toModel(m, target), -side) };
-  placeRobot(c, arm, m, { pose, hooks: {}, lineW: LINE_W });
 }
 
 function valveBackdrop(cc: CanvasRenderingContext2D): void {
@@ -100,13 +84,10 @@ function drawValve(c: CanvasRenderingContext2D, t: number): void {
   c.globalAlpha = 0.6;
   drawTap(c, t, x, cy - 16 * (1 + bring), scale, tilt, spin, SHADOW_PALETTE, LINE_W);
   c.restore();
-  drawTap(c, t, x, cy, scale, tilt, spin, PALETTE, LINE_W);
+  const wheel = (cc: CanvasRenderingContext2D): void => drawTap(cc, t, x, cy, scale, tilt, spin, PALETTE, LINE_W);
+  wheel(c);
   if (num("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash!);
-  const r = scale * CLOSE.rim;
-  for (const side of [-1, 1]) {
-    const a = (side < 0 ? 180 : 0) + spin * 0.6;
-    closeArm(c, side, [x + r * Math.cos(a * RAD), cy + r * tilt * Math.sin(a * RAD)]);
-  }
+  wheelHands(c, x, cy, scale, tilt, spin * 0.6, 1, wheel, LINE_W);
   drawGrid(c, num("grid", t), palette.grid!);
 }
 

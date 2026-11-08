@@ -477,29 +477,35 @@ define({
   id: "tapHandle",
   box: [-2, -12, 14, 0],
   views: itemViews([-2, -12, 14, 0], 6, {
-    scale: 0.56,
+    scale: 1.1,
+    hands: 2,
+    grip: {
+      top: [[1.7, 0, 180, true], [10.3, 0, 180]],
+      front: [[0, -5, -90]],
+      side: [[2.7, -5, 270], [9.3, -5, 270, true]]
+    },
     top(ctx) {
       box(ctx, 4.2, 0, 3.6, 3, "chrome", 0);
-      box(ctx, 0.4, -0.65, 11.2, 1.3, "chrome", 1);
+      box(ctx, 1, -0.9, 10, 1.8, "chrome", 1);
     },
     front(ctx) {
-      box(ctx, -0.65, -10, 1.3, 10, "chrome", 1);
+      box(ctx, -0.9, -10, 1.8, 10, "chrome", 1);
       box(ctx, -3, -6.8, 3, 3.6, "chrome", 0);
     }
   }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 12);
     box(ctx, 5.4, -9.6, 1.2, 9.2, "chrome", 1, { vertical: true });
-    box(ctx, 0.6, -5.6, 10.8, 1.2, "chrome", 1);
+    box(ctx, 1.2, -5.6, 9.6, 1.2, "chrome", 1);
     ctx.beginPath();
-    ctx.ellipse(6, -5, 5.6, 5, 0, 0, PI * 2);
-    ctx.ellipse(6, -5, 4.3, 3.8, 0, 0, PI * 2);
+    ctx.ellipse(6, -5, 5, 5, 0, 0, PI * 2);
+    ctx.ellipse(6, -5, 4, 4, 0, 0, PI * 2);
     ctx.fillStyle = color("c1");
     ctx.fill("evenodd");
     stroke(ctx, "mLine");
     if (!simple()) {
       ctx.beginPath();
-      ctx.ellipse(6, -5, 4.95, 4.4, 0, PI * 1.05, PI * 1.7);
+      ctx.ellipse(6, -5, 4.5, 4.5, 0, PI * 1.05, PI * 1.7);
       ctx.strokeStyle = color("c3");
       ctx.lineWidth = 0.5;
       ctx.stroke();

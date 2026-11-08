@@ -1,8 +1,7 @@
 (() => {
 const { kit } = window.CUTSCENES;
-const { drawTap, drawGrid } = window.CUTSCENES.takeTapHandle.art;
-const { STAND, LINE_W, asset } = kit;
-const { buildSide } = window.XBOT;
+const { drawTap, drawGrid, wheelHands } = window.CUTSCENES.takeTapHandle.art;
+const { LINE_W, asset } = kit;
 const ENV = window.ENV;
 const { P, PALETTE } = ENV;
 const CFG = window.C28_CONFIG.cutscenes.useAcidTank;
@@ -11,7 +10,7 @@ const palette = { ...CFG.palette };
 const at = kit.track(CFG.tracks);
 const TAP = asset("tapHandle");
 const GUARD = asset("acidGuard");
-const TAP_CENTER = { x: 6, y: -5, r: 5.6 };
+const TAP_CENTER = { x: 6, y: -5, r: 5 };
 const GUARD_TOP = 41;
 const SPOUT = { dx: 130, dy: 190, w: 46 };
 const SHADOW_PALETTE = kit.recolor("#000000");
@@ -24,9 +23,6 @@ const rotted = k => Object.fromEntries(Object.entries(LIFTED).map(([name, hex]) 
 
 let lineW = LINE_W;
 const valveBack = kit.stillLayer();
-
-let armRig = null;
-const robotArm = () => armRig || (armRig = buildSide({ hold: "grip" }));
 
 function pour(c, mid, top, bottom, w, t) {
   if (w <= 0) return;
@@ -47,17 +43,6 @@ function pour(c, mid, top, bottom, w, t) {
     P.flat(c, mid - w / 2 + w * (0.7 - k * 0.4), y + 16, w * 0.1, 16, "acidDark");
   }
   c.restore();
-}
-
-function closeArm(c, side, target) {
-  const arm = robotArm();
-  const k = CLOSE.arm;
-  const [sx, sy] = CLOSE.shoulder;
-  const shoulder = side < 0 ? [sx, sy] : [W - sx, sy];
-  const { s } = kit.armChain(arm, "hand", ["arm", "fore"]);
-  const m = new DOMMatrix().translate(shoulder[0], shoulder[1]).rotate(side * 58).scale(-side * k, k).translate(-s[0], -s[1]);
-  const pose = { ...STAND, ...kit.reach(arm, "rod", ["arm", "fore"], kit.toModel(m, ...target), -side) };
-  kit.placeRobot(c, arm, m, { pose, hooks: {}, lineW });
 }
 
 function valveBackdrop(cc) {
@@ -101,13 +86,10 @@ function drawValve(c, t) {
   c.globalAlpha = 0.6;
   drawTap(c, t, x, cy - 16 * (1 + bring), scale, tilt, spin, SHADOW_PALETTE, lineW);
   c.restore();
-  drawTap(c, t, x, cy, scale, tilt, spin, PALETTE, lineW);
+  const wheel = cc => drawTap(cc, t, x, cy, scale, tilt, spin, PALETTE, lineW);
+  wheel(c);
   if (at("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash);
-  const r = scale * CLOSE.rim;
-  for (const side of [-1, 1]) {
-    const a = (side < 0 ? 180 : 0) + spin * 0.6;
-    closeArm(c, side, [x + r * Math.cos(a * kit.RAD), cy + r * tilt * Math.sin(a * kit.RAD)]);
-  }
+  wheelHands(c, x, cy, scale, tilt, spin * 0.6, 1, wheel, lineW);
   drawGrid(c, at("grid", t));
 }
 
