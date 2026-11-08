@@ -4,8 +4,8 @@ import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/dr
 import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { PALETTE as SKIN } from "../env/paint";
-import { gunHook, MUZZLE, MUZZLE_IN_HOOK } from "../robot/gun";
-import { buildBack, buildFront, ROBOT } from "../robot/xbot";
+import { gunHook, holdPoses, MUZZLE, MUZZLE_IN_HOOK } from "../robot/gun";
+import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
 import { camera, feet, fitStage, hookAt, lineFor, oval, poly, rect, rowFill, scatter, tracks, unitScale } from "./kit";
 
@@ -276,12 +276,13 @@ function wasteland(ctx: Ctx, t: number, horizon: number, colors: Waste): void {
 
 const WASTE_B = (): Waste => [palette.skyTop, palette.skyMid, palette.skyLow, palette.cloudDark, palette.cloudLight, palette.rustFar, palette.rustNear, palette.dirtDark, palette.rustLight];
 
-let trees: { droid: GroupNode; heroBack: GroupNode } | null = null;
-const rigs = () =>
-  (trees ??= {
-    droid: buildFront({ enemy: true }),
-    heroBack: buildBack({ rightForeBehind: true }),
-  });
+let trees: { droid: GroupNode; carry: Pose; heroBack: GroupNode } | null = null;
+const rigs = () => {
+  if (trees) return trees;
+  const droid = buildFront({ enemy: true, rightArmFirst: true, propBehindArm: true, armed: true });
+  const { FRONT_CARRY, FRONT_CARRY_R } = holdPoses(buildSide({ farLimbs: true }), droid);
+  return (trees = { droid, carry: { ...FRONT_CARRY, ...FRONT_CARRY_R }, heroBack: buildBack({ holdR: "gunGrip" }) });
+};
 
 function placeBot(ctx: Ctx, root: GroupNode, x: number, y: number, k: number, ax: number, sx: number, pose: Pose, hooks: Record<string, HookDraw | undefined>, pal: Palette): void {
   ctx.save();
@@ -319,11 +320,11 @@ function wreck(ctx: Ctx): void {
 }
 
 function droid(ctx: Ctx, x: number, y: number, k: number, rot: number, t: number): void {
-  const { droid: root } = rigs();
+  const { droid: root, carry } = rigs();
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rot * DEG);
-  const pose = { body: Math.sin(t * 5) * 2, armL: -24, foreL: -66, armR: 30, foreR: -50 };
+  const pose = { ...carry, body: Math.sin(t * 5) * 2 };
   placeBot(ctx, root, 0, 0, k, AX, 1, pose, { handL: (c, pal) => gunHook(c, pal, { lineW: lineFor(c, k), simple: false }) }, ENEMY_PALETTE);
   ctx.restore();
 }

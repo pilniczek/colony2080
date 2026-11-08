@@ -49,12 +49,12 @@ function robots() {
   if (rigs) return rigs;
   const side = buildSide({ farLimbs: true });
   const front = buildFront();
-  const enemyFront = buildFront({ enemy: true });
+  const enemyFront = buildFront({ enemy: true, rightArmFirst: true, propBehindArm: true, armed: true });
   rigs = {
     side, front, enemyFront,
     badge: buildSide({ farLimbs: true, badge: true }),
     back: buildBack(),
-    hold: window.GUN.holdPoses(side, front)
+    hold: window.GUN.holdPoses(side, enemyFront)
   };
   return rigs;
 }

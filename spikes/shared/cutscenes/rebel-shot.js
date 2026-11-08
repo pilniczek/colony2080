@@ -2,7 +2,7 @@
 const { kit } = window.CUTSCENES;
 const { rect, poly, oval } = kit;
 const CFG = window.C28_CONFIG.cutscenes.rebelShot;
-const { buildFront, buildBack, render: renderBot, locate, shade, AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
+const { buildFront, buildBack, buildSide, render: renderBot, locate, shade, AX, FOOT_Y, PALETTE: BOT_PALETTE } = window.XBOT;
 const SKIN = window.ENV.PALETTE;
 const W = CFG.stage.width, H = CFG.stage.height;
 const palette = { ...CFG.palette };
@@ -225,10 +225,12 @@ function wasteland(ctx, t, horizon, colors) {
 const WASTE_B = () => [palette.skyTop, palette.skyMid, palette.skyLow, palette.cloudDark, palette.cloudLight, palette.rustFar, palette.rustNear, palette.dirtDark, palette.rustLight];
 
 const ROBOT_TREES = {};
-const rigs = () => ROBOT_TREES.droid ? ROBOT_TREES : Object.assign(ROBOT_TREES, {
-  droid: buildFront({ enemy: true }),
-  heroBack: buildBack({ rightForeBehind: true })
-});
+const rigs = () => {
+  if (ROBOT_TREES.droid) return ROBOT_TREES;
+  const droid = buildFront({ enemy: true, rightArmFirst: true, propBehindArm: true, armed: true });
+  const { FRONT_CARRY, FRONT_CARRY_R } = window.GUN.holdPoses(buildSide({ farLimbs: true }), droid);
+  return Object.assign(ROBOT_TREES, { droid, carry: { ...FRONT_CARRY, ...FRONT_CARRY_R }, heroBack: buildBack({ holdR: "gunGrip" }) });
+};
 
 function placeBot(ctx, root, x, y, k, ax, sx, pose, hooks, pal) {
   ctx.save();
@@ -259,11 +261,11 @@ function wreck(ctx) {
 }
 
 function droid(ctx, x, y, k, rot, t) {
-  const { droid: root } = rigs();
+  const { droid: root, carry } = rigs();
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rot * DEG);
-  const pose = { body: Math.sin(t * 5) * 2, armL: -24, foreL: -66, armR: 30, foreR: -50 };
+  const pose = { ...carry, body: Math.sin(t * 5) * 2 };
   placeBot(ctx, root, 0, 0, k, AX, 1, pose, { handL: (c, pal) => window.GUN.hook(c, { pal, lineW: kit.lineFor(c, k), simple: false }) }, ENEMY_PALETTE);
   ctx.restore();
 }
