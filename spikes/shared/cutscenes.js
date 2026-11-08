@@ -58,8 +58,13 @@ function crowbarDoor(CFG) {
   const BAR = CFG.crowbar;
   let lineW = LINE_W;
 
-  const sideRoot = buildSide({ farLimbs: true, propBehindArm: true });
-  const backRoot = buildBack({ leftArmBehind: true, rightForeBehind: true });
+  const sideRoot = buildSide({ farLimbs: true, propBehindArm: true, hold: "grip", farHold: "grip" });
+  const BACK = { leftArmBehind: true, rightForeBehind: true };
+  const backRoot = buildBack({ ...BACK, holdL: "grip", holdR: "grip" });
+  const rodIn = (root, hand) => locate(root, hand).inverse().multiply(locate(root, "rod")).transformPoint(ORIGIN);
+  const ROD = rodIn(buildSide({ hold: "grip" }), "hand");
+  const ROD_L = rodIn(buildBack({ ...BACK, holdL: "grip" }), "handL");
+  const ROD_R = rodIn(buildBack({ ...BACK, holdR: "grip" }), "handR");
 
   function drawCrowbar(c, reach, w, butt) {
     const lw = lineW / unitScale(c);
@@ -93,16 +98,17 @@ function crowbarDoor(CFG) {
     const pose = { ...STAND, arm: at("armB", t), fore: at("foreB", t), armFar: 0, foreFar: 0 };
     const blend = at("farGrip", t);
     if (blend > 0) {
-      const rest = locate(sideRoot, "handFar", pose).transformPoint(ORIGIN);
-      const grip = locate(sideRoot, "hand", pose).rotate(BAR_TILT * 180 / Math.PI + at("barTurnB", t)).transformPoint(new DOMPoint(FAR_GRIP, 0));
+      const rest = locate(sideRoot, "rod", pose).transformPoint(ORIGIN);
+      const grip = locate(sideRoot, "hand", pose).translate(ROD.x, ROD.y).rotate(BAR_TILT * 180 / Math.PI + at("barTurnB", t)).transformPoint(new DOMPoint(FAR_GRIP, 0));
       const target = new DOMPoint(rest.x + (grip.x - rest.x) * blend, rest.y + (grip.y - rest.y) * blend);
-      farSeed = solve(sideRoot, "handFar", pose, ["armFar", "foreFar"], [[-150, 90], [-140, 10]], target, farSeed);
+      farSeed = solve(sideRoot, "rod", pose, ["armFar", "foreFar"], [[-150, 90], [-140, 10]], target, farSeed);
       Object.assign(pose, farSeed);
     }
     const k = at("barLen", t);
     const hooks = {
       hand: at("barShown", t) >= 0.5 ? c => {
         c.save();
+        c.translate(ROD.x, ROD.y);
         c.rotate(BAR_TILT + at("barTurnB", t) * Math.PI / 180);
         c.translate(FAR_GRIP * blend, 0);
         drawCrowbar(c, BAR.reach * k, BAR.width, BAR.butt * k);
@@ -124,8 +130,8 @@ function crowbarDoor(CFG) {
       armR: -20 + pull.arm, foreR: -64 + pull.fore
     };
     const m = robotMatrix(AX, -2 * pry);
-    const end = locate(backRoot, "handL", pose, m).transformPoint(ORIGIN);
-    const fist = locate(backRoot, "handR", pose, m).transformPoint(ORIGIN);
+    const end = locate(backRoot, "handL", pose, m).transformPoint(ROD_L);
+    const fist = locate(backRoot, "handR", pose, m).transformPoint(ROD_R);
     ctx.save();
     ctx.translate(end.x, end.y);
     ctx.rotate(Math.atan2(fist.y - end.y, fist.x - end.x));

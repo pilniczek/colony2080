@@ -1,6 +1,6 @@
 import config from "@config/cutscenes/crowbar-door.json";
 import robotJson from "@config/robots/xbot.json";
-import { apply, rotate } from "../../engine/math/mat2d";
+import { apply, rotate, translate } from "../../engine/math/mat2d";
 import type { HookDraw } from "../../engine/rig/draw";
 import { solve } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
@@ -27,8 +27,27 @@ const palette: Palette = { ...config.palette };
 
 const { num, text } = tracks(config.tracks);
 
-let rigs: { side: GroupNode; back: GroupNode } | null = null;
-const robots = () => (rigs ??= { side: buildSide({ farLimbs: true, propBehindArm: true }), back: buildBack({ leftArmBehind: true, rightForeBehind: true }) });
+const BACK = { leftArmBehind: true, rightForeBehind: true };
+
+const rodIn = (root: GroupNode, hand: string): Pt => {
+  const h = hookAt(root, hand, {});
+  const r = hookAt(root, "rod", {});
+  const x = r.e - h.e;
+  const y = r.f - h.f;
+  const k = h.a * h.d - h.b * h.c;
+  return [(h.d * x - h.c * y) / k, (h.a * y - h.b * x) / k];
+};
+
+type Rigs = { side: GroupNode; back: GroupNode; rod: Pt; rodL: Pt; rodR: Pt };
+let rigs: Rigs | null = null;
+const robots = (): Rigs =>
+  (rigs ??= {
+    side: buildSide({ farLimbs: true, propBehindArm: true, hold: "grip", farHold: "grip" }),
+    back: buildBack({ ...BACK, holdL: "grip", holdR: "grip" }),
+    rod: rodIn(buildSide({ hold: "grip" }), "hand"),
+    rodL: rodIn(buildBack({ ...BACK, holdL: "grip" }), "handL"),
+    rodR: rodIn(buildBack({ ...BACK, holdR: "grip" }), "handR"),
+  });
 let farSeed: Record<string, number> | null = null;
 
 function drawWorld({ ctx, t }: Stage): void {
@@ -68,15 +87,15 @@ function drawCrowbar(c: CanvasRenderingContext2D, reach: number, w: number, butt
 const robotMatrix = (ax: number, lean = 0): DOMMatrix => new DOMMatrix().translate(RB.x, FLOOR).rotate(lean).scale(K).translate(-ax, -ROBOT.FOOT_Y);
 
 function drawProfile({ ctx, t }: Stage): void {
-  const { side } = robots();
+  const { side, rod } = robots();
   const pose: Record<string, number> = { ...STAND, arm: num("armB", t), fore: num("foreB", t), armFar: 0, foreFar: 0 };
   const blend = num("farGrip", t);
   const turn = num("barTurnB", t);
   if (blend > 0) {
-    const rest = apply(hookAt(side, "handFar", pose), ORIGIN);
-    const grip = apply(rotate(hookAt(side, "hand", pose), RB.barTilt * DEG + turn), [RB.farGripOffset, 0]);
+    const rest = apply(hookAt(side, "rod", pose), ORIGIN);
+    const grip = apply(rotate(translate(hookAt(side, "hand", pose), rod[0], rod[1]), RB.barTilt * DEG + turn), [RB.farGripOffset, 0]);
     const target: Pt = [rest[0] + (grip[0] - rest[0]) * blend, rest[1] + (grip[1] - rest[1]) * blend];
-    farSeed = solve(side, "handFar", pose, ["armFar", "foreFar"], FAR_RANGES, target, farSeed);
+    farSeed = solve(side, "rod", pose, ["armFar", "foreFar"], FAR_RANGES, target, farSeed);
     Object.assign(pose, farSeed);
   }
   const k = num("barLen", t);
@@ -84,6 +103,7 @@ function drawProfile({ ctx, t }: Stage): void {
     num("barShown", t) >= 0.5
       ? (c) => {
           c.save();
+          c.translate(rod[0], rod[1]);
           c.rotate(RB.barTilt + (turn * Math.PI) / 180);
           c.translate(RB.farGripOffset * blend, 0);
           drawCrowbar(c, BAR.reach * k, BAR.width, BAR.butt * k);
@@ -95,13 +115,13 @@ function drawProfile({ ctx, t }: Stage): void {
 }
 
 function drawBack({ ctx, t }: Stage): void {
-  const { back } = robots();
+  const { back, rodL, rodR } = robots();
   const pry = num("pry", t);
   const pull = { arm: RB.pullArmDeg * pry, fore: RB.pullForeDeg * pry };
   const pose = { armL: -12 + pull.arm, foreL: -70 + pull.fore, armR: -20 + pull.arm, foreR: -64 + pull.fore };
   const m = robotMatrix(ROBOT.AX, -2 * pry);
-  const [ex, ey] = apply(hookAt(back, "handL", pose, fromDom(m)), ORIGIN);
-  const [fx, fy] = apply(hookAt(back, "handR", pose, fromDom(m)), ORIGIN);
+  const [ex, ey] = apply(hookAt(back, "handL", pose, fromDom(m)), rodL);
+  const [fx, fy] = apply(hookAt(back, "handR", pose, fromDom(m)), rodR);
   ctx.save();
   ctx.translate(ex, ey);
   ctx.rotate(Math.atan2(fy - ey, fx - ex));
