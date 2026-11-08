@@ -24,7 +24,9 @@
   figure.crop canvas { image-rendering: pixelated; background: #000; }
   .desc { margin: 0 0 8px; color: var(--muted); max-width: 80ch; }
   .tag.off { background: #3a1e0c; color: var(--accent); }
-  .todo { color: var(--muted); padding: 24px; border: 1px dashed #2f3f3e; border-radius: 4px; }
+  .todo { overflow: hidden; color: var(--muted); padding: 8px; border: 1px dashed #2f3f3e; border-radius: 4px; font-size: 11px; }
+  .label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--cool); margin: 10px 0 4px; }
+  figure.hand canvas { background: #141c1e; }
 </style>
 </head>
 <body>
@@ -101,14 +103,105 @@ function figure(cls, caption, node) {
   return f;
 }
 
-function assetView(def, state, scale, lod) {
-  const [x0, y0, x1, y1] = def.box;
-  const pad = 2;
-  const [c, ctx] = canvas((x1 - x0 + 2 * pad) * scale, (y1 - y0 + 2 * pad) * scale);
+const VIEWS = ["top", "front", "side"];
+const HAND_VIEW = { top: "palm", front: "tips", side: "thumb" };
+const RIG_BOX = { x: 18, y: 336, w: 140, h: 210 };
+const RIG_PER_UNIT = (window.XBOT.FOOT_Y - 2) / 45.6;
+const VIEW_SPAN = 300, HAND_SPAN = 360, HAND_PX = 1.4, PAD = 2;
+const EXTRA_STATES = {
+  "mesto:shipPart": [0], "mesto:craneKey": [1], "vesnice:fuse": [1], "vesnice:navCircuit": [1], "vesnice:dynamite": [2],
+  "jungle:smallKey": [2], "jeskyne:orangeKey": [2], "jeskyne:blueKey": [2], "jeskyne:yellowKey": [2],
+  "sklad:floppyDisk": [1], "sklad:timeBomb": [1]
+};
+
+function todo(text, w, h) {
+  const d = document.createElement("div");
+  d.className = "todo";
+  d.style.width = `${Math.max(w, 60)}px`;
+  d.style.height = `${Math.max(h, 40)}px`;
+  d.textContent = text;
+  return d;
+}
+
+function guides(ctx, def, view, [x0, y0, x1, y1]) {
+  const [sx0, sy0, sx1, sy1] = def.box;
+  ctx.save();
+  ctx.setLineDash([1, 1]);
+  ctx.strokeStyle = "rgba(63,208,224,0.6)";
+  ctx.lineWidth = 0.25;
+  ctx.beginPath();
+  if (view === "top") for (const x of [sx0, sx1]) { ctx.moveTo(x, y0 - PAD); ctx.lineTo(x, y1 + PAD); }
+  if (view === "front") for (const y of [sy0, sy1]) { ctx.moveTo(x0 - PAD, y); ctx.lineTo(x1 + PAD, y); }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function assetView(def, state, scale, lod, view = "side") {
+  const box = window.ENV.viewBox(def, view);
+  if (!box) {
+    const [x0, y0, x1, y1] = def.box;
+    return todo("not drawn yet", (x1 - x0 + 2 * PAD) * scale, (y1 - y0 + 2 * PAD) * scale);
+  }
+  const [x0, y0, x1, y1] = box;
+  const [c, ctx] = canvas((x1 - x0 + 2 * PAD) * scale, (y1 - y0 + 2 * PAD) * scale);
   ctx.scale(scale, scale);
-  ctx.translate(pad - x0, pad - y0);
-  window.ENV.draw(ctx, def, { state, lod, lines: 1 });
+  ctx.translate(PAD - x0, PAD - y0);
+  if (!lod) guides(ctx, def, view, box);
+  window.ENV.draw(ctx, def, { state, lod, lines: 1, view });
   return c;
+}
+
+function viewScale(def) {
+  const boxes = VIEWS.map((v) => window.ENV.viewBox(def, v)).filter(Boolean);
+  const span = Math.max(...boxes.map(([x0, y0, x1, y1]) => Math.max(x1 - x0, y1 - y0)));
+  return Math.min(BIG, VIEW_SPAN / (span + 2 * PAD));
+}
+
+function restDraw(def, state, view) {
+  const [x0, y0, x1, y1] = window.ENV.viewBox(def, view);
+  const cx = (x0 + x1) / 2, cy = view === "top" ? (y0 + y1) / 2 : 0;
+  return (ctx) => {
+    ctx.save();
+    ctx.scale(RIG_PER_UNIT, RIG_PER_UNIT);
+    ctx.translate(-cx, -cy);
+    window.ENV.draw(ctx, def, { state, lines: devicePixelRatio || 1, view });
+    ctx.restore();
+  };
+}
+
+function restBounds(root, def, view) {
+  const [x0, y0, x1, y1] = window.ENV.viewBox(def, view);
+  const cx = (x0 + x1) / 2, cy = view === "top" ? (y0 + y1) / 2 : 0;
+  const m = window.XBOT.locate(root, "rest");
+  let bx0 = RIG_BOX.x, by0 = RIG_BOX.y, bx1 = RIG_BOX.x + RIG_BOX.w, by1 = RIG_BOX.y + RIG_BOX.h;
+  for (const [x, y] of [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]) {
+    const p = m.transformPoint(new DOMPoint((x - cx) * RIG_PER_UNIT, (y - cy) * RIG_PER_UNIT));
+    bx0 = Math.min(bx0, p.x - 4); by0 = Math.min(by0, p.y - 4); bx1 = Math.max(bx1, p.x + 4); by1 = Math.max(by1, p.y + 4);
+  }
+  return [bx0, by0, bx1, by1];
+}
+
+function handView(def, state, view) {
+  if (!window.ENV.viewBox(def, view)) return todo("not drawn yet", RIG_BOX.w * HAND_PX, RIG_BOX.h * HAND_PX);
+  const root = window.XBOT.buildHand({ view: HAND_VIEW[view], pose: "carry", rest: true });
+  const [x0, y0, x1, y1] = restBounds(root, def, view);
+  const s = Math.min(HAND_PX, HAND_SPAN / (x1 - x0), HAND_SPAN / (y1 - y0));
+  const [c, ctx] = canvas((x1 - x0) * s, (y1 - y0) * s);
+  ctx.scale(s, s);
+  ctx.translate(-x0, -y0);
+  window.XBOT.render(ctx, root, { hooks: { rest: restDraw(def, state, view) }, lineW: 1.4 * (devicePixelRatio || 1) });
+  return c;
+}
+
+function viewsRow(def, state, label) {
+  const row = document.createElement("div");
+  row.className = "row";
+  const scale = viewScale(def);
+  for (const view of VIEWS) {
+    row.append(figure("", `${label}${view}`, assetView(def, state, scale, false, view)));
+    row.append(figure("", `${label}${view} game LOD`, assetView(def, state, GAME, true, view)));
+  }
+  return row;
 }
 
 function hudView(def, { state = 0, tilt, scale }) {
@@ -164,6 +257,13 @@ function previewOf(o, item) {
   return name;
 }
 
+function label(text) {
+  const d = document.createElement("div");
+  d.className = "label";
+  d.textContent = text;
+  return d;
+}
+
 function tag(text, cls = "") {
   const t = document.createElement("span");
   t.className = `tag ${cls}`;
@@ -188,32 +288,26 @@ function section(o, mission) {
   desc.className = "desc";
   desc.textContent = o.description ?? "";
   s.append(h, desc);
-  const row = document.createElement("div");
-  row.className = "row";
   if (!def) {
-    const todo = document.createElement("div");
-    todo.className = "todo";
-    todo.textContent = "not drawn yet";
-    row.append(todo);
-  } else {
-    const preview = previewOf(o, item);
-    if (preview && window.ORIGINALS.on) row.append(refView(preview));
-    const icon = item?.icon ?? DEFAULT_ICON;
-    const shown = icon.state ?? 0;
-    row.append(figure("", "ours", assetView(def, shown, BIG, false)));
-    row.append(figure("hud", `hud icon tilt ${icon.tilt}${item ? "" : " (default)"}`, hudView(def, icon)));
-    row.append(figure("", "game LOD", assetView(def, shown, GAME, true)));
-    o.states.forEach((label, st) => {
-      if (st !== shown) row.append(figure("", label, assetView(def, st, GAME * 2, false)));
-    });
+    s.append(todo("not drawn yet", 200, 60));
+    return s;
   }
-  s.append(row);
-  const crops = o.refs.filter((r) => !PREVIEW_SHEET.test(r.path));
-  if (crops.length) {
-    const refs = document.createElement("div");
-    refs.className = "row";
-    refs.append(...crops.map(cropView));
-    s.append(refs);
+  const icon = item?.icon ?? DEFAULT_ICON;
+  const shown = icon.state ?? Math.max(0, o.states.findIndex((st) => st !== "hidden"));
+  const original = document.createElement("div");
+  original.className = "row";
+  const preview = previewOf(o, item);
+  if (preview && window.ORIGINALS.on) original.append(refView(preview));
+  original.append(...o.refs.filter((r) => !PREVIEW_SHEET.test(r.path)).map(cropView));
+  original.append(figure("hud", `hud icon tilt ${icon.tilt}${item ? "" : " (default)"}`, hudView(def, icon)));
+  const hand = document.createElement("div");
+  hand.className = "row";
+  for (const view of VIEWS) hand.append(figure("hand", `${view} on the hand`, handView(def, shown, view)));
+  s.append(label("Original and HUD icon"), original, label("Views"), viewsRow(def, shown, ""), label("On the hand"), hand);
+  const extra = EXTRA_STATES[`${mission}:${o.id}`] ?? [];
+  if (extra.length) {
+    s.append(label("Other states"));
+    for (const st of extra) s.append(viewsRow(def, st, `${o.states[st]}: `));
   }
   return s;
 }
