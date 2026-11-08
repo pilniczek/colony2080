@@ -107,7 +107,7 @@ function difficulty(state: DifficultyState, is: (action: string) => boolean, pur
     const picks = toggled(state.picks, assist.id);
     return { state: picks === state.picks ? state : { ...state, picks } };
   }
-  if (state.cursor !== DIFFICULTY_ROWS.done) return { state };
+  if (state.cursor !== DIFFICULTY_ROWS.done && state.cursor !== DIFFICULTY_ROWS.level) return { state };
   if (state.from.screen === "settings") return { state: { ...state.from, difficulty: state.picks } };
   if (!changed(state)) return { state: state.from };
   const doomed = purge(state.picks);

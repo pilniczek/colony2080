@@ -182,6 +182,13 @@ describe("difficulty", () => {
     expect(step(easy, "Escape")).toEqual({ state: settings });
   });
 
+  it("confirms the picks on Enter on the level row like the last row", () => {
+    const easy = { ...(difficultyState(settings, D) as DifficultyState), picks: presetPicks("easy") };
+    expect(step(easy, "Enter")).toEqual(step({ ...easy, cursor: DIFFICULTY_ROWS.done }, "Enter"));
+    const story = { ...(difficultyState(pause, D) as DifficultyState), picks: presetPicks("story") };
+    expect((step(story, "Enter").state as DifficultyState).confirm).toBe(true);
+  });
+
   it("toggles an assist on Enter only in CUSTOM and never a locked one", () => {
     const preset = { ...(difficultyState(settings, D) as DifficultyState), cursor: assistRow("fogOff") };
     expect(step(preset, "Enter").state).toBe(preset);
