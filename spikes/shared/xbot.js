@@ -465,20 +465,21 @@ function sideArm(parent, names, extra, hold = null) {
   const hand = G(lower, handTf);
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
   if (hold === "cup") supportWrist(G(G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
+  else if (hold === "carry") openHand(G(lower, `translate(${SIDE_HAND_DX} 0)`), "thumb");
   else if (hold) heldHand(lower, hold, "back", `translate(${SIDE_HAND_DX} 0)`);
   else sideHand(lower);
 }
 
-function buildSide({ farLimbs = false, badge = false, propBehindArm = false, lod: low = false, enemy = false, armed = false, fists = false } = {}) {
-  return withLod(low, () => sideTree({ farLimbs, badge: badge && !enemy, propBehindArm, enemy, armed, fists }));
+function buildSide({ farLimbs = false, badge = false, propBehindArm = false, lod: low = false, enemy = false, armed = false, fists = false, carry = false } = {}) {
+  return withLod(low, () => sideTree({ farLimbs, badge: badge && !enemy, propBehindArm, enemy, armed, fists, carry }));
 }
 
-function sideTree({ farLimbs, badge, propBehindArm, enemy, armed, fists }) {
+function sideTree({ farLimbs, badge, propBehindArm, enemy, armed, fists, carry }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [SIDE_AX, 344]);
   if (farLimbs) {
     const far = { dim: 0.55 };
-    sideArm(G(s, "translate(-20 0)"), { arm: "armFar", fore: "foreFar", hand: "handFar" }, far, armed ? "cup" : fists ? "fist" : null);
+    sideArm(G(s, "translate(-20 0)"), { arm: "armFar", fore: "foreFar", hand: "handFar" }, far, armed ? "cup" : fists ? "fist" : carry ? "carry" : null);
     sideLeg(G(s, "translate(-24 0)"), { hip: "hipFar", knee: "kneeFar", ankle: "ankleFar", heel: "heelFar", toe: "toeFar" }, far, enemy);
   }
   const lowerTorso = G(s, SIDE_TORSO_TF);
@@ -504,7 +505,7 @@ function sideTree({ farLimbs, badge, propBehindArm, enemy, armed, fists }) {
   F(head, [[368, 56], [388, 56], [388, 63], [368, 63]], "visor", 1);
   P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });
   if (!enemy) P(head, { pts: [[308, 4], [318, 4], [320, 70], [306, 70]], r: 4, shade: "cyl" });
-  sideArm(armed ? G(s, `translate(${-ARMED_ARM_BACK} ${GRIP_HOLD})`) : s, { arm: "arm", fore: "fore", hand: "hand" }, propBehindArm ? { propBehindArm } : undefined, armed ? "gunGrip" : fists ? "fist" : null);
+  sideArm(armed ? G(s, `translate(${-ARMED_ARM_BACK} ${GRIP_HOLD})`) : s, { arm: "arm", fore: "fore", hand: "hand" }, propBehindArm ? { propBehindArm } : undefined, armed ? "gunGrip" : fists ? "fist" : carry ? "carry" : null);
   if (farLimbs && armed) {
     const lower = G(G(G(s, "translate(-20 0)"), "translate(2 -4)", "armFar", [300, 150]), SIDE_FORE_TF, "foreFar", SIDE_ELBOW);
     cupFingertips(G(G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
@@ -859,9 +860,19 @@ function handThumb(parent, M, from, angles, w = THUMB.w, pads = false, wedge = f
 }
 
 let bareHand = false;
+let longForearm = false;
+
+function frontForearm(parent) {
+  const fa = G(parent, `translate(89 -16) scale(${FOREARM_SX} 1) translate(-89 0)`);
+  P(fa, { pts: elbow, mat: "metal", shade: "hcyl", r: 1 });
+  P(fa, { pts: forearm, r: 1 });
+  F(fa, [[38, 359], [141, 357], [141, 362], [38, 364]], "a0");
+  F(fa, [[38, 384], [141, 381], [141, 386], [38, 388]], "a0");
+}
 
 function handStub(parent) {
   if (bareHand) return;
+  if (longForearm) return frontForearm(parent);
   const fa = G(parent, `translate(89 0) scale(${FOREARM_SX} 1) translate(-89 0)`);
   P(fa, { pts: [[26, 344], [150, 342], [150, 394], [140, 404], [42, 406], [26, 390]], r: 1 });
   F(fa, [[30, 374], [150, 372], [150, 376], [30, 378]], "a0");
@@ -1337,7 +1348,16 @@ const GUN_UP = { ...FINGERS_LEFT, back: "rotate(-90 88 470)" };
 
 const REST_UP = { ...PALM_UP, palm: "rotate(-90 88 470)" };
 
-function buildHand({ view = "back", pose = "open", rest = false } = {}) {
+function buildHand({ view = "back", pose = "open", rest = false, forearm = false } = {}) {
+  longForearm = forearm;
+  try {
+    return handTree(view, pose, rest);
+  } finally {
+    longForearm = false;
+  }
+}
+
+function handTree(view, pose, rest) {
   const root = { k: "g", kids: [] };
   const up = rest && pose === "carry" ? REST_UP[view] : (pose === "carry" || pose === "cup") ? PALM_UP[view] : (pose === "grip" || pose === "pinch") ? FINGERS_LEFT[view] : pose === "gunGrip" ? GUN_UP[view] : null;
   const hand = G(up ? G(root, up) : root, null, "hand", [89, 400]);

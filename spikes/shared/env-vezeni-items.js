@@ -218,7 +218,7 @@ define({
   id: "keyboard",
   box: [-2, -8, 22, 0],
   views: itemViews([-2, -8, 22, 0], 6, {
-    scale: 1.65,
+    scale: 0.79,
     hands: 2,
     top(ctx) {
       ctx.save();
@@ -269,7 +269,7 @@ define({
   id: "chestPlate",
   box: [-2, -13, 16, 0],
   views: itemViews([-2, -13, 16, 0], 4.4, {
-    scale: 1.97,
+    scale: 0.95,
     hands: 2,
     top: (ctx) => shape(ctx, [[0.4, 0], [3, 1.6], [7, 2.2], [11, 1.6], [13.4, 0], [13, -0.8], [11, 0.6], [7, 1.2], [3, 0.6], [0.8, -0.8]], CYAN.mid, CYAN.edge),
     front: (ctx) => shape(ctx, [[-2.2, 0], [-1.2, -5], [-1.4, -9.6], [-0.6, -11.4], [0.4, -11.2], [-0.4, -9.6], [-0.2, -5], [-1, 0]], CYAN.mid, CYAN.edge)
@@ -306,7 +306,7 @@ define({
   id: "gateKey",
   box: [-2, -7, 13, 0],
   views: itemViews([-2, -7, 13, 0], 1, {
-    scale: 0.37,
+    scale: 0.18,
     top(ctx) {
       shape(ctx, [[0.4, -0.35], [6.2, -0.35], [6.2, 0.35], [0.4, 0.35]], SILVER.mid, SILVER.edge);
       shape(ctx, [[5.8, -0.5], [11, -0.5], [11, 0.5], [5.8, 0.5]], SILVER.mid, SILVER.edge);
@@ -365,7 +365,7 @@ define({
   id: "jack",
   box: [-2, -20, 28, 0],
   views: itemViews([-2, -20, 28, 0], 6, {
-    scale: 1.3,
+    scale: 0.62,
     hands: 2,
     top(ctx) {
       outlined(ctx, [[11, 0], [23.6, 0]], 1.2, JACK.mid, JACK.edge);
@@ -412,7 +412,7 @@ define({
   id: "paperScrap",
   box: [-2, -7, 18, 0],
   views: itemViews([-2, -7, 18, 0], 4.6, {
-    scale: 0.39,
+    scale: 0.19,
     top(ctx) {
       ctx.save();
       ctx.translate(0, 2.4);

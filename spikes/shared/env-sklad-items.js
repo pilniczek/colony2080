@@ -91,7 +91,7 @@ function securityKey(id, cap) {
     id,
     box: [-2, -6, 16, 0],
     views: itemViews([-2, -6, 16, 0], 4, {
-      scale: 0.36,
+      scale: 0.17,
       top(ctx) {
         ctx.save();
         ctx.translate(0, 2);
@@ -120,7 +120,7 @@ const screwdriver = {
   id: "screwdriver",
   box: [-2, -6, 22, 0],
   views: itemViews([-2, -6, 22, 0], 3.6, {
-    scale: 0.84,
+    scale: 0.4,
     top(ctx) {
       shape(ctx, [[8, -0.45], [17.6, -0.35], [17.6, 0.35], [8, 0.45]], "#8a8a7c", LINE);
       shape(ctx, [[17.6, -0.35], [19.6, -0.35], [19.6, 0.35], [17.6, 0.35]], "#c0c0a8", LINE);
@@ -155,7 +155,7 @@ const liftRemote = {
   id: "liftRemote",
   box: [-2, -6, 20, 0],
   views: itemViews([-2, -6, 20, 0], 4.5, {
-    scale: 0.6,
+    scale: 0.29,
     top(ctx) {
       for (let i = 0; i < 4; i++) shape(ctx, quad([-2.4, -2.25 + 4.5 * (0.08 + i * 0.25)], [3.6, 0], [0, 0.6]), DEPOT[3], LINE);
       shape(ctx, quad([1, -2.25], [13, 0], [0, 4.5]), "#606054", LINE);
@@ -218,7 +218,7 @@ const floppyDisk = {
   id: "floppyDisk",
   box: [-2, -8, 18, 0],
   views: itemViews([-2, -8, 18, 0], 11, {
-    scale: 0.54,
+    scale: 0.26,
     top: diskFace,
     front: (ctx) => shape(ctx, quad([-5.5, -0.8], [11, 0], [0, 0.8]), "#24304a", LINE),
     flat: (ctx) => shape(ctx, quad([1, -0.8], [11, 0], [0, 0.8]), "#1c2434", LINE)
@@ -278,7 +278,7 @@ const alienHand = {
   id: "alienHand",
   box: [-2, -13, 20, 0],
   views: itemViews([-2, -13, 20, 0], 12, {
-    scale: 0.96,
+    scale: 0.46,
     top(ctx) {
       ctx.save();
       ctx.translate(0, 6);
@@ -305,7 +305,7 @@ const grenade = {
   id: "handGrenade",
   box: [-2, -11, 12, 0],
   views: itemViews([-2, -11, 12, 0], 7.6, {
-    scale: 0.6,
+    scale: 0.29,
     top(ctx) {
       ellipse(ctx, 5, 0, 3.8, 3.8, OLIVE[1], LINE);
       if (!simple()) ellipse(ctx, 4.2, -0.8, 2, 2, OLIVE[2]);
@@ -372,7 +372,7 @@ const timeBomb = {
   box: [-2, -11, 20, 0],
   anim: true,
   views: itemViews([-2, -11, 20, 0], 6, {
-    scale: 1.3,
+    scale: 0.62,
     top(ctx, state) {
       shape(ctx, quad([1, -3], [15, 0], [0, 6]), KHAKI[2], LINE);
       for (const x of STRAPS) shape(ctx, quad([1 + x, -3], [1.6, 0], [0, 6]), "#b4300c", LINE);

@@ -267,7 +267,7 @@ define({
   id: "crowbar",
   box: [-2, -8, 28, 0],
   views: itemViews([-2, -8, 28, 0], 2.6, {
-    scale: 1.57,
+    scale: 0.75,
     top(ctx) {
       poly(ctx, [[0.4, -0.6], [1.6, -0.9], [22.6, -0.9], [23.4, -1.3], [25.9, -1.3], [25.9, 1.3], [23.4, 1.3], [22.6, 0.9], [1.6, 0.9], [0.4, 0.6]], "chrome", 1);
       if (simple()) return;
@@ -323,7 +323,7 @@ define({
   id: "shipPart",
   box: [-2, -13, 20, 0],
   views: itemViews([-2, -13, 20, 0], 8, {
-    scale: 1.04,
+    scale: 0.5,
     top(ctx) {
       box(ctx, 1.5, -4, 16, 8, "chrome", 1);
       box(ctx, 3.8, -2.8, 10, 5.6, "chrome", 2);
@@ -371,7 +371,7 @@ define({
   id: "controller",
   box: [-2, -10, 18, 0],
   views: itemViews([-2, -10, 18, 0], 3, {
-    scale: 0.62,
+    scale: 0.3,
     top(ctx) {
       box(ctx, 0, -1.5, 16, 3, "rust", 2);
       flat(ctx, 0, 1, 16, 0.5, "r3");
@@ -396,7 +396,7 @@ define({
   id: "craneKey",
   box: [-2, -6, 12, 0],
   views: itemViews([-2, -6, 12, 0], 1, {
-    scale: 0.44,
+    scale: 0.21,
     top(ctx) {
       box(ctx, 0, -0.5, 4.4, 1, "chrome", 1);
       box(ctx, 4, -0.35, 5.6, 0.7, "chrome", 2);
@@ -427,7 +427,7 @@ define({
   id: "wires",
   box: [-2, -10, 22, 0],
   views: itemViews([-2, -10, 22, 0], 3, {
-    scale: 1.13,
+    scale: 0.54,
     top: (ctx) => wireView(ctx, ([x, , d]) => [x, -d]),
     front: (ctx) => wireView(ctx, ([, y, d]) => [d, y])
   }),
@@ -472,7 +472,7 @@ define({
   id: "tapHandle",
   box: [-2, -12, 14, 0],
   views: itemViews([-2, -12, 14, 0], 6, {
-    scale: 1.17,
+    scale: 0.56,
     top(ctx) {
       box(ctx, 4.2, 0, 3.6, 3, "chrome", 0);
       box(ctx, 0.4, -0.65, 11.2, 1.3, "chrome", 1);
@@ -507,7 +507,7 @@ define({
   id: "card",
   box: [-2, -9, 16, 0],
   views: itemViews([-2, -9, 16, 0], 7.6, {
-    scale: 0.47,
+    scale: 0.23,
     top: (ctx) => unshear(ctx, 1.6 / 7.6, 3.8, () => sideOf("card").draw(ctx, 0)),
     front: (ctx) => box(ctx, -3.8, -0.5, 7.6, 0.5, "chrome", 1),
     flat(ctx) {
@@ -540,7 +540,7 @@ define({
   id: "holoPlan",
   box: [-2, -14, 14, 0],
   views: itemViews([-2, -14, 14, 0], 8, {
-    scale: 0.96,
+    scale: 0.46,
     top(ctx) {
       flat(ctx, 1, -4, 8, 8, "c3", "mLine");
       for (const [x, y, w, h] of [[1, -4, 8, 0.6], [1, 3.4, 8, 0.6], [1, -4, 0.6, 8], [8.4, -4, 0.6, 8]]) flat(ctx, x, y, w, h, "water");
@@ -591,7 +591,7 @@ define({
   id: "shipPlan",
   box: [-2, -14, 22, 0],
   views: itemViews([-2, -14, 22, 0], 12.4, {
-    scale: 1,
+    scale: 0.48,
     top: (ctx) => unshear(ctx, 0.2, 6, () => sideOf("shipPlan").draw(ctx, 0)),
     front: (ctx) => flat(ctx, -6.2, -0.3, 12.4, 0.3, "c2", "mLine"),
     flat: (ctx) => flat(ctx, 0, -0.3, 20, 0.3, "c2", "mLine")
@@ -621,7 +621,7 @@ define({
   id: "decoder",
   box: [-2, -10, 16, 0],
   views: itemViews([-2, -10, 16, 0], 6, {
-    scale: 0.66,
+    scale: 0.32,
     top(ctx) {
       box(ctx, 0, -3, 14, 6, "chrome", 1);
       flat(ctx, 1.8, -2, 3.4, 2.4, "neon", "mLine");

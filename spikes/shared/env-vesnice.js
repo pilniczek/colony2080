@@ -3105,7 +3105,7 @@ const walkieTalkie = {
     id: "walkieTalkie",
     box: [-2, -18, 12, 0],
     views: window.ENV.itemViews([-2, -18, 12, 0], 4, {
-      scale: 0.45,
+      scale: 0.22,
         top(ctx) {
             box(ctx, 1, -2, 8, 4, "steel", 1);
             box(ctx, 9, -1, 1.2, 2, "steel", 0);
@@ -3141,7 +3141,7 @@ const detonator = {
     id: "detonator",
     box: [-2, -20, 20, 0],
     views: window.ENV.itemViews([-2, -20, 20, 0], 9, {
-      scale: 1.13,
+      scale: 0.54,
         top(ctx) {
             wire(ctx, [[14.6, -1], [16, -1.6], [17.4, -2.4]], "neon");
             wire(ctx, [[14.6, 1], [15.6, 1.6], [18, 2]], "y2");
@@ -3199,7 +3199,7 @@ const projectile = {
     id: "projectile",
     box: [-2, -9, 28, 0],
     views: window.ENV.itemViews([-2, -9, 28, 0], 7.4, {
-      scale: 1.57,
+      scale: 0.75,
       hands: 2,
         top(ctx) {
             ctx.save();
@@ -3237,7 +3237,7 @@ const fuse = {
     id: "fuse",
     box: [-2, -7, 16, 0],
     views: window.ENV.itemViews([-2, -7, 16, 0], 6, {
-      scale: 0.5,
+      scale: 0.24,
         top(ctx) {
             ctx.save();
             ctx.translate(0, 3);
@@ -3262,7 +3262,7 @@ const dynamite = {
     id: "dynamite",
     box: [-2, -16, 20, 0],
     views: window.ENV.itemViews([-2, -16, 20, 0], 5.6, {
-      scale: 1,
+      scale: 0.48,
         top(ctx, state) {
             if (state === 2) {
                 for (const x of [4.5, 7.5, 10.5])
@@ -3340,7 +3340,7 @@ const navCircuit = {
     id: "navCircuit",
     box: [-2, -11, 18, 0],
     views: window.ENV.itemViews([-2, -11, 18, 0], 9, {
-      scale: 0.55,
+      scale: 0.26,
         top(ctx) {
             ctx.save();
             ctx.transform(1, 0, 1.6 / 9, 1, 0, 4.5);
