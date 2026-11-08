@@ -610,6 +610,7 @@ const rod = {
   id: "rod",
   box: [-16, -8, 16, 0],
   views: itemViews([-16, -8, 16, 0], 3.2, {
+    scale: 1.83,
     top(ctx) {
       rodStrokes(ctx, [-15, 0], [14, 0], [[-13, -0.4], [12, -0.4]]);
       line(ctx, [[-15, 0], [-13.4, 0]], "#3a2410", 2);
@@ -630,6 +631,7 @@ const CARD_SHADE = "#bcc2bc";
 const CARD_LINE = "#1a1c1a";
 const CARD_PTS = [[-8, -10], [7, -10], [8, -9], [8, -1], [7, 0], [-8, 0]];
 const cardViews = (face, edge) => itemViews([-9, -14, 9, 0], 10, {
+  scale: 0.36,
   top(ctx) {
     ctx.save();
     ctx.translate(0, 5);

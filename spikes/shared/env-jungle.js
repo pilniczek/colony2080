@@ -757,6 +757,8 @@ define({
   id: "canister",
   box: [-1, -25, 17, 1],
   views: itemViews([-1, -25, 17, 1], 7, {
+    scale: 1.57,
+    hands: 2,
     top(ctx) {
       box(ctx, 0, -3.5, 16, 7, "brick", 2);
       flat(ctx, 3, -2, 4, 4, "m2", "mLine");
@@ -786,6 +788,8 @@ define({
   id: "cutters",
   box: [-1, -9, 25, 1],
   views: itemViews([-1, -9, 25, 1], 2.4, {
+    scale: 1.74,
+    hands: 2,
     top(ctx) {
       strut(ctx, [1, 0], [14, 0], 2, RED[2]);
       shape(ctx, [[14, -0.6], [24, -0.3], [22, 0.3], [14, 0.6]], "c1", "mLine");
@@ -807,6 +811,7 @@ define({
   id: "grenade",
   box: [-5, -13, 5, 1],
   views: itemViews([-5, -13, 5, 1], 7.2, {
+    scale: 0.61,
     top(ctx) {
       shape(ctx, blobPts(0, 0, 3.6, 3.6, 902, 10, 0.04), "o1", "kLine");
       if (!simple()) for (const r of [1.6, 2.8]) {

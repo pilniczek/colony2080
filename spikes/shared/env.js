@@ -365,10 +365,10 @@ function define(asset) {
 
 const viewOf = (asset, view) => !view ? asset : view === "side" ? asset.views?.side ?? asset : asset.views?.[view] ?? null;
 
-function itemViews(side, depth, { top, front, flat }) {
+function itemViews(side, depth, { top, front, flat, scale = 1, hands = 1 }) {
   const [x0, y0, x1, y1] = side;
   const d = depth / 2 + 1;
-  const views = { top: { box: [x0, -d, x1, d], draw: top }, front: { box: [-d, y0, d, y1], draw: front } };
+  const views = { scale, hands, top: { box: [x0, -d, x1, d], draw: top }, front: { box: [-d, y0, d, y1], draw: front } };
   if (flat) views.side = { box: [x0, y0, x1, y1], draw: flat };
   return views;
 }
