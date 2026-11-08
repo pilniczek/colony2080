@@ -1028,7 +1028,18 @@ function slab(parent, pts) {
 const PALM_MID = (HAND.top + 8 + HAND.bottom) / 2;
 const CARRY_TF = `translate(88 ${PALM_MID}) scale(6) translate(-9 6.5)`;
 
-function carry(s, view) {
+const REST_AT = {
+  palm: `translate(${HAND_AX} ${PALM_MID}) rotate(90)`,
+  thumb: `translate(${2 * HAND_AX - HAND_FACE[0] + 2} ${PALM_MID}) rotate(90)`,
+  tips: `translate(88 436) rotate(180)`
+};
+
+function carry(s, view, rest) {
+  if (rest) {
+    openHand(s, view);
+    if (REST_AT[view]) hook(G(s, REST_AT[view]), "rest");
+    return;
+  }
   if (view === "back") itemAt(s, `translate(88 ${PALM_MID}) scale(-6 6) translate(-9 6.5)`);
   openHand(s, view);
   const a = HAND_FACE[0];
@@ -1240,10 +1251,14 @@ const PALM_UP = { palm: "rotate(90 88 470)", back: "rotate(90 88 470)", thumb: "
 const FINGERS_LEFT = { ...PALM_UP, tips: "rotate(-90 88 434)" };
 const GUN_UP = { ...FINGERS_LEFT, back: "rotate(-90 88 470)" };
 
-function buildHand({ view = "back", pose = "open" } = {}) {
+const REST_UP = { ...PALM_UP, palm: "rotate(-90 88 470)" };
+
+function buildHand({ view = "back", pose = "open", rest = false } = {}) {
   const root = { k: "g", kids: [] };
-  const up = (pose === "carry" || pose === "cup") ? PALM_UP[view] : pose === "grip" ? FINGERS_LEFT[view] : pose === "gunGrip" ? GUN_UP[view] : null;
-  HAND_BUILDERS[pose](G(up ? G(root, up) : root, null, "hand", [89, 400]), view);
+  const up = rest && pose === "carry" ? REST_UP[view] : (pose === "carry" || pose === "cup") ? PALM_UP[view] : pose === "grip" ? FINGERS_LEFT[view] : pose === "gunGrip" ? GUN_UP[view] : null;
+  const hand = G(up ? G(root, up) : root, null, "hand", [89, 400]);
+  if (pose === "carry") carry(hand, view, rest);
+  else HAND_BUILDERS[pose](hand, view);
   return root;
 }
 

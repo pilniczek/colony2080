@@ -363,12 +363,20 @@ function define(asset) {
   return asset;
 }
 
-function draw(ctx, asset, { state, t = 0, palette = PALETTE, lines = 1, lod = false, size } = {}) {
+const viewOf = (asset, view) => !view || view === "side" ? asset : asset.views?.[view] ?? null;
+
+function viewBox(asset, view) {
+  return viewOf(asset, view)?.box ?? null;
+}
+
+function draw(ctx, asset, { state, t = 0, palette = PALETTE, lines = 1, lod = false, size, view } = {}) {
+  const shown = viewOf(asset, view);
+  if (!shown) return;
   pal = palette;
   lineW = lines;
   simple = lod;
   ctx.save();
-  asset.draw(ctx, state ?? 0, t, size);
+  shown.draw(ctx, state ?? 0, t, size);
   ctx.restore();
 }
 
@@ -594,7 +602,7 @@ const G = {
 };
 
 window.ENV = {
-  TILE, PALETTE, MAT, ASSETS, define, draw,
+  TILE, PALETTE, MAT, ASSETS, define, draw, viewBox,
   P: { rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw, shape, line, curve, beam, slab, inShade },
   G,
   get pal() { return pal; },
