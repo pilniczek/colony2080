@@ -889,7 +889,7 @@ function openHand(s, view) {
     handThumb(s, S, THUMB_BASE, THUMB_OPEN, THUMB.w, view === "palm", true);
   } else if (view === "thumb" || view === "little") {
     handStub(s);
-    profileHand(s, view === "little" ? W : M, view === "little");
+    profileHand(s, view === "thumb" ? W : M, view === "little");
   } else {
     forearmEnd(s);
     sectionPlate(s);
@@ -932,7 +932,7 @@ function fist(s, view) {
     P(s, { pts: W(fistThumb(-4)), shade: "cyl", r: 6, lw: FINGER_LW });
     chain(s, W, bar(THUMB_BASE, -5, THUMB.seg[0], 0).end, [-90], [THUMB.seg[1]], THUMB.w, { shade: "cyl" });
   } else if (view === "thumb" || view === "little") {
-    const S = view === "little" ? W : M;
+    const S = view === "thumb" ? W : M;
     const joint = [HAND_FACE[1] - 2 - FINGER.thick / 2, pip];
     const front = [joint[0] - s1, pip];
     const thumb = () => {
@@ -975,8 +975,8 @@ function carry(s, view) {
   openHand(s, view);
   const a = HAND_FACE[0];
   if (view === "palm") itemAt(s, CARRY_TF);
-  else if (view === "thumb") slab(s, [[a - 28, PALM_MID - 38], [a - 2, PALM_MID - 38], [a - 2, PALM_MID + 38], [a - 28, PALM_MID + 38]]);
-  else if (view === "little") slab(s, mirrorPts([[a - 28, PALM_MID - 38], [a - 2, PALM_MID - 38], [a - 2, PALM_MID + 38], [a - 28, PALM_MID + 38]], HAND_AX));
+  else if (view === "little") slab(s, [[a - 28, PALM_MID - 38], [a - 2, PALM_MID - 38], [a - 2, PALM_MID + 38], [a - 28, PALM_MID + 38]]);
+  else if (view === "thumb") slab(s, mirrorPts([[a - 28, PALM_MID - 38], [a - 2, PALM_MID - 38], [a - 2, PALM_MID + 38], [a - 28, PALM_MID + 38]], HAND_AX));
   else if (view === "tips") slab(s, [[22, 436], [154, 436], [154, 462], [22, 462]]);
 }
 
@@ -1006,12 +1006,12 @@ function cup(s, view) {
     }
     handThumb(s, S, THUMB_BASE, CUP_THUMB, THUMB.w, view === "palm", true);
   } else if (view === "thumb" || view === "little") {
-    const S = view === "little" ? W : M;
+    const S = view === "thumb" ? W : M;
     const thumb = () => handThumb(s, S, THUMB_SIDE, [-30, -50], THUMB.thick);
     handStub(s);
     if (view === "little") thumb();
     profilePlate(s, S);
-    itemAt(s, `${view === "little" ? `translate(${2 * HAND_AX} 0) scale(-1 1) ` : ""}translate(${HAND_FACE[0] - 9} ${PALM_MID}) scale(2.4) rotate(90) translate(-7 3.5)`);
+    itemAt(s, `${view === "thumb" ? `translate(${2 * HAND_AX} 0) scale(-1 1) ` : ""}translate(${HAND_FACE[0] - 9} ${PALM_MID}) scale(2.4) rotate(90) translate(-7 3.5)`);
     chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base], CUP, [s1, s2, s3], FINGER.thick, { shade: "cyl" });
     if (view === "thumb") thumb();
   } else fist(s, view);
@@ -1093,7 +1093,7 @@ function grip(s, view, rod = CROWBAR) {
     P(s, { pts: W(fistThumb(-4)), shade: "cyl", r: 6, lw: FINGER_LW });
     chain(s, W, bar(THUMB_BASE, -5, THUMB.seg[0], 0).end, [-90], [THUMB.seg[1]], THUMB.w, { shade: "cyl" });
   } else if (view === "thumb" || view === "little") {
-    const S = view === "little" ? W : M;
+    const S = view === "thumb" ? W : M;
     const thumb = () => chain(s, S, THUMB_SIDE, [-95, -60], THUMB.seg, THUMB.thick, { shade: "cyl" });
     handStub(s);
     if (view === "little") {
@@ -1123,7 +1123,7 @@ function grip(s, view, rod = CROWBAR) {
 
 const HAND_BUILDERS = { open: openHand, fist, carry, cup, grip, gunGrip: (s, view) => grip(s, view, PISTOL) };
 
-const PALM_UP = { palm: "rotate(90 88 470)", back: "rotate(90 88 470)", thumb: "rotate(90 88 470)", little: "rotate(-90 88 470)", tips: "rotate(180 88 434)" };
+const PALM_UP = { palm: "rotate(90 88 470)", back: "rotate(90 88 470)", thumb: "rotate(-90 88 470)", little: "rotate(90 88 470)", tips: "rotate(180 88 434)" };
 
 const FINGERS_LEFT = { ...PALM_UP, tips: "rotate(-90 88 434)" };
 const GUN_UP = { ...FINGERS_LEFT, back: "rotate(-90 88 470)" };
