@@ -7,7 +7,7 @@
   "duration": 4.43,
   "sounds": [],
   "stage": { "width": 1600, "height": 900, "sun": [1380, 840, 520] },
-  "robot": { "scale": 1.35, "x": 860, "y": 190, "controllerScale": 11 },
+  "robot": { "scale": 1.35, "x": 860, "y": 190, "controllerScale": 2.2 },
   "palette": {
     "sky0": "#2a1008", "sky1": "#5a2a14", "sky2": "#8a4a28", "sky3": "#b8744a", "glow": "#e8a040", "sun": "#fff1a8",
     "cloud": "#3a2418", "cloudLit": "#c87a40", "box": "#0b0705", "boxSide": "#140b07", "boxRim": "#8a4520", "boxGlow": "#f0b050", "lampOff": "#ff3020", "lampOn": "#8cf060"

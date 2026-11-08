@@ -46,11 +46,11 @@ function sky(ctx: CanvasRenderingContext2D): void {
   }
 }
 
-const controllerHook = (t: number, lineW: number): HookDraw => {
+const controllerHook = (lineW: number): HookDraw => {
   const k = RB.controllerScale;
   return (c) => {
     c.save();
-    c.rotate((num("wrist", t) * Math.PI) / 180);
+    c.translate(10, -3.5);
     c.scale(k, k);
     c.translate(-8, 5);
     drawAsset(c, ASSETS.controller, { state: 0, lines: lineW });
@@ -59,12 +59,13 @@ const controllerHook = (t: number, lineW: number): HookDraw => {
 };
 
 function drawRobot(ctx: CanvasRenderingContext2D, t: number, lineW: number): void {
-  rig ??= buildFront({});
+  rig ??= buildFront({ holdR: "cup" });
   const pose: Pose = {
     body: { dy: num("crouch", t) },
     head: num("head", t),
     armR: num("armR", t),
     foreR: num("foreR", t),
+    wristR: num("wrist", t),
     armL: num("armL", t),
     foreL: num("foreL", t),
   };
@@ -73,7 +74,7 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number, lineW: number): voi
   ctx.translate(RB.x, RB.y);
   ctx.scale(RB.scale, RB.scale);
   ctx.translate(-ROBOT.AX, 0);
-  drawRig(ctx, rig, { palette: pal, pose, hooks: { handR: controllerHook(t, lineW) }, lineW });
+  drawRig(ctx, rig, { palette: pal, pose, hooks: { item: controllerHook(lineW) }, lineW });
   ctx.restore();
 }
 

@@ -39,11 +39,11 @@ function sky() {
   for (const [x, y, w, h] of CLOUDS) kit.cloud(ctx, x, y, w, h, Math.min(1, 0.3 + y / 700), palette.cloudLit, palette.cloud);
 }
 
-function controllerHook(t, lineW) {
+function controllerHook(lineW) {
   const k = RB.controllerScale;
   return (c) => {
     c.save();
-    c.rotate((at("wrist", t) * Math.PI) / 180);
+    c.translate(10, -3.5);
     c.scale(k, k);
     c.translate(-8, 5);
     ENV.draw(c, asset("controller"), { state: 0, lines: lineW });
@@ -52,12 +52,13 @@ function controllerHook(t, lineW) {
 }
 
 function drawRobot(t, lineW) {
-  rig ??= XBOT.buildFront({});
+  rig ??= XBOT.buildFront({ holdR: "cup" });
   const pose = {
     body: { dy: at("crouch", t) },
     head: at("head", t),
     armR: at("armR", t),
     foreR: at("foreR", t),
+    wristR: at("wrist", t),
     armL: at("armL", t),
     foreL: at("foreL", t)
   };
@@ -66,7 +67,7 @@ function drawRobot(t, lineW) {
   ctx.translate(RB.x, RB.y);
   ctx.scale(RB.scale, RB.scale);
   ctx.translate(-XBOT.AX, 0);
-  XBOT.render(ctx, rig, { pal, pose, hooks: { handR: controllerHook(t, lineW) }, lineW });
+  XBOT.render(ctx, rig, { pal, pose, hooks: { item: controllerHook(lineW) }, lineW });
   ctx.restore();
 }
 
