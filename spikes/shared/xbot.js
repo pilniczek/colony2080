@@ -170,6 +170,7 @@ const upperArm = capsule([100, 148, 46], [100, 236, 46], 56);
 const sideUpperArm = capsule([300, 156, 62], [314, 240, 48], 60);
 const elbow = [[60, 296], [128, 296], [128, 316], [60, 316]];
 const FRONT_HAND_DY = 16;
+const SUPPORT_TURN = 85;
 const forearm = [[35, 306], [138, 304], [143, 318], [141, 408], [133, 420], [49, 422], [35, 403]];
 
 const PR = CFG.proportions;
@@ -281,7 +282,8 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   const hand = G(fore, `translate(${mirror ? 2 * AX - 89 : 89} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`);
   if (names.hand && !propBehindArm) hook(hand, names.hand);
   const hc = mirror ? 2 * AX - 89 : 89;
-  if (hold) heldHand(fore, hold, hold === "gunGrip" ? "back" : "tips", `${mirror ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
+  if (hold === "gunGrip") heldHand(fore, hold, "back", `${mirror ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
+  else if (hold) heldHand(fore, hold, "tips", `translate(${mirror ? 2 * AX - 2 * HAND_AX : 0} ${FRONT_HAND_DY}) rotate(${SUPPORT_TURN} 88 434)`);
   else frontHand(fore, flipHand ? p => mirrorPts(M(p), hc) : M, thumbFront && !flipHand);
 }
 

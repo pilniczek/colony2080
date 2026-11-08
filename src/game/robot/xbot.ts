@@ -158,6 +158,7 @@ const THUMB_BASE: Pt = [124, 424];
 const THUMB_OPEN = [30, 14] as const;
 const SIDE_HAND_DX = 224;
 const FRONT_HAND_DY = 16;
+const SUPPORT_TURN = 85;
 const fingerX = (i: number): number => HAND.x0 + i * FINGER.pitch;
 const fingerY = (k: number): number => FINGER.base + FINGER.seg.slice(0, k).reduce((a, b) => a + b, 0);
 
@@ -326,7 +327,8 @@ const frontArm = (
   const hand = k.G(fore, `translate(${mirrored ? 2 * AX - 89 : 89} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`);
   if (names.hand && !propBehindArm) k.hook(hand, names.hand);
   const hc = mirrored ? 2 * AX - 89 : 89;
-  if (hold) heldHand(k, fore, hold, hold === "gunGrip" ? "back" : "tips", `${mirrored ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
+  if (hold === "gunGrip") heldHand(k, fore, hold, "back", `${mirrored ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
+  else if (hold) heldHand(k, fore, hold, "tips", `translate(${mirrored ? 2 * AX - 2 * HAND_AX : 0} ${FRONT_HAND_DY}) rotate(${SUPPORT_TURN} 88 434)`);
   else frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront && !flipHand);
 };
 
