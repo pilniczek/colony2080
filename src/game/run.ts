@@ -14,7 +14,7 @@ import { FIXED_STEP, FixedLoop } from "../engine/loop";
 import { followView, type ViewTransform } from "../engine/render/view";
 import { useSandbox } from "../sandbox/store";
 import { CheatInput } from "../sandbox/ui/CheatInput";
-import { runIdleJob } from "../engine/idle";
+import { runIdleJob, whenIdle } from "../engine/idle";
 import type { CutsceneId } from "./cutscene";
 import { tr } from "./i18n";
 import { playFilm, stepCutscene } from "./cutscene/play";
@@ -31,11 +31,14 @@ import { hudFit, viewRect } from "./hud/layout";
 import { activeQuests } from "./level/quests";
 import { BONUS_NAMES, resetWorld, showItem, startFilm, type SandboxWorld } from "./level/sandboxLevel";
 import { openBlockers, pickAll, say } from "./level/tasks";
+import type { GameFrame } from "./render/frame";
 import { createPainter } from "./render/painter";
 import { paintTilesAside } from "./render/tilesAside";
 import { viewCells, visibleEnemies } from "./render/scene";
 import { momentOf, tween, type Moment } from "./render/tween";
 import { snapView } from "./render/snapView";
+import { kindOf } from "./robot/kinds";
+import { heroMuzzle } from "./shots";
 import { SOUNDS, samplesOf } from "./sound";
 import { prerender } from "./sound/prerender";
 import { saveSoundOn } from "./sound/settings";
@@ -52,6 +55,7 @@ const PICTURE_QUALITY = 0.6;
 const HEAD_GAP = 0.25;
 const FILM_PRELOAD_MS = 1000;
 const SOUND_LOG_SIZE = 50;
+const FIGURE_SIGHTINGS = 2;
 
 export interface RunStart {
   weapon: Weapon;
@@ -333,34 +337,44 @@ export function startRun({ world, ui: tree, afterStep, drawOver, saves, intro }:
         push();
         return;
       }
-      const { overlays } = tuning();
-      const cfg = movement();
-      const shown = tween(prev, hero, alpha);
-      const view = cameraView(shown, cfg);
-      lastView = view;
-      const enemies = visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => ({
-        ...enemy,
-        body: tween(prevEnemies.get(enemy.body) ?? momentOf(enemy.body), enemy.body, alpha),
-      }));
-      painter.paint(
-        {
-          kind: "game",
-          alpha,
-          hero: shown,
-          enemies,
-          view,
-          window: gameWindow,
-          lines: devicePixelRatio || 1,
-          span: world.fog && sightSpan(world.fog, cfg.sightCells, shown.x),
-          overlays,
-          map: tuning().mapOpen ? { coords: tuning().debugPanel } : null,
-        },
-        tune(),
-      );
+      painter.paint(gameFrame(alpha), tune());
       saveMenu?.flush();
       push();
     },
   });
+
+  const gameFrame = (alpha: number): GameFrame => {
+    const cfg = movement();
+    const shown = tween(prev, hero, alpha);
+    const view = cameraView(shown, cfg);
+    lastView = view;
+    const enemies = visibleEnemies(world.enemies, viewCells(view, gameWindow, cfg.cellPx), ENEMY_MARGIN_CELLS).map((enemy) => ({
+      ...enemy,
+      body: tween(prevEnemies.get(enemy.body) ?? momentOf(enemy.body), enemy.body, alpha),
+    }));
+    return {
+      kind: "game",
+      alpha,
+      hero: shown,
+      enemies,
+      view,
+      window: gameWindow,
+      lines: devicePixelRatio || 1,
+      span: world.fog && sightSpan(world.fog, cfg.sightCells, shown.x),
+      overlays: tuning().overlays,
+      map: tuning().mapOpen ? { coords: tuning().debugPanel } : null,
+    };
+  };
+
+  const warmGame = (): void => {
+    for (const kind of new Set(world.enemies.map((enemy) => enemy.kind))) whenIdle(() => kindOf(kind));
+    whenIdle(() => heroMuzzle(hero, tuning().clips, movement()));
+    for (let i = 0; i < FIGURE_SIGHTINGS; i++) {
+      whenIdle(() => {
+        if (tuning().menu?.screen === "settings") painter.paint(gameFrame(1), tune());
+      });
+    }
+  };
 
   const restart = ({ weapon, running, blaster, fogOn }: RunStart): void => {
     resetWorld(world, movement());
@@ -509,7 +523,8 @@ export function startRun({ world, ui: tree, afterStep, drawOver, saves, intro }:
   };
 
   if (import.meta.env.VITE_START_CHEAT) enterCheat(import.meta.env.VITE_START_CHEAT);
-  if (!saveMenu?.asking) begin();
+  if (saveMenu?.asking) warmGame();
+  else begin();
   setTimeout(() => painter.warm(filmWidth, painter.h), FILM_PRELOAD_MS);
   fit();
   window.addEventListener("resize", fit);
