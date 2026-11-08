@@ -904,7 +904,7 @@ function openHand(s, view) {
 }
 
 function fistThumb() {
-  return [[-4, 0], [8, 0], [14, 32], [-16, 32], [-18, 16]].map(([x, y]) => [HAND.x1 + x, THUMB_BASE[1] - 11 + y]);
+  return [[-4, 0], [8, 0], [14, 38], [-8, 38], [-9, 18]].map(([x, y]) => [HAND.x1 + x, THUMB_BASE[1] - 11 + y]);
 }
 
 function fist(s, view) {
