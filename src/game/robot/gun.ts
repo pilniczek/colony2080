@@ -1,13 +1,13 @@
 import { apply, type Mat2D } from "../../engine/math/mat2d";
 import { locate, solve, type Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
-import { BARREL, createWeaponModel, MUZZLE, MUZZLE_IN_HOOK, SUPPORT, SUPPORT_IN_HOOK, toHook, type WeaponPart } from "./weaponModel";
+import { BARREL, createWeaponModel, grip, MUZZLE, MUZZLE_IN_HOOK, SUPPORT, SUPPORT_IN_HOOK, toHook, type WeaponPart } from "./weaponModel";
 import { SIDE_FORE_TURN } from "./xbot";
 
 export type { WeaponOptions as GunOptions } from "./weaponModel";
 
 const buildParts = (length: number): WeaponPart[] => [
-  { name: "grip", x: -14, y: -14, w: 26, h: 56, mat: "m", tone: 1 },
+  grip("m", 1),
   { name: "stock", x: -82, y: -64, w: 22, h: 50, mat: "m", tone: 0 },
   { name: "handle", x: -36, y: -96, w: 72, h: 18, mat: "m", tone: 1 },
   { name: "handlePost", x: -36, y: -82, w: 14, h: 16, mat: "m", tone: 1 },

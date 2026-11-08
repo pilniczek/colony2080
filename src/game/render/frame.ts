@@ -65,7 +65,7 @@ export interface Target {
 
 export function createKit(): Kit {
   const rigs = createRigs(true);
-  return { rigs, hold: holdPoses(rigs.side, rigs.armedFront ?? rigs.front) };
+  return { rigs, hold: holdPoses(rigs.armedSide ?? rigs.side, rigs.armedFront ?? rigs.front) };
 }
 
 function fillBlack({ ctx, w, h }: Target): void {

@@ -162,6 +162,12 @@ const ELBOW_DROP = 26;
 export const SIDE_FORE_TURN = 18;
 const SIDE_SUPPORT_LIFT = 10;
 const SIDE_SUPPORT: Pt = [312, 438];
+const SIDE_ELBOW: Pt = [311, 288];
+const SIDE_FORE_YAW = 45;
+const ARMED_ARM_BACK = 15;
+const YAW_K = Math.cos((SIDE_FORE_YAW * Math.PI) / 180);
+const SIDE_YAW_TF = `translate(${SIDE_ELBOW[0]} ${SIDE_ELBOW[1]}) scale(1 ${YAW_K}) translate(${-SIDE_ELBOW[0]} ${-SIDE_ELBOW[1]})`;
+const SIDE_SUPPORT_YAWED: Pt = [SIDE_SUPPORT[0], SIDE_ELBOW[1] + (SIDE_SUPPORT[1] - SIDE_ELBOW[1]) * YAW_K];
 const fingerX = (i: number): number => HAND.x0 + i * FINGER.pitch;
 const fingerY = (k: number): number => FINGER.base + FINGER.seg.slice(0, k).reduce((a, b) => a + b, 0);
 
@@ -250,7 +256,7 @@ const gunGripHand = (k: Kit, parent: GroupNode): void => {
 
 const SUPPORT_TF = `translate(${ELBOW_R[0]} ${ELBOW_R[1] + ELBOW_DROP}) scale(${FORE_S} ${-FORE_S}) translate(-88 -434)`;
 const SIDE_FORE_TF = `translate(0 -22) rotate(${-SIDE_FORE_TURN} 311 288) translate(311 288) scale(${FORE_S}) translate(-311 -288)`;
-const SIDE_SUPPORT_TF = `translate(${SIDE_SUPPORT[0]} ${SIDE_SUPPORT[1] - SIDE_SUPPORT_LIFT / FORE_S}) scale(1 -1) translate(-88 -434)`;
+const sideSupportTf = ([x, y]: Pt): string => `translate(${x} ${y - SIDE_SUPPORT_LIFT / FORE_S}) scale(1 -1) translate(-88 -434)`;
 
 const supportWrist = (k: Kit, parent: GroupNode): void => {
   k.P(parent, { pts: box(34, 365, 142, 469), r: 8 });
@@ -521,19 +527,19 @@ const sideArm = (
 ): void => {
   const arm = k.G(parent, "translate(2 -4)", names.arm, [300, 150], { dim });
   k.P(arm, { pts: [[288, 274], [334, 274], [334, 294], [288, 294]], mat: "metal", shade: "cyl", r: 1 });
-  const lower = k.G(arm, SIDE_FORE_TF, names.fore, [311, 288]);
-  if (propBehindArm) k.hook(k.G(lower, `translate(312 438) ${HOLD_TF}`), names.hand);
-  const fa = k.G(lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
+  const [wx, wy] = hold === "cup" ? SIDE_SUPPORT_YAWED : SIDE_SUPPORT;
+  if (propBehindArm) k.hook(k.G(k.G(arm, SIDE_FORE_TF, names.fore, SIDE_ELBOW), `translate(${wx} ${wy}) ${HOLD_TF}`), names.hand);
+  k.P(k.G(arm, SIDE_SHOULDER_TF), { pts: sideUpperArm, r: 2, shade: "dome" });
+  const lower = k.G(arm, SIDE_FORE_TF, names.fore, SIDE_ELBOW);
+  const fa = k.G(hold === "cup" ? k.G(lower, SIDE_YAW_TF) : lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
   k.P(fa, { pts: [[262, 290], [358, 286], [366, 302], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
   k.F(fa, [[264, 352], [366, 350], [366, 354], [264, 356]], "a0");
   k.F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
-  const hand = k.G(lower, `translate(312 438) ${HOLD_TF}`);
+  const hand = k.G(lower, `translate(${wx} ${wy}) ${HOLD_TF}`);
   if (!propBehindArm) k.hook(hand, names.hand);
-  if (hold === "cup") supportWrist(k, k.G(k.G(lower, null, "supportFar", SIDE_SUPPORT), SIDE_SUPPORT_TF));
+  if (hold === "cup") supportWrist(k, k.G(k.G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
   else if (hold) heldHand(k, lower, hold, `translate(${SIDE_HAND_DX} 0)`);
   else sideHand(k, lower);
-  const bulbs = k.G(arm, SIDE_SHOULDER_TF);
-  k.P(bulbs, { pts: sideUpperArm, r: 2, shade: "dome" });
 };
 
 const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: boolean, enemy: boolean, armed: boolean): GroupNode => {
@@ -568,10 +574,10 @@ const sideTree = (k: Kit, farLimbs: boolean, badge: boolean, propBehindArm: bool
   k.F(head, [[368, 56], [388, 56], [388, 63], [368, 63]], "visor", 1);
   k.P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });
   if (!enemy) k.P(head, { pts: [[308, 4], [318, 4], [320, 70], [306, 70]], r: 4, shade: "cyl" });
-  sideArm(k, s, { arm: "arm", fore: "fore", hand: "hand" }, { propBehindArm, hold: armed ? "gunGrip" : null });
+  sideArm(k, armed ? k.G(s, `translate(${-ARMED_ARM_BACK} 0)`) : s, { arm: "arm", fore: "fore", hand: "hand" }, { propBehindArm, hold: armed ? "gunGrip" : null });
   if (farLimbs && armed) {
-    const lower = k.G(k.G(k.G(s, "translate(-20 0)"), "translate(2 -4)", "armFar", [300, 150]), SIDE_FORE_TF, "foreFar", [311, 288]);
-    supportFingers(k, k.G(k.G(lower, null, "supportFar", SIDE_SUPPORT), SIDE_SUPPORT_TF));
+    const lower = k.G(k.G(k.G(s, "translate(-20 0)"), "translate(2 -4)", "armFar", [300, 150]), SIDE_FORE_TF, "foreFar", SIDE_ELBOW);
+    supportFingers(k, k.G(k.G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
   }
   return root;
 };

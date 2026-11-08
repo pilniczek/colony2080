@@ -10,6 +10,7 @@ export interface WeaponPart {
   h: number;
   mat: string;
   tone: number;
+  pts?: readonly Pt[];
 }
 
 export interface WeaponOptions {
@@ -26,7 +27,17 @@ export type MatKeys = readonly [string, string, string, string, string];
 export const BARREL = { x: 70, length: 196 };
 
 export const MUZZLE: Pt = [BARREL.x + BARREL.length + 2, -40];
-export const SUPPORT: Pt = [BARREL.x - 6, -10];
+export const SUPPORT: Pt = [BARREL.x + 14, -10];
+
+const GRIP_PTS: readonly Pt[] = [[14, -14], [-16, -14], [-34, 52], [-6, 52]];
+
+export const grip = (mat: string, tone: number): WeaponPart => {
+  const xs = GRIP_PTS.map(([x]) => x);
+  const ys = GRIP_PTS.map(([, y]) => y);
+  const x = Math.min(...xs);
+  const y = Math.min(...ys);
+  return { name: "grip", x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y, pts: GRIP_PTS, mat, tone };
+};
 
 export const toHook = ([x, y]: Pt): Pt => [-y, x];
 
@@ -84,12 +95,18 @@ export const createWeaponModel = ({ buildParts, mat, colors = {}, after }: Model
     const keys = mat[p.mat] as MatKeys;
     const [c0, c1, c2, c3, line] = keys.map((k) => (pal[k] ?? colors[k]) as string) as [string, string, string, string, string];
     ctx.fillStyle = bandFill(ctx, p, [c0, c1, c2, c3], simple);
-    ctx.fillRect(p.x, p.y, p.w, p.h);
+    if (p.pts) {
+      ctx.beginPath();
+      p.pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.closePath();
+      ctx.fill();
+    } else ctx.fillRect(p.x, p.y, p.w, p.h);
     if (lineW) {
       const t = ctx.getTransform();
       ctx.strokeStyle = line;
       ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
-      ctx.strokeRect(p.x, p.y, p.w, p.h);
+      if (p.pts) ctx.stroke();
+      else ctx.strokeRect(p.x, p.y, p.w, p.h);
     }
   };
 

@@ -20,6 +20,12 @@ const barrelWidth = (barrel?: number): number => {
       if (y === -62) widths.push(w);
     },
     strokeRect: () => {},
+    beginPath: () => {},
+    moveTo: () => {},
+    lineTo: () => {},
+    closePath: () => {},
+    fill: () => {},
+    stroke: () => {},
   } as unknown as CanvasRenderingContext2D;
   drawGun(ctx, barrel === undefined ? {} : { barrel });
   return Math.max(...widths);

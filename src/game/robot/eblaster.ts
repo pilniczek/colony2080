@@ -1,7 +1,7 @@
 import type { Palette } from "../../engine/rig/draw";
 import type { Pt } from "../../engine/rig/tree";
 import { ARC, stroke } from "../arcLook";
-import { BARREL, createWeaponModel, type MatKeys, type WeaponPart } from "./weaponModel";
+import { BARREL, createWeaponModel, grip, type MatKeys, type WeaponPart } from "./weaponModel";
 
 export { MUZZLE as EBLASTER_MUZZLE } from "./weaponModel";
 
@@ -12,7 +12,7 @@ const buildParts = (length: number): WeaponPart[] => {
   const end = BARREL.x + length;
   const coilStep = (length - PRONG - 24) / COILS;
   return [
-    { name: "grip", x: -14, y: -14, w: 26, h: 56, mat: "m", tone: 1 },
+    grip("m", 1),
     { name: "stock", x: -78, y: -60, w: 20, h: 42, mat: "m", tone: 0 },
     { name: "cell", x: -44, y: -90, w: 92, h: 22, mat: "m", tone: 1 },
     { name: "cellWindow", x: -34, y: -86, w: 72, h: 10, mat: "e", tone: 2 },

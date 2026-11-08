@@ -1,9 +1,16 @@
 (() => {
 const PALETTE = window.XBOT.PALETTE;
 
+const GRIP_PTS = [[14, -14], [-16, -14], [-34, 52], [-6, 52]];
+function grip(mat, tone) {
+  const xs = GRIP_PTS.map(p => p[0]), ys = GRIP_PTS.map(p => p[1]);
+  const x = Math.min(...xs), y = Math.min(...ys);
+  return { name: "grip", x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y, pts: GRIP_PTS, mat, tone };
+}
+
 const BARREL = { x: 70, length: 196 };
 const buildParts = length => [
-  { name: "grip", x: -14, y: -14, w: 26, h: 56, mat: "m", tone: 1 },
+  grip("m", 1),
   { name: "stock", x: -82, y: -64, w: 22, h: 50, mat: "m", tone: 0 },
   { name: "handle", x: -36, y: -96, w: 72, h: 18, mat: "m", tone: 1 },
   { name: "handlePost", x: -36, y: -82, w: 14, h: 16, mat: "m", tone: 1 },
@@ -96,12 +103,18 @@ function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own =
   function part(ctx, p, pal, lineW, simple) {
     const [c0, c1, c2, c3, line] = mat[p.mat].map(k => pal[k] ?? colors[k]);
     ctx.fillStyle = bandFill(ctx, p, [c0, c1, c2, c3], simple);
-    ctx.fillRect(p.x, p.y, p.w, p.h);
+    if (p.pts) {
+      ctx.beginPath();
+      p.pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.closePath();
+      ctx.fill();
+    } else ctx.fillRect(p.x, p.y, p.w, p.h);
     if (lineW) {
       const t = ctx.getTransform();
       ctx.strokeStyle = line;
       ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
-      ctx.strokeRect(p.x, p.y, p.w, p.h);
+      if (p.pts) ctx.stroke();
+      else ctx.strokeRect(p.x, p.y, p.w, p.h);
     }
   }
 
@@ -130,8 +143,8 @@ function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own =
 }
 
 const MUZZLE = [BARREL.x + BARREL.length + 2, -40];
-const SUPPORT = [BARREL.x - 6, -10];
+const SUPPORT = [BARREL.x + 14, -10];
 const core = model({ buildParts });
 
-window.GUN = { ...core, model, MAT };
+window.GUN = { ...core, model, grip, MAT };
 })();

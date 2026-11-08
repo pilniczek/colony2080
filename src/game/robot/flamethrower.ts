@@ -1,7 +1,7 @@
 import type { Palette } from "../../engine/rig/draw";
 import type { Pt } from "../../engine/rig/tree";
 import { PALETTE } from "../env/paint";
-import { createWeaponModel, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
+import { createWeaponModel, grip, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
 
 const tones = (k: string, from: string, line: string): Palette =>
   Object.fromEntries([...[0, 1, 2, 3].map((i) => [k + i, PALETTE[from + i] as string]), [k + "Line", PALETTE[line] as string]]);
@@ -28,7 +28,7 @@ const NOZZLE = 30;
 
 const buildParts = (length: number): WeaponPart[] => [
   { name: "stock", x: -100, y: -58, w: 44, h: 26, mat: "s", tone: 0 },
-  { name: "grip", x: -16, y: -18, w: 30, h: 50, mat: "s", tone: 0 },
+  grip("s", 0),
   { name: "body", x: -58, y: -62, w: 142, h: 44, mat: "s", tone: 1 },
   { name: "bodyTop", x: -58, y: -62, w: 142, h: 10, mat: "s", tone: 2 },
   { name: "tank", x: -44, y: -116, w: 112, h: 54, mat: "r", tone: 2 },

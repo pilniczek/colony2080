@@ -10,7 +10,7 @@ const CAP = 21;
 const COIL = { first: 16, step: 19.8, w: 8 };
 
 const buildParts = length => [
-  { name: "grip", x: -18, y: -13, w: 34, h: 45, mat: "s", tone: 0 },
+  window.GUN.grip("s", 0),
   { name: "body", x: -50, y: -73, w: 124, h: 63, mat: "k", tone: 1 },
   { name: "bodyTop", x: -50, y: -73, w: 124, h: 13, mat: "k", tone: 2 },
   { name: "heatSlot", x: -23, y: -81, w: 60, h: 12, mat: "h", tone: 0 },

@@ -1,7 +1,7 @@
 import type { Palette } from "../../engine/rig/draw";
 import type { Pt } from "../../engine/rig/tree";
 import { PALETTE } from "../env/paint";
-import { createWeaponModel, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
+import { createWeaponModel, grip, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
 
 const tones = (k: string, from: string, line: string): Palette =>
   Object.fromEntries([...[0, 1, 2, 3].map((i) => [k + i, PALETTE[from + i] as string]), [k + "Line", PALETTE[line] as string]]);
@@ -34,7 +34,7 @@ const CAP = 21;
 const COIL = { first: 16, step: 19.8, w: 8 };
 
 const buildParts = (length: number): WeaponPart[] => [
-  { name: "grip", x: -18, y: -13, w: 34, h: 45, mat: "s", tone: 0 },
+  grip("s", 0),
   { name: "body", x: -50, y: -73, w: 124, h: 63, mat: "k", tone: 1 },
   { name: "bodyTop", x: -50, y: -73, w: 124, h: 13, mat: "k", tone: 2 },
   { name: "heatSlot", x: -23, y: -81, w: 60, h: 12, mat: "h", tone: 0 },

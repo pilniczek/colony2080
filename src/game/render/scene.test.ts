@@ -9,7 +9,7 @@ import { castsShadow, feetSeen, heroBehindEnemies, visibleEnemies, viewCells, we
 import { boxSeen } from "../level/enemy";
 
 const rigs = createRigs(true);
-const hold = holdPoses(rigs.side, rigs.armedFront ?? rigs.front);
+const hold = holdPoses(rigs.armedSide ?? rigs.side, rigs.armedFront ?? rigs.front);
 const hero = (patch: Partial<Hero>): Hero => Object.assign(createHero([7.5, 14], "fists", 100), patch);
 const shadowed = (patch: Partial<Hero>): boolean => {
   const h = hero(patch);

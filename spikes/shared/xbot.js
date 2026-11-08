@@ -191,7 +191,13 @@ const JAB_TF = `translate(${ELBOW_R[0]} ${ELBOW_R[1] + JAB_DROP}) scale(${-FORE_
 const ELBOW_L = [100, 236];
 const GUARD_TF = `translate(${ELBOW_L[0]} ${ELBOW_L[1] + GUARD_DROP}) scale(${FORE_S}) translate(-88 -434)`;
 const SIDE_SUPPORT = [312, 438];
-const SIDE_SUPPORT_TF = `translate(${SIDE_SUPPORT[0]} ${SIDE_SUPPORT[1] - SIDE_SUPPORT_LIFT / FORE_S}) scale(1 -1) translate(-88 -434)`;
+const SIDE_ELBOW = [311, 288];
+const SIDE_FORE_YAW = 45;
+const ARMED_ARM_BACK = 15;
+const YAW_K = Math.cos(SIDE_FORE_YAW * Math.PI / 180);
+const SIDE_YAW_TF = `translate(${SIDE_ELBOW[0]} ${SIDE_ELBOW[1]}) scale(1 ${YAW_K}) translate(${-SIDE_ELBOW[0]} ${-SIDE_ELBOW[1]})`;
+const SIDE_SUPPORT_YAWED = [SIDE_SUPPORT[0], SIDE_ELBOW[1] + (SIDE_SUPPORT[1] - SIDE_ELBOW[1]) * YAW_K];
+const sideSupportTf = ([x, y]) => `translate(${x} ${y - SIDE_SUPPORT_LIFT / FORE_S}) scale(1 -1) translate(-88 -434)`;
 const SIDE_TORSO_SX = PR.sideTorsoScaleX;
 const SS = PR.sideShoulder;
 const SIDE_SHOULDER_TF = `translate(${SS.cx} ${SS.cy}) scale(${SS.scaleX} ${SS.scaleY}) translate(${-SS.cx} ${-SS.cy})`;
@@ -446,19 +452,19 @@ function sideHand(parent) {
 function sideArm(parent, names, extra, hold = null) {
   const arm = G(parent, "translate(2 -4)", names.arm, [300, 150], extra);
   P(arm, { pts: [[288, 274], [334, 274], [334, 294], [288, 294]], mat: "metal", shade: "cyl", r: 1 });
-  const lower = G(arm, SIDE_FORE_TF, names.fore, [311, 288]);
-  if (names.hand && extra?.propBehindArm) hook(G(lower, `translate(312 438) ${HOLD_TF}`), names.hand);
-  const fa = G(lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
+  const [wx, wy] = hold === "cup" ? SIDE_SUPPORT_YAWED : SIDE_SUPPORT;
+  if (names.hand && extra?.propBehindArm) hook(G(G(arm, SIDE_FORE_TF, names.fore, SIDE_ELBOW), `translate(${wx} ${wy}) ${HOLD_TF}`), names.hand);
+  P(G(arm, SIDE_SHOULDER_TF), { pts: sideUpperArm, r: 2, shade: "dome" });
+  const lower = G(arm, SIDE_FORE_TF, names.fore, SIDE_ELBOW);
+  const fa = G(hold === "cup" ? G(lower, SIDE_YAW_TF) : lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
   P(fa, { pts: [[262, 290], [358, 286], [366, 302], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
   F(fa, [[264, 352], [366, 350], [366, 354], [264, 356]], "a0");
   F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
-  const hand = G(lower, `translate(312 438) ${HOLD_TF}`);
+  const hand = G(lower, `translate(${wx} ${wy}) ${HOLD_TF}`);
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
-  if (hold === "cup") supportWrist(G(G(lower, null, "supportFar", SIDE_SUPPORT), SIDE_SUPPORT_TF));
+  if (hold === "cup") supportWrist(G(G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
   else if (hold) heldHand(lower, hold, "back", `translate(${SIDE_HAND_DX} 0)`);
   else sideHand(lower);
-  const bulbs = G(arm, SIDE_SHOULDER_TF);
-  P(bulbs, { pts: sideUpperArm, r: 2, shade: "dome" });
 }
 
 function buildSide({ farLimbs = false, badge = false, propBehindArm = false, lod: low = false, enemy = false, armed = false, fists = false } = {}) {
@@ -496,10 +502,10 @@ function sideTree({ farLimbs, badge, propBehindArm, enemy, armed, fists }) {
   F(head, [[368, 56], [388, 56], [388, 63], [368, 63]], "visor", 1);
   P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });
   if (!enemy) P(head, { pts: [[308, 4], [318, 4], [320, 70], [306, 70]], r: 4, shade: "cyl" });
-  sideArm(s, { arm: "arm", fore: "fore", hand: "hand" }, propBehindArm ? { propBehindArm } : undefined, armed ? "gunGrip" : fists ? "fist" : null);
+  sideArm(armed ? G(s, `translate(${-ARMED_ARM_BACK} 0)`) : s, { arm: "arm", fore: "fore", hand: "hand" }, propBehindArm ? { propBehindArm } : undefined, armed ? "gunGrip" : fists ? "fist" : null);
   if (farLimbs && armed) {
-    const lower = G(G(G(s, "translate(-20 0)"), "translate(2 -4)", "armFar", [300, 150]), SIDE_FORE_TF, "foreFar", [311, 288]);
-    cupFingertips(G(G(lower, null, "supportFar", SIDE_SUPPORT), SIDE_SUPPORT_TF));
+    const lower = G(G(G(s, "translate(-20 0)"), "translate(2 -4)", "armFar", [300, 150]), SIDE_FORE_TF, "foreFar", SIDE_ELBOW);
+    cupFingertips(G(G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
   }
   return root;
 }

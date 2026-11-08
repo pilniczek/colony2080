@@ -9,7 +9,7 @@ const buildParts = length => {
   const end = BARREL.x + length;
   const coilStep = (length - PRONG - 24) / COILS;
   return [
-    { name: "grip", x: -14, y: -14, w: 26, h: 56, mat: "m", tone: 1 },
+    window.GUN.grip("m", 1),
     { name: "stock", x: -78, y: -60, w: 20, h: 42, mat: "m", tone: 0 },
     { name: "cell", x: -44, y: -90, w: 92, h: 22, mat: "m", tone: 1 },
     { name: "cellWindow", x: -34, y: -86, w: 72, h: 10, mat: "e", tone: 2 },

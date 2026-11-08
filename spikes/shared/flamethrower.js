@@ -9,7 +9,7 @@ const NOZZLE = 30;
 
 const buildParts = length => [
   { name: "stock", x: -100, y: -58, w: 44, h: 26, mat: "s", tone: 0 },
-  { name: "grip", x: -16, y: -18, w: 30, h: 50, mat: "s", tone: 0 },
+  window.GUN.grip("s", 0),
   { name: "body", x: -58, y: -62, w: 142, h: 44, mat: "s", tone: 1 },
   { name: "bodyTop", x: -58, y: -62, w: 142, h: 10, mat: "s", tone: 2 },
   { name: "tank", x: -44, y: -116, w: 112, h: 54, mat: "r", tone: 2 },

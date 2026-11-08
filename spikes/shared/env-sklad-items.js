@@ -284,7 +284,7 @@ const rocketLauncher = {
     const lineW = P.lw(ctx) * Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
     ctx.save();
     ctx.scale(LAUNCHER_K, LAUNCHER_K);
-    ctx.translate(112, -32);
+    ctx.translate(112, -52);
     window.ROCKET_LAUNCHER.draw(ctx, { lineW, simple: simple(), loaded: state !== 2 });
     ctx.restore();
   }

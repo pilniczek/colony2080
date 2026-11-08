@@ -32,7 +32,7 @@ let simRigs: { rigs: Rigs; hold: Holds } | null = null;
 const sim = () => {
   if (!simRigs) {
     const rigs = createRigs(true);
-    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.armedFront ?? rigs.front) };
+    simRigs = { rigs, hold: holdPoses(rigs.armedSide ?? rigs.side, rigs.armedFront ?? rigs.front) };
   }
   return simRigs;
 };

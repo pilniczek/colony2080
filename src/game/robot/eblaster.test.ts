@@ -16,6 +16,8 @@ const prongEnd = (barrel?: number): number => {
     beginPath: () => {},
     moveTo: () => {},
     lineTo: () => {},
+    closePath: () => {},
+    fill: () => {},
     stroke: () => {},
   } as unknown as CanvasRenderingContext2D;
   drawEBlaster(ctx, barrel === undefined ? {} : { barrel });
