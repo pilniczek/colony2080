@@ -899,7 +899,7 @@ function openHand(s, view) {
       const x = fingerX(i);
       P(s, { pts: [[x, 402], [x + 20, 402], [x + 20, 402 + FINGER.thick], [x, 402 + FINGER.thick]], shade: "cyl", r: 6, lw: FINGER_LW });
     }
-    P(s, { pts: [[112, 416], [132, 416], [132, 416 + THUMB.thick], [112, 416 + THUMB.thick]], shade: "cyl", r: 6 });
+    P(s, { pts: [[HAND.x1 - 2, 416], [HAND.x1 + 18, 416], [HAND.x1 + 18, 416 + THUMB.thick], [HAND.x1 - 2, 416 + THUMB.thick]], shade: "cyl", r: 6 });
   }
 }
 
