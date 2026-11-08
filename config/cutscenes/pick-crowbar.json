@@ -4,9 +4,25 @@
   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SEBPACID.ANM; trigger: crowbar pickup",
   "title": "Crowbar picked up",
   "camera": "CAM 04 STREET",
-  "views": [[0, "robot"]],
+  "views": [
+    [
+      0,
+      "robot"
+    ]
+  ],
   "duration": 1.76,
-  "sounds": [[0.044, "servo", 16000], [0.924, "servo", 16000]],
+  "sounds": [
+    [
+      0.044,
+      "servo",
+      16000
+    ],
+    [
+      0.924,
+      "servo",
+      16000
+    ]
+  ],
   "stage": {
     "item": "crowbar",
     "itemState": 0,
@@ -21,17 +37,11 @@
     "edge": 4,
     "grout": 8,
     "gripAt": 0.6,
-    "itemOffset": [
-      -290,
-      20
-    ],
-    "itemTilt": -4,
-    "itemScale": 20,
     "shadow": [
       0,
-      40,
-      280,
-      26
+      30,
+      260,
+      50
     ],
     "gridBox": [
       33,
@@ -62,7 +72,16 @@
       50,
       40
     ],
-    "focal": 2000
+    "focal": 2000,
+    "hold": "grip",
+    "seat": [
+      88,
+      444,
+      13,
+      -1.5,
+      0,
+      11
+    ]
   },
   "palette": {
     "soil": "#3a1a0c",
@@ -182,39 +201,39 @@
         40
       ]
     ],
-    "robotX": [
+    "handX": [
       [
         0,
-        2200
+        1350
       ],
       [
         0.6,
-        1868,
+        1050,
         "out"
       ],
       [
         1.76,
-        1830,
+        1080,
         "inOut"
       ]
     ],
-    "robotY": [
+    "handY": [
       [
         0,
-        1250
+        1150
       ],
       [
         0.6,
-        986,
+        620,
         "out"
       ],
       [
         1.76,
-        1010,
+        700,
         "inOut"
       ]
     ],
-    "robotK": [
+    "handK": [
       [
         0,
         3
@@ -225,47 +244,23 @@
       ],
       [
         1.76,
-        3.4,
+        3.5,
         "inOut"
       ]
     ],
-    "arm": [
+    "handTurn": [
       [
         0,
-        -104
+        145
       ],
       [
         0.6,
-        -110,
+        155,
         "out"
       ],
       [
-        0.85,
-        -110
-      ],
-      [
         1.76,
-        -118,
-        "inOut"
-      ]
-    ],
-    "fore": [
-      [
-        0,
-        4
-      ],
-      [
-        0.6,
-        10,
-        "out"
-      ],
-      [
-        0.85,
-        10
-      ],
-      [
-        1.76,
-        24,
+        165,
         "inOut"
       ]
     ]

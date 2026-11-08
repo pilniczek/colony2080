@@ -1,9 +1,10 @@
 (() => {
 const { kit } = window.CUTSCENES;
-const { buildSide, render: renderBot, locate } = window.XBOT;
+const { buildHand, render: renderBot, locate } = window.XBOT;
 const { random, LINE_W } = kit;
 const FW = kit.FILM.w, FH = kit.FILM.h;
-const SHOULDER = [300, 150];
+const PIVOT = [88, 438];
+const FINGERS_UP = [-90, 88, 470];
 const NEAR = 18;
 const FAR = 46;
 const GLYPH = [3, 5];
@@ -14,11 +15,6 @@ const mul = (m, n) => ({
   e: m.a * n.e + m.c * n.f + m.e, f: m.b * n.e + m.d * n.f + m.f
 });
 
-function invert({ a, b, c, d, e, f }) {
-  const k = a * d - b * c;
-  return { a: d / k, b: -b / k, c: -c / k, d: a / k, e: (c * f - d * e) / k, f: (b * e - a * f) / k };
-}
-
 const move = (x, y) => ({ a: 1, b: 0, c: 0, d: 1, e: x, f: y });
 const turn = deg => {
   const r = deg * Math.PI / 180;
@@ -27,6 +23,12 @@ const turn = deg => {
 const grow = (x, y) => ({ a: x, b: 0, c: 0, d: y, e: 0, f: 0 });
 const plain = ({ a, b, c, d, e, f }) => ({ a, b, c, d, e, f });
 
+function invert({ a, b, c, d, e, f }) {
+  const k = a * d - b * c;
+  return { a: d / k, b: -b / k, c: -c / k, d: a / k, e: (c * f - d * e) / k, f: (b * e - a * f) / k };
+}
+const turnAbout = ([deg, x, y]) => mul(mul(move(x, y), turn(deg)), move(-x, -y));
+
 function pickupFilm(id, CFG) {
   const S = CFG.stage;
   const palette = { ...CFG.palette };
@@ -34,7 +36,13 @@ function pickupFilm(id, CFG) {
   const item = kit.asset(S.item);
   const flashPalette = kit.recolor(palette.flash);
   const scanPalette = Object.fromEntries(Object.keys(window.ENV.PALETTE).map(k => [k, k.endsWith("Line") ? palette.panelLine : palette.panelItem]));
-  const root = buildSide({ propBehindArm: true });
+  const hands = { reach: buildHand({ view: "back", pose: "reach", forearm: true }), hold: buildHand({ view: "back", pose: S.hold, forearm: true }) };
+  const hook = locate(hands.hold, "item");
+  const [ix0, iy0, ix1, iy1] = item.box;
+  const [hx, hy, gx, gy, sTurn, sK] = S.seat;
+  const upright = turnAbout(FINGERS_UP);
+  const seat = mul(mul(mul(move(hx, hy), turn(sTurn)), grow(S.itemFlip ? -sK : sK, sK)), move(-gx, -gy));
+  const inHook = hook && mul(invert(mul(upright, plain(hook))), seat);
   const blades = [];
   const pick = random(S.seed);
   const yaw0 = S.yaw * Math.PI / 180;
@@ -128,39 +136,45 @@ function pickupFilm(id, CFG) {
     ground(ctx, [cam.cos, cam.sin, cam.pan], c => (S.ground === "tiles" ? drawTiles : drawGrass)(c, cam));
   }
 
-  function robotAt(t) {
-    const k = at("robotK", t);
-    return { k, m: mul(mul(move(at("robotX", t), at("robotY", t)), grow(-k, k)), move(-SHOULDER[0], -SHOULDER[1])), pose: { arm: at("arm", t), fore: at("fore", t) } };
+  function handAt(t) {
+    const k = at("handK", t);
+    const m = mul(mul(mul(move(at("handX", t), at("handY", t)), grow(k, k)), turn(at("handTurn", t))), move(-PIVOT[0], -PIVOT[1]));
+    return { k, m, holding: t >= S.gripAt };
   }
 
-  const handAt = robot => mul(robot.m, plain(locate(root, "hand", robot.pose)));
 
-  function itemMatrix(t) {
-    const grip = handAt(robotAt(S.gripAt));
-    const [x0, y0, x1, y1] = item.box;
-    const ground = mul(mul(mul(move(grip.e + S.itemOffset[0], grip.f + S.itemOffset[1]), turn(S.itemTilt)), grow(S.itemFlip ? -S.itemScale : S.itemScale, S.itemScale)), move(-(x0 + x1) / 2, -(y0 + y1) / 2));
-    if (t < S.gripAt) return ground;
-    return mul(mul(handAt(robotAt(t)), invert(grip)), ground);
-  }
-
-  function drawItem(t) {
-    const m = itemMatrix(t);
+  function drawShadow(t) {
     const lift = at("shadow", t);
-    if (lift > 0) {
-      const grip = itemMatrix(S.gripAt);
-      kit.shadow(ctx, grip.e + S.shadow[0], grip.f + S.shadow[1], S.shadow[2], S.shadow[3], 0.45 * lift, palette.shadow);
+    if (lift <= 0) return;
+    const m = mul(handAt(S.gripAt).m, seat);
+    const cx = (ix0 + ix1) / 2, cy = (iy0 + iy1) / 2;
+    const x = m.a * cx + m.c * cy + m.e, y = m.b * cx + m.d * cy + m.f;
+    kit.shadow(ctx, x + S.shadow[0], y + S.shadow[1], S.shadow[2], S.shadow[3], 0.45 * lift, palette.shadow);
+  }
+
+  function paintItem(c, m, t) {
+    c.save();
+    c.transform(m.a, m.b, m.c, m.d, m.e, m.f);
+    window.ENV.draw(c, item, { state: S.itemState, t, lines: LINE_W, palette: at("flash", t) >= 0.5 ? flashPalette : window.ENV.PALETTE });
+    c.restore();
+  }
+
+  function drawHand(t) {
+    const hand = handAt(t);
+    const lineW = kit.lineFor(ctx, hand.k);
+    if (!hand.holding) {
+      paintItem(ctx, mul(handAt(S.gripAt).m, seat), t);
+      ctx.save();
+      ctx.transform(hand.m.a, hand.m.b, hand.m.c, hand.m.d, hand.m.e, hand.m.f);
+      renderBot(ctx, hands.reach, { lineW });
+      ctx.restore();
+      return;
     }
+    const m = mul(hand.m, upright);
+    if (!hook) paintItem(ctx, mul(hand.m, seat), t);
     ctx.save();
     ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-    window.ENV.draw(ctx, item, { state: S.itemState, t, lines: LINE_W, palette: at("flash", t) >= 0.5 ? flashPalette : window.ENV.PALETTE });
-    ctx.restore();
-  }
-
-  function drawRobot(t) {
-    const robot = robotAt(t);
-    ctx.save();
-    ctx.transform(robot.m.a, robot.m.b, robot.m.c, robot.m.d, robot.m.e, robot.m.f);
-    renderBot(ctx, root, { pose: robot.pose, lineW: kit.lineFor(ctx, robot.k) });
+    renderBot(ctx, hands.hold, { lineW, hooks: hook ? { item: c => paintItem(c, inHook, t) } : {} });
     ctx.restore();
   }
 
@@ -198,7 +212,6 @@ function pickupFilm(id, CFG) {
     ctx.globalAlpha = 0.35;
     ctx.stroke();
     ctx.globalAlpha = 1;
-    const [ix0, iy0, ix1, iy1] = item.box;
     const k = Math.min(w * 0.6 / (ix1 - ix0), h * 0.6 / (iy1 - iy0));
     ctx.save();
     ctx.beginPath();
@@ -254,8 +267,8 @@ function pickupFilm(id, CFG) {
     ctx.save();
     kit.fitStage(ctx, w, h, FW, FH);
     drawGround(t);
-    drawItem(t);
-    drawRobot(t);
+    drawShadow(t);
+    drawHand(t);
     drawGrid(t);
     drawGlyphs(t);
     drawPanel(t);

@@ -1,12 +1,12 @@
 import config from "@config/cutscenes/pick-controller.json";
 import { multiply as mul, type Mat2D } from "../../engine/math/mat2d";
 import { drawRig } from "../../engine/rig/draw";
-import type { Pose } from "../../engine/rig/pose";
 import { ASSETS, isAssetId } from "../env/assets";
 import { drawAsset, PALETTE, type EnvPalette } from "../env/paint";
-import { buildSide, ROBOT } from "../robot/xbot";
+import { locate } from "../../engine/rig/pose";
+import { buildHand, ROBOT, type HandPose } from "../robot/xbot";
 import type { Cutscene, CutsceneId } from "./index";
-import { fitStage, hookAt, LINE_W, lineFor, random, recolor, shadow, stillLayer, tracks } from "./kit";
+import { fitStage, LINE_W, lineFor, random, recolor, shadow, stillLayer, tracks } from "./kit";
 
 export interface PickupConfig {
   title: string;
@@ -27,9 +27,8 @@ export interface PickupConfig {
     edge: number;
     grout: number;
     gripAt: number;
-    itemOffset: number[];
-    itemTilt: number;
-    itemScale: number;
+    hold: string;
+    seat: number[];
     shadow: number[];
     gridBox: number[];
     gridCell: number;
@@ -48,11 +47,12 @@ type Point3 = [number, number, number];
 type Camera = { cos: number; sin: number; pan: number };
 type Blade = { u: number; v: number; h: number; lean: number; tone: number };
 type Glyph = { row: number; col: number; dots: number[] };
-type Robot = { k: number; m: Mat2D; pose: Pose };
+type Hand = { k: number; m: Mat2D; holding: boolean };
 
 const FW = 1600;
 const FH = 900;
-const SHOULDER = [300, 150] as const;
+const PIVOT = [88, 438] as const;
+const FINGERS_UP = [-90, 88, 470] as const;
 const NEAR = 18;
 const FAR = 46;
 const GLYPH = [3, 5] as const;
@@ -69,6 +69,7 @@ const turn = (deg: number): Mat2D => {
   return { a: Math.cos(r), b: Math.sin(r), c: -Math.sin(r), d: Math.cos(r), e: 0, f: 0 };
 };
 const grow = (x: number, y: number): Mat2D => ({ a: x, b: 0, c: 0, d: y, e: 0, f: 0 });
+const turnAbout = ([deg, x, y]: readonly [number, number, number]): Mat2D => mul(mul(move(x, y), turn(deg)), move(-x, -y));
 
 const tinted = (pick: (key: string) => string): EnvPalette => Object.fromEntries(Object.keys(PALETTE).map((k) => [k, pick(k)]));
 
@@ -81,7 +82,13 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
   const item = ASSETS[S.item];
   const flashPalette = recolor(color("flash"));
   const scanPalette = tinted((k) => (k.endsWith("Line") ? color("panelLine") : color("panelItem")));
-  const root = buildSide({ propBehindArm: true });
+  const hands = { reach: buildHand({ view: "back", pose: "reach", forearm: true }), hold: buildHand({ view: "back", pose: S.hold as HandPose, forearm: true }) };
+  const hook = locate(hands.hold, "item", {});
+  const [ix0, iy0, ix1, iy1] = item.box;
+  const [hx, hy, gx, gy, sTurn, sK] = S.seat as [number, number, number, number, number, number];
+  const upright = turnAbout(FINGERS_UP);
+  const seat = mul(mul(mul(move(hx, hy), turn(sTurn)), grow(S.itemFlip ? -sK : sK, sK)), move(-gx, -gy));
+  const inHook = hook && mul(invert(mul(upright, hook)), seat);
   const blades: Blade[] = [];
   const pick = random(S.seed);
   const yaw0 = (S.yaw * Math.PI) / 180;
@@ -182,42 +189,45 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     });
   }
 
-  const robotAt = (t: number): Robot => {
-    const k = at("robotK", t);
-    return { k, m: mul(mul(move(at("robotX", t), at("robotY", t)), grow(-k, k)), move(-SHOULDER[0], -SHOULDER[1])), pose: { arm: at("arm", t), fore: at("fore", t) } };
+  const handAt = (t: number): Hand => {
+    const k = at("handK", t);
+    const m = mul(mul(mul(move(at("handX", t), at("handY", t)), grow(k, k)), turn(at("handTurn", t))), move(-PIVOT[0], -PIVOT[1]));
+    return { k, m, holding: t >= S.gripAt };
   };
 
-  const handAt = (robot: Robot): Mat2D => {
-    return mul(robot.m, hookAt(root, "hand", robot.pose));
-  };
-
-  const itemMatrix = (t: number): Mat2D => {
-    const grip = handAt(robotAt(S.gripAt));
-    const [x0, y0, x1, y1] = item.box;
-    const ground = mul(mul(mul(move(grip.e + S.itemOffset[0]!, grip.f + S.itemOffset[1]!), turn(S.itemTilt)), grow(S.itemFlip ? -S.itemScale : S.itemScale, S.itemScale)), move(-(x0 + x1) / 2, -(y0 + y1) / 2));
-    if (t < S.gripAt) return ground;
-    return mul(mul(handAt(robotAt(t)), invert(grip)), ground);
-  };
-
-  function drawItem(ctx: CanvasRenderingContext2D, t: number): void {
-    const m = itemMatrix(t);
+  function drawShadow(ctx: CanvasRenderingContext2D, t: number): void {
     const lift = at("shadow", t);
-    if (lift > 0) {
-      const grip = itemMatrix(S.gripAt);
-      const [dx, dy, rx, ry] = S.shadow as [number, number, number, number];
-      shadow(ctx, grip.e + dx, grip.f + dy, rx, ry, 0.45 * lift, color("shadow"));
-    }
+    if (lift <= 0) return;
+    const m = mul(handAt(S.gripAt).m, seat);
+    const cx = (ix0 + ix1) / 2;
+    const cy = (iy0 + iy1) / 2;
+    const [dx, dy, rx, ry] = S.shadow as [number, number, number, number];
+    shadow(ctx, m.a * cx + m.c * cy + m.e + dx, m.b * cx + m.d * cy + m.f + dy, rx, ry, 0.45 * lift, color("shadow"));
+  }
+
+  function paintItem(ctx: CanvasRenderingContext2D, m: Mat2D, t: number): void {
     ctx.save();
     ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
     drawAsset(ctx, item, { state: S.itemState, t, lines: LINE_W, palette: at("flash", t) >= 0.5 ? flashPalette : PALETTE });
     ctx.restore();
   }
 
-  function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
-    const robot = robotAt(t);
+  function drawHand(ctx: CanvasRenderingContext2D, t: number): void {
+    const hand = handAt(t);
+    const lineW = lineFor(ctx, hand.k);
+    if (!hand.holding) {
+      paintItem(ctx, mul(handAt(S.gripAt).m, seat), t);
+      ctx.save();
+      ctx.transform(hand.m.a, hand.m.b, hand.m.c, hand.m.d, hand.m.e, hand.m.f);
+      drawRig(ctx, hands.reach, { palette: ROBOT.palette, lineW });
+      ctx.restore();
+      return;
+    }
+    const m = mul(hand.m, upright);
+    if (!inHook) paintItem(ctx, mul(hand.m, seat), t);
     ctx.save();
-    ctx.transform(robot.m.a, robot.m.b, robot.m.c, robot.m.d, robot.m.e, robot.m.f);
-    drawRig(ctx, root, { palette: ROBOT.palette, pose: robot.pose, lineW: lineFor(ctx, robot.k) });
+    ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
+    drawRig(ctx, hands.hold, { palette: ROBOT.palette, lineW, hooks: inHook ? { item: (c) => paintItem(c, inHook, t) } : {} });
     ctx.restore();
   }
 
@@ -267,7 +277,6 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     ctx.globalAlpha = 0.35;
     ctx.stroke();
     ctx.globalAlpha = 1;
-    const [ix0, iy0, ix1, iy1] = item.box;
     const k = Math.min((w * 0.6) / (ix1 - ix0), (h * 0.6) / (iy1 - iy0));
     ctx.save();
     ctx.beginPath();
@@ -326,8 +335,8 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
     fitStage(ctx, w, h, FW, FH);
     const cam = camera(t);
     ground(ctx, [cam.cos, cam.sin, cam.pan], (c) => (S.ground === "tiles" ? drawTiles : drawGrass)(c, cam));
-    drawItem(ctx, t);
-    drawRobot(ctx, t);
+    drawShadow(ctx, t);
+    drawHand(ctx, t);
     drawGrid(ctx, t);
     drawGlyphs(ctx, t);
     drawPanel(ctx, t);
