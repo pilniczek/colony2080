@@ -969,15 +969,16 @@ function slab(parent, pts) {
   P(parent, { pts, mat: "chrome", shade: "cyl", r: 4 });
 }
 
-const CARRY_TF = "translate(88 470) scale(6) translate(-9 6.5)";
+const PALM_MID = (HAND.top + 8 + HAND.bottom) / 2;
+const CARRY_TF = `translate(88 ${PALM_MID}) scale(6) translate(-9 6.5)`;
 
 function carry(s, view) {
-  if (view === "back") itemAt(s, "translate(88 470) scale(-6 6) translate(-9 6.5)");
+  if (view === "back") itemAt(s, `translate(88 ${PALM_MID}) scale(-6 6) translate(-9 6.5)`);
   openHand(s, view);
   const a = HAND_FACE[0];
   if (view === "palm") itemAt(s, CARRY_TF);
-  else if (view === "thumb") slab(s, [[a - 28, 432], [a - 2, 432], [a - 2, 508], [a - 28, 508]]);
-  else if (view === "little") slab(s, mirrorPts([[a - 28, 432], [a - 2, 432], [a - 2, 508], [a - 28, 508]], HAND_AX));
+  else if (view === "thumb") slab(s, [[a - 28, PALM_MID - 38], [a - 2, PALM_MID - 38], [a - 2, PALM_MID + 38], [a - 28, PALM_MID + 38]]);
+  else if (view === "little") slab(s, mirrorPts([[a - 28, PALM_MID - 38], [a - 2, PALM_MID - 38], [a - 2, PALM_MID + 38], [a - 28, PALM_MID + 38]], HAND_AX));
   else if (view === "tips") slab(s, [[22, 436], [154, 436], [154, 462], [22, 462]]);
 }
 
@@ -995,7 +996,7 @@ function cup(s, view) {
     if (view === "back") backPlate(s);
     else {
       palmPlate(s, M, HAND.bottom - 6);
-      itemAt(s, "translate(88 450) scale(3) translate(-7 3.5)");
+      itemAt(s, `translate(88 ${PALM_MID}) scale(3) translate(-7 3.5)`);
     }
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
@@ -1012,7 +1013,7 @@ function cup(s, view) {
     handStub(s);
     if (view === "little") thumb();
     profilePlate(s, S);
-    itemAt(s, `${view === "little" ? `translate(${2 * HAND_AX} 0) scale(-1 1) ` : ""}translate(60 474) scale(2.4) rotate(90) translate(-7 3.5)`);
+    itemAt(s, `${view === "little" ? `translate(${2 * HAND_AX} 0) scale(-1 1) ` : ""}translate(${HAND_FACE[0] - 9} ${PALM_MID}) scale(2.4) rotate(90) translate(-7 3.5)`);
     chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base], CUP, [s1, s2, s3], FINGER.thick, { shade: "cyl" });
     if (view === "thumb") thumb();
   } else fist(s, view);
