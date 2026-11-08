@@ -13,8 +13,8 @@
     "floorY": 820,
     "robot": { "scale": 0.92, "x": 905 },
     "pipe": { "x": 560, "w": 150, "sleeveTop": 280, "bottom": 580, "floor": 715 },
-    "wheel": { "x": 732, "y": 380, "r": 66, "depth": 0.5 },
-    "close": { "x": 800, "y": 470, "rx": 360, "tilt": 0.38, "arm": 3.2 }
+    "wheel": { "x": 732, "y": 380, "r": 66, "depth": 0.5, "farGrip": 120 },
+    "close": { "x": 800, "y": 470, "rx": 360, "tilt": 0.38, "arm": 3.6, "shoulder": [-60, 1000], "rim": 4.6 }
   },
   "palette": {
     "back": "#040606",

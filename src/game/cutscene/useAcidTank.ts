@@ -26,7 +26,7 @@ const { num, text } = tracks(config.tracks);
 const valveBack = stillLayer();
 
 let armRig: GroupNode | null = null;
-const robotArm = (): GroupNode => (armRig ??= buildSide({}));
+const robotArm = (): GroupNode => (armRig ??= buildSide({ hold: "grip" }));
 
 function pour(c: CanvasRenderingContext2D, mid: number, top: number, bottom: number, w: number, t: number): void {
   if (w <= 0) return;
@@ -52,10 +52,11 @@ function pour(c: CanvasRenderingContext2D, mid: number, top: number, bottom: num
 function closeArm(c: CanvasRenderingContext2D, side: number, target: Pt): void {
   const arm = robotArm();
   const k = CLOSE.arm;
-  const shoulder: Pt = side < 0 ? [-260, 1120] : [W + 260, 1120];
+  const [sx, sy] = CLOSE.shoulder as Pt;
+  const shoulder: Pt = side < 0 ? [sx, sy] : [W - sx, sy];
   const { s } = armChain(arm, "hand", ARM_KEYS);
   const m = new DOMMatrix().translate(shoulder[0], shoulder[1]).rotate(side * 58).scale(-side * k, k).translate(-s[0], -s[1]);
-  const pose: Pose = { ...STAND, ...reach(arm, "hand", ARM_KEYS, toModel(m, target), -side) };
+  const pose: Pose = { ...STAND, ...reach(arm, "rod", ARM_KEYS, toModel(m, target), -side) };
   placeRobot(c, arm, m, { pose, hooks: {}, lineW: LINE_W });
 }
 
@@ -102,10 +103,10 @@ function drawValve(c: CanvasRenderingContext2D, t: number): void {
   drawTap(c, t, x, cy, scale, tilt, spin, PALETTE, LINE_W);
   if (num("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash!);
   layer(c, t, (cc) => pour(cc, x + SPOUT.dx, y + SPOUT.dy, H + 20, 32 * num("pour", t), t), LINE_W);
-  const r = scale * TAP_CENTER.r - 12;
+  const r = scale * CLOSE.rim;
   for (const side of [-1, 1]) {
     const a = (side < 0 ? 180 : 0) + spin * 0.6;
-    closeArm(c, side, [x + r * Math.cos(a * RAD), cy + r * tilt * Math.sin(a * RAD) + 10]);
+    closeArm(c, side, [x + r * Math.cos(a * RAD), cy + r * tilt * Math.sin(a * RAD)]);
   }
   drawGrid(c, num("grid", t), palette.grid!);
 }

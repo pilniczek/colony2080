@@ -34,8 +34,16 @@ const NEAR_GRAVEL = gravelBed(29, 420, -20, 920, 34);
 let lineW = LINE_W;
 const closeBack = stillLayer();
 
-let rigs: { full: GroupNode; arm: GroupNode } | null = null;
-const robots = () => (rigs ??= { full: buildSide({ farLimbs: true }), arm: buildSide({}) });
+let rigs: Record<"reach" | "grip" | "near" | "far" | "armReach" | "arm", GroupNode> | null = null;
+const robots = () =>
+  (rigs ??= {
+    reach: buildSide({ farLimbs: true, hold: "reach", farHold: "reach" }),
+    grip: buildSide({ farLimbs: true, hold: "grip", farHold: "grip" }),
+    near: buildSide({ farLimbs: true, hold: "grip" }),
+    far: buildSide({ farLimbs: true, farHold: "grip" }),
+    armReach: buildSide({ hold: "reach" }),
+    arm: buildSide({ hold: "grip" })
+  });
 
 function gravel(c: CanvasRenderingContext2D, bed: Pebble[], lit: string): void {
   for (const [x, y, w, h, bright] of bed) {
@@ -139,22 +147,22 @@ function drawWheel(c: CanvasRenderingContext2D, t: number): void {
 }
 
 function drawHero(c: CanvasRenderingContext2D, t: number): void {
-  const { full } = robots();
+  const { reach: reachRig, grip: gripRig, near, far } = robots();
   const K = RB.scale;
   const m = new DOMMatrix().translate(RB.x, FLOOR).rotate(num("lean", t)).scale(-K, K).translate(-ROBOT.SIDE_AX, -ROBOT.FOOT_Y);
   const pose: Pose = { ...STAND, arm: 0, fore: 0, armFar: 0, foreFar: 0 };
   const blend = num("reach", t);
   const grip = num("grip", t);
-  const hold = (hook: string, keys: [string, string], deg: number): void => {
-    const rest = armChain(full, hook, keys).h;
+  const hold = (rig: GroupNode, keys: [string, string], deg: number): void => {
+    const rest = armChain(rig, "rod", keys).h;
     const rim = toModel(m, rimPoint(deg));
     const target: Pt = [rest[0] + (rim[0] - rest[0]) * blend, rest[1] + (rim[1] - rest[1]) * blend];
-    Object.assign(pose, reach(full, hook, keys, target, 1));
+    Object.assign(pose, reach(rig, "rod", keys, target, 1));
   };
-  hold("hand", ["arm", "fore"], grip);
-  hold("handFar", ["armFar", "foreFar"], grip + 180);
+  hold(near, ["arm", "fore"], grip);
+  hold(far, ["armFar", "foreFar"], grip + WHEEL.farGrip);
   pool(c, RB.x - 20, FLOOR + 4, 170, 18, "#000000", 0.6);
-  placeRobot(c, full, m, { pose, hooks: {}, lineW });
+  placeRobot(c, blend >= 1 ? gripRig : reachRig, m, { pose, hooks: {}, lineW });
 }
 
 function drawPumpRoom(c: CanvasRenderingContext2D, t: number): void {
@@ -182,15 +190,16 @@ export function drawTap(c: CanvasRenderingContext2D, t: number, x: number, y: nu
 }
 
 function closeArm(c: CanvasRenderingContext2D, side: number, target: Pt, blend: number): void {
-  const { arm } = robots();
+  const { arm, armReach } = robots();
   const k = CLOSE.arm;
-  const shoulder: Pt = side < 0 ? [-260, 1120] : [W + 260, 1120];
+  const [sx, sy] = CLOSE.shoulder as Pt;
+  const shoulder: Pt = side < 0 ? [sx, sy] : [W - sx, sy];
   const { s } = armChain(arm, "hand", ["arm", "fore"]);
   const m = new DOMMatrix().translate(shoulder[0], shoulder[1]).rotate(side * 58).scale(-side * k, k).translate(-s[0], -s[1]);
   const off: Pt = [shoulder[0] - side * 120, shoulder[1] + 200];
   const goal: Pt = [off[0] + (target[0] - off[0]) * blend, off[1] + (target[1] - off[1]) * blend];
-  const pose: Pose = { ...STAND, ...reach(arm, "hand", ["arm", "fore"], toModel(m, goal), -side) };
-  placeRobot(c, arm, m, { pose, hooks: {}, lineW });
+  const pose: Pose = { ...STAND, ...reach(arm, "rod", ["arm", "fore"], toModel(m, goal), -side) };
+  placeRobot(c, blend >= 1 ? arm : armReach, m, { pose, hooks: {}, lineW });
 }
 
 export function drawGrid(c: CanvasRenderingContext2D, g: number, color: string): void {
@@ -240,7 +249,7 @@ function drawCloseUp(c: CanvasRenderingContext2D, t: number): void {
   drawTap(c, t, x, cy + 22 * (1 + lift), scale, squash, spin, SHADOW_PALETTE, lineW);
   drawTap(c, t, x, cy, scale, squash, spin, num("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE, lineW);
   const hands = num("hands", t);
-  if (hands > 0) for (const side of [-1, 1]) closeArm(c, side, [x + side * (scale * TAP_CENTER.r - 10), cy + 10], hands);
+  if (hands > 0) for (const side of [-1, 1]) closeArm(c, side, [x + side * scale * CLOSE.rim, cy], hands);
   drawGrid(c, num("grid", t), palette.grid!);
 }
 

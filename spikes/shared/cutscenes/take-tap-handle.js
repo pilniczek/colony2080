@@ -31,7 +31,14 @@ let lineW = LINE_W;
 const closeBack = kit.stillLayer();
 
 let rigs = null;
-const robots = () => rigs || (rigs = { full: buildSide({ farLimbs: true }), arm: buildSide({}) });
+const robots = () => rigs || (rigs = {
+  reach: buildSide({ farLimbs: true, hold: "reach", farHold: "reach" }),
+  grip: buildSide({ farLimbs: true, hold: "grip", farHold: "grip" }),
+  near: buildSide({ farLimbs: true, hold: "grip" }),
+  far: buildSide({ farLimbs: true, farHold: "grip" }),
+  armReach: buildSide({ hold: "reach" }),
+  arm: buildSide({ hold: "grip" })
+});
 
 function gravel(c, bed, lit) {
   for (const [x, y, w, h, bright] of bed) {
@@ -140,22 +147,22 @@ function drawWheel(c, t) {
 }
 
 function drawHero(c, t) {
-  const { full } = robots();
+  const { reach, grip: gripRig, near, far } = robots();
   const K = RB.scale;
   const m = new DOMMatrix().translate(RB.x, FLOOR).rotate(at("lean", t)).scale(-K, K).translate(-SIDE_AX, -FOOT_Y);
   const pose = { ...STAND, arm: 0, fore: 0, armFar: 0, foreFar: 0 };
   const blend = at("reach", t);
   const grip = at("grip", t);
-  const hold = (hook, keys, deg) => {
-    const rest = kit.armChain(full, hook, keys).h;
+  const hold = (rig, keys, deg) => {
+    const rest = kit.armChain(rig, "rod", keys).h;
     const rim = kit.toModel(m, ...rimPoint(deg));
     const target = [rest[0] + (rim[0] - rest[0]) * blend, rest[1] + (rim[1] - rest[1]) * blend];
-    Object.assign(pose, kit.reach(full, hook, keys, target, 1));
+    Object.assign(pose, kit.reach(rig, "rod", keys, target, 1));
   };
-  hold("hand", ["arm", "fore"], grip);
-  hold("handFar", ["armFar", "foreFar"], grip + 180);
+  hold(near, ["arm", "fore"], grip);
+  hold(far, ["armFar", "foreFar"], grip + WHEEL.farGrip);
   kit.pool(c, RB.x - 20, FLOOR + 4, 170, 18, "#000000", 0.6);
-  kit.placeRobot(c, full, m, { pose, hooks: {}, lineW });
+  kit.placeRobot(c, blend >= 1 ? gripRig : reach, m, { pose, hooks: {}, lineW });
 }
 
 function drawPumpRoom(c, t) {
@@ -183,15 +190,16 @@ function drawTap(c, t, x, y, scale, tilt, spin, pal, lines) {
 }
 
 function closeArm(c, side, target, blend) {
-  const { arm } = robots();
+  const { arm, armReach } = robots();
   const k = CLOSE.arm;
-  const shoulder = side < 0 ? [-260, 1120] : [W + 260, 1120];
+  const [sx, sy] = CLOSE.shoulder;
+  const shoulder = side < 0 ? [sx, sy] : [W - sx, sy];
   const { s } = kit.armChain(arm, "hand", ["arm", "fore"]);
   const m = new DOMMatrix().translate(shoulder[0], shoulder[1]).rotate(side * 58).scale(-side * k, k).translate(-s[0], -s[1]);
   const off = [shoulder[0] - side * 120, shoulder[1] + 200];
   const goal = [off[0] + (target[0] - off[0]) * blend, off[1] + (target[1] - off[1]) * blend];
-  const pose = { ...STAND, ...kit.reach(arm, "hand", ["arm", "fore"], kit.toModel(m, ...goal), -side) };
-  kit.placeRobot(c, arm, m, { pose, hooks: {}, lineW });
+  const pose = { ...STAND, ...kit.reach(arm, "rod", ["arm", "fore"], kit.toModel(m, ...goal), -side) };
+  kit.placeRobot(c, blend >= 1 ? arm : armReach, m, { pose, hooks: {}, lineW });
 }
 
 function drawGrid(c, g) {
@@ -241,7 +249,7 @@ function drawCloseUp(c, t) {
   drawTap(c, t, x, cy + 22 * (1 + lift), scale, squash, spin, SHADOW_PALETTE, lineW);
   drawTap(c, t, x, cy, scale, squash, spin, at("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE, lineW);
   const hands = at("hands", t);
-  if (hands > 0) for (const side of [-1, 1]) closeArm(c, side, [x + side * (scale * TAP_CENTER.r - 10), cy + 10], hands);
+  if (hands > 0) for (const side of [-1, 1]) closeArm(c, side, [x + side * scale * CLOSE.rim, cy], hands);
   drawGrid(c, at("grid", t));
 }
 

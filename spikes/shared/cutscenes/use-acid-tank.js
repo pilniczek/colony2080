@@ -26,7 +26,7 @@ let lineW = LINE_W;
 const valveBack = kit.stillLayer();
 
 let armRig = null;
-const robotArm = () => armRig || (armRig = buildSide({}));
+const robotArm = () => armRig || (armRig = buildSide({ hold: "grip" }));
 
 function pour(c, mid, top, bottom, w, t) {
   if (w <= 0) return;
@@ -52,10 +52,11 @@ function pour(c, mid, top, bottom, w, t) {
 function closeArm(c, side, target) {
   const arm = robotArm();
   const k = CLOSE.arm;
-  const shoulder = side < 0 ? [-260, 1120] : [W + 260, 1120];
+  const [sx, sy] = CLOSE.shoulder;
+  const shoulder = side < 0 ? [sx, sy] : [W - sx, sy];
   const { s } = kit.armChain(arm, "hand", ["arm", "fore"]);
   const m = new DOMMatrix().translate(shoulder[0], shoulder[1]).rotate(side * 58).scale(-side * k, k).translate(-s[0], -s[1]);
-  const pose = { ...STAND, ...kit.reach(arm, "hand", ["arm", "fore"], kit.toModel(m, ...target), -side) };
+  const pose = { ...STAND, ...kit.reach(arm, "rod", ["arm", "fore"], kit.toModel(m, ...target), -side) };
   kit.placeRobot(c, arm, m, { pose, hooks: {}, lineW });
 }
 
@@ -103,10 +104,10 @@ function drawValve(c, t) {
   drawTap(c, t, x, cy, scale, tilt, spin, PALETTE, lineW);
   if (at("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash);
   kit.layer(c, t, cc => pour(cc, x + SPOUT.dx, y + SPOUT.dy, H + 20, 32 * at("pour", t), t), lineW);
-  const r = scale * TAP_CENTER.r - 12;
+  const r = scale * CLOSE.rim;
   for (const side of [-1, 1]) {
     const a = (side < 0 ? 180 : 0) + spin * 0.6;
-    closeArm(c, side, [x + r * Math.cos(a * kit.RAD), cy + r * tilt * Math.sin(a * kit.RAD) + 10]);
+    closeArm(c, side, [x + r * Math.cos(a * kit.RAD), cy + r * tilt * Math.sin(a * kit.RAD)]);
   }
   drawGrid(c, at("grid", t));
 }
