@@ -290,7 +290,7 @@ window.C28_CONFIG = {
     "legCenterX": 211,
     "bodyScaleX": 0.8,
     "forearmShift": 10,
-    "shoulderIn": 20,
+    "shoulderIn": 40,
     "forearmScaleX": 0.86,
     "forearmScale": 0.8,
     "sideLegScaleX": 1.276,
