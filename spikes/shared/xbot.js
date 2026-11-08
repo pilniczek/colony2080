@@ -1021,6 +1021,7 @@ const GRIP_K = 16;
 const GRIP_R = 0.9 * GRIP_K;
 const GRIP_C = [HAND_FACE[0] - GRIP_R, PALM_MID + 6];
 const GRIP_CURL = [-60, -110, -160];
+const TRIGGER_CURL = [-25, -75, -115];
 const gripTf = y => `translate(88 ${y}) scale(${GRIP_K}) translate(-13 1.5)`;
 
 const CROWBAR = {
@@ -1040,7 +1041,9 @@ const PISTOL = {
     const { x0, x1, top, muzzle } = PISTOL_SLIDE;
     P(s, { pts: M([[HAND.x0 - 22, y - PISTOL_R - 12], [x0 + 4, y - PISTOL_R + 2], [x0 + 6, y + PISTOL_R + 4], [HAND.x0 - 20, y + PISTOL_R - 12]]), mat: "metal", shade: "cyl", r: 5 });
     if (tips) return;
-    P(s, { pts: M([[x0 - 18, y + PISTOL_R], [x0 - 2, y + PISTOL_R], [x0 - 2, y + PISTOL_R + 26], [x0 - 18, y + PISTOL_R + 26]]), mat: "metal", shade: "cyl", r: 7 });
+    P(s, { pts: M([[x0 - 24, y + PISTOL_R - 2], [x0, y + PISTOL_R - 2], [x0, y + PISTOL_R + 30], [x0 - 24, y + PISTOL_R + 30]]), mat: "metal", shade: "cyl", r: 9 });
+    F(s, M([[x0 - 18, y + PISTOL_R + 3], [x0 - 4, y + PISTOL_R + 3], [x0 - 4, y + PISTOL_R + 24], [x0 - 18, y + PISTOL_R + 24]]), "m0", 6);
+    P(s, { pts: M([[x0 - 13, y + PISTOL_R + 2], [x0 - 8, y + PISTOL_R + 2], [x0 - 10, y + PISTOL_R + 18], [x0 - 14, y + PISTOL_R + 16]]), mat: "metal", shade: "cyl", r: 2 });
     P(s, { pts: M([[x0, top], [x1, top], [x1, muzzle], [x0, muzzle]]), mat: "chrome", shade: "cyl", r: 4 });
     F(s, M([[x0 + 3, top + 30], [x1 - 3, top + 30], [x1 - 3, top + 34], [x0 + 3, top + 34]]), "m1");
     F(s, M([[x0 + 3, muzzle - 8], [x1 - 3, muzzle - 8], [x1 - 3, muzzle - 4], [x0 + 3, muzzle - 4]]), "m1");
@@ -1068,12 +1071,18 @@ function grip(s, view, rod = CROWBAR) {
   const R = rod.r;
   const [cx, cy] = [HAND_FACE[0] - R, GRIP_C[1]];
   const near = cy + R + FINGER.thick / 2 + 4;
+  const trigger = rod === PISTOL;
+  const curled = trigger ? 3 : 4;
+  const pull = cy + R + 14;
+  const ix = fingerX(3);
+  const px = fingerX(0);
   if (view === "back") {
     rod.across(s, M, cy);
     handStub(s);
     if (rod !== PISTOL) P(s, { pts: fistThumb(), shade: "cyl", r: 6, lw: FINGER_LW });
     backPlate(s);
-    for (let i = 0; i < 4; i++) {
+    if (trigger) P(s, { pts: [[ix, knuckle + 4], [ix + 20, knuckle + 4], [ix + 20, pull + 12], [ix, pull + 12]], shade: "cyl", r: 7, lw: FINGER_LW });
+    for (let i = 0; i < curled; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, near], [x, near]], shade: "cyl", r: 6, lw: FINGER_LW });
       P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, knuckle + 10], [x, knuckle + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
@@ -1081,14 +1090,19 @@ function grip(s, view, rod = CROWBAR) {
   } else if (view === "palm") {
     handStub(s);
     palmPlate(s, M, HAND.bottom - 6);
-    for (let i = 0; i < 4; i++) {
+    for (let i = 4 - curled; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, knuckle - 4], [x + 20, knuckle - 4], [x + 20, near - 8], [x, near - 8]], shade: "cyl", r: 3, lw: FINGER_LW });
     }
     rod.across(s, W, cy);
-    for (let i = 0; i < 4; i++) {
+    for (let i = 4 - curled; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, cy - 4], [x + 20, cy - 4], [x + 20, near], [x, near]], shade: "cyl", r: 7, lw: FINGER_LW });
+    }
+    if (trigger) {
+      P(s, { pts: [[px, knuckle - 4], [px + 20, knuckle - 4], [px + 20, pull], [px, pull]], shade: "cyl", r: 3, lw: FINGER_LW });
+      P(s, { pts: [[px + 3, knuckle - 1], [px + 17, knuckle - 1], [px + 17, pull - 3], [px + 3, pull - 3]], mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+      P(s, { pts: [[px, pull - 4], [px + 20, pull - 4], [px + 20, pull + 12], [px, pull + 12]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
     P(s, { pts: W(fistThumb(-4)), shade: "cyl", r: 6, lw: FINGER_LW });
     chain(s, W, bar(THUMB_BASE, -5, THUMB.seg[0], 0).end, [-90], [THUMB.seg[1]], THUMB.w, { shade: "cyl" });
@@ -1100,10 +1114,16 @@ function grip(s, view, rod = CROWBAR) {
       rod.side(s, S, [cx, cy]);
       thumb();
     }
+    const index = () => chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, knuckle], TRIGGER_CURL, FINGER.seg, FINGER.thick, { shade: "cyl" });
+    if (trigger && view === "little") index();
     profilePlate(s, S);
     rod.section(s, S, [cx, cy], R);
     chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, knuckle], GRIP_CURL, FINGER.seg, FINGER.thick, { shade: "cyl" });
-    if (view === "thumb") {
+    if (trigger && view === "thumb") index();
+    if (view === "thumb" && trigger) {
+      thumb();
+      rod.side(s, S, [cx, cy]);
+    } else if (view === "thumb") {
       rod.side(s, S, [cx, cy]);
       thumb();
     }
