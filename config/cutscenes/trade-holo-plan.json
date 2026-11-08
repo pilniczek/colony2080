@@ -5,8 +5,8 @@
   "title": "Holo plan shown at the bar",
   "camera": "CAM 07 BAR",
   "duration": 8.73,
+  "sounds": [[3.07, "servo", 11000], [3.672, "servo", 11000], [5.944, "heavyDoor", 9000], [7.25, "servo", 11000], [7.816, "step", 13000], [8.469, "servo", 11000]],
   "caption": 3.07,
-  "sounds": [[3.07, "servo", 11000], [4.366, "servo", 11000], [5.944, "heavyDoor", 9000], [7.25, "servo", 11000], [7.816, "step", 13000], [8.469, "servo", 11000]],
   "items": {"robotBefore": null, "robotAfter": "shipPlan", "manBefore": "shipPlan", "manAfter": null},
   "stage": {"width": 1600, "height": 900, "holoStart": 3.07, "doorStart": 5.9, "hatch": [170, 90, 1190, 600], "robotScale": 1, "itemScale": 14},
   "palette": {
