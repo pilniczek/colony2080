@@ -86,7 +86,8 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
   const hook = locate(hands.hold, "item", {});
   const [ix0, iy0, ix1, iy1] = item.box;
   const [hx, hy, gx, gy, sTurn, sK] = S.seat as [number, number, number, number, number, number];
-  const upright = turnAbout(FINGERS_UP);
+  const hidden = S.hold === "fist";
+  const upright = turnAbout(hidden ? [0, 0, 0] : FINGERS_UP);
   const seat = mul(mul(mul(move(hx, hy), turn(sTurn)), grow(S.itemFlip ? -sK : sK, sK)), move(-gx, -gy));
   const inHook = hook && mul(invert(mul(upright, hook)), seat);
   const blades: Blade[] = [];
@@ -224,7 +225,7 @@ export function pickupFilm(id: CutsceneId, CFG: PickupConfig): Cutscene {
       return;
     }
     const m = mul(hand.m, upright);
-    if (!inHook) paintItem(ctx, mul(hand.m, seat), t);
+    if (!inHook && !hidden) paintItem(ctx, mul(hand.m, seat), t);
     ctx.save();
     ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
     drawRig(ctx, hands.hold, { palette: ROBOT.palette, lineW, hooks: inHook ? { item: (c) => paintItem(c, inHook, t) } : {} });

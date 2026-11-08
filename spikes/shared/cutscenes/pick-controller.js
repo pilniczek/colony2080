@@ -40,7 +40,8 @@ function pickupFilm(id, CFG) {
   const hook = locate(hands.hold, "item");
   const [ix0, iy0, ix1, iy1] = item.box;
   const [hx, hy, gx, gy, sTurn, sK] = S.seat;
-  const upright = turnAbout(FINGERS_UP);
+  const hidden = S.hold === "fist";
+  const upright = turnAbout(hidden ? [0, 0, 0] : FINGERS_UP);
   const seat = mul(mul(mul(move(hx, hy), turn(sTurn)), grow(S.itemFlip ? -sK : sK, sK)), move(-gx, -gy));
   const inHook = hook && mul(invert(mul(upright, plain(hook))), seat);
   const blades = [];
@@ -171,7 +172,7 @@ function pickupFilm(id, CFG) {
       return;
     }
     const m = mul(hand.m, upright);
-    if (!hook) paintItem(ctx, mul(hand.m, seat), t);
+    if (!hook && !hidden) paintItem(ctx, mul(hand.m, seat), t);
     ctx.save();
     ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
     renderBot(ctx, hands.hold, { lineW, hooks: hook ? { item: c => paintItem(c, inHook, t) } : {} });
