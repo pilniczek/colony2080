@@ -283,7 +283,7 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   if (names.hand && !propBehindArm) hook(hand, names.hand);
   const hc = mirror ? 2 * AX - 89 : 89;
   if (hold === "gunGrip") heldHand(fore, hold, "back", `${mirror ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
-  else if (hold) heldHand(fore, hold, "tips", `translate(${mirror ? 2 * AX - 2 * HAND_AX : 0} ${FRONT_HAND_DY}) rotate(${SUPPORT_TURN} 88 434)`);
+  else if (hold) heldHand(fore, hold, "tips", `translate(${mirror ? 2 * AX - 2 * HAND_AX : 0} ${FRONT_HAND_DY}) rotate(${SUPPORT_TURN} 88 434) translate(${2 * HAND_AX} 0) scale(-1 1)`);
   else frontHand(fore, flipHand ? p => mirrorPts(M(p), hc) : M, thumbFront && !flipHand);
 }
 
@@ -1086,6 +1086,7 @@ const BARE_GUN = { ...CROWBAR, r: PISTOL_R, trigger: true, across: () => {}, sec
 
 function heldHand(parent, pose, view, tf) {
   const g = G(parent, tf);
+  if (view === "tips") forearmEnd(g);
   bareHand = true;
   try {
     if (pose === "gunGrip") grip(g, view, BARE_GUN);

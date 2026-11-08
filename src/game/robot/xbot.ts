@@ -248,6 +248,7 @@ const gunGripHand = (k: Kit, parent: GroupNode): void => {
 const cupHand = (k: Kit, parent: GroupNode, view: "back" | "tips"): void => {
   if (view === "tips") {
     const face = HAND.top + 2 + HAND_THICK;
+    k.P(parent, { pts: box(34, 365, 142, 469), r: 8 });
     k.P(parent, { pts: box(HAND.x0, 400, HAND.x1, 400 + HAND_THICK), r: 3 });
     k.P(parent, { pts: box(HAND.x0 + 4, 400 + HAND_THICK - 6, HAND.x1 - 4, 400 + HAND_THICK + 2), mat: "metal", shade: "cyl", r: 4 });
     for (let i = 0; i < 4; i++) k.P(parent, { pts: box(fingerX(i), 404, fingerX(i) + 20, face + 10), shade: "cyl", r: 7, lw: FINGER_LW });
@@ -328,7 +329,7 @@ const frontArm = (
   if (names.hand && !propBehindArm) k.hook(hand, names.hand);
   const hc = mirrored ? 2 * AX - 89 : 89;
   if (hold === "gunGrip") heldHand(k, fore, hold, "back", `${mirrored ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
-  else if (hold) heldHand(k, fore, hold, "tips", `translate(${mirrored ? 2 * AX - 2 * HAND_AX : 0} ${FRONT_HAND_DY}) rotate(${SUPPORT_TURN} 88 434)`);
+  else if (hold) heldHand(k, fore, hold, "tips", `translate(${mirrored ? 2 * AX - 2 * HAND_AX : 0} ${FRONT_HAND_DY}) rotate(${SUPPORT_TURN} 88 434) translate(${2 * HAND_AX} 0) scale(-1 1)`);
   else frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront && !flipHand);
 };
 
