@@ -33,9 +33,6 @@
 <header>
   <h1>Item sheet</h1>
   <label>Mission <select id="mission"></select></label>
-<!-- originals -->
-  <label><input id="spin" type="checkbox" checked> Spin original</label>
-<!-- /originals -->
 </header>
 <div id="sheet"></div>
 <script src="../shared/clock.js"></script>
@@ -331,7 +328,7 @@ function render() {
 }
 render();
 setInterval(() => {
-  if (!$("spin")?.checked || SPIKE_CLOCK.paused) return;
+  if (SPIKE_CLOCK.paused) return;
   for (const v of refViews) {
     v.frame = v.frame % (SHEET.frames - 1) + 1;
     paintRef(v);
