@@ -1067,7 +1067,7 @@ function grip(s, view) {
   } else {
     forearmEnd(s);
     sectionPlate(s);
-    const depth = 400 + HAND_FACE[1] - cx;
+    const depth = 400 + HAND_FACE[1] - cx - 10;
     itemAt(s, gripTf(depth));
     handThumb(s, M, [130, depth + 10], [-60, -90], THUMB.thick);
     for (let i = 0; i < 4; i++) {
