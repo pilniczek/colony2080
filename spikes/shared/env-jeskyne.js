@@ -1,5 +1,5 @@
 (() => {
-const { define, P, G } = window.ENV;
+const { define, P, G, itemViews } = window.ENV;
 const { rng, path, flat, box, cylV, disc, rivets, glow, stroke, shape, line, hazard } = P;
 const { PI, sin, cos, round } = Math;
 const simple = () => window.ENV.simple;
@@ -601,9 +601,21 @@ const chasm = {
         disc(ctx, r() * w, 20 + r() * 50, 0.5 + r() * 0.5, "#ff8a40");
   },
 };
+const rodStrokes = (ctx, a, b, c) => {
+  line(ctx, [a, b], "#1e1208", 3.2);
+  line(ctx, [a, b], "#6e4824", 2);
+  if (c) line(ctx, c, "#a87a44", 0.7);
+};
 const rod = {
   id: "rod",
   box: [-16, -8, 16, 0],
+  views: itemViews([-16, -8, 16, 0], 3.2, {
+    top(ctx) {
+      rodStrokes(ctx, [-15, 0], [14, 0], [[-13, -0.4], [12, -0.4]]);
+      line(ctx, [[-15, 0], [-13.4, 0]], "#3a2410", 2);
+    },
+    front: (ctx) => rodStrokes(ctx, [0, -2], [0, -5.5]),
+  }),
   draw(ctx, state) {
     if (state === 2)
       return;
@@ -617,12 +629,27 @@ const CARD = "#e8ece6";
 const CARD_SHADE = "#bcc2bc";
 const CARD_LINE = "#1a1c1a";
 const CARD_PTS = [[-8, -10], [7, -10], [8, -9], [8, -1], [7, 0], [-8, 0]];
+const cardViews = (face, edge) => itemViews([-9, -14, 9, 0], 10, {
+  top(ctx) {
+    ctx.save();
+    ctx.translate(0, 5);
+    face(ctx);
+    ctx.restore();
+  },
+  front: (ctx) => shape(ctx, [[-5, -0.5], [5, -0.5], [5, 0], [-5, 0]], edge, CARD_LINE),
+  flat: (ctx) => shape(ctx, [[-8, -0.5], [8, -0.5], [8, 0], [-8, 0]], edge, CARD_LINE),
+});
 const keyCard = (c, id) => ({
   id,
   box: [-9, -14, 9, 0],
+  views: cardViews((ctx) => keyCardFace(ctx, c), CARD),
   draw(ctx, state) {
     if (state === 2)
       return;
+    keyCardFace(ctx, c);
+  },
+});
+const keyCardFace = (ctx, c) => {
     shape(ctx, CARD_PTS, CARD);
     flat(ctx, -8, -1.6, 16, 1.6, CARD_SHADE);
     flat(ctx, -8, -10, 2.8, 10, "#c8a040");
@@ -636,14 +663,8 @@ const keyCard = (c, id) => ({
     flat(ctx, 0.4, -6.2, 0.8, 2.4, "#4a2a1e");
     flat(ctx, 1.3, -6.2, 0.5, 2.4, "#4a2a1e");
     shape(ctx, CARD_PTS, "rgba(0,0,0,0)", CARD_LINE);
-  },
-});
-const entryCard = {
-  id: "entryCard",
-  box: [-9, -14, 9, 0],
-  draw(ctx, state) {
-    if (state === 2)
-      return;
+};
+const entryCardFace = (ctx) => {
     shape(ctx, CARD_PTS, "#a4b2b8");
     if (!simple()) {
       flat(ctx, -6.5, -8.5, 5, 2.4, "#8494a0");
@@ -656,6 +677,15 @@ const entryCard = {
     flat(ctx, -6.5, -2.2, 5, 0.6, "#8a3412");
     flat(ctx, 5.6, -10, 2.4, 10, "#d0d4d0");
     shape(ctx, CARD_PTS, "rgba(0,0,0,0)", CARD_LINE);
+};
+const entryCard = {
+  id: "entryCard",
+  box: [-9, -14, 9, 0],
+  views: cardViews(entryCardFace, "#a4b2b8"),
+  draw(ctx, state) {
+    if (state === 2)
+      return;
+    entryCardFace(ctx);
   },
 };
 for (const asset of [
