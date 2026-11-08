@@ -1081,7 +1081,7 @@ function grip(s, view) {
 
 const HAND_BUILDERS = { open: openHand, fist, carry, cup, grip };
 
-const PALM_UP = { thumb: "rotate(90 88 470)", little: "rotate(-90 88 470)", tips: "rotate(180 88 434)" };
+const PALM_UP = { palm: "rotate(90 88 470)", back: "rotate(90 88 470)", thumb: "rotate(90 88 470)", little: "translate(176 0) scale(-1 1) rotate(-90 88 470)", tips: "rotate(180 88 434)" };
 
 function buildHand({ view = "back", pose = "open" } = {}) {
   const root = { k: "g", kids: [] };
