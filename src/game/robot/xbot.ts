@@ -2,8 +2,7 @@ import config from "@config/robots/xbot.json";
 import type { Palette } from "../../engine/rig/draw";
 import { createBuilder, mirrorPts, type Builder, type GroupNode, type PartSpec, type Pt } from "../../engine/rig/tree";
 
-type Bulk = keyof typeof config.gameLod.bulk;
-type Kit = Builder & { low: boolean; bulk: (limb: Bulk) => number };
+type Kit = Builder & { low: boolean };
 type Mirror = (pts: Pt[]) => Pt[];
 
 const AX = config.frame.axis;
@@ -21,7 +20,7 @@ export const ROBOT: { AX: number; SIDE_AX: number; FOOT_Y: number; gameLine: num
 
 const mirror = (pts: Pt[], ax = AX): Pt[] => mirrorPts(pts, ax);
 
-const kit = (low: boolean): Kit => ({ ...createBuilder(low ? config.gameLod : null), low, bulk: (limb) => (low ? config.gameLod.bulk[limb] : 1) });
+const kit = (low: boolean): Kit => ({ ...createBuilder(low ? config.gameLod : null), low });
 
 const both = (k: Kit, parent: GroupNode, spec: PartSpec, ax = AX): void => {
   k.P(parent, spec);
@@ -491,7 +490,7 @@ interface LegNames {
 }
 
 const sideLeg = (k: Kit, parent: GroupNode, names: LegNames, enemy: boolean, dim?: number): void => {
-  const sx = 0.88 * k.bulk("sideLegs");
+  const sx = PR.sideLegScaleX;
   const hip = k.G(parent, null, names.hip, [300, 344], { dim });
   const th = k.G(hip, legTf("thigh", SIDE_AX, sx));
   k.P(th, { pts: [[278, 342], [314, 342], [314, 440], [278, 440]], mat: "chrome", shade: "cyl", r: 1 });

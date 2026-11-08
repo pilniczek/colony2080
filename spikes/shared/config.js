@@ -293,6 +293,7 @@ window.C28_CONFIG = {
     "shoulderIn": 20,
     "forearmScaleX": 0.86,
     "forearmScale": 0.8,
+    "sideLegScaleX": 1.276,
     "badgeRadius": 26,
     "sideTorsoScaleX": 0.8,
     "sideShoulder": {
@@ -306,10 +307,7 @@ window.C28_CONFIG = {
     "lineW": 0.6,
     "minThickness": 8,
     "minArea": 400,
-    "minRadius": 8,
-    "bulk": {
-     "sideLegs": 1.45
-    }
+    "minRadius": 8
    },
    "levels": {
     "head": 2,

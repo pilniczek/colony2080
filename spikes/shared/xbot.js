@@ -93,10 +93,6 @@ function mirrorPts(pts, ax = AX) {
 
 let lod = null;
 
-function bulk(limb) {
-  return lod?.bulk?.[limb] ?? 1;
-}
-
 function tiny(pts) {
   if (!lod) return false;
   const [x0, y0, x1, y1] = bbox(pts);
@@ -420,7 +416,7 @@ function backTree({ leftArmBehind, rightForeBehind, enemy }) {
 }
 
 function sideLeg(parent, names, extra, enemy) {
-  const sx = 0.88 * bulk("sideLegs");
+  const sx = PR.sideLegScaleX;
   const hip = G(parent, null, names.hip, [300, 344], extra);
   const th = G(hip, legTf("thigh", SIDE_AX, sx));
   P(th, { pts: [[278, 342], [314, 342], [314, 440], [278, 440]], mat: "chrome", shade: "cyl", r: 1 });
