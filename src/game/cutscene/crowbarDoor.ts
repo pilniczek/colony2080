@@ -1,19 +1,23 @@
 import config from "@config/cutscenes/crowbar-door.json";
+import robotJson from "@config/robots/xbot.json";
 import { apply, rotate } from "../../engine/math/mat2d";
 import type { HookDraw } from "../../engine/rig/draw";
 import { solve } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
+import { ASSETS, type AssetId } from "../env/assets";
+import { drawAsset, TILE } from "../env/paint";
 import { buildBack, buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, fitStage, fromDom, hookAt, LINE_W, lineFor, ORIGIN, placeRobot, poly, rect, shadow, STAND, tracks, unitScale } from "./kit";
+import { camera, fitStage, fromDom, hookAt, LINE_W, lineFor, ORIGIN, placeRobot, rect, shadow, STAND, tracks, unitScale } from "./kit";
 
 type Palette = typeof config.palette;
 type Stage = { ctx: CanvasRenderingContext2D; t: number };
 
-const { width: W, height: H, floorY: FLOOR, doorSeamX: SEAM, doorHalfWidth: DOOR_HALF } = config.stage;
-const DOOR = { x: SEAM - DOOR_HALF, w: 2 * DOOR_HALF, top: 322, bottom: 705 };
+const { width: W, height: H, floorY: FLOOR, doorSeamX: SEAM } = config.stage;
+const SCENE = config.stage.scene as [AssetId, number, number][];
 const RB = config.robot;
 const K = RB.scale;
+const ENV_K = (K * (ROBOT.FOOT_Y - robotJson.levels.head)) / (1.9 * TILE);
 const BAR = config.crowbar;
 let lineW = LINE_W;
 
@@ -27,64 +31,19 @@ let rigs: { side: GroupNode; back: GroupNode } | null = null;
 const robots = () => (rigs ??= { side: buildSide({ farLimbs: true, propBehindArm: true }), back: buildBack({ leftArmBehind: true, rightForeBehind: true }) });
 let farSeed: Record<string, number> | null = null;
 
-function drawDoorHalf(ctx: CanvasRenderingContext2D, x: number, left: boolean): void {
-  const { top, bottom } = DOOR;
-  rect(ctx, x, top, DOOR_HALF, bottom - top, palette.door);
-  rect(ctx, left ? x : x + DOOR_HALF - 20, top, 20, bottom - top, palette.doorShade);
-  rect(ctx, x + 20, top + 38, DOOR_HALF - 40, 120, palette.window);
-  ctx.globalAlpha = 0.6;
-  poly(ctx, [[x + 30, top + 38], [x + 50, top + 38], [x + 28, top + 158], [x + 20, top + 158]], palette.windowGlint);
-  ctx.globalAlpha = 1;
-}
-
 function drawWorld({ ctx, t }: Stage): void {
   rect(ctx, -2000, -1000, 6000, 3000, palette.tunnel);
-  rect(ctx, -2000, 120, 6000, 600, palette.wall);
-  rect(ctx, -2000, -1000, 6000, 1120, palette.ceiling);
-  ctx.globalAlpha = 0.07;
-  for (let x = 100; x < 1800; x += 420) poly(ctx, [[x - 18, 118], [x + 18, 118], [x + 130, 720], [x - 130, 720]], palette.lampCone);
-  ctx.globalAlpha = 1;
-  for (let x = 100; x < 1800; x += 420) rect(ctx, x - 22, 104, 44, 12, palette.lamp);
-
-  const gap = num("gap", t);
-  const glow = num("glow", t);
-  poly(ctx, [[180, 250], [1620, 250], [1650, 280], [1650, 705], [150, 705], [150, 280]], palette.wagon);
-  rect(ctx, 150, 640, 1500, 65, palette.wagonShade);
-  rect(ctx, 150, 560, 1500, 24, palette.stripe);
-  poly(ctx, [[180, 250], [1620, 250], [1650, 280], [150, 280]], palette.wagonShade);
-  for (const x of [260, 470, 1110, 1320]) {
-    rect(ctx, x, 340, 150, 150, palette.window);
-    ctx.globalAlpha = 0.6;
-    poly(ctx, [[x + 20, 340], [x + 70, 340], [x + 10, 490], [x - 0, 490]], palette.windowGlint);
-    ctx.globalAlpha = 1;
-  }
-
-  const { x: dx, w: dw, top, bottom } = DOOR;
-  const dh = bottom - top;
-  rect(ctx, dx, top, dw, dh, palette.interior);
-  if (glow > 0) {
-    ctx.globalAlpha = 0.55 * glow;
-    poly(ctx, [[dx + 25, top + 8], [dx + dw - 25, top + 8], [dx + dw - 5, bottom], [dx + 5, bottom]], palette.interiorLight);
-    ctx.globalAlpha = 0.9 * glow;
-    rect(ctx, SEAM - 5, top + 8, 8, dh - 8, palette.interior);
-    rect(ctx, dx + 35, 520, dw - 70, 10, palette.interior);
-    ctx.globalAlpha = 1;
-  }
+  const size = { gap: num("gap", t) / ENV_K, light: num("glow", t) };
   ctx.save();
-  ctx.beginPath();
-  ctx.rect(dx, top, dw, dh);
-  ctx.clip();
-  drawDoorHalf(ctx, dx - gap / 2, true);
-  drawDoorHalf(ctx, SEAM + gap / 2, false);
+  ctx.translate(SEAM - 24 * ENV_K, FLOOR);
+  ctx.scale(ENV_K, ENV_K);
+  for (const [id, x, state] of SCENE) {
+    ctx.save();
+    ctx.translate(x, 0);
+    drawAsset(ctx, ASSETS[id], { state, t, lines: lineW, size: id === "trainDoor" ? size : undefined });
+    ctx.restore();
+  }
   ctx.restore();
-  rect(ctx, dx - 10, top - 10, dw + 20, 12, palette.doorFrame);
-  rect(ctx, dx - 10, top - 10, 10, dh + 10, palette.doorFrame);
-  rect(ctx, dx + dw, top - 10, 10, dh + 10, palette.doorFrame);
-
-  rect(ctx, -2000, 705, 6000, 900, palette.platform);
-  rect(ctx, -2000, 712, 6000, 12, palette.safety);
-  for (let x = -2000; x < 4000; x += 160) rect(ctx, x, 724, 4, 900, palette.platformLine);
-  rect(ctx, -2000, 800, 6000, 3, palette.platformLine);
 }
 
 function drawCrowbar(c: CanvasRenderingContext2D, reach: number, w: number, butt: number): void {

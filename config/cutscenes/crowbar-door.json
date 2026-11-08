@@ -2,19 +2,30 @@
   "status": "draft",
   "mission": "mesto",
   "source": "docs/requirements.md",
-  "note": "Agreed crowbar item-use clip. Track keys are absolute seconds on the original METROPAC.ANM timeline (0..clip.end); the clip plays clip.start..clip.end. Keyframe: [time, value, easing?], easing in linear|in|out|inOut; string-valued tracks switch values. robot.x is stage units; crowbar sizes and farGripOffset are robot model units.",
-  "stage": { "width": 1600, "height": 900, "floorY": 740, "doorSeamX": 900, "doorHalfWidth": 95 },
+  "note": "Agreed crowbar item-use clip. Track keys are absolute seconds on the original METROPAC.ANM timeline (0..clip.end); the clip plays clip.start..clip.end. Keyframe: [time, value, easing?], easing in linear|in|out|inOut; string-valued tracks switch values. robot.x is stage units; crowbar sizes and farGripOffset are robot model units. stage.scene lists the mesto metro assets around the train door in world.json draw order: [asset, x, state], x in env units from the trainDoor origin (backdrop and dressing origins x * 24, props their art origin), drawn at the hero scale so the door seam sits on doorSeamX.",
+  "stage": {
+    "width": 1600,
+    "height": 900,
+    "floorY": 740,
+    "doorSeamX": 900,
+    "scene": [
+      ["brickWall", -216, 1], ["brickWall", -144, 1], ["brickWall", -72, 1], ["brickWall", 0, 1], ["brickWall", 72, 1], ["brickWall", 144, 1],
+      ["metroTrain", -9.6, 0], ["metroTrain", 120, 0],
+      ["tunnelFloor", -264, 0], ["tunnelFloor", -120, 0], ["tunnelFloor", 24, 0], ["tunnelFloor", 168, 0],
+      ["trainDoor", 0, 0], ["trainCarriage", -156, 0], ["tunnelGate", -90, 0]
+    ]
+  },
   "clip": { "start": 1.85, "end": 5.8 },
   "sounds": [[0.242, "step", 13000], [0.622, "servo", 11000], [1.953, "servo", 11000]],
   "robot": {
     "scale": 0.46,
-    "x": 705,
+    "x": 750,
     "barTilt": -0.15,
-    "farGripOffset": -367,
+    "farGripOffset": -200,
     "pullArmDeg": -34,
     "pullForeDeg": 48
   },
-  "crowbar": { "reach": 500, "butt": 60, "width": 16 },
+  "crowbar": { "reach": 300, "butt": 36, "width": 18 },
   "palette": {
     "tunnel": "#0f1a1c", "wall": "#1d2a2c", "ceiling": "#0a1213", "lamp": "#e9d8a6", "lampCone": "#e9d8a6",
     "wagon": "#8c9396", "wagonShade": "#5f676a", "stripe": "#9c4a2a",
@@ -24,7 +35,7 @@
   },
   "tracks": {
     "shot": [[1.85, "B"], [2.95, "C"]],
-    "camX": [[1.85, 705], [2.95, 715], [2.95, 810], [5.8, 835, "out"]],
+    "camX": [[1.85, 750], [2.95, 760], [2.95, 855], [5.8, 880, "out"]],
     "camY": [[1.85, 540], [2.95, 525], [2.95, 520], [5.8, 505, "out"]],
     "camZ": [[1.85, 1.7], [2.95, 1.78], [2.95, 2.0], [5.8, 2.25, "out"]],
     "armB": [[1.95, 0], [2.2, 18, "inOut"], [2.45, 18], [2.85, -57, "inOut"], [5.8, -57]],

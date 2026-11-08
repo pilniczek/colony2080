@@ -793,13 +793,89 @@ window.C28_CONFIG = {
    "status": "draft",
    "mission": "mesto",
    "source": "docs/requirements.md",
-   "note": "Agreed crowbar item-use clip. Track keys are absolute seconds on the original METROPAC.ANM timeline (0..clip.end); the clip plays clip.start..clip.end. Keyframe: [time, value, easing?], easing in linear|in|out|inOut; string-valued tracks switch values. robot.x is stage units; crowbar sizes and farGripOffset are robot model units.",
+   "note": "Agreed crowbar item-use clip. Track keys are absolute seconds on the original METROPAC.ANM timeline (0..clip.end); the clip plays clip.start..clip.end. Keyframe: [time, value, easing?], easing in linear|in|out|inOut; string-valued tracks switch values. robot.x is stage units; crowbar sizes and farGripOffset are robot model units. stage.scene lists the mesto metro assets around the train door in world.json draw order: [asset, x, state], x in env units from the trainDoor origin (backdrop and dressing origins x * 24, props their art origin), drawn at the hero scale so the door seam sits on doorSeamX.",
    "stage": {
     "width": 1600,
     "height": 900,
     "floorY": 740,
     "doorSeamX": 900,
-    "doorHalfWidth": 95
+    "scene": [
+     [
+      "brickWall",
+      -216,
+      1
+     ],
+     [
+      "brickWall",
+      -144,
+      1
+     ],
+     [
+      "brickWall",
+      -72,
+      1
+     ],
+     [
+      "brickWall",
+      0,
+      1
+     ],
+     [
+      "brickWall",
+      72,
+      1
+     ],
+     [
+      "brickWall",
+      144,
+      1
+     ],
+     [
+      "metroTrain",
+      -9.6,
+      0
+     ],
+     [
+      "metroTrain",
+      120,
+      0
+     ],
+     [
+      "tunnelFloor",
+      -264,
+      0
+     ],
+     [
+      "tunnelFloor",
+      -120,
+      0
+     ],
+     [
+      "tunnelFloor",
+      24,
+      0
+     ],
+     [
+      "tunnelFloor",
+      168,
+      0
+     ],
+     [
+      "trainDoor",
+      0,
+      0
+     ],
+     [
+      "trainCarriage",
+      -156,
+      0
+     ],
+     [
+      "tunnelGate",
+      -90,
+      0
+     ]
+    ]
    },
    "clip": {
     "start": 1.85,
@@ -824,16 +900,16 @@ window.C28_CONFIG = {
    ],
    "robot": {
     "scale": 0.46,
-    "x": 705,
+    "x": 750,
     "barTilt": -0.15,
-    "farGripOffset": -367,
+    "farGripOffset": -200,
     "pullArmDeg": -34,
     "pullForeDeg": 48
    },
    "crowbar": {
-    "reach": 500,
-    "butt": 60,
-    "width": 16
+    "reach": 300,
+    "butt": 36,
+    "width": 18
    },
    "palette": {
     "tunnel": "#0f1a1c",
@@ -872,19 +948,19 @@ window.C28_CONFIG = {
     "camX": [
      [
       1.85,
-      705
+      750
      ],
      [
       2.95,
-      715
+      760
      ],
      [
       2.95,
-      810
+      855
      ],
      [
       5.8,
-      835,
+      880,
       "out"
      ]
     ],

@@ -261,13 +261,13 @@ const wedgedBar = (ctx: CanvasRenderingContext2D, cx: number, cy: number): void 
   ctx.restore();
 };
 
-const doorway = (ctx: CanvasRenderingContext2D, gap: number, open: boolean): void => {
+const doorway = (ctx: CanvasRenderingContext2D, gap: number, light: number): void => {
   const { x, y, w, h } = TD;
   const half = w / 2;
   flat(ctx, x, y, w, h, DOOR.interior);
-  if (open) {
+  if (light > 0) {
     ctx.save();
-    ctx.globalAlpha = 0.16;
+    ctx.globalAlpha = 0.16 * light;
     poly(ctx, [[x + 8, y + 2], [x + w - 8, y + 2], [x + w - 2, y + h], [x + 2, y + h]], DOOR.interiorLight, 2, { line: false });
     ctx.restore();
     flat(ctx, x + 10, y + 26, w - 20, 2, DOOR.interior);
@@ -287,9 +287,9 @@ const doorway = (ctx: CanvasRenderingContext2D, gap: number, open: boolean): voi
 export const trainDoor: EnvAsset = {
   id: "trainDoor",
   box: [-12, -66, 60, 0],
-  draw(ctx, state) {
+  draw(ctx, state, _t, size) {
     carriage(ctx);
-    doorway(ctx, [0, 3, TD.w / 2][state] as number, state === 2);
+    doorway(ctx, size.gap ?? ([0, 3, TD.w / 2][state] as number), size.light ?? (state === 2 ? 1 : 0));
     if (state === 1) wedgedBar(ctx, TD.w / 2 + 0.5, TD.y + 30);
   },
 };
@@ -320,9 +320,9 @@ export const trainCarriage: EnvAsset = {
     }
     ctx.save();
     ctx.translate(farDoor, 0);
-    doorway(ctx, 0, false);
+    doorway(ctx, 0, 0);
     ctx.restore();
-    doorway(ctx, TD.w / 2, true);
+    doorway(ctx, TD.w / 2, 1);
     if (P.simple()) return;
     for (const bx of [left + 30, -120, -30]) flat(ctx, bx, y + h + 2, 4, 3, "m2", "mLine");
     for (const [bx, by, bh] of [[-104, 8, 7], [-62, 30, 5]] as [number, number, number][]) {
