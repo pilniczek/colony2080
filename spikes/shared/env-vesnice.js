@@ -3096,6 +3096,7 @@ const smoulderingRemains = {
 const smallKey = {
     id: "smallKey",
     box: craneKey.box,
+    views: craneKey.views,
     draw(ctx, state, t, size) {
         craneKey.draw(ctx, state ? 2 : 0, t, size);
     },
@@ -3103,6 +3104,19 @@ const smallKey = {
 const walkieTalkie = {
     id: "walkieTalkie",
     box: [-2, -18, 12, 0],
+    views: window.ENV.itemViews([-2, -18, 12, 0], 4, {
+        top(ctx) {
+            box(ctx, 1, -2, 8, 4, "steel", 1);
+            box(ctx, 9, -1, 1.2, 2, "steel", 0);
+            disc(ctx, 7.2, 0, 0.8, "m2", "mLine");
+        },
+        front(ctx) {
+            cylV(ctx, -0.6, -17.4, 1.2, 6, "steel", 1);
+            disc(ctx, 0, -17.6, 0.8, "m2", "mLine");
+            box(ctx, -2, -12, 4, 12, "steel", 1);
+            box(ctx, -1, -9, 2, 4, "steel", 0);
+        },
+    }),
     draw(ctx, state) {
         if (state)
             return scuff(ctx, 0, 10);
@@ -3125,6 +3139,26 @@ const walkieTalkie = {
 const detonator = {
     id: "detonator",
     box: [-2, -20, 20, 0],
+    views: window.ENV.itemViews([-2, -20, 20, 0], 9, {
+        top(ctx) {
+            wire(ctx, [[14.6, -1], [16, -1.6], [17.4, -2.4]], "neon");
+            wire(ctx, [[14.6, 1], [15.6, 1.6], [18, 2]], "y2");
+            box(ctx, 2, -4, 12, 8, "rust", 2);
+            box(ctx, 1.4, -4.4, 13.2, 8.8, "rust", 3);
+            box(ctx, 3.6, -0.9, 9, 1.8, "chrome", 1);
+            disc(ctx, 3.8, 0, 0.9, "neon", "mLine");
+            disc(ctx, 12.4, 0, 0.9, "neon", "mLine");
+        },
+        front(ctx) {
+            box(ctx, -4, -9, 8, 9, "rust", 2);
+            box(ctx, -4.4, -10, 8.8, 1.8, "rust", 3);
+            box(ctx, -0.7, -17, 1.4, 7.2, "chrome", 2, { vertical: true });
+            box(ctx, -0.9, -18.6, 1.8, 1.8, "chrome", 1);
+            disc(ctx, 0, -17.7, 0.9, "neon", "mLine");
+            wire(ctx, [[-1.2, -4.8], [-1.6, -3], [-2, -0.6]], "neon");
+            wire(ctx, [[1.2, -2.4], [1.6, -1.2], [2, -0.4]], "y2");
+        },
+    }),
     draw(ctx, state) {
         if (state)
             return scuff(ctx, 0, 18);
@@ -3145,49 +3179,112 @@ const detonator = {
         wire(ctx, [[12.6, -2.4], [15.4, -1.2], [18, -0.4]], "y2");
     },
 };
+const projectileBody = (ctx) => {
+    box(ctx, 1, -7.6, 3, 7.4, "yellow", 0);
+    box(ctx, 3, -7, 12, 6.2, "yellow", 1);
+    if (!simple())
+        for (const x of [6, 12])
+            flat(ctx, x, -7, 0.6, 6.2, "y0");
+    box(ctx, 15, -7.4, 2, 7, "rust", 1);
+    poly(ctx, [[17, -7], [21, -6.6], [24.6, -4.6], [25.4, -3.8], [24.6, -3], [21, -1], [17, -0.6]], "steel", 2);
+    if (!simple()) {
+        flat(ctx, 3.4, -6.4, 11, 0.6, "y3");
+        flat(ctx, 18, -6.2, 4, 0.5, "m3");
+    }
+    flat(ctx, 19, -4.6, 1.2, 1.6, "neon");
+};
 const projectile = {
     id: "projectile",
     box: [-2, -9, 28, 0],
+    views: window.ENV.itemViews([-2, -9, 28, 0], 7.4, {
+        top(ctx) {
+            ctx.save();
+            ctx.translate(0, 3.9);
+            projectileBody(ctx);
+            ctx.restore();
+        },
+        front(ctx) {
+            disc(ctx, 0, -3.9, 3.7, "y1", "yLine");
+            disc(ctx, 0, -3.9, 3.5, "r1", "mLine");
+            disc(ctx, 0, -3.9, 3.2, "m2", "mLine");
+            disc(ctx, 0, -3.9, 0.5, "m3", "mLine");
+        },
+    }),
     draw(ctx, state) {
         if (state)
             return scuff(ctx, 0, 26);
         shadow(ctx, 12, 24);
-        box(ctx, 1, -7.6, 3, 7.4, "yellow", 0);
-        box(ctx, 3, -7, 12, 6.2, "yellow", 1);
-        if (!simple())
-            for (const x of [6, 12])
-                flat(ctx, x, -7, 0.6, 6.2, "y0");
-        box(ctx, 15, -7.4, 2, 7, "rust", 1);
-        poly(ctx, [[17, -7], [21, -6.6], [24.6, -4.6], [25.4, -3.8], [24.6, -3], [21, -1], [17, -0.6]], "steel", 2);
-        if (!simple()) {
-            flat(ctx, 3.4, -6.4, 11, 0.6, "y3");
-            flat(ctx, 18, -6.2, 4, 0.5, "m3");
-        }
-        flat(ctx, 19, -4.6, 1.2, 1.6, "neon");
+        projectileBody(ctx);
     },
+};
+const fuseBody = (ctx) => {
+    box(ctx, 3, -5.6, 8, 5.2, "chrome", 2);
+    if (!simple())
+        flat(ctx, 4.4, -4.2, 5, 1.6, "neon");
+    for (const x of [0.6, 11]) {
+        box(ctx, x, -6, 2.4, 6, "yellow", 1);
+        if (!simple())
+            flat(ctx, x + 0.4, -5.4, 0.5, 4.8, "y3");
+    }
+    flat(ctx, -0.6, -3.6, 1.4, 1.2, "y1", "yLine");
+    flat(ctx, 13.2, -3.6, 1.4, 1.2, "y1", "yLine");
 };
 const fuse = {
     id: "fuse",
     box: [-2, -7, 16, 0],
+    views: window.ENV.itemViews([-2, -7, 16, 0], 6, {
+        top(ctx) {
+            ctx.save();
+            ctx.translate(0, 3);
+            fuseBody(ctx);
+            ctx.restore();
+        },
+        front(ctx) {
+            disc(ctx, 0, -3, 3, "y2", "yLine");
+            if (!simple())
+                disc(ctx, -0.8, -3.8, 1, "y3");
+            flat(ctx, -0.6, -3.6, 1.2, 1.2, "y1", "yLine");
+        },
+    }),
     draw(ctx, state) {
         if (state)
             return scuff(ctx, 0, 14);
         shadow(ctx, 7, 14);
-        box(ctx, 3, -5.6, 8, 5.2, "chrome", 2);
-        if (!simple())
-            flat(ctx, 4.4, -4.2, 5, 1.6, "neon");
-        for (const x of [0.6, 11]) {
-            box(ctx, x, -6, 2.4, 6, "yellow", 1);
-            if (!simple())
-                flat(ctx, x + 0.4, -5.4, 0.5, 4.8, "y3");
-        }
-        flat(ctx, -0.6, -3.6, 1.4, 1.2, "y1", "yLine");
-        flat(ctx, 13.2, -3.6, 1.4, 1.2, "y1", "yLine");
+        fuseBody(ctx);
     },
 };
 const dynamite = {
     id: "dynamite",
     box: [-2, -16, 20, 0],
+    views: window.ENV.itemViews([-2, -16, 20, 0], 5.6, {
+        top(ctx, state) {
+            if (state === 2) {
+                for (const x of [4.5, 7.5, 10.5])
+                    disc(ctx, x, 0, 1.5, "b2", "bLine");
+                box(ctx, 4.6, 1.5, 5.2, 1.2, "steel", 1);
+                wire(ctx, [[7.2, 1.5], [12, 1.8], [17, 1]], "y2");
+                return;
+            }
+            stick(ctx, 1.4, -1.6, 13, 3.2);
+            for (const x of [4, 10.6])
+                flat(ctx, x, -1.8, 1.4, 3.6, "k1", "kLine");
+            wire(ctx, [[14.4, 0], [16.4, 0.4], [18, 0]], "k3", 0.6);
+        },
+        front(ctx, state) {
+            if (state === 2) {
+                stick(ctx, -1.5, -14, 3, 14);
+                for (const y of [-11, -4])
+                    flat(ctx, -1.7, y, 3.4, 1.4, "k1", "kLine");
+                box(ctx, -2.7, -9, 1.2, 3.6, "steel", 1);
+                wire(ctx, [[-1.5, -9], [-2, -14], [0, -15], [1, -8], [0.6, -1]], "y2");
+                return;
+            }
+            flat(ctx, -1.8, -9.4, 3.6, 9.2, "k1", "kLine");
+            for (const y of [-1.8, -4.8, -7.6])
+                disc(ctx, 0, y, 1.6, "b2", "bLine");
+            wire(ctx, [[0, -7.6], [0.6, -9], [-0.4, -7.4]], "k3", 0.6);
+        },
+    }),
     draw(ctx, state) {
         if (state === 1)
             return scuff(ctx, 0, 16);
@@ -3211,13 +3308,7 @@ const dynamite = {
     },
 };
 const TRACES = [[[2, -2], [6, -7]], [[5, -1.4], [12, -1.4]], [[9, -7.6], [13, -4]], [[3.6, -6], [8, -6]]];
-const navCircuit = {
-    id: "navCircuit",
-    box: [-2, -11, 18, 0],
-    draw(ctx, state) {
-        if (state)
-            return scuff(ctx, 0, 16);
-        shadow(ctx, 8, 16);
+const navCircuitBody = (ctx) => {
         poly(ctx, [[0, 0], [1.6, -9], [15, -9], [14.4, 0]], "green", 1, { dir: [1, 0] });
         if (!simple()) {
             ctx.save();
@@ -3238,6 +3329,33 @@ const navCircuit = {
         for (let x = 4.6; x < 8.8; x += simple() ? 2 : 1)
             flat(ctx, x, -3, 0.4, 0.8, "y2");
         flat(ctx, 1, -1.2, 13, 1.2, "y1", "yLine");
+};
+const navCircuit = {
+    id: "navCircuit",
+    box: [-2, -11, 18, 0],
+    views: window.ENV.itemViews([-2, -11, 18, 0], 9, {
+        top(ctx) {
+            ctx.save();
+            ctx.transform(1, 0, 1.6 / 9, 1, 0, 4.5);
+            navCircuitBody(ctx);
+            ctx.restore();
+        },
+        front(ctx) {
+            box(ctx, -4.5, -0.6, 9, 0.6, "green", 1);
+            box(ctx, -2, -1.6, 3.6, 1, "steel", 0);
+            box(ctx, 1.5, -1.4, 2.4, 0.8, "steel", 0);
+        },
+        flat(ctx) {
+            box(ctx, 0, -0.6, 15, 0.6, "green", 1);
+            box(ctx, 4.2, -1.6, 4.6, 1, "steel", 0);
+            box(ctx, 10, -1.4, 3, 0.8, "steel", 0);
+        },
+    }),
+    draw(ctx, state) {
+        if (state)
+            return scuff(ctx, 0, 16);
+        shadow(ctx, 8, 16);
+        navCircuitBody(ctx);
     },
 };
 const TOASTER_K = 0.076;
