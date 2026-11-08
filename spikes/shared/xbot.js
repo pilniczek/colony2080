@@ -1141,9 +1141,9 @@ function cup(s, view) {
     const thumb = () => handThumb(s, S, THUMB_SIDE, [-30, -50], THUMB.thick);
     handStub(s);
     if (view === "little") thumb();
-    profilePlate(s, S);
     itemAt(s, `${view === "thumb" ? `translate(${2 * HAND_AX} 0) scale(-1 1) ` : ""}translate(${HAND_FACE[0] - 9} ${PALM_MID}) scale(2.4) rotate(90) translate(-7 3.5)`);
     chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base], CUP, [s1, s2, s3], FINGER.thick, { shade: "cyl" });
+    profilePlate(s, S);
     if (view === "thumb") thumb();
   } else {
     supportWrist(s);
@@ -1280,11 +1280,11 @@ function grip(s, view, rod = CROWBAR) {
     }
     const index = () => chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, knuckle], TRIGGER_CURL, FINGER.seg, FINGER.thick, { shade: "cyl" });
     if (trigger && view === "little") index();
-    profilePlate(s, S);
     rod.section(s, S, [cx, cy], R);
     hook(G(s, `translate(${S([[cx, cy]])[0].join(" ")})`), "rod");
     chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, knuckle], GRIP_CURL, FINGER.seg, FINGER.thick, { shade: "cyl" });
     if (trigger && view === "thumb") index();
+    profilePlate(s, S);
     if (view === "thumb" && trigger) {
       thumb();
       rod.side(s, S, [cx, cy]);
@@ -1363,13 +1363,13 @@ function pinch(s, view) {
     if (view === "little") {
       thumb();
       key();
-      profilePlate(s, S);
       index();
       fingers();
+      profilePlate(s, S);
     } else {
-      profilePlate(s, S);
       fingers();
       index();
+      profilePlate(s, S);
       key();
       thumb();
     }
@@ -1414,8 +1414,8 @@ function reach(s, view) {
     const thumb = () => handThumb(s, S, THUMB_SIDE, REACH_THUMB_SIDE, THUMB.thick);
     handStub(s);
     if (view === "little") thumb();
-    profilePlate(s, S);
     chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base], REACH, FINGER.seg, FINGER.thick, { shade: "cyl" });
+    profilePlate(s, S);
     if (view === "thumb") thumb();
   } else {
     forearmEnd(s);
