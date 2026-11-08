@@ -465,7 +465,7 @@ function sideArm(parent, names, extra, hold = null) {
   const hand = G(lower, handTf);
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
   if (hold === "cup") supportWrist(G(G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
-  else if (hold === "carry") openHand(G(lower, `translate(${SIDE_HAND_DX} 0)`), "thumb");
+  else if (hold === "carry") heldHand(lower, hold, "thumb", `translate(${SIDE_HAND_DX} 0)`);
   else if (hold) heldHand(lower, hold, "back", `translate(${SIDE_HAND_DX} 0)`);
   else sideHand(lower);
 }
@@ -1170,6 +1170,7 @@ function heldHand(parent, pose, view, tf) {
   bareHand = true;
   try {
     if (pose === "gunGrip") grip(g, view, BARE_GUN);
+    else if (pose === "carry") openHand(g, view);
     else if (pose === "fist") fist(g, view);
     else cup(g, view);
   } finally {
