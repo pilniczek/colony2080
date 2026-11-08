@@ -54,6 +54,43 @@ function emitter(ctx, length, simple) {
 
 const core = window.GUN.model({ buildParts, mat: MAT, colors: ARC, after: emitter });
 
+const buildTop = length => {
+  const end = BARREL.x + length;
+  const coilStep = (length - PRONG - 24) / COILS;
+  return [
+    { name: "stock", x: -78, y: -12, w: 20, h: 24, mat: "m", tone: 0 },
+    { name: "receiver", x: -60, y: -24, w: 130, h: 48, mat: "c", tone: 1 },
+    { name: "stripe", x: -14, y: -24, w: 12, h: 48, mat: "e", tone: 1 },
+    { name: "cell", x: -44, y: -14, w: 92, h: 28, mat: "m", tone: 1 },
+    { name: "cellWindow", x: -34, y: -5, w: 72, h: 10, mat: "e", tone: 2 },
+    { name: "neck", x: BARREL.x, y: -15, w: length - PRONG + 4, h: 30, mat: "c", tone: 2 },
+    { name: "core", x: BARREL.x, y: -4, w: length - PRONG + 4, h: 8, mat: "e", tone: 2 },
+    ...Array.from({ length: COILS }, (_, i) => ({ name: "coil" + i, x: BARREL.x + 14 + i * coilStep, y: -26, w: 12, h: 52, mat: "m", tone: 0 })),
+    { name: "prongBase", x: end - PRONG - 4, y: -20, w: 14, h: 40, mat: "m", tone: 0 },
+    { name: "prong", x: end - PRONG, y: -12, w: PRONG, h: 24, mat: "c", tone: 1 },
+    { name: "prongSlot", x: end - PRONG + 8, y: -3, w: PRONG - 8, h: 6, mat: "e", tone: 2 }
+  ];
+};
+
+const TOP_ARC = [[-14, -9], [-6, -5], [-12, -1], [-4, 3], [-12, 7], [-6, 10]];
+
+function topEmitter(ctx, length, simple) {
+  const end = BARREL.x + length;
+  const pts = TOP_ARC.map(([x, y]) => [end + x, y]);
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.globalAlpha = 0.5;
+  stroke(ctx, pts, ARC.glow, 14);
+  ctx.globalAlpha = 1;
+  stroke(ctx, pts, ARC.e1, 6);
+  stroke(ctx, pts, ARC.core, simple ? 2.6 : 2);
+  ctx.restore();
+}
+
+const top = window.GUN.model({ buildParts: buildTop, mat: MAT, colors: ARC, after: topEmitter });
+const TOP_BOX = [-78, -26, BARREL.x + BARREL.length, 26];
+
 const FRAMES = 6;
 const TICK_HZ = 32;
 const BEAM_H = 24;
@@ -137,5 +174,5 @@ function hudShot(ctx) {
   ctx.restore();
 }
 
-window.EBLASTER = { ...core, FRAMES, TICK_HZ, BEAM_H, beam, frameAt, hudShot };
+window.EBLASTER = { ...core, drawTop: top.draw, TOP_BOX, FRAMES, TICK_HZ, BEAM_H, beam, frameAt, hudShot };
 })();

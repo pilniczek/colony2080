@@ -59,3 +59,42 @@ export const EBLASTER_PARTS = model.parts;
 export const EBLASTER_COLORS = model.colors;
 export const drawEBlaster = model.draw;
 export const eblasterHook = model.hook;
+
+const buildTop = (length: number): WeaponPart[] => {
+  const end = BARREL.x + length;
+  const coilStep = (length - PRONG - 24) / COILS;
+  return [
+    { name: "stock", x: -78, y: -12, w: 20, h: 24, mat: "m", tone: 0 },
+    { name: "receiver", x: -60, y: -24, w: 130, h: 48, mat: "c", tone: 1 },
+    { name: "stripe", x: -14, y: -24, w: 12, h: 48, mat: "e", tone: 1 },
+    { name: "cell", x: -44, y: -14, w: 92, h: 28, mat: "m", tone: 1 },
+    { name: "cellWindow", x: -34, y: -5, w: 72, h: 10, mat: "e", tone: 2 },
+    { name: "neck", x: BARREL.x, y: -15, w: length - PRONG + 4, h: 30, mat: "c", tone: 2 },
+    { name: "core", x: BARREL.x, y: -4, w: length - PRONG + 4, h: 8, mat: "e", tone: 2 },
+    ...Array.from({ length: COILS }, (_, i): WeaponPart => ({ name: `coil${i}`, x: BARREL.x + 14 + i * coilStep, y: -26, w: 12, h: 52, mat: "m", tone: 0 })),
+    { name: "prongBase", x: end - PRONG - 4, y: -20, w: 14, h: 40, mat: "m", tone: 0 },
+    { name: "prong", x: end - PRONG, y: -12, w: PRONG, h: 24, mat: "c", tone: 1 },
+    { name: "prongSlot", x: end - PRONG + 8, y: -3, w: PRONG - 8, h: 6, mat: "e", tone: 2 },
+  ];
+};
+
+const TOP_ARC: Pt[] = [[-14, -9], [-6, -5], [-12, -1], [-4, 3], [-12, 7], [-6, 10]];
+
+const topEmitter = (ctx: CanvasRenderingContext2D, length: number, simple: boolean, color: (key: string) => string): void => {
+  const end = BARREL.x + length;
+  const pts = TOP_ARC.map(([x, y]): Pt => [end + x, y]);
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.globalAlpha = 0.5;
+  stroke(ctx, pts, color("glow"), 14);
+  ctx.globalAlpha = 1;
+  stroke(ctx, pts, color("e1"), 6);
+  stroke(ctx, pts, color("core"), simple ? 2.6 : 2);
+  ctx.restore();
+};
+
+const top = createWeaponModel({ buildParts: buildTop, mat: MAT, colors: ARC as Palette, after: topEmitter });
+
+export const drawEBlasterTop = top.draw;
+export const EBLASTER_TOP_BOX = [-78, -26, BARREL.x + BARREL.length, 26] as const;

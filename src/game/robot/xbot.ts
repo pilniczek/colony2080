@@ -593,3 +593,48 @@ export const buildSide = ({
   armed = false,
 }: { farLimbs?: boolean; badge?: boolean; propBehindArm?: boolean; lod?: boolean; enemy?: boolean; armed?: boolean } = {}): GroupNode =>
   sideTree(kit(lod), farLimbs, badge, propBehindArm, enemy, armed);
+
+const inset = (pts: Pt[], f: number): Pt[] => {
+  const cx = pts.reduce((a, [x]) => a + x / pts.length, 0);
+  const cy = pts.reduce((a, [, y]) => a + y / pts.length, 0);
+  return pts.map(([x, y]): Pt => [cx + (x - cx) * f, cy + (y - cy) * f]);
+};
+
+const palmThumb = (k: Kit, parent: GroupNode, M: Mirror): void => {
+  const [a0, a1] = THUMB_OPEN;
+  const w = THUMB.w;
+  const edge = HAND.x1 - 2;
+  const joint = bar(THUMB_BASE, a0, THUMB.seg[0], 0).end;
+  const reach = Math.min(bar(THUMB_BASE, a0, THUMB.seg[0], w).pts[2][0], ...bar(joint, a1, THUMB.seg[1], w, [w / 2, 0]).pts.map((p) => p[0]));
+  const from: Pt = [THUMB_BASE[0] + Math.max(0, edge - reach), THUMB_BASE[1]];
+  const root = thumbWedge(from, a0, THUMB.seg[0], w, edge);
+  k.P(parent, { pts: M(root), shade: "cyl", r: 3, lw: FINGER_LW });
+  k.P(parent, { pts: M(inset(root, 0.6)), mat: "metal", shade: "cyl", r: 3, lw: FINGER_LW });
+  const at = bar(from, a0, THUMB.seg[0], 0).end;
+  k.P(parent, { pts: M(bar(at, a1, THUMB.seg[1], w, [w / 2, w / 2]).pts), r: w / 3, lw: FINGER_LW, shade: "cyl" });
+  k.P(parent, { pts: M(bar(at, a1, THUMB.seg[1] - 4, w - 6, [w / 2, w / 2 - 5]).pts), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+};
+
+const palmTree = (k: Kit): GroupNode => {
+  const root = k.root();
+  const s = k.G(root, null, "hand", [89, 400]);
+  const y1 = fingerY(1);
+  const y2 = fingerY(2);
+  const y3 = fingerY(3);
+  const fa = k.G(s, `translate(89 -16) scale(${FOREARM_SX} 1) translate(-89 0)`);
+  k.P(fa, { pts: elbow, mat: "metal", shade: "hcyl", r: 1 });
+  k.P(fa, { pts: forearm, r: 1 });
+  k.F(fa, [[38, 359], [141, 357], [141, 362], [38, 364]], "a0");
+  k.F(fa, [[38, 384], [141, 381], [141, 386], [38, 388]], "a0");
+  k.P(s, { pts: box(HAND.x0, HAND.top, HAND.x1, HAND.bottom), r: 3 });
+  k.P(s, { pts: box(HAND.x0 + 8, HAND.top + 6, HAND.x1 - 8, HAND.bottom - 6), mat: "metal", shade: "none", r: 6 });
+  for (let i = 0; i < 4; i++) {
+    const x = fingerX(i);
+    k.P(s, { pts: box(x, FINGER.base - 4, x + 20, y3), r: 4, lw: FINGER_LW });
+    for (const [a, b] of [[FINGER.base - 1, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 3]] as const) k.P(s, { pts: box(x + 3, a, x + 17, b), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+  }
+  palmThumb(k, s, (pts) => mirror(pts, HAND_AX));
+  return root;
+};
+
+export const buildPalmHand = ({ lod = false }: { lod?: boolean } = {}): GroupNode => palmTree(kit(lod));

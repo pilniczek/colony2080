@@ -1,25 +1,26 @@
 (() => {
 const { kit } = window.CUTSCENES;
-const { random, LINE_W } = kit;
-const { buildFront, render: renderBot, AX } = window.XBOT;
+const { random } = kit;
+const { buildHand, render: renderBot } = window.XBOT;
 const CFG = window.C28_CONFIG.cutscenes.pickEBlaster;
 const S = CFG.stage;
-const W = S.width, H = S.height, FLOOR = S.floorY, K = S.robotScale;
+const W = S.width, H = S.height;
 const palette = { ...CFG.palette };
 const at = kit.track(CFG.tracks);
-const root = buildFront({});
+const hand = buildHand({ view: "palm", pose: "open", forearm: true });
+const HAND_AT = [88, 438];
+const EDGE = [70, 130];
+const STRIPE = 60;
 
 const pick = random(S.seed);
 const blots = [];
-for (let i = 0; i < S.blots; i++) blots.push({ x: -300 + pick() * 2200, y: 100 + pick() * 520, rx: 30 + pick() * 120, ry: 12 + pick() * 40, dark: pick() < 0.5 });
+for (let i = 0; i < S.blots; i++) blots.push({ x: -300 + pick() * 2200, y: -200 + pick() * 1300, rx: 20 + pick() * 110, ry: 10 + pick() * 50, dark: pick() < 0.5 });
 
 let ctx;
 
-function drawWall() {
-  ctx.fillStyle = palette.wallDark;
-  ctx.fillRect(-1000, -1000, 3600, 3000);
-  ctx.fillStyle = palette.wall;
-  ctx.fillRect(-1000, S.lightY + 30, 3600, S.railY[0] - S.lightY - 30);
+function drawFloor() {
+  ctx.fillStyle = palette.floor;
+  ctx.fillRect(-400, -400, W + 800, H + 800);
   for (const dark of [false, true]) {
     ctx.beginPath();
     for (const b of blots) {
@@ -30,47 +31,66 @@ function drawWall() {
     ctx.fillStyle = dark ? palette.blotDark : palette.blot;
     ctx.fill();
   }
-  ctx.globalAlpha = 0.18;
-  ctx.fillStyle = palette.lightGlow;
+  ctx.strokeStyle = palette.joint;
+  ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.moveTo(-400, S.lightY);
-  ctx.lineTo(2000, S.lightY);
-  ctx.lineTo(2300, S.lightY + 260);
-  ctx.lineTo(-700, S.lightY + 260);
-  ctx.closePath();
+  for (let x = -S.slab; x < W + 2 * S.slab; x += S.slab) {
+    ctx.moveTo(x, EDGE[1]);
+    ctx.lineTo(x, H + 400);
+  }
+  for (let y = EDGE[1] + S.slab; y < H + 400; y += S.slab) {
+    ctx.moveTo(-400, y);
+    ctx.lineTo(W + 400, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = palette.floorLight;
+  ctx.fillRect(-400, EDGE[1], W + 800, 8);
+  ctx.fillStyle = palette.stripeDark;
+  ctx.fillRect(-400, EDGE[0], W + 800, EDGE[1] - EDGE[0]);
+  ctx.fillStyle = palette.stripe;
+  ctx.beginPath();
+  for (let x = -400; x < W + 400; x += STRIPE * 2) {
+    ctx.moveTo(x, EDGE[1]);
+    ctx.lineTo(x + STRIPE, EDGE[1]);
+    ctx.lineTo(x + STRIPE * 2, EDGE[0]);
+    ctx.lineTo(x + STRIPE, EDGE[0]);
+    ctx.closePath();
+  }
   ctx.fill();
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = palette.light;
-  ctx.fillRect(-400, S.lightY - 12, 2400, 24);
-  const [r0, r1] = S.railY;
-  ctx.fillStyle = palette.rail;
-  ctx.fillRect(-1000, r0, 3600, r1 - r0);
-  ctx.fillStyle = palette.railLight;
-  ctx.fillRect(-1000, r0, 3600, 8);
-  ctx.fillRect(-1000, r0 + (r1 - r0) / 2, 3600, 6);
-  ctx.fillStyle = palette.floor;
-  ctx.fillRect(-1000, r1, 3600, 2000);
+  ctx.fillStyle = palette.joint;
+  ctx.fillRect(-400, -400, W + 800, EDGE[0] + 400);
 }
 
-function blasterHook(c) {
-  c.save();
-  c.scale(-1, 1);
-  window.EBLASTER.hook(c, { lineW: LINE_W });
-  c.restore();
-}
-
-function drawRobot(t) {
-  const grow = at("foreGrow", t);
-  const pose = {
-    body: { dy: at("bob", t) },
-    armL: at("armL", t),
-    armR: at("armR", t),
-    foreR: { rot: at("foreR", t), sx: grow, sy: grow }
-  };
-  kit.shadow(ctx, S.robotX, FLOOR, 260 * K, 22 * K, 0.4, palette.shadow);
+function drawShadow() {
+  const [dx, dy, alpha] = S.shadow;
+  const [x0, , x1] = window.EBLASTER.TOP_BOX;
   ctx.save();
-  kit.feet(ctx, S.robotX, FLOOR, K, K, AX);
-  renderBot(ctx, root, { pose, hooks: { handR: blasterHook }, lineW: kit.lineFor(ctx, K) });
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = palette.shadow;
+  ctx.beginPath();
+  ctx.ellipse(dx, S.itemY + dy, (x1 - x0) * S.near / 2, 60, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawHands(lineW) {
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(side * S.spread, 0);
+    ctx.scale(-side, -1);
+    ctx.translate(-HAND_AT[0], -HAND_AT[1]);
+    renderBot(ctx, hand, { lineW });
+    ctx.restore();
+  }
+}
+
+function drawBlaster(lineW) {
+  const [x0, , x1] = window.EBLASTER.TOP_BOX;
+  ctx.save();
+  ctx.translate(0, S.itemY);
+  ctx.scale(S.near, S.near);
+  ctx.translate(-(x0 + x1) / 2, 0);
+  window.EBLASTER.drawTop(ctx, { lineW });
   ctx.restore();
 }
 
@@ -78,10 +98,20 @@ function render(c, w, h, t) {
   ctx = c;
   ctx.save();
   kit.fitStage(ctx, w, h, W, H);
-  const z = at("camZ", t);
-  kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
-  drawWall();
-  drawRobot(t);
+  ctx.save();
+  ctx.translate(at("panX", t), at("panY", t));
+  drawFloor();
+  ctx.restore();
+  const k = S.scale * at("grow", t);
+  ctx.save();
+  ctx.translate(W / 2, S.palmY + (at("lift", t) + at("bob", t)) * S.scale);
+  ctx.rotate(at("tilt", t) * Math.PI / 180);
+  ctx.scale(k, k);
+  const lineW = kit.lineFor(ctx, 1);
+  drawShadow();
+  drawHands(lineW);
+  drawBlaster(lineW);
+  ctx.restore();
   ctx.restore();
 }
 
