@@ -10,7 +10,7 @@ import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
 import { drawAsset, type EnvAsset, type Size } from "../../src/game/env/paint";
 import { assetList } from "../../src/game/env/assets";
-import { buildBack, buildFront, buildSide, ROBOT } from "../../src/game/robot/xbot";
+import { buildBack, buildFront, buildHand, buildSide, buildTop, ROBOT } from "../../src/game/robot/xbot";
 import { CUTSCENE_IDS, loadFilms, type Cutscene, type CutsceneId } from "../../src/game/cutscene";
 import { drawSecurityCam } from "../../src/game/cutscene/securityCam";
 import { drawRobotView } from "../../src/game/cutscene/robotView";
@@ -33,7 +33,7 @@ interface SpikeNode {
   outer?: number;
 }
 
-type Options = Record<string, boolean>;
+type Options = Record<string, boolean | string | null>;
 
 type SpikeHook = (ctx: CanvasRenderingContext2D, pal: Palette) => void;
 
@@ -78,6 +78,8 @@ interface Spike {
   buildFront(opts: Options): SpikeNode;
   buildSide(opts: Options): SpikeNode;
   buildBack(opts: Options): SpikeNode;
+  buildTop(opts: Options): SpikeNode;
+  buildHand(opts: Options): SpikeNode;
   render(ctx: CanvasRenderingContext2D, node: SpikeNode, opts: { pal: Palette; lineW: number; simple: boolean; pose?: Pose; hooks?: Record<string, SpikeHook> }): void;
 }
 
@@ -106,9 +108,39 @@ declare global {
   }
 }
 
-type View = "front" | "side" | "back";
+type View = "front" | "side" | "back" | "top" | "hand";
 
-const port: Record<View, (opts: Options) => GroupNode> = { front: buildFront, side: buildSide, back: buildBack };
+const port: Record<View, (opts: Options) => GroupNode> = {
+  front: buildFront as (opts: Options) => GroupNode,
+  side: buildSide as (opts: Options) => GroupNode,
+  back: buildBack as (opts: Options) => GroupNode,
+  top: buildTop as (opts: Options) => GroupNode,
+  hand: buildHand as (opts: Options) => GroupNode,
+};
+
+const HAND_POSES = ["open", "reach", "fist", "carry", "cup", "grip", "pinch", "gunGrip"];
+const HAND_VIEWS = ["palm", "back", "thumb", "little", "tips"];
+const ARM_HOLDS = ["reach", "grip", "pinch", "carry", "fist", "cup", "gunGrip"];
+
+const holdViews: [View, Options][] = [
+  ["side", { fists: true }],
+  ["side", { farLimbs: true, fists: true }],
+  ["side", { farLimbs: true, carry: true }],
+  ...ARM_HOLDS.map((hold): [View, Options] => ["side", { farLimbs: true, hold }]),
+  ...ARM_HOLDS.map((hold): [View, Options] => ["side", { propBehindArm: true, hold }]),
+  ...ARM_HOLDS.map((farHold): [View, Options] => ["side", { farLimbs: true, farHold }]),
+  ["front", { fists: true }],
+  ...ARM_HOLDS.map((holdL, i): [View, Options] => ["front", { holdL, holdR: ARM_HOLDS[(i + 1) % ARM_HOLDS.length] ?? null }]),
+  ["front", { rightArmFirst: true, propBehindArm: true, holdL: "grip", holdR: "pinch" }],
+  ...ARM_HOLDS.map((holdL, i): [View, Options] => ["back", { holdL, holdR: ARM_HOLDS[(i + 2) % ARM_HOLDS.length] ?? null }]),
+  ["back", { leftArmBehind: true, rightForeBehind: true, holdL: "grip", holdR: "gunGrip" }],
+  ["top", {}],
+  ["top", { forearms: true }],
+  ["top", { forearms: true, spread: 60 } as unknown as Options],
+  ...HAND_POSES.flatMap((pose) => HAND_VIEWS.map((view): [View, Options] => ["hand", { pose, view }])),
+  ...HAND_VIEWS.map((view): [View, Options] => ["hand", { pose: "carry", view, rest: true }]),
+  ...["open", "grip"].flatMap((pose) => HAND_VIEWS.map((view): [View, Options] => ["hand", { pose, view, forearm: true }])),
+];
 
 const views: [View, Options][] = [
   ["front", {}],
@@ -266,7 +298,7 @@ const report = (name: string, r: { mismatches: number; copiedDiff: number; diff:
 };
 
 const runCase = (label: string, view: View, opts: Options, out: HTMLElement, scene: Scene = {}): VisualResult => {
-  const spikeBuild = { front: window.XBOT.buildFront, side: window.XBOT.buildSide, back: window.XBOT.buildBack }[view];
+  const spikeBuild = { front: window.XBOT.buildFront, side: window.XBOT.buildSide, back: window.XBOT.buildBack, top: window.XBOT.buildTop, hand: window.XBOT.buildHand }[view];
   const spikeTree = spikeBuild(opts);
   const portTree = port[view](opts);
   const copiedTree = port[view](opts);
@@ -470,7 +502,7 @@ const runEnvCoverage = (out: HTMLElement): VisualResult => {
 const out = document.getElementById("out");
 if (!out) throw new Error("missing #out");
 const lods = [false, true];
-const robotCases = views.flatMap(([view, opts]) => lods.map((lod) => (o: HTMLElement) => runCase(`${view} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o)));
+const robotCases = [...views, ...holdViews].flatMap(([view, opts]) => lods.map((lod) => (o: HTMLElement) => runCase(`${view} ${JSON.stringify({ ...opts, lod })}`, view, { ...opts, lod }, o)));
 const gunCases = [
   ...lods.map((lod) => (o: HTMLElement) => runGunAlone(lod, o)),
   ...carries.flatMap(([view, opts, carry]) =>

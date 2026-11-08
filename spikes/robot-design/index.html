@@ -33,6 +33,9 @@
   .pick { padding: 8px 16px 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
   .pick figure { margin: 0; flex: 1 1 0; min-width: 200px; }
   .pick canvas { display: block; width: 100%; height: auto; aspect-ratio: auto; }
+  #holds { padding: 8px 16px 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  #holds figure { margin: 0; }
+  #holds canvas { display: block; width: 100%; height: auto; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
 </style>
 </head>
@@ -61,6 +64,8 @@
 </main>
 <h2>Hands</h2>
 <section id="hands"></section>
+<h2>Arm holds (front and back per arm, side near and far)</h2>
+<section id="holds"></section>
 <h2>Two hand carry (vesnice projectile)</h2>
 <section id="carry">
   <figure><figcaption>Side, upper body</figcaption><canvas id="carrySide"></canvas></figure>
@@ -276,8 +281,35 @@ function drawCarryView() {
   carryItemAt(ctx, "top", mid, CARRY_VIEW.cy, CARRY_K * CARRY_NEAR, dpr);
 }
 
+const ARM_HOLDS = ["reach", "grip", "pinch", "carry", "fist", "cup", "gunGrip"];
+const HOLD_BODY = { w: 640, h: 560 };
+const holdRigs = ARM_HOLDS.flatMap(hold => [
+  [`${hold}: front`, buildFront({ holdL: hold, holdR: hold })],
+  [`${hold}: back`, buildBack({ holdL: hold, holdR: hold })],
+  [`${hold}: side`, buildSide({ farLimbs: true, hold, farHold: hold })]
+]);
+const holdsEl = document.getElementById("holds");
+const holdCanvases = holdRigs.map(([label]) => {
+  const fig = document.createElement("figure");
+  const cap = document.createElement("figcaption");
+  const c = document.createElement("canvas");
+  cap.textContent = label;
+  fig.append(cap, c);
+  holdsEl.append(fig);
+  return c;
+});
+
+function drawHolds() {
+  holdRigs.forEach(([, root], i) => {
+    const [ctx, dpr] = fitCanvas(holdCanvases[i], HOLD_BODY.w, HOLD_BODY.h);
+    ctx.translate(0, -100);
+    render(ctx, root, { pal, lineW: 1.4 * dpr });
+  });
+}
+
 function draw() {
   drawHands();
+  drawHolds();
   drawCarrySide();
   drawCarryFront();
   drawCarryBack();
