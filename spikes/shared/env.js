@@ -363,7 +363,15 @@ function define(asset) {
   return asset;
 }
 
-const viewOf = (asset, view) => !view || view === "side" ? asset : asset.views?.[view] ?? null;
+const viewOf = (asset, view) => !view ? asset : view === "side" ? asset.views?.side ?? asset : asset.views?.[view] ?? null;
+
+function itemViews(side, depth, { top, front, flat }) {
+  const [x0, y0, x1, y1] = side;
+  const d = depth / 2 + 1;
+  const views = { top: { box: [x0, -d, x1, d], draw: top }, front: { box: [-d, y0, d, y1], draw: front } };
+  if (flat) views.side = { box: [x0, y0, x1, y1], draw: flat };
+  return views;
+}
 
 function viewBox(asset, view) {
   return viewOf(asset, view)?.box ?? null;
@@ -602,7 +610,7 @@ const G = {
 };
 
 window.ENV = {
-  TILE, PALETTE, MAT, ASSETS, define, draw, viewBox,
+  TILE, PALETTE, MAT, ASSETS, define, draw, viewBox, itemViews,
   P: { rng, path, color, box, flat, poly, cylV, cylH, disc, rivets, hazard, mesh, truss, trefoil, glow, text, stroke, tones, lw, shape, line, curve, beam, slab, inShade },
   G,
   get pal() { return pal; },

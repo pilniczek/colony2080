@@ -1,5 +1,5 @@
 (() => {
-const { define, P, G } = window.ENV;
+const { define, P, G, itemViews } = window.ENV;
 const { rng, path, color, flat, box, poly, cylV, disc, rivets, glow, stroke, tones, line, shape } = P;
 const { PI, sin, cos, atan2, hypot } = Math;
 
@@ -163,6 +163,54 @@ function drum(ctx, x, w, h) {
   });
 }
 
+function shipWires(ctx, wires) {
+  ctx.save();
+  ctx.lineCap = "round";
+  for (const [x0, y0, cx, cy, x1, y1] of wires) {
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.quadraticCurveTo(cx, cy, x1, y1);
+    ctx.strokeStyle = color("aLine");
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+    ctx.strokeStyle = color("neon");
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+const WIRE = [[[2, -1.4], [8, -3], [10, -8.6], [15, -7.4]], [[15, -7.4], [17.4, -6.8], [17.6, -5], [16.6, -3.6]]];
+
+function wirePoints(n = 24) {
+  const pts = [];
+  WIRE.forEach(([a, b, c, e], k) => {
+    for (let i = k ? 1 : 0; i <= n; i++) {
+      const s = i / n, r = 1 - s, u = (k + s) / 2;
+      const at = j => r * r * r * a[j] + 3 * r * r * s * b[j] + 3 * r * s * s * c[j] + s * s * s * e[j];
+      pts.push([at(0), at(1), 1.3 * sin(PI * 1.6 * u)]);
+    }
+  });
+  return pts;
+}
+
+function wireView(ctx, project) {
+  const pts = wirePoints();
+  const ends = [[pts[0], [0, -0.8, pts[0][2]]], [pts[pts.length - 1], [16, -2, pts[pts.length - 1][2]]]];
+  line(ctx, pts.map(project), "aLine", 2.2);
+  line(ctx, pts.map(project), "a1", 1.4);
+  for (const [a, b] of ends) line(ctx, [project(a), project(b)], "c2", 0.7);
+}
+
+const sideOf = id => window.ENV.ASSETS.find(a => a.id === id);
+
+function unshear(ctx, slant, half, draw) {
+  ctx.save();
+  ctx.transform(1, 0, slant, 1, 0, half);
+  draw();
+  ctx.restore();
+}
+
 define({
   id: "barrel",
   box: [-4, -34, 34, 0],
@@ -218,6 +266,18 @@ define({
 define({
   id: "crowbar",
   box: [-2, -8, 28, 0],
+  views: itemViews([-2, -8, 28, 0], 2.6, {
+    top(ctx) {
+      poly(ctx, [[0.4, -0.6], [1.6, -0.9], [22.6, -0.9], [23.4, -1.3], [25.9, -1.3], [25.9, 1.3], [23.4, 1.3], [22.6, 0.9], [1.6, 0.9], [0.4, 0.6]], "chrome", 1);
+      if (simple()) return;
+      flat(ctx, 2, -0.6, 18.4, 0.35, "c3");
+      line(ctx, [[24, 0], [25.9, 0]], "hole", 0.4);
+    },
+    front(ctx) {
+      poly(ctx, [[-0.9, -0.6], [-0.9, -6], [-1.3, -6.9], [1.3, -6.9], [0.9, -6], [0.9, -0.6]], "chrome", 1);
+      if (!simple()) line(ctx, [[0, -6.9], [0, -5.4]], "hole", 0.4);
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 2, 22);
     poly(ctx, [[0.4, -1.2], [1.6, -2.4], [20.6, -2.4], [23.2, -6.4], [25.2, -6.9], [25.9, -5.9], [22.6, -0.6], [1.6, -0.6]], "chrome", 1);
@@ -261,6 +321,22 @@ define({
 define({
   id: "shipPart",
   box: [-2, -13, 20, 0],
+  views: itemViews([-2, -13, 20, 0], 8, {
+    top(ctx) {
+      box(ctx, 1.5, -4, 16, 8, "chrome", 1);
+      box(ctx, 3.8, -2.8, 10, 5.6, "chrome", 2);
+      for (let x = 5.4; x < 13.5; x += simple() ? 3.2 : 1.6) flat(ctx, x, -2.8, 0.45, 5.6, "c0");
+      box(ctx, 2.2, -3.4, 1.6, 6.8, "chrome", 2);
+      box(ctx, 13.8, -3.6, 2, 7.2, "chrome", 1);
+      shipWires(ctx, [[6.4, -1.2, 10, -1.6, 14.4, -1.2], [9.2, 1.2, 12, 1.6, 14.4, 1.2]]);
+    },
+    front(ctx) {
+      box(ctx, -4, -2.6, 8, 2.6, "chrome", 1);
+      shipWires(ctx, [[-1.8, -10.6, -1.2, -13.4, -0.6, -10.6], [0.6, -10.6, 1.2, -13.8, 1.8, -10.6]]);
+      box(ctx, -3.6, -11, 7.2, 9.6, "chrome", 1);
+      for (const x of [-2.4, 2.4]) for (const y of [-9.4, -4]) disc(ctx, x, y, 0.55, "c3", "mLine");
+    }
+  }),
   draw(ctx, state) {
     if (state === 0) return;
     if (state === 2) return scuff(ctx, 1, 16);
@@ -292,6 +368,17 @@ define({
 define({
   id: "controller",
   box: [-2, -10, 18, 0],
+  views: itemViews([-2, -10, 18, 0], 3, {
+    top(ctx) {
+      box(ctx, 0, -1.5, 16, 3, "rust", 2);
+      flat(ctx, 0, 1, 16, 0.5, "r3");
+    },
+    front(ctx) {
+      box(ctx, -1.5, -9, 3, 9, "rust", 0);
+      flat(ctx, -1.5, -9, 3, 0.8, "r3");
+      flat(ctx, -1.5, -8, 0.5, 7, "hole", "mLine");
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 1, 14);
     box(ctx, 0, -9, 16, 9, "rust", 0);
@@ -305,6 +392,16 @@ define({
 define({
   id: "craneKey",
   box: [-2, -6, 12, 0],
+  views: itemViews([-2, -6, 12, 0], 1, {
+    top(ctx) {
+      box(ctx, 0, -0.5, 4.4, 1, "chrome", 1);
+      box(ctx, 4, -0.35, 5.6, 0.7, "chrome", 2);
+    },
+    front(ctx) {
+      box(ctx, -0.5, -4.8, 1, 4.4, "chrome", 1);
+      box(ctx, -0.35, -3.3, 0.7, 3.3, "chrome", 2);
+    }
+  }),
   draw(ctx, state) {
     if (state === 2) return scuff(ctx, 0, 10);
     ctx.save();
@@ -325,6 +422,10 @@ define({
 define({
   id: "wires",
   box: [-2, -10, 22, 0],
+  views: itemViews([-2, -10, 22, 0], 3, {
+    top: (ctx) => wireView(ctx, ([x, , d]) => [x, -d]),
+    front: (ctx) => wireView(ctx, ([, y, d]) => [d, y])
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 20);
     const curve = () => {
@@ -365,6 +466,16 @@ define({
 define({
   id: "tapHandle",
   box: [-2, -12, 14, 0],
+  views: itemViews([-2, -12, 14, 0], 6, {
+    top(ctx) {
+      box(ctx, 4.2, 0, 3.6, 3, "chrome", 0);
+      box(ctx, 0.4, -0.65, 11.2, 1.3, "chrome", 1);
+    },
+    front(ctx) {
+      box(ctx, -0.65, -10, 1.3, 10, "chrome", 1);
+      box(ctx, -3, -6.8, 3, 3.6, "chrome", 0);
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 12);
     box(ctx, 5.4, -9.6, 1.2, 9.2, "chrome", 1, { vertical: true });
@@ -389,6 +500,14 @@ define({
 define({
   id: "card",
   box: [-2, -9, 16, 0],
+  views: itemViews([-2, -9, 16, 0], 7.6, {
+    top: (ctx) => unshear(ctx, 1.6 / 7.6, 3.8, () => sideOf("card").draw(ctx, 0)),
+    front: (ctx) => box(ctx, -3.8, -0.5, 7.6, 0.5, "chrome", 1),
+    flat(ctx) {
+      box(ctx, 0, -0.5, 12, 0.5, "chrome", 1);
+      flat(ctx, 4.6, -0.5, 2.8, 0.5, "a1");
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 14);
     poly(ctx, [[0, 0], [1.6, -7.6], [13.6, -7.6], [12, 0]], "chrome", 1);
@@ -413,6 +532,18 @@ define({
 define({
   id: "holoPlan",
   box: [-2, -14, 14, 0],
+  views: itemViews([-2, -14, 14, 0], 8, {
+    top(ctx) {
+      flat(ctx, 1, -4, 8, 8, "c3", "mLine");
+      for (const [x, y, w, h] of [[1, -4, 8, 0.6], [1, 3.4, 8, 0.6], [1, -4, 0.6, 8], [8.4, -4, 0.6, 8]]) flat(ctx, x, y, w, h, "water");
+      if (!simple()) glow(ctx, 5, 0, 4, "plasma", 0.3);
+    },
+    front(ctx) {
+      box(ctx, -4, -8, 8, 8, "rust", 1);
+      flat(ctx, -4, -8.6, 8, 0.6, "water");
+      if (!simple()) glow(ctx, 0, -10.5, 5, "plasma", 0.3);
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 12);
     poly(ctx, [[1, -8], [3, -10], [11, -10], [9, -8]], "c3", 2);
@@ -451,6 +582,11 @@ function shipSketch(ctx) {
 define({
   id: "shipPlan",
   box: [-2, -14, 22, 0],
+  views: itemViews([-2, -14, 22, 0], 12.4, {
+    top: (ctx) => unshear(ctx, 0.2, 6, () => sideOf("shipPlan").draw(ctx, 0)),
+    front: (ctx) => flat(ctx, -6.2, -0.3, 12.4, 0.3, "c2", "mLine"),
+    flat: (ctx) => flat(ctx, 0, -0.3, 20, 0.3, "c2", "mLine")
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 20);
     poly(ctx, [[0, 0], [2.4, -12], [19, -12.4], [20, 0]], "c2", 2, { dir: [1, 0] });
@@ -475,6 +611,20 @@ define({
 define({
   id: "decoder",
   box: [-2, -10, 16, 0],
+  views: itemViews([-2, -10, 16, 0], 6, {
+    top(ctx) {
+      box(ctx, 0, -3, 14, 6, "chrome", 1);
+      flat(ctx, 1.8, -2, 3.4, 2.4, "neon", "mLine");
+      for (let x = 6; x < 10.5; x += simple() ? 2.2 : 1.1) flat(ctx, x, -2, 0.6, 3, "c3", "mLine");
+      disc(ctx, 11.6, -1, 0.55, "screen");
+      disc(ctx, 12.6, 0.6, 0.55, "a2");
+    },
+    front(ctx) {
+      box(ctx, -2, -2.6, 4, 2.6, "chrome", 1);
+      poly(ctx, [[-3, -2.6], [-3, -4.6], [3, -8], [3, -2.6]], "chrome", 1);
+      box(ctx, -3, -4, 6, 1.4, "chrome", 0);
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 14);
     box(ctx, 3, -2.6, 6, 2.6, "chrome", 1);
