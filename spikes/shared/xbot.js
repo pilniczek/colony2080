@@ -848,6 +848,7 @@ function profileHand(parent, S, thumbBehind) {
 function robotHand(parent, M) {
   backPlate(parent, M);
   backFingers(parent, M);
+  handThumb(parent, M, THUMB_BASE, THUMB_OPEN, THUMB.w, false, true);
 }
 
 function palmPlate(parent, M, padBottom) {
@@ -885,7 +886,7 @@ function openHand(s, view) {
       P(s, { pts: [[x, FINGER.base - 4], [x + 20, FINGER.base - 4], [x + 20, y3], [x, y3]], r: 4, lw: FINGER_LW });
       for (const [a, b] of [[FINGER.base - 1, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 3]]) P(s, { pts: [[x + 3, a], [x + 17, a], [x + 17, b], [x + 3, b]], mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
     }
-    if (view === "palm") handThumb(s, S, THUMB_BASE, THUMB_OPEN, THUMB.w, true, true);
+    handThumb(s, S, THUMB_BASE, THUMB_OPEN, THUMB.w, view === "palm", true);
   } else if (view === "thumb" || view === "little") {
     handStub(s);
     profileHand(s, view === "little" ? W : M, view === "little");
@@ -913,6 +914,7 @@ function fist(s, view) {
   const pip = knuckle + FINGER.thick / 2;
   if (view === "back") {
     handStub(s);
+    P(s, { pts: fistThumb(), shade: "cyl", r: 6, lw: FINGER_LW });
     backPlate(s);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
@@ -1002,7 +1004,7 @@ function cup(s, view) {
         P(s, { pts: [[x, tip - 12], [x + 20, tip - 12], [x + 20, tip + 10], [x, tip + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
       } else P(s, { pts: [[x, tip - 4], [x + 20, tip - 4], [x + 20, tip + 10], [x, tip + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
-    if (view === "palm") handThumb(s, S, THUMB_BASE, CUP_THUMB, THUMB.w, true, true);
+    handThumb(s, S, THUMB_BASE, CUP_THUMB, THUMB.w, view === "palm", true);
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
     const thumb = () => handThumb(s, S, THUMB_SIDE, [-30, -50], THUMB.thick);
@@ -1069,6 +1071,7 @@ function grip(s, view, rod = CROWBAR) {
   if (view === "back") {
     rod.across(s, M, cy);
     handStub(s);
+    if (rod !== PISTOL) P(s, { pts: fistThumb(), shade: "cyl", r: 6, lw: FINGER_LW });
     backPlate(s);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
