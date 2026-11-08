@@ -1,7 +1,7 @@
 (() => {
 const { kit } = window.CUTSCENES;
 const { rect, LINE_W, asset } = kit;
-const { buildFront, render: renderBot, AX } = window.XBOT;
+const { buildFront, render: renderBot, locate, AX } = window.XBOT;
 const CFG = window.C28_CONFIG.cutscenes.searchCorpse;
 const ST = CFG.stage;
 const W = ST.width, H = ST.height;
@@ -10,6 +10,7 @@ const at = kit.track(CFG.tracks);
 const BLOCK_WIDTHS = [150, 210, 120, 180, 240, 140, 200, 170];
 const BLOCK_H = 74;
 const ITEM_GAP = 9;
+const PINCH = [2.2, -2.6];
 let robot = null;
 let ctx;
 let lineW = LINE_W;
@@ -77,19 +78,27 @@ function drawShadow(t) {
 
 function drawItems(c) {
   const k = ST.itemScale;
-  const m = c.getTransform();
   c.save();
-  c.rotate(-Math.atan2(m.b, m.a));
+  c.translate(PINCH[0], PINCH[1]);
+  c.rotate(ST.itemTurn * Math.PI / 180);
   c.scale(k, k);
-  c.translate(-7, -3);
+  c.translate(-ST.itemEdge[0], -ST.itemEdge[1]);
   window.ENV.draw(c, asset("card"), { lines: lineW });
   c.translate(ITEM_GAP, 2);
   window.ENV.draw(c, asset("holoPlan"), { lines: lineW });
   c.restore();
 }
 
+const turn = a => ((a % 360) + 540) % 360 - 180;
+
+function levelWrist(root, pose) {
+  const m = locate(root, "item", pose);
+  const off = turn(Math.atan2(m.b, m.a) * 180 / Math.PI + ST.itemTurn);
+  return Math.max(-ST.wristLimit, Math.min(ST.wristLimit, -off));
+}
+
 function drawRobot(c, t) {
-  robot ??= buildFront({ rightArmFirst: true });
+  robot ??= { reach: buildFront({ rightArmFirst: true, holdR: "reach" }), pinch: buildFront({ rightArmFirst: true, holdR: "pinch" }) };
   const crouch = at("crouch", t);
   const k = ST.robotScale;
   const pose = {
@@ -99,9 +108,11 @@ function drawRobot(c, t) {
     face: at("head", t)
   };
   const holding = at("taken", t) >= 1;
+  const root = holding ? robot.pinch : robot.reach;
+  if (holding) pose.wristR = levelWrist(root, pose);
   c.save();
   kit.feet(c, ST.robotX + crouch * ST.crouchX, ST.floorY + crouch * ST.crouchY, k, k, AX);
-  renderBot(c, robot, { pose, hooks: { handR: holding ? drawItems : null }, lineW });
+  renderBot(c, root, { pose, hooks: { item: holding ? drawItems : null }, lineW });
   c.restore();
 }
 

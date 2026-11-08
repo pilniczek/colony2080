@@ -1,11 +1,12 @@
 import config from "@config/cutscenes/search-corpse.json";
 import { drawRig, type HookDraw } from "../../engine/rig/draw";
+import type { Pose } from "../../engine/rig/pose";
 import type { GroupNode } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { buildFront, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, feet, fitStage, LINE_W, lineFor, rect, shadow, sheetBlit, sheetDraw, tracks } from "./kit";
+import { camera, feet, fitStage, hookAt, LINE_W, lineFor, rect, shadow, sheetBlit, sheetDraw, tracks } from "./kit";
 
 const ST = config.stage;
 const W = ST.width;
@@ -14,7 +15,8 @@ const palette = { ...config.palette };
 const BLOCK_WIDTHS = [150, 210, 120, 180, 240, 140, 200, 170];
 const BLOCK_H = 74;
 const ITEM_GAP = 9;
-let robot: GroupNode | null = null;
+const PINCH = [2.2, -2.6] as const;
+let robot: { reach: GroupNode; pinch: GroupNode } | null = null;
 let lineW = LINE_W;
 
 const { num: at } = tracks(config.tracks);
@@ -83,22 +85,30 @@ function drawShadow(ctx: CanvasRenderingContext2D, t: number): void {
 
 const drawItems: HookDraw = (c) => {
   const k = ST.itemScale;
-  const m = c.getTransform();
   c.save();
-  c.rotate(-Math.atan2(m.b, m.a));
+  c.translate(PINCH[0], PINCH[1]);
+  c.rotate((ST.itemTurn * Math.PI) / 180);
   c.scale(k, k);
-  c.translate(-7, -3);
+  c.translate(-ST.itemEdge[0]!, -ST.itemEdge[1]!);
   drawAsset(c, ASSETS.card, { lines: lineW });
   c.translate(ITEM_GAP, 2);
   drawAsset(c, ASSETS.holoPlan, { lines: lineW });
   c.restore();
 };
 
+const turn = (a: number): number => (((a % 360) + 540) % 360) - 180;
+
+function levelWrist(root: GroupNode, pose: Pose): number {
+  const m = hookAt(root, "item", pose);
+  const off = turn((Math.atan2(m.b, m.a) * 180) / Math.PI + ST.itemTurn);
+  return Math.max(-ST.wristLimit, Math.min(ST.wristLimit, -off));
+}
+
 function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
-  robot ??= buildFront({ rightArmFirst: true });
+  robot ??= { reach: buildFront({ rightArmFirst: true, holdR: "reach" }), pinch: buildFront({ rightArmFirst: true, holdR: "pinch" }) };
   const crouch = at("crouch", t);
   const k = ST.robotScale;
-  const pose = {
+  const pose: Pose = {
     body: { rot: at("lean", t), sy: 1 - ST.squash * crouch },
     armL: at("armL", t),
     foreL: at("foreL", t),
@@ -107,9 +117,11 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
     face: at("head", t),
   };
   const holding = at("taken", t) >= 1;
+  const root = holding ? robot.pinch : robot.reach;
+  if (holding) pose.wristR = levelWrist(root, pose);
   ctx.save();
   feet(ctx, ST.robotX + crouch * ST.crouchX, ST.floorY + crouch * ST.crouchY, k, k, ROBOT.AX);
-  drawRig(ctx, robot, { palette: ROBOT.palette, pose, hooks: { handR: holding ? drawItems : undefined }, lineW });
+  drawRig(ctx, root, { palette: ROBOT.palette, pose, hooks: { item: holding ? drawItems : undefined }, lineW });
   ctx.restore();
 }
 
