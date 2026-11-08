@@ -105,7 +105,7 @@ function levelWrist(root: GroupNode, pose: Pose): number {
 }
 
 function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
-  robot ??= { reach: buildFront({ rightArmFirst: true, holdR: "reach" }), pinch: buildFront({ rightArmFirst: true, holdR: "pinch" }) };
+  robot ??= { reach: buildFront({ rightArmFirst: true, holdR: "reach", backHandR: true }), pinch: buildFront({ rightArmFirst: true, holdR: "pinch", backHandR: true }) };
   const crouch = at("crouch", t);
   const k = ST.robotScale;
   const pose: Pose = {

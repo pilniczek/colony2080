@@ -16,7 +16,7 @@
     "corpseX": 1380,
     "corpseY": 890,
     "corpseScale": 29,
-    "itemScale": 1.6, "itemTurn": -169, "itemEdge": [0, -4.5], "wristLimit": 50,
+    "itemScale": 1.6, "itemTurn": 56, "itemEdge": [0, -4.5], "wristLimit": 50,
     "squash": 0.1,
     "crouchX": -60,
     "crouchY": 620,

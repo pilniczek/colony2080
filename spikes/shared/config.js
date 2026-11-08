@@ -6741,7 +6741,7 @@ window.C28_CONFIG = {
     "corpseY": 890,
     "corpseScale": 29,
     "itemScale": 1.6,
-    "itemTurn": -169,
+    "itemTurn": 56,
     "itemEdge": [
      0,
      -4.5
