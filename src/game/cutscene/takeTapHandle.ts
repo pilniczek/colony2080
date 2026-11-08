@@ -128,7 +128,7 @@ function drawHero(c: CanvasRenderingContext2D, t: number): void {
   const behind = (): void => {
     c.save();
     c.setTransform(base);
-    rimHand(c, robots().palmHand, m.multiply(domOf(hookAt(gripRig, "rodFar", pose))), -1);
+    rimHand(c, robots().palmHand, m.multiply(domOf(hookAt(gripRig, "rodFar", pose))), -1, 0);
     const { x, y, r, depth } = WHEEL;
     c.beginPath();
     c.rect(x + 16 - r * depth - 12, y - r - 12, 2 * r * depth + 24, 2 * r + 24);
@@ -138,14 +138,14 @@ function drawHero(c: CanvasRenderingContext2D, t: number): void {
   };
   const hidden: Pose = { ...pose, wrist: { sx: 0, sy: 0 }, wristFar: { sx: 0, sy: 0 } };
   placeRobot(c, gripRig, m, { pose: hidden, hooks: { rodFar: behind }, lineW });
-  rimHand(c, robots().backHand, m.multiply(domOf(hookAt(gripRig, "rod", pose))), 1);
+  rimHand(c, robots().backHand, m.multiply(domOf(hookAt(gripRig, "rod", pose))), 1, 180);
 }
 
 const domOf = ({ a, b, c, d, e, f }: Mat2D): DOMMatrix => new DOMMatrix([a, b, c, d, e, f]);
 
-function rimHand(c: CanvasRenderingContext2D, root: GroupNode, hook: DOMMatrix, flip: number): void {
+function rimHand(c: CanvasRenderingContext2D, root: GroupNode, hook: DOMMatrix, flip: number, turn: number): void {
   const at = hook.transformPoint(new DOMPoint(0, 0));
-  const along = Math.atan2(hook.b, hook.a) / RAD + 180;
+  const along = Math.atan2(hook.b, hook.a) / RAD + turn;
   const k = Math.hypot(hook.a, hook.b);
   const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(k, k * flip).multiply(domOf(hookAt(root, "rod", {})).inverse());
   placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });

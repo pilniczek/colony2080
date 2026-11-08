@@ -127,7 +127,7 @@ function drawHero(c, t) {
   const behind = () => {
     c.save();
     c.setTransform(base);
-    rimHand(c, robots().palmHand, m.multiply(locate(gripRig, "rodFar", pose)), -1);
+    rimHand(c, robots().palmHand, m.multiply(locate(gripRig, "rodFar", pose)), -1, 0);
     const { x, y, r, depth } = WHEEL;
     c.beginPath();
     c.rect(x + 16 - r * depth - 12, y - r - 12, 2 * r * depth + 24, 2 * r + 24);
@@ -137,12 +137,12 @@ function drawHero(c, t) {
   };
   const hidden = { ...pose, wrist: { sx: 0, sy: 0 }, wristFar: { sx: 0, sy: 0 } };
   kit.placeRobot(c, gripRig, m, { pose: hidden, hooks: { rodFar: behind }, lineW });
-  rimHand(c, robots().backHand, m.multiply(locate(gripRig, "rod", pose)), 1);
+  rimHand(c, robots().backHand, m.multiply(locate(gripRig, "rod", pose)), 1, 180);
 }
 
-function rimHand(c, root, hook, flip) {
+function rimHand(c, root, hook, flip, turn) {
   const at = hook.transformPoint(new DOMPoint(0, 0));
-  const along = Math.atan2(hook.b, hook.a) / kit.RAD + 180;
+  const along = Math.atan2(hook.b, hook.a) / kit.RAD + turn;
   const k = Math.hypot(hook.a, hook.b);
   const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(k, k * flip).multiply(locate(root, "rod").inverse());
   kit.placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
