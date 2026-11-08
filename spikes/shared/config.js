@@ -3410,17 +3410,11 @@ window.C28_CONFIG = {
     "edge": 4,
     "grout": 8,
     "gripAt": 0.6,
-    "itemOffset": [
-     -220,
-     25
-    ],
-    "itemTilt": -4,
-    "itemScale": 20,
     "shadow": [
-     0,
-     40,
-     230,
-     36
+     10,
+     30,
+     110,
+     60
     ],
     "gridBox": [
      33,
@@ -3451,7 +3445,16 @@ window.C28_CONFIG = {
      50,
      40
     ],
-    "focal": 2000
+    "focal": 2000,
+    "hold": "grip",
+    "seat": [
+     88,
+     444,
+     -1,
+     -5,
+     90,
+     7
+    ]
    },
    "palette": {
     "soil": "#3a1a0c",
@@ -3571,39 +3574,39 @@ window.C28_CONFIG = {
       40
      ]
     ],
-    "robotX": [
+    "handX": [
      [
       0,
-      2200
+      1350
      ],
      [
       0.6,
-      1868,
+      1050,
       "out"
      ],
      [
       1.76,
-      1830,
+      1080,
       "inOut"
      ]
     ],
-    "robotY": [
+    "handY": [
      [
       0,
-      1250
+      1150
      ],
      [
       0.6,
-      986,
+      620,
       "out"
      ],
      [
       1.76,
-      1010,
+      700,
       "inOut"
      ]
     ],
-    "robotK": [
+    "handK": [
      [
       0,
       3
@@ -3614,47 +3617,23 @@ window.C28_CONFIG = {
      ],
      [
       1.76,
-      3.4,
+      3.5,
       "inOut"
      ]
     ],
-    "arm": [
+    "handTurn": [
      [
       0,
-      -104
+      145
      ],
      [
       0.6,
-      -110,
+      155,
       "out"
      ],
      [
-      0.85,
-      -110
-     ],
-     [
       1.76,
-      -118,
-      "inOut"
-     ]
-    ],
-    "fore": [
-     [
-      0,
-      4
-     ],
-     [
-      0.6,
-      10,
-      "out"
-     ],
-     [
-      0.85,
-      10
-     ],
-     [
-      1.76,
-      24,
+      165,
       "inOut"
      ]
     ]
@@ -3694,17 +3673,11 @@ window.C28_CONFIG = {
     "edge": 4,
     "grout": 8,
     "gripAt": 0.6,
-    "itemOffset": [
-     -120,
-     20
-    ],
-    "itemTilt": -6,
-    "itemScale": 14,
     "shadow": [
-     0,
-     30,
-     110,
-     18
+     10,
+     20,
+     60,
+     40
     ],
     "gridBox": [
      33,
@@ -3735,7 +3708,16 @@ window.C28_CONFIG = {
      50,
      40
     ],
-    "focal": 2000
+    "focal": 2000,
+    "hold": "pinch",
+    "seat": [
+     129,
+     478,
+     2.2,
+     -2.6,
+     -90,
+     6
+    ]
    },
    "palette": {
     "soil": "#3a1a0c",
@@ -3855,39 +3837,39 @@ window.C28_CONFIG = {
       40
      ]
     ],
-    "robotX": [
+    "handX": [
      [
       0,
-      2200
+      1350
      ],
      [
       0.6,
-      1868,
+      1050,
       "out"
      ],
      [
       1.76,
-      1830,
+      1080,
       "inOut"
      ]
     ],
-    "robotY": [
+    "handY": [
      [
       0,
-      1250
+      1150
      ],
      [
       0.6,
-      986,
+      620,
       "out"
      ],
      [
       1.76,
-      1010,
+      700,
       "inOut"
      ]
     ],
-    "robotK": [
+    "handK": [
      [
       0,
       3
@@ -3898,47 +3880,23 @@ window.C28_CONFIG = {
      ],
      [
       1.76,
-      3.4,
+      3.5,
       "inOut"
      ]
     ],
-    "arm": [
+    "handTurn": [
      [
       0,
-      -104
+      145
      ],
      [
       0.6,
-      -110,
+      155,
       "out"
      ],
      [
-      0.85,
-      -110
-     ],
-     [
       1.76,
-      -118,
-      "inOut"
-     ]
-    ],
-    "fore": [
-     [
-      0,
-      4
-     ],
-     [
-      0.6,
-      10,
-      "out"
-     ],
-     [
-      0.85,
-      10
-     ],
-     [
-      1.76,
-      24,
+      165,
       "inOut"
      ]
     ]
@@ -3983,17 +3941,11 @@ window.C28_CONFIG = {
     "edge": 4,
     "grout": 8,
     "gripAt": 0.6,
-    "itemOffset": [
-     -290,
-     20
-    ],
-    "itemTilt": -4,
-    "itemScale": 20,
     "shadow": [
      0,
-     40,
-     280,
-     26
+     30,
+     260,
+     50
     ],
     "gridBox": [
      33,
@@ -4024,7 +3976,16 @@ window.C28_CONFIG = {
      50,
      40
     ],
-    "focal": 2000
+    "focal": 2000,
+    "hold": "grip",
+    "seat": [
+     88,
+     444,
+     13,
+     -1.5,
+     0,
+     11
+    ]
    },
    "palette": {
     "soil": "#3a1a0c",
@@ -4144,39 +4105,39 @@ window.C28_CONFIG = {
       40
      ]
     ],
-    "robotX": [
+    "handX": [
      [
       0,
-      2200
+      1350
      ],
      [
       0.6,
-      1868,
+      1050,
       "out"
      ],
      [
       1.76,
-      1830,
+      1080,
       "inOut"
      ]
     ],
-    "robotY": [
+    "handY": [
      [
       0,
-      1250
+      1150
      ],
      [
       0.6,
-      986,
+      620,
       "out"
      ],
      [
       1.76,
-      1010,
+      700,
       "inOut"
      ]
     ],
-    "robotK": [
+    "handK": [
      [
       0,
       3
@@ -4187,47 +4148,23 @@ window.C28_CONFIG = {
      ],
      [
       1.76,
-      3.4,
+      3.5,
       "inOut"
      ]
     ],
-    "arm": [
+    "handTurn": [
      [
       0,
-      -104
+      145
      ],
      [
       0.6,
-      -110,
+      155,
       "out"
      ],
      [
-      0.85,
-      -110
-     ],
-     [
       1.76,
-      -118,
-      "inOut"
-     ]
-    ],
-    "fore": [
-     [
-      0,
-      4
-     ],
-     [
-      0.6,
-      10,
-      "out"
-     ],
-     [
-      0.85,
-      10
-     ],
-     [
-      1.76,
-      24,
+      165,
       "inOut"
      ]
     ]
@@ -4263,7 +4200,7 @@ window.C28_CONFIG = {
     "height": 900,
     "scale": 2.6,
     "palmY": 600,
-    "itemY": -52,
+    "itemY": 0,
     "near": 1.15,
     "spread": 112,
     "seed": 31,
@@ -4438,17 +4375,11 @@ window.C28_CONFIG = {
     "edge": 4,
     "grout": 8,
     "gripAt": 0.6,
-    "itemOffset": [
-     -230,
-     10
-    ],
-    "itemTilt": -8,
-    "itemScale": 22,
     "shadow": [
-     10,
-     70,
-     260,
-     46
+     0,
+     40,
+     200,
+     70
     ],
     "gridBox": [
      33,
@@ -4479,7 +4410,16 @@ window.C28_CONFIG = {
      50,
      40
     ],
-    "focal": 2000
+    "focal": 2000,
+    "hold": "grip",
+    "seat": [
+     88,
+     444,
+     9,
+     -11,
+     0,
+     7.3
+    ]
    },
    "palette": {
     "soil": "#3a1a0c",
@@ -4599,39 +4539,39 @@ window.C28_CONFIG = {
       40
      ]
     ],
-    "robotX": [
+    "handX": [
      [
       0,
-      2200
+      1350
      ],
      [
       0.6,
-      1868,
+      1050,
       "out"
      ],
      [
       1.76,
-      1830,
+      1080,
       "inOut"
      ]
     ],
-    "robotY": [
+    "handY": [
      [
       0,
-      1250
+      1150
      ],
      [
       0.6,
-      986,
+      620,
       "out"
      ],
      [
       1.76,
-      1010,
+      700,
       "inOut"
      ]
     ],
-    "robotK": [
+    "handK": [
      [
       0,
       3
@@ -4642,47 +4582,23 @@ window.C28_CONFIG = {
      ],
      [
       1.76,
-      3.4,
+      3.5,
       "inOut"
      ]
     ],
-    "arm": [
+    "handTurn": [
      [
       0,
-      -104
+      145
      ],
      [
       0.6,
-      -110,
+      155,
       "out"
      ],
      [
-      0.85,
-      -110
-     ],
-     [
       1.76,
-      -118,
-      "inOut"
-     ]
-    ],
-    "fore": [
-     [
-      0,
-      4
-     ],
-     [
-      0.6,
-      10,
-      "out"
-     ],
-     [
-      0.85,
-      10
-     ],
-     [
-      1.76,
-      24,
+      165,
       "inOut"
      ]
     ]
@@ -4745,7 +4661,12 @@ window.C28_CONFIG = {
     "x": 280,
     "y": 250,
     "scale": 18,
-    "envScale": 16
+    "gripScale": 20,
+    "section": 15.5,
+    "gripAt": [
+     -8.5,
+     4.6
+    ]
    },
    "palette": {
     "wall": "#5a3020",
@@ -4941,8 +4862,19 @@ window.C28_CONFIG = {
       1
      ],
      [
+      0.11,
+      6,
+      "inOut"
+     ],
+     [
+      0.23,
+      9,
+      "inOut"
+     ],
+     [
       0.68,
-      -2
+      -2,
+      "inOut"
      ],
      [
       1,
@@ -4985,6 +4917,74 @@ window.C28_CONFIG = {
      [
       2.61,
       6
+     ]
+    ],
+    "grip": [
+     [
+      0,
+      0
+     ],
+     [
+      0.1,
+      0
+     ],
+     [
+      0.1,
+      1
+     ],
+     [
+      0.24,
+      1
+     ],
+     [
+      0.24,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ]
+    ],
+    "doorHold": [
+     [
+      0,
+      0
+     ],
+     [
+      0.02,
+      0
+     ],
+     [
+      0.11,
+      1,
+      "inOut"
+     ],
+     [
+      0.23,
+      1
+     ],
+     [
+      0.4,
+      0,
+      "inOut"
+     ]
+    ],
+    "cable": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
      ]
     ],
     "wire": [
@@ -5965,7 +5965,6 @@ window.C28_CONFIG = {
    "robot": {
     "x": 720,
     "y": 640,
-    "keyScale": 14,
     "aboardX": 92
    },
    "crane": {
@@ -6187,31 +6186,36 @@ window.C28_CONFIG = {
     "armB": [
      [
       0,
-      -55
+      -40
      ],
      [
       0.4,
-      -72,
-      "inOut"
-     ],
-     [
-      0.8,
-      -62,
+      -44,
       "inOut"
      ],
      [
       1.3,
-      -62
+      -44
      ]
     ],
     "foreB": [
      [
       0,
-      -30
+      -34
+     ],
+     [
+      0.4,
+      -20,
+      "inOut"
+     ],
+     [
+      0.8,
+      -10,
+      "inOut"
      ],
      [
       1.3,
-      -30
+      -10
      ]
     ],
     "keyTurn": [
@@ -6225,12 +6229,12 @@ window.C28_CONFIG = {
      ],
      [
       0.8,
-      70,
+      -20,
       "inOut"
      ],
      [
       1.3,
-      70
+      -20
      ]
     ],
     "armL": [
@@ -6444,7 +6448,7 @@ window.C28_CONFIG = {
     "scale": 1.35,
     "x": 860,
     "y": 190,
-    "controllerScale": 11
+    "controllerScale": 2.2
    },
    "palette": {
     "sky0": "#2a1008",
@@ -6735,7 +6739,13 @@ window.C28_CONFIG = {
     "corpseX": 1380,
     "corpseY": 890,
     "corpseScale": 29,
-    "itemScale": 10,
+    "itemScale": 1.6,
+    "itemTurn": -169,
+    "itemEdge": [
+     0,
+     -4.5
+    ],
+    "wristLimit": 50,
     "squash": 0.1,
     "crouchX": -60,
     "crouchY": 620,
@@ -6959,12 +6969,12 @@ window.C28_CONFIG = {
      ],
      [
       3.6,
-      -14.5,
+      -44.5,
       "inOut"
      ],
      [
       4.43,
-      -15
+      -45
      ]
     ],
     "foreR": [
@@ -7011,12 +7021,12 @@ window.C28_CONFIG = {
      ],
      [
       3.6,
-      159,
+      136,
       "inOut"
      ],
      [
       4.43,
-      158
+      135
      ]
     ],
     "handFront": [
@@ -7087,14 +7097,20 @@ window.C28_CONFIG = {
      "x": 732,
      "y": 380,
      "r": 66,
-     "depth": 0.5
+     "depth": 0.5,
+     "farGrip": 120
     },
     "close": {
      "x": 800,
      "y": 470,
      "rx": 360,
      "tilt": 0.38,
-     "arm": 3.2
+     "arm": 3.6,
+     "shoulder": [
+      -60,
+      1000
+     ],
+     "rim": 4.6
     }
    },
    "palette": {
@@ -7593,7 +7609,9 @@ window.C28_CONFIG = {
     "robotBefore": null,
     "robotAfter": "shipPlan",
     "manBefore": "shipPlan",
-    "manAfter": null
+    "manAfter": null,
+    "holdBefore": null,
+    "holdAfter": "pinch"
    },
    "stage": {
     "width": 1600,
@@ -7607,7 +7625,16 @@ window.C28_CONFIG = {
      600
     ],
     "robotScale": 1,
-    "itemScale": 14
+    "itemScale": 14,
+    "pinchScale": 4.8,
+    "pinchAt": [
+     2.2,
+     -2.6
+    ],
+    "holoGrip": [
+     0.27,
+     0.55
+    ]
    },
    "palette": {
     "wall": "#5a5040",
@@ -7865,6 +7892,17 @@ window.C28_CONFIG = {
     "itemStates": {
      "shipPart": 1
     },
+    "grip": {
+     "pinch": [
+      0.9,
+      0.5
+     ],
+     "carry": [
+      0.42,
+      1.15
+     ]
+    },
+    "carryWrist": -70,
     "tracks": {
      "camX": [
       [
@@ -8019,7 +8057,9 @@ window.C28_CONFIG = {
     "robotBefore": "shipPart",
     "robotAfter": "decoder",
     "manBefore": null,
-    "manAfter": "shipPart"
+    "manAfter": "shipPart",
+    "holdBefore": "carry",
+    "holdAfter": "pinch"
    },
    "palette": {},
    "tracks": {}
@@ -8077,8 +8117,17 @@ window.C28_CONFIG = {
    "hand": {
     "scale": 5.4,
     "grip": [
-     170,
-     90
+     14,
+     -4
+    ],
+    "pinchAt": [
+     2.2,
+     -2.6
+    ],
+    "turn": 90,
+    "palm": [
+     88,
+     470
     ]
    },
    "palette": {
@@ -8363,7 +8412,12 @@ window.C28_CONFIG = {
      "y": 430,
      "rx": 380,
      "tilt": 0.34,
-     "arm": 3.2
+     "arm": 3.6,
+     "shoulder": [
+      -60,
+      1000
+     ],
+     "rim": 4.6
     },
     "melt": {
      "x": 800,
@@ -8783,7 +8837,12 @@ window.C28_CONFIG = {
    "robot": {
     "scale": 0.74,
     "envScale": 13.2,
-    "lungeDrop": 27
+    "lungeDrop": 27,
+    "gripScale": 16.5,
+    "gripAt": [
+     -8.5,
+     4.6
+    ]
    },
    "lunge": {
     "hipNear": -32,
