@@ -28,8 +28,7 @@
   h3 { font-size: 12px; font-weight: 600; margin: 8px 16px 0; color: var(--text); text-transform: capitalize; }
   .hands canvas.full { width: 100%; aspect-ratio: 140 / 172; display: block; }
   #carry { padding: 8px 16px 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-  #carry figure { margin: 0; flex: 720 1 0; min-width: 280px; }
-  #carry figure + figure { flex-grow: 560; }
+  #carry figure { margin: 0; flex: 1 1 0; min-width: 200px; }
   #carry canvas { display: block; width: 100%; height: auto; aspect-ratio: auto; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
 </style>
@@ -60,6 +59,9 @@
 <h2>Two hand carry (vesnice projectile)</h2>
 <section id="carry">
   <figure><figcaption>Side, upper body</figcaption><canvas id="carrySide"></canvas></figure>
+  <figure><figcaption>Front, upper body</figcaption><canvas id="carryFront"></canvas></figure>
+  <figure><figcaption>Back, upper body</figcaption><canvas id="carryBack"></canvas></figure>
+  <figure><figcaption>From above, upper body</figcaption><canvas id="carryTop"></canvas></figure>
   <figure><figcaption>Robot's own view, looking down</figcaption><canvas id="carryView"></canvas></figure>
 </section>
 <!-- originals -->
@@ -130,11 +132,115 @@ function drawHands() {
 
 const CARRY_ITEM = window.ENV.ASSETS.find(a => a.id === "projectile");
 const CARRY_K = (window.XBOT.FOOT_Y - 2) / 45.6 * (CARRY_ITEM.views?.scale ?? 1);
-const CARRY_SIDE = { w: 720, h: 360, cut: 352 };
-const CARRY_VIEW = { w: 560, h: 360, cy: 120, palm: 150 };
+const CARRY_SIDE = { w: 640, h: 380, cut: 352 };
+const CARRY_VIEW = { w: 640, h: 380, cy: 130, palm: 160 };
 const carrySide = buildSide({ farLimbs: true, carry: true });
 const carryPose = { arm: -12, fore: -58, armFar: -12, foreFar: -58 };
 const carryHand = buildHand({ view: "palm", pose: "open", forearm: true });
+const CARRY_NEAR = 1.15;
+const CARRY_BODY = { w: 640, h: 380, cut: 342 };
+const FORE_TOWARD = { rot: 0, sy: 0.04 };
+const carryFrontPose = { foreL: FORE_TOWARD, foreR: FORE_TOWARD };
+const carryFront = buildFront();
+const carryBack = buildBack();
+const carryTips = buildHand({ view: "tips", pose: "carry", rest: true });
+const carrySpread = () => {
+  const [x0, , x1] = window.ENV.viewBox(CARRY_ITEM, "top");
+  return Math.max(70, (x1 - x0) * CARRY_K / 2 - 60);
+};
+
+function carryItemAt(ctx, view, x, y, k = CARRY_K, dpr = 1) {
+  const [x0, , x1] = window.ENV.viewBox(CARRY_ITEM, view);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(k, k);
+  ctx.translate(-(x0 + x1) / 2, 0);
+  window.ENV.draw(ctx, CARRY_ITEM, { view, lines: dpr });
+  ctx.restore();
+}
+
+function clipped(ctx, h, draw) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, CARRY_BODY.w, h);
+  ctx.clip();
+  draw();
+  ctx.restore();
+}
+
+function drawCarryFront() {
+  const [ctx, dpr] = fitCanvas(document.getElementById("carryFront"), CARRY_BODY.w, CARRY_BODY.h);
+  clipped(ctx, CARRY_BODY.cut, () => render(ctx, carryFront, { pal, pose: carryFrontPose, lineW: 1.4 * dpr }));
+  const rest = window.XBOT.locate(carryTips, "rest");
+  let top = Infinity;
+  for (const [hook, mirror] of [["handL", false], ["handR", true]]) {
+    const w = window.XBOT.locate(carryFront, hook, carryFrontPose);
+    ctx.save();
+    ctx.translate(window.XBOT.AX + (mirror ? 1 : -1) * carrySpread(), w.f);
+    if (mirror) ctx.scale(-1, 1);
+    ctx.translate(-rest.e, -rest.f);
+    render(ctx, carryTips, { pal, lineW: 1.4 * dpr });
+    ctx.restore();
+    top = Math.min(top, w.f);
+  }
+  carryItemAt(ctx, "side", window.XBOT.AX, top, CARRY_K, dpr);
+}
+
+function drawCarryBack() {
+  const [ctx, dpr] = fitCanvas(document.getElementById("carryBack"), CARRY_BODY.w, CARRY_BODY.h);
+  const w = window.XBOT.locate(carryBack, "handL", carryFrontPose);
+  carryItemAt(ctx, "side", window.XBOT.AX, w.f, CARRY_K, dpr);
+  clipped(ctx, CARRY_BODY.cut, () => render(ctx, carryBack, { pal, pose: carryFrontPose, lineW: 1.4 * dpr }));
+}
+
+function topShape(ctx, pts, fill, edge = pal.aLine) {
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.strokeStyle = edge;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function topDome(ctx, x, y, r, fill, lit) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.fillStyle = lit;
+  ctx.beginPath();
+  ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.45, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.strokeStyle = pal.aLine;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function drawCarryTop() {
+  const [ctx, dpr] = fitCanvas(document.getElementById("carryTop"), CARRY_BODY.w, CARRY_BODY.h);
+  const mid = CARRY_BODY.w / 2, chest = 250, spread = carrySpread(), palm = chest - 150;
+  topShape(ctx, [[mid - 106, chest], [mid + 106, chest], [mid + 112, chest + 40], [mid + 100, chest + 110], [mid - 100, chest + 110], [mid - 112, chest + 40]], pal.m1, pal.mLine);
+  topShape(ctx, [[mid - 96, chest + 6], [mid + 96, chest + 6], [mid + 90, chest + 34], [mid - 90, chest + 34]], pal.a2);
+  for (const side of [-1, 1]) topDome(ctx, mid + side * 124, chest + 58, 46, pal.a1, pal.a3);
+  topShape(ctx, [[mid - 44, chest + 30], [mid + 44, chest + 30], [mid + 46, chest + 112], [mid - 46, chest + 112]], pal.a2);
+  topShape(ctx, [[mid - 8, chest + 24], [mid + 8, chest + 24], [mid + 8, chest + 108], [mid - 8, chest + 108]], pal.a1);
+  topShape(ctx, [[mid + 30, chest + 22], [mid + 42, chest + 22], [mid + 42, chest + 34], [mid + 30, chest + 34]], pal.visor, pal.mLine);
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(mid + side * spread, palm);
+    ctx.scale(-side, 1);
+    ctx.rotate(Math.PI);
+    ctx.scale(-1, 1);
+    ctx.translate(-88, -438);
+    render(ctx, carryHand, { pal, lineW: 1.4 * dpr });
+    ctx.restore();
+  }
+  carryItemAt(ctx, "top", mid, palm - 30, CARRY_K, dpr);
+}
 
 function fitCanvas(c, w, h) {
   const dpr = devicePixelRatio || 1;
@@ -170,8 +276,7 @@ function drawCarrySide() {
 function drawCarryView() {
   const [ctx, dpr] = fitCanvas(document.getElementById("carryView"), CARRY_VIEW.w, CARRY_VIEW.h);
   const mid = CARRY_VIEW.w / 2;
-  const [x0, , x1] = window.ENV.viewBox(CARRY_ITEM, "top");
-  const spread = Math.max(70, (x1 - x0) * CARRY_K / 2 - 60);
+  const spread = carrySpread();
   for (const side of [-1, 1]) {
     const x = mid + side * spread;
     ctx.save();
@@ -183,17 +288,15 @@ function drawCarryView() {
     render(ctx, carryHand, { pal, lineW: 1.4 * dpr });
     ctx.restore();
   }
-  ctx.save();
-  ctx.translate(mid, CARRY_VIEW.cy);
-  ctx.scale(CARRY_K, CARRY_K);
-  ctx.translate(-(x0 + x1) / 2, 0);
-  window.ENV.draw(ctx, CARRY_ITEM, { view: "top", lines: dpr });
-  ctx.restore();
+  carryItemAt(ctx, "top", mid, CARRY_VIEW.cy, CARRY_K * CARRY_NEAR, dpr);
 }
 
 function draw() {
   drawHands();
   drawCarrySide();
+  drawCarryFront();
+  drawCarryBack();
+  drawCarryTop();
   drawCarryView();
   for (const [id, root] of Object.entries(views)) {
     const c = document.getElementById(id);
