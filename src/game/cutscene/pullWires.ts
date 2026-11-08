@@ -5,7 +5,7 @@ import { ASSETS } from "../env/assets";
 import { drawAsset, PALETTE as ENV_PALETTE } from "../env/paint";
 import { buildSide, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, feet, fitStage, LINE_W, lineFor, poly, random, rect, STAND, tracks } from "./kit";
+import { camera, feet, fitStage, LINE_W, lineFor, poly, random, reach, rect, STAND, toModel, tracks } from "./kit";
 
 const { width: W, height: H, floorY: FLOOR, brick: BRICK, pipeX: PIPE_X } = config.stage;
 const K = config.robot.scale;
@@ -16,7 +16,7 @@ const INNER = 22 - INSET * 2;
 const PANEL_TOP = -40;
 const palette = { ...config.palette };
 let lineW = LINE_W;
-let side: GroupNode | null = null;
+const rigs: Record<string, GroupNode> = {};
 
 const { num: at } = tracks(config.tracks);
 
@@ -111,22 +111,54 @@ function drawSparks(ctx: CanvasRenderingContext2D, t: number): void {
   }
 }
 
+function doorEdge(t: number): Pt {
+  const a = (at("door", t) * Math.PI) / 180;
+  return [BOX.x + (INSET + INNER * Math.cos(a)) * BOX.scale, BOX.y + (INSET + INNER / 2) * BOX.scale];
+}
+
+function section(c: CanvasRenderingContext2D, fill: string, line: string): void {
+  const r = BOX.section;
+  c.save();
+  c.lineJoin = "round";
+  c.lineWidth = lineW / Math.sqrt(Math.abs(c.getTransform().a * c.getTransform().d));
+  c.strokeStyle = line;
+  poly(c, [[-r, -r], [r, -r], [r, r], [-r, r]], fill);
+  c.stroke();
+  c.restore();
+}
+
+function heldWires(c: CanvasRenderingContext2D): void {
+  c.save();
+  c.scale(BOX.gripScale, BOX.gripScale);
+  c.translate(BOX.gripAt[0]!, BOX.gripAt[1]!);
+  drawAsset(c, ASSETS.wires, { lines: lineW });
+  c.restore();
+}
+
 function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
-  side ??= buildSide({ farLimbs: true });
-  const pose = { ...STAND, arm: at("arm", t), fore: at("fore", t), armFar: -6, foreFar: -14, head: at("head", t) };
-  const hand: HookDraw | undefined =
-    at("wire", t) >= 0.5
-      ? (c) => {
-          c.save();
-          c.scale(BOX.envScale, BOX.envScale);
-          c.translate(-9, 6);
-          drawAsset(c, ASSETS.wires, { lines: lineW });
-          c.restore();
-        }
-      : undefined;
+  const hold = at("grip", t) >= 0.5 ? "grip" : "reach";
+  const side = (rigs[hold] ??= buildSide({ farLimbs: true, hold }));
+  const grip = (rigs.grip ??= buildSide({ farLimbs: true, hold: "grip" }));
+  const lean = -at("lean", t);
+  const m = new DOMMatrix().translate(X, FLOOR).rotate(lean).scale(-K, K).translate(-ROBOT.SIDE_AX, -ROBOT.FOOT_Y);
+  const pose: Record<string, number> = { ...STAND, arm: at("arm", t), fore: at("fore", t), armFar: -6, foreFar: -14, head: at("head", t) };
+  const onDoor = at("doorHold", t);
+  if (onDoor > 0) {
+    const held = reach(grip, "rod", ["arm", "fore"], toModel(m, doorEdge(t)), 1);
+    pose.arm! += (held.arm! - pose.arm!) * onDoor;
+    pose.fore! += (held.fore! - pose.fore!) * onDoor;
+  }
+  const rod: HookDraw | undefined =
+    hold !== "grip"
+      ? undefined
+      : at("wire", t) >= 0.5
+        ? heldWires
+        : at("cable", t) >= 0.5
+          ? (c) => section(c, ENV_PALETTE.a1!, ENV_PALETTE.aLine!)
+          : (c) => section(c, ENV_PALETTE.g2!, ENV_PALETTE.gLine!);
   ctx.save();
-  feet(ctx, X, FLOOR, -K, K, ROBOT.SIDE_AX, (-at("lean", t) * Math.PI) / 180);
-  drawRig(ctx, side, { palette: ROBOT.palette, pose, hooks: { hand }, lineW });
+  feet(ctx, X, FLOOR, -K, K, ROBOT.SIDE_AX, (lean * Math.PI) / 180);
+  drawRig(ctx, side, { palette: ROBOT.palette, pose, hooks: { rod }, lineW });
   ctx.restore();
 }
 

@@ -1,7 +1,7 @@
 (() => {
 const { kit } = window.CUTSCENES;
 const { rect, poly, STAND, LINE_W, asset } = kit;
-const { buildSide, render: renderBot, SIDE_AX } = window.XBOT;
+const { buildSide, render: renderBot, SIDE_AX, FOOT_Y } = window.XBOT;
 const CFG = window.C28_CONFIG.cutscenes.pullWires;
 const ENV = window.ENV;
 const W = CFG.stage.width, H = CFG.stage.height, FLOOR = CFG.stage.floorY;
@@ -12,7 +12,7 @@ const INSET = 22 * 0.22, INNER = 22 - INSET * 2, PANEL_TOP = -40;
 const palette = { ...CFG.palette };
 const at = kit.track(CFG.tracks);
 let lineW = LINE_W;
-let side = null;
+const rigs = {};
 let ctx;
 
 const random = seed => kit.random(seed * 2654435761 >>> 0);
@@ -112,22 +112,51 @@ function drawSparks(t) {
   }
 }
 
+function doorEdge(t) {
+  const a = at("door", t) * Math.PI / 180;
+  return [BOX.x + (INSET + INNER * Math.cos(a)) * BOX.scale, BOX.y + (INSET + INNER / 2) * BOX.scale];
+}
+
+function section(c, fill, line) {
+  const r = BOX.section;
+  c.save();
+  c.lineJoin = "round";
+  c.lineWidth = lineW / Math.sqrt(Math.abs(c.getTransform().a * c.getTransform().d));
+  c.strokeStyle = line;
+  poly(c, [[-r, -r], [r, -r], [r, r], [-r, r]], fill);
+  c.stroke();
+  c.restore();
+}
+
+function heldWires(c) {
+  c.save();
+  c.scale(BOX.gripScale, BOX.gripScale);
+  c.translate(...BOX.gripAt);
+  ENV.draw(c, asset("wires"), { lines: lineW });
+  c.restore();
+}
+
 function drawRobot(t) {
-  side ??= buildSide({ farLimbs: true });
+  const hold = at("grip", t) >= 0.5 ? "grip" : "reach";
+  const side = rigs[hold] ??= buildSide({ farLimbs: true, hold });
+  const grip = rigs.grip ??= buildSide({ farLimbs: true, hold: "grip" });
+  const lean = -at("lean", t);
+  const m = new DOMMatrix().translate(X, FLOOR).rotate(lean).scale(-K, K).translate(-SIDE_AX, -FOOT_Y);
   const pose = { ...STAND, arm: at("arm", t), fore: at("fore", t), armFar: -6, foreFar: -14, head: at("head", t) };
-  const wires = asset("wires");
-  const hooks = {
-    hand: at("wire", t) >= 0.5 ? c => {
-      c.save();
-      c.scale(BOX.envScale, BOX.envScale);
-      c.translate(-9, 6);
-      ENV.draw(c, wires, { lines: lineW });
-      c.restore();
-    } : null
-  };
+  const onDoor = at("doorHold", t);
+  if (onDoor > 0) {
+    const held = kit.reach(grip, "rod", ["arm", "fore"], kit.toModel(m, ...doorEdge(t)), 1);
+    pose.arm += (held.arm - pose.arm) * onDoor;
+    pose.fore += (held.fore - pose.fore) * onDoor;
+  }
+  const pal = ENV.PALETTE;
+  const rod = hold !== "grip" ? null
+    : at("wire", t) >= 0.5 ? heldWires
+    : at("cable", t) >= 0.5 ? c => section(c, pal.a1, pal.aLine)
+    : c => section(c, pal.g2, pal.gLine);
   ctx.save();
-  kit.feet(ctx, X, FLOOR, -K, K, SIDE_AX, -at("lean", t) * Math.PI / 180);
-  renderBot(ctx, side, { pose, hooks, lineW });
+  kit.feet(ctx, X, FLOOR, -K, K, SIDE_AX, lean * Math.PI / 180);
+  renderBot(ctx, side, { pose, hooks: { rod }, lineW });
   ctx.restore();
 }
 

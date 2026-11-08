@@ -15,7 +15,7 @@ const PILLAR_S = K * ENV_K;
 const LUNGE: Record<string, number> = config.lunge;
 const palette = { ...metro.palette, ...config.palette };
 let lineW = LINE_W;
-let side: GroupNode | null = null;
+const rigs: Record<string, GroupNode> = {};
 
 const { num: at } = tracks(config.tracks);
 
@@ -62,20 +62,21 @@ function drawPillar(ctx: CanvasRenderingContext2D, t: number): void {
 }
 
 function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
-  side ??= buildSide({ farLimbs: true });
+  const held = at("wire", t) >= 0.5;
+  const hold = held ? "grip" : "reach";
+  const side = (rigs[hold] ??= buildSide({ farLimbs: true, hold, farHold: "reach" }));
   const k = at("lunge", t);
   const pose: Record<string, number> = { arm: at("arm", t), fore: at("fore", t), armFar: at("armFar", t), foreFar: at("foreFar", t), head: at("head", t) };
   for (const name in STAND) pose[name] = STAND[name]! + (LUNGE[name]! - STAND[name]!) * k;
-  const hand: HookDraw | undefined =
-    at("wire", t) >= 0.5
-      ? (c) => {
-          c.save();
-          c.scale(ENV_K, ENV_K);
-          c.translate(-9, 6);
-          drawAsset(c, ASSETS.wires, { lines: lineW });
-          c.restore();
-        }
-      : undefined;
+  const rod: HookDraw | undefined = held
+    ? (c) => {
+        c.save();
+        c.scale(config.robot.gripScale, config.robot.gripScale);
+        c.translate(config.robot.gripAt[0]!, config.robot.gripAt[1]!);
+        drawAsset(c, ASSETS.wires, { lines: lineW });
+        c.restore();
+      }
+    : undefined;
   const x = at("x", t);
   shadow(ctx, x, FLOOR + 4, 150, 12, 0.35, palette.shadow);
   ctx.save();
@@ -83,7 +84,7 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
   ctx.rotate((-at("lean", t) * Math.PI) / 180);
   ctx.scale(-K, K);
   ctx.translate(-ROBOT.SIDE_AX, -ROBOT.FOOT_Y + config.robot.lungeDrop * k);
-  drawRig(ctx, side, { palette: ROBOT.palette, pose, hooks: { hand }, lineW });
+  drawRig(ctx, side, { palette: ROBOT.palette, pose, hooks: { rod }, lineW });
   ctx.restore();
 }
 

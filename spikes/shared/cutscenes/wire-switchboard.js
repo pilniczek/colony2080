@@ -13,7 +13,7 @@ const LUNGE = CFG.lunge;
 const palette = { ...METRO, ...CFG.palette };
 const at = kit.track(CFG.tracks);
 let lineW = LINE_W;
-let side = null;
+const rigs = {};
 let ctx;
 
 function drawTunnel() {
@@ -64,16 +64,18 @@ function drawPillar(t) {
 }
 
 function drawRobot(t) {
-  side ??= buildSide({ farLimbs: true });
+  const held = at("wire", t) >= 0.5;
+  const hold = held ? "grip" : "reach";
+  const side = rigs[hold] ??= buildSide({ farLimbs: true, hold, farHold: "reach" });
   const k = at("lunge", t);
   const pose = { arm: at("arm", t), fore: at("fore", t), armFar: at("armFar", t), foreFar: at("foreFar", t), head: at("head", t) };
   for (const name in STAND) pose[name] = STAND[name] + (LUNGE[name] - STAND[name]) * k;
   const wires = asset("wires");
   const hooks = {
-    hand: at("wire", t) >= 0.5 ? c => {
+    rod: held ? c => {
       c.save();
-      c.scale(ENV_K, ENV_K);
-      c.translate(-9, 6);
+      c.scale(CFG.robot.gripScale, CFG.robot.gripScale);
+      c.translate(...CFG.robot.gripAt);
       ENV.draw(c, wires, { lines: lineW });
       c.restore();
     } : null
