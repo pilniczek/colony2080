@@ -1,28 +1,28 @@
 import config from "@config/cutscenes/repair-lift.json";
-import { drawRig, shade, type HookDraw } from "../../engine/rig/draw";
-import type { Pose } from "../../engine/rig/pose";
+import { apply } from "../../engine/math/mat2d";
+import { drawRig, type HookDraw } from "../../engine/rig/draw";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
-import { buildFront, ROBOT } from "../robot/xbot";
+import { buildHand, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { bank, camera, cloud, fitStage, oval, poly, rowFill, stroke, tracks } from "./kit";
+import { bank, camera, cloud, fitStage, hookAt, LINE_W, lineFor, rect, rowFill, stroke, tracks } from "./kit";
 
-const { width: W, height: H } = config.stage;
+const { width: W, height: H, floor: FLOOR } = config.stage;
 const [SUN_X, SUN_Y, SUN_R] = config.stage.sun as [number, number, number];
-const RB = config.robot;
-const LINE = 1.4;
-const MIN_LINE = 0.6;
-const BACKLIT = { brightness: 0.42, saturate: 0.8 };
-const BOX: Pt[] = [[-60, 510], [1012, 426], [1028, 432], [1072, 960], [-60, 960]];
-const BOX_SIDE: Pt[] = [[1012, 426], [1028, 432], [1072, 960], [1046, 960]];
-const LAMP = [962, 600, 18, 26] as const;
+const PANEL = config.panel;
+const S = PANEL.scale;
+const HAND = config.hand;
+const SEAT: Pt = [PANEL.x + PANEL.seat[0]! * S, PANEL.y + PANEL.seat[1]! * S];
+const SCREEN: Pt = [PANEL.x + PANEL.screen[0]! * S, PANEL.y + PANEL.screen[1]! * S];
+const FORE_LEN = 190;
 const palette = { ...config.palette };
 
-const { num } = tracks(config.tracks);
+const { num: at } = tracks(config.tracks);
 
 const CLOUDS = bank(7, 26, -150, 1900, -40, 620, 160, 340, 18, 34);
-let rig: GroupNode | null = null;
+let lineW = LINE_W;
+let hands: { pinch: GroupNode; reach: GroupNode } | null = null;
 
 function sky(ctx: CanvasRenderingContext2D): void {
   rowFill(ctx, (c) => {
@@ -46,69 +46,81 @@ function sky(ctx: CanvasRenderingContext2D): void {
   }
 }
 
-const controllerHook = (lineW: number): HookDraw => {
-  const k = RB.controllerScale;
-  return (c) => {
-    c.save();
-    c.translate(10, -3.5);
-    c.scale(k, k);
-    c.translate(-8, 5);
-    drawAsset(c, ASSETS.controller, { state: 0, lines: lineW });
-    c.restore();
-  };
-};
+function drawRoof(ctx: CanvasRenderingContext2D): void {
+  rect(ctx, -200, FLOOR, W + 400, H - FLOOR + 200, palette.roof);
+  stroke(ctx, [[-200, FLOOR], [W + 200, FLOOR]], palette.roofRim, 3);
+}
 
-function drawRobot(ctx: CanvasRenderingContext2D, t: number, lineW: number): void {
-  rig ??= buildFront({ holdR: "cup" });
-  const pose: Pose = {
-    body: { dy: num("crouch", t) },
-    head: num("head", t),
-    armR: num("armR", t),
-    foreR: num("foreR", t),
-    wristR: num("wrist", t),
-    armL: num("armL", t),
-    foreL: num("foreL", t),
-  };
-  const pal = { ...shade(ROBOT.palette, BACKLIT), visor: ROBOT.palette.visor! };
+function drawPanel(ctx: CanvasRenderingContext2D, t: number): void {
+  const lit = at("lit", t) >= 0.5;
   ctx.save();
-  ctx.translate(RB.x, RB.y);
-  ctx.scale(RB.scale, RB.scale);
-  ctx.translate(-ROBOT.AX, 0);
-  drawRig(ctx, rig, { palette: pal, pose, hooks: { item: controllerHook(lineW) }, lineW });
+  ctx.translate(PANEL.x, PANEL.y);
+  ctx.scale(S, S);
+  drawAsset(ctx, ASSETS.liftPanel, { state: lit ? 0 : 1, t, lines: lineW });
+  ctx.restore();
+  const glow = at("glow", t);
+  if (glow <= 0) return;
+  const [x, y] = SCREEN;
+  const r = 9 * S;
+  const halo = ctx.createRadialGradient(x, y, 0, x, y, r);
+  halo.addColorStop(0, palette.lampOn);
+  halo.addColorStop(1, palette.lampOn + "00");
+  ctx.globalAlpha = 0.5 * glow;
+  ctx.fillStyle = halo;
+  ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  ctx.globalAlpha = 1;
+}
+
+const controllerAt = (t: number): Pt => (at("placed", t) >= 0.5 ? SEAT : [SEAT[0] + at("carryX", t), SEAT[1] + at("carryY", t)]);
+
+function drawController(ctx: CanvasRenderingContext2D, t: number): void {
+  const [x, y] = controllerAt(t);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(S, S);
+  drawAsset(ctx, ASSETS.controller, { state: 0, lines: lineW });
   ctx.restore();
 }
 
-function drawBox(ctx: CanvasRenderingContext2D, t: number, lineW: number): void {
-  poly(ctx, BOX, palette.box);
-  poly(ctx, BOX_SIDE, palette.boxSide);
-  stroke(ctx, BOX.slice(0, 3), palette.boxRim, 3);
-  ctx.globalAlpha = 0.7;
-  stroke(ctx, BOX.slice(2, 4), palette.boxGlow, 2);
-  ctx.globalAlpha = 1;
-  const lit = num("lit", t) >= 0.5;
-  const [lx, ly, lw, lh] = LAMP;
-  const on = lit || Math.floor(t * 9) % 3 === 0;
-  ctx.fillStyle = on ? (lit ? palette.lampOn : palette.lampOff) : palette.boxSide;
-  ctx.fillRect(lx, ly, lw, lh);
-  if (on) {
-    ctx.globalAlpha = lit ? 0.35 : 0.2;
-    oval(ctx, lx + lw / 2, ly + lh / 2, lw * 1.6, lh * 1.1, lit ? palette.lampOn : palette.lampOff);
-    ctx.globalAlpha = 1;
+function drawHand(ctx: CanvasRenderingContext2D, t: number): void {
+  hands ??= {
+    pinch: buildHand({ view: "thumb", pose: "pinch", forearm: true }),
+    reach: buildHand({ view: "thumb", pose: "reach", forearm: true }),
+  };
+  const placed = at("placed", t) >= 0.5;
+  const [gx, gy] = apply(hookAt(hands.pinch, "item", {}), HAND.pinchAt as Pt);
+  const [cx, cy] = controllerAt(t);
+  const base = ctx.getTransform();
+  const held: HookDraw = (c) => {
+    c.save();
+    c.setTransform(base);
+    drawController(c, t);
+    c.restore();
+  };
+  ctx.save();
+  ctx.translate(cx + HAND.grip[0]! * S + at("handX", t), cy + HAND.grip[1]! * S + at("handY", t));
+  ctx.rotate(((at("rot", t) + HAND.turn) * Math.PI) / 180);
+  ctx.scale(HAND.scale, HAND.scale);
+  ctx.translate(-gx, -gy);
+  if (placed) {
+    ctx.translate(HAND.palm[0]!, HAND.palm[1]!);
+    ctx.rotate(-Math.PI / 2);
+    ctx.translate(-HAND.palm[0]!, -HAND.palm[1]!);
   }
-  ctx.strokeStyle = palette.boxRim;
-  ctx.lineWidth = lineW;
-  ctx.strokeRect(lx, ly, lw, lh);
+  drawRig(ctx, placed ? hands.reach : hands.pinch, { palette: ROBOT.palette, hooks: { item: placed ? undefined : held }, lineW });
+  ctx.restore();
 }
 
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
-  const s = fitStage(ctx, w, h, W, H);
-  const z = num("camZ", t);
-  camera(ctx, W, H, num("camX", t), num("camY", t), z);
-  const lineW = Math.max(MIN_LINE, LINE * s * z);
+  fitStage(ctx, w, h, W, H);
+  camera(ctx, W, H, at("camX", t), at("camY", t), at("camZ", t));
+  lineW = lineFor(ctx, HAND.scale, FORE_LEN);
   sky(ctx);
-  drawRobot(ctx, t, lineW);
-  drawBox(ctx, t, lineW);
+  drawRoof(ctx);
+  drawPanel(ctx, t);
+  if (at("placed", t) >= 0.5 && at("lit", t) < 0.5) drawController(ctx, t);
+  drawHand(ctx, t);
   ctx.restore();
 }
 

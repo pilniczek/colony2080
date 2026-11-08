@@ -1,21 +1,21 @@
 (() => {
 const { kit } = window.CUTSCENES;
 const { asset } = kit;
-const { XBOT, ENV } = window;
+const { buildHand, render: renderBot, locate } = window.XBOT;
+const ENV = window.ENV;
 const CFG = window.C28_CONFIG.cutscenes.repairLift;
-const W = CFG.stage.width, H = CFG.stage.height;
-const RB = CFG.robot;
-const LINE = 1.4;
-const MIN_LINE = 0.6;
-const BACKLIT = { brightness: 0.42, saturate: 0.8 };
-const BOX = [[-60, 510], [1012, 426], [1028, 432], [1072, 960], [-60, 960]];
-const BOX_SIDE = [[1012, 426], [1028, 432], [1072, 960], [1046, 960]];
-const LAMP = [962, 600, 18, 26];
+const W = CFG.stage.width, H = CFG.stage.height, FLOOR = CFG.stage.floor;
+const PANEL = CFG.panel, S = PANEL.scale;
+const HAND = CFG.hand;
+const SEAT = [PANEL.x + PANEL.seat[0] * S, PANEL.y + PANEL.seat[1] * S];
+const SCREEN = [PANEL.x + PANEL.screen[0] * S, PANEL.y + PANEL.screen[1] * S];
+const FORE_LEN = 190;
 const palette = { ...CFG.palette };
 const at = kit.track(CFG.tracks);
 
 const CLOUDS = kit.bank(7, 26, -150, 1900, -40, 620, 160, 340, 18, 34);
-let rig = null;
+let lineW = kit.LINE_W;
+let hands = null;
 let ctx;
 
 function sky() {
@@ -39,81 +39,85 @@ function sky() {
   for (const [x, y, w, h] of CLOUDS) kit.cloud(ctx, x, y, w, h, Math.min(1, 0.3 + y / 700), palette.cloudLit, palette.cloud);
 }
 
-function controllerHook(lineW) {
-  const k = RB.controllerScale;
-  return (c) => {
-    c.save();
-    c.translate(10, -3.5);
-    c.scale(k, k);
-    c.translate(-8, 5);
-    ENV.draw(c, asset("controller"), { state: 0, lines: lineW });
-    c.restore();
-  };
+function drawRoof() {
+  kit.rect(ctx, -200, FLOOR, W + 400, H - FLOOR + 200, palette.roof);
+  kit.stroke(ctx, [[-200, FLOOR], [W + 200, FLOOR]], palette.roofRim, 3);
 }
 
-function drawRobot(t, lineW) {
-  rig ??= XBOT.buildFront({ holdR: "cup" });
-  const pose = {
-    body: { dy: at("crouch", t) },
-    head: at("head", t),
-    armR: at("armR", t),
-    foreR: at("foreR", t),
-    wristR: at("wrist", t),
-    armL: at("armL", t),
-    foreL: at("foreL", t)
-  };
-  const pal = { ...XBOT.shade(XBOT.PALETTE, BACKLIT), visor: XBOT.PALETTE.visor };
+function drawPanel(t) {
+  const lit = at("lit", t) >= 0.5;
   ctx.save();
-  ctx.translate(RB.x, RB.y);
-  ctx.scale(RB.scale, RB.scale);
-  ctx.translate(-XBOT.AX, 0);
-  XBOT.render(ctx, rig, { pal, pose, hooks: { item: controllerHook(lineW) }, lineW });
+  ctx.translate(PANEL.x, PANEL.y);
+  ctx.scale(S, S);
+  ENV.draw(ctx, asset("liftPanel"), { state: lit ? 0 : 1, t, lines: lineW });
+  ctx.restore();
+  const glow = at("glow", t);
+  if (glow <= 0) return;
+  const [x, y] = SCREEN;
+  const r = 9 * S;
+  const halo = ctx.createRadialGradient(x, y, 0, x, y, r);
+  halo.addColorStop(0, palette.lampOn);
+  halo.addColorStop(1, palette.lampOn + "00");
+  ctx.globalAlpha = 0.5 * glow;
+  ctx.fillStyle = halo;
+  ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  ctx.globalAlpha = 1;
+}
+
+function controllerAt(t) {
+  if (at("placed", t) >= 0.5) return SEAT;
+  return [SEAT[0] + at("carryX", t), SEAT[1] + at("carryY", t)];
+}
+
+function drawController(t) {
+  const [x, y] = controllerAt(t);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(S, S);
+  ENV.draw(ctx, asset("controller"), { state: 0, lines: lineW });
   ctx.restore();
 }
 
-function drawBox(t, lineW) {
-  kit.poly(ctx, BOX, palette.box);
-  kit.poly(ctx, BOX_SIDE, palette.boxSide);
-  ctx.strokeStyle = palette.boxRim;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(BOX[0][0], BOX[0][1]);
-  ctx.lineTo(BOX[1][0], BOX[1][1]);
-  ctx.lineTo(BOX[2][0], BOX[2][1]);
-  ctx.stroke();
-  ctx.globalAlpha = 0.7;
-  ctx.strokeStyle = palette.boxGlow;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(BOX[2][0], BOX[2][1]);
-  ctx.lineTo(BOX[3][0], BOX[3][1]);
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-  const lit = at("lit", t) >= 0.5;
-  const [lx, ly, lw, lh] = LAMP;
-  const on = lit || Math.floor(t * 9) % 3 === 0;
-  ctx.fillStyle = on ? (lit ? palette.lampOn : palette.lampOff) : palette.boxSide;
-  ctx.fillRect(lx, ly, lw, lh);
-  if (on) {
-    ctx.globalAlpha = lit ? 0.35 : 0.2;
-    kit.oval(ctx, lx + lw / 2, ly + lh / 2, lw * 1.6, lh * 1.1, lit ? palette.lampOn : palette.lampOff);
-    ctx.globalAlpha = 1;
+function drawHand(t) {
+  hands ??= {
+    pinch: buildHand({ view: "thumb", pose: "pinch", forearm: true }),
+    reach: buildHand({ view: "thumb", pose: "reach", forearm: true })
+  };
+  const placed = at("placed", t) >= 0.5;
+  const grip = locate(hands.pinch, "item").transformPoint(new DOMPoint(...HAND.pinchAt));
+  const [cx, cy] = controllerAt(t);
+  const base = ctx.getTransform();
+  const held = c => {
+    c.save();
+    c.setTransform(base);
+    drawController(t);
+    c.restore();
+  };
+  ctx.save();
+  ctx.translate(cx + HAND.grip[0] * S + at("handX", t), cy + HAND.grip[1] * S + at("handY", t));
+  ctx.rotate((at("rot", t) + HAND.turn) * Math.PI / 180);
+  ctx.scale(HAND.scale, HAND.scale);
+  ctx.translate(-grip.x, -grip.y);
+  if (placed) {
+    ctx.translate(...HAND.palm);
+    ctx.rotate(-Math.PI / 2);
+    ctx.translate(-HAND.palm[0], -HAND.palm[1]);
   }
-  ctx.strokeStyle = palette.boxRim;
-  ctx.lineWidth = lineW;
-  ctx.strokeRect(lx, ly, lw, lh);
+  renderBot(ctx, placed ? hands.reach : hands.pinch, { hooks: { item: placed ? null : held }, lineW });
+  ctx.restore();
 }
 
 function render(c, w, h, t) {
   ctx = c;
   ctx.save();
-  const s = kit.fitStage(ctx, w, h, W, H);
-  const z = at("camZ", t);
-  kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
-  const lineW = Math.max(MIN_LINE, LINE * s * z);
+  kit.fitStage(ctx, w, h, W, H);
+  kit.camera(ctx, W, H, at("camX", t), at("camY", t), at("camZ", t));
+  lineW = kit.lineFor(ctx, HAND.scale, FORE_LEN);
   sky();
-  drawRobot(t, lineW);
-  drawBox(t, lineW);
+  drawRoof();
+  drawPanel(t);
+  if (at("placed", t) >= 0.5 && at("lit", t) < 0.5) drawController(t);
+  drawHand(t);
   ctx.restore();
 }
 
