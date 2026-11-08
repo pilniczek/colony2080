@@ -126,7 +126,7 @@ function drawHero(c: CanvasRenderingContext2D, t: number): void {
   const behind = (): void => {
     c.save();
     c.setTransform(base);
-    rimHand(c, robots().palmHand, m.multiply(domOf(hookAt(gripRig, "rodFar", pose))), -1, 0);
+    rimHand(c, robots().palmHand, forearm(gripRig, m, "rodFar", straight, "foreFar", "wristFar"), -1, 0);
     const { x, y, r, depth } = WHEEL;
     c.beginPath();
     c.rect(x + 16 - r * depth - 12, y - r - 12, 2 * r * depth + 24, 2 * r + 24);
@@ -134,18 +134,48 @@ function drawHero(c: CanvasRenderingContext2D, t: number): void {
     layer(c, t, (cc) => drawWheel(cc, t), lineW);
     c.restore();
   };
+  const straight: Pose = { ...pose, wrist: 0, wristFar: 0 };
   const hidden: Pose = { ...pose, wrist: { sx: 0, sy: 0 }, wristFar: { sx: 0, sy: 0 } };
   placeRobot(c, gripRig, m, { pose: hidden, hooks: { rodFar: behind }, lineW });
-  rimHand(c, robots().backHand, m.multiply(domOf(hookAt(gripRig, "rod", pose))), 1, 180);
+  rimHand(c, robots().backHand, forearm(gripRig, m, "rod", straight, "fore", "wrist"), 1, 180);
 }
 
 const domOf = ({ a, b, c, d, e, f }: Mat2D): DOMMatrix => new DOMMatrix([a, b, c, d, e, f]);
 
-function rimHand(c: CanvasRenderingContext2D, root: GroupNode, hook: DOMMatrix, flip: number, turn: number): void {
-  const at = hook.transformPoint(new DOMPoint(0, 0));
-  const along = Math.atan2(hook.b, hook.a) / RAD + turn;
-  const k = Math.hypot(hook.a, hook.b);
-  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(-k, k * flip).multiply(domOf(hookAt(root, "rod", {})).inverse());
+const WRIST_TUCK = 10;
+
+function circleCenter([[ax, ay], [bx, by], [cx, cy]]: [Pt, Pt, Pt]): Pt {
+  const d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+  const a2 = ax * ax + ay * ay, b2 = bx * bx + by * by, c2 = cx * cx + cy * cy;
+  return [(a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d, (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d];
+}
+
+interface Forearm {
+  at: Pt;
+  axis: number;
+  k: number;
+}
+
+function forearm(rig: GroupNode, m: DOMMatrix, hook: string, pose: Pose, fore: string, wrist: string): Forearm {
+  const point = (p: Pose): Pt => {
+    const q = m.multiply(domOf(hookAt(rig, hook, p))).transformPoint(new DOMPoint(0, 0));
+    return [q.x, q.y];
+  };
+  const angle = (key: string): number => {
+    const v = pose[key];
+    return typeof v === "number" ? v : 0;
+  };
+  const turned = (key: string): Pt => circleCenter([point({ ...pose, [key]: angle(key) }), point({ ...pose, [key]: angle(key) + 15 }), point({ ...pose, [key]: angle(key) + 30 })]);
+  const hand = m.multiply(domOf(hookAt(rig, hook, pose)));
+  const rod = point(pose), elbow = turned(fore), joint = turned(wrist);
+  const axis = Math.atan2(joint[1] - elbow[1], joint[0] - elbow[0]);
+  const k = Math.hypot(hand.a, hand.b);
+  const reach = Math.hypot(rod[0] - joint[0], rod[1] - joint[1]) - WRIST_TUCK * k;
+  return { at: [joint[0] + reach * Math.cos(axis), joint[1] + reach * Math.sin(axis)], axis: axis / RAD, k };
+}
+
+function rimHand(c: CanvasRenderingContext2D, root: GroupNode, { at, axis, k }: Forearm, flip: number, turn: number): void {
+  const m = new DOMMatrix().translate(at[0], at[1]).rotate(axis + turn + 90).scale(-k, k * flip).multiply(domOf(hookAt(root, "rod", {})).inverse());
   placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
 }
 

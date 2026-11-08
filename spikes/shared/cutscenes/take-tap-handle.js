@@ -125,7 +125,7 @@ function drawHero(c, t) {
   const behind = () => {
     c.save();
     c.setTransform(base);
-    rimHand(c, robots().palmHand, m.multiply(locate(gripRig, "rodFar", pose)), -1, 0);
+    rimHand(c, robots().palmHand, forearm(gripRig, m, "rodFar", straight, "foreFar", "wristFar"), -1, 0);
     const { x, y, r, depth } = WHEEL;
     c.beginPath();
     c.rect(x + 16 - r * depth - 12, y - r - 12, 2 * r * depth + 24, 2 * r + 24);
@@ -133,16 +133,36 @@ function drawHero(c, t) {
     kit.layer(c, t, cc => drawWheel(cc, t), lineW);
     c.restore();
   };
+  const straight = { ...pose, wrist: 0, wristFar: 0 };
   const hidden = { ...pose, wrist: { sx: 0, sy: 0 }, wristFar: { sx: 0, sy: 0 } };
   kit.placeRobot(c, gripRig, m, { pose: hidden, hooks: { rodFar: behind }, lineW });
-  rimHand(c, robots().backHand, m.multiply(locate(gripRig, "rod", pose)), 1, 180);
+  rimHand(c, robots().backHand, forearm(gripRig, m, "rod", straight, "fore", "wrist"), 1, 180);
 }
 
-function rimHand(c, root, hook, flip, turn) {
-  const at = hook.transformPoint(new DOMPoint(0, 0));
-  const along = Math.atan2(hook.b, hook.a) / kit.RAD + turn;
-  const k = Math.hypot(hook.a, hook.b);
-  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(-k, k * flip).multiply(locate(root, "rod").inverse());
+const WRIST_TUCK = 10;
+
+function circleCenter([[ax, ay], [bx, by], [cx, cy]]) {
+  const d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+  const a2 = ax * ax + ay * ay, b2 = bx * bx + by * by, c2 = cx * cx + cy * cy;
+  return [(a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d, (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d];
+}
+
+function forearm(rig, m, hook, pose, fore, wrist) {
+  const point = p => {
+    const q = m.multiply(locate(rig, hook, p)).transformPoint(new DOMPoint(0, 0));
+    return [q.x, q.y];
+  };
+  const turned = key => circleCenter([0, 15, 30].map(d => point({ ...pose, [key]: (pose[key] ?? 0) + d })));
+  const hand = m.multiply(locate(rig, hook, pose));
+  const rod = point(pose), elbow = turned(fore), joint = turned(wrist);
+  const axis = Math.atan2(joint[1] - elbow[1], joint[0] - elbow[0]);
+  const k = Math.hypot(hand.a, hand.b);
+  const reach = Math.hypot(rod[0] - joint[0], rod[1] - joint[1]) - WRIST_TUCK * k;
+  return { at: [joint[0] + reach * Math.cos(axis), joint[1] + reach * Math.sin(axis)], axis: axis / kit.RAD, k };
+}
+
+function rimHand(c, root, { at, axis, k }, flip, turn) {
+  const m = new DOMMatrix().translate(at[0], at[1]).rotate(axis + turn + 90).scale(-k, k * flip).multiply(locate(root, "rod").inverse());
   kit.placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
 }
 
