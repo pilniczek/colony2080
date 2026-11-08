@@ -485,12 +485,12 @@ define({
       side: [[2.7, -5, 270], [9.3, -5, 270, true]]
     },
     top(ctx) {
-      box(ctx, 4.2, 0, 3.6, 3, "chrome", 0);
+      box(ctx, 4.2, -3, 3.6, 3, "chrome", 0);
       box(ctx, 1, -0.9, 10, 1.8, "chrome", 1);
     },
     front(ctx) {
+      box(ctx, 0, -6.8, 3, 3.6, "chrome", 0);
       box(ctx, -0.9, -10, 1.8, 10, "chrome", 1);
-      box(ctx, -3, -6.8, 3, 3.6, "chrome", 0);
     }
   }),
   draw(ctx, state) {

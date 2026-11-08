@@ -87,7 +87,6 @@ function drawValve(c, t) {
   drawTap(c, t, x, cy - 16 * (1 + bring), scale, tilt, spin, SHADOW_PALETTE, lineW);
   c.restore();
   const wheel = cc => drawTap(cc, t, x, cy, scale, tilt, spin, PALETTE, lineW);
-  wheel(c);
   if (at("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash);
   wheelHands(c, x, cy, scale, tilt, spin * 0.6, 1, wheel, lineW);
   drawGrid(c, at("grid", t));

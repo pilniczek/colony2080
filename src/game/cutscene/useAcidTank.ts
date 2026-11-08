@@ -85,7 +85,6 @@ function drawValve(c: CanvasRenderingContext2D, t: number): void {
   drawTap(c, t, x, cy - 16 * (1 + bring), scale, tilt, spin, SHADOW_PALETTE, LINE_W);
   c.restore();
   const wheel = (cc: CanvasRenderingContext2D): void => drawTap(cc, t, x, cy, scale, tilt, spin, PALETTE, LINE_W);
-  wheel(c);
   if (num("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash!);
   wheelHands(c, x, cy, scale, tilt, spin * 0.6, 1, wheel, LINE_W);
   drawGrid(c, num("grid", t), palette.grid!);

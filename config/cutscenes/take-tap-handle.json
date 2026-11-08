@@ -14,7 +14,7 @@
     "robot": { "scale": 0.92, "x": 905 },
     "pipe": { "x": 560, "w": 150, "sleeveTop": 280, "bottom": 580, "floor": 715 },
     "wheel": { "x": 732, "y": 380, "r": 82, "rim": 0.2, "depth": 0.5, "farGrip": 180 },
-    "close": { "x": 800, "y": 470, "rx": 360, "tilt": 0.38, "hand": 0.045, "handTurn": -105, "patch": 1.6, "rim": 4.5 }
+    "close": { "x": 800, "y": 470, "rx": 360, "tilt": 0.38, "hand": 0.056, "rim": 4.3 }
   },
   "palette": {
     "back": "#040606",

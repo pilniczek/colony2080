@@ -7019,10 +7019,8 @@ window.C28_CONFIG = {
      "y": 470,
      "rx": 360,
      "tilt": 0.38,
-     "hand": 0.045,
-     "handTurn": -105,
-     "patch": 1.6,
-     "rim": 4.5
+     "hand": 0.056,
+     "rim": 4.3
     }
    },
    "palette": {

@@ -1,5 +1,6 @@
 import config from "@config/cutscenes/take-tap-handle.json";
 import type { Pose } from "../../engine/rig/pose";
+import type { Mat2D } from "../../engine/math/mat2d";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset, P, PALETTE, type EnvPalette } from "../env/paint";
@@ -33,14 +34,16 @@ const NEAR_GRAVEL = gravelBed(29, 420, -20, 920, 34);
 let lineW = LINE_W;
 const closeBack = stillLayer();
 
-let rigs: Record<"reach" | "grip" | "near" | "far" | "wheelHand", GroupNode> | null = null;
+let rigs: Record<"reach" | "grip" | "near" | "far" | "wheelHand" | "backHand" | "palmHand", GroupNode> | null = null;
 const robots = () =>
   (rigs ??= {
     reach: buildSide({ farLimbs: true, hold: "reach", farHold: "reach" }),
     grip: buildSide({ farLimbs: true, hold: "grip", farHold: "grip" }),
     near: buildSide({ farLimbs: true, hold: "grip" }),
     far: buildSide({ farLimbs: true, farHold: "grip" }),
-    wheelHand: buildHand({ view: "back", pose: "grip", bare: true, forearm: true })
+    wheelHand: buildHand({ view: "thumb", pose: "grip", bare: true }),
+    backHand: buildHand({ view: "back", pose: "grip", bare: true }),
+    palmHand: buildHand({ view: "palm", pose: "grip", bare: true })
   });
 
 function gravel(c: CanvasRenderingContext2D, bed: Pebble[], lit: string): void {
@@ -121,6 +124,25 @@ function drawHero(c: CanvasRenderingContext2D, t: number): void {
   hold(far, ["armFar", "foreFar"], grip + WHEEL.farGrip);
   pool(c, RB.x - 20, FLOOR + 4, 170, 18, "#000000", 0.6);
   placeRobot(c, blend >= 1 ? gripRig : reachRig, m, { pose, hooks: {}, lineW });
+  if (blend < 1) return;
+  rimHand(c, robots().backHand, m.multiply(domOf(hookAt(gripRig, "rod", pose))), grip, 1);
+  const { x, y, r, depth } = WHEEL;
+  c.save();
+  c.beginPath();
+  c.rect(x + 16 - r * depth - 12, y - r - 12, 2 * r * depth + 24, 2 * r + 24);
+  c.clip();
+  layer(c, t, (cc) => drawWheel(cc, t), lineW);
+  c.restore();
+  rimHand(c, robots().palmHand, m.multiply(domOf(hookAt(gripRig, "rodFar", pose))), grip + WHEEL.farGrip, -1);
+}
+
+const domOf = ({ a, b, c, d, e, f }: Mat2D): DOMMatrix => new DOMMatrix([a, b, c, d, e, f]);
+
+function rimHand(c: CanvasRenderingContext2D, root: GroupNode, hook: DOMMatrix, deg: number, flip: number): void {
+  const at = hook.transformPoint(new DOMPoint(0, 0));
+  const tangent = Math.atan2(Math.sin(deg * RAD), WHEEL.depth * Math.cos(deg * RAD)) / RAD;
+  const m = new DOMMatrix().translate(at.x, at.y).rotate(tangent).scale(RB.scale, RB.scale * flip).multiply(domOf(hookAt(root, "rod", {})).inverse());
+  placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
 }
 
 function drawPumpRoom(c: CanvasRenderingContext2D, t: number): void {
@@ -149,27 +171,16 @@ export function drawTap(c: CanvasRenderingContext2D, t: number, x: number, y: nu
 
 export function wheelHands(c: CanvasRenderingContext2D, x: number, y: number, scale: number, squash: number, turn: number, blend: number, wheel: (c: CanvasRenderingContext2D) => void, lines: number): void {
   const root = robots().wheelHand;
-  const { a, b, c: mc, d, e, f } = hookAt(root, "rod", {});
-  const rod = new DOMMatrix([a, b, mc, d, e, f]).inverse();
+  const rod = domOf(hookAt(root, "rod", {})).inverse();
   const k = scale * CLOSE.hand;
-  const base = c.getTransform();
   for (const side of [-1, 1]) {
     const angle = ((side < 0 ? 180 : 0) + turn) * RAD;
     const grip: Pt = [x + scale * CLOSE.rim * Math.cos(angle), y + scale * CLOSE.rim * squash * Math.sin(angle)];
-    const from: Pt = [grip[0] + side * 400, grip[1] + 700];
-    const p: Pt = [from[0] + (grip[0] - from[0]) * blend, from[1] + (grip[1] - from[1]) * blend];
-    const m = new DOMMatrix().translate(p[0], p[1]).scale(-side, 1).rotate(CLOSE.handTurn).scale(k, k).multiply(rod);
-    const behind = (): void => {
-      c.save();
-      c.setTransform(base);
-      c.beginPath();
-      c.arc(p[0], p[1], scale * CLOSE.patch, 0, Math.PI * 2);
-      c.clip();
-      wheel(c);
-      c.restore();
-    };
-    placeRobot(c, root, m, { pose: {}, hooks: { rod: behind }, lineW: lines });
+    const p: Pt = [grip[0], grip[1] + (1 - blend) * 700];
+    const m = new DOMMatrix().translate(p[0], p[1]).scale(side, 1).rotate(180).scale(k, k).multiply(rod);
+    placeRobot(c, root, m, { pose: {}, hooks: {}, lineW: lines });
   }
+  wheel(c);
 }
 
 export function drawGrid(c: CanvasRenderingContext2D, g: number, color: string): void {
@@ -218,9 +229,9 @@ function drawCloseUp(c: CanvasRenderingContext2D, t: number): void {
   closeBack(c, [], (b) => layer(b, t, closeBackdrop, lineW));
   drawTap(c, t, x, cy + 22 * (1 + lift), scale, squash, spin, SHADOW_PALETTE, lineW);
   const wheel = (cc: CanvasRenderingContext2D): void => drawTap(cc, t, x, cy, scale, squash, spin, num("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE, lineW);
-  wheel(c);
   const hands = num("hands", t);
   if (hands > 0) wheelHands(c, x, cy, scale, squash, 0, hands, wheel, lineW);
+  else wheel(c);
   drawGrid(c, num("grid", t), palette.grid!);
 }
 

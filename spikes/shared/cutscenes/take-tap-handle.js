@@ -35,7 +35,9 @@ const robots = () => rigs || (rigs = {
   grip: buildSide({ farLimbs: true, hold: "grip", farHold: "grip" }),
   near: buildSide({ farLimbs: true, hold: "grip" }),
   far: buildSide({ farLimbs: true, farHold: "grip" }),
-  wheelHand: buildHand({ view: "back", pose: "grip", bare: true, forearm: true })
+  wheelHand: buildHand({ view: "thumb", pose: "grip", bare: true }),
+  backHand: buildHand({ view: "back", pose: "grip", bare: true }),
+  palmHand: buildHand({ view: "palm", pose: "grip", bare: true })
 });
 
 function gravel(c, bed, lit) {
@@ -121,6 +123,23 @@ function drawHero(c, t) {
   hold(far, ["armFar", "foreFar"], grip + WHEEL.farGrip);
   kit.pool(c, RB.x - 20, FLOOR + 4, 170, 18, "#000000", 0.6);
   kit.placeRobot(c, blend >= 1 ? gripRig : reach, m, { pose, hooks: {}, lineW });
+  if (blend < 1) return;
+  rimHand(c, robots().backHand, m.multiply(locate(gripRig, "rod", pose)), grip, 1);
+  const { x, y, r, depth } = WHEEL;
+  c.save();
+  c.beginPath();
+  c.rect(x + 16 - r * depth - 12, y - r - 12, 2 * r * depth + 24, 2 * r + 24);
+  c.clip();
+  kit.layer(c, t, cc => drawWheel(cc, t), lineW);
+  c.restore();
+  rimHand(c, robots().palmHand, m.multiply(locate(gripRig, "rodFar", pose)), grip + WHEEL.farGrip, -1);
+}
+
+function rimHand(c, root, hook, deg, flip) {
+  const at = hook.transformPoint(new DOMPoint(0, 0));
+  const tangent = Math.atan2(Math.sin(deg * kit.RAD), WHEEL.depth * Math.cos(deg * kit.RAD)) / kit.RAD;
+  const m = new DOMMatrix().translate(at.x, at.y).rotate(tangent).scale(RB.scale, RB.scale * flip).multiply(locate(root, "rod").inverse());
+  kit.placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
 }
 
 function drawPumpRoom(c, t) {
@@ -151,24 +170,14 @@ function wheelHands(c, x, y, scale, squash, turn, blend, wheel, lines) {
   const root = robots().wheelHand;
   const rod = locate(root, "rod").inverse();
   const k = scale * CLOSE.hand;
-  const base = c.getTransform();
   for (const side of [-1, 1]) {
     const a = ((side < 0 ? 180 : 0) + turn) * kit.RAD;
     const grip = [x + scale * CLOSE.rim * Math.cos(a), y + scale * CLOSE.rim * squash * Math.sin(a)];
-    const from = [grip[0] + side * 400, grip[1] + 700];
-    const p = [from[0] + (grip[0] - from[0]) * blend, from[1] + (grip[1] - from[1]) * blend];
-    const m = new DOMMatrix().translate(p[0], p[1]).scale(-side, 1).rotate(CLOSE.handTurn).scale(k, k).multiply(rod);
-    const behind = () => {
-      c.save();
-      c.setTransform(base);
-      c.beginPath();
-      c.arc(p[0], p[1], scale * CLOSE.patch, 0, Math.PI * 2);
-      c.clip();
-      wheel(c);
-      c.restore();
-    };
-    kit.placeRobot(c, root, m, { pose: {}, hooks: { rod: behind }, lineW: lines });
+    const p = [grip[0], grip[1] + (1 - blend) * 700];
+    const m = new DOMMatrix().translate(p[0], p[1]).scale(side, 1).rotate(180).scale(k, k).multiply(rod);
+    kit.placeRobot(c, root, m, { pose: {}, hooks: {}, lineW: lines });
   }
+  wheel(c);
 }
 
 function drawGrid(c, g) {
@@ -217,9 +226,9 @@ function drawCloseUp(c, t) {
   closeBack(c, [], b => kit.layer(b, t, closeBackdrop, lineW));
   drawTap(c, t, x, cy + 22 * (1 + lift), scale, squash, spin, SHADOW_PALETTE, lineW);
   const wheel = cc => drawTap(cc, t, x, cy, scale, squash, spin, at("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE, lineW);
-  wheel(c);
   const hands = at("hands", t);
   if (hands > 0) wheelHands(c, x, cy, scale, squash, 0, hands, wheel, lineW);
+  else wheel(c);
   drawGrid(c, at("grid", t));
 }
 

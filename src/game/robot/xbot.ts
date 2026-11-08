@@ -601,6 +601,7 @@ const grip = (k: Kit, s: GroupNode, view: HandView, rod: Rod = CROWBAR): void =>
       k.P(s, { pts: box(x, knuckle - 4, x + 20, near - 8), shade: "cyl", r: 3, lw: FINGER_LW });
     }
     rod.across(k, s, wide, cy);
+    k.hook(k.G(s, `translate(${HAND_AX} ${cy})`), "rod");
     for (let i = 4 - curled; i < 4; i++) {
       const x = fingerX(i);
       k.P(s, { pts: box(x, cy - 4, x + 20, near), shade: "cyl", r: 7, lw: FINGER_LW });
