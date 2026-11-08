@@ -519,7 +519,7 @@ define({
   box: [-2, -9, 16, 0],
   views: itemViews([-2, -9, 16, 0], 7.6, {
     scale: 0.23,
-    top: (ctx) => unshear(ctx, 1.6 / 7.6, 3.8, () => sideOf("card").draw(ctx, 0)),
+    top: (ctx) => unshear(ctx, 0, 3.8, () => sideOf("card").draw(ctx, 0)),
     front: (ctx) => box(ctx, -3.8, -0.5, 7.6, 0.5, "chrome", 1),
     flat(ctx) {
       box(ctx, 0, -0.5, 12, 0.5, "chrome", 1);
@@ -528,22 +528,22 @@ define({
   }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 14);
-    poly(ctx, [[0, 0], [1.6, -7.6], [13.6, -7.6], [12, 0]], "chrome", 1);
-    poly(ctx, [[4.6, 0], [6.2, -7.6], [9, -7.6], [7.4, 0]], "a1", 2, { line: false });
-    poly(ctx, [[0.3, -1.4], [0.6, -2.8], [7.6, -2.8], [7.3, -1.4]], "a1", 2, { line: false });
-    poly(ctx, [[0.6, -2.8], [1.6, -7.6], [6.2, -7.6], [5.2, -2.8]], "c2", 2, { line: false });
-    poly(ctx, [[1.8, -3.6], [2.1, -5], [3.9, -5], [3.6, -3.6]], "y1", 2, { line: false });
-    path(ctx, [[0, 0], [1.6, -7.6], [13.6, -7.6], [12, 0]]);
+    poly(ctx, [[0, 0], [0, -7.6], [12, -7.6], [12, 0]], "chrome", 1);
+    poly(ctx, [[4.6, 0], [4.6, -7.6], [7.4, -7.6], [7.4, 0]], "a1", 2, { line: false });
+    poly(ctx, [[0, -1.4], [0, -2.8], [7, -2.8], [7, -1.4]], "a1", 2, { line: false });
+    poly(ctx, [[0, -2.8], [0, -7.6], [4.6, -7.6], [4.6, -2.8]], "c2", 2, { line: false });
+    poly(ctx, [[1.05, -3.6], [1.05, -5], [2.85, -5], [2.85, -3.6]], "y1", 2, { line: false });
+    path(ctx, [[0, 0], [0, -7.6], [12, -7.6], [12, 0]]);
     stroke(ctx, "mLine");
     if (simple()) return;
-    poly(ctx, [[1.4, -5.4], [1.6, -6.4], [3.4, -6.4], [3.2, -5.4]], "y0", 2, { line: false });
+    poly(ctx, [[0.25, -5.4], [0.25, -6.4], [2.05, -6.4], [2.05, -5.4]], "y0", 2, { line: false });
     ctx.strokeStyle = color("mLine");
     ctx.lineWidth = 0.25;
     ctx.beginPath();
-    for (let x = 9.8; x < 12.6; x += 0.5) { ctx.moveTo(x + 0.6, -6.8); ctx.lineTo(x + 0.2, -5); }
+    for (let x = 9; x < 11.8; x += 0.5) { ctx.moveTo(x, -6.8); ctx.lineTo(x, -5); }
     ctx.stroke();
-    flat(ctx, 9.4, -4, 2.6, 0.4, "c0");
-    flat(ctx, 9.2, -3, 2.4, 0.4, "c0");
+    flat(ctx, 8.6, -4, 2.6, 0.4, "c0");
+    flat(ctx, 8.6, -3, 2.4, 0.4, "c0");
   }
 });
 
