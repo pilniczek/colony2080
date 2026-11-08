@@ -84,9 +84,23 @@ function cueTime({ duration, at }, cue) {
   return rank(at(0)) === target ? 0 : Math.round(hi * 1000) / 1000;
 }
 
+function spanOf(lines, start) {
+  let depth = 0;
+  for (let i = start; i < lines.length; i++) {
+    for (const ch of lines[i]) {
+      if (ch === "[") depth++;
+      else if (ch === "]") depth--;
+    }
+    if (depth <= 0) return i - start + 1;
+  }
+  return lines.length - start;
+}
+
 function writeSounds(path, sounds) {
   const line = `  "sounds": [${sounds.map((cue) => `[${cue.map((v) => JSON.stringify(v)).join(", ")}]`).join(", ")}]`;
-  const lines = readFileSync(path, "utf8").split("\n").filter((l) => !l.startsWith('  "sounds": '));
+  const lines = readFileSync(path, "utf8").split("\n");
+  const start = lines.findIndex((l) => l.startsWith('  "sounds": '));
+  if (start >= 0) lines.splice(start, spanOf(lines, start));
   const after = lines.findIndex((l) => l.startsWith('  "duration": ') || l.startsWith('  "clip": '));
   lines.splice(after + 1, 0, `${line},`);
   writeFileSync(path, lines.join("\n"));
