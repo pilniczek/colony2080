@@ -158,7 +158,7 @@ const THUMB_BASE: Pt = [124, 424];
 const THUMB_OPEN = [30, 14] as const;
 const SIDE_HAND_DX = 224;
 const FRONT_HAND_DY = 16;
-const SUPPORT_Y = 277;
+const SUPPORT_Y = 265;
 const fingerX = (i: number): number => HAND.x0 + i * FINGER.pitch;
 const fingerY = (k: number): number => FINGER.base + FINGER.seg.slice(0, k).reduce((a, b) => a + b, 0);
 
@@ -245,16 +245,21 @@ const gunGripHand = (k: Kit, parent: GroupNode): void => {
   }
 };
 
-const cupHand = (k: Kit, parent: GroupNode, view: "back" | "tips"): void => {
-  if (view === "tips") {
-    const face = HAND.top + 2 + HAND_THICK;
-    k.P(parent, { pts: box(34, 365, 142, 469), r: 8 });
-    k.P(parent, { pts: box(HAND.x0, 400, HAND.x1, 400 + HAND_THICK), r: 3 });
-    k.P(parent, { pts: box(HAND.x0 + 4, 400 + HAND_THICK - 6, HAND.x1 - 4, 400 + HAND_THICK + 2), mat: "metal", shade: "cyl", r: 4 });
-    for (let i = 0; i < 4; i++) k.P(parent, { pts: box(fingerX(i), 404, fingerX(i) + 20, face + 10), shade: "cyl", r: 7, lw: FINGER_LW });
-    k.P(parent, { pts: box(HAND.x1 - 2, 420, HAND.x1 + 18, 420 + THUMB.thick), shade: "cyl", r: 6 });
-    return;
-  }
+const SUPPORT_TF = `translate(${2 * AX - 100} ${SUPPORT_Y}) scale(${FORE_S} ${-FORE_S}) translate(-88 -434)`;
+
+const supportWrist = (k: Kit, parent: GroupNode): void => {
+  k.P(parent, { pts: box(34, 365, 142, 469), r: 8 });
+  k.P(parent, { pts: box(HAND.x0, 400, HAND.x1, 400 + HAND_THICK), r: 3 });
+  k.P(parent, { pts: box(HAND.x0 + 4, 400 + HAND_THICK - 6, HAND.x1 - 4, 400 + HAND_THICK + 2), mat: "metal", shade: "cyl", r: 4 });
+};
+
+const supportFingers = (k: Kit, parent: GroupNode): void => {
+  const face = HAND.top + 2 + HAND_THICK;
+  for (let i = 0; i < 4; i++) k.P(parent, { pts: box(fingerX(i), 404, fingerX(i) + 20, face + 10), shade: "cyl", r: 7, lw: FINGER_LW });
+  k.P(parent, { pts: box(HAND.x1 - 2, 420, HAND.x1 + 18, 420 + THUMB.thick), shade: "cyl", r: 6 });
+};
+
+const cupHand = (k: Kit, parent: GroupNode): void => {
   const tip = FINGER.base + Math.round((FINGER.seg[0] ?? 0) * Math.cos(((CUP[0] ?? 0) * Math.PI) / 180));
   backPlate(k, parent);
   for (let i = 0; i < 4; i++) {
@@ -267,10 +272,10 @@ const cupHand = (k: Kit, parent: GroupNode, view: "back" | "tips"): void => {
 
 type HeldPose = "gunGrip" | "cup";
 
-const heldHand = (k: Kit, parent: GroupNode, pose: HeldPose, view: "back" | "tips", tf: string): void => {
+const heldHand = (k: Kit, parent: GroupNode, pose: HeldPose, tf: string): void => {
   const g = k.G(parent, tf);
   if (pose === "gunGrip") gunGripHand(k, g);
-  else cupHand(k, g, view);
+  else cupHand(k, g);
 };
 
 const robotHand = (k: Kit, parent: GroupNode, M: Mirror): void => {
@@ -331,8 +336,8 @@ const frontArm = (
   const hand = k.G(fore, `translate(${mirrored ? 2 * AX - 89 : 89} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`);
   if (names.hand && !propBehindArm) k.hook(hand, names.hand);
   const hc = mirrored ? 2 * AX - 89 : 89;
-  if (hold === "gunGrip") heldHand(k, fore, hold, "back", `${mirrored ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
-  else if (support) heldHand(k, arm, hold, "tips", `translate(${sh[0]} ${SUPPORT_Y}) scale(${FORE_S} ${-FORE_S}) translate(-88 -434)`);
+  if (hold === "gunGrip") heldHand(k, fore, hold, `${mirrored ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
+  else if (support) supportWrist(k, k.G(arm, SUPPORT_TF));
   else frontHand(k, fore, flipHand ? (p) => mirror(M(p), hc) : M, thumbFront && !flipHand);
 };
 
@@ -386,6 +391,14 @@ const frontTree = (k: Kit, rightArmFirst: boolean, propBehindArm: boolean, enemy
   headFront(k, s, false, enemy);
   const left = (): void => frontArm(k, armGroup(k, s, false), false, { arm: "armL", fore: "foreL", hand: "handL" }, { propBehindArm, hold: armed ? "gunGrip" : null });
   const right = (): void => frontArm(k, armGroup(k, s, true), true, { arm: "armR", fore: "foreR", hand: "handR" }, { hold: armed ? "cup" : null });
+  if (armed) {
+    shoulder(k, armGroup(k, s, true), true, "armR");
+    right();
+    left();
+    supportFingers(k, k.G(k.G(armGroup(k, s, true), null, "armR", [2 * AX - 100, 150]), SUPPORT_TF));
+    shoulder(k, armGroup(k, s, false), false, "armL");
+    return root;
+  }
   if (rightArmFirst) {
     right();
     left();
@@ -507,7 +520,7 @@ const sideArm = (
   k.F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
   const hand = k.G(lower, `translate(312 438) ${HOLD_TF}`);
   if (!propBehindArm) k.hook(hand, names.hand);
-  if (hold) heldHand(k, lower, hold, "back", `translate(${SIDE_HAND_DX} 0)`);
+  if (hold) heldHand(k, lower, hold, `translate(${SIDE_HAND_DX} 0)`);
   else sideHand(k, lower);
   const bulbs = k.G(arm, SIDE_SHOULDER_TF);
   k.P(bulbs, { pts: sideUpperArm, r: 2, shade: "dome" });
