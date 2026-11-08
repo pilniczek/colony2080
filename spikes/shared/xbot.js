@@ -1465,12 +1465,14 @@ const GUN_UP = { ...FINGERS_LEFT, back: "rotate(-90 88 470)" };
 
 const REST_UP = { ...PALM_UP, palm: "rotate(-90 88 470)" };
 
-function buildHand({ view = "back", pose = "open", rest = false, forearm = false, bare = false, lod: low = false } = {}) {
+function buildHand({ view = "back", pose = "open", rest = false, forearm = false, bare = false, stub = true, lod: low = false } = {}) {
   longForearm = forearm;
+  bareHand = !stub;
   try {
     return withLod(low, () => handTree(view, pose, rest, bare));
   } finally {
     longForearm = false;
+    bareHand = false;
   }
 }
 

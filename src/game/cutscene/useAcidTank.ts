@@ -74,19 +74,18 @@ function spout(cc: CanvasRenderingContext2D): void {
 }
 
 function drawValve(c: CanvasRenderingContext2D, t: number): void {
-  const { x, y, rx, tilt } = CLOSE;
+  const { x, y, rx } = CLOSE;
   const bring = num("bring", t);
   const scale = (rx / TAP_CENTER.r) * (1 + bring * 0.7);
   const cy = y + bring * 420;
-  const spin = num("spin", t);
   valveBack(c, [], (b) => layer(b, t, valveBackdrop, LINE_W));
   c.save();
   c.globalAlpha = 0.6;
-  drawTap(c, t, x, cy - 16 * (1 + bring), scale, tilt, spin, SHADOW_PALETTE, LINE_W);
+  drawTap(c, t, x, cy - 16 * (1 + bring), scale, SHADOW_PALETTE, LINE_W);
   c.restore();
-  const wheel = (cc: CanvasRenderingContext2D): void => drawTap(cc, t, x, cy, scale, tilt, spin, PALETTE, LINE_W);
+  const wheel = (cc: CanvasRenderingContext2D): void => drawTap(cc, t, x, cy, scale, PALETTE, LINE_W);
   if (num("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash!);
-  wheelHands(c, x, cy, scale, tilt, spin * 0.6, 1, wheel, LINE_W);
+  wheelHands(c, x, cy, scale, 1, wheel, LINE_W);
   drawGrid(c, num("grid", t), palette.grid!);
 }
 

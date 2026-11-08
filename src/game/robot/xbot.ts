@@ -830,12 +830,14 @@ export const buildHand = ({
   rest = false,
   forearm: long = false,
   bare: bareRod = false,
+  stub = true,
   lod = false,
-}: { view?: HandView; pose?: HandPose; rest?: boolean; forearm?: boolean; bare?: boolean; lod?: boolean } = {}): GroupNode => {
+}: { view?: HandView; pose?: HandPose; rest?: boolean; forearm?: boolean; bare?: boolean; stub?: boolean; lod?: boolean } = {}): GroupNode => {
   const k = kit(lod);
   let tree: GroupNode | null = null;
   const build = (): void => {
-    tree = handTree(k, view, pose, rest, bareRod);
+    if (stub) tree = handTree(k, view, pose, rest, bareRod);
+    else bare(k, () => (tree = handTree(k, view, pose, rest, bareRod)));
   };
   if (long) longForearm(k, build);
   else build();

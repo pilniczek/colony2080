@@ -76,19 +76,18 @@ function spout(cc) {
 
 function drawValve(c, t) {
   lineW = LINE_W;
-  const { x, y, rx, tilt } = CLOSE;
+  const { x, y, rx } = CLOSE;
   const bring = at("bring", t);
   const scale = rx / TAP_CENTER.r * (1 + bring * 0.7);
   const cy = y + bring * 420;
-  const spin = at("spin", t);
   valveBack(c, [], b => kit.layer(b, t, valveBackdrop, lineW));
   c.save();
   c.globalAlpha = 0.6;
-  drawTap(c, t, x, cy - 16 * (1 + bring), scale, tilt, spin, SHADOW_PALETTE, lineW);
+  drawTap(c, t, x, cy - 16 * (1 + bring), scale, SHADOW_PALETTE, lineW);
   c.restore();
-  const wheel = cc => drawTap(cc, t, x, cy, scale, tilt, spin, PALETTE, lineW);
+  const wheel = cc => drawTap(cc, t, x, cy, scale, PALETTE, lineW);
   if (at("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash);
-  wheelHands(c, x, cy, scale, tilt, spin * 0.6, 1, wheel, lineW);
+  wheelHands(c, x, cy, scale, 1, wheel, lineW);
   drawGrid(c, at("grid", t));
 }
 

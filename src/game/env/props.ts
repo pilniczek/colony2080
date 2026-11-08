@@ -394,6 +394,11 @@ export const tapHandle: EnvAsset = {
   }
 };
 
+export const tapHandleTop = (ctx: CanvasRenderingContext2D): void => {
+  box(ctx, 4.2, -3, 3.6, 3, "chrome", 0);
+  box(ctx, 1, -0.9, 10, 1.8, "chrome", 1);
+};
+
 export const card: EnvAsset = {
   id: "card",
   box: [-2, -9, 16, 0],

@@ -36,8 +36,8 @@ const robots = () => rigs || (rigs = {
   near: buildSide({ farLimbs: true, hold: "grip" }),
   far: buildSide({ farLimbs: true, farHold: "grip" }),
   wheelHand: buildHand({ view: "thumb", pose: "grip", bare: true }),
-  backHand: buildHand({ view: "back", pose: "grip", bare: true }),
-  palmHand: buildHand({ view: "palm", pose: "grip", bare: true })
+  backHand: buildHand({ view: "back", pose: "grip", bare: true, stub: false }),
+  palmHand: buildHand({ view: "palm", pose: "grip", bare: true, stub: false })
 });
 
 function gravel(c, bed, lit) {
@@ -122,23 +122,28 @@ function drawHero(c, t) {
   hold(near, ["arm", "fore"], grip);
   hold(far, ["armFar", "foreFar"], grip + WHEEL.farGrip);
   kit.pool(c, RB.x - 20, FLOOR + 4, 170, 18, "#000000", 0.6);
-  kit.placeRobot(c, blend >= 1 ? gripRig : reach, m, { pose, hooks: {}, lineW });
-  if (blend < 1) return;
-  rimHand(c, robots().backHand, m.multiply(locate(gripRig, "rod", pose)), grip, 1);
-  const { x, y, r, depth } = WHEEL;
-  c.save();
-  c.beginPath();
-  c.rect(x + 16 - r * depth - 12, y - r - 12, 2 * r * depth + 24, 2 * r + 24);
-  c.clip();
-  kit.layer(c, t, cc => drawWheel(cc, t), lineW);
-  c.restore();
-  rimHand(c, robots().palmHand, m.multiply(locate(gripRig, "rodFar", pose)), grip + WHEEL.farGrip, -1);
+  if (blend < 1) return kit.placeRobot(c, reach, m, { pose, hooks: {}, lineW });
+  const base = c.getTransform();
+  const behind = () => {
+    c.save();
+    c.setTransform(base);
+    rimHand(c, robots().palmHand, m.multiply(locate(gripRig, "rodFar", pose)), -1);
+    const { x, y, r, depth } = WHEEL;
+    c.beginPath();
+    c.rect(x + 16 - r * depth - 12, y - r - 12, 2 * r * depth + 24, 2 * r + 24);
+    c.clip();
+    kit.layer(c, t, cc => drawWheel(cc, t), lineW);
+    c.restore();
+  };
+  const hidden = { ...pose, wrist: { sx: 0, sy: 0 }, wristFar: { sx: 0, sy: 0 } };
+  kit.placeRobot(c, gripRig, m, { pose: hidden, hooks: { rodFar: behind }, lineW });
+  rimHand(c, robots().backHand, m.multiply(locate(gripRig, "rod", pose)), 1);
 }
 
-function rimHand(c, root, hook, deg, flip) {
+function rimHand(c, root, hook, flip) {
   const at = hook.transformPoint(new DOMPoint(0, 0));
-  const tangent = Math.atan2(Math.sin(deg * kit.RAD), WHEEL.depth * Math.cos(deg * kit.RAD)) / kit.RAD;
-  const m = new DOMMatrix().translate(at.x, at.y).rotate(tangent).scale(RB.scale, RB.scale * flip).multiply(locate(root, "rod").inverse());
+  const along = Math.atan2(hook.b, hook.a) / kit.RAD + 180;
+  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(RB.scale, RB.scale * flip).multiply(locate(root, "rod").inverse());
   kit.placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
 }
 
@@ -156,24 +161,21 @@ function drawPumpRoom(c, t) {
   drawHero(c, t);
 }
 
-function drawTap(c, t, x, y, scale, tilt, spin, pal, lines) {
+function drawTap(c, t, x, y, scale, pal, lines) {
   c.save();
   c.translate(x, y);
-  c.scale(scale, scale * tilt);
-  c.rotate(spin * kit.RAD);
-  c.translate(-TAP_CENTER.x, -TAP_CENTER.y);
-  ENV.draw(c, TAP, { t, lines, palette: pal });
+  c.scale(scale, scale);
+  c.translate(-TAP_CENTER.x, 0);
+  ENV.draw(c, TAP, { t, lines, palette: pal, view: "top" });
   c.restore();
 }
 
-function wheelHands(c, x, y, scale, squash, turn, blend, wheel, lines) {
+function wheelHands(c, x, y, scale, blend, wheel, lines) {
   const root = robots().wheelHand;
   const rod = locate(root, "rod").inverse();
   const k = scale * CLOSE.hand;
   for (const side of [-1, 1]) {
-    const a = ((side < 0 ? 180 : 0) + turn) * kit.RAD;
-    const grip = [x + scale * CLOSE.rim * Math.cos(a), y + scale * CLOSE.rim * squash * Math.sin(a)];
-    const p = [grip[0], grip[1] + (1 - blend) * 700];
+    const p = [x + side * scale * CLOSE.rim, y + (1 - blend) * 700];
     const m = new DOMMatrix().translate(p[0], p[1]).scale(side, 1).rotate(180).scale(k, k).multiply(rod);
     kit.placeRobot(c, root, m, { pose: {}, hooks: {}, lineW: lines });
   }
@@ -217,17 +219,15 @@ function closeBackdrop(cc) {
 
 function drawCloseUp(c, t) {
   lineW = LINE_W;
-  const { x, y, rx, tilt } = CLOSE;
+  const { x, y, rx } = CLOSE;
   const lift = at("lift", t);
   const scale = rx / TAP_CENTER.r * (1 + lift * 0.6);
   const cy = y + lift * 360;
-  const squash = tilt * (1 - lift * 0.2);
-  const spin = at("spin", t);
   closeBack(c, [], b => kit.layer(b, t, closeBackdrop, lineW));
-  drawTap(c, t, x, cy + 22 * (1 + lift), scale, squash, spin, SHADOW_PALETTE, lineW);
-  const wheel = cc => drawTap(cc, t, x, cy, scale, squash, spin, at("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE, lineW);
+  drawTap(c, t, x, cy + 22 * (1 + lift), scale, SHADOW_PALETTE, lineW);
+  const wheel = cc => drawTap(cc, t, x, cy, scale, at("flash", t) >= 0.5 ? FLASH_PALETTE : PALETTE, lineW);
   const hands = at("hands", t);
-  if (hands > 0) wheelHands(c, x, cy, scale, squash, 0, hands, wheel, lineW);
+  if (hands > 0) wheelHands(c, x, cy, scale, hands, wheel, lineW);
   else wheel(c);
   drawGrid(c, at("grid", t));
 }
