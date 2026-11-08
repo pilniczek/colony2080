@@ -146,7 +146,8 @@ const domOf = ({ a, b, c, d, e, f }: Mat2D): DOMMatrix => new DOMMatrix([a, b, c
 function rimHand(c: CanvasRenderingContext2D, root: GroupNode, hook: DOMMatrix, flip: number): void {
   const at = hook.transformPoint(new DOMPoint(0, 0));
   const along = Math.atan2(hook.b, hook.a) / RAD + 180;
-  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(RB.scale, RB.scale * flip).multiply(domOf(hookAt(root, "rod", {})).inverse());
+  const k = Math.hypot(hook.a, hook.b);
+  const m = new DOMMatrix().translate(at.x, at.y).rotate(along).scale(k, k * flip).multiply(domOf(hookAt(root, "rod", {})).inverse());
   placeRobot(c, root, m, { pose: {}, hooks: {}, lineW });
 }
 

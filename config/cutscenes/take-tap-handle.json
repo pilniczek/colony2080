@@ -12,7 +12,7 @@
     "height": 900,
     "floorY": 820,
     "robot": { "scale": 0.92, "x": 905 },
-    "pipe": { "x": 560, "w": 150, "sleeveTop": 280, "bottom": 580, "floor": 715 },
+    "pipe": { "x": 560, "w": 150, "sleeveTop": 280, "bottom": 580, "floor": 820 },
     "wheel": { "x": 732, "y": 380, "r": 82, "rim": 0.2, "depth": 0.5, "farGrip": 180 },
     "close": { "x": 800, "y": 470, "rx": 360, "hand": 0.056, "rim": 4.3 }
   },

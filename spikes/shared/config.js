@@ -7004,7 +7004,7 @@ window.C28_CONFIG = {
      "w": 150,
      "sleeveTop": 280,
      "bottom": 580,
-     "floor": 715
+     "floor": 820
     },
     "wheel": {
      "x": 732,
