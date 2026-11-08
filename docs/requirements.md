@@ -212,7 +212,7 @@ flowchart LR
 
 | Path | What it settled |
 |---|---|
-| `spikes/robot-design/` | Hero design sheet (front, side, back), palette, level guides, reference frames |
+| `spikes/robot-design/` | Hero design sheet (front, side, back, from above), palette, level guides, hands, two hand carry (side, front, back, from above, robot's own view), reference frames |
 | `spikes/shared/xbot.js` | Shared robot model and renderer |
 | `spikes/shared/cutscenes.js` | Cutscene keyframe format, camera shots, two-handed lever prop handling, synced arms. An interaction triggers its cutscene in `spikes/movement/interaction.html` (cell plays both; click opens the player) |
 | `spikes/movement/` | Movement overview: movement, interaction and fight pages, every move looping in its own cell, Fists / Gun switch |
