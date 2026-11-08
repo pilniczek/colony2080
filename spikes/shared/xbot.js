@@ -1180,9 +1180,9 @@ function grip(s, view, rod = CROWBAR) {
   const ix = fingerX(3);
   const px = fingerX(0);
   if (view === "back") {
+    if (!rod.trigger) P(s, { pts: BACK_THUMB, shade: "cyl", r: 6, lw: FINGER_LW });
     rod.across(s, M, cy);
     handStub(s);
-    if (!rod.trigger) P(s, { pts: BACK_THUMB, shade: "cyl", r: 6, lw: FINGER_LW });
     backPlate(s);
     if (trigger) P(s, { pts: [[ix, knuckle + 4], [ix + 20, knuckle + 4], [ix + 20, pull + 12], [ix, pull + 12]], shade: "cyl", r: 7, lw: FINGER_LW });
     for (let i = 0; i < curled; i++) {
