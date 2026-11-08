@@ -7,8 +7,9 @@ const S = CFG.stage;
 const W = S.width, H = S.height;
 const palette = { ...CFG.palette };
 const at = kit.track(CFG.tracks);
-const hand = buildHand({ view: "palm", pose: "open", forearm: true });
+const hand = buildHand({ view: "palm", pose: "carry", forearm: true });
 const HAND_AT = [88, 438];
+const PALM_UP = [88, 470];
 const EDGE = [70, 130];
 const STRIPE = 60;
 
@@ -78,7 +79,9 @@ function drawHands(lineW) {
     ctx.save();
     ctx.translate(side * S.spread, 0);
     ctx.scale(-side, -1);
-    ctx.translate(-HAND_AT[0], -HAND_AT[1]);
+    ctx.translate(PALM_UP[0] - HAND_AT[0], PALM_UP[1] - HAND_AT[1]);
+    ctx.rotate(-Math.PI / 2);
+    ctx.translate(-PALM_UP[0], -PALM_UP[1]);
     renderBot(ctx, hand, { lineW });
     ctx.restore();
   }
