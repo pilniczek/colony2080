@@ -71,10 +71,10 @@ export const lineFor = (c: CanvasRenderingContext2D): number => {
 
 export const walkPose = (walk: Walk, base: Arms, t: number, stride: number): { lift: number; pose: Pose } => {
   const lift = Math.sin((t + (walk.phase ?? 0)) * Math.PI * 2 * walk.rate) * stride;
-  const swing = lift * 0.25;
+  const sy = 1 - Math.abs(lift) * 0.003;
   return {
     lift,
-    pose: { ...base, body: { dy: -Math.abs(lift) * 0.3 }, armL: base.armL + swing, armR: base.armR + swing },
+    pose: { ...base, body: { dy: -Math.abs(lift) * 0.3 }, armL: { rot: base.armL, sy }, armR: { rot: base.armR, sy } },
   };
 };
 

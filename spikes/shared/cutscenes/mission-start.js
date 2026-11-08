@@ -177,7 +177,7 @@ function boarding(M, t) {
     const up = r => [{ sy: 1 - 0.5 * r }, { dy: -85 * r }];
     const [thighL, shinL] = up(M.lift * Math.max(0, swing));
     const [thighR, shinR] = up(M.lift * Math.max(0, -swing));
-    const pose = { body: { dy: -M.bob * Math.abs(swing) }, thighL, shinL, thighR, shinR, armL: -M.swing * swing, armR: -M.swing * swing };
+    const pose = { body: { dy: -M.bob * Math.abs(swing) }, thighL, shinL, thighR, shinR, armL: { sy: 1 - M.foreshorten * Math.abs(swing) }, armR: { sy: 1 - M.foreshorten * Math.abs(swing) } };
     const dark = Math.round(20 * Math.min(1, Math.max(0, (s - M.fade) / (M.inside - M.fade)))) / 20;
     ctx.save();
     if (s > 1) {

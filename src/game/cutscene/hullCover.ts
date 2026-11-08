@@ -18,7 +18,7 @@ export interface HullStage {
   width: number;
   height: number;
   seed: number;
-  walk: View & { stepSeconds: number; lift: number; swing: number; bob: number };
+  walk: View & { stepSeconds: number; lift: number; foreshorten: number; bob: number };
   aim: StrikeView;
   coverFly: number[];
   partDrop: number;
@@ -113,7 +113,7 @@ export function hullCoverScene(film: HullConfig, strike: Strike): Cutscene["rend
     const swing = Math.sin((2 * Math.PI * t) / V.stepSeconds);
     const [thighL, shinL] = legUp(V.lift * Math.max(0, swing));
     const [thighR, shinR] = legUp(V.lift * Math.max(0, -swing));
-    const pose: Pose = { body: { dy: -V.bob * Math.abs(swing) }, thighL: thighL!, shinL: shinL!, thighR: thighR!, shinR: shinR!, armL: -V.swing * swing, armR: -V.swing * swing };
+    const pose: Pose = { body: { dy: -V.bob * Math.abs(swing) }, thighL: thighL!, shinL: shinL!, thighR: thighR!, shinR: shinR!, armL: { sy: 1 - V.foreshorten * Math.abs(swing) }, armR: { sy: 1 - V.foreshorten * Math.abs(swing) } };
     shadow(ctx, x, y, 230 * k, 26 * k, 0.4, palette.shadow!);
     ctx.save();
     feet(ctx, x, y, k, k, ROBOT.AX);

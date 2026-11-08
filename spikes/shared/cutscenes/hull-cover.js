@@ -66,7 +66,7 @@ function hullCoverScene(CFG, palette, strike) {
     const swing = Math.sin(2 * Math.PI * t / V.stepSeconds);
     const [thighL, shinL] = legUp(V.lift * Math.max(0, swing));
     const [thighR, shinR] = legUp(V.lift * Math.max(0, -swing));
-    const pose = { body: { dy: -V.bob * Math.abs(swing) }, thighL, shinL, thighR, shinR, armL: -V.swing * swing, armR: -V.swing * swing };
+    const pose = { body: { dy: -V.bob * Math.abs(swing) }, thighL, shinL, thighR, shinR, armL: { sy: 1 - V.foreshorten * Math.abs(swing) }, armR: { sy: 1 - V.foreshorten * Math.abs(swing) } };
     kit.shadow(ctx, x, y, 230 * k, 26 * k, 0.4, palette.shadow);
     ctx.save();
     kit.feet(ctx, x, y, k, k, AX);

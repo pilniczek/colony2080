@@ -1258,7 +1258,7 @@ window.C28_CONFIG = {
      "horizon": 560,
      "stepSeconds": 0.62,
      "lift": 0.45,
-     "swing": 9,
+     "foreshorten": 0.08,
      "bob": 12,
      "shipX": 120,
      "shipY": 590,
@@ -1577,7 +1577,7 @@ window.C28_CONFIG = {
      "horizon": 560,
      "stepSeconds": 0.62,
      "lift": 0.45,
-     "swing": 9,
+     "foreshorten": 0.08,
      "bob": 12,
      "shipX": 120,
      "shipY": 590,
@@ -2017,7 +2017,7 @@ window.C28_CONFIG = {
      340
     ],
     "lift": 0.45,
-    "swing": 9,
+    "foreshorten": 0.08,
     "bob": 12
    },
    "head": {
