@@ -624,20 +624,20 @@ describe("toaster fireball", () => {
     return frames;
   };
 
-  it("draws frames 1 to 6 then a blank tick and spends 1 ammo per missed cycle", () => {
+  it("draws frames 1 to 6 then a blank tick and spends 1 ammo per fireball", () => {
     const g = toaster();
     expect(ticks(g, 14)).toEqual([1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0]);
     expect(g.hero.blaster).toBe(cfg.toaster.ammo - 2);
   });
 
-  it("hits every live enemy in range from the hit frame, restarts the cycle and spends no ammo", () => {
+  it("hits every live enemy in range from the hit frame, restarts the cycle and spends 1 ammo per fireball", () => {
     const g = toaster([7.5, 8.5]);
     expect(ticks(g, 3)).toEqual([1, 2, 3]);
     expect(g.world.enemies.map((e) => e.body.energy)).toEqual([7 - cfg.toaster.damage, 7 - cfg.toaster.damage]);
     expect(g.world.beam!.cycle).toBe(0);
     ticks(g, 3);
     expect(g.world.enemies.every((e) => e.body.energy <= 0)).toBe(true);
-    expect(g.hero.blaster).toBe(cfg.toaster.ammo);
+    expect(g.hero.blaster).toBe(cfg.toaster.ammo - 2);
   });
 
   it("misses an enemy past its range", () => {

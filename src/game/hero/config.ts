@@ -47,7 +47,7 @@ export interface MovementConfig {
   energy: { max: number; hit: number; shields: number };
   ammo: number;
   blaster: { tickHz: number; damage: number; ammo: number; lowWarn: number };
-  toaster: { cycle: number; hitFrame: number; ammoFrame: number; range: number; damage: number; ammo: number; lowWarn: number };
+  toaster: { cycle: number; hitFrame: number; range: number; damage: number; ammo: number; lowWarn: number };
   flamethrower: { spawnTicks: number; reach: number; damage: number; soundTicks: number; ammo: number; lowWarn: number };
   bonuses: Record<BonusKind, { add: number; cap: number }>;
   respawnMs: number;
@@ -117,7 +117,7 @@ export function loadMovement(json: unknown): MovementConfig {
     energy: group("energy", ["max", "hit", "shields"]),
     ammo: n("ammo"),
     blaster: group("blaster", ["tickHz", "damage", "ammo", "lowWarn"]),
-    toaster: group("toaster", ["cycle", "hitFrame", "ammoFrame", "range", "damage", "ammo", "lowWarn"]),
+    toaster: group("toaster", ["cycle", "hitFrame", "range", "damage", "ammo", "lowWarn"]),
     flamethrower: group("flamethrower", ["spawnTicks", "reach", "damage", "soundTicks", "ammo", "lowWarn"]),
     bonuses: bonusesOf(obj(o.bonuses, "movement.bonuses")),
     respawnMs: n("respawnMs"),

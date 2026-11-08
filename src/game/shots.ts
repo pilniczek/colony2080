@@ -262,16 +262,18 @@ function toast(world: SandboxWorld, h: Hero, line: BeamLine, cfg: MovementConfig
 }
 
 function fireToaster(world: SandboxWorld, h: Hero, ticks: number, clips: ClipSet, cfg: MovementConfig, clock = 0): void {
-  const { cycle, hitFrame, ammoFrame } = cfg.toaster;
+  const { cycle, hitFrame } = cfg.toaster;
   let frame = world.beam?.cycle ?? 0;
   let drawn = world.beam?.tick ?? 0;
   let line = toasterLine(world, h, clips, cfg);
   const released = h.fireTime === null;
   for (let i = 0; i < ticks; i++) {
-    if (frame === ammoFrame) h.blaster = Math.max(0, (h.blaster ?? 0) - 1);
     frame = (frame + 1) % cycle;
     drawn = frame;
-    if (frame === 1) cue(world, "laser", 12000);
+    if (frame === 1) {
+      h.blaster = Math.max(0, (h.blaster ?? 0) - 1);
+      cue(world, "laser", 12000);
+    }
     if (frame >= hitFrame && toast(world, h, line, cfg)) {
       frame = 0;
       line = toasterLine(world, h, clips, cfg);
