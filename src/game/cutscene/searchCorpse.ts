@@ -6,7 +6,7 @@ import { ASSETS } from "../env/assets";
 import { drawAsset } from "../env/paint";
 import { buildFront, ROBOT } from "../robot/xbot";
 import type { Cutscene } from "./index";
-import { camera, feet, fitStage, hookAt, LINE_W, lineFor, rect, shadow, sheetBlit, sheetDraw, tracks } from "./kit";
+import { camera, feet, fitStage, hookAt, LINE_W, lineFor, rect, shadow, tracks } from "./kit";
 
 const ST = config.stage;
 const W = ST.width;
@@ -133,19 +133,6 @@ function drawCorpse(ctx: CanvasRenderingContext2D, t: number): void {
   ctx.restore();
 }
 
-function drawHandFront(ctx: CanvasRenderingContext2D, t: number): void {
-  const sheet = sheetDraw(ctx, "searchCorpse", (c) => drawRobot(c, t));
-  sheetBlit(ctx, sheet);
-  drawCorpse(ctx, t);
-  const [x, y, w, h] = ST.handFront as [number, number, number, number];
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(x, y, w, h);
-  ctx.clip();
-  sheetBlit(ctx, sheet);
-  ctx.restore();
-}
-
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
   fitStage(ctx, w, h, W, H);
@@ -155,11 +142,8 @@ function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number):
   drawWall(ctx);
   drawFloor(ctx);
   drawShadow(ctx, t);
-  if (at("handFront", t) >= 1) drawHandFront(ctx, t);
-  else {
-    drawRobot(ctx, t);
-    drawCorpse(ctx, t);
-  }
+  drawRobot(ctx, t);
+  drawCorpse(ctx, t);
   ctx.restore();
 }
 

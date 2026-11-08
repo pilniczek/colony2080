@@ -6725,13 +6725,7 @@ window.C28_CONFIG = {
     "wristLimit": 50,
     "squash": 0.1,
     "crouchX": -60,
-    "crouchY": 620,
-    "handFront": [
-     880,
-     590,
-     320,
-     200
-    ]
+    "crouchY": 620
    },
    "palette": {
     "wall": "#3e2a1a",
@@ -7004,24 +6998,6 @@ window.C28_CONFIG = {
      [
       4.43,
       135
-     ]
-    ],
-    "handFront": [
-     [
-      2,
-      0
-     ],
-     [
-      2.01,
-      1
-     ],
-     [
-      3.15,
-      1
-     ],
-     [
-      3.16,
-      0
      ]
     ]
    }

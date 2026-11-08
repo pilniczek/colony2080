@@ -116,19 +116,6 @@ function drawRobot(c, t) {
   c.restore();
 }
 
-function drawHandFront(t) {
-  const sheet = kit.sheetDraw(ctx, "searchCorpse", c => drawRobot(c, t));
-  kit.sheetBlit(ctx, sheet);
-  drawCorpse(t);
-  const [x, y, w, h] = ST.handFront;
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(x, y, w, h);
-  ctx.clip();
-  kit.sheetBlit(ctx, sheet);
-  ctx.restore();
-}
-
 function drawCorpse(t) {
   ctx.save();
   ctx.translate(ST.corpseX, ST.corpseY);
@@ -147,11 +134,8 @@ function render(c, w, h, t) {
   drawWall();
   drawFloor();
   drawShadow(t);
-  if (at("handFront", t) >= 1) drawHandFront(t);
-  else {
-    drawRobot(ctx, t);
-    drawCorpse(t);
-  }
+  drawRobot(ctx, t);
+  drawCorpse(t);
   ctx.restore();
 }
 
