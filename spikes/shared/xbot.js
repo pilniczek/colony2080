@@ -976,8 +976,7 @@ function fist(s, view) {
     backPlate(s);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 6, lw: FINGER_LW });
-      P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, knuckle + 10], [x, knuckle + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
   } else if (view === "palm") {
     handStub(s);
