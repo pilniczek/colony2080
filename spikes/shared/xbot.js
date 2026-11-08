@@ -983,7 +983,7 @@ function carry(s, view) {
 }
 
 const CUP = [-30, -75, -125];
-const CUP_THUMB = [20, -35];
+const CUP_THUMB = [28, 4];
 
 function cup(s, view) {
   const M = p => p;
