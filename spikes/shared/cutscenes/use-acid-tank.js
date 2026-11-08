@@ -13,6 +13,7 @@ const TAP = asset("tapHandle");
 const GUARD = asset("acidGuard");
 const TAP_CENTER = { x: 6, y: -5, r: 5.6 };
 const GUARD_TOP = 41;
+const SPOUT = { dx: 130, dy: 190, w: 46 };
 const SHADOW_PALETTE = kit.recolor("#000000");
 const channel = (hex, i) => parseInt(hex.slice(i, i + 2), 16);
 const mixHex = (a, b, k) => "#" + [1, 3, 5].map(i => Math.round(channel(a, i) * (1 - k) + channel(b, i) * k).toString(16).padStart(2, "0")).join("");
@@ -71,6 +72,20 @@ function valveBackdrop(cc) {
   P.beam(cc, [-60, 780], [W + 60, 650], 80, "rust");
   P.beam(cc, [-60, 900], [W + 60, 830], 90, "rust");
   P.poly(cc, [[1290, 560], [1450, 520], [1500, H + 10], [1270, H + 10]], "rust", 1);
+  spout(cc);
+}
+
+function spout(cc) {
+  const { x, y } = CLOSE;
+  const { dx, dy, w } = SPOUT;
+  const sx = x + dx, sy = y + dy;
+  P.beam(cc, [x + 20, y - 4], [sx, sy - 40], w, "steel");
+  P.cylV(cc, sx - w / 2, sy - 44, w, 44, "steel", 1);
+  P.box(cc, sx - w / 2 - 6, sy - 16, w + 12, 16, "steel", 2, { vertical: true });
+  cc.fillStyle = PALETTE.hole;
+  cc.beginPath();
+  cc.ellipse(sx, sy, w / 2 - 6, 5, 0, 0, Math.PI * 2);
+  cc.fill();
 }
 
 function drawValve(c, t) {
@@ -87,7 +102,7 @@ function drawValve(c, t) {
   c.restore();
   drawTap(c, t, x, cy, scale, tilt, spin, PALETTE, lineW);
   if (at("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash);
-  kit.layer(c, t, cc => pour(cc, x, y + 6, H + 20, 44 * at("pour", t), t), lineW);
+  kit.layer(c, t, cc => pour(cc, x + SPOUT.dx, y + SPOUT.dy, H + 20, 32 * at("pour", t), t), lineW);
   const r = scale * TAP_CENTER.r - 12;
   for (const side of [-1, 1]) {
     const a = (side < 0 ? 180 : 0) + spin * 0.6;
