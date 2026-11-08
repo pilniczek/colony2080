@@ -1105,6 +1105,8 @@ const CROWBAR = {
   end: () => {}
 };
 
+const WEAPON_GRIP = [[14, -14], [-16, -14], [-34, 52], [-6, 52]];
+
 const PISTOL_R = 11;
 const PISTOL_SLIDE = { x0: HAND.x1, x1: HAND.x1 + 24, top: 404, muzzle: 566 };
 
@@ -1243,5 +1245,5 @@ function buildHand({ view = "back", pose = "open" } = {}) {
   return root;
 }
 
-window.XBOT = { SIDE_FORE_TURN, GAME_LINE: CFG.gameLod.lineW, locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, buildFront, buildBack, buildSide, buildHand, HAND_VIEWS, HAND_POSES, render, LEVELS };
+window.XBOT = { SIDE_FORE_TURN, WEAPON_GRIP, GAME_LINE: CFG.gameLod.lineW, locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, buildFront, buildBack, buildSide, buildHand, HAND_VIEWS, HAND_POSES, render, LEVELS };
 })();

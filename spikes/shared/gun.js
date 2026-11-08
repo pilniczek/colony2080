@@ -1,8 +1,8 @@
 (() => {
 const PALETTE = window.XBOT.PALETTE;
 
-const GRIP_PTS = [[14, -14], [-16, -14], [-34, 52], [-6, 52]];
 function grip(mat, tone) {
+  const GRIP_PTS = window.XBOT.WEAPON_GRIP;
   const xs = GRIP_PTS.map(p => p[0]), ys = GRIP_PTS.map(p => p[1]);
   const x = Math.min(...xs), y = Math.min(...ys);
   return { name: "grip", x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y, pts: GRIP_PTS, mat, tone };

@@ -1,5 +1,6 @@
 import { SHIP } from "./buildings";
 import { G } from "./grime";
+import { WEAPON_GRIP } from "../robot/weaponModel";
 import { P, type EnvAsset } from "./paint";
 
 const { rng, path, color, flat, box, poly, cylV, disc, rivets, stroke, tones } = P;
@@ -238,20 +239,21 @@ export const crowbar: EnvAsset = {
 
 const EBLASTER_K = 0.058;
 const EBLASTER_PARTS: [number, number, number, number, string, number?][] = [
-  [-14, -14, 26, 56, "steel", 1], [-78, -60, 20, 42, "steel", 0], [-44, -90, 92, 22, "steel", 1], [-34, -86, 72, 10, "den2"],
+  [-78, -60, 20, 42, "steel", 0], [-44, -90, 92, 22, "steel", 1], [-34, -86, 72, 10, "den2"],
   [-60, -72, 130, 62, "chrome", 1], [-14, -72, 12, 62, "den1"], [14, -10, 46, 34, "steel", 0], [22, -2, 30, 8, "den2"],
   [70, -58, 152, 36, "chrome", 2], [70, -44, 152, 8, "plasma"],
   [84, -66, 12, 52, "steel", 0], [114, -66, 12, 52, "steel", 0], [145, -66, 12, 52, "steel", 0], [176, -66, 12, 52, "steel", 0],
   [214, -74, 14, 68, "steel", 0], [218, -74, 48, 12, "chrome", 1], [218, -18, 48, 12, "chrome", 1],
 ];
 const EBLASTER_ARC: Pt[] = [[260, -62], [268, -54], [262, -46], [270, -40], [262, -34], [268, -26], [260, -18]];
-const eblasterAt = ([x, y]: Pt): Pt => [(x + 78) * EBLASTER_K - 1, (y - 42) * EBLASTER_K];
+const eblasterAt = ([x, y]: Pt): Pt => [(x + 78) * EBLASTER_K - 1, (y - 52) * EBLASTER_K];
 
 export const eBlaster: EnvAsset = {
   id: "eBlaster",
   box: [-2, -10, 24, 0],
   draw(ctx, state) {
     if (state) return scuff(ctx, 1, 20);
+    P.poly(ctx, WEAPON_GRIP.map(eblasterAt), "steel", 1);
     for (const [x, y, w, h, mat, tone] of EBLASTER_PARTS) {
       const [px, py] = eblasterAt([x, y]);
       if (tone === undefined) flat(ctx, px, py, w * EBLASTER_K, h * EBLASTER_K, mat);

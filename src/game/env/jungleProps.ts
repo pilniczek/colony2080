@@ -4,6 +4,7 @@ import {
   fern, grass, mossCap, oval, simple, slab, stone, vine, within, type Ctx, type Pt,
 } from "./jungle";
 import { vehicle, type Wreck } from "./jungleClutter";
+import { WEAPON_GRIP } from "../robot/weaponModel";
 import { P, type EnvAsset } from "./paint";
 
 const { rng, path, flat, box, poly, disc, glow, stroke, shape, line, curve, hazard } = P;
@@ -585,19 +586,20 @@ const grenade: EnvAsset = {
 
 const FLAMER_K = 0.12;
 const FLAMER_PARTS: [number, number, number, number, string, number][] = [
-  [-100, -58, 44, 26, "steel", 0], [-16, -18, 30, 50, "steel", 0], [-58, -62, 142, 44, "steel", 1], [-58, -62, 142, 10, "steel", 2],
+  [-100, -58, 44, 26, "steel", 0], [-58, -62, 142, 44, "steel", 1], [-58, -62, 142, 10, "steel", 2],
   [-44, -116, 112, 54, "brick", 2], [-52, -110, 10, 42, "steel", 2], [66, -110, 10, 42, "steel", 2], [6, -118, 10, 58, "steel", 1],
   [74, -84, 12, 24, "chrome", 2], [84, -42, 120, 24, "steel", 2], [204, -52, 30, 44, "chrome", 2], [218, -9, 20, 7, "chrome", 1],
 ];
-const flamerAt = (x: number, y: number): [number, number] => [(x + 100) * FLAMER_K, (y - 32) * FLAMER_K];
+const flamerAt = (x: number, y: number): [number, number] => [(x + 100) * FLAMER_K, (y - 52) * FLAMER_K];
 const FLAMER_PILOT: Pt[] = [[0, 3.5], [0, -3.5], [5, -8], [8, -15], [7, -23], [11, -34], [14, -25], [19, -31], [21, -19], [18, -7], [11, 3]];
 const FLAMER_PILOT_CORE: Pt[] = [[0.5, 2], [0.5, -2], [4, -4.5], [7, -9], [10, -13], [11, -7], [9, -1], [5, 2]];
 const pilotAt = ([x, y]: Pt): Pt => flamerAt(238 + x, -5.5 + y);
 
 const flamethrower: EnvAsset = {
   id: "flamethrower",
-  box: [-1, -19, 44, 1],
+  box: [-1, -22, 44, 1],
   draw(ctx) {
+    P.poly(ctx, WEAPON_GRIP.map((p) => flamerAt(...p)), "steel", 0);
     for (const [x, y, w, h, mat, tone] of FLAMER_PARTS) box(ctx, ...flamerAt(x, y), w * FLAMER_K, h * FLAMER_K, mat, tone);
     if (!simple()) glow(ctx, ...pilotAt([9, -10]), 3.4, "a2", 0.35);
     shape(ctx, FLAMER_PILOT.map(pilotAt), "#c8401a");

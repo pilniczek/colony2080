@@ -3240,15 +3240,20 @@ const navCircuit = {
         flat(ctx, 1, -1.2, 13, 1.2, "y1", "yLine");
     },
 };
+const TOASTER_K = 0.076;
+const toasterAt = ([x, y]) => [4.4 + x * TOASTER_K, -3.2 + (y + 10) * TOASTER_K];
+const TOASTER_GRIP_LIFT = toasterAt([0, 52])[1];
 const toaster = {
     id: "toaster",
-    box: [-2, -11, 28, 0],
+    box: [-2, -13, 28, 0],
     anim: true,
     draw(ctx, state, t) {
         if (state)
             return scuff(ctx, 0, 26);
         shadow(ctx, 12, 24);
-        box(ctx, 3, -3.4, 2.6, 3.4, "steel", 0, { vertical: true });
+        ctx.save();
+        ctx.translate(0, -TOASTER_GRIP_LIFT);
+        poly(ctx, window.XBOT.WEAPON_GRIP.map(toasterAt), "steel", 0);
         box(ctx, 0.6, -8, 9.4, 4.8, "chrome", 1);
         flat(ctx, 0.6, -8, 9.4, 1, "c2");
         const heat = 0.6 + sin(t * 5) * 0.25;
@@ -3263,6 +3268,7 @@ const toaster = {
         box(ctx, 21.6, -7.2, 1.6, 4, "chrome", 2, { vertical: true });
         G.grain(ctx, G.rectsRegion(ctx, [[0.6, -8, 9.4, 4.8], [10, -6.6, 11.6, 2.8], [21.6, -7.2, 1.6, 4]]), 2340, 0.4);
         G.chips(ctx, 0.6, -8, 9.4, 2341);
+        ctx.restore();
     },
 };
 const energyPickup = {

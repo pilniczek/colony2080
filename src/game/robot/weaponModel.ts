@@ -29,14 +29,14 @@ export const BARREL = { x: 70, length: 196 };
 export const MUZZLE: Pt = [BARREL.x + BARREL.length + 2, -40];
 export const SUPPORT: Pt = [BARREL.x + 14, -10];
 
-const GRIP_PTS: readonly Pt[] = [[14, -14], [-16, -14], [-34, 52], [-6, 52]];
+export const WEAPON_GRIP: readonly Pt[] = [[14, -14], [-16, -14], [-34, 52], [-6, 52]];
 
 export const grip = (mat: string, tone: number): WeaponPart => {
-  const xs = GRIP_PTS.map(([x]) => x);
-  const ys = GRIP_PTS.map(([, y]) => y);
+  const xs = WEAPON_GRIP.map(([x]) => x);
+  const ys = WEAPON_GRIP.map(([, y]) => y);
   const x = Math.min(...xs);
   const y = Math.min(...ys);
-  return { name: "grip", x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y, pts: GRIP_PTS, mat, tone };
+  return { name: "grip", x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y, pts: WEAPON_GRIP, mat, tone };
 };
 
 export const toHook = ([x, y]: Pt): Pt => [-y, x];
