@@ -140,8 +140,8 @@ window.CUTSCENES.hullCoverScene = hullCoverScene;
 const CFG = window.C28_CONFIG.cutscenes.hullCover;
 const S = CFG.stage;
 const FIRE_AT = CFG.tracks.fire[1][0];
-const side = buildSide({ farLimbs: true, propBehindArm: true });
-const { CARRY, CARRY_FAR } = window.GUN.holdPoses(side, buildFront({}));
+const side = buildSide({ farLimbs: true, propBehindArm: true, armed: true });
+const { CARRY, CARRY_FAR } = window.GUN.holdPoses(side, buildFront({ rightArmFirst: true, propBehindArm: true, armed: true }));
 const palette = { ...CFG.palette };
 
 function drawFlash(ctx, m, on) {
@@ -178,7 +178,8 @@ function shoot(ctx, t, { view: V, at, hits }) {
   const frame = Math.floor((t - FIRE_AT) / S.flashSeconds);
   const on = firing && frame % 2 === 0;
   const kick = on ? -3 : 0;
-  const pose = { arm: CARRY.arm * raise + kick, fore: CARRY.fore * raise, armFar: CARRY_FAR.armFar * raise + kick, foreFar: CARRY_FAR.foreFar * raise };
+  const armFar = CARRY_FAR.armFar * raise + kick, foreFar = CARRY_FAR.foreFar * raise;
+  const pose = { arm: CARRY.arm * raise + kick, fore: CARRY.fore * raise, armFar, foreFar, supportFar: window.XBOT.SIDE_FORE_TURN - armFar - foreFar };
   const m = new DOMMatrix().translate(V.x, V.floorY).scale(V.scale).translate(-SIDE_AX, -FOOT_Y);
   kit.shadow(ctx, V.x, V.floorY, 200 * V.scale, 22 * V.scale, 0.4, palette.shadow);
   ctx.save();

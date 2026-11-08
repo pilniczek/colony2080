@@ -8,7 +8,7 @@ const STANCE = { hipNear: -16, kneeNear: 10, ankleNear: 2.8, hipFar: 14, kneeFar
 const GUARD = { arm: -38, fore: -92, armFar: -30, foreFar: -96 };
 const JAB = { arm: -88, fore: 12 };
 const JAB_FAR = { armFar: -84, foreFar: 6 };
-const side = buildSide({ farLimbs: true });
+const side = buildSide({ farLimbs: true, fists: true });
 
 const mix = (a, b, k) => a + (b - a) * k;
 

@@ -14,7 +14,7 @@ const JAB = { arm: -88, fore: 12 };
 const JAB_FAR = { armFar: -84, foreFar: 6 };
 
 let sideRig: GroupNode | null = null;
-const side = (): GroupNode => (sideRig ??= buildSide({ farLimbs: true }));
+const side = (): GroupNode => (sideRig ??= buildSide({ farLimbs: true, fists: true }));
 
 const mix = (a: number, b: number, k: number): number => a + (b - a) * k;
 

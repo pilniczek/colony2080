@@ -5,7 +5,7 @@ import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { ASSETS } from "../env/assets";
 import { drawAsset, P, PALETTE, type EnvAsset } from "../env/paint";
 import { gunHook, holdPoses, MUZZLE_IN_HOOK } from "../robot/gun";
-import { buildBack, buildFront, buildSide, ROBOT } from "../robot/xbot";
+import { buildBack, buildFront, buildSide, ROBOT, SIDE_FORE_TURN } from "../robot/xbot";
 import type { Cutscene } from "./index";
 import { camera, feet, fitStage, hookAt, LINE_W, lineFor, poly, random, shadow, stillLayer, tracks } from "./kit";
 
@@ -189,8 +189,8 @@ const FIRE_AT = config.tracks.fire[1]![0] as number;
 let rigs: { side: GroupNode; carry: ReturnType<typeof holdPoses> } | null = null;
 const robots = () => {
   if (rigs) return rigs;
-  const side = buildSide({ farLimbs: true, propBehindArm: true });
-  return (rigs = { side, carry: holdPoses(side, buildFront({})) });
+  const side = buildSide({ farLimbs: true, propBehindArm: true, armed: true });
+  return (rigs = { side, carry: holdPoses(side, buildFront({ rightArmFirst: true, propBehindArm: true, armed: true })) });
 };
 
 function drawFlash(ctx: Ctx, palette: Record<string, string>, m: DOMMatrix, on: boolean): void {
@@ -232,7 +232,9 @@ const shoot: Strike = (ctx, t, { view: V, at, palette, hits }) => {
   const frame = Math.floor((t - FIRE_AT) / S.flashSeconds);
   const on = firing && frame % 2 === 0;
   const kick = on ? -3 : 0;
-  const pose: Pose = { arm: carry.CARRY.arm * raise + kick, fore: carry.CARRY.fore * raise, armFar: carry.CARRY_FAR.armFar * raise + kick, foreFar: carry.CARRY_FAR.foreFar * raise };
+  const armFar = carry.CARRY_FAR.armFar * raise + kick;
+  const foreFar = carry.CARRY_FAR.foreFar * raise;
+  const pose: Pose = { arm: carry.CARRY.arm * raise + kick, fore: carry.CARRY.fore * raise, armFar, foreFar, supportFar: SIDE_FORE_TURN - armFar - foreFar };
   const m = new DOMMatrix().translate(V.x, V.floorY).scale(V.scale).translate(-ROBOT.SIDE_AX, -ROBOT.FOOT_Y);
   shadow(ctx, V.x, V.floorY, 200 * V.scale, 22 * V.scale, 0.4, palette.shadow!);
   ctx.save();
