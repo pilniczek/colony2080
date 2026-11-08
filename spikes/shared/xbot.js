@@ -1038,7 +1038,7 @@ const PISTOL = {
   r: PISTOL_R,
   across: (s, M, y, tips = false) => {
     const { x0, x1, top, muzzle } = PISTOL_SLIDE;
-    P(s, { pts: M([[HAND.x0 - 22, y - PISTOL_R + 6], [x0 + 4, y - PISTOL_R - 4], [x0 + 6, y + PISTOL_R - 2], [HAND.x0 - 20, y + PISTOL_R + 6]]), mat: "metal", shade: "cyl", r: 5 });
+    P(s, { pts: M([[HAND.x0 - 22, y - PISTOL_R - 12], [x0 + 4, y - PISTOL_R + 2], [x0 + 6, y + PISTOL_R + 4], [HAND.x0 - 20, y + PISTOL_R - 12]]), mat: "metal", shade: "cyl", r: 5 });
     if (tips) return;
     P(s, { pts: M([[x0 - 18, y + PISTOL_R], [x0 - 2, y + PISTOL_R], [x0 - 2, y + PISTOL_R + 26], [x0 - 18, y + PISTOL_R + 26]]), mat: "metal", shade: "cyl", r: 7 });
     P(s, { pts: M([[x0, top], [x1, top], [x1, muzzle], [x0, muzzle]]), mat: "chrome", shade: "cyl", r: 4 });
