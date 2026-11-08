@@ -46,6 +46,7 @@
   <figure><figcaption>Side, facing right (robot's right side)</figcaption><canvas id="side"></canvas></figure>
   <figure><figcaption>Side, facing left (robot's left side)</figcaption><canvas id="sideLeft"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="back"></canvas></figure>
+  <figure><figcaption>From above, facing up</figcaption><canvas id="top"></canvas></figure>
 </main>
 <h2>In-game, simplified (game size, scale 0.2)</h2>
 <main class="game">
@@ -53,6 +54,7 @@
   <figure><figcaption>Side, facing right</figcaption><canvas id="gSide"></canvas></figure>
   <figure><figcaption>Side, facing left</figcaption><canvas id="gSideLeft"></canvas></figure>
   <figure><figcaption>Back</figcaption><canvas id="gBack"></canvas></figure>
+  <figure><figcaption>From above</figcaption><canvas id="gTop"></canvas></figure>
 </main>
 <h2>Hands</h2>
 <section id="hands"></section>
@@ -82,15 +84,16 @@
 <script src="../shared/env-props.js"></script>
 <script src="../shared/env-vesnice.js"></script>
 <script>
-const { PALETTE, LEVELS, buildFront, buildSide, buildBack, buildHand, HAND_VIEWS, HAND_POSES, render } = window.XBOT;
+const { PALETTE, LEVELS, buildFront, buildSide, buildBack, buildTop, buildHand, HAND_VIEWS, HAND_POSES, render } = window.XBOT;
 
 const pal = { ...PALETTE };
-const views = { front: buildFront(), side: buildSide(), sideLeft: buildSide({ badge: true }), back: buildBack() };
-const gameViews = { gFront: buildFront({ lod: true }), gSide: buildSide({ farLimbs: true, lod: true }), gSideLeft: buildSide({ farLimbs: true, badge: true, lod: true }), gBack: buildBack({ lod: true }) };
+const views = { front: buildFront(), side: buildSide(), sideLeft: buildSide({ badge: true }), back: buildBack(), top: buildTop() };
+const gameViews = { gFront: buildFront({ lod: true }), gSide: buildSide({ farLimbs: true, lod: true }), gSideLeft: buildSide({ farLimbs: true, badge: true, lod: true }), gBack: buildBack({ lod: true }), gTop: buildTop({ lod: true }) };
 const simple = new Set(Object.keys(gameViews));
 Object.assign(views, gameViews);
 const mirrored = new Set(["sideLeft", "gSideLeft"]);
 const opts = { guides: true };
+const TOP_VIEWS = new Set(["top", "gTop"]);
 
 const HAND_BOX = { x: 18, y: 336, w: 140, h: 210 };
 const HAND_LABEL = { palm: "Palm", back: "Back", thumb: "Thumb", little: "Little finger", tips: "From the fingertips" };
@@ -193,53 +196,13 @@ function drawCarryBack() {
   clipped(ctx, CARRY_BODY.cut, () => render(ctx, carryBack, { pal, pose: carryFrontPose, lineW: 1.4 * dpr }));
 }
 
-function topShape(ctx, pts, fill, edge = pal.aLine) {
-  ctx.beginPath();
-  pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-  ctx.closePath();
-  ctx.fillStyle = fill;
-  ctx.fill();
-  ctx.strokeStyle = edge;
-  ctx.lineWidth = 3;
-  ctx.stroke();
-}
-
-function topDome(ctx, x, y, r, fill, lit) {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = fill;
-  ctx.fill();
-  ctx.fillStyle = lit;
-  ctx.beginPath();
-  ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.45, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.strokeStyle = pal.aLine;
-  ctx.lineWidth = 3;
-  ctx.stroke();
-}
-
 function drawCarryTop() {
   const [ctx, dpr] = fitCanvas(document.getElementById("carryTop"), CARRY_BODY.w, CARRY_BODY.h);
-  const mid = CARRY_BODY.w / 2, chest = 250, spread = carrySpread(), palm = chest - 150;
-  topShape(ctx, [[mid - 106, chest], [mid + 106, chest], [mid + 112, chest + 40], [mid + 100, chest + 110], [mid - 100, chest + 110], [mid - 112, chest + 40]], pal.m1, pal.mLine);
-  topShape(ctx, [[mid - 96, chest + 6], [mid + 96, chest + 6], [mid + 90, chest + 34], [mid - 90, chest + 34]], pal.a2);
-  for (const side of [-1, 1]) topDome(ctx, mid + side * 124, chest + 58, 46, pal.a1, pal.a3);
-  topShape(ctx, [[mid - 44, chest + 30], [mid + 44, chest + 30], [mid + 46, chest + 112], [mid - 46, chest + 112]], pal.a2);
-  topShape(ctx, [[mid - 8, chest + 24], [mid + 8, chest + 24], [mid + 8, chest + 108], [mid - 8, chest + 108]], pal.a1);
-  topShape(ctx, [[mid + 30, chest + 22], [mid + 42, chest + 22], [mid + 42, chest + 34], [mid + 30, chest + 34]], pal.visor, pal.mLine);
-  for (const side of [-1, 1]) {
-    ctx.save();
-    ctx.translate(mid + side * spread, palm);
-    ctx.scale(-side, 1);
-    ctx.rotate(Math.PI);
-    ctx.scale(-1, 1);
-    ctx.translate(-88, -438);
-    render(ctx, carryHand, { pal, lineW: 1.4 * dpr });
-    ctx.restore();
-  }
-  carryItemAt(ctx, "top", mid, palm - 30, CARRY_K, dpr);
+  ctx.translate(0, -150);
+  const root = buildTop({ forearms: true, spread: carrySpread() });
+  render(ctx, root, { pal, lineW: 1.4 * dpr });
+  const at = window.XBOT.locate(root, "carry");
+  carryItemAt(ctx, "top", at.e, at.f - 30, CARRY_K, dpr);
 }
 
 function fitCanvas(c, w, h) {
@@ -312,7 +275,7 @@ function draw() {
     if (mirrored.has(id)) { ctx.translate(640, 0); ctx.scale(-1, 1); }
     render(ctx, root, { pal, lineW: (simple.has(id) ? window.XBOT.GAME_LINE : 1.4) * dpr, simple: simple.has(id) });
     ctx.restore();
-    if (opts.guides) {
+    if (opts.guides && !TOP_VIEWS.has(id)) {
       ctx.setLineDash([6, 6]);
       ctx.strokeStyle = "rgba(63,208,224,0.6)";
       ctx.fillStyle = "rgba(63,208,224,0.8)";

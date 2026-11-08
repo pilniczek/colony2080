@@ -386,6 +386,46 @@ function frontTree({ rightArmFirst, propBehindArm, enemy, armed, fists }) {
   return root;
 }
 
+const TOP = { chest: 420, back: 530, palm: 270, shoulder: [124, 478, 46] };
+
+function circlePts(cx, cy, r, n = 18) {
+  return Array.from({ length: n }, (_, i) => [cx + r * Math.cos(i * 2 * Math.PI / n), cy + r * Math.sin(i * 2 * Math.PI / n)]);
+}
+
+function topHand(parent, x, mirror, name) {
+  const g = G(parent, `translate(${x} ${TOP.palm}) ${mirror ? "scale(-1 1) " : ""}rotate(180) translate(-88 -438)`, name, [88, 280]);
+  longForearm = true;
+  try {
+    openHand(g, "palm");
+  } finally {
+    longForearm = false;
+  }
+}
+
+function topTree({ forearms, spread }) {
+  const root = { k: "g", kids: [] };
+  const s = G(root, null, "body", [AX, 470]);
+  const [sx, sy, sr] = TOP.shoulder;
+  P(s, { pts: [[AX - 106, TOP.chest], [AX + 106, TOP.chest], [AX + 112, TOP.chest + 40], [AX + 100, TOP.back], [AX - 100, TOP.back], [AX - 112, TOP.chest + 40]], mat: "metal", r: 4 });
+  P(s, { pts: [[AX - 96, TOP.chest + 4], [AX + 96, TOP.chest + 4], [AX + 90, TOP.chest + 34], [AX - 90, TOP.chest + 34]], r: 4 });
+  for (const side of [-1, 1]) P(s, { pts: circlePts(AX + side * sx, sy, sr), shade: "dome", r: 0 });
+  const head = G(s, null, "head", [AX, 490]);
+  P(head, { pts: [[AX - 44, TOP.chest + 30], [AX + 44, TOP.chest + 30], [AX + 46, TOP.chest + 112], [AX - 46, TOP.chest + 112]], shade: "cyl", r: 6 });
+  P(head, { pts: [[AX - 8, TOP.chest + 24], [AX + 8, TOP.chest + 24], [AX + 8, TOP.chest + 108], [AX - 8, TOP.chest + 108]], shade: "cyl", r: 4 });
+  F(head, [[AX - 30, TOP.chest + 32], [AX + 30, TOP.chest + 32], [AX + 30, TOP.chest + 38], [AX - 30, TOP.chest + 38]], "visor", 1);
+  if (forearms) {
+    topHand(s, AX - spread, true, "foreL");
+    topHand(s, AX + spread, false, "foreR");
+    for (const [side, name] of [[-1, "handL"], [1, "handR"]]) hook(G(s, `translate(${AX + side * spread} ${TOP.palm})`), name);
+    hook(G(s, `translate(${AX} ${TOP.palm})`), "carry");
+  }
+  return root;
+}
+
+function buildTop({ forearms = false, spread = 93, lod: low = false } = {}) {
+  return withLod(low, () => topTree({ forearms, spread }));
+}
+
 function buildBack({ leftArmBehind = false, rightForeBehind = false, lod: low = false, enemy = false } = {}) {
   return withLod(low, () => backTree({ leftArmBehind, rightForeBehind, enemy }));
 }
@@ -1367,5 +1407,5 @@ function handTree(view, pose, rest) {
   return root;
 }
 
-window.XBOT = { SIDE_FORE_TURN, WEAPON_GRIP, GAME_LINE: CFG.gameLod.lineW, locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, buildFront, buildBack, buildSide, buildHand, HAND_VIEWS, HAND_POSES, render, LEVELS };
+window.XBOT = { SIDE_FORE_TURN, WEAPON_GRIP, GAME_LINE: CFG.gameLod.lineW, locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, buildFront, buildBack, buildSide, buildTop, buildHand, HAND_VIEWS, HAND_POSES, render, LEVELS };
 })();
