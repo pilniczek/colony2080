@@ -116,13 +116,13 @@ function doorEdge(t: number): Pt {
   return [BOX.x + (INSET + INNER * Math.cos(a)) * BOX.scale, BOX.y + (INSET + INNER / 2) * BOX.scale];
 }
 
-function section(c: CanvasRenderingContext2D, fill: string, line: string): void {
-  const r = BOX.section;
+function across(c: CanvasRenderingContext2D, fill: string, line: string): void {
+  const r = BOX.section, w = BOX.across;
   c.save();
   c.lineJoin = "round";
   c.lineWidth = lineW / Math.sqrt(Math.abs(c.getTransform().a * c.getTransform().d));
   c.strokeStyle = line;
-  poly(c, [[-r, -r], [r, -r], [r, r], [-r, r]], fill);
+  poly(c, [[-w, -r], [w, -r], [w, r], [-w, r]], fill);
   c.stroke();
   c.restore();
 }
@@ -137,8 +137,8 @@ function heldWires(c: CanvasRenderingContext2D): void {
 
 function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
   const hold = at("grip", t) >= 0.5 ? "grip" : "reach";
-  const side = (rigs[hold] ??= buildSide({ farLimbs: true, hold }));
-  const grip = (rigs.grip ??= buildSide({ farLimbs: true, hold: "grip" }));
+  const side = (rigs[hold] ??= buildSide({ farLimbs: true, hold, backHand: true }));
+  const grip = (rigs.grip ??= buildSide({ farLimbs: true, hold: "grip", backHand: true }));
   const lean = -at("lean", t);
   const m = new DOMMatrix().translate(X, FLOOR).rotate(lean).scale(-K, K).translate(-ROBOT.SIDE_AX, -ROBOT.FOOT_Y);
   const pose: Record<string, number> = { ...STAND, arm: at("arm", t), fore: at("fore", t), armFar: -6, foreFar: -14, head: at("head", t) };
@@ -154,8 +154,8 @@ function drawRobot(ctx: CanvasRenderingContext2D, t: number): void {
       : at("wire", t) >= 0.5
         ? heldWires
         : at("cable", t) >= 0.5
-          ? (c) => section(c, ENV_PALETTE.a1!, ENV_PALETTE.aLine!)
-          : (c) => section(c, ENV_PALETTE.g2!, ENV_PALETTE.gLine!);
+          ? (c) => across(c, ENV_PALETTE.a1!, ENV_PALETTE.aLine!)
+          : (c) => across(c, ENV_PALETTE.g2!, ENV_PALETTE.gLine!);
   ctx.save();
   feet(ctx, X, FLOOR, -K, K, ROBOT.SIDE_AX, (lean * Math.PI) / 180);
   drawRig(ctx, side, { palette: ROBOT.palette, pose, hooks: { rod }, lineW });

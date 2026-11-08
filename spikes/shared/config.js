@@ -4663,6 +4663,7 @@ window.C28_CONFIG = {
     "scale": 18,
     "gripScale": 20,
     "section": 15.5,
+    "across": 58,
     "gripAt": [
      -8.5,
      4.6

@@ -117,13 +117,13 @@ function doorEdge(t) {
   return [BOX.x + (INSET + INNER * Math.cos(a)) * BOX.scale, BOX.y + (INSET + INNER / 2) * BOX.scale];
 }
 
-function section(c, fill, line) {
-  const r = BOX.section;
+function across(c, fill, line) {
+  const r = BOX.section, w = BOX.across;
   c.save();
   c.lineJoin = "round";
   c.lineWidth = lineW / Math.sqrt(Math.abs(c.getTransform().a * c.getTransform().d));
   c.strokeStyle = line;
-  poly(c, [[-r, -r], [r, -r], [r, r], [-r, r]], fill);
+  poly(c, [[-w, -r], [w, -r], [w, r], [-w, r]], fill);
   c.stroke();
   c.restore();
 }
@@ -138,8 +138,8 @@ function heldWires(c) {
 
 function drawRobot(t) {
   const hold = at("grip", t) >= 0.5 ? "grip" : "reach";
-  const side = rigs[hold] ??= buildSide({ farLimbs: true, hold });
-  const grip = rigs.grip ??= buildSide({ farLimbs: true, hold: "grip" });
+  const side = rigs[hold] ??= buildSide({ farLimbs: true, hold, backHand: true });
+  const grip = rigs.grip ??= buildSide({ farLimbs: true, hold: "grip", backHand: true });
   const lean = -at("lean", t);
   const m = new DOMMatrix().translate(X, FLOOR).rotate(lean).scale(-K, K).translate(-SIDE_AX, -FOOT_Y);
   const pose = { ...STAND, arm: at("arm", t), fore: at("fore", t), armFar: -6, foreFar: -14, head: at("head", t) };
@@ -152,8 +152,8 @@ function drawRobot(t) {
   const pal = ENV.PALETTE;
   const rod = hold !== "grip" ? null
     : at("wire", t) >= 0.5 ? heldWires
-    : at("cable", t) >= 0.5 ? c => section(c, pal.a1, pal.aLine)
-    : c => section(c, pal.g2, pal.gLine);
+    : at("cable", t) >= 0.5 ? c => across(c, pal.a1, pal.aLine)
+    : c => across(c, pal.g2, pal.gLine);
   ctx.save();
   kit.feet(ctx, X, FLOOR, -K, K, SIDE_AX, lean * Math.PI / 180);
   renderBot(ctx, side, { pose, hooks: { rod }, lineW });
