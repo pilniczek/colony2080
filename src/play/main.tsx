@@ -1,3 +1,4 @@
+import { INTROS } from "../game/cutscene";
 import { missionFromQuery, MISSIONS } from "../game/level/missionIds";
 import { loadMesto } from "../game/level/mesto";
 import { startRun, type Run, type RunOptions } from "../game/run";
@@ -25,7 +26,7 @@ const { commands, afterStep } = panelCommands(() => run);
 const run: Run = startRun({
   world: import.meta.env.DEV ? (await import("../game/level/missions")).loadMission(MISSION) : loadMesto(),
   saves: { mission: MISSION, storage: browserStorage(), startSlot, askDifficulty: true },
-  intro: startSlot === null && MISSION === "mesto" ? "missionStart" : undefined,
+  intro: startSlot === null ? INTROS[MISSION] : undefined,
   afterStep,
   drawOver: import.meta.env.DEV ? (ctx, view, cellPx) => drawOver?.(ctx, view, cellPx) : undefined,
   ui: (

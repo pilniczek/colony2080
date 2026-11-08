@@ -5868,10 +5868,10 @@ window.C28_CONFIG = {
   "repairCrane": {
    "status": "draft",
    "mission": "mesto",
-   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/MESTOKO.ANM, SKALA3.ANM; trigger: repairCrane task, level end",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/MESTOKO.ANM; trigger: repairCrane task, level end",
    "title": "Crane ride out of the city",
    "camera": "CAM 13 CRANE",
-   "duration": 13.03,
+   "duration": 8.66,
    "sounds": [
     [
      0.302,
@@ -5917,11 +5917,6 @@ window.C28_CONFIG = {
      7.884,
      "step",
      13000
-    ],
-    [
-     12.165,
-     "servo",
-     11000
     ]
    ],
    "stage": {
@@ -5930,7 +5925,6 @@ window.C28_CONFIG = {
     "deckTop": 560,
     "deckFront": 760,
     "deckRight": 1420,
-    "horizon": 560,
     "sun": [
      1150,
      560,
@@ -5985,25 +5979,9 @@ window.C28_CONFIG = {
     "woodDark": "#1e150c",
     "brick": "#3a2a22",
     "brickLit": "#4a382c",
-    "mortar": "#241a14",
-    "ridge": "#3a2028",
-    "rock": "#5a3a2a",
-    "rockLit": "#9a6a4a",
-    "rockDark": "#2a1810",
-    "leaf": "#2a3a18",
-    "leafLit": "#5a6a2a"
+    "mortar": "#241a14"
    },
    "tracks": {
-    "shot": [
-     [
-      0,
-      "roof"
-     ],
-     [
-      8.66,
-      "hill"
-     ]
-    ],
     "pose": [
      [
       0,
@@ -6262,7 +6240,7 @@ window.C28_CONFIG = {
       "inOut"
      ],
      [
-      13.03,
+      8.66,
       12
      ]
     ],
@@ -6286,7 +6264,7 @@ window.C28_CONFIG = {
       "inOut"
      ],
      [
-      13.03,
+      8.66,
       -8
      ]
     ],
@@ -6325,7 +6303,7 @@ window.C28_CONFIG = {
       "inOut"
      ],
      [
-      13.03,
+      8.66,
       -12
      ]
     ],
@@ -6349,7 +6327,7 @@ window.C28_CONFIG = {
       "inOut"
      ],
      [
-      13.03,
+      8.66,
       8
      ]
     ],
@@ -6395,14 +6373,6 @@ window.C28_CONFIG = {
      [
       8.66,
       0
-     ],
-     [
-      8.66,
-      30
-     ],
-     [
-      13.03,
-      30
      ]
     ],
     "heroK": [
@@ -6419,79 +6389,8 @@ window.C28_CONFIG = {
       0.34
      ],
      [
-      13.03,
+      8.66,
       0.34
-     ]
-    ],
-    "walkerX": [
-     [
-      8.66,
-      800
-     ],
-     [
-      13.03,
-      800
-     ]
-    ],
-    "walkerK": [
-     [
-      8.66,
-      0.32
-     ],
-     [
-      10.5,
-      0.7,
-      "in"
-     ],
-     [
-      12.2,
-      1.8,
-      "in"
-     ],
-     [
-      13.03,
-      2.9,
-      "in"
-     ]
-    ],
-    "walkerY": [
-     [
-      8.66,
-      600
-     ],
-     [
-      10.5,
-      700,
-      "in"
-     ],
-     [
-      12.2,
-      960,
-      "in"
-     ],
-     [
-      13.03,
-      1100,
-      "in"
-     ]
-    ],
-    "plantShift": [
-     [
-      8.66,
-      0
-     ],
-     [
-      11,
-      0
-     ],
-     [
-      12.4,
-      -700,
-      "in"
-     ],
-     [
-      13.03,
-      -700
      ]
     ]
    }
@@ -8669,6 +8568,160 @@ window.C28_CONFIG = {
       4.5,
       1,
       "out"
+     ]
+    ]
+   }
+  },
+  "vesniceStart": {
+   "status": "draft",
+   "mission": "vesnice",
+   "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SKALA3.ANM; trigger: new vesnice game, mission start",
+   "title": "Walk down the rock hill",
+   "camera": "CAM 15 HILL",
+   "duration": 4.37,
+   "sounds": [
+    [
+     3.505,
+     "servo",
+     11000
+    ]
+   ],
+   "stage": {
+    "width": 1600,
+    "height": 900,
+    "horizon": 560,
+    "sun": [
+     1150,
+     560,
+     760
+    ]
+   },
+   "walk": {
+    "rate": 0.9,
+    "phase": 8.66,
+    "cut": 420,
+    "legs": [
+     [
+      140,
+      180
+     ],
+     [
+      320,
+      180
+     ]
+    ]
+   },
+   "palette": {
+    "sky0": "#2a1008",
+    "sky1": "#5a2a14",
+    "sky2": "#8a4a28",
+    "glow": "#e8a040",
+    "sun": "#fff1a8",
+    "cloud": "#3a2418",
+    "cloudLit": "#c87a40",
+    "ridge": "#3a2028",
+    "rock": "#5a3a2a",
+    "rockLit": "#9a6a4a",
+    "rockDark": "#2a1810",
+    "leaf": "#2a3a18",
+    "leafLit": "#5a6a2a"
+   },
+   "tracks": {
+    "armL": [
+     [
+      0,
+      12
+     ]
+    ],
+    "foreL": [
+     [
+      0,
+      -8
+     ]
+    ],
+    "armR": [
+     [
+      0,
+      -12
+     ]
+    ],
+    "foreR": [
+     [
+      0,
+      8
+     ]
+    ],
+    "stride": [
+     [
+      0,
+      30
+     ]
+    ],
+    "walkerX": [
+     [
+      0,
+      800
+     ]
+    ],
+    "walkerK": [
+     [
+      0,
+      0.32
+     ],
+     [
+      1.84,
+      0.7,
+      "in"
+     ],
+     [
+      3.54,
+      1.8,
+      "in"
+     ],
+     [
+      4.37,
+      2.9,
+      "in"
+     ]
+    ],
+    "walkerY": [
+     [
+      0,
+      600
+     ],
+     [
+      1.84,
+      700,
+      "in"
+     ],
+     [
+      3.54,
+      960,
+      "in"
+     ],
+     [
+      4.37,
+      1100,
+      "in"
+     ]
+    ],
+    "plantShift": [
+     [
+      0,
+      0
+     ],
+     [
+      2.34,
+      0
+     ],
+     [
+      3.74,
+      -700,
+      "in"
+     ],
+     [
+      4.37,
+      -700
      ]
     ]
    }

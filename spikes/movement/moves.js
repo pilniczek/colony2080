@@ -553,7 +553,8 @@ if (CATEGORY === "interaction") {
     ["Step off lift by the guard", "Walk off the lift deck, plays cutscene once", "acidGuardComes", standLead("lift", 0, 0, "STEPS OFF LIFT")],
     ["Use acid tank", "Enter at tank, plays cutscene", "useAcidTank", useLead("acidTank", 0, 2)],
     ["Pick up crane key", "Touch item, plays cutscene", "pickCraneKey", pickLead("craneKey", 0)],
-    ["Repair crane", "Enter at crane, plays cutscene", "repairCrane", useLead("crane", 0, 1)]
+    ["Repair crane", "Enter at crane, plays cutscene", "repairCrane", useLead("crane", 0, 1)],
+    ["New game, mission 2", "Mission 2 start", "vesniceStart", blankLead("NEW GAME")]
   ];
   for (const [name, keys, id, [after, lead]] of FILMS) move("interaction", name, keys, ...triggering(CUTSCENES[id], FILM_LEAD, lead, FILM_TAIL, after));
 }

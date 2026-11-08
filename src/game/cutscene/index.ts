@@ -1,11 +1,13 @@
 import type { MissionId } from "../level/missionIds";
 import { FILM_CONFIGS } from "./configs";
 
-export const CUTSCENE_IDS = ["crowbarDoor", "missionStart", "rebelShot", "talkRebel", "pullWires", "wireSwitchboard", "takeTapHandle", "searchCorpse", "tradeHoloPlan", "tradeShipPart", "unlockPlasma", "repairLift", "openDoor", "acidGuardComes", "useAcidTank", "hullCover", "hullCoverPunch", "pickShipPart", "pickCraneKey", "pickCrowbar", "pickController", "pickEBlaster", "repairCrane"] as const;
+export const CUTSCENE_IDS = ["crowbarDoor", "missionStart", "rebelShot", "talkRebel", "pullWires", "wireSwitchboard", "takeTapHandle", "searchCorpse", "tradeHoloPlan", "tradeShipPart", "unlockPlasma", "repairLift", "openDoor", "acidGuardComes", "useAcidTank", "hullCover", "hullCoverPunch", "pickShipPart", "pickCraneKey", "pickCrowbar", "pickController", "pickEBlaster", "repairCrane", "vesniceStart"] as const;
 
 export type CutsceneId = (typeof CUTSCENE_IDS)[number];
 
 export const filmsOf = (mission: MissionId): CutsceneId[] => CUTSCENE_IDS.filter((id) => FILM_CONFIGS.get(id)?.mission === mission);
+
+export const INTROS: Partial<Record<MissionId, CutsceneId>> = { mesto: "missionStart", vesnice: "vesniceStart" };
 
 export interface Cutscene {
   id: CutsceneId;
@@ -38,6 +40,7 @@ const LOADERS: Record<CutsceneId, () => Promise<Cutscene>> = {
   pickController: () => import("./pickController").then((m) => m.pickController),
   pickEBlaster: () => import("./pickEBlaster").then((m) => m.pickEBlaster),
   repairCrane: () => import("./repairCrane").then((m) => m.repairCrane),
+  vesniceStart: () => import("./vesniceStart").then((m) => m.vesniceStart),
 };
 
 const loaded = new Map<CutsceneId, Cutscene>();

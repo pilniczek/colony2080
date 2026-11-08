@@ -5,7 +5,8 @@ import { game, objectLevel, tick } from "../hero/testWorld";
 import { stepApproaches, loadSandbox, startFilm, type Prop } from "../level/sandboxLevel";
 import { hitShootable } from "../shots";
 import { MISSIONS } from "../level/missionIds";
-import { CUTSCENE_IDS, filmsOf, loadFilms } from "./index";
+import { FILM_CONFIGS } from "./configs";
+import { CUTSCENE_IDS, filmsOf, INTROS, loadFilms } from "./index";
 import { stepCutscene } from "./play";
 
 const withProps = (level: { props: unknown[] }, change: (p: Prop) => Prop): unknown => ({ ...level, props: (level.props as Prop[]).map(change) });
@@ -86,8 +87,13 @@ describe("films by mission", () => {
     expect(MISSIONS.flatMap(filmsOf).sort()).toEqual([...CUTSCENE_IDS].sort());
   });
 
-  it("files every film so far under mesto", () => {
-    expect(filmsOf("mesto")).toEqual([...CUTSCENE_IDS]);
-    expect(filmsOf("vesnice")).toEqual([]);
+  it("files every film so far under mesto, but the vesnice start", () => {
+    expect(filmsOf("mesto")).toEqual(CUTSCENE_IDS.filter((id) => id !== "vesniceStart"));
+    expect(filmsOf("vesnice")).toEqual(["vesniceStart"]);
+  });
+
+  it("starts mesto and vesnice with a film of their own mission", () => {
+    expect(INTROS).toEqual({ mesto: "missionStart", vesnice: "vesniceStart" });
+    for (const [mission, id] of Object.entries(INTROS)) expect(FILM_CONFIGS.get(id)?.mission).toBe(mission);
   });
 });

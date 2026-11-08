@@ -1,0 +1,27 @@
+{
+  "status": "draft",
+  "mission": "vesnice",
+  "source": "docs/research/gamedata/raw/CD/Colony28.iso GRAFIKA/SKALA3.ANM; trigger: new vesnice game, mission start",
+  "title": "Walk down the rock hill",
+  "camera": "CAM 15 HILL",
+  "duration": 4.37,
+  "sounds": [[3.505, "servo", 11000]],
+  "stage": { "width": 1600, "height": 900, "horizon": 560, "sun": [1150, 560, 760] },
+  "walk": { "rate": 0.9, "phase": 8.66, "cut": 420, "legs": [[140, 180], [320, 180]] },
+  "palette": {
+    "sky0": "#2a1008", "sky1": "#5a2a14", "sky2": "#8a4a28", "glow": "#e8a040", "sun": "#fff1a8",
+    "cloud": "#3a2418", "cloudLit": "#c87a40",
+    "ridge": "#3a2028", "rock": "#5a3a2a", "rockLit": "#9a6a4a", "rockDark": "#2a1810", "leaf": "#2a3a18", "leafLit": "#5a6a2a"
+  },
+  "tracks": {
+    "armL": [[0, 12]],
+    "foreL": [[0, -8]],
+    "armR": [[0, -12]],
+    "foreR": [[0, 8]],
+    "stride": [[0, 30]],
+    "walkerX": [[0, 800]],
+    "walkerK": [[0, 0.32], [1.84, 0.7, "in"], [3.54, 1.8, "in"], [4.37, 2.9, "in"]],
+    "walkerY": [[0, 600], [1.84, 700, "in"], [3.54, 960, "in"], [4.37, 1100, "in"]],
+    "plantShift": [[0, 0], [2.34, 0], [3.74, -700, "in"], [4.37, -700]]
+  }
+}

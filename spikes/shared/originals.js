@@ -106,6 +106,7 @@ window.ORIGINALS = {
     pickCrowbar: film("Original SEBPACID.ANM", [["SEBPACID", 41]]),
     pickController: film("Original SEBOVL.ANM", [["SEBOVL", 41]]),
     pickEBlaster: film("Original EBLAST.ANM", [["EBLAST", 42]]),
-    repairCrane: film("Original MESTOKO.ANM, SKALA3.ANM", [["MESTOKO", 202, 0], ["SKALA3", 102, 8.66]])
+    repairCrane: film("Original MESTOKO.ANM", [["MESTOKO", 202, 0]]),
+    vesniceStart: film("Original SKALA3.ANM", [["SKALA3", 102, 0]])
   }
 };

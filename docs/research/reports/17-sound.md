@@ -291,6 +291,11 @@ SEBSOUC has two identical tables (`5:0x6EDC`, `5:0x702E`).
 |---|---|---|---|---|---|
 | MESTOKO (`5:0x2E95`) | 8, 33 | `HYDRA` (S12) | 11000 | 63 | no |
 | MESTOKO | 64, 84, 104, 124, 144, 164, 184 | `KROK3` | 13000 | 63 | no |
+
+### vesniceStart
+
+| ANM | Frame | SND | Rate | Vol | Voice |
+|---|---|---|---|---|---|
 | SKALA3 (`5:0x2F02`) | 82 | `HYDRA` (S12) | 11000 | 63 | no |
 
 ### crowbarDoor

@@ -10,73 +10,67 @@ import { bank, camera, cloud, feet, fitStage, oval, poly, rowFill, type Spot, st
 
 type Frame = { x: number; y: number; a: number; k: number };
 type Arms = { armL: number; foreL: number; armR: number; foreR: number };
+export type Walk = { rate: number; phase?: number; cut: number; legs: number[][] };
+export type Sky = { palette: Record<string, string>; sun: number[] };
 
 const ST = config.stage;
 const { width: W, height: H } = ST;
-const [SUN_X, SUN_Y, SUN_R] = ST.sun as [number, number, number];
 const RB = config.robot;
 const CR = config.crane;
 const WALK = config.walk;
-const [[LEG_LX, LEG_LW], [LEG_RX, LEG_RW]] = WALK.legs as [[number, number], [number, number]];
 const LINE = 1.4;
 const MIN_LINE = 0.6;
 const LIT = { brightness: 0.9, saturate: 1 };
-const DUSK = { brightness: 0.85, saturate: 0.95 };
 const BEAM_MID = 84;
 const CHAIN_TOP = -100;
 const HANG: Pt = [BEAM_MID, CHAIN_TOP - CR.hang];
 const CRANE_K0 = config.tracks.craneK[0]![1] as number;
 const palette = { ...config.palette };
+const SKY: Sky = { palette, sun: ST.sun };
 
 const { num, text } = tracks(config.tracks);
 
 const ROOF_CLOUDS = bank(13, 30, 600, 2400, -360, 640, 200, 380, 18, 32);
-const HILL_CLOUDS = bank(17, 24, -150, 1900, -40, ST.horizon - 80, 180, 360, 16, 30);
 const STREAKS = bank(19, 10, -200, 2200, 120, 500, 160, 320, 6, 10);
-const HILL: Pt[] = [[-100, 900], [-100, 640], [300, 560], [650, 522], [900, 516], [1200, 546], [1700, 620], [1700, 900]];
-const RIDGE: Pt[] = [[-100, 600], [400, 540], [800, 560], [1200, 498], [1700, 560], [1700, 700], [-100, 700]];
-const FACETS: Pt[][] = [[[300, 560], [650, 522], [560, 600], [260, 640]], [[650, 522], [900, 516], [820, 570]], [[-100, 680], [260, 640], [180, 760], [-100, 800]]];
-const CRACKS: Pt[][] = [[[560, 600], [600, 700], [560, 820]], [[820, 570], [900, 660]], [[1200, 546], [1150, 640], [1260, 760]]];
-const FRONDS: [number, number, number, number, number, number][] = [[-40, 960, 520, 520, 18, 1], [180, 960, 300, 700, 12, 0.7]];
 const POSTS: [number, number][] = [[-300, 50], [60, 50], [380, 40]];
 let rigs: { side: GroupNode; front: GroupNode; back: GroupNode } | null = null;
 
 const backdrop = stillLayer();
 
-const robots = () => (rigs ??= { side: buildSide({ farLimbs: true }), front: buildFront({}), back: buildBack({}) });
+export const robots = () => (rigs ??= { side: buildSide({ farLimbs: true }), front: buildFront({}), back: buildBack({}) });
 
-function sky(ctx: CanvasRenderingContext2D, horizon: number, clouds: Spot[]): void {
+export function sky(ctx: CanvasRenderingContext2D, { palette, sun: [sunX, sunY, sunR] }: Sky, horizon: number, clouds: Spot[]): void {
   rowFill(ctx, (c) => {
     const g = c.createLinearGradient(0, horizon - 900, 0, horizon);
-    g.addColorStop(0, palette.sky0);
-    g.addColorStop(0.4, palette.sky1);
-    g.addColorStop(0.75, palette.sky2);
-    g.addColorStop(0.92, palette.glow);
-    g.addColorStop(1, palette.sun);
+    g.addColorStop(0, palette.sky0!);
+    g.addColorStop(0.4, palette.sky1!);
+    g.addColorStop(0.75, palette.sky2!);
+    g.addColorStop(0.92, palette.glow!);
+    g.addColorStop(1, palette.sun!);
     c.fillStyle = g;
     c.fillRect(-1000, -1000, 4600, horizon + 1000);
   });
   ctx.save();
-  ctx.translate(SUN_X, SUN_Y);
+  ctx.translate(sunX!, sunY!);
   ctx.scale(1, 0.4);
-  const sun = ctx.createRadialGradient(0, 0, 0, 0, 0, SUN_R);
-  sun.addColorStop(0, palette.sun);
-  sun.addColorStop(0.35, palette.glow);
-  sun.addColorStop(1, palette.glow + "00");
-  ctx.fillStyle = sun;
-  ctx.fillRect(-SUN_R, -SUN_R, SUN_R * 2, SUN_R * 2);
+  const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, sunR!);
+  glow.addColorStop(0, palette.sun!);
+  glow.addColorStop(0.35, palette.glow!);
+  glow.addColorStop(1, palette.glow + "00");
+  ctx.fillStyle = glow;
+  ctx.fillRect(-sunR!, -sunR!, sunR! * 2, sunR! * 2);
   ctx.restore();
   for (const [x, y, w, h] of clouds) {
-    cloud(ctx, x, y, w, h, Math.min(1, 0.25 + (y - horizon + 900) / 900), palette.cloudLit, palette.cloud);
+    cloud(ctx, x, y, w, h, Math.min(1, 0.25 + (y - horizon + 900) / 900), palette.cloudLit!, palette.cloud!);
   }
 }
 
-const lineFor = (c: CanvasRenderingContext2D): number => {
+export const lineFor = (c: CanvasRenderingContext2D): number => {
   return Math.max(MIN_LINE, LINE * unitScale(c));
 };
 
-const walkPose = (base: Arms, t: number, stride: number): { lift: number; pose: Pose } => {
-  const lift = Math.sin(t * Math.PI * 2 * WALK.rate) * stride;
+export const walkPose = (walk: Walk, base: Arms, t: number, stride: number): { lift: number; pose: Pose } => {
+  const lift = Math.sin((t + (walk.phase ?? 0)) * Math.PI * 2 * walk.rate) * stride;
   const swing = lift * 0.25;
   return {
     lift,
@@ -84,24 +78,26 @@ const walkPose = (base: Arms, t: number, stride: number): { lift: number; pose: 
   };
 };
 
-function walker(ctx: CanvasRenderingContext2D, rig: GroupNode, pose: Pose, pal: Palette, lineW: number, lift: number): void {
-  const legs: [number, number, number][] = [[LEG_LX, LEG_LW, Math.max(0, lift)], [LEG_RX, LEG_RW, Math.max(0, -lift)]];
+export function walker(ctx: CanvasRenderingContext2D, walk: Walk, rig: GroupNode, pose: Pose, pal: Palette, lineW: number, lift: number): void {
+  const [[lx, lw], [rx, rw]] = walk.legs as [[number, number], [number, number]];
+  const { cut } = walk;
+  const legs: [number, number, number][] = [[lx, lw, Math.max(0, lift)], [rx, rw, Math.max(0, -lift)]];
   for (const [x, w, up] of legs) {
     ctx.save();
     ctx.beginPath();
-    ctx.rect(x, WALK.cut, w, 500);
+    ctx.rect(x, cut, w, 500);
     ctx.clip();
-    ctx.translate(x + w / 2, WALK.cut);
+    ctx.translate(x + w / 2, cut);
     ctx.scale(1 + up * 0.004, 1);
-    ctx.translate(-(x + w / 2), -WALK.cut - up);
+    ctx.translate(-(x + w / 2), -cut - up);
     drawRig(ctx, rig, { palette: pal, pose, lineW });
     ctx.restore();
   }
   ctx.save();
   ctx.beginPath();
   ctx.rect(-400, -400, 1440, 1400);
-  ctx.rect(LEG_LX, WALK.cut, LEG_LW, 500);
-  ctx.rect(LEG_RX, WALK.cut, LEG_RW, 500);
+  ctx.rect(lx, cut, lw, 500);
+  ctx.rect(rx, cut, rw, 500);
   ctx.clip("evenodd");
   drawRig(ctx, rig, { palette: pal, pose, lineW });
   ctx.restore();
@@ -176,7 +172,7 @@ function drawDeck(ctx: CanvasRenderingContext2D): void {
   poly(ctx, [[right - 90, front], [right, top], [right, top + 60], [right - 90, 1200]], palette.deckSide);
 }
 
-const arms = (t: number): Arms => ({ armL: num("armL", t), foreL: num("foreL", t), armR: num("armR", t), foreR: num("foreR", t) });
+export const arms = (num: (name: string, t: number) => number, t: number): Arms => ({ armL: num("armL", t), foreL: num("foreL", t), armR: num("armR", t), foreR: num("foreR", t) });
 
 function roofHero(ctx: CanvasRenderingContext2D, t: number, f: Frame): void {
   const { side, front, back } = robots();
@@ -200,8 +196,8 @@ function roofHero(ctx: CanvasRenderingContext2D, t: number, f: Frame): void {
     const [bx, by] = cranePoint(craneFrame(5.8), RB.aboardX, 0);
     const w = num("walk", t);
     feet(ctx, RB.x + (bx - RB.x) * w, RB.y + (by - RB.y) * w, k, k, ROBOT.AX);
-    const { lift, pose } = walkPose(arms(t), t, num("stride", t));
-    walker(ctx, front, pose, shade(ROBOT.palette, LIT), lineFor(ctx), lift);
+    const { lift, pose } = walkPose(WALK, arms(num, t), t, num("stride", t));
+    walker(ctx, WALK, front, pose, shade(ROBOT.palette, LIT), lineFor(ctx), lift);
   } else {
     const [x, y] = cranePoint(f, RB.aboardX, 0);
     const kf = (k * f.k) / CRANE_K0;
@@ -222,7 +218,7 @@ function drawPanel(ctx: CanvasRenderingContext2D): void {
 function roofShot(ctx: CanvasRenderingContext2D, t: number): void {
   const f = craneFrame(t);
   backdrop(ctx, ["roof"], (c) => {
-    sky(c, ST.deckTop, ROOF_CLOUDS);
+    sky(c, SKY, ST.deckTop, ROOF_CLOUDS);
     drawCity(c);
     drawTowers(c);
     drawDeck(c);
@@ -234,56 +230,11 @@ function roofShot(ctx: CanvasRenderingContext2D, t: number): void {
   if (aboard) roofHero(ctx, t, f);
 }
 
-function frond(ctx: CanvasRenderingContext2D, x: number, y: number, len: number, rise: number, leaves: number, k: number): void {
-  const tipX = x + len, tipY = y - rise;
-  const cx = x + len * 0.2, cy = y - rise * 1.1;
-  ctx.strokeStyle = palette.leaf;
-  ctx.lineWidth = 8 * k;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.quadraticCurveTo(cx, cy, tipX, tipY);
-  ctx.stroke();
-  for (let i = 1; i <= leaves; i++) {
-    const u = i / (leaves + 1), v = 1 - u;
-    const px = v * v * x + 2 * u * v * cx + u * u * tipX;
-    const py = v * v * y + 2 * u * v * cy + u * u * tipY;
-    const dir = Math.atan2(2 * v * (cy - y) + 2 * u * (tipY - cy), 2 * v * (cx - x) + 2 * u * (tipX - cx));
-    const side = i % 2 ? 1 : -1;
-    const size = (1 - u * 0.6) * 46 * k;
-    const a = dir + side * 0.9;
-    oval(ctx, px + Math.cos(a) * size, py + Math.sin(a) * size, size, size * 0.32, i % 3 ? palette.leaf : palette.leafLit, a);
-  }
-}
-
-function hillShot(ctx: CanvasRenderingContext2D, t: number): void {
-  backdrop(ctx, ["hill"], (c) => {
-    sky(c, ST.horizon, HILL_CLOUDS);
-    poly(c, RIDGE, palette.ridge);
-    poly(c, HILL, palette.rock);
-    for (const f of FACETS) poly(c, f, palette.rockLit);
-    for (const k of CRACKS) stroke(c, k, palette.rockDark, 6);
-  });
-  const { front } = robots();
-  ctx.save();
-  feet(ctx, num("walkerX", t), num("walkerY", t), num("walkerK", t), num("walkerK", t), ROBOT.AX);
-  const { lift, pose } = walkPose(arms(t), t, num("stride", t));
-  walker(ctx, front, pose, shade(ROBOT.palette, DUSK), lineFor(ctx), lift);
-  ctx.restore();
-  ctx.save();
-  ctx.translate(num("plantShift", t), -num("plantShift", t) * 0.4);
-  for (const [x, y, len, rise, leaves, k] of FRONDS) frond(ctx, x, y, len, rise, leaves, k);
-  ctx.restore();
-}
-
 function render(ctx: CanvasRenderingContext2D, w: number, h: number, t: number): void {
   ctx.save();
   fitStage(ctx, w, h, W, H);
-  if (text("shot", t) === "hill") hillShot(ctx, t);
-  else {
-    const z = num("camZ", t);
-    camera(ctx, W, H, num("camX", t), num("camY", t), z);
-    roofShot(ctx, t);
-  }
+  camera(ctx, W, H, num("camX", t), num("camY", t), num("camZ", t));
+  roofShot(ctx, t);
   ctx.restore();
 }
 

@@ -9,20 +9,14 @@ const RB = CFG.robot, CR = CFG.crane, WALK = CFG.walk;
 const LINE = 1.4;
 const MIN_LINE = 0.6;
 const LIT = { brightness: 0.9, saturate: 1 };
-const DUSK = { brightness: 0.85, saturate: 0.95 };
 const BEAM_MID = 84, CHAIN_TOP = -100;
 const HANG = [BEAM_MID, CHAIN_TOP - CR.hang];
 const palette = { ...CFG.palette };
+const SKY = { palette, sun: ST.sun };
 const at = kit.track(CFG.tracks);
 
 const ROOF_CLOUDS = kit.bank(13, 30, 600, 2400, -360, 640, 200, 380, 18, 32);
-const HILL_CLOUDS = kit.bank(17, 24, -150, 1900, -40, ST.horizon - 80, 180, 360, 16, 30);
 const STREAKS = kit.bank(19, 10, -200, 2200, 120, 500, 160, 320, 6, 10);
-const HILL = [[-100, 900], [-100, 640], [300, 560], [650, 522], [900, 516], [1200, 546], [1700, 620], [1700, 900]];
-const RIDGE = [[-100, 600], [400, 540], [800, 560], [1200, 498], [1700, 560], [1700, 700], [-100, 700]];
-const FACETS = [[[300, 560], [650, 522], [560, 600], [260, 640]], [[650, 522], [900, 516], [820, 570]], [[-100, 680], [260, 640], [180, 760], [-100, 800]]];
-const CRACKS = [[[560, 600], [600, 700], [560, 820]], [[820, 570], [900, 660]], [[1200, 546], [1150, 640], [1260, 760]]];
-const FRONDS = [[-40, 960, 520, 520, 18, 1], [180, 960, 300, 700, 12, 0.7]];
 const POSTS = [[-300, 50], [60, 50], [380, 40]];
 let rigs = null;
 let ctx;
@@ -37,7 +31,7 @@ function onto(c, draw) {
 
 const robots = () => (rigs ??= { side: XBOT.buildSide({ farLimbs: true }), front: XBOT.buildFront({}), back: XBOT.buildBack({}) });
 
-function sky(horizon, clouds) {
+function sky(ctx, { palette, sun: [sx, sy, sr] }, horizon, clouds) {
   kit.rowFill(ctx, c => {
     const g = c.createLinearGradient(0, horizon - 900, 0, horizon);
     g.addColorStop(0, palette.sky0);
@@ -48,7 +42,6 @@ function sky(horizon, clouds) {
     c.fillStyle = g;
     c.fillRect(-1000, -1000, 4600, horizon + 1000);
   });
-  const [sx, sy, sr] = ST.sun;
   ctx.save();
   ctx.translate(sx, sy);
   ctx.scale(1, 0.4);
@@ -66,8 +59,8 @@ function lineFor(c) {
   return Math.max(MIN_LINE, LINE * kit.unitScale(c));
 }
 
-function walkPose(base, t, stride) {
-  const lift = Math.sin(t * Math.PI * 2 * WALK.rate) * stride;
+function walkPose(walk, base, t, stride) {
+  const lift = Math.sin((t + (walk.phase ?? 0)) * Math.PI * 2 * walk.rate) * stride;
   const swing = lift * 0.25;
   return {
     lift,
@@ -75,25 +68,26 @@ function walkPose(base, t, stride) {
   };
 }
 
-function walker(rig, pose, pal, lineW, lift) {
-  const [[lx, lw], [rx, rw]] = WALK.legs;
+function walker(ctx, walk, rig, pose, pal, lineW, lift) {
+  const [[lx, lw], [rx, rw]] = walk.legs;
+  const { cut } = walk;
   const legs = [[lx, lw, Math.max(0, lift)], [rx, rw, Math.max(0, -lift)]];
   for (const [x, w, up] of legs) {
     ctx.save();
     ctx.beginPath();
-    ctx.rect(x, WALK.cut, w, 500);
+    ctx.rect(x, cut, w, 500);
     ctx.clip();
-    ctx.translate(x + w / 2, WALK.cut);
+    ctx.translate(x + w / 2, cut);
     ctx.scale(1 + up * 0.004, 1);
-    ctx.translate(-(x + w / 2), -WALK.cut - up);
+    ctx.translate(-(x + w / 2), -cut - up);
     XBOT.render(ctx, rig, { pal, pose, lineW });
     ctx.restore();
   }
   ctx.save();
   ctx.beginPath();
   ctx.rect(-400, -400, 1440, 1400);
-  ctx.rect(lx, WALK.cut, lw, 500);
-  ctx.rect(rx, WALK.cut, rw, 500);
+  ctx.rect(lx, cut, lw, 500);
+  ctx.rect(rx, cut, rw, 500);
   ctx.clip("evenodd");
   XBOT.render(ctx, rig, { pal, pose, lineW });
   ctx.restore();
@@ -170,6 +164,10 @@ function drawDeck() {
   poly(ctx, [[right - 90, front], [right, top], [right, top + 60], [right - 90, 1200]], palette.deckSide);
 }
 
+function arms(at, t) {
+  return { armL: at("armL", t), foreL: at("foreL", t), armR: at("armR", t), foreR: at("foreR", t) };
+}
+
 function roofHero(t, f) {
   const { side, front, back } = robots();
   const kind = String(at("pose", t));
@@ -192,9 +190,8 @@ function roofHero(t, f) {
     const [bx, by] = cranePoint(craneFrame(5.8), RB.aboardX, 0);
     const w = at("walk", t);
     kit.feet(ctx, RB.x + (bx - RB.x) * w, RB.y + (by - RB.y) * w, k, k, XBOT.AX);
-    const base = { armL: at("armL", t), foreL: at("foreL", t), armR: at("armR", t), foreR: at("foreR", t) };
-    const { lift, pose } = walkPose(base, t, at("stride", t));
-    walker(front, pose, XBOT.shade(XBOT.PALETTE, LIT), lineFor(ctx), lift);
+    const { lift, pose } = walkPose(WALK, arms(at, t), t, at("stride", t));
+    walker(ctx, WALK, front, pose, XBOT.shade(XBOT.PALETTE, LIT), lineFor(ctx), lift);
   } else {
     const [x, y] = cranePoint(f, RB.aboardX, 0);
     const aboard = (k * f.k) / CFG.tracks.craneK[0][1];
@@ -215,7 +212,7 @@ function drawPanel() {
 function roofShot(t) {
   const f = craneFrame(t);
   backdrop(ctx, ["roof"], c => onto(c, () => {
-    sky(ST.deckTop, ROOF_CLOUDS);
+    sky(ctx, SKY, ST.deckTop, ROOF_CLOUDS);
     drawCity();
     drawTowers();
     drawDeck();
@@ -227,58 +224,12 @@ function roofShot(t) {
   if (aboard) roofHero(t, f);
 }
 
-function frond(x, y, len, rise, leaves, k) {
-  const tipX = x + len, tipY = y - rise;
-  const cx = x + len * 0.2, cy = y - rise * 1.1;
-  ctx.strokeStyle = palette.leaf;
-  ctx.lineWidth = 8 * k;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.quadraticCurveTo(cx, cy, tipX, tipY);
-  ctx.stroke();
-  for (let i = 1; i <= leaves; i++) {
-    const u = i / (leaves + 1), v = 1 - u;
-    const px = v * v * x + 2 * u * v * cx + u * u * tipX;
-    const py = v * v * y + 2 * u * v * cy + u * u * tipY;
-    const dir = Math.atan2(2 * v * (cy - y) + 2 * u * (tipY - cy), 2 * v * (cx - x) + 2 * u * (tipX - cx));
-    const side = i % 2 ? 1 : -1;
-    const size = (1 - u * 0.6) * 46 * k;
-    const a = dir + side * 0.9;
-    oval(ctx, px + Math.cos(a) * size, py + Math.sin(a) * size, size, size * 0.32, i % 3 ? palette.leaf : palette.leafLit, a);
-  }
-}
-
-function hillShot(t) {
-  backdrop(ctx, ["hill"], c => onto(c, () => {
-    sky(ST.horizon, HILL_CLOUDS);
-    poly(ctx, RIDGE, palette.ridge);
-    poly(ctx, HILL, palette.rock);
-    for (const f of FACETS) poly(ctx, f, palette.rockLit);
-    for (const k of CRACKS) stroke(ctx, k, palette.rockDark, 6);
-  }));
-  const { front } = robots();
-  ctx.save();
-  kit.feet(ctx, at("walkerX", t), at("walkerY", t), at("walkerK", t), at("walkerK", t), XBOT.AX);
-  const base = { armL: at("armL", t), foreL: at("foreL", t), armR: at("armR", t), foreR: at("foreR", t) };
-  const { lift, pose } = walkPose(base, t, at("stride", t));
-  walker(front, pose, XBOT.shade(XBOT.PALETTE, DUSK), lineFor(ctx), lift);
-  ctx.restore();
-  ctx.save();
-  ctx.translate(at("plantShift", t), -at("plantShift", t) * 0.4);
-  for (const [x, y, len, rise, leaves, k] of FRONDS) frond(x, y, len, rise, leaves, k);
-  ctx.restore();
-}
-
 function render(c, w, h, t) {
   ctx = c;
   ctx.save();
   kit.fitStage(ctx, w, h, W, H);
-  if (String(at("shot", t)) === "hill") hillShot(t);
-  else {
-    const z = at("camZ", t);
-    kit.camera(ctx, W, H, at("camX", t), at("camY", t), z);
-    roofShot(t);
-  }
+  kit.camera(ctx, W, H, at("camX", t), at("camY", t), at("camZ", t));
+  roofShot(t);
   ctx.restore();
 }
 
@@ -288,6 +239,7 @@ window.CUTSCENES.repairCrane = {
   duration: CFG.duration,
   palette,
   render,
-  ref: kit.filmRef("repairCrane", CFG.duration)
+  ref: kit.filmRef("repairCrane", CFG.duration),
+  art: { sky, walkPose, walker, lineFor, robots, arms }
 };
 })();
