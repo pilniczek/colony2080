@@ -37,7 +37,7 @@ let rigs: { side: GroupNode; front: GroupNode; back: GroupNode } | null = null;
 
 const backdrop = stillLayer();
 
-export const robots = () => (rigs ??= { side: buildSide({ farLimbs: true }), front: buildFront({}), back: buildBack({}) });
+export const robots = () => (rigs ??= { side: buildSide({ farLimbs: true, hold: "pinch" }), front: buildFront({}), back: buildBack({}) });
 
 export function sky(ctx: CanvasRenderingContext2D, { palette, sun: [sunX, sunY, sunR] }: Sky, horizon: number, clouds: Spot[]): void {
   rowFill(ctx, (c) => {
@@ -181,17 +181,10 @@ function roofHero(ctx: CanvasRenderingContext2D, t: number, f: Frame): void {
   ctx.save();
   if (kind === "side") {
     feet(ctx, RB.x, RB.y, -k, k, ROBOT.SIDE_AX);
-    const pose: Pose = { arm: num("armB", t), fore: num("foreB", t) };
-    const turn = (num("keyTurn", t) * Math.PI) / 180;
-    const hand: HookDraw = (c) => {
-      c.save();
-      c.rotate(turn);
-      c.scale(RB.keyScale, RB.keyScale);
-      c.translate(-4, 3);
-      drawAsset(c, ASSETS.craneKey, { state: 0, lines: lineFor(c) });
-      c.restore();
-    };
-    drawRig(ctx, side, { palette: shade(ROBOT.palette, LIT), pose, hooks: { hand }, lineW: lineFor(ctx) });
+    const pose: Pose = { arm: num("armB", t), fore: num("foreB", t), wrist: num("keyTurn", t) };
+    const lineW = lineFor(ctx);
+    const item: HookDraw = (c) => drawAsset(c, ASSETS.craneKey, { state: 0, lines: lineW });
+    drawRig(ctx, side, { palette: shade(ROBOT.palette, LIT), pose, hooks: { item }, lineW });
   } else if (kind === "front") {
     const [bx, by] = cranePoint(craneFrame(5.8), RB.aboardX, 0);
     const w = num("walk", t);

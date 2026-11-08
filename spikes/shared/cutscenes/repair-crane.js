@@ -29,7 +29,7 @@ function onto(c, draw) {
   ctx = prev;
 }
 
-const robots = () => (rigs ??= { side: XBOT.buildSide({ farLimbs: true }), front: XBOT.buildFront({}), back: XBOT.buildBack({}) });
+const robots = () => (rigs ??= { side: XBOT.buildSide({ farLimbs: true, hold: "pinch" }), front: XBOT.buildFront({}), back: XBOT.buildBack({}) });
 
 function sky(ctx, { palette, sun: [sx, sy, sr] }, horizon, clouds) {
   kit.rowFill(ctx, c => {
@@ -175,17 +175,10 @@ function roofHero(t, f) {
   ctx.save();
   if (kind === "side") {
     kit.feet(ctx, RB.x, RB.y, -k, k, XBOT.SIDE_AX);
-    const pose = { arm: at("armB", t), fore: at("foreB", t) };
-    const turn = (at("keyTurn", t) * Math.PI) / 180;
-    const hand = (c) => {
-      c.save();
-      c.rotate(turn);
-      c.scale(RB.keyScale, RB.keyScale);
-      c.translate(-4, 3);
-      ENV.draw(c, asset("craneKey"), { state: 0, lines: lineFor(c) });
-      c.restore();
-    };
-    XBOT.render(ctx, side, { pal: XBOT.shade(XBOT.PALETTE, LIT), pose, hooks: { hand }, lineW: lineFor(ctx) });
+    const pose = { arm: at("armB", t), fore: at("foreB", t), wrist: at("keyTurn", t) };
+    const lineW = lineFor(ctx);
+    const item = (c) => ENV.draw(c, asset("craneKey"), { state: 0, lines: lineW });
+    XBOT.render(ctx, side, { pal: XBOT.shade(XBOT.PALETTE, LIT), pose, hooks: { item }, lineW });
   } else if (kind === "front") {
     const [bx, by] = cranePoint(craneFrame(5.8), RB.aboardX, 0);
     const w = at("walk", t);
