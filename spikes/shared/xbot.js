@@ -1080,9 +1080,12 @@ function grip(s, view) {
 
 const HAND_BUILDERS = { open: openHand, fist, carry, cup, grip };
 
+const PALM_UP = { thumb: "rotate(90 88 470)", little: "rotate(-90 88 470)", tips: "rotate(180 88 434)" };
+
 function buildHand({ view = "back", pose = "open" } = {}) {
   const root = { k: "g", kids: [] };
-  HAND_BUILDERS[pose](G(root, null, "hand", [89, 400]), view);
+  const up = (pose === "carry" || pose === "cup") && PALM_UP[view];
+  HAND_BUILDERS[pose](G(up ? G(root, up) : root, null, "hand", [89, 400]), view);
   return root;
 }
 
