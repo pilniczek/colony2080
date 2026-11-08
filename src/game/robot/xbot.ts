@@ -234,25 +234,34 @@ const backPlate = (k: Kit, parent: GroupNode, M: Mirror = (p) => p): void => {
   k.P(parent, { pts: M([[HAND.x0 + 7, HAND.top + 9], [HAND.x1 - 7, HAND.top + 8], [HAND.x1 - 7, HAND.bottom - 12], [HAND.x0 + 7, HAND.bottom - 11]]), shade: "cyl", r: 6 });
 };
 
-const PALM_MID = (HAND.top + 8 + HAND.bottom) / 2;
-const GRIP_R = 11;
+const CURLED_BACK = [16, 10];
+const TRIGGER_BACK = [30, 14];
+
+const backFingers = (k: Kit, parent: GroupNode, M: Mirror, lensOf: (finger: number) => readonly number[], curled: boolean): void => {
+  const reach = Math.max(...[0, 1, 2, 3].map((i) => lensOf(i).reduce((a, b) => a + b, 0)));
+  if (k.low) k.P(parent, { pts: M([[HAND.x0, FINGER.base], [HAND.x1 - 1, FINGER.base], [HAND.x1 - 1, FINGER.base + reach], [HAND.x0, FINGER.base + reach]]), shade: "cyl", r: 4 });
+  for (let i = 0; i < 4; i++) {
+    const x = fingerX(i);
+    const lens = lensOf(i);
+    let y = FINGER.base;
+    lens.forEach((len, seg) => {
+      const end = y + len;
+      const top: Pt[] = seg ? [[x, y], [x + 20, y]] : [[x, y + 6], [x + 10, y], [x + 20, y + 6]];
+      const last = seg === lens.length - 1;
+      const flat = last && !curled && seg === 2;
+      k.P(parent, { pts: M([...top, [x + 20, end], [x, end]]), ...(flat ? {} : { shade: "cyl" }), r: last && curled ? 7 : seg ? 2 : 3, lw: FINGER_LW });
+      y = end;
+    });
+  }
+};
+
 const CUP = [-30, -75, -125];
 const CUP_THUMB = [28, 4] as const;
 const box = (x0: number, y0: number, x1: number, y1: number): Pt[] => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
 
 const gunGripHand = (k: Kit, parent: GroupNode): void => {
-  const knuckle = FINGER.base;
-  const cy = PALM_MID + 6;
-  const near = cy + GRIP_R + FINGER.thick / 2 + 4;
-  const pull = cy + GRIP_R + 14;
-  const ix = fingerX(3);
   backPlate(k, parent);
-  k.P(parent, { pts: box(ix, knuckle + 4, ix + 20, pull + 12), shade: "cyl", r: 7, lw: FINGER_LW });
-  for (let i = 0; i < 3; i++) {
-    const x = fingerX(i);
-    k.P(parent, { pts: box(x, knuckle + 4, x + 20, near), shade: "cyl", r: 6, lw: FINGER_LW });
-    k.P(parent, { pts: box(x, knuckle - 8, x + 20, knuckle + 10), shade: "cyl", r: 7, lw: FINGER_LW });
-  }
+  backFingers(k, parent, (p) => p, (i) => (i === 3 ? TRIGGER_BACK : CURLED_BACK), true);
 };
 
 const SUPPORT_TF = `translate(${ELBOW_R[0]} ${ELBOW_R[1] + ELBOW_DROP}) scale(${FORE_S} ${-FORE_S}) translate(-88 -434)`;
@@ -291,17 +300,8 @@ const heldHand = (k: Kit, parent: GroupNode, pose: HeldPose, tf: string): void =
 };
 
 const robotHand = (k: Kit, parent: GroupNode, M: Mirror): void => {
-  const y1 = fingerY(1);
-  const y2 = fingerY(2);
-  const y3 = fingerY(3);
   backPlate(k, parent, M);
-  if (k.low) k.P(parent, { pts: M([[HAND.x0, FINGER.base], [HAND.x1 - 1, FINGER.base], [HAND.x1 - 1, y3], [HAND.x0, y3]]), shade: "cyl", r: 4 });
-  for (let i = 0; i < 4; i++) {
-    const x = fingerX(i);
-    k.P(parent, { pts: M([[x, FINGER.base + 6], [x + 10, FINGER.base], [x + 20, FINGER.base + 6], [x + 20, y1], [x, y1]]), shade: "cyl", r: 3, lw: FINGER_LW });
-    k.P(parent, { pts: M([[x, y1], [x + 20, y1], [x + 20, y2], [x, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
-    k.P(parent, { pts: M([[x, y2], [x + 20, y2], [x + 20, y3], [x, y3]]), r: 2, lw: FINGER_LW });
-  }
+  backFingers(k, parent, M, () => FINGER.seg, false);
   openThumb(k, parent, M);
 };
 

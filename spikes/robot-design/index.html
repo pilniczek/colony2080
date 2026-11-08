@@ -26,10 +26,13 @@
   #palette label { display: flex; align-items: center; gap: 4px; color: var(--muted); }
   .hands { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; padding: 8px 16px 12px; align-items: start; }
   h3 { font-size: 12px; font-weight: 600; margin: 8px 16px 0; color: var(--text); text-transform: capitalize; }
-  .hands canvas.full { width: 100%; aspect-ratio: 140 / 172; display: block; }
+  .hands canvas.full { width: 100%; aspect-ratio: 140 / 210; display: block; }
   #carry { padding: 8px 16px 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
   #carry figure { margin: 0; flex: 1 1 0; min-width: 200px; }
   #carry canvas { display: block; width: 100%; height: auto; aspect-ratio: auto; }
+  .pick { padding: 8px 16px 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  .pick figure { margin: 0; flex: 1 1 0; min-width: 200px; }
+  .pick canvas { display: block; width: 100%; height: auto; aspect-ratio: auto; }
   #palette input { width: 28px; height: 20px; border: 0; padding: 0; background: none; }
 </style>
 </head>
@@ -65,6 +68,25 @@
   <figure><figcaption>Back, upper body</figcaption><canvas id="carryBack"></canvas></figure>
   <figure><figcaption>From above, upper body</figcaption><canvas id="carryTop"></canvas></figure>
   <figure><figcaption>Robot's own view, looking down</figcaption><canvas id="carryView"></canvas></figure>
+</section>
+<h2>Pick up (crowbar)</h2>
+<section class="pick">
+  <figure><figcaption>Side: reach</figcaption><canvas data-pick="side" data-phase="reach"></canvas></figure>
+  <figure><figcaption>Side: take</figcaption><canvas data-pick="side" data-phase="take"></canvas></figure>
+  <figure><figcaption>Side: bring to the body</figcaption><canvas data-pick="side" data-phase="lift"></canvas></figure>
+  <figure><figcaption>Side: whole pick-up</figcaption><canvas data-pick="side"></canvas></figure>
+</section>
+<section class="pick">
+  <figure><figcaption>Robot's own view: reach</figcaption><canvas data-pick="view" data-phase="reach"></canvas></figure>
+  <figure><figcaption>Robot's own view: take</figcaption><canvas data-pick="view" data-phase="take"></canvas></figure>
+  <figure><figcaption>Robot's own view: bring to the body</figcaption><canvas data-pick="view" data-phase="lift"></canvas></figure>
+  <figure><figcaption>Robot's own view: whole pick-up</figcaption><canvas data-pick="view"></canvas></figure>
+</section>
+<section class="pick">
+  <figure><figcaption>Crowbar pointing away, own view: reach</figcaption><canvas data-pick="viewAway" data-phase="reach"></canvas></figure>
+  <figure><figcaption>Crowbar pointing away, own view: take</figcaption><canvas data-pick="viewAway" data-phase="take"></canvas></figure>
+  <figure><figcaption>Crowbar pointing away, own view: bring to the body</figcaption><canvas data-pick="viewAway" data-phase="lift"></canvas></figure>
+  <figure><figcaption>Crowbar pointing away, own view: whole pick-up</figcaption><canvas data-pick="viewAway"></canvas></figure>
 </section>
 <!-- originals -->
 <section id="refs">
@@ -306,6 +328,7 @@ document.getElementById("guides").onchange = e => { opts.guides = e.target.check
 addEventListener("resize", draw);
 draw();
 </script>
+<script src="pickup.js"></script>
 <script src="../shared/url-state.js"></script>
 </body>
 </html>

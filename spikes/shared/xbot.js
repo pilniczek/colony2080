@@ -192,6 +192,7 @@ const ELBOW_L = [100, 236];
 const GUARD_TF = `translate(${ELBOW_L[0]} ${ELBOW_L[1] + GUARD_DROP}) scale(${FORE_S}) translate(-88 -434)`;
 const SIDE_SUPPORT = [312, 438];
 const SIDE_ELBOW = [311, 288];
+const SIDE_WRIST = [312, 400];
 const SIDE_FORE_YAW = 45;
 const ARMED_ARM_BACK = 15;
 const GRIP_HOLD = 19;
@@ -408,6 +409,7 @@ function topTree({ forearms, spread }) {
   const [sx, sy, sr] = TOP.shoulder;
   P(s, { pts: [[AX - 106, TOP.chest], [AX + 106, TOP.chest], [AX + 112, TOP.chest + 40], [AX + 100, TOP.back], [AX - 100, TOP.back], [AX - 112, TOP.chest + 40]], mat: "metal", r: 4 });
   P(s, { pts: [[AX - 96, TOP.chest + 4], [AX + 96, TOP.chest + 4], [AX + 90, TOP.chest + 34], [AX - 90, TOP.chest + 34]], r: 4 });
+  P(s, { pts: [[AX - 90, TOP.back - 34], [AX + 90, TOP.back - 34], [AX + 96, TOP.back - 4], [AX - 96, TOP.back - 4]], r: 4 });
   for (const side of [-1, 1]) P(s, { pts: circlePts(AX + side * sx, sy, sr), shade: "dome", r: 0 });
   const head = G(s, null, "head", [AX, 490]);
   P(head, { pts: [[AX - 44, TOP.chest + 30], [AX + 44, TOP.chest + 30], [AX + 46, TOP.chest + 112], [AX - 46, TOP.chest + 112]], shade: "cyl", r: 6 });
@@ -502,19 +504,22 @@ function sideArm(parent, names, extra, hold = null) {
   P(fa, { pts: [[262, 290], [358, 286], [366, 302], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
   F(fa, [[264, 352], [366, 350], [366, 354], [264, 356]], "a0");
   F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
-  const hand = G(lower, handTf);
+  const picking = hold === "reach" || hold === "grip";
+  const palm = picking ? G(lower, null, "wrist", SIDE_WRIST) : lower;
+  const hand = G(palm, handTf);
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
   if (hold === "cup") supportWrist(G(G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
   else if (hold === "carry") heldHand(lower, hold, "thumb", `translate(${SIDE_HAND_DX} 0)`);
+  else if (picking) heldHand(palm, hold, "little", `translate(${SIDE_HAND_DX} 0)`);
   else if (hold) heldHand(lower, hold, "back", `translate(${SIDE_HAND_DX} 0)`);
   else sideHand(lower);
 }
 
-function buildSide({ farLimbs = false, badge = false, propBehindArm = false, lod: low = false, enemy = false, armed = false, fists = false, carry = false } = {}) {
-  return withLod(low, () => sideTree({ farLimbs, badge: badge && !enemy, propBehindArm, enemy, armed, fists, carry }));
+function buildSide({ farLimbs = false, badge = false, propBehindArm = false, lod: low = false, enemy = false, armed = false, fists = false, carry = false, hold = null } = {}) {
+  return withLod(low, () => sideTree({ farLimbs, badge: badge && !enemy, propBehindArm, enemy, armed, fists, carry, hold }));
 }
 
-function sideTree({ farLimbs, badge, propBehindArm, enemy, armed, fists, carry }) {
+function sideTree({ farLimbs, badge, propBehindArm, enemy, armed, fists, carry, hold }) {
   const root = { k: "g", kids: [] };
   const s = G(root, null, "body", [SIDE_AX, 344]);
   if (farLimbs) {
@@ -545,7 +550,7 @@ function sideTree({ farLimbs, badge, propBehindArm, enemy, armed, fists, carry }
   F(head, [[368, 56], [388, 56], [388, 63], [368, 63]], "visor", 1);
   P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });
   if (!enemy) P(head, { pts: [[308, 4], [318, 4], [320, 70], [306, 70]], r: 4, shade: "cyl" });
-  sideArm(armed ? G(s, `translate(${-ARMED_ARM_BACK} ${GRIP_HOLD})`) : s, { arm: "arm", fore: "fore", hand: "hand" }, propBehindArm ? { propBehindArm } : undefined, armed ? "gunGrip" : fists ? "fist" : carry ? "carry" : null);
+  sideArm(armed ? G(s, `translate(${-ARMED_ARM_BACK} ${GRIP_HOLD})`) : s, { arm: "arm", fore: "fore", hand: "hand" }, propBehindArm ? { propBehindArm } : undefined, hold ?? (armed ? "gunGrip" : fists ? "fist" : carry ? "carry" : null));
   if (farLimbs && armed) {
     const lower = G(G(G(s, "translate(-20 0)"), "translate(2 -4)", "armFar", [300, 150]), SIDE_FORE_TF, "foreFar", SIDE_ELBOW);
     cupFingertips(G(G(lower, null, "supportFar", SIDE_SUPPORT_YAWED), sideSupportTf(SIDE_SUPPORT_YAWED)));
@@ -850,7 +855,7 @@ const LEVELS = Object.entries(CFG.levels);
 
 const HAND_AX = 87.5;
 const HAND_VIEWS = ["palm", "back", "thumb", "little", "tips"];
-const HAND_POSES = ["open", "fist", "carry", "cup", "grip", "pinch", "gunGrip"];
+const HAND_POSES = ["open", "reach", "fist", "carry", "cup", "grip", "pinch", "gunGrip"];
 const HAND = { x0: 46, x1: 130, top: 398, bottom: 470, thick: 34 };
 const FINGER = { w: 20, pitch: 21, thick: 18, base: 462, seg: [30, 24, 18] };
 const THUMB = { w: 20, thick: 18, seg: [24, 20] };
@@ -928,18 +933,28 @@ function backPlate(parent, M = p => p) {
   P(parent, { pts: M([[HAND.x0 + 7, HAND.top + 9], [HAND.x1 - 7, HAND.top + 8], [HAND.x1 - 7, HAND.bottom - 12], [HAND.x0 + 7, HAND.bottom - 11]]), shade: "cyl", r: 6 });
 }
 
-function backFingers(parent, M = p => p) {
-  const [y1, y2, y3] = [1, 2, 3].map(fingerY);
-  if (lod) P(parent, { pts: M([[HAND.x0, FINGER.base], [HAND.x1 - 1, FINGER.base], [HAND.x1 - 1, y3], [HAND.x0, y3]]), shade: "cyl", r: 4 });
+const CURLED_BACK = [16, 10];
+const TRIGGER_BACK = [30, 14];
+const PINCH_BACK = [16, 16];
+
+function backFingers(parent, M = p => p, lens = FINGER.seg, curled = false) {
+  const lensOf = i => Array.isArray(lens[0]) ? lens[i] : lens;
+  const reach = Math.max(...[0, 1, 2, 3].map(i => lensOf(i).reduce((a, b) => a + b, 0)));
+  if (lod) P(parent, { pts: M([[HAND.x0, FINGER.base], [HAND.x1 - 1, FINGER.base], [HAND.x1 - 1, FINGER.base + reach], [HAND.x0, FINGER.base + reach]]), shade: "cyl", r: 4 });
   for (let i = 0; i < 4; i++) {
     const x = fingerX(i);
-    P(parent, { pts: M([[x, FINGER.base + 6], [x + 10, FINGER.base], [x + 20, FINGER.base + 6], [x + 20, y1], [x, y1]]), shade: "cyl", r: 3, lw: FINGER_LW });
-    P(parent, { pts: M([[x, y1], [x + 20, y1], [x + 20, y2], [x, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
-    P(parent, { pts: M([[x, y2], [x + 20, y2], [x + 20, y3], [x, y3]]), r: 2, lw: FINGER_LW });
+    let y = FINGER.base;
+    lensOf(i).forEach((len, k, all) => {
+      const end = y + len;
+      const top = k ? [[x, y], [x + 20, y]] : [[x, y + 6], [x + 10, y], [x + 20, y + 6]];
+      const last = k === all.length - 1;
+      P(parent, { pts: M([...top, [x + 20, end], [x, end]]), ...(last && !curled && k === 2 ? {} : { shade: "cyl" }), r: last && curled ? 7 : k ? 2 : 3, lw: FINGER_LW });
+      y = end;
+    });
   }
 }
 
-function profileHand(parent, S, thumbBehind) {
+function profileHand(parent, S, thumbBehind, beforeThumb = () => {}) {
   const [y1, y2, y3] = [1, 2, 3].map(fingerY);
   const fx = HAND_FACE[1] - 2 - FINGER.thick;
   const thumb = () => handThumb(parent, S, THUMB_SIDE, [-14, -4], THUMB.thick);
@@ -949,6 +964,7 @@ function profileHand(parent, S, thumbBehind) {
   P(parent, { pts: S([[fx, y1], [fx + FINGER.thick, y1], [fx + FINGER.thick, y2], [fx, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
   P(parent, { pts: S([[fx, y2], [fx + FINGER.thick, y2], [fx + FINGER.thick, y3 - 4], [fx + 9, y3], [fx, y3 - 4]]), r: 3, lw: FINGER_LW });
   for (const [t, u] of [[FINGER.base + 2, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 5]]) P(parent, { pts: S([[fx - 4, t], [fx + 6, t], [fx + 6, u], [fx - 4, u]]), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+  beforeThumb();
   if (!thumbBehind) thumb();
 }
 
@@ -978,7 +994,7 @@ const THUMB_BASE = [124, 424];
 const THUMB_SIDE = [HAND_FACE[0] + 12, THUMB_BASE[1]];
 const THUMB_OPEN = [30, 14];
 
-function openHand(s, view) {
+function openHand(s, view, beforeThumb = () => {}) {
   const M = p => p;
   const W = p => mirrorPts(p, HAND_AX);
   const [y1, y2, y3] = [1, 2, 3].map(fingerY);
@@ -993,10 +1009,11 @@ function openHand(s, view) {
       P(s, { pts: [[x, FINGER.base - 4], [x + 20, FINGER.base - 4], [x + 20, y3], [x, y3]], r: 4, lw: FINGER_LW });
       for (const [a, b] of [[FINGER.base - 1, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 3]]) P(s, { pts: [[x + 3, a], [x + 17, a], [x + 17, b], [x + 3, b]], mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
     }
+    beforeThumb();
     handThumb(s, S, THUMB_BASE, THUMB_OPEN, THUMB.w, view === "palm", true);
   } else if (view === "thumb" || view === "little") {
     handStub(s);
-    profileHand(s, view === "thumb" ? W : M, view === "little");
+    profileHand(s, view === "thumb" ? W : M, view === "little", beforeThumb);
   } else {
     forearmEnd(s);
     sectionPlate(s);
@@ -1004,6 +1021,7 @@ function openHand(s, view) {
       const x = fingerX(i);
       P(s, { pts: [[x, 402], [x + 20, 402], [x + 20, 402 + FINGER.thick], [x, 402 + FINGER.thick]], shade: "cyl", r: 6, lw: FINGER_LW });
     }
+    beforeThumb();
     P(s, { pts: [[HAND.x1 - 2, 416], [HAND.x1 + 18, 416], [HAND.x1 + 18, 416 + THUMB.thick], [HAND.x1 - 2, 416 + THUMB.thick]], shade: "cyl", r: 6 });
   }
 }
@@ -1025,10 +1043,7 @@ function fist(s, view) {
     handStub(s);
     P(s, { pts: BACK_THUMB, shade: "cyl", r: 6, lw: FINGER_LW });
     backPlate(s);
-    for (let i = 0; i < 4; i++) {
-      const x = fingerX(i);
-      P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, bottom], [x, bottom]], shade: "cyl", r: 7, lw: FINGER_LW });
-    }
+    backFingers(s, M, CURLED_BACK, true);
   } else if (view === "palm") {
     handStub(s);
     palmPlate(s, M, HAND.bottom - 6);
@@ -1061,8 +1076,7 @@ function fist(s, view) {
     handThumb(s, M, [130, face + FINGER.thick - 2], [-60, -90], THUMB.thick);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face], [x, face]], shade: "cyl", r: 3, lw: FINGER_LW });
-      P(s, { pts: [[x, face - 2], [x + 20, face - 2], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "cyl", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
   }
 }
@@ -1086,8 +1100,7 @@ const REST_AT = {
 
 function carry(s, view, rest) {
   if (rest) {
-    openHand(s, view);
-    if (REST_AT[view]) hook(G(s, REST_AT[view]), "rest");
+    openHand(s, view, () => REST_AT[view] && hook(G(s, REST_AT[view]), "rest"));
     return;
   }
   if (view === "back") itemAt(s, `translate(88 ${PALM_MID}) scale(-6 6) translate(-9 6.5)`);
@@ -1115,13 +1128,12 @@ function cup(s, view) {
       palmPlate(s, M, HAND.bottom - 6);
       itemAt(s, `translate(88 ${PALM_MID}) scale(3) translate(-7 3.5)`);
     }
-    for (let i = 0; i < 4; i++) {
+    if (view === "back") backFingers(s, M, [tip - FINGER.base, 12], true);
+    else for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
       P(s, { pts: [[x, FINGER.base - 4], [x + 20, FINGER.base - 4], [x + 20, tip], [x, tip]], shade: "cyl", r: 3, lw: FINGER_LW });
-      if (view === "palm") {
-        P(s, { pts: [[x + 3, FINGER.base - 1], [x + 17, FINGER.base - 1], [x + 17, tip - 3], [x + 3, tip - 3]], mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
-        P(s, { pts: [[x, tip - 12], [x + 20, tip - 12], [x + 20, tip + 10], [x, tip + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
-      } else P(s, { pts: [[x, tip - 4], [x + 20, tip - 4], [x + 20, tip + 10], [x, tip + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x + 3, FINGER.base - 1], [x + 17, FINGER.base - 1], [x + 17, tip - 3], [x + 3, tip - 3]], mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+      P(s, { pts: [[x, tip - 12], [x + 20, tip - 12], [x + 20, tip + 10], [x, tip + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
     handThumb(s, S, THUMB_BASE, CUP_THUMB, THUMB.w, view === "palm", true);
   } else if (view === "thumb" || view === "little") {
@@ -1211,6 +1223,8 @@ function heldHand(parent, pose, view, tf) {
   try {
     if (pose === "gunGrip") grip(g, view, BARE_GUN);
     else if (pose === "carry") openHand(g, view);
+    else if (pose === "reach") reach(g, view);
+    else if (pose === "grip") grip(g, view);
     else if (pose === "fist") fist(g, view);
     else cup(g, view);
   } finally {
@@ -1235,12 +1249,7 @@ function grip(s, view, rod = CROWBAR) {
     rod.across(s, M, cy);
     handStub(s);
     backPlate(s);
-    if (trigger) P(s, { pts: [[ix, knuckle + 4], [ix + 20, knuckle + 4], [ix + 20, pull + 12], [ix, pull + 12]], shade: "cyl", r: 7, lw: FINGER_LW });
-    for (let i = 0; i < curled; i++) {
-      const x = fingerX(i);
-      P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, near], [x, near]], shade: "cyl", r: 6, lw: FINGER_LW });
-      P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, knuckle + 10], [x, knuckle + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
-    }
+    backFingers(s, M, [0, 1, 2, 3].map(i => trigger && i === 3 ? TRIGGER_BACK : CURLED_BACK), true);
   } else if (view === "palm") {
     handStub(s);
     palmPlate(s, M, HAND.bottom - 6);
@@ -1263,7 +1272,8 @@ function grip(s, view, rod = CROWBAR) {
   } else if (view === "thumb" || view === "little") {
     const S = view === "thumb" ? W : M;
     const thumb = () => chain(s, S, THUMB_SIDE, [-95, -60], THUMB.seg, THUMB.thick, { shade: "cyl" });
-    handStub(s);
+    const stubOver = longForearm && view === "thumb" && !trigger;
+    if (!stubOver) handStub(s);
     if (view === "little") {
       rod.side(s, S, [cx, cy]);
       thumb();
@@ -1272,6 +1282,7 @@ function grip(s, view, rod = CROWBAR) {
     if (trigger && view === "little") index();
     profilePlate(s, S);
     rod.section(s, S, [cx, cy], R);
+    hook(G(s, `translate(${S([[cx, cy]])[0].join(" ")})`), "rod");
     chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, knuckle], GRIP_CURL, FINGER.seg, FINGER.thick, { shade: "cyl" });
     if (trigger && view === "thumb") index();
     if (view === "thumb" && trigger) {
@@ -1279,6 +1290,8 @@ function grip(s, view, rod = CROWBAR) {
       rod.side(s, S, [cx, cy]);
     } else if (view === "thumb") {
       rod.side(s, S, [cx, cy]);
+      hook(G(s, `translate(${S([[cx, cy]])[0].join(" ")})`), "underThumb");
+      if (stubOver) handStub(s);
       thumb();
     }
   } else {
@@ -1324,11 +1337,7 @@ function pinch(s, view) {
     handStub(s);
     pinchThumb(s, M);
     backPlate(s);
-    for (let i = 0; i < 4; i++) {
-      const x = fingerX(i);
-      P(s, { pts: [[x, knuckle + 4], [x + 20, knuckle + 4], [x + 20, bottom + (i === 3 ? 6 : 0)], [x, bottom + (i === 3 ? 6 : 0)]], shade: "cyl", r: 6, lw: FINGER_LW });
-      P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, knuckle + 10], [x, knuckle + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
-    }
+    backFingers(s, M, [0, 1, 2, 3].map(i => i === 3 ? PINCH_BACK : CURLED_BACK), true);
     slab(s, keyEdge(PINCH_EDGE));
   } else if (view === "palm") {
     handStub(s);
@@ -1370,8 +1379,7 @@ function pinch(s, view) {
     const face = 400 + HAND.thick;
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
-      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face], [x, face]], shade: "cyl", r: 3, lw: FINGER_LW });
-      P(s, { pts: [[x, face - 2], [x + 20, face - 2], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "cyl", r: 7, lw: FINGER_LW });
+      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face + FINGER.thick], [x, face + FINGER.thick]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
     const depth = 400 + HAND_FACE[1] - PINCH_AT[0];
     const half = PINCH_KEY[0] * PINCH_K;
@@ -1380,7 +1388,48 @@ function pinch(s, view) {
   }
 }
 
-const HAND_BUILDERS = { open: openHand, fist, carry, cup, grip, pinch, gunGrip: (s, view) => grip(s, view, PISTOL) };
+const REACH = [-12, -34, -58];
+const REACH_CURL = [0.98, 0.8, 0.55];
+const REACH_THUMB = [26, 6];
+const REACH_THUMB_SIDE = [-16, -6];
+
+function reach(s, view) {
+  const M = p => p;
+  const W = p => mirrorPts(p, HAND_AX);
+  const lens = FINGER.seg.map((len, k) => len * REACH_CURL[k]);
+  if (view === "back" || view === "palm") {
+    const S = view === "palm" ? W : M;
+    const thumb = () => handThumb(s, S, THUMB_BASE, REACH_THUMB, THUMB.w, view === "palm", true);
+    handStub(s);
+    if (view === "back") {
+      thumb();
+      itemAt(s, null);
+      backPlate(s);
+    } else palmPlate(s, M, HAND.bottom - 6);
+    if (view === "back") backFingers(s, M, lens);
+    else for (let i = 0; i < 4; i++) chain(s, M, [fingerX(i) + FINGER.w / 2, FINGER.base], [0, 0, 0], lens, FINGER.w, { shade: "cyl" }, true);
+    if (view === "palm") thumb();
+  } else if (view === "thumb" || view === "little") {
+    const S = view === "thumb" ? W : M;
+    const thumb = () => handThumb(s, S, THUMB_SIDE, REACH_THUMB_SIDE, THUMB.thick);
+    handStub(s);
+    if (view === "little") thumb();
+    profilePlate(s, S);
+    chain(s, S, [HAND_FACE[1] - 2 - FINGER.thick / 2, FINGER.base], REACH, FINGER.seg, FINGER.thick, { shade: "cyl" });
+    if (view === "thumb") thumb();
+  } else {
+    forearmEnd(s);
+    sectionPlate(s);
+    const face = 400 + HAND.thick;
+    for (let i = 0; i < 4; i++) {
+      const x = fingerX(i);
+      P(s, { pts: [[x, 404], [x + 20, 404], [x + 20, face + 12], [x, face + 12]], shade: "cyl", r: 7, lw: FINGER_LW });
+    }
+    P(s, { pts: [[HAND.x1 + 6, 436], [HAND.x1 + 26, 436], [HAND.x1 + 26, 436 + THUMB.thick], [HAND.x1 + 6, 436 + THUMB.thick]], shade: "cyl", r: 6 });
+  }
+}
+
+const HAND_BUILDERS = { open: openHand, reach, fist, carry, cup, grip, pinch, gunGrip: (s, view) => grip(s, view, PISTOL) };
 
 const PALM_UP = { palm: "rotate(90 88 470)", back: "rotate(90 88 470)", thumb: "rotate(-90 88 470)", little: "rotate(90 88 470)", tips: "rotate(180 88 434)" };
 
