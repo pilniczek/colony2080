@@ -46,6 +46,7 @@
     },
     {
       "id": "keyboard",
+      "item": true,
       "name": "Keyboard",
       "csName": "klávesnice",
       "interactive": true,
@@ -194,6 +195,7 @@
     },
     {
       "id": "chestPlate",
+      "item": true,
       "name": "Chest plate",
       "csName": "hrudní plát",
       "interactive": true,
@@ -283,6 +285,7 @@
     },
     {
       "id": "gateKey",
+      "item": true,
       "name": "Small key",
       "csName": "klíč",
       "interactive": true,
@@ -372,6 +375,7 @@
     },
     {
       "id": "jack",
+      "item": true,
       "name": "Mechanical jack",
       "csName": "mechanický zvedák",
       "interactive": true,
@@ -416,6 +420,7 @@
     },
     {
       "id": "paperScrap",
+      "item": true,
       "name": "Paper scrap with a number",
       "csName": "útržek s číslem",
       "interactive": true,

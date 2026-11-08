@@ -49,6 +49,7 @@
     },
     {
       "id": "crowbar",
+      "item": true,
       "name": "Crowbar pickup",
       "csName": "Páčidlo",
       "interactive": true,
@@ -561,6 +562,7 @@
     },
     {
       "id": "shipPart",
+      "item": true,
       "name": "Ship part pickup",
       "csName": "Součástka",
       "interactive": true,
@@ -666,6 +668,7 @@
     },
     {
       "id": "controller",
+      "item": true,
       "name": "Lift controller pickup",
       "csName": "Ovladač",
       "interactive": true,
@@ -832,6 +835,7 @@
     },
     {
       "id": "craneKey",
+      "item": true,
       "name": "Crane key pickup",
       "csName": "klíček / Klíč",
       "interactive": true,
@@ -863,6 +867,7 @@
     },
     {
       "id": "wires",
+      "item": true,
       "name": "Wires",
       "csName": "Dráty",
       "interactive": true,
@@ -878,6 +883,7 @@
     },
     {
       "id": "tapHandle",
+      "item": true,
       "name": "Tap handle",
       "csName": "Kohout uzávěru",
       "interactive": true,
@@ -893,6 +899,7 @@
     },
     {
       "id": "card",
+      "item": true,
       "name": "Card",
       "csName": "Karta",
       "interactive": true,
@@ -908,6 +915,7 @@
     },
     {
       "id": "holoPlan",
+      "item": true,
       "name": "Holo plan",
       "csName": "Holog. plán",
       "interactive": true,
@@ -923,6 +931,7 @@
     },
     {
       "id": "shipPlan",
+      "item": true,
       "name": "Ship plan",
       "csName": "Nákres",
       "interactive": true,
@@ -938,6 +947,7 @@
     },
     {
       "id": "decoder",
+      "item": true,
       "name": "Decoder",
       "csName": "Dekodér",
       "interactive": true,

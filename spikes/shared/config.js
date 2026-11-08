@@ -9088,6 +9088,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "rod",
+      "item": true,
       "name": "Rod pickup",
       "csName": "Tyč",
       "interactive": true,
@@ -9390,6 +9391,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "orangeKey",
+      "item": true,
       "name": "Orange key-card pickup",
       "csName": "Oranžový klíč",
       "interactive": true,
@@ -9507,6 +9509,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "blueKey",
+      "item": true,
       "name": "Blue key pickup",
       "csName": "Modrý klíč",
       "interactive": true,
@@ -9567,6 +9570,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "yellowKey",
+      "item": true,
       "name": "Yellow key pickup",
       "csName": "Žlutý klíč",
       "interactive": true,
@@ -9670,6 +9674,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "entryCard",
+      "item": true,
       "name": "Entry card pickup",
       "csName": "Vstupní karta",
       "interactive": true,
@@ -10606,6 +10611,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "smallKey",
+      "item": true,
       "name": "Small key",
       "csName": "malý klíč",
       "interactive": true,
@@ -11060,6 +11066,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "cutters",
+      "item": true,
       "name": "Wire cutters",
       "csName": "štípačky",
       "interactive": true,
@@ -11090,6 +11097,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "grenade",
+      "item": true,
       "name": "Grenade",
       "csName": "granát",
       "interactive": true,
@@ -11120,6 +11128,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "canister",
+      "item": true,
       "name": "Fuel canister",
       "csName": "kanystr",
       "interactive": true,
@@ -12362,6 +12371,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "crowbar",
+      "item": true,
       "name": "Crowbar pickup",
       "csName": "Páčidlo",
       "interactive": true,
@@ -12874,6 +12884,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "shipPart",
+      "item": true,
       "name": "Ship part pickup",
       "csName": "Součástka",
       "interactive": true,
@@ -12979,6 +12990,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "controller",
+      "item": true,
       "name": "Lift controller pickup",
       "csName": "Ovladač",
       "interactive": true,
@@ -13145,6 +13157,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "craneKey",
+      "item": true,
       "name": "Crane key pickup",
       "csName": "klíček / Klíč",
       "interactive": true,
@@ -13176,6 +13189,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "wires",
+      "item": true,
       "name": "Wires",
       "csName": "Dráty",
       "interactive": true,
@@ -13191,6 +13205,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "tapHandle",
+      "item": true,
       "name": "Tap handle",
       "csName": "Kohout uzávěru",
       "interactive": true,
@@ -13206,6 +13221,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "card",
+      "item": true,
       "name": "Card",
       "csName": "Karta",
       "interactive": true,
@@ -13221,6 +13237,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "holoPlan",
+      "item": true,
       "name": "Holo plan",
       "csName": "Holog. plán",
       "interactive": true,
@@ -13236,6 +13253,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "shipPlan",
+      "item": true,
       "name": "Ship plan",
       "csName": "Nákres",
       "interactive": true,
@@ -13251,6 +13269,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "decoder",
+      "item": true,
       "name": "Decoder",
       "csName": "Dekodér",
       "interactive": true,
@@ -14743,6 +14762,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "handGrenade",
+      "item": true,
       "name": "Grenade",
       "csName": "granát",
       "interactive": true,
@@ -14832,6 +14852,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "keyB",
+      "item": true,
       "family": "Security keys",
       "name": "Security key B",
       "csName": "klíč B",
@@ -14863,6 +14884,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "keyA",
+      "item": true,
       "family": "Security keys",
       "name": "Security key A",
       "csName": "klíč A",
@@ -14894,6 +14916,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "screwdriver",
+      "item": true,
       "name": "Screwdriver",
       "csName": "šroubovák",
       "interactive": true,
@@ -15103,6 +15126,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "floppyDisk",
+      "item": true,
       "name": "Floppy disk",
       "csName": "disketa",
       "interactive": true,
@@ -15133,6 +15157,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "alienHand",
+      "item": true,
       "name": "Alien hand",
       "csName": "ruka",
       "interactive": true,
@@ -15163,6 +15188,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "liftRemote",
+      "item": true,
       "name": "Lift controller",
       "csName": "ovladač výtahu",
       "interactive": true,
@@ -15418,6 +15444,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "timeBomb",
+      "item": true,
       "name": "Time bomb",
       "csName": "bomba",
       "interactive": true,
@@ -16715,6 +16742,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "smallKey",
+      "item": true,
       "name": "Small key",
       "csName": "malý klíč",
       "interactive": true,
@@ -16898,6 +16926,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "walkieTalkie",
+      "item": true,
       "name": "Walkie-talkie",
       "csName": "vysílačka",
       "interactive": true,
@@ -16960,6 +16989,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "detonator",
+      "item": true,
       "name": "Detonator",
       "csName": "rozbuška",
       "interactive": true,
@@ -17020,6 +17050,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "projectile",
+      "item": true,
       "name": "Cannon projectile",
       "csName": "projektil",
       "interactive": true,
@@ -17065,6 +17096,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "fuse",
+      "item": true,
       "name": "Fuse",
       "csName": "pojistka",
       "interactive": true,
@@ -17080,6 +17112,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "dynamite",
+      "item": true,
       "name": "Dynamite",
       "csName": "dynamit",
       "interactive": true,
@@ -17142,6 +17175,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "navCircuit",
+      "item": true,
       "name": "Navigation circuit",
       "csName": "navigační obvod",
       "interactive": true,
@@ -17393,6 +17427,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "holoPlan",
+      "item": true,
       "name": "Holo plan",
       "csName": "holografický plán",
       "interactive": true,
@@ -18553,6 +18588,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "keyboard",
+      "item": true,
       "name": "Keyboard",
       "csName": "klávesnice",
       "interactive": true,
@@ -18701,6 +18737,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "chestPlate",
+      "item": true,
       "name": "Chest plate",
       "csName": "hrudní plát",
       "interactive": true,
@@ -18790,6 +18827,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "gateKey",
+      "item": true,
       "name": "Small key",
       "csName": "klíč",
       "interactive": true,
@@ -18879,6 +18917,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "jack",
+      "item": true,
       "name": "Mechanical jack",
       "csName": "mechanický zvedák",
       "interactive": true,
@@ -18923,6 +18962,7 @@ window.C28_CONFIG = {
      },
      {
       "id": "paperScrap",
+      "item": true,
       "name": "Paper scrap with a number",
       "csName": "útržek s číslem",
       "interactive": true,

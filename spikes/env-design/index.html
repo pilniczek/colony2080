@@ -187,7 +187,7 @@ function build() {
   toc.replaceChildren();
   sheet.replaceChildren();
   views.length = 0;
-  const objects = LEVELS.find(l => l.id === view.mission).objects.objects.filter(o => !o.weapon);
+  const objects = LEVELS.find(l => l.id === view.mission).objects.objects.filter(o => !o.weapon && !o.item);
   for (const [title, inGroup] of GROUPS) {
     const members = objects.filter(inGroup);
     if (!members.length) continue;

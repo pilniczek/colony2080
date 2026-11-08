@@ -36,6 +36,7 @@
   },
   {
    "id": "handGrenade",
+   "item": true,
    "name": "Grenade",
    "csName": "granát",
    "interactive": true,
@@ -125,6 +126,7 @@
   },
   {
    "id": "keyB",
+   "item": true,
    "family": "Security keys",
    "name": "Security key B",
    "csName": "klíč B",
@@ -156,6 +158,7 @@
   },
   {
    "id": "keyA",
+   "item": true,
    "family": "Security keys",
    "name": "Security key A",
    "csName": "klíč A",
@@ -187,6 +190,7 @@
   },
   {
    "id": "screwdriver",
+   "item": true,
    "name": "Screwdriver",
    "csName": "šroubovák",
    "interactive": true,
@@ -396,6 +400,7 @@
   },
   {
    "id": "floppyDisk",
+   "item": true,
    "name": "Floppy disk",
    "csName": "disketa",
    "interactive": true,
@@ -426,6 +431,7 @@
   },
   {
    "id": "alienHand",
+   "item": true,
    "name": "Alien hand",
    "csName": "ruka",
    "interactive": true,
@@ -456,6 +462,7 @@
   },
   {
    "id": "liftRemote",
+   "item": true,
    "name": "Lift controller",
    "csName": "ovladač výtahu",
    "interactive": true,
@@ -711,6 +718,7 @@
   },
   {
    "id": "timeBomb",
+   "item": true,
    "name": "Time bomb",
    "csName": "bomba",
    "interactive": true,

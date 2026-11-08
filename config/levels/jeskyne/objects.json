@@ -82,6 +82,7 @@
     },
     {
       "id": "rod",
+      "item": true,
       "name": "Rod pickup",
       "csName": "Tyč",
       "interactive": true,
@@ -384,6 +385,7 @@
     },
     {
       "id": "orangeKey",
+      "item": true,
       "name": "Orange key-card pickup",
       "csName": "Oranžový klíč",
       "interactive": true,
@@ -501,6 +503,7 @@
     },
     {
       "id": "blueKey",
+      "item": true,
       "name": "Blue key pickup",
       "csName": "Modrý klíč",
       "interactive": true,
@@ -561,6 +564,7 @@
     },
     {
       "id": "yellowKey",
+      "item": true,
       "name": "Yellow key pickup",
       "csName": "Žlutý klíč",
       "interactive": true,
@@ -664,6 +668,7 @@
     },
     {
       "id": "entryCard",
+      "item": true,
       "name": "Entry card pickup",
       "csName": "Vstupní karta",
       "interactive": true,

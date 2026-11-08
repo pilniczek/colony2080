@@ -21,11 +21,16 @@
   figure canvas { display: block; max-width: 100%; background: #1a1410; border-radius: 4px; }
   figure.ref canvas { image-rendering: pixelated; background: #000; }
   figure.hud canvas { background: #1c120a; }
+  figure.crop canvas { image-rendering: pixelated; background: #000; }
+  .desc { margin: 0 0 8px; color: var(--muted); max-width: 80ch; }
+  .tag.off { background: #3a1e0c; color: var(--accent); }
+  .todo { color: var(--muted); padding: 24px; border: 1px dashed #2f3f3e; border-radius: 4px; }
 </style>
 </head>
 <body>
 <header>
   <h1>Item sheet</h1>
+  <label>Mission <select id="mission"></select></label>
 <!-- originals -->
   <label><input id="spin" type="checkbox" checked> Spin original</label>
 <!-- /originals -->
@@ -35,6 +40,7 @@
 <script src="../shared/config.js"></script>
 <script src="../shared/originals.js"></script>
 <script src="../shared/xbot.js"></script>
+<script src="../shared/gun.js"></script>
 <script src="../shared/env.js"></script>
 <script src="../shared/env-props.js"></script>
 <script src="../shared/env-machines.js"></script>
@@ -43,9 +49,28 @@
 <script src="../shared/env-vesnice.js"></script>
 <script src="../shared/env-jungle.js"></script>
 <script src="../shared/env-jeskyne.js"></script>
+<script src="../shared/env-jeskyne-terrain.js"></script>
+<script src="../shared/env-jeskyne-structures.js"></script>
+<script src="../shared/env-jeskyne-clutter.js"></script>
+<script src="../shared/env-jeskyne-extra.js"></script>
+<script src="../shared/env-vezeni.js"></script>
+<script src="../shared/env-vezeni-items.js"></script>
+<script src="../shared/env-vezeni-terrain.js"></script>
+<script src="../shared/env-vezeni-structures.js"></script>
+<script src="../shared/env-vezeni-clutter.js"></script>
+<script src="../shared/env-sklad.js"></script>
+<script src="../shared/env-sklad-items.js"></script>
+<script src="../shared/env-sklad-terrain.js"></script>
+<script src="../shared/env-sklad-structures.js"></script>
+<script src="../shared/env-sklad-clutter.js"></script>
 <script>
-const ITEMS = window.C28_CONFIG.items;
-const OBJECTS = Object.fromEntries(window.C28_CONFIG.levels.mesto.objects.objects.map((o) => [o.id, o]));
+const ITEMS = Object.fromEntries(Object.entries(window.C28_CONFIG.items).map(([id, item]) => [item.icon.asset, { id, ...item }]));
+const LEVELS = Object.entries(window.C28_CONFIG.levels).map(([id, l]) => ({ id, ...l })).sort((a, b) => a.order - b.order);
+const USED_IN = new Map();
+for (const l of LEVELS) for (const o of l.objects.objects) if (o.item) USED_IN.set(o.id, [...(USED_IN.get(o.id) ?? []), l]);
+const DEFAULT_ICON = { tilt: 0, scale: 1.25 };
+const PREVIEW_SHEET = /\/(PR\w+)_sheet\.png$/;
+const CROP_H = 150, CROP_W = 560;
 const asset = (id) => window.ENV.ASSETS.find((a) => a.id === id);
 const $ = (id) => document.getElementById(id);
 
@@ -121,36 +146,95 @@ function paintRef(view) {
   view.ctx.drawImage(view.img, col * SHEET.cell[0] + sx, row * SHEET.cell[1] + sy, cw, ch, 0, 0, cw * REF_SCALE, ch * REF_SCALE);
 }
 
-function states(id) {
-  const n = OBJECTS[id]?.states.length ?? 1;
-  return Array.from({ length: n }, (_, i) => i);
+function cropView(ref) {
+  const [x, y, w, h] = ref.crop;
+  const k = Math.min(CROP_H / h, CROP_W / w, 4);
+  const [c, ctx] = canvas(Math.round(w * k), Math.round(h * k));
+  ctx.imageSmoothingEnabled = false;
+  const img = new Image();
+  img.onload = () => ctx.drawImage(img, x, y, w, h, 0, 0, w * k, h * k);
+  img.onerror = () => { ctx.fillStyle = "#7d8a89"; ctx.font = "11px system-ui"; ctx.fillText("missing local file", 8, 20); };
+  img.src = `../../${ref.path}`;
+  return figure("crop", ref.caption, c);
+}
+
+function previewOf(o, item) {
+  if (item?.preview) return item.preview;
+  const name = o.refs.map((r) => r.path.match(PREVIEW_SHEET)?.[1]).find(Boolean);
+  return name;
+}
+
+function tag(text, cls = "") {
+  const t = document.createElement("span");
+  t.className = `tag ${cls}`;
+  t.textContent = text;
+  return t;
+}
+
+function section(o, mission) {
+  const def = asset(o.id);
+  const item = ITEMS[o.id];
+  const s = document.createElement("section");
+  s.id = o.id;
+  const h = document.createElement("h3");
+  h.append(item?.name ?? o.name);
+  const cs = document.createElement("span");
+  cs.className = "cs";
+  cs.textContent = item?.cs ?? o.csName ?? "";
+  const shared = USED_IN.get(o.id).filter((l) => l.id !== mission);
+  h.append(cs, tag(`asset ${o.id}`), item ? tag(`item ${item.id}`) : tag("not in game yet", "off"),
+    tag(shared.length ? `shared: ${shared.map((l) => l.name).join(", ")}` : "mission only"));
+  const desc = document.createElement("p");
+  desc.className = "desc";
+  desc.textContent = o.description ?? "";
+  s.append(h, desc);
+  const row = document.createElement("div");
+  row.className = "row";
+  if (!def) {
+    const todo = document.createElement("div");
+    todo.className = "todo";
+    todo.textContent = "not drawn yet";
+    row.append(todo);
+  } else {
+    const preview = previewOf(o, item);
+    if (preview && window.ORIGINALS.on) row.append(refView(preview));
+    const icon = item?.icon ?? DEFAULT_ICON;
+    const shown = icon.state ?? 0;
+    row.append(figure("", "ours", assetView(def, shown, BIG, false)));
+    row.append(figure("hud", `hud icon tilt ${icon.tilt}${item ? "" : " (default)"}`, hudView(def, icon)));
+    row.append(figure("", "game LOD", assetView(def, shown, GAME, true)));
+    o.states.forEach((label, st) => {
+      if (st !== shown) row.append(figure("", label, assetView(def, st, GAME * 2, false)));
+    });
+  }
+  s.append(row);
+  const crops = o.refs.filter((r) => !PREVIEW_SHEET.test(r.path));
+  if (crops.length) {
+    const refs = document.createElement("div");
+    refs.className = "row";
+    refs.append(...crops.map(cropView));
+    s.append(refs);
+  }
+  return s;
 }
 
 function render() {
   refViews.length = 0;
-  const sheet = $("sheet");
-  sheet.replaceChildren();
-  for (const [id, item] of Object.entries(ITEMS)) {
-    const def = asset(item.icon.asset);
-    const s = document.createElement("section");
-    const h = document.createElement("h3");
-    h.innerHTML = `${item.name} <span class="cs">${item.cs ?? ""}</span> <span class="tag">${id}</span> <span class="tag">asset ${item.icon.asset}</span>`;
-    s.append(h);
-    const row = document.createElement("div");
-    row.className = "row";
-    if (item.preview && window.ORIGINALS.on) row.append(refView(item.preview));
-    const shown = item.icon.state ?? 0;
-    row.append(figure("", "ours", assetView(def, shown, BIG, false)));
-    row.append(figure("hud", `hud icon tilt ${item.icon.tilt}`, hudView(def, item.icon)));
-    row.append(figure("", "game LOD", assetView(def, shown, GAME, true)));
-    for (const st of states(item.icon.asset).filter((x) => x !== shown)) {
-      row.append(figure("", OBJECTS[item.icon.asset].states[st], assetView(def, st, GAME * 2, false)));
-    }
-    s.append(row);
-    sheet.append(s);
-  }
+  const mission = $("mission").value;
+  const items = LEVELS.find((l) => l.id === mission).objects.objects.filter((o) => o.item);
+  $("sheet").replaceChildren(...items.map((o) => section(o, mission)));
 }
 
+{
+  const select = $("mission");
+  for (const l of LEVELS) {
+    const option = document.createElement("option");
+    option.value = l.id;
+    option.textContent = `${l.order}. ${l.name}`;
+    select.append(option);
+  }
+  select.onchange = render;
+}
 render();
 setInterval(() => {
   if (!$("spin")?.checked || SPIKE_CLOCK.paused) return;
