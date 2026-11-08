@@ -103,6 +103,7 @@ function figure(cls, caption, node) {
 const VIEWS = ["top", "front", "side"];
 const HAND_VIEW = { top: "palm", front: "tips", side: "thumb" };
 const RIG_BOX = { x: 18, y: 336, w: 140, h: 210 };
+const HAND_BOX_OF = { top: { ...RIG_BOX, y: 394 }, front: RIG_BOX, side: RIG_BOX };
 const RIG_PER_UNIT = (window.XBOT.FOOT_Y - 2) / 45.6;
 const VIEW_SPAN = 300, HAND_SPAN = 360, HAND_PX = 1.4, PAD = 2;
 const EXTRA_STATES = {
@@ -170,7 +171,8 @@ function restBounds(root, def, view) {
   const [x0, y0, x1, y1] = window.ENV.viewBox(def, view);
   const cx = (x0 + x1) / 2, cy = view === "top" ? (y0 + y1) / 2 : 0;
   const m = window.XBOT.locate(root, "rest");
-  let bx0 = RIG_BOX.x, by0 = RIG_BOX.y, bx1 = RIG_BOX.x + RIG_BOX.w, by1 = RIG_BOX.y + RIG_BOX.h;
+  const b = HAND_BOX_OF[view];
+  let bx0 = b.x, by0 = b.y, bx1 = b.x + b.w, by1 = b.y + b.h;
   for (const [x, y] of [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]) {
     const p = m.transformPoint(new DOMPoint((x - cx) * RIG_PER_UNIT, (y - cy) * RIG_PER_UNIT));
     bx0 = Math.min(bx0, p.x - 4); by0 = Math.min(by0, p.y - 4); bx1 = Math.max(bx1, p.x + 4); by1 = Math.max(by1, p.y + 4);

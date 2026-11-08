@@ -1,5 +1,5 @@
 (() => {
-const { define, P, G } = window.ENV;
+const { define, P, G, itemViews } = window.ENV;
 const { rng, path, color, flat, box, poly, disc, glow, stroke, shape, line, curve, mesh, hazard } = P;
 const { PI, sin, cos, min, max, round, abs } = Math;
 
@@ -756,6 +756,18 @@ const CAN = [[0, 0], [0, -17], [3, -20], [16, -20], [16, 0]];
 define({
   id: "canister",
   box: [-1, -25, 17, 1],
+  views: itemViews([-1, -25, 17, 1], 7, {
+    top(ctx) {
+      box(ctx, 0, -3.5, 16, 7, "brick", 2);
+      flat(ctx, 3, -2, 4, 4, "m2", "mLine");
+      line(ctx, [[8, 0], [15, 0]], "m1", 1.6);
+    },
+    front(ctx) {
+      flat(ctx, -2, -24, 4, 4, "m2", "mLine");
+      line(ctx, [[0, -20], [0, -23]], "m1", 1.6);
+      box(ctx, -3.5, -20, 7, 20, "brick", 1);
+    }
+  }),
   draw(ctx) {
     poly(ctx, CAN, "brick", 2, { dir: [1, 0] });
     flat(ctx, 3, -24, 4, 4, "m2", "mLine");
@@ -773,6 +785,17 @@ define({
 define({
   id: "cutters",
   box: [-1, -9, 25, 1],
+  views: itemViews([-1, -9, 25, 1], 2.4, {
+    top(ctx) {
+      strut(ctx, [1, 0], [14, 0], 2, RED[2]);
+      shape(ctx, [[14, -0.6], [24, -0.3], [22, 0.3], [14, 0.6]], "c1", "mLine");
+      disc(ctx, 14, 0, 1.1, "m2", "mLine");
+    },
+    front(ctx) {
+      for (const y of [-3, -6]) disc(ctx, 0, y, 1, RED[2], "kLine");
+      shape(ctx, [[-0.6, -6], [0.6, -6], [0.6, -3.4], [-0.6, -3.4]], "c1", "mLine");
+    }
+  }),
   draw(ctx) {
     for (const [a, b] of [[[1, -3], [14, -5]], [[1, -6], [14, -4.4]]]) strut(ctx, a, b, 2, RED[2]);
     shape(ctx, [[14, -6], [24, -5.6], [22, -4.6], [14, -3.4]], "c1", "mLine");
@@ -783,6 +806,25 @@ define({
 define({
   id: "grenade",
   box: [-5, -13, 5, 1],
+  views: itemViews([-5, -13, 5, 1], 7.2, {
+    top(ctx) {
+      shape(ctx, blobPts(0, 0, 3.6, 3.6, 902, 10, 0.04), "o1", "kLine");
+      if (!simple()) for (const r of [1.6, 2.8]) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, PI * 2);
+        stroke(ctx, "o0");
+      }
+      line(ctx, [[1.4, 0], [4, 0.3]], "m1", 0.8);
+      flat(ctx, -1.4, -1, 2.8, 2, "m2", "mLine");
+      disc(ctx, -2.6, 0, 1.2, "m3", "mLine");
+    },
+    front(ctx) {
+      shape(ctx, blobPts(0, -4.6, 3.6, 4.6, 901, 10, 0.04), "o1", "kLine");
+      if (!simple()) for (let y = -8; y < -1; y += 2) flat(ctx, -3, y, 6, 0.6, "o0");
+      flat(ctx, -1.4, -11, 2.8, 2, "m2", "mLine");
+      line(ctx, [[-0.2, -10], [0, -8], [0.2, -4]], "m1", 0.8);
+    }
+  }),
   draw(ctx) {
     shape(ctx, blobPts(0, -4.6, 3.6, 4.6, 901, 10, 0.04), "o1", "kLine");
     if (!simple()) for (let y = -8; y < -1; y += 2) flat(ctx, -3, y, 6, 0.6, "o0");
