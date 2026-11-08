@@ -219,13 +219,13 @@ const profileHand = (k: Kit, parent: GroupNode, S: Mirror, thumbBehind: boolean)
   const t = FINGER.thick;
   const thumb = (): void => chain(k, parent, S, THUMB_SIDE, [-14, -4], THUMB.seg, THUMB.thick);
   if (thumbBehind) thumb();
-  k.P(parent, { pts: S([[a + 3, HAND.top], [b, HAND.top], [b, HAND.bottom], [a + 3, HAND.bottom]]), r: 3 });
-  k.P(parent, { pts: S([[a - 2, HAND.top + 6], [a + 6, HAND.top + 6], [a + 6, HAND.bottom - 2], [a - 2, HAND.bottom - 2]]), mat: "metal", shade: "cyl", r: 4 });
   k.P(parent, { pts: S([[fx, FINGER.base], [fx + t, FINGER.base - 6], [fx + t, y1], [fx, y1]]), shade: "cyl", r: 3, lw: FINGER_LW });
   k.P(parent, { pts: S([[fx, y1], [fx + t, y1], [fx + t, y2], [fx, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
   k.P(parent, { pts: S([[fx, y2], [fx + t, y2], [fx + t, y3 - 4], [fx + 9, y3], [fx, y3 - 4]]), r: 3, lw: FINGER_LW });
   for (const [top, bottom] of [[FINGER.base + 2, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 5]] as const)
     k.P(parent, { pts: S([[fx - 4, top], [fx + 6, top], [fx + 6, bottom], [fx - 4, bottom]]), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+  k.P(parent, { pts: S([[a + 3, HAND.top], [b, HAND.top], [b, HAND.bottom], [a + 3, HAND.bottom]]), r: 3 });
+  k.P(parent, { pts: S([[a - 2, HAND.top + 6], [a + 6, HAND.top + 6], [a + 6, HAND.bottom - 2], [a - 2, HAND.bottom - 2]]), mat: "metal", shade: "cyl", r: 4 });
   if (!thumbBehind) thumb();
 };
 

@@ -959,11 +959,11 @@ function profileHand(parent, S, thumbBehind, beforeThumb = () => {}) {
   const fx = HAND_FACE[1] - 2 - FINGER.thick;
   const thumb = () => handThumb(parent, S, THUMB_SIDE, [-14, -4], THUMB.thick);
   if (thumbBehind) thumb();
-  profilePlate(parent, S);
   P(parent, { pts: S([[fx, FINGER.base], [fx + FINGER.thick, FINGER.base - 6], [fx + FINGER.thick, y1], [fx, y1]]), shade: "cyl", r: 3, lw: FINGER_LW });
   P(parent, { pts: S([[fx, y1], [fx + FINGER.thick, y1], [fx + FINGER.thick, y2], [fx, y2]]), shade: "cyl", r: 2, lw: FINGER_LW });
   P(parent, { pts: S([[fx, y2], [fx + FINGER.thick, y2], [fx + FINGER.thick, y3 - 4], [fx + 9, y3], [fx, y3 - 4]]), r: 3, lw: FINGER_LW });
   for (const [t, u] of [[FINGER.base + 2, y1 - 2], [y1 + 1, y2 - 2], [y2 + 1, y3 - 5]]) P(parent, { pts: S([[fx - 4, t], [fx + 6, t], [fx + 6, u], [fx - 4, u]]), mat: "metal", shade: "cyl", r: 4, lw: FINGER_LW });
+  profilePlate(parent, S);
   beforeThumb();
   if (!thumbBehind) thumb();
 }
