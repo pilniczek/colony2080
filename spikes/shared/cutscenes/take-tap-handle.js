@@ -10,7 +10,6 @@ const palette = { ...CFG.palette };
 const at = kit.track(CFG.tracks);
 const TAP = kit.asset("tapHandle");
 const TAP_CENTER = { x: 6, y: -5, r: 5.6 };
-const STREAM_W = 46;
 const FLASH_PALETTE = kit.recolor(palette.flash);
 const SHADOW_PALETTE = kit.recolor("#000000");
 
@@ -64,7 +63,7 @@ function drawRoom(c) {
   P.shape(c, [[-200, 520], [360, 430], [360, 455], [-200, 560]], palette.stain);
 }
 
-function drawPipe(c, t) {
+function drawPipe(c) {
   const { x, w, sleeveTop, bottom } = PIPE;
   const mid = x + w / 2;
   kit.pool(c, mid + 50, PIPE.floor + 6, 170, 22, "#000000", 0.7);
@@ -77,44 +76,6 @@ function drawPipe(c, t) {
   c.beginPath();
   c.ellipse(mid, bottom - 10, w / 2 - 14, 9, 0, 0, Math.PI * 2);
   c.fill();
-  drawStream(c, mid, bottom - 8, at("flow", t), t);
-}
-
-function drawStream(c, mid, top, flow, t) {
-  if (flow <= 0) {
-    const fall = (t * 1.4) % 1;
-    P.disc(c, mid, top + fall * (PIPE.floor - top), 5, palette.water);
-    return;
-  }
-  const sw = STREAM_W * flow;
-  c.save();
-  c.globalAlpha = 0.7;
-  P.flat(c, mid - sw / 2, top, sw, PIPE.floor - top, palette.water);
-  c.restore();
-  c.save();
-  c.beginPath();
-  c.rect(mid - sw / 2, top, sw, PIPE.floor - top);
-  c.clip();
-  const step = 46;
-  const off = (t * 700) % step;
-  for (let i = 0, y = top - step + off; y < PIPE.floor; y += step, i++) {
-    const k = (i % 3) / 3;
-    P.flat(c, mid - sw / 2 + sw * (0.15 + k * 0.5), y, 5, 24, "c3");
-    P.flat(c, mid - sw / 2 + sw * (0.7 - k * 0.4), y + 18, 4, 18, palette.waterDark);
-  }
-  c.restore();
-  c.save();
-  c.globalAlpha = 0.75;
-  c.fillStyle = palette.water;
-  c.beginPath();
-  c.ellipse(mid, PIPE.floor, sw * 1.4 + 10, 9, 0, 0, Math.PI * 2);
-  c.fill();
-  c.restore();
-  for (let i = 0; i < 6; i++) {
-    const p = (t * 2.2 + i / 6) % 1;
-    const dx = (i % 2 ? 1 : -1) * (14 + p * 50) * flow;
-    P.disc(c, mid + dx, PIPE.floor - 4 - 34 * Math.sin(p * Math.PI) * flow, 4, palette.water);
-  }
 }
 
 function rimPoint(deg, x = WHEEL.x + 16, y = WHEEL.y) {
@@ -173,7 +134,7 @@ function drawPumpRoom(c, t) {
   lineW = kit.lineFor(c, RB.scale);
   kit.layer(c, t, cc => {
     drawRoom(cc);
-    drawPipe(cc, t);
+    drawPipe(cc);
     drawWheel(cc, t);
   }, lineW);
   drawHero(c, t);

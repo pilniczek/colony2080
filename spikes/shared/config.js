@@ -7076,8 +7076,6 @@ window.C28_CONFIG = {
     "wallLit": "#2c4232",
     "seam": "#0a120e",
     "stain": "#4e3218",
-    "water": "#86a8a0",
-    "waterDark": "#3e5a58",
     "flash": "#e03a10",
     "grid": "#e04018"
    },
@@ -7221,26 +7219,6 @@ window.C28_CONFIG = {
       3.714,
       0,
       "inOut"
-     ]
-    ],
-    "flow": [
-     [
-      0,
-      1
-     ],
-     [
-      1.2,
-      1
-     ],
-     [
-      2.9,
-      0.15,
-      "inOut"
-     ],
-     [
-      3.2,
-      0,
-      "in"
      ]
     ],
     "grid": [

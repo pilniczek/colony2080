@@ -10,7 +10,6 @@ import { armChain, fitStage, layer, LINE_W, lineFor, placeRobot, pool, RAD, reac
 const { width: W, height: H, floorY: FLOOR, robot: RB, pipe: PIPE, wheel: WHEEL, close: CLOSE } = config.stage;
 const palette: Record<string, string> = { ...config.palette };
 export const TAP_CENTER = { x: 6, y: -5, r: 5.6 };
-const STREAM_W = 46;
 const FLASH_PALETTE = recolor(palette.flash!);
 const SHADOW_PALETTE = recolor("#000000");
 
@@ -69,44 +68,7 @@ function drawRoom(c: CanvasRenderingContext2D): void {
   P.shape(c, [[-200, 520], [360, 430], [360, 455], [-200, 560]], palette.stain!);
 }
 
-function drawStream(c: CanvasRenderingContext2D, mid: number, top: number, flow: number, t: number): void {
-  if (flow <= 0) {
-    const fall = (t * 1.4) % 1;
-    P.disc(c, mid, top + fall * (PIPE.floor - top), 5, palette.water!);
-    return;
-  }
-  const sw = STREAM_W * flow;
-  c.save();
-  c.globalAlpha = 0.7;
-  P.flat(c, mid - sw / 2, top, sw, PIPE.floor - top, palette.water!);
-  c.restore();
-  c.save();
-  c.beginPath();
-  c.rect(mid - sw / 2, top, sw, PIPE.floor - top);
-  c.clip();
-  const step = 46;
-  const off = (t * 700) % step;
-  for (let i = 0, y = top - step + off; y < PIPE.floor; y += step, i++) {
-    const k = (i % 3) / 3;
-    P.flat(c, mid - sw / 2 + sw * (0.15 + k * 0.5), y, 5, 24, "c3");
-    P.flat(c, mid - sw / 2 + sw * (0.7 - k * 0.4), y + 18, 4, 18, palette.waterDark!);
-  }
-  c.restore();
-  c.save();
-  c.globalAlpha = 0.75;
-  c.fillStyle = palette.water!;
-  c.beginPath();
-  c.ellipse(mid, PIPE.floor, sw * 1.4 + 10, 9, 0, 0, Math.PI * 2);
-  c.fill();
-  c.restore();
-  for (let i = 0; i < 6; i++) {
-    const p = (t * 2.2 + i / 6) % 1;
-    const dx = (i % 2 ? 1 : -1) * (14 + p * 50) * flow;
-    P.disc(c, mid + dx, PIPE.floor - 4 - 34 * Math.sin(p * Math.PI) * flow, 4, palette.water!);
-  }
-}
-
-function drawPipe(c: CanvasRenderingContext2D, t: number): void {
+function drawPipe(c: CanvasRenderingContext2D): void {
   const { x, w, sleeveTop, bottom } = PIPE;
   const mid = x + w / 2;
   pool(c, mid + 50, PIPE.floor + 6, 170, 22, "#000000", 0.7);
@@ -119,7 +81,6 @@ function drawPipe(c: CanvasRenderingContext2D, t: number): void {
   c.beginPath();
   c.ellipse(mid, bottom - 10, w / 2 - 14, 9, 0, 0, Math.PI * 2);
   c.fill();
-  drawStream(c, mid, bottom - 8, num("flow", t), t);
 }
 
 const rimPoint = (deg: number, x = WHEEL.x + 16, y = WHEEL.y): Pt => [x + WHEEL.r * WHEEL.depth * Math.sin(deg * RAD), y - WHEEL.r * Math.cos(deg * RAD)];
@@ -173,7 +134,7 @@ function drawPumpRoom(c: CanvasRenderingContext2D, t: number): void {
   lineW = lineFor(c, RB.scale);
   layer(c, t, (cc) => {
     drawRoom(cc);
-    drawPipe(cc, t);
+    drawPipe(cc);
     drawWheel(cc, t);
   }, lineW);
   drawHero(c, t);
