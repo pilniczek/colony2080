@@ -5,7 +5,7 @@ import type { Pt } from "../engine/rig/tree";
 import { fogEdge, visible } from "./fog";
 import type { ClipSet, MovementConfig } from "./hero/config";
 import type { Hero, HeroEvent } from "./hero/hero";
-import { createRigs, heroLook, heroScale, type HeroLook, type Rigs } from "./hero/look";
+import { createRigs, heroLook, heroScale, rigFor, type HeroLook, type Rigs } from "./hero/look";
 import { bodyBox, hitEnemy, isDead, shotBox, type Enemy } from "./level/enemy";
 import { startFilm, type Flame, type Prop, type SandboxWorld, type Strike } from "./level/sandboxLevel";
 import { repelHero, updateGuard } from "./level/guards";
@@ -32,7 +32,7 @@ let simRigs: { rigs: Rigs; hold: Holds } | null = null;
 const sim = () => {
   if (!simRigs) {
     const rigs = createRigs(true);
-    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.front) };
+    simRigs = { rigs, hold: holdPoses(rigs.side, rigs.armedFront ?? rigs.front) };
   }
   return simRigs;
 };
@@ -40,7 +40,7 @@ const sim = () => {
 export function muzzleInRig(look: HeroLook, rigs: Rigs, local: Pt = MUZZLE_IN_HOOK): Pt | null {
   if (look.gun !== "hand") return null;
   const front = look.view === "front";
-  const mat = locate(front ? rigs.front : rigs.side, front ? "handL" : "hand", look.pose);
+  const mat = locate(rigFor(look, rigs), front ? "handL" : "hand", look.pose);
   return mat ? apply(mat, local) : null;
 }
 

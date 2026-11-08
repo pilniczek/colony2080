@@ -19,10 +19,10 @@ const buildParts = length => [
   { name: "bodyLow", x: -6, y: -38, w: 118, h: 24, mat: "g", tone: 0 },
   { name: "band", x: 40, y: -104, w: 30, h: 90, mat: "w", tone: 2 },
   { name: "vent", x: 82, y: -92, w: 20, h: 40, mat: "k", tone: 0 },
-  { name: "barrel", x: BARREL.x, y: -76, w: length, h: 32, mat: "g", tone: 1 },
-  { name: "barrelTop", x: BARREL.x, y: -76, w: length, h: 8, mat: "g", tone: 3 },
-  { name: "coil", x: BARREL.x + length * 0.45, y: -82, w: 14, h: 44, mat: "b", tone: 2 },
-  { name: "emitter", x: BARREL.x + length, y: -90, w: EMITTER, h: 60, mat: "k", tone: 2 }
+  { name: "barrel", x: BARREL.x, y: -50, w: length, h: 32, mat: "g", tone: 1 },
+  { name: "barrelTop", x: BARREL.x, y: -50, w: length, h: 8, mat: "g", tone: 3 },
+  { name: "coil", x: BARREL.x + length * 0.45, y: -56, w: 14, h: 44, mat: "b", tone: 2 },
+  { name: "emitter", x: BARREL.x + length, y: -64, w: EMITTER, h: 60, mat: "k", tone: 2 }
 ];
 
 function idleGlow(ctx, length, simple) {
@@ -31,14 +31,13 @@ function idleGlow(ctx, length, simple) {
   ctx.globalAlpha = 0.35;
   ctx.fillStyle = COLORS.b2;
   ctx.beginPath();
-  ctx.ellipse(BARREL.x + length + EMITTER + 5, -60, 10, 16, 0, 0, Math.PI * 2);
+  ctx.ellipse(BARREL.x + length + EMITTER + 5, -34, 10, 16, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
 
-const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -60];
-const BAND = { y: -90, h: 60 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: idleGlow, barrel: BARREL, muzzle: MUZZLE, band: BAND });
+const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -34];
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: idleGlow, barrel: BARREL, muzzle: MUZZLE });
 
 const SHOT = { cycle: 4, step: 36, lead: 8, r: 7 };
 const RANGE = 9 * 24;

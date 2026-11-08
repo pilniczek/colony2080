@@ -1,11 +1,11 @@
 import { span } from "../../engine/anim/keyed";
 import type { ViewTransform } from "../../engine/render/view";
 import { drawRig, shade, type HookDraw, type Palette } from "../../engine/rig/draw";
-import type { GroupNode, Pt } from "../../engine/rig/tree";
+import type { Pt } from "../../engine/rig/tree";
 import type { MovementConfig } from "../hero/config";
 import { isDead, type Hero } from "../hero/hero";
 import { SPIKE_K } from "../hero/gait";
-import { createRigs, heroScale, spikeUnit, type GunModel, type HeroLook, type HitLook, type Rigs } from "../hero/look";
+import { heroScale, rigFor, spikeUnit, type GunModel, type HeroLook, type HitLook, type Rigs } from "../hero/look";
 import type { Rect } from "../geometry";
 import { bodyBox, boxSeen, isDead as isEnemyDead, type Enemy } from "../level/enemy";
 import { picked } from "../difficulty";
@@ -17,9 +17,9 @@ import { ASSETS } from "../env/assets";
 import { BLAST, drawBlast, drawScrap, inBlastUnits } from "../env/blast";
 import { drawAsset, PALETTE, TILE } from "../env/paint";
 import { drawEBlaster, EBLASTER_COLORS, eblasterHook } from "../robot/eblaster";
-import { drawGun, frontBarrel, GUN_WEAPON, gunHook, holdPoses, type HeroWeapon } from "../robot/gun";
-import { drawToaster, TOASTER_COLORS, TOASTER_WEAPON, toasterHook } from "../robot/toaster";
-import { drawFlamethrower, FLAMETHROWER_COLORS, FLAMETHROWER_WEAPON, flamethrowerHook } from "../robot/flamethrower";
+import { drawGun, gunHook } from "../robot/gun";
+import { drawToaster, TOASTER_COLORS, toasterHook } from "../robot/toaster";
+import { drawFlamethrower, FLAMETHROWER_COLORS, flamethrowerHook } from "../robot/flamethrower";
 import type { Dying, EnemyKind, KindWeapon } from "../robot/kinds";
 import { MUZZLE_IN_HOOK } from "../robot/weaponModel";
 import { ROBOT } from "../robot/xbot";
@@ -45,16 +45,6 @@ const MODELS = {
 } satisfies Record<GunModel, unknown>;
 const HERO_PALETTE: Palette = { ...EBLASTER_COLORS, ...TOASTER_COLORS, ...FLAMETHROWER_COLORS, ...ROBOT.palette };
 
-const WEAPONS: Record<GunModel, HeroWeapon> = { gun: GUN_WEAPON, blaster: GUN_WEAPON, toaster: TOASTER_WEAPON, flamethrower: FLAMETHROWER_WEAPON };
-const frontBarrels = new Map<GunModel, number>();
-const frontBarrelOf = (hand: GunModel): number => {
-  const known = frontBarrels.get(hand);
-  if (known !== undefined) return known;
-  const rigs = createRigs(true);
-  const barrel = frontBarrel(rigs.front, holdPoses(rigs.side, rigs.front), WEAPONS[hand]);
-  frontBarrels.set(hand, barrel);
-  return barrel;
-};
 const LASER = { color: "#ff2a1a", width: 1, glow: 4, glowAlpha: 0.3 };
 const FLYER_HIT = { flash: 0.25, glow: 0.6, steps: 16 };
 
@@ -129,12 +119,6 @@ function shadow(f: Frame, hero: Hero): void {
   ctx.ellipse(hero.x * cell, hero.y * cell, 30 * unit, 3.5 * unit, 0, 0, Math.PI * 2);
   ctx.fill();
 }
-
-export const rigFor = (look: HeroLook, rigs: Rigs): GroupNode => {
-  const armed = look.gun === "hand";
-  if (look.view === "side") return (armed && rigs.armedSide) || rigs.side;
-  return (armed && rigs.armedFront) || rigs.front;
-};
 
 function blast(f: Frame, body: Hero, age: number, centered = false): void {
   const { ctx, cell, unit } = f;
@@ -270,7 +254,7 @@ function muzzleFlash(ctx: CanvasRenderingContext2D, look: HeroLook, rigs: Rigs, 
 export function weaponHooks(look: HeroLook, lineW: number): Record<string, HookDraw> {
   const front = look.view === "front";
   const hooks: Record<string, HookDraw> = {};
-  if (look.gun === "hand") hooks[front ? "handL" : "hand"] = (c, pal) => MODELS[look.hand].hook(c, pal, { lineW, simple: true, barrel: front ? frontBarrelOf(look.hand) : undefined });
+  if (look.gun === "hand") hooks[front ? "handL" : "hand"] = (c, pal) => MODELS[look.hand].hook(c, pal, { lineW, simple: true });
   return hooks;
 }
 

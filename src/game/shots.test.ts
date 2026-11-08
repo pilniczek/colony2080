@@ -648,7 +648,7 @@ describe("toaster fireball", () => {
 
   it("puts its sight at the range end, or at the first wall when nearer", () => {
     const rigs = createRigs(true);
-    const aim = (g: Game) => toasterSight(g.world, g.hero, heroLook(g.hero, clips, rigs, holdPoses(rigs.side, rigs.front)), rigs, cfg);
+    const aim = (g: Game) => toasterSight(g.world, g.hero, heroLook(g.hero, clips, rigs, holdPoses(rigs.side, rigs.armedFront ?? rigs.front)), rigs, cfg);
     const g = toaster();
     expect(aim(g).end).toBeCloseTo(3.5 + cfg.toaster.range, 9);
     g.hero.x = 26.5;

@@ -87,7 +87,7 @@ function guard(x, floorY, k, pal) {
   const lineW = kit.lineFor(ctx, k);
   robot(enemyFront, x, floorY, k, {
     ax: AX, pose, pal, lineW,
-    hooks: { handL: c => window.GUN.hook(c, { pal, lineW, barrel: hold.FRONT_BARREL }) }
+    hooks: { handL: c => window.GUN.hook(c, { pal, lineW }) }
   });
 }
 

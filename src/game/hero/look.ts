@@ -113,7 +113,7 @@ const settle = (side: GroupNode, pose: Pose, rot: number): number => -lowest(sid
 
 const carry = (pose: Angles, hold: Hold): Angles => {
   const b = pose.body ?? 0;
-  return { ...pose, arm: hold.CARRY.arm - b, fore: hold.CARRY.fore, armFar: hold.CARRY_FAR.armFar - b, foreFar: hold.CARRY_FAR.foreFar };
+  return { ...pose, arm: hold.CARRY.arm - b, fore: hold.CARRY.fore, armFar: hold.CARRY_FAR.armFar - b, foreFar: hold.CARRY_FAR.foreFar, supportFar: hold.CARRY_FAR.supportFar };
 };
 
 const joints = (pose: Angles): Angles => Object.fromEntries(Object.entries(pose).filter(([k]) => k !== "carry"));
@@ -128,7 +128,8 @@ const withCarryKey = (pose: Angles, hold: Hold, inHand: boolean, view: View): An
 
 const letGo = (pose: Angles, hold: Hold, t: number, drop: number, inHand: boolean): Angles => {
   const rest = joints(pose);
-  return mix(rest, carry(rest, hold), inHand ? 1 : 1 - ease(span(t, drop, drop + DROP.letGo)));
+  const held = inHand ? 1 : 1 - ease(span(t, drop, drop + DROP.letGo));
+  return held === 0 ? rest : mix(rest, carry(rest, hold), held);
 };
 
 const clipTime = (clip: Clip, time: number): number =>
@@ -251,3 +252,9 @@ const landed = (h: Hero, look: HeroLook, clips: ClipSet, rigs: Rigs, hold: Hold)
 
 export const heroLook = (h: Hero, clips: ClipSet, rigs: Rigs, hold: Hold): HeroLook =>
   withHit(h, landed(h, baseLook(h, clips, rigs, hold), clips, rigs, hold));
+
+export const rigFor = (look: HeroLook, rigs: Rigs): GroupNode => {
+  const armed = look.gun === "hand";
+  if (look.view === "side") return (armed && rigs.armedSide) || rigs.side;
+  return (armed && rigs.armedFront) || rigs.front;
+};

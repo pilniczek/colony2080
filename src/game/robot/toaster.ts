@@ -1,7 +1,6 @@
 import type { Palette } from "../../engine/rig/draw";
 import type { Pt } from "../../engine/rig/tree";
 import { PALETTE } from "../env/paint";
-import type { HeroWeapon } from "./gun";
 import { createWeaponModel, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
 
 const tones = (k: string, from: string, line: string): Palette =>
@@ -41,17 +40,17 @@ const buildParts = (length: number): WeaponPart[] => [
   { name: "heatSlot", x: -23, y: -81, w: 60, h: 12, mat: "h", tone: 0 },
   { name: "filament", x: -18, y: -79, w: 50, h: 5, mat: "o", tone: 2 },
   { name: "hazard", x: -37, y: -47, w: 45, h: 16, mat: "y", tone: 2 },
-  { name: "barrel", x: TOASTER_BARREL.x, y: -60, w: length, h: 37, mat: "s", tone: 1 },
+  { name: "barrel", x: TOASTER_BARREL.x, y: -55, w: length, h: 37, mat: "s", tone: 1 },
   ...Array.from({ length: Math.max(0, Math.floor((length - COIL.first - COIL.w) / COIL.step) + 1) }, (_, i): WeaponPart => ({
     name: "coil" + i,
     x: TOASTER_BARREL.x + COIL.first + i * COIL.step,
-    y: -60,
+    y: -55,
     w: COIL.w,
     h: 37,
     mat: "o",
     tone: 1,
   })),
-  { name: "cap", x: TOASTER_BARREL.x + length, y: -68, w: CAP, h: 53, mat: "k", tone: 2 },
+  { name: "cap", x: TOASTER_BARREL.x + length, y: -63, w: CAP, h: 53, mat: "k", tone: 2 },
 ];
 
 const heat = (ctx: CanvasRenderingContext2D, _length: number, simple: boolean, color: (key: string) => string): void => {
@@ -67,8 +66,7 @@ const heat = (ctx: CanvasRenderingContext2D, _length: number, simple: boolean, c
 
 const model = createWeaponModel({ buildParts, mat: MAT, colors: COLORS, after: heat });
 
-export const TOASTER_MUZZLE: Pt = [TOASTER_BARREL.x + TOASTER_BARREL.length + CAP, -41];
-export const TOASTER_WEAPON: HeroWeapon = { barrel: TOASTER_BARREL, muzzle: TOASTER_MUZZLE, band: { y: -60, h: 37 } };
+export const TOASTER_MUZZLE: Pt = [TOASTER_BARREL.x + TOASTER_BARREL.length + CAP, -36];
 export const TOASTER_MUZZLE_IN_HOOK = toHook(TOASTER_MUZZLE);
 
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? TOASTER_BARREL.length });

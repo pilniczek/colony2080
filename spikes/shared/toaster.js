@@ -16,9 +16,9 @@ const buildParts = length => [
   { name: "heatSlot", x: -23, y: -81, w: 60, h: 12, mat: "h", tone: 0 },
   { name: "filament", x: -18, y: -79, w: 50, h: 5, mat: "o", tone: 2 },
   { name: "hazard", x: -37, y: -47, w: 45, h: 16, mat: "y", tone: 2 },
-  { name: "barrel", x: BARREL.x, y: -60, w: length, h: 37, mat: "s", tone: 1 },
-  ...Array.from({ length: Math.max(0, Math.floor((length - COIL.first - COIL.w) / COIL.step) + 1) }, (_, i) => ({ name: "coil" + i, x: BARREL.x + COIL.first + i * COIL.step, y: -60, w: COIL.w, h: 37, mat: "o", tone: 1 })),
-  { name: "cap", x: BARREL.x + length, y: -68, w: CAP, h: 53, mat: "k", tone: 2 }
+  { name: "barrel", x: BARREL.x, y: -55, w: length, h: 37, mat: "s", tone: 1 },
+  ...Array.from({ length: Math.max(0, Math.floor((length - COIL.first - COIL.w) / COIL.step) + 1) }, (_, i) => ({ name: "coil" + i, x: BARREL.x + COIL.first + i * COIL.step, y: -55, w: COIL.w, h: 37, mat: "o", tone: 1 })),
+  { name: "cap", x: BARREL.x + length, y: -63, w: CAP, h: 53, mat: "k", tone: 2 }
 ];
 
 function heat(ctx, length, simple) {
@@ -32,9 +32,8 @@ function heat(ctx, length, simple) {
   ctx.restore();
 }
 
-const MUZZLE = [BARREL.x + BARREL.length + CAP, -41];
-const BAND = { y: -60, h: 37 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: heat, barrel: BARREL, muzzle: MUZZLE, band: BAND });
+const MUZZLE = [BARREL.x + BARREL.length + CAP, -36];
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: heat, barrel: BARREL, muzzle: MUZZLE });
 
 const SHOT = { cycle: 7, step: 24, lead: 12, frames: 6 };
 const BALL = [["#ac2c0c", 7.5, 5, 0], ["#c8300c", 7, 4.4, 0], ["#e86418", 6.4, 3.8, 0.4], ["#f09024", 5.6, 3.2, 0.8], ["#f4b82c", 4.8, 2.6, 1.2], ["#fce438", 3.8, 2, 1.6], ["#fcf0c4", 2.4, 1.1, 2]];

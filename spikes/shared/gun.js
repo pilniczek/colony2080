@@ -43,6 +43,8 @@ function toHook(pt) {
 const CARRY = { arm: 22, fore: -94 };
 const FRONT_CARRY = { armL: 0, foreL: -90 };
 const FRONT_REACH = [40, 140];
+const FRONT_SUPPORT = [164, -20];
+const BOTH_ARMS = { grip: [0, 60], support: [0, 90] };
 
 function frontGrip(front, gripX) {
   const { locate } = window.XBOT;
@@ -58,24 +60,36 @@ function frontGrip(front, gripX) {
   for (let i = -20; i <= 20; i++) if (miss(coarse + i / 20) < miss(best)) best = coarse + i / 20;
   return { armR: 0, foreR: best };
 }
-const SCAN = { x: -600, w: 1600 };
-
-function silhouetteEdge(root, hookName, pose, band) {
-  const { locate, render } = window.XBOT;
-  const canvas = document.createElement("canvas");
-  canvas.width = SCAN.w;
-  canvas.height = band.h;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  const toGun = locate(root, hookName, pose).multiply(new DOMMatrix([0, 1, -1, 0, 0, 0])).inverse();
-  ctx.setTransform(new DOMMatrix().translate(-SCAN.x, -band.y).multiply(toGun));
-  render(ctx, root, { pose, lineW: 0 });
-  const { data } = ctx.getImageData(0, 0, SCAN.w, band.h);
-  let edge = -Infinity;
-  for (let i = 3; i < data.length; i += 4) if (data[i]) edge = Math.max(edge, (i >> 2) % SCAN.w);
-  return edge + SCAN.x;
+function bothArms(front) {
+  const { locate } = window.XBOT;
+  const poseOf = (a, t) => ({ armL: -a, foreL: -90 + a, armR: t, supportR: -t });
+  const fit = a => {
+    const p = locate(front, "handL", poseOf(a, 0)).transformPoint(new DOMPoint(...toHook(FRONT_SUPPORT)));
+    const at = t => locate(front, "support", poseOf(a, t));
+    let [lo, hi] = BOTH_ARMS.support;
+    for (let i = 0; i < 24; i++) {
+      const mid = (lo + hi) / 2;
+      if (at(mid).e > p.x) lo = mid;
+      else hi = mid;
+    }
+    const m = at(lo);
+    return { t: lo, miss: Math.hypot(m.e - p.x, m.f - p.y) };
+  };
+  const scan = (from, to, step) => {
+    let best = null;
+    for (let a = from; a <= to; a += step) {
+      const f = fit(a);
+      if (!best || f.miss < best.miss) best = { a, ...f };
+    }
+    return best;
+  };
+  const coarse = scan(BOTH_ARMS.grip[0], BOTH_ARMS.grip[1], 1);
+  const best = scan(coarse.a - 1, coarse.a + 1, 0.05);
+  const pose = poseOf(best.a, best.t);
+  return { FRONT_CARRY: { armL: pose.armL, foreL: pose.foreL }, FRONT_CARRY_R: { armR: pose.armR, foreR: 0, supportR: pose.supportR }, miss: best.miss };
 }
 
-function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own = BARREL, muzzle = MUZZLE, band = null }) {
+function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own = BARREL, muzzle = MUZZLE }) {
   const partSets = new Map();
   const partsFor = length => partSets.get(length) || partSets.set(length, buildParts(length)).get(length);
 
@@ -106,12 +120,10 @@ function model({ buildParts, mat = MAT, colors = {}, after = null, barrel: own =
   function holdPoses(side, front) {
     const { locate, solve } = window.XBOT;
     const grip = toHook(SUPPORT);
-    const CARRY_FAR = solve(side, "handFar", CARRY, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(side, "hand", CARRY).transformPoint(new DOMPoint(...grip)));
-    const FRONT_CARRY_R = frontGrip(front, grip[0]);
-    const edge = band || partsFor(own.length).find(p => p.name === "barrelBack");
-    const clear = silhouetteEdge(front, "handL", { ...FRONT_CARRY, ...FRONT_CARRY_R }, edge) + edge.h;
-    const FRONT_BARREL = Math.max(own.length, Math.ceil(own.length + clear - muzzle[0]));
-    return { CARRY, CARRY_FAR, FRONT_CARRY, FRONT_CARRY_R, FRONT_BARREL };
+    const far = solve(side, "handFar", CARRY, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], locate(side, "hand", CARRY).transformPoint(new DOMPoint(...grip)));
+    const CARRY_FAR = { ...far, supportFar: window.XBOT.SIDE_FORE_TURN - far.armFar - far.foreFar };
+    const front2 = window.XBOT.locate(front, "support") ? bothArms(front) : { FRONT_CARRY, FRONT_CARRY_R: frontGrip(front, grip[0]) };
+    return { CARRY, CARRY_FAR, FRONT_CARRY: front2.FRONT_CARRY, FRONT_CARRY_R: front2.FRONT_CARRY_R };
   }
 
   return { PARTS: partsFor(own.length), BARREL: own, MUZZLE: muzzle, draw, hook, toHook, muzzleInHook: toHook(muzzle), holdPoses };

@@ -1,7 +1,6 @@
 import type { Palette } from "../../engine/rig/draw";
 import type { Pt } from "../../engine/rig/tree";
 import { PALETTE } from "../env/paint";
-import type { HeroWeapon } from "./gun";
 import { createWeaponModel, toHook, type HookOptions, type MatKeys, type WeaponOptions, type WeaponPart } from "./weaponModel";
 
 const tones = (k: string, from: string, line: string): Palette =>
@@ -37,9 +36,9 @@ const buildParts = (length: number): WeaponPart[] => [
   { name: "tankFront", x: 66, y: -110, w: 10, h: 42, mat: "s", tone: 2 },
   { name: "tankBand", x: 6, y: -118, w: 10, h: 58, mat: "s", tone: 1 },
   { name: "valve", x: 74, y: -84, w: 12, h: 24, mat: "k", tone: 2 },
-  { name: "barrel", x: FLAMETHROWER_BARREL.x, y: -52, w: length, h: 24, mat: "s", tone: 2 },
-  { name: "nozzle", x: FLAMETHROWER_BARREL.x + length, y: -62, w: NOZZLE, h: 44, mat: "k", tone: 2 },
-  { name: "igniter", x: FLAMETHROWER_BARREL.x + length + 14, y: -19, w: 20, h: 7, mat: "k", tone: 1 },
+  { name: "barrel", x: FLAMETHROWER_BARREL.x, y: -42, w: length, h: 24, mat: "s", tone: 2 },
+  { name: "nozzle", x: FLAMETHROWER_BARREL.x + length, y: -52, w: NOZZLE, h: 44, mat: "k", tone: 2 },
+  { name: "igniter", x: FLAMETHROWER_BARREL.x + length + 14, y: -9, w: 20, h: 7, mat: "k", tone: 1 },
 ];
 
 const PILOT: Record<"outer" | "mid" | "core" | "blue", Pt[]> = {
@@ -72,7 +71,7 @@ const pilotLayer = (ctx: CanvasRenderingContext2D, pts: Pt[], hex: string, alpha
 
 const pilotFlame = (ctx: CanvasRenderingContext2D, length: number, simple: boolean, color: (key: string) => string): void => {
   ctx.save();
-  ctx.translate(FLAMETHROWER_BARREL.x + length + NOZZLE + 4, -15.5);
+  ctx.translate(FLAMETHROWER_BARREL.x + length + NOZZLE + 4, -5.5);
   if (!simple) {
     const g = ctx.createRadialGradient(9, -10, 0, 9, -10, 28);
     g.addColorStop(0, rgba(color("o2"), 0.35));
@@ -91,8 +90,7 @@ const pilotFlame = (ctx: CanvasRenderingContext2D, length: number, simple: boole
 
 const model = createWeaponModel({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame });
 
-const MUZZLE: Pt = [FLAMETHROWER_BARREL.x + FLAMETHROWER_BARREL.length + NOZZLE, -40];
-export const FLAMETHROWER_WEAPON: HeroWeapon = { barrel: FLAMETHROWER_BARREL, muzzle: MUZZLE, band: { y: -62, h: 44 } };
+const MUZZLE: Pt = [FLAMETHROWER_BARREL.x + FLAMETHROWER_BARREL.length + NOZZLE, -30];
 export const FLAMETHROWER_MUZZLE_IN_HOOK = toHook(MUZZLE);
 
 const sized = <O extends WeaponOptions | HookOptions>(o: O = {} as O): O => ({ ...o, barrel: o.barrel ?? FLAMETHROWER_BARREL.length });

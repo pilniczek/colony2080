@@ -17,9 +17,9 @@ const buildParts = length => [
   { name: "tankFront", x: 66, y: -110, w: 10, h: 42, mat: "s", tone: 2 },
   { name: "tankBand", x: 6, y: -118, w: 10, h: 58, mat: "s", tone: 1 },
   { name: "valve", x: 74, y: -84, w: 12, h: 24, mat: "k", tone: 2 },
-  { name: "barrel", x: BARREL.x, y: -52, w: length, h: 24, mat: "s", tone: 2 },
-  { name: "nozzle", x: BARREL.x + length, y: -62, w: NOZZLE, h: 44, mat: "k", tone: 2 },
-  { name: "igniter", x: BARREL.x + length + 14, y: -19, w: 20, h: 7, mat: "k", tone: 1 }
+  { name: "barrel", x: BARREL.x, y: -42, w: length, h: 24, mat: "s", tone: 2 },
+  { name: "nozzle", x: BARREL.x + length, y: -52, w: NOZZLE, h: 44, mat: "k", tone: 2 },
+  { name: "igniter", x: BARREL.x + length + 14, y: -9, w: 20, h: 7, mat: "k", tone: 1 }
 ];
 
 const PILOT = {
@@ -52,7 +52,7 @@ function pilotLayer(ctx, pts, hex, alpha, fade) {
 
 function pilotFlame(ctx, length, simple) {
   ctx.save();
-  ctx.translate(BARREL.x + length + NOZZLE + 4, -15.5);
+  ctx.translate(BARREL.x + length + NOZZLE + 4, -5.5);
   if (!simple) {
     const g = ctx.createRadialGradient(9, -10, 0, 9, -10, 28);
     g.addColorStop(0, rgba(PILOT_COLORS.glow, 0.35));
@@ -67,9 +67,8 @@ function pilotFlame(ctx, length, simple) {
   ctx.restore();
 }
 
-const MUZZLE = [BARREL.x + BARREL.length + NOZZLE, -40];
-const BAND = { y: -62, h: 44 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame, barrel: BARREL, muzzle: MUZZLE, band: BAND });
+const MUZZLE = [BARREL.x + BARREL.length + NOZZLE, -30];
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: pilotFlame, barrel: BARREL, muzzle: MUZZLE });
 
 const STEPS = [2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 2, 2, 2];
 const LIFE = STEPS.length;

@@ -1,10 +1,8 @@
-import { apply } from "../../engine/math/mat2d";
-import { drawRig } from "../../engine/rig/draw";
+import { apply, type Mat2D } from "../../engine/math/mat2d";
 import { locate, solve, type Pose } from "../../engine/rig/pose";
 import type { GroupNode, Pt } from "../../engine/rig/tree";
 import { BARREL, createWeaponModel, MUZZLE, MUZZLE_IN_HOOK, SUPPORT, SUPPORT_IN_HOOK, toHook, type WeaponPart } from "./weaponModel";
-import { ROBOT } from "./xbot";
-import { context2d, surface } from "../../engine/render/surface";
+import { SIDE_FORE_TURN } from "./xbot";
 
 export type { WeaponOptions as GunOptions } from "./weaponModel";
 
@@ -41,12 +39,14 @@ export const gunHook = model.hook;
 export const CARRY = { arm: 22, fore: -94 };
 export const FRONT_CARRY = { armL: 0, foreL: -90 };
 const FRONT_REACH = [40, 140] as const;
+const FRONT_SUPPORT: Pt = [164, -20];
+const BOTH_ARMS = { grip: [0, 60], support: [0, 90] } as const;
 
 export interface HoldPoses {
   CARRY: typeof CARRY;
-  CARRY_FAR: { armFar: number; foreFar: number };
-  FRONT_CARRY: typeof FRONT_CARRY;
-  FRONT_CARRY_R: { armR: number; foreR: number };
+  CARRY_FAR: { armFar: number; foreFar: number; supportFar: number };
+  FRONT_CARRY: { armL: number; foreL: number };
+  FRONT_CARRY_R: { armR: number; foreR: number; supportR?: number };
 }
 
 const gripTarget = (root: GroupNode, hook: string, pose: Pose, support: Pt): Pt => {
@@ -71,46 +71,47 @@ const frontGrip = (front: GroupNode, gripX: number): { armR: number; foreR: numb
   return { armR: 0, foreR: best };
 };
 
+const hookAt = (root: GroupNode, hook: string, pose: Pose): Mat2D => {
+  const m = locate(root, hook, pose);
+  if (!m) throw new Error(`missing hook ${hook}`);
+  return m;
+};
+
+const bothArms = (front: GroupNode): Pick<HoldPoses, "FRONT_CARRY" | "FRONT_CARRY_R"> => {
+  const poseOf = (a: number, t: number): Record<string, number> => ({ armL: -a, foreL: -90 + a, armR: t, supportR: -t });
+  const fit = (a: number): { t: number; miss: number } => {
+    const [px, py] = apply(hookAt(front, "handL", poseOf(a, 0)), toHook(FRONT_SUPPORT));
+    const at = (t: number): Mat2D => hookAt(front, "support", poseOf(a, t));
+    let lo: number = BOTH_ARMS.support[0];
+    let hi: number = BOTH_ARMS.support[1];
+    for (let i = 0; i < 24; i++) {
+      const mid = (lo + hi) / 2;
+      if (at(mid).e > px) lo = mid;
+      else hi = mid;
+    }
+    const m = at(lo);
+    return { t: lo, miss: Math.hypot(m.e - px, m.f - py) };
+  };
+  const scan = (from: number, to: number, step: number): { a: number; t: number; miss: number } => {
+    let best = { a: from, ...fit(from) };
+    for (let a = from + step; a <= to; a += step) {
+      const f = fit(a);
+      if (f.miss < best.miss) best = { a, ...f };
+    }
+    return best;
+  };
+  const coarse = scan(BOTH_ARMS.grip[0], BOTH_ARMS.grip[1], 1);
+  const best = scan(coarse.a - 1, coarse.a + 1, 0.05);
+  return { FRONT_CARRY: { armL: -best.a, foreL: -90 + best.a }, FRONT_CARRY_R: { armR: best.t, foreR: 0, supportR: -best.t } };
+};
+
 export const holdPoses = (side: GroupNode, front: GroupNode, carry = CARRY, support = SUPPORT_IN_HOOK, frontSupport = SUPPORT_IN_HOOK): HoldPoses => {
   const far = solve(side, "handFar", carry, ["armFar", "foreFar"], [[-160, 40], [-150, 30]], gripTarget(side, "hand", carry, support));
-
+  const armFar = far.armFar as number;
+  const foreFar = far.foreFar as number;
   return {
     CARRY: carry,
-    CARRY_FAR: { armFar: far.armFar as number, foreFar: far.foreFar as number },
-    FRONT_CARRY,
-    FRONT_CARRY_R: frontGrip(front, frontSupport[0]),
+    CARRY_FAR: { armFar, foreFar, supportFar: SIDE_FORE_TURN - armFar - foreFar },
+    ...(locate(front, "support", {}) ? bothArms(front) : { FRONT_CARRY, FRONT_CARRY_R: frontGrip(front, frontSupport[0]) }),
   };
-};
-
-export interface HeroWeapon {
-  barrel: { x: number; length: number };
-  muzzle: Pt;
-  band: { y: number; h: number };
-}
-
-export const GUN_WEAPON: HeroWeapon = { barrel: BARREL, muzzle: MUZZLE, band: GUN_PARTS.find((p) => p.name === "barrelBack") as WeaponPart };
-
-
-const SCAN = { x: -600, w: 1600 };
-
-const silhouetteEdge = (robot: GroupNode, pose: Pose, hook: string, band: HeroWeapon["band"]): number => {
-  const m = locate(robot, hook, pose);
-  if (!m) throw new Error(`missing hook ${hook}`);
-  const canvas = surface(1, 1);
-  canvas.width = SCAN.w;
-  canvas.height = band.h;
-  const ctx = context2d(canvas, { willReadFrequently: true });
-  if (!ctx) throw new Error("no 2d context");
-  const toGun = new DOMMatrix([m.a, m.b, m.c, m.d, m.e, m.f]).multiply(new DOMMatrix([0, 1, -1, 0, 0, 0])).inverse();
-  ctx.setTransform(new DOMMatrix().translate(-SCAN.x, -band.y).multiply(toGun));
-  drawRig(ctx, robot, { palette: ROBOT.palette, pose, lineW: 0 });
-  const { data } = ctx.getImageData(0, 0, SCAN.w, band.h);
-  let edge = -Infinity;
-  for (let i = 3; i < data.length; i += 4) if (data[i]) edge = Math.max(edge, (i >> 2) % SCAN.w);
-  return edge + SCAN.x;
-};
-
-export const frontBarrel = (front: GroupNode, hold: HoldPoses, weapon: HeroWeapon = GUN_WEAPON): number => {
-  const clear = silhouetteEdge(front, { ...hold.FRONT_CARRY, ...hold.FRONT_CARRY_R }, "handL", weapon.band) + weapon.band.h;
-  return Math.max(weapon.barrel.length, Math.ceil(weapon.barrel.length + clear - weapon.muzzle[0]));
 };

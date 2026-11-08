@@ -170,7 +170,10 @@ const upperArm = capsule([100, 148, 46], [100, 236, 46], 56);
 const sideUpperArm = capsule([300, 156, 62], [314, 240, 48], 60);
 const elbow = [[60, 296], [128, 296], [128, 316], [60, 316]];
 const FRONT_HAND_DY = 16;
-const SUPPORT_Y = 265;
+const ELBOW_R = [2 * AX - 100, 236];
+const ELBOW_DROP = 26;
+const SIDE_FORE_TURN = 18;
+const SIDE_SUPPORT_LIFT = 10;
 const forearm = [[35, 306], [138, 304], [143, 318], [141, 408], [133, 420], [49, 422], [35, 403]];
 
 const PR = CFG.proportions;
@@ -183,7 +186,10 @@ const BADGE_R = PR.badgeRadius;
 const FOREARM_SX = PR.forearmScaleX;
 const FORE_S = PR.forearmScale;
 const HOLD_TF = `scale(${1 / FORE_S})`;
-const SUPPORT_TF = `translate(${2 * AX - 100} ${SUPPORT_Y}) scale(${FORE_S} ${-FORE_S}) translate(-88 -434)`;
+const SUPPORT_TF = `translate(${ELBOW_R[0]} ${ELBOW_R[1] + ELBOW_DROP}) scale(${FORE_S} ${-FORE_S}) translate(-88 -434)`;
+const SIDE_FORE_TF = `translate(0 -22) rotate(${-SIDE_FORE_TURN} 311 288) translate(311 288) scale(${FORE_S}) translate(-311 -288)`;
+const SIDE_SUPPORT = [312, 438];
+const SIDE_SUPPORT_TF = `translate(${SIDE_SUPPORT[0]} ${SIDE_SUPPORT[1] - SIDE_SUPPORT_LIFT / FORE_S}) scale(1 -1) translate(-88 -434)`;
 const SIDE_TORSO_SX = PR.sideTorsoScaleX;
 const SS = PR.sideShoulder;
 const SIDE_SHOULDER_TF = `translate(${SS.cx} ${SS.cy}) scale(${SS.scaleX} ${SS.scaleY}) translate(${-SS.cx} ${-SS.cy})`;
@@ -272,11 +278,11 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   const el = mirror ? [2 * AX - 90, 306] : [90, 306];
   const arm = G(parent, null, names.arm, sh);
   const foreTf = `translate(${mirror ? -FORE_SHIFT : FORE_SHIFT} -22) translate(${el[0]} ${el[1]}) scale(${FORE_S}) translate(${-el[0]} ${-el[1]})`;
-  P(G(arm, `translate(${mirror ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
+  const support = hold === "cup";
+  if (!support) P(G(arm, `translate(${mirror ? -6 : 6} -22)`), { pts: M(elbow), mat: "metal", shade: "hcyl", r: 1 });
   const fore = G(foreParent ? G(foreParent, null, names.arm, sh) : arm, foreTf, names.fore, el);
   const fc = mirror ? 2 * AX - 89 : 89;
-  if (names.hand && propBehindArm) hook(G(fore, `translate(${fc} ${440 + FRONT_HAND_DY}) ${HOLD_TF}`), names.hand);
-  const support = hold === "cup";
+  if (names.hand && propBehindArm) hook(G(fore, `translate(${fc} ${440 + FRONT_HAND_DY}) ${HOLD_TF}${hold === "gunGrip" ? ` scale(1 ${1 / BODY_SX})` : ""}`), names.hand);
   if (!support) {
     const fa = G(fore, `translate(${fc} 0) scale(${FOREARM_SX} 1) translate(${-fc} 0)`);
     P(fa, { pts: M(forearm), r: 1 });
@@ -287,7 +293,11 @@ function frontArm(parent, mirror, names = {}, thumbFront = false, foreParent = n
   if (names.hand && !propBehindArm) hook(hand, names.hand);
   const hc = mirror ? 2 * AX - 89 : 89;
   if (hold === "gunGrip") heldHand(fore, hold, "back", `${mirror ? `translate(${2 * AX} 0) scale(-1 1) ` : ""}translate(0 ${FRONT_HAND_DY})`);
-  else if (support) supportWrist(G(arm, SUPPORT_TF));
+  else if (support) {
+    const wrist = G(G(arm, null, "supportR", ELBOW_R), SUPPORT_TF);
+    hook(G(wrist, "translate(88 434)"), "support");
+    supportWrist(wrist);
+  }
   else frontHand(fore, flipHand ? p => mirrorPts(M(p), hc) : M, thumbFront && !flipHand);
 }
 
@@ -346,7 +356,7 @@ function frontTree({ rightArmFirst, propBehindArm, enemy, armed }) {
     shoulder(armGroup(s, true), true, "armR");
     right();
     left();
-    cupFingertips(G(G(armGroup(s, true), null, "armR", [2 * AX - 100, 150]), SUPPORT_TF));
+    cupFingertips(G(G(G(armGroup(s, true), null, "armR", [2 * AX - 100, 150]), null, "supportR", ELBOW_R), SUPPORT_TF));
     shoulder(armGroup(s, false), false, "armL");
     return root;
   }
@@ -423,7 +433,7 @@ function sideHand(parent) {
 function sideArm(parent, names, extra, hold = null) {
   const arm = G(parent, "translate(2 -4)", names.arm, [300, 150], extra);
   P(arm, { pts: [[288, 274], [334, 274], [334, 294], [288, 294]], mat: "metal", shade: "cyl", r: 1 });
-  const lower = G(arm, `translate(0 -22) rotate(-18 311 288) translate(311 288) scale(${FORE_S}) translate(-311 -288)`, names.fore, [311, 288]);
+  const lower = G(arm, SIDE_FORE_TF, names.fore, [311, 288]);
   if (names.hand && extra?.propBehindArm) hook(G(lower, `translate(312 438) ${HOLD_TF}`), names.hand);
   const fa = G(lower, `translate(312 0) scale(${FOREARM_SX} 1) translate(-312 0)`);
   P(fa, { pts: [[262, 290], [358, 286], [366, 302], [366, 392], [354, 402], [270, 404], [258, 390]], r: 1 });
@@ -431,7 +441,8 @@ function sideArm(parent, names, extra, hold = null) {
   F(fa, [[264, 372], [366, 370], [366, 374], [264, 376]], "a0");
   const hand = G(lower, `translate(312 438) ${HOLD_TF}`);
   if (names.hand && !extra?.propBehindArm) hook(hand, names.hand);
-  if (hold) heldHand(lower, hold, "back", `translate(${SIDE_HAND_DX} 0)`);
+  if (hold === "cup") supportWrist(G(G(lower, null, "supportFar", SIDE_SUPPORT), SIDE_SUPPORT_TF));
+  else if (hold) heldHand(lower, hold, "back", `translate(${SIDE_HAND_DX} 0)`);
   else sideHand(lower);
   const bulbs = G(arm, SIDE_SHOULDER_TF);
   P(bulbs, { pts: sideUpperArm, r: 2, shade: "dome" });
@@ -473,6 +484,10 @@ function sideTree({ farLimbs, badge, propBehindArm, enemy, armed }) {
   P(head, { pts: [[300, 56], [328, 52], [330, 98], [302, 100]], r: 2 });
   if (!enemy) P(head, { pts: [[308, 4], [318, 4], [320, 70], [306, 70]], r: 4, shade: "cyl" });
   sideArm(s, { arm: "arm", fore: "fore", hand: "hand" }, propBehindArm ? { propBehindArm } : undefined, armed ? "gunGrip" : null);
+  if (farLimbs && armed) {
+    const lower = G(G(G(s, "translate(-20 0)"), "translate(2 -4)", "armFar", [300, 150]), SIDE_FORE_TF, "foreFar", [311, 288]);
+    cupFingertips(G(G(lower, null, "supportFar", SIDE_SUPPORT), SIDE_SUPPORT_TF));
+  }
   return root;
 }
 
@@ -1206,5 +1221,5 @@ function buildHand({ view = "back", pose = "open" } = {}) {
   return root;
 }
 
-window.XBOT = { GAME_LINE: CFG.gameLod.lineW, locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, buildFront, buildBack, buildSide, buildHand, HAND_VIEWS, HAND_POSES, render, LEVELS };
+window.XBOT = { SIDE_FORE_TURN, GAME_LINE: CFG.gameLod.lineW, locate, solve, shade, PALETTE, AX, SIDE_AX, FOOT_Y, buildFront, buildBack, buildSide, buildHand, HAND_VIEWS, HAND_POSES, render, LEVELS };
 })();

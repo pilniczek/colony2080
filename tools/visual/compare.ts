@@ -1,10 +1,10 @@
 import { BEAM_FRAMES, drawBeam } from "../../src/game/render/beam";
 import { drawEBlaster, eblasterHook } from "../../src/game/robot/eblaster";
-import { drawToaster, TOASTER_WEAPON, toasterHook } from "../../src/game/robot/toaster";
+import { drawToaster, toasterHook } from "../../src/game/robot/toaster";
 import { drawToasterShot, drawToasterSight } from "../../src/game/render/toasterShot";
-import { drawFlamethrower, FLAMETHROWER_WEAPON, flamethrowerHook } from "../../src/game/robot/flamethrower";
+import { drawFlamethrower, flamethrowerHook } from "../../src/game/robot/flamethrower";
 import { drawFlame, drawFlameStream } from "../../src/game/render/flameShot";
-import { drawGun, frontBarrel, GUN_WEAPON, gunHook, holdPoses } from "../../src/game/robot/gun";
+import { drawGun, gunHook, holdPoses } from "../../src/game/robot/gun";
 import { drawRig, type HookDraw, type Palette } from "../../src/engine/rig/draw";
 import type { Pose } from "../../src/engine/rig/pose";
 import type { GroupNode, PartSpec, RigNode } from "../../src/engine/rig/tree";
@@ -45,7 +45,7 @@ interface SpikeGunOptions {
 }
 
 interface SpikeGun {
-  holdPoses(side: SpikeNode, front: SpikeNode): { CARRY: Pose; CARRY_FAR: Pose; FRONT_CARRY: Pose; FRONT_CARRY_R: Pose; FRONT_BARREL: number };
+  holdPoses(side: SpikeNode, front: SpikeNode): { CARRY: Pose; CARRY_FAR: Pose; FRONT_CARRY: Pose; FRONT_CARRY_R: Pose };
   draw(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
   hook(ctx: CanvasRenderingContext2D, opts: SpikeGunOptions): void;
 }
@@ -233,16 +233,14 @@ const weaponDraws = {
   flamethrower: { spike: () => window.FLAMETHROWER, hook: flamethrowerHook, draw: drawFlamethrower },
 };
 
-const holdsOf = { gun: { spike: () => window.GUN, weapon: GUN_WEAPON }, eblaster: { spike: () => window.EBLASTER, weapon: GUN_WEAPON }, toaster: { spike: () => window.TOASTER, weapon: TOASTER_WEAPON }, flamethrower: { spike: () => window.FLAMETHROWER, weapon: FLAMETHROWER_WEAPON } };
+const holdsOf = { gun: () => window.GUN, eblaster: () => window.EBLASTER, toaster: () => window.TOASTER, flamethrower: () => window.FLAMETHROWER };
 
 const gunScene = (carry: Carry, simple: boolean, kind: WeaponKind = "gun"): Scene => {
   const weapon = weaponDraws[kind];
-  const holds = holdsOf[kind];
-  const spikeHold = holds.spike().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
+  const spikeHold = holdsOf[kind]().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true }));
   const portHold = holdPoses(buildSide({ farLimbs: true, propBehindArm: true }), buildFront({ rightArmFirst: true, propBehindArm: true }));
-  const barrel = carry === "front" ? spikeHold.FRONT_BARREL : undefined;
-  const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => weapon.spike().hook(ctx, { pal, lineW: LINE_W, simple, barrel });
-  const portGun: HookDraw = (ctx, pal) => weapon.hook(ctx, pal, { lineW: LINE_W, simple, barrel });
+  const spikeGun = (ctx: CanvasRenderingContext2D, pal: Palette) => weapon.spike().hook(ctx, { pal, lineW: LINE_W, simple });
+  const portGun: HookDraw = (ctx, pal) => weapon.hook(ctx, pal, { lineW: LINE_W, simple });
   if (carry === "side")
     return {
       spikePose: { ...spikeHold.CARRY, ...spikeHold.CARRY_FAR },
@@ -364,13 +362,14 @@ const runFlameStream = (tick: number, simple: boolean, out: HTMLElement): Visual
   return report(`flame stream ${JSON.stringify({ tick, lod: simple })}`, { mismatches: 0, copiedDiff: diff, diff, matrixDelta: 0 }, spike.canvas, own.canvas, out);
 };
 
-const runFrontBarrel = (kind: WeaponKind, lod: boolean) => (out: HTMLElement): VisualResult => {
-  const { spike, weapon } = holdsOf[kind];
-  const spikeBarrel = spike().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true, lod }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true, lod })).FRONT_BARREL;
-  const front = buildFront({ rightArmFirst: true, propBehindArm: true, lod });
-  const port = frontBarrel(front, holdPoses(buildSide({ farLimbs: true, propBehindArm: true, lod }), front), weapon);
-  const mismatches = Number(port !== spikeBarrel);
-  const name = `${kind} front barrel ${JSON.stringify({ lod })} spike ${spikeBarrel} port ${port}`;
+const runHold = (kind: WeaponKind, lod: boolean) => (out: HTMLElement): VisualResult => {
+  const spike = holdsOf[kind]().holdPoses(window.XBOT.buildSide({ farLimbs: true, propBehindArm: true, lod, armed: true }), window.XBOT.buildFront({ rightArmFirst: true, propBehindArm: true, lod, armed: true }));
+  const port = holdPoses(buildSide({ farLimbs: true, propBehindArm: true, lod, armed: true }), buildFront({ rightArmFirst: true, propBehindArm: true, lod, armed: true }));
+  const flat = (h: typeof port | ReturnType<SpikeGun["holdPoses"]>): Record<string, number> => ({ ...h.CARRY_FAR, ...h.FRONT_CARRY, ...h.FRONT_CARRY_R }) as Record<string, number>;
+  const [a, b] = [flat(spike), flat(port)];
+  const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])];
+  const mismatches = keys.filter((k) => !(Math.abs((a[k] ?? NaN) - (b[k] ?? NaN)) < 0.01)).length;
+  const name = `${kind} armed hold ${JSON.stringify({ lod })} ${keys.map((k) => `${k} ${a[k]?.toFixed(2)}/${b[k]?.toFixed(2)}`).join(" ")}`;
   const box = document.createElement("div");
   box.className = "case";
   box.append(`${name} mismatches ${mismatches}`);
@@ -378,7 +377,7 @@ const runFrontBarrel = (kind: WeaponKind, lod: boolean) => (out: HTMLElement): V
   return { name, mismatches, copiedDiff: 0, diff: 0, matrixDelta: 0, pass: mismatches === 0 };
 };
 
-const frontBarrelCases = (["gun", "eblaster", "toaster", "flamethrower"] as const).flatMap((kind) => [false, true].map((lod) => runFrontBarrel(kind, lod)));
+const holdCases = (["gun", "eblaster", "toaster", "flamethrower"] as const).flatMap((kind) => [false, true].map((lod) => runHold(kind, lod)));
 
 const envAssets: EnvAsset[] = assetList;
 const ENV_SCALE = 2;
@@ -616,6 +615,6 @@ const runRobotView = (t: number, size: { w: number; h: number }, out: HTMLElemen
 };
 const robotViewCases = CUTSCENE_SIZES.flatMap((size) => ROBOT_VIEW_TS.map((t) => (o: HTMLElement) => runRobotView(t, size, o)));
 const onlyEnv = only ? envCases.slice(1).filter((_, i) => only.includes(envCaseIds[i] ?? "")) : [];
-const cases = only ? [...onlyEnv, ...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...flamethrowerCases, ...beamCases, ...frontBarrelCases, ...envCases, ...cutsceneCases, ...robotViewCases];
+const cases = only ? [...onlyEnv, ...cutsceneCases, ...robotViewCases] : [...robotCases, ...hitCases, ...gunCases, ...eblasterCases, ...toasterCases, ...flamethrowerCases, ...beamCases, ...holdCases, ...envCases, ...cutsceneCases, ...robotViewCases];
 window.__visualCount = cases.length;
 window.__visual = cases.map((run) => run(out));

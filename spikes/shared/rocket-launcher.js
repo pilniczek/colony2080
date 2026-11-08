@@ -13,19 +13,19 @@ const BARREL = { x: 60, length: 150 };
 const WARHEAD = 26;
 
 const buildParts = length => [
-  { name: "flare", x: -112, y: -94, w: 14, h: 66, mat: "t", tone: 0 },
-  { name: "tubeBack", x: -98, y: -84, w: BARREL.x + 98, h: 46, mat: "t", tone: 1 },
-  { name: "magazine", x: -82, y: -104, w: 64, h: 76, mat: "o", tone: 1 },
-  { name: "magazineTop", x: -82, y: -104, w: 64, h: 12, mat: "o", tone: 2 },
-  { name: "hazard", x: -76, y: -86, w: 34, h: 6, mat: "y", tone: 2 },
+  { name: "flare", x: -112, y: -74, w: 14, h: 66, mat: "t", tone: 0 },
+  { name: "tubeBack", x: -98, y: -64, w: BARREL.x + 98, h: 46, mat: "t", tone: 1 },
+  { name: "magazine", x: -82, y: -84, w: 64, h: 76, mat: "o", tone: 1 },
+  { name: "magazineTop", x: -82, y: -84, w: 64, h: 12, mat: "o", tone: 2 },
+  { name: "hazard", x: -76, y: -66, w: 34, h: 6, mat: "y", tone: 2 },
   { name: "grip", x: -16, y: -14, w: 30, h: 46, mat: "o", tone: 0 },
-  { name: "trigger", x: -20, y: -40, w: 44, h: 26, mat: "t", tone: 0 },
-  { name: "sight", x: 14, y: -110, w: 44, h: 26, mat: "t", tone: 2 },
-  { name: "lens", x: 54, y: -108, w: 9, h: 11, mat: "l", tone: 2 },
-  { name: "tube", x: BARREL.x, y: -84, w: length, h: 46, mat: "t", tone: 1 },
-  { name: "tubeTop", x: BARREL.x, y: -84, w: length, h: 8, mat: "t", tone: 3 },
-  { name: "foreGrip", x: BARREL.x + 18, y: -38, w: 22, h: 36, mat: "o", tone: 0 },
-  { name: "ring", x: BARREL.x + length - 18, y: -88, w: 18, h: 54, mat: "o", tone: 1 }
+  { name: "trigger", x: -20, y: -22, w: 44, h: 10, mat: "t", tone: 0 },
+  { name: "sight", x: 14, y: -90, w: 44, h: 26, mat: "t", tone: 2 },
+  { name: "lens", x: 54, y: -88, w: 9, h: 11, mat: "l", tone: 2 },
+  { name: "tube", x: BARREL.x, y: -64, w: length, h: 46, mat: "t", tone: 1 },
+  { name: "tubeTop", x: BARREL.x, y: -64, w: length, h: 8, mat: "t", tone: 3 },
+  { name: "foreGrip", x: BARREL.x + 18, y: -18, w: 22, h: 36, mat: "o", tone: 0 },
+  { name: "ring", x: BARREL.x + length - 18, y: -68, w: 18, h: 54, mat: "o", tone: 1 }
 ];
 
 function warhead(ctx, length, simple, { pal, lineW, loaded }) {
@@ -39,24 +39,23 @@ function warhead(ctx, length, simple, { pal, lineW, loaded }) {
     ctx.closePath();
     ctx.fill();
   };
-  cone([[x, -76], [x + WARHEAD, -61], [x, -46]], tone("r2"));
-  if (!simple) cone([[x, -76], [x + WARHEAD, -61], [x, -68]], tone("r3"));
+  cone([[x, -56], [x + WARHEAD, -41], [x, -26]], tone("r2"));
+  if (!simple) cone([[x, -56], [x + WARHEAD, -41], [x, -48]], tone("r3"));
   if (!lineW) return;
   const t = ctx.getTransform();
   ctx.strokeStyle = tone("oLine");
   ctx.lineWidth = lineW / Math.sqrt(Math.abs(t.a * t.d - t.b * t.c));
   ctx.lineJoin = "round";
   ctx.beginPath();
-  ctx.moveTo(x, -76);
-  ctx.lineTo(x + WARHEAD, -61);
-  ctx.lineTo(x, -46);
+  ctx.moveTo(x, -56);
+  ctx.lineTo(x + WARHEAD, -41);
+  ctx.lineTo(x, -26);
   ctx.closePath();
   ctx.stroke();
 }
 
-const MUZZLE = [BARREL.x + BARREL.length + WARHEAD, -61];
-const BAND = { y: -88, h: 54 };
-const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: warhead, barrel: BARREL, muzzle: MUZZLE, band: BAND });
+const MUZZLE = [BARREL.x + BARREL.length + WARHEAD, -41];
+const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: warhead, barrel: BARREL, muzzle: MUZZLE });
 
 const SHOT = { cycle: 24, empty: 4, hz: 32 };
 const RANGE = 12 * 24;

@@ -3257,11 +3257,11 @@ const toaster = {
             glow(ctx, 4.9, -8.4, 2.6, "a1", heat * 0.6);
         flat(ctx, 3, -8.5, 3.8, 0.4, "a2");
         flat(ctx, 1.6, -6, 3.4, 1.2, "hazard", "yLine");
-        box(ctx, 10, -7, 11.6, 2.8, "steel", 1);
+        box(ctx, 10, -6.6, 11.6, 2.8, "steel", 1);
         for (let x = 11.2; x < 21; x += simple() ? 3 : 1.5)
-            flat(ctx, x, -7, 0.6, 2.8, "a1");
-        box(ctx, 21.6, -7.6, 1.6, 4, "chrome", 2, { vertical: true });
-        G.grain(ctx, G.rectsRegion(ctx, [[0.6, -8, 9.4, 4.8], [10, -7, 11.6, 2.8], [21.6, -7.6, 1.6, 4]]), 2340, 0.4);
+            flat(ctx, x, -6.6, 0.6, 2.8, "a1");
+        box(ctx, 21.6, -7.2, 1.6, 4, "chrome", 2, { vertical: true });
+        G.grain(ctx, G.rectsRegion(ctx, [[0.6, -8, 9.4, 4.8], [10, -6.6, 11.6, 2.8], [21.6, -7.2, 1.6, 4]]), 2340, 0.4);
         G.chips(ctx, 0.6, -8, 9.4, 2341);
     },
 };

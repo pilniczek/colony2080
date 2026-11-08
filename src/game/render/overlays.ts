@@ -7,7 +7,8 @@ import { clipFor, type MovementConfig } from "../hero/config";
 import { isDucked, type Hero } from "../hero/hero";
 import { heroScale, type HeroLook, type Rigs } from "../hero/look";
 import type { SandboxWorld } from "../level/sandboxLevel";
-import { rigFor, toRigSpace } from "./scene";
+import { rigFor } from "../hero/look";
+import { toRigSpace } from "./scene";
 
 export interface OverlayFlags {
   hitbox: boolean;

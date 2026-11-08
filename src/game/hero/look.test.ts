@@ -7,7 +7,7 @@ import { createRigs, heroLook } from "./look";
 import { cfg, clips, dt, game, RUNNING, tick, type Game } from "./testWorld";
 
 const rigs = createRigs(true);
-const hold = holdPoses(rigs.side, rigs.front);
+const hold = holdPoses(rigs.side, rigs.armedFront ?? rigs.front);
 
 const STAND = { body: 0, hipNear: 0, kneeNear: 2, ankleNear: -1.4, hipFar: 0, kneeFar: 2, ankleFar: -1.4 };
 
