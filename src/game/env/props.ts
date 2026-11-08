@@ -425,6 +425,8 @@ export const holoPlan: EnvAsset = {
     if (state) return scuff(ctx, 0, 12);
     poly(ctx, [[1, -8], [3, -10], [11, -10], [9, -8]], "c3", 2);
     poly(ctx, [[9, -8], [11, -10], [11, -2], [9, 0]], "rust", 1);
+    flat(ctx, 3, -10.6, 8, 0.6, "water");
+    poly(ctx, [[1, -8.6], [3, -10.6], [3, -10], [1, -8]], "water", 2, { line: false });
     box(ctx, 1, -8, 8, 8, "rust", 2);
     flat(ctx, 1, -8.6, 8, 0.6, "water");
     poly(ctx, [[9, -8.6], [11, -10.6], [11, -10], [9, -8]], "water", 2, { line: false });

@@ -821,7 +821,13 @@ const dynamite: EnvAsset = {
   },
 };
 
-const TRACES: [Pt, Pt][] = [[[2, -2], [6, -7]], [[5, -1.4], [12, -1.4]], [[9, -7.6], [13, -4]], [[3.6, -6], [8, -6]]];
+const TRACES: [Pt, ...Pt[]][] = [
+  [[2, -2.2], [2, -5], [3.6, -5]],
+  [[8.2, -4.8], [8.8, -4.8], [8.8, -6.4], [9.4, -6.4]],
+  [[10.9, -5.2], [10.9, -4]],
+  [[1.2, -2.2], [1.2, -8.2], [13.4, -8.2], [13.4, -2.2]],
+  [[12.2, -3.1], [12.8, -3.1], [12.8, -2.2]],
+];
 
 const navCircuit: EnvAsset = {
   id: "navCircuit",
@@ -829,25 +835,25 @@ const navCircuit: EnvAsset = {
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 16);
     shadow(ctx, 8, 16);
-    poly(ctx, [[0, 0], [1.6, -9], [15, -9], [14.4, 0]], "green", 1, { dir: [1, 0] });
+    box(ctx, 0, -9, 14.4, 9, "green", 1);
     if (!simple()) {
       ctx.save();
       ctx.strokeStyle = color("y2");
       ctx.globalAlpha = 0.8;
       ctx.lineWidth = 0.3;
       ctx.beginPath();
-      for (const [a, b] of TRACES) {
-        ctx.moveTo(a[0], a[1]);
-        ctx.lineTo(b[0], b[1]);
+      for (const [first, ...rest] of TRACES) {
+        ctx.moveTo(first[0], first[1]);
+        for (const [x, y] of rest) ctx.lineTo(x, y);
       }
       ctx.stroke();
       ctx.restore();
     }
-    box(ctx, 4.2, -6.6, 4.6, 3.6, "steel", 0);
-    box(ctx, 10, -7.6, 3, 2.4, "steel", 0);
-    flat(ctx, 10.4, -4, 2.4, 1.8, "plasma", "mLine");
-    for (let x = 4.6; x < 8.8; x += simple() ? 2 : 1) flat(ctx, x, -3, 0.4, 0.8, "y2");
-    flat(ctx, 1, -1.2, 13, 1.2, "y1", "yLine");
+    box(ctx, 3.6, -6.6, 4.6, 3.6, "steel", 0);
+    box(ctx, 9.4, -7.6, 3, 2.4, "steel", 0);
+    flat(ctx, 9.8, -4, 2.4, 1.8, "plasma", "mLine");
+    for (let x = 4; x < 8.2; x += simple() ? 2 : 1) flat(ctx, x, -3, 0.4, 0.8, "y2");
+    flat(ctx, 0.6, -1.2, 13.2, 1.2, "y1", "yLine");
   },
 };
 

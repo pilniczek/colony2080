@@ -370,16 +370,18 @@ define({
 define({
   id: "controller",
   box: [-2, -10, 18, 0],
-  views: itemViews([-2, -10, 18, 0], 3, {
+  views: itemViews([-2, -10, 18, 0], 9, {
     scale: 0.3,
     top(ctx) {
-      box(ctx, 0, -1.5, 16, 3, "rust", 2);
-      flat(ctx, 0, 1, 16, 0.5, "r3");
+      ctx.save();
+      ctx.translate(0, 4.5);
+      sideOf("controller").draw(ctx, 0);
+      ctx.restore();
     },
-    front(ctx) {
-      box(ctx, -1.5, -9, 3, 9, "rust", 0);
-      flat(ctx, -1.5, -9, 3, 0.8, "r3");
-      flat(ctx, -1.5, -8, 0.5, 7, "hole", "mLine");
+    front: (ctx) => box(ctx, -4.5, -2, 9, 2, "rust", 1),
+    flat(ctx) {
+      box(ctx, 0, -2, 16, 2, "rust", 1);
+      flat(ctx, 0, -2, 16, 0.5, "r3");
     }
   }),
   draw(ctx, state) {
@@ -395,15 +397,18 @@ define({
 define({
   id: "craneKey",
   box: [-2, -6, 12, 0],
-  views: itemViews([-2, -6, 12, 0], 1, {
+  views: itemViews([-2, -6, 12, 0], 4.8, {
     scale: 0.21,
     top(ctx) {
-      box(ctx, 0, -0.5, 4.4, 1, "chrome", 1);
-      box(ctx, 4, -0.35, 5.6, 0.7, "chrome", 2);
+      ctx.save();
+      ctx.translate(0, 2.4);
+      sideOf("craneKey").draw(ctx, 0);
+      ctx.restore();
     },
-    front(ctx) {
-      box(ctx, -0.5, -4.8, 1, 4.4, "chrome", 1);
-      box(ctx, -0.35, -3.3, 0.7, 3.3, "chrome", 2);
+    front: (ctx) => box(ctx, -2.4, -0.6, 4.8, 0.6, "chrome", 1),
+    flat(ctx) {
+      box(ctx, 0, -0.6, 4.4, 0.6, "chrome", 1);
+      box(ctx, 4, -0.5, 5.6, 0.5, "chrome", 2);
     }
   }),
   draw(ctx, state) {
@@ -556,6 +561,8 @@ define({
     if (state) return scuff(ctx, 0, 12);
     poly(ctx, [[1, -8], [3, -10], [11, -10], [9, -8]], "c3", 2);
     poly(ctx, [[9, -8], [11, -10], [11, -2], [9, 0]], "rust", 1);
+    flat(ctx, 3, -10.6, 8, 0.6, "water");
+    poly(ctx, [[1, -8.6], [3, -10.6], [3, -10], [1, -8]], "water", 2, { line: false });
     box(ctx, 1, -8, 8, 8, "rust", 2);
     flat(ctx, 1, -8.6, 8, 0.6, "water");
     poly(ctx, [[9, -8.6], [11, -10.6], [11, -10], [9, -8]], "water", 2, { line: false });
@@ -629,10 +636,10 @@ define({
       disc(ctx, 11.6, -1, 0.55, "screen");
       disc(ctx, 12.6, 0.6, 0.55, "a2");
     },
-    front(ctx) {
-      box(ctx, -2, -2.6, 4, 2.6, "chrome", 1);
-      poly(ctx, [[-3, -2.6], [-3, -4.6], [3, -8], [3, -2.6]], "chrome", 1);
-      box(ctx, -3, -4, 6, 1.4, "chrome", 0);
+    front: (ctx) => box(ctx, -3, -1.4, 6, 1.4, "chrome", 1),
+    flat(ctx) {
+      box(ctx, 0, -1.4, 14, 1.4, "chrome", 1);
+      for (let x = 6; x < 10.5; x += simple() ? 2.2 : 1.1) flat(ctx, x, -1.8, 0.6, 0.4, "c3", "mLine");
     }
   }),
   draw(ctx, state) {

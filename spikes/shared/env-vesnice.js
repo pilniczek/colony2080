@@ -3237,7 +3237,7 @@ const fuse = {
     id: "fuse",
     box: [-2, -7, 16, 0],
     views: window.ENV.itemViews([-2, -7, 16, 0], 6, {
-      scale: 0.24,
+      scale: 0.12,
         top(ctx) {
             ctx.save();
             ctx.translate(0, 3);
@@ -3258,37 +3258,40 @@ const fuse = {
         fuseBody(ctx);
     },
 };
+const BUNDLE = [[-2, 0], [0, 0], [2, 0], [-1, -1.73], [1, -1.73], [-1, 1.73], [1, 1.73]];
 const dynamite = {
     id: "dynamite",
     box: [-2, -16, 20, 0],
-    views: window.ENV.itemViews([-2, -16, 20, 0], 5.6, {
+    views: window.ENV.itemViews([-2, -16, 20, 0], 10, {
       scale: 0.48,
         top(ctx, state) {
             if (state === 2) {
-                for (const x of [4.5, 7.5, 10.5])
-                    disc(ctx, x, 0, 1.5, "b2", "bLine");
-                box(ctx, 4.6, 1.5, 5.2, 1.2, "steel", 1);
-                wire(ctx, [[7.2, 1.5], [12, 1.8], [17, 1]], "y2");
+                for (const [x, y] of BUNDLE)
+                    disc(ctx, 7.5 + x * 1.5, y * 1.5, 1.5, "b2", "bLine");
+                box(ctx, 4.6, 4.4, 5.2, 1.2, "steel", 1);
+                wire(ctx, [[7.2, 4.4], [12, 4.2], [17, 3]], "y2");
                 return;
             }
-            stick(ctx, 1.4, -1.6, 13, 3.2);
+            for (const y of [-4.8, 1.6, -3.2, 0])
+                stick(ctx, y === -4.8 || y === 1.6 ? 2 : 1.4, y, 13, 3.2);
             for (const x of [4, 10.6])
-                flat(ctx, x, -1.8, 1.4, 3.6, "k1", "kLine");
+                flat(ctx, x, -5, 1.4, 10, "k1", "kLine");
             wire(ctx, [[14.4, 0], [16.4, 0.4], [18, 0]], "k3", 0.6);
         },
         front(ctx, state) {
             if (state === 2) {
-                stick(ctx, -1.5, -14, 3, 14);
+                for (const z of [-2.6, 0, 2.6])
+                    stick(ctx, z - 1.5, -14, 3, 14);
                 for (const y of [-11, -4])
-                    flat(ctx, -1.7, y, 3.4, 1.4, "k1", "kLine");
-                box(ctx, -2.7, -9, 1.2, 3.6, "steel", 1);
-                wire(ctx, [[-1.5, -9], [-2, -14], [0, -15], [1, -8], [0.6, -1]], "y2");
+                    flat(ctx, -4.3, y, 8.6, 1.4, "k1", "kLine");
+                box(ctx, -5.3, -9, 1.2, 3.6, "steel", 1);
+                wire(ctx, [[-4.1, -9], [-4.6, -14], [-2, -15], [1, -8], [0.6, -1]], "y2");
                 return;
             }
-            flat(ctx, -1.8, -9.4, 3.6, 9.2, "k1", "kLine");
-            for (const y of [-1.8, -4.8, -7.6])
-                disc(ctx, 0, y, 1.6, "b2", "bLine");
-            wire(ctx, [[0, -7.6], [0.6, -9], [-0.4, -7.4]], "k3", 0.6);
+            shape(ctx, [[-2, 0], [2, 0], [5, -4.8], [2, -9.6], [-2, -9.6], [-5, -4.8]], "k1", "kLine");
+            for (const [x, y] of BUNDLE)
+                disc(ctx, x * 1.6, -4.8 + y * 1.6, 1.6, "b2", "bLine");
+            wire(ctx, [[0, -4.8], [0.6, -9], [-0.4, -9.8]], "k3", 0.6);
         },
     }),
     draw(ctx, state) {
@@ -3313,28 +3316,35 @@ const dynamite = {
         wire(ctx, [[14.4, -7.6], [16.4, -9], [18, -7.4]], "k3", 0.6);
     },
 };
-const TRACES = [[[2, -2], [6, -7]], [[5, -1.4], [12, -1.4]], [[9, -7.6], [13, -4]], [[3.6, -6], [8, -6]]];
+const TRACES = [
+    [[2, -2.2], [2, -5], [3.6, -5]],
+    [[8.2, -4.8], [8.8, -4.8], [8.8, -6.4], [9.4, -6.4]],
+    [[10.9, -5.2], [10.9, -4]],
+    [[1.2, -2.2], [1.2, -8.2], [13.4, -8.2], [13.4, -2.2]],
+    [[12.2, -3.1], [12.8, -3.1], [12.8, -2.2]],
+];
 const navCircuitBody = (ctx) => {
-        poly(ctx, [[0, 0], [1.6, -9], [15, -9], [14.4, 0]], "green", 1, { dir: [1, 0] });
+        box(ctx, 0, -9, 14.4, 9, "green", 1);
         if (!simple()) {
             ctx.save();
             ctx.strokeStyle = color("y2");
             ctx.globalAlpha = 0.8;
             ctx.lineWidth = 0.3;
             ctx.beginPath();
-            for (const [a, b] of TRACES) {
-                ctx.moveTo(a[0], a[1]);
-                ctx.lineTo(b[0], b[1]);
+            for (const [first, ...rest] of TRACES) {
+                ctx.moveTo(first[0], first[1]);
+                for (const [x, y] of rest)
+                    ctx.lineTo(x, y);
             }
             ctx.stroke();
             ctx.restore();
         }
-        box(ctx, 4.2, -6.6, 4.6, 3.6, "steel", 0);
-        box(ctx, 10, -7.6, 3, 2.4, "steel", 0);
-        flat(ctx, 10.4, -4, 2.4, 1.8, "plasma", "mLine");
-        for (let x = 4.6; x < 8.8; x += simple() ? 2 : 1)
+        box(ctx, 3.6, -6.6, 4.6, 3.6, "steel", 0);
+        box(ctx, 9.4, -7.6, 3, 2.4, "steel", 0);
+        flat(ctx, 9.8, -4, 2.4, 1.8, "plasma", "mLine");
+        for (let x = 4; x < 8.2; x += simple() ? 2 : 1)
             flat(ctx, x, -3, 0.4, 0.8, "y2");
-        flat(ctx, 1, -1.2, 13, 1.2, "y1", "yLine");
+        flat(ctx, 0.6, -1.2, 13.2, 1.2, "y1", "yLine");
 };
 const navCircuit = {
     id: "navCircuit",
@@ -3343,19 +3353,19 @@ const navCircuit = {
       scale: 0.26,
         top(ctx) {
             ctx.save();
-            ctx.transform(1, 0, 1.6 / 9, 1, 0, 4.5);
+            ctx.translate(0, 4.5);
             navCircuitBody(ctx);
             ctx.restore();
         },
         front(ctx) {
             box(ctx, -4.5, -0.6, 9, 0.6, "green", 1);
-            box(ctx, -2, -1.6, 3.6, 1, "steel", 0);
-            box(ctx, 1.5, -1.4, 2.4, 0.8, "steel", 0);
+            box(ctx, -2.1, -1.6, 3.6, 1, "steel", 0);
+            box(ctx, -3.1, -1.4, 2.4, 0.8, "steel", 0);
         },
         flat(ctx) {
-            box(ctx, 0, -0.6, 15, 0.6, "green", 1);
-            box(ctx, 4.2, -1.6, 4.6, 1, "steel", 0);
-            box(ctx, 10, -1.4, 3, 0.8, "steel", 0);
+            box(ctx, 0, -0.6, 14.4, 0.6, "green", 1);
+            box(ctx, 3.6, -1.6, 4.6, 1, "steel", 0);
+            box(ctx, 9.4, -1.4, 3, 0.8, "steel", 0);
         },
     }),
     draw(ctx, state) {

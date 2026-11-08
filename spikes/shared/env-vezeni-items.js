@@ -305,41 +305,46 @@ const SILVER = { edge: "#1e1c16", dark: "#7a7668", mid: "#c4c0b0", hi: "#eeece2"
 define({
   id: "gateKey",
   box: [-2, -7, 13, 0],
-  views: itemViews([-2, -7, 13, 0], 1, {
+  views: itemViews([-2, -7, 13, 0], 5.2, {
     scale: 0.18,
-    top(ctx) {
-      shape(ctx, [[0.4, -0.35], [6.2, -0.35], [6.2, 0.35], [0.4, 0.35]], SILVER.mid, SILVER.edge);
-      shape(ctx, [[5.8, -0.5], [11, -0.5], [11, 0.5], [5.8, 0.5]], SILVER.mid, SILVER.edge);
-    },
-    front: (ctx) => shape(ctx, [[-0.5, -5.4], [0.5, -5.4], [0.5, -0.2], [-0.5, -0.2]], SILVER.mid, SILVER.edge)
+    top: gateKeyBody,
+    front: (ctx) => shape(ctx, [[-2.6, -0.6], [2.6, -0.6], [2.6, 0], [-2.6, 0]], SILVER.mid, SILVER.edge),
+    flat(ctx) {
+      shape(ctx, [[0.4, -0.5], [6.2, -0.5], [6.2, 0], [0.4, 0]], SILVER.mid, SILVER.edge);
+      shape(ctx, [[5.8, -0.6], [11, -0.6], [11, 0], [5.8, 0]], SILVER.mid, SILVER.edge);
+    }
   }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 11);
     shadow(ctx, 5.5, 11, 0.3);
     ctx.save();
     ctx.translate(0, -2.8);
-    shape(ctx, [[0.4, -0.7], [6.2, -0.7], [6.2, 0.7], [3.4, 0.7], [3.4, 1.8], [2.4, 1.8], [2.4, 0.7], [1.6, 0.7], [1.6, 1.4], [0.4, 1.4]], SILVER.mid, SILVER.edge);
-    ctx.beginPath();
-    ctx.arc(8.4, 0, 2.6, 0, PI * 2);
-    ctx.arc(9.2, -0.5, 0.7, 0, PI * 2, true);
-    ctx.fillStyle = color(SILVER.mid);
-    ctx.fill("evenodd");
-    stroke(ctx, SILVER.edge);
-    if (!simple()) {
-      line(ctx, [[0.8, -0.3], [5.8, -0.3]], SILVER.hi, 0.35);
-      ctx.beginPath();
-      ctx.arc(8.4, 0, 1.9, PI * 0.95, PI * 1.6);
-      ctx.strokeStyle = color(SILVER.hi);
-      ctx.lineWidth = 0.5;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(8.4, 0, 2, PI * 0.1, PI * 0.7);
-      ctx.strokeStyle = color(SILVER.dark);
-      ctx.stroke();
-    }
+    gateKeyBody(ctx);
     ctx.restore();
   }
 });
+
+function gateKeyBody(ctx) {
+  shape(ctx, [[0.4, -0.7], [6.2, -0.7], [6.2, 0.7], [3.4, 0.7], [3.4, 1.8], [2.4, 1.8], [2.4, 0.7], [1.6, 0.7], [1.6, 1.4], [0.4, 1.4]], SILVER.mid, SILVER.edge);
+  ctx.beginPath();
+  ctx.arc(8.4, 0, 2.6, 0, PI * 2);
+  ctx.arc(9.2, -0.5, 0.7, 0, PI * 2, true);
+  ctx.fillStyle = color(SILVER.mid);
+  ctx.fill("evenodd");
+  stroke(ctx, SILVER.edge);
+  if (!simple()) {
+    line(ctx, [[0.8, -0.3], [5.8, -0.3]], SILVER.hi, 0.35);
+    ctx.beginPath();
+    ctx.arc(8.4, 0, 1.9, PI * 0.95, PI * 1.6);
+    ctx.strokeStyle = color(SILVER.hi);
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(8.4, 0, 2, PI * 0.1, PI * 0.7);
+    ctx.strokeStyle = color(SILVER.dark);
+    ctx.stroke();
+  }
+}
 
 const MGX_K = 0.075;
 
