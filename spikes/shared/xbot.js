@@ -1271,6 +1271,7 @@ function pinch(s, view) {
   const pip = knuckle + FINGER.thick / 2;
   if (view === "back") {
     handStub(s);
+    pinchThumb(s, M);
     backPlate(s);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
@@ -1278,7 +1279,6 @@ function pinch(s, view) {
       P(s, { pts: [[x, knuckle - 8], [x + 20, knuckle - 8], [x + 20, knuckle + 10], [x, knuckle + 10]], shade: "cyl", r: 7, lw: FINGER_LW });
     }
     slab(s, keyEdge(PINCH_EDGE));
-    pinchThumb(s, M);
   } else if (view === "palm") {
     handStub(s);
     palmPlate(s, M, HAND.bottom - 6);
