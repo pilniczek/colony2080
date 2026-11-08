@@ -67,15 +67,13 @@ function drawPipe(c) {
   const { x, w, sleeveTop, bottom } = PIPE;
   const mid = x + w / 2;
   kit.pool(c, mid + 50, PIPE.floor + 6, 170, 22, "#000000", 0.7);
+  P.cylV(c, x, bottom - 20, w, PIPE.floor - bottom + 20, "concrete", 2);
+  P.box(c, x - 18, PIPE.floor - 16, w + 36, 16, "concrete", 2, { vertical: true });
   P.cylV(c, x, -120, w, sleeveTop + 130, "concrete", 2);
   P.cylV(c, x - 12, sleeveTop, w + 24, bottom - sleeveTop, "concrete", 1);
   for (const y of [sleeveTop - 6, bottom - 26]) P.box(c, x - 18, y, w + 36, 16, "concrete", 2, { vertical: true });
   P.flat(c, x + 18, 120, 8, 150, "k3");
   P.flat(c, x + 6, sleeveTop + 40, 10, bottom - sleeveTop - 80, "k2");
-  c.fillStyle = PALETTE.hole;
-  c.beginPath();
-  c.ellipse(mid, bottom - 10, w / 2 - 14, 9, 0, 0, Math.PI * 2);
-  c.fill();
 }
 
 function rimPoint(deg, x = WHEEL.x + 16, y = WHEEL.y) {
