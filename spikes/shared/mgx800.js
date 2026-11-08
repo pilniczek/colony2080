@@ -38,8 +38,7 @@ function idleGlow(ctx, length, simple) {
 const MUZZLE = [BARREL.x + BARREL.length + EMITTER, -34];
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: idleGlow, barrel: BARREL, muzzle: MUZZLE });
 
-const SHOT = { cycle: 4, step: 36, lead: 8, r: 7 };
-const RANGE = 9 * 24;
+const SHOT = { r: 7 };
 
 function crescent(ctx, x, r, color) {
   ctx.fillStyle = color;
@@ -63,8 +62,10 @@ function bolt(ctx, x, simple) {
 }
 
 function shot(ctx, length, tick, simple = false) {
-  const age = tick % SHOT.cycle;
-  if (age === 0 && !simple) {
+  const { SHOT: CYCLE, shotFrame } = window.TOASTER;
+  const f = shotFrame(tick);
+  if (f < 0) return;
+  if (f === 0 && !simple) {
     ctx.save();
     ctx.globalAlpha = 0.5;
     ctx.fillStyle = COLORS.b3;
@@ -73,11 +74,8 @@ function shot(ctx, length, tick, simple = false) {
     ctx.fill();
     ctx.restore();
   }
-  for (let k = 0; ; k++) {
-    const x = SHOT.lead + (age + k * SHOT.cycle) * SHOT.step;
-    if (x > length) break;
-    bolt(ctx, x, simple);
-  }
+  const x = CYCLE.lead + f * CYCLE.step;
+  if (x <= length) bolt(ctx, x, simple);
 }
 
 const HUD_K = 1.45;
@@ -90,5 +88,5 @@ function hudShot(ctx) {
   ctx.restore();
 }
 
-window.MGX800 = { ...core, SHOT, RANGE, shot, hudShot };
+window.MGX800 = { ...core, SHOT, get RANGE() { return window.TOASTER.RANGE; }, shot, hudShot };
 })();

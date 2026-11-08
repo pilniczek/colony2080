@@ -37,8 +37,19 @@ window.ORIGINALS = {
       ["Flame stream, demo footage D 3:46-3:48", "video/frames-best/DEMO_jungle_flamethrower_stream.png"],
       ["HUD slot 3, level 3 (DESKA2.GRA)", "video/frames-best/GRA_DESKA2_hud_slot3_flamethrower.png"]
     ],
-    mgx800: [["HUD top bar, slot 3, level 5 (DESKA5.GRA)", "gamedata/png/DESKA5_f0.png"]],
-    rocketLauncher: [["HUD top bar, slot 3, level 6 (DESKAR.GRA)", "gamedata/png/DESKAR_f0.png"]]
+    mgx800: [
+      ["Shot, 6 frames (game data, LEV5.GRA f8)", "video/frames-best/GRA_LEV5_f008_mgx800_shot_6frames.png"],
+      ["HUD slot 3, level 5 (DESKA5.GRA)", "video/frames-best/GRA_DESKA5_hud_slot3_mgx800.png"]
+    ],
+    rocketLauncher: [["HUD slot 3, level 6 (DESKAR.GRA)", "video/frames-best/GRA_DESKAR_hud_slot3_rocket_launcher.png"]],
+    flamestream: [
+      ["Shot, 6 frames, stream over the whole range (game data, LEV7.GRA f8)", "video/frames-best/GRA_LEV7_f008_flamestream_shot_6frames.png"],
+      ["HUD slot 3, level 7 (DESKA6.GRA)", "video/frames-best/GRA_DESKA6_hud_slot3_flamestream.png"]
+    ],
+    laserCannon: [
+      ["Shot, 6 frames (game data, LEV8.GRA f8)", "video/frames-best/GRA_LEV8_f008_laser_cannon_shot_6frames.png"],
+      ["HUD slot 3, level 8 (DESKA7.GRA)", "video/frames-best/GRA_DESKA7_hud_slot3_laser_cannon.png"]
+    ]
   },
   enemies: {
     rocketRobot: [["Rocket robot (rows 1-2) and grey trooper (rows 3-4), LEV2.GRA f21-24", "gamedata/png/enemy-sprites/lev2_types_f21_f24.png"]],

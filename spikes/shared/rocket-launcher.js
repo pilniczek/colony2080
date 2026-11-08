@@ -56,14 +56,15 @@ function warhead(ctx, length, simple, { pal, lineW, loaded }) {
 const MUZZLE = [BARREL.x + BARREL.length + WARHEAD, -41];
 const core = window.GUN.model({ buildParts, mat: MAT, colors: COLORS, after: warhead, barrel: BARREL, muzzle: MUZZLE });
 
-const SHOT = { cycle: 24, empty: 4, hz: 32 };
-const RANGE = 12 * 24;
+const SHOT = { cycle: 7, empty: 4 };
 const HUD_ROCKET = { nose: 9.5, scale: 0.7 };
 
 function shot(ctx, length, tick) {
-  const age = tick % SHOT.cycle;
+  const { SHOT: CYCLE, shotFrame } = window.TOASTER;
+  const f = shotFrame(tick);
+  if (f < 0) return;
   ctx.save();
-  if (age < 2) {
+  if (f === 0) {
     ctx.globalAlpha = 0.7;
     ctx.fillStyle = ENV_PAL.a2;
     ctx.beginPath();
@@ -71,7 +72,8 @@ function shot(ctx, length, tick) {
     ctx.fill();
     ctx.globalAlpha = 1;
   }
-  window.ENEMIES.rocketFlight(ctx, [0, 0], age / SHOT.hz, length + 0.35 * window.ENV.TILE);
+  const x = CYCLE.lead + f * CYCLE.step;
+  if (x <= length) window.ENEMIES.missile(ctx, x, 0, f / 32);
   ctx.restore();
 }
 
@@ -85,5 +87,5 @@ function hudShot(ctx) {
 
 const loadedAt = tick => tick % SHOT.cycle >= SHOT.empty;
 
-window.ROCKET_LAUNCHER = { ...core, SHOT, loadedAt, RANGE, shot, hudShot };
+window.ROCKET_LAUNCHER = { ...core, SHOT, loadedAt, get RANGE() { return window.TOASTER.RANGE; }, shot, hudShot };
 })();

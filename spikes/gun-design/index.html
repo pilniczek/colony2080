@@ -38,10 +38,10 @@
 <body>
 <header>
   <h1>Weapon design sheet</h1>
-  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button><button data-weapon="flamethrower">Flamethrower</button><button data-weapon="mgx800">MGX 800</button><button data-weapon="rocketLauncher">Rocket launcher</button><button data-weapon="enemies">Enemy weapons</button></div>
+  <div class="weapon" role="group" aria-label="Weapon"><button data-weapon="fists">Fists</button><button data-weapon="gun">Gun</button><button data-weapon="blaster">Blaster</button><button data-weapon="toaster">Toaster</button><button data-weapon="flamethrower">Flamethrower</button><button data-weapon="mgx800">MGX 800</button><button data-weapon="rocketLauncher">Rocket launcher</button><button data-weapon="flamestream">Flamestream</button><button data-weapon="laserCannon">Laser cannon</button><button data-weapon="enemies">Enemy weapons</button></div>
 </header>
 <p class="obtained" id="obtained" hidden></p>
-<main class="game" data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">
+<main class="game" data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher flamestream laserCannon">
   <figure data-for="fists gun"><figcaption>Side, facing right</figcaption><canvas id="side" data-w="600" data-h="200" data-scale="0.8"></canvas></figure>
   <figure data-for="blaster"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="groundFull" data-w="26" data-h="11" data-scale="12"></canvas></figure>
   <figure data-for="blaster"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="groundGame" data-w="26" data-h="11" data-scale="game"></canvas></figure>
@@ -53,18 +53,22 @@
   <figure data-for="mgx800"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="mgxGroundGame" data-w="32" data-h="13" data-scale="game"></canvas></figure>
   <figure data-for="rocketLauncher"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="rocketGroundFull" data-w="32" data-h="14" data-scale="12"></canvas></figure>
   <figure data-for="rocketLauncher"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="rocketGroundGame" data-w="32" data-h="14" data-scale="game"></canvas></figure>
+  <figure data-for="flamestream"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="streamGroundFull" data-w="32" data-h="13" data-scale="12"></canvas></figure>
+  <figure data-for="flamestream"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="streamGroundGame" data-w="32" data-h="13" data-scale="game"></canvas></figure>
+  <figure data-for="laserCannon"><figcaption>Ground pickup, full size (x 12)</figcaption><canvas id="laserGroundFull" data-w="32" data-h="15" data-scale="12"></canvas></figure>
+  <figure data-for="laserCannon"><figcaption>Ground pickup, game size, game LOD</figcaption><canvas id="laserGroundGame" data-w="32" data-h="15" data-scale="game"></canvas></figure>
 </main>
-<main data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">
+<main data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher flamestream laserCannon">
   <figure><figcaption>Held, side (carry and shoot pose)</figcaption><canvas id="heldSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Held, front (hide pose)</figcaption><canvas id="heldFront" data-w="640" data-h="780"></canvas></figure>
 </main>
-<h2 data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">In-game, simplified (game size, scale 0.2)</h2>
-<main class="game" data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">
+<h2 data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher flamestream laserCannon">In-game, simplified (game size, scale 0.2)</h2>
+<main class="game" data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher flamestream laserCannon">
   <figure><figcaption>Side</figcaption><canvas id="gSide" data-w="640" data-h="780"></canvas></figure>
   <figure><figcaption>Front</figcaption><canvas id="gFront" data-w="640" data-h="780"></canvas></figure>
 </main>
-<h2 data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">HUD icon</h2>
-<main data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher">
+<h2 data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher flamestream laserCannon">HUD icon</h2>
+<main data-for="fists gun blaster toaster flamethrower mgx800 rocketLauncher flamestream laserCannon">
   <figure data-for="fists"><figcaption>Selected</figcaption><div id="fistLit"></div></figure>
   <figure data-for="fists"><figcaption>Not selected</figcaption><div id="fistDim"></div></figure>
   <figure data-for="gun"><figcaption>Selected</figcaption><div id="gunLit"></div></figure>
@@ -79,6 +83,10 @@
   <figure data-for="mgx800"><figcaption>Not selected</figcaption><div id="mgxDim"></div></figure>
   <figure data-for="rocketLauncher"><figcaption>Selected</figcaption><div id="rocketLit"></div></figure>
   <figure data-for="rocketLauncher"><figcaption>Not selected</figcaption><div id="rocketDim"></div></figure>
+  <figure data-for="flamestream"><figcaption>Selected</figcaption><div id="streamLit"></div></figure>
+  <figure data-for="flamestream"><figcaption>Not selected</figcaption><div id="streamDim"></div></figure>
+  <figure data-for="laserCannon"><figcaption>Selected</figcaption><div id="laserLit"></div></figure>
+  <figure data-for="laserCannon"><figcaption>Not selected</figcaption><div id="laserDim"></div></figure>
 </main>
 <section data-for="gun">
   <h2>Fire (12 flashes per s, hit spark 9 cells out)</h2>
@@ -123,7 +131,7 @@
   <main id="flameFrames"></main>
 </section>
 <section data-for="mgx800">
-  <h2>Shot (plasma crescent, one per 4 ticks at 32 ticks per s, 9 cell range; fire rules still open in the research)</h2>
+  <h2>Shot (plasma crescent; the toaster routine: one shot per 7 ticks at 32 ticks per s, 1 cell per tick, 6 cell range; 1.0 damage, own sound)</h2>
   <main>
     <figure class="full"><figcaption>Full size: facing right and left, standing and ducking</figcaption><canvas id="mgxFull" data-w="4400" data-h="3120"></canvas></figure>
   </main>
@@ -132,12 +140,30 @@
   </main>
 </section>
 <section data-for="rocketLauncher">
-  <h2>Shot (rocket with smoke trail, one per 24 ticks at 32 ticks per s, 12 cell range; fire rules still open in the research)</h2>
+  <h2>Shot (rocket, own sprite; the toaster routine: one shot per 7 ticks at 32 ticks per s, 1 cell per tick, 6 cell range; 1.4 damage, own sound)</h2>
   <main>
     <figure class="full"><figcaption>Full size: facing right and left, standing and ducking</figcaption><canvas id="rocketFull" data-w="4400" data-h="3120"></canvas></figure>
   </main>
   <main class="game">
     <figure><figcaption>Game size, game LOD hero firing the rocket launcher</figcaption><canvas id="rocketGame" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+</section>
+<section data-for="flamestream">
+  <h2>Shot (fire jet; the toaster routine: one shot per 7 ticks at 32 ticks per s, 1 cell per tick, 6 cell range; 1.4 damage, the MGX 800 sound)</h2>
+  <main>
+    <figure class="full"><figcaption>Full size: facing right and left, standing and ducking</figcaption><canvas id="streamFull" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <main class="game">
+    <figure><figcaption>Game size, game LOD hero firing the flamestream</figcaption><canvas id="streamGame" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+</section>
+<section data-for="laserCannon">
+  <h2>Shot (blue bolt; the toaster routine: one shot per 7 ticks at 32 ticks per s, 1 cell per tick, 6 cell range; 2.0 damage, the toaster sound at 18000 Hz)</h2>
+  <main>
+    <figure class="full"><figcaption>Full size: facing right and left, standing and ducking</figcaption><canvas id="laserFull" data-w="4400" data-h="3120"></canvas></figure>
+  </main>
+  <main class="game">
+    <figure><figcaption>Game size, game LOD hero firing the laser cannon</figcaption><canvas id="laserGame" data-w="4400" data-h="3120"></canvas></figure>
   </main>
 </section>
 <section data-for="enemies">
@@ -178,6 +204,9 @@
 <script src="../shared/flamethrower.js"></script>
 <script src="../shared/mgx800.js"></script>
 <script src="../shared/rocket-launcher.js"></script>
+<script src="../shared/flamestream.js"></script>
+<script src="../shared/laser-cannon.js"></script>
+<script src="../shared/env-weapon-pickups.js"></script>
 <script src="../shared/env-vezeni-items.js"></script>
 <script src="../shared/env-sklad-items.js"></script>
 <script src="../shared/gait.js"></script>
@@ -198,8 +227,8 @@ const bareRoots = rigSet({ fists: true });
 const PUNCH_HIT = { body: 2, hipNear: -16, kneeNear: 10, ankleNear: 2.8, hipFar: 14, kneeFar: 6, ankleFar: -15.4, arm: -88, fore: 12, armFar: -30, foreFar: -96 };
 const FRONT_JAB = { armL: -30, supportL: 30, armR: 55, supportR: -55 };
 const armedRoots = () => WEAPON === "fists" ? bareRoots : roots;
-const MODELS = { gun: GUN, blaster: EBLASTER, toaster: TOASTER, flamethrower: FLAMETHROWER, mgx800: MGX800, rocketLauncher: ROCKET_LAUNCHER };
-const SPECIAL = { blaster: [1, "City"], toaster: [2, "Suburb"], flamethrower: [3, "Jungle"], mgx800: [5, "Prison Escape"], rocketLauncher: [6, "Warehouse"] };
+const MODELS = { gun: GUN, blaster: EBLASTER, toaster: TOASTER, flamethrower: FLAMETHROWER, mgx800: MGX800, rocketLauncher: ROCKET_LAUNCHER, flamestream: FLAMESTREAM, laserCannon: LASER_CANNON };
+const SPECIAL = { blaster: [[1], "City"], toaster: [[2], "Suburb"], flamethrower: [[3, 4], "Jungle, kept through Caves"], mgx800: [[5], "Prison Escape"], rocketLauncher: [[6], "Warehouse"], flamestream: [[7], "Rocket Base"], laserCannon: [[8], "Alien Ship"] };
 const DUCK = { body: 16, hipNear: -86, kneeNear: 124, ankleNear: -44, hipFar: -68, kneeFar: 128, ankleFar: -76 };
 const FEET = ["heelNear", "toeNear", "heelFar", "toeFar"];
 const HOLDS = Object.fromEntries(Object.entries(MODELS).map(([id, m]) => [id, { hold: m.holdPoses(roots.side, roots.front), gHold: m.holdPoses(roots.gSide, roots.gFront) }]));
@@ -287,6 +316,8 @@ const boltEffect = model => (ctx, t, simple) => {
 };
 const mgxEffect = boltEffect(MGX800);
 const rocketEffect = boltEffect(ROCKET_LAUNCHER);
+const streamEffect = boltEffect(FLAMESTREAM);
+const laserEffect = boltEffect(LASER_CANNON);
 
 function firingRow(ctx, root, pose, simple, lineW, facing, t, weapon, effect) {
   ctx.save();
@@ -381,7 +412,15 @@ const VIEWS = {
   rocketFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.rocketLauncher.hold, false, lw * 1.4, t, ROCKET_LAUNCHER, rocketEffect),
   rocketGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.rocketLauncher.gHold, true, lw * XBOT.GAME_LINE, t, ROCKET_LAUNCHER, rocketEffect),
   rocketGroundFull: ctx => ground(ctx, false, "rocketLauncher", 2, 13),
-  rocketGroundGame: ctx => ground(ctx, true, "rocketLauncher", 2, 13)
+  rocketGroundGame: ctx => ground(ctx, true, "rocketLauncher", 2, 13),
+  streamFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.flamestream.hold, false, lw * 1.4, t, FLAMESTREAM, streamEffect),
+  streamGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.flamestream.gHold, true, lw * XBOT.GAME_LINE, t, FLAMESTREAM, streamEffect),
+  streamGroundFull: ctx => ground(ctx, false, "flamestream", 2, 12),
+  streamGroundGame: ctx => ground(ctx, true, "flamestream", 2, 12),
+  laserFull: (ctx, lw, t) => firingRows(ctx, roots.side, HOLDS.laserCannon.hold, false, lw * 1.4, t, LASER_CANNON, laserEffect),
+  laserGame: (ctx, lw, t) => firingRows(ctx, roots.gSide, HOLDS.laserCannon.gHold, true, lw * XBOT.GAME_LINE, t, LASER_CANNON, laserEffect),
+  laserGroundFull: ctx => ground(ctx, false, "laserCannon", 2, 14),
+  laserGroundGame: ctx => ground(ctx, true, "laserCannon", 2, 14)
 };
 const ANIMATED = new Set(["beamFull", "beamGame"]);
 const TOASTER_VIEWS = new Set(["toasterFull", "toasterGame", "shotFull", "shotGame"]);
@@ -389,6 +428,8 @@ const GUN_VIEWS = new Set(["fireFull", "fireGame"]);
 const FLAME_VIEWS = new Set(["flameFull", "flameGame"]);
 const MGX_VIEWS = new Set(["mgxFull", "mgxGame"]);
 const ROCKET_VIEWS = new Set(["rocketFull", "rocketGame"]);
+const STREAM_VIEWS = new Set(["streamFull", "streamGame"]);
+const LASER_VIEWS = new Set(["laserFull", "laserGame"]);
 const ENEMY_VIEWS = new Set();
 
 const SHOT_W = BEAM_LEN + 16, SHOT_H = 24;
@@ -513,7 +554,9 @@ const BONUS_ART = {
   toaster: { asset: "toaster", muzzle: [23.2, -5.6], model: TOASTER },
   flamer: { asset: "flamethrower", muzzle: [40.1, -8.6], model: FLAMETHROWER },
   mgx: { asset: "mgx800", muzzle: [27.75, -6.9], model: MGX800 },
-  rocket: { asset: "rocketLauncher", state: 2, muzzle: [27.84, -7.44], model: ROCKET_LAUNCHER }
+  rocket: { asset: "rocketLauncher", state: 2, muzzle: [27.84, -7.44], model: ROCKET_LAUNCHER },
+  stream: { asset: "flamestream", muzzle: [24.15, -6.45], model: FLAMESTREAM },
+  laser: { asset: "laserCannon", muzzle: [23.25, -6.225], model: LASER_CANNON }
 };
 function pickupHud({ asset, state = 0, muzzle: [mx, my], model }) {
   const def = ENV.ASSETS.find(a => a.id === asset);
@@ -529,7 +572,7 @@ function pickupHud({ asset, state = 0, muzzle: [mx, my], model }) {
     model.hudShot(ctx);
   });
 }
-for (const [prefix, lit, dim] of [["icon", 400, 387], ["toaster", 60, 42], ["flamer", 500, 213], ["mgx", 300, 128], ["rocket", 250, 97]]) {
+for (const [prefix, lit, dim] of [["icon", 400, 387], ["toaster", 60, 42], ["flamer", 500, 213], ["mgx", 250, 128], ["rocket", 250, 97], ["stream", 250, 143], ["laser", 250, 61]]) {
   const hud = pickupHud(BONUS_ART[prefix]);
   document.getElementById(prefix + "Lit").innerHTML = iconSvg(true, lit, hud, prefix);
   document.getElementById(prefix + "Dim").innerHTML = iconSvg(false, dim, hud, prefix);
@@ -569,7 +612,7 @@ function setWeapon(w) {
   for (const el of document.querySelectorAll("[data-for]")) el.hidden = !el.dataset.for.split(" ").includes(w);
   const obtained = document.getElementById("obtained");
   obtained.hidden = !SPECIAL[w];
-  if (SPECIAL[w]) obtained.textContent = `Special weapon, obtained in mission ${SPECIAL[w][0]} (${SPECIAL[w][1]})`;
+  if (SPECIAL[w]) obtained.textContent = `Special weapon, ${SPECIAL[w][0].length > 1 ? "missions" : "mission"} ${SPECIAL[w][0].join(" and ")} (${SPECIAL[w][1]})`;
   refs();
   draw();
 }
@@ -580,13 +623,15 @@ function tick() {
   if (WEAPON === "flamethrower") paint([...FLAME_VIEWS], SPIKE_CLOCK.seconds());
   if (WEAPON === "mgx800") paint([...MGX_VIEWS], SPIKE_CLOCK.seconds());
   if (WEAPON === "rocketLauncher") paint([...ROCKET_VIEWS], SPIKE_CLOCK.seconds());
+  if (WEAPON === "flamestream") paint([...STREAM_VIEWS], SPIKE_CLOCK.seconds());
+  if (WEAPON === "laserCannon") paint([...LASER_VIEWS], SPIKE_CLOCK.seconds());
   if (WEAPON === "gun") paint([...GUN_VIEWS], SPIKE_CLOCK.seconds());
   if (WEAPON === "enemies") paint([...ENEMY_VIEWS], SPIKE_CLOCK.seconds());
   requestAnimationFrame(tick);
 }
 
 for (const btn of document.querySelectorAll("[data-weapon]")) {
-  if (SPECIAL[btn.dataset.weapon]) btn.insertAdjacentHTML("beforeend", `<small>M${SPECIAL[btn.dataset.weapon][0]}</small>`);
+  if (SPECIAL[btn.dataset.weapon]) btn.insertAdjacentHTML("beforeend", `<small>M${SPECIAL[btn.dataset.weapon][0].join("+")}</small>`);
   btn.onclick = () => setWeapon(btn.dataset.weapon);
 }
 addEventListener("resize", draw);
