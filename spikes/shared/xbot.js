@@ -1019,10 +1019,10 @@ function cup(s, view) {
   } else fist(s, view);
 }
 
-const GRIP_K = 20;
+const GRIP_K = 16;
 const GRIP_R = 0.9 * GRIP_K;
-const GRIP_C = [HAND_FACE[0] - GRIP_R, 455];
-const GRIP_CURL = [-35, -95, -120];
+const GRIP_C = [HAND_FACE[0] - GRIP_R, PALM_MID + 6];
+const GRIP_CURL = [-60, -110, -160];
 const gripTf = y => `translate(88 ${y}) scale(${GRIP_K}) translate(-13 1.5)`;
 
 function grip(s, view) {
@@ -1057,7 +1057,7 @@ function grip(s, view) {
     chain(s, W, bar(THUMB_BASE, -5, THUMB.seg[0], 0).end, [-90], [THUMB.seg[1]], THUMB.w, { shade: "cyl" });
   } else if (view === "thumb" || view === "little") {
     const S = view === "little" ? W : M;
-    const thumb = () => chain(s, S, THUMB_SIDE, [-40], [THUMB.seg[0]], THUMB.thick, { shade: "cyl" });
+    const thumb = () => chain(s, S, THUMB_SIDE, [-95, -60], THUMB.seg, THUMB.thick, { shade: "cyl" });
     handStub(s);
     if (view === "little") thumb();
     profilePlate(s, S);
