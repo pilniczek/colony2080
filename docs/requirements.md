@@ -221,7 +221,7 @@ flowchart LR
 | `spikes/shared/gun.js` | Shared gun model and hold poses |
 | `spikes/env-design/` | Level 1 environment sheet: vector variant per object state next to original crops, hero for scale and tile grid always on, `Video LOD` toggle |
 | `spikes/shared/env.js` | Shared environment asset registry and drawing primitives; assets in `env-props.js`, `env-structures.js`, `env-buildings.js`, `env-machines.js` |
-| `spikes/items-design/` | Item look: every inventory item of a mission (`"item": true` in `objects.json`, kept off the environment sheet) with its spinning original preview, our asset, HUD icon, game LOD and other states |
+| `spikes/items-design/` | Item look: every inventory item of a mission (`"item": true` in `objects.json`, kept off the environment sheet): original and HUD icon, top / front / side views at full detail and game LOD, the views on the robot palm at real-world size (1.25x, one or two hands), other states |
 | `spikes/hud-design/` | HUD frame look: controls for aspect, weapon, ammo, life, run, shields and item; side by side with original screenshots |
 | `spikes/sound-design/` | Sound sheet: every synthesized sound with play, rate and vol, waveform and spectrogram; in dev, the original next to it |
 
