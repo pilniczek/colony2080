@@ -102,7 +102,6 @@ function drawValve(c: CanvasRenderingContext2D, t: number): void {
   c.restore();
   drawTap(c, t, x, cy, scale, tilt, spin, PALETTE, LINE_W);
   if (num("flash", t) >= 0.5) P.shape(c, [[x - 110, 250], [x + 110, 250], [x + 70, y + 8], [x - 70, y + 8]], palette.flash!);
-  layer(c, t, (cc) => pour(cc, x + SPOUT.dx, y + SPOUT.dy, H + 20, 32 * num("pour", t), t), LINE_W);
   const r = scale * CLOSE.rim;
   for (const side of [-1, 1]) {
     const a = (side < 0 ? 180 : 0) + spin * 0.6;
