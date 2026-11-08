@@ -92,10 +92,10 @@ function drawProfile({ ctx, t }: Stage): void {
   const blend = num("farGrip", t);
   const turn = num("barTurnB", t);
   if (blend > 0) {
-    const rest = apply(hookAt(side, "rod", pose), ORIGIN);
+    const rest = apply(hookAt(side, "rodFar", pose), ORIGIN);
     const grip = apply(rotate(translate(hookAt(side, "hand", pose), rod[0], rod[1]), RB.barTilt * DEG + turn), [RB.farGripOffset, 0]);
     const target: Pt = [rest[0] + (grip[0] - rest[0]) * blend, rest[1] + (grip[1] - rest[1]) * blend];
-    farSeed = solve(side, "rod", pose, ["armFar", "foreFar"], FAR_RANGES, target, farSeed);
+    farSeed = solve(side, "rodFar", pose, ["armFar", "foreFar"], FAR_RANGES, target, farSeed);
     Object.assign(pose, farSeed);
   }
   const k = num("barLen", t);

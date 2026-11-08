@@ -64,7 +64,7 @@
 </main>
 <h2>Hands</h2>
 <section id="hands"></section>
-<h2>Arm holds (front and back per arm, side near and far)</h2>
+<h2>Arm holds (front and back per arm, side near and far; then back of hand)</h2>
 <section id="holds"></section>
 <h2>Two hand carry (vesnice projectile)</h2>
 <section id="carry">
@@ -283,11 +283,16 @@ function drawCarryView() {
 
 const ARM_HOLDS = ["reach", "grip", "pinch", "carry", "fist", "cup", "gunGrip"];
 const HOLD_BODY = { w: 640, h: 560 };
+const BACK_HAND_SIDE = ["reach", "grip", "pinch", "carry"];
 const holdRigs = ARM_HOLDS.flatMap(hold => [
   [`${hold}: front`, buildFront({ holdL: hold, holdR: hold })],
   [`${hold}: back`, buildBack({ holdL: hold, holdR: hold })],
   [`${hold}: side`, buildSide({ farLimbs: true, hold, farHold: hold })]
-]);
+]).concat(ARM_HOLDS.flatMap(hold => [
+  [`${hold}, back of hand: front`, buildFront({ holdL: hold, holdR: hold, backHandL: true, backHandR: true })],
+  [`${hold}, back of hand: back`, buildBack({ holdL: hold, holdR: hold, backHandL: true, backHandR: true })],
+  ...(BACK_HAND_SIDE.includes(hold) ? [[`${hold}, back of hand: side`, buildSide({ farLimbs: true, hold, farHold: hold, backHand: true, farBackHand: true })]] : [])
+]));
 const holdsEl = document.getElementById("holds");
 const holdCanvases = holdRigs.map(([label]) => {
   const fig = document.createElement("figure");
