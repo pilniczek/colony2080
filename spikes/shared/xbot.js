@@ -1036,9 +1036,10 @@ const PISTOL_SLIDE = { x0: HAND.x1, x1: HAND.x1 + 24, top: 404, muzzle: 566 };
 
 const PISTOL = {
   r: PISTOL_R,
-  across: (s, M, y) => {
+  across: (s, M, y, tips = false) => {
     const { x0, x1, top, muzzle } = PISTOL_SLIDE;
     P(s, { pts: M([[HAND.x0 - 22, y - PISTOL_R + 6], [x0 + 4, y - PISTOL_R - 4], [x0 + 6, y + PISTOL_R - 2], [HAND.x0 - 20, y + PISTOL_R + 6]]), mat: "metal", shade: "cyl", r: 5 });
+    if (tips) return;
     P(s, { pts: M([[x0 - 18, y + PISTOL_R], [x0 - 2, y + PISTOL_R], [x0 - 2, y + PISTOL_R + 26], [x0 - 18, y + PISTOL_R + 26]]), mat: "metal", shade: "cyl", r: 7 });
     P(s, { pts: M([[x0, top], [x1, top], [x1, muzzle], [x0, muzzle]]), mat: "chrome", shade: "cyl", r: 4 });
     F(s, M([[x0 + 3, top + 30], [x1 - 3, top + 30], [x1 - 3, top + 34], [x0 + 3, top + 34]]), "m1");
@@ -1052,8 +1053,11 @@ const PISTOL = {
   },
   end: (s, depth) => {
     const { x0, x1 } = PISTOL_SLIDE;
-    P(s, { pts: [[x0, depth - PISTOL_R], [x1, depth - PISTOL_R], [x1, depth + PISTOL_R], [x0, depth + PISTOL_R]], mat: "chrome", shade: "cyl", r: 4 });
-    E(s, (x0 + x1) / 2, depth, 5, 5, "m0");
+    const mx = (x0 + x1) / 2;
+    P(s, { pts: [[x0, depth - PISTOL_R - 4], [x1, depth - PISTOL_R - 4], [x1, depth + PISTOL_R + 4], [x0, depth + PISTOL_R + 4]], mat: "chrome", shade: "cyl", r: 4 });
+    E(s, mx, depth, 8, 8, "mLine");
+    E(s, mx, depth, 6.5, 6.5, "m0");
+    E(s, mx - 1.5, depth - 1.5, 2.5, 2.5, "m2", 0.6);
   }
 };
 
@@ -1107,7 +1111,7 @@ function grip(s, view, rod = CROWBAR) {
     forearmEnd(s);
     sectionPlate(s);
     const depth = 400 + HAND_FACE[1] - cx - 10;
-    rod.across(s, M, depth);
+    rod.across(s, M, depth, true);
     handThumb(s, M, [130, depth + 10], [-60, -90], THUMB.thick);
     for (let i = 0; i < 4; i++) {
       const x = fingerX(i);
