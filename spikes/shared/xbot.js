@@ -1038,7 +1038,7 @@ const PISTOL = {
   r: PISTOL_R,
   across: (s, M, y) => {
     const { x0, x1, top, muzzle } = PISTOL_SLIDE;
-    P(s, { pts: M([[HAND.x0 - 4, y - PISTOL_R + 2], [x0 + 4, y - PISTOL_R - 4], [x0 + 6, y + PISTOL_R - 2], [HAND.x0 - 2, y + PISTOL_R + 2]]), mat: "metal", shade: "cyl", r: 5 });
+    P(s, { pts: M([[HAND.x0 - 22, y - PISTOL_R + 6], [x0 + 4, y - PISTOL_R - 4], [x0 + 6, y + PISTOL_R - 2], [HAND.x0 - 20, y + PISTOL_R + 6]]), mat: "metal", shade: "cyl", r: 5 });
     P(s, { pts: M([[x0 - 18, y + PISTOL_R], [x0 - 2, y + PISTOL_R], [x0 - 2, y + PISTOL_R + 26], [x0 - 18, y + PISTOL_R + 26]]), mat: "metal", shade: "cyl", r: 7 });
     P(s, { pts: M([[x0, top], [x1, top], [x1, muzzle], [x0, muzzle]]), mat: "chrome", shade: "cyl", r: 4 });
     F(s, M([[x0 + 3, top + 30], [x1 - 3, top + 30], [x1 - 3, top + 34], [x0 + 3, top + 34]]), "m1");
@@ -1122,10 +1122,11 @@ const HAND_BUILDERS = { open: openHand, fist, carry, cup, grip, gunGrip: (s, vie
 const PALM_UP = { palm: "rotate(90 88 470)", back: "rotate(90 88 470)", thumb: "rotate(90 88 470)", little: "translate(176 0) scale(-1 1) rotate(-90 88 470)", tips: "rotate(180 88 434)" };
 
 const FINGERS_LEFT = { ...PALM_UP, tips: "rotate(-90 88 434)" };
+const GUN_UP = { ...FINGERS_LEFT, back: PALM_UP.little };
 
 function buildHand({ view = "back", pose = "open" } = {}) {
   const root = { k: "g", kids: [] };
-  const up = (pose === "carry" || pose === "cup") ? PALM_UP[view] : pose === "grip" || pose === "gunGrip" ? FINGERS_LEFT[view] : null;
+  const up = (pose === "carry" || pose === "cup") ? PALM_UP[view] : pose === "grip" ? FINGERS_LEFT[view] : pose === "gunGrip" ? GUN_UP[view] : null;
   HAND_BUILDERS[pose](G(up ? G(root, up) : root, null, "hand", [89, 400]), view);
   return root;
 }
