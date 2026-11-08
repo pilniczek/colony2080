@@ -281,7 +281,7 @@ const rigs = () => {
   if (trees) return trees;
   const droid = buildFront({ enemy: true, rightArmFirst: true, propBehindArm: true, armed: true });
   const { FRONT_CARRY, FRONT_CARRY_R } = holdPoses(buildSide({ farLimbs: true }), droid);
-  return (trees = { droid, carry: { ...FRONT_CARRY, ...FRONT_CARRY_R }, heroBack: buildBack({ holdR: "gunGrip" }) });
+  return (trees = { droid, carry: { ...FRONT_CARRY, ...FRONT_CARRY_R }, heroBack: buildBack({ holdR: "gunGrip", backHandR: true }) });
 };
 
 function placeBot(ctx: Ctx, root: GroupNode, x: number, y: number, k: number, ax: number, sx: number, pose: Pose, hooks: Record<string, HookDraw | undefined>, pal: Palette): void {

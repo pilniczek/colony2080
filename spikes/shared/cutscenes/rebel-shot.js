@@ -229,7 +229,7 @@ const rigs = () => {
   if (ROBOT_TREES.droid) return ROBOT_TREES;
   const droid = buildFront({ enemy: true, rightArmFirst: true, propBehindArm: true, armed: true });
   const { FRONT_CARRY, FRONT_CARRY_R } = window.GUN.holdPoses(buildSide({ farLimbs: true }), droid);
-  return Object.assign(ROBOT_TREES, { droid, carry: { ...FRONT_CARRY, ...FRONT_CARRY_R }, heroBack: buildBack({ holdR: "gunGrip" }) });
+  return Object.assign(ROBOT_TREES, { droid, carry: { ...FRONT_CARRY, ...FRONT_CARRY_R }, heroBack: buildBack({ holdR: "gunGrip", backHandR: true }) });
 };
 
 function placeBot(ctx, root, x, y, k, ax, sx, pose, hooks, pal) {
