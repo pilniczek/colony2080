@@ -4200,7 +4200,7 @@ window.C28_CONFIG = {
     "height": 900,
     "scale": 2.6,
     "palmY": 600,
-    "itemY": 0,
+    "itemY": -52,
     "near": 1.15,
     "spread": 112,
     "seed": 31,
