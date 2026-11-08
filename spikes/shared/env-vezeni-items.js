@@ -1,5 +1,5 @@
 (() => {
-const { define, P, G } = window.ENV;
+const { define, P, G, itemViews } = window.ENV;
 const { color, flat, disc, line, curve, shape, stroke, lw, glow, mesh, rng } = P;
 const { PI, sin, cos } = Math;
 const simple = () => window.ENV.simple;
@@ -217,6 +217,26 @@ const KEYS = { edge: "#24221e", front: "#7e7a74", top: "#b4b0ac", hi: "#dcdad6",
 define({
   id: "keyboard",
   box: [-2, -8, 22, 0],
+  views: itemViews([-2, -8, 22, 0], 6, {
+    top(ctx) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-1, -4, 20, 7);
+      ctx.clip();
+      ctx.transform(1, 0, 1.8 / 4.4, 6 / 4.4, 1.8 * 1.6 / 4.4, 3 + 6 * 1.6 / 4.4);
+      window.ENV.ASSETS.find((a) => a.id === "keyboard").draw(ctx, 0);
+      ctx.restore();
+    },
+    front(ctx) {
+      shape(ctx, [[-3, 0], [-3, -1.6], [3, -2.4], [3, 0]], KEYS.front, KEYS.edge);
+      line(ctx, [[-2.6, -2], [2.6, -2.7]], KEYS.key, 0.5);
+    },
+    flat(ctx) {
+      shape(ctx, [[0, 0], [18, 0], [18, -1.6], [0, -1.6]], KEYS.front, KEYS.edge);
+      shape(ctx, [[0, -1.6], [18, -1.6], [18, -2.4], [0, -2.4]], KEYS.top, KEYS.edge);
+      if (!simple()) for (let i = 0; i < 11; i++) flat(ctx, 1 + i * 1.45, -2.8, 1.1, 0.4, KEYS.key);
+    }
+  }),
   draw(ctx) {
     shadow(ctx, 10, 20);
     const at = (u, v) => [u * 18 + v * 1.8, -1.6 - v * 4.4];
@@ -246,6 +266,10 @@ const PLATE = [[1.2, -0.6], [0.4, -5.4], [1.4, -9.6], [4.6, -11.4], [10.8, -11.2
 define({
   id: "chestPlate",
   box: [-2, -13, 16, 0],
+  views: itemViews([-2, -13, 16, 0], 4.4, {
+    top: (ctx) => shape(ctx, [[0.4, 0], [3, 1.6], [7, 2.2], [11, 1.6], [13.4, 0], [13, -0.8], [11, 0.6], [7, 1.2], [3, 0.6], [0.8, -0.8]], CYAN.mid, CYAN.edge),
+    front: (ctx) => shape(ctx, [[-2.2, 0], [-1.2, -5], [-1.4, -9.6], [-0.6, -11.4], [0.4, -11.2], [-0.4, -9.6], [-0.2, -5], [-1, 0]], CYAN.mid, CYAN.edge)
+  }),
   draw(ctx, state) {
     if (state === 0) return;
     if (state === 2) return scuff(ctx, 1, 12);
@@ -277,6 +301,13 @@ const SILVER = { edge: "#1e1c16", dark: "#7a7668", mid: "#c4c0b0", hi: "#eeece2"
 define({
   id: "gateKey",
   box: [-2, -7, 13, 0],
+  views: itemViews([-2, -7, 13, 0], 1, {
+    top(ctx) {
+      shape(ctx, [[0.4, -0.35], [6.2, -0.35], [6.2, 0.35], [0.4, 0.35]], SILVER.mid, SILVER.edge);
+      shape(ctx, [[5.8, -0.5], [11, -0.5], [11, 0.5], [5.8, 0.5]], SILVER.mid, SILVER.edge);
+    },
+    front: (ctx) => shape(ctx, [[-0.5, -5.4], [0.5, -5.4], [0.5, -0.2], [-0.5, -0.2]], SILVER.mid, SILVER.edge)
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 0, 11);
     shadow(ctx, 5.5, 11, 0.3);
@@ -328,6 +359,23 @@ const JACK = { edge: "#1c1a16", dark: "#545048", mid: "#8a8880", lit: "#b4b2aa",
 define({
   id: "jack",
   box: [-2, -20, 28, 0],
+  views: itemViews([-2, -20, 28, 0], 6, {
+    top(ctx) {
+      outlined(ctx, [[11, 0], [23.6, 0]], 1.2, JACK.mid, JACK.edge);
+      outlined(ctx, [[22.6, 0], [25, 0]], 1.8, JACK.dark, JACK.edge);
+      flat(ctx, 1.6, -3, 13, 6, JACK.dark, JACK.edge);
+      shape(ctx, [[3, -2.4], [12.6, -2.4], [12.6, 2.4], [3, 2.4]], JACK.mid, JACK.edge);
+      flat(ctx, 2.8, -2, 9.8, 4, JACK.mid, JACK.edge);
+      if (!simple()) flat(ctx, 3, -1.8, 9.4, 0.6, JACK.hi);
+    },
+    front(ctx) {
+      flat(ctx, -3, -1.4, 6, 1.4, JACK.dark, JACK.edge);
+      shape(ctx, [[-2.4, -1.4], [-2.2, -6], [-1.4, -7.6], [1.4, -7.6], [2.2, -6], [2.4, -1.4]], JACK.mid, JACK.edge);
+      flat(ctx, -1.3, -16.6, 2.6, 9, JACK.lit, JACK.edge);
+      flat(ctx, -2, -18.6, 4, 2, JACK.mid, JACK.edge);
+      disc(ctx, 0, -1.8, 0.9, JACK.dark, JACK.edge);
+    }
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 1, 24);
     shadow(ctx, 12, 24);
@@ -356,9 +404,24 @@ const STRIP = [[0.4, -0.8], [1.6, -0.4], [3, -0.9], [5, -0.3], [7.4, -0.7], [9.6
 define({
   id: "paperScrap",
   box: [-2, -7, 18, 0],
+  views: itemViews([-2, -7, 18, 0], 4.6, {
+    top(ctx) {
+      ctx.save();
+      ctx.translate(0, 2.4);
+      paperFace(ctx);
+      ctx.restore();
+    },
+    front: (ctx) => shape(ctx, [[-2.3, -0.3], [2.3, -0.3], [2.3, 0], [-2.3, 0]], PAPER.sheet, PAPER.edge),
+    flat: (ctx) => shape(ctx, [[0.4, -0.3], [15.4, -0.3], [15.4, 0], [0.4, 0]], PAPER.sheet, PAPER.edge)
+  }),
   draw(ctx, state) {
     if (state) return scuff(ctx, 1, 14);
     shadow(ctx, 8, 15, 0.3);
+    paperFace(ctx);
+  }
+});
+
+function paperFace(ctx) {
     shape(ctx, STRIP, PAPER.sheet, PAPER.edge);
     ctx.save();
     P.path(ctx, STRIP);
@@ -379,6 +442,5 @@ define({
     ctx.textBaseline = "middle";
     ctx.fillText("56133", 0, 0);
     ctx.restore();
-  }
-});
+}
 })();
